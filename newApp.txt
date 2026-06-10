@@ -1,0 +1,159 @@
+export default function App() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [view, setView] = useState<'chats' | 'radar' | 'calls' | 'settings'>('chats');
+  const [activeChat, setActiveChat] = useState<any>(null);
+  const [messageText, setMessageText] = useState("");
+  const [morseMode, setMorseMode] = useState(false);
+  
+  const isDark = theme === 'dark';
+  const currentChatList = MOCK_CHATS; // defined above
+
+  const handleSendMessage = () => {
+    if (!messageText.trim() && !morseMode) return;
+    console.log("Sending:", morseMode ? encodeMorse(messageText) : messageText);
+    setMessageText("");
+  };
+
+  return (
+    <div className={\`min-h-screen flex flex-col font-sans select-none overflow-hidden \${isDark ? "bg-[#0d1017] text-white" : "bg-[#eaeff4] text-slate-800"}\`}>
+      <div className={\`flex items-center justify-between px-6 py-4 z-40 \${isDark ? "bg-[#11141c]/90 border-b border-white/5" : "bg-[#eaeff4]/90 border-b border-black/5"} backdrop-blur-md\`}>
+        <div className="flex items-center gap-4">
+          <div className="font-serif text-xl tracking-wide flex items-center gap-1">
+            Mess<span className={isDark ? "text-orange-500" : "text-orange-600"}>&</span>Anger
+            <span className={\`ml-3 text-[9px] font-mono tracking-widest px-2 py-0.5 rounded border uppercase \${isDark ? "border-orange-500/30 text-orange-500" : "border-orange-600/30 text-orange-600"}\`}>
+              P2P Encrypted
+            </span>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-6">
+          <div className="flex bg-black/10 dark:bg-white/5 rounded-full p-1 border border-black/5 dark:border-white/5">
+            <div 
+              onClick={() => setView('chats')}
+              className={\`px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-all \${view === 'chats' ? (isDark ? "bg-[#1a1d24] text-orange-400 shadow-sm" : "bg-white text-orange-600 shadow-sm") : (isDark ? "text-gray-400 hover:text-white" : "text-slate-500 hover:text-slate-800")}\`}
+            >
+              Chats
+            </div>
+            <div 
+              onClick={() => setView('radar')}
+              className={\`px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-all \${view === 'radar' ? (isDark ? "bg-[#1a1d24] text-emerald-400 shadow-sm" : "bg-white text-emerald-600 shadow-sm") : (isDark ? "text-gray-400 hover:text-white" : "text-slate-500 hover:text-slate-800")}\`}
+            >
+              Mesh Compass
+            </div>
+          </div>
+          
+          <div onClick={() => setTheme(isDark ? 'light' : 'dark')} className="cursor-pointer">
+            {isDark ? <Moon size={20} className="text-orange-400" /> : <Settings size={20} className="text-slate-500" />}
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex flex-1 overflow-hidden">
+        <div className={\`w-[400px] flex flex-col border-r z-20 \${isDark ? "border-white/5 bg-[#11141c]/50" : "border-black/5 bg-[#eaeff4]/50"}\`}>
+          <div className="p-5 pb-2 relative z-30">
+            {isDark ? <DarkSearchBar /> : <LightSearchBar />}
+          </div>
+          
+          <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 relative z-20">
+            <div className={\`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 \${isDark ? "text-orange-500" : "text-orange-600"}\`}>
+              Conversations
+            </div>
+            {currentChatList.map((c) => (
+              <ChatListItem
+                key={c.id}
+                chat={c}
+                theme={theme}
+                type="chat"
+                active={activeChat?.id === c.id}
+                onClick={() => setActiveChat(c)}
+              />
+            ))}
+            
+            <div className={\`text-[11px] font-bold uppercase tracking-[0.2em] mt-8 mb-4 \${isDark ? "text-purple-500" : "text-purple-600"}\`}>
+              Channels
+            </div>
+            {MOCK_CHANNELS.map((c) => (
+              <ChatListItem
+                key={c.id}
+                chat={c}
+                theme={theme}
+                type="channel"
+                active={activeChat?.id === c.id}
+                onClick={() => setActiveChat(c)}
+              />
+            ))}
+          </div>
+        </div>
+        
+        <div className="flex-1 relative flex flex-col items-center justify-center overflow-hidden">
+          {isDark && (
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
+          )}
+
+          {view === 'radar' ? (
+             <div className="w-[800px] flex flex-col items-center animate-fade-in relative z-10 pt-10">
+                <MeshRadar theme={theme} />
+             </div>
+          ) : view === 'chats' ? (
+             activeChat ? (
+               <div className="w-[800px] h-[90%] relative z-10 animate-fade-in mt-6">
+                 <ChatPreviewLayer
+                   chat={activeChat}
+                   theme={theme}
+                   onClose={() => setActiveChat(null)}
+                 />
+                 
+                 <div className={\`absolute bottom-4 left-4 right-4 rounded-3xl p-3 flex flex-col gap-2 z-50 \${isDark ? "bg-[#1a1d24]/90 border border-white/10 backdrop-blur-xl" : "bg-white/90 border border-black/10 backdrop-blur-xl shadow-xl"}\`}>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className={\`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 \${isDark ? "bg-[#13151b] text-gray-400 hover:text-white" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800"}\`}>
+                        <Plus size={20} />
+                      </div>
+                      
+                      <div className={\`flex-1 h-12 rounded-full px-4 flex items-center relative \${isDark ? "bg-[#13151b] border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]" : "bg-[#f4f7f9] border border-black/5 shadow-[inset_2px_2px_4px_rgba(165,175,190,0.2)]"}\`}>
+                        <input
+                          type="text"
+                          value={messageText}
+                          onChange={(e) => setMessageText(e.target.value)}
+                          placeholder={morseMode ? "Type to encode in Morse..." : "Message..."}
+                          className={\`w-full bg-transparent border-none outline-none text-[14px] \${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"} \${morseMode ? "font-mono text-amber-500" : ""}\`}
+                        />
+                        <div 
+                          onClick={() => setMorseMode(!morseMode)}
+                          className={\`absolute right-2 px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer transition-colors \${morseMode ? (isDark ? "bg-amber-500/20 text-amber-500" : "bg-amber-100 text-amber-700") : (isDark ? "hover:bg-white/10 text-gray-400" : "hover:bg-black/5 text-slate-400")}\`}
+                        >
+                          ●●● ─
+                        </div>
+                      </div>
+                      
+                      <div 
+                        onClick={handleSendMessage}
+                        className={\`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 \${messageText ? (isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950 shadow-md") : (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-500/10 text-orange-600")}\`}
+                      >
+                        {messageText ? <ChevronRight size={20} /> : <Mic size={20} />}
+                      </div>
+                    </div>
+                    {morseMode && messageText && (
+                       <div className="px-5 pt-1 pb-1 font-mono text-[10.5px] text-amber-500/80 tracking-widest break-all">
+                          {encodeMorse(messageText)}
+                       </div>
+                    )}
+                 </div>
+               </div>
+             ) : (
+               <div className="flex flex-col items-center justify-center opacity-40">
+                 <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-orange-500/20 to-teal-500/20 flex items-center justify-center mb-6">
+                    <Shield size={40} className={isDark ? "text-white" : "text-slate-800"} strokeWidth={1.5} />
+                 </div>
+                 <h2 className={\`text-xl font-serif mb-2 \${isDark ? "text-white" : "text-slate-800"}\`}>End-to-End Encrypted</h2>
+                 <p className={\`text-[13px] text-center max-w-sm \${isDark ? "text-gray-400" : "text-slate-500"}\`}>
+                   Select a chat or channel to start messaging. Your data never touches a central server.
+                 </p>
+               </div>
+             )
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}

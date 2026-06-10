@@ -1,0 +1,8 @@
+{
+  "name": "Neumorphic UI",
+  "description": "Pixel-perfect recreation of custom neumorphic components: buttons and search bar.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

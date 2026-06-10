@@ -1,0 +1,28 @@
+{
+  "name": "Mess&Anger Messenger",
+  "short_name": "Mess&Anger",
+  "description": "End-to-end encrypted P2P messenger with post-quantum cryptography. No phone required.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["communication", "security"],
+  "shortcuts": [
+    {
+      "name": "New Chat",
+      "short_name": "New Chat",
+      "description": "Start a new encrypted chat",
+      "url": "/#new-chat",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    }
+  ]
+}
