@@ -244,6 +244,14 @@ export default function App() {
     'Cmd+Enter': () => handleSendMessage(),
   });
 
+  const [isWide, setIsWide] = useState(() => window.innerWidth >= 1024);
+
+  useEffect(() => {
+    const handler = () => setIsWide(window.innerWidth >= 1024);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
   const isDark = theme === 'dark';
   const currentChatList = chats;
 
@@ -548,6 +556,13 @@ export default function App() {
     { id: 'settings', angle: 330, title: t('hub.settings'), subtitle: t('hub.settingsSubtitle'), icon: Settings },
   ];
 
+  const compactNavItems = [
+    { id: 'chats', icon: MessageCircle },
+    { id: 'channels', icon: Hash },
+    { id: 'contacts', icon: Users },
+    { id: 'settings', icon: Settings },
+  ];
+
   if (appLockHashedPIN && !isUnlocked) {
     return (
       <AppLockView
@@ -629,7 +644,25 @@ export default function App() {
             />
             
             {/* Content Switcher */}
-            <div className="flex-1 w-full overflow-hidden relative px-4 flex flex-col items-center min-h-0">
+            <div className={`flex-1 w-full min-h-0 ${isWide && view !== 'hub' ? 'flex gap-0' : ''}`}>
+              {isWide && view !== 'hub' && (
+                <div className="w-[68px] shrink-0 border-r border-[var(--separator)] flex flex-col items-center py-4 gap-3 bg-[var(--secondary-system-bg)]">
+                  {compactNavItems.map(item => (
+                    <button
+                      key={item.id}
+                      onClick={() => setView(item.id)}
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                        view === item.id
+                          ? 'bg-[var(--system-blue)] text-white shadow-md'
+                          : 'text-[var(--system-gray)] hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <item.icon size={20} />
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex-1 w-full overflow-hidden relative px-4 flex flex-col items-center min-h-0">
               {view === 'pulse' && <SystemPulsePlayer theme={theme} />}
               {view === 'radar' && <MeshRadar theme={theme} />}
 {view === 'calls' && <Dialpad 
@@ -769,6 +802,7 @@ export default function App() {
                   </div>
                 )
               )}
+              </div>
             </div>
             
             <HomeButton
