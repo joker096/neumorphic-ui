@@ -7,14 +7,17 @@
     <meta name="description" content="End-to-end encrypted P2P messenger with post-quantum cryptography. No phone required." />
     
     <!-- Content Security Policy -->
+    <!-- NOTE: CSP via <meta> is NOT enforced by browsers for most directives.
+         The REAL CSP is applied via HTTP headers by the Vite dev server / production server.
+         This meta tag is a fallback only. See server/csp.ts for the authoritative policy. -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
       script-src 'self' 'wasm-unsafe-eval';
-      style-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       style-src-attr 'unsafe-inline';
-      img-src 'self' data: blob:;
-      font-src 'self' data:;
-      connect-src 'self' ws: wss: https: http://localhost:*;
+      img-src 'self' data: blob: https:;
+      font-src 'self' data: https://fonts.gstatic.com;
+      connect-src 'self' ws://localhost:* wss://localhost:* https: ws: wss:;
       media-src 'self' blob: https:;
       object-src 'none';
       base-uri 'self';
@@ -23,10 +26,7 @@
       upgrade-insecure-requests;
     ">
     
-    <!-- Security Headers -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-Frame-Options" content="DENY" />
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <!-- Security Headers (some directives require HTTP headers and are ignored as meta) -->
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()" />
     

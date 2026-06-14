@@ -2,13 +2,31 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+import { buildCSP } from './server/csp';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: 'csp-headers',
+        configureServer(server) {
+          server.middlewares.use((_req, res, next) => {
+            const csp = buildCSP({ reportUri: '/api/csp-report' });
+            res.setHeader('Content-Security-Policy', csp);
+            res.setHeader('X-Content-Security-Policy', csp);
+            res.setHeader('X-Frame-Options', 'DENY');
+            res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+            res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+            next();
+          });
+        },
+      },
+    ],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, './src'),
       },
     },
     server: {
@@ -32,7 +50,7 @@ export default defineConfig(() => {
               if (id.includes('motion')) {
                 return 'motion';
               }
-              if (id.includes('crypto-js') || id.includes('tweetnacl') || id.includes('@privacyresearch/libsignal-protocol-typescript')) {
+              if (id.includes('tweetnacl')) {
                 return 'crypto';
               }
               return 'vendor';

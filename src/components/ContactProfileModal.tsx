@@ -1,6 +1,7 @@
 import { Sheet } from './ui/Sheet';
-import React from 'react';
-import { X, Phone, MessageSquare, Edit, Trash2, Ban, Smartphone, Mail, MessageCircle, Globe } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Phone, MessageSquare, Edit, Trash2, Ban, Smartphone, Mail, MessageCircle, Globe, Shield } from 'lucide-react';
+import { KeyVerificationModal } from './KeyVerificationModal';
 import { useAppStore } from '../store';
 import { useI18n } from '../lib/i18n';
 import type { ContactField, FieldType } from '../types/contact';
@@ -52,6 +53,7 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
   const ghostViewMode = useAppStore(state => state.ghostViewMode);
   const isDark = theme === 'dark';
   const { t } = useI18n();
+  const [showKeyVerification, setShowKeyVerification] = useState(false);
 
   return (
     <Sheet isOpen={contact !== null} onClose={onClose} detent="medium">
@@ -123,6 +125,10 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
             )}
 
             <div className="grid grid-cols-2 gap-3 mt-3 w-full">
+               <button onClick={() => { setShowKeyVerification(true); }} className={`col-span-2 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 text-green-400" : "bg-slate-100 hover:bg-green-50 text-green-600"}`}>
+                  <Shield size={16} />
+                   <span className="text-xs font-bold">{t('contacts.verify')}</span>
+               </button>
                <button onClick={() => { onEdit?.(); onClose(); }} className={`col-span-1 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-800"}`}>
                   <Edit size={16} />
                    <span className="text-xs font-bold">{t('contacts.edit')}</span>
@@ -145,8 +151,15 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
                   <Ban size={16} />
                    <span className="text-xs font-bold">{t('contacts.blockSpammer')}</span>
                </button>
-            </div>
+             </div>
       </>)}
+      <KeyVerificationModal
+        isOpen={showKeyVerification}
+        onClose={() => setShowKeyVerification(false)}
+        peerName={contact?.name || ''}
+        peerPublicKey={contact?.id || ''}
+        isDark={isDark}
+      />
      </Sheet>
   );
 }
