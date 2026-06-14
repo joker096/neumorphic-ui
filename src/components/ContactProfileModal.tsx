@@ -1,8 +1,9 @@
+import { Sheet } from './ui/Sheet';
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { X, Phone, MessageSquare, Edit, Trash2, Ban } from 'lucide-react';
+import { X, Phone, MessageSquare, Edit, Trash2, Ban, Smartphone, Mail, MessageCircle, Globe } from 'lucide-react';
 import { useAppStore } from '../store';
 import { useI18n } from '../lib/i18n';
+import type { ContactField, FieldType } from '../types/contact';
 
 export type ContactProfile = {
   id: string;
@@ -10,6 +11,7 @@ export type ContactProfile = {
   color?: string;
   lastSeen?: number;
   online?: boolean;
+  localFields?: ContactField[];
   callInfo?: {
     time: string;
     type: 'missed' | 'incoming' | 'outgoing' | 'returned';
@@ -28,26 +30,32 @@ type Props = {
   theme: 'light' | 'dark';
 };
 
+const FIELD_ICONS: Record<FieldType, React.ReactNode> = {
+  phone: <Smartphone size={14} />,
+  email: <Mail size={14} />,
+  telegram: <MessageCircle size={14} />,
+  whatsapp: <MessageCircle size={14} />,
+  signal: <MessageCircle size={14} />,
+  custom: <Globe size={14} />,
+};
+
+const FIELD_COLORS: Record<FieldType, string> = {
+  phone: 'text-green-500',
+  email: 'text-blue-500',
+  telegram: 'text-sky-400',
+  whatsapp: 'text-green-400',
+  signal: 'text-purple-400',
+  custom: 'text-orange-400',
+};
+
 export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdit, onDelete, onBlock, theme }: Props) => {
   const ghostViewMode = useAppStore(state => state.ghostViewMode);
   const isDark = theme === 'dark';
   const { t } = useI18n();
 
   return (
-    <AnimatePresence>
+    <Sheet isOpen={contact !== null} onClose={onClose} detent="medium">
       {contact && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-        >
-          <motion.div 
-            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className={`w-full max-w-[340px] rounded-[32px] p-6 shadow-2xl relative flex flex-col items-center ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
-          >
             <div 
               className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
               onClick={onClose}
@@ -72,7 +80,7 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
             {contact.callInfo ? (
               <div className={`mt-4 w-full p-4 rounded-2xl flex flex-col items-center gap-1 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
                 <div className={`text-sm font-semibold capitalize ${contact.callInfo.type === 'missed' ? 'text-red-500' : isDark ? 'text-white' : 'text-slate-800'}`}>
-                  {t('contacts.callType', { type: contact.callInfo.type })}
+                  {t('contacts.callType', { type: t(`calls.${contact.callInfo.type}`) })}
                 </div>
                 <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
                   {contact.callInfo.time} {contact.callInfo.duration ? `• ${contact.callInfo.duration}` : ''}
@@ -94,6 +102,25 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
                    <span className="text-[10px] font-bold uppercase tracking-wider">{t('contacts.message')}</span>
                </button>
             </div>
+
+            {/* Local Fields Section */}
+            {contact.localFields && contact.localFields.length > 0 && (
+              <div className={`w-full mt-4 p-4 rounded-2xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                <h4 className={`text-xs font-bold mb-3 uppercase tracking-wider ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('contacts.localInfo')}</h4>
+                <div className="flex flex-col gap-2">
+                  {contact.localFields.map((field) => (
+                    <div key={field.id} className="flex items-center gap-2">
+                      <span className={`shrink-0 ${FIELD_COLORS[field.type as FieldType] || 'text-orange-400'}`}>
+                        {FIELD_ICONS[field.type as FieldType] || <Globe size={14} />}
+                      </span>
+                      <span className={`text-xs font-medium ${isDark ? "text-gray-300" : "text-slate-700"}`}>{field.label}:</span>
+                      <span className={`text-xs truncate ${isDark ? "text-gray-400" : "text-slate-500"}`}>{field.value}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className={`text-[9px] mt-2 text-center ${isDark ? "text-gray-600" : "text-slate-400"}`}>{t('contacts.localFieldsNotShared')}</p>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3 mt-3 w-full">
                <button onClick={() => { onEdit?.(); onClose(); }} className={`col-span-1 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-800"}`}>
@@ -119,9 +146,7 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
                    <span className="text-xs font-bold">{t('contacts.blockSpammer')}</span>
                </button>
             </div>
-          </motion.div>
-        </motion.div>
       )}
-    </AnimatePresence>
+     </Sheet>
   );
 }
