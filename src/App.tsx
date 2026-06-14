@@ -744,85 +744,166 @@ export default function App() {
               )}
 
               {(view === 'chats' || view === 'channels' || view === 'bots' || view === 'stories') && (
-                !activeChat ? (
-                  <ChatListPanel
-                    isDark={isDark}
-                    theme={theme}
-                    view={view}
-                    setView={setView}
-                    activeChat={activeChat}
-                    setActiveChat={setActiveChat}
-                    chatSearchQuery={chatSearchQuery}
-                    setChatSearchQuery={setChatSearchQuery}
-                    filteredChats={filteredChats}
-                    filteredChannels={filteredChannels}
-                    bots={bots}
-                    channels={channels}
-                    setShowCreateChannel={setShowCreateChannel}
-                    setShowCreateBot={setShowCreateBot}
-                    activeFolder={activeFolder}
-                    setActiveFolder={setActiveFolder}
-                    setShowAdvancedFilterModal={setShowAdvancedFilterModal}
-                    advancedFilters={advancedFilters}
-                    toggleArchive={toggleArchive}
-                    savedMessages={savedMessages}
-                    archivedUnreadCount={archivedUnreadCount}
-                    chatFolders={chatFolders}
-                    setShowFolderManager={setShowFolderManager}
-                    setGlobalSelectedContact={setGlobalSelectedContact}
-                    setPreviewChat={setPreviewChat}
-                    setActiveStory={setActiveStory}
-                    t={t}
-                  />
-                ) : (
-                  <div className="w-full max-w-[800px] h-[90%] relative z-10 animate-fade-in mt-6 max-h-[800px]">
-                    <ChatPreviewLayer chat={activeChat} theme={theme} onClose={() => setActiveChat(null)} onUpdateChat={setActiveChat} onAction={(text: string) => text === "MUTE_TOGGLE" ? setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted }) : setMessageText(text)} onCall={(name: string, color?: string) => { setView('calls'); }} onMessage={(name: string, color?: string) => { setView('chats'); const existingChat = chats.find(c => c.name === name && c.type === 'direct'); if (existingChat) { setActiveChat(existingChat); } else { const newChat = { id: Date.now(), name, type: "direct", color: color || "from-blue-400 to-indigo-500", online: true, history: [] }; setChats([newChat, ...chats] as any); setActiveChat(newChat); } }} onReply={(msg: any) => setReplyTarget(msg)} savedMessages={savedMessages} onToggleSavedMessage={toggleSavedMessage} deliveryReceipts={deliveryReceipts} readReceipts={readReceipts} onEditChannel={(ch: any) => setShowEditChannel(ch)} />
-                    
-                    <ChatInputBar
+                <NavPageTransition isActive={true}>
+                  {isWide && activeChat ? (
+                    <div className="flex gap-0 h-full w-full">
+                      <div className="w-[320px] shrink-0 border-r border-[var(--separator)] overflow-y-auto">
+                        <ChatListPanel
+                          isDark={isDark}
+                          theme={theme}
+                          view={view}
+                          setView={setView}
+                          activeChat={activeChat}
+                          setActiveChat={setActiveChat}
+                          chatSearchQuery={chatSearchQuery}
+                          setChatSearchQuery={setChatSearchQuery}
+                          filteredChats={filteredChats}
+                          filteredChannels={filteredChannels}
+                          bots={bots}
+                          channels={channels}
+                          setShowCreateChannel={setShowCreateChannel}
+                          setShowCreateBot={setShowCreateBot}
+                          activeFolder={activeFolder}
+                          setActiveFolder={setActiveFolder}
+                          setShowAdvancedFilterModal={setShowAdvancedFilterModal}
+                          advancedFilters={advancedFilters}
+                          toggleArchive={toggleArchive}
+                          savedMessages={savedMessages}
+                          archivedUnreadCount={archivedUnreadCount}
+                          chatFolders={chatFolders}
+                          setShowFolderManager={setShowFolderManager}
+                          setGlobalSelectedContact={setGlobalSelectedContact}
+                          setPreviewChat={setPreviewChat}
+                          setActiveStory={setActiveStory}
+                          t={t}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        <ChatPreviewLayer chat={activeChat} theme={theme} onClose={() => setActiveChat(null)} onUpdateChat={setActiveChat} onAction={(text: string) => text === "MUTE_TOGGLE" ? setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted }) : setMessageText(text)} onCall={(name: string, color?: string) => { setView('calls'); }} onMessage={(name: string, color?: string) => { setView('chats'); const existingChat = chats.find(c => c.name === name && c.type === 'direct'); if (existingChat) { setActiveChat(existingChat); } else { const newChat = { id: Date.now(), name, type: "direct", color: color || "from-blue-400 to-indigo-500", online: true, history: [] }; setChats([newChat, ...chats] as any); setActiveChat(newChat); } }} onReply={(msg: any) => setReplyTarget(msg)} savedMessages={savedMessages} onToggleSavedMessage={toggleSavedMessage} deliveryReceipts={deliveryReceipts} readReceipts={readReceipts} onEditChannel={(ch: any) => setShowEditChannel(ch)} />
+                        <ChatInputBar
+                          isDark={isDark}
+                          theme={theme}
+                          activeChat={activeChat}
+                          messageText={messageText}
+                          onMessageTextChange={(text) => {
+                            setMessageText(text);
+                            if (activeChat) setDraftTextByChat(prev => ({ ...prev, [String(activeChat.id)]: text }));
+                          }}
+                          onSend={handleSendMessage}
+                          onSendVoice={sendVoiceMessage}
+                          onSendSticker={sendStickerMessage}
+                          isRecordingVoice={isRecordingVoice}
+                          setIsRecordingVoice={setIsRecordingVoice}
+                          voiceNoteError={voiceNoteError}
+                          setVoiceNoteError={setVoiceNoteError}
+                          showSchedulePopup={showSchedulePopup}
+                          setShowSchedulePopup={setShowSchedulePopup}
+                          scheduleDateTime={scheduleDateTime}
+                          setScheduleDateTime={setScheduleDateTime}
+                          showStickerPicker={showStickerPicker}
+                          setShowStickerPicker={setShowStickerPicker}
+                          replyTarget={replyTarget}
+                          setReplyTarget={setReplyTarget}
+                          silentMode={silentMode}
+                          setSilentMode={setSilentMode}
+                          morseMode={morseMode}
+                          setMorseMode={setMorseMode}
+                          onAttachImage={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              const url = URL.createObjectURL(e.target.files[0]);
+                              const newMessage = { id: Date.now(), sender: "me", text: "", type: "image", attachment: url, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: "sent", silent: silentMode };
+                              setChats((prevChats: any[]) => prevChats.map(c => c.id === activeChat.id ? { ...c, history: [...(c.history || []), newMessage] } : c));
+                              setActiveChat((prev: any) => ({ ...prev, history: [...(prev.history || []), newMessage] }));
+                            }
+                            e.target.value = '';
+                          }}
+                          onMuteToggle={() => {
+                            setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted });
+                            setChannels(prev => prev.map(c => c.id === activeChat.id ? { ...c, isMuted: !activeChat.isMuted } : c) as any);
+                          }}
+                          t={t}
+                        />
+                      </div>
+                    </div>
+                  ) : !activeChat ? (
+                    <ChatListPanel
                       isDark={isDark}
                       theme={theme}
+                      view={view}
+                      setView={setView}
                       activeChat={activeChat}
-                      messageText={messageText}
-                      onMessageTextChange={(text) => {
-                        setMessageText(text);
-                        if (activeChat) setDraftTextByChat(prev => ({ ...prev, [String(activeChat.id)]: text }));
-                      }}
-                      onSend={handleSendMessage}
-                      onSendVoice={sendVoiceMessage}
-                      onSendSticker={sendStickerMessage}
-                      isRecordingVoice={isRecordingVoice}
-                      setIsRecordingVoice={setIsRecordingVoice}
-                      voiceNoteError={voiceNoteError}
-                      setVoiceNoteError={setVoiceNoteError}
-                      showSchedulePopup={showSchedulePopup}
-                      setShowSchedulePopup={setShowSchedulePopup}
-                      scheduleDateTime={scheduleDateTime}
-                      setScheduleDateTime={setScheduleDateTime}
-                      showStickerPicker={showStickerPicker}
-                      setShowStickerPicker={setShowStickerPicker}
-                      replyTarget={replyTarget}
-                      setReplyTarget={setReplyTarget}
-                      silentMode={silentMode}
-                      setSilentMode={setSilentMode}
-                      morseMode={morseMode}
-                      setMorseMode={setMorseMode}
-                      onAttachImage={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          const url = URL.createObjectURL(e.target.files[0]);
-                          const newMessage = { id: Date.now(), sender: "me", text: "", type: "image", attachment: url, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: "sent", silent: silentMode };
-                          setChats((prevChats: any[]) => prevChats.map(c => c.id === activeChat.id ? { ...c, history: [...(c.history || []), newMessage] } : c));
-                          setActiveChat((prev: any) => ({ ...prev, history: [...(prev.history || []), newMessage] }));
-                        }
-                        e.target.value = '';
-                      }}
-                      onMuteToggle={() => {
-                        setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted });
-                        setChannels(prev => prev.map(c => c.id === activeChat.id ? { ...c, isMuted: !activeChat.isMuted } : c) as any);
-                      }}
+                      setActiveChat={setActiveChat}
+                      chatSearchQuery={chatSearchQuery}
+                      setChatSearchQuery={setChatSearchQuery}
+                      filteredChats={filteredChats}
+                      filteredChannels={filteredChannels}
+                      bots={bots}
+                      channels={channels}
+                      setShowCreateChannel={setShowCreateChannel}
+                      setShowCreateBot={setShowCreateBot}
+                      activeFolder={activeFolder}
+                      setActiveFolder={setActiveFolder}
+                      setShowAdvancedFilterModal={setShowAdvancedFilterModal}
+                      advancedFilters={advancedFilters}
+                      toggleArchive={toggleArchive}
+                      savedMessages={savedMessages}
+                      archivedUnreadCount={archivedUnreadCount}
+                      chatFolders={chatFolders}
+                      setShowFolderManager={setShowFolderManager}
+                      setGlobalSelectedContact={setGlobalSelectedContact}
+                      setPreviewChat={setPreviewChat}
+                      setActiveStory={setActiveStory}
                       t={t}
                     />
-                  </div>
-                )
+                  ) : (
+                    <div className="w-full max-w-[800px] h-[90%] relative z-10 animate-fade-in mt-6 max-h-[800px]">
+                      <ChatPreviewLayer chat={activeChat} theme={theme} onClose={() => setActiveChat(null)} onUpdateChat={setActiveChat} onAction={(text: string) => text === "MUTE_TOGGLE" ? setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted }) : setMessageText(text)} onCall={(name: string, color?: string) => { setView('calls'); }} onMessage={(name: string, color?: string) => { setView('chats'); const existingChat = chats.find(c => c.name === name && c.type === 'direct'); if (existingChat) { setActiveChat(existingChat); } else { const newChat = { id: Date.now(), name, type: "direct", color: color || "from-blue-400 to-indigo-500", online: true, history: [] }; setChats([newChat, ...chats] as any); setActiveChat(newChat); } }} onReply={(msg: any) => setReplyTarget(msg)} savedMessages={savedMessages} onToggleSavedMessage={toggleSavedMessage} deliveryReceipts={deliveryReceipts} readReceipts={readReceipts} onEditChannel={(ch: any) => setShowEditChannel(ch)} />
+                      <ChatInputBar
+                        isDark={isDark}
+                        theme={theme}
+                        activeChat={activeChat}
+                        messageText={messageText}
+                        onMessageTextChange={(text) => {
+                          setMessageText(text);
+                          if (activeChat) setDraftTextByChat(prev => ({ ...prev, [String(activeChat.id)]: text }));
+                        }}
+                        onSend={handleSendMessage}
+                        onSendVoice={sendVoiceMessage}
+                        onSendSticker={sendStickerMessage}
+                        isRecordingVoice={isRecordingVoice}
+                        setIsRecordingVoice={setIsRecordingVoice}
+                        voiceNoteError={voiceNoteError}
+                        setVoiceNoteError={setVoiceNoteError}
+                        showSchedulePopup={showSchedulePopup}
+                        setShowSchedulePopup={setShowSchedulePopup}
+                        scheduleDateTime={scheduleDateTime}
+                        setScheduleDateTime={setScheduleDateTime}
+                        showStickerPicker={showStickerPicker}
+                        setShowStickerPicker={setShowStickerPicker}
+                        replyTarget={replyTarget}
+                        setReplyTarget={setReplyTarget}
+                        silentMode={silentMode}
+                        setSilentMode={setSilentMode}
+                        morseMode={morseMode}
+                        setMorseMode={setMorseMode}
+                        onAttachImage={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            const url = URL.createObjectURL(e.target.files[0]);
+                            const newMessage = { id: Date.now(), sender: "me", text: "", type: "image", attachment: url, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: "sent", silent: silentMode };
+                            setChats((prevChats: any[]) => prevChats.map(c => c.id === activeChat.id ? { ...c, history: [...(c.history || []), newMessage] } : c));
+                            setActiveChat((prev: any) => ({ ...prev, history: [...(prev.history || []), newMessage] }));
+                          }
+                          e.target.value = '';
+                        }}
+                        onMuteToggle={() => {
+                          setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted });
+                          setChannels(prev => prev.map(c => c.id === activeChat.id ? { ...c, isMuted: !activeChat.isMuted } : c) as any);
+                        }}
+                        t={t}
+                      />
+                    </div>
+                  )}
+                </NavPageTransition>
               )}
               </div>
             </div>

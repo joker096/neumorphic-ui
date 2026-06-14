@@ -2,6 +2,23 @@
  * Shared constants and mock data for the application
  */
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+export interface KeyboardShortcutRecord {
+  key: string;
+  label: string;
+  description: string;
+}
+
+export const DEFAULT_KEYBOARD_SHORTCUTS: KeyboardShortcutRecord[] = [
+  { key: 'Cmd+,', label: 'Cmd+,', description: 'Open settings' },
+  { key: 'Cmd+F', label: 'Cmd+F', description: 'Search chats' },
+  { key: 'Escape', label: 'Esc', description: 'Go back or close' },
+  { key: 'Cmd+N', label: 'Cmd+N', description: 'New contact' },
+  { key: 'Cmd+W', label: 'Cmd+W', description: 'Close active chat' },
+  { key: 'Cmd+Enter', label: 'Cmd+Enter', description: 'Send message' },
+];
+
 export interface MockCall {
   id: number;
   name: string;
@@ -316,11 +333,11 @@ export const isPriorityContact = (contactName: string): boolean => {
 
 export const LANGUAGES = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'ru', name: 'Русский', flag: '🇷🺸' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🪸' },
-  { code: 'zh', name: '中文', flag: '🇭🇳' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'zh', name: '中文', flag: '🇨🇳' },
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
   { code: 'ko', name: '한국어', flag: '🇰🇷' },
 ];

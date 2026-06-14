@@ -1,5 +1,21 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
+/** Safe area env vars fallback for browsers that don't support `env(safe-area-inset-*)` */
+export function getSafeAreaInsets(): { top: number; right: number; bottom: number; left: number } {
+  if (typeof CSS === 'undefined' || !CSS.supports('padding-top', 'env(safe-area-inset-top)')) {
+    return { top: 0, right: 0, bottom: 0, left: 0 };
+  }
+  const el = document.createElement('div');
+  el.style.cssText = 'padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px)';
+  document.body.appendChild(el);
+  const top = parseFloat(getComputedStyle(el).paddingTop) || 0;
+  const right = parseFloat(getComputedStyle(el).paddingRight) || 0;
+  const bottom = parseFloat(getComputedStyle(el).paddingBottom) || 0;
+  const left = parseFloat(getComputedStyle(el).paddingLeft) || 0;
+  document.body.removeChild(el);
+  return { top, right, bottom, left };
+}
+
 const cache = new Map<string, Record<string, any>>();
 
 async function loadLocale(lang: string): Promise<Record<string, any>> {
@@ -42,7 +58,7 @@ export function getTranslationWithFallback(key: string, lang: string): string {
   
   const enCached = cache.get('en');
   if (enCached) {
-    const enTranslated = key.split('.').reduce((obj: any, k: string) => enCached?.[k], enCached) as string;
+    const enTranslated = key.split('.').reduce((obj: any, k: string) => obj?.[k], enCached) as string;
     if (enTranslated) return enTranslated;
   }
   
@@ -88,7 +104,7 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     let text = getTranslationWithFallback(key, lang);
     if (args) {
       for (const [k, v] of Object.entries(args)) {
-        text = text.replace(`{${k}}`, String(v));
+        text = text.replace(`{${k}}`, () => String(v));
       }
     }
     return text;
