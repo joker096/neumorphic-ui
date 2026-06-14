@@ -28,6 +28,7 @@ import { LanguageSelector } from "./components/LanguageSelector";
 import { AppLockView } from "./components/AppLockView";
 import { AppHeader } from "./components/AppHeader";
 import { HomeButton } from "./components/HomeButton";
+import { OfflineIndicator } from "./components/OfflineIndicator";
 import { ChatListPanel } from "./components/ChatListPanel";
 import { ChatInputBar } from "./components/ChatInputBar";
 import { StoryViewer } from "./components/StoryViewer";
@@ -910,7 +911,9 @@ export default function App() {
          }}
       />
       
-     {view !== 'calls' && <FloatingCallWidget theme={theme} />}
+      {view !== 'calls' && <FloatingCallWidget theme={theme} />}
+
+      <OfflineIndicator isDark={isDark} />
 
      <AnimatePresence>
         {previewChat && (
