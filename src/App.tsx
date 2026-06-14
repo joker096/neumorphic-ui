@@ -39,6 +39,8 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigationStack, NavPageTransition } from './lib/navigation/NavigationStack';
 import { useKeyboardShortcuts } from './lib/navigation/useKeyboardShortcuts';
+import { SyncManager } from './lib/sync/SyncManager';
+import { SessionManager } from './lib/sync/SessionManager';
 
 export default function App() {
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>(() => {
@@ -62,6 +64,25 @@ export default function App() {
   const { t, setLang } = useI18n();
   const [language, setLanguage] = useState(() => localStorage.getItem('app_language') || 'en');
   const [showLangMenu, setShowLangMenu] = useState(false);
+
+  const syncManagerRef = useRef<SyncManager | null>(null);
+  const sessionManagerRef = useRef<SessionManager | null>(null);
+
+  useEffect(() => {
+    const deviceId = `device_${Date.now()}`;
+    const sync = new SyncManager(deviceId);
+    const sess = new SessionManager(deviceId);
+    syncManagerRef.current = sync;
+    sessionManagerRef.current = sess;
+
+    sync.connect((state) => useAppStore.setState(state));
+    sess.registerSession();
+
+    return () => {
+      sync.disconnect();
+      sess.endSession();
+    };
+  }, []);
 
   const { 
     appLockHashedPIN, appLockSalt, chats, setChats, channels, setChannels, bots, setBots,
