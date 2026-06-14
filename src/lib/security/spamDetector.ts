@@ -1,125 +1,82 @@
-// Spam Detector - Detects and blocks spam messages
-
-export interface SpamReport {
-  id: string;
-  timestamp: number;
-  source: string;
-  reason: string;
-  confidence: number; // 0-1
-  metadata?: Record<string, unknown>;
+interface SpamConfig {
+  maxRepeatedChars: number;
+  maxCapsRatio: number;
+  maxLinksPerMessage: number;
+  maxMentionsPerMessage: number;
+  blockedPatterns: RegExp[];
 }
 
-const SPAM_THRESHOLD = 0.7;
+const DEFAULT_CONFIG: SpamConfig = {
+  maxRepeatedChars: 8,
+  maxCapsRatio: 0.7,
+  maxLinksPerMessage: 3,
+  maxMentionsPerMessage: 5,
+  blockedPatterns: [
+    /(buy|sell|cheap|free|click here|limited|offer|promo|win|prize|crypto|bitcoin|eth)\s*(now|today|!!)/i,
+    /https?:\/\/(?:bit\.ly|tinyurl|shorturl|shorte)\.[a-z]+\/\w+/i,
+  ],
+};
 
-const spamPatterns = [
-  // URL patterns
-  { pattern: /https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, weight: 0.3 },
-  // Repeated characters
-  { pattern: /(.)\1{10,}/g, weight: 0.2 },
-  // Spam keywords
-  { pattern: /(click|buy|win|free|discount|offer|prize|congratulations)/gi, weight: 0.1 },
-  // Phone number patterns
-  { pattern: /\+?\d{10,}/g, weight: 0.15 },
-  // Email patterns
-  { pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, weight: 0.1 },
-];
+export class SpamDetector {
+  private config: SpamConfig;
 
-export const spamDetector = {
-  reports: [] as SpamReport[],
+  constructor(config: Partial<SpamConfig> = {}) {
+    this.config = { ...DEFAULT_CONFIG, ...config };
+  }
 
-  checkSpam(data: string, options?: {
-    thresholds?: {
-      url?: number;
-      repeated?: number;
-      keywords?: number;
-      phone?: number;
-      email?: number;
-    };
-  }): { isSpam: boolean; score: number; reasons: string[] } {
-    const score = this._calculateSpamScore(data);
+  analyze(text: string): { isSpam: boolean; reasons: string[] } {
     const reasons: string[] = [];
 
-    if (score >= (options?.thresholds?.url || SPAM_THRESHOLD)) {
-      reasons.push('High URL content');
-    }
-    if (score >= (options?.thresholds?.repeated || SPAM_THRESHOLD)) {
-      reasons.push('Repeated character patterns');
-    }
-    if (score >= (options?.thresholds?.keywords || SPAM_THRESHOLD)) {
-      reasons.push('Spam keywords detected');
-    }
-    if (score >= (options?.thresholds?.phone || SPAM_THRESHOLD)) {
-      reasons.push('Phone number detected');
-    }
-    if (score >= (options?.thresholds?.email || SPAM_THRESHOLD)) {
-      reasons.push('Email address detected');
+    if (this.hasRepeatedChars(text)) {
+      reasons.push('Too many repeated characters');
     }
 
-    const isSpam = score >= SPAM_THRESHOLD;
-
-    if (isSpam) {
-      this.reports.push({
-        id: crypto.randomUUID(),
-        timestamp: Date.now(),
-        source: 'client-spam-detector',
-        reason: reasons.join('; '),
-        confidence: score,
-        metadata: { reasons },
-      });
+    if (this.hasHighCapsRatio(text)) {
+      reasons.push('Message is mostly uppercase');
     }
 
-    return { isSpam, score, reasons };
-  },
-
-  _calculateSpamScore(data: string): number {
-    let score = 0;
-
-    // URL scoring
-    const urlMatches = data.match(/https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
-    if (urlMatches) {
-      score += Math.min(urlMatches.length * 0.3, 0.4);
+    const linkCount = this.countLinks(text);
+    if (linkCount > this.config.maxLinksPerMessage) {
+      reasons.push(`Too many links (${linkCount})`);
     }
 
-    // Repeated characters scoring
-    const repeatedMatches = data.match(/(.)\1{10,}/g);
-    if (repeatedMatches) {
-      score += Math.min(repeatedMatches.length * 0.2, 0.2);
+    const mentionCount = this.countMentions(text);
+    if (mentionCount > this.config.maxMentionsPerMessage) {
+      reasons.push(`Too many mentions (${mentionCount})`);
     }
 
-    // Keyword scoring
-    const keywordMatches = data.match(/(click|buy|win|free|discount|offer|prize|congratulations)/gi);
-    if (keywordMatches) {
-      score += Math.min(keywordMatches.length * 0.1, 0.2);
+    for (const pattern of this.config.blockedPatterns) {
+      if (pattern.test(text)) {
+        reasons.push('Matches blocked spam pattern');
+        break;
+      }
     }
 
-    // Phone number scoring
-    const phoneMatches = data.match(/\+?\d{10,}/g);
-    if (phoneMatches) {
-      score += Math.min(phoneMatches.length * 0.15, 0.15);
-    }
+    return {
+      isSpam: reasons.length > 0,
+      reasons,
+    };
+  }
 
-    // Email scoring
-    const emailMatches = data.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
-    if (emailMatches) {
-      score += Math.min(emailMatches.length * 0.1, 0.1);
-    }
+  private hasRepeatedChars(text: string): boolean {
+    const pattern = new RegExp(`(.)\\1{${this.config.maxRepeatedChars},}`);
+    return pattern.test(text);
+  }
 
-    return Math.min(score, 1);
-  },
+  private hasHighCapsRatio(text: string): boolean {
+    const letters = text.replace(/[^a-zA-Z]/g, '');
+    if (letters.length < 10) return false;
+    const caps = letters.replace(/[a-z]/g, '').length;
+    return caps / letters.length > this.config.maxCapsRatio;
+  }
 
-  getMetrics(): { totalReports: number; recentReports: number; byReason: Record<string, number> } {
-    const totalReports = this.reports.length;
-    const recentReports = this.reports.filter((r) => Date.now() - r.timestamp < 3600000).length; // Last hour
-    const byReason = {} as Record<string, number>;
+  private countLinks(text: string): number {
+    const matches = text.match(/https?:\/\/[^\s]+/gi);
+    return matches ? matches.length : 0;
+  }
 
-    for (const report of this.reports) {
-      byReason[report.reason] = (byReason[report.reason] || 0) + 1;
-    }
-
-    return { totalReports, recentReports, byReason };
-  },
-
-  clearReports(): void {
-    this.reports = [];
-  },
-};
+  private countMentions(text: string): number {
+    const matches = text.match(/@\w+/g);
+    return matches ? matches.length : 0;
+  }
+}

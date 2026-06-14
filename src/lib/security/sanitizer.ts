@@ -1,70 +1,38 @@
-// Sanitizer - Protects against XSS and injection attacks
+const SCRIPT_PATTERN = /<script[\s>]/gi;
+const ON_EVENT_PATTERN = /\son\w+\s*=/gi;
+const JS_PROTOCOL = /javascript\s*:/gi;
+const DATA_PROTOCOL = /data\s*:\s*text\/html/gi;
 
-export function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+export function sanitizeText(input: string): string {
+  return input
+    .replace(SCRIPT_PATTERN, '&lt;script&gt;')
+    .replace(ON_EVENT_PATTERN, ' data-safe="')
+    .replace(JS_PROTOCOL, 'javascript-blocked:')
+    .replace(DATA_PROTOCOL, 'data-blocked:')
+    .trim();
 }
 
-export function stripHtml(html: string): string {
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  return div.textContent || '';
+export function sanitizeHtml(input: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+  };
+  return input.replace(/[&<>"']/g, (ch) => map[ch] || ch);
 }
 
-export function sanitizeText(text: string, maxLength = 10000): string {
-  const stripped = stripHtml(text);
-  return stripped.substring(0, maxLength);
-}
-
-export function isSafeUrl(url: string): boolean {
+export function isValidUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    const safeProtocols = ['https:', 'http:'];
-    return safeProtocols.includes(parsed.protocol);
+    return ['http:', 'https:', 'ws:', 'wss:'].includes(parsed.protocol);
   } catch {
     return false;
   }
 }
 
-export function toPlainText(text: string): string {
-  const div = document.createElement('div');
-  div.innerHTML = text;
-  return div.textContent || '';
-}
-
-export function sanitizeInput(input: string): {
-  sanitized: string;
-  isSafe: boolean;
-  isTrusted: boolean;
-} {
-  const sanitized = sanitizeText(input);
-  const isSafe = !/[&<>"'\\]/.test(input);
-  const isTrusted = true; // In production, this would be based on origin verification
-
-  return { sanitized, isSafe, isTrusted };
-}
-
-export function validateLink(link: string): { isValid: boolean; url?: string } {
-  if (isSafeUrl(link)) {
-    return { isValid: true, url: link };
-  }
-  return { isValid: false };
-}
-
-export function sanitizeData(data: any): any {
-  if (typeof data === 'string') {
-    return sanitizeText(data);
-  }
-  if (Array.isArray(data)) {
-    return data.map(sanitizeData);
-  }
-  if (typeof data === 'object' && data !== null) {
-    const sanitized: any = {};
-    for (const key of Object.keys(data)) {
-      sanitized[key] = sanitizeData(data[key]);
-    }
-    return sanitized;
-  }
-  return data;
+export function truncate(str: string, maxLength: number): string {
+  if (str.length <= maxLength) return str;
+  return str.slice(0, maxLength - 1) + '…';
 }
