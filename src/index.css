@@ -1,54 +1,139 @@
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/Inter-400.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Space Grotesk';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/SpaceGrotesk-400.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/JetBrainsMono-400.woff2') format('woff2');
-}
-
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Helvetica Neue", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", monospace;
+}
+
+:root {
+  /* iOS System Colors */
+  --system-blue: #007AFF;
+  --system-green: #34C759;
+  --system-orange: #FF9500;
+  --system-red: #FF3B30;
+  --system-yellow: #FFCC00;
+  --system-teal: #5AC8FA;
+  --system-purple: #AF52DE;
+  --system-pink: #FF2D55;
+  --system-gray: #8E8E93;
+  --system-gray-2: #AEAEB2;
+  --system-gray-3: #C7C7CC;
+  --system-gray-4: #D1D1D6;
+  --system-gray-5: #E5E5EA;
+  --system-gray-6: #F2F2F7;
+
+  /* 8pt Spacing Grid */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-7: 56px;
+  --space-8: 64px;
+
+  /* iOS Type Scale */
+  --fs-large-title: 34px;
+  --fs-title-1: 28px;
+  --fs-title-2: 22px;
+  --fs-title-3: 20px;
+  --fs-headline: 17px;
+  --fs-body: 17px;
+  --fs-callout: 16px;
+  --fs-subheadline: 15px;
+  --fs-footnote: 13px;
+  --fs-caption-1: 12px;
+  --fs-caption-2: 11px;
+}
+
+[data-theme="light"], :root {
+  --system-background: #FFFFFF;
+  --secondary-system-bg: #F2F2F7;
+  --tertiary-system-bg: #FFFFFF;
+  --grouped-bg: #F2F2F7;
+  --separator: rgba(60, 60, 67, 0.12);
+  --opaque-separator: rgba(60, 60, 67, 0.36);
+}
+
+[data-theme="dark"] {
+  --system-background: #000000;
+  --secondary-system-bg: #1C1C1E;
+  --tertiary-system-bg: #2C2C2E;
+  --grouped-bg: #000000;
+  --separator: rgba(84, 84, 88, 0.36);
+  --opaque-separator: rgba(84, 84, 88, 0.60);
 }
 
 body, html {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-top: constant(safe-area-inset-top, 0px);
+  padding-bottom: constant(safe-area-inset-bottom, 0px);
 }
 
-/* Custom Scrollbars */
+.perspective-root {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+/* Material/Blur Classes */
+.material-ultra-thin {
+  backdrop-filter: blur(60px);
+  -webkit-backdrop-filter: blur(60px);
+}
+
+.material-thin {
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+
+.material-regular {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.material-thick {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* iOS Spring Animation Default */
+.ios-transition {
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition-duration: 350ms;
+}
+
+/* Scrollbar: iOS-style (thin, minimal) */
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 
-.scrollbar-dark::-webkit-scrollbar { width: 4px; }
-.scrollbar-dark::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-dark::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
-.scrollbar-dark::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.1); }
+.scrollbar-ios::-webkit-scrollbar { width: 3px; }
+.scrollbar-ios::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-ios::-webkit-scrollbar-thumb {
+  background: var(--separator);
+  border-radius: 10px;
+}
+.scrollbar-ios::-webkit-scrollbar-thumb:hover {
+  background: var(--opaque-separator);
+}
 
-.scrollbar-light::-webkit-scrollbar { width: 4px; }
-.scrollbar-light::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-light::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
-.scrollbar-light::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.1); }
+/* iOS Spinner */
+@keyframes ios-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ios-spinner {
+  animation: ios-spin 1s linear infinite;
+}
