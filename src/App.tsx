@@ -40,10 +40,24 @@ import { useNavigationStack, NavPageTransition } from './lib/navigation/Navigati
 import { useKeyboardShortcuts } from './lib/navigation/useKeyboardShortcuts';
 
 export default function App() {
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('app_theme');
-    return (saved === 'dark' || saved === 'light') ? saved : 'dark';
+  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>(() => {
+    return (localStorage.getItem('app_theme_mode') as any) || 'dark';
   });
+
+  const [systemDark, setSystemDark] = useState(
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => setSystemDark(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const effectiveTheme = themeMode === 'system' ? (systemDark ? 'dark' : 'light') : themeMode;
+  const setTheme = (t: 'light' | 'dark') => setThemeMode(t);
+  const theme = effectiveTheme;
   const { t, setLang } = useI18n();
   const [language, setLanguage] = useState(() => localStorage.getItem('app_language') || 'en');
   const [showLangMenu, setShowLangMenu] = useState(false);
@@ -85,7 +99,15 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('app_theme', theme);
+    localStorage.setItem('app_theme', effectiveTheme);
+  }, [effectiveTheme]);
+
+  useEffect(() => {
+    localStorage.setItem('app_theme_mode', themeMode);
+  }, [themeMode]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
   useEffect(() => {
@@ -630,7 +652,7 @@ export default function App() {
                    }
                 }} 
               />}
-               {view === 'settings' && <SettingsView theme={theme} setTheme={setTheme} />}
+               {view === 'settings' && <SettingsView theme={theme} setTheme={setTheme} themeMode={themeMode} setThemeMode={setThemeMode as any} />}
                {view === 'recordings' && <RecordingsScreen theme={theme} onBack={() => setView('hub')} />}
                {view === 'contacts' && <ContactsView 
                 theme={theme} 

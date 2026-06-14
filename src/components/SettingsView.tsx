@@ -203,7 +203,12 @@ function useLocalStorage<T>(key: string, initialValue: T) {
   return [storedValue, setValue] as const;
 }
 
-export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', setTheme?: (t: 'light' | 'dark') => void }) => {
+export const SettingsView = ({ theme, setTheme, themeMode, setThemeMode }: { 
+  theme: 'light' | 'dark'; 
+  setTheme?: (t: 'light' | 'dark') => void;
+  themeMode?: 'light' | 'dark' | 'system';
+  setThemeMode?: (mode: 'light' | 'dark' | 'system') => void;
+}) => {
   const isDark = theme === 'dark';
   const { t, setLang } = useI18n();
 
@@ -1028,11 +1033,23 @@ const appearance = t('settings.appearance');
           <SubView key="appearance" title={appearance} isDark={isDark} onBack={() => setActiveSection('main')}>
              <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                <SettingsItem 
-                 title={t("settings.darkTheme")}
-                 isDark={isDark}
-                 rightElement={<ToggleSwitch isOn={isDark} onToggle={() => setTheme?.(isDark ? 'light' : 'dark')} isDark={isDark} />}
-                 onClick={() => setTheme?.(isDark ? 'light' : 'dark')}
-               />
+                  title={t("settings.darkTheme")}
+                  isDark={isDark}
+                  rightElement={
+                    <select
+                      value={themeMode}
+                      onChange={(e) => setThemeMode?.(e.target.value as any)}
+                      className={`text-xs rounded-lg px-2 py-1 border ${
+                        isDark ? 'bg-[#1C1C1E] text-white border-white/10' : 'bg-white text-black border-black/10'
+                      }`}
+                    >
+                      <option value="system">System</option>
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                    </select>
+                  }
+                  onClick={() => {}}
+                />
                <SettingsItem 
                   title={t('settings.fontSizeMedium')}
                   value={fontSize}
