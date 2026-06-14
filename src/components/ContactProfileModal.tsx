@@ -55,7 +55,7 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
 
   return (
     <Sheet isOpen={contact !== null} onClose={onClose} detent="medium">
-      {contact && (
+      {contact && (<>
             <div 
               className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
               onClick={onClose}
@@ -146,7 +146,7 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
                    <span className="text-xs font-bold">{t('contacts.blockSpammer')}</span>
                </button>
             </div>
-      )}
+      </>)}
      </Sheet>
   );
 }
