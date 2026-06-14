@@ -3,6 +3,36 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { LiveVoiceRecorder } from './LiveVoiceRecorder';
+import { I18nProvider } from '../lib/i18n';
+
+vi.mock('../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string, args?: Record<string, string | number>) => {
+      const translations: Record<string, string> = {
+        'voiceRecorder.discard': 'Discard',
+        'voiceRecorder.rerecord': 'Re-record',
+        'voiceRecorder.send': 'Send',
+        'voiceRecorder.stopAndSend': 'Stop and Send',
+        'voiceRecorder.pause': 'Pause',
+        'voiceRecorder.resume': 'Resume',
+        'voiceRecorder.micBlocked': 'Microphone access is blocked. Please allow microphone permissions and try again.',
+        'voiceRecorder.preview': 'Voice note preview',
+      };
+      let text = translations[key] || key;
+      if (args) {
+        for (const [k, v] of Object.entries(args)) {
+          text = text.replace(`{{${k}}}`, String(v));
+        }
+      }
+      return text;
+    },
+    lang: 'en',
+    setLang: () => {},
+  }),
+  I18nProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  I18nContext: { Provider: ({ children }: { children: React.ReactNode }) => <>{children}</> },
+  detectBrowserLanguage: () => 'en',
+}));
 
 const defaultProps = {
   isDark: true,
@@ -56,7 +86,7 @@ describe('LiveVoiceRecorder', () => {
   });
 
   it('renders recording UI initially', () => {
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
     // Just check the recording UI is rendered, don't worry about specific time
     expect(screen.getByTitle('Discard')).toBeInTheDocument();
     expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
@@ -88,7 +118,7 @@ describe('LiveVoiceRecorder', () => {
       configurable: true,
     });
     
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
 
     await waitFor(() => {
       expect(MediaRecorderMock).toHaveBeenCalled();
@@ -106,7 +136,7 @@ describe('LiveVoiceRecorder', () => {
     });
     (window as any).MediaRecorder = MediaRecorderMock;
     
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
 
     await waitFor(() => {
       expect(defaultProps.onPermissionDenied).toHaveBeenCalledWith(
@@ -117,7 +147,7 @@ describe('LiveVoiceRecorder', () => {
   });
 
   it('handles pause/resume button display', () => {
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
     // Component renders with recording controls
     expect(screen.getByTitle('Discard')).toBeInTheDocument();
   });
@@ -150,7 +180,7 @@ describe('LiveVoiceRecorder', () => {
     });
     (window as any).MediaRecorder = MediaRecorderMock;
 
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
 
     await waitFor(() => {
       expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
@@ -193,7 +223,7 @@ describe('LiveVoiceRecorder', () => {
     });
     (window as any).MediaRecorder = MediaRecorderMock;
 
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
 
     await waitFor(() => {
       expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
@@ -237,7 +267,7 @@ describe('LiveVoiceRecorder', () => {
     });
     (window as any).MediaRecorder = MediaRecorderMock;
 
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
 
     await waitFor(() => {
       expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
@@ -281,7 +311,7 @@ describe('LiveVoiceRecorder', () => {
     });
     (window as any).MediaRecorder = MediaRecorderMock;
 
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
 
     await waitFor(() => {
       expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
@@ -298,19 +328,19 @@ describe('LiveVoiceRecorder', () => {
   });
 
   it('applies dark theme styles', () => {
-    render(<LiveVoiceRecorder {...defaultProps} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} /></I18nProvider>);
     const container = screen.getByTitle('Discard').closest('div[class*="bg-[#13151b]"]');
     expect(container).toBeInTheDocument();
   });
 
   it('applies light theme styles', () => {
-    const { container } = render(<LiveVoiceRecorder {...{ ...defaultProps, isDark: false }} />);
+    const { container } = render(<I18nProvider><LiveVoiceRecorder {...{ ...defaultProps, isDark: false }} /></I18nProvider>);
     expect(container.querySelector('div[class*="bg-[#f4f7f9]"]')).toBeInTheDocument();
   });
 
   it('adds window event listeners for hold-to-record', async () => {
     const addListenerSpy = vi.spyOn(window, 'addEventListener').mockImplementation(() => {});
-    render(<LiveVoiceRecorder {...defaultProps} holdToRecord={true} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} holdToRecord={true} /></I18nProvider>);
 
     await waitFor(() => {
       expect(addListenerSpy).toHaveBeenCalledWith('pointerup', expect.any(Function), { once: true });
@@ -322,7 +352,7 @@ describe('LiveVoiceRecorder', () => {
 
   it('does not add window event listeners when holdToRecord is false', async () => {
     const addListenerSpy = vi.spyOn(window, 'addEventListener').mockImplementation(() => {});
-    render(<LiveVoiceRecorder {...defaultProps} holdToRecord={false} />);
+    render(<I18nProvider><LiveVoiceRecorder {...defaultProps} holdToRecord={false} /></I18nProvider>);
 
     await waitFor(() => {
       expect(addListenerSpy).not.toHaveBeenCalled();

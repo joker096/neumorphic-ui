@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Square, Trash2, Send, Pause, Play } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 import { VoiceWaveform } from './VoiceWaveform';
 
 interface LiveVoiceRecorderProps {
@@ -12,6 +13,7 @@ interface LiveVoiceRecorderProps {
  }
 
 export const LiveVoiceRecorder = ({ isDark, onCancel, onSend, onReRecord, onPermissionDenied, holdToRecord = true }: LiveVoiceRecorderProps) => {
+   const { t } = useI18n();
    const [isRecording, setIsRecording] = useState(false);
    const [duration, setDuration] = useState(0);
    const [stream, setStream] = useState<MediaStream | null>(null);
@@ -112,7 +114,7 @@ const removeStopListeners = () => {
 
       } catch (err) {
          console.error("Mic access denied", err);
-         onPermissionDenied?.("Microphone access is blocked. Please allow microphone permissions and try again.");
+          onPermissionDenied?.(t('voiceRecorder.micBlocked'));
          onCancel(); // exit immediately if no mic
       }
    };
@@ -143,18 +145,18 @@ return (
           // Preview mode after recording
           <div className={`w-full flex flex-col gap-3 ${isDark ? "bg-[#13151b]" : "bg-[#f4f7f9]"} rounded-2xl px-2 py-3`}>
              <div className="flex items-center gap-2">
-                <span className={`text-[11px] font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-slate-500"}`}>Voice note preview</span>
+                 <span className={`text-[11px] font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('voiceRecorder.preview')}</span>
              </div>
              <div className="flex items-center gap-2">
                 <VoiceWaveform audioUrl={previewUrl} isDark={isDark} isMe={true} />
              </div>
              <div className="flex items-center justify-between">
                 <div className="flex gap-2">
-                  <button onClick={onReRecord} className={`px-3 py-1.5 rounded-full text-[11px] font-bold ${isDark ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "bg-red-50 text-red-600 hover:bg-red-100"}`} title="Re-record">
-                       Re-record
+                   <button onClick={onReRecord} className={`px-3 py-1.5 rounded-full text-[11px] font-bold ${isDark ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "bg-red-50 text-red-600 hover:bg-red-100"}`} title={t('voiceRecorder.rerecord')}>
+                        {t('voiceRecorder.rerecord')}
                     </button>
-                    <button onClick={onCancel} className={`px-3 py-1.5 rounded-full text-[11px] font-bold ${isDark ? "bg-white/5 text-gray-400 hover:bg-white/10" : "bg-black/5 text-slate-500 hover:bg-black/10"}`} title="Discard">
-                       Discard
+                    <button onClick={onCancel} className={`px-3 py-1.5 rounded-full text-[11px] font-bold ${isDark ? "bg-white/5 text-gray-400 hover:bg-white/10" : "bg-black/5 text-slate-500 hover:bg-black/10"}`} title={t('voiceRecorder.discard')}>
+                        {t('voiceRecorder.discard')}
                    </button>
                 </div>
                 <button 
@@ -166,17 +168,17 @@ return (
                    }}
                    className={`px-4 py-1.5 rounded-full text-[11px] font-bold ${isDark ? "bg-orange-500 text-white" : "bg-orange-400 text-orange-950"} shadow-md`}
                 >
-                   Send
-                </button>
+                    {t('voiceRecorder.send')}
+                 </button>
              </div>
           </div>
        ) : (
           // Recording mode
           <div className={`w-full flex items-center justify-between gap-3 h-10 ${isDark ? "bg-[#13151b]" : "bg-[#f4f7f9]"} rounded-2xl px-1`}>
-             <div 
-                 onClick={handleCancel}
-                 className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 ${isDark ? "text-gray-400 hover:text-red-400" : "text-slate-500 hover:text-red-500"}`}
-                 title="Discard"
+                  <div 
+                  onClick={handleCancel}
+                  className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 ${isDark ? "text-gray-400 hover:text-red-400" : "text-slate-500 hover:text-red-500"}`}
+                  title={t('voiceRecorder.discard')}
               >
                 <Trash2 size={18} />
              </div>
@@ -196,7 +198,7 @@ return (
                   <button 
                        onClick={handlePauseResume}
                        className={`w-8 h-8 flex items-center justify-center rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-black/5 text-slate-500"}`}
-                       title={isPaused ? "Resume" : "Pause"}
+                        title={isPaused ? t('voiceRecorder.resume') : t('voiceRecorder.pause')}
                     >
                        {isPaused ? <Play size={14} /> : <Pause size={14} />}
                     </button>
@@ -204,7 +206,7 @@ return (
                 <button 
                     onClick={handleStopRecording}
                     className={`w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 ${isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950 shadow-md"}`}
-                    title="Stop and Send"
+                    title={t('voiceRecorder.stopAndSend')}
                  >
                     <Send size={18} className="-ml-0.5" />
                  </button>

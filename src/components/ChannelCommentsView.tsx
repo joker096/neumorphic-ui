@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Send, ChevronLeft } from 'lucide-react';
@@ -17,6 +18,7 @@ interface ChannelCommentsProps {
 
 export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme, channelChatId }: ChannelCommentsProps) => {
    const isDark = theme === "dark";
+   const { t } = useI18n();
    const [comment, setComment] = useState("");
    const [comments, setComments] = useState<any[]>([
       { id: 1, sender: "Alice Freeman", text: "Wow, that's amazing! 🔥", time: "10:45" },
@@ -70,15 +72,15 @@ export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme, c
                      <ChevronLeft size={24} />
                   </div>
                   <div>
-                     <h3 className={`font-bold text-[15px] ${isDark ? "text-white" : "text-slate-800"}`}>Comments</h3>
+                      <h3 className={`font-bold text-[15px] ${isDark ? "text-white" : "text-slate-800"}`}>{t('comments.title')}</h3>
                      <p className={`text-[11px] uppercase tracking-wider font-semibold ${isDark ? "text-orange-500" : "text-orange-600"}`}>
-                        {comments.length} replies
+                        {t('comments.replies', { count: comments.length })}
                      </p>
                   </div>
                </div>
 
                {/* Comments List */}
-               <div className={`flex-1 overflow-y-auto p-4 flex flex-col gap-4 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+               <div className={`flex-1 overflow-y-auto p-4 flex flex-col gap-4 ${isDark ? "scrollbar-ios" : "scrollbar-ios"}`}>
                   {comments.map((c) => (
                      <motion.div 
                         initial={{ opacity: 0, y: 10 }}
@@ -107,7 +109,7 @@ export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme, c
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                        placeholder="Write a comment..."
+                        placeholder={t('comments.placeholder')}
                         className={`flex-1 bg-transparent border-none outline-none text-[14px] ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
                      />
                      <div 

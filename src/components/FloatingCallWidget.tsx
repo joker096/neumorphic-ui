@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n';
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Phone, MicOff, Volume2 } from 'lucide-react';
@@ -6,6 +7,7 @@ import { callRecorderService } from '../lib/callRecorderService';
 
 export const FloatingCallWidget = ({ theme }: { theme: 'dark' | 'light' }) => {
   const isDark = theme === "dark";
+  const { t } = useI18n();
   const { activeCall, setActiveCall } = useAppStore();
   const [duration, setDuration] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
@@ -53,12 +55,12 @@ export const FloatingCallWidget = ({ theme }: { theme: 'dark' | 'light' }) => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
               </span>
-              <span className="text-[10px] font-bold text-red-400 tracking-wider">REC</span>
+              <span className="text-[10px] font-bold text-red-400 tracking-wider">{t('calls.recording')}</span>
             </div>
           )}
           <div className="flex flex-col">
              <span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
-               {activeCall.number || "Unknown"}
+               {activeCall.number || t('calls.unknown')}
              </span>
              <span className={`text-xs font-mono font-medium ${isDark ? "text-orange-400" : "text-orange-600"}`}>
                {formatDuration(duration)}

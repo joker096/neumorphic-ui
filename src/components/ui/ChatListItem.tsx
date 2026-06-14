@@ -57,8 +57,8 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
   }, [chat.time, chat.id, stealthMode]);
 
   return (
-    <div className="relative mb-4 last:mb-0">
-      <div className={`absolute inset-0 flex items-center justify-end px-6 rounded-3xl ${isDark ? 'bg-red-500/20' : 'bg-red-500'} text-white overflow-hidden`}>
+    <div className="relative">
+      <div className={`absolute inset-0 flex items-center justify-end px-6 rounded-3xl ${isDark ? 'bg-red-500/20' : 'bg-red-500/20'} text-white overflow-hidden`}>
         <Archive size={20} className={isDark ? 'text-red-500' : 'text-white'} />
         <span className={`ml-2 text-sm font-bold ${isDark ? 'text-red-500' : 'text-white'}`}>{t('chat.archive')}</span>
       </div>
@@ -76,15 +76,15 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
           isDark
             ? active
               ? 'bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border border-orange-500/20'
-              : 'bg-[#13151b] shadow-[0_8px_16px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border border-white/[0.02] hover:scale-[1.02]'
+              : 'bg-[#13151b] shadow-[0_8px_16px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border border-white/[0.02] hover:[transform:scale(1.02)_translateZ(20px)]'
             : active
               ? 'bg-[#e2e8f0] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border border-black/5'
-              : 'bg-[#eaeff4] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-white/80 hover:scale-[1.02]'
+              : 'bg-[#eaeff4] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-white/80 hover:[transform:scale(1.02)_translateZ(20px)]'
         }`}
       >
         <div
           onClick={(e) => {
-            if (onAvatarClick && type !== 'channel') {
+            if (onAvatarClick) {
               e.stopPropagation();
               onAvatarClick(chat);
             }

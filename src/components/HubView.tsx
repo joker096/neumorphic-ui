@@ -37,11 +37,11 @@ export const HubView = () => {
         theme={isDark ? "dark" : "light"}
         onClose={() => setSelectedContact(null)}
         onCall={() => {
-          toast.info("Call", { description: "Call functionality" });
+          toast.info(t('contacts.call'), { description: t('contacts.callType', { type: t('contacts.call') }) });
           setSelectedContact(null);
         }}
         onMessage={() => {
-          toast.info("Message", { description: "Message functionality" });
+          toast.info(t('contacts.message'), { description: t('contacts.callType', { type: t('contacts.message') }) });
           setSelectedContact(null);
         }}
       />

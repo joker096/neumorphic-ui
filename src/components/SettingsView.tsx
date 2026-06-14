@@ -114,7 +114,7 @@ const SubView = ({ title, onBack, children, isDark }: any) => (
         {title}
       </h2>
     </div>
-    <div className={`w-full flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-6 min-h-0 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+    <div className={`w-full flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-6 min-h-0 ${isDark ? "scrollbar-ios" : "scrollbar-ios"}`}>
       {children}
     </div>
   </motion.div>
@@ -706,7 +706,7 @@ const appearance = t('settings.appearance');
         />
       </div>
 
-      <div className={`flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-5 min-h-0 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+      <div className={`flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-5 min-h-0 ${isDark ? "scrollbar-ios" : "scrollbar-ios"}`}>
         
         {/* PWA Install Banner */}
         <AnimatePresence>

@@ -80,7 +80,7 @@ export const ChatListPanel = ({
     <div
       style={pullToRefresh.refreshStyle}
       {...pullToRefresh.pullToRefreshHandlers}
-      className={`w-full max-w-[400px] flex-1 flex flex-col overflow-y-auto rounded-[32px] p-6 mb-8 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
+      className={`w-full max-w-[400px] flex-1 flex flex-col overflow-y-auto rounded-[32px] p-6 mb-8 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-ios" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-ios"}`}>
       {pullToRefresh.isRefreshing && (
         <div className="flex justify-center py-4 -mt-2">
           <ActivityIndicator size={24} />

@@ -492,7 +492,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
 
         {/* Messages */}
         <div
-          className={`flex-1 overflow-y-auto overflow-x-hidden p-6 flex flex-col gap-6 relative z-0 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}
+          className={`flex-1 overflow-y-auto overflow-x-hidden p-6 flex flex-col gap-6 relative z-0 ${isDark ? "scrollbar-ios" : "scrollbar-ios"}`}
         >
         <AnimatePresence mode="popLayout">
           {filteredHistory.filter((msg: any) => !threadData.replyMsgIds.has(msg.id)).map((msg: any) => {
@@ -1049,7 +1049,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
                   <X size={16} />
                 </button>
               </div>
-              <div className={`p-4 overflow-y-auto max-h-[calc(78vh-76px)] ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+              <div className={`p-4 overflow-y-auto max-h-[calc(78vh-76px)] ${isDark ? "scrollbar-ios" : "scrollbar-ios"}`}>
                 {chatSavedMessages.length > 0 ? (
                   <div className="flex flex-col gap-3">
                     {chatSavedMessages.slice().reverse().map((saved: any) => (

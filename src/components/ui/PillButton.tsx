@@ -28,8 +28,8 @@ export const PillButton: React.FC<PillButtonProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`relative flex items-center shrink-0 cursor-pointer group transition-transform hover:scale-[1.02] active:scale-95 ${
-        isLarge
+className={`relative flex items-center shrink-0 cursor-pointer group transition-transform hover:[transform:scale(1.02)_translateZ(20px)] active:[transform:scale(0.95)_translateZ(0px)] ${
+          isLarge
           ? 'w-full h-[52px] justify-center flex-col'
           : 'w-[110px] h-[48px] justify-between px-2.5'
       }`}
@@ -54,14 +54,6 @@ export const PillButton: React.FC<PillButtonProps> = ({
         <span
           className={`${
             isLarge ? 'text-[14px] w-full text-center' : 'text-[12px] font-bold'
-          } leading-[14px] transition-colors ${
-            active
-              ? isDark
-                ? 'text-white font-bold drop-shadow-sm'
-                : 'text-slate-900 font-bold drop-shadow-sm'
-              : isDark
-                ? 'text-white font-bold group-hover:text-white'
-                : 'text-slate-900 font-bold group-hover:text-slate-800'
           } leading-[14px] transition-colors ${
             active
               ? isDark

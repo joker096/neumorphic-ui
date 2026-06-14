@@ -103,23 +103,23 @@ describe('MorseDecoder component', () => {
   it('renders encoded morse text', () => {
     render(<MorseDecoder theme="dark" encodedText="... --- ..." />);
 
-    expect(screen.getByText('MORSE ENCODED')).toBeInTheDocument();
+    expect(screen.getByText('morse.encoded')).toBeInTheDocument();
     expect(screen.getByText('... --- ...')).toBeInTheDocument();
   });
 
   it('shows decode button initially', () => {
     render(<MorseDecoder theme="dark" encodedText="... --- ..." />);
 
-    expect(screen.getByText('DECODE MORSE')).toBeInTheDocument();
+    expect(screen.getByText('morse.decode')).toBeInTheDocument();
   });
 
   it('decodes morse when button is clicked', async () => {
     render(<MorseDecoder theme="dark" encodedText="... --- ..." />);
 
-    fireEvent.click(screen.getByText('DECODE MORSE'));
+    fireEvent.click(screen.getByText('morse.decode'));
 
     await waitFor(() => {
-      expect(screen.getByText('DECODED TEXT')).toBeInTheDocument();
+      expect(screen.getByText('morse.decoded')).toBeInTheDocument();
       expect(screen.getByText('SOS')).toBeInTheDocument();
     });
   });
@@ -127,24 +127,24 @@ describe('MorseDecoder component', () => {
   it('applies dark theme styles', () => {
     render(<MorseDecoder theme="dark" encodedText="... --- ..." />);
 
-    const container = screen.getByText('MORSE ENCODED').parentElement?.parentElement;
+    const container = screen.getByText('morse.encoded').parentElement?.parentElement;
     expect(container).toHaveClass('p-3');
   });
 
   it('applies light theme styles', () => {
     render(<MorseDecoder theme="light" encodedText="... --- ..." />);
 
-    const container = screen.getByText('MORSE ENCODED').parentElement?.parentElement;
+    const container = screen.getByText('morse.encoded').parentElement?.parentElement;
     expect(container).toHaveClass('p-3');
   });
 
   it('shows decoded text with amber styling in dark mode', async () => {
     render(<MorseDecoder theme="dark" encodedText="... --- ..." />);
 
-    fireEvent.click(screen.getByText('DECODE MORSE'));
+    fireEvent.click(screen.getByText('morse.decode'));
 
     await waitFor(() => {
-      const decodedContainer = screen.getByText('DECODED TEXT').parentElement;
+      const decodedContainer = screen.getByText('morse.decoded').parentElement;
       expect(decodedContainer).toHaveClass('p-3');
     });
   });
@@ -152,10 +152,10 @@ describe('MorseDecoder component', () => {
   it('shows decoded text with amber styling in light mode', async () => {
     render(<MorseDecoder theme="light" encodedText="... --- ..." />);
 
-    fireEvent.click(screen.getByText('DECODE MORSE'));
+    fireEvent.click(screen.getByText('morse.decode'));
 
     await waitFor(() => {
-      const decodedContainer = screen.getByText('DECODED TEXT').parentElement;
+      const decodedContainer = screen.getByText('morse.decoded').parentElement;
       expect(decodedContainer).toHaveClass('p-3');
     });
   });
@@ -163,7 +163,7 @@ describe('MorseDecoder component', () => {
   it('handles complex morse sequences', async () => {
     render(<MorseDecoder theme="dark" encodedText=".... . .-.. .-.. --- / .-- --- .-. .-.. -.." />);
 
-    fireEvent.click(screen.getByText('DECODE MORSE'));
+    fireEvent.click(screen.getByText('morse.decode'));
 
     await waitFor(() => {
       expect(screen.getByText('HELLO WORLD')).toBeInTheDocument();

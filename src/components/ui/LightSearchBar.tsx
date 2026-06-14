@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
+import { useI18n } from '../../lib/i18n';
 
 export const LightSearchBar: React.FC<{
   searchQuery?: string;
   onSearchChange?: (val: string) => void;
   placeholder?: string;
 }> = ({ searchQuery, onSearchChange, placeholder }) => {
+  const { t } = useI18n();
   const [internalVal, setInternalVal] = useState("");
   const val = searchQuery !== undefined ? searchQuery : internalVal;
   const setVal = onSearchChange || setInternalVal;
@@ -28,10 +30,10 @@ export const LightSearchBar: React.FC<{
         className={`relative w-full h-[64px] rounded-full px-8 py-0 flex items-center justify-between border transition-all duration-300 
         ${
           pressed
-            ? "bg-[#e2e8f0] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border-black/5 scale-[0.98]"
+            ? "bg-[#e2e8f0] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border-black/5 [transform:scale(0.98)_translateZ(0px)]"
             : focused
-              ? "bg-[#eaeff4] border-orange-300/60 scale-[1.02] shadow-[-6px_-6px_12px_rgba(255,255,255,1),_8px_10px_20px_rgba(165,175,190,0.4),_inset_3px_3px_6px_rgba(165,175,190,0.1)]"
-              : "bg-[#eaeff4] shadow-[-12px_-12px_24px_rgba(255,255,255,0.9),_16px_20px_35px_rgba(165,175,190,0.5),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border-white/80 hover:scale-[1.01]"
+              ? "bg-[#eaeff4] border-orange-300/60 [transform:scale(1.02)_translateZ(20px)] shadow-[-6px_-6px_12px_rgba(255,255,255,1),_8px_10px_20px_rgba(165,175,190,0.4),_inset_3px_3px_6px_rgba(165,175,190,0.1)]"
+              : "bg-[#eaeff4] shadow-[-12px_-12px_24px_rgba(255,255,255,0.9),_16px_20px_35px_rgba(165,175,190,0.5),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border-white/80 hover:[transform:scale(1.01)_translateZ(15px)]"
         }`}
         onPointerDown={() => setPressed(true)}
         onPointerUp={() => setPressed(false)}
@@ -43,7 +45,7 @@ export const LightSearchBar: React.FC<{
           onChange={(e) => setVal(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={placeholder || "Search chats or messages..."}
+          placeholder={placeholder || t('chat.searchChats')}
           className="bg-transparent border-none outline-none w-full text-[15.5px] font-medium text-[#4b5563] placeholder:text-[#88909e] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"
         />
         <div

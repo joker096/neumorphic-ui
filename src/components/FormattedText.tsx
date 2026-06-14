@@ -10,13 +10,13 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
   const renderLinks = (content: string) => {
     const linkParts = content.split(/(https?:\/\/[^\s]+)/g);
     return linkParts.map((chunk, index) => {
-      if (/^https?:\/\/[^\s]+$/i.test(chunk)) {
+      if (/^https?:\/\/[^\s]+$/i.test(chunk) && (chunk.startsWith('http://') || chunk.startsWith('https://'))) {
         return (
           <a
             key={index}
             href={chunk}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="text-orange-500 underline decoration-orange-500/40 underline-offset-2 break-all hover:opacity-80"
             onClick={(e) => e.stopPropagation()}
           >
@@ -44,7 +44,8 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
 
   const renderHighlight = (content: string) => {
     if (!searchTerm) return content;
-    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
     const splitContent = content.split(regex);
     return splitContent.map((chunk, index) => 
       regex.test(chunk) ? (

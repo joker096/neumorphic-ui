@@ -268,7 +268,7 @@ export const Dialpad = ({
                 </div>
               </div>
               <div
-                className={`flex flex-col gap-1.5 flex-1 overflow-y-auto ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}
+                className={`flex flex-col gap-1.5 flex-1 overflow-y-auto ${isDark ? "scrollbar-ios" : "scrollbar-ios"}`}
               >
                 {filteredCalls.map((call) => (
                   <div
@@ -328,7 +328,12 @@ export const Dialpad = ({
                         className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity click:scale-95 ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-700"}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          toast.info(t('contacts.contactAdded'), { description: t('contacts.creatingContact', { name: call.name }) });
+                          if (setContacts) {
+                            const colors = ["from-teal-400 to-emerald-500", "from-pink-400 to-rose-500", "from-yellow-400 to-orange-500"];
+                            const newColor = colors[contacts.length % colors.length];
+                            setContacts([{ name: call.name, id: `contact_${Date.now()}`, color: newColor, lastSeen: Date.now() }, ...contacts]);
+                            toast.success(t('contacts.contactAdded'), { description: t('contacts.creatingContact', { name: call.name }) });
+                          }
                         }}
                         title={t('calls.addToContacts')}
                       >
@@ -375,7 +380,12 @@ export const Dialpad = ({
       >
         <div
           onClick={() => {
-            if (number.length > 0) toast.info(t('contacts.contactAdded'), { description: t('contacts.addedToContacts', { number }) });
+            if (number.length > 0 && setContacts) {
+              const colors = ["from-teal-400 to-emerald-500", "from-pink-400 to-rose-500", "from-yellow-400 to-orange-500"];
+              const newColor = colors[contacts.length % colors.length];
+              setContacts([{ name: number, id: `contact_${Date.now()}`, color: newColor, lastSeen: Date.now() }, ...contacts]);
+              toast.success(t('contacts.contactAdded'), { description: t('contacts.addedToContacts', { number }) });
+            }
           }}
           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:[transform:scale(1.1)_translateZ(15px)] active:[transform:scale(0.9)_translateZ(0px)] ${
             number.length > 0
@@ -492,7 +502,7 @@ export const Dialpad = ({
               <p className={`text-xs text-center mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('calls.selectContactDesc')}</p>
             </div>
 
-            <div className={`flex flex-col gap-2 max-h-[300px] overflow-y-auto ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+            <div className={`flex flex-col gap-2 max-h-[300px] overflow-y-auto ${isDark ? "scrollbar-ios" : "scrollbar-ios"}`}>
               {contacts.map((c) => (
                 <div
                   key={c.id}

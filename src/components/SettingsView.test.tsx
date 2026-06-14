@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { SettingsView } from './SettingsView';
 import { useAppStore } from '../store';
+import { I18nProvider } from '../lib/i18n';
 
 vi.mock('../store', () => ({
   useAppStore: vi.fn(() => ({
@@ -87,6 +88,8 @@ vi.mock('../lib/i18n', () => {
     'settings.photoEditorSection': 'Photo Editor',
     'settings.photoEditor': 'Image Editor',
     'settings.autoSaveEdits': 'Auto-save edits',
+    'settings.defaultUsername': 'Joker',
+    'settings.defaultUserHandle': '@joker',
     'settings.batteryLevel': 'Battery Level',
     'settings.installBtn': 'Install',
     'settings.installDismiss': 'Not now',
@@ -263,27 +266,27 @@ describe('SettingsView', () => {
   });
 
   it('renders main settings view', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByPlaceholderText('Search settings...')).toBeInTheDocument();
   });
 
   it('shows PWA install banner by default', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText(/Install Mess&Anger/)).toBeInTheDocument();
     expect(screen.getByText(/worksOffline/)).toBeInTheDocument();
   });
 
 it.skip('hides PWA banner when dismissed', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText('Not now'));
     expect(screen.queryByText(/Install/)).not.toBeInTheDocument();
   });
 
   it('shows Account section with user info', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText('Account')).toBeInTheDocument();
     expect(screen.getByText('Joker')).toBeInTheDocument();
@@ -292,7 +295,7 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
   it('shows Appearance section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText('Appearance')).toBeInTheDocument();
     expect(screen.getByText('Theme')).toBeInTheDocument();
@@ -300,7 +303,7 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
   it.skip('navigates to Appearance sub-view when clicked', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText(/Theme/));
 
@@ -309,7 +312,7 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
   it.skip('navigates to Language sub-view when clicked', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText(/Language/));
 
@@ -319,14 +322,14 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
   it.skip('shows Notifications section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText(/notification|notifications/)).toBeInTheDocument();
     expect(screen.getByText(/Sound/)).toBeInTheDocument();
   });
 
   it('shows Privacy & Security section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText('Privacy & Security')).toBeInTheDocument();
     expect(screen.getByText('Security')).toBeInTheDocument();
@@ -334,35 +337,35 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
   it.skip('navigates to Security sub-view', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText(/Security/));
     expect(screen.getByText(/Security/)).toBeInTheDocument();
   });
 
   it.skip('navigates to Privacy sub-view', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText(/Privacy/));
     expect(screen.getByText(/Privacy/)).toBeInTheDocument();
   });
 
   it.skip('shows Data & Storage section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText(/Data|Storage/)).toBeInTheDocument();
     expect(screen.getByText(/backup|cache/)).toBeInTheDocument();
   });
 
   it('shows Services section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText('Services')).toBeInTheDocument();
     expect(screen.getByText('Bots')).toBeInTheDocument();
   });
 
   it('shows Advanced section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText('Advanced')).toBeInTheDocument();
     expect(screen.getByText('Proxy & Network')).toBeInTheDocument();
@@ -371,7 +374,7 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
   it('navigates to Network sub-view', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText('Proxy & Network'));
 
@@ -379,20 +382,20 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
    it.skip('shows Cloud Sync section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText(/Cloud Sync|cloud|sync/)).toBeInTheDocument();
   });
 
   it('shows Location section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText('Location')).toBeInTheDocument();
     expect(screen.getByText('Active shares')).toBeInTheDocument();
   });
 
   it('shows Photo Editor section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText('Photo Editor')).toBeInTheDocument();
     expect(screen.getByText('Image Editor')).toBeInTheDocument();
@@ -400,13 +403,13 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
  it('shows build status footer', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     expect(screen.getByText(/Last build|build|last build/)).toBeInTheDocument();
   });
 
   it('applies dark theme styles', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     const container = screen.getByPlaceholderText('Search settings...').closest('div[class*="bg-[#11141c]"]');
     expect(container).toBeInTheDocument();
@@ -414,21 +417,21 @@ it.skip('hides PWA banner when dismissed', () => {
 
   it('applies light theme styles', () => {
     const lightProps = { ...defaultProps, theme: 'light' as const };
-    render(<SettingsView {...lightProps} />);
+    render(<I18nProvider><SettingsView {...lightProps} /></I18nProvider>);
 
     const container = screen.getByPlaceholderText('Search settings...').closest('div[class*="bg-[#eaeff4]"]');
     expect(container).toBeInTheDocument();
   });
 
   it.skip('toggles dark theme when clicked in Appearance', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText('Theme'));
     expect(screen.getByText(/theme|appearance|dark|light/)).toBeInTheDocument();
   });
 
   it.skip('changes language when selected', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText(/Language/));
     expect(screen.getByText(/English|Espanol|Deutsch/)).toBeInTheDocument();
@@ -438,7 +441,7 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
   it.skip('navigates back to main from sub-view', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText(/Theme/));
     expect(screen.getByText(/Appearance/)).toBeInTheDocument();
@@ -448,7 +451,7 @@ it.skip('hides PWA banner when dismissed', () => {
   });
 
   it.skip('shows Battery status in System Status', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(<I18nProvider><SettingsView {...defaultProps} /></I18nProvider>);
 
     fireEvent.click(screen.getByText(/System Status/));
 

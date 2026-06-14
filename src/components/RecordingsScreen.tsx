@@ -1,3 +1,4 @@
+import { useI18n } from '../lib/i18n';
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Pause, Trash2, Download, Heart, Star, Mic, Video, MoreVertical, Search, X, Volume2, VolumeX, SkipBack, SkipForward, ListFilter } from 'lucide-react';
@@ -27,6 +28,7 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
   onToggleFavorite: (id: string) => void;
   isDark: boolean;
 }) {
+  const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const isVideo = recording.callType === 'video' || recording.callType === 'group_video';
   const names = recording.participants.map(p => p.displayName).join(', ');
@@ -39,7 +41,7 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className={`font-medium text-sm truncate ${isDark ? 'text-gray-200' : 'text-slate-800'}`}>
-            {recording.title || names || 'Untitled'}
+            {recording.title || names || t('recordings.untitled')}
           </span>
           {recording.isFavorite && <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />}
         </div>
@@ -48,7 +50,7 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
           <span>&middot;</span>
           <span>{formatDuration(recording.recordingDuration)}</span>
           <span>&middot;</span>
-          <span>{(recording.fileSize / 1024 / 1024).toFixed(1)} MB</span>
+          <span>{(recording.fileSize / 1024 / 1024).toFixed(1)} {t('recordings.fileSize')}</span>
         </div>
       </div>
       <button onClick={() => onPlay(recording)} className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? 'bg-orange-500 text-white' : 'bg-orange-500 text-white'}`}>
@@ -63,13 +65,13 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
             <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
             <div className={`absolute right-0 top-full mt-1 z-20 w-44 rounded-2xl py-1 shadow-2xl border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}>
               <button onClick={() => { onToggleFavorite(recording.id); setMenuOpen(false); }} className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-slate-700'}`}>
-                <Heart className="w-4 h-4" /> {recording.isFavorite ? 'Remove Favorite' : 'Add to Favorites'}
+                <Heart className="w-4 h-4" /> {recording.isFavorite ? t('recordings.removeFavorite') : t('recordings.addToFavorites')}
               </button>
               <button onClick={() => { onExport(recording.id, recording.title || 'recording'); setMenuOpen(false); }} className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-slate-700'}`}>
-                <Download className="w-4 h-4" /> Export
+                <Download className="w-4 h-4" /> {t('recordings.export')}
               </button>
               <button onClick={() => { onDelete(recording.id); setMenuOpen(false); }} className="w-full px-3 py-2 text-sm text-left flex items-center gap-2 text-red-500 hover:bg-red-500/10">
-                <Trash2 className="w-4 h-4" /> Delete
+                <Trash2 className="w-4 h-4" /> {t('recordings.delete')}
               </button>
             </div>
           </>
@@ -94,6 +96,7 @@ function RecordingPlayer({ recording, blobUrl, isDark, onClose, onDelete, onExpo
   const [volume, setVolume] = useState(1);
   const [muted, setMuted] = useState(false);
   const [rate, setRate] = useState(1);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (audioRef.current) {
@@ -129,13 +132,13 @@ function RecordingPlayer({ recording, blobUrl, isDark, onClose, onDelete, onExpo
         <audio ref={audioRef} onTimeUpdate={() => { if (audioRef.current) setCurrentTime(audioRef.current.currentTime); }} onLoadedMetadata={() => { if (audioRef.current) setDuration(audioRef.current.duration); }} onEnded={() => setPlaying(false)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
 
         <div className={`flex items-center justify-between mb-4 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-          <h3 className="font-semibold text-sm truncate">{recording.title || 'Recording'}</h3>
+          <h3 className="font-semibold text-sm truncate">{recording.title || t('recordings.recording')}</h3>
           <button onClick={onClose} className="p-1 rounded-full hover:bg-white/10"><X className="w-5 h-5" /></button>
         </div>
 
         <div className={`mb-4 text-xs space-y-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
           {recording.participants.length > 0 && <p>{recording.participants.map(p => p.displayName).join(', ')}</p>}
-          <p>Duration: {formatDuration(recording.duration)}</p>
+          <p>{t('recordings.duration', { time: formatDuration(recording.duration) })}</p>
         </div>
 
         <input type="range" min={0} max={duration || 0} value={currentTime} onChange={(e) => { const t = Number(e.target.value); if (audioRef.current) audioRef.current.currentTime = t; setCurrentTime(t); }} className="w-full h-1.5 accent-orange-500 cursor-pointer mb-1" />
@@ -145,13 +148,13 @@ function RecordingPlayer({ recording, blobUrl, isDark, onClose, onDelete, onExpo
         </div>
 
         <div className="flex items-center justify-center gap-4 mb-4">
-          <button onClick={() => skip(-15)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-15s</button>
-          <button onClick={() => skip(-5)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-5s</button>
+          <button onClick={() => skip(-15)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{t('recordings.skipBack15')}</button>
+          <button onClick={() => skip(-5)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{t('recordings.skipBack5')}</button>
           <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-orange-500 text-white flex items-center justify-center hover:brightness-110 transition-all">
             {playing ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
           </button>
-          <button onClick={() => skip(5)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+5s</button>
-          <button onClick={() => skip(15)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+15s</button>
+          <button onClick={() => skip(5)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{t('recordings.skipForward5')}</button>
+          <button onClick={() => skip(15)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{t('recordings.skipForward15')}</button>
         </div>
 
         <div className="flex items-center justify-between">
@@ -186,6 +189,7 @@ export function RecordingsScreen({ theme, onBack }: RecordingsScreenProps) {
   const [selectedRecording, setSelectedRecording] = useState<CallRecording | null>(null);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t } = useI18n();
 
   const handlePlay = useCallback(async (rec: CallRecording) => {
     setLoading(true);
@@ -233,10 +237,10 @@ export function RecordingsScreen({ theme, onBack }: RecordingsScreenProps) {
   }, [recordings, searchQuery, sortBy, sortOrder]);
 
   const sortOptions = [
-    { value: 'date', label: 'Date' },
-    { value: 'duration', label: 'Duration' },
-    { value: 'type', label: 'Type' },
-    { value: 'name', label: 'Name' },
+    { value: 'date', label: t('recordings.sortDate') },
+    { value: 'duration', label: t('recordings.sortDuration') },
+    { value: 'type', label: t('recordings.sortType') },
+    { value: 'name', label: t('recordings.sortName') },
   ];
 
   return (
@@ -245,14 +249,14 @@ export function RecordingsScreen({ theme, onBack }: RecordingsScreenProps) {
         <button onClick={onBack} className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-[#1a1d24] border border-white/10 hover:bg-white/10' : 'bg-white border border-black/10 hover:bg-black/5'}`}>
           <SkipBack className="w-5 h-5 rotate-180" />
         </button>
-        <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Recordings</h2>
+        <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('recordings.title')}</h2>
       </div>
 
       <div className="px-4 mb-3">
         <div className="relative">
           <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
           <input type="text" value={searchQuery} onChange={(e) => updateSettings({ recordingsSearchQuery: e.target.value })}
-            placeholder="Search recordings..."
+            placeholder={t('recordings.search')}
             className={`w-full pl-9 pr-3 py-2 rounded-2xl text-sm outline-none ${isDark ? 'bg-[#1a1d24] text-gray-200 placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400 border border-black/10'}`} />
         </div>
       </div>
@@ -266,7 +270,7 @@ export function RecordingsScreen({ theme, onBack }: RecordingsScreenProps) {
         ))}
         <button onClick={() => updateSettings({ recordingsSortOrder: sortOrder === 'asc' ? 'desc' : 'asc' })}
           className={`px-3 py-1 rounded-full text-xs font-medium ${isDark ? 'bg-[#1a1d24] text-gray-400' : 'bg-white text-slate-500 border border-black/10'}`}>
-          {sortOrder === 'asc' ? 'ASC' : 'DESC'}
+          {sortOrder === 'asc' ? t('recordings.asc') : t('recordings.desc')}
         </button>
       </div>
 
@@ -274,7 +278,7 @@ export function RecordingsScreen({ theme, onBack }: RecordingsScreenProps) {
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <Mic className={`w-16 h-16 mb-4 ${isDark ? 'text-gray-600' : 'text-slate-300'}`} />
-            <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>Your call recordings will appear here</p>
+            <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{t('recordings.empty')}</p>
           </div>
         ) : (
           <div className="space-y-1">

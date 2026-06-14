@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Settings, Volume2, VolumeX, Play, Pause, Music, Activity, Cpu, HardDrive, SkipBack, SkipForward, ListMusic, List, Radio, ArrowLeft, ChevronLeft, Plus, SlidersHorizontal, Trash2, Save, Headphones, FolderOpen, Folder, X, Video } from "lucide-react";
+import { Settings, Volume2, VolumeX, Play, Pause, Music, Activity, Cpu, HardDrive, SkipBack, SkipForward, ListMusic, List, Radio, ArrowLeft, ChevronLeft, Plus, SlidersHorizontal, Trash2, Save, Headphones, FolderOpen, Folder, X, Video, Edit } from "lucide-react";
 import { toast } from 'sonner';
 import { useAppStore } from '../store';
 import { playSound } from '../lib/sounds';
+import { useI18n } from '@/lib/i18n';
 
 // --- EQ Presets ---
 const DEFAULT_EQ_PRESETS = [
@@ -129,6 +130,7 @@ interface MediaDeviceInfo {
 
 export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
    const isDark = theme === "dark";
+   const { t } = useI18n();
    const [isPlaying, setIsPlaying] = useState(false);
    const [showPlaylist, setShowPlaylist] = useState(false);
    const [showEq, setShowEq] = useState(false);
@@ -137,11 +139,16 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
    const [radioStationIndex, setRadioStationIndex] = useState(0);
    const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
-   // Modal state for adding radio stations
-   const [showAddStationModal, setShowAddStationModal] = useState(false);
-   const [stationName, setStationName] = useState("");
-   const [stationUrl, setStationUrl] = useState("");
-   const [stationAddError, setStationAddError] = useState("");
+    // Modal state for adding radio stations
+    const [showAddStationModal, setShowAddStationModal] = useState(false);
+    const [stationName, setStationName] = useState("");
+    const [stationUrl, setStationUrl] = useState("");
+    const [stationAddError, setStationAddError] = useState("");
+
+    // Edit state for stations and tracks
+    const [editingStation, setEditingStation] = useState<any>(null);
+    const [editingTrack, setEditingTrack] = useState<any>(null);
+    const [editTrackName, setEditTrackName] = useState("");
 
    const [playlist, setPlaylist] = useState([
      { id: "1", name: "Neon District", url: "", time: "03:42", file: null },
@@ -268,9 +275,9 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
              setVideoUrl(url);
              setShowVideo(true);
              setIsVideoPlaying(true);
-             toast.success("Video loaded", { description: file.name });
-          } else {
-             toast.error("Invalid file", { description: "Please select a video file" });
+              toast.success(t('player.videoLoaded'), { description: file.name });
+           } else {
+              toast.error(t('player.invalidFile'), { description: t('player.selectVideoFile') });
           }
        }
        e.target.value = "";
@@ -295,22 +302,28 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
     };
 
    // Apply EQ preset
+   const getPresetDisplayName = (presetName: string) => {
+      const key = `player.eqPreset${presetName.replace(/\s+/g, '')}`;
+      const translated = t(key);
+      return translated !== key ? translated : presetName;
+   };
+
    const applyPreset = (preset: EQPreset) => {
       setEqGains(preset.gains);
       setCurrentPreset(preset.name);
-      toast.info(`Applied: ${preset.name}`);
+      toast.info(t('player.appliedPreset', { name: getPresetDisplayName(preset.name) }));
    };
 
    // Save preset
    const savePreset = () => {
       if (!newPresetName.trim()) {
-         toast.error("Please enter a name for your preset");
+         toast.error(t('player.enterPresetName'));
          return;
       }
       const success = saveUserPreset({
          name: newPresetName.trim(),
          gains: [...eqGains],
-         description: "Custom preset",
+         description: t('player.customPreset'),
          userCreated: true,
       });
       if (success) {
@@ -318,9 +331,9 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
          setCurrentPreset(newPresetName.trim());
          setNewPresetName("");
          setShowSavePresetModal(false);
-         toast.success("Preset saved!");
+          toast.success(t('player.presetSaved'));
       } else {
-         toast.error("Failed to save preset");
+         toast.error(t('player.presetSaveFailed'));
       }
    };
 
@@ -330,7 +343,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
       if (deleted) {
          setSavedPresets(loadEQPresets());
          setCurrentPreset("Flat");
-         toast.success("Preset deleted");
+          toast.success(t('player.presetDeleted'));
       }
    };
 
@@ -356,7 +369,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
              setVideoUrl(objUrl);
              setShowVideo(true);
              setIsVideoPlaying(true);
-             toast.success("Video loaded", { description: firstVideo.name });
+              toast.success(t('player.videoLoaded'), { description: firstVideo.name });
           }
           // Add remaining audio files to playlist
           const audioCount = audioFiles.length;
@@ -370,7 +383,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
              setIsPlaying(true);
           }
           if (videoFiles.length === 0 && audioFiles.length === 0) {
-             toast.info("No media files found in folder");
+              toast.info(t('player.noMediaFound'));
           }
        }
        e.target.value = ""; // Reset input
@@ -385,9 +398,9 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
              setVideoUrl(objUrl);
              setShowVideo(true);
              setIsVideoPlaying(true);
-             toast.success("Video loaded", { description: file.name });
-          } else {
-             loadAudioFiles([file], (f) => {
+              toast.success(t('player.videoLoaded'), { description: file.name });
+           } else {
+              loadAudioFiles([file], (f) => {
                 const objUrl = URL.createObjectURL(f);
                 const newTrack = { id: Math.random().toString(36).substr(2, 9), name: f.name.replace(/\.[^/.]+$/, ""), url: objUrl, time: "Added", file: f as any };
                 setPlaylist((prev: any) => [...prev, newTrack]);
@@ -461,7 +474,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
    };
 
    return (
-     <div className={`w-full max-w-[400px] rounded-[40px] flex flex-col items-center p-6 sm:p-8 ${bgColor} ${darkShadow} relative overflow-hidden font-sans border ${isDark ? "border-white/[0.02]" : "border-black/[0.02]"} transition-all duration-300`}>
+      <div className={`w-full max-w-[400px] h-full rounded-[40px] flex flex-col items-center p-6 sm:p-8 ${bgColor} ${darkShadow} relative overflow-hidden font-sans border ${isDark ? "border-white/[0.02]" : "border-black/[0.02]"} transition-all duration-300`}>
        {/* Ripple effect */}
        {rippleState.active && (
          <div
@@ -490,35 +503,35 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
        {/* Noise Texture */}
        <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
 
-       {/* Top Bar - System Info */}
-       <div className="w-full flex items-center justify-between px-2 mb-8 relative z-10">
+        {/* Top Bar - System Info */}
+        <div className="w-full flex items-center justify-between px-2 mb-8 relative z-10 shrink-0">
          <div className="flex items-center gap-1.5 opacity-80">
            <Music size={18} className={textColor} />
-           <span className={`text-[12px] font-bold tracking-[0.15em] ${textColor}`}>SYSTEM PLAYER</span>
+            <span className={`text-[12px] font-bold tracking-[0.15em] ${textColor}`}>{t('player.systemPlayer')}</span>
          </div>
          <div className="flex items-center gap-2">
            {!showEq && !showPlaylist && (
              <div 
                onClick={() => setShowEq(true)}
-               className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "hover:bg-white/10" : "hover:bg-black/10"} transition-colors`} title="Equalizer & Settings"
+                className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "hover:bg-white/10" : "hover:bg-black/10"} transition-colors`} title={t('player.equalizerSettings')}
              >
                <SlidersHorizontal size={16} className={textColor} />
              </div>
            )}
-           {!isRadioMode && !showPlaylist && !showEq && (
-             <div className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title="Add Track">
-                <Plus size={16} />
-                <input type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
-             </div>
-           )}
-           {!isRadioMode && !showPlaylist && !showEq && (
-               <label className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title="Add Folder">
+            {!isRadioMode && !showPlaylist && !showEq && (
+               <label className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title={t('player.addTrack')}>
+                  <Plus size={16} />
+                  <input type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
+               </label>
+             )}
+            {!isRadioMode && !showPlaylist && !showEq && (
+                <label className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('player.addFolder')}>
                   <FolderOpen size={16} />
                   <input type="file" accept="audio/*,video/*" className="hidden" onChange={handleFolderSelect} />
                </label>
             )}
             {!isRadioMode && !showPlaylist && !showEq && (
-               <label className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-purple-500/20 text-purple-400 hover:bg-purple-500/30" : "bg-purple-100 text-purple-600 hover:bg-purple-200"} transition-colors`} title="Add Video">
+                <label className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-purple-500/20 text-purple-400 hover:bg-purple-500/30" : "bg-purple-100 text-purple-600 hover:bg-purple-200"} transition-colors`} title={t('player.addVideo')}>
                   <Video size={16} />
                   <input type="file" accept="video/*,.mp4,.webm,.ogg,.mov" className="hidden" onChange={handleVideoFileSelect} />
                </label>
@@ -529,8 +542,8 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                  setStationUrl("");
                  setStationAddError("");
                  setShowAddStationModal(true);
-              }} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title="Add Station">
-                <Plus size={16} />
+                }} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('player.addStation')}>
+                 <Plus size={16} />
               </div>
            )}
          </div>
@@ -543,7 +556,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
              initial={{ opacity: 0, scale: 0.95 }}
              animate={{ opacity: 1, scale: 1 }}
              exit={{ opacity: 0, scale: 0.95 }}
-             className="flex flex-col w-full h-[450px] relative z-10"
+             className="flex flex-col w-full flex-1 min-h-0 relative z-10"
            >
               <div className="flex items-center justify-between mb-6 border-b border-white/[0.05] pb-4">
                   <div 
@@ -552,13 +565,13 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                   >
                      <ArrowLeft size={18} />
                   </div>
-                  <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>Audio Settings</span>
+                   <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{t('player.audioSettings')}</span>
                   <div className="w-10" />
               </div>
               
               <div className="flex-1 flex flex-col gap-6 px-2 overflow-y-auto">
                  <div>
-                    <div className={`text-[11px] font-bold tracking-widest uppercase mb-3 ${textColor} opacity-70`}>Master Volume</div>
+                     <div className={`text-[11px] font-bold tracking-widest uppercase mb-3 ${textColor} opacity-70`}>{t('player.masterVolume')}</div>
                     <div className="flex items-center gap-4">
                        <VolumeX size={16} className={textColor} />
                        <input 
@@ -576,7 +589,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                  </div>
 
                  <div className="mt-4">
-                    <div className={`text-[11px] font-bold tracking-widest uppercase mb-6 ${textColor} opacity-70`}>5-Band Equalizer</div>
+                     <div className={`text-[11px] font-bold tracking-widest uppercase mb-6 ${textColor} opacity-70`}>{t('player.equalizer')}</div>
                     <div className="flex items-end justify-between h-[150px] px-2 gap-2">
                        {[60, 230, 910, "3.6k", "14k"].map((freq, i) => (
                           <div key={i} className="flex flex-col items-center gap-2 h-full justify-end">
@@ -607,7 +620,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                          onClick={() => setEqGains([0,0,0,0,0])}
                          className={`px-4 py-2 rounded-xl text-xs font-bold ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"} transition-colors`}
                        >
-                          Reset EQ
+                           {t('player.resetEq')}
                        </button>
                     </div>
                  </div>
@@ -619,10 +632,10 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="flex flex-col items-center w-full"
+            className="flex flex-col items-center w-full flex-1 min-h-0"
           >
             {/* Top Arc Element (5/4) -> Playlist Count */}
-            <div className={`w-[220px] h-[50px] rounded-[25px] flex items-center justify-center relative z-10 mb-6 ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} ${insetShadow} transition-colors`}>
+            <div className={`w-[220px] h-[50px] rounded-[25px] flex items-center justify-center relative z-10 mb-6 shrink-0 ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} ${insetShadow} transition-colors`}>
               {/* Decorative dots */}
               <div className={`absolute top-[35px] left-[30px] w-4 h-4 rounded-full ${isRadioMode ? "bg-[#5cc25c]" : "bg-[#c25c34]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
               <div className={`absolute top-[45px] left-[70px] w-3 h-3 rounded-full ${isRadioMode ? "bg-[#2cab50]" : "bg-[#ab502c]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
@@ -634,7 +647,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
             </div>
 
             {/* Radio / Normal Toggle */}
-            <div className="relative mb-6 z-10 flex justify-center w-full" title={isRadioMode ? "Switch to Local Playlist" : "Switch to Radio Player"}>
+            <div className="relative mb-6 z-10 flex justify-center w-full shrink-0" title={isRadioMode ? t('player.switchToLocal') : t('player.switchToRadio')}>
               <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-40 h-24 rounded-full ${bgColor} ${darkShadow} -z-10 blur-[2px]`} />
               <div 
                 onClick={() => setIsRadioMode(!isRadioMode)}
@@ -645,21 +658,21 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
             </div>
 
             {/* Value Readout - Track Index */}
-            <div className="w-full flex items-center justify-between px-8 mb-8 relative z-10 gap-4">
+            <div className="w-full flex items-center justify-between px-8 mb-8 relative z-10 gap-4 shrink-0">
               <div 
                 onClick={prevTrack}
-                title="Previous Track"
+                title={t('player.previousTrack')}
                 className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer ${isDark ? "bg-[#e6d6b8] text-[#2a3036]" : "bg-[#a3b1c6] text-white"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform`}
               >
                 <SkipBack size={18} fill="currentColor" />
               </div>
               <div className="flex flex-col items-center justify-center w-full min-w-0 px-2 overflow-hidden">
-                 <span className={`text-[20px] sm:text-[24px] font-medium leading-none ${textColor} truncate w-full text-center transition-colors`} title={currentTrack?.name}>{currentTrack?.name || "No Tracks"}</span>
-                 <span className={`text-[12px] font-bold tracking-widest uppercase opacity-70 ${isRadioMode ? (isDark ? "text-[#5cc25c]" : "text-green-600") : textColor} mt-1.5 transition-colors`}>{isRadioMode ? "RADIO LINK" : "LOCAL TRACK"}</span>
+                  <span className={`text-[20px] sm:text-[24px] font-medium leading-none ${textColor} truncate w-full text-center transition-colors`} title={currentTrack?.name}>{currentTrack?.name || t('player.noTracks')}</span>
+                  <span className={`text-[12px] font-bold tracking-widest uppercase opacity-70 ${isRadioMode ? (isDark ? "text-[#5cc25c]" : "text-green-600") : textColor} mt-1.5 transition-colors`}>{isRadioMode ? t('player.radioLink') : t('player.localTrack')}</span>
               </div>
               <div 
                 onClick={nextTrack}
-                title="Next Track"
+                title={t('player.nextTrack')}
                 className={`w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer ${isDark ? "bg-[#e6d6b8] text-[#2a3036]" : "bg-[#a3b1c6] text-white"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform`}
               >
                 <SkipForward size={18} fill="currentColor" />
@@ -728,23 +741,23 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="flex flex-col w-full h-[450px] relative z-10"
+            className="flex flex-col w-full flex-1 min-h-0 relative z-10"
           >
             <div className="flex items-center justify-between mb-6 border-b border-white/[0.05] pb-4">
                 <div 
                   onClick={() => setShowPlaylist(false)}
                   className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[#e6d6b8] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
-                  title="Back to Player"
+                  title={t('player.backToPlayer')}
                 >
                    <ArrowLeft size={18} />
                 </div>
-                <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{isRadioMode ? "Radio Stations" : "System Playlist"}</span>
+                <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{isRadioMode ? t('player.radioStations') : t('player.systemPlaylist')}</span>
                 
                 {/* Add Track Button */}
                 {!isRadioMode ? (
-                   <label className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title="Add Track">
-                     <Plus size={18} />
-                     <input type="file" accept="audio/*" className="hidden" onChange={(e) => {
+                    <label className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title={t('player.addTrack')}>
+                      <Plus size={18} />
+                      <input type="file" accept="audio/*" className="hidden" onChange={(e) => {
                         if (e.target.files && e.target.files.length > 0) {
                            const file = e.target.files[0];
                            const objUrl = URL.createObjectURL(file);
@@ -754,7 +767,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                      }} />
                    </label>
                 ) : (
-                 <div className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title="Add Station"
+                 <div className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('player.addStation')}
                       onClick={() => {
                          setStationName("");
                          setStationUrl("");
@@ -766,7 +779,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                 )}
               </div>
               
-              <div className={`flex flex-col gap-3 flex-1 overflow-y-auto pr-2 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+              <div className={`flex flex-col gap-3 flex-1 overflow-y-auto pr-2 ${isDark ? "scrollbar-ios" : "scrollbar-ios"}`}>
                 {activeList.map((track, i) => {
                   const isActive = i === activeIndex;
                 return (
@@ -815,11 +828,30 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                       <span className={`text-[11px] font-mono opacity-50 ${textColor} mr-2`}>{track.time}</span>
                     </div>
 
-                    {/* Delete button (only show for tracks/stations user could have added theoretically) */}
+                    {/* Edit button */}
                     <div 
                       onClick={(e) => {
                          e.stopPropagation();
-                         const confirmDel = window.confirm(`Delete ${track.name}?`);
+                         if (isRadioMode) {
+                           setEditingStation(track);
+                           setStationName(track.name);
+                           setStationUrl(track.url);
+                           setStationAddError("");
+                         } else {
+                           setEditingTrack(track);
+                           setEditTrackName(track.name);
+                         }
+                      }}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "hover:bg-blue-500/20 text-blue-400" : "hover:bg-blue-100 text-blue-500"}`}
+                      title={t('player.edit')}
+                    >
+                       <Edit size={14} />
+                    </div>
+                    {/* Delete button */}
+                    <div 
+                      onClick={(e) => {
+                         e.stopPropagation();
+                          const confirmDel = window.confirm(t('player.deleteConfirm', { name: track.name }));
                          if (confirmDel) {
                             if (isRadioMode) {
                                setRadioStations(radioStations.filter((_, idx) => idx !== i));
@@ -841,7 +873,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                          }
                       }}
                       className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
-                      title="Remove"
+                      title={t('player.remove')}
                     >
                        <Trash2 size={14} />
                     </div>
@@ -879,12 +911,12 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
          </div>
        )}
 
-      {/* Bottom Controls */}
-      <div className="w-full flex items-center justify-between px-8 z-10 mt-auto pt-6">
+        {/* Bottom Controls */}
+      <div className="w-full flex items-center justify-between px-8 z-10 mt-auto pt-6 shrink-0">
          <div 
            onClick={() => setIsMuted(!isMuted)}
-           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`} 
-           title={isMuted ? "Unmute" : "Mute"}
+            className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`} 
+            title={isMuted ? t('player.unmute') : t('player.mute')}
          >
             {isMuted ? <VolumeX size={24} className={textColor} /> : <Volume2 size={24} className={textColor} />}
          </div>
@@ -894,45 +926,45 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
               else playSound('call-busy');
               setIsPlaying(!isPlaying);
             }}
-            title={isPlaying ? "Pause" : "Play"}
+            title={isPlaying ? t('player.pause') : t('player.play')}
             className={`w-16 h-16 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`}
           >
             {isPlaying ? <Pause size={28} className={textColor} fill="currentColor" /> : <Play size={28} className={`${textColor} ml-1`} fill="currentColor" />}
          </div>
          <div 
            onClick={() => { setShowPlaylist(!showPlaylist); setShowEq(false); }}
-           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`} 
-           title={showPlaylist ? "Hide Playlist" : "View Playlist"}
+            className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`} 
+            title={showPlaylist ? t('player.hidePlaylist') : t('player.viewPlaylist')}
          >
             <ListMusic size={24} className={textColor} />
          </div>
       </div>
 
-       {/* Add Station Modal */}
-       {showAddStationModal && (
+       {/* Add/Edit Station Modal */}
+       {(showAddStationModal || editingStation) && (
          <div className="absolute inset-0 bg-black/60 rounded-[40px] flex items-center justify-center z-50 backdrop-blur-sm">
            <div className={`w-[90%] max-w-[320px] rounded-2xl p-6 ${isDark ? "bg-[#2a3036]" : "bg-[#e8ecf4]"}`}>
-             <h3 className={`text-lg font-bold mb-4 ${textColor}`}>Add Radio Station</h3>
-             <div className="mb-3">
-               <label className={`text-xs font-medium ${textColor} opacity-70`}>Station Name</label>
-               <input
-                 type="text"
-                 value={stationName}
-                 onChange={(e) => setStationName(e.target.value)}
-                 placeholder="e.g. MetroPulse FM"
-                 className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white border border-black/10"}`}
-                 autoFocus
-               />
-             </div>
-             <div className="mb-3">
-               <label className={`text-xs font-medium ${textColor} opacity-70`}>Stream URL</label>
-               <input
-                 type="text"
-                 value={stationUrl}
-                 onChange={(e) => setStationUrl(e.target.value)}
-                 placeholder="https://stream.example.com/live"
-                 className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white border border-black/10"}`}
-               />
+              <h3 className={`text-lg font-bold mb-4 ${textColor}`}>{editingStation ? t('player.editStation') : t('player.addRadioStation')}</h3>
+              <div className="mb-3">
+                <label className={`text-xs font-medium ${textColor} opacity-70`}>{t('player.stationName')}</label>
+                <input
+                  type="text"
+                  value={stationName}
+                  onChange={(e) => setStationName(e.target.value)}
+                  placeholder={t('player.stationNamePlaceholder')}
+                  className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white border border-black/10"}`}
+                  autoFocus
+                />
+              </div>
+              <div className="mb-3">
+                <label className={`text-xs font-medium ${textColor} opacity-70`}>{t('player.streamUrl')}</label>
+                <input
+                  type="text"
+                  value={stationUrl}
+                  onChange={(e) => setStationUrl(e.target.value)}
+                  placeholder={t('player.streamUrlPlaceholder')}
+                  className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white border border-black/10"}`}
+                />
                {stationAddError && (
                  <p className="text-xs text-red-400 mt-1">{stationAddError}</p>
                )}
@@ -940,33 +972,77 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
              <div className="flex gap-2 mt-4">
                <button
                  onClick={() => {
-                   if (!stationName.trim()) {
-                     setStationAddError("Name is required");
-                     return;
+                    if (!stationName.trim()) {
+                      setStationAddError(t('player.nameRequired'));
+                      return;
+                    }
+                    if (!stationUrl.trim()) {
+                      setStationAddError(t('player.urlRequired'));
+                      return;
+                    }
+                    if (!stationUrl.startsWith("http://") && !stationUrl.startsWith("https://")) {
+                      setStationAddError(t('player.urlInvalid'));
+                      return;
+                    }
+                   if (editingStation) {
+                     setRadioStations(radioStations.map(s => s.id === editingStation.id ? { ...s, name: stationName.trim(), url: stationUrl.trim() } : s));
+                     setEditingStation(null);
+                   } else {
+                     const newStation = { id: Math.random().toString(36).substr(2, 9), name: stationName.trim(), url: stationUrl.trim(), time: "LIVE", file: null };
+                     setRadioStations([...radioStations, newStation]);
+                     setRadioStationIndex(radioStations.length);
+                     setIsPlaying(true);
                    }
-                   if (!stationUrl.trim()) {
-                     setStationAddError("URL is required");
-                     return;
-                   }
-                   if (!stationUrl.startsWith("http://") && !stationUrl.startsWith("https://")) {
-                     setStationAddError("URL must start with http:// or https://");
-                     return;
-                   }
-                   const newStation = { id: Math.random().toString(36).substr(2, 9), name: stationName.trim(), url: stationUrl.trim(), time: "LIVE", file: null };
-                   setRadioStations([...radioStations, newStation]);
-                   setRadioStationIndex(radioStations.length);
-                   setIsPlaying(true);
                    setShowAddStationModal(false);
                  }}
                  className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-[#5cc25c] text-white" : "bg-green-600 text-white"}`}
-               >
-                 Add Station
+                >
+                  {editingStation ? t('player.save') : t('player.addStation')}
+                </button>
+                <button
+                  onClick={() => { setShowAddStationModal(false); setEditingStation(null); }}
+                  className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/10 text-slate-600 hover:bg-black/20"}`}
+                >
+                  {t('player.cancel')}
                </button>
+             </div>
+           </div>
+         </div>
+       )}
+
+       {/* Edit Track Name Modal */}
+       {editingTrack && (
+         <div className="absolute inset-0 bg-black/60 rounded-[40px] flex items-center justify-center z-50 backdrop-blur-sm">
+           <div className={`w-[90%] max-w-[320px] rounded-2xl p-6 ${isDark ? "bg-[#2a3036]" : "bg-[#e8ecf4]"}`}>
+              <h3 className={`text-lg font-bold mb-4 ${textColor}`}>{t('player.editTrack')}</h3>
+              <div className="mb-3">
+                <label className={`text-xs font-medium ${textColor} opacity-70`}>{t('player.trackName')}</label>
+                <input
+                  type="text"
+                  value={editTrackName}
+                  onChange={(e) => setEditTrackName(e.target.value)}
+                  placeholder={t('player.trackNamePlaceholder')}
+                  className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white border border-black/10"}`}
+                  autoFocus
+                />
+              </div>
+             <div className="flex gap-2 mt-4">
                <button
-                 onClick={() => setShowAddStationModal(false)}
-                 className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/10 text-slate-600 hover:bg-black/20"}`}
-               >
-                 Cancel
+                 onClick={() => {
+                   if (editTrackName.trim()) {
+                     setPlaylist(playlist.map(t => t.id === editingTrack.id ? { ...t, name: editTrackName.trim() } : t));
+                   }
+                   setEditingTrack(null);
+                 }}
+                 className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-[#c25c34] text-white" : "bg-orange-600 text-white"}`}
+                >
+                  {t('player.save')}
+                </button>
+                <button
+                  onClick={() => setEditingTrack(null)}
+                  className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/10 text-slate-600 hover:bg-black/20"}`}
+                >
+                  {t('player.cancel')}
                </button>
              </div>
            </div>

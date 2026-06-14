@@ -26,8 +26,8 @@ export const SettingsToggle: React.FC<SettingsToggleProps> = ({
     <div
       className={`w-full h-[64px] px-6 rounded-[32px] flex items-center justify-between cursor-pointer transition-all duration-300 select-none mb-4 ${
         isDark
-          ? 'bg-[#13151b] shadow-[0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.04),_inset_0_-2px_4px_rgba(0,0,0,0.5)] border border-white/[0.02] hover:scale-[1.02] active:shadow-[inset_0_4px_8px_rgba(0,0,0,0.8)] active:scale-100'
-          : 'bg-[#eaeff4] shadow-[-4px_-4px_10px_rgba(255,255,255,0.9),_6px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border border-white/50 hover:scale-[1.02] active:shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3)] active:scale-100'
+          ? 'bg-[#13151b] shadow-[0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.04),_inset_0_-2px_4px_rgba(0,0,0,0.5)] border border-white/[0.02] hover:[transform:scale(1.02)_translateZ(20px)] active:shadow-[inset_0_4px_8px_rgba(0,0,0,0.8)] active:[transform:scale(1)_translateZ(0px)]'
+          : 'bg-[#eaeff4] shadow-[-4px_-4px_10px_rgba(255,255,255,0.9),_6px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border border-white/50 hover:[transform:scale(1.02)_translateZ(20px)] active:shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3)] active:[transform:scale(1)_translateZ(0px)]'
       }`}
       onClick={toggle}
     >

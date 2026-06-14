@@ -64,7 +64,7 @@ export const ActionCircleButton: React.FC<{
       onClick={() => isToggleable && setActive(!active)}
     >
       <div
-        className={`w-[60px] h-[60px] rounded-full flex items-center justify-center transition-all duration-300 ${!active ? "group-hover:scale-[1.05] active:scale-95" : "scale-95"} ${
+        className={`w-[60px] h-[60px] rounded-full flex items-center justify-center transition-all duration-300 ${!active ? "group-hover:[transform:scale(1.05)_translateZ(20px)] active:[transform:scale(0.95)_translateZ(0px)]" : "[transform:scale(0.95)_translateZ(0px)]"} ${
           isDark
             ? active
               ? "bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border border-orange-500/20"
