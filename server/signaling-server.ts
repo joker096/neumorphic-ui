@@ -188,6 +188,18 @@ const restServer = createRestServer((req, res) => {
     return
   }
 
+  // Certificate pinning endpoint
+  if (path === '/.well-known/mess-anger-pin' && req.method === 'GET') {
+    const fingerprint = process.env.SERVER_FINGERPRINT || 'dev-mode-no-pin'
+    res.writeHead(200)
+    res.end(JSON.stringify({
+      fingerprint,
+      host: req.headers.host || 'localhost',
+      timestamp: Date.now(),
+    }))
+    return
+  }
+
   // CSP violation report collector
   if (path === '/api/csp-report' && req.method === 'POST') {
     let body = ''
