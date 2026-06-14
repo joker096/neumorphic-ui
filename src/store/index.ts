@@ -60,13 +60,23 @@ const encryptedIdbStorage: StateStorage = {
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       processQueue();
-    }, 1000); // 1 second debounce
+    }, 1000);
   },
   removeItem: async (name: string): Promise<void> => {
     writeQueue.delete(name);
     await idb.del(name);
   },
 };
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+    }
+    processQueue();
+  });
+}
 
 export interface P2PChannel {
    id: string;
@@ -185,6 +195,27 @@ export interface ScheduledMessage {
   scheduledAt: number;
 }
 
+export interface GroupChat {
+  id: string;
+  name: string;
+  description?: string;
+  members: string[];
+  admins: string[];
+  avatar?: string;
+  color: string;
+  createdAt: number;
+  isEncrypted: boolean;
+}
+
+export interface ChatFolder {
+  id: string;
+  name: string;
+  icon: string;
+  rules: { type: 'chat_name' | 'unread' | 'archived' | 'manual'; value?: string }[];
+  chatIds: (string | number)[];
+  isSystem?: boolean;
+}
+
 export interface ScheduledMessageQueue {
   messages: ScheduledMessage[];
   addMessage: (msg: ScheduledMessage) => void;
@@ -194,6 +225,7 @@ export interface ScheduledMessageQueue {
 interface AppState {
   appLockHashedPIN: string | null;
   appLockSalt: string | null;
+  signalingUrls: string[];
   turnServerUrl: string;
   turnServerUser: string;
   turnServerPass: string;
@@ -288,6 +320,26 @@ interface AppState {
   pinnedMessageList: Array<{ id: number; chatId: string | number; pinBy: string; pinnedAt: number }>;
   addPinnedMessage: (pin: { id: number; chatId: string | number; pinBy: string }) => void;
   removePinnedMessage: (id: number) => void;
+
+  // Contacts
+  contacts: Array<{ name: string; id: string; color: string; lastSeen: number; isFavorite?: boolean; localFields?: Array<{ id: string; type: string; label: string; value: string; phoneSubtype?: string }> }>;
+  setContacts: (contactsOrFn: Array<{ name: string; id: string; color: string; lastSeen: number; isFavorite?: boolean; localFields?: Array<{ id: string; type: string; label: string; value: string; phoneSubtype?: string }> }> | ((prev: Array<{ name: string; id: string; color: string; lastSeen: number; isFavorite?: boolean; localFields?: Array<{ id: string; type: string; label: string; value: string; phoneSubtype?: string }> }>) => Array<{ name: string; id: string; color: string; lastSeen: number; isFavorite?: boolean; localFields?: Array<{ id: string; type: string; label: string; value: string; phoneSubtype?: string }> }>)) => void;
+
+  // Group chats
+  groups: GroupChat[];
+  createGroup: (group: Omit<GroupChat, 'id' | 'createdAt'>) => void;
+  updateGroup: (id: string, updates: Partial<GroupChat>) => void;
+  deleteGroup: (id: string) => void;
+  addGroupMember: (groupId: string, memberId: string) => void;
+  removeGroupMember: (groupId: string, memberId: string) => void;
+
+  // Chat folders
+  chatFolders: ChatFolder[];
+  addChatFolder: (folder: ChatFolder) => void;
+  updateChatFolder: (id: string, updates: Partial<ChatFolder>) => void;
+  removeChatFolder: (id: string) => void;
+  assignChatToFolder: (folderId: string, chatId: string | number) => void;
+  unassignChatFromFolder: (folderId: string, chatId: string | number) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -295,6 +347,7 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       appLockHashedPIN: null,
       appLockSalt: null,
+      signalingUrls: ['ws://localhost:8765'],
       turnServerUrl: '',
       turnServerUser: '',
       turnServerPass: '',
@@ -455,13 +508,10 @@ export const useAppStore = create<AppState>()(
       
       forwardMessage: (message: any, targetChatId: string) => {
         set((storeState) => {
-          const anonymized = storeState.forwardAnonymization ? {
-            ...message,
-            forwardedFrom: undefined,
-            originalAuthor: undefined,
-            metadata: undefined,
-            forwardedAt: Date.now()
-          } : message;
+          const anonymized = storeState.forwardAnonymization ? (() => {
+            const { forwardedFrom, originalAuthor, metadata, ...rest } = message;
+            return { ...rest, forwardedAt: Date.now() };
+          })() : message;
           
           const updatedChats = storeState.chats.map((chat: any) => {
             if (chat.id === targetChatId && Array.isArray(chat.history)) {
@@ -528,6 +578,73 @@ export const useAppStore = create<AppState>()(
       pinnedMessageList: [],
       addPinnedMessage: (pin) => set((state) => ({ pinnedMessageList: [...state.pinnedMessageList, { ...pin, pinnedAt: state.pinnedMessageList.length }] })),
       removePinnedMessage: (id) => set((state) => ({ pinnedMessageList: state.pinnedMessageList.filter(p => p.id !== id) })),
+
+      // Contacts
+      contacts: [
+        { name: "Alice", id: "5a2f...9b1c", color: "from-rose-400 to-red-500", lastSeen: 1000 * 60 * 5 },
+        { name: "Bob (Relay)", id: "node_f88b", color: "from-blue-400 to-indigo-500", lastSeen: 1000 * 60 * 60 * 2 },
+        { name: "Charlie", id: "3c4d...5e6f", color: "from-amber-400 to-orange-400", lastSeen: 1000 * 60 * 30 },
+        { name: "Diana", id: "7g8h...9i0j", color: "from-purple-400 to-fuchsia-400", lastSeen: 1000 * 60 * 60 * 24 },
+      ],
+      setContacts: (contactsOrFn) => set((state) => ({ 
+        contacts: typeof contactsOrFn === 'function' ? contactsOrFn(state.contacts) : contactsOrFn 
+      })),
+
+      // Group chats
+      groups: [],
+      createGroup: (group) => set((state) => ({
+        groups: [...state.groups, { ...group, id: `group_${Date.now()}`, createdAt: Date.now() } as GroupChat]
+      })),
+      updateGroup: (id, updates) => set((state) => ({
+        groups: state.groups.map(g => g.id === id ? { ...g, ...updates } : g)
+      })),
+      deleteGroup: (id) => set((state) => ({
+        groups: state.groups.filter(g => g.id !== id)
+      })),
+      addGroupMember: (groupId, memberId) => set((state) => ({
+        groups: state.groups.map(g =>
+          g.id === groupId && !g.members.includes(memberId)
+            ? { ...g, members: [...g.members, memberId] }
+            : g
+        )
+      })),
+      removeGroupMember: (groupId, memberId) => set((state) => ({
+        groups: state.groups.map(g =>
+          g.id === groupId
+            ? { ...g, members: g.members.filter(m => m !== memberId) }
+            : g
+        )
+      })),
+
+      // Chat folders
+      chatFolders: [
+        { id: 'all', name: 'All', icon: 'MessageCircle', rules: [{ type: 'archived', value: 'false' }], chatIds: [], isSystem: true },
+        { id: 'personal', name: 'Personal', icon: 'User', rules: [{ type: 'chat_name', value: 'Alice Freeman' }], chatIds: [], isSystem: true },
+        { id: 'unread', name: 'Unread', icon: 'Bell', rules: [{ type: 'unread' }], chatIds: [], isSystem: true },
+        { id: 'work', name: 'Work', icon: 'Briefcase', rules: [{ type: 'chat_name', value: 'Design Team' }], chatIds: [], isSystem: true },
+        { id: 'archived', name: 'Archived', icon: 'Archive', rules: [{ type: 'archived' }], chatIds: [], isSystem: true },
+      ],
+      addChatFolder: (folder) => set((state) => ({ chatFolders: [...state.chatFolders, folder] })),
+      updateChatFolder: (id, updates) => set((state) => ({
+        chatFolders: state.chatFolders.map(f => f.id === id ? { ...f, ...updates } : f)
+      })),
+      removeChatFolder: (id) => set((state) => ({
+        chatFolders: state.chatFolders.filter(f => f.id !== id)
+      })),
+      assignChatToFolder: (folderId, chatId) => set((state) => ({
+        chatFolders: state.chatFolders.map(f =>
+          f.id === folderId && !f.chatIds.includes(chatId)
+            ? { ...f, chatIds: [...f.chatIds, chatId] }
+            : f
+        )
+      })),
+      unassignChatFromFolder: (folderId, chatId) => set((state) => ({
+        chatFolders: state.chatFolders.map(f =>
+          f.id === folderId
+            ? { ...f, chatIds: f.chatIds.filter(id => id !== chatId) }
+            : f
+        )
+      })),
     }),
     {
       name: 'nexus-messenger-storage',
