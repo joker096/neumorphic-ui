@@ -3,6 +3,8 @@ import { useAppStore } from '../store';
 import { useI18n, detectBrowserLanguage } from '../lib/i18n';
 import { cryptoCore, buf2hex } from '../lib/crypto/cryptoCore';
 import { toast } from 'sonner';
+import { Toggle } from './ui/Toggle';
+import { SearchBar } from './ui/SearchBar';
 import { 
   Search, 
   User, 
@@ -69,7 +71,7 @@ interface SettingsItemProps {
 const SettingsItem = ({ icon, iconBg, iconColor, title, subtitle, isDark, value, rightElement, onClick }: SettingsItemProps) => (
   <button 
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-black/5 last:border-b-0 ${isDark ? "border-white/5 hover:bg-white/5" : "hover:bg-black/5"}`}
+    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-black/5 last:border-b-0 ${isDark ? "border-white/5 hover:bg-white/5" : "hover:bg-black/5"} focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50`}
   >
     {icon && (
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
@@ -78,7 +80,7 @@ const SettingsItem = ({ icon, iconBg, iconColor, title, subtitle, isDark, value,
     )}
     <div className="flex-1 min-w-0">
       <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{title}</div>
-      {subtitle && <div className={`text-xs mt-0.5 truncate ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>}
+      {subtitle && <div className={`text-xs mt-0.5 leading-relaxed ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>}
     </div>
     {rightElement ? (
       rightElement
@@ -87,22 +89,14 @@ const SettingsItem = ({ icon, iconBg, iconColor, title, subtitle, isDark, value,
         {value && (
           <span className={`text-xs font-medium mr-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{value}</span>
         )}
-        <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
+        <ChevronRight size={16} className={`shrink-0 opacity-30 transition-all duration-200 ${isDark ? "text-gray-400 group-hover:text-gray-200" : "text-slate-500 group-hover:text-slate-800"}`} />
       </>
     )}
   </button>
 );
 
 const ToggleSwitch = ({ isOn, onToggle, isDark }: { isOn: boolean, onToggle: () => void, isDark: boolean }) => (
-  <div 
-    onClick={(e) => { e.stopPropagation(); onToggle(); }}
-    className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${isOn ? 'bg-emerald-500' : (isDark ? 'bg-gray-600' : 'bg-slate-300')}`}
-  >
-    <motion.div 
-      layout
-      className={`w-4 h-4 rounded-full bg-white shadow-sm flex-shrink-0 ${isOn ? 'ml-auto' : 'mr-auto'}`}
-    />
-  </div>
+  <Toggle isOn={isOn} onToggle={onToggle} isDark={isDark} />
 );
 
 const SubView = ({ title, onBack, children, isDark }: any) => (
@@ -116,11 +110,11 @@ const SubView = ({ title, onBack, children, isDark }: any) => (
       <button onClick={onBack} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}>
         <ChevronLeft size={18} className={isDark ? "text-white" : "text-slate-800"} />
       </button>
-      <h2 className={`font-serif text-xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
+      <h2 className={`font-sans text-xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
         {title}
       </h2>
     </div>
-    <div className={`w-full flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-6 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+    <div className={`w-full flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-6 min-h-0 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
       {children}
     </div>
   </motion.div>
@@ -401,6 +395,7 @@ const appearance = t('settings.appearance');
   const [uiAnimations, setUiAnimations] = useLocalStorage("app_ui_animations", true);
   const [fontSize, setFontSize] = useLocalStorage("app_font_size", t('settings.fontSizeMedium'));
   const [dndEnabled, setDndEnabled] = useLocalStorage("app_dnd_enabled", false);
+  const [iconSkin, setIconSkin] = useLocalStorage("icq_emoji_skin", "dark");
   const [dndFrom, setDndFrom] = useLocalStorage("app_dnd_from", "22:00");
   const [dndTo, setDndTo] = useLocalStorage("app_dnd_to", "08:00");
   const [priorityContacts, setPriorityContacts] = useLocalStorage("app_priority_contacts", "Joker,Design Team");
@@ -698,23 +693,15 @@ const appearance = t('settings.appearance');
       className="w-full flex-1 flex flex-col min-h-0"
     >
       <div className="w-full shrink-0 mb-4">
-        <div className="relative">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-500" : "text-slate-400"}`} />
-          <input 
-            placeholder={searchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
-              isDark 
-                ? "bg-[#1a1d24] border-white/10 text-white placeholder:text-gray-500 focus:border-emerald-500/50" 
-                : "bg-white border-black/10 text-slate-800 placeholder:text-slate-400 focus:border-blue-500/50"
-            }`}
-            type="text"
-          />
-        </div>
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder={searchPlaceholder}
+          isDark={isDark}
+        />
       </div>
 
-      <div className={`flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-5 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+      <div className={`flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-5 min-h-0 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
         
         {/* PWA Install Banner */}
         <AnimatePresence>
@@ -729,7 +716,7 @@ const appearance = t('settings.appearance');
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-100 text-emerald-600"}`}>
                   <Download size={16} />
                 </div>
-                <div className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{t('settings.installBtn')} Mess&Anger</div>
+                <div className={`text-sm font-bold truncate ${isDark ? "text-white" : "text-slate-800"}`}>{t('settings.installBtn')} Mess&Anger</div>
               </div>
               <div className={`text-xs mb-3 relative z-10 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
                  <ul className="space-y-1">
@@ -761,8 +748,8 @@ const appearance = t('settings.appearance');
                 J
               </div>
               <div className="flex-1 min-w-0">
-                <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>Joker</div>
-                <div className={`text-xs mt-0.5 truncate ${isDark ? "text-gray-400" : "text-slate-500"}`}>@joker</div>
+                <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.defaultUsername')}</div>
+                <div className={`text-xs mt-0.5 truncate ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.defaultUserHandle')}</div>
               </div>
               <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
             </button>
@@ -784,8 +771,9 @@ const appearance = t('settings.appearance');
 
         {/* Appearance Section */}
         <div className="w-full">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.appearanceSection')}
+          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-3 px-2 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-800"}`}>
+            <div className={`w-2 h-2 rounded-full ${isDark ? "bg-emerald-500" : "bg-emerald-400"}`} />
+            <span>{t('settings.appearanceSection')}</span>
           </div>
           <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
             <SettingsItem 
@@ -1046,18 +1034,25 @@ const appearance = t('settings.appearance');
                  onClick={() => setTheme?.(isDark ? 'light' : 'dark')}
                />
                <SettingsItem 
-                  title="Font Size"
+                  title={t('settings.fontSizeMedium')}
                   value={fontSize}
                   isDark={isDark}
                   onClick={() => setFontSize(fontSize === t('settings.fontSizeSmall') ? t('settings.fontSizeMedium') : fontSize === t('settings.fontSizeMedium') ? t('settings.fontSizeLarge') : t('settings.fontSizeSmall'))}
                />
                <SettingsItem 
-                 title={t("settings.animations")}
-                 isDark={isDark}
-                 rightElement={<ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations(!uiAnimations)} isDark={isDark} />}
-                 onClick={() => setUiAnimations(!uiAnimations)}
-               />
-             </div>
+                  title={t("settings.animations")}
+                  isDark={isDark}
+                  rightElement={<ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations(!uiAnimations)} isDark={isDark} />}
+                  onClick={() => setUiAnimations(!uiAnimations)}
+                />
+                  <SettingsItem 
+                    title={t('settings.icqEmojiSkin')}
+                  subtitle={iconSkin === 'dark' ? 'Dark' : 'Light'}
+                  isDark={isDark}
+                  rightElement={<ToggleSwitch isOn={iconSkin === 'dark'} onToggle={() => setIconSkin(iconSkin === 'dark' ? 'light' : 'dark')} isDark={isDark} />}
+                  onClick={() => setIconSkin(iconSkin === 'dark' ? 'light' : 'dark')}
+                />
+              </div>
           </SubView>
         )}
 
@@ -1091,7 +1086,7 @@ const appearance = t('settings.appearance');
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                {/* Custom PIN Input approach */}
                <SettingsItem 
-                 title="App Lock PIN"
+                 title={t('settings.appLockPIN')}
                  subtitle={t("settings.appLockSubtitle")}
                  isDark={isDark}
                  onClick={() => {
@@ -1127,8 +1122,8 @@ const appearance = t('settings.appearance');
                  onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
                />
                <SettingsItem 
-                 title="Cloud Password (TOTP)"
-                 subtitle={cloudPasswordSubtitle}
+                 title={t('settings.cloudPasswordTOTP')}
+                  subtitle={cloudPasswordSubtitle}
                  isDark={isDark}
                />
                <SettingsItem 
@@ -1152,7 +1147,7 @@ const appearance = t('settings.appearance');
                   }}
                 />
                 <SettingsItem 
-                  title="Auto-wipe (Dead Man's Switch)"
+                  title={t('settings.autoWipe')}
                  value={deadMansSwitch}
                  isDark={isDark}
                   onClick={() => setDeadMansSwitch(deadMansSwitch === "6 months" ? "1 year" : deadMansSwitch === "1 year" ? "1 month" : "6 months")}
@@ -1224,13 +1219,13 @@ const appearance = t('settings.appearance');
                     disabled={recoveryStatus === 'loading'}
                     className="w-full py-3 rounded-lg text-sm font-bold bg-emerald-500 text-white disabled:opacity-50"
                    >
-                    {recoveryStatus === 'loading' ? t('settings.recoveryPhraseRestoring') : 'Restore'}
+                    {recoveryStatus === 'loading' ? t('settings.recoveryPhraseRestoring') : t('settings.restoreBtn')}
                    </button>
                    <button 
                     onClick={() => { setShowRecoveryModal(false); setRecoveryInput(""); setRecoveryStatus('idle'); }}
                     className={`w-full py-3 rounded-lg text-sm font-medium border ${isDark ? "border-white/10 text-gray-300" : "border-black/10 text-slate-600"}`}
                    >
-                    Cancel
+                    {t('settings.cancelBtn')}
                    </button>
                  </div>
                )}
@@ -1284,8 +1279,8 @@ const appearance = t('settings.appearance');
              </div>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                <SettingsItem
-                 title="Priority contacts"
-                 subtitle="Comma-separated names that bypass DND"
+title={t('settings.priorityContactsTitle')}
+                  subtitle={t('settings.priorityContactsSubtitle')}
                  value={priorityContacts}
                  isDark={isDark}
                />
@@ -1293,7 +1288,7 @@ const appearance = t('settings.appearance');
                  <input
                    value={priorityContacts}
                    onChange={(e) => setPriorityContacts(e.target.value)}
-                   placeholder="Joker,Design Team"
+                    placeholder={`${t('settings.defaultUsername')},Design Team`}
                    className={`w-full px-3 py-2 rounded-lg text-sm outline-none border ${isDark ? "bg-[#11141c] border-white/10 text-white placeholder:text-gray-500" : "bg-[#f4f7f9] border-black/10 text-slate-800 placeholder:text-slate-400"}`}
                  />
                </div>
@@ -1326,36 +1321,65 @@ const appearance = t('settings.appearance');
                  rightElement={<ToggleSwitch isOn={anonymousMode} onToggle={() => storeUpdateSettings({ anonymousMode: !anonymousMode })} isDark={isDark} />}
                  onClick={() => storeUpdateSettings({ anonymousMode: !anonymousMode })}
                />
-               <SettingsItem
-                 title="Delivery receipts"
-                 subtitle="Show sent/delivered status for outgoing messages"
+              <SettingsItem
+                  title={t('settings.deliveryReceiptsSettings')}
+                  subtitle={t('settings.deliveryReceiptsSubtitle')}
                  isDark={isDark}
                  rightElement={<ToggleSwitch isOn={deliveryReceipts} onToggle={() => storeUpdateSettings({ deliveryReceipts: !deliveryReceipts })} isDark={isDark} />}
                  onClick={() => storeUpdateSettings({ deliveryReceipts: !deliveryReceipts })}
                />
                <SettingsItem
-                 title="Read receipts"
-                 subtitle="Show read status when messages are opened"
+title={t('settings.readReceiptsSettings')}
+                  subtitle={t('settings.readReceiptsSubtitle')}
                  isDark={isDark}
                  rightElement={<ToggleSwitch isOn={storeReadReceipts} onToggle={() => storeUpdateSettings({ readReceipts: !storeReadReceipts })} isDark={isDark} />}
                  onClick={() => storeUpdateSettings({ readReceipts: !storeReadReceipts })}
                />
                <SettingsItem
-                 title="Typing indicators"
-                 subtitle="Show when the other side is typing"
-                 isDark={isDark}
-                 rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => storeUpdateSettings({ typingIndicators: !typingIndicators })} isDark={isDark} />}
-                 onClick={() => storeUpdateSettings({ typingIndicators: !typingIndicators })}
-               />
-            </div>
-          </SubView>
-        )}
+                  title={t('settings.typingIndicatorsSettings')}
+                  subtitle={t('settings.typingIndicatorsSubtitle')}
+                  isDark={isDark}
+                  rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => storeUpdateSettings({ typingIndicators: !typingIndicators })} isDark={isDark} />}
+                  onClick={() => storeUpdateSettings({ typingIndicators: !typingIndicators })}
+                />
+                
+                <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
+                  {t('settings.forwardingMetadata')}
+                </div>
+                <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
+                  <SettingsItem 
+                    title={t('settings.forwardAllow')}
+                    subtitle={t('settings.forwardAllowSubtitle')}
+                    isDark={isDark}
+                    rightElement={<ToggleSwitch isOn={storeAllowForwarding} onToggle={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })} isDark={isDark} />}
+                    onClick={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })}
+                  />
+                  <SettingsItem 
+                    title={t("settings.allowMetadata")}
+                    subtitle={t("settings.allowMetadataSubtitle")}
+                    isDark={isDark}
+                    rightElement={<ToggleSwitch isOn={storeAllowMetadata} onToggle={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })} isDark={isDark} />}
+                    onClick={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })}
+                  />
+                  <SettingsItem 
+                    title={t('settings.forwardLimit')}
+                    subtitle={String(storeForwardCountLimit)}
+                    isDark={isDark}
+                    onClick={() => {
+                      const next = (storeForwardCountLimit + 1) % 4;
+                      storeUpdateSettings({ forwardCountLimit: next });
+                    }}
+                  />
+                </div>
+             </div>
+           </SubView>
+         )}
 
-        {activeSection === 'storage' && (
+         {activeSection === 'storage' && (
           <SubView key="storage" title={dataStorage} isDark={isDark} onBack={() => setActiveSection('main')}>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                 <SettingsItem 
-                  title="Media auto-load"
+                  title={t('settings.mediaAutoLoad')}
                   value={mediaAutoLoad}
                   isDark={isDark}
                   onClick={() => setMediaAutoLoad(mediaAutoLoad === "Wi-Fi" ? "Wi-Fi & Cellular" : mediaAutoLoad === "Wi-Fi & Cellular" ? "Never" : "Wi-Fi")}
@@ -1416,7 +1440,7 @@ const appearance = t('settings.appearance');
                 />
                <SettingsItem
                  title={exportHtml}
-                 subtitle="Readable backup summary for quick review"
+                 subtitle={t('settings.exportHtmlSubtitle')}
                  isDark={isDark}
                  onClick={exportBackupHtml}
                  rightElement={<Download size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />}
@@ -1456,7 +1480,7 @@ const appearance = t('settings.appearance');
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                <SettingsItem 
                  title={useProxy}
-                 subtitle="SOCKS5 / HTTP"
+                 subtitle={t('settings.socks5HTTP')}
                  isDark={isDark}
                  rightElement={<ToggleSwitch isOn={proxyEnabled} onToggle={() => setProxyEnabled(!proxyEnabled)} isDark={isDark} />}
                  onClick={() => setProxyEnabled(!proxyEnabled)}
@@ -1477,7 +1501,7 @@ const appearance = t('settings.appearance');
                 )}
                 <SettingsItem 
                   title={obfuscation}
-                   subtitle="WebRTC → WS → MTProto → Fastly"
+                   subtitle={t('settings.obfuscationSubtitle')}
                  value={obfuscationMode}
                  isDark={isDark}
                  onClick={() => setObfuscationMode(obfuscationMode === "Auto" ? "MTProto" : obfuscationMode === "MTProto" ? "Domain Fronting" : "Auto")}
@@ -1533,7 +1557,7 @@ const appearance = t('settings.appearance');
 
         {activeSection === 'bots' && (
           <SubView key="bots" title={t("settings.botsTitle")} isDark={isDark} onBack={() => setActiveSection('main')}>
-             <div className={`rounded-xl overflow-hidden p-6 text-center ${isDark ? "bg-[#a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
+             <div className={`rounded-xl overflow-hidden p-6 text-center ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                <div className={`text-sm mb-2 ${isDark ? "text-white" : "text-slate-800"}`}>{t('settings.noBots')}</div>
                <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
                   {t('settings.botsComingSoon')}
@@ -1542,42 +1566,12 @@ const appearance = t('settings.appearance');
           </SubView>
         )}
 
-       {activeSection === 'privacy' && (
-           <SubView key="privacy" title={privacy} isDark={isDark} onBack={() => setActiveSection('main')}>
-              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                <SettingsItem 
-                  title={forwardAllow}
-                  subtitle={forwardAllowSubtitle}
-                  isDark={isDark}
-                  rightElement={<ToggleSwitch isOn={storeAllowForwarding} onToggle={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })} isDark={isDark} />}
-                  onClick={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })}
-                />
-                <SettingsItem 
-                  title={t("settings.allowMetadata")}
-                  subtitle={t("settings.allowMetadataSubtitle")}
-                  isDark={isDark}
-                  rightElement={<ToggleSwitch isOn={storeAllowMetadata} onToggle={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })} isDark={isDark} />}
-                  onClick={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })}
-                />
-                <SettingsItem 
-                  title={forwardLimit}
-                  subtitle={String(storeForwardCountLimit)}
-                  isDark={isDark}
-                  onClick={() => {
-                    const next = (storeForwardCountLimit + 1) % 4;
-                    storeUpdateSettings({ forwardCountLimit: next });
-                  }}
-                />
-              </div>
-            </SubView>
-         )}
-
-       {activeSection === 'devices' && (
-           <SubView key="devices" title="Devices" isDark={isDark} onBack={() => setActiveSection('main')}>
+      {activeSection === 'devices' && (
+           <SubView key="devices" title={t('settings.deviceManagerTitle')} isDark={isDark} onBack={() => setActiveSection('main')}>
               <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                  <SettingsItem 
                    title={currentDevice}
-                   subtitle="Web Browser (Current)"
+                   subtitle={t('settings.deviceWebBrowserCurrent')}
                    isDark={isDark}
                    rightElement={<Check size={16} className={isDark ? "text-emerald-400" : "text-emerald-500"} />}
                  />
