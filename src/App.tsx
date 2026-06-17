@@ -1058,7 +1058,7 @@ const HubToggleIcon = ({ active, onClick, icon: Icon, color, isDark, title }: an
 
 interface RadialItem { id: string; angle: number; title: string; subtitle: string; icon: any; }
 
-const RadialMenu = ({ theme, items, centerTitle, centerSubtitle, onCenterClick, onItemClick }: { theme: "light" | "dark"; items: RadialItem[]; centerTitle: string; centerSubtitle: string; onCenterClick?: () => void; onItemClick?: (id: string) => void; }) => {
+const RadialMenu = ({ theme, items, badges, centerTitle, centerSubtitle, onCenterClick, onItemClick }: { theme: "light" | "dark"; items: RadialItem[]; centerTitle: string; centerSubtitle: string; onCenterClick?: () => void; onItemClick?: (id: string) => void; badges?: Record<string, number>; }) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
@@ -1319,9 +1319,9 @@ const RadialMenu = ({ theme, items, centerTitle, centerSubtitle, onCenterClick, 
                   pointerEvents: isOpen ? "auto" : "none",
                 }}
               >
-                {hubBadges[item.id] > 0 && (
+                {badges && badges[item.id] > 0 && (
                   <div className={`absolute -top-1 -right-2 w-[22px] h-[22px] bg-gradient-to-tr from-orange-500 to-orange-400 rounded-full shadow-[0_0_12px_rgba(249,115,22,0.7),_inset_0_2px_3px_rgba(255,255,255,0.4)] border border-white/20 flex items-center justify-center`}>
-                    <span className="text-[11px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">{hubBadges[item.id]}</span>
+                    <span className="text-[11px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">{badges[item.id]}</span>
                   </div>
                 )}
                 <Icon
@@ -3687,14 +3687,15 @@ if (activeFolder === 'archived') return isArchived;
               transition={{ duration: 0.3 }}
               className="relative z-10 scale-[0.45] min-[400px]:scale-[0.5] sm:scale-[0.6] md:scale-90 lg:scale-100 flex-1 flex flex-col items-center justify-center"
             >
-              <RadialMenu 
-                theme={theme} 
-                items={hubItems} 
-                centerTitle={t('hub.centerTitle')} 
-                centerSubtitle={t('hub.centerSubtitle')} 
-                onCenterClick={() => {}} 
-                onItemClick={(id) => setView(id as any)}
-              />
+               <RadialMenu 
+                 theme={theme} 
+                 items={hubItems} 
+                 badges={hubBadges}
+                 centerTitle={t('hub.centerTitle')} 
+                 centerSubtitle={t('hub.centerSubtitle')} 
+                 onCenterClick={() => {}} 
+                 onItemClick={(id) => setView(id as any)}
+               />
             </motion.div>
           </motion.div>
         ) : (
