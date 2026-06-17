@@ -689,11 +689,15 @@ const Dialpad = ({
                     : "bg-[#f8fafc] text-slate-500 hover:bg-white border border-black/5"
               }`}
             >
-              {isSpeaker ? (
-                <Volume2 size={22} className="text-current" />
-              ) : (
-                <Volume1 size={22} className="text-current" />
-              )}
+{isSpeaker ? (
+                 <div className="w-6 h-6 rounded-full flex items-center justify-center">
+                   <Volume2 size={18} className="text-current" />
+                 </div>
+               ) : (
+                 <div className="w-6 h-6 rounded-full flex items-center justify-center">
+                   <Volume1 size={18} className="text-current" />
+                 </div>
+               )}
             </div>
           </div>
         </div>
@@ -1315,6 +1319,11 @@ const RadialMenu = ({ theme, items, centerTitle, centerSubtitle, onCenterClick, 
                   pointerEvents: isOpen ? "auto" : "none",
                 }}
               >
+                {hubBadges[item.id] > 0 && (
+                  <div className={`absolute -top-1 -right-2 w-[22px] h-[22px] bg-gradient-to-tr from-orange-500 to-orange-400 rounded-full shadow-[0_0_12px_rgba(249,115,22,0.7),_inset_0_2px_3px_rgba(255,255,255,0.4)] border border-white/20 flex items-center justify-center`}>
+                    <span className="text-[11px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">{hubBadges[item.id]}</span>
+                  </div>
+                )}
                 <Icon
                   size={28}
                   className={
@@ -3513,6 +3522,18 @@ if (activeFolder === 'archived') return isArchived;
     const savedDraft = draftTextByChat[String(activeChat.id)] || "";
     setMessageText(savedDraft);
   }, [activeChat?.id]);
+
+  const store = useAppStore();
+
+  const chatsUnread = store.chats.reduce((sum, c) => sum + (c.unread || 0), 0);
+  const channelsUnread = store.channels.reduce((sum, c) => sum + ((c as any).unread || 0), 0);
+  const missedCalls = [...MOCK_CALLS].filter((c) => c.type === 'missed').length + (store.activeCall ? 1 : 0);
+
+  const hubBadges: Record<string, number> = {
+    chats: chatsUnread,
+    channels: channelsUnread,
+    calls: missedCalls,
+  };
 
   const hubItems = [
     { id: 'channels', angle: 0, title: t('hub.channels'), subtitle: t('hub.channelsSubtitle'), icon: Hash },
