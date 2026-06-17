@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Phone, MessageSquare, Edit, Trash2, Ban } from 'lucide-react';
+import { X, Phone, MessageSquare, Edit, Trash2, Ban, Mail, Send } from 'lucide-react';
 import { useAppStore } from '../store';
 import { useI18n } from '../lib/i18n';
+import { ConfirmDialog } from './ui/ConfirmDialog';
+import type { ContactField } from '../types/contact';
 
 export type ContactProfile = {
   id: string;
@@ -10,6 +12,7 @@ export type ContactProfile = {
   color?: string;
   lastSeen?: number;
   online?: boolean;
+  localFields?: ContactField[];
   callInfo?: {
     time: string;
     type: 'missed' | 'incoming' | 'outgoing' | 'returned';
@@ -32,9 +35,48 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
   const ghostViewMode = useAppStore(state => state.ghostViewMode);
   const isDark = theme === 'dark';
   const { t } = useI18n();
+  const [confirmAction, setConfirmAction] = useState<'delete' | 'block' | null>(null);
+
+  const handleDelete = () => {
+    onDelete?.();
+    onClose();
+    setConfirmAction(null);
+  };
+
+  const handleBlock = () => {
+    onBlock?.();
+    onClose();
+    setConfirmAction(null);
+  };
 
   return (
     <AnimatePresence>
+      {confirmAction === 'delete' && (
+        <ConfirmDialog
+          isOpen={true}
+          title={t('contacts.deleteContact')}
+          message={t('contacts.confirmDeleteMessage', { name: contact?.name || '' })}
+          confirmLabel={t('contacts.deleteContact')}
+          cancelLabel={t('contacts.close')}
+          variant="danger"
+          theme={theme}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
+      {confirmAction === 'block' && (
+        <ConfirmDialog
+          isOpen={true}
+          title={t('contacts.blockSpammer')}
+          message={t('contacts.confirmBlockMessage', { name: contact?.name || '' })}
+          confirmLabel={t('contacts.blockSpammer')}
+          cancelLabel={t('contacts.close')}
+          variant="danger"
+          theme={theme}
+          onConfirm={handleBlock}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
       {contact && (
         <motion.div 
           initial={{ opacity: 0 }}
@@ -84,6 +126,28 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
               </div>
             )}
 
+            {contact.localFields && contact.localFields.length > 0 && (
+              <div className={`w-full mt-4 p-4 rounded-2xl flex flex-col gap-2 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                <div className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                  {t('contacts.localInfo')}
+                </div>
+                {contact.localFields.map(field => (
+                  <div key={field.id} className="flex items-center gap-2">
+                    {field.type === 'phone' && <Phone size={12} className={isDark ? "text-gray-400" : "text-slate-500"} />}
+                    {field.type === 'email' && <Mail size={12} className={isDark ? "text-gray-400" : "text-slate-500"} />}
+                    {field.type === 'telegram' && <Send size={12} className={isDark ? "text-gray-400" : "text-slate-500"} />}
+                    {field.type === 'custom' && <div className={`w-2 h-2 rounded-full ${isDark ? "bg-gray-500" : "bg-slate-400"}`} />}
+                    <span className={`text-xs ${isDark ? "text-gray-300" : "text-slate-700"}`}>
+                      {field.label || field.type}: {field.value}
+                    </span>
+                  </div>
+                ))}
+                <div className={`text-[9px] mt-1 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
+                  {t('contacts.localFieldsNotShared')}
+                </div>
+              </div>
+            )}
+
             <div className="flex w-full gap-3 mt-6">
                <button onClick={() => { onCall?.(); onClose(); }} className="flex-1 h-14 rounded-2xl flex flex-col items-center justify-center gap-1 bg-green-500 hover:bg-green-600 text-white transition-colors active:scale-95 shadow-lg shadow-green-500/20">
                   <Phone size={20} fill="currentColor" />
@@ -100,28 +164,18 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
                   <Edit size={16} />
                    <span className="text-xs font-bold">{t('contacts.edit')}</span>
                </button>
-               <button onClick={() => { 
-                   if (window.confirm(t('contacts.confirmDeleteMessage', { name: contact.name }))) {
-                     onDelete?.();
-                     onClose();
-                  }
-               }} className={`col-span-1 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-red-500/10 hover:bg-red-500/20 text-red-500" : "bg-red-50 hover:bg-red-100 text-red-600"}`}>
-                  <Trash2 size={16} />
-                   <span className="text-xs font-bold">{t('contacts.deleteContact')}</span>
-               </button>
-               <button onClick={() => { 
-                   if (window.confirm(t('contacts.confirmBlockMessage', { name: contact.name }))) {
-                     onBlock?.();
-                     onClose();
-                  }
-               }} className={`col-span-2 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-red-500/20 text-red-400" : "bg-slate-100 hover:bg-red-100 text-red-600"}`}>
-                  <Ban size={16} />
-                   <span className="text-xs font-bold">{t('contacts.blockSpammer')}</span>
-               </button>
+               <button onClick={() => setConfirmAction('delete')} className={`col-span-1 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-red-500/10 hover:bg-red-500/20 text-red-500" : "bg-red-50 hover:bg-red-100 text-red-600"}`}>
+                   <Trash2 size={16} />
+                    <span className="text-xs font-bold">{t('contacts.deleteContact')}</span>
+                </button>
+                <button onClick={() => setConfirmAction('block')} className={`col-span-2 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-red-500/20 text-red-400" : "bg-slate-100 hover:bg-red-100 text-red-600"}`}>
+                   <Ban size={16} />
+                    <span className="text-xs font-bold">{t('contacts.blockSpammer')}</span>
+                </button>
             </div>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
   );
-}
+};

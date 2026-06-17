@@ -28,7 +28,7 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme, onStoryClick }) => 
   return (
     <div className="flex flex-col w-full overflow-visible mb-2 pt-2 pb-1 bg-transparent shrink-0">
       <div className={`px-4 mb-2 font-mono text-[9px] uppercase tracking-widest font-bold ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{t('header.stories')}</div>
-      <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0">
+      <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         <div className="flex flex-col items-center gap-2 group cursor-pointer shrink-0">
           <div className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${
             isDark ? 'bg-[#1f222a] border border-white/5 border-dashed' : 'bg-[#f4f7f9] border border-black/10 border-dashed'

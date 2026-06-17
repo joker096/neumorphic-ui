@@ -3,6 +3,7 @@ import { useAppStore } from '../store';
 import { useI18n, detectBrowserLanguage } from '../lib/i18n';
 import { cryptoCore, buf2hex } from '../lib/crypto/cryptoCore';
 import { toast } from 'sonner';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 import { 
   Search, 
   User, 
@@ -116,7 +117,7 @@ const SubView = ({ title, onBack, children, isDark }: any) => (
       <button onClick={onBack} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}>
         <ChevronLeft size={18} className={isDark ? "text-white" : "text-slate-800"} />
       </button>
-      <h2 className={`font-serif text-xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
+      <h2 className={`font-sans text-xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
         {title}
       </h2>
     </div>
@@ -250,8 +251,9 @@ const appearance = t('settings.appearance');
     const cloudPasswordSubtitle = t('settings.cloudPasswordSubtitle');
     const encryptionKeys = t('settings.encryptionKeys');
     const encryptionKeysUpdated = t('settings.encryptionKeysUpdated');
-    const confirmWipe = t('settings.confirmWipe');
+  const confirmWipeText = t('settings.confirmWipe');
    const recoveryPhraseLabel = t('settings.recoveryPhrase');
+  const [confirmAction, setConfirmAction] = useState<{ type: 'wipe' } | { type: 'removeDevice'; id: string; name: string } | null>(null);
     const recoveryPhraseGenerated = t('settings.recoveryPhraseGenerated');
     const recoveryPhraseSubtitle = t('settings.recoveryPhraseSubtitle');
   const storageUsage = t('settings.storageUsage');
@@ -311,7 +313,8 @@ const appearance = t('settings.appearance');
   // States to make toggles work functionally
   const [language, setLanguage] = useLocalStorage<string>("app_language", detectBrowserLanguage());
   const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage("app_notifications", true);
-  const [soundEnabled, setSoundEnabled] = useLocalStorage("app_sound", true);
+  const soundEnabled = useAppStore(state => state.soundEnabled);
+  const setSoundEnabled = useAppStore(state => state.setSoundEnabled);
   const [twoFactorEnabled, setTwoFactorEnabled] = useLocalStorage("app_2fa", false);
   const [proxyEnabled, setProxyEnabled] = useLocalStorage("app_proxy", false);
   const [spamFilterEnabled, setSpamFilterEnabled] = useLocalStorage("app_spam_filter", true);
@@ -1032,7 +1035,7 @@ const appearance = t('settings.appearance');
   );
 
   return (
-    <div className={`w-full max-w-[400px] flex-1 flex flex-col rounded-[32px] p-6 mb-8 h-full min-h-0 ${isDark ? "bg-[#11141c]/50 border border-white/5" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner"}`}>
+    <div className={`w-full max-w-[400px] flex-1 flex flex-col rounded-[32px] p-6 mb-8 h-full min-h-0 overflow-y-auto ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
       <AnimatePresence mode="wait">
         {activeSection === 'main' && renderMainSettings()}
 
@@ -1160,15 +1163,11 @@ const appearance = t('settings.appearance');
              </div>
              
              <button 
-               onClick={async () => {
-                 if (confirm(confirmWipe)) {
-                    await cryptoCore.secureWipe();
-                 }
-               }}
-               className="w-full py-3 mb-6 rounded-xl border border-red-500/30 text-red-500 font-medium transition-colors hover:bg-red-500/10"
-             >
-               {t('settings.wipeAllData')}
-             </button>
+                onClick={() => setConfirmAction({ type: 'wipe' })}
+                className="w-full py-3 mb-6 rounded-xl border border-red-500/30 text-red-500 font-medium transition-colors hover:bg-red-500/10"
+              >
+                {t('settings.wipeAllData')}
+              </button>
            </SubView>
          )}
 
@@ -1340,18 +1339,27 @@ const appearance = t('settings.appearance');
                  rightElement={<ToggleSwitch isOn={storeReadReceipts} onToggle={() => storeUpdateSettings({ readReceipts: !storeReadReceipts })} isDark={isDark} />}
                  onClick={() => storeUpdateSettings({ readReceipts: !storeReadReceipts })}
                />
-               <SettingsItem
-                 title="Typing indicators"
-                 subtitle="Show when the other side is typing"
-                 isDark={isDark}
-                 rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => storeUpdateSettings({ typingIndicators: !typingIndicators })} isDark={isDark} />}
-                 onClick={() => storeUpdateSettings({ typingIndicators: !typingIndicators })}
-               />
-            </div>
-          </SubView>
-        )}
+                <SettingsItem
+                  title="Typing indicators"
+                  subtitle="Show when the other side is typing"
+                  isDark={isDark}
+                  rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => storeUpdateSettings({ typingIndicators: !typingIndicators })} isDark={isDark} />}
+                  onClick={() => storeUpdateSettings({ typingIndicators: !typingIndicators })}
+                />
+                <SettingsItem
+                  title={forwardAllow}
+                  subtitle={forwardAllowSubtitle}
+                  isDark={isDark}
+                  icon={<ChevronRight size={16} className="rotate-0" />}
+                  iconBg={isDark ? "bg-white/5" : "bg-black/5"}
+                  iconColor={isDark ? "text-gray-400" : "text-slate-500"}
+                  onClick={() => setActiveSection('forwardPrivacy')}
+                />
+             </div>
+           </SubView>
+         )}
 
-        {activeSection === 'storage' && (
+         {activeSection === 'storage' && (
           <SubView key="storage" title={dataStorage} isDark={isDark} onBack={() => setActiveSection('main')}>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                 <SettingsItem 
@@ -1533,7 +1541,7 @@ const appearance = t('settings.appearance');
 
         {activeSection === 'bots' && (
           <SubView key="bots" title={t("settings.botsTitle")} isDark={isDark} onBack={() => setActiveSection('main')}>
-             <div className={`rounded-xl overflow-hidden p-6 text-center ${isDark ? "bg-[#a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
+             <div className={`rounded-xl overflow-hidden p-6 text-center ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                <div className={`text-sm mb-2 ${isDark ? "text-white" : "text-slate-800"}`}>{t('settings.noBots')}</div>
                <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
                   {t('settings.botsComingSoon')}
@@ -1542,35 +1550,35 @@ const appearance = t('settings.appearance');
           </SubView>
         )}
 
-       {activeSection === 'privacy' && (
-           <SubView key="privacy" title={privacy} isDark={isDark} onBack={() => setActiveSection('main')}>
-              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                <SettingsItem 
-                  title={forwardAllow}
-                  subtitle={forwardAllowSubtitle}
-                  isDark={isDark}
-                  rightElement={<ToggleSwitch isOn={storeAllowForwarding} onToggle={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })} isDark={isDark} />}
-                  onClick={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })}
-                />
-                <SettingsItem 
-                  title={t("settings.allowMetadata")}
-                  subtitle={t("settings.allowMetadataSubtitle")}
-                  isDark={isDark}
-                  rightElement={<ToggleSwitch isOn={storeAllowMetadata} onToggle={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })} isDark={isDark} />}
-                  onClick={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })}
-                />
-                <SettingsItem 
-                  title={forwardLimit}
-                  subtitle={String(storeForwardCountLimit)}
-                  isDark={isDark}
-                  onClick={() => {
-                    const next = (storeForwardCountLimit + 1) % 4;
-                    storeUpdateSettings({ forwardCountLimit: next });
-                  }}
-                />
-              </div>
-            </SubView>
-         )}
+        {activeSection === 'forwardPrivacy' && (
+            <SubView key="forwardPrivacy" title={t('settings.forwardPrivacy')} isDark={isDark} onBack={() => setActiveSection('privacy')}>
+               <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
+                 <SettingsItem 
+                   title={forwardAllow}
+                   subtitle={forwardAllowSubtitle}
+                   isDark={isDark}
+                   rightElement={<ToggleSwitch isOn={storeAllowForwarding} onToggle={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })} isDark={isDark} />}
+                   onClick={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })}
+                 />
+                 <SettingsItem 
+                   title={t("settings.allowMetadata")}
+                   subtitle={t("settings.allowMetadataSubtitle")}
+                   isDark={isDark}
+                   rightElement={<ToggleSwitch isOn={storeAllowMetadata} onToggle={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })} isDark={isDark} />}
+                   onClick={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })}
+                 />
+                 <SettingsItem 
+                   title={forwardLimit}
+                   subtitle={String(storeForwardCountLimit)}
+                   isDark={isDark}
+                   onClick={() => {
+                     const next = (storeForwardCountLimit + 1) % 4;
+                     storeUpdateSettings({ forwardCountLimit: next });
+                   }}
+                 />
+               </div>
+             </SubView>
+          )}
 
        {activeSection === 'devices' && (
            <SubView key="devices" title="Devices" isDark={isDark} onBack={() => setActiveSection('main')}>
@@ -1592,19 +1600,14 @@ const appearance = t('settings.appearance');
                      <div className={`text-[10px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-500"}`}>
                        {device.platform} · {new Date(device.lastActive).toLocaleDateString()}
                      </div>
-                     {device.id !== storeCurrentSession.deviceId && device.id !== 'current-device' && (
-                       <button
-                         onClick={() => {
-                           if (confirm(`Remove device "${device.name}"?`)) {
-                             storeRemoveDevice(device.id);
-                             toast.success("Device removed", { description: `${device.name} removed` });
-                           }
-                         }}
-                         className={`mt-1 text-xs font-medium ${isDark ? "text-red-400 hover:text-red-300" : "text-red-500 hover:text-red-400"}`}
-                       >
-                         {t('settings.removeDevice')}
-                       </button>
-                     )}
+                      {device.id !== storeCurrentSession.deviceId && device.id !== 'current-device' && (
+                        <button
+                          onClick={() => setConfirmAction({ type: 'removeDevice', id: device.id, name: device.name })}
+                          className={`mt-1 text-xs font-medium ${isDark ? "text-red-400 hover:text-red-300" : "text-red-500 hover:text-red-400"}`}
+                        >
+                          {t('settings.removeDevice')}
+                        </button>
+                      )}
                    </div>
                  ))}
                  <SettingsItem 
@@ -1803,8 +1806,41 @@ const appearance = t('settings.appearance');
               </div>
             </SubView>
          )}
-       </AnimatePresence>
-    </div>
+        </AnimatePresence>
+        {confirmAction?.type === 'wipe' && (
+          <ConfirmDialog
+            isOpen={true}
+            title={t('settings.wipeAllData')}
+            message={confirmWipeText}
+            confirmLabel={t('settings.wipeAllData')}
+            cancelLabel={t('common.delete')}
+            variant="danger"
+            theme={isDark ? 'dark' : 'light'}
+            onConfirm={async () => {
+              await cryptoCore.secureWipe();
+              setConfirmAction(null);
+            }}
+            onCancel={() => setConfirmAction(null)}
+          />
+        )}
+        {confirmAction?.type === 'removeDevice' && (
+          <ConfirmDialog
+            isOpen={true}
+            title={t('settings.removeDevice')}
+            message={`Remove device "${confirmAction.name}"?`}
+            confirmLabel={t('settings.removeDevice')}
+            cancelLabel={t('contacts.close')}
+            variant="danger"
+            theme={isDark ? 'dark' : 'light'}
+            onConfirm={() => {
+              storeRemoveDevice(confirmAction.id);
+              toast.success("Device removed", { description: `${confirmAction.name} removed` });
+              setConfirmAction(null);
+            }}
+            onCancel={() => setConfirmAction(null)}
+          />
+        )}
+     </div>
   );
 };
 

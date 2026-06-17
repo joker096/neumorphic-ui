@@ -5,6 +5,7 @@ import { ContactsView } from "./components/ContactsView";
 import { SettingsView } from "./components/SettingsView";
 import { RecordingsScreen } from "./components/RecordingsScreen";
 import { ContactProfileModal, ContactProfile } from "./components/ContactProfileModal";
+import { ContactCreateEditModal } from "./components/ContactCreateEditModal";
 import { MorseDecoder, encodeMorse, isMorseCode } from "./components/MorseDecoder";
 import { Tooltip } from "./components/Tooltip";
 import React, { useState, useRef, useEffect, useMemo } from "react";
@@ -528,14 +529,16 @@ const Dialpad = ({
   onMessage, 
   contacts,
   showContactPicker,
-  setShowContactPicker
+  setShowContactPicker,
+  setEditingContact
 }: { 
   theme: "light" | "dark", 
   onCall?: (n: string, color?: string) => void, 
   onMessage?: (n: string, color?: string) => void,
   contacts: Array<{ name: string; id: string; color: string; lastSeen: number }>,
   showContactPicker: boolean,
-  setShowContactPicker: (show: boolean) => void
+  setShowContactPicker: (show: boolean) => void,
+  setEditingContact: (contact: Contact | null) => void
 }) => {
   const isDark = theme === "dark";
   const [number, setNumber] = useState("");
@@ -546,6 +549,7 @@ const Dialpad = ({
   
   const { activeCall, setActiveCall } = useAppStore();
   const isCalling = !!activeCall;
+  const isVideoCall = activeCall?.isVideo || false;
   const isMuted = activeCall?.isMuted || false;
   const isSpeaker = activeCall?.isSpeaker || false;
   const [callDuration, setCallDuration] = useState(0);
@@ -623,13 +627,20 @@ const Dialpad = ({
 
       {isCalling ? (
         <div className="flex flex-col items-center justify-center flex-1 w-full relative z-10 animate-fade-in gap-8">
-          <div
-            className={`w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner ${isDark ? "bg-[#13151b] text-white" : "bg-[#e2e8f0] text-slate-700"}`}
-          >
-            <User
-              size={48}
-              className={isDark ? "text-gray-500" : "text-slate-400"}
-            />
+          <div className="relative">
+            <div
+              className={`w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner ${isDark ? "bg-[#13151b] text-white" : "bg-[#e2e8f0] text-slate-700"}`}
+            >
+              <User
+                size={48}
+                className={isDark ? "text-gray-500" : "text-slate-400"}
+              />
+            </div>
+            {isVideoCall && (
+              <div className={`absolute -bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center border-2 ${isDark ? "bg-orange-500 border-[#13151b] text-white" : "bg-orange-500 border-[#e2e8f0] text-white"}`}>
+                <Video size={16} />
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col items-center gap-2">
@@ -721,7 +732,7 @@ const Dialpad = ({
                 >
                   Recent
                 </div>
-                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 shrink-0">
+                <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
                   {[
                     { id: "all", label: "All" },
                     { id: "incoming", label: "In" },
@@ -917,13 +928,15 @@ const Dialpad = ({
                setSelectedContact(null);
            }}
           onEdit={() => {
-               toast.info("Contact", { description: `Edit contact details for ${selectedContact?.name}` });
-               setSelectedContact(null);
-           }}
+                if (selectedContact) {
+                  setEditingContact(selectedContact);
+                }
+                setSelectedContact(null);
+            }}
           onBlock={() => {
-               toast.warning("Contact", { description: `Blocked number/contact: ${selectedContact?.name}` });
-               setSelectedContact(null);
-           }}
+                toast.warning("Contact", { description: `Blocked number/contact: ${selectedContact?.name}` });
+                setSelectedContact(null);
+            }}
       />
       
       {/* Contact Picker Modal */}
@@ -990,40 +1003,48 @@ const Dialpad = ({
 
 // --- Central Hub Interactive Toggle Icons ---
 
-const HubToggleIcon = ({ active, onClick, icon: Icon, color, isDark }: any) => {
+const HubToggleIcon = ({ active, onClick, icon: Icon, color, isDark, title }: any) => {
   let activeColor = "";
-  if (color === "purple")
+  let activeBorder = "";
+  if (color === "purple") {
     activeColor = isDark
-      ? "text-purple-400 drop-shadow-[0_0_5px_rgba(168,85,247,0.8)]"
-      : "text-purple-600 drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]";
-  if (color === "blue")
+      ? "text-purple-400 drop-shadow-[0_0_6px_rgba(168,85,247,0.9)]"
+      : "text-purple-600 drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]";
+    activeBorder = isDark ? "border-purple-500/40" : "border-purple-400/60";
+  }
+  if (color === "blue") {
     activeColor = isDark
-      ? "text-orange-400 drop-shadow-[0_0_5px_rgba(251,146,60,0.8)]"
-      : "text-orange-600 drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]";
-  if (color === "green")
+      ? "text-orange-400 drop-shadow-[0_0_6px_rgba(251,146,60,0.9)]"
+      : "text-orange-600 drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]";
+    activeBorder = isDark ? "border-orange-500/40" : "border-orange-400/60";
+  }
+  if (color === "green") {
     activeColor = isDark
-      ? "text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]"
-      : "text-emerald-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]";
+      ? "text-green-400 drop-shadow-[0_0_6px_rgba(74,222,128,0.9)]"
+      : "text-emerald-500 drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]";
+    activeBorder = isDark ? "border-green-500/40" : "border-emerald-400/60";
+  }
 
   const idleColor = isDark ? "text-gray-500" : "text-slate-400";
 
   return (
     <div
       onClick={onClick}
+      title={title}
       className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 ${
         active
           ? isDark
-            ? "bg-[#1a1d24] shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_inset_0_-1px_2px_rgba(255,255,255,0.05)] border border-white/5"
-            : "bg-[#eaeff4] shadow-[inset_3px_3px_6px_rgba(165,175,190,0.5),_inset_-2px_-2px_4px_rgba(255,255,255,1)] border border-black/5"
+            ? `bg-[#1a1d24] shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_inset_0_-1px_2px_rgba(255,255,255,0.05)] ${activeBorder}`
+            : `bg-[#eaeff4] shadow-[inset_3px_3px_6px_rgba(165,175,190,0.5),_inset_-2px_-2px_4px_rgba(255,255,255,1)] ${activeBorder}`
           : isDark
             ? "hover:bg-white/5 border border-transparent shadow-[0_4px_8px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.5)] bg-[#13151b]"
             : "hover:bg-white border border-transparent shadow-[0_2px_6px_rgba(165,175,190,0.3)] hover:shadow-[0_4px_8px_rgba(165,175,190,0.4)] bg-[#f4f7f9]"
       }`}
     >
       <Icon
-        size={18}
+        size={active ? 20 : 18}
         className={`transition-all duration-300 ${active ? activeColor : idleColor}`}
-        strokeWidth={active ? 2 : 1.75}
+        strokeWidth={active ? 2.5 : 1.75}
       />
     </div>
   );
@@ -1035,13 +1056,15 @@ interface RadialItem { id: string; angle: number; title: string; subtitle: strin
 
 const RadialMenu = ({ theme, items, centerTitle, centerSubtitle, onCenterClick, onItemClick }: { theme: "light" | "dark"; items: RadialItem[]; centerTitle: string; centerSubtitle: string; onCenterClick?: () => void; onItemClick?: (id: string) => void; }) => {
   const isDark = theme === "dark";
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
+  const store = useAppStore();
 
-  // Additional Hub States
-  const [volume, setVolume] = useState(65);
-  const [dnd, setDnd] = useState(false);
-  const [proxy, setProxy] = useState(true);
-  const [energy, setEnergy] = useState(false);
+  // Additional Hub States (from persistent store)
+  const volume = Math.round(store.soundVolume * 100);
+  const dnd = store.radialDnd;
+  const proxy = store.radialProxy;
+  const energy = store.radialEnergy;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -1081,7 +1104,7 @@ const RadialMenu = ({ theme, items, centerTitle, centerSubtitle, onCenterClick, 
       newVol = (1 - angle / Math.PI) * 100;
     }
 
-    setVolume(Math.min(100, Math.max(0, Math.round(newVol))));
+    store.setSoundVolume(Math.min(1, Math.max(0, Math.round(newVol) / 100)));
   };
 
   return (
@@ -1200,16 +1223,22 @@ const RadialMenu = ({ theme, items, centerTitle, centerSubtitle, onCenterClick, 
       </svg>
 
       {/* Volume Value Text & Icons & Track Knob */}
-      <VolumeX
-        size={18}
-        className={`absolute pointer-events-none transition-colors ${isDark ? "text-gray-500" : "text-slate-400"}`}
-        style={{ left: cx - volR - 36, top: cy - 9 }}
-      />
-      <Volume2
-        size={18}
-        className={`absolute pointer-events-none transition-colors ${isDark ? "text-gray-500" : "text-slate-400"}`}
-        style={{ left: cx + volR + 18, top: cy - 9 }}
-      />
+      <div
+        className={`absolute flex items-center justify-center w-9 h-9 rounded-full transition-all cursor-pointer z-20 ${isDark ? "text-gray-500 hover:bg-red-500/20 hover:text-red-400" : "text-slate-400 hover:bg-red-500/15 hover:text-red-600"}`}
+        style={{ left: cx - volR - 41, top: cy - 18 }}
+        title={t('hub.volumeMin')}
+        onClick={(e: any) => { e.stopPropagation(); store.setSoundVolume(0); }}
+      >
+        <VolumeX size={18} />
+      </div>
+      <div
+        className={`absolute flex items-center justify-center w-9 h-9 rounded-full transition-all cursor-pointer z-20 ${isDark ? "text-gray-500 hover:bg-emerald-500/20 hover:text-emerald-400" : "text-slate-400 hover:bg-emerald-500/15 hover:text-emerald-600"}`}
+        style={{ left: cx + volR + 13, top: cy - 18 }}
+        title={t('hub.volumeMax')}
+        onClick={(e: any) => { e.stopPropagation(); store.setSoundVolume(1); }}
+      >
+        <Volume2 size={18} />
+      </div>
       <div
         className={`absolute text-[10px] uppercase tracking-widest font-bold z-10 pointer-events-none ${isDark ? "text-amber-500/80 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "text-teal-600/90"}`}
         style={{
@@ -1413,31 +1442,34 @@ const RadialMenu = ({ theme, items, centerTitle, centerSubtitle, onCenterClick, 
                   active={dnd}
                   onClick={(e: any) => {
                     e.stopPropagation();
-                    setDnd(!dnd);
+                    store.setRadialDnd(!dnd);
                   }}
                   icon={Moon}
                   color="purple"
                   isDark={isDark}
+                  title={dnd ? t('hub.dndActive') : t('hub.dnd')}
                 />
                 <HubToggleIcon
                   active={proxy}
                   onClick={(e: any) => {
                     e.stopPropagation();
-                    setProxy(!proxy);
+                    store.setRadialProxy(!proxy);
                   }}
                   icon={Shield}
                   color="blue"
                   isDark={isDark}
+                  title={proxy ? t('hub.proxyActive') : t('hub.proxy')}
                 />
                 <HubToggleIcon
                   active={energy}
                   onClick={(e: any) => {
                     e.stopPropagation();
-                    setEnergy(!energy);
+                    store.setRadialEnergy(!energy);
                   }}
                   icon={Battery}
                   color="green"
                   isDark={isDark}
+                  title={energy ? t('hub.energyActive') : t('hub.energy')}
                 />
               </div>
             </motion.div>
@@ -1666,7 +1698,7 @@ const AvatarRow = ({ theme, onStoryClick }: any) => {
   return (
     <div className="flex flex-col w-full overflow-visible mb-2 pt-2 pb-1 bg-transparent shrink-0">
       <div className={`px-4 mb-2 font-mono text-[9px] uppercase tracking-widest font-bold ${isDark ? "text-gray-500" : "text-slate-400"}`}>P2P Stories</div>
-      <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0">
+      <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         
         {/* Add Story Button */}
         <div className="flex flex-col items-center gap-2 group cursor-pointer shrink-0">
@@ -1838,7 +1870,7 @@ const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, 
   );
 };
 
-const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true }: any) => {
+const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact }: any) => {
   const isDark = theme === "dark";
   const { stealthMode, scheduledQueue, setActiveCall, setChats, setChannels } = useAppStore();
   const [videoOpen, setVideoOpen] = useState(false);
@@ -1994,11 +2026,14 @@ const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, o
           {/* Avatar mini */}
           <div
             onClick={() => {
+              const allContacts = useAppStore.getState().contacts;
+              const profileContact = allContacts.find(ct => ct.name === chat.name);
               setSelectedContact({
                 id: `hash_${chat.id}`,
                 name: chat.name,
                 color: chat.color,
-                lastSeen: chat.online ? 0 : Date.now() - 3600000
+                lastSeen: chat.online ? 0 : Date.now() - 3600000,
+                localFields: profileContact?.localFields
               });
             }}
             className={`w-11 h-11 cursor-pointer rounded-full bg-gradient-to-br flex-shrink-0 ${chat.color} flex items-center justify-center text-white font-bold text-lg shadow-sm relative transition-all active:scale-95`}
@@ -2070,14 +2105,14 @@ const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, o
                 }}
                 className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white" : "bg-black/5 hover:bg-black/10 text-slate-400 hover:text-slate-800"}`}
               >
-                <MoreVertical size={18} />
+                <Trash2 size={18} />
               </div>
             )}
             {!chat.isChannel && (
               <div
                 title="Start Video Call"
-                onClick={() => setVideoOpen(true)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
+                onClick={() => setActiveCall({ number: chat.name || "Unknown Call", startTime: Date.now(), isMuted: false, isSpeaker: false, isVideo: true })}
+                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
               >
                 <Video size={20} />
               </div>
@@ -2128,7 +2163,7 @@ const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, o
         </AnimatePresence>
 
         {/* Media Tabs & Filters */}
-        <div className={`px-5 pt-4 pb-2 flex flex-col gap-2 overflow-x-auto scrollbar-none ${isDark ? "bg-[#1a1d24]/60" : "bg-[#f4f7f9]/60"}`}>
+        <div className={`px-5 pt-4 pb-2 flex flex-col gap-2 overflow-x-auto scrollbar-none ${isDark ? "bg-[#1a1d24]/60" : "bg-[#f4f7f9]/60"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
           {/* Filter buttons row */}
           <div className="flex items-center gap-2">
             <button
@@ -2191,7 +2226,7 @@ const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, o
         </div>
 
         {mediaItems.length > 0 && (
-          <div className="px-5 pb-3 overflow-x-auto scrollbar-none">
+          <div className="px-5 pb-3 overflow-x-auto scrollbar-none" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
             <div className="flex gap-3">
               {mediaItems.slice(0, 6).map((msg: any) => (
                 <div
@@ -2639,14 +2674,16 @@ const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, o
               toast.info("Contact", { description: `Deleted contact history for: ${selectedContact?.name}` });
               setSelectedContact(null);
           }}
-          onEdit={() => {
-              toast.info("Contact", { description: `Edit contact details for ${selectedContact?.name}` });
-              setSelectedContact(null);
-          }}
+         onEdit={() => {
+               if (selectedContact) {
+                 setEditingContact(selectedContact);
+               }
+               setSelectedContact(null);
+           }}
           onBlock={() => {
-              toast.warning("Contact", { description: `Blocked contact: ${selectedContact?.name}` });
-              setSelectedContact(null);
-          }}
+               toast.warning("Contact", { description: `Blocked contact: ${selectedContact?.name}` });
+               setSelectedContact(null);
+           }}
       />
     </>
   );
@@ -2878,6 +2915,8 @@ import { CreateBotModal } from "./components/CreateBotModal";
 import { ChannelCommentsView } from "./components/ChannelCommentsView";
 import { AccountSwitcher } from "./components/AccountSwitcher";
 import { FormattedText } from "./components/FormattedText";
+import { getICQEmojiPath, ICQ_EMOJI_MAP } from './lib/icqEmojis';
+import type { Contact } from './types/contact';
 
 // --- Mention & DND utilities ---
 const MENTION_PATTERN = /@(\w+)/g;
@@ -2936,19 +2975,31 @@ const STICKER_PACKS = [
 ];
 const STICKER_EMOJI = ['😀', '😂', '🤣', '🤔', '😍', '😎', '🤖', '🥺', '😱', '🤯', '🫡', '🥳'];
 
+const UNICODE_TO_ICQ: Record<string, string> = {
+  '👍': 'ok', '❤️': 'heart', '😂': 'lol', '😢': 'sad', '🎉': 'party2',
+  '👋': 'hi', '👑': 'king', '😎': 'biggrin', '🥳': 'yahoo', '😀': 'smile',
+  '🤣': 'rofl', '😍': 'girl_in_love', '🥺': 'sorry2', '😱': 'scare',
+  '🤯': 'mega_shock', '🔥': 'hot', '💀': 'vampire',
+};
+
 const StickerPicker = ({ theme, onSelect, onClose }: { theme: 'light' | 'dark'; onSelect: (emoji: string) => void; onClose: () => void }) => {
+  const { t } = useI18n();
   const isDark = theme === 'dark';
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
   
-  const allPacks = [...STICKER_PACKS, { id: 'emoji', name: 'Emoji', stickers: STICKER_EMOJI }];
+  const allPacks = [
+    { id: 'icq', name: t('stickers.icq'), stickers: ICQ_EMOJI_MAP.map(e => e.id) },
+    ...STICKER_PACKS,
+    { id: 'emoji', name: t('stickers.emoji'), stickers: STICKER_EMOJI },
+  ];
   const filteredPacks = activeTab === 'all' ? allPacks : allPacks.filter(p => p.id === activeTab);
   const visiblePacks = search ? filteredPacks.filter(p => p.name.toLowerCase().includes(search.toLowerCase())) : filteredPacks;
   
   return (
     <div className="w-full max-w-full flex flex-col gap-3">
-      <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
-        {[{ id: 'all', label: 'All' }, { id: 'emoji', label: 'Emoji' }, ...STICKER_PACKS.map(p => ({ id: p.id, label: p.name }))].map(tab => (
+      <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+        {[{ id: 'all', label: t('stickers.all') }, { id: 'icq', label: t('stickers.icq') }, { id: 'emoji', label: t('stickers.emoji') }, ...STICKER_PACKS.map(p => ({ id: p.id, label: t('stickers.' + p.id) }))].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -2964,7 +3015,7 @@ const StickerPicker = ({ theme, onSelect, onClose }: { theme: 'light' | 'dark'; 
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search stickers..."
+          placeholder={t('stickers.searchPlaceholder')}
           className={`w-full pl-7 pr-4 py-2 rounded-xl text-[12px] outline-none ${isDark ? 'bg-white/5 text-white' : 'bg-black/5 text-slate-800'}`}
         />
       </div>
@@ -2977,10 +3028,16 @@ const StickerPicker = ({ theme, onSelect, onClose }: { theme: 'light' | 'dark'; 
               {pack.stickers.map((st, idx) => (
                 <button
                   key={`${pack.id}-${idx}`}
-                  onClick={() => { onSelect(st); onClose(); }}
+                  onClick={() => { onSelect(pack.id === 'icq' ? `icq:${st}` : st); onClose(); }}
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-xl hover:scale-110 transition-transform ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}
                 >
-                  {st}
+                  {pack.id === 'icq' ? (
+                    <img src={getICQEmojiPath(st, theme)} alt={st} className="w-7 h-7 object-contain" />
+                  ) : pack.id === 'default' && UNICODE_TO_ICQ[st] ? (
+                    <img src={getICQEmojiPath(UNICODE_TO_ICQ[st], theme)} alt={st} className="w-7 h-7 object-contain" />
+                  ) : (
+                    st
+                  )}
                 </button>
               ))}
             </div>
@@ -3017,7 +3074,8 @@ export default function App() {
     appLockHashedPIN, appLockSalt, chats, setChats, channels, setChannels, bots, setBots,
     scheduledQueue,
     archivedChats, toggleArchive,
-    readReceipts, deliveryReceipts, typingIndicators
+    readReceipts, deliveryReceipts, typingIndicators,
+    contacts, setContacts
   } = useAppStore();
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [pinInput, setPinInput] = useState('');
@@ -3072,6 +3130,14 @@ export default function App() {
   
   useEffect(() => {
     if (chats.length === 0) setChats(MOCK_CHATS);
+    if (contacts.length === 0) {
+      setContacts([
+        { name: "Alice", id: "5a2f...9b1c", color: "from-rose-400 to-red-500", lastSeen: 1000 * 60 * 5 },
+        { name: "Bob (Relay)", id: "node_f88b", color: "from-blue-400 to-indigo-500", lastSeen: 1000 * 60 * 60 * 2 },
+        { name: "Charlie", id: "3c4d...5e6f", color: "from-amber-400 to-orange-400", lastSeen: 1000 * 60 * 30 },
+        { name: "Diana", id: "7g8h...9i0j", color: "from-purple-400 to-fuchsia-400", lastSeen: 1000 * 60 * 60 * 24 },
+      ]);
+    }
     // Push mock channels as P2PChannels mapping if empty
     if (channels.length === 0) {
       setChannels(MOCK_CHANNELS.map(c => ({
@@ -3146,7 +3212,7 @@ export default function App() {
   };
 
   const [view, setView] = useState<'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'contacts' | 'stories' | 'recordings'>('hub');
-  const [activeFolder, setActiveFolder] = useState<string>('All');
+  const [activeFolder, setActiveFolder] = useState<string>('all');
   const [activeChat, setActiveChat] = useState<any>(null);
   const [messageText, setMessageText] = useState("");
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
@@ -3163,13 +3229,8 @@ export default function App() {
   const [advancedFilters, setAdvancedFilters] = useState({ hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false });
   const [showMentionDropdown, setShowMentionDropdown] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
-  const [contacts, setContacts] = useState<Array<{ name: string; id: string; color: string; lastSeen: number }>>([
-    { name: "Alice", id: "5a2f...9b1c", color: "from-rose-400 to-red-500", lastSeen: 1000 * 60 * 5 },
-    { name: "Bob (Relay)", id: "node_f88b", color: "from-blue-400 to-indigo-500", lastSeen: 1000 * 60 * 60 * 2 },
-    { name: "Charlie", id: "3c4d...5e6f", color: "from-amber-400 to-orange-400", lastSeen: 1000 * 60 * 30 },
-    { name: "Diana", id: "7g8h...9i0j", color: "from-purple-400 to-fuchsia-400", lastSeen: 1000 * 60 * 60 * 24 },
-  ]);
   const [showContactPicker, setShowContactPicker] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
   
   const isDark = theme === 'dark';
   const currentChatList = chats;
@@ -3228,12 +3289,12 @@ export default function App() {
     if (advancedFilters.priority && !chat.isPriority) return false;
 
     const isArchived = archivedChats.includes(chat.id);
-    if (activeFolder === 'Archived') return isArchived;
-    if (isArchived) return false; 
+if (activeFolder === 'archived') return isArchived;
+    if (isArchived) return false;
     
-    if (activeFolder === 'Unread') return chat.unread > 0;
-    if (activeFolder === 'Personal') return chat.name === 'Alice Freeman'; 
-    if (activeFolder === 'Work') return chat.name === 'Design Team'; 
+    if (activeFolder === 'unread') return chat.unread > 0;
+    if (activeFolder === 'personal') return chat.name === 'Alice Freeman'; 
+    if (activeFolder === 'work') return chat.name === 'Design Team'; 
     return true; 
   }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters]);
   
@@ -3246,7 +3307,7 @@ export default function App() {
     const matchesSearch = !query || channel.name.toLowerCase().includes(query) || (channel as any).message?.toLowerCase().includes(query) || historyText.includes(query);
     if (!matchesSearch) return false;
     const isArchived = archivedChats.includes(channel.id);
-    if (activeFolder === 'Archived') return isArchived;
+    if (activeFolder === 'archived') return isArchived;
     if (isArchived) return false;
     return true;
   }), [channels, chatSearchQuery, activeFolder, archivedChats]);
@@ -3631,13 +3692,13 @@ export default function App() {
                   if (activeChat) setActiveChat(null);
                   else setView('hub');
                 }}
-                title="Go Back"
+                title={t('chat.goBack')}
                 className={`w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 ${isDark ? "bg-[#1a1d24] border border-white/10 hover:bg-white/10" : "bg-[#f4f7f9] border border-black/10 hover:bg-white shadow-md"}`}
               >
                 <ChevronRight size={24} className="rotate-180" />
               </div>
-              <h2 className="text-2xl font-serif tracking-wide capitalize">
-                {activeChat ? activeChat.name : view}
+              <h2 className="text-2xl font-sans tracking-wide capitalize">
+                {activeChat ? activeChat.name : t(`hub.${view}` as any)}
               </h2>
             </div>
             
@@ -3650,30 +3711,33 @@ export default function App() {
                 contacts={contacts}
                 showContactPicker={showContactPicker}
                 setShowContactPicker={setShowContactPicker}
-                onCall={(name, color) => {
-                   setView('calls');
-                }} 
-                onMessage={(name, color) => {
-                   setView('chats');
-                   const existingChat = chats.find(c => c.name === name && c.type === 'direct');
-                   if (existingChat) {
-                      setActiveChat(existingChat);
-                   } else {
-                      const newChat = { id: Date.now(), name, type: "direct", color: color || "from-blue-400 to-indigo-500", online: true, history: [] };
-                      setChats([newChat, ...chats]);
-                      setActiveChat(newChat);
-                   }
-                }} 
-              />}
-               {view === 'settings' && <SettingsView theme={theme} setTheme={setTheme} />}
-               {view === 'recordings' && <RecordingsScreen theme={theme} onBack={() => setView('hub')} />}
-               {view === 'contacts' && <ContactsView 
-                theme={theme} 
-                contacts={contacts}
-                setContacts={setContacts}
-                onCall={(name, color) => {
-                   setView('calls');
-                }} 
+                setEditingContact={setEditingContact}
+                 onCall={(name, color) => {
+                    useAppStore.getState().setActiveCall({ number: name, startTime: Date.now(), isMuted: false, isSpeaker: false });
+                    setView('calls');
+                 }} 
+                 onMessage={(name, color) => {
+                    setView('chats');
+                    const existingChat = chats.find(c => c.name === name && c.type === 'direct');
+                    if (existingChat) {
+                       setActiveChat(existingChat);
+                    } else {
+                       const newChat = { id: Date.now(), name, type: "direct", color: color || "from-blue-400 to-indigo-500", online: true, history: [] };
+                       setChats([newChat, ...chats]);
+                       setActiveChat(newChat);
+                    }
+                 }} 
+               />}
+                {view === 'settings' && <SettingsView theme={theme} setTheme={setTheme} />}
+                {view === 'recordings' && <RecordingsScreen theme={theme} onBack={() => setView('hub')} />}
+                {view === 'contacts' && <ContactsView 
+                 theme={theme} 
+                 contacts={contacts}
+                 setContacts={setContacts}
+                 onCall={(name, color) => {
+                    useAppStore.getState().setActiveCall({ number: name, startTime: Date.now(), isMuted: false, isSpeaker: false });
+                    setView('calls');
+                 }}
                 onMessage={(name, color) => {
                    setView('chats');
                    const existingChat = chats.find(c => c.name === name && c.type === 'direct');
@@ -3693,23 +3757,23 @@ export default function App() {
                     <div className="mb-6 relative z-30 flex items-center gap-3 shrink-0">
                       <div className="flex-1">
                           {isDark ? (
-                             <DarkSearchBar searchQuery={chatSearchQuery} onSearchChange={setChatSearchQuery} placeholder={view === 'channels' ? 'Search channels...' : view === 'bots' ? 'Search bots...' : 'Search chats or messages...'} />
-                          ) : (
-                             <LightSearchBar searchQuery={chatSearchQuery} onSearchChange={setChatSearchQuery} placeholder={view === 'channels' ? 'Search channels...' : view === 'bots' ? 'Search bots...' : 'Search chats or messages...'} />
+                              <DarkSearchBar searchQuery={chatSearchQuery} onSearchChange={setChatSearchQuery} placeholder={view === 'channels' ? t('chat.searchChannelsPlaceholder') : view === 'bots' ? t('chat.searchBotsPlaceholder') : t('chat.searchPlaceholder')} />
+                           ) : (
+                              <LightSearchBar searchQuery={chatSearchQuery} onSearchChange={setChatSearchQuery} placeholder={view === 'channels' ? t('chat.searchChannelsPlaceholder') : view === 'bots' ? t('chat.searchBotsPlaceholder') : t('chat.searchPlaceholder')} />
                           )}
                       </div>
                       {(view === 'channels' || view === 'bots') ? (
                          <div
                             onClick={() => view === 'channels' ? setShowCreateChannel(true) : setShowCreateBot(true)}
-                            title={view === 'channels' ? "Create Channel" : "Create Bot"}
+                            title={view === 'channels' ? t('chat.createChannel') : t('chat.createBot')}
                             className={`w-[48px] h-[48px] rounded-2xl flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 shadow-sm"}`}
                          >
                             <Plus size={24} />
                          </div>
                       ) : (
-                         <div 
-                            title="Архив (Архив зашифрован)"
-                            onClick={() => { setView('chats'); setActiveFolder('Archived'); }}
+                          <div 
+                             title={t('chat.archived')}
+                             onClick={() => { setView('chats'); setActiveFolder('archived'); }}
                             className={`w-[48px] h-[48px] rounded-2xl flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[#1a1d24] border border-white/5 hover:bg-white/5 text-gray-400 hover:text-white" : "bg-white border border-black/5 hover:bg-black/5 text-slate-500 hover:text-slate-800 shadow-sm"}`}
                          >
                             <Archive size={20} />
@@ -3724,13 +3788,13 @@ export default function App() {
                     </div>
                     
                     {/* TOP-LEVEL TAB BAR */}
-                    <div className={`flex items-center gap-5 mb-6 px-1 border-b pb-3 overflow-x-auto scrollbar-none shrink-0 ${isDark ? "border-white/5" : "border-black/5"}`}>
-                       {[
-                         { id: 'stories', label: 'Stories' },
-                         { id: 'chats', label: 'Chats' },
-                         { id: 'channels', label: 'Channels' },
-                         { id: 'bots', label: 'Bots' }
-                       ].map((tab) => (
+                    <div className={`flex items-center gap-5 mb-6 px-1 border-b pb-3 overflow-x-auto scrollbar-none shrink-0 ${isDark ? "border-white/5" : "border-black/5"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+                        {[
+                          { id: 'stories', label: t('chat.tabs.stories') },
+                          { id: 'chats', label: t('chat.tabs.chats') },
+                          { id: 'channels', label: t('chat.tabs.channels') },
+                          { id: 'bots', label: t('chat.tabs.bots') }
+                        ].map((tab) => (
                           <div
                              key={tab.id}
                              onClick={() => setView(tab.id as any)}
@@ -3746,10 +3810,13 @@ export default function App() {
 
                     {view === 'stories' && <AvatarRow theme={theme} onStoryClick={setActiveStory} />}
 
-                    {view === 'chats' && (
-                       <div className="flex items-center gap-2 mb-6 -mx-2 px-2 shrink-0">
-                         <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-none pb-1">
-                           {['All', 'Personal', 'Unread', 'Work', 'Archived'].map(folder => (
+                     {view === 'chats' && (
+                        <div className="flex items-center gap-2 mb-6 -mx-2 px-2 shrink-0">
+                          <div
+                            className="flex-1 flex gap-2 overflow-x-auto scrollbar-none pb-1"
+                            onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}
+                          >
+                             {['all', 'personal', 'unread', 'work', 'archived'].map(folder => (
                               <div 
                                 key={folder}
                                 onClick={() => setActiveFolder(folder)}
@@ -3759,8 +3826,8 @@ export default function App() {
                                     : (isDark ? "bg-[#1a1d24] text-gray-400 hover:text-gray-200 border border-white/5" : "bg-white text-slate-500 hover:text-slate-800 border border-black/5 shadow-sm")
                                 }`}
                               >
-                                {folder}
-                              </div>
+                                 {t('chat.folders.' + folder as any)}
+                               </div>
                            ))}
                          </div>
                          <div onClick={() => setShowAdvancedFilterModal(true)} className={`p-1.5 rounded-full cursor-pointer shrink-0 transition-colors flex items-center justify-center ${advancedFilters.hasMedia || advancedFilters.hasAudio || advancedFilters.hasReplies || advancedFilters.fromBots || advancedFilters.priority ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "bg-[#1a1d24] text-gray-400 hover:text-white border border-white/5" : "bg-white text-slate-500 hover:text-slate-800 border border-black/5 shadow-sm")}`}>
@@ -3772,7 +3839,7 @@ export default function App() {
                     {/* Render Chats if view is chats */}
                     {view === 'chats' && filteredChats.length > 0 && (
                       <>
-                        <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-orange-500" : "text-orange-600"}`}>Conversations</div>
+                         <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-orange-500" : "text-orange-600"}`}>{t('chat.sectionConversations')}</div>
                         {filteredChats.map(c => (
                           <ChatListItem 
                              key={c.id} 
@@ -3782,13 +3849,17 @@ export default function App() {
                              active={false} 
                              onClick={() => setActiveChat(c)} 
                              onArchive={() => toggleArchive(c.id)}
-                            onAvatarClick={() => setGlobalSelectedContact({
-                                id: `hash_${c.id}`,
-                                name: c.name,
-                                color: c.color,
-                                lastSeen: c.online ? 0 : Date.now() - 3600000,
-                                online: c.online
-                             })}
+                             onAvatarClick={() => {
+                               const profileContact = contacts.find(ct => ct.name === c.name);
+                               setGlobalSelectedContact({
+                                 id: `hash_${c.id}`,
+                                 name: c.name,
+                                 color: c.color,
+                                 lastSeen: c.online ? 0 : Date.now() - 3600000,
+                                 online: c.online,
+                                 localFields: profileContact?.localFields
+                               });
+                             }}
                           />
                         ))}
                       </>
@@ -3797,7 +3868,7 @@ export default function App() {
                     {/* Render Channels if view is channels */}
                     {view === 'channels' && filteredChannels.length > 0 && (
                       <>
-                        <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-purple-500" : "text-purple-600"}`}>Channels</div>
+                         <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-purple-500" : "text-purple-600"}`}>{t('chat.sectionChannels')}</div>
                         {filteredChannels.map(c => (
                           <ChatListItem 
                              key={c.id} 
@@ -3815,7 +3886,7 @@ export default function App() {
                     {view === 'bots' && (
                       bots.length > 0 ? (
                         <>
-                          <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-blue-500" : "text-blue-600"}`}>My Bots</div>
+                           <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-blue-500" : "text-blue-600"}`}>{t('chat.sectionBots')}</div>
                           {bots.map(b => (
                             <div key={b.id} className={`w-full p-4 rounded-3xl mb-4 flex flex-col gap-2 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white border border-black/5 shadow-sm"}`}>
                                <div className="flex items-center gap-3">
@@ -3847,7 +3918,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="w-full max-w-[800px] h-[90%] relative z-10 animate-fade-in mt-6 max-h-[800px]">
-                    <ChatPreviewLayer chat={activeChat} theme={theme} onClose={() => setActiveChat(null)} onUpdateChat={setActiveChat} onAction={(text: string) => text === "MUTE_TOGGLE" ? setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted }) : setMessageText(text)} onCall={(name: string, color?: string) => { setView('calls'); }} onMessage={(name: string, color?: string) => { setView('chats'); const existingChat = chats.find(c => c.name === name && c.type === 'direct'); if (existingChat) { setActiveChat(existingChat); } else { const newChat = { id: Date.now(), name, type: "direct", color: color || "from-blue-400 to-indigo-500", online: true, history: [] }; setChats([newChat, ...chats] as any); setActiveChat(newChat); } }} onReply={(msg: any) => setReplyTarget(msg)} savedMessages={savedMessages} onToggleSavedMessage={toggleSavedMessage} deliveryReceipts={deliveryReceipts} readReceipts={readReceipts} />
+                    <ChatPreviewLayer chat={activeChat} theme={theme} onClose={() => setActiveChat(null)} onUpdateChat={setActiveChat} onAction={(text: string) => text === "MUTE_TOGGLE" ? setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted }) : setMessageText(text)} onCall={(name: string, color?: string) => { useAppStore.getState().setActiveCall({ number: name, startTime: Date.now(), isMuted: false, isSpeaker: false }); setView('calls'); }} onMessage={(name: string, color?: string) => { setView('chats'); const existingChat = chats.find(c => c.name === name && c.type === 'direct'); if (existingChat) { setActiveChat(existingChat); } else { const newChat = { id: Date.now(), name, type: "direct", color: color || "from-blue-400 to-indigo-500", online: true, history: [] }; setChats([newChat, ...chats] as any); setActiveChat(newChat); } }} onReply={(msg: any) => setReplyTarget(msg)} savedMessages={savedMessages} onToggleSavedMessage={toggleSavedMessage} deliveryReceipts={deliveryReceipts} readReceipts={readReceipts} setEditingContact={setEditingContact} />
                     
                     {/* Input Field Overlay */}
                     <div className={`absolute bottom-4 left-4 right-4 rounded-3xl p-3 flex flex-col gap-2 z-50 ${isDark ? "bg-[#1a1d24]/90 border border-white/10 backdrop-blur-xl" : "bg-white/90 border border-black/10 backdrop-blur-xl shadow-xl"}`}>
@@ -4053,7 +4124,7 @@ export default function App() {
                  className={`w-full max-w-[320px] rounded-[32px] p-6 shadow-2xl ${isDark ? "bg-[#11141c] border border-white/10" : "bg-white border border-black/10"}`}
                >
                  <div className="flex items-center justify-between mb-6">
-                    <h3 className={`font-bold font-serif text-lg ${isDark ? "text-white" : "text-black"}`}>Advanced Filters</h3>
+                     <h3 className={`font-bold font-sans text-lg ${isDark ? "text-white" : "text-black"}`}>Advanced Filters</h3>
                     <div onClick={() => setShowAdvancedFilterModal(false)} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#1a1d24] text-gray-400 hover:text-white" : "bg-black/5 text-slate-500 hover:text-slate-800"}`}>
                        <X size={16} />
                     </div>
@@ -4109,41 +4180,63 @@ export default function App() {
          theme={theme}
          onClose={() => setGlobalSelectedContact(null)}
          onCall={() => {
-            setView('calls');
-            setGlobalSelectedContact(null);
-         }}
-         onMessage={() => {
-            setView('chats');
-            if (globalSelectedContact) {
-               const existingChat = chats.find(c => c.name === globalSelectedContact.name && c.type === 'direct');
-               if (existingChat) {
-                  setActiveChat(existingChat);
-               } else {
-                  const newChat = { id: Date.now(), name: globalSelectedContact.name, type: "direct", color: globalSelectedContact.color || "from-blue-400 to-indigo-500", online: true, history: [] };
-                  setChats([newChat, ...chats]);
-                  setActiveChat(newChat);
-               }
-            }
-            setGlobalSelectedContact(null);
-         }}
-         onDelete={() => {
-            if (activeChat && activeChat.name === globalSelectedContact?.name) setActiveChat(null);
-            setChats(chats.filter(c => c.name !== globalSelectedContact?.name) as any);
-            setGlobalSelectedContact(null);
-         }}
-       onEdit={() => {
-              toast.info("Contact", { description: `Edit contact details for ${globalSelectedContact?.name}` });
-              setGlobalSelectedContact(null);
+             if (globalSelectedContact) {
+                useAppStore.getState().setActiveCall({ number: globalSelectedContact.name, startTime: Date.now(), isMuted: false, isSpeaker: false });
+             }
+             setView('calls');
+             setGlobalSelectedContact(null);
           }}
-         onBlock={() => {
-            if (activeChat && activeChat.name === globalSelectedContact?.name) setActiveChat(null);
-            setChats(chats.filter(c => c.name !== globalSelectedContact?.name));
-            setGlobalSelectedContact(null);
-         }}
-      />
-      
-    {view !== 'calls' && <FloatingCallWidget theme={theme} />}
-     </div>
-     </>
-   );
- }
+          onMessage={() => {
+             setView('chats');
+             if (globalSelectedContact) {
+                const existingChat = chats.find(c => c.name === globalSelectedContact.name && c.type === 'direct');
+                if (existingChat) {
+                   setActiveChat(existingChat);
+                } else {
+                   const newChat = { id: Date.now(), name: globalSelectedContact.name, type: "direct", color: globalSelectedContact.color || "from-blue-400 to-indigo-500", online: true, history: [] };
+                   setChats([newChat, ...chats]);
+                   setActiveChat(newChat);
+                }
+             }
+             setGlobalSelectedContact(null);
+          }}
+          onDelete={() => {
+             if (activeChat && activeChat.name === globalSelectedContact?.name) setActiveChat(null);
+             setChats(chats.filter(c => c.name !== globalSelectedContact?.name) as any);
+             setGlobalSelectedContact(null);
+          }}
+        onEdit={() => {
+                if (globalSelectedContact) {
+                  setEditingContact(globalSelectedContact);
+                }
+                setGlobalSelectedContact(null);
+            }}
+           onBlock={() => {
+             if (activeChat && activeChat.name === globalSelectedContact?.name) setActiveChat(null);
+             setChats(chats.filter(c => c.name !== globalSelectedContact?.name));
+             setGlobalSelectedContact(null);
+          }}
+        />
+       
+       {/* Edit Contact Modal (global) */}
+       <AnimatePresence>
+         {editingContact && (
+           <ContactCreateEditModal
+             contact={editingContact}
+             isDark={isDark}
+             onClose={() => setEditingContact(null)}
+              onSave={(name, id, color, localFields) => {
+                setContacts(contacts.map(c =>
+                  c.id === editingContact.id ? { ...c, name, id, color: color || c.color, localFields } : c
+                ));
+                setEditingContact(null);
+              }}
+           />
+         )}
+       </AnimatePresence>
+       
+     {view !== 'calls' && <FloatingCallWidget theme={theme} />}
+      </div>
+      </>
+    );
+  }

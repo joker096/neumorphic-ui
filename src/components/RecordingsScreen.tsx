@@ -257,7 +257,7 @@ export function RecordingsScreen({ theme, onBack }: RecordingsScreenProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 px-4 mb-3 overflow-x-auto">
+      <div className="flex items-center gap-2 px-4 mb-3 overflow-x-auto" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         {sortOptions.map(opt => (
           <button key={opt.value} onClick={() => updateSettings({ recordingsSortBy: opt.value })}
             className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${sortBy === opt.value ? 'bg-orange-500 text-white' : isDark ? 'bg-[#1a1d24] text-gray-400 hover:text-gray-200' : 'bg-white text-slate-500 hover:text-slate-800 border border-black/10'}`}>

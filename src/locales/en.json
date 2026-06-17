@@ -1,9 +1,36 @@
 {
   "chat": {
     "archive": "Archive",
+    "archived": "Archived",
+    "createChannel": "Create Channel",
+    "createBot": "Create Bot",
     "daysAgo": "{{count}}d ago",
+    "endCall": "End Call",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "views": "{count} Views",
+    "folders": {
+      "all": "All",
+      "archived": "Archived",
+      "personal": "Personal",
+      "unread": "Unread",
+      "work": "Work"
+    },
+    "goBack": "Go Back",
     "hoursAgo": "{{count}}h ago",
     "minutesAgo": "{{count}}m ago",
+    "searchBotsPlaceholder": "Search bots or services...",
+    "searchChannelsPlaceholder": "Search channels...",
+    "searchPlaceholder": "Search chats or messages...",
+    "sectionBots": "My Bots",
+    "sectionChannels": "Channels",
+    "sectionConversations": "Conversations",
+    "tabs": {
+      "bots": "Bots",
+      "channels": "Channels",
+      "chats": "Chats",
+      "stories": "Stories"
+    },
     "typing": "typing..."
   },
   "common": {
@@ -42,7 +69,19 @@
     "searchPlaceholder": "Search contacts...",
     "shareDescription": "Let others scan this code to add you to their network.",
     "shareIdentity": "Share My Identity",
-    "title": "Identity"
+    "title": "Identity",
+    "localInfo": "Local Info",
+    "localFieldsNotShared": "Not shared when sharing contact",
+    "addField": "Add Field",
+    "noLocalFields": "No local fields. Add phone, email, Telegram, or custom data.",
+    "fieldTypePhone": "Phone",
+    "fieldTypeEmail": "Email",
+    "fieldTypeTelegram": "Telegram",
+    "fieldTypeCustom": "Custom",
+    "fieldSubtypeMobile": "Mobile",
+    "fieldSubtypeWork": "Work",
+    "fieldSubtypeHome": "Home",
+    "fieldSubtypeMain": "Main"
   },
   "header": {
     "copied": "Copied!",
@@ -57,7 +96,16 @@
     "unlock": "Unlock"
   },
   "hub": {
+    "dnd": "Do Not Disturb",
+    "dndActive": "Do Not Disturb (Active)",
+    "energy": "Energy Saver",
+    "energyActive": "Energy Saver (Active)",
     "placeholder": "Hub View - RadialMenu component",
+    "proxy": "Proxy & Network",
+    "proxyActive": "Proxy & Network (Active)",
+    "volumeLabel": "Volume",
+    "volumeMax": "Maximum Volume",
+    "volumeMin": "Minimum Volume",
     "channels": "Channels",
     "channelsSubtitle": "Broadcast",
     "chats": "Chats",
@@ -76,6 +124,9 @@
     "botsSubtitle": "Assistants",
     "settings": "Settings",
     "settingsSubtitle": "Local Config",
+    "hub": "Hub",
+    "pulse": "Pulse",
+    "stories": "Stories",
     "centerTitle": "Mess&Anger",
     "centerSubtitle": "P2P Hub"
   },
@@ -245,5 +296,15 @@
     },
     "whoSeesNumber": "Who can see my number",
     "wipeAllData": "Wipe All Data"
+  },
+  "stickers": {
+    "all": "All",
+    "icq": "ICQ",
+    "emoji": "Emoji",
+    "default": "Default",
+    "animals": "Animals",
+    "nature": "Nature",
+    "food": "Food",
+    "searchPlaceholder": "Search stickers..."
   }
 }

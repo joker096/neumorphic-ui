@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useCallback } from 'react';
 import { soundPlayer } from '../lib/sounds/player';
+import { useAppStore } from '../store';
 import type { SoundEventType } from '../lib/sounds/config';
 
 interface SoundContextType {
@@ -21,8 +22,10 @@ const SoundContext = createContext<SoundContextType>({
 export const useSound = () => useContext(SoundContext);
 
 export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [enabled, setEnabled] = useState(true);
-  const [volume, setVolume] = useState(0.7);
+  const enabled = useAppStore(state => state.soundEnabled);
+  const volume = useAppStore(state => state.soundVolume);
+  const setStoreEnabled = useAppStore(state => state.setSoundEnabled);
+  const setStoreVolume = useAppStore(state => state.setSoundVolume);
 
   const play = useCallback((event: SoundEventType) => {
     if (enabled) {
@@ -32,13 +35,13 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setEnabledWithState = useCallback((enabled: boolean) => {
     soundPlayer.enabled = enabled;
-    setEnabled(enabled);
-  }, []);
+    setStoreEnabled(enabled);
+  }, [setStoreEnabled]);
 
   const setVolumeWithState = useCallback((volume: number) => {
     soundPlayer.volume = volume;
-    setVolume(volume);
-  }, []);
+    setStoreVolume(volume);
+  }, [setStoreVolume]);
 
   return (
     <SoundContext.Provider value={{ enabled, volume, play, setEnabled: setEnabledWithState, setVolume: setVolumeWithState }}>

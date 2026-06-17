@@ -3,6 +3,7 @@ import { persist, StateStorage, createJSONStorage } from 'zustand/middleware';
 import { cryptoCore } from '../lib/crypto/cryptoCore';
 import * as idb from 'idb-keyval';
 import { deviceSecurity } from '../lib/deviceSecurity';
+import type { Contact } from '../types/contact';
 
 let sessionMasterKey: CryptoKey | null = null;
 
@@ -206,6 +207,15 @@ interface AppState {
   forwardAnonymization: boolean;
   currentLanguage: string;
 
+  // Sound
+  soundEnabled: boolean;
+  soundVolume: number;
+
+  // Radial Hub states (persist across navigation)
+  radialDnd: boolean;
+  radialProxy: boolean;
+  radialEnergy: boolean;
+
   // Forward privacy controls
   allowForwarding: boolean;
   allowMetadata: boolean;
@@ -249,12 +259,21 @@ interface AppState {
   addPhotoEditText: (text: PhotoEditState['textElements'][0]) => void;
   resetPhotoEditor: () => void;
 
+  setSoundEnabled: (enabled: boolean) => void;
+  setSoundVolume: (volume: number) => void;
+  setRadialDnd: (dnd: boolean) => void;
+  setRadialProxy: (proxy: boolean) => void;
+  setRadialEnergy: (energy: boolean) => void;
+
   setAppLock: (hash: string, salt: string) => void;
   updateSettings: (settings: Partial<AppState>) => void;
   
   chats: any[];
   setChats: (updater: any[] | ((prev: any[]) => any[])) => void;
   forwardMessage: (message: any, targetChatId: string) => void;
+
+  contacts: Contact[];
+  setContacts: (updater: Contact[] | ((prev: Contact[]) => Contact[])) => void;
 
   // Favorites
   favoriteContacts: string[];
@@ -272,7 +291,7 @@ interface AppState {
   archivedChats: (string | number)[];
   toggleArchive: (id: string | number) => void;
 
-  activeCall: { number: string; startTime: number; isMuted: boolean; isSpeaker: boolean; isRecording?: boolean } | null;
+  activeCall: { number: string; startTime: number; isMuted: boolean; isSpeaker: boolean; isVideo?: boolean; isRecording?: boolean } | null;
   setActiveCall: (call: AppState['activeCall']) => void;
 
   // Call recordings
@@ -307,6 +326,12 @@ export const useAppStore = create<AppState>()(
       forwardAnonymization: false,
       currentLanguage: 'en',
       
+      soundEnabled: true,
+      soundVolume: 0.7,
+      radialDnd: false,
+      radialProxy: true,
+      radialEnergy: false,
+
       // Forward privacy controls
       allowForwarding: true,
       allowMetadata: true,
@@ -450,6 +475,12 @@ export const useAppStore = create<AppState>()(
       })),
       resetPhotoEditor: () => set({ photoEditState: null }),
 
+      setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
+      setSoundVolume: (volume) => set({ soundVolume: volume }),
+      setRadialDnd: (dnd) => set({ radialDnd: dnd }),
+      setRadialProxy: (proxy) => set({ radialProxy: proxy }),
+      setRadialEnergy: (energy) => set({ radialEnergy: energy }),
+
       setAppLock: (hash, salt) => set({ appLockHashedPIN: hash, appLockSalt: salt }),
       updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
       
@@ -480,6 +511,11 @@ export const useAppStore = create<AppState>()(
       chats: [],
       setChats: (updater) => set((state) => ({ 
          chats: typeof updater === 'function' ? updater(state.chats) : updater 
+      })),
+
+      contacts: [],
+      setContacts: (updater) => set((state) => ({
+        contacts: typeof updater === 'function' ? updater(state.contacts) : updater
       })),
 
       // Favorites

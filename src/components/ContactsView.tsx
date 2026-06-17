@@ -5,124 +5,10 @@ import { QrCode, Scan, Users, UserPlus, X, ArrowDownAZ, Clock, Check, Copy, Shar
 import { motion, AnimatePresence } from 'motion/react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { ContactProfileModal, ContactProfile } from './ContactProfileModal';
-
-type Contact = { name: string, id: string, color: string, lastSeen: number, isFavorite?: boolean };
+import { ContactCreateEditModal } from './ContactCreateEditModal';
+import type { Contact, ContactField } from '../types/contact';
 
 type TabOption = 'all' | 'favorites' | 'recent' | 'blocked';
-
-type ContactFormProps = {
-  contact?: Contact;
-  isDark: boolean;
-  onClose: () => void;
-  onSave: (name: string, id: string, color?: string) => void;
-  isLoading?: boolean;
-};
-
-const ContactCreateEditModal = ({ contact, isDark, onClose, onSave, isLoading }: ContactFormProps) => {
-  const isEditing = !!contact;
-  const { t } = useI18n();
-  const [name, setName] = useState(contact?.name || '');
-  const [id, setId] = useState(contact?.id || '');
-  const [error, setError] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !id.trim()) {
-      setError('Please fill in both fields');
-      return;
-    }
-    setError('');
-    onSave(name.trim(), id.trim(), contact?.color);
-    onClose();
-  };
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-    >
-      <motion.div 
-        initial={{ scale: 0.95, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.95, opacity: 0, y: 20 }}
-        className={`w-full max-w-[340px] rounded-[32px] p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
-      >
-        <div 
-          className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
-          onClick={onClose}
-          title={t('contacts.close')}
-        >
-          <X size={18} />
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
-          <div className="flex flex-col items-center mb-2">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}>
-              {isEditing ? <Edit size={32} /> : <UserPlus size={32} />}
-            </div>
-            <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{t(isEditing ? 'contacts.editContact' : 'contacts.addContact')}</h3>
-            <p className={`text-xs text-center mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-              {isEditing ? 'Update contact details below.' : 'Enter their name and unique network ID to establish a connection.'}
-            </p>
-          </div>
-          
-          {error && (
-            <div className={`text-xs text-center p-2 rounded-lg ${isDark ? "bg-red-500/20 text-red-400" : "bg-red-50 text-red-600"}`}>
-              {error}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-3">
-            <input 
-              type="text" 
-              autoFocus
-              placeholder={t('contacts.contactName')} 
-              value={name}
-              onChange={e => setName(e.target.value)}
-              className={`w-full h-12 px-4 rounded-2xl text-sm outline-none border-2 transition-colors ${isDark ? "bg-[#13151b] text-white border-white/10 focus:border-orange-500" : "bg-slate-50 text-slate-800 border-black/5 focus:border-orange-500"}`}
-            />
-            <div className="relative">
-               <input 
-                 type="text" 
-                 placeholder={t('contacts.networkId')} 
-                 value={id}
-                 onChange={e => setId(e.target.value)}
-                 className={`w-full h-12 pl-4 pr-12 rounded-2xl text-sm font-mono outline-none border-2 transition-colors ${isDark ? "bg-[#13151b] text-white border-white/10 focus:border-orange-500" : "bg-slate-50 text-slate-800 border-black/5 focus:border-orange-500"}`}
-               />
-               {!isEditing && (
-                 <button 
-                   type="button" 
-                   onClick={() => { /* QR scan handled by parent */ }}
-                   className={`absolute right-2 top-2 bottom-2 w-8 rounded-xl flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
-                   title={t('header.scanQR')}
-                 >
-                   <Scan size={16} />
-                 </button>
-               )}
-               {isEditing && (
-                 <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-                   {id.slice(0, 8)}...
-                 </span>
-               )}
-            </div>
-          </div>
-
-          <button 
-            type="submit" 
-            disabled={!name.trim() || !id.trim() || isLoading}
-            className={`w-full h-12 rounded-2xl font-bold mt-4 transition-all flex items-center justify-center gap-2 ${(!name.trim() || !id.trim()) ? "opacity-50 cursor-not-allowed text-white/50 bg-gray-500" : "bg-orange-500 text-white hover:bg-orange-600 active:scale-95 shadow-lg shadow-orange-500/20"}`}
-          >
-            {isLoading && <Loader2 size={18} className="animate-spin" />}
-            <Check size={18} />
-            {t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}
-          </button>
-        </form>
-      </motion.div>
-    </motion.div>
-  );
-};
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -142,7 +28,7 @@ const itemVariants: any = {
 export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, onEdit }: { 
   theme: 'light' | 'dark', 
   contacts: Contact[],
-  setContacts: React.Dispatch<React.SetStateAction<Contact[]>>,
+  setContacts: (updater: Contact[] | ((prev: Contact[]) => Contact[])) => void,
   onCall?: (name: string, color: string) => void, 
   onMessage?: (name: string, color: string) => void,
   onEdit?: () => void
@@ -178,13 +64,13 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
     }
   };
 
-  const handleSaveContact = (name: string, id: string, color?: string) => {
+  const handleSaveContact = (name: string, id: string, color?: string, localFields?: ContactField[]) => {
     if (editingContact) {
-      setContacts(contacts.map(c => c.id === editingContact.id ? { ...c, name, id, color: color || c.color } : c));
+      setContacts(contacts.map(c => c.id === editingContact.id ? { ...c, name, id, color: color || c.color, localFields } : c));
     } else {
       const colors = ["from-teal-400 to-emerald-500", "from-pink-400 to-rose-500", "from-yellow-400 to-orange-500"];
       const newColor = colors[contacts.length % colors.length];
-      setContacts([{ name, id, color: newColor, lastSeen: Date.now() }, ...contacts]);
+      setContacts([{ name, id, color: newColor, lastSeen: Date.now(), localFields }, ...contacts]);
     }
     setShowAddForm(false);
     setShowEditForm(false);
@@ -228,7 +114,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
     <div data-testid="contacts-container" className={`w-full max-w-[400px] flex-1 flex flex-col items-center rounded-[32px] p-6 mb-8 overflow-y-auto ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
       
       <div className="w-full flex items-center justify-between mb-4 px-2">
-        <h2 className={`font-serif text-2xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
+        <h2 className={`font-sans text-2xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
           {t('contacts.title')}
         </h2>
         <div className={`flex gap-3 ${isDark ? "text-orange-400" : "text-orange-600"}`}>
@@ -258,7 +144,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
         </div>
 
         {/* Tabs */}
-        <div className={`flex rounded-full p-1 overflow-x-auto scrollbar-none ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+        <div className={`flex rounded-full p-1 overflow-x-auto scrollbar-none ${isDark ? "bg-white/5" : "bg-black/5"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
           {tabs.map(tab => (
             <button
               key={tab.key}

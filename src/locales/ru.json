@@ -1,9 +1,36 @@
 {
   "chat": {
     "archive": "Архив",
+    "archived": "В архиве",
+    "createChannel": "Создать канал",
+    "createBot": "Создать бота",
     "daysAgo": "{{count}} дн. назад",
+    "endCall": "Завершить звонок",
+    "mute": "Отключить микрофон",
+    "unmute": "Включить микрофон",
+    "views": "{count} просмотров",
+    "folders": {
+      "all": "Все",
+      "archived": "Архив",
+      "personal": "Личные",
+      "unread": "Непрочитанные",
+      "work": "Рабочие"
+    },
+    "goBack": "Назад",
     "hoursAgo": "{{count}} ч. назад",
     "minutesAgo": "{{count}} мин. назад",
+    "searchBotsPlaceholder": "Поиск ботов и сервисов...",
+    "searchChannelsPlaceholder": "Поиск каналов...",
+    "searchPlaceholder": "Поиск чатов или сообщений...",
+    "sectionBots": "Мои боты",
+    "sectionChannels": "Каналы",
+    "sectionConversations": "Переписки",
+    "tabs": {
+      "bots": "Боты",
+      "channels": "Каналы",
+      "chats": "Чаты",
+      "stories": "Истории"
+    },
     "typing": "печатает..."
   },
   "common": {
@@ -42,7 +69,19 @@
     "searchPlaceholder": "Поиск контактов...",
     "shareDescription": "Пусть другие отсканируют этот код, чтобы добавить вас.",
     "shareIdentity": "Поделиться идентификатором",
-    "title": "Идентичность"
+    "title": "Идентичность",
+    "localInfo": "Локальная информация",
+    "localFieldsNotShared": "Не передаётся при отправке контакта",
+    "addField": "Добавить поле",
+    "noLocalFields": "Нет локальных полей. Добавьте телефон, email, Telegram или свои данные.",
+    "fieldTypePhone": "Телефон",
+    "fieldTypeEmail": "Email",
+    "fieldTypeTelegram": "Telegram",
+    "fieldTypeCustom": "Своё",
+    "fieldSubtypeMobile": "Мобильный",
+    "fieldSubtypeWork": "Рабочий",
+    "fieldSubtypeHome": "Домашний",
+    "fieldSubtypeMain": "Основной"
   },
   "header": {
     "copied": "Скопировано!",
@@ -57,7 +96,16 @@
     "unlock": "Разблокировать"
   },
   "hub": {
+    "dnd": "Не беспокоить",
+    "dndActive": "Не беспокоить (Активно)",
+    "energy": "Энергосбережение",
+    "energyActive": "Энергосбережение (Активно)",
     "placeholder": "Hub View - RadialMenu component",
+    "proxy": "Прокси и сеть",
+    "proxyActive": "Прокси и сеть (Активно)",
+    "volumeLabel": "Громкость",
+    "volumeMax": "Максимальная громкость",
+    "volumeMin": "Минимальная громкость",
     "channels": "Каналы",
     "channelsSubtitle": "Трансляция",
     "chats": "Чаты",
@@ -76,6 +124,9 @@
     "botsSubtitle": "Помощники",
     "settings": "Настройки",
     "settingsSubtitle": "Локальная конфигурация",
+    "hub": "Хаб",
+    "pulse": "Пульс",
+    "stories": "Истории",
     "centerTitle": "Mess&Anger",
     "centerSubtitle": "P2P Хаб"
   },
@@ -235,5 +286,15 @@
     },
     "whoSeesNumber": "Кто может видеть мой номер",
     "wipeAllData": "Уничтожить все данные (Wipe)"
+  },
+  "stickers": {
+    "all": "Все",
+    "icq": "ICQ",
+    "emoji": "Эмодзи",
+    "default": "Стандартные",
+    "animals": "Животные",
+    "nature": "Природа",
+    "food": "Еда",
+    "searchPlaceholder": "Поиск стикеров..."
   }
 }
