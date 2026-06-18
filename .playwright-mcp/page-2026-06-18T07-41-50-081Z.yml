@@ -1,0 +1,91 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic "Switch to Light Mode" [ref=e5] [cursor=pointer]:
+        - generic:
+          - img
+          - img
+        - img [ref=e8]
+      - button "Select Language" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+    - generic [ref=e99]:
+      - generic [ref=e100]:
+        - button "Go Back" [ref=e101] [cursor=pointer]:
+          - img [ref=e102]
+        - heading "Chats" [level=2] [ref=e104]
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - generic [ref=e110]:
+            - textbox "Search chats or messages..." [ref=e111]
+            - img [ref=e113] [cursor=pointer]
+          - generic "Archived" [ref=e116] [cursor=pointer]:
+            - img [ref=e117]
+        - generic [ref=e120]:
+          - generic [ref=e121] [cursor=pointer]: Stories
+          - generic [ref=e122] [cursor=pointer]: Chats
+          - generic [ref=e124] [cursor=pointer]: Channels
+          - generic [ref=e125] [cursor=pointer]: Bots
+        - generic [ref=e126]:
+          - generic [ref=e127]:
+            - generic [ref=e128] [cursor=pointer]: All
+            - generic [ref=e129] [cursor=pointer]: Personal
+            - generic [ref=e130] [cursor=pointer]: Unread
+            - generic [ref=e131] [cursor=pointer]: Work
+            - generic [ref=e132] [cursor=pointer]: Archived
+          - img [ref=e134] [cursor=pointer]
+        - generic [ref=e135]: Conversations
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - img [ref=e138]
+            - generic [ref=e141]: Archive
+          - generic [ref=e142] [cursor=pointer]:
+            - generic [ref=e144]: A
+            - generic [ref=e146]:
+              - generic [ref=e147]:
+                - generic [ref=e148]: Alice Freeman
+                - generic [ref=e149]: 10:42
+              - generic [ref=e150]:
+                - generic [ref=e151]: typing...
+                - generic [ref=e153]: "2"
+        - generic [ref=e154]:
+          - generic [ref=e155]:
+            - img [ref=e156]
+            - generic [ref=e159]: Archive
+          - generic [ref=e160] [cursor=pointer]:
+            - generic [ref=e162]: D
+            - generic [ref=e163]:
+              - generic [ref=e164]:
+                - generic [ref=e165]: Design Team
+                - generic [ref=e166]: Yesterday
+              - generic [ref=e167]:
+                - generic [ref=e168]: "Bob: Let’s review the new components later."
+                - generic [ref=e170]: "5"
+        - generic [ref=e171]:
+          - generic [ref=e172]:
+            - img [ref=e173]
+            - generic [ref=e176]: Archive
+          - generic [ref=e177] [cursor=pointer]:
+            - generic [ref=e179]: V
+            - generic [ref=e181]:
+              - generic [ref=e182]:
+                - generic [ref=e183]: Victor
+                - generic [ref=e184]: Tue
+              - generic [ref=e186]: Voice message (0:14)
+        - generic [ref=e187]:
+          - generic [ref=e188]:
+            - img [ref=e189]
+            - generic [ref=e192]: Archive
+          - generic [ref=e193] [cursor=pointer]:
+            - generic [ref=e195]: "N"
+            - generic [ref=e197]:
+              - generic [ref=e198]:
+                - generic [ref=e199]: Nexus Assistant
+                - generic [ref=e200]: 09:00
+              - generic [ref=e201]:
+                - generic [ref=e202]: Settings updated successfully.
+                - generic [ref=e204]: "1"
+      - generic [ref=e205]:
+        - generic "Return to Hub" [ref=e206] [cursor=pointer]:
+          - img [ref=e207]
+        - generic [ref=e211]: Hub

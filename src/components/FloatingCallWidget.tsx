@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Phone, MicOff, Volume2 } from 'lucide-react';
+import { Phone, MicOff, Video, Volume2 } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 import { useAppStore } from '../store';
 import { callRecorderService } from '../lib/callRecorderService';
 
 export const FloatingCallWidget = ({ theme }: { theme: 'dark' | 'light' }) => {
   const isDark = theme === "dark";
+  const { t } = useI18n();
   const { activeCall, setActiveCall } = useAppStore();
   const [duration, setDuration] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
@@ -56,33 +58,38 @@ export const FloatingCallWidget = ({ theme }: { theme: 'dark' | 'light' }) => {
               <span className="text-[10px] font-bold text-red-400 tracking-wider">REC</span>
             </div>
           )}
-          <div className="flex flex-col">
-             <span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
-               {activeCall.number || "Unknown"}
-             </span>
-             <span className={`text-xs font-mono font-medium ${isDark ? "text-orange-400" : "text-orange-600"}`}>
-               {formatDuration(duration)}
-             </span>
-          </div>
+           <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                {activeCall.isVideo && <Video size={14} className={isDark ? "text-orange-400" : "text-orange-600"} />}
+                <span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
+                  {activeCall.number || "Unknown"}
+                </span>
+              </div>
+              <span className={`text-xs font-mono font-medium ${isDark ? "text-orange-400" : "text-orange-600"}`}>
+                {formatDuration(duration)}
+              </span>
+           </div>
         </div>
         
         <div className="flex items-center gap-2">
-           <button 
-             onClick={() => setActiveCall({ ...activeCall, isMuted: !activeCall.isMuted })}
-             className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-               activeCall.isMuted 
-                 ? (isDark ? "bg-white/20 text-white" : "bg-black/10 text-black")
-                 : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white" : "bg-slate-100 text-slate-500 hover:text-slate-700")
-             }`}
-           >
-             <MicOff size={18} />
-           </button>
-           <button 
-             onClick={() => setActiveCall(null)}
-             className="w-12 h-12 rounded-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
-           >
-              <Phone size={20} className="rotate-[135deg] fill-white/20" strokeWidth={2.5} />
-           </button>
+            <button 
+              onClick={() => setActiveCall({ ...activeCall, isMuted: !activeCall.isMuted })}
+              title={activeCall.isMuted ? t('chat.unmute') : t('chat.mute')}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                activeCall.isMuted 
+                  ? (isDark ? "bg-white/20 text-white" : "bg-black/10 text-black")
+                  : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white" : "bg-slate-100 text-slate-500 hover:text-slate-700")
+              }`}
+            >
+              <MicOff size={18} />
+            </button>
+            <button 
+              onClick={() => setActiveCall(null)}
+              title={t('chat.endCall')}
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+            >
+               <Phone size={20} className="rotate-[135deg] fill-white/20" strokeWidth={2.5} />
+            </button>
         </div>
       </motion.div>
     </AnimatePresence>

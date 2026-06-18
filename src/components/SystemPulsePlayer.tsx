@@ -487,26 +487,22 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
          <audio ref={audioRef} src={currentTrack.url} onEnded={handleEnded} onPlay={() => { setIsPlaying(true); initWebAudio(); }} onPause={() => setIsPlaying(false)} />
        )}
 
-       {/* Noise Texture */}
-       <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
-
-       {/* Top Bar - System Info */}
-       <div className="w-full flex items-center justify-between px-2 mb-8 relative z-10">
-         <div className="flex items-center gap-1.5 opacity-80">
-           <Music size={18} className={textColor} />
-           <span className={`text-[12px] font-bold tracking-[0.15em] ${textColor}`}>SYSTEM PLAYER</span>
-         </div>
-         <div className="flex items-center gap-2">
+{/* Top Bar - System Info */}
+        <div className="w-full flex items-center justify-end px-2 mb-8 relative z-10">
+          <div className="flex items-center gap-2">
            {!showEq && !showPlaylist && (
-             <div 
-               onClick={() => setShowEq(true)}
-               className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "hover:bg-white/10" : "hover:bg-black/10"} transition-colors`} title="Equalizer & Settings"
+              <div 
+                role="button"
+                tabIndex={0}
+                onClick={() => setShowEq(true)}
+                onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowEq(true); }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "hover:bg-white/10" : "hover:bg-black/10"} transition-colors`} title="Equalizer & Settings"
              >
                <SlidersHorizontal size={16} className={textColor} />
              </div>
            )}
            {!isRadioMode && !showPlaylist && !showEq && (
-             <div className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title="Add Track">
+              <div role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') handleFileSelect({ target: { files: [] } } as any); }} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title="Add Track">
                 <Plus size={16} />
                 <input type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
              </div>
@@ -523,18 +519,18 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                   <input type="file" accept="video/*,.mp4,.webm,.ogg,.mov" className="hidden" onChange={handleVideoFileSelect} />
                </label>
             )}
-           {isRadioMode && !showPlaylist && !showEq && (
-              <div onClick={() => {
-                 setStationName("");
-                 setStationUrl("");
-                 setStationAddError("");
-                 setShowAddStationModal(true);
-              }} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title="Add Station">
-                <Plus size={16} />
+{isRadioMode && !showPlaylist && !showEq && (
+               <div role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { setStationName(""); setStationUrl(""); setStationAddError(""); setShowAddStationModal(true); } }} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title="Add Station">
+                 <Plus size={16} />
+               </div>
+            )}
+            {!showPlaylist && !showEq && (
+              <div role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowPlaylist(true); }} onClick={() => setShowPlaylist(true)} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"} transition-colors`} title="View Playlist">
+                 <ListMusic size={16} className={textColor} />
               </div>
-           )}
-         </div>
-       </div>
+            )}
+          </div>
+        </div>
 
       <AnimatePresence mode="wait">
         {showEq ? (
@@ -546,8 +542,11 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
              className="flex flex-col w-full h-[450px] relative z-10"
            >
               <div className="flex items-center justify-between mb-6 border-b border-white/[0.05] pb-4">
-                  <div 
+                   <div 
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setShowEq(false)}
+                    onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowEq(false); }}
                     className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[#e6d6b8] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
                   >
                      <ArrowLeft size={18} />
@@ -559,20 +558,24 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
               <div className="flex-1 flex flex-col gap-6 px-2 overflow-y-auto">
                  <div>
                     <div className={`text-[11px] font-bold tracking-widest uppercase mb-3 ${textColor} opacity-70`}>Master Volume</div>
-                    <div className="flex items-center gap-4">
-                       <VolumeX size={16} className={textColor} />
-                       <input 
-                         type="range" 
-                         min="0" max="100" 
-                         value={volume} 
-                         onChange={(e) => setVolume(Number(e.target.value))}
-                         className={`flex-1 h-3 rounded-full appearance-none outline-none ${isDark ? "bg-black/20" : "bg-black/10"}`}
-                         style={{ 
-                            background: `linear-gradient(to right, ${isRadioMode ? (isDark ? '#5cc25c' : '#2cab50') : (isDark ? '#e2845c' : '#ab502c')} ${volume}%, ${isDark ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)'} ${volume}%)` 
-                         }}
-                       />
-                       <Volume2 size={16} className={textColor} />
-                    </div>
+<div className="flex items-center gap-4">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title="Volume Min" onClick={() => setVolume(0)}>
+                          <VolumeX size={16} className={textColor} />
+                        </div>
+                        <input 
+                          type="range" 
+                          min="0" max="100" 
+                          value={volume} 
+                          onChange={(e) => setVolume(Number(e.target.value))}
+                          className={`flex-1 h-3 rounded-full appearance-none outline-none ${isDark ? "bg-black/20" : "bg-black/10"}`}
+                          style={{ 
+                             background: `linear-gradient(to right, ${isRadioMode ? (isDark ? '#5cc25c' : '#2cab50') : (isDark ? '#e2845c' : '#ab502c')} ${volume}%, ${isDark ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)'} ${volume}%)` 
+                          }}
+                        />
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title="Volume Max" onClick={() => setVolume(100)}>
+                          <Volume2 size={16} className={textColor} />
+                        </div>
+                     </div>
                  </div>
 
                  <div className="mt-4">
@@ -633,16 +636,18 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
               <span className={`text-[18px] font-medium tracking-wider ${textColor}`}>{activeIndex + 1}/{activeList.length}</span>
             </div>
 
-            {/* Radio / Normal Toggle */}
-            <div className="relative mb-6 z-10 flex justify-center w-full" title={isRadioMode ? "Switch to Local Playlist" : "Switch to Radio Player"}>
-              <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-40 h-24 rounded-full ${bgColor} ${darkShadow} -z-10 blur-[2px]`} />
-              <div 
-                onClick={() => setIsRadioMode(!isRadioMode)}
-                className={`w-12 h-12 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`}
-              >
-                 {isRadioMode ? <Radio size={20} className={isDark ? "text-[#5cc25c]" : "text-green-600"} /> : <List size={20} className={textColor} />}
-              </div>
-            </div>
+{/* Radio / Normal Toggle */}
+             <div className="relative mb-6 z-10 flex justify-center w-full" title={isRadioMode ? "Switch to Local Playlist" : "Switch to Radio Player"}>
+               <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-40 h-24 rounded-full bg-gradient-to-b from-transparent to-black/20 -z-10 blur-[1px] pointer-events-none transition-opacity duration-300`} />
+                 <motion.div
+                   onClick={() => setIsRadioMode(!isRadioMode)}
+                   whileTap={{ scale: 0.9 }}
+                  className={`relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-gradient-to-br from-[#454d57] to-[#2a3036] border border-white/5" : "bg-gradient-to-br from-[#d1d8e0] to-[#a3b1c6] border border-black/5"} shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_-3px_-3px_6px_rgba(255,255,255,0.1),_inset_3px_3px_6px_rgba(0,0,0,0.3)] ${isDark ? "hover:shadow-[8px_8px_16px_rgba(0,0,0,0.5),_inset_-2px_-2px_4px_rgba(255,255,255,0.15),_inset_2px_2px_4px_rgba(0,0,0,0.3)]" : "hover:shadow-[8px_8px_16px_rgba(165,175,190,0.5),_inset_-2px_-2px_4px_rgba(255,255,255,0.8),_inset_2px_2px_4px_rgba(165,175,190,0.3)]"} transition-all`}
+                >
+                  <div className={`absolute inset-0 rounded-full ${isDark ? "bg-gradient-to-br from-[#5cc25c]/20 to-transparent" : "bg-gradient-to-br from-green-500/20 to-transparent"} opacity-${isRadioMode ? "100" : "0"} transition-opacity`} />
+                  {isRadioMode ? <Radio size={22} className="text-[#5cc25c] drop-shadow-[0_0_4px_rgba(92,194,92,0.5)]" /> : <List size={22} className={textColor} />}
+               </motion.div>
+             </div>
 
             {/* Value Readout - Track Index */}
             <div className="w-full flex items-center justify-between px-8 mb-8 relative z-10 gap-4">
@@ -699,25 +704,29 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                       ))}
                     </div>
                   )}
-                  {/* Inner dial part */}
-                  <div className={`w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] rounded-full flex items-center justify-center shadow-[inset_10px_10px_20px_rgba(0,0,0,0.5)] bg-gradient-to-br ${isRadioMode ? "from-[#45a045] to-[#256e25]" : "from-[#c25c34] to-[#8a3e21]"} relative z-30 opacity-90 transition-colors`}>
-                     <div className={`w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] rounded-full flex items-center justify-center shadow-[4px_4px_10px_rgba(0,0,0,0.4)] ${isRadioMode ? "bg-[#338133]" : "bg-[#a34b29]"} transition-colors`}>
-                       {/* Tap Button */}
-                       <div 
-                         onClick={() => {
-                        if (!isPlaying) playSound('incoming-call');
-                        else playSound('call-busy');
-                        setIsPlaying(!isPlaying);
-                      }}
-                         className={`w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] rounded-full flex items-center justify-center cursor-pointer shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_2px_2px_4px_rgba(255,255,255,0.2)] ${isRadioMode ? "bg-[#64d064]" : "bg-[#d27546]"} active:scale-95 transition-all active:shadow-[inset_6px_6px_12px_rgba(0,0,0,0.4)]`}
-                       >
-                          {isPlaying ? (
-                            <Pause size={32} className="text-[#3a1a0d]" fill="currentColor" />
-                          ) : (
-                            <Play size={32} className="text-[#3a1a0d] ml-1" fill="currentColor" />
-                          )}
-                       </div>
-                     </div>
+                   {/* Inner dial part */}
+                   <div className={`w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] rounded-full flex items-center justify-center shadow-[inset_10px_10px_20px_rgba(0,0,0,0.5)] bg-gradient-to-br ${isRadioMode ? "from-[#45a045] to-[#256e25]" : "from-[#c25c34] to-[#8a3e21]"} relative z-30 opacity-90 transition-colors`}>
+                  <div className={`w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] rounded-full flex items-center justify-center shadow-[4px_4px_10px_rgba(0,0,0,0.4)] transition-colors relative overflow-visible`}>
+                           {/* Album Art - centered behind button */}
+                           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] rounded-full border-2 ${isRadioMode ? 'border-[#45a045]/50' : 'border-[#c25c34]/50'} z-[1]`}></div>
+                           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] rounded-full border ${isRadioMode ? 'border-[#5cc25c]/40' : 'border-[#e2845c]/40'} z-[1]`}></div>
+                           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[10px] h-[10px] rounded-full ${isRadioMode ? 'bg-[#45a045]' : 'bg-[#c25c34]'} z-[1]`}></div>
+                           {/* Tap Button */}
+                           <div 
+                             onClick={() => {
+                            if (!isPlaying) playSound('incoming-call');
+                            else playSound('call-busy');
+                            setIsPlaying(!isPlaying);
+                          }}
+                             className={`w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] rounded-full flex items-center justify-center cursor-pointer shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_2px_2px_4px_rgba(255,255,255,0.2)] ${isRadioMode ? "bg-[#64d064]" : "bg-[#d27546]"} active:scale-95 transition-all active:shadow-[inset_6px_6px_12px_rgba(0,0,0,0.4)] z-10`}
+                          >
+                             {isPlaying ? (
+                               <Pause size={32} className="text-[#3a1a0d]" fill="currentColor" />
+                             ) : (
+                               <Play size={32} className="text-[#3a1a0d] ml-1" fill="currentColor" />
+                             )}
+                          </div>
+                  </div>
                   </div>
                </div>
             </div>
@@ -732,7 +741,10 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
           >
             <div className="flex items-center justify-between mb-6 border-b border-white/[0.05] pb-4">
                 <div 
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setShowPlaylist(false)}
+                  onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowPlaylist(false); }}
                   className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[#e6d6b8] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
                   title="Back to Player"
                 >
@@ -879,36 +891,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
          </div>
        )}
 
-      {/* Bottom Controls */}
-      <div className="w-full flex items-center justify-between px-8 z-10 mt-auto pt-6">
-         <div 
-           onClick={() => setIsMuted(!isMuted)}
-           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`} 
-           title={isMuted ? "Unmute" : "Mute"}
-         >
-            {isMuted ? <VolumeX size={24} className={textColor} /> : <Volume2 size={24} className={textColor} />}
-         </div>
-         <div 
-            onClick={() => {
-              if (!isPlaying) playSound('incoming-call');
-              else playSound('call-busy');
-              setIsPlaying(!isPlaying);
-            }}
-            title={isPlaying ? "Pause" : "Play"}
-            className={`w-16 h-16 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`}
-          >
-            {isPlaying ? <Pause size={28} className={textColor} fill="currentColor" /> : <Play size={28} className={`${textColor} ml-1`} fill="currentColor" />}
-         </div>
-         <div 
-           onClick={() => { setShowPlaylist(!showPlaylist); setShowEq(false); }}
-           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-[#333a41]" : "bg-[#d1d8e0]"} shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)] ${isDark ? "hover:bg-[#3a4249]" : "hover:bg-[#cbd5e1]"} transition-colors`} 
-           title={showPlaylist ? "Hide Playlist" : "View Playlist"}
-         >
-            <ListMusic size={24} className={textColor} />
-         </div>
-      </div>
-
-       {/* Add Station Modal */}
+        {/* Add Station Modal */}
        {showAddStationModal && (
          <div className="absolute inset-0 bg-black/60 rounded-[40px] flex items-center justify-center z-50 backdrop-blur-sm">
            <div className={`w-[90%] max-w-[320px] rounded-2xl p-6 ${isDark ? "bg-[#2a3036]" : "bg-[#e8ecf4]"}`}>

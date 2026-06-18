@@ -4,9 +4,11 @@ import { useAppStore, BotConfig } from '../store';
 import { X, Bot, Check, Key } from 'lucide-react';
 import { deviceSecurity } from '../lib/deviceSecurity';
 import { buf2hex } from '../lib/crypto/cryptoCore';
+import { useI18n } from '../lib/i18n';
 
 export const CreateBotModal = ({ theme, onClose }: { theme: 'dark' | 'light', onClose: () => void }) => {
   const isDark = theme === "dark";
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const { bots, setBots } = useAppStore();
@@ -77,7 +79,7 @@ export const CreateBotModal = ({ theme, onClose }: { theme: 'dark' | 'light', on
           <div className="flex items-center justify-between mb-2">
              <div className="flex items-center gap-3">
                <Bot className={isDark ? "text-orange-400" : "text-orange-600"} size={28} />
-               <h3 className="text-xl font-bold tracking-tight">Новый бот</h3>
+                <h3 className="text-xl font-bold tracking-tight">{t('createBot.title')}</h3>
              </div>
              <div onClick={onClose} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}>
                <X size={16} />
@@ -85,17 +87,17 @@ export const CreateBotModal = ({ theme, onClose }: { theme: 'dark' | 'light', on
           </div>
           
           <div className="flex flex-col gap-2">
-             <label className={`text-xs pl-2 font-semibold tracking-wide uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>Имя бота</label>
-             <input autoFocus value={name} onChange={e => setName(e.target.value)} type="text" className={`w-full h-12 rounded-2xl px-4 outline-none transition-all ${isDark ? "bg-[#13151b] border border-white/5 focus:border-orange-500/50" : "bg-slate-50 border border-black/5 focus:border-orange-500/50"}`} placeholder="Например: My Assistant Bot" />
+              <label className={`text-xs pl-2 font-semibold tracking-wide uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('createBot.nameLabel')}</label>
+             <input autoFocus value={name} onChange={e => setName(e.target.value)} type="text" className={`w-full h-12 rounded-2xl px-4 outline-none transition-all ${isDark ? "bg-[#13151b] border border-white/5 focus:border-orange-500/50" : "bg-slate-50 border border-black/5 focus:border-orange-500/50"}`} placeholder={t('createBot.namePlaceholder')} />
           </div>
 
           <div className={`text-xs p-4 rounded-xl flex gap-3 ${isDark ? "bg-orange-500/10 text-orange-200" : "bg-orange-50 text-orange-800"}`}>
              <Key size={18} className="shrink-0 mt-0.5" />
-             <p className="leading-relaxed">Токен будет сгенерирован локально. Он включает зашифрованный приватный ключ бота. Потеряете токен — потеряете бота.</p>
+             <p className="leading-relaxed">{t('createBot.info')}</p>
           </div>
 
           <button onClick={handleCreate} disabled={!name.trim() || loading} className={`w-full h-14 rounded-2xl mt-4 font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 ${(!name.trim() || loading) ? "opacity-50 cursor-not-allowed" : ""} ${isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_20px_rgba(249,115,22,0.3)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950 shadow-lg"}`}>
-             {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><Check size={20} /> Сгенерировать токен</>}
+             {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <><Check size={20} /> {t('createBot.generate')}</>}
           </button>
        </motion.div>
     </motion.div>

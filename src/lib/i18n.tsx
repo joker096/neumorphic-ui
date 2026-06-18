@@ -39,14 +39,7 @@ export function getTranslation(key: string, lang: string): string {
 export function getTranslationWithFallback(key: string, lang: string): string {
   const translated = getTranslation(key, lang);
   if (translated !== key) return translated;
-  
-  const enCached = cache.get('en');
-  if (enCached) {
-    const enTranslated = key.split('.').reduce((obj: any, k: string) => enCached?.[k], enCached) as string;
-    if (enTranslated) return enTranslated;
-  }
-  
-  return key;
+  return getTranslation(key, 'en');
 }
 
 interface I18nContextValue {
@@ -86,9 +79,10 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const t = useCallback((key: string, args?: Record<string, string | number>) => {
     let text = getTranslationWithFallback(key, lang);
-    if (args) {
+    if (args && Object.keys(args).length > 0) {
+      text = text.replace(/\{\{(\w+)\}\}/g, '{$1}');
       for (const [k, v] of Object.entries(args)) {
-        text = text.replace(`{${k}}`, String(v));
+        text = text.replace(`{${k}}`, () => String(v));
       }
     }
     return text;

@@ -51,7 +51,7 @@ const encryptedIdbStorage: StateStorage = {
     try {
       return await cryptoCore.decryptData(data.cipher, data.iv, sessionMasterKey);
     } catch (e) {
-      console.error('Failed to decrypt storage', e);
+      console.warn('Failed to decrypt storage item; using a fresh value.', e);
       return null;
     }
   },

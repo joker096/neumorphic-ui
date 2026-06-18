@@ -1,8 +1,14 @@
 import React, { useEffect, useRef } from "react";
+import { useI18n } from '../lib/i18n';
 
 export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDark = theme === "dark";
+  const { t } = useI18n();
+  const label = (key: string, fallback: string) => {
+    const translated = t(key);
+    return translated === key ? fallback : translated;
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -144,7 +150,7 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
             isDark ? "text-emerald-400" : "text-emerald-600"
           }`}
         >
-          LIVE · Mesh Radar
+          LIVE · {label('meshRadar.title', 'Mesh Radar')}
         </span>
       </div>
 

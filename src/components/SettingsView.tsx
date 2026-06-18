@@ -27,12 +27,9 @@ import {
   UserPlus,
   Cloud,
   MapPin,
-  Image,
   RefreshCw,
   Upload,
   Save,
-  PenTool,
-  Crop,
   Trash2,
   Key,
   AlertTriangle
@@ -244,8 +241,6 @@ const appearance = t('settings.appearance');
   const cloudStatus = t('settings.cloudStatus');
   const cloudError = t('settings.cloudError');
   const locationSharing = t('settings.locationSharing');
-  const photoEditor = t('settings.photoEditor');
-  const photoEditorSubtitle = t('settings.photoEditorSubtitle');
   const searchPlaceholder = t('settings.searchPlaceholder');
   const twoFactorAuth = t('settings.twoFactorAuth');
     const cloudPasswordSubtitle = t('settings.cloudPasswordSubtitle');
@@ -381,7 +376,7 @@ const appearance = t('settings.appearance');
       allowMetadata,
       forwardCountLimit
     });
-    toast.success("Forward privacy updated", { description: "Settings saved" });
+    toast.success(t('toast.forwardPrivacyUpdated'), { description: t('toast.settingsSaved') });
   };
   
   const applyContactReadReceipts = (contactName: string, enabled: boolean) => {
@@ -389,7 +384,7 @@ const appearance = t('settings.appearance');
     storeUpdateSettings({
       contactReadReceipts: { ...storeContactReadReceipts, [key]: enabled }
     });
-    toast.success("Contact updated", { description: `${contactName} receipts ${enabled ? 'enabled' : 'disabled'}` });
+    toast.success(t('toast.contactUpdated'), { description: `${contactName} receipts ${enabled ? 'enabled' : 'disabled'}` });
   };
   
   // App functions
@@ -424,7 +419,7 @@ const appearance = t('settings.appearance');
     if (encrypted) {
       const password = backupPassword || window.prompt("Enter backup password:");
       if (!password) {
-        toast.error("Encryption failed", { description: "No password provided" });
+        toast.error(t('toast.encryptionFailed'), { description: t('toast.noPasswordProvided') });
         return;
       }
       
@@ -490,10 +485,10 @@ const appearance = t('settings.appearance');
           a.download = `mess-anger-backup-encrypted-${new Date().toISOString().slice(0, 10)}.json`;
           a.click();
           URL.revokeObjectURL(url);
-          toast.success("Encrypted backup created", { description: "Your backup is encrypted with your password" });
+          toast.success(t('toast.encryptedBackupCreated'), { description: t('toast.backupEncryptedWithPassword') });
         })
         .catch(() => {
-          toast.error("Encryption error", { description: "Could not encrypt backup data" });
+          toast.error(t('toast.encryptionError'), { description: t('toast.couldNotEncryptBackup') });
         });
       return;
     }
@@ -541,7 +536,7 @@ const appearance = t('settings.appearance');
     a.download = `mess-anger-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Backup created", { description: "Your backup is ready" });
+    toast.success(t('toast.backupCreated'), { description: t('toast.backupReady') });
   };
 
   const exportBackupHtml = () => {
@@ -590,9 +585,9 @@ const appearance = t('settings.appearance');
             return;
           }
           // Note: Full decryption requires proper IV storage. This is a placeholder.
-          toast.info("Encrypted backup", { description: "Password required - decryption partially supported" });
+          toast.info(t('toast.encryptedBackup'), { description: t('toast.passwordRequiredDecryption') });
         } catch (e) {
-          toast.error("Decryption failed", { description: "Could not decrypt backup - password or format issue" });
+          toast.error(t('toast.decryptionFailed'), { description: t('toast.couldNotDecryptBackup') });
           return;
         }
       } else if (parsed.version && parsed.version !== 1 && parsed.version !== 2) {
@@ -639,7 +634,7 @@ const appearance = t('settings.appearance');
       }
       setImportStatus('Backup imported successfully');
       setBackupLoading(false);
-      toast.success("Backup restored", { description: "Your data has been imported" });
+      toast.success(t('toast.backupRestored'), { description: t('toast.dataImported') });
     } catch (error) {
       console.error(error);
       setImportStatus('Import failed: invalid backup file');
@@ -659,7 +654,7 @@ const appearance = t('settings.appearance');
       setShowRecoveryModal(true);
     } catch (error) {
       console.error('Failed to generate recovery phrase:', error);
-      toast.error('Failed to generate recovery phrase');
+      toast.error(t('toast.failedGenerateRecovery'));
     }
   };
 
@@ -679,16 +674,16 @@ const appearance = t('settings.appearance');
           setShowRecoveryModal(false);
           setShowPhraseInput(false);
           setRecoveryStatus('idle');
-          toast.success('Recovery successful', { description: 'Your data has been restored' });
+          toast.success(t('toast.recoverySuccessful'), { description: t('toast.dataRestored') });
         }, 1500);
       } else {
         setRecoveryStatus('error');
-        toast.error('Recovery failed', { description: 'Invalid or incorrect phrase' });
+        toast.error(t('toast.recoveryFailed'), { description: t('toast.invalidPhrase') });
       }
     } catch (error) {
       console.error('Failed to restore from phrase:', error);
       setRecoveryStatus('error');
-      toast.error('Recovery failed', { description: 'An error occurred during recovery' });
+      toast.error(t('toast.recoveryFailed'), { description: t('toast.recoveryError') });
     }
   };
   
@@ -771,7 +766,7 @@ const appearance = t('settings.appearance');
             </button>
             <button 
               onClick={() => {
-                toast.info("Account Management", { description: "Account addition requires backend authentication" });
+                toast.info(t('toast.accountManagement'), { description: t('toast.accountRequiresAuth') });
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5 text-emerald-400" : "hover:bg-black/5 text-emerald-600"}`}
             >
@@ -995,30 +990,6 @@ const appearance = t('settings.appearance');
               value={`${storeLocationShares.filter(s => s.isLive).length} ${t('settings.liveLocations')}, ${storeLocationShares.filter(s => !s.isLive).length} ${t('settings.staticLocations')}`}
               isDark={isDark}
               onClick={() => setActiveSection('location')}
-            />
-          </div>
-        </div>
-
-        {/* Photo Editor Section */}
-        <div className="w-full mb-6">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.photoEditorSection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
-              icon={<Image size={16} />}
-              iconBg={isDark ? "bg-purple-500/10" : "bg-purple-100"}
-              iconColor={isDark ? "text-purple-400" : "text-purple-600"}
-              title={photoEditor}
-              subtitle={photoEditorSubtitle}
-              isDark={isDark}
-              onClick={() => setActiveSection('photoEditor')}
-            />
-            <SettingsItem 
-              title={t("settings.autoSaveEdits")}
-              subtitle={t("settings.autoSaveChanges")}
-              isDark={isDark}
-              rightElement={<ToggleSwitch isOn={true} onToggle={() => {}} isDark={isDark} />}
             />
           </div>
         </div>
@@ -1415,7 +1386,7 @@ const appearance = t('settings.appearance');
                   isDark={isDark}
                   onClick={() => {
                     if (showPasswordInput && !backupPassword) {
-                      toast.error("Password required", { description: "Enter a password to encrypt your backup" });
+                      toast.error(t('toast.passwordRequired'), { description: t('toast.enterBackupPassword') });
                       return;
                     }
                     exportBackup(showPasswordInput);
@@ -1625,7 +1596,7 @@ const appearance = t('settings.appearance');
                          isCurrent: false
                        };
                        storeAddDevice(newDevice);
-                       toast.success("Device added", { description: `${deviceName} added to your account` });
+                       toast.success(t('toast.deviceAdded'), { description: `${deviceName} added to your account` });
                      }
                    }}
                  />
@@ -1764,48 +1735,6 @@ const appearance = t('settings.appearance');
               </div>
             </SubView>
          )}
-
-         {activeSection === 'photoEditor' && (
-           <SubView key="photoEditor" title={photoEditor} isDark={isDark} onBack={() => setActiveSection('main')}>
-              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                <div className="p-4">
-                  <div className="flex gap-2 mb-4">
-                    <button className={`flex-1 py-2 rounded-lg text-xs font-bold ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`} onClick={() => {}}>
-                      <Crop size={14} /> {t('settings.crop')}
-                    </button>
-                    <button className={`flex-1 py-2 rounded-lg text-xs font-bold ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`} onClick={() => {}}>
-                      <PenTool size={14} /> {t('settings.draw')}
-                    </button>
-                    <button className={`flex-1 py-2 rounded-lg text-xs font-bold ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`} onClick={() => {}}>
-                      T {t('settings.text')}
-                    </button>
-                  </div>
-                  <div className={`rounded-lg border ${isDark ? "border-white/10 bg-[#11141c]" : "border-black/10 bg-white"}`}>
-                    <div className={`p-2 text-center ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-                      {t('settings.imagePreview')}
-                    </div>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <button 
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold ${isDark ? "bg-emerald-500 hover:bg-emerald-600" : "bg-emerald-500 hover:bg-emerald-600"} text-white`}
-                    >
-                      <Save size={14} /> {t('settings.save')}
-                    </button>
-                    <button 
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}
-                    >
-                      <Trash2 size={14} /> {t('settings.reset')}
-                    </button>
-                  </div>
-                </div>
-                <div className="px-4 py-2 border-t border-black/5 dark:border-white/5">
-                  <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-                    {t('settings.tools')}
-                  </div>
-                </div>
-              </div>
-            </SubView>
-         )}
         </AnimatePresence>
         {confirmAction?.type === 'wipe' && (
           <ConfirmDialog
@@ -1834,7 +1763,7 @@ const appearance = t('settings.appearance');
             theme={isDark ? 'dark' : 'light'}
             onConfirm={() => {
               storeRemoveDevice(confirmAction.id);
-              toast.success("Device removed", { description: `${confirmAction.name} removed` });
+              toast.success(t('toast.deviceRemoved'), { description: `${confirmAction.name} removed` });
               setConfirmAction(null);
             }}
             onCancel={() => setConfirmAction(null)}

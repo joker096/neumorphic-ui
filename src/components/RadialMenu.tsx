@@ -5,6 +5,7 @@ import { Plus, X, Search, CheckCheck, Mic, MicOff, BellOff, Settings, MessageCir
 import { PhotoViewerOverlay } from "./PhotoViewer";
 import { VoiceWaveform } from "./VoiceWaveform";
 import { FloatingCallWidget } from "./FloatingCallWidget";
+import { useI18n } from "../lib/i18n";
 import { useAppStore } from "../store";
 import { cryptoCore } from "../lib/crypto/cryptoCore";
 import { toast } from "sonner";
@@ -37,6 +38,7 @@ interface RadialMenuProps {
 
 export const RadialMenu: React.FC<RadialMenuProps> = ({ theme, items, centerTitle, centerSubtitle, onCenterClick, onItemClick }) => {
   const isDark = theme === "dark";
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = React.useState(false);
   const [volume, setVolume] = React.useState(65);
   const [dnd, setDnd] = React.useState(false);
@@ -197,14 +199,37 @@ export const RadialMenu: React.FC<RadialMenuProps> = ({ theme, items, centerTitl
         />
       </svg>
 
-      {/* Volume Value Text & Icons & Track Knob */}
-      <VolumeX size={18} className={`absolute pointer-events-none transition-colors ${isDark ? "text-gray-500" : "text-slate-400"}`} style={{ left: cx - volR - 36, top: cy - 9 }} />
-      <Volume2 size={18} className={`absolute pointer-events-none transition-colors ${isDark ? "text-gray-500" : "text-slate-400"}`} style={{ left: cx + volR + 18, top: cy - 9 }} />
-      <div
+{/* Volume Value Text & Icons & Track Knob */}
+       <button
+         onClick={() => setVolume(0)}
+         className={`absolute w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 z-10 ${
+           isDark
+             ? "bg-[#13151b] shadow-[0_4px_8px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.5)] border border-transparent"
+             : "bg-[#f4f7f9] shadow-[0_2px_6px_rgba(165,175,190,0.3)] hover:shadow-[0_4px_8px_rgba(165,175,190,0.4)] border border-transparent"
+         }`}
+         style={{ left: cx - volR - 36, top: cy - 9 }}
+         title={t('hub.volumeMin')}
+       >
+         <VolumeX size={16} className={`transition-colors ${isDark ? "text-gray-500" : "text-slate-400"}`} />
+       </button>
+       <button
+         onClick={() => setVolume(100)}
+         className={`absolute w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 z-10 ${
+           isDark
+             ? "bg-[#13151b] shadow-[0_4px_8px_rgba(0,0,0,0.4)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.5)] border border-transparent"
+             : "bg-[#f4f7f9] shadow-[0_2px_6px_rgba(165,175,190,0.3)] hover:shadow-[0_4px_8px_rgba(165,175,190,0.4)] border border-transparent"
+         }`}
+         style={{ left: cx + volR + 18, top: cy - 9 }}
+         title={t('hub.volumeMax')}
+       >
+         <Volume2 size={16} className={`transition-colors ${isDark ? "text-gray-500" : "text-slate-400"}`} />
+       </button>
+       <div
         className={`absolute text-[10px] uppercase tracking-widest font-bold z-10 pointer-events-none ${isDark ? "text-amber-500/80 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "text-teal-600/90"}`}
         style={{ left: cx, top: cy + volR + 18, transform: "translate(-50%, 0)" }}
+        title={t('hub.volumeLabel')}
       >
-        Vol // {volume}%
+        {t('hub.volumeLabel')} // {volume}%
       </div>
 
       <div
@@ -370,9 +395,9 @@ export const RadialMenu: React.FC<RadialMenuProps> = ({ theme, items, centerTitl
 
               {/* Internal Setting Toggles */}
               <div className="flex gap-2.5 mt-3 z-40 bg-transparent scale-90">
-                <HubToggleIcon active={dnd} onClick={(e: any) => { e.stopPropagation(); setDnd(!dnd); }} icon={Moon} color="purple" isDark={isDark} />
-                <HubToggleIcon active={proxy} onClick={(e: any) => { e.stopPropagation(); setProxy(!proxy); }} icon={Shield} color="blue" isDark={isDark} />
-                <HubToggleIcon active={energy} onClick={(e: any) => { e.stopPropagation(); setEnergy(!energy); }} icon={Battery} color="green" isDark={isDark} />
+                <HubToggleIcon active={dnd} onClick={(e: any) => { e.stopPropagation(); setDnd(!dnd); }} icon={Moon} color="purple" isDark={isDark} title={dnd ? t('hub.dndActive') : t('hub.dnd')} />
+                <HubToggleIcon active={proxy} onClick={(e: any) => { e.stopPropagation(); setProxy(!proxy); }} icon={Shield} color="blue" isDark={isDark} title={proxy ? t('hub.proxyActive') : t('hub.proxy')} />
+                <HubToggleIcon active={energy} onClick={(e: any) => { e.stopPropagation(); setEnergy(!energy); }} icon={Battery} color="green" isDark={isDark} title={energy ? t('hub.energyActive') : t('hub.energy')} />
               </div>
             </motion.div>
           )}
@@ -383,7 +408,7 @@ export const RadialMenu: React.FC<RadialMenuProps> = ({ theme, items, centerTitl
 };
 
 // HubToggleIcon component
-const HubToggleIcon = ({ active, onClick, icon: Icon, color, isDark }: any) => {
+const HubToggleIcon = ({ active, onClick, icon: Icon, color, isDark, title }: any) => {
   let activeColor = "";
   if (color === "purple")
     activeColor = isDark
@@ -403,6 +428,7 @@ const HubToggleIcon = ({ active, onClick, icon: Icon, color, isDark }: any) => {
   return (
     <div
       onClick={onClick}
+      title={title}
       className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 ${
         active
           ? isDark

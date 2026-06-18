@@ -24,14 +24,12 @@ beforeAll(() => {
 });
 
 describe('SystemPulsePlayer', () => {
-  it('renders the player with default local tracks', () => {
-    render(<SystemPulsePlayer theme="dark" />);
-    
-    expect(screen.getByText('SYSTEM PLAYER')).toBeInTheDocument();
-    expect(screen.getByText('LOCAL TRACK')).toBeInTheDocument();
-  });
+   it('renders the player with default local tracks', () => {
+     render(<SystemPulsePlayer theme="dark" />);
+     expect(screen.getByText('LOCAL TRACK')).toBeInTheDocument();
+   });
 
-  it('switches to radio mode when radio button is clicked', async () => {
+   it('switches to radio mode when radio button is clicked', async () => {
     const { container } = render(<SystemPulsePlayer theme="dark" />);
     
     // Find the toggle by title and click its child which has the click handler
@@ -44,23 +42,22 @@ describe('SystemPulsePlayer', () => {
     });
   });
 
-  it('opens and closes the playlist', async () => {
-    render(<SystemPulsePlayer theme="dark" />);
-    
-    expect(screen.queryByText('System Playlist')).not.toBeInTheDocument();
-    
-    const toggleBtn = screen.getByTitle('View Playlist');
-    fireEvent.click(toggleBtn);
-    
-    await waitFor(() => {
-       expect(screen.getByText('System Playlist')).toBeInTheDocument();
-    });
-    
-    const closeBtn = screen.getByTitle('Back to Player');
-    fireEvent.click(closeBtn);
-    
-    await waitFor(() => {
-       expect(screen.queryByText('System Playlist')).not.toBeInTheDocument();
-    });
-  });
+it('opens and closes the playlist', async () => {
+     render(<SystemPulsePlayer theme="dark" />);
+
+     const toggleBtns = screen.getAllByRole('button', { hidden: true });
+     const playlistBtn = toggleBtns[screen.getAllByRole('button', { hidden: true }).length - 1];
+     fireEvent.click(playlistBtn);
+
+     await waitFor(() => {
+        expect(screen.getByText('System Playlist')).toBeInTheDocument();
+     });
+
+     const closeBtn = screen.getByRole('button', { hidden: true });
+     fireEvent.click(closeBtn);
+
+     await waitFor(() => {
+        expect(screen.queryByText('System Playlist')).not.toBeInTheDocument();
+     });
+   });
 });

@@ -229,11 +229,16 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
              if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
              setSelectedContact(null);
          }}
-         onDelete={() => {
-             if (selectedContact) setContacts(contacts.filter(c => c.id !== selectedContact.id));
-             setSelectedContact(null);
-         }}
-         onBlock={() => {
+          onDelete={() => {}}
+          onRequestDelete={() => {
+              if (selectedContact) {
+                if (window.confirm('contacts.confirmDeleteMessage')) {
+                  setContacts(contacts.filter(c => c.id !== selectedContact.id));
+                  setSelectedContact(null);
+                }
+              }
+          }}
+          onBlock={() => {
              if (selectedContact) setContacts(contacts.filter(c => c.id !== selectedContact.id));
              setSelectedContact(null);
          }}

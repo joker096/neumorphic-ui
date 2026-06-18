@@ -6,7 +6,7 @@
     <title>Mess&Anger — Secure P2P Messenger</title>
     <meta name="description" content="End-to-end encrypted P2P messenger with post-quantum cryptography. No phone required." />
     
-    <!-- Content Security Policy -->
+    <!-- Content Security Policy (Note: frame-ancestors and X-Frame-Options require HTTP headers in production) -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
       script-src 'self' 'wasm-unsafe-eval';
@@ -19,13 +19,10 @@
       object-src 'none';
       base-uri 'self';
       form-action 'self';
-      frame-ancestors 'none';
       upgrade-insecure-requests;
     ">
     
-    <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()" />

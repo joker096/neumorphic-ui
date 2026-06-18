@@ -39,7 +39,7 @@ export const deviceSecurity = {
         _masterKeyHex = rawHex;
         return masterKey;
       } catch (e) {
-        console.error("Failed to unwrap master key using device fingerprint.", e);
+        console.warn("Failed to unwrap master key using device fingerprint. A fresh session key was created.", e);
       }
     }
 

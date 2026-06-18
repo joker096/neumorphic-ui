@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 interface VoiceWaveformProps {
   duration?: string;
@@ -10,6 +11,7 @@ interface VoiceWaveformProps {
 }
 
 export const VoiceWaveform = ({ duration = "0:12", isMe, isDark, audioUrl, stream }: VoiceWaveformProps) => {
+  const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -328,7 +330,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, isDark, audioUrl, strea
       {!stream && (
         <div
           onClick={(e) => { e.stopPropagation(); togglePlayback(); }}
-          title={isPlaying ? "Pause" : "Play"}
+          title={isPlaying ? (t('systemPlayer.pause') === 'systemPlayer.pause' ? 'Pause' : t('systemPlayer.pause')) : (t('systemPlayer.play') === 'systemPlayer.play' ? 'Play' : t('systemPlayer.play'))}
           className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer flex-shrink-0 transition-transform active:scale-95 ${
               isMe 
               ? (isDark ? "bg-white/20 hover:bg-white/30 text-white" : "bg-white/20 hover:bg-white/30 text-white shadow-sm") 

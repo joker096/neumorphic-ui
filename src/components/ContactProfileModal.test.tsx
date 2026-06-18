@@ -37,7 +37,6 @@ const defaultProps = {
 describe('ContactProfileModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    window.confirm = vi.fn().mockReturnValue(true);
   });
 
   it('renders contact name and ID', () => {
@@ -100,19 +99,19 @@ describe('ContactProfileModal', () => {
     render(<ContactProfileModal {...defaultProps} />);
 
     fireEvent.click(screen.getByText('contacts.deleteContact'));
+    const confirmBtns = screen.getAllByText('contacts.deleteContact');
+    fireEvent.click(confirmBtns[1]);
 
-    expect(window.confirm).toHaveBeenCalledWith('contacts.confirmDeleteMessage');
     expect(defaultProps.onDelete).toHaveBeenCalled();
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
   it('does not call onDelete when Delete cancelled', () => {
-    window.confirm = vi.fn().mockReturnValue(false);
     render(<ContactProfileModal {...defaultProps} />);
 
     fireEvent.click(screen.getByText('contacts.deleteContact'));
+    fireEvent.click(screen.getByText('contacts.close'));
 
-    expect(window.confirm).toHaveBeenCalledWith('contacts.confirmDeleteMessage');
     expect(defaultProps.onDelete).not.toHaveBeenCalled();
     expect(defaultProps.onClose).not.toHaveBeenCalled();
   });
@@ -121,21 +120,27 @@ describe('ContactProfileModal', () => {
     render(<ContactProfileModal {...defaultProps} />);
 
     fireEvent.click(screen.getByText('contacts.blockSpammer'));
+    const confirmBtns = screen.getAllByText('contacts.blockSpammer');
+    fireEvent.click(confirmBtns[1]);
 
-    expect(window.confirm).toHaveBeenCalledWith('contacts.confirmBlockMessage');
     expect(defaultProps.onBlock).toHaveBeenCalled();
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
   it('does not call onBlock when Block cancelled', () => {
-    window.confirm = vi.fn().mockReturnValue(false);
     render(<ContactProfileModal {...defaultProps} />);
 
     fireEvent.click(screen.getByText('contacts.blockSpammer'));
+    fireEvent.click(screen.getByText('contacts.close'));
 
-    expect(window.confirm).toHaveBeenCalled();
     expect(defaultProps.onBlock).not.toHaveBeenCalled();
     expect(defaultProps.onClose).not.toHaveBeenCalled();
+  });
+
+  it('hides block spammer button for favorite contacts', () => {
+    render(<ContactProfileModal {...defaultProps} contact={{ ...mockContact, isFavorite: true }} />);
+
+    expect(screen.queryByText('contacts.blockSpammer')).not.toBeInTheDocument();
   });
 
   it('closes modal when X clicked', () => {

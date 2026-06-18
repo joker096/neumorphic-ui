@@ -1,10 +1,20 @@
-import {StrictMode} from 'react';
-import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-import { initAppStorage, useAppStore } from './store';
-import { I18nProvider } from './lib/i18n';
-import { preloadLocales } from './lib/i18n';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+import { initAppStorage, useAppStore } from "./store";
+import { I18nProvider, preloadLocales } from "./lib/i18n";
+import { ErrorBoundary } from "./components/resilience";
+
+const installRuntimeGuards = () => {
+  window.addEventListener("error", (event) => {
+    console.error("Window error:", event.error || event.message);
+  });
+
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("Unhandled promise rejection:", event.reason);
+  });
+};
 
 const bootstrap = async () => {
   try {
@@ -15,6 +25,8 @@ const bootstrap = async () => {
      console.error("Failed to initialize storage keys", e);
   }
 
+  installRuntimeGuards();
+
   // Register service worker for offline support
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -24,11 +36,13 @@ const bootstrap = async () => {
     });
   }
   
-  createRoot(document.getElementById('root')!).render(
+  createRoot(document.getElementById("root")!).render(
     <StrictMode>
-      <I18nProvider>
-        <App />
-      </I18nProvider>
+      <ErrorBoundary>
+        <I18nProvider>
+          <App />
+        </I18nProvider>
+      </ErrorBoundary>
     </StrictMode>,
   );
 };

@@ -1,8 +1,10 @@
 import React from 'react';
 import { useSound } from './SoundContext';
 import type { SoundEventType } from '../lib/sounds/config';
+import { useI18n } from '../lib/i18n';
 
 export const SoundSettings: React.FC = () => {
+  const { t } = useI18n();
   const { play } = useSound();
   const [soundEnabled, setSoundEnabled] = React.useState(true);
   const [volume, setVolume] = React.useState(0.7);
@@ -14,7 +16,7 @@ export const SoundSettings: React.FC = () => {
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Звук включен</span>
+        <span className="text-sm font-medium">{t('soundSettings.soundEnabled')}</span>
         <button
           onClick={() => setSoundEnabled(!soundEnabled)}
           className={`w-10 h-6 rounded-full p-1 transition-colors ${soundEnabled ? 'bg-emerald-500' : 'bg-gray-500'}`}
@@ -23,7 +25,7 @@ export const SoundSettings: React.FC = () => {
         </button>
       </div>
       <div className="flex items-center gap-3">
-        <span className="text-xs">Громкость:</span>
+        <span className="text-xs">{t('soundSettings.volume')}</span>
         <input
           type="range"
           min="0"
@@ -34,9 +36,9 @@ export const SoundSettings: React.FC = () => {
         />
       </div>
       <div className="flex flex-wrap gap-2">
-        <button onClick={() => playTestSound('incoming-call')} className="px-3 py-1 rounded-full text-xs bg-orange-500 text-white">Тест звонка</button>
-        <button onClick={() => playTestSound('incoming-chat')} className="px-3 py-1 rounded-full text-xs bg-blue-500 text-white">Тест чата</button>
-        <button onClick={() => playTestSound('error')} className="px-3 py-1 rounded-full text-xs bg-red-500 text-white">Тест ошибки</button>
+        <button onClick={() => playTestSound('incoming-call')} className="px-3 py-1 rounded-full text-xs bg-orange-500 text-white">{t('soundSettings.testCall')}</button>
+        <button onClick={() => playTestSound('incoming-chat')} className="px-3 py-1 rounded-full text-xs bg-blue-500 text-white">{t('soundSettings.testChat')}</button>
+        <button onClick={() => playTestSound('error')} className="px-3 py-1 rounded-full text-xs bg-red-500 text-white">{t('soundSettings.testError')}</button>
       </div>
     </div>
   );
