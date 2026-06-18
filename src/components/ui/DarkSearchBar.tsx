@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
+import { useI18n } from '../../lib/i18n';
 
 export const DarkSearchBar: React.FC<{
   searchQuery?: string;
@@ -11,6 +12,7 @@ export const DarkSearchBar: React.FC<{
   const setVal = onSearchChange || setInternalVal;
   const [focused, setFocused] = useState(false);
   const [pressed, setPressed] = useState(false);
+  const { t } = useI18n();
 
   return (
     <div className="relative group w-full">
@@ -43,7 +45,7 @@ export const DarkSearchBar: React.FC<{
           onChange={(e) => setVal(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={placeholder || "Search messages, people..."}
+          placeholder={placeholder || t('search.messagesPeople')}
           className="bg-transparent border-none outline-none w-full text-[15.5px] font-medium text-[#e8ecf2] placeholder:text-[#7a8190]"
         />
         <div

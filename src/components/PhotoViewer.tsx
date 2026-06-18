@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ZoomIn, ZoomOut, Download } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 interface PhotoViewerProps {
   url: string | null;
@@ -12,6 +13,7 @@ interface PhotoViewerProps {
 export const PhotoViewerOverlay = ({ url, open, onClose, theme }: PhotoViewerProps) => {
   const [scale, setScale] = useState(1);
   const isDark = theme === "dark";
+  const { t } = useI18n();
 
   const handleZoomIn = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -89,7 +91,7 @@ export const PhotoViewerOverlay = ({ url, open, onClose, theme }: PhotoViewerPro
           >
             <motion.img
               src={url}
-              alt="Full view"
+              alt={t('photoViewer.fullView')}
               animate={{ scale }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="max-w-full max-h-[85vh] object-contain select-none pointer-events-none rounded-[8px] shadow-[0_0_60px_rgba(0,0,0,0.8)]"
@@ -101,7 +103,7 @@ export const PhotoViewerOverlay = ({ url, open, onClose, theme }: PhotoViewerPro
           {/* Bottom attribution/details mock */}
           <div className="absolute bottom-0 w-full p-6 text-center z-10 bg-gradient-to-t from-black/80 to-transparent">
              <div className="text-white/70 text-sm font-mono opacity-80 mix-blend-screen">
-                 P2P Encrypted Media
+                 {t('photoViewer.p2pEncrypted')}
              </div>
           </div>
         </motion.div>

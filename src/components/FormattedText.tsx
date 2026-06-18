@@ -93,10 +93,11 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
          if (part.startsWith('__') && part.endsWith('__')) {
             return <em key={i} className="italic">{renderHighlight(part.slice(2, -2))}</em>;
          }
-         // Spoiler
-         if (part.startsWith('||') && part.endsWith('||')) {
-            return <Spoiler key={i} text={part.slice(2, -2)} renderHighlight={renderHighlight} />;
-         }
+// Spoiler
+          if (part.startsWith('||') && part.endsWith('||')) {
+             const SpoilerContent = () => <Spoiler text={part.slice(2, -2)} renderHighlight={renderHighlight} />;
+             return <SpoilerContent key={i} />;
+          }
          // Inline code
          if (part.startsWith('`') && part.endsWith('`')) {
             return <code key={i} className="bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded font-mono text-[0.9em] mx-0.5">{part.slice(1, -1)}</code>;

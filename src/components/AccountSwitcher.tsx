@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, Plus, Check } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 interface AccountSwitcherProps {
    theme: 'dark' | 'light';
 }
 
 export const AccountSwitcher = ({ theme }: AccountSwitcherProps) => {
-   const isDark = theme === 'dark';
-   const [open, setOpen] = useState(false);
+    const isDark = theme === 'dark';
+    const { t } = useI18n();
+    const [open, setOpen] = useState(false);
    const [activeId, setActiveId] = useState(1);
    
    const [accounts, setAccounts] = useState([
@@ -58,7 +60,7 @@ export const AccountSwitcher = ({ theme }: AccountSwitcherProps) => {
                      className={`absolute top-16 left-0 w-72 rounded-3xl p-3 shadow-2xl z-[50] ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
                   >
                      <div className={`text-[10px] uppercase tracking-widest font-bold px-3 py-2 mb-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-                        Accounts
+                        {t('accountSwitcher.accounts')}
                      </div>
                      <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
                         {accounts.map(acc => (
@@ -89,7 +91,7 @@ export const AccountSwitcher = ({ theme }: AccountSwitcherProps) => {
                                   type="text" 
                                   value={newName}
                                   onChange={(e) => setNewName(e.target.value)}
-                                  placeholder="New Account Name..."
+                                   placeholder={t('accountSwitcher.newAccountPlaceholder')}
                                   className={`flex-1 min-w-0 bg-transparent outline-none text-sm transition-colors ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-800 placeholder:text-slate-400"}`}
                                />
                                <button type="submit" disabled={!newName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 ${newName.trim() ? "bg-orange-500 text-white" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
@@ -104,7 +106,7 @@ export const AccountSwitcher = ({ theme }: AccountSwitcherProps) => {
                               <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${isDark ? "bg-orange-500/10" : "bg-orange-500/10"}`}>
                                  <Plus size={20} />
                               </div>
-                              <span className="text-sm font-bold">Add Account</span>
+                               <span className="text-sm font-bold">{t('accountSwitcher.addAccount')}</span>
                            </div>
                         )}
                      </div>

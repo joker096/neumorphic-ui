@@ -1,0 +1,71 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic "Включить светлую тему" [ref=e5] [cursor=pointer]:
+        - generic:
+          - img
+          - img
+        - img [ref=e8]
+      - button "Выбрать язык" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+    - generic [ref=e15]:
+      - generic [ref=e17] [cursor=pointer]: "N"
+      - generic [ref=e19]:
+        - img
+        - img [ref=e20]
+        - generic "Минимальная громкость" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+        - generic "Максимальная громкость" [ref=e27] [cursor=pointer]:
+          - img [ref=e28]
+        - generic: Vol // 70%
+        - generic "Каналы - Трансляция" [ref=e52] [cursor=pointer]:
+          - generic [ref=e54]: "12"
+          - img [ref=e55]
+        - generic:
+          - generic: Каналы
+          - generic: Трансляция
+        - generic "Чаты - Зашифровано" [ref=e58] [cursor=pointer]:
+          - generic [ref=e60]: "8"
+          - img [ref=e61]
+        - generic:
+          - generic: Чаты
+          - generic: Зашифровано
+        - generic "Метропульс - Монитор системы" [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+        - generic:
+          - generic: Метропульс
+          - generic: Монитор системы
+        - generic "Радар - Mesh-узлы" [ref=e66] [cursor=pointer]:
+          - img [ref=e67]
+        - generic:
+          - generic: Радар
+          - generic: Mesh-узлы
+        - generic "Контакты - Идентичность" [ref=e71] [cursor=pointer]:
+          - img [ref=e72]
+        - generic:
+          - generic: Контакты
+          - generic: Идентичность
+        - generic "Звонки - Аудиосвязь" [ref=e77] [cursor=pointer]:
+          - generic [ref=e79]: "2"
+          - img [ref=e80]
+        - generic:
+          - generic: Звонки
+          - generic: Аудиосвязь
+        - generic "Записи - Журнал звонков" [ref=e82] [cursor=pointer]:
+          - img [ref=e83]
+        - generic:
+          - generic: Записи
+          - generic: Журнал звонков
+        - generic "Боты - Помощники" [ref=e86] [cursor=pointer]:
+          - img [ref=e87]
+        - generic:
+          - generic: Боты
+          - generic: Помощники
+        - generic "Настройки - Локальная конфигурация" [ref=e90] [cursor=pointer]:
+          - img [ref=e91]
+        - generic:
+          - generic: Настройки
+          - generic: Локальная конфигурация
+        - generic "Close Menu" [ref=e94] [cursor=pointer]:
+          - img [ref=e96]

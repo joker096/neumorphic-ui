@@ -1,0 +1,129 @@
+<h2>Секция 1: Архитектура системы</h2>
+<p class="subtitle">Один сервер — два протокола: WebSocket (сигналинг) + REST API (админка)</p>
+
+<div class="mockup">
+  <div class="mockup-header">Системная архитектура</div>
+  <div class="mockup-body" style="padding:1.5rem;">
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- Server box -->
+      <div style="background:var(--accent-bg);border-radius:12px;padding:1.25rem;">
+        <div style="font-weight:700;font-size:1.1rem;margin-bottom:1rem;">🖥️ Enhanced Signaling Server (port 8765)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="background:var(--bg);border-radius:8px;padding:1rem;">
+            <div style="font-weight:600;margin-bottom:0.5rem;">📡 WebSocket (существующий)</div>
+            <ul style="margin:0;padding-left:1.2rem;font-size:0.9rem;">
+              <li>register / offer / answer / ice-candidate</li>
+              <li>typing-indicator / delivery-receipt</li>
+              <li>online-status / read-receipt</li>
+            </ul>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:1rem;">
+            <div style="font-weight:600;margin-bottom:0.5rem;">🔌 REST API (новый, порт 8766)</div>
+            <ul style="margin:0;padding-left:1.2rem;font-size:0.9rem;">
+              <li>POST /api/auth/login + 2FA</li>
+              <li>GET /api/stats/users (online, today, total)</li>
+              <li>GET /api/stats/countries</li>
+              <li>GET /api/stats/devices</li>
+              <li>CRUD /api/ads</li>
+              <li>GET /api/ads/active (для клиента)</li>
+              <li>POST /api/ads/:id/impression</li>
+              <li>POST /api/ads/:id/click</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Middleware layer -->
+      <div style="display:flex;gap:1rem;justify-content:center;">
+        <div style="background:var(--surface);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;">
+          <div style="font-size:1.2rem;">🔐</div>
+          <div style="font-weight:600;font-size:0.85rem;">JWT Auth</div>
+          <div style="font-size:0.75rem;color:var(--muted);">admin login</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;">
+          <div style="font-size:1.2rem;">🔑</div>
+          <div style="font-weight:600;font-size:0.85rem;">TOTP 2FA</div>
+          <div style="font-size:0.75rem;color:var(--muted);">Google Authenticator</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;">
+          <div style="font-size:1.2rem;">🗄️</div>
+          <div style="font-weight:600;font-size:0.85rem;">SQLite</div>
+          <div style="font-size:0.75rem;color:var(--muted);">better-sqlite3</div>
+        </div>
+        <div style="background:var(--surface);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;">
+          <div style="font-size:1.2rem;">🌍</div>
+          <div style="font-weight:600;font-size:0.85rem;">GeoIP</div>
+          <div style="font-size:0.75rem;color:var(--muted);">geoip-lite</div>
+        </div>
+      </div>
+
+      <!-- DB Schema -->
+      <div style="background:var(--surface);border-radius:12px;padding:1.25rem;">
+        <div style="font-weight:700;margin-bottom:0.75rem;">🗄️ Таблицы SQLite</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;font-size:0.85rem;">
+          <div style="background:var(--bg);border-radius:8px;padding:0.75rem;">
+            <code style="font-weight:600;color:var(--accent);">connections</code>
+            <div style="font-size:0.8rem;margin-top:0.3rem;">
+              id, public_key, ip, user_agent,<br>
+              country, connected_at,<br>
+              disconnected_at
+            </div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:0.75rem;">
+            <code style="font-weight:600;color:var(--accent);">admins</code>
+            <div style="font-size:0.8rem;margin-top:0.3rem;">
+              id, username, password_hash,<br>
+              totp_secret, created_at
+            </div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:0.75rem;">
+            <code style="font-weight:600;color:var(--accent);">sessions</code>
+            <div style="font-size:0.8rem;margin-top:0.3rem;">
+              id, admin_id, token,<br>
+              expires_at
+            </div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:0.75rem;">
+            <code style="font-weight:600;color:var(--accent);">ads</code>
+            <div style="font-size:0.8rem;margin-top:0.3rem;">
+              id, title, image_url, target_url,<br>
+              active, impressions, clicks,<br>
+              created_at
+            </div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:0.75rem;">
+            <code style="font-weight:600;color:var(--accent);">ad_events</code>
+            <div style="font-size:0.8rem;margin-top:0.3rem;">
+              id, ad_id, public_key,<br>
+              type (impression/click),<br>
+              timestamp
+            </div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:0.75rem;">
+            <code style="font-weight:600;color:var(--accent);">logs</code>
+            <div style="font-size:0.8rem;margin-top:0.3rem;">
+              id, admin_id, action,<br>
+              ip, timestamp
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:1rem;">
+  <h3>Нравится схема?</h3>
+  <p class="subtitle">Дальше покажу дашборд админки и размещение рекламы в UI мессенджера</p>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="yes" onclick="toggleSelect(this)">
+    <div class="letter">✅</div>
+    <div class="content"><h3>Да, продолжаем</h3></div>
+  </div>
+  <div class="option" data-choice="change" onclick="toggleSelect(this)">
+    <div class="letter">✏️</div>
+    <div class="content"><h3>Нужны правки</h3></div>
+  </div>
+</div>

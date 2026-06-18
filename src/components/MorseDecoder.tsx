@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useI18n } from '../lib/i18n';
 
 const MORSE_MAP: Record<string, string> = {
   A: ".-",
@@ -85,7 +86,13 @@ export const MorseDecoder = ({
   encodedText: string;
 }) => {
   const isDark = theme === "dark";
+  const { t } = useI18n();
   const [decoded, setDecoded] = useState("");
+
+  const label = (key: string, fallback: string) => {
+    const translated = t(key);
+    return translated === key ? fallback : translated;
+  };
 
   const handleDecode = () => {
     setDecoded(decodeMorse(encodedText));
@@ -106,7 +113,7 @@ export const MorseDecoder = ({
               isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-500/10 text-orange-600"
             }`}
           >
-            MORSE ENCODED
+            {label('morseDecoder.morseEncoded', 'MORSE ENCODED')}
           </div>
         </div>
         <div className="font-mono text[11px] leading-relaxed break-all opacity-80">
@@ -132,7 +139,7 @@ export const MorseDecoder = ({
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
-            DECODE MORSE
+            {label('morseDecoder.decode', 'DECODE MORSE')}
           </button>
         ) : (
           <div
@@ -147,7 +154,7 @@ export const MorseDecoder = ({
                 isDark ? "text-amber-500/70" : "text-amber-600/70"
               }`}
             >
-              DECODED TEXT
+              {label('morseDecoder.decodedText', 'DECODED TEXT')}
             </div>
             <div
               className={`font-mono font-medium text-[13px] ${

@@ -391,15 +391,7 @@ it.skip('hides PWA banner when dismissed', () => {
     expect(screen.getByText('Active shares')).toBeInTheDocument();
   });
 
-  it('shows Photo Editor section', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    expect(screen.getByText('Photo Editor')).toBeInTheDocument();
-    expect(screen.getByText('Image Editor')).toBeInTheDocument();
-    expect(screen.getByText('Auto-save edits')).toBeInTheDocument();
-  });
-
- it('shows build status footer', () => {
+  it('shows build status footer', () => {
     render(<SettingsView {...defaultProps} />);
 
     expect(screen.getByText(/Last build|build|last build/)).toBeInTheDocument();

@@ -1,0 +1,89 @@
+{
+  "layout": {
+    "adminPanel": "Панель администратора",
+    "messenger": "Mess&Anger",
+    "dashboard": "Панель управления",
+    "users": "Пользователи",
+    "devices": "Устройства",
+    "ads": "Реклама",
+    "settings": "Настройки",
+    "logout": "Выйти"
+  },
+  "login": {
+    "title": "Панель администратора",
+    "subtitle": "Mess&Anger",
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "usernamePlaceholder": "admin",
+    "passwordPlaceholder": "••••••••",
+    "signIn": "Войти",
+    "signingIn": "Вход...",
+    "invalidCredentials": "Неверное имя пользователя или пароль"
+  },
+  "verify2fa": {
+    "title": "Двухфакторная аутентификация",
+    "subtitle": "Введите код из приложения-антифродера",
+    "verifyButton": "Подтвердить и войти",
+    "verifying": "Проверка...",
+    "invalidCode": "Неверный код подтверждения"
+  },
+  "dashboard": {
+    "title": "Панель управления",
+    "loading": "Загрузка...",
+    "onlineNow": "Сейчас в сети",
+    "today": "Сегодня",
+    "totalUsers": "Всего пользователей",
+    "countries": "Страны",
+    "topCountries": "🌍 Топ стран",
+    "country": "Страна",
+    "users": "Пользователи",
+    "deviceDistribution": "📱 Устройства",
+    "recentAds": "📢 Последняя реклама",
+    "impressions": "показов",
+    "clicks": "кликов",
+    "ctr": "CTR"
+  },
+  "users": {
+    "title": "Пользователи",
+    "publicKey": "Публичный ключ",
+    "country": "Страна",
+    "ip": "IP",
+    "status": "Статус",
+    "online": "🟢 В сети",
+    "offline": "⚫ Не в сети",
+    "lastSeen": "Последний раз",
+    "previous": "← Предыдущая",
+    "next": "Следующая →",
+    "page": "Страница"
+  },
+  "devices": {
+    "title": "Устройства",
+    "total": "всего",
+    "device": "Устройство"
+  },
+  "ads": {
+    "title": "Реклама",
+    "newAd": "+ Новая реклама",
+    "titleLabel": "Заголовок",
+    "imageUrlLabel": "URL изображения",
+    "targetUrlLabel": "Целевой URL",
+    "create": "Создать",
+    "update": "Обновить",
+    "cancel": "Отмена",
+    "active": "Активно",
+    "inactive": "Неактивно",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "confirmDelete": "Удалить это объявление?",
+    "noAds": "Объявлений еще не создано",
+    "impressions": "показов",
+    "clicks": "кликов"
+  },
+  "settings": {
+    "title": "Настройки",
+    "security": "Безопасность",
+    "reset2fa": "Сбросить 2FA аутентификацию",
+    "reset2faMessage": "Запрошен сброс 2FA. Используйте CLI для генерации нового секрета.",
+    "confirmReset2fa": "Сбросить 2FA? Это отменит текущую настройку аутентификатора."
+  }
+}

@@ -24,6 +24,10 @@ UI Layer (React) -> Message Pipeline -> Crypto Core -> P2P Transport -> Local St
 [Alice Device] --encrypt(DoubleRatchet)--> [WebRTC DataChannel] --> [P2P Link] --> [Bob Device]
 ```
 
+## Messenger UI Schema
+
+The messenger client UI map is documented in [`architecture-messenger-schema.md`](./architecture-messenger-schema.md). It defines the responsibilities of `App.tsx`, top-level layout components, chat components, feature screens, UI primitives, and runtime resilience wrappers.
+
 ## Key Components
 - `src/lib/crypto/cryptoCore.ts` - Core crypto operations
 - `src/lib/crypto/doubleRatchet.ts` - Double Ratchet implementation

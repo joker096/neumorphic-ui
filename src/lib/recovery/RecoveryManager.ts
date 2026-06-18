@@ -18,17 +18,30 @@ export const RecoveryManager = {
     }
     const phrase = indices.map(i => WORD_LIST[i]).join(" ");
 
-    // Store SHA-256 hash of the phrase for verification
-    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(phrase));
-    const hashHex = buf2hex(hashBuffer);
-    localStorage.setItem(RECOVERY_HASH_KEY, hashHex);
+    // Store salted PBKDF2 hash of the phrase for verification
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const phraseKey = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(phrase),
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    );
+    const derivedBits = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt, iterations: 600000, hash: 'SHA-256' },
+      phraseKey,
+      256
+    );
+    const hashHex = buf2hex(derivedBits);
+    localStorage.setItem(RECOVERY_HASH_KEY, `${buf2hex(salt)}:${hashHex}`);
     
     return phrase;
   },
 
   async restoreFromPhrase(phrase: string): Promise<boolean> {
     const storedHash = localStorage.getItem(RECOVERY_HASH_KEY);
-    if (!storedHash) return false;
+    if (!storedHash || !storedHash.includes(':')) return false;
+    const [saltHex, expectedHash] = storedHash.split(':');
 
     // Validate phrase words
     if (!validateMnemonicFn(phrase)) return false;
@@ -39,10 +52,21 @@ export const RecoveryManager = {
 
     const hexKey = entropyToHex(entropy);
 
-    // Verify hash matches
-    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(phrase));
-    const hashHex = buf2hex(hashBuffer);
-    if (hashHex !== storedHash) return false;
+    // Verify PBKDF2 hash matches
+    const phraseKey = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(phrase),
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    );
+    const derivedBits = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt: hex2buf(saltHex), iterations: 600000, hash: 'SHA-256' },
+      phraseKey,
+      256
+    );
+    const hashHex = buf2hex(derivedBits);
+    if (hashHex !== expectedHash) return false;
 
     // Import the recovered key as a CryptoKey
     const recoveredKey = await crypto.subtle.importKey(

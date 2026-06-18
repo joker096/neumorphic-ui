@@ -1,0 +1,89 @@
+{
+  "layout": {
+    "adminPanel": "Admin Panel",
+    "messenger": "Mess&Anger",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "devices": "Devices",
+    "ads": "Ads",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "login": {
+    "title": "Admin Panel",
+    "subtitle": "Mess&Anger",
+    "username": "Username",
+    "password": "Password",
+    "usernamePlaceholder": "admin",
+    "passwordPlaceholder": "••••••••",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "invalidCredentials": "Invalid username or password"
+  },
+  "verify2fa": {
+    "title": "Two-Factor Auth",
+    "subtitle": "Enter code from authenticator app",
+    "verifyButton": "Verify & Login",
+    "verifying": "Verifying...",
+    "invalidCode": "Invalid verification code"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "loading": "Loading...",
+    "onlineNow": "Online Now",
+    "today": "Today",
+    "totalUsers": "Total Users",
+    "countries": "Countries",
+    "topCountries": "🌍 Top Countries",
+    "country": "Country",
+    "users": "Users",
+    "deviceDistribution": "📱 Devices",
+    "recentAds": "📢 Recent Ads",
+    "impressions": "impressions",
+    "clicks": "clicks",
+    "ctr": "CTR"
+  },
+  "users": {
+    "title": "Users",
+    "publicKey": "Public Key",
+    "country": "Country",
+    "ip": "IP",
+    "status": "Status",
+    "online": "🟢 Online",
+    "offline": "⚫ Offline",
+    "lastSeen": "Last Seen",
+    "previous": "← Previous",
+    "next": "Next →",
+    "page": "Page"
+  },
+  "devices": {
+    "title": "Devices",
+    "total": "total",
+    "device": "Device"
+  },
+  "ads": {
+    "title": "Advertisements",
+    "newAd": "+ New Ad",
+    "titleLabel": "Title",
+    "imageUrlLabel": "Image URL",
+    "targetUrlLabel": "Target URL",
+    "create": "Create",
+    "update": "Update",
+    "cancel": "Cancel",
+    "active": "Active",
+    "inactive": "Inactive",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this ad?",
+    "noAds": "No ads created yet",
+    "impressions": "impressions",
+    "clicks": "clicks"
+  },
+  "settings": {
+    "title": "Settings",
+    "security": "Security",
+    "reset2fa": "Reset 2FA Authentication",
+    "reset2faMessage": "2FA reset requested. Use CLI to generate a new secret.",
+    "confirmReset2fa": "Reset 2FA? This will invalidate your current authenticator setup."
+  }
+}
