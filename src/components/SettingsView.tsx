@@ -51,7 +51,30 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
-interface SettingsItemProps {
+interface SettingsSectionTitleProps {
+  title: string;
+  isDark: boolean;
+}
+
+const SettingsSectionTitle = ({ title, isDark }: SettingsSectionTitleProps) => (
+  <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
+    {title}
+  </div>
+);
+
+interface SettingsGroupProps {
+  children: React.ReactNode;
+  isDark: boolean;
+  className?: string;
+}
+
+const SettingsGroup = ({ children, isDark, className = "" }: SettingsGroupProps) => (
+  <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"} ${className}`}>
+    {children}
+  </div>
+);
+
+interface SettingsRowProps {
   key?: React.Key;
   icon?: React.ReactNode;
   iconBg?: string;
@@ -62,12 +85,13 @@ interface SettingsItemProps {
   value?: string;
   rightElement?: React.ReactNode;
   onClick?: () => void;
+  className?: string;
 }
 
-const SettingsItem = ({ icon, iconBg, iconColor, title, subtitle, isDark, value, rightElement, onClick }: SettingsItemProps) => (
-  <button 
+const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark, value, rightElement, onClick, className = "" }: SettingsRowProps) => (
+  <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-black/5 last:border-b-0 ${isDark ? "border-white/5 hover:bg-white/5" : "hover:bg-black/5"}`}
+    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b last:border-b-0 ${isDark ? "border-white/5 hover:bg-white/5" : "border-black/5 hover:bg-black/5"} ${className}`}
   >
     {icon && (
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
@@ -89,6 +113,30 @@ const SettingsItem = ({ icon, iconBg, iconColor, title, subtitle, isDark, value,
       </>
     )}
   </button>
+);
+
+interface SettingsToggleRowProps {
+  icon?: React.ReactNode;
+  iconBg?: string;
+  iconColor?: string;
+  title: string;
+  subtitle?: string;
+  isOn: boolean;
+  isDark: boolean;
+  onToggle: () => void;
+}
+
+const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, isOn, isDark, onToggle }: SettingsToggleRowProps) => (
+  <SettingsRow
+    icon={icon}
+    iconBg={iconBg}
+    iconColor={iconColor}
+    title={title}
+    subtitle={subtitle}
+    isDark={isDark}
+    rightElement={<ToggleSwitch isOn={isOn} onToggle={onToggle} isDark={isDark} />}
+    onClick={onToggle}
+  />
 );
 
 const ToggleSwitch = ({ isOn, onToggle, isDark }: { isOn: boolean, onToggle: () => void, isDark: boolean }) => (
@@ -750,43 +798,30 @@ const appearance = t('settings.appearance');
 
         {/* Account Section */}
         <div className="w-full">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.accountSection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <button className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b last:border-b-0 ${isDark ? "hover:bg-white/5 border-white/5" : "hover:bg-black/5 border-black/5"}`}>
-              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 text-white text-xs font-bold shadow-md">
-                J
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>Joker</div>
-                <div className={`text-xs mt-0.5 truncate ${isDark ? "text-gray-400" : "text-slate-500"}`}>@joker</div>
-              </div>
-              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
-            </button>
-            <button 
+          <SettingsSectionTitle title={t('settings.accountSection')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsRow
+              icon={<div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold shadow-md">J</div>}
+              title="Joker"
+              subtitle="@joker"
+              isDark={isDark}
+            />
+            <SettingsRow
+              icon={<div className="w-8 h-8 rounded-full border border-current border-dashed flex items-center justify-center shrink-0 opacity-70"><UserPlus size={14} className={isDark ? "text-emerald-400" : "text-emerald-600"} /></div>}
+              title={t('settings.addAccount')}
+              isDark={isDark}
               onClick={() => {
                 toast.info(t('toast.accountManagement'), { description: t('toast.accountRequiresAuth') });
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5 text-emerald-400" : "hover:bg-black/5 text-emerald-600"}`}
-            >
-              <div className="w-8 h-8 rounded-full border border-current border-dashed flex items-center justify-center shrink-0 opacity-70">
-                <UserPlus size={14} />
-              </div>
-              <div className="flex-1 min-w-0 text-sm font-medium">
-                {t('settings.addAccount')}
-              </div>
-            </button>
-          </div>
+            />
+          </SettingsGroup>
         </div>
 
         {/* Appearance Section */}
         <div className="w-full">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.appearanceSection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
+          <SettingsSectionTitle title={t('settings.appearanceSection')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsRow
               icon={<Palette size={16} />}
               iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
               iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
@@ -795,7 +830,7 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('appearance')}
             />
-            <SettingsItem 
+            <SettingsRow
               icon={<Globe size={16} />}
               iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
               iconColor={isDark ? "text-blue-400" : "text-blue-600"}
@@ -805,41 +840,68 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('language')}
             />
-          </div>
+          </SettingsGroup>
+        </div>
+
+        {/* Quick Options */}
+        <div className="w-full">
+          <SettingsSectionTitle title={t('settings.quickOptions')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsToggleRow
+              icon={<Bell size={16} />}
+              iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
+              iconColor={isDark ? "text-red-400" : "text-red-600"}
+              title={t('settings.notificationsOption')}
+              isOn={notificationsEnabled}
+              isDark={isDark}
+              onToggle={() => setNotificationsEnabled(!notificationsEnabled)}
+            />
+            <SettingsToggleRow
+              title={t('settings.soundOption')}
+              isOn={soundEnabled}
+              isDark={isDark}
+              onToggle={() => setSoundEnabled(!soundEnabled)}
+            />
+            <SettingsToggleRow
+              icon={<Cloud size={16} />}
+              iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
+              iconColor={isDark ? "text-blue-400" : "text-blue-600"}
+              title={t('settings.cloudSyncOption')}
+              isOn={storeCloudSync.enabled}
+              isDark={isDark}
+              onToggle={() => storeSetCloudSyncEnabled(!storeCloudSync.enabled)}
+            />
+          </SettingsGroup>
         </div>
 
         {/* Notifications Section */}
         <div className="w-full">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.notificationsSection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
+          <SettingsSectionTitle title={t('settings.notificationsSection')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsToggleRow
               icon={<Bell size={16} />}
               iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
               iconColor={isDark ? "text-red-400" : "text-red-600"}
               title={notifications}
               subtitle={notificationsSubtitle}
+              isOn={notificationsEnabled}
               isDark={isDark}
-              rightElement={<ToggleSwitch isOn={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} isDark={isDark} />}
-              onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+              onToggle={() => setNotificationsEnabled(!notificationsEnabled)}
             />
-            <SettingsItem 
-              isDark={isDark}
+            <SettingsToggleRow
               title={sound}
-              rightElement={<ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} />}
-              onClick={() => setSoundEnabled(!soundEnabled)}
+              isOn={soundEnabled}
+              isDark={isDark}
+              onToggle={() => setSoundEnabled(!soundEnabled)}
             />
-          </div>
+          </SettingsGroup>
         </div>
 
         {/* Privacy & Security Section */}
         <div className="w-full">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.privacySecuritySection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
+          <SettingsSectionTitle title={t('settings.privacySecuritySection')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsRow
               icon={<Shield size={16} />}
               iconBg={isDark ? "bg-rose-500/10" : "bg-rose-100"}
               iconColor={isDark ? "text-rose-400" : "text-rose-600"}
@@ -848,7 +910,7 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('security')}
             />
-            <SettingsItem 
+            <SettingsRow
               icon={<Lock size={16} />}
               iconBg={isDark ? "bg-indigo-500/10" : "bg-indigo-100"}
               iconColor={isDark ? "text-indigo-400" : "text-indigo-600"}
@@ -857,16 +919,14 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('privacy')}
             />
-          </div>
+          </SettingsGroup>
         </div>
 
         {/* Data & Storage Section */}
         <div className="w-full">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.dataStorageSection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
+          <SettingsSectionTitle title={t('settings.dataStorageSection')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsRow
               icon={<HardDrive size={16} />}
               iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
               iconColor={isDark ? "text-amber-400" : "text-amber-600"}
@@ -875,16 +935,14 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('storage')}
             />
-          </div>
+          </SettingsGroup>
         </div>
         
         {/* Services Section */}
         <div className="w-full">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.servicesSection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
+          <SettingsSectionTitle title={t('settings.servicesSection')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsRow
               icon={<Bot size={16} />}
               iconBg={isDark ? "bg-fuchsia-500/10" : "bg-fuchsia-100"}
               iconColor={isDark ? "text-fuchsia-400" : "text-fuchsia-600"}
@@ -893,16 +951,14 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('bots')}
             />
-          </div>
+          </SettingsGroup>
         </div>
 
         {/* Advanced Section */}
         <div className="w-full mb-6">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.advancedSection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
+          <SettingsSectionTitle title={t('settings.advancedSection')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsRow
               icon={<Network size={16} />}
               iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
               iconColor={isDark ? "text-blue-400" : "text-blue-600"}
@@ -911,7 +967,7 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('network')}
             />
-            <SettingsItem 
+            <SettingsRow
               icon={<ShieldAlert size={16} />}
               iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
               iconColor={isDark ? "text-red-400" : "text-red-600"}
@@ -920,7 +976,7 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('spam')}
             />
-            <SettingsItem 
+            <SettingsRow
               icon={<Activity size={16} />}
               iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
               iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
@@ -929,60 +985,56 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('systemStatus')}
             />
-          </div>
+          </SettingsGroup>
         </div>
 
         {/* Cloud Sync Section */}
         <div className="w-full mb-6">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.cloudSync')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
+          <SettingsSectionTitle title={t('settings.cloudSync')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsToggleRow
               icon={<Cloud size={16} />}
               iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
               iconColor={isDark ? "text-blue-400" : "text-blue-600"}
               title={cloudSync}
               subtitle={storeCloudSync.enabled ? cloudSyncEnabled : t('settings.disabled')}
+              isOn={storeCloudSync.enabled}
               isDark={isDark}
-              rightElement={<ToggleSwitch isOn={storeCloudSync.enabled} onToggle={() => storeSetCloudSyncEnabled(!storeCloudSync.enabled)} isDark={isDark} />}
-              onClick={() => storeSetCloudSyncEnabled(!storeCloudSync.enabled)}
+              onToggle={() => storeSetCloudSyncEnabled(!storeCloudSync.enabled)}
             />
-            <SettingsItem 
+            <SettingsRow
               title={cloudProvider}
               value={storeCloudSync.provider}
               isDark={isDark}
               onClick={() => storeUpdateCloudSyncStatus({ provider: storeCloudSync.provider === 'local' ? 'firebase' : storeCloudSync.provider === 'firebase' ? 'supabase' : 'custom' })}
             />
-            <SettingsItem 
+            <SettingsRow
               title={t('settings.syncNow')}
               subtitle={storeCloudSync.lastSync ? `${t('settings.lastSync')}: ${new Date(storeCloudSync.lastSync).toLocaleString()}` : t('settings.never')}
               isDark={isDark}
               onClick={storeTriggerCloudSync}
               rightElement={<RefreshCw size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />}
             />
-            <SettingsItem 
+            <SettingsRow
               title={cloudStatus}
               value={storeCloudSync.status}
               isDark={isDark}
             />
             {storeCloudSync.errorMessage && (
-              <SettingsItem 
+              <SettingsRow
                 title={cloudError}
                 value={storeCloudSync.errorMessage}
                 isDark={isDark}
               />
             )}
-          </div>
+          </SettingsGroup>
         </div>
 
         {/* Location Sharing Section */}
         <div className="w-full mb-6">
-          <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
-            {t('settings.locationSection')}
-          </div>
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-            <SettingsItem 
+          <SettingsSectionTitle title={t('settings.locationSection')} isDark={isDark} />
+          <SettingsGroup isDark={isDark}>
+            <SettingsRow
               icon={<MapPin size={16} />}
               iconBg={isDark ? "bg-green-500/10" : "bg-green-100"}
               iconColor={isDark ? "text-green-400" : "text-green-600"}
@@ -991,7 +1043,7 @@ const appearance = t('settings.appearance');
               isDark={isDark}
               onClick={() => setActiveSection('location')}
             />
-          </div>
+          </SettingsGroup>
         </div>
 
         {/* Footer Build Status */}
@@ -1012,26 +1064,49 @@ const appearance = t('settings.appearance');
 
         {activeSection === 'appearance' && (
           <SubView key="appearance" title={appearance} isDark={isDark} onBack={() => setActiveSection('main')}>
-             <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-               <SettingsItem 
-                 title={t("settings.darkTheme")}
-                 isDark={isDark}
-                 rightElement={<ToggleSwitch isOn={isDark} onToggle={() => setTheme?.(isDark ? 'light' : 'dark')} isDark={isDark} />}
-                 onClick={() => setTheme?.(isDark ? 'light' : 'dark')}
-               />
-               <SettingsItem 
-                  title="Font Size"
-                  value={fontSize}
-                  isDark={isDark}
-                  onClick={() => setFontSize(fontSize === t('settings.fontSizeSmall') ? t('settings.fontSizeMedium') : fontSize === t('settings.fontSizeMedium') ? t('settings.fontSizeLarge') : t('settings.fontSizeSmall'))}
-               />
-               <SettingsItem 
-                 title={t("settings.animations")}
-                 isDark={isDark}
-                 rightElement={<ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations(!uiAnimations)} isDark={isDark} />}
-                 onClick={() => setUiAnimations(!uiAnimations)}
-               />
-             </div>
+            <SettingsSectionTitle title={t('settings.appearanceDescription')} isDark={isDark} />
+            <SettingsGroup isDark={isDark}>
+              <SettingsRow
+                icon={<Palette size={16} />}
+                iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
+                iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+                title={t('settings.darkTheme')}
+                subtitle={t('settings.darkThemeSubtitle')}
+                isDark={isDark}
+                rightElement={<ToggleSwitch isOn={isDark} onToggle={() => setTheme?.(isDark ? 'light' : 'dark')} isDark={isDark} />}
+                onClick={() => setTheme?.(isDark ? 'light' : 'dark')}
+              />
+              <SettingsRow
+                icon={<span className="text-sm font-bold">Aa</span>}
+                iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
+                iconColor={isDark ? "text-blue-400" : "text-blue-600"}
+                title={t('settings.fontSize')}
+                subtitle={t('settings.fontSizeSubtitle')}
+                isDark={isDark}
+                value={fontSize}
+                onClick={() => setFontSize(fontSize === t('settings.fontSizeSmall') ? t('settings.fontSizeMedium') : fontSize === t('settings.fontSizeMedium') ? t('settings.fontSizeLarge') : t('settings.fontSizeSmall'))}
+              />
+              <SettingsToggleRow
+                icon={<span className="text-sm font-bold">✦</span>}
+                iconBg={isDark ? "bg-purple-500/10" : "bg-purple-100"}
+                iconColor={isDark ? "text-purple-400" : "text-purple-600"}
+                title={t('settings.animations')}
+                subtitle={t('settings.animationsSubtitle')}
+                isOn={uiAnimations}
+                isDark={isDark}
+                onToggle={() => setUiAnimations(!uiAnimations)}
+              />
+              <SettingsToggleRow
+                icon={<Download size={16} />}
+                iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
+                iconColor={isDark ? "text-cyan-400" : "text-cyan-600"}
+                title={t('settings.pwaPrompt')}
+                subtitle={t('settings.pwaPromptSubtitle')}
+                isOn={showPwaBanner}
+                isDark={isDark}
+                onToggle={() => setShowPwaBanner(!showPwaBanner)}
+              />
+            </SettingsGroup>
           </SubView>
         )}
 
@@ -1048,7 +1123,7 @@ const appearance = t('settings.appearance');
                   { code: 'ja', name: '日本語' },
                   { code: 'ko', name: '한국어' },
                 ].map(lang => (
-                 <SettingsItem 
+                 <SettingsRow 
                    key={lang.code}
                    title={lang.name}
                    isDark={isDark}
@@ -1064,8 +1139,8 @@ const appearance = t('settings.appearance');
           <SubView key="security" title={security} isDark={isDark} onBack={() => setActiveSection('main')}>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
                {/* Custom PIN Input approach */}
-               <SettingsItem 
-                 title="App Lock PIN"
+               <SettingsRow 
+                 title={t('settings.appLockPin')}
                  subtitle={t("settings.appLockSubtitle")}
                  isDark={isDark}
                  onClick={() => {
@@ -1094,23 +1169,23 @@ const appearance = t('settings.appearance');
                     <button type="submit" className="px-3 py-1.5 rounded-lg text-sm font-bold bg-rose-500 text-white">Save</button>
                  </form>
                </div>
-               <SettingsItem 
+               <SettingsRow 
                  title={twoFactorAuth}
                  isDark={isDark}
                  rightElement={<ToggleSwitch isOn={twoFactorEnabled} onToggle={() => setTwoFactorEnabled(!twoFactorEnabled)} isDark={isDark} />}
                  onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
                />
-               <SettingsItem 
-                 title="Cloud Password (TOTP)"
+               <SettingsRow 
+                 title={t('settings.cloudPasswordTitle')}
                  subtitle={cloudPasswordSubtitle}
                  isDark={isDark}
                />
-               <SettingsItem 
+               <SettingsRow 
                   title={encryptionKeys}
                   value={encryptionKeysUpdated}
                   isDark={isDark}
                 />
-                <SettingsItem 
+                <SettingsRow 
                   title={recoveryPhraseLabel}
                   subtitle={hasRecoveryPhrase() ? recoveryPhraseGenerated : recoveryPhraseSubtitle}
                   isDark={isDark}
@@ -1125,8 +1200,8 @@ const appearance = t('settings.appearance');
                     }
                   }}
                 />
-                <SettingsItem 
-                  title="Auto-wipe (Dead Man's Switch)"
+                <SettingsRow 
+                  title={t('settings.deadMansSwitch')}
                  value={deadMansSwitch}
                  isDark={isDark}
                   onClick={() => setDeadMansSwitch(deadMansSwitch === "6 months" ? "1 year" : deadMansSwitch === "1 year" ? "1 month" : "6 months")}
@@ -1177,7 +1252,7 @@ const appearance = t('settings.appearance');
                    <textarea 
                     value={recoveryInput}
                     onChange={(e) => { setRecoveryInput(e.target.value); setRecoveryStatus('idle'); }}
-                    placeholder="word1 word2 word3 ..."
+                    placeholder={t('settings.recoveryPhrasePlaceholder')}
                     className={`w-full h-32 p-3 rounded-lg text-sm font-mono resize-none ${isDark ? "bg-black/20 border-white/10 text-white" : "bg-black/5 border-black/10 text-slate-800"} outline-none focus:border-emerald-500 border`}
                    />
                    {recoveryStatus === 'error' && (
@@ -1194,13 +1269,13 @@ const appearance = t('settings.appearance');
                     disabled={recoveryStatus === 'loading'}
                     className="w-full py-3 rounded-lg text-sm font-bold bg-emerald-500 text-white disabled:opacity-50"
                    >
-                    {recoveryStatus === 'loading' ? t('settings.recoveryPhraseRestoring') : 'Restore'}
+                    {recoveryStatus === 'loading' ? t('settings.recoveryPhraseRestoring') : t('settings.restore')}
                    </button>
                    <button 
                     onClick={() => { setShowRecoveryModal(false); setRecoveryInput(""); setRecoveryStatus('idle'); }}
                     className={`w-full py-3 rounded-lg text-sm font-medium border ${isDark ? "border-white/10 text-gray-300" : "border-black/10 text-slate-600"}`}
                    >
-                    Cancel
+                    {t('settings.cancel')}
                    </button>
                  </div>
                )}
@@ -1211,26 +1286,26 @@ const appearance = t('settings.appearance');
          {activeSection === 'privacy' && (
           <SubView key="privacy" title={privacy} isDark={isDark} onBack={() => setActiveSection('main')}>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-               <SettingsItem 
+               <SettingsRow 
                   title={whoSeesNumber} 
                   value={visNumber} 
                   isDark={isDark} 
                   onClick={() => setVisNumber(visNumber === t('settings.visibility.none') ? t('settings.visibility.contacts') : visNumber === t('settings.visibility.contacts') ? t('settings.visibility.everyone') : t('settings.visibility.none'))}
                />
-               <SettingsItem 
+               <SettingsRow 
                   title={lastSeen} 
                   value={visActivity} 
                   isDark={isDark} 
                   onClick={() => setVisActivity(visActivity === t('settings.visibility.none') ? t('settings.visibility.contacts') : visActivity === t('settings.visibility.contacts') ? t('settings.visibility.everyone') : t('settings.visibility.none'))}
                />
-                <SettingsItem title={blacklist} value="0 users" isDark={isDark} />
+                <SettingsRow title={blacklist} value="0 users" isDark={isDark} />
              </div>
              
              <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
                {t('settings.dndMode')}
              </div>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-               <SettingsItem
+               <SettingsRow
                  title={dnd}
                  subtitle={dndSubtitle}
                  isDark={isDark}
@@ -1253,7 +1328,7 @@ const appearance = t('settings.appearance');
                {t('settings.priorityContacts')}
              </div>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-               <SettingsItem
+               <SettingsRow
                  title="Priority contacts"
                  subtitle="Comma-separated names that bypass DND"
                  value={priorityContacts}
@@ -1273,20 +1348,20 @@ const appearance = t('settings.appearance');
                {t('settings.advancedPrivacy')}
              </div>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-               <SettingsItem 
+               <SettingsRow 
                  title={selfDestruct}
                  value={selfDestructDefault}
                  isDark={isDark}
                  onClick={() => setSelfDestructDefault(selfDestructDefault === selfDestructOff ? selfDestructDay : selfDestructDefault === selfDestructDay ? selfDestructWeek : selfDestructOff)}
                />
-<SettingsItem 
+<SettingsRow 
                   title={stealthMode}
                   subtitle={stealthModeSubtitle}
                   isDark={isDark}
                   rightElement={<ToggleSwitch isOn={storeStealthMode} onToggle={() => storeUpdateSettings({ stealthMode: !storeStealthMode })} isDark={isDark} />}
                   onClick={() => storeUpdateSettings({ stealthMode: !storeStealthMode })}
                 />
-               <SettingsItem 
+               <SettingsRow 
                  title={t("settings.anonymousMode")}
                  subtitle={t('settings.anonymousModeSubtitle')}
                  isDark={isDark}
@@ -1296,28 +1371,28 @@ const appearance = t('settings.appearance');
                  rightElement={<ToggleSwitch isOn={anonymousMode} onToggle={() => storeUpdateSettings({ anonymousMode: !anonymousMode })} isDark={isDark} />}
                  onClick={() => storeUpdateSettings({ anonymousMode: !anonymousMode })}
                />
-               <SettingsItem
+               <SettingsRow
                  title="Delivery receipts"
                  subtitle="Show sent/delivered status for outgoing messages"
                  isDark={isDark}
                  rightElement={<ToggleSwitch isOn={deliveryReceipts} onToggle={() => storeUpdateSettings({ deliveryReceipts: !deliveryReceipts })} isDark={isDark} />}
                  onClick={() => storeUpdateSettings({ deliveryReceipts: !deliveryReceipts })}
                />
-               <SettingsItem
+               <SettingsRow
                  title="Read receipts"
                  subtitle="Show read status when messages are opened"
                  isDark={isDark}
                  rightElement={<ToggleSwitch isOn={storeReadReceipts} onToggle={() => storeUpdateSettings({ readReceipts: !storeReadReceipts })} isDark={isDark} />}
                  onClick={() => storeUpdateSettings({ readReceipts: !storeReadReceipts })}
                />
-                <SettingsItem
+                <SettingsRow
                   title="Typing indicators"
                   subtitle="Show when the other side is typing"
                   isDark={isDark}
                   rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => storeUpdateSettings({ typingIndicators: !typingIndicators })} isDark={isDark} />}
                   onClick={() => storeUpdateSettings({ typingIndicators: !typingIndicators })}
                 />
-                <SettingsItem
+                <SettingsRow
                   title={forwardAllow}
                   subtitle={forwardAllowSubtitle}
                   isDark={isDark}
@@ -1333,15 +1408,15 @@ const appearance = t('settings.appearance');
          {activeSection === 'storage' && (
           <SubView key="storage" title={dataStorage} isDark={isDark} onBack={() => setActiveSection('main')}>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                <SettingsItem 
+                <SettingsRow 
                   title="Media auto-load"
                   value={mediaAutoLoad}
                   isDark={isDark}
                   onClick={() => setMediaAutoLoad(mediaAutoLoad === "Wi-Fi" ? "Wi-Fi & Cellular" : mediaAutoLoad === "Wi-Fi & Cellular" ? "Never" : "Wi-Fi")}
                 />
-                <SettingsItem title={storageUsage} value="1.2 GB" isDark={isDark} />
-                <SettingsItem title={networkUsage} value="45.5 MB" isDark={isDark} />
-               <SettingsItem 
+                <SettingsRow title={storageUsage} value="1.2 GB" isDark={isDark} />
+                <SettingsRow title={networkUsage} value="45.5 MB" isDark={isDark} />
+               <SettingsRow 
                  title={clearCache} 
                  isDark={isDark} 
                  onClick={() => {
@@ -1380,7 +1455,7 @@ const appearance = t('settings.appearance');
                   )}
                 </div>
 
-                <SettingsItem
+                <SettingsRow
                   title={exportBackupLabel}
                   subtitle={exportBackupSubtitle}
                   isDark={isDark}
@@ -1393,7 +1468,7 @@ const appearance = t('settings.appearance');
                   }}
                   rightElement={<Download size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />}
                 />
-               <SettingsItem
+               <SettingsRow
                  title={exportHtml}
                  subtitle="Readable backup summary for quick review"
                  isDark={isDark}
@@ -1433,7 +1508,7 @@ const appearance = t('settings.appearance');
         {activeSection === 'network' && (
           <SubView key="network" title={network} isDark={isDark} onBack={() => setActiveSection('main')}>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-               <SettingsItem 
+               <SettingsRow 
                  title={useProxy}
                  subtitle="SOCKS5 / HTTP"
                  isDark={isDark}
@@ -1454,14 +1529,14 @@ const appearance = t('settings.appearance');
                     />
                   </div>
                 )}
-                <SettingsItem 
+                <SettingsRow 
                   title={obfuscation}
                    subtitle="WebRTC → WS → MTProto → Fastly"
                  value={obfuscationMode}
                  isDark={isDark}
                  onClick={() => setObfuscationMode(obfuscationMode === "Auto" ? "MTProto" : obfuscationMode === "MTProto" ? "Domain Fronting" : "Auto")}
                 />
-                <SettingsItem 
+                <SettingsRow 
                   title={torBridgeLabel}
                   subtitle={torBridgeSubtitle}
                   value={torBridge}
@@ -1487,7 +1562,7 @@ const appearance = t('settings.appearance');
         {activeSection === 'spam' && (
           <SubView key="spam" title={spamProtection} isDark={isDark} onBack={() => setActiveSection('main')}>
              <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-               <SettingsItem 
+               <SettingsRow 
                  title={p2pFilters}
                  subtitle={p2pFiltersSubtitle}
                  isDark={isDark}
@@ -1503,9 +1578,9 @@ const appearance = t('settings.appearance');
              <BatteryStatus isDark={isDark} />
              
              <div className={`rounded-xl overflow-hidden mb-6 mt-4 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                <SettingsItem title={meshNodesNearby} value={`3 ${t('settings.activeNodes')}`} isDark={isDark} />
-               <SettingsItem title={dhtConnection} value={dhtStable} isDark={isDark} />
-               <SettingsItem title={localDB} value={dbEncrypted} isDark={isDark} />
+                <SettingsRow title={meshNodesNearby} value={`3 ${t('settings.activeNodes')}`} isDark={isDark} />
+               <SettingsRow title={dhtConnection} value={dhtStable} isDark={isDark} />
+               <SettingsRow title={localDB} value={dbEncrypted} isDark={isDark} />
              </div>
           </SubView>
         )}
@@ -1524,21 +1599,21 @@ const appearance = t('settings.appearance');
         {activeSection === 'forwardPrivacy' && (
             <SubView key="forwardPrivacy" title={t('settings.forwardPrivacy')} isDark={isDark} onBack={() => setActiveSection('privacy')}>
                <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                 <SettingsItem 
+                 <SettingsRow 
                    title={forwardAllow}
                    subtitle={forwardAllowSubtitle}
                    isDark={isDark}
                    rightElement={<ToggleSwitch isOn={storeAllowForwarding} onToggle={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })} isDark={isDark} />}
                    onClick={() => storeUpdateSettings({ allowForwarding: !storeAllowForwarding })}
                  />
-                 <SettingsItem 
+                 <SettingsRow 
                    title={t("settings.allowMetadata")}
                    subtitle={t("settings.allowMetadataSubtitle")}
                    isDark={isDark}
                    rightElement={<ToggleSwitch isOn={storeAllowMetadata} onToggle={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })} isDark={isDark} />}
                    onClick={() => storeUpdateSettings({ allowMetadata: !storeAllowMetadata })}
                  />
-                 <SettingsItem 
+                 <SettingsRow 
                    title={forwardLimit}
                    subtitle={String(storeForwardCountLimit)}
                    isDark={isDark}
@@ -1554,7 +1629,7 @@ const appearance = t('settings.appearance');
        {activeSection === 'devices' && (
            <SubView key="devices" title="Devices" isDark={isDark} onBack={() => setActiveSection('main')}>
               <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                 <SettingsItem 
+                 <SettingsRow 
                    title={currentDevice}
                    subtitle="Web Browser (Current)"
                    isDark={isDark}
@@ -1581,7 +1656,7 @@ const appearance = t('settings.appearance');
                       )}
                    </div>
                  ))}
-                 <SettingsItem 
+                 <SettingsRow 
                    title={t('common.addDevice')}
                    subtitle={deviceAddSubtitle}
                    isDark={isDark}
@@ -1600,7 +1675,7 @@ const appearance = t('settings.appearance');
                      }
                    }}
                  />
-                 <SettingsItem 
+                 <SettingsRow 
                    title={deviceActiveSessions}
                     subtitle={`${storeDevices.length} ${t('settings.devicesConnected')}`}
                    isDark={isDark}
@@ -1612,28 +1687,28 @@ const appearance = t('settings.appearance');
        {activeSection === 'receipts' && (
            <SubView key="receipts" title={receipts} isDark={isDark} onBack={() => setActiveSection('main')}>
                <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                  <SettingsItem 
+                  <SettingsRow 
                     title={receiptsEnable}
                     subtitle={receiptsEnableSubtitle}
                     isDark={isDark}
                     rightElement={<ToggleSwitch isOn={storeReadReceipts} onToggle={() => storeUpdateSettings({ readReceipts: !storeReadReceipts })} isDark={isDark} />}
                     onClick={() => storeUpdateSettings({ readReceipts: !storeReadReceipts })}
                   />
-                  <SettingsItem 
+                  <SettingsRow 
                     title={receiptsContactAlice}
                     subtitle={receiptsOn}
                     isDark={isDark}
                     rightElement={<ToggleSwitch isOn={storeContactReadReceipts['alice'] || false} onToggle={() => storeUpdateSettings({ contactReadReceipts: { ...storeContactReadReceipts, alice: !storeContactReadReceipts['alice'] } })} isDark={isDark} />}
                     onClick={() => storeUpdateSettings({ contactReadReceipts: { ...storeContactReadReceipts, alice: !storeContactReadReceipts['alice'] } })}
                   />
-                  <SettingsItem 
+                  <SettingsRow 
                     title={receiptsContactBob}
                     subtitle={receiptsOff}
                     isDark={isDark}
                     rightElement={<ToggleSwitch isOn={storeContactReadReceipts['bob'] || true} onToggle={() => storeUpdateSettings({ contactReadReceipts: { ...storeContactReadReceipts, bob: !storeContactReadReceipts['bob'] } })} isDark={isDark} />}
                     onClick={() => storeUpdateSettings({ contactReadReceipts: { ...storeContactReadReceipts, bob: !storeContactReadReceipts['bob'] } })}
                   />
-                  <SettingsItem 
+                  <SettingsRow 
                     title={receiptsContactCharlie}
                     subtitle={receiptsOn}
                     isDark={isDark}
@@ -1647,25 +1722,25 @@ const appearance = t('settings.appearance');
          {activeSection === 'cloudSync' && (
            <SubView key="cloudSync" title={cloudSync} isDark={isDark} onBack={() => setActiveSection('main')}>
               <div className={`rounded-xl overflow-hidden mb-6 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
-                <SettingsItem 
+                <SettingsRow 
                   title={enableCloudSync}
                   subtitle={cloudSyncSubtitle}
                   isDark={isDark}
                   rightElement={<ToggleSwitch isOn={storeCloudSync.enabled} onToggle={() => storeSetCloudSyncEnabled(!storeCloudSync.enabled)} isDark={isDark} />}
                   onClick={() => storeSetCloudSyncEnabled(!storeCloudSync.enabled)}
                 />
-                <SettingsItem 
+                <SettingsRow 
                   title={cloudProvider}
                   value={storeCloudSync.provider}
                   isDark={isDark}
                   onClick={() => storeUpdateCloudSyncStatus({ provider: storeCloudSync.provider === 'local' ? 'firebase' : storeCloudSync.provider === 'firebase' ? 'supabase' : 'custom' })}
                 />
-                <SettingsItem 
+                <SettingsRow 
                   title={cloudStatus}
                   value={storeCloudSync.status}
                   isDark={isDark}
                 />
-                <SettingsItem 
+                <SettingsRow 
                   title={t('settings.lastSync')}
                   value={storeCloudSync.lastSync ? new Date(storeCloudSync.lastSync).toLocaleString() : t('settings.never')}
                   isDark={isDark}

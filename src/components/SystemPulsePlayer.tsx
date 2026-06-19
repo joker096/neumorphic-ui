@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { Settings, Volume2, VolumeX, Play, Pause, Music, Activity, Cpu, HardDrive, SkipBack, SkipForward, ListMusic, List, Radio, ArrowLeft, ChevronLeft, Plus, SlidersHorizontal, Trash2, Save, Headphones, FolderOpen, Folder, X, Video } from "lucide-react";
 import { toast } from 'sonner';
 import { useAppStore } from '../store';
+import { useI18n } from '../lib/i18n';
 import { playSound } from '../lib/sounds';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 
 // --- EQ Presets ---
 const DEFAULT_EQ_PRESETS = [
@@ -183,8 +185,10 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
    // Ripple state
    const [rippleState, setRippleState] = useState<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
    
-   // Long-press state for avatars
-   const [longPressActive, setLongPressActive] = useState<string | null>(null);
+    const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
+    const [confirmDeleteMode, setConfirmDeleteMode] = useState<'playlist' | 'radio'>('playlist');
+
+    const { t } = useI18n();
 
    const audioCtxRef = useRef<AudioContext | null>(null);
    const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
@@ -828,35 +832,17 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                     </div>
 
                     {/* Delete button (only show for tracks/stations user could have added theoretically) */}
-                    <div 
-                      onClick={(e) => {
-                         e.stopPropagation();
-                         const confirmDel = window.confirm(`Delete ${track.name}?`);
-                         if (confirmDel) {
-                            if (isRadioMode) {
-                               setRadioStations(radioStations.filter((_, idx) => idx !== i));
-                               if (activeIndex === i) {
-                                  setIsPlaying(false);
-                                  setRadioStationIndex(0);
-                               } else if (activeIndex > i) {
-                                  setRadioStationIndex(activeIndex - 1);
-                               }
-                            } else {
-                               setPlaylist(playlist.filter((_, idx) => idx !== i));
-                               if (activeIndex === i) {
-                                  setIsPlaying(false);
-                                  setCurrentTrackIndex(0);
-                               } else if (activeIndex > i) {
-                                  setCurrentTrackIndex(activeIndex - 1);
-                               }
-                            }
-                         }
-                      }}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
-                      title="Remove"
-                    >
-                       <Trash2 size={14} />
-                    </div>
+                     <div 
+                       onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmDeleteMode(isRadioMode ? 'radio' : 'playlist');
+                          setConfirmDeleteIndex(i);
+                       }}
+                       className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
+                       title={t('systemPlayer.remove')}
+                     >
+                        <Trash2 size={14} />
+                     </div>
                   </div>
                 );
               })}
@@ -952,9 +938,41 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                  Cancel
                </button>
              </div>
-           </div>
-         </div>
-       )}
-     </div>
-   );
- };
+            </div>
+          </div>
+        )}
+
+        <ConfirmDialog
+          isOpen={confirmDeleteIndex !== null}
+          title={t('systemPlayer.remove')}
+          message={t('systemPlayer.confirmRemove', { name: (confirmDeleteMode === 'radio' ? radioStations : playlist)[confirmDeleteIndex ?? 0]?.name || '' }) || `Delete ${(confirmDeleteMode === 'radio' ? radioStations : playlist)[confirmDeleteIndex ?? 0]?.name || ''}?`}
+          confirmLabel={t('systemPlayer.remove')}
+          cancelLabel={t('contacts.close')}
+          variant="danger"
+          theme={isDark ? 'dark' : 'light'}
+          onConfirm={() => {
+            if (confirmDeleteIndex === null) return;
+            if (confirmDeleteMode === 'radio') {
+              setRadioStations(radioStations.filter((_, idx) => idx !== confirmDeleteIndex));
+              if (activeIndex === confirmDeleteIndex) {
+                setIsPlaying(false);
+                setRadioStationIndex(0);
+              } else if (activeIndex > confirmDeleteIndex) {
+                setRadioStationIndex(activeIndex - 1);
+              }
+            } else {
+              setPlaylist(playlist.filter((_, idx) => idx !== confirmDeleteIndex));
+              if (activeIndex === confirmDeleteIndex) {
+                setIsPlaying(false);
+                setCurrentTrackIndex(0);
+              } else if (activeIndex > confirmDeleteIndex) {
+                setCurrentTrackIndex(activeIndex - 1);
+              }
+            }
+            setConfirmDeleteIndex(null);
+          }}
+          onCancel={() => setConfirmDeleteIndex(null)}
+        />
+      </div>
+    );
+  };

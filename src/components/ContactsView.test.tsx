@@ -172,7 +172,9 @@ describe('ContactsView', () => {
     fireEvent.click(screen.getByText('Alice'));
     fireEvent.click(screen.getByRole('button', { name: 'contacts.deleteContact' }));
 
-    expect(window.confirm).toHaveBeenCalledWith('contacts.confirmDeleteMessage');
+    const confirmBtns = screen.getAllByRole('button', { name: 'contacts.deleteContact' });
+    fireEvent.click(confirmBtns[confirmBtns.length - 1]);
+
     expect(defaultProps.setContacts).toHaveBeenCalledWith([
       expect.objectContaining({ name: 'Bob' }),
       expect.objectContaining({ name: 'Charlie' }),

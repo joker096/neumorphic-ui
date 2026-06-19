@@ -131,7 +131,7 @@ interface ChatPreviewLayerProps {
 export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact }: any) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
-  const { stealthMode, scheduledQueue, setActiveCall, setChats, setChannels } = useAppStore();
+  const { stealthMode, scheduledQueue, setActiveCall, setChats, setChannels, contacts, setContacts } = useAppStore();
   const [videoOpen, setVideoOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [activePhotoUrl, setActivePhotoUrl] = useState<string | null>(null);
@@ -346,6 +346,15 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
             )}
             {!chat.isChannel && (
               <div
+                title={t('chat.filters.startVideoCall')}
+                onClick={() => setActiveCall({ number: chat.name || "Unknown Call", startTime: Date.now(), isMuted: false, isSpeaker: false, isVideo: true })}
+                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
+              >
+                <Video size={20} />
+              </div>
+            )}
+            {!chat.isChannel && (
+              <div
                 title={t('chat.saved')}
                 onClick={() => setShowSavedPanel(true)}
                 className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 relative ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
@@ -368,15 +377,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
                 className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white" : "bg-black/5 hover:bg-black/10 text-slate-400 hover:text-slate-800"}`}
               >
                 <Trash2 size={18} />
-              </div>
-            )}
-            {!chat.isChannel && (
-              <div
-                title={t('chat.filters.startVideoCall')}
-                onClick={() => setActiveCall({ number: chat.name || "Unknown Call", startTime: Date.now(), isMuted: false, isSpeaker: false, isVideo: true })}
-                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
-              >
-                <Video size={20} />
               </div>
             )}
             {!chat.isChannel && (
@@ -944,33 +944,36 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
           </motion.div>
         )}
       </AnimatePresence>
-      <ContactProfileModal 
-         contact={selectedContact}
-         theme={theme}
-         onClose={() => setSelectedContact(null)}
-         onCall={() => {
-             if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
-             setSelectedContact(null);
-         }}
-         onMessage={() => {
-             if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
-             setSelectedContact(null);
-         }}
-        onDelete={() => {
-              toast.info("Contact", { description: `Deleted contact history for: ${selectedContact?.name}` });
+       <ContactProfileModal 
+          contact={selectedContact}
+          theme={theme}
+          onClose={() => setSelectedContact(null)}
+          onCall={() => {
+              if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
               setSelectedContact(null);
           }}
-         onEdit={() => {
-               if (selectedContact) {
-                 setEditingContact(selectedContact);
-               }
+          onMessage={() => {
+              if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
+              setSelectedContact(null);
+          }}
+         onDelete={() => {
+               toast.info(t('toast.contact'), { description: t('toast.contactDeleted', { name: selectedContact?.name || '' }) || `Deleted contact history for: ${selectedContact?.name}` });
                setSelectedContact(null);
            }}
-          onBlock={() => {
-               toast.warning("Contact", { description: `Blocked contact: ${selectedContact?.name}` });
-               setSelectedContact(null);
-           }}
-      />
+          onEdit={() => {
+                if (selectedContact) {
+                  setEditingContact(selectedContact);
+                }
+                setSelectedContact(null);
+            }}
+           onBlock={() => {
+                toast.warning(t('toast.contact'), { description: t('toast.contactBlocked', { name: selectedContact?.name || '' }) || `Blocked contact: ${selectedContact?.name}` });
+                setSelectedContact(null);
+            }}
+           onToggleFavorite={(id, isFavorite) => {
+              setContacts(prev => prev.map(c => c.id === id ? { ...c, isFavorite } : c));
+            }}
+       />
     </>
   );
 };

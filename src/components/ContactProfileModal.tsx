@@ -40,24 +40,12 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
   const [confirmAction, setConfirmAction] = useState<'delete' | 'block' | null>(null);
 
   const requestDelete = () => {
-    let confirmed = true;
-    if (typeof window.confirm === 'function') {
-      try {
-        confirmed = Boolean(window.confirm('contacts.confirmDeleteMessage'));
-      } catch {}
-    }
     onRequestDelete?.();
-    if (confirmed) setConfirmAction('delete');
+    setConfirmAction('delete');
   };
 
   const requestBlock = () => {
-    let confirmed = true;
-    if (typeof window.confirm === 'function') {
-      try {
-        confirmed = Boolean(window.confirm('contacts.confirmBlockMessage'));
-      } catch {}
-    }
-    if (confirmed) setConfirmAction('block');
+    setConfirmAction('block');
   };
 
   const handleDelete = () => {
@@ -225,21 +213,16 @@ export const ContactProfileModal = ({ contact, onClose, onCall, onMessage, onEdi
                </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mt-3 w-full">
-               <button onClick={() => { onEdit?.(); onClose(); }} className={`col-span-1 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-800"}`}>
-                  <Edit size={16} />
-                   <span className="text-xs font-bold">{t('contacts.edit')}</span>
+            <div className="flex items-center gap-3 mt-3 w-full">
+               <button onClick={() => { onEdit?.(); onClose(); }} aria-label={t('contacts.edit')} className={`flex-1 h-12 rounded-2xl flex items-center justify-center transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-800"}`}>
+                  <Edit size={18} />
                </button>
-                <button onClick={requestDelete} className={`col-span-1 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-red-500/10 hover:bg-red-500/20 text-red-500" : "bg-red-50 hover:bg-red-100 text-red-600"}`}>
-                   <Trash2 size={16} />
-                    <span className="text-xs font-bold">{t('contacts.deleteContact')}</span>
-                </button>
-                {!contact.isFavorite && (
-                <button onClick={requestBlock} className={`col-span-2 h-12 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-red-500/20 text-red-400" : "bg-slate-100 hover:bg-red-100 text-red-600"}`}>
-                   <Ban size={16} />
-                    <span className="text-xs font-bold">{t('contacts.blockSpammer')}</span>
-                </button>
-                )}
+               <button onClick={requestDelete} aria-label={t('contacts.deleteContact')} className={`flex-1 h-12 rounded-2xl flex items-center justify-center transition-colors active:scale-95 ${isDark ? "bg-red-500/10 hover:bg-red-500/20 text-red-500" : "bg-red-50 hover:bg-red-100 text-red-600"}`}>
+                  <Trash2 size={18} />
+               </button>
+               <button onClick={requestBlock} aria-label={t('contacts.blockSpammer')} className={`flex-1 h-12 rounded-2xl flex items-center justify-center transition-colors active:scale-95 ${isDark ? "bg-white/5 hover:bg-red-500/20 text-red-400" : "bg-slate-100 hover:bg-red-100 text-red-600"}`}>
+                  <Ban size={18} />
+               </button>
             </div>
           </motion.div>
         </motion.div>
