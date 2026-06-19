@@ -4,34 +4,26 @@ export interface ICQEmoji {
   file: string;
 }
 
-const UNICODE_TO_ICQ: Record<string, string> = {
-  '👍': 'ok',
-  '❤️': 'heart',
-  '😂': 'lol',
-  '😢': 'sad',
-  '🎉': 'party2',
-  '👋': 'hi',
-  '👑': 'king',
-  '😎': 'biggrin',
-  '🥳': 'yahoo',
-  '😀': 'smile',
-  '🤣': 'rofl',
-  '😍': 'girl_in_love',
-  '🥺': 'sorry2',
-  '😱': 'scare',
-  '🤯': 'mega_shock',
-  '🔥': 'hot',
-  '💀': 'vampire',
-};
+const UNICODE_TO_ICQ: Record<string, string> = {};
 
 export function getICQEmojiPath(emojiId: string, theme: 'light' | 'dark'): string {
   const skin = theme === 'dark' ? 'hd_dark_skin' : 'hd_light_skin';
   return `/ICQ/${skin}/${emojiId}.gif`;
 }
 
+export function getICQStickerPath(stickerId: string): string {
+  return `/stickers/caveman/${stickerId}.png`;
+}
+
+export function getRACOONStickerPath(stickerId: string): string {
+  return `/stickers/raccoon/${stickerId}.png`;
+}
+
 export function getICQStickerSrc(sticker: string, theme: 'light' | 'dark'): string | null {
   if (!sticker) return null;
   if (sticker.startsWith('icq:')) return getICQEmojiPath(sticker.slice(4), theme);
+  if (sticker.startsWith('caveman:')) return getICQStickerPath(sticker.slice(8));
+  if (sticker.startsWith('raccoon:')) return getRACOONStickerPath(sticker.slice(8));
   const icqId = UNICODE_TO_ICQ[sticker];
   return icqId ? getICQEmojiPath(icqId, theme) : null;
 }
@@ -142,4 +134,64 @@ export const ICQ_EMOJI_MAP: ICQEmoji[] = [
   { id: "yahoo", name: "Yahoo", file: "yahoo.gif" },
   { id: "yes3", name: "Yes3", file: "yes3.gif" },
   { id: "yess", name: "Yess", file: "yess.gif" },
+];
+
+export const CAVEMAN_STICKERS: ICQEmoji[] = [
+  { id: "caveman-train", name: "Train", file: "caveman-train.png" },
+  { id: "caveman-wave-hi", name: "Wave Hi", file: "caveman-wave-hi.png" },
+  { id: "caveman-exhausted", name: "Exhausted", file: "caveman-exhausted.png" },
+  { id: "caveman-thinking", name: "Thinking", file: "caveman-thinking.png" },
+  { id: "caveman-proud", name: "Proud", file: "caveman-proud.png" },
+  { id: "caveman-scared", name: "Scared", file: "caveman-scared.png" },
+  { id: "caveman-santa", name: "Santa", file: "caveman-santa.png" },
+  { id: "caveman-unicorn", name: "Unicorn", file: "caveman-unicorn.png" },
+  { id: "caveman-artist", name: "Artist", file: "caveman-artist.png" },
+  { id: "caveman-galactic", name: "Galactic", file: "caveman-galactic.png" },
+  { id: "caveman-music", name: "Music", file: "caveman-music.png" },
+  { id: "caveman-romantic", name: "Romantic", file: "caveman-romantic.png" },
+  { id: "caveman-developer", name: "Developer", file: "caveman-developer.png" },
+  { id: "caveman-inlove", name: "In Love", file: "caveman-inlove.png" },
+  { id: "caveman-hungry", name: "Hungry", file: "caveman-hungry.png" },
+  { id: "caveman-hug", name: "Hug", file: "caveman-hug.png" },
+  { id: "caveman-electric-shock", name: "Electric Shock", file: "caveman-electric-shock.png" },
+  { id: "caveman-dance", name: "Dance", file: "caveman-dance.png" },
+  { id: "caveman-curious", name: "Curious", file: "caveman-curious.png" },
+  { id: "caveman-holiday", name: "Holiday", file: "caveman-holiday.png" },
+  { id: "caveman-spa", name: "Spa", file: "caveman-spa.png" },
+  { id: "caveman-angry", name: "Angry", file: "caveman-angry.png" },
+  { id: "caveman-chicken", name: "Chicken", file: "caveman-chicken.png" },
+];
+
+export const RACOON_STICKERS: ICQEmoji[] = [
+  { id: "racoon-workout2", name: "Workout 2", file: "racoon-workout2.png" },
+  { id: "racoon-summer", name: "Summer", file: "racoon-summer.png" },
+  { id: "racoon-goal", name: "Goal", file: "racoon-goal.png" },
+  { id: "racoon-tired", name: "Tired", file: "racoon-tired.png" },
+  { id: "racoon-surprise", name: "Surprise", file: "racoon-surprise.png" },
+  { id: "racoon-beach", name: "Beach", file: "racoon-beach.png" },
+  { id: "racoon-sick", name: "Sick", file: "racoon-sick.png" },
+  { id: "racoon-shopping", name: "Shopping", file: "racoon-shopping.png" },
+  { id: "racoon-selfie", name: "Selfie", file: "racoon-selfie.png" },
+  { id: "racoon-rockstar", name: "Rockstar", file: "racoon-rockstar.png" },
+  { id: "racoon-vacation", name: "Vacation", file: "racoon-vacation.png" },
+  { id: "racoon-read", name: "Read", file: "racoon-read.png" },
+  { id: "racoon-meditation", name: "Meditation", file: "racoon-meditation.png" },
+  { id: "racoon-question", name: "Question", file: "racoon-question.png" },
+  { id: "racoon-mind-blown", name: "Mind Blown", file: "racoon-mind-blown.png" },
+  { id: "racoon-food", name: "Food", file: "racoon-food.png" },
+  { id: "racoon-warrior", name: "Warrior", file: "racoon-warrior.png" },
+  { id: "racoon-insect", name: "Insect", file: "racoon-insect.png" },
+  { id: "racoon-workout", name: "Workout", file: "racoon-workout.png" },
+  { id: "racoon-throne", name: "Throne", file: "racoon-throne.png" },
+  { id: "racoon-idea", name: "Idea", file: "racoon-idea.png" },
+  { id: "racoon-hug", name: "Hug", file: "racoon-hug.png" },
+  { id: "racoon-happy", name: "Happy", file: "racoon-happy.png" },
+  { id: "racoon-hacker", name: "Hacker", file: "racoon-hacker.png" },
+  { id: "racoon-explosion", name: "Explosion", file: "racoon-explosion.png" },
+  { id: "racoon-evil", name: "Evil", file: "racoon-evil.png" },
+  { id: "racoon-coffee", name: "Coffee", file: "racoon-coffee.png" },
+  { id: "racoon-experiment", name: "Experiment", file: "racoon-experiment.png" },
+  { id: "racoon-cauldron", name: "Cauldron", file: "racoon-cauldron.png" },
+  { id: "racoon-rich", name: "Rich", file: "racoon-rich.png" },
+  { id: "racoon-fighter", name: "Fighter", file: "racoon-fighter.png" },
 ];

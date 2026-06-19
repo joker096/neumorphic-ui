@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { ContactProfileModal, ContactProfile } from './ContactProfileModal';
 import { ContactCreateEditModal } from './ContactCreateEditModal';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 import type { Contact, ContactField } from '../types/contact';
 
 type TabOption = 'all' | 'favorites' | 'recent' | 'blocked';
@@ -47,9 +48,10 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabOption>('all');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const toggleFavorite = (id: string) => {
-    setContacts(contacts.map(c => c.id === id ? { ...c, isFavorite: !c.isFavorite } : c));
+  const toggleFavorite = (id: string, currentStatus: boolean) => {
+    setContacts(contacts.map(c => c.id === id ? { ...c, isFavorite: !currentStatus } : c));
   };
 
   const handleAddContact = (e: React.FormEvent) => {
@@ -205,7 +207,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
                   </div>
                 </div>
                 <button 
-                  onClick={(e) => { e.stopPropagation(); toggleFavorite(c.id); }}
+                  onClick={(e) => { e.stopPropagation(); toggleFavorite(c.id, c.isFavorite); }}
                   className={`shrink-0 transition-transform active:scale-90 ${c.isFavorite ? (isDark ? 'text-yellow-400' : 'text-yellow-500') : (isDark ? 'text-gray-600' : 'text-slate-300')}`}
                 >
                   {c.isFavorite ? <Star size={16} fill="currentColor" /> : <StarOff size={16} />}
@@ -217,39 +219,54 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
       </div>
 
       {/* Modals */}
-      <ContactProfileModal 
-         contact={selectedContact}
-         theme={theme}
-         onClose={() => setSelectedContact(null)}
-         onCall={() => {
-             if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
-             setSelectedContact(null);
-         }}
-         onMessage={() => {
-             if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
-             setSelectedContact(null);
-         }}
-          onDelete={() => {}}
-          onRequestDelete={() => {
-              if (selectedContact) {
-                if (window.confirm('contacts.confirmDeleteMessage')) {
-                  setContacts(contacts.filter(c => c.id !== selectedContact.id));
-                  setSelectedContact(null);
-                }
-              }
+       <ContactProfileModal 
+          contact={selectedContact}
+          theme={theme}
+          onClose={() => setSelectedContact(null)}
+          onCall={() => {
+              if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
+              setSelectedContact(null);
           }}
-          onBlock={() => {
-             if (selectedContact) setContacts(contacts.filter(c => c.id !== selectedContact.id));
-             setSelectedContact(null);
-         }}
-         onEdit={() => {
+          onMessage={() => {
+              if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
+              setSelectedContact(null);
+          }}
+           onDelete={() => {}}
+           onRequestDelete={() => {
                if (selectedContact) {
-                 setEditingContact(selectedContact);
-                 setShowEditForm(true);
+                 setConfirmDeleteId(selectedContact.id);
                }
-               setSelectedContact(null);
            }}
-      />
+           onBlock={() => {
+              if (selectedContact) setContacts(contacts.filter(c => c.id !== selectedContact.id));
+              setSelectedContact(null);
+          }}
+          onEdit={() => {
+                if (selectedContact) {
+                  setEditingContact(selectedContact);
+                  setShowEditForm(true);
+                }
+                setSelectedContact(null);
+            }}
+           onToggleFavorite={(id) => toggleFavorite(id, selectedContact?.isFavorite ?? false)}
+       />
+
+       <ConfirmDialog
+         isOpen={confirmDeleteId !== null}
+         title={t('contacts.deleteContact')}
+         message={t('contacts.confirmDeleteMessage', { name: contacts.find(c => c.id === confirmDeleteId)?.name || '' })}
+         confirmLabel={t('contacts.deleteContact')}
+         cancelLabel={t('contacts.close')}
+         variant="danger"
+         theme={isDark ? 'dark' : 'light'}
+         onConfirm={() => {
+           if (confirmDeleteId) {
+             setContacts(contacts.filter(c => c.id !== confirmDeleteId));
+           }
+           setConfirmDeleteId(null);
+         }}
+         onCancel={() => setConfirmDeleteId(null)}
+       />
 
       <AnimatePresence>
         {(showAddForm || isScanning || showShareId || showEditForm) && (

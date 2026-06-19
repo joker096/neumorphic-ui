@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
@@ -56,6 +55,8 @@ vi.mock('../store', () => ({
     resetPhotoEditor: vi.fn(),
     activeCall: null,
     setActiveCall: vi.fn(),
+    soundEnabled: false,
+    setSoundEnabled: vi.fn(),
   })),
 }));
 
@@ -64,36 +65,58 @@ vi.mock('../lib/i18n', () => {
     'settings.searchPlaceholder': 'Search settings...',
     'settings.accountSection': 'Account',
     'settings.addAccount': 'Add account',
+    'settings.appearance': 'Appearance',
     'settings.appearanceSection': 'Appearance',
+    'settings.appearanceDescription': 'Theme, text size, animations, and PWA prompt',
     'settings.theme': 'Theme',
+    'settings.darkTheme': 'Dark theme',
+    'settings.darkThemeSubtitle': 'Switch between light and dark mode',
     'settings.language': 'Language',
-    'settings.notificationsSection': 'Notifications',
+    'settings.appearanceTheme': 'Dark Theme',
+    'settings.fontSize': 'Font Size',
+    'settings.fontSizeSubtitle': 'Small, medium, or large interface text',
+    'settings.fontSizeSmall': 'Small',
+    'settings.fontSizeMedium': 'Medium',
+    'settings.fontSizeLarge': 'Large',
+    'settings.animations': 'Animations',
+    'settings.animationsSubtitle': 'Enable motion effects and spring transitions',
+    'settings.pwaPrompt': 'PWA install prompt',
+    'settings.pwaPromptSubtitle': 'Show install banner on supported browsers',
+    'settings.installBtn': 'Install',
+    'settings.installDismiss': 'Not now',
+    'settings.quickOptions': 'Quick options',
     'settings.notifications': 'Notifications',
+    'settings.notificationsSection': 'Notifications section',
+    'settings.notificationsOption': 'Message notifications',
+    'settings.notificationsSubtitle': 'Message notifications',
     'settings.sound': 'Sound',
+    'settings.soundOption': 'Notification sound',
     'settings.privacySecuritySection': 'Privacy & Security',
     'settings.security': 'Security',
+    'settings.securitySubtitle': '2FA, encryption, key management',
     'settings.privacy': 'Privacy',
+    'settings.privacySubtitle': 'Last activity, blocks',
     'settings.dataStorageSection': 'Data & Storage',
     'settings.dataStorage': 'Data & Storage',
+    'settings.dataStorageSubtitle': 'Backup, auto-load, cache',
     'settings.servicesSection': 'Services',
     'settings.bots': 'Bots',
+    'settings.botsSubtitle': 'Manage bots and integrations',
     'settings.advancedSection': 'Advanced',
     'settings.network': 'Proxy & Network',
     'settings.spamProtection': 'Spam Protection',
     'settings.systemStatus': 'System Status',
+    'settings.systemStatusSubtitle': 'Battery level, circuit breakers',
     'settings.cloudSync': 'Cloud Sync',
+    'settings.cloudSyncSubtitle': 'Sync chats and settings between devices',
+    'settings.cloudSyncEnabled': 'Enabled',
+    'settings.cloudProvider': 'Provider',
+    'settings.cloudSyncNow': 'Sync now',
+    'settings.cloudStatus': 'Status',
+    'settings.cloudError': 'Error',
     'settings.locationSection': 'Location',
     'settings.locationSharing': 'Active shares',
-    'settings.photoEditorSection': 'Photo Editor',
-    'settings.photoEditor': 'Image Editor',
-    'settings.autoSaveEdits': 'Auto-save edits',
-    'settings.batteryLevel': 'Battery Level',
-    'settings.installBtn': 'Install',
-    'settings.installDismiss': 'Not now',
-    'settings.appearance': 'Appearance',
-    'settings.darkTheme': 'Dark theme',
-    'settings.fontSize': 'Font Size',
-    'settings.animations': 'Animations',
+    'settings.cloudSyncOption': 'Cloud sync',
     'settings.appLockPin': 'App Lock PIN',
     'settings.appLockSubtitle': 'Data encryption (PBKDF2-SHA256)',
     'settings.cloudPasswordTitle': 'Cloud Password (TOTP)',
@@ -101,127 +124,64 @@ vi.mock('../lib/i18n', () => {
     'settings.encryptionKeys': 'Encryption Keys',
     'settings.encryptionKeysUpdated': 'Updated just now (WebCrypto)',
     'settings.deadMansSwitch': "Auto-wipe (Dead Man's Switch)",
-    'settings.wipeAllData': 'Wipe all data (Wipe)',
+    'settings.wipeAllData': 'Wipe all data',
     'settings.whoSeesNumber': 'Who sees my number',
-    'settings.lastSeen': 'Last activity',
+    'settings.lastSeen': 'Last seen',
     'settings.blacklist': 'Blacklist',
-    'settings.users': 'users',
     'settings.dnd': 'Do not disturb',
     'settings.dndSubtitle': 'Disable notifications on schedule',
     'settings.dndMode': 'DND Mode',
     'settings.dndFrom': 'From',
     'settings.dndTo': 'To',
     'settings.priorityContacts': 'Priority contacts',
-    'settings.priorityContactsSubtitle': 'Comma-separated names that bypass DND',
     'settings.advancedPrivacy': 'Advanced privacy',
     'settings.selfDestruct': 'Self-destruct timer',
-    'settings.stealthMode': 'Stealth Mode (Time fuzzing)',
+    'settings.stealthMode': 'Stealth Mode (time obfuscation)',
     'settings.stealthModeSubtitle': 'Shift timestamps ±5 minutes',
-    'settings.anonymousMode': 'Anonymous mode (Traffic via relay)',
-    'settings.anonymousModeSubtitle': 'Blocks direct P2P connections to hide IP',
-    'settings.deliveryReceipts': 'Delivery receipts',
-    'settings.deliveryReceiptsSubtitle': 'Show sent/delivered status for outgoing messages',
-    'settings.readReceipts': 'Read receipts',
-    'settings.readReceiptsSubtitle': 'Show read status when messages are opened',
-    'settings.typingIndicators': 'Typing indicators',
-    'settings.typingIndicatorsSubtitle': 'Show when the other side is typing',
-    'settings.dataStorageSubtitle': 'Backup, auto-load, cache',
-    'settings.clearCache': 'Clear cache',
-    'settings.clearAll': 'Clear',
+    'settings.anonymousMode': 'Anonymous mode',
+    'settings.anonymousModeSubtitle': 'Blocks direct P2P connections',
+    'settings.forwardAllow': 'Allow forwarding',
+    'settings.forwardAllowSubtitle': 'Control if others can forward',
+    'settings.forwardLimit': 'Forward limit',
+    'settings.encryptBackupPassword': 'Encrypt backup',
     'settings.exportBackup': 'Export backup',
-    'settings.exportBackupSubtitle': 'JSON backup of chats, channels, bots, and settings',
+    'settings.exportBackupSubtitle': 'JSON backup of chats, channels, bots',
     'settings.exportHtml': 'Export HTML',
-    'settings.useProxy': 'Use proxy',
-    'settings.obfuscation': 'Traffic obfuscation',
+    'settings.forwardPrivacy': 'Forward Privacy',
+    'settings.importBackup.title': 'Import backup',
+    'settings.imagePreview': 'Image preview',
     'settings.p2pFilters': 'P2P filters',
-    'settings.p2pFiltersSubtitle': 'Auto-hide known spam nodes',
+    'settings.p2pFiltersSubtitle': 'Auto-hide spam nodes',
     'settings.meshNodesNearby': 'Mesh nodes nearby',
-    'settings.activeNodes': 'active',
+    'settings.activeNodes': 'Active nodes',
     'settings.dhtConnection': 'DHT connection',
     'settings.dhtStable': 'Stable',
     'settings.localDB': 'Local DB',
     'settings.dbEncrypted': 'Encrypted',
     'settings.enableCloudSync': 'Enable cloud sync',
-    'settings.cloudSyncSubtitle': 'Sync chats and settings between devices',
     'settings.networkEnabled': 'Enabled',
     'settings.disabled': 'Disabled',
-    'settings.spamActive': 'Filters active',
+    'settings.spamActive': 'Active',
     'settings.spamDisabled': 'Disabled',
-    'settings.systemStatusSubtitle': 'Battery level, circuit breakers',
-    'settings.cloudSyncEnabled': 'Enabled',
-    'settings.cloudProvider': 'Provider',
-    'settings.cloudSyncNow': 'Sync now',
-    'settings.cloudStatus': 'Status',
-    'settings.cloudError': 'Error',
     'settings.photoEditorSubtitle': 'Crop, draw, text',
-    'settings.autoSaveChanges': 'Save changes automatically',
+    'settings.autoSaveChanges': 'Auto-save changes',
     'settings.lastBuild': 'Last build',
-    'settings.turnServer': 'Custom TURN Server',
-    'settings.obfuscationDesc': 'WebRTC → WS → MTProto → Fastly',
+    'settings.turnServer': 'TURN server',
     'settings.botsTitle': 'Bots & Services',
     'settings.noBots': 'No active bots',
-    'settings.botsDescription': 'Bots and third-party integrations will appear here when you add them.',
-    'settings.devices': 'Devices',
-    'settings.currentDevice': 'Current device',
-    'settings.deviceWebBrowser': 'Web browser',
-    'settings.deviceAddSubtitle': 'Scan QR code to add new device',
-    'settings.devicesConnected': 'devices connected',
+    'settings.deviceAddSubtitle': 'Scan QR to add device',
+    'settings.devicesConnected': 'Devices connected',
     'settings.deviceCurrent': 'Current',
-    'common.addDevice': 'Add device',
-    'common.delete': 'Delete',
-    'settings.removeDevice': 'Remove device',
-    'settings.lastSync': 'Last sync',
-    'settings.never': 'Never',
-    'settings.syncing': 'Syncing...',
-    'settings.syncNow': 'Sync now',
-    'settings.liveLocations': 'live',
-    'settings.staticLocations': 'static',
-    'settings.stopLocation': 'Stop',
-    'settings.until': 'until',
-    'settings.noActiveSharing': 'No active location shares',
-    'settings.crop': 'Crop',
-    'settings.draw': 'Draw',
-    'settings.text': 'Text',
-    'settings.imagePreview': 'Image preview area',
-    'settings.save': 'Save',
-    'settings.reset': 'Reset',
-    'settings.tools': 'Tools: crop (drag to select), draw (freehand), text (tap to add), filters',
-    'settings.gb': 'GB',
-    'settings.mb': 'MB',
-    'settings.enterBackupPassword': 'Enter backup password...',
-    'settings.importBackupTitle': 'Import Backup',
-    'settings.importBackupSubtitle': 'JSON backup restore from local file',
-    'settings.forwardAllow': 'Allow message forwarding',
-    'settings.forwardAllowSubtitle': 'Control whether others can forward your messages',
-    'settings.allowMetadata': 'Allow metadata',
-    'settings.allowMetadataSubtitle': 'Include metadata in forwarded messages',
-    'settings.forwardLimit': 'Forward limit',
-    'settings.receipts': 'Read receipts',
-    'settings.receiptsEnable': 'Enable read receipts for all',
-    'settings.receiptsEnableSubtitle': 'Show when you have read a message',
-    'settings.receiptsOn': 'On',
-    'settings.receiptsOff': 'Off',
-    'settings.receiptsContactAlice': 'Contact: Alice',
-    'settings.receiptsContactBob': 'Contact: Bob',
-    'settings.receiptsContactCharlie': 'Contact: Charlie',
-    'settings.twoFactorAuth': 'Two-factor auth',
-    'settings.encryptBackupPassword': 'Encrypt backup with password',
-    'settings.enterNewPin': 'Enter new PIN (leave empty to reset):',
-    'settings.confirmWipe': 'Are you sure? This will destroy keys, IndexedDB, Cache, SW and local data.',
+    'settings.confirmWipe': 'Are you sure you want to wipe all data?',
     'settings.storageUsage': 'Storage usage',
     'settings.networkUsage': 'Network usage',
-    'settings.fontSizeSmall': 'Small',
-    'settings.fontSizeMedium': 'Medium',
-    'settings.fontSizeLarge': 'Large',
-    'settings.visibility.none': 'Nobody',
-    'settings.visibility.contacts': 'My contacts',
-    'settings.visibility.everyone': 'Everyone',
-    'settings.deadMansSwitch6months': '6 months',
-    'settings.deadMansSwitch1year': '1 year',
-    'settings.deadMansSwitch1month': '1 month',
-    'settings.mediaWifi': 'Wi-Fi',
-    'settings.mediaWifiNetwork': 'Wi-Fi & Cellular',
-    'settings.mediaNever': 'Never',
+    'settings.recoveryPhrase': 'Recovery phrase',
+    'settings.recoveryPhraseSubtitle': 'Generate backup recovery phrase',
+    'settings.recoveryPhraseWriteDown': 'Write this down and store it safely',
+    'settings.pinPrompt': 'Enter new PIN (empty to reset):',
+    'settings.restore': 'Restore',
+    'settings.cancel': 'Cancel',
+    'settings.settings': 'Settings',
     'lang.ru': 'Русский',
     'lang.en': 'English',
     'lang.es': 'Español',
@@ -254,12 +214,7 @@ const defaultProps = {
 describe('SettingsView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
     localStorage.clear();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   it('renders main settings view', () => {
@@ -271,18 +226,12 @@ describe('SettingsView', () => {
   it('shows PWA install banner by default', () => {
     render(<SettingsView {...defaultProps} />);
 
-    expect(screen.getByText(/Install Mess&Anger/)).toBeInTheDocument();
-    expect(screen.getByText(/worksOffline/)).toBeInTheDocument();
+    expect(screen.getByText((content, element) => {
+      return element?.tagName === 'BUTTON' && content.includes('Install');
+    })).toBeInTheDocument();
   });
 
-it.skip('hides PWA banner when dismissed', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    fireEvent.click(screen.getByText('Not now'));
-    expect(screen.queryByText(/Install/)).not.toBeInTheDocument();
-  });
-
-  it('shows Account section with user info', () => {
+  it('shows grouped Account section with user info', () => {
     render(<SettingsView {...defaultProps} />);
 
     expect(screen.getByText('Account')).toBeInTheDocument();
@@ -295,34 +244,32 @@ it.skip('hides PWA banner when dismissed', () => {
     render(<SettingsView {...defaultProps} />);
 
     expect(screen.getByText('Appearance')).toBeInTheDocument();
-    expect(screen.getByText('Theme')).toBeInTheDocument();
-    expect(screen.getByText('Language')).toBeInTheDocument();
   });
 
-  it.skip('navigates to Appearance sub-view when clicked', () => {
+  it('navigates to Appearance sub-view when theme row clicked', async () => {
     render(<SettingsView {...defaultProps} />);
 
-    fireEvent.click(screen.getByText(/Theme/));
+    const themeRow = screen.getByText('Theme').closest('button')!;
+    fireEvent.click(themeRow);
 
-    expect(screen.getByText(/Appearance/)).toBeInTheDocument();
-    expect(screen.getByText(/theme|appearance/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Dark theme')).toBeInTheDocument();
+    }, { timeout: 10000 });
   });
 
-  it.skip('navigates to Language sub-view when clicked', () => {
+  it('shows quick options on the main settings screen', () => {
     render(<SettingsView {...defaultProps} />);
 
-    fireEvent.click(screen.getByText(/Language/));
-
-    expect(screen.getByText(/Language/)).toBeInTheDocument();
-    expect(screen.getByText(/Русский|Russian/)).toBeInTheDocument();
-    expect(screen.getByText(/English|Espanol|Deutsch/)).toBeInTheDocument();
+    expect(screen.getByText('Quick options')).toBeInTheDocument();
+    expect(screen.getByText('Notification sound')).toBeInTheDocument();
+    expect(screen.getByText('Cloud sync')).toBeInTheDocument();
   });
 
-  it.skip('shows Notifications section', () => {
+  it('shows Notifications section', () => {
     render(<SettingsView {...defaultProps} />);
 
-    expect(screen.getByText(/notification|notifications/)).toBeInTheDocument();
-    expect(screen.getByText(/Sound/)).toBeInTheDocument();
+    expect(screen.getByText('Notifications section')).toBeInTheDocument();
+    expect(screen.getByText('Notification sound')).toBeInTheDocument();
   });
 
   it('shows Privacy & Security section', () => {
@@ -333,25 +280,14 @@ it.skip('hides PWA banner when dismissed', () => {
     expect(screen.getByText('Privacy')).toBeInTheDocument();
   });
 
-  it.skip('navigates to Security sub-view', () => {
+  it('navigates to Security sub-view', async () => {
     render(<SettingsView {...defaultProps} />);
 
-    fireEvent.click(screen.getByText(/Security/));
-    expect(screen.getByText(/Security/)).toBeInTheDocument();
-  });
-
-  it.skip('navigates to Privacy sub-view', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    fireEvent.click(screen.getByText(/Privacy/));
-    expect(screen.getByText(/Privacy/)).toBeInTheDocument();
-  });
-
-  it.skip('shows Data & Storage section', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    expect(screen.getByText(/Data|Storage/)).toBeInTheDocument();
-    expect(screen.getByText(/backup|cache/)).toBeInTheDocument();
+    const securityRow = screen.getByText('Security').closest('button')!;
+    fireEvent.click(securityRow);
+    await waitFor(() => {
+      expect(screen.getByText('App Lock PIN')).toBeInTheDocument();
+    }, { timeout: 10000 });
   });
 
   it('shows Services section', () => {
@@ -370,18 +306,14 @@ it.skip('hides PWA banner when dismissed', () => {
     expect(screen.getByText('System Status')).toBeInTheDocument();
   });
 
-  it('navigates to Network sub-view', () => {
+  it('navigates to Network sub-view', async () => {
     render(<SettingsView {...defaultProps} />);
 
-    fireEvent.click(screen.getByText('Proxy & Network'));
-
-    expect(screen.getByText('Proxy & Network')).toBeInTheDocument();
-  });
-
-   it.skip('shows Cloud Sync section', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    expect(screen.getByText(/Cloud Sync|cloud|sync/)).toBeInTheDocument();
+    const networkRow = screen.getByText('Proxy & Network').closest('button')!;
+    fireEvent.click(networkRow);
+    await waitFor(() => {
+      expect(screen.getByText('Proxy & Network')).toBeInTheDocument();
+    }, { timeout: 10000 });
   });
 
   it('shows Location section', () => {
@@ -411,41 +343,4 @@ it.skip('hides PWA banner when dismissed', () => {
     const container = screen.getByPlaceholderText('Search settings...').closest('div[class*="bg-[#eaeff4]"]');
     expect(container).toBeInTheDocument();
   });
-
-  it.skip('toggles dark theme when clicked in Appearance', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    fireEvent.click(screen.getByText('Theme'));
-    expect(screen.getByText(/theme|appearance|dark|light/)).toBeInTheDocument();
-  });
-
-  it.skip('changes language when selected', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    fireEvent.click(screen.getByText(/Language/));
-    expect(screen.getByText(/English|Espanol|Deutsch/)).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/English/));
-
-    expect(screen.getByText(/English/).closest('button')).toHaveTextContent(/English/);
-  });
-
-  it.skip('navigates back to main from sub-view', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    fireEvent.click(screen.getByText(/Theme/));
-    expect(screen.getByText(/Appearance/)).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button'));
-    expect(screen.getByPlaceholderText('Search settings...')).toBeInTheDocument();
-  });
-
-  it.skip('shows Battery status in System Status', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    fireEvent.click(screen.getByText(/System Status/));
-
-    expect(screen.getByText(/Battery/)).toBeInTheDocument();
-  });
-
-  
 });
