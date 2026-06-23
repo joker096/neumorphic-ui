@@ -18,6 +18,7 @@ type FeatureViewsProps = {
   setActiveChat: (chat: any) => void;
   setView: (view: string) => void;
   onCall: (name: string, color?: string) => void;
+  onVideoCall: (name: string, color?: string) => void;
   onMessage: (name: string, color?: string) => void;
 };
 
@@ -34,6 +35,7 @@ export const FeatureViews = ({
   setActiveChat,
   setView,
   onCall,
+  onVideoCall,
   onMessage,
 }: FeatureViewsProps) => {
   switch (view) {
@@ -50,6 +52,7 @@ export const FeatureViews = ({
           setShowContactPicker={setShowContactPicker}
           setEditingContact={setEditingContact}
           onCall={onCall}
+          onVideoCall={onVideoCall}
           onMessage={(name, color) => {
             onMessage(name, color);
             setView("chats");
@@ -67,6 +70,7 @@ export const FeatureViews = ({
           contacts={contacts}
           setContacts={setContacts}
           onCall={onCall}
+          onVideoCall={(name, color) => onVideoCall(name, color)}
           onMessage={(name, color) => {
             onMessage(name, color);
             setView("chats");

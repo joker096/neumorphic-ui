@@ -479,7 +479,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                top: rippleState.y,
                width: 50,
                height: 50,
-               transform: '-webkit-translate(-50%, -50%)',
+                transform: 'translate(-50%, -50%)',
                background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%)',
              }}
            />
@@ -505,12 +505,12 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                <SlidersHorizontal size={16} className={textColor} />
              </div>
            )}
-           {!isRadioMode && !showPlaylist && !showEq && (
-              <div role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') handleFileSelect({ target: { files: [] } } as any); }} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title="Add Track">
-                <Plus size={16} />
-                <input type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
-             </div>
-           )}
+            {!isRadioMode && !showPlaylist && !showEq && (
+               <label className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title="Add Track">
+                 <Plus size={16} />
+                 <input type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
+              </label>
+            )}
            {!isRadioMode && !showPlaylist && !showEq && (
                <label className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-green-500/20 text-green-400 hover:bg-green-500/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title="Add Folder">
                   <FolderOpen size={16} />
@@ -648,7 +648,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
                    whileTap={{ scale: 0.9 }}
                   className={`relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer ${isDark ? "bg-gradient-to-br from-[#454d57] to-[#2a3036] border border-white/5" : "bg-gradient-to-br from-[#d1d8e0] to-[#a3b1c6] border border-black/5"} shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_-3px_-3px_6px_rgba(255,255,255,0.1),_inset_3px_3px_6px_rgba(0,0,0,0.3)] ${isDark ? "hover:shadow-[8px_8px_16px_rgba(0,0,0,0.5),_inset_-2px_-2px_4px_rgba(255,255,255,0.15),_inset_2px_2px_4px_rgba(0,0,0,0.3)]" : "hover:shadow-[8px_8px_16px_rgba(165,175,190,0.5),_inset_-2px_-2px_4px_rgba(255,255,255,0.8),_inset_2px_2px_4px_rgba(165,175,190,0.3)]"} transition-all`}
                 >
-                  <div className={`absolute inset-0 rounded-full ${isDark ? "bg-gradient-to-br from-[#5cc25c]/20 to-transparent" : "bg-gradient-to-br from-green-500/20 to-transparent"} opacity-${isRadioMode ? "100" : "0"} transition-opacity`} />
+                   <div className={`absolute inset-0 rounded-full ${isDark ? "bg-gradient-to-br from-[#5cc25c]/20 to-transparent" : "bg-gradient-to-br from-green-500/20 to-transparent"} ${isRadioMode ? "opacity-100" : "opacity-0"} transition-opacity`} />
                   {isRadioMode ? <Radio size={22} className="text-[#5cc25c] drop-shadow-[0_0_4px_rgba(92,194,92,0.5)]" /> : <List size={22} className={textColor} />}
                </motion.div>
              </div>

@@ -14,7 +14,18 @@
       "archived": "Archivés",
       "personal": "Personnel",
       "unread": "Non lus",
-      "work": "Travail"
+      "work": "Travail",
+      "addFolder": "Ajouter un dossier",
+      "editFolder": "Modifier le dossier",
+      "deleteFolder": "Supprimer le dossier",
+      "folderName": "Nom du dossier",
+      "folderNamePlaceholder": "Entrez le nom du dossier...",
+      "addToFolder": "Ajouter au dossier",
+      "moveToFolder": "Déplacer vers le dossier",
+      "removeFromFolder": "Retirer du dossier",
+      "folderCreated": "Dossier créé",
+      "folderUpdated": "Dossier mis à jour",
+      "folderDeleted": "Dossier supprimé"
     },
     "goBack": "Revenir",
     "hoursAgo": "il y a {{count}} h",
@@ -25,6 +36,8 @@
     "sectionBots": "Mes bots",
     "sectionChannels": "Canaux",
     "sectionConversations": "Conversations",
+    "noBots": "No bots created yet. Click + to create one.",
+    "noResults": "No results found",
     "tabs": {
       "bots": "Bots",
       "channels": "Canaux",
@@ -38,10 +51,48 @@
     "searchMessages": "Search Messages",
     "startAudioCall": "Start Audio Call",
     "unknownCall": "Unknown Call",
-    "reply": "Reply",
-    "saved": "Saved",
-    "save": "Save",
+    "unknownCaller": "Appelant inconnu",
+    "muteMicrophone": "Couper le micro",
+    "unmuteMicrophone": "Activer le micro",
+    "enableSpeaker": "Activer le haut-parleur",
+    "disableSpeaker": "Désactiver le haut-parleur",
+    "searchOrDial": "Rechercher ou composer...",
+    "selectContact": "Sélectionner un contact",
+    "chooseContact": "Choisissez un contact à appeler ou à qui envoyer un message.",
+    "recent": "Récents",
+    "all": "Tous",
+    "incomingShort": "Reçus",
+    "outgoingShort": "Émis",
+    "missed": "Manqués",
+    "creatingContact": "Création du contact pour {name}",
+    "contactAddedDescription": "{number} ajouté aux contacts !",
+    "deletedCallHistory": "Historique d’appel de {name} supprimé",
+    "blockedContact": "Numéro/contact {name} bloqué",
+    "noContactsAvailable": "Aucun contact disponible.",
+    "addContactsHint": "Ajoutez des contacts depuis l’onglet Identité.",
+    "startCall": "Démarrer l’appel",
+    "saved": "Enregistré",
+    "savedMessages": "Messages enregistrés",
+    "savedItems": "{{n}} éléments dans {{chatName}}",
+    "selfDestructActive": "Auto-destruction active (1 h)",
+    "messagePlaceholder": "Message...",
+    "morsePlaceholder": "Écrivez pour encoder en Morse...",
+    "attachFile": "Joindre un fichier",
+    "scheduleMessage": "Planifier le message",
+    "scheduleSend": "Envoi planifié",
+    "setTime": "Définir l’heure",
+    "silentMessage": "Message silencieux",
+    "toggleMorseEncoder": "Basculer l’encodeur Morse",
+    "sendMessage": "Envoyer le message",
+    "holdToRecordVoiceNote": "Maintenir pour enregistrer une note vocale",
+    "replyingTo": "Réponse à",
+    "yourMessage": "votre message",
+    "photoAttachment": "Pièce jointe photo",
+    "attachment": "Pièce jointe",
+    "save": "Enregistrer",
+    "reply": "Répondre",
     "voiceNote": "Voice note • ",
+    "linkPreview": "Aperçu du lien",
     "photo": "Photo",
     "video": "Video",
     "message": "Message",
@@ -88,7 +139,8 @@
     "delete": "Supprimer",
     "selectLanguage": "Choisir la langue",
     "switchToLight": "Passer en mode clair",
-    "switchToDark": "Passer en mode sombre"
+    "switchToDark": "Passer en mode sombre",
+    "cancel": "Annuler"
   },
   "createChannel": {
     "title": "Create Channel",
@@ -98,7 +150,8 @@
     "descriptionPlaceholder": "What is your channel about?",
     "public": "Public",
     "private": "Private",
-    "create": "Create"
+    "create": "Create",
+    "channelCreated": "Channel created"
   },
   "createBot": {
     "title": "New Bot",
@@ -107,12 +160,39 @@
     "info": "Token will be generated locally. It includes the encrypted private key of the bot. Lose the token — lose the bot.",
     "generate": "Generate Token"
   },
+  "admin": {
+    "title": "Admin",
+    "description": "Admin controls and limits",
+    "shareRecording": "Share recording",
+    "globalControl": "Global control"
+  },
+  "aftercare": {
+    "title": "Aftercare",
+    "description": "Review and share recordings",
+    "shareRecording": "Share recording",
+    "shareRecordingOn": "Enabled",
+    "shareRecordingOff": "Disabled"
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "description": "Manage campaign state and rate limits",
+    "participants": "Participants",
+    "paused": "Paused",
+    "apply": "Apply",
+    "retry": "Retry",
+    "clear": "Clear"
+  },
+  "campaignSheet": {
+    "title": "Campaign Sheet",
+    "description": "Quick campaign overview"
+  },
   "channelComments": {
     "title": "Comments",
     "replies": "{count} replies",
     "placeholder": "Write a comment..."
   },
   "recordings": {
+    "description": "Campaign recordings history",
     "untitled": "Untitled",
     "removeFavorite": "Remove Favorite",
     "addToFavorites": "Add to Favorites",
@@ -261,7 +341,9 @@
     "addContact": "Ajouter un contact",
     "allTab": "Tous ({count})",
     "blockSpammer": "Bloquer le spammeur",
+    "moreActions": "Actions supplémentaires",
     "call": "Appeler",
+    "videoCall": "Video Call",
     "callType": "Appel {type}",
     "close": "Fermer",
     "confirmBlockMessage": "Bloquer {name} ? Ils ne pourront pas vous contacter.",
@@ -297,7 +379,9 @@
     "fieldSubtypeMobile": "Mobile",
     "fieldSubtypeWork": "Work",
     "fieldSubtypeHome": "Home",
-    "fieldSubtypeMain": "Main"
+    "fieldSubtypeMain": "Main",
+    "verifySecurity": "Vérifier la sécurité",
+    "verifySecurityDesc": "Comparez les numéros de sécurité hors bande (en personne ou par appel vidéo) pour vérifier le chiffrement de bout en bout avec ce contact."
   },
   "header": {
     "copied": "Copié !",
@@ -312,6 +396,7 @@
     "unlock": "Déverrouiller"
   },
   "hub": {
+    "returnToHub": "Return to Hub",
     "dnd": "Ne pas déranger",
     "dndActive": "Ne pas déranger (Actif)",
     "energy": "Économie d'énergie",
@@ -343,11 +428,12 @@
     "hub": "Hub",
     "pulse": "Pouls",
     "stories": "Histoires",
-    "centerTitle": "Mess&Anger",
-    "centerSubtitle": "Hub P2P"
+    "centerTitle": "Mess&Anger"
   },
   "settings": {
     "accountSection": "Compte",
+    "accountManagement": "Gestion du compte",
+    "accountRequiresAuth": "L'ajout d'un compte nécessite une authentification backend",
     "activeNodes": "Active Nodes",
     "addAccount": "Ajouter un compte",
     "advancedPrivacy": "Confidentialité avancée",
@@ -390,6 +476,8 @@
     "dataStorage": "Données et stockage",
     "dataStorageSection": "Données et stockage",
     "dataStorageSubtitle": "Sauvegarde, chargement automatique, cache",
+    "servicesSection": "Services",
+    "dataRestored": "Vos données ont été restaurées",
     "dbEncrypted": "Chiffrée",
     "deadMansSwitch": "Auto-wipe (Dead Man's Switch)",
     "deviceActiveSessions": "Sessions actives",
@@ -415,6 +503,12 @@
     "exportBackupSubtitle": "Sauvegarde JSON des chats, canaux, bots et paramètres",
     "exportHtml": "Exporter HTML",
     "exportHtmlSubtitle": "Résumé de sauvegarde lisible pour examen rapide",
+    "failedGenerateRecovery": "Échec de génération de la phrase de récupération",
+    "invalidPhrase": "Phrase invalide ou incorrecte",
+    "recoveryError": "Une erreur s'est produite pendant la récupération",
+    "recoveryFailed": "Échec de la récupération",
+    "recoverySuccessful": "Récupération réussie",
+    "fontSize": "Font size",
     "fontSizeLarge": "Grand",
     "fontSizeMedium": "Moyen",
     "fontSizeSmall": "Petit",
@@ -428,6 +522,7 @@
       "title": "Importer la sauvegarde"
     },
     "importBackupSubtitle": "Restauration de sauvegarde JSON depuis un fichier local",
+    "installApp": "Installer {{app}}",
     "installBtn": "Installer",
     "installDismiss": "Pas maintenant",
     "language": "Langue",
@@ -435,6 +530,10 @@
     "lastSeen": "Qui peut voir ma dernière visite",
     "lastSync": "Dernière synchronisation",
     "quickOptions": "Quick options",
+    "searchPlaceholder": "Rechercher dans les paramètres",
+    "pwaWorksOffline": "Fonctionne hors ligne",
+    "pwaFasterLoading": "Chargement plus rapide",
+    "pwaAddToHomeScreen": "Ajouter à l'écran d'accueil",
     "pwaPrompt": "PWA install prompt",
     "pwaPromptSubtitle": "Show install banner on supported browsers",
     "soundOption": "Notification sound",
@@ -468,6 +567,21 @@
     "privacy": "Confidentialité",
     "privacySecuritySection": "Confidentialité et sécurité",
     "privacySubtitle": "Dernière activité, blocages",
+    "security": "Sécurité",
+    "securitySubtitle": "2FA, chiffrement, gestion des clés",
+    "stealthMode": "Stealth Mode",
+    "stealthModeSubtitle": "Obfuscate message timestamps in the chat list",
+    "deliveryReceipts": "Delivery receipts",
+    "deliveryReceiptsSubtitle": "Show sent/delivered status for outgoing messages",
+    "typingIndicators": "Typing indicators",
+    "typingIndicatorsSubtitle": "Show when the other side is typing",
+    "sound": "Son",
+    "spamActive": "Active",
+    "spamDisabled": "Désactivée",
+    "spamProtection": "Protection anti-spam",
+    "systemStatus": "État du système",
+    "systemStatusSubtitle": "Niveau de batterie, mécanismes de protection",
+    "theme": "Thème",
     "receipts": "Accusés de lecture",
     "receiptsContactAlice": "Alice",
     "receiptsContactBob": "Bob",
@@ -498,7 +612,17 @@
     "whoSeesNumber": "Qui peut voir mon numéro",
     "wipeAllData": "Effacer toutes les données"
   },
+  "gifSearch": {
+    "searchPlaceholder": "Search GIFs...",
+    "trending": "Trending"
+  },
+  "error": {
+    "somethingWentWrong": "Something went wrong",
+    "appStillRunning": "The application is still running, but a part of the UI failed to render.",
+    "errorDetails": "Error details"
+  },
   "stickers": {
+    "title": "Stickers",
     "all": "Tous",
     "icq": "ICQ",
     "emoji": "Emoji",
@@ -508,6 +632,11 @@
     "food": "Nourriture",
     "nature": "Nature",
     "raccoon": "Raton laveur",
-    "searchPlaceholder": "Rechercher des stickers..."
+    "searchPlaceholder": "Rechercher des stickers...",
+    "spamProtection": "Protection contre le spam",
+    "spamActive": "Actif",
+    "spamDisabled": "Désactivé",
+    "systemStatus": "État du système",
+    "systemStatusSubtitle": "Niveau de batterie, disjoncteurs"
   }
 }

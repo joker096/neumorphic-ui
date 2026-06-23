@@ -61,9 +61,9 @@ export const FloatingCallWidget = ({ theme }: { theme: 'dark' | 'light' }) => {
            <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 {activeCall.isVideo && <Video size={14} className={isDark ? "text-orange-400" : "text-orange-600"} />}
-                <span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
-                  {activeCall.number || "Unknown"}
-                </span>
+<span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
+                   {activeCall.remotePeer?.displayName || "Unknown"}
+                 </span>
               </div>
               <span className={`text-xs font-mono font-medium ${isDark ? "text-orange-400" : "text-orange-600"}`}>
                 {formatDuration(duration)}

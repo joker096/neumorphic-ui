@@ -17,4 +17,11 @@ export interface Contact {
   isFavorite?: boolean;
   isBlocked?: boolean;
   localFields?: ContactField[];
+  telegram?: string;
+  profileShare?: {
+    state?: string;
+    updatedAt?: number;
+  } | string;
+  channelId?: string;
+  channelIds?: string[];
 }

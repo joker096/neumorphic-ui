@@ -33,11 +33,11 @@ interface ChatListViewProps {
   isDark: boolean;
 }
 
-const AvatarRow = ({ theme, onStoryClick }: any) => {
+const AvatarRow = ({ theme, onStoryClick, t }: any) => {
   const isDark = theme === "dark";
   return (
     <div className="flex flex-col w-full overflow-visible mb-2 pt-2 pb-1 bg-transparent shrink-0">
-      <div className={`px-4 mb-2 font-mono text-[9px] uppercase tracking-widest font-bold ${isDark ? "text-gray-500" : "text-slate-400"}`}>P2P Stories</div>
+      <div className={`px-4 mb-2 font-mono text-[9px] uppercase tracking-widest font-bold ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('header.stories')}</div>
       <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         
         {/* Add Story Button */}
@@ -48,7 +48,7 @@ const AvatarRow = ({ theme, onStoryClick }: any) => {
              <Plus size={24} className={isDark ? "text-gray-400 group-hover:text-white" : "text-slate-500 group-hover:text-black"} />
           </div>
           <span className={`text-[10px] font-semibold tracking-wide transition-colors ${isDark ? "text-gray-400 group-hover:text-gray-200" : "text-slate-500 group-hover:text-slate-800"}`}>
-            My Story
+            {t('header.myStory')}
           </span>
         </div>
 
@@ -84,7 +84,7 @@ const AvatarRow = ({ theme, onStoryClick }: any) => {
     </div>
   );
 };
-const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, onAvatarClick, archiveLabel }: any) => {
+const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, onAvatarClick, archiveLabel, t }: any) => {
   const isDark = theme === "dark";
   const { stealthMode, typingIndicators } = useAppStore();
 
@@ -171,9 +171,9 @@ const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, 
             className={`text-[12.5px] truncate pr-4 ${isDark ? (active ? "text-orange-300" : "text-[#7a8190]") : active ? "text-orange-600" : "text-slate-500"} ${chat.unread ? "font-medium" : ""}`}
           >
             {isMockTyping ? (
-               <span className={`font-bold tracking-wide italic ${isDark ? "text-orange-500" : "text-orange-600"}`}>
-                  typing...
-               </span>
+                <span className={`font-bold tracking-wide italic ${isDark ? "text-orange-500" : "text-orange-600"}`}>
+                   {t('chat.typing')}
+                </span>
             ) : (
                <FormattedText text={chat.message} />
             )}
@@ -287,7 +287,7 @@ export const ChatListView = ({
                        ))}
                     </div>
 
-                    {view === 'stories' && <AvatarRow theme={theme} onStoryClick={setActiveStory} />}
+                    {view === 'stories' && <AvatarRow theme={theme} onStoryClick={setActiveStory} t={t} />}
 
                      {view === 'chats' && (
                         <div className="flex items-center gap-2 mb-6 -mx-2 px-2 shrink-0">
@@ -329,6 +329,7 @@ export const ChatListView = ({
                              onClick={() => setActiveChat(c)} 
                              onArchive={() => toggleArchive(c.id)}
                               archiveLabel={t('chat.archive')}
+                             t={t}
                              onAvatarClick={() => {
                                const profileContact = contacts.find(ct => ct.name === c.name);
                                setGlobalSelectedContact({
@@ -359,7 +360,8 @@ export const ChatListView = ({
                              active={false} 
                              onClick={() => setActiveChat(c)} 
                              onArchive={() => toggleArchive(c.id)}
-                              archiveLabel={t('chat.archive')} 
+                              archiveLabel={t('chat.archive')}
+                             t={t}
                           />
                         ))}
                       </>
@@ -386,7 +388,7 @@ export const ChatListView = ({
                       ) : (
                         <div className={`flex flex-col items-center justify-center py-10 opacity-60 ${isDark ? "text-white" : "text-black"}`}>
                           <Bot size={32} className={`mb-4 opacity-50 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
-                          <span className="text-[13px] text-center px-4">No bots created yet. Click + to create one.</span>
+                          <span className="text-[13px] text-center px-4">{t('chat.noBots')}</span>
                         </div>
                       )
                     )}
@@ -394,7 +396,7 @@ export const ChatListView = ({
                     {view !== 'bots' && filteredChats.length === 0 && filteredChannels.length === 0 && (
                       <div className={`flex flex-col items-center justify-center py-10 opacity-60 ${isDark ? "text-white" : "text-black"}`}>
                         <Search size={24} className="mb-2" />
-                        <span className="text-[13px]">No results found</span>
+                        <span className="text-[13px]">{t('chat.noResults')}</span>
                       </div>
                     )}
     </div>

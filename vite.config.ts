@@ -3,58 +3,75 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
-export default defineConfig(() => {
-  return {
-    plugins: [react(), tailwindcss()],
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, '.'),
-      },
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, '.'),
     },
-    server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
+  },
+  server: {
+    hmr: process.env.DISABLE_HMR !== 'true',
+    watch: process.env.DISABLE_HMR === 'true' ? null : {},
+    headers: {
+      'Content-Security-Policy': [
+        "default-src 'self'",
+        "script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "style-src-attr 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com",
+        "connect-src 'self' ws: wss: https: http://localhost:*",
+        "media-src 'self' blob: https:",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'none'",
+        "upgrade-insecure-requests",
+      ].join('; '),
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
     },
-    build: {
-      // Increase chunk size warning limit since this is a complex application
-      // with crypto, p2p, and other heavy dependencies
-      chunkSizeWarningLimit: 500, // 500 KB
-      rollupOptions: {
-        output: {
-          manualChunks: (id) => {
-            if (id.includes('node_modules')) {
-              if (id.includes('react') || id.includes('react-dom') || id.includes('lucide-react') || id.includes('zustand')) {
-                return 'vendor';
-              }
-              if (id.includes('motion')) {
-                return 'motion';
-              }
-              if (id.includes('crypto-js') || id.includes('tweetnacl') || id.includes('@privacyresearch/libsignal-protocol-typescript')) {
-                return 'crypto';
-              }
+  },
+  build: {
+    chunkSizeWarningLimit: 500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('lucide-react') || id.includes('zustand')) {
               return 'vendor';
             }
-            if (id.includes('src/lib/p2p/')) {
-              return 'p2p';
+            if (id.includes('motion')) {
+              return 'motion';
             }
-            if (id.includes('src/lib/crypto/')) {
+            if (id.includes('crypto-js') || id.includes('tweetnacl') || id.includes('@privacyresearch/libsignal-protocol-typescript') || id.includes('@noble/post-quantum')) {
               return 'crypto';
             }
-            if (id.includes('src/components/ui/')) {
-              return 'ui';
-            }
-            if (id.includes('src/components/')) {
-              return 'components';
-            }
-            if (id.includes('src/lib/')) {
-              return 'lib';
-            }
-          },
+            return 'vendor';
+          }
+          if (id.includes('src/lib/i18n')) {
+            return 'i18n';
+          }
+          if (id.includes('src/components/ui')) {
+            return 'ui';
+          }
+          if (id.includes('src/components/app')) {
+            return 'app';
+          }
+          if (id.includes('src/components/chat')) {
+            return 'chat';
+          }
+          if (id.includes('src/components/features')) {
+            return 'features';
+          }
+          if (id.includes('src/lib/call') || id.includes('src/components/call')) {
+            return 'call';
+          }
+          return undefined;
         },
       },
     },
-  };
+  },
 });

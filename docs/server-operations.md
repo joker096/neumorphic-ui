@@ -1,5 +1,7 @@
 # Server Operations Guide
 
+For secure deployment modes, see [`deploy-secure.md`](./deploy-secure.md). Use `--mode=minimal` for a signaling-only relay and `--mode=full` for production with admin panel, nginx, firewall, secrets, and CSP.
+
 ## Signaling Server
 
 File: `server/signaling-server.ts`

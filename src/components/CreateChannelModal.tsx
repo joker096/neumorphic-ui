@@ -59,7 +59,7 @@ export const CreateChannelModal = ({ theme, onClose }: { theme: 'dark' | 'light'
          ...newChannel,
          isChannel: true,
          history: [],
-         message: desc || "Канал создан",
+         message: desc || t('createChannel.channelCreated'),
          time: "Just now",
          unread: 0,
          color: "from-blue-500 to-indigo-500", // Random mock color could be generated

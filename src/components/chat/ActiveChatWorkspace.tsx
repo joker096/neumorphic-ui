@@ -34,6 +34,7 @@ type ActiveChatWorkspaceProps = {
   savedMessages: any[];
   onToggleSavedMessage: (chatContext: any, message: any) => void;
   onPreviewCall: (name: string, color?: string) => void;
+  onPreviewVideoCall: (name: string, color?: string) => void;
   onPreviewMessage: (name: string, color?: string) => void;
   setEditingContact: (contact: any | null) => void;
   onToggleMute: () => void;
@@ -79,6 +80,7 @@ export const ActiveChatWorkspace = ({
   savedMessages,
   onToggleSavedMessage,
   onPreviewCall,
+  onPreviewVideoCall,
   onPreviewMessage,
   setEditingContact,
   onToggleMute,
@@ -99,6 +101,7 @@ export const ActiveChatWorkspace = ({
       onUpdateChat={setActiveChat}
       onAction={(text: string) => (text === "MUTE_TOGGLE" ? setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted }) : setMessageText(text))}
       onCall={onPreviewCall}
+      onVideoCall={onPreviewVideoCall}
       onMessage={onPreviewMessage}
       onReply={(message: any) => setReplyTarget(message)}
       savedMessages={savedMessages}

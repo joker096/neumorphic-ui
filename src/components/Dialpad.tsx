@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ContactProfileModal, type ContactProfile } from "./ContactProfileModal";
 import { useAppStore } from "../store";
+import { useI18n } from "../lib/i18n";
 import type { Contact } from "../types/contact";
 import { toast } from "sonner";
 import { MOCK_CALLS } from "./mockData";
@@ -28,6 +29,7 @@ import { MOCK_CALLS } from "./mockData";
 interface DialpadProps {
   theme: "light" | "dark";
   onCall?: (name: string, color?: string) => void;
+  onVideoCall?: (name: string, color?: string) => void;
   onMessage?: (name: string, color?: string) => void;
   contacts: Contact[];
   showContactPicker: boolean;
@@ -77,7 +79,7 @@ export const LightPillButton = ({ title, subtitle, icon: Icon, badge }: any) => 
           : "bg-[#eaeff4] shadow-[-10px_-10px_22px_rgba(255,255,255,0.9),_14px_18px_32px_rgba(165,175,190,0.55),_inset_1.5px_1.5px_2.5px_rgba(255,255,255,1)] hover:scale-[1.03] active:scale-[0.97] border-white/80"
       }`}
     >
-      <div className="flex flex-col -space-y-[1px] mt-0.5 mt-1 pointer-events-none overflow-hidden pr-3">
+      <div className="flex flex-col -space-y-[1px] mt-1 pointer-events-none overflow-hidden pr-3">
         <span
           className={`text-[14.5px] font-semibold tracking-tight truncate w-full transition-colors ${active ? "text-orange-600" : "text-[#1a1a1b] group-hover:text-orange-600"}`}
         >
@@ -394,7 +396,7 @@ export const PillButton = ({
         className={`relative z-20 flex flex-col justify-center w-full ${isLarge ? "items-center" : "items-start pl-0.5"}`}
       >
         <span
-          className={`${isLarge ? "text-[14px] w-full text-center" : "text-[12px] font-bold"} leading-[14px] transition-colors ${active ? (isDark ? "text-white font-bold drop-shadow-sm" : "text-slate-900 font-bold drop-shadow-sm") : isDark ? "text-white font-bold group-hover:text-white" : "text-slate-900 font-bold group-hover:text-slate-800"} leading-[14px] transition-colors ${active ? (isDark ? "text-white drop-shadow-sm" : "text-slate-800 drop-shadow-sm") : isDark ? "text-gray-400 group-hover:text-white" : "text-slate-500 group-hover:text-slate-800"}`}
+          className={`${isLarge ? "text-[14px] w-full text-center" : "text-[12px] font-bold"} leading-[14px] transition-colors ${active ? (isDark ? "text-white font-bold drop-shadow-sm" : "text-slate-900 font-bold drop-shadow-sm") : isDark ? "text-white font-bold group-hover:text-white" : "text-slate-900 font-bold group-hover:text-slate-800"} ${active ? (isDark ? "text-white drop-shadow-sm" : "text-slate-800 drop-shadow-sm") : isDark ? "text-gray-400 group-hover:text-white" : "text-slate-500 group-hover:text-slate-800"}`}
         >
           {label}
         </span>
@@ -471,6 +473,7 @@ export const PillButton = ({
 export const Dialpad = ({ 
   theme, 
   onCall, 
+  onVideoCall, 
   onMessage, 
   contacts,
   showContactPicker,
@@ -479,6 +482,7 @@ export const Dialpad = ({
 }: { 
   theme: "light" | "dark", 
   onCall?: (n: string, color?: string) => void, 
+  onVideoCall?: (n: string, color?: string) => void,
   onMessage?: (n: string, color?: string) => void,
   contacts: Array<{ name: string; id: string; color: string; lastSeen: number }>,
   showContactPicker: boolean,
@@ -486,6 +490,7 @@ export const Dialpad = ({
   setEditingContact: (contact: Contact | null) => void
 }) => {
   const isDark = theme === "dark";
+  const { t } = useI18n();
   const [number, setNumber] = useState("");
   const [selectedContact, setSelectedContact] = useState<ContactProfile | null>(null);
   const [callFilter, setCallFilter] = useState<
@@ -523,12 +528,23 @@ export const Dialpad = ({
     if (isCalling) {
        setActiveCall(null);
     } else {
-       setActiveCall({
-          number: number || "Unknown",
-          startTime: Date.now(),
-          isMuted: false,
-          isSpeaker: false
-       });
+       const mockCall = {
+         callId: `preview_${Date.now()}`,
+         direction: 'outgoing' as const,
+         status: 'connecting' as const,
+         callType: 'audio' as const,
+          remotePeer: { peerId: 'manual', displayName: number || t('chat.unknownCaller') },
+         localStream: null,
+         screenStream: null,
+         isMuted: false,
+         isSpeaker: false,
+         isVideoEnabled: false,
+         isVideo: false,
+         isRecording: false,
+         startTime: Date.now(),
+         participants: [],
+       };
+       setActiveCall(mockCall);
     }
   };
 
@@ -592,7 +608,7 @@ export const Dialpad = ({
             <span
               className={`text-[24px] font-bold tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}
             >
-              {number.length > 0 ? number : "Unknown Caller"}
+              {number.length > 0 ? number : t('chat.unknownCaller')}
             </span>
             <span
               className={`text-[15px] font-mono font-medium tracking-widest ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
@@ -604,7 +620,7 @@ export const Dialpad = ({
           <div className="flex gap-6 mt-4">
             <div
               onClick={() => activeCall && setActiveCall({ ...activeCall, isMuted: !isMuted })}
-              title={isMuted ? "Unmute Microphone" : "Mute Microphone"}
+              title={isMuted ? t('chat.unmuteMicrophone') : t('chat.muteMicrophone')}
               className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 shadow-md ${
                 isMuted
                   ? isDark
@@ -623,7 +639,7 @@ export const Dialpad = ({
             </div>
             <div
               onClick={() => activeCall && setActiveCall({ ...activeCall, isSpeaker: !isSpeaker })}
-              title={isSpeaker ? "Disable Speaker" : "Enable Speaker"}
+              title={isSpeaker ? t('chat.disableSpeaker') : t('chat.enableSpeaker')}
               className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 shadow-md ${
                 isSpeaker
                   ? isDark
@@ -657,7 +673,7 @@ export const Dialpad = ({
               type="text"
               value={number}
               onChange={(e) => setNumber(e.target.value)}
-              placeholder="Search or dial..."
+              placeholder={t('chat.searchOrDial')}
               className={`w-full h-full bg-transparent border-none outline-none text-center px-10 pr-[60px] text-[20px] font-medium tracking-[0.05em] transition-colors placeholder:text-[14px] ${
                 isDark
                   ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] placeholder:text-gray-600"
@@ -667,7 +683,7 @@ export const Dialpad = ({
             <button
               onClick={() => setShowContactPicker(true)}
               className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white" : "bg-black/5 hover:bg-black/10 text-slate-500 hover:text-slate-800"}`}
-              title="Select Contact"
+              title={t('chat.selectContact')}
             >
               <Users size={18} />
             </button>
@@ -679,14 +695,14 @@ export const Dialpad = ({
                 <div
                   className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-gray-500" : "text-slate-400"}`}
                 >
-                  Recent
+                  {t('chat.recent')}
                 </div>
                 <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
                   {[
-                    { id: "all", label: "All" },
-                    { id: "incoming", label: "In" },
-                    { id: "outgoing", label: "Out" },
-                    { id: "missed", label: "Missed" },
+                    { id: "all", label: t('chat.all') },
+                    { id: "incoming", label: t('chat.incomingShort') },
+                    { id: "outgoing", label: t('chat.outgoingShort') },
+                    { id: "missed", label: t('chat.missed') },
                   ].map((tab) => (
                     <div
                       key={tab.id}
@@ -765,12 +781,12 @@ export const Dialpad = ({
                     {/* If name indicates it's an UNKNOWN or phone number, show Add to Contacts option */}
                     {(call.name.startsWith("+") || call.name === "Unknown") && (
                        <div 
-                         className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity click:scale-95 ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-700"}`}
+                          className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity active:scale-95 ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-700"}`}
                          onClick={(e) => {
                              e.stopPropagation();
-                             toast.info("Contact", { description: `Creating new contact for ${call.name}` });
+                              toast.info(t('toast.contact'), { description: t('chat.creatingContact', { name: call.name }) });
                           }}
-                         title="Add to Contacts"
+                         title={t('contacts.addContact')}
                        >
                           <UserPlus size={14} />
                        </div>
@@ -815,21 +831,21 @@ export const Dialpad = ({
       >
         <div
            onClick={() => {
-             if (number.length > 0) toast.success("Contact Added", { description: `Added ${number} to contacts!` });
+             if (number.length > 0) toast.success(t('toast.contactAdded'), { description: t('chat.contactAddedDescription', { number }) });
            }}
           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110 active:scale-90 ${
             number.length > 0
               ? (isDark ? "opacity-80 hover:opacity-100 text-gray-400 hover:text-white" : "opacity-80 hover:opacity-100 text-slate-500 hover:text-slate-700")
               : "opacity-0 pointer-events-none"
           } ${isCalling ? "pointer-events-none opacity-0" : ""}`}
-          title="Add to Contacts"
+          title={t('contacts.addContact')}
         >
           <UserPlus size={22} className="text-current" />
         </div>
         {/* Spacer for centering the call button visually */}
         <div
           onClick={handleCallToggle}
-          title={isCalling ? "End Call" : "Start Call"}
+          title={isCalling ? t('chat.endCall') : t('chat.startCall')}
           className={`w-[76px] h-[76px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-[1.08] active:scale-95 hover:rotate-3 shadow-xl ${
             isCalling
               ? "bg-gradient-to-br from-red-500 to-red-600 shadow-[0_12px_24px_rgba(239,68,68,0.3),_inset_0_2px_4px_rgba(255,255,255,0.3)] active:shadow-[inset_0_8px_16px_rgba(0,0,0,0.4)]"
@@ -868,22 +884,26 @@ export const Dialpad = ({
                if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
                setSelectedContact(null);
            }}
+           onVideoCall={() => {
+               if (onVideoCall && selectedContact) onVideoCall(selectedContact.name, selectedContact.color);
+               setSelectedContact(null);
+           }}
            onMessage={() => {
                if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
                setSelectedContact(null);
            }}
            onDelete={() => {
-                toast.info("Contact", { description: `Deleted call history for ${selectedContact?.name}` });
+                toast.info(t('toast.contact'), { description: t('chat.deletedCallHistory', { name: selectedContact?.name || "" }) });
                 setSelectedContact(null);
             }}
            onEdit={() => {
-                 if (selectedContact) {
-                   setEditingContact(selectedContact);
-                 }
+                   if (selectedContact) {
+                    setEditingContact(selectedContact as unknown as Contact);
+                  }
                  setSelectedContact(null);
              }}
            onBlock={() => {
-                 toast.warning("Contact", { description: `Blocked number/contact: ${selectedContact?.name}` });
+                  toast.warning(t('toast.contact'), { description: t('chat.blockedContact', { name: selectedContact?.name || "" }) });
                  setSelectedContact(null);
              }}
            onToggleFavorite={(id) => {
@@ -916,8 +936,8 @@ export const Dialpad = ({
               <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}>
                 <Users size={32} />
               </div>
-              <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-800"}`}>Select Contact</h3>
-              <p className={`text-xs text-center mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>Choose a contact to call or message.</p>
+              <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{t('chat.selectContact')}</h3>
+              <p className={`text-xs text-center mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.chooseContact')}</p>
             </div>
 
             <div className={`flex flex-col gap-2 max-h-[300px] overflow-y-auto ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
@@ -942,7 +962,7 @@ export const Dialpad = ({
               ))}
               {contacts.length === 0 && (
                 <div className={`text-center py-8 ${isDark ? "text-gray-500" : "text-slate-500"}`}>
-                  No contacts available. Add contacts from the Identity tab.
+                  {t('chat.noContactsAvailable')} {t('chat.addContactsHint')}
                 </div>
               )}
             </div>

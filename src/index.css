@@ -54,3 +54,10 @@ body, html {
 .scrollbar-light::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-light::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
 .scrollbar-light::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.1); }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}

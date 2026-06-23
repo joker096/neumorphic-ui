@@ -15,9 +15,9 @@ vi.mock('../lib/i18n', () => ({
 }));
 
 const mockContacts = [
-  { name: 'Alice', id: 'hash_alice_123', color: 'from-teal-400 to-emerald-500', lastSeen: 1000 },
-  { name: 'Bob', id: 'hash_bob_456', color: 'from-pink-400 to-rose-500', lastSeen: 3600000 },
-  { name: 'Charlie', id: 'hash_charlie_789', color: 'from-yellow-400 to-orange-500', lastSeen: 86400000 },
+  { name: 'Alice', id: 'hash_alice_123', color: 'from-teal-400 to-emerald-500', lastSeen: Date.now() - 60000 },
+  { name: 'Bob', id: 'hash_bob_456', color: 'from-pink-400 to-rose-500', lastSeen: Date.now() - 7200000 },
+  { name: 'Charlie', id: 'hash_charlie_789', color: 'from-yellow-400 to-orange-500', lastSeen: Date.now() - 259200000 },
 ];
 
 const mockOnCall = vi.fn();
@@ -144,8 +144,7 @@ describe('ContactsView', () => {
     expect(screen.getByRole('button', { name: /contacts.call/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /contacts.message/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /contacts.edit/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /contacts.deleteContact/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /contacts.blockSpammer/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /contacts.moreActions/ })).toBeInTheDocument();
   });
 
   it('calls onCall when Call button clicked in profile', () => {
@@ -170,8 +169,13 @@ describe('ContactsView', () => {
     render(<ContactsView {...defaultProps} />);
 
     fireEvent.click(screen.getByText('Alice'));
-    fireEvent.click(screen.getByRole('button', { name: 'contacts.deleteContact' }));
-
+    fireEvent.click(screen.getByRole('button', { name: /contacts.moreActions/ }));
+    
+    // The delete button is now in a popup menu
+    const trashBtn = document.querySelector('[class*="lucide-trash"]')?.closest('button') as HTMLElement;
+    expect(trashBtn).toBeInTheDocument();
+    fireEvent.click(trashBtn);
+    
     const confirmBtns = screen.getAllByRole('button', { name: 'contacts.deleteContact' });
     fireEvent.click(confirmBtns[confirmBtns.length - 1]);
 

@@ -4,7 +4,12 @@ import { SafeRender } from "./components/resilience";
 import { FeatureViews } from "./components/features/FeatureViews";
 import { encodeMorse } from "./components/MorseDecoder";
 import { MOCK_CALLS, MOCK_CHATS, MOCK_CHANNELS } from "./components/mockData";
+import { CallScreen } from "./components/call/CallScreen";
+import { IncomingCallSheet } from "./components/call/IncomingCallSheet";
+import { HuddleWidget } from "./components/huddle/HuddleWidget";
+import { useCall } from "./hooks/useCall";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
 import { AnimatePresence } from "motion/react";
 import { Activity, Bot, Hash, Lock, MessageCircle, Mic, Phone, Settings, Target, Users } from "lucide-react";
 import { useAppStore } from "./store";
@@ -14,55 +19,8 @@ import { toast } from "sonner";
 import { Toaster } from "sonner";
 import type { Contact } from "./types/contact";
 import type { ContactProfile } from "./components/ContactProfileModal";
-
-
-// --- Mention & DND utilities ---
-const MENTION_PATTERN = /@(\w+)/g;
-
-const parseMentions = (text: string): { text: string; mentions: { name: string; index: number }[] } => {
-  const mentions: { name: string; index: number }[] = [];
-  let match;
-  const regex = new RegExp(MENTION_PATTERN);
-  while ((match = regex.exec(text)) !== null) {
-    mentions.push({ name: match[1], index: match.index });
-  }
-  return { text, mentions };
-};
-
-const isDNDEnabled = () => {
-  try {
-    const dndEnabled = localStorage.getItem("app_dnd_enabled") === "true";
-    const dndFrom = localStorage.getItem("app_dnd_from") || "22:00";
-    const dndTo = localStorage.getItem("app_dnd_to") || "08:00";
-    if (!dndEnabled) return false;
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const currentMinutes = hours * 60 + minutes;
-    const [fromH, fromM] = dndFrom.split(':').map(Number);
-    const [toH, toM] = dndTo.split(':').map(Number);
-    const fromMinutes = fromH * 60 + fromM;
-    const toMinutes = toH * 60 + toM;
-    if (fromMinutes <= toMinutes) {
-      return currentMinutes >= fromMinutes && currentMinutes <= toMinutes;
-    } else {
-      return currentMinutes >= fromMinutes || currentMinutes <= toMinutes;
-    }
-  } catch {
-    return false;
-  }
-};
-
-const isPriorityContact = (contactName: string) => {
-  try {
-    const priorityStr = localStorage.getItem("app_priority_contacts");
-    if (!priorityStr) return false;
-    const names = JSON.parse(priorityStr);
-    return names.some((n: string) => contactName.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(contactName.toLowerCase()));
-  } catch {
-    return false;
-  }
-};
+import { registerRiskSession, getLastActionDebugId } from "./utils/riskShell";
+import { parseMentions, isDNDEnabled, isPriorityContact } from "./constants";
 
 export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -83,6 +41,13 @@ export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
+  const [lockAttempts, setLockAttempts] = useState(() => {
+    try { return parseInt(localStorage.getItem('app_lock_attempts') || '0', 10) } catch { return 0 }
+  });
+  const [lockBlockedUntil, setLockBlockedUntil] = useState(() => {
+    try { return parseInt(localStorage.getItem('app_lock_blocked_until') || '0', 10) } catch { return 0 }
+  });
+  const [lockBlockTimer, setLockBlockTimer] = useState(0);
   const [activeStory, setActiveStory] = useState<{ id: number, name: string, color: string } | null>(null);
   const [replyTarget, setReplyTarget] = useState<any>(null);
   const [savedMessages, setSavedMessages] = useState<any[]>(() => {
@@ -94,6 +59,9 @@ export default function App() {
     }
   });
   
+  const stealthMode = useAppStore(state => state.stealthMode);
+  useScreenshotProtection(stealthMode);
+
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [showCreateBot, setShowCreateBot] = useState(false);
   const [globalSelectedContact, setGlobalSelectedContact] = useState<ContactProfile | null>(null);
@@ -191,16 +159,64 @@ export default function App() {
     return () => clearInterval(interval);
   }, [scheduledQueue, setChats]);
 
-  // Handle App Lock authentication logic
+  // Handle App Lock authentication logic with exponential backoff
+  const getBlockDuration = (attempts: number): number => {
+    if (attempts <= 2) return 0
+    if (attempts === 3) return 30000
+    if (attempts === 4) return 60000
+    if (attempts === 5) return 120000
+    if (attempts === 6) return 300000
+    if (attempts === 7) return 900000
+    return Infinity
+  }
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>
+    if (lockBlockedUntil > Date.now()) {
+      setLockBlockTimer(Math.ceil((lockBlockedUntil - Date.now()) / 1000))
+      timer = setInterval(() => {
+        const remaining = Math.ceil((lockBlockedUntil - Date.now()) / 1000)
+        if (remaining <= 0) {
+          setLockBlockTimer(0)
+          clearInterval(timer)
+        } else {
+          setLockBlockTimer(remaining)
+        }
+      }, 1000)
+    }
+    return () => { if (timer) clearInterval(timer) }
+  }, [lockBlockedUntil])
+
   const handleUnlock = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     if (!appLockHashedPIN || !appLockSalt) return;
-    
+
+    if (lockBlockedUntil > Date.now()) {
+      setPinError(true);
+      return;
+    }
+
     const hashed = await cryptoCore.hashAppLockPIN(pinInput, appLockSalt);
     if (hashed.hash === appLockHashedPIN) {
        setIsUnlocked(true);
        setPinError(false);
+       setLockAttempts(0);
+       setLockBlockedUntil(0);
+       localStorage.setItem('app_lock_attempts', '0');
+       localStorage.setItem('app_lock_blocked_until', '0');
     } else {
+       const newAttempts = lockAttempts + 1
+       setLockAttempts(newAttempts)
+       localStorage.setItem('app_lock_attempts', String(newAttempts))
+       const duration = getBlockDuration(newAttempts)
+       if (duration > 0 && duration !== Infinity) {
+         const blockedUntil = Date.now() + duration
+         setLockBlockedUntil(blockedUntil)
+         localStorage.setItem('app_lock_blocked_until', String(blockedUntil))
+       } else if (duration === Infinity) {
+         setLockBlockedUntil(Infinity)
+         localStorage.setItem('app_lock_blocked_until', 'permanent')
+       }
        setPinError(true);
        setPinInput('');
     }
@@ -538,30 +554,47 @@ if (activeFolder === 'archived') return isArchived;
             <p className={`text-sm mb-6 text-center ${isDark ? "text-gray-400" : "text-slate-500"}`}>
                {t('lock.description')}
             </p>
-            <form onSubmit={handleUnlock} className="w-full">
-               <input 
-                 type="password" 
-                 value={pinInput}
-                 onChange={e => setPinInput(e.target.value)}
-                 autoFocus
-                 className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 focus:outline-none transition-colors ${
-                    isDark 
-                      ? "bg-[#16181d] border-white/10 focus:border-orange-500/50" 
-                      : "bg-[#f4f7f9] border-black/10 focus:border-orange-500/50"
-                 } ${pinError ? "border-red-500 text-red-500" : ""}`}
-                 placeholder="****"
-               />
-               <button 
-                 type="submit"
-                 className={`w-full py-4 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] active:scale-95 ${
-                    isDark
-                      ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
-                      : "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg"
-                 }`}
-               >
-                  {t('lock.unlock')}
-               </button>
-            </form>
+               {lockBlockedUntil === Infinity ? (
+                 <div className="text-center mb-4">
+                   <p className="text-red-500 font-bold text-sm">Too many attempts</p>
+                   <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>App is permanently locked. Recovery required.</p>
+                 </div>
+               ) : lockBlockTimer > 0 ? (
+                 <div className="text-center mb-4">
+                   <p className="text-red-500 font-bold text-sm">Locked</p>
+                   <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>Try again in {lockBlockTimer} seconds</p>
+                 </div>
+               ) : (
+                 <form onSubmit={handleUnlock} className="w-full">
+                   <input 
+                     type="password" 
+                     value={pinInput}
+                     onChange={e => setPinInput(e.target.value)}
+                     autoFocus
+                     className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 focus:outline-none transition-colors ${
+                        isDark 
+                          ? "bg-[#16181d] border-white/10 focus:border-orange-500/50" 
+                          : "bg-[#f4f7f9] border-black/10 focus:border-orange-500/50"
+                     } ${pinError ? "border-red-500 text-red-500" : ""}`}
+                     placeholder="****"
+                   />
+                   {pinError && (
+                     <p className={`text-xs text-center mb-3 ${isDark ? 'text-red-400' : 'text-red-500'}`}>
+                       Wrong PIN. {lockAttempts >= 2 ? `${3 - Math.min(lockAttempts, 3)} attempt(s) remaining` : `${3 - lockAttempts} attempt(s) remaining`}
+                     </p>
+                   )}
+                   <button 
+                     type="submit"
+                     className={`w-full py-4 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] active:scale-95 ${
+                        isDark
+                          ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
+                          : "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg"
+                     }`}
+                   >
+                      {t('lock.unlock')}
+                   </button>
+                 </form>
+               )}
          </div>
       </div>
     );
@@ -577,8 +610,25 @@ if (activeFolder === 'archived') return isArchived;
     setView("hub");
   };
 
-  const handlePreviewCall = (name: string, color?: string) => {
-    useAppStore.getState().setActiveCall({ number: name, startTime: Date.now(), isMuted: false, isSpeaker: false });
+const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'video' = 'audio') => {
+    const isVideo = callType === 'video';
+    const mockCall = {
+      callId: `preview_${Date.now()}`,
+      direction: 'outgoing' as const,
+      status: 'connecting' as const,
+      callType: callType as 'audio' | 'video',
+      remotePeer: { peerId: 'preview', displayName: name },
+      localStream: null,
+      screenStream: null,
+      isMuted: false,
+      isSpeaker: false,
+      isVideoEnabled: isVideo,
+      isVideo,
+      isRecording: false,
+      startTime: Date.now(),
+      participants: [],
+    };
+    useAppStore.getState().setActiveCall(mockCall);
     setView("calls");
   };
 
@@ -603,31 +653,89 @@ if (activeFolder === 'archived') return isArchived;
   };
 
   const handleProfileCall = () => {
-    if (globalSelectedContact) handlePreviewCall(globalSelectedContact.name, globalSelectedContact.color);
+    if (!globalSelectedContact) return;
+    if (useAppStore.getState().riskShellActive) {
+      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
+      toast.warning('Paused by risk shell');
+      return;
+    }
+    handlePreviewCall(globalSelectedContact.name, globalSelectedContact.color, 'audio');
+    setGlobalSelectedContact(null);
+  };
+
+  const handleProfileVideoCall = () => {
+    if (!globalSelectedContact) return;
+    if (useAppStore.getState().riskShellActive) {
+      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
+      toast.warning('Paused by risk shell');
+      return;
+    }
+    handlePreviewCall(globalSelectedContact.name, globalSelectedContact.color, 'video');
     setGlobalSelectedContact(null);
   };
 
   const handleProfileMessage = () => {
-    if (globalSelectedContact) handlePreviewMessage(globalSelectedContact.name, globalSelectedContact.color);
+    if (!globalSelectedContact) return;
+    if (useAppStore.getState().riskShellActive) {
+      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
+      toast.warning('Paused by risk shell');
+      return;
+    }
+    setView("chats");
+    const existingChat = chats.find((chat) => chat.name === globalSelectedContact.name && chat.type === "direct");
+    if (existingChat) {
+      setActiveChat(existingChat);
+    } else {
+      const newChat = {
+        id: Date.now(),
+        name: globalSelectedContact.name,
+        type: "direct",
+        color: globalSelectedContact.color || "from-blue-400 to-indigo-500",
+        online: true,
+        history: [],
+      };
+      setChats([newChat, ...chats] as any);
+      setActiveChat(newChat);
+    }
     setGlobalSelectedContact(null);
   };
 
   const handleProfileDelete = () => {
+    if (useAppStore.getState().riskShellActive && globalSelectedContact) {
+      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
+      toast.warning('Paused by risk shell');
+      return;
+    }
     if (activeChat && activeChat.name === globalSelectedContact?.name) setActiveChat(null);
     setChats(chats.filter((contact) => contact.name !== globalSelectedContact?.name) as any);
     setGlobalSelectedContact(null);
   };
 
   const handleProfileEdit = () => {
-    if (globalSelectedContact) setEditingContact(globalSelectedContact);
+    if (useAppStore.getState().riskShellActive && globalSelectedContact) {
+      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
+      toast.warning('Paused by risk shell');
+      return;
+    }
+    if (globalSelectedContact) setEditingContact(globalSelectedContact as unknown as Contact);
     setGlobalSelectedContact(null);
   };
 
   const handleProfileBlock = () => {
+    if (useAppStore.getState().riskShellActive && globalSelectedContact) {
+      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
+      toast.warning('Paused by risk shell');
+      return;
+    }
     if (activeChat && activeChat.name === globalSelectedContact?.name) setActiveChat(null);
     setChats(chats.filter((contact) => contact.name !== globalSelectedContact?.name));
     setGlobalSelectedContact(null);
   };
+
+  const { call, startCall, acceptCall, endCall, toggleMute, toggleVideo, toggleScreenShare, toggleRecording } = useCall();
+  const [incomingCall, setIncomingCall] = useState<{ peerId: string; displayName: string; callType: 'audio' | 'video' } | null>(null);
+  const riskDebugId = useAppStore((state) => state.riskShellActive ? getLastActionDebugId(globalSelectedContact?.id || '') : undefined);
+  const activeRiskContactId = useAppStore((state) => state.riskShellActive ? globalSelectedContact?.id : undefined);
 
   const contentViewTitle = activeChat ? activeChat.name : t(`hub.${view}`);
   const isChatListRoute = view === "chats" || view === "channels" || view === "bots" || view === "stories";
@@ -664,6 +772,7 @@ if (activeFolder === 'archived') return isArchived;
     savedMessages,
     onToggleSavedMessage: toggleSavedMessage,
     onPreviewCall: handlePreviewCall,
+    onPreviewVideoCall: (name: string, color?: string) => handlePreviewCall(name, color, 'video'),
     onPreviewMessage: handlePreviewMessage,
     setEditingContact,
     onToggleMute: () => {
@@ -751,8 +860,7 @@ if (activeFolder === 'archived') return isArchived;
                 items={hubItems}
                 badges={hubBadges}
                 centerTitle={t("hub.centerTitle")}
-                centerSubtitle={t("hub.centerSubtitle")}
-                onItemClick={(id) => setView(id)}
+                onItemClick={(id) => setView(id as any)}
               />
             </SafeRender>
           ) : (
@@ -789,8 +897,9 @@ if (activeFolder === 'archived') return isArchived;
                   chats={chats}
                   setChats={setChats as any}
                   setActiveChat={setActiveChat}
-                  setView={setView}
+                  setView={setView as any}
                   onCall={handlePreviewCall}
+                  onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
                   onMessage={handlePreviewMessage}
                 />
               </SafeRender>
@@ -822,11 +931,49 @@ if (activeFolder === 'archived') return isArchived;
           setChats={setChats as any}
           t={t}
           onProfileCall={handleProfileCall}
+          onProfileVideoCall={handleProfileVideoCall}
           onProfileMessage={handleProfileMessage}
           onProfileDelete={handleProfileDelete}
           onProfileEdit={handleProfileEdit}
           onProfileBlock={handleProfileBlock}
         />
+
+        <AnimatePresence>
+          {call && (
+            <CallScreen
+              call={{
+                id: call.callId,
+                remotePeer: { displayName: call.remotePeer.displayName || '', stream: call.remotePeer.stream },
+                localStream: call.localStream,
+                screenStream: call.screenStream,
+                isMuted: call.isMuted,
+                isVideoEnabled: call.isVideoEnabled,
+                isRecording: call.isRecording,
+                callType: call.callType,
+                status: call.status,
+              }}
+              onEnd={endCall}
+              onToggleMute={toggleMute}
+              onToggleVideo={toggleVideo}
+              onToggleScreen={toggleScreenShare}
+              onToggleRecord={toggleRecording}
+            />
+          )}
+          {incomingCall && (
+            <IncomingCallSheet
+              callerName={incomingCall.displayName}
+              callType={incomingCall.callType}
+              onAccept={async () => {
+                await acceptCall(incomingCall.peerId, incomingCall.displayName, incomingCall.callType);
+                setIncomingCall(null);
+              }}
+              onReject={async () => {
+                await endCall();
+                setIncomingCall(null);
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </>
   );

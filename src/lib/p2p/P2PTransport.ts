@@ -1,5 +1,14 @@
 import { HMACAuth } from './HMACAuth'
 
+export interface CallMediaHandlers {
+  onRemoteTrack: (peerId: string, stream: MediaStream) => void;
+  onCallClosed: (peerId: string) => void;
+  onMediaEnded: (peerId: string, kind: 'audio' | 'video') => void;
+}
+export interface MediaTrackOptions {
+  preferAudioOnly?: boolean;
+}
+
 export type P2PMessageHandler = (data: string) => void
 export type P2PConnectionHandler = (peerId: string) => void
 
@@ -14,23 +23,28 @@ interface P2PTransportConfig {
 
 export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'online-status' | 'read-receipt'
 
- export class P2PTransport {
-   private peerConnection: RTCPeerConnection | null = null
-   private dataChannel: RTCDataChannel | null = null
-   private signalingWs: WebSocket | null = null
-   private signalingUrl: string
-   private localPublicKey: string
-   private peerPublicKey: string | null = null
-   private onMessage: P2PMessageHandler
-   private onConnected: P2PConnectionHandler
-   private onDisconnected: P2PConnectionHandler
-   private iceServers: RTCIceServer[]
-   private hmacKey: string | null = null
-   private isRelayOnly = false
-   private reconnectAttempts = 0
-   private maxReconnectAttempts = 5
-   private pendingCandidates: RTCIceCandidateInit[] = []
-   private metadataSignalHandlers: Set<(type: MetadataSignalType, data: any) => void> = new Set()
+export class P2PTransport {
+  private peerConnection: RTCPeerConnection | null = null
+  private dataChannel: RTCDataChannel | null = null
+  private callControlChannel: RTCDataChannel | null = null
+  private signalingWs: WebSocket | null = null
+  private signalingUrl: string
+  private localPublicKey: string
+  private peerPublicKey: string | null = null
+  private onMessage: P2PMessageHandler
+  private onConnected: P2PConnectionHandler
+  private onDisconnected: P2PConnectionHandler
+  private iceServers: RTCIceServer[]
+  private hmacKey: string | null = null
+  private isRelayOnly = false
+  private reconnectAttempts = 0
+  private maxReconnectAttempts = 5
+  private pendingCandidates: RTCIceCandidateInit[] = []
+  private metadataSignalHandlers: Set<(type: MetadataSignalType, data: any) => void> = new Set()
+  private mediaHandlers: CallMediaHandlers | null = null
+  private outgoingStreams: MediaStream[] = []
+  private pendingOutgoingTracks: MediaStreamTrack[] = []
+  private localHandlesTracks = false
 
   constructor(config: P2PTransportConfig) {
     this.signalingUrl = config.signalingUrl
@@ -41,6 +55,30 @@ export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'onli
     this.iceServers = config.iceServers ?? [
       { urls: 'stun:stun.l.google.com:19302' },
     ]
+  }
+
+  attachMediaHandlers(handlers: CallMediaHandlers): void {
+    this.mediaHandlers = handlers;
+  }
+
+  async addOutgoingStream(stream: MediaStream): Promise<void> {
+    this.outgoingStreams.push(stream);
+    const tracks = stream.getTracks();
+    if (!this.peerConnection) {
+      this.pendingOutgoingTracks.push(...tracks);
+      return;
+    }
+    tracks.forEach((track) => this.peerConnection!.addTrack(track, stream));
+  }
+
+  async removeOutgoingStream(stream: MediaStream): Promise<void> {
+    this.outgoingStreams = this.outgoingStreams.filter((s) => s !== stream);
+    if (!this.peerConnection) return;
+    const senders = this.peerConnection.getSenders();
+    stream.getTracks().forEach((track) => {
+      const sender = senders.find((s) => s.track === track);
+      if (sender) this.peerConnection!.removeTrack(sender);
+    });
   }
 
   async connect(): Promise<void> {
@@ -99,6 +137,11 @@ export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'onli
     })
     this.setupDataChannel()
 
+    this.callControlChannel = this.peerConnection!.createDataChannel('call-control', {
+      ordered: true,
+    })
+    this.setupCallControlChannel()
+
     const offer = await this.peerConnection!.createOffer()
     await this.peerConnection!.setLocalDescription(offer)
 
@@ -108,6 +151,31 @@ export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'onli
       sdp: offer,
       hmacKey: this.hmacKey,
     })
+  }
+
+  private setupCallControlChannel(): void {
+    if (!this.callControlChannel) return;
+    this.callControlChannel.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        this.handleCallControlMessage(msg);
+      } catch {
+        // ignore
+      }
+    };
+  }
+
+  private handleCallControlMessage(msg: any): void {
+    if (!this.mediaHandlers || !this.peerPublicKey) return;
+    switch (msg.type) {
+      case 'mute-toggled':
+        this.mediaHandlers.onMediaEnded(this.peerPublicKey, msg.kind);
+        break;
+      case 'screen-share':
+        break;
+      default:
+        break;
+    }
   }
 
   send(data: string): void {
@@ -125,9 +193,16 @@ export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'onli
     }
   }
 
+  sendCallControl(data: any): void {
+    if (!this.callControlChannel || this.callControlChannel.readyState !== 'open') return
+    this.callControlChannel.send(JSON.stringify(data));
+  }
+
   disconnect(): void {
     this.dataChannel?.close()
     this.dataChannel = null
+    this.callControlChannel?.close()
+    this.callControlChannel = null
     this.peerConnection?.close()
     this.peerConnection = null
     this.signalingWs?.close()
@@ -136,6 +211,9 @@ export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'onli
     this.hmacKey = null
     this.pendingCandidates = []
     this.reconnectAttempts = 0
+    this.outgoingStreams = [];
+    this.pendingOutgoingTracks = [];
+    this.localHandlesTracks = false;
   }
 
   setRelayOnly(enabled: boolean): void {
@@ -182,9 +260,31 @@ export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'onli
     }
 
     this.peerConnection.ondatachannel = (event) => {
-      this.dataChannel = event.channel
-      this.setupDataChannel()
+      if (event.channel.label === 'call-control') {
+        this.callControlChannel = event.channel
+        this.setupCallControlChannel()
+      } else {
+        this.dataChannel = event.channel
+        this.setupDataChannel()
+      }
     }
+
+    if (!this.localHandlesTracks) {
+      this.peerConnection.ontrack = (event) => {
+        if (!this.mediaHandlers || !this.peerPublicKey) return;
+        const stream = event.streams[0];
+        if (!stream) return;
+        this.mediaHandlers.onRemoteTrack(this.peerPublicKey, stream);
+        const kind = event.track.kind as 'audio' | 'video';
+        event.track.addEventListener('ended', () => {
+          this.mediaHandlers?.onMediaEnded(this.peerPublicKey, kind);
+        });
+      };
+      this.localHandlesTracks = true;
+    }
+
+    this.pendingOutgoingTracks.forEach((track) => this.peerConnection!.addTrack(track, new MediaStream([track])));
+    this.pendingOutgoingTracks = [];
   }
 
   private setupDataChannel(): void {

@@ -13,10 +13,13 @@ export const DarkPillButton: React.FC<{ title: string; subtitle?: string; icon?:
     >
       {active && (
         <>
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-16 h-3 bg-orange-500 rounded-full blur-[10px] opacity-100 pointer-events-none" />
-          <div className="absolute -bottom-[2px] left-1/2 -translate-x-1/2 w-10 h-[2px] bg-white rounded-full blur-[1px] opacity-80 pointer-events-none" />
-          <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-4 h-[4px] bg-white rounded-full blur-[4px] opacity-100 pointer-events-none" />
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-20 h-3 bg-orange-500 rounded-full blur-[12px] opacity-100 pointer-events-none" />
+          <div className="absolute -bottom-[2px] left-1/2 -translate-x-1/2 w-12 h-[2px] bg-white rounded-full blur-[1px] opacity-80 pointer-events-none" />
+          <div className="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-5 h-[4px] bg-white rounded-full blur-[4px] opacity-100 pointer-events-none" />
         </>
+      )}
+      {!active && (
+        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-2 bg-orange-500/30 rounded-full blur-[8px] opacity-0 group-hover:opacity-60 pointer-events-none transition-opacity duration-300" />
       )}
       <div className="w-full h-full rounded-[33px] pl-6 pr-5 py-3 flex items-center justify-between pointer-events-none overflow-hidden relative z-10 transition-colors">
         <div className="flex flex-col -space-y-[1px] mt-0.5 mt-1">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useAppStore, BotConfig } from '../store';
+import { useAppStore, BotConfig, DEFAULT_BOT_PERMISSIONS } from '../store';
 import { X, Bot, Check, Key } from 'lucide-react';
 import { deviceSecurity } from '../lib/deviceSecurity';
 import { buf2hex } from '../lib/crypto/cryptoCore';
@@ -45,16 +45,7 @@ export const CreateBotModal = ({ theme, onClose }: { theme: 'dark' | 'light', on
         publicKey: pubBase64,
         ownerId: "me",
         commands: [],
-        permissions: {
-           readMessages: true,
-           sendMessages: true,
-           editMessages: false,
-           deleteMessages: false,
-           inlineKeyboard: true,
-           readUserData: false,
-           accessGroups: false,
-           accessFiles: false
-        },
+        permissions: { ...DEFAULT_BOT_PERMISSIONS },
         isRunning: false
      };
      

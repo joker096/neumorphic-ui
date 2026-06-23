@@ -4,7 +4,7 @@ set -euo pipefail
 ###############################################################################
 # Mess&Anger — Secure Production Deployment
 #
-# What this script does:
+# What this script does in full mode:
 #   1. Creates a dedicated 'messanger' system user (no shell, no login)
 #   2. Installs Node.js 20 LTS (via nvm) if not present
 #   3. Installs npm dependencies & builds both SPAs
@@ -14,25 +14,38 @@ set -euo pipefail
 #   7. Configures UFW firewall (only 80/443 open)
 #   8. Creates an admin account (interactive)
 #
+# What this script does in minimal mode:
+#   1. Creates the same non-root 'messanger' user
+#   2. Installs Node.js 20 LTS (via nvm) if not present
+#   3. Starts only the signaling WebSocket relay
+#   4. Configures nginx for /ws only
+#   5. Configures UFW firewall (only 80/443 open)
+#
 # Security design:
-#   - Everything runs as 'messanger' (non-root) via systemd DynamicUser
+#   - Everything runs as 'messanger' (non-root) via systemd User/Group
 #   - Code directory is mounted read-only for the service
 #   - CSP is served via HTTP headers (not meta tags) — prevents XSS
 #     even if an attacker modifies the SPA files
-#   - P2P/E2E encryption means message content never touches the server
-#   - Admin panel is separate, behind nginx + JWT + TOTP 2FA
-#   - SQLite database is in an isolated directory
+#   - P2P/E2E encryption means message content never touches the relay
+#   - Full mode admin panel is separate, behind nginx + JWT + TOTP 2FA
+#   - SQLite database exists only in full mode
 #
 # Usage:
-#   sudo bash scripts/deploy-secure.sh [--domain=example.com] [--email=admin@example.com]
+#   sudo bash scripts/deploy-secure.sh [--mode=local|minimal|full] [--domain=example.com] [--email=admin@example.com]
+#
+# Modes:
+#   local     Print local/offline instructions and exit without server changes
+#   minimal   Deploy only the signaling WebSocket relay, no admin UI
+#   full      Deploy full production stack (default)
 #
 # Options:
-#   --domain=DOMAIN   Domain name (default: $(hostname))
-#   --email=EMAIL     Email for Let's Encrypt (optional, for HTTPS)
-#   --admin=USER      Admin username (default: admin)
-#   --no-nginx        Skip nginx setup
-#   --no-firewall     Skip firewall setup
-#   --help            Show this help
+#   --mode=MODE     Deployment mode: local, minimal, or full (default: full)
+#   --domain=DOMAIN Domain name (default: $(hostname))
+#   --email=EMAIL   Email for Let's Encrypt (optional, for HTTPS)
+#   --admin=USER    Admin username (default: admin, full mode only)
+#   --no-nginx      Skip nginx setup (full/minimal mode)
+#   --no-firewall   Skip firewall setup (full/minimal mode)
+#   --help          Show this help
 ###############################################################################
 
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -42,6 +55,7 @@ SIGNALING_PORT=8765
 REST_PORT=8766
 ADMIN_UI_PORT=5174
 
+MODE="full"
 DOMAIN=""
 EMAIL=""
 ADMIN_USER="admin"
@@ -53,6 +67,7 @@ while [[ $# -gt 0 ]]; do
     --domain=*) DOMAIN="${1#*=}"; shift ;;
     --email=*) EMAIL="${1#*=}"; shift ;;
     --admin=*) ADMIN_USER="${1#*=}"; shift ;;
+    --mode=*) MODE="${1#*=}"; shift ;;
     --no-nginx) SKIP_NGINX=true; shift ;;
     --no-firewall) SKIP_FIREWALL=true; shift ;;
     --help) head -50 "$0" | grep -E '^#' | sed 's/^# \?//'; exit 0 ;;
@@ -60,7 +75,36 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+case "$MODE" in
+  local|minimal|full) ;;
+  *) echo "Unknown mode: $MODE"; exit 1 ;;
+esac
+
 DOMAIN="${DOMAIN:-$(hostname)}"
+NGINX_STATE="nginx security headers"
+FIREWALL_STATE="UFW (22, 80, 443)"
+if [[ "$SKIP_NGINX" == true ]]; then
+  NGINX_STATE="nginx skipped by --no-nginx"
+fi
+if [[ "$SKIP_FIREWALL" == true ]]; then
+  FIREWALL_STATE="firewall skipped by --no-firewall"
+fi
+
+if [[ "$MODE" == "local" ]]; then
+  cat <<'LOCAL'
+Local/offline mode does not deploy anything.
+
+Run the app locally:
+  npm install
+  npm run dev
+
+Use a local signaling URL only for development:
+  ws://localhost:3000/ws
+
+Do not expose this local dev server to the public internet.
+LOCAL
+  exit 0
+fi
 
 if [[ $EUID -ne 0 ]]; then
   echo "  This script must be run as root."
@@ -100,19 +144,23 @@ fi
 # ── 3. Install dependencies & build ─────────────────────────────────────────
 cd "$APP_DIR"
 
-# Root project — install all deps (tsx is in devDeps, needed for runtime)
-info "Installing root dependencies..."
-npm ci 2>/dev/null || npm install
-info "Building main SPA..."
-npm run build
+if [[ "$MODE" == "full" ]]; then
+  # Root project — install all deps (tsx is in devDeps, needed for runtime)
+  info "Installing root dependencies..."
+  npm ci 2>/dev/null || npm install
+  info "Building main SPA..."
+  npm run build
 
-# Admin project
-info "Installing admin dependencies..."
-cd "$APP_DIR/admin"
-npm ci 2>/dev/null || npm install
-info "Building admin SPA..."
-VITE_API_URL="http://127.0.0.1:$REST_PORT" npx vite build
-cd "$APP_DIR"
+  # Admin project
+  info "Installing admin dependencies..."
+  cd "$APP_DIR/admin"
+  npm ci 2>/dev/null || npm install
+  info "Building admin SPA..."
+  VITE_API_URL="http://127.0.0.1:$REST_PORT" npx vite build
+  cd "$APP_DIR"
+else
+  info "Skipping main/admin build for $MODE mode"
+fi
 
 # ── 4. Directories & permissions ───────────────────────────────────────────
 DATA_DIR="/var/lib/$APP_NAME"
@@ -120,27 +168,36 @@ LOG_DIR="/var/log/$APP_NAME"
 SECRETS_DIR="/etc/$APP_NAME"
 NGINX_CACHE_DIR="/var/cache/nginx/$APP_NAME"
 
-for dir in "$DATA_DIR" "$LOG_DIR" "$SECRETS_DIR"; do
+for dir in "$DATA_DIR" "$LOG_DIR"; do
   mkdir -p "$dir"
 done
 
-# JWT secret
-JWT_SECRET_FILE="$SECRETS_DIR/jwt_secret"
-if [[ ! -f "$JWT_SECRET_FILE" ]]; then
-  echo "${JWT_SECRET_FILE} doesn't exist"
-  openssl rand -base64 48 | tr -d '\n' > "$JWT_SECRET_FILE"
-  info "Generated JWT_SECRET"
+if [[ "$MODE" == "full" ]]; then
+  mkdir -p "$SECRETS_DIR"
 fi
-JWT_SECRET="$(cat "$JWT_SECRET_FILE")"
+
+JWT_SECRET=""
+JWT_SECRET_FILE="$SECRETS_DIR/jwt_secret"
+if [[ "$MODE" == "full" ]]; then
+  # JWT secret
+  if [[ ! -f "$JWT_SECRET_FILE" ]]; then
+    echo "${JWT_SECRET_FILE} doesn't exist"
+    openssl rand -base64 48 | tr -d '\n' > "$JWT_SECRET_FILE"
+    info "Generated JWT_SECRET"
+  fi
+  JWT_SECRET="$(cat "$JWT_SECRET_FILE")"
+fi
 
 chown -R "$SERVICE_USER:$SERVICE_USER" "$DATA_DIR" "$LOG_DIR"
 chmod 750 "$DATA_DIR" "$LOG_DIR"
-chmod 600 "$JWT_SECRET_FILE"
-chown root:"$SERVICE_USER" "$JWT_SECRET_FILE"
+if [[ "$MODE" == "full" ]]; then
+  chmod 600 "$JWT_SECRET_FILE"
+  chown root:"$SERVICE_USER" "$JWT_SECRET_FILE"
+fi
 info "Directory permissions set"
 
 # Copy data directory to /var/lib if it doesn't exist
-if [[ -f "$APP_DIR/data/admin.db" && ! -f "$DATA_DIR/admin.db" ]]; then
+if [[ "$MODE" == "full" && -f "$APP_DIR/data/admin.db" && ! -f "$DATA_DIR/admin.db" ]]; then
   cp "$APP_DIR/data/admin.db" "$DATA_DIR/admin.db"
   chown "$SERVICE_USER:$SERVICE_USER" "$DATA_DIR/admin.db"
   chmod 640 "$DATA_DIR/admin.db"
@@ -153,13 +210,21 @@ admin_service="/etc/systemd/system/$APP_NAME-admin.service"
 
 # Environment file (secure: root:service, 640, not world-readable)
 ENV_FILE="/etc/systemd/system/$APP_NAME-signaling.env"
-cat > "$ENV_FILE" <<ENV
+if [[ "$MODE" == "full" ]]; then
+  cat > "$ENV_FILE" <<ENV
 JWT_SECRET=$JWT_SECRET
 DB_PATH=$DATA_DIR/admin.db
 PORT=$SIGNALING_PORT
 REST_PORT=$REST_PORT
 CORS_ORIGINS=http://$DOMAIN,https://$DOMAIN
 ENV
+else
+  cat > "$ENV_FILE" <<ENV
+PORT=$SIGNALING_PORT
+REST_PORT=$REST_PORT
+CORS_ORIGINS=http://$DOMAIN,https://$DOMAIN
+ENV
+fi
 chown root:"$SERVICE_USER" "$ENV_FILE"
 chmod 640 "$ENV_FILE"
 
@@ -199,7 +264,8 @@ RemoveIPC=true
 WantedBy=multi-user.target
 SERVICE
 
-cat > "$admin_service" <<SERVICE
+if [[ "$MODE" == "full" ]]; then
+  cat > "$admin_service" <<SERVICE
 [Unit]
 Description=Mess&Anger Admin UI
 After=network.target
@@ -233,9 +299,10 @@ RemoveIPC=true
 [Install]
 WantedBy=multi-user.target
 SERVICE
+fi
 
 systemctl daemon-reload
-info "systemd services created"
+info "systemd services created for $MODE mode"
 
 # ── 6. nginx reverse proxy ──────────────────────────────────────────────────
 if ! $SKIP_NGINX; then
@@ -246,8 +313,39 @@ if ! $SKIP_NGINX; then
     info "nginx installed"
   fi
 
-  # Main SPA + WebSocket proxy
-  cat > "/etc/nginx/sites-available/$APP_NAME" <<NGINX
+  # Main reverse proxy
+  if [[ "$MODE" == "minimal" ]]; then
+    cat > "/etc/nginx/sites-available/$APP_NAME" <<NGINX
+server {
+    listen 80;
+    server_name ${DOMAIN};
+    server_tokens off;
+
+    add_header Content-Security-Policy "default-src 'none'; connect-src 'self' wss:; frame-ancestors 'none'; form-action 'none'; base-uri 'none';" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    location /ws {
+        proxy_pass http://127.0.0.1:${SIGNALING_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host \$host;
+        proxy_read_timeout 86400s;
+    }
+
+    location / {
+        return 404;
+    }
+}
+NGINX
+  else
+    cat > "/etc/nginx/sites-available/$APP_NAME" <<NGINX
 server {
     listen 80;
     server_name ${DOMAIN};
@@ -293,11 +391,13 @@ server {
     }
 }
 NGINX
+  fi
 
-  # Admin panel (separate subdomain or /admin path)
-  if [[ "$DOMAIN" != "$(hostname)" ]]; then
-    # With real domain — admin subdomain
-    cat > "/etc/nginx/sites-available/$APP_NAME-admin" <<NGINX
+  # Admin panel (full mode only)
+  if [[ "$MODE" == "full" ]]; then
+    if [[ "$DOMAIN" != "$(hostname)" ]]; then
+      # With real domain — admin subdomain
+      cat > "/etc/nginx/sites-available/$APP_NAME-admin" <<NGINX
 server {
     listen 80;
     server_name admin.${DOMAIN};
@@ -318,11 +418,12 @@ server {
     }
 }
 NGINX
-    ln -sf "/etc/nginx/sites-available/$APP_NAME-admin" "/etc/nginx/sites-enabled/"
-  else
-    # Without real domain — serve admin at /admin path on same site
-    warn "No domain specified. Admin UI will not be proxied automatically."
-    warn "Run with --domain=yourdomain.com for full setup."
+      ln -sf "/etc/nginx/sites-available/$APP_NAME-admin" "/etc/nginx/sites-enabled/"
+    else
+      # Without real domain — serve admin at /admin path on same site
+      warn "No domain specified. Admin UI will not be proxied automatically."
+      warn "Run with --domain=yourdomain.com for full setup."
+    fi
   fi
 
   ln -sf "/etc/nginx/sites-available/$APP_NAME" "/etc/nginx/sites-enabled/"
@@ -352,65 +453,89 @@ fi
 
 # ── 8. Enable & start services ─────────────────────────────────────────────
 systemctl enable "$APP_NAME-signaling.service"
-systemctl enable "$APP_NAME-admin.service"
-
 systemctl restart "$APP_NAME-signaling.service"
-systemctl restart "$APP_NAME-admin.service"
+
+if [[ "$MODE" == "full" ]]; then
+  systemctl enable "$APP_NAME-admin.service"
+  systemctl restart "$APP_NAME-admin.service"
+fi
 info "Services started"
 
 # ── 9. Create admin account ────────────────────────────────────────────────
 cd "$APP_DIR"
-echo ""
-info "Admin account setup"
-echo "  Create an admin user for the panel."
-echo ""
-
-read -rp "  Admin username [${ADMIN_USER}]: " input_user
-ADMIN_USER="${input_user:-$ADMIN_USER}"
-
-while true; do
-  read -rsp "  Admin password (min 8 chars): " ADMIN_PASS
+if [[ "$MODE" == "full" ]]; then
   echo ""
-  if [[ ${#ADMIN_PASS} -ge 8 ]]; then break; fi
-  warn "Password too short. Try again."
-done
+  info "Admin account setup"
+  echo "  Create an admin user for the panel."
+  echo ""
 
-JWT_SECRET="$JWT_SECRET" DB_PATH="$DATA_DIR/admin.db" \
-  npx tsx server/cli.ts "$ADMIN_USER" "$ADMIN_PASS" || true
+  read -rp "  Admin username [${ADMIN_USER}]: " input_user
+  ADMIN_USER="${input_user:-$ADMIN_USER}"
 
-info "Admin '$ADMIN_USER' created"
-echo ""
+  while true; do
+    read -rsp "  Admin password (min 8 chars): " ADMIN_PASS
+    echo ""
+    if [[ ${#ADMIN_PASS} -ge 8 ]]; then break; fi
+    warn "Password too short. Try again."
+  done
+
+  JWT_SECRET="$JWT_SECRET" DB_PATH="$DATA_DIR/admin.db" \
+    npx tsx server/cli.ts "$ADMIN_USER" "$ADMIN_PASS" || true
+
+  info "Admin '$ADMIN_USER' created"
+  echo ""
+else
+  info "Skipping admin account setup in $MODE mode"
+fi
 
 # ── Summary ─────────────────────────────────────────────────────────────────
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
 echo "║                Deployment Complete                           ║"
 echo "╠═══════════════════════════════════════════════════════════════╣"
+echo "║  Mode:       $MODE                                           "
 echo "║  Main App:   http://$DOMAIN                                 "
-echo "║  Admin UI:   http://admin.$DOMAIN                           "
+if [[ "$MODE" == "full" ]]; then
+  echo "║  Admin UI:   http://admin.$DOMAIN                           "
+fi
 server_ip="$(curl -4fsS ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
 echo "║  Server IP:  $server_ip                                     "
 echo "║                                                              "
 echo "║  Services:                                                   "
 echo "║    systemctl status $APP_NAME-signaling                       "
-echo "║    systemctl status $APP_NAME-admin                          "
+if [[ "$MODE" == "full" ]]; then
+  echo "║    systemctl status $APP_NAME-admin                          "
+fi
 echo "║                                                              "
 echo "║  Logs:                                                       "
 echo "║    journalctl -u $APP_NAME-signaling -f                      "
-echo "║    journalctl -u $APP_NAME-admin -f                          "
+if [[ "$MODE" == "full" ]]; then
+  echo "║    journalctl -u $APP_NAME-admin -f                          "
+fi
 echo "║                                                              "
 echo "║  Security:                                                   "
 echo "║    User:     $SERVICE_USER (no shell, no root)               "
-echo "║    CSP:      HTTP headers (not meta tags)                    "
-echo "║    Firewall: UFW (22, 80, 443)                               "
-echo "║    JWT:      $JWT_SECRET_FILE (root:service, 600)            "
-echo "║    DB:       $DATA_DIR/admin.db (rw only for service)        "
+echo "║    CSP:      $NGINX_STATE                               "
+echo "║    Firewall: $FIREWALL_STATE                             "
+if [[ "$MODE" == "full" ]]; then
+  echo "║    JWT:      $JWT_SECRET_FILE (root:service, 600)            "
+  echo "║    DB:       $DATA_DIR/admin.db (rw only for service)        "
+  echo "║    Admin:    bcrypt + TOTP 2FA                              "
+else
+  echo "║    Admin:    Disabled                                        "
+  echo "║    DB:       Not created in minimal mode                     "
+fi
 echo "║    Code:     Read-only for service (ProtectSystem=strict)    "
 echo "║                                                              "
 echo "║  Next steps:                                                 "
 echo "║    1. Add HTTPS with certbot:                                "
 echo "║       apt install certbot python3-certbot-nginx              "
-echo "║       certbot --nginx -d $DOMAIN -d admin.$DOMAIN            "
-echo "║    2. Scan TOTP QR code above in Google Authenticator        "
-echo "║    3. Login at http://admin.$DOMAIN                          "
+if [[ "$MODE" == "full" ]]; then
+  echo "║       certbot --nginx -d $DOMAIN -d admin.$DOMAIN            "
+  echo "║    2. Scan TOTP QR code above in Google Authenticator        "
+  echo "║    3. Login at http://admin.$DOMAIN                          "
+else
+  echo "║       certbot --nginx -d $DOMAIN                            "
+  echo "║    2. Configure client signaling URL: wss://$DOMAIN/ws       "
+fi
 echo "╚═══════════════════════════════════════════════════════════════╝"
