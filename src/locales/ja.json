@@ -381,7 +381,12 @@
     "fieldSubtypeHome": "Home",
     "fieldSubtypeMain": "Main",
     "verifySecurity": "セキュリティを確認",
-    "verifySecurityDesc": "この連絡先とのエンドツーエンド暗号化を確認するには、帯域外（対面またはビデオ通話）でセキュリティ番号を比較してください。"
+    "verifySecurityDesc": "この連絡先とのエンドツーエンド暗号化を確認するには、帯域外（対面またはビデオ通話）でセキュリティ番号を比較してください。",
+    "safetyNumbersTitle": "セキュリティ番号",
+    "safetyNumbersDesc": "これらの番号を {name} と帯域外（対面またはビデオ通話）で比較して、エンドツーエンド暗号化を確認してください。",
+    "verificationLevel": "確認レベル: {level}%",
+    "yourId": "あなたのID:",
+    "theirId": "相手のID:"
   },
   "header": {
     "copied": "コピーしました！",

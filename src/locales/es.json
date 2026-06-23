@@ -381,7 +381,12 @@
     "fieldSubtypeHome": "Home",
     "fieldSubtypeMain": "Main",
     "verifySecurity": "Verificar seguridad",
-    "verifySecurityDesc": "Compare los números de seguridad fuera de banda (en persona o por videollamada) para verificar el cifrado de extremo a extremo con este contacto."
+    "verifySecurityDesc": "Compare los números de seguridad fuera de banda (en persona o por videollamada) para verificar el cifrado de extremo a extremo con este contacto.",
+    "safetyNumbersTitle": "Números de seguridad",
+    "safetyNumbersDesc": "Compare estos números con {name} fuera de banda (en persona o por videollamada) para verificar el cifrado de extremo a extremo.",
+    "verificationLevel": "Nivel de verificación: {level}%",
+    "yourId": "Su ID:",
+    "theirId": "Su ID:"
   },
   "header": {
     "copied": "¡Copiado!",

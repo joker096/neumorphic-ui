@@ -381,7 +381,12 @@
     "fieldSubtypeHome": "Home",
     "fieldSubtypeMain": "Main",
     "verifySecurity": "验证安全",
-    "verifySecurityDesc": "通过线下方式（面对面或视频通话）比较安全号码，以验证与此联系人的端到端加密。"
+    "verifySecurityDesc": "通过线下方式（面对面或视频通话）比较安全号码，以验证与此联系人的端到端加密。",
+    "safetyNumbersTitle": "安全号码",
+    "safetyNumbersDesc": "通过线下方式（面对面或视频通话）与 {name} 比较这些号码，以验证端到端加密。",
+    "verificationLevel": "验证级别: {level}%",
+    "yourId": "我的ID:",
+    "theirId": "对方的ID:"
   },
   "header": {
     "copied": "已复制！",

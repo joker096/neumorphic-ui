@@ -381,7 +381,12 @@
     "fieldSubtypeHome": "Home",
     "fieldSubtypeMain": "Main",
     "verifySecurity": "Vérifier la sécurité",
-    "verifySecurityDesc": "Comparez les numéros de sécurité hors bande (en personne ou par appel vidéo) pour vérifier le chiffrement de bout en bout avec ce contact."
+    "verifySecurityDesc": "Comparez les numéros de sécurité hors bande (en personne ou par appel vidéo) pour vérifier le chiffrement de bout en bout avec ce contact.",
+    "safetyNumbersTitle": "Numéros de sécurité",
+    "safetyNumbersDesc": "Comparez ces numéros avec {name} hors bande (en personne ou par appel vidéo) pour vérifier le chiffrement de bout en bout.",
+    "verificationLevel": "Niveau de vérification : {level}%",
+    "yourId": "Votre ID :",
+    "theirId": "Leur ID :"
   },
   "header": {
     "copied": "Copié !",

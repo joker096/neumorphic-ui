@@ -381,7 +381,12 @@
     "fieldSubtypeHome": "Home",
     "fieldSubtypeMain": "Main",
     "verifySecurity": "보안 확인",
-    "verifySecurityDesc": "이 연락처와의 종단간 암호화를 확인하려면 대역 외(대면 또는 화상 통화)에서 보안 번호를 비교하세요."
+    "verifySecurityDesc": "이 연락처와의 종단간 암호화를 확인하려면 대역 외(대면 또는 화상 통화)에서 보안 번호를 비교하세요.",
+    "safetyNumbersTitle": "보안 번호",
+    "safetyNumbersDesc": "이 번호를 {name}과(와) 대역 외(대면 또는 화상 통화)에서 비교하여 종단간 암호화를 확인하세요.",
+    "verificationLevel": "확인 수준: {level}%",
+    "yourId": "내 ID:",
+    "theirId": "상대방 ID:"
   },
   "header": {
     "copied": "복사됨!",

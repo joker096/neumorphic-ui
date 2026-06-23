@@ -381,7 +381,12 @@
     "fieldSubtypeHome": "Home",
     "fieldSubtypeMain": "Main",
     "verifySecurity": "Verify Security",
-    "verifySecurityDesc": "Compare safety numbers out-of-band to verify end-to-end encryption with this contact."
+    "verifySecurityDesc": "Compare safety numbers out-of-band to verify end-to-end encryption with this contact.",
+    "safetyNumbersTitle": "Safety Numbers",
+    "safetyNumbersDesc": "Compare these numbers with {name} out-of-band (in person or via video call) to verify end-to-end encryption.",
+    "verificationLevel": "Verification level: {level}%",
+    "yourId": "Your ID:",
+    "theirId": "Their ID:"
   },
   "header": {
     "copied": "Copied!",

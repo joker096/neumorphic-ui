@@ -308,9 +308,9 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                     className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
                     onClick={(event) => event.stopPropagation()}
                   >
-                    <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>Safety Numbers</h3>
+                    <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.safetyNumbersTitle')}</h3>
                     <p className={`text-xs mb-4 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                      Compare these numbers with {contact?.name} out-of-band (in person or via video call) to verify end-to-end encryption.
+                      {t('contacts.safetyNumbersDesc', { name: contact?.name })}
                     </p>
                     <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mb-4">
                       {safetyNumber.split(' ').map((g, i) => (
@@ -320,18 +320,18 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                     <div className="flex items-center justify-center gap-2 mb-4">
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getVerificationColor(verifyLevel) }} />
                       <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                        Verification level: {verifyLevel}%
+                        {t('contacts.verificationLevel', { level: verifyLevel })}
                       </span>
                     </div>
                     {myPeerId && (
                       <div className={`text-[10px] font-mono mb-4 p-2 rounded-lg ${isDark ? 'bg-white/5 text-gray-500' : 'bg-black/5 text-slate-400'}`}>
-                        Your ID: {myPeerId.slice(0, 16)}...
+                        {t('contacts.yourId')} {myPeerId.slice(0, 16)}...
                         <br />
-                        Their ID: {contact?.id.slice(0, 16)}...
+                        {t('contacts.theirId')} {contact?.id.slice(0, 16)}...
                       </div>
                     )}
                     <button onClick={() => setShowSafetyNumber(false)} className={`w-full h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
-                      Close
+                      {t('contacts.close')}
                     </button>
                   </motion.div>
                 </motion.div>

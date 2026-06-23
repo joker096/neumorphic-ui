@@ -381,7 +381,12 @@
     "fieldSubtypeHome": "Home",
     "fieldSubtypeMain": "Main",
     "verifySecurity": "Sicherheit überprüfen",
-    "verifySecurityDesc": "Vergleichen Sie Sicherheitsnummern außerhalb der Band (persönlich oder per Videoanruf), um die Ende-zu-Ende-Verschlüsselung mit diesem Kontakt zu überprüfen."
+    "verifySecurityDesc": "Vergleichen Sie Sicherheitsnummern außerhalb der Band (persönlich oder per Videoanruf), um die Ende-zu-Ende-Verschlüsselung mit diesem Kontakt zu überprüfen.",
+    "safetyNumbersTitle": "Sicherheitsnummern",
+    "safetyNumbersDesc": "Vergleichen Sie diese Nummern mit {name} außerhalb der Band (persönlich oder per Videoanruf), um die Ende-zu-Ende-Verschlüsselung zu überprüfen.",
+    "verificationLevel": "Überprüfungsstufe: {level}%",
+    "yourId": "Ihre ID:",
+    "theirId": "Deren ID:"
   },
   "header": {
     "copied": "Kopiert!",
