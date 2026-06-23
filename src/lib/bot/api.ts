@@ -1,4 +1,4 @@
-// Bot API - Bot API for interacting with bot services
+import type { BotPermissions } from '../../store'
 
 export interface BotCommand {
   command: string;
@@ -13,26 +13,31 @@ export interface BotMessage {
 }
 
 export class BotApi {
-  private bots: Map<string, { commands: Set<string>; handlers: Map<string, (data: any) => void> }> = new Map();
+  private bots: Map<string, { commands: Set<string>; handlers: Map<string, (data: any) => void>; permissions: BotPermissions }> = new Map();
 
-  register(botId: string): void {
+  register(botId: string, permissions: BotPermissions = DEFAULT_RESTRICTED_PERMISSIONS): void {
     this.bots.set(botId, {
       commands: new Set(),
       handlers: new Map(),
+      permissions,
     });
+  }
+
+  canExecute(botId: string, action: keyof BotPermissions): boolean {
+    const bot = this.bots.get(botId);
+    if (!bot) return false;
+    return bot.permissions[action] === true;
   }
 
   send(botId: string, command: string, data?: any): Promise<{ success: boolean; response?: any }> {
     const bot = this.bots.get(botId);
     if (!bot) {
-      return Promise.resolve({ success: false });
+      return Promise.resolve({ success: false, error: 'Bot not found' });
     }
-
-    // Execute command
-    bot.handlers.set(command, (response: any) => {
-      // Handle response
-    });
-
+    if (!this.canExecute(botId, 'sendMessages')) {
+      return Promise.resolve({ success: false, error: 'Permission denied: sendMessages' });
+    }
+    bot.handlers.set(command, (response: any) => {});
     return Promise.resolve({ success: true, response: data });
   }
 
@@ -46,6 +51,17 @@ export class BotApi {
   getRegisteredBots(): string[] {
     return Array.from(this.bots.keys());
   }
+}
+
+export const DEFAULT_RESTRICTED_PERMISSIONS: BotPermissions = {
+  readMessages: false,
+  sendMessages: false,
+  editMessages: false,
+  deleteMessages: false,
+  inlineKeyboard: false,
+  readUserData: false,
+  accessGroups: false,
+  accessFiles: false,
 }
 
 export const botApi = new BotApi();

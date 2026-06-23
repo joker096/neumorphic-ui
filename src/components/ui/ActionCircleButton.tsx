@@ -64,7 +64,7 @@ export const ActionCircleButton: React.FC<{
       onClick={() => isToggleable && setActive(!active)}
     >
       <div
-        className={`w-[60px] h-[60px] rounded-full flex items-center justify-center transition-all duration-300 ${!active ? "group-hover:scale-[1.05] active:scale-95" : "scale-95"} ${
+        className={`relative w-[60px] h-[60px] rounded-full flex items-center justify-center transition-all duration-300 ${!active ? "group-hover:scale-[1.05] active:scale-95" : "scale-95"} ${
           isDark
             ? active
               ? "bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border border-orange-500/20"
@@ -74,6 +74,9 @@ export const ActionCircleButton: React.FC<{
               : "bg-[#eaeff4] shadow-[-6px_-6px_12px_rgba(255,255,255,0.9),_8px_8px_16px_rgba(165,175,190,0.5),_inset_2px_2px_4px_rgba(255,255,255,1)] border border-white/80"
         }`}
       >
+        {active && (
+          <div className="absolute inset-0 rounded-full bg-orange-500/10 blur-[6px] animate-pulse" />
+        )}
         <Icon
           size={24}
           strokeWidth={1.75}

@@ -7,7 +7,7 @@ import { ContactProfileModal } from './ContactProfileModal';
 
 vi.mock('../lib/i18n', () => ({
   useI18n: () => ({
-    t: (key: string) => key,
+    t: (key: string) => key === 'contacts.videoCall' ? 'Video' : key === 'contacts.call' ? 'Call' : key === 'contacts.moreActions' ? 'More actions' : key,
     lang: 'en',
     setLang: vi.fn(),
   }),
@@ -73,12 +73,9 @@ describe('ContactProfileModal', () => {
   const getProfileActionButtons = () => {
     const profileCard = screen.getByText('Test User').closest('div[class*="max-w-"]') as HTMLElement;
     const buttons = within(profileCard).getAllByRole('button');
-    const trashBtn = buttons.find(b => b.querySelector('[class*="lucide-trash"]'));
-    const banBtn = buttons.find(b => b.querySelector('[class*="lucide-ban"]'));
-    const editBtn = buttons.find(b => b.querySelector('[class*="lucide-square-pen"]'));
     const callBtn = buttons.find(b => b.querySelector('[class*="lucide-phone"]'));
     const messageBtn = buttons.find(b => b.querySelector('[class*="lucide-message-square"]'));
-    return { trashBtn, banBtn, editBtn, callBtn, messageBtn };
+    return { callBtn, messageBtn };
   };
 
   it('calls onCall when Call button clicked', () => {
@@ -88,6 +85,17 @@ describe('ContactProfileModal', () => {
     fireEvent.click(callBtn!);
 
     expect(defaultProps.onCall).toHaveBeenCalled();
+    expect(defaultProps.onClose).toHaveBeenCalled();
+  });
+
+  it('calls onVideoCall when Video button clicked', () => {
+    const props = { ...defaultProps, onVideoCall: vi.fn() };
+    render(<ContactProfileModal {...props} />);
+
+    const videoBtn = screen.getByRole('button', { name: 'Video' });
+    fireEvent.click(videoBtn);
+
+    expect(props.onVideoCall).toHaveBeenCalled();
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
@@ -104,8 +112,9 @@ describe('ContactProfileModal', () => {
   it('calls onEdit when Edit button clicked', () => {
     render(<ContactProfileModal {...defaultProps} />);
 
-    const { editBtn } = getProfileActionButtons();
-    fireEvent.click(editBtn!);
+    const avatar = screen.getByText('T').closest('div[class*="group"]') as HTMLElement;
+    const editBtn = within(avatar).getByLabelText('contacts.edit');
+    fireEvent.click(editBtn);
 
     expect(defaultProps.onEdit).toHaveBeenCalled();
     expect(defaultProps.onClose).toHaveBeenCalled();
@@ -114,7 +123,13 @@ describe('ContactProfileModal', () => {
   it('calls onDelete when Delete confirmed', async () => {
     render(<ContactProfileModal {...defaultProps} />);
 
-    const { trashBtn } = getProfileActionButtons();
+    const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
+    expect(moreBtn).toBeInTheDocument();
+    fireEvent.click(moreBtn!);
+    await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+    const trashBtn = document.querySelector('[class*="lucide-trash"]')?.closest('button') as HTMLElement;
+    expect(trashBtn).toBeInTheDocument();
     fireEvent.click(trashBtn!);
     await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 
@@ -130,7 +145,13 @@ describe('ContactProfileModal', () => {
   it('does not call onDelete when Delete cancelled', async () => {
     render(<ContactProfileModal {...defaultProps} />);
 
-    const { trashBtn } = getProfileActionButtons();
+    const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
+    expect(moreBtn).toBeInTheDocument();
+    fireEvent.click(moreBtn!);
+    await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+    const trashBtn = document.querySelector('[class*="lucide-trash"]')?.closest('button') as HTMLElement;
+    expect(trashBtn).toBeInTheDocument();
     fireEvent.click(trashBtn!);
     await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 
@@ -144,7 +165,13 @@ describe('ContactProfileModal', () => {
   it('calls onBlock when Block confirmed', async () => {
     render(<ContactProfileModal {...defaultProps} />);
 
-    const { banBtn } = getProfileActionButtons();
+    const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
+    expect(moreBtn).toBeInTheDocument();
+    fireEvent.click(moreBtn!);
+    await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+    const banBtn = document.querySelector('[class*="lucide-ban"]')?.closest('button') as HTMLElement;
+    expect(banBtn).toBeInTheDocument();
     fireEvent.click(banBtn!);
     await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 
@@ -158,7 +185,13 @@ describe('ContactProfileModal', () => {
   it('does not call onBlock when Block cancelled', async () => {
     render(<ContactProfileModal {...defaultProps} />);
 
-    const { banBtn } = getProfileActionButtons();
+    const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
+    expect(moreBtn).toBeInTheDocument();
+    fireEvent.click(moreBtn!);
+    await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+    const banBtn = document.querySelector('[class*="lucide-ban"]')?.closest('button') as HTMLElement;
+    expect(banBtn).toBeInTheDocument();
     fireEvent.click(banBtn!);
     await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 

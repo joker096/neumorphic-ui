@@ -48,7 +48,7 @@ export const ContentView = ({
     <div className="flex-1 w-full overflow-hidden relative px-3 sm:px-4 flex flex-col items-center min-h-0">
       {children}
     </div>
-    {showHomeButton && <HomeButton isDark={isDark} onClick={onHome} />}
+    {showHomeButton && <HomeButton isDark={isDark} onClick={onHome} t={t} />}
     <StoryViewerOverlay activeStory={activeStory} onClose={onCloseStory} isStealthMode={isStealthMode} />
   </motion.div>
 );

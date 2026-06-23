@@ -1,15 +1,18 @@
 import { CustomDiamondIcon } from "./CustomDiamondIcon";
 
+type Translate = (key: string, options?: any) => string;
+
 type HomeButtonProps = {
   isDark: boolean;
   onClick: () => void;
+  t: Translate;
 };
 
-export const HomeButton = ({ isDark, onClick }: HomeButtonProps) => (
+export const HomeButton = ({ isDark, onClick, t }: HomeButtonProps) => (
   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center justify-center group pointer-events-auto z-50">
     <div
       onClick={onClick}
-      title="Return to Hub"
+      title={t('hub.returnToHub')}
       className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 active:scale-95 ${
         isDark
           ? "bg-[#1a1d24] border border-white/10 shadow-[0_12px_24px_rgba(0,0,0,0.8),_inset_0_2px_4px_rgba(255,255,255,0.08)] hover:bg-[#1f222a]"
@@ -24,12 +27,6 @@ export const HomeButton = ({ isDark, onClick }: HomeButtonProps) => (
         } group-hover:scale-110 transition-transform`}
       />
     </div>
-    <span
-      className={`text-[9px] uppercase tracking-widest mt-2 font-bold ${
-        isDark ? "text-gray-500 group-hover:text-orange-400" : "text-slate-400 group-hover:text-orange-600"
-      } transition-colors`}
-    >
-      Hub
-    </span>
+
   </div>
 );

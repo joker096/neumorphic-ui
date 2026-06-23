@@ -49,7 +49,7 @@ export const DarkSearchBar: React.FC<{
           className="bg-transparent border-none outline-none w-full text-[15.5px] font-medium text-[#e8ecf2] placeholder:text-[#7a8190]"
         />
         <div
-          className={`ml-3 cursor-pointer w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${focused ? "bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 active:scale-90 active:bg-orange-500/30" : "text-[#a0a5b1] hover:bg-white/5"}`}
+          className={`ml-3 cursor-pointer w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${focused || pressed ? "bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 active:scale-90 active:bg-orange-500/30" : "text-[#a0a5b1] hover:bg-white/5 hover:text-orange-400/70"}`}
         >
           <Search size={22} strokeWidth={1.5} />
         </div>

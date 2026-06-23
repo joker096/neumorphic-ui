@@ -30,6 +30,7 @@ type AppOverlaysProps = {
   setChats: (chats: any[]) => void;
   t: (key: string, options?: any) => string;
   onProfileCall: () => void;
+  onProfileVideoCall: () => void;
   onProfileMessage: () => void;
   onProfileDelete: () => void;
   onProfileEdit: () => void;
@@ -60,6 +61,7 @@ export const AppOverlays = ({
   setChats,
   t,
   onProfileCall,
+  onProfileVideoCall,
   onProfileMessage,
   onProfileDelete,
   onProfileEdit,
@@ -84,6 +86,7 @@ export const AppOverlays = ({
       theme={theme}
       onClose={() => setGlobalSelectedContact(null)}
       onCall={onProfileCall}
+      onVideoCall={onProfileVideoCall}
       onMessage={onProfileMessage}
       onDelete={onProfileDelete}
       onEdit={onProfileEdit}

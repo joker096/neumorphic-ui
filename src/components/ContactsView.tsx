@@ -26,11 +26,12 @@ const itemVariants: any = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
-export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, onEdit }: { 
+export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall, onMessage, onEdit }: { 
   theme: 'light' | 'dark', 
   contacts: Contact[],
   setContacts: (updater: Contact[] | ((prev: Contact[]) => Contact[])) => void,
   onCall?: (name: string, color: string) => void, 
+  onVideoCall?: (name: string, color: string) => void,
   onMessage?: (name: string, color: string) => void,
   onEdit?: () => void
 }) => {
@@ -59,7 +60,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
     if (newContactName.trim() && newContactId.trim()) {
        const colors = ["from-teal-400 to-emerald-500", "from-pink-400 to-rose-500", "from-yellow-400 to-orange-500"];
        const color = colors[contacts.length % colors.length];
-       setContacts([{ name: newContactName.trim(), id: newContactId.trim(), color, lastSeen: 1000 }, ...contacts]);
+       setContacts([{ name: newContactName.trim(), id: newContactId.trim(), color, lastSeen: Date.now() }, ...contacts]);
        setNewContactName("");
        setNewContactId("");
        setShowAddForm(false);
@@ -102,7 +103,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
     if (sortBy === 'alpha') {
       return a.name.localeCompare(b.name);
     } else {
-      return a.lastSeen - b.lastSeen;
+      return b.lastSeen - a.lastSeen;
     }
   });
 
@@ -202,7 +203,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
                   <div className="flex items-center gap-2">
                     <span className={`font-mono text-[9px] tracking-wider truncate ${isDark ? "text-gray-500" : "text-slate-400"}`}>{c.id}</span>
                     <span className={`text-[9px] font-bold shrink-0 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
-                      &bull; {c.lastSeen < 3600000 ? t('chat.minutesAgo', { count: Math.floor(c.lastSeen / 60000) }) : c.lastSeen < 86400000 ? t('chat.hoursAgo', { count: Math.floor(c.lastSeen / 3600000) }) : t('chat.daysAgo', { count: Math.floor(c.lastSeen / 86400000) })}
+                      &bull; {(() => { const delta = Date.now() - c.lastSeen; return delta < 3600000 ? t('chat.minutesAgo', { count: Math.floor(delta / 60000) || 1 }) : delta < 86400000 ? t('chat.hoursAgo', { count: Math.floor(delta / 3600000) }) : t('chat.daysAgo', { count: Math.floor(delta / 86400000) }); })()}
                     </span>
                   </div>
                 </div>
@@ -223,11 +224,15 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
           contact={selectedContact}
           theme={theme}
           onClose={() => setSelectedContact(null)}
-          onCall={() => {
-              if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
-              setSelectedContact(null);
-          }}
-          onMessage={() => {
+           onCall={() => {
+               if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
+               setSelectedContact(null);
+           }}
+           onVideoCall={() => {
+               if (onVideoCall && selectedContact) onVideoCall(selectedContact.name, selectedContact.color);
+               setSelectedContact(null);
+           }}
+           onMessage={() => {
               if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
               setSelectedContact(null);
           }}
@@ -237,10 +242,10 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
                  setConfirmDeleteId(selectedContact.id);
                }
            }}
-           onBlock={() => {
-              if (selectedContact) setContacts(contacts.filter(c => c.id !== selectedContact.id));
-              setSelectedContact(null);
-          }}
+            onBlock={() => {
+               if (selectedContact) setContacts(contacts.map(c => c.id === selectedContact.id ? { ...c, isBlocked: true } : c));
+               setSelectedContact(null);
+           }}
           onEdit={() => {
                 if (selectedContact) {
                   setEditingContact(selectedContact);
@@ -284,7 +289,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onMessage, 
             >
               <div 
                 className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
-                onClick={() => { setShowAddForm(false); setIsScanning(false); setShowShareId(false); }}
+                onClick={() => { setShowAddForm(false); setIsScanning(false); setShowShareId(false); setShowEditForm(false); setEditingContact(null); }}
                 title={t('contacts.close')}
               >
                 <X size={18} />

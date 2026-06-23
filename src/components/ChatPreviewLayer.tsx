@@ -118,6 +118,7 @@ interface ChatPreviewLayerProps {
   onClose: () => void;
   onAction?: (action: string) => void;
   onCall?: (name: string, color?: string) => void;
+  onVideoCall?: (name: string, color?: string) => void;
   onMessage?: (name: string, color?: string) => void;
   onUpdateChat?: (chat: any) => void;
   onReply?: (message: any) => void;
@@ -128,7 +129,7 @@ interface ChatPreviewLayerProps {
   setEditingContact: (contact: ContactProfile | null) => void;
 }
 
-export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact }: any) => {
+export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact }: any) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const { stealthMode, scheduledQueue, setActiveCall, setChats, setChannels, contacts, setContacts } = useAppStore();
@@ -306,7 +307,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
                 className={`absolute -bottom-0.5 -right-0.5 w-[12px] h-[12px] rounded-full border-[2px] ${isDark ? "bg-green-400 border-[#1a1d24]" : "bg-emerald-500 border-[#f4f7f9]"}`}
               />
             )}
-            <div className={`absolute -top-1 -right-1 rounded-full w-4 h-4 flex items-center justify-center border-[2px] ${isDark ? "border-[#1a1d24] bg-[#ff6b6b]" : "border-[#f4f7f9] bg-rose-500"}`} title="Self-destruct active (1h)">
+            <div className={`absolute -top-1 -right-1 rounded-full w-4 h-4 flex items-center justify-center border-[2px] ${isDark ? "border-[#1a1d24] bg-[#ff6b6b]" : "border-[#f4f7f9] bg-rose-500"}`} title={t('chat.selfDestructActive')}>
               <span className="text-[7px] text-white font-bold tracking-tighter">1h</span>
             </div>
           </div>
@@ -316,15 +317,16 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
               className={`font-bold text-[15px] truncate leading-tight flex items-center gap-1.5 ${isDark ? "text-white drop-shadow-sm" : "text-slate-800"}`}
             >
               {chat.name}
-              <div title="E2E Encrypted" className="flex items-center justify-center">
+              <div title={t('chat.e2eEncrypted')} className="flex items-center justify-center">
                  <Shield size={12} className={isDark ? "text-orange-400" : "text-emerald-500"} />
               </div>
             </span>
-            <span
-              className={`text-[11px] mt-0.5 font-bold tracking-wider uppercase ${isDark ? "text-orange-400" : "text-orange-600"}`}
-            >
-              {chat.online ? t('chat.filters.online') : t('chat.filters.offline')}
-            </span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${chat.online ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]" : "bg-gray-500"}`} />
+              <span className={`text-[11px] font-bold tracking-wider uppercase ${isDark ? "text-orange-400" : "text-orange-600"}`}>
+                {chat.online ? t('chat.filters.online') : t('chat.filters.offline')}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-1">
@@ -335,24 +337,60 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
             >
               <Search size={18} />
             </div>
-            {!chat.isChannel && (
-              <div
-                title={t('chat.startAudioCall')}
-                onClick={() => setActiveCall({ number: chat.name || "Unknown Call", startTime: Date.now(), isMuted: false, isSpeaker: false })}
-                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
-              >
-                <Phone size={18} />
-              </div>
-            )}
-            {!chat.isChannel && (
-              <div
-                title={t('chat.filters.startVideoCall')}
-                onClick={() => setActiveCall({ number: chat.name || "Unknown Call", startTime: Date.now(), isMuted: false, isSpeaker: false, isVideo: true })}
-                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
-              >
-                <Video size={20} />
-              </div>
-            )}
+{!chat.isChannel && (
+                <div
+                  title={t('chat.startAudioCall')}
+                  onClick={() => {
+                    const mockCall = {
+                      callId: `preview_${Date.now()}`,
+                      direction: 'outgoing' as const,
+                      status: 'connecting' as const,
+                      callType: 'audio' as const,
+                      remotePeer: { peerId: chat.id, displayName: chat.name || t('chat.unknownCall') },
+                      localStream: null,
+                      screenStream: null,
+                      isMuted: false,
+                      isSpeaker: false,
+                      isVideoEnabled: false,
+                      isVideo: false,
+                      isRecording: false,
+                      startTime: Date.now(),
+                      participants: [],
+                    };
+                    setActiveCall(mockCall);
+                  }}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
+                >
+                  <Phone size={18} />
+                </div>
+              )}
+              {!chat.isChannel && (
+                <div
+                  title={t('chat.filters.startVideoCall')}
+                  onClick={() => {
+                    const mockCall = {
+                      callId: `preview_${Date.now()}`,
+                      direction: 'outgoing' as const,
+                      status: 'connecting' as const,
+                      callType: 'video' as const,
+                      remotePeer: { peerId: chat.id, displayName: chat.name || t('chat.unknownCall') },
+                      localStream: null,
+                      screenStream: null,
+                      isMuted: false,
+                      isSpeaker: false,
+                      isVideoEnabled: true,
+                      isVideo: true,
+                      isRecording: false,
+                      startTime: Date.now(),
+                      participants: [],
+                    };
+                    setActiveCall(mockCall);
+                  }}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
+                >
+                  <Video size={20} />
+                </div>
+              )}
             {!chat.isChannel && (
               <div
                 title={t('chat.saved')}
@@ -635,7 +673,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
                       )}
                       {msg.text && typeof msg.text === "string" && /https?:\/\/[^\s]+/i.test(msg.text) && (
                         <div className={`mt-2 p-2 rounded-2xl border text-[11px] ${isDark ? "bg-white/5 border-white/10 text-gray-300" : "bg-slate-50 border-black/5 text-slate-600"}`}>
-                          <div className="font-bold uppercase tracking-widest text-[9px] opacity-70 mb-1">Link Preview</div>
+                          <div className="font-bold uppercase tracking-widest text-[9px] opacity-70 mb-1">{t('chat.linkPreview')}</div>
                           <div className="break-all line-clamp-2">{msg.text.match(/https?:\/\/[^\s]+/i)?.[0]}</div>
                         </div>
                       )}
@@ -691,7 +729,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
                                 : "text-slate-500 hover:text-slate-800 hover:bg-black/5"
                             }`}
                           >
-                            Reply
+                            {t('chat.reply')}
                           </button>
                         )}
                         {!chat.isChannel && (
@@ -704,7 +742,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
                             }`}
                           >
                             <Bookmark size={10} />
-                            {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? "Saved" : "Save"}
+                            {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? t('chat.saved') : t('chat.save')}
                           </button>
                         )}
                       </div>
@@ -837,15 +875,15 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
                 <Plus size={22} />
               </div>
               <div
-                className={`flex-1 h-12 rounded-full px-5 flex items-center ${
+                className={`flex-1 h-12 rounded-full px-5 flex items-center transition-all duration-300 focus-within:scale-[1.01] ${
                   isDark
-                    ? "bg-[#13151b] border border-white/5 shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_2px_4px_rgba(255,255,255,0.02)]"
-                    : "bg-[#eaeff4] border border-black/5 shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1)]"
+                    ? "bg-[#13151b] border border-white/5 shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_2px_4px_rgba(255,255,255,0.02)] focus-within:border-orange-500/30 focus-within:shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_0_12px_rgba(249,115,22,0.15)]"
+                    : "bg-[#eaeff4] border border-black/5 shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1)] focus-within:border-orange-400/40 focus-within:shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1),_0_0_12px_rgba(249,115,22,0.1)]"
                 }`}
               >
                 <input
                   type="text"
-                  placeholder="Message..."
+                  placeholder={t('chat.messagePlaceholder')}
                   className={`w-full bg-transparent border-none outline-none text-[14.5px] ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
                 />
               </div>
@@ -899,8 +937,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
             >
               <div className={`p-4 flex items-center justify-between ${isDark ? "border-b border-white/5" : "border-b border-black/5"}`}>
                 <div>
-                  <div className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-orange-400" : "text-orange-600"}`}>Saved Messages</div>
-                  <div className={`text-sm mt-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{chatSavedMessages.length} items in {chat.name}</div>
+                  <div className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-orange-400" : "text-orange-600"}`}>{t('chat.savedMessages')}</div>
+                  <div className={`text-sm mt-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{t('chat.savedItems', { n: chatSavedMessages.length, chatName: chat.name })}</div>
                 </div>
                 <button
                   onClick={() => setShowSavedPanel(false)}
@@ -948,11 +986,15 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onMes
           contact={selectedContact}
           theme={theme}
           onClose={() => setSelectedContact(null)}
-          onCall={() => {
-              if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
-              setSelectedContact(null);
-          }}
-          onMessage={() => {
+           onCall={() => {
+               if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
+               setSelectedContact(null);
+           }}
+           onVideoCall={() => {
+               if (onVideoCall && selectedContact) onVideoCall(selectedContact.name, selectedContact.color);
+               setSelectedContact(null);
+           }}
+           onMessage={() => {
               if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
               setSelectedContact(null);
           }}

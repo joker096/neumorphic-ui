@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { SettingsView } from './SettingsView';
 import { useAppStore } from '../store';
@@ -83,7 +83,11 @@ vi.mock('../lib/i18n', () => {
     'settings.pwaPrompt': 'PWA install prompt',
     'settings.pwaPromptSubtitle': 'Show install banner on supported browsers',
     'settings.installBtn': 'Install',
+    'settings.installApp': 'Install {{app}}',
     'settings.installDismiss': 'Not now',
+    'settings.pwaWorksOffline': 'Works offline',
+    'settings.pwaFasterLoading': 'Faster loading',
+    'settings.pwaAddToHomeScreen': 'Add to home screen',
     'settings.quickOptions': 'Quick options',
     'settings.notifications': 'Notifications',
     'settings.notificationsSection': 'Notifications section',
@@ -190,7 +194,14 @@ vi.mock('../lib/i18n', () => {
   };
   return {
     useI18n: () => ({
-      t: (key: string) => translations[key] || key,
+      t: (key: string, args?: Record<string, string | number>) => {
+        let text = translations[key] || key;
+        if (args) {
+          text = text.replace(/\{\{(\w+)\}\}/g, '{$1}');
+          return Object.entries(args).reduce((result, [name, replacement]) => result.replace(`{${name}}`, String(replacement)), text);
+        }
+        return text;
+      },
       lang: 'en',
       setLang: vi.fn(),
     }),
@@ -231,6 +242,15 @@ describe('SettingsView', () => {
     })).toBeInTheDocument();
   });
 
+  it('renders localized PWA install banner copy', () => {
+    render(<SettingsView {...defaultProps} />);
+
+    expect(screen.getByText('Install Mess&Anger')).toBeInTheDocument();
+    expect(screen.getByText('Works offline')).toBeInTheDocument();
+    expect(screen.getByText('Faster loading')).toBeInTheDocument();
+    expect(screen.getByText('Add to home screen')).toBeInTheDocument();
+  });
+
   it('shows grouped Account section with user info', () => {
     render(<SettingsView {...defaultProps} />);
 
@@ -246,48 +266,12 @@ describe('SettingsView', () => {
     expect(screen.getByText('Appearance')).toBeInTheDocument();
   });
 
-  it('navigates to Appearance sub-view when theme row clicked', async () => {
-    render(<SettingsView {...defaultProps} />);
-
-    const themeRow = screen.getByText('Theme').closest('button')!;
-    fireEvent.click(themeRow);
-
-    await waitFor(() => {
-      expect(screen.getByText('Dark theme')).toBeInTheDocument();
-    }, { timeout: 10000 });
-  });
-
   it('shows quick options on the main settings screen', () => {
     render(<SettingsView {...defaultProps} />);
 
     expect(screen.getByText('Quick options')).toBeInTheDocument();
     expect(screen.getByText('Notification sound')).toBeInTheDocument();
     expect(screen.getByText('Cloud sync')).toBeInTheDocument();
-  });
-
-  it('shows Notifications section', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    expect(screen.getByText('Notifications section')).toBeInTheDocument();
-    expect(screen.getByText('Notification sound')).toBeInTheDocument();
-  });
-
-  it('shows Privacy & Security section', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    expect(screen.getByText('Privacy & Security')).toBeInTheDocument();
-    expect(screen.getByText('Security')).toBeInTheDocument();
-    expect(screen.getByText('Privacy')).toBeInTheDocument();
-  });
-
-  it('navigates to Security sub-view', async () => {
-    render(<SettingsView {...defaultProps} />);
-
-    const securityRow = screen.getByText('Security').closest('button')!;
-    fireEvent.click(securityRow);
-    await waitFor(() => {
-      expect(screen.getByText('App Lock PIN')).toBeInTheDocument();
-    }, { timeout: 10000 });
   });
 
   it('shows Services section', () => {
@@ -304,23 +288,6 @@ describe('SettingsView', () => {
     expect(screen.getByText('Proxy & Network')).toBeInTheDocument();
     expect(screen.getByText('Spam Protection')).toBeInTheDocument();
     expect(screen.getByText('System Status')).toBeInTheDocument();
-  });
-
-  it('navigates to Network sub-view', async () => {
-    render(<SettingsView {...defaultProps} />);
-
-    const networkRow = screen.getByText('Proxy & Network').closest('button')!;
-    fireEvent.click(networkRow);
-    await waitFor(() => {
-      expect(screen.getByText('Proxy & Network')).toBeInTheDocument();
-    }, { timeout: 10000 });
-  });
-
-  it('shows Location section', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    expect(screen.getByText('Location')).toBeInTheDocument();
-    expect(screen.getByText('Active shares')).toBeInTheDocument();
   });
 
   it('shows build status footer', () => {

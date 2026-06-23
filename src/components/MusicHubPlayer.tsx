@@ -74,7 +74,7 @@ export const MusicHubPlayer: React.FC<MusicHubPlayerProps> = ({ theme }) => {
       const pct = Math.min(currentTime / totalDuration, 1);
       const offset = arcLength * (1 - pct * 0.5);
       progressFillRef.current.style.strokeDasharray = `${arcLength} ${arcLength}`;
-      progressFillRef.current.style.strokeDashoffset = offset;
+      progressFillRef.current.style.strokeDashoffset = `${offset}`;
     }
   }, [currentTime, totalDuration, isRadioMode]);
 

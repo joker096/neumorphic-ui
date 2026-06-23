@@ -1,5 +1,5 @@
+import React from "react";
 import { motion } from "motion/react";
-import type { ComponentType, SVGProps } from "react";
 import { AccountSwitcher } from "../AccountSwitcher";
 import { RadialMenu } from "../AppChrome";
 
@@ -8,7 +8,7 @@ type HubItem = {
   angle: number;
   title: string;
   subtitle: string;
-  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  icon: React.ComponentType<any>;
 };
 
 type HubViewProps = {
@@ -16,11 +16,10 @@ type HubViewProps = {
   items: HubItem[];
   badges?: Record<string, number>;
   centerTitle: string;
-  centerSubtitle: string;
   onItemClick: (id: string) => void;
 };
 
-export const HubView = ({ theme, items, badges, centerTitle, centerSubtitle, onItemClick }: HubViewProps) => (
+export const HubView = ({ theme, items, badges, centerTitle, onItemClick }: HubViewProps) => (
   <motion.div
     key="hub-view"
     className="flex-1 w-full h-[100dvh] bg-transparent flex flex-col items-center justify-center relative z-10"
@@ -38,8 +37,6 @@ export const HubView = ({ theme, items, badges, centerTitle, centerSubtitle, onI
         items={items}
         badges={badges}
         centerTitle={centerTitle}
-        centerSubtitle={centerSubtitle}
-        onCenterClick={() => {}}
         onItemClick={onItemClick}
       />
     </motion.div>

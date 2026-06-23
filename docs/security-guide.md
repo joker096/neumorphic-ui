@@ -224,6 +224,8 @@ Rate limiting cannot be disabled through configuration. To adjust limits, modify
 
 ## Recommended Production Configuration
 
+For a hardened Ubuntu/Debian deployment, use `scripts/deploy-secure.sh` with `--mode=minimal` or `--mode=full`. See [`deploy-secure.md`](./deploy-secure.md) for mode comparison, post-install commands, and security notes.
+
 ### Environment Variables
 
 ```bash
@@ -234,7 +236,7 @@ export JWT_SECRET="$(openssl rand -base64 48)"
 export PORT=8765
 export REST_PORT=8766
 export CORS_ORIGINS="https://app.example.com"
-export DB_PATH="/var/lib/messanger/data/admin.db"
+export DB_PATH="/var/lib/messanger/admin.db"
 ```
 
 ### Reverse Proxy (nginx)

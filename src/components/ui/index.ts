@@ -1,4 +1,5 @@
-export { NeumorphicKnob } from './NeumorphicKnob';
+export { SettingsRow, SettingsSectionTitle, SettingsGroup, ToggleSwitch, SettingsToggleRow } from './SettingsRow';
+export type { SettingsRowProps } from './SettingsRow';
 export { GlowingKnobLine } from './GlowingKnobLine';
 export { GlowingPlusLight } from './GlowingPlusLight';
 export { LightPillButton } from './LightPillButton';
