@@ -1,3 +1,7 @@
+interface TransportIndicatorProps {
+  status?: 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
+}
+
 const STATUS_ICONS: Record<string, string> = {
   connected: '⚡',
   blocked: '⚠',
@@ -14,10 +18,9 @@ const STATUS_LABELS: Record<string, string> = {
   error: 'Error',
 };
 
-export function TransportIndicator() {
-  const connectionStatus = 'disconnected';
-  const icon = STATUS_ICONS[connectionStatus] || '○';
-  const label = STATUS_LABELS[connectionStatus] || 'Unknown';
+export function TransportIndicator({ status = 'disconnected' }: TransportIndicatorProps) {
+  const icon = STATUS_ICONS[status] || '○';
+  const label = STATUS_LABELS[status] || 'Unknown';
 
   return (
     <span

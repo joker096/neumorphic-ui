@@ -8,7 +8,7 @@ import { CallScreen } from "./components/call/CallScreen";
 import { IncomingCallSheet } from "./components/call/IncomingCallSheet";
 import { HuddleWidget } from "./components/huddle/HuddleWidget";
 import { useCall } from "./hooks/useCall";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
 import { AnimatePresence } from "motion/react";
 import { Activity, Bot, Hash, Lock, MessageCircle, Mic, Phone, Settings, Target, Users } from "lucide-react";
@@ -21,6 +21,8 @@ import type { Contact } from "./types/contact";
 import type { ContactProfile } from "./components/ContactProfileModal";
 import { registerRiskSession, getLastActionDebugId } from "./utils/riskShell";
 import { parseMentions, isDNDEnabled, isPriorityContact } from "./constants";
+import { SignallingManager } from './lib/signaling/manager';
+import { TransportIndicator } from './components/status/TransportIndicator';
 
 export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -73,6 +75,37 @@ export default function App() {
       return {};
     }
   });
+
+const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error'>('disconnected');
+const [regionBlocked, setRegionBlocked] = useState(false);
+const managerRef = useRef<SignallingManager | null>(null);
+
+useEffect(() => {
+  const seedUrls = [
+    'wss://signaling1.messanger.app/ws',
+    'wss://signaling2.messanger.app/ws',
+    'wss://signaling3.messanger.app/ws',
+  ];
+  const mgr = new SignallingManager(seedUrls);
+  managerRef.current = mgr;
+
+  setConnectionStatus('connecting');
+  mgr.connect().catch(() => setConnectionStatus('error'));
+
+  const unsub1 = mgr.onStateChange((state) => {
+    setConnectionStatus(state);
+  });
+
+  const unsub2 = mgr.onBlockedRegion((event) => {
+    setRegionBlocked(true);
+  });
+
+  return () => {
+    mgr.disconnect();
+    unsub1();
+    unsub2();
+  };
+}, []);
 
   useEffect(() => {
     localStorage.setItem('app_theme', theme);
@@ -851,6 +884,8 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
           }}
           t={t}
         />
+
+        <TransportIndicator status={connectionStatus} />
 
         <AnimatePresence mode="wait">
           {view === "hub" ? (
