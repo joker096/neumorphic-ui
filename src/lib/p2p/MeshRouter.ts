@@ -199,6 +199,14 @@ export class MeshRouter {
     this.routeChangeCallbacks.forEach(cb => cb())
   }
 
+  getPeerCount(): number {
+    return this.directPeers.size;
+  }
+
+  getPeers(): string[] {
+    return Array.from(this.directPeers);
+  }
+
   static createForwardMessage(from: string, to: string, senderId: string, payload: string): MeshForwardMessage {
     return {
       type: 'mesh-forward',
