@@ -208,6 +208,15 @@ export interface ScheduledMessageQueue {
   removeMessage: (id: string) => void;
 }
 
+export interface ConnectionState {
+  transportBackend: string;
+  connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
+  selectedBackend: string;
+  latencyMs: number;
+  blockedBackends: string[];
+  regionBlocked: boolean;
+}
+
 interface AppState {
   appLockHashedPIN: string | null;
   appLockSalt: string | null;
@@ -315,6 +324,19 @@ interface AppState {
   setShareRecording: (enabled: boolean) => void;
   adminPausedAt: number | null;
   setAdminPausedAt: (ts: number | null) => void;
+
+  connectionStatus: ConnectionState['connectionStatus'];
+  transportBackend: string;
+  selectedBackend: string;
+  latencyMs: number;
+  blockedBackends: string[];
+  regionBlocked: boolean;
+
+  setConnectionStatus: (status: ConnectionState['connectionStatus']) => void;
+  setTransportBackend: (backend: string) => void;
+  setLatency: (ms: number) => void;
+  setBlockedBackends: (backends: string[]) => void;
+  setRegionBlocked: (blocked: boolean) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -553,6 +575,17 @@ export const useAppStore = create<AppState>()(
       setShareRecording: (enabled) => set({ shareRecording: enabled }),
       adminPausedAt: null,
       setAdminPausedAt: (ts) => set({ adminPausedAt: ts }),
+      connectionStatus: 'disconnected',
+      transportBackend: 'direct',
+      selectedBackend: '',
+      latencyMs: 0,
+      blockedBackends: [],
+      regionBlocked: false,
+      setConnectionStatus: (status) => set({ connectionStatus: status }),
+      setTransportBackend: (backend) => set({ transportBackend: backend }),
+      setLatency: (ms) => set({ latencyMs: ms }),
+      setBlockedBackends: (backends) => set({ blockedBackends: backends }),
+      setRegionBlocked: (blocked) => set({ regionBlocked: blocked }),
     }),
     {
       name: 'nexus-messenger-storage',
