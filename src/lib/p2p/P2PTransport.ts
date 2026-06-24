@@ -1,4 +1,5 @@
 import { HMACAuth } from './HMACAuth'
+import { TrafficObfuscator } from '../transport/obfuscator'
 
 export interface CallMediaHandlers {
   onRemoteTrack: (peerId: string, stream: MediaStream) => void;
@@ -19,6 +20,7 @@ interface P2PTransportConfig {
   onMessage: P2PMessageHandler
   onConnected: P2PConnectionHandler
   onDisconnected: P2PConnectionHandler
+  obfuscator?: TrafficObfuscator;
 }
 
 export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'online-status' | 'read-receipt'
@@ -45,6 +47,7 @@ export class P2PTransport {
   private outgoingStreams: MediaStream[] = []
   private pendingOutgoingTracks: MediaStreamTrack[] = []
   private localHandlesTracks = false
+  private obfuscator: TrafficObfuscator | null = null
 
   constructor(config: P2PTransportConfig) {
     this.signalingUrl = config.signalingUrl
@@ -55,6 +58,7 @@ export class P2PTransport {
     this.iceServers = config.iceServers ?? [
       { urls: 'stun:stun.l.google.com:19302' },
     ]
+    this.obfuscator = config.obfuscator ?? null
   }
 
   attachMediaHandlers(handlers: CallMediaHandlers): void {
@@ -179,17 +183,21 @@ export class P2PTransport {
   }
 
   send(data: string): void {
+    let payload = data;
+    if (this.obfuscator) {
+      payload = this.obfuscator.obfuscate(data);
+    }
     if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
       console.warn('[P2PTransport] Data channel not open')
       return
     }
 
     if (this.hmacKey) {
-      HMACAuth.sign(this.hmacKey, data).then((sig) => {
-        this.dataChannel!.send(`${sig}|${data}`)
+      HMACAuth.sign(this.hmacKey, payload).then((sig) => {
+        this.dataChannel!.send(`${sig}|${payload}`)
       })
     } else {
-      this.dataChannel.send(data)
+      this.dataChannel.send(payload)
     }
   }
 
@@ -222,6 +230,10 @@ export class P2PTransport {
 
   setIceServers(servers: RTCIceServer[]): void {
     this.iceServers = servers
+  }
+
+  setObfuscator(obfuscator: TrafficObfuscator): void {
+    this.obfuscator = obfuscator
   }
 
   private createPeerConnection(): void {
