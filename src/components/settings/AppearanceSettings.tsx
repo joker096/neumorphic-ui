@@ -1,8 +1,9 @@
 import { motion } from 'motion/react';
 import { Download, Palette } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
-import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow, ToggleSwitch } from '../ui/SettingsRow';
+import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
+import { ThemeToggle } from '../app/ThemeToggle';
 
 interface AppearanceSettingsProps {
   isDark: boolean;
@@ -26,22 +27,18 @@ export const AppearanceSettings = ({
     <SubView title={t('settings.appearance')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('settings.appearanceDescription')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
-        <SettingsRow
-          icon={<Palette size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
-          title={t('settings.darkTheme')}
-          subtitle={t('settings.darkThemeSubtitle')}
-          isDark={isDark}
-          rightElement={
-            <ToggleSwitch 
-              isOn={isDark} 
-              onToggle={() => setTheme(isDark ? 'light' : 'dark')} 
-              isDark={isDark} 
-            />
-          }
-          onClick={() => setTheme(isDark ? 'light' : 'dark')}
-        />
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/10" : "bg-emerald-100"}`}>
+              <Palette size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+            </div>
+            <div>
+              <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.darkTheme')}</div>
+              <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.darkThemeSubtitle')}</div>
+            </div>
+          </div>
+          <ThemeToggle isDark={isDark} theme={theme} setTheme={setTheme} t={t} />
+        </div>
         <SettingsRow
           icon={<span className="text-sm font-bold">Aa</span>}
           iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}

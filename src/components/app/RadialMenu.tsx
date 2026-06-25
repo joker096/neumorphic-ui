@@ -48,6 +48,23 @@ export const RadialMenu = ({ theme, items, badges, centerTitle, onCenterClick, o
   const dotStroke = isDark ? "#f97316" : "#14b8a6";
   const textTitleColor = isDark ? "text-gray-300" : "text-slate-800";
 
+  const getIconSize = (id: string, index: number) => {
+    if (id === 'chat' || id === 'calls' || id === 'channels') return 32;
+    return 28;
+  };
+
+  const getBubbleSize = (id: string) => {
+    if (id === 'chat' || id === 'calls' || id === 'channels') return "w-[80px] h-[80px]";
+    return "w-[74px] h-[74px]";
+  };
+
+  const getItemGradient = (id: string) => {
+    if (id === 'chat' || id === 'calls') {
+      return isDark ? "from-orange-500 to-amber-500" : "from-orange-500 to-orange-400";
+    }
+    return "";
+  };
+
   const handleVolumeInteraction = (event: React.PointerEvent<SVGPathElement>) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
@@ -74,7 +91,7 @@ export const RadialMenu = ({ theme, items, badges, centerTitle, onCenterClick, o
   return (
     <div
       ref={containerRef}
-      className="relative w-[800px] h-[550px] overflow-visible select-none"
+      className="relative w-full max-w-[800px] aspect-[800/550] overflow-visible select-none"
       style={{ WebkitTapHighlightColor: "transparent" }}
     >
       <svg
@@ -287,27 +304,31 @@ export const RadialMenu = ({ theme, items, badges, centerTitle, onCenterClick, o
                   delay: isOpen ? index * 0.05 : 0,
                 }}
                 className={`absolute flex items-center justify-center rounded-full cursor-pointer z-20 transition-all duration-300 ${
-                  isDark
-                    ? "bg-[#13151b] shadow-[0_12px_24px_rgba(0,0,0,0.5),_inset_0_1.5px_2px_rgba(255,255,255,0.08),_inset_0_-2px_4px_rgba(0,0,0,0.8)] border border-white/[0.04] hover:border-orange-500/30 hover:scale-105 hover:shadow-[0_16px_32px_rgba(249,115,22,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.1),_inset_0_-2px_4px_rgba(0,0,0,0.8)] active:scale-95 active:shadow-[inset_0_8px_16px_rgba(0,0,0,0.9)]"
-                    : "bg-[#eaeff4] shadow-[-6px_-6px_12px_rgba(255,255,255,0.9),_8px_8px_16px_rgba(165,175,190,0.5),_inset_2px_2px_4px_rgba(255,255,255,1)] border border-white/80 hover:border-orange-400 hover:scale-[1.05] hover:shadow-[-8px_-8px_16px_rgba(255,255,255,1),_10px_10px_20px_rgba(249,115,22,0.3),_inset_2px_2px_4px_rgba(255,255,255,1)] active:scale-95 active:shadow-[inset_3px_3px_8px_rgba(165,175,190,0.4),_inset_-2px_-2px_4px_rgba(255,255,255,1)]"
+                  item.id === 'chat' || item.id === 'calls'
+                    ? (isDark
+                        ? "bg-gradient-to-br from-orange-500/20 to-amber-500/10 shadow-[0_16px_32px_rgba(249,115,22,0.6),_inset_0_2px_3px_rgba(255,255,255,0.1),_inset_0_-3px_6px_rgba(0,0,0,0.9)] border border-orange-500/20 hover:border-orange-500/40 hover:scale-105 hover:shadow-[0_20px_40px_rgba(249,115,22,0.4)] active:scale-95 active:shadow-[inset_0_10px_20px_rgba(0,0,0,0.9)]"
+                        : "bg-gradient-to-br from-orange-50 to-white shadow-[-8px_-8px_16px_rgba(255,255,255,1),_12px_12px_24px_rgba(165,175,190,0.6),_inset_2px_2px_4px_rgba(255,255,255,1)] border border-orange-300 hover:border-orange-500 hover:scale-[1.05] hover:shadow-[-10px_-10px_20px_rgba(255,255,255,1),_14px_14px_28px_rgba(249,115,22,0.3),_inset_2px_2px_4px_rgba(255,255,255,1)] active:scale-95 active:shadow-[inset_3px_3px_8px_rgba(165,175,190,0.4),_inset_-2px_-2px_4px_rgba(255,255,255,1)]")
+                    : (isDark
+                        ? "bg-[#13151b] shadow-[0_12px_24px_rgba(0,0,0,0.5),_inset_0_1.5px_2px_rgba(255,255,255,0.08),_inset_0_-2px_4px_rgba(0,0,0,0.8)] border border-white/[0.04] hover:border-orange-500/30 hover:scale-105 hover:shadow-[0_16px_32px_rgba(249,115,22,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.1),_inset_0_-2px_4px_rgba(0,0,0,0.8)] active:scale-95 active:shadow-[inset_0_8px_16px_rgba(0,0,0,0.9)]"
+                        : "bg-[#eaeff4] shadow-[-6px_-6px_12px_rgba(255,255,255,0.9),_8px_8px_16px_rgba(165,175,190,0.5),_inset_2px_2px_4px_rgba(255,255,255,1)] border border-white/80 hover:border-orange-400 hover:scale-[1.05] hover:shadow-[-8px_-8px_16px_rgba(255,255,255,1),_10px_10px_20px_rgba(249,115,22,0.3),_inset_2px_2px_4px_rgba(255,255,255,1)] active:scale-95 active:shadow-[inset_3px_3px_8px_rgba(165,175,190,0.4),_inset_-2px_-2px_4px_rgba(255,255,255,1)]")
                 }`}
                 style={{
-                  width: "74px",
-                  height: "74px",
+                  width: item.id === 'chat' || item.id === 'calls' ? 80 : 74,
+                  height: item.id === 'chat' || item.id === 'calls' ? 80 : 74,
                   pointerEvents: isOpen ? "auto" : "none",
                 }}
               >
                 {badges && badges[item.id] > 0 && (
-                  <div className="absolute -top-1 -right-2 w-[22px] h-[22px] bg-gradient-to-tr from-orange-500 to-orange-400 rounded-full shadow-[0_0_12px_rgba(249,115,22,0.7),_inset_0_2px_3px_rgba(255,255,255,0.4)] border border-white/20 flex items-center justify-center">
-                    <span className="text-[11px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">{badges[item.id]}</span>
+                  <div className={`absolute rounded-full flex items-center justify-center ${item.id === 'chat' || item.id === 'calls' ? "-top-2 -right-2 w-[26px] h-[26px]" : "-top-1 -right-2 w-[22px] h-[22px]"} ${item.id === 'chat' || item.id === 'calls' ? "bg-gradient-to-tr from-orange-500 to-red-500 shadow-[0_0_14px_rgba(249,115,22,0.8),_inset_0_2px_3px_rgba(255,255,255,0.4)] border border-white/30" : "bg-gradient-to-tr from-orange-500 to-orange-400 rounded-full shadow-[0_0_12px_rgba(249,115,22,0.7),_inset_0_2px_3px_rgba(255,255,255,0.4)] border border-white/20"}`}>
+                    <span className={`text-[10px] font-bold text-white ${item.id === 'chat' || item.id === 'calls' ? "text-[10px]" : ""} drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]`}>{badges[item.id]}</span>
                   </div>
                 )}
                 <Icon
-                  size={28}
+                  size={item.id === 'chat' || item.id === 'calls' ? 32 : 28}
                   className={
                     isDark
-                      ? "text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.4)]"
-                      : "text-orange-600 drop-shadow-[0_1px_1px_rgba(255,255,255,1)]"
+                      ? (item.id === 'chat' || item.id === 'calls' ? "text-orange-300 drop-shadow-[0_0_10px_rgba(251,146,60,0.6)]" : "text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.4)]")
+                      : (item.id === 'chat' || item.id === 'calls' ? "text-orange-600 drop-shadow-[0_2px_2px_rgba(255,255,255,1)]" : "text-orange-600 drop-shadow-[0_1px_1px_rgba(255,255,255,1)]")
                   }
                   strokeWidth={1.5}
                 />
@@ -335,8 +356,8 @@ export const RadialMenu = ({ theme, items, badges, centerTitle, onCenterClick, o
                 }}
                 className={`absolute w-[180px] text-center pointer-events-none flex flex-col items-center z-10 drop-shadow-md`}
               >
-                <span className={`text-[12px] font-bold uppercase tracking-widest ${textTitleColor}`}>{item.title}</span>
-                <span className={`text-[10px] mt-1 font-medium tracking-wide ${isDark ? "text-gray-500" : "text-slate-500"}`}>{item.subtitle}</span>
+                <span className={`${item.id === 'chat' || item.id === 'calls' ? `text-[13px] font-bold ${isDark ? "text-orange-300" : "text-orange-600"}` : `text-[11px] font-medium uppercase tracking-widest ${textTitleColor}`}`}>{item.title}</span>
+                <span className={`text-[10px] mt-0.5 font-medium ${isDark ? "text-gray-500" : "text-slate-500"}`}>{item.subtitle}</span>
               </motion.div>
             </React.Fragment>
           );
@@ -346,7 +367,7 @@ export const RadialMenu = ({ theme, items, badges, centerTitle, onCenterClick, o
       <div
         onClick={() => setIsOpen(!isOpen)}
         title={isOpen ? "Close Menu" : "Open Hub Menu"}
-        className={`absolute rounded-full flex flex-col items-center justify-center cursor-pointer transition-all duration-300 z-30 group ${
+        className={`absolute rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 z-30 group ${
           isDark
             ? `bg-[#13151b] border border-white/5 ${
                 isOpen
@@ -393,7 +414,7 @@ export const RadialMenu = ({ theme, items, badges, centerTitle, onCenterClick, o
             >
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div
-                  className={`w-16 h-16 rounded-full flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-lg cursor-pointer relative z-40 overflow-hidden shrink-0 pointer-events-auto ${
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shadow-lg cursor-pointer relative z-40 overflow-hidden shrink-0 pointer-events-auto ${
                     isDark
                       ? "bg-gradient-to-tr from-[#1f222a] to-[#2a2d36] border-[2px] border-orange-500/30 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),_0_0_15px_rgba(249,115,22,0.4)]"
                       : "bg-gradient-to-tr from-[#f4f7f9] to-white border-[2px] border-orange-400 shadow-[inset_2px_2px_4px_rgba(255,255,255,1),_0_0_15px_rgba(249,115,22,0.3)]"

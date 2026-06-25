@@ -1,14 +1,15 @@
 import { ChatWorkspace } from "./components/chat";
-import { AppOverlays, ContentView, GlobalControls, HubView } from "./components/app";
+import { AppOverlays, ContentView, HubView } from "./components/app";
 import { SafeRender } from "./components/resilience";
-import { FeatureViews } from "./components/features/FeatureViews";
+const FeatureViews = lazy(() => import("./components/features/FeatureViews").then(m => ({ default: m.FeatureViews })));
 import { encodeMorse } from "./components/MorseDecoder";
-import { MOCK_CALLS, MOCK_CHATS, MOCK_CHANNELS } from "./components/mockData";
+import { MOCK_DATA_ENABLED } from "./lib/mockDataFlag";
+import { MOCK_CHATS, MOCK_CHANNELS } from "./components/mockData";
 import { CallScreen } from "./components/call/CallScreen";
 import { IncomingCallSheet } from "./components/call/IncomingCallSheet";
 import { HuddleWidget } from "./components/huddle/HuddleWidget";
 import { useCall } from "./hooks/useCall";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
 import { AnimatePresence } from "motion/react";
 import { Activity, Bot, Hash, Lock, MessageCircle, Mic, Phone, Settings, Target, Users } from "lucide-react";
@@ -23,38 +24,49 @@ import { registerRiskSession, getLastActionDebugId } from "./utils/riskShell";
 import { parseMentions, isDNDEnabled, isPriorityContact } from "./constants";
 import { SignallingManager } from './lib/signaling/manager';
 import { TransportIndicator } from './components/status/TransportIndicator';
+import { STORAGE_KEYS } from './constants/storage';
 
 export default function App() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('app_theme');
+    const saved = localStorage.getItem(STORAGE_KEYS.THEME);
     return (saved === 'dark' || saved === 'light') ? saved : 'dark';
   });
   const { t, setLang } = useI18n();
-  const [language, setLanguage] = useState(() => localStorage.getItem('app_language') || 'en');
-  const [showLangMenu, setShowLangMenu] = useState(false);
+  const [language, setLanguage] = useState(() => localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'en');
 
-  const { 
-    appLockHashedPIN, appLockSalt, chats, setChats, channels, setChannels, bots,
-    scheduledQueue,
-    archivedChats, toggleArchive,
-    readReceipts, deliveryReceipts,
-    contacts, setContacts
-  } = useAppStore();
+
+  const appLockHashedPIN = useAppStore(s => s.appLockHashedPIN);
+  const appLockSalt = useAppStore(s => s.appLockSalt);
+  const chats = useAppStore(s => s.chats);
+  const setChats = useAppStore(s => s.setChats);
+  const channels = useAppStore(s => s.channels);
+  const setChannels = useAppStore(s => s.setChannels);
+  const bots = useAppStore(s => s.bots);
+  const scheduledQueue = useAppStore(s => s.scheduledQueue);
+  const archivedChats = useAppStore(s => s.archivedChats);
+  const toggleArchive = useAppStore(s => s.toggleArchive);
+  const readReceipts = useAppStore(s => s.readReceipts);
+  const deliveryReceipts = useAppStore(s => s.deliveryReceipts);
+  const contacts = useAppStore(s => s.contacts);
+  const setContacts = useAppStore(s => s.setContacts);
+  const setActiveCall = useAppStore(s => s.setActiveCall);
+  const callHistory = useAppStore(s => s.callHistory);
+  const activeCall = useAppStore(s => s.activeCall);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
   const [lockAttempts, setLockAttempts] = useState(() => {
-    try { return parseInt(localStorage.getItem('app_lock_attempts') || '0', 10) } catch { return 0 }
+    try { return parseInt(localStorage.getItem(STORAGE_KEYS.LOCK_ATTEMPTS) || '0', 10) } catch { return 0 }
   });
   const [lockBlockedUntil, setLockBlockedUntil] = useState(() => {
-    try { return parseInt(localStorage.getItem('app_lock_blocked_until') || '0', 10) } catch { return 0 }
+    try { return parseInt(localStorage.getItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL) || '0', 10) } catch { return 0 }
   });
   const [lockBlockTimer, setLockBlockTimer] = useState(0);
   const [activeStory, setActiveStory] = useState<{ id: number, name: string, color: string } | null>(null);
   const [replyTarget, setReplyTarget] = useState<any>(null);
   const [savedMessages, setSavedMessages] = useState<any[]>(() => {
     try {
-      const raw = localStorage.getItem("mess_saved_messages");
+      const raw = localStorage.getItem(STORAGE_KEYS.SAVED_MESSAGES);
       return raw ? JSON.parse(raw) : [];
     } catch {
       return [];
@@ -69,7 +81,7 @@ export default function App() {
   const [globalSelectedContact, setGlobalSelectedContact] = useState<ContactProfile | null>(null);
   const [draftTextByChat, setDraftTextByChat] = useState<Record<string, string>>(() => {
     try {
-      const raw = localStorage.getItem("mess_drafts");
+      const raw = localStorage.getItem(STORAGE_KEYS.DRAFTS);
       return raw ? JSON.parse(raw) : {};
     } catch {
       return {};
@@ -108,24 +120,25 @@ useEffect(() => {
 }, []);
 
   useEffect(() => {
-    localStorage.setItem('app_theme', theme);
+    localStorage.setItem(STORAGE_KEYS.THEME, theme);
   }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem('app_language', language);
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, language);
   }, [language]);
 
   useEffect(() => {
-    localStorage.setItem("mess_drafts", JSON.stringify(draftTextByChat));
+    localStorage.setItem(STORAGE_KEYS.DRAFTS, JSON.stringify(draftTextByChat));
   }, [draftTextByChat]);
 
   useEffect(() => {
-    localStorage.setItem("mess_saved_messages", JSON.stringify(savedMessages));
+    localStorage.setItem(STORAGE_KEYS.SAVED_MESSAGES, JSON.stringify(savedMessages));
   }, [savedMessages]);
 
 
   useEffect(() => {
-    if (chats.length === 0) setChats(MOCK_CHATS);
+    if (!MOCK_DATA_ENABLED) return;
+    if (chats.length === 0) setChats(MOCK_CHATS as any);
     if (contacts.length === 0) {
       setContacts([
         { name: "Alice", id: "5a2f...9b1c", color: "from-rose-400 to-red-500", lastSeen: 1000 * 60 * 5 },
@@ -134,7 +147,6 @@ useEffect(() => {
         { name: "Diana", id: "7g8h...9i0j", color: "from-purple-400 to-fuchsia-400", lastSeen: 1000 * 60 * 60 * 24 },
       ]);
     }
-    // Push mock channels as P2PChannels mapping if empty
     if (channels.length === 0) {
       setChannels(MOCK_CHANNELS.map(c => ({
          id: c.id.toString(),
@@ -147,7 +159,6 @@ useEffect(() => {
          isPrivate: false,
          isPublic: true,
          createdAt: Date.now(),
-         // Keeping mock properties for UI compatibility for now:
          color: c.color,
          message: c.message,
          time: c.time,
@@ -235,20 +246,20 @@ useEffect(() => {
        setPinError(false);
        setLockAttempts(0);
        setLockBlockedUntil(0);
-       localStorage.setItem('app_lock_attempts', '0');
-       localStorage.setItem('app_lock_blocked_until', '0');
+localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, '0');
+        localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, '0');
     } else {
        const newAttempts = lockAttempts + 1
        setLockAttempts(newAttempts)
-       localStorage.setItem('app_lock_attempts', String(newAttempts))
+       localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, String(newAttempts))
        const duration = getBlockDuration(newAttempts)
        if (duration > 0 && duration !== Infinity) {
          const blockedUntil = Date.now() + duration
          setLockBlockedUntil(blockedUntil)
-         localStorage.setItem('app_lock_blocked_until', String(blockedUntil))
+         localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, String(blockedUntil))
        } else if (duration === Infinity) {
          setLockBlockedUntil(Infinity)
-         localStorage.setItem('app_lock_blocked_until', 'permanent')
+         localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, 'permanent')
        }
        setPinError(true);
        setPinInput('');
@@ -554,19 +565,17 @@ if (activeFolder === 'archived') return isArchived;
     setMessageText(savedDraft);
   }, [activeChat?.id]);
 
-  const store = useAppStore();
+  const chatsUnread = useMemo(() => chats.reduce((sum, c) => sum + (c.unread || 0), 0), [chats]);
+  const channelsUnread = useMemo(() => channels.reduce((sum, c) => sum + ((c as any).unread || 0), 0), [channels]);
+  const missedCalls = useMemo(() => callHistory.filter((c) => c.type === 'missed').length + (activeCall ? 1 : 0), [callHistory, activeCall]);
 
-  const chatsUnread = store.chats.reduce((sum, c) => sum + (c.unread || 0), 0);
-  const channelsUnread = store.channels.reduce((sum, c) => sum + ((c as any).unread || 0), 0);
-  const missedCalls = [...MOCK_CALLS].filter((c) => c.type === 'missed').length + (store.activeCall ? 1 : 0);
-
-  const hubBadges: Record<string, number> = {
+  const hubBadges = useMemo((): Record<string, number> => ({
     chats: chatsUnread,
     channels: channelsUnread,
     calls: missedCalls,
-  };
+  }), [chatsUnread, channelsUnread, missedCalls]);
 
-  const hubItems = [
+  const hubItems = useMemo(() => [
     { id: 'channels', angle: 0, title: t('hub.channels'), subtitle: t('hub.channelsSubtitle'), icon: Hash },
     { id: 'chats', angle: 30, title: t('hub.chats'), subtitle: t('hub.chatsSubtitle'), icon: MessageCircle },
     { id: 'pulse', angle: 90, title: t('hub.metropulse'), subtitle: t('hub.metropulseSubtitle'), icon: Activity },
@@ -576,7 +585,7 @@ if (activeFolder === 'archived') return isArchived;
     { id: 'recordings', angle: 240, title: t('hub.recordings'), subtitle: t('hub.recordingsSubtitle'), icon: Mic },
     { id: 'bots', angle: 270, title: t('hub.bots'), subtitle: t('hub.botsSubtitle'), icon: Bot },
     { id: 'settings', angle: 330, title: t('hub.settings'), subtitle: t('hub.settingsSubtitle'), icon: Settings },
-  ];
+  ], [t]);
 
   if (appLockHashedPIN && !isUnlocked) {
     return (
@@ -870,21 +879,6 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
         )}
 
-        <GlobalControls
-          isDark={isDark}
-          theme={theme}
-          setTheme={setTheme}
-          showLangMenu={showLangMenu}
-          setShowLangMenu={setShowLangMenu}
-          language={language}
-          setLanguage={(code) => {
-            setLanguage(code);
-            setLang(code);
-            setShowLangMenu(false);
-          }}
-          t={t}
-        />
-
         <TransportIndicator status={connectionStatus} />
 
         <AnimatePresence mode="wait">
@@ -921,22 +915,25 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
                 </SafeRender>
               )}
               <SafeRender>
-                <FeatureViews
-                  view={view}
-                  theme={theme}
-                  contacts={contacts}
-                  setContacts={setContacts as any}
-                  showContactPicker={showContactPicker}
-                  setShowContactPicker={setShowContactPicker}
-                  setEditingContact={setEditingContact}
-                  chats={chats}
-                  setChats={setChats as any}
-                  setActiveChat={setActiveChat}
-                  setView={setView as any}
-                  onCall={handlePreviewCall}
-                  onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
-                  onMessage={handlePreviewMessage}
-                />
+                <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" /></div>}>
+                  <FeatureViews
+                    view={view}
+                    theme={theme}
+                    setTheme={setTheme}
+                    contacts={contacts}
+                    setContacts={setContacts as any}
+                    showContactPicker={showContactPicker}
+                    setShowContactPicker={setShowContactPicker}
+                    setEditingContact={setEditingContact}
+                    chats={chats}
+                    setChats={setChats as any}
+                    setActiveChat={setActiveChat}
+                    setView={setView as any}
+                    onCall={handlePreviewCall}
+                    onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
+                    onMessage={handlePreviewMessage}
+                  />
+                </Suspense>
               </SafeRender>
             </ContentView>
           )}

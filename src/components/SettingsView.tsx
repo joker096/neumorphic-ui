@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useAppStore } from '../store';
 import { useI18n, detectBrowserLanguage } from '../lib/i18n';
 import { toast } from 'sonner';
@@ -7,14 +7,21 @@ import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow, To
 import { SubView } from './ui/SubView';
 import { BatteryStatus } from './ui/BatteryStatus';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useDebounce } from '../hooks/useDebounce';
 import { exportBackup, exportBackupHtml } from '../lib/backup';
-import { ChevronRight, Smartphone, Download, Palette, Globe, Bell, Shield, Lock, HardDrive, Bot, Network, ShieldAlert, Activity, ChevronLeft, UserPlus, Cloud, MapPin, RefreshCw, Key, Search } from 'lucide-react';
+import { ChevronRight, Smartphone, Download, Palette, Globe, Bell, BellOff, Shield, Lock, HardDrive, Bot, Network, ShieldAlert, Activity, ChevronLeft, UserPlus, Cloud, MapPin, RefreshCw, Key, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppearanceSettings } from './settings/AppearanceSettings';
 import { LanguageSection } from './settings/LanguageSection';
 import { PrivacySection } from './settings/PrivacySection';
-import { NetworkSection } from './settings/NetworkSection';
-import { SecuritySection } from './settings/SecuritySection';
+import { AccountSection } from './settings/AccountSection';
+
+const NetworkSection = React.lazy(() => import('./settings/NetworkSection').then(m => ({ default: m.NetworkSection })));
+const SecuritySection = React.lazy(() => import('./settings/SecuritySection').then(m => ({ default: m.SecuritySection })));
+const StorageSection = React.lazy(() => import('./settings/StorageSection').then(m => ({ default: m.StorageSection })));
+const BotsSection = React.lazy(() => import('./settings/BotsSection').then(m => ({ default: m.BotsSection })));
+const SpamSection = React.lazy(() => import('./settings/SpamSection').then(m => ({ default: m.SpamSection })));
+const SystemStatusSection = React.lazy(() => import('./settings/SystemStatusSection').then(m => ({ default: m.SystemStatusSection })));
 
 export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', setTheme?: (t: 'light' | 'dark') => void }) => {
   const isDark = theme === 'dark';
@@ -22,7 +29,6 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState<string>('main');
-  const [importStatus, setImportStatus] = useState<string>('');
   
   const [language, setLanguage] = useLocalStorage<string>("app_language", detectBrowserLanguage());
   const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage("app_notifications", true);
@@ -69,7 +75,14 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
     setCloudSyncEnabled,
     triggerCloudSync,
     stopLiveLocation,
-    removeLocationShare
+    removeLocationShare,
+    bots,
+    setBots,
+    connectionStatus,
+    transportBackend,
+    latencyMs,
+    blockedBackends,
+    regionBlocked,
   } = useAppStore();
 
   const [confirmAction, setConfirmAction] = useState<{ type: 'wipe' } | { type: 'removeDevice'; id: string; name: string } | null>(null);
@@ -187,188 +200,190 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
           )}
         </AnimatePresence>
 
-        <div className="w-full">
-          <SettingsSectionTitle title={t('settings.accountSection')} isDark={isDark} />
-          <SettingsGroup isDark={isDark}>
-            <SettingsRow
-              icon={<div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold shadow-md">J</div>}
-              title="Joker"
-              subtitle="@joker"
-              isDark={isDark}
-            />
-            <SettingsRow
-              icon={<div className="w-8 h-8 rounded-full border border-current border-dashed flex items-center justify-center shrink-0 opacity-70"><UserPlus size={14} className={isDark ? "text-emerald-400" : "text-emerald-600"} /></div>}
-              title={t('settings.addAccount')}
-              isDark={isDark}
-              onClick={() => {
-                toast.info(t('settings.accountManagement'), { description: t('settings.accountRequiresAuth') });
-              }}
-            />
-          </SettingsGroup>
-        </div>
+        <button onClick={() => setActiveSection('account')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-emerald-500/10 to-transparent border border-white/5 hover:bg-white/5" : "bg-gradient-to-br from-emerald-50 to-transparent border border-emerald-100 hover:bg-emerald-50/50"}`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
+              <UserPlus size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.account')}</div>
+              <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.accountSubtitle')}</div>
+            </div>
+          </div>
+        </button>
 
         <div className="w-full">
           <SettingsSectionTitle title={t('settings.appearanceSection')} isDark={isDark} />
-          <SettingsGroup isDark={isDark}>
-            <SettingsRow
-              icon={<Palette size={16} />}
-              iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-              iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
-              title={t('settings.theme')}
-              subtitle={t('settings.appearanceTheme')}
-              isDark={isDark}
-              onClick={() => setActiveSection('appearance')}
-            />
-            <SettingsRow
-              icon={<Globe size={16} />}
-              iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-              iconColor={isDark ? "text-blue-400" : "text-blue-600"}
-              title={t('settings.language')}
-              subtitle={language}
-              value={language}
-              isDark={isDark}
-              onClick={() => setActiveSection('language')}
-            />
-          </SettingsGroup>
+          <div className="rounded-xl overflow-hidden">
+            <div className={`rounded-xl ${isDark ? "bg-gradient-to-br from-emerald-500/10 to-transparent border border-white/5" : "bg-gradient-to-br from-emerald-50 to-transparent border border-black/5"} p-4`}>
+              <div className="flex items-center gap-3 mb-3 cursor-pointer transition-colors hover:opacity-80" onClick={() => setActiveSection('appearance')}>
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
+                  <Palette size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.theme')}</div>
+                  <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.appearanceTheme')}</div>
+                </div>
+              </div>
+              <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"} my-1`} />
+              <div className="flex items-center gap-3 cursor-pointer transition-colors hover:opacity-80" onClick={() => setActiveSection('language')}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
+                  <Globe size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.language')}</div>
+                  <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{language}</div>
+                </div>
+                <span className={`text-xs ${isDark ? "text-gray-300" : "text-slate-600"}`}>{language}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="w-full">
           <SettingsSectionTitle title={t('settings.quickOptions')} isDark={isDark} />
-          <SettingsGroup isDark={isDark}>
-            <SettingsToggleRow
-              icon={<Bell size={16} />}
-              iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-              iconColor={isDark ? "text-red-400" : "text-red-600"}
-              title={t('settings.notificationsOption')}
-              isOn={notificationsEnabled}
-              isDark={isDark}
-              onToggle={() => setNotificationsEnabled(!notificationsEnabled)}
-            />
-            <SettingsToggleRow
-              title={t('settings.soundOption')}
-              isOn={soundEnabled}
-              isDark={isDark}
-              onToggle={() => setSoundEnabled(!soundEnabled)}
-            />
-            <SettingsToggleRow
-              icon={<Cloud size={16} />}
-              iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-              iconColor={isDark ? "text-blue-400" : "text-blue-600"}
-              title={t('settings.cloudSyncOption')}
-              isOn={cloudSync.enabled}
-              isDark={isDark}
-              onToggle={() => setCloudSyncEnabled(!cloudSync.enabled)}
-            />
-          </SettingsGroup>
+          <div className="grid grid-cols-3 gap-2">
+            <div onClick={() => setNotificationsEnabled(!notificationsEnabled)} className={`rounded-xl p-3 text-center cursor-pointer transition-colors ${notificationsEnabled ? (isDark ? "bg-emerald-500/10 border border-emerald-500/30" : "bg-emerald-50 border border-emerald-200") : (isDark ? "bg-white/[0.03] border border-white/5 hover:bg-white/5" : "bg-black/[0.03] border border-black/5 hover:bg-black/5")}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${notificationsEnabled ? (isDark ? "bg-emerald-500" : "bg-emerald-500") : (isDark ? "bg-gray-600" : "bg-slate-300")}`}>
+                <Bell size={14} className={notificationsEnabled ? "text-white" : ""} />
+              </div>
+              <div className={`text-[11px] font-medium ${notificationsEnabled ? (isDark ? "text-emerald-400" : "text-emerald-700") : (isDark ? "text-gray-400" : "text-slate-500")}`}>{t('settings.notificationsOption')}</div>
+            </div>
+            <div onClick={() => setSoundEnabled(!soundEnabled)} className={`rounded-xl p-3 text-center cursor-pointer transition-colors ${soundEnabled ? (isDark ? "bg-orange-500/10 border border-orange-500/30" : "bg-orange-50 border border-orange-200") : (isDark ? "bg-white/[0.03] border border-white/5 hover:bg-white/5" : "bg-black/[0.03] border border-black/5 hover:bg-black/5")}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${soundEnabled ? (isDark ? "bg-orange-500" : "bg-orange-500") : (isDark ? "bg-gray-600" : "bg-slate-300")}`}>
+                {soundEnabled ? <Bell size={14} className="text-white" /> : <BellOff size={14} />}
+              </div>
+              <div className={`text-[11px] font-medium ${soundEnabled ? (isDark ? "text-orange-400" : "text-orange-700") : (isDark ? "text-gray-400" : "text-slate-500")}`}>{t('settings.soundOption')}</div>
+            </div>
+            <div onClick={() => setCloudSyncEnabled(!cloudSync.enabled)} className={`rounded-xl p-3 text-center cursor-pointer transition-colors ${cloudSync.enabled ? (isDark ? "bg-blue-500/10 border border-blue-500/30" : "bg-blue-50 border border-blue-200") : (isDark ? "bg-white/[0.03] border border-white/5 hover:bg-white/5" : "bg-black/[0.03] border border-black/5 hover:bg-black/5")}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${cloudSync.enabled ? (isDark ? "bg-blue-500" : "bg-blue-500") : (isDark ? "bg-gray-600" : "bg-slate-300")}`}>
+                <Cloud size={14} className={cloudSync.enabled ? "text-white" : (isDark ? "text-gray-300" : "text-slate-400")} />
+              </div>
+              <div className={`text-[11px] font-medium ${cloudSync.enabled ? (isDark ? "text-blue-400" : "text-blue-700") : (isDark ? "text-gray-400" : "text-slate-500")}`}>{t('settings.cloudSyncOption')}</div>
+            </div>
+          </div>
         </div>
 
         <div className="w-full">
-          <SettingsSectionTitle title={t('settings.notificationsSection')} isDark={isDark} />
-          <SettingsGroup isDark={isDark}>
-            <SettingsToggleRow
-              icon={<Bell size={16} />}
-              iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-              iconColor={isDark ? "text-red-400" : "text-red-600"}
-              title={t('settings.notifications')}
-              subtitle={t('settings.notificationsSubtitle')}
-              isOn={notificationsEnabled}
-              isDark={isDark}
-              onToggle={() => setNotificationsEnabled(!notificationsEnabled)}
-            />
-            <SettingsToggleRow
-              title={t('settings.sound')}
-              isOn={soundEnabled}
-              isDark={isDark}
-              onToggle={() => setSoundEnabled(!soundEnabled)}
-            />
-          </SettingsGroup>
+          <div className="mb-2 flex items-center justify-between">
+            <SettingsSectionTitle title={t('settings.notificationsSection')} isDark={isDark} />
+          </div>
+          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
+            <div className={`flex items-center justify-between px-4 py-3 ${notificationsEnabled ? (isDark ? "bg-emerald-500/5" : "bg-emerald-50/50") : ""}`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-red-500/10" : "bg-red-100"}`}>
+                  <Bell size={16} className={isDark ? "text-red-400" : "text-red-600"} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.notifications')}</div>
+                  {t('settings.notificationsSubtitle') && <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.notificationsSubtitle')}</div>}
+                </div>
+              </div>
+              <ToggleSwitch isOn={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} isDark={isDark} />
+            </div>
+            <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"}`} />
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-orange-500/10" : "bg-orange-100"}`}>
+                  <Bell size={16} className={isDark ? "text-orange-400" : "text-orange-600"} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.sound')}</div>
+                </div>
+              </div>
+              <ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} />
+            </div>
+          </div>
         </div>
 
         <div className="w-full">
-          <SettingsSectionTitle title={t('settings.privacySecuritySection')} isDark={isDark} />
-          <SettingsGroup isDark={isDark}>
-            <SettingsRow
-              icon={<Shield size={16} />}
-              iconBg={isDark ? "bg-rose-500/10" : "bg-rose-100"}
-              iconColor={isDark ? "text-rose-400" : "text-rose-600"}
-              title={t('settings.security')}
-              subtitle={t('settings.securitySubtitle')}
-              isDark={isDark}
-              onClick={() => setActiveSection('security')}
-            />
-            <SettingsRow
-              icon={<Lock size={16} />}
-              iconBg={isDark ? "bg-indigo-500/10" : "bg-indigo-100"}
-              iconColor={isDark ? "text-indigo-400" : "text-indigo-600"}
-              title={t('settings.privacy')}
-              subtitle={t('settings.privacySubtitle')}
-              isDark={isDark}
-              onClick={() => setActiveSection('privacy')}
-            />
-          </SettingsGroup>
+          <div className="mb-2 flex items-center justify-between">
+            <SettingsSectionTitle title={t('settings.privacySecuritySection')} isDark={isDark} />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setActiveSection('security')} className={`rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-rose-500/10 to-transparent border border-white/5 hover:bg-white/5" : "bg-gradient-to-br from-rose-50 to-transparent border border-rose-100 hover:bg-rose-50/50"}`}>
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${isDark ? "bg-rose-500/20" : "bg-rose-100"}`}>
+                <Shield size={18} className={isDark ? "text-rose-400" : "text-rose-600"} />
+              </div>
+              <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.security')}</div>
+              <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.securitySubtitle')}</div>
+            </button>
+            <button onClick={() => setActiveSection('privacy')} className={`rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-indigo-500/10 to-transparent border border-white/5 hover:bg-white/5" : "bg-gradient-to-br from-indigo-50 to-transparent border border-indigo-100 hover:bg-indigo-50/50"}`}>
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${isDark ? "bg-indigo-500/20" : "bg-indigo-100"}`}>
+                <Lock size={18} className={isDark ? "text-indigo-400" : "text-indigo-600"} />
+              </div>
+              <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.privacy')}</div>
+              <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.privacySubtitle')}</div>
+            </button>
+          </div>
         </div>
 
         <div className="w-full">
           <SettingsSectionTitle title={t('settings.dataStorageSection')} isDark={isDark} />
-          <SettingsGroup isDark={isDark}>
-            <SettingsRow
-              icon={<HardDrive size={16} />}
-              iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
-              iconColor={isDark ? "text-amber-400" : "text-amber-600"}
-              title={t('settings.dataStorage')}
-              subtitle={t('settings.dataStorageSubtitle')}
-              isDark={isDark}
-              onClick={() => setActiveSection('storage')}
-            />
-          </SettingsGroup>
+          <button onClick={() => setActiveSection('storage')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-amber-500/10 to-transparent border border-white/5 hover:bg-white/5" : "bg-gradient-to-br from-amber-50 to-transparent border border-amber-100 hover:bg-amber-50/50"}`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-amber-500/20" : "bg-amber-100"}`}>
+                <HardDrive size={18} className={isDark ? "text-amber-400" : "text-amber-600"} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.dataStorage')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.dataStorageSubtitle')}</div>
+              </div>
+            </div>
+          </button>
         </div>
 
         <div className="w-full mb-6">
           <SettingsSectionTitle title={t('settings.servicesSection')} isDark={isDark} />
-          <SettingsGroup isDark={isDark}>
-            <SettingsRow
-              icon={<Bot size={16} />}
-              iconBg={isDark ? "bg-fuchsia-500/10" : "bg-fuchsia-100"}
-              iconColor={isDark ? "text-fuchsia-400" : "text-fuchsia-600"}
-              title={t('settings.bots')}
-              subtitle={t('settings.botsSubtitle')}
-              isDark={isDark}
-              onClick={() => setActiveSection('bots')}
-            />
-          </SettingsGroup>
+          <div className="rounded-xl overflow-hidden">
+            <button onClick={() => setActiveSection('bots')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-fuchsia-500/10" : "bg-fuchsia-100"}`}>
+                <Bot size={16} className={isDark ? "text-fuchsia-400" : "text-fuchsia-600"} />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.bots')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.botsSubtitle')}</div>
+              </div>
+              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
+            </button>
+          </div>
         </div>
 
         <div className="w-full mb-6">
           <SettingsSectionTitle title={t('settings.advancedSection')} isDark={isDark} />
-          <SettingsGroup isDark={isDark}>
-            <SettingsRow
-              icon={<Network size={16} />}
-              iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-              iconColor={isDark ? "text-blue-400" : "text-blue-600"}
-              title={t('settings.network')}
-              subtitle={proxyEnabled ? t('settings.networkEnabled') : t('settings.disabled')}
-              isDark={isDark}
-              onClick={() => setActiveSection('network')}
-            />
-            <SettingsRow
-              icon={<ShieldAlert size={16} />}
-              iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-              iconColor={isDark ? "text-red-400" : "text-red-600"}
-              title={t('settings.spamProtection')}
-              subtitle={spamFilterEnabled ? t('settings.spamActive') : t('settings.spamDisabled')}
-              isDark={isDark}
-              onClick={() => setActiveSection('spam')}
-            />
-            <SettingsRow
-              icon={<Activity size={16} />}
-              iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-              iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
-              title={t('settings.systemStatus')}
-              subtitle={t('settings.systemStatusSubtitle')}
-              isDark={isDark}
-              onClick={() => setActiveSection('systemStatus')}
-            />
-          </SettingsGroup>
+          <div className="rounded-xl overflow-hidden">
+            <div className={`rounded-xl ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
+              <button onClick={() => setActiveSection('network')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
+                  <Network size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.network')}</div>
+                  <div className={`text-[11px] ${isDark ? "text-gray-500" : "text-slate-500"}`}>{proxyEnabled ? t('settings.networkEnabled') : t('settings.disabled')}</div>
+                </div>
+              </button>
+              <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"}`} />
+              <button onClick={() => setActiveSection('spam')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-red-500/10" : "bg-red-100"}`}>
+                  <ShieldAlert size={16} className={isDark ? "text-red-400" : "text-red-600"} />
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.spamProtection')}</div>
+                  <div className={`text-[11px] ${isDark ? "text-gray-500" : "text-slate-500"}`}>{spamFilterEnabled ? t('settings.spamActive') : t('settings.spamDisabled')}</div>
+                </div>
+              </button>
+              <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"}`} />
+              <button onClick={() => setActiveSection('systemStatus')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-emerald-500/10" : "bg-emerald-100"}`}>
+                  <Activity size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.systemStatus')}</div>
+                  <div className={`text-[11px] ${isDark ? "text-gray-500" : "text-slate-500"}`}>{t('settings.systemStatusSubtitle')}</div>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="w-full flex justify-center pb-8 pt-4 border-t border-black/5 dark:border-white/5">
@@ -407,10 +422,19 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
     />
   );
 
+  const renderAccountSettings = () => (
+    <AccountSection
+      isDark={isDark}
+      onBack={() => setActiveSection('main')}
+      t={t}
+    />
+  );
+
   const renderSecuritySettings = () => (
     <SecuritySection
       isDark={isDark}
       onBack={() => setActiveSection('main')}
+      t={t}
     />
   );
 
@@ -423,11 +447,25 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
       setVisActivity={setVisActivity}
       dndEnabled={dndEnabled}
       setDndEnabled={setDndEnabled}
+      dndFrom={dndFrom}
+      setDndFrom={setDndFrom}
+      dndTo={dndTo}
+      setDndTo={setDndTo}
+      priorityContacts={priorityContacts}
+      setPriorityContacts={setPriorityContacts}
       stealthMode={stealthMode}
       anonymousMode={anonymousMode}
       deliveryReceipts={deliveryReceipts}
       readReceipts={readReceipts}
       typingIndicators={typingIndicators}
+      ghostViewMode={useAppStore.getState().ghostViewMode}
+      forwardAnonymization={useAppStore.getState().forwardAnonymization}
+      onlineStatus={useAppStore.getState().onlineStatus}
+      allowForwarding={useAppStore.getState().allowForwarding}
+      setAllowForwarding={(v) => updateSettings({ allowForwarding: v })}
+      setAllowMetadata={(v) => updateSettings({ allowMetadata: v })}
+      forwardCountLimit={useAppStore.getState().forwardCountLimit}
+      setForwardCountLimit={(v) => updateSettings({ forwardCountLimit: v })}
       onUpdateSettings={updateSettings}
       onBack={() => setActiveSection('main')}
       t={t}
@@ -443,6 +481,8 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
       setProxyUrl={setProxyUrl}
       obfuscationMode={obfuscationMode}
       setObfuscationMode={setObfuscationMode}
+      obfuscationEnabled={true}
+      setObfuscationEnabled={(v) => {}}
       torBridge={torBridge}
       setTorBridge={setTorBridge}
       turnServerUrl={turnServerUrl}
@@ -452,15 +492,63 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
     />
   );
 
+  const renderStorageSettings = () => (
+    <StorageSection
+      isDark={isDark}
+      onBack={() => setActiveSection('main')}
+      t={t}
+    />
+  );
+
+  const renderBotsSettings = () => (
+    <BotsSection
+      isDark={isDark}
+      bots={bots}
+      setBots={setBots}
+      onBack={() => setActiveSection('main')}
+      t={t}
+    />
+  );
+
+  const renderSpamSettings = () => (
+    <SpamSection
+      isDark={isDark}
+      spamFilterEnabled={spamFilterEnabled}
+      setSpamFilterEnabled={setSpamFilterEnabled}
+      onBack={() => setActiveSection('main')}
+      t={t}
+    />
+  );
+
+  const renderSystemStatusSettings = () => (
+    <SystemStatusSection
+      isDark={isDark}
+      connectionStatus={connectionStatus}
+      transportBackend={transportBackend}
+      latencyMs={latencyMs}
+      blockedBackends={blockedBackends}
+      regionBlocked={regionBlocked}
+      onBack={() => setActiveSection('main')}
+      t={t}
+    />
+  );
+
+  const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>Loading...</div>;
+
   return (
-    <div className={`w-full max-w-[400px] flex-1 flex flex-col rounded-[32px] p-6 mb-8 h-full min-h-0 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
+    <div className={`w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col rounded-[32px] p-6 mb-8 h-full min-h-0 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
       <AnimatePresence mode="wait">
         {activeSection === 'main' && renderMainSettings()}
         {activeSection === 'appearance' && renderAppearanceSettings()}
         {activeSection === 'language' && renderLanguageSettings()}
-        {activeSection === 'security' && renderSecuritySettings()}
+        {activeSection === 'account' && renderAccountSettings()}
+        {activeSection === 'security' && <Suspense fallback={fallback}>{renderSecuritySettings()}</Suspense>}
         {activeSection === 'privacy' && renderPrivacySettings()}
-        {activeSection === 'network' && renderNetworkSettings()}
+        {activeSection === 'network' && <Suspense fallback={fallback}>{renderNetworkSettings()}</Suspense>}
+        {activeSection === 'storage' && <Suspense fallback={fallback}>{renderStorageSettings()}</Suspense>}
+        {activeSection === 'bots' && <Suspense fallback={fallback}>{renderBotsSettings()}</Suspense>}
+        {activeSection === 'spam' && <Suspense fallback={fallback}>{renderSpamSettings()}</Suspense>}
+        {activeSection === 'systemStatus' && <Suspense fallback={fallback}>{renderSystemStatusSettings()}</Suspense>}
       </AnimatePresence>
       
       {confirmAction?.type === 'wipe' && (

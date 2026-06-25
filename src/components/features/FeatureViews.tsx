@@ -8,6 +8,7 @@ import { SystemPulsePlayer } from "../SystemPulsePlayer";
 type FeatureViewsProps = {
   view: string;
   theme: "light" | "dark";
+  setTheme: (t: "light" | "dark") => void;
   contacts: any[];
   setContacts: (contacts: any[]) => void;
   showContactPicker: boolean;
@@ -25,6 +26,7 @@ type FeatureViewsProps = {
 export const FeatureViews = ({
   view,
   theme,
+  setTheme,
   contacts,
   setContacts,
   showContactPicker,
@@ -60,7 +62,7 @@ export const FeatureViews = ({
         />
       );
     case "settings":
-      return <SettingsView theme={theme} />;
+      return <SettingsView theme={theme} setTheme={setTheme} />;
     case "recordings":
       return <RecordingsScreen theme={theme} onBack={() => setView("hub")} />;
     case "contacts":
