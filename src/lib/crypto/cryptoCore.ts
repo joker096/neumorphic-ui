@@ -6,6 +6,12 @@ export function b64encode(data: Uint8Array): string {
 }
 
 export function b64decode(s: string): Uint8Array {
+  if (typeof s !== 'string' || s.length === 0) {
+    throw new TypeError('b64decode: input must be a non-empty string')
+  }
+  if (!/^[A-Za-z0-9+/=]+$/.test(s)) {
+    throw new RangeError('b64decode: invalid base64 characters')
+  }
   return Uint8Array.from(atob(s), (c) => c.charCodeAt(0))
 }
 
@@ -17,7 +23,16 @@ export function buf2hex(buffer: ArrayBuffer): string {
 }
 
 export function hex2buf(hexString: string): Uint8Array {
-  const bytes = new Uint8Array(Math.ceil(hexString.length / 2))
+  if (typeof hexString !== 'string' || hexString.length === 0) {
+    throw new TypeError('hex2buf: input must be a non-empty string')
+  }
+  if (!/^[0-9a-fA-F]+$/.test(hexString)) {
+    throw new RangeError('hex2buf: invalid hex characters')
+  }
+  if (hexString.length % 2 !== 0) {
+    throw new RangeError('hex2buf: hex string must have even length')
+  }
+  const bytes = new Uint8Array(hexString.length / 2)
   for (let i = 0; i < bytes.length; i++) {
     bytes[i] = parseInt(hexString.substr(i * 2, 2), 16)
   }

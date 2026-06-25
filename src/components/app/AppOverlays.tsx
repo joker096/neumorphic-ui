@@ -100,9 +100,14 @@ export const AppOverlays = ({
           isDark={isDark}
           onClose={() => setEditingContact(null)}
           onSave={(name: string, id: string, color: string, localFields: any) => {
-            setContacts(contacts.map((contact) =>
-              contact.id === editingContact.id ? { ...contact, name, id, color: color || contact.color, localFields } : contact
-            ));
+            const existing = contacts.find((c) => c.id === editingContact.id);
+            if (existing) {
+              setContacts(contacts.map((contact) =>
+                contact.id === editingContact.id ? { ...contact, name, id, color: color || contact.color, localFields } : contact
+              ));
+            } else {
+              setContacts([...contacts, { name, id, color: color || 'from-blue-400 to-indigo-500', lastSeen: Date.now(), localFields } as any]);
+            }
             setEditingContact(null);
           }}
         />

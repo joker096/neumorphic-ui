@@ -575,7 +575,7 @@ export const Dialpad = ({
 
   return (
     <div
-      className={`p-8 rounded-[48px] flex flex-col items-center shadow-2xl relative overflow-hidden h-[540px] w-full ${
+      className={`p-8 rounded-[48px] flex flex-col items-center shadow-2xl relative overflow-hidden flex-1 min-h-0 w-full ${
         isDark
           ? "bg-[#1a1d24] border border-white/10"
           : "bg-[#eaeff4] border border-white/60"
@@ -664,7 +664,7 @@ export const Dialpad = ({
         </div>
       ) : (
         <>
-          <div className="relative w-full h-12 mb-6 flex items-center justify-center z-10 transition-colors">
+          <div className="relative w-full h-10 mb-4 flex items-center justify-center z-10 transition-colors">
             <Search
               size={18}
               className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDark ? "text-gray-500" : "text-slate-400"}`}
@@ -690,8 +690,8 @@ export const Dialpad = ({
           </div>
 
           {number.length === 0 ? (
-            <div className="w-full relative z-10 h-[360px] flex flex-col">
-              <div className="flex items-center justify-between px-2 mb-4">
+            <div className="w-full relative z-10 flex-1 min-h-0 flex flex-col">
+              <div className="flex items-center justify-between px-2 mb-4 shrink-0">
                 <div
                   className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-gray-500" : "text-slate-400"}`}
                 >
@@ -782,10 +782,10 @@ export const Dialpad = ({
                     {(call.name.startsWith("+") || call.name === "Unknown") && (
                        <div 
                           className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity active:scale-95 ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-700"}`}
-                         onClick={(e) => {
-                             e.stopPropagation();
-                              toast.info(t('toast.contact'), { description: t('chat.creatingContact', { name: call.name }) });
-                          }}
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingContact({ name: call.name, id: call.name.replace(/[^0-9]/g, ''), color: 'from-gray-400 to-gray-500', lastSeen: Date.now() } as any);
+                           }}
                          title={t('contacts.addContact')}
                        >
                           <UserPlus size={14} />
@@ -796,7 +796,7 @@ export const Dialpad = ({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-x-6 gap-y-5 relative z-10 w-full justify-items-center h-[360px]">
+            <div className="grid grid-cols-3 gap-x-6 gap-y-5 relative z-10 w-full justify-items-center flex-1 min-h-0 content-center">
               {keys.map((k) => (
                 <div
                   key={k.num}

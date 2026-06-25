@@ -89,6 +89,9 @@ const AvatarRow = ({ theme, onStoryClick, t }: any) => {
 const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, onAvatarClick, archiveLabel, onCall, onVideoCall, t }: any) => {
   const isDark = theme === "dark";
   const { stealthMode, typingIndicators } = useAppStore();
+  const dragged = React.useRef(false);
+  const dragDistance = React.useRef(0);
+  const [swipedOpen, setSwipedOpen] = React.useState<'closed' | 'left' | 'right'>('closed');
 
   const isGroup = type === "channel";
   const roundedClass = isGroup ? "rounded-2xl" : "rounded-full";
@@ -107,13 +110,22 @@ const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, 
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
   }, [chat.time, chat.id, stealthMode]);
 
+  const handleSwipeAction = (action: string) => {
+    if (action === 'archive' && onArchive) onArchive(chat.id);
+    if (action === 'call' && onCall) onCall();
+    if (action === 'video' && onVideoCall) onVideoCall();
+    setSwipedOpen('closed');
+  };
+
+  const targetX = swipedOpen === 'left' ? -120 : swipedOpen === 'right' ? 120 : 0;
+
   return (
     <div className="relative mb-4 last:mb-0 overflow-hidden rounded-3xl">
       {!isGroup && onCall && onVideoCall && (
-        <div className={`absolute inset-0 flex items-center justify-start rounded-3xl overflow-hidden`}>
-          <div className="flex h-full">
+        <div className={`absolute inset-0 flex items-center justify-start rounded-3xl overflow-hidden ${swipedOpen === 'right' ? 'z-10' : ''}`}>
+          <div className={`flex h-full ${swipedOpen === 'right' ? 'pointer-events-auto' : 'pointer-events-none'}`}>
             <button
-              onClick={(e) => { e.stopPropagation(); onCall(); }}
+              onClick={() => handleSwipeAction('call')}
               className={`h-full flex flex-col items-center justify-center gap-1 px-4 text-[11px] font-bold text-white cursor-pointer border-none ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
               style={{ width: '76px' }}
             >
@@ -121,7 +133,7 @@ const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, 
               Voice
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); onVideoCall(); }}
+              onClick={() => handleSwipeAction('video')}
               className={`h-full flex flex-col items-center justify-center gap-1 px-4 text-[11px] font-bold text-white cursor-pointer border-none bg-blue-500`}
               style={{ width: '76px' }}
             >
@@ -131,20 +143,56 @@ const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, 
           </div>
         </div>
       )}
-      <div className={`absolute inset-0 flex items-center justify-end px-6 rounded-3xl ${isDark ? "bg-orange-500/20" : "bg-orange-500"} text-white overflow-hidden`}>
-        <Archive size={20} className={isDark ? "text-orange-500" : "text-white"} />
-        <span className={`ml-2 text-sm font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
+      <div className={`absolute inset-0 flex items-center justify-end px-6 rounded-3xl ${isDark ? "bg-orange-500/20" : "bg-orange-500"} text-white overflow-hidden ${swipedOpen === 'left' ? 'z-10' : ''}`}>
+        <button
+          onClick={() => handleSwipeAction('archive')}
+          className={`flex items-center gap-2 cursor-pointer ${swipedOpen === 'left' ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        >
+          <Archive size={20} className={isDark ? "text-orange-500" : "text-white"} />
+          <span className={`text-sm font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
+        </button>
       </div>
       <motion.div
         drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={{ left: 0.5, right: 0.5 }}
-        onDragEnd={(e, info) => {
-          if (info.offset.x < -70 && onArchive) {
-            onArchive(chat.id);
+        dragConstraints={{ left: -160, right: 160 }}
+        dragElastic={0.05}
+        onDragStart={() => {
+          dragged.current = false;
+          dragDistance.current = 0;
+        }}
+        onDrag={(_, info) => {
+          dragDistance.current = Math.abs(info.offset.x);
+        }}
+        onDragEnd={(_, info) => {
+          if (swipedOpen === 'closed') {
+            if (info.offset.x < -70) {
+              setSwipedOpen('left');
+            } else if (info.offset.x > 70) {
+              setSwipedOpen('right');
+            }
+          } else if (swipedOpen === 'left' && info.offset.x > 30) {
+            setSwipedOpen('closed');
+          } else if (swipedOpen === 'right' && info.offset.x < -30) {
+            setSwipedOpen('closed');
+          }
+          if (dragDistance.current > 10) {
+            dragged.current = true;
           }
         }}
-        onClick={onClick}
+        onClick={(e: any) => {
+          if (swipedOpen !== 'closed') {
+            setSwipedOpen('closed');
+            e.stopPropagation();
+            return;
+          }
+          if (dragged.current) {
+            dragged.current = false;
+            return;
+          }
+          onClick?.(e);
+        }}
+        animate={{ x: targetX }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className={`relative w-full p-3 flex items-center gap-4 cursor-pointer transition-all duration-300 select-none group rounded-3xl ${
           isDark
             ? active

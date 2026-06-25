@@ -1,4 +1,10 @@
 {
+  "nav": {
+    "chats": "Chats",
+    "contacts": "Contacts",
+    "calls": "Calls",
+    "settings": "Settings"
+  },
   "chat": {
     "archive": "Archive",
     "unarchive": "Unarchive",

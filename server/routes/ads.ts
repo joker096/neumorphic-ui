@@ -29,7 +29,7 @@ export function handleAdsRoute(req: IncomingMessage, res: ServerResponse, path: 
     }
     if (req.method === 'DELETE') {
       if (!requireAuth(authReq, res)) return true
-      handleDeleteAd(res, id); return true
+      handleDeleteAd(authReq, res, id); return true
     }
   }
   return false
@@ -121,7 +121,13 @@ async function handleUpdateAd(req: IncomingMessage, res: ServerResponse, id: num
   }
 }
 
-function handleDeleteAd(res: ServerResponse, id: number): void {
+function handleDeleteAd(req: AuthenticatedRequest, res: ServerResponse, id: number): void {
+  const ad = getDb().prepare('SELECT * FROM ads WHERE id = ?').get(id) as any
+  if (!ad) {
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Ad not found' }))
+    return
+  }
   getDb().prepare('DELETE FROM ad_events WHERE ad_id = ?').run(id)
   getDb().prepare('DELETE FROM ads WHERE id = ?').run(id)
   res.writeHead(200, { 'Content-Type': 'application/json' })

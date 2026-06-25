@@ -4,16 +4,35 @@ import { getDb } from '../db.js'
 import { signToken, verifyTotp, createAdminSession, invalidateSession, validateSession } from '../auth.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+interface RateLimitEntry {
+  count: number
+  resetAt: number
+  lockedUntil?: number
+}
+
+const rateLimitMap = new Map<string, RateLimitEntry>()
+const LOCKOUT_DURATION = 300000 // 5 minutes lockout after too many attempts
 
 function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 60000): boolean {
   const now = Date.now()
   const entry = rateLimitMap.get(ip)
+
+  // Check if IP is currently locked out
+  if (entry && entry.lockedUntil && now < entry.lockedUntil) {
+    return false
+  }
+
+  // Reset if window has expired
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs })
     return true
   }
-  if (entry.count >= maxAttempts) return false
+
+  if (entry.count >= maxAttempts) {
+    entry.lockedUntil = now + LOCKOUT_DURATION
+    return false
+  }
+
   entry.count++
   return true
 }

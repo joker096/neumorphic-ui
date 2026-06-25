@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Settings, Volume2, VolumeX, Play, Pause, Music, Activity, Cpu, HardDrive, SkipBack, SkipForward, ListMusic, List, Radio, ArrowLeft, ChevronLeft, Plus, SlidersHorizontal, Trash2, Save, Headphones, FolderOpen, Folder, X, Video } from "lucide-react";
 import { toast } from 'sonner';
@@ -188,23 +188,38 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
     const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
     const [confirmDeleteMode, setConfirmDeleteMode] = useState<'playlist' | 'radio'>('playlist');
 
-    const { t } = useI18n();
+const { t } = useI18n();
 
-   const audioCtxRef = useRef<AudioContext | null>(null);
-   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
-   const eqNodesRef = useRef<BiquadFilterNode[]>([]);
-   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const objectURLsRef = useRef<Set<string>>(new Set());
+    const audioCtxRef = useRef<AudioContext | null>(null);
+    const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+    const eqNodesRef = useRef<BiquadFilterNode[]>([]);
+    const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-   useEffect(() => {
-      if (audioRef.current) {
-        if (isPlaying && currentTrack?.url) {
-          audioRef.current.play().catch(() => { setIsPlaying(false); playSound('incoming-call'); });
-        } else if (!isPlaying) {
-          audioRef.current.pause();
-          playSound('call-busy');
-        }
-      }
-    }, [isPlaying, currentTrack, activeIndex, isRadioMode]);
+    useEffect(() => {
+       if (audioRef.current) {
+         if (isPlaying && currentTrack?.url) {
+           audioRef.current.play().catch(() => { setIsPlaying(false); playSound('incoming-call'); });
+         } else if (!isPlaying) {
+           audioRef.current.pause();
+           playSound('call-busy');
+         }
+       }
+     }, [isPlaying, currentTrack, activeIndex, isRadioMode]);
+
+    useEffect(() => {
+       return () => {
+         objectURLsRef.current.forEach(url => URL.revokeObjectURL(url));
+         objectURLsRef.current.clear();
+         if (audioCtxRef.current) {
+           audioCtxRef.current.close();
+           audioCtxRef.current = null;
+         }
+         if (eqNodesRef.current) {
+           eqNodesRef.current = [];
+         }
+       };
+    }, []);
 
    // Device detection on mount
    useEffect(() => {
@@ -264,21 +279,22 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
   const [isMuted, setIsMuted] = useState(false);
     
     // Video file handling
-    const handleVideoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-       if (e.target.files && e.target.files.length > 0) {
-          const file = e.target.files[0];
-          if (isVideoFile(file)) {
-             const url = URL.createObjectURL(file);
-             setVideoUrl(url);
-             setShowVideo(true);
-             setIsVideoPlaying(true);
-             toast.success("Video loaded", { description: file.name });
-          } else {
-             toast.error("Invalid file", { description: "Please select a video file" });
-          }
-       }
-       e.target.value = "";
-    };
+const handleVideoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+           const file = e.target.files[0];
+           if (isVideoFile(file)) {
+              const objUrl = URL.createObjectURL(file);
+              objectURLsRef.current.add(objUrl);
+              setVideoUrl(objUrl);
+              setShowVideo(true);
+              setIsVideoPlaying(true);
+              toast.success("Video loaded", { description: file.name });
+           } else {
+              toast.error("Invalid file", { description: "Please select a video file" });
+           }
+        }
+        e.target.value = "";
+     };
     
     const toggleVideoPlayback = () => {
        if (videoRef.current) {
@@ -291,12 +307,15 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
        }
     };
     
-    const closeVideo = () => {
-       setShowVideo(false);
-       if (videoUrl) URL.revokeObjectURL(videoUrl);
-       setVideoUrl(null);
-       setIsVideoPlaying(false);
-    };
+const closeVideo = () => {
+        setShowVideo(false);
+        if (videoUrl) {
+          URL.revokeObjectURL(videoUrl);
+          objectURLsRef.current.delete(videoUrl);
+        }
+        setVideoUrl(null);
+        setIsVideoPlaying(false);
+     };
 
    // Apply EQ preset
    const applyPreset = (preset: EQPreset) => {
@@ -339,69 +358,73 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
    };
 
   // Handle folder/directory loading
-    const handleFolderSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-       const files = e.target.files;
-       if (files) {
-          const videoFiles: File[] = [];
-          const audioFiles: File[] = [];
-          for (const item of files) {
-             if (item instanceof File) {
-                if (isVideoFile(item)) {
-                   videoFiles.push(item);
-                } else if (isAudioFile(item)) {
-                   audioFiles.push(item);
-                }
-             }
-          }
-          // Play first video if found
-          if (videoFiles.length > 0) {
-             const firstVideo = videoFiles[0];
-             const objUrl = URL.createObjectURL(firstVideo);
-             setVideoUrl(objUrl);
-             setShowVideo(true);
-             setIsVideoPlaying(true);
-             toast.success("Video loaded", { description: firstVideo.name });
-          }
-          // Add remaining audio files to playlist
-          const audioCount = audioFiles.length;
-          if (audioCount > 0) {
-             audioFiles.forEach((file) => {
-                const objUrl = URL.createObjectURL(file);
-                const newTrack = { id: Math.random().toString(36).substr(2, 9), name: file.name.replace(/\.[^/.]+$/, ""), url: objUrl, time: "Added", file: file as any };
-                setPlaylist((prev: any) => [...prev, newTrack]);
-             });
-            setCurrentTrackIndex(playlist.length);
-             setIsPlaying(true);
-          }
-          if (videoFiles.length === 0 && audioFiles.length === 0) {
-             toast.info("No media files found in folder");
-          }
-       }
-       e.target.value = ""; // Reset input
-    };
+const handleFolderSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files) {
+           const videoFiles: File[] = [];
+           const audioFiles: File[] = [];
+           for (const item of files) {
+              if (item instanceof File) {
+                 if (isVideoFile(item)) {
+                    videoFiles.push(item);
+                 } else if (isAudioFile(item)) {
+                    audioFiles.push(item);
+                 }
+              }
+           }
+           // Play first video if found
+           if (videoFiles.length > 0) {
+              const firstVideo = videoFiles[0];
+              const objUrl = URL.createObjectURL(firstVideo);
+              objectURLsRef.current.add(objUrl);
+              setVideoUrl(objUrl);
+              setShowVideo(true);
+              setIsVideoPlaying(true);
+              toast.success("Video loaded", { description: firstVideo.name });
+           }
+           // Add remaining audio files to playlist
+           const audioCount = audioFiles.length;
+           if (audioCount > 0) {
+              audioFiles.forEach((file) => {
+                 const objUrl = URL.createObjectURL(file);
+                 objectURLsRef.current.add(objUrl);
+                 const newTrack = { id: Math.random().toString(36).substr(2, 9), name: file.name.replace(/\.[^/.]+$/, ""), url: objUrl, time: "Added", file: file as any };
+                 setPlaylist((prev: any) => [...prev, newTrack]);
+              });
+             setCurrentTrackIndex(playlist.length);
+              setIsPlaying(true);
+           }
+           if (videoFiles.length === 0 && audioFiles.length === 0) {
+              toast.info("No media files found in folder");
+           }
+        }
+        e.target.value = ""; // Reset input
+     };
 
    // Handle single file loading
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-       if (e.target.files && e.target.files.length > 0) {
-          const file = e.target.files[0];
-          if (isVideoFile(file)) {
-             const objUrl = URL.createObjectURL(file);
-             setVideoUrl(objUrl);
-             setShowVideo(true);
-             setIsVideoPlaying(true);
-             toast.success("Video loaded", { description: file.name });
-          } else {
-             loadAudioFiles([file], (f) => {
-                const objUrl = URL.createObjectURL(f);
-                const newTrack = { id: Math.random().toString(36).substr(2, 9), name: f.name.replace(/\.[^/.]+$/, ""), url: objUrl, time: "Added", file: f as any };
-                setPlaylist((prev: any) => [...prev, newTrack]);
-                setCurrentTrackIndex(playlist.length);
-                setIsPlaying(true);
-             });
-          }
-          e.target.value = "";
-       }
-    };
+const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+           const file = e.target.files[0];
+           if (isVideoFile(file)) {
+              const objUrl = URL.createObjectURL(file);
+              objectURLsRef.current.add(objUrl);
+              setVideoUrl(objUrl);
+              setShowVideo(true);
+              setIsVideoPlaying(true);
+              toast.success("Video loaded", { description: file.name });
+           } else {
+              loadAudioFiles([file], (f) => {
+                 const objUrl = URL.createObjectURL(f);
+                 objectURLsRef.current.add(objUrl);
+                 const newTrack = { id: Math.random().toString(36).substr(2, 9), name: f.name.replace(/\.[^/.]+$/, ""), url: objUrl, time: "Added", file: f as any };
+                 setPlaylist((prev: any) => [...prev, newTrack]);
+                 setCurrentTrackIndex(playlist.length);
+                 setIsPlaying(true);
+              });
+           }
+           e.target.value = "";
+        }
+     };
 
    const initWebAudio = () => {
      try {

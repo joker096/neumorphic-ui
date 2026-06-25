@@ -711,5 +711,11 @@
     "systemStatusSubtitle": "Nivel de batería, interruptores",
     "spamFilter": "spamFilter",
     "spamFilterSubtitle": "spamFilterSubtitle"
+  },
+  "nav": {
+    "calls": "Llamadas",
+    "chats": "Mensajes",
+    "contacts": "Contactos",
+    "settings": "Configuración"
   }
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { p2pNetwork } from '../lib/p2p/network'
-import type { PeerConnection } from '../lib/p2p/network'
+import type { PeerConnection, P2PConnectionCallback } from '../lib/p2p/network'
 
 export interface MeshPeer {
   peerId: string
@@ -62,8 +62,12 @@ export function useMeshPeers() {
 
   useEffect(() => {
     sync()
-    p2pNetwork.onConnection(sync)
-    p2pNetwork.onDisconnection(sync)
+    const unsubConn = p2pNetwork.onConnection(sync as P2PConnectionCallback)
+    const unsubDisconn = p2pNetwork.onDisconnection(sync as P2PConnectionCallback)
+    return () => {
+      unsubConn()
+      unsubDisconn()
+    }
   }, [sync])
 
   const count = peers.length

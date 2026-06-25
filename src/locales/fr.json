@@ -711,5 +711,11 @@
     "systemStatusSubtitle": "Niveau de batterie, disjoncteurs",
     "spamFilter": "spamFilter",
     "spamFilterSubtitle": "spamFilterSubtitle"
+  },
+  "nav": {
+    "calls": "Appels",
+    "chats": "Messages",
+    "contacts": "Contacts",
+    "settings": "Paramètres"
   }
 }

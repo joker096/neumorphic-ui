@@ -1,14 +1,80 @@
 import { WebSocketServer, WebSocket } from 'ws'
 import { createServer } from 'node:http'
+import jwt from 'jsonwebtoken'
 
 const PORT = parseInt(process.env.PORT || '8765', 10)
 
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is required for signaling server')
+  process.exit(1)
+}
+
 const clients = new Map<string, WebSocket>()
+
+// Rate limit per IP: track connection attempts
+const connectionAttempts = new Map<string, { count: number; resetAt: number }>()
+const MAX_CONNECTIONS_PER_MINUTE = 10
+
+function checkConnectionRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = connectionAttempts.get(ip)
+  if (!entry || now > entry.resetAt) {
+    connectionAttempts.set(ip, { count: 1, resetAt: now + 60000 })
+    return true
+  }
+  if (entry.count >= MAX_CONNECTIONS_PER_MINUTE) return false
+  entry.count++
+  return true
+}
+
+// Clean up stale connection entries every 5 minutes
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of connectionAttempts.entries()) {
+    if (now > entry.resetAt) connectionAttempts.delete(key)
+  }
+}, 300000)
+
+function getClientIp(ws: WebSocket): string {
+  const req = (ws as any).request
+  if (req && req.headers) {
+    const forwarded = req.headers['x-forwarded-for']
+    if (typeof forwarded === 'string') return forwarded.split(',')[0].trim()
+  }
+  return 'unknown'
+}
+
+function verifyWsToken(authHeader: string): boolean {
+  try {
+    const token = authHeader.slice(7) // remove 'Bearer '
+    jwt.verify(token, JWT_SECRET)
+    return true
+  } catch {
+    return false
+  }
+}
 
 const server = createServer()
 const wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 })
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
+  const ip = getClientIp(ws)
+  if (!checkConnectionRateLimit(ip)) {
+    ws.close(1008, 'Too many connections')
+    return
+  }
+
+  // Verify authentication token from query param or header
+  const url = (req as any).url || ''
+  const urlParams = new URLSearchParams(url.split('?')[1] || '')
+  const token = urlParams.get('token') || ''
+
+  if (!token || !verifyWsToken(`Bearer ${token}`)) {
+    ws.close(1008, 'Authentication required')
+    return
+  }
+
   let registeredKey: string | null = null
 
   const send = (data: object) => {

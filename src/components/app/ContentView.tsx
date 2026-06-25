@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
-import { HomeButton, StoryViewerOverlay } from "../AppChrome";
+import { StoryViewerOverlay } from "../AppChrome";
 import { ContentViewHeader } from "./ContentViewHeader";
 
 type Story = {
@@ -16,9 +16,7 @@ type ContentViewProps = {
   isDark: boolean;
   t: (key: string, options?: any) => string;
   onBack: () => void;
-  onHome: () => void;
   onCloseStory: () => void;
-  showHomeButton?: boolean;
   activeStory: Story | null;
   isStealthMode: boolean;
 };
@@ -26,13 +24,10 @@ type ContentViewProps = {
 export const ContentView = ({
   children,
   title,
-  theme,
   isDark,
   t,
   onBack,
-  onHome,
   onCloseStory,
-  showHomeButton = true,
   activeStory,
   isStealthMode,
 }: ContentViewProps) => (
@@ -42,13 +37,12 @@ export const ContentView = ({
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: 40 }}
     transition={{ duration: 0.3 }}
-    className="flex-1 w-full max-w-4xl mx-auto flex flex-col relative z-20 pt-4 sm:pt-8 pb-20 sm:pb-24 h-full min-h-0 px-2 sm:px-4"
+    className="flex-1 w-full max-w-4xl mx-auto flex flex-col relative z-20 pt-4 sm:pt-8 pb-4 h-full min-h-0 px-2 sm:px-4"
   >
     <ContentViewHeader title={title} isDark={isDark} t={t} onBack={onBack} />
     <div className="flex-1 w-full overflow-hidden relative px-3 sm:px-4 flex flex-col items-center min-h-0">
       {children}
     </div>
-    {showHomeButton && <HomeButton isDark={isDark} onClick={onHome} t={t} />}
     <StoryViewerOverlay activeStory={activeStory} onClose={onCloseStory} isStealthMode={isStealthMode} />
   </motion.div>
 );

@@ -24,6 +24,8 @@ export interface P2PNetworkOptions {
 const DEFAULT_MAX_PEERS = 10
 const DEFAULT_SIGNALING_URL = 'ws://localhost:8765'
 
+export type P2PConnectionCallback = (peerId: string) => void
+
 export class P2PNetwork {
   private peerId: string
   private peers: Map<string, PeerConnection> = new Map()
@@ -48,8 +50,16 @@ export class P2PNetwork {
       if (options.maxPeers) this.maxPeers = options.maxPeers
     }
     this.isInitialized = true
-    window.addEventListener('online', () => this.handleNetworkChange(true))
-    window.addEventListener('offline', () => this.handleNetworkChange(false))
+    const onOnline = () => this.handleNetworkChange(true)
+    const onOffline = () => this.handleNetworkChange(false)
+    window.addEventListener('online', onOnline)
+    window.addEventListener('offline', onOffline)
+    // Return cleanup function if called from useEffect
+    if (typeof window !== 'undefined') {
+      // Store cleanup references on the instance
+      ;(this as any).__cleanupOnline = onOnline
+      ;(this as any).__cleanupOffline = onOffline
+    }
   }
 
   private handleNetworkChange(_online: boolean): void {
@@ -146,12 +156,14 @@ export class P2PNetwork {
     this.messageHandlers.add(handler)
   }
 
-  onConnection(callback: (peerId: string) => void): void {
+  onConnection(callback: P2PConnectionCallback): () => void {
     this.connectionCallbacks.add(callback)
+    return () => this.connectionCallbacks.delete(callback)
   }
 
-  onDisconnection(callback: (peerId: string) => void): void {
+  onDisconnection(callback: P2PConnectionCallback): () => void {
     this.disconnectionCallbacks.add(callback)
+    return () => this.disconnectionCallbacks.delete(callback)
   }
 
   getPeers(): PeerConnection[] {

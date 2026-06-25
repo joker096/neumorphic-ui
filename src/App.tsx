@@ -1,5 +1,8 @@
+import React, { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FeatureViews } from "./lib/lazyViews";
 import { ChatWorkspace } from "./components/chat";
-import { AppOverlays, ContentView, HubView } from "./components/app";
+import { AppOverlays, ContentView } from "./components/app";
+import { BottomNav, SidebarNav } from "./components/navigation";
 import { SafeRender } from "./components/resilience";
 import { encodeMorse } from "./components/MorseDecoder";
 import { MOCK_DATA_ENABLED } from "./lib/mockDataFlag";
@@ -8,11 +11,9 @@ import { CallScreen } from "./components/call/CallScreen";
 import { IncomingCallSheet } from "./components/call/IncomingCallSheet";
 import { HuddleWidget } from "./components/huddle/HuddleWidget";
 import { useCall } from "./hooks/useCall";
-import { FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-const FeatureViews = lazy(() => import("./components/features/FeatureViews").then(m => ({ default: m.FeatureViews })));
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
 import { AnimatePresence } from "motion/react";
-import { Activity, Bot, Hash, Lock, MessageCircle, Mic, Phone, Settings, Target, Users } from "lucide-react";
+import { Lock } from "lucide-react";
 import { useAppStore } from "./store";
 import { cryptoCore } from "./lib/crypto/cryptoCore";
 import { useI18n } from "./lib/i18n";
@@ -266,7 +267,7 @@ localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, '0');
     }
   };
 
-  const [view, setView] = useState<'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'contacts' | 'stories' | 'recordings'>('hub');
+  const [view, setView] = useState<'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'contacts' | 'stories' | 'recordings'>('chats');
   const [activeFolder, setActiveFolder] = useState<string>('all');
   const [activeChat, setActiveChat] = useState<any>(null);
   const [messageText, setMessageText] = useState("");
@@ -293,31 +294,27 @@ localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, '0');
      return count;
   }, [chats, channels, archivedChats]);
 
-  // Compute mention flags for each chat (check for @current_user mentions)
-  const MENTIONED_USER = "user";
-  const mentionCounts = useMemo(() => {
-     const counts: Record<string, number> = {};
-     const allChats = [...chats, ...channels] as any[];
-     allChats.forEach(c => {
-       const history = c.history || [];
-       let count = 0;
-       history.forEach((msg: any) => {
-         if (msg.mentions && msg.mentions.some((m: any) => m.name === MENTIONED_USER)) {
-           count++;
-         } else if (msg.text && new RegExp(`@${MENTIONED_USER}`, 'i').test(msg.text)) {
-           count++;
-         }
-       });
-       if (count > 0) {
-         counts[c.id] = count;
-         // Update the chat with hasMentions flag
-         if (c.history) {
-           c.hasMentions = true;
-         }
-       }
-     });
-     return counts;
-  }, [chats, channels]);
+ // Compute mention flags for each chat (check for @current_user mentions)
+   const MENTIONED_USER = "user";
+   const mentionCounts = useMemo(() => {
+      const counts: Record<string, number> = {};
+      const allChats = [...chats, ...channels] as any[];
+      allChats.forEach(c => {
+        const history = c.history || [];
+        let count = 0;
+        history.forEach((msg: any) => {
+          if (msg.mentions && msg.mentions.some((m: any) => m.name === MENTIONED_USER)) {
+            count++;
+          } else if (msg.text && new RegExp(`@${MENTIONED_USER}`, 'i').test(msg.text)) {
+            count++;
+          }
+        });
+        if (count > 0) {
+          counts[c.id] = count;
+        }
+      });
+      return counts;
+   }, [chats, channels]);
 
   const filteredChats = useMemo(() => currentChatList.filter(chat => {
     const query = chatSearchQuery.toLowerCase().trim();
@@ -363,8 +360,7 @@ if (activeFolder === 'archived') return isArchived;
     return true;
   }), [channels, chatSearchQuery, activeFolder, archivedChats]);
 
- const sendVoiceMessage = (audioUrl: string, durationStr: string) => {
-     // DND enforcement - block non-priority voice messages during DND
+const sendVoiceMessage = (audioUrl: string, durationStr: string) => {
      if (isDNDEnabled() && !isPriorityContact(activeChat?.name || "")) {
        toast("Voice message blocked - DND is active. Priority contacts can bypass.", { duration: 3000 });
        return;
@@ -569,24 +565,6 @@ if (activeFolder === 'archived') return isArchived;
   const channelsUnread = useMemo(() => channels.reduce((sum, c) => sum + ((c as any).unread || 0), 0), [channels]);
   const missedCalls = useMemo(() => callHistory.filter((c) => c.type === 'missed').length + (activeCall ? 1 : 0), [callHistory, activeCall]);
 
-  const hubBadges = useMemo((): Record<string, number> => ({
-    chats: chatsUnread,
-    channels: channelsUnread,
-    calls: missedCalls,
-  }), [chatsUnread, channelsUnread, missedCalls]);
-
-  const hubItems = useMemo(() => [
-    { id: 'channels', angle: 0, title: t('hub.channels'), subtitle: t('hub.channelsSubtitle'), icon: Hash },
-    { id: 'chats', angle: 30, title: t('hub.chats'), subtitle: t('hub.chatsSubtitle'), icon: MessageCircle },
-    { id: 'pulse', angle: 90, title: t('hub.metropulse'), subtitle: t('hub.metropulseSubtitle'), icon: Activity },
-    { id: 'radar', angle: 150, title: t('hub.radar'), subtitle: t('hub.radarSubtitle'), icon: Target },
-    { id: 'contacts', angle: 180, title: t('hub.contacts'), subtitle: t('hub.contactsSubtitle'), icon: Users },
-    { id: 'calls', angle: 210, title: t('hub.calls'), subtitle: t('hub.callsSubtitle'), icon: Phone },
-    { id: 'recordings', angle: 240, title: t('hub.recordings'), subtitle: t('hub.recordingsSubtitle'), icon: Mic },
-    { id: 'bots', angle: 270, title: t('hub.bots'), subtitle: t('hub.botsSubtitle'), icon: Bot },
-    { id: 'settings', angle: 330, title: t('hub.settings'), subtitle: t('hub.settingsSubtitle'), icon: Settings },
-  ], [t]);
-
   if (appLockHashedPIN && !isUnlocked) {
     return (
       <div className={`w-full h-[100dvh] flex flex-col items-center justify-center font-sans ${isDark ? "bg-[#0d1017] text-white" : "bg-[#eaeff4] text-slate-800"}`}>
@@ -644,12 +622,12 @@ if (activeFolder === 'archived') return isArchived;
 
   const handleBack = () => {
     if (activeChat) setActiveChat(null);
-    else setView("hub");
+    else setView("chats");
   };
 
-  const handleHome = () => {
+  const handleNavigate = (target: string) => {
     setActiveChat(null);
-    setView("hub");
+    setView(target as any);
   };
 
 const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'video' = 'audio') => {
@@ -779,10 +757,38 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
   const riskDebugId = useAppStore((state) => state.riskShellActive ? getLastActionDebugId(globalSelectedContact?.id || '') : undefined);
   const activeRiskContactId = useAppStore((state) => state.riskShellActive ? globalSelectedContact?.id : undefined);
 
-  const contentViewTitle = activeChat ? activeChat.name : t(`hub.${view}`);
-  const isChatListRoute = view === "chats" || view === "channels" || view === "bots" || view === "stories";
+const contentViewTitle = useMemo(() => {
+    if (activeChat) return activeChat.name;
+    const titles: Record<string, string> = {
+      chats: t('nav.chats'),
+      contacts: t('nav.contacts'),
+      calls: t('nav.calls'),
+      settings: t('nav.settings'),
+      channels: t('chat.tabs.channels'),
+      bots: t('chat.tabs.bots'),
+      stories: t('chat.tabs.stories'),
+      recordings: t('hub.recordings'),
+      pulse: t('hub.metropulse'),
+      radar: t('hub.radar'),
+    };
+    return titles[view] || '';
+  }, [activeChat?.name, view, t]);
 
-  const activeChatWorkspaceProps = {
+  const isChatListRoute = useMemo(() => view === "chats" || view === "channels" || view === "bots" || view === "stories", [view]);
+
+  const handleSendMessageRef = useRef(handleSendMessage);
+  const sendVoiceMessageRef = useRef(sendVoiceMessage);
+  const sendStickerMessageRef = useRef(sendStickerMessage);
+  const handlePreviewCallRef = useRef(handlePreviewCall);
+  const handlePreviewMessageRef = useRef(handlePreviewMessage);
+
+  useEffect(() => { handleSendMessageRef.current = handleSendMessage }, [handleSendMessage]);
+  useEffect(() => { sendVoiceMessageRef.current = sendVoiceMessage }, [sendVoiceMessage]);
+  useEffect(() => { sendStickerMessageRef.current = sendStickerMessage }, [sendStickerMessage]);
+  useEffect(() => { handlePreviewCallRef.current = handlePreviewCall }, [handlePreviewCall]);
+  useEffect(() => { handlePreviewMessageRef.current = handlePreviewMessage }, [handlePreviewMessage]);
+
+const activeChatWorkspaceProps = useMemo(() => ({
     theme,
     activeChat,
     setActiveChat,
@@ -808,14 +814,14 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
     setVoiceNoteError,
     setSilentMode,
     setMorseMode,
-    handleSendMessage,
-    sendVoiceMessage,
-    sendStickerMessage,
+    handleSendMessage: handleSendMessageRef.current,
+    sendVoiceMessage: sendVoiceMessageRef.current,
+    sendStickerMessage: sendStickerMessageRef.current,
     savedMessages,
     onToggleSavedMessage: toggleSavedMessage,
-    onPreviewCall: handlePreviewCall,
-    onPreviewVideoCall: (name: string, color?: string) => handlePreviewCall(name, color, 'video'),
-    onPreviewMessage: handlePreviewMessage,
+    onPreviewCall: handlePreviewCallRef.current,
+    onPreviewVideoCall: (name: string, color?: string) => handlePreviewCallRef.current(name, color, 'video'),
+    onPreviewMessage: handlePreviewMessageRef.current,
     setEditingContact,
     onToggleMute: () => {
       setActiveChat({ ...activeChat, isMuted: !activeChat?.isMuted });
@@ -838,15 +844,24 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
     },
     onSendVoice: (url: string, duration: string) => {
       setIsRecordingVoice(false);
-      sendVoiceMessage(url, duration);
+      sendVoiceMessageRef.current(url, duration);
       setVoiceNoteError("");
     },
     onToggleSchedulePopup: () => setShowSchedulePopup(!showSchedulePopup),
     onToggleSilent: () => setSilentMode(!silentMode),
     onToggleMorse: () => setMorseMode(!morseMode),
-  };
+  }), [
+    theme, activeChat, setActiveChat, messageText, setMessageText, scheduleDateTime,
+    showSchedulePopup, setShowSchedulePopup, setScheduleDateTime, isRecordingVoice,
+    setIsRecordingVoice, voiceNoteError, showStickerPicker, setShowStickerPicker,
+    morseMode, silentMode, replyTarget, setReplyTarget, draftTextByChat,
+    setDraftTextByChat, setChats, setChannels, setVoiceNoteError, setSilentMode,
+    setMorseMode, toggleSavedMessage, savedMessages, activeChat?.isMuted,
+    handleSendMessageRef.current, sendVoiceMessageRef.current, sendStickerMessageRef.current,
+    handlePreviewCallRef.current, handlePreviewMessageRef.current, messageText
+  ]);
 
-  const chatListWorkspaceProps = {
+const chatListWorkspaceProps = useMemo(() => ({
     theme,
     view,
     activeFolder,
@@ -869,41 +884,45 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
     advancedFilters,
     t,
     isDark,
-    onCall: handlePreviewCall,
-    onVideoCall: (name: string, color?: string) => handlePreviewCall(name, color, 'video'),
-  };
+    onCall: handlePreviewCallRef.current,
+    onVideoCall: (name: string, color?: string) => handlePreviewCallRef.current(name, color, 'video'),
+  }), [
+    theme, view, activeFolder, setActiveFolder, chatSearchQuery, setChatSearchQuery,
+    filteredChats, filteredChannels, bots, archivedUnreadCount, toggleArchive,
+    contacts, setGlobalSelectedContact, setActiveChat, setView, setActiveStory,
+    setShowCreateChannel, setShowCreateBot, setShowAdvancedFilterModal, advancedFilters,
+    t, isDark, handlePreviewCallRef.current
+  ]);
 
   return (
     <>
-      <Toaster position="top-right" duration={3000} />
-      <div className={`w-full h-[100dvh] flex flex-col items-center justify-center font-sans select-none overflow-hidden relative ${isDark ? "bg-[#0d1017] text-white" : "bg-[#eaeff4] text-slate-800"}`}>
+      <Toaster position="top-right" duration={3000} theme={isDark ? 'dark' : 'light'} />
+      <div className={`w-full h-[100dvh] flex font-sans select-none overflow-hidden relative ${isDark ? "bg-[#0d1017] text-white" : "bg-[#eaeff4] text-slate-800"}`}>
         {isDark && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
         )}
 
-        <TransportIndicator status={connectionStatus} />
+        <div className="absolute top-2 right-2 z-50">
+          <TransportIndicator status={connectionStatus} />
+        </div>
 
-        <AnimatePresence mode="wait">
-          {view === "hub" ? (
-            <SafeRender>
-              <HubView
-                theme={theme}
-                items={hubItems}
-                badges={hubBadges}
-                centerTitle={t("hub.centerTitle")}
-                onItemClick={(id) => setView(id as any)}
-              />
-            </SafeRender>
-          ) : (
+        <SidebarNav
+          activeView={view}
+          isDark={isDark}
+          unreadCount={chatsUnread}
+          onNavigate={handleNavigate}
+          t={t}
+        />
+
+        <div className="flex-1 flex flex-col min-w-0 pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0">
+          <AnimatePresence mode="wait">
             <ContentView
               title={contentViewTitle}
               theme={theme}
               isDark={isDark}
               t={t}
               onBack={handleBack}
-              onHome={handleHome}
               onCloseStory={() => setActiveStory(null)}
-              showHomeButton={!activeChat}
               activeStory={activeStory}
               isStealthMode={useAppStore.getState().stealthMode}
             >
@@ -917,29 +936,35 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
                 </SafeRender>
               )}
               <SafeRender>
-                <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" /></div>}>
-                  <FeatureViews
-                    view={view}
-                    theme={theme}
-                    setTheme={setTheme}
-                    contacts={contacts}
-                    setContacts={setContacts as any}
-                    showContactPicker={showContactPicker}
-                    setShowContactPicker={setShowContactPicker}
-                    setEditingContact={setEditingContact}
-                    chats={chats}
-                    setChats={setChats as any}
-                    setActiveChat={setActiveChat}
-                    setView={setView as any}
-                    onCall={handlePreviewCall}
-                    onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
-                    onMessage={handlePreviewMessage}
-                  />
-                </Suspense>
+                <FeatureViews
+                  view={view}
+                  theme={theme}
+                  setTheme={setTheme}
+                  contacts={contacts}
+                  setContacts={setContacts as any}
+                  showContactPicker={showContactPicker}
+                  setShowContactPicker={setShowContactPicker}
+                  setEditingContact={setEditingContact}
+                  chats={chats}
+                  setChats={setChats as any}
+                  setActiveChat={setActiveChat}
+                  setView={setView as any}
+                  onCall={handlePreviewCall}
+                  onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
+                  onMessage={handlePreviewMessage}
+                />
               </SafeRender>
             </ContentView>
-          )}
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
+
+        <BottomNav
+          activeView={view}
+          isDark={isDark}
+          unreadCount={chatsUnread}
+          onNavigate={handleNavigate}
+          t={t}
+        />
 
         <AppOverlays
           theme={theme}

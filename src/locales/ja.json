@@ -711,5 +711,11 @@
     "systemStatusSubtitle": "バッテリーレベル、サーキットブレーカー",
     "spamFilter": "spamFilter",
     "spamFilterSubtitle": "spamFilterSubtitle"
+  },
+  "nav": {
+    "calls": "通话",
+    "chats": "聊天",
+    "contacts": "联系人",
+    "settings": "设置"
   }
 }

@@ -11,12 +11,12 @@ export function buildCSP(options: CSPOptions = {}): string {
 
   const directives = [
     "default-src 'self'",
-    "script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'wasm-unsafe-eval'",
+    "style-src 'self'",
     "style-src-attr 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self' ws: wss: https: http://localhost:*",
+    "connect-src 'self' wss: https:",
     "media-src 'self' blob: https:",
     "object-src 'none'",
     "base-uri 'self'",

@@ -64,7 +64,7 @@ export const FeatureViews = ({
     case "settings":
       return <SettingsView theme={theme} setTheme={setTheme} />;
     case "recordings":
-      return <RecordingsScreen theme={theme} onBack={() => setView("hub")} />;
+      return <RecordingsScreen theme={theme} onBack={() => setView("settings")} />;
     case "contacts":
       return (
         <ContactsView

@@ -6,26 +6,7 @@
     <title>Mess&Anger — Secure P2P Messenger</title>
     <meta name="description" content="End-to-end encrypted P2P messenger with post-quantum cryptography. No phone required." />
     
-    <!-- Content Security Policy (dev-friendly; production CSP via HTTP headers in _headers) -->
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval';
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      style-src-attr 'unsafe-inline';
-      img-src 'self' data: blob:;
-      font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com;
-      connect-src 'self' ws: wss: https:;
-      media-src 'self' blob: https:;
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      upgrade-insecure-requests;
-    ">
-    
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()" />
+    <!-- CSP via HTTP headers in vite.config.ts; production uses _headers file -->
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0a0a0a" />
@@ -42,13 +23,6 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js');
-  });
-}
-</script>
   </body>
 </html>
 

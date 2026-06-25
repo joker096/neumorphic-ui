@@ -711,5 +711,11 @@
     "systemStatusSubtitle": "Batteriestand, Schaltkreise",
     "spamFilter": "spamFilter",
     "spamFilterSubtitle": "spamFilterSubtitle"
+  },
+  "nav": {
+    "calls": "Appels",
+    "chats": "Messages",
+    "contacts": "Contacts",
+    "settings": "Paramètres"
   }
 }
