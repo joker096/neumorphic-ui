@@ -1,7 +1,6 @@
 import { ChatWorkspace } from "./components/chat";
 import { AppOverlays, ContentView, HubView } from "./components/app";
 import { SafeRender } from "./components/resilience";
-const FeatureViews = lazy(() => import("./components/features/FeatureViews").then(m => ({ default: m.FeatureViews })));
 import { encodeMorse } from "./components/MorseDecoder";
 import { MOCK_DATA_ENABLED } from "./lib/mockDataFlag";
 import { MOCK_CHATS, MOCK_CHANNELS } from "./components/mockData";
@@ -10,6 +9,7 @@ import { IncomingCallSheet } from "./components/call/IncomingCallSheet";
 import { HuddleWidget } from "./components/huddle/HuddleWidget";
 import { useCall } from "./hooks/useCall";
 import { FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+const FeatureViews = lazy(() => import("./components/features/FeatureViews").then(m => ({ default: m.FeatureViews })));
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
 import { AnimatePresence } from "motion/react";
 import { Activity, Bot, Hash, Lock, MessageCircle, Mic, Phone, Settings, Target, Users } from "lucide-react";
