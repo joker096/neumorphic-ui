@@ -23,6 +23,8 @@ type ChatListWorkspaceProps = {
   advancedFilters: Record<string, boolean>;
   t: (key: string, options?: any) => string;
   isDark: boolean;
+  onCall: (name: string, color?: string) => void;
+  onVideoCall: (name: string, color?: string) => void;
 };
 
 export const ChatListWorkspace = (props: ChatListWorkspaceProps) => (

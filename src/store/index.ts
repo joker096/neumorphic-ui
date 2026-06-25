@@ -55,7 +55,7 @@ const encryptedIdbStorage: StateStorage = {
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       processQueue();
-    }, 1000);
+    }, 500);
   },
   removeItem: async (name: string): Promise<void> => {
     writeQueue.delete(name);
@@ -229,6 +229,7 @@ interface AppState {
   typingIndicators: boolean;
   stealthMode: boolean;
   deliveryReceipts: boolean;
+  onlineStatus: boolean;
   forwardAnonymization: boolean;
   currentLanguage: string;
 
@@ -353,6 +354,7 @@ export const useAppStore = create<AppState>()(
       typingIndicators: true,
       stealthMode: false,
       deliveryReceipts: true,
+      onlineStatus: true,
       forwardAnonymization: false,
       currentLanguage: 'en',
       soundEnabled: true,
@@ -547,12 +549,7 @@ export const useAppStore = create<AppState>()(
       toggleArchive: (id) => set((state) => ({ archivedChats: state.archivedChats.includes(id) ? state.archivedChats.filter(i => i !== id) : [...state.archivedChats, id] })),
       activeCall: null,
       setActiveCall: (call) => set({ activeCall: call }),
-      callHistory: [
-        { id: '1', name: 'Alice Freeman', time: '10:42 AM', type: 'outgoing', duration: '5m 23s' },
-        { id: '2', name: '+1 (555) 019-283', time: 'Yesterday', type: 'missed' },
-        { id: '3', name: 'Operations Team', time: 'Yesterday', type: 'incoming', duration: '12m 4s' },
-        { id: '4', name: 'Bob Smith', time: 'Sun, 08:15', type: 'incoming', duration: '2m 10s' },
-      ],
+      callHistory: [],
       addCallToHistory: (entry) => set((state) => ({
         callHistory: [{ id: String(Date.now()), time: new Date().toLocaleTimeString(), ...entry }, ...state.callHistory]
       })),
@@ -611,7 +608,7 @@ export const useAppStore = create<AppState>()(
             });
             if (hasChanges) {
               state.setChats(cleanedChats);
-              console.log('Cleared expired/stale messages from the encrypted cache.');
+              console.warn('Cleared expired/stale messages from the encrypted cache.');
             }
           }, 2000);
         }

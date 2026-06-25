@@ -96,18 +96,10 @@ describe('MeshRadar', () => {
     expect(screen.getByText(/Mesh Radar/)).toBeInTheDocument();
   });
 
-  it('renders node list with mock connections', () => {
+  it('shows empty state when no peers connected', () => {
     render(<MeshRadar theme="dark" />);
 
-    expect(screen.getByText(/relay_7a3f/)).toBeInTheDocument();
-    expect(screen.getByText(/WebRTC/)).toBeInTheDocument();
-    expect(screen.getByText(/0\.4 km/)).toBeInTheDocument();
-    expect(screen.getByText(/bridge_c29e/)).toBeInTheDocument();
-    expect(screen.getByText(/DHT/)).toBeInTheDocument();
-    expect(screen.getByText(/1\.2 km/)).toBeInTheDocument();
-    expect(screen.getByText(/node_f88b/)).toBeInTheDocument();
-    expect(screen.getByText(/Noise/)).toBeInTheDocument();
-    expect(screen.getByText(/3\.8 km/)).toBeInTheDocument();
+    expect(screen.getByText(/No peers connected/)).toBeInTheDocument();
   });
 
   it('applies dark theme styles correctly', () => {

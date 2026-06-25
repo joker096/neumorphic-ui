@@ -130,6 +130,14 @@ describe('Double Ratchet', () => {
     expect(decrypted.plaintext).toBe('test message')
   })
 
+  it('should return invalid for trySkippedDecrypt when no skipped keys exist', async () => {
+    const { ratchet } = await DoubleRatchet.initialize()
+    const encrypted = await ratchet.encrypt('test')
+    const result = await ratchet.trySkippedDecrypt(encrypted.ciphertext, encrypted.nonce, encrypted.publicKey)
+    expect(result.isValid).toBe(false)
+    expect(result.plaintext).toBe('')
+  })
+
   it('should support ratchet step', async () => {
     const { ratchet } = await DoubleRatchet.initialize()
     await ratchet.encrypt('msg1')
@@ -174,6 +182,50 @@ describe('MessageEncryptionService', () => {
     const enc1 = await service.encrypt('chat1', 'msg1')
     const enc2 = await service.encrypt('chat2', 'msg2')
     expect(enc1.ciphertext).not.toBe(enc2.ciphertext)
+  })
+
+  it('should return distinct ciphertexts for different messages', async () => {
+    const service = new MessageEncryptionService()
+    await service.initSession('chat1', 'a'.repeat(43))
+    const enc1 = await service.encrypt('chat1', 'msg1')
+    const enc2 = await service.encrypt('chat1', 'msg2')
+    expect(enc1.ciphertext).not.toBe(enc2.ciphertext)
+    expect(enc1.nonce).not.toBe(enc2.nonce)
+  })
+
+  it('should throw on decrypt when no session exists', async () => {
+    const service = new MessageEncryptionService()
+    await expect(service.decrypt('nonexistent', {} as any)).rejects.toThrow('No session')
+  })
+
+  it('should return public key', () => {
+    const service = new MessageEncryptionService()
+    const pubKey = service.getPublicKey()
+    expect(pubKey).toBeDefined()
+    expect(typeof pubKey).toBe('string')
+    expect(pubKey.length).toBeGreaterThan(0)
+  })
+
+  it('should return private key', () => {
+    const service = new MessageEncryptionService()
+    const privKey = service.getPrivateKey()
+    expect(privKey).toBeDefined()
+    expect(typeof privKey).toBe('string')
+    expect(privKey.length).toBeGreaterThan(0)
+  })
+
+  it('should import key pair', () => {
+    const service = new MessageEncryptionService()
+    const pubBefore = service.getPublicKey()
+    const privBefore = service.getPrivateKey()
+
+    const newPub = 'b'.repeat(44)
+    const newPriv = 'c'.repeat(44)
+    service.importKeyPair(newPub, newPriv)
+
+    expect(service.getPublicKey()).toBe(newPub)
+    expect(service.getPrivateKey()).toBe(newPriv)
+    expect(service.getPublicKey()).not.toBe(pubBefore)
   })
 
   it('should export and import state', async () => {

@@ -1,6 +1,7 @@
 {
   "chat": {
     "archive": "Archive",
+    "unarchive": "Unarchive",
     "archived": "Archived",
     "createChannel": "Create Channel",
     "createBot": "Create Bot",

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Archive, Bot, ListFilter, Plus, Search } from "lucide-react";
+import { Archive, Bot, ListFilter, Phone, Plus, Search, Video } from "lucide-react";
 import { FormattedText } from "./FormattedText";
 import { useAppStore } from "../store";
 import { ONLINE_CONTACTS } from "./mockData";
@@ -31,6 +31,8 @@ interface ChatListViewProps {
   advancedFilters: Record<string, boolean>;
   t: Translate;
   isDark: boolean;
+  onCall: (name: string, color?: string) => void;
+  onVideoCall: (name: string, color?: string) => void;
 }
 
 const AvatarRow = ({ theme, onStoryClick, t }: any) => {
@@ -84,11 +86,12 @@ const AvatarRow = ({ theme, onStoryClick, t }: any) => {
     </div>
   );
 };
-const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, onAvatarClick, archiveLabel, t }: any) => {
+const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, onAvatarClick, archiveLabel, onCall, onVideoCall, t }: any) => {
   const isDark = theme === "dark";
   const { stealthMode, typingIndicators } = useAppStore();
 
-  const roundedClass = type === "channel" ? "rounded-2xl" : "rounded-full";
+  const isGroup = type === "channel";
+  const roundedClass = isGroup ? "rounded-2xl" : "rounded-full";
   const isMockTyping = typingIndicators && chat.id === 1 && type === "chat";
 
   const fuzzedTime = React.useMemo(() => {
@@ -105,17 +108,39 @@ const ChatListItem = ({ chat, theme, type = "chat", active, onClick, onArchive, 
   }, [chat.time, chat.id, stealthMode]);
 
   return (
-    <div className="relative mb-4 last:mb-0">
-      <div className={`absolute inset-0 flex items-center justify-end px-6 rounded-3xl ${isDark ? "bg-red-500/20" : "bg-red-500"} text-white overflow-hidden`}>
-        <Archive size={20} className={isDark ? "text-red-500" : "text-white"} />
-        <span className={`ml-2 text-sm font-bold ${isDark ? "text-red-500" : "text-white"}`}>{archiveLabel}</span>
+    <div className="relative mb-4 last:mb-0 overflow-hidden rounded-3xl">
+      {!isGroup && onCall && onVideoCall && (
+        <div className={`absolute inset-0 flex items-center justify-start rounded-3xl overflow-hidden`}>
+          <div className="flex h-full">
+            <button
+              onClick={(e) => { e.stopPropagation(); onCall(); }}
+              className={`h-full flex flex-col items-center justify-center gap-1 px-4 text-[11px] font-bold text-white cursor-pointer border-none ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
+              style={{ width: '76px' }}
+            >
+              <Phone size={18} fill="white" stroke="white" />
+              Voice
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onVideoCall(); }}
+              className={`h-full flex flex-col items-center justify-center gap-1 px-4 text-[11px] font-bold text-white cursor-pointer border-none bg-blue-500`}
+              style={{ width: '76px' }}
+            >
+              <Video size={18} fill="white" stroke="white" />
+              Video
+            </button>
+          </div>
+        </div>
+      )}
+      <div className={`absolute inset-0 flex items-center justify-end px-6 rounded-3xl ${isDark ? "bg-orange-500/20" : "bg-orange-500"} text-white overflow-hidden`}>
+        <Archive size={20} className={isDark ? "text-orange-500" : "text-white"} />
+        <span className={`ml-2 text-sm font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
       </div>
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={{ left: 0.5, right: 0 }}
+        dragElastic={{ left: 0.5, right: 0.5 }}
         onDragEnd={(e, info) => {
-          if (info.offset.x < -100 && onArchive) {
+          if (info.offset.x < -70 && onArchive) {
             onArchive(chat.id);
           }
         }}
@@ -232,6 +257,8 @@ export const ChatListView = ({
   advancedFilters,
   t,
   isDark,
+  onCall,
+  onVideoCall,
 }: ChatListViewProps) => {
   return (
     <div className={`w-full max-w-[400px] flex-1 flex flex-col overflow-y-auto rounded-[32px] p-6 mb-8 pb-28 sm:pb-8 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
@@ -320,29 +347,31 @@ export const ChatListView = ({
                       <>
                          <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-orange-500" : "text-orange-600"}`}>{t('chat.sectionConversations')}</div>
                         {filteredChats.map(c => (
-                          <ChatListItem 
-                             key={c.id} 
-                             chat={c} 
-                             theme={theme} 
-                             type="chat" 
-                             active={false} 
-                             onClick={() => setActiveChat(c)} 
-                             onArchive={() => toggleArchive(c.id)}
-                              archiveLabel={t('chat.archive')}
-                             t={t}
-                             onAvatarClick={() => {
-                               const profileContact = contacts.find(ct => ct.name === c.name);
-                               setGlobalSelectedContact({
-                                 id: `hash_${c.id}`,
-                                 name: c.name,
-                                 color: c.color,
-                                  lastSeen: c.online ? 0 : Date.now() - 3600000,
-                                  online: c.online,
-                                  isFavorite: c.isFavorite,
-                                  localFields: profileContact?.localFields
-                               });
-                             }}
-                          />
+                           <ChatListItem 
+                              key={c.id} 
+                              chat={c} 
+                              theme={theme} 
+                              type="chat" 
+                              active={false} 
+                              onClick={() => setActiveChat(c)} 
+                              onArchive={() => toggleArchive(c.id)}
+                                archiveLabel={activeFolder === 'archived' ? t('chat.unarchive') : t('chat.archive')}
+                               onCall={() => onCall(c.name, c.color)}
+                               onVideoCall={() => onVideoCall(c.name, c.color)}
+                               t={t}
+                               onAvatarClick={() => {
+                                const profileContact = contacts.find(ct => ct.name === c.name);
+                                setGlobalSelectedContact({
+                                  id: `hash_${c.id}`,
+                                  name: c.name,
+                                  color: c.color,
+                                   lastSeen: c.online ? 0 : Date.now() - 3600000,
+                                   online: c.online,
+                                   isFavorite: c.isFavorite,
+                                   localFields: profileContact?.localFields
+                                });
+                              }}
+                           />
                         ))}
                       </>
                     )}
@@ -352,20 +381,22 @@ export const ChatListView = ({
                       <>
                          <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-purple-500" : "text-purple-600"}`}>{t('chat.sectionChannels')}</div>
                         {filteredChannels.map(c => (
-                          <ChatListItem 
-                             key={c.id} 
-                             chat={c} 
-                             theme={theme} 
-                             type="channel" 
-                             active={false} 
-                             onClick={() => setActiveChat(c)} 
-                             onArchive={() => toggleArchive(c.id)}
-                              archiveLabel={t('chat.archive')}
-                             t={t}
-                          />
-                        ))}
-                      </>
-                    )}
+                           <ChatListItem 
+                              key={c.id} 
+                              chat={c} 
+                              theme={theme} 
+                              type="channel" 
+                              active={false} 
+                               onClick={() => setActiveChat(c)} 
+                               onArchive={() => toggleArchive(c.id)}
+                                archiveLabel={activeFolder === 'archived' ? t('chat.unarchive') : t('chat.archive')}
+                               onCall={() => onCall(c.name, c.color)}
+                               onVideoCall={() => onVideoCall(c.name, c.color)}
+                               t={t}
+                            />
+                         ))}
+                       </>
+                     )}
 
                     {view === 'bots' && (
                       bots.length > 0 ? (

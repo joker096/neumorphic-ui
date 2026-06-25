@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useI18n } from '../lib/i18n';
+import { useMeshPeers } from '../hooks/useMeshPeers';
 
 export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -9,6 +10,8 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
     const translated = t(key);
     return translated === key ? fallback : translated;
   };
+
+  const { peers } = useMeshPeers();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -20,24 +23,24 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
     const H = canvas.height;
     const CX = W / 2;
     const CY = H / 2;
-    const R = 160; // Increased radius
+    const R = 160;
     const GREEN = isDark ? "#2bca74" : "#10b981";
 
-    // Simulated mesh nodes for UI demonstration
-
-    const nodes = [
-      { a: -0.8, d: 0.35, c: GREEN, pulse: true, label: "0.4km" },
-      { a: 0.6, d: 0.62, c: "#3b82f6", pulse: false, label: "1.2km" },
-      { a: 1.8, d: 0.82, c: "#f59e0b", pulse: false, label: "3.8km" },
-    ];
+    const renderPeers = peers.map(p => ({
+      a: p.angle,
+      d: p.distance,
+      c: p.color,
+      pulse: p.type === 'direct' && p.connected,
+      label: p.label,
+    }));
 
     let sweep = 0;
-    let t = 0;
+    let frame = 0;
     let animId: number;
 
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
-      t += 0.016;
+      frame += 0.016;
       sweep += 0.02;
       if (sweep > Math.PI * 2) sweep -= Math.PI * 2;
 
@@ -92,12 +95,19 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
       ctx.fillStyle = GREEN;
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(CX, CY, 8 + Math.sin(t * 2) * 2, 0, Math.PI * 2);
+      ctx.arc(CX, CY, 8 + Math.sin(frame * 2) * 2, 0, Math.PI * 2);
       ctx.strokeStyle = isDark ? "rgba(43,202,116,0.3)" : "rgba(16,185,129,0.4)";
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      nodes.forEach((node) => {
+      if (peers.length === 0) {
+        ctx.fillStyle = isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)";
+        ctx.font = "11px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("No peers connected", CX, CY + R * 0.7);
+      }
+
+      renderPeers.forEach((node) => {
         const x = CX + Math.cos(node.a) * node.d * R;
         const y = CY + Math.sin(node.a) * node.d * R;
 
@@ -109,7 +119,7 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
         ctx.stroke();
 
         if (node.pulse) {
-          const pr = 10 + Math.abs(Math.sin(t * 2)) * 6;
+          const pr = 10 + Math.abs(Math.sin(frame * 2)) * 6;
           ctx.beginPath();
           ctx.arc(x, y, pr, 0, Math.PI * 2);
           ctx.strokeStyle = `${node.c}${Math.floor(0.4 * (1 - pr / 16) * 255).toString(16)}`;
@@ -133,7 +143,7 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
     draw();
 
     return () => cancelAnimationFrame(animId);
-  }, [isDark]);
+  }, [isDark, peers]);
 
   return (
     <div
@@ -165,7 +175,6 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
         }`}
       />
 
-      {/* Mock node list for active connection states from the mesh implementation */}
       <div
         className={`mt-6 w-full flex flex-col rounded-xl overflow-hidden ${
           isDark
@@ -173,33 +182,33 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
             : "bg-[#eaeff4] border border-white/80 shadow-[inset_2px_2px_4px_rgba(255,255,255,1),_4px_4px_8px_rgba(165,175,190,0.3)]"
         }`}
       >
-        <div
-          className={`flex items-center gap-3 p-3 text-[11px] font-mono border-b ${
-            isDark ? "border-white/5 text-gray-300" : "border-black/5 text-slate-700"
-          }`}
-        >
-          <div className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span>relay_7a3f · WebRTC</span>
-          <span className="ml-auto opacity-50">0.4 km →</span>
-        </div>
-        <div
-          className={`flex items-center gap-3 p-3 text-[11px] font-mono border-b ${
-            isDark ? "border-white/5 text-gray-300" : "border-black/5 text-slate-700"
-          }`}
-        >
-          <div className="w-2 h-2 rounded-full bg-blue-500" />
-          <span>bridge_c29e · DHT</span>
-          <span className="ml-auto opacity-50">1.2 km ↗</span>
-        </div>
-        <div
-          className={`flex items-center gap-3 p-3 text-[11px] font-mono ${
-            isDark ? "text-gray-300" : "text-slate-700"
-          }`}
-        >
-          <div className="w-2 h-2 rounded-full bg-amber-500" />
-          <span>node_f88b · Noise</span>
-          <span className="ml-auto opacity-50">3.8 km ↑</span>
-        </div>
+        {peers.length === 0 ? (
+          <div className={`flex items-center justify-center p-4 text-[11px] font-mono ${
+            isDark ? "text-gray-500" : "text-slate-500"
+          }`}>
+            No peers connected
+          </div>
+        ) : (
+          peers.map((p, i) => (
+            <div
+              key={p.peerId}
+              className={`flex items-center gap-3 p-3 text-[11px] font-mono ${
+                i < peers.length - 1 ? "border-b" : ""
+              } ${
+                isDark ? "border-white/5 text-gray-300" : "border-black/5 text-slate-700"
+              }`}
+            >
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: p.color }}
+              />
+              <span>{p.label}</span>
+              <span className="ml-auto opacity-50">
+                {p.type === 'direct' ? 'WebRTC' : `${p.hops} hops`}
+              </span>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

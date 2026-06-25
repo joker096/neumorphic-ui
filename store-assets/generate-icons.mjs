@@ -4,7 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const svgBuffer = readFileSync(path.resolve(__dirname, '..', 'public', 'icon.svg'));
+// Source: favicon.webp (master icon)
+const sourceBuffer = readFileSync(path.resolve(__dirname, '..', 'public', 'icons', 'favicon.webp'));
 
 const sizes = {
   'pwa-192x192.png': 192,
@@ -32,7 +33,7 @@ async function generate() {
     else if (filename.startsWith('ios-')) outputDir = 'ios';
     
     const outputPath = path.resolve(__dirname, outputDir, filename);
-    await sharp(svgBuffer)
+    await sharp(sourceBuffer)
       .resize(size, size)
       .png()
       .toFile(outputPath);

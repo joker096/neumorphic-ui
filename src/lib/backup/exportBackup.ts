@@ -1,4 +1,6 @@
 import { toast } from 'sonner';
+import { useAppStore } from '../../store';
+import { STORAGE_KEYS } from '../../constants/storage';
 
 export async function exportBackup(
   encrypted: boolean,
@@ -140,6 +142,31 @@ export async function exportBackup(
 
   downloadJson(backupData, `mess-anger-backup-${new Date().toISOString().slice(0, 10)}.json`);
   toast.success(t('toast.backupCreated'), { description: t('toast.backupReady') });
+}
+
+export async function exportBackupFromStore(t: (key: string) => string, html = false) {
+  const s = useAppStore.getState()
+  const draftsRaw = localStorage.getItem(STORAGE_KEYS.DRAFTS)
+  const savedRaw = localStorage.getItem(STORAGE_KEYS.SAVED_MESSAGES)
+
+  const savedTheme = localStorage.getItem('app_theme') as 'light' | 'dark' || 'dark';
+  if (html) {
+    return exportBackupHtml(
+      s.chats, s.channels, s.bots, s.archivedChats,
+      savedTheme, s.currentLanguage,
+      true, false, ''
+    )
+  }
+
+  return exportBackup(
+    false, false, '',
+    s.chats, s.channels, s.bots, s.archivedChats,
+    savedTheme, s.currentLanguage,
+    true, true, false, false, false, false, '',
+    '', '', '', '', '', false,
+    true, 'Medium', '00:00', '00:00', '',
+    t
+  )
 }
 
 function downloadJson(data: unknown, filename: string) {

@@ -1,1 +1,1 @@
-export { exportBackup, exportBackupHtml } from './exportBackup';
+export { exportBackup, exportBackupHtml, exportBackupFromStore } from './exportBackup';

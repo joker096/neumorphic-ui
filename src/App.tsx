@@ -869,6 +869,8 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
     advancedFilters,
     t,
     isDark,
+    onCall: handlePreviewCall,
+    onVideoCall: (name: string, color?: string) => handlePreviewCall(name, color, 'video'),
   };
 
   return (

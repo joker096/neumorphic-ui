@@ -1,6 +1,8 @@
 /**
  * Shared constants and mock data for the application
  */
+import { STORAGE_KEYS } from './constants/storage'
+export { STORAGE_KEYS }
 
 export interface MockCall {
   id: number;
@@ -281,9 +283,9 @@ export const parseMentions = (text: string): { text: string; mentions: { name: s
 
 export const isDNDEnabled = (): boolean => {
   try {
-    const dndEnabled = localStorage.getItem("app_dnd_enabled") === "true";
-    const dndFrom = localStorage.getItem("app_dnd_from") || "22:00";
-    const dndTo = localStorage.getItem("app_dnd_to") || "08:00";
+    const dndEnabled = localStorage.getItem(STORAGE_KEYS.DND_ENABLED) === "true";
+    const dndFrom = localStorage.getItem(STORAGE_KEYS.DND_FROM) || "22:00";
+    const dndTo = localStorage.getItem(STORAGE_KEYS.DND_TO) || "08:00";
     if (!dndEnabled) return false;
     const now = new Date();
     const hours = now.getHours();
@@ -305,7 +307,7 @@ export const isDNDEnabled = (): boolean => {
 
 export const isPriorityContact = (contactName: string): boolean => {
   try {
-    const priorityStr = localStorage.getItem("app_priority_contacts");
+    const priorityStr = localStorage.getItem(STORAGE_KEYS.PRIORITY_CONTACTS);
     if (!priorityStr) return false;
     const names = JSON.parse(priorityStr);
     return names.some((n: string) => contactName.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(contactName.toLowerCase()));

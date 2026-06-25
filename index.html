@@ -9,16 +9,17 @@
     <!-- Content Security Policy (Note: frame-ancestors and X-Frame-Options require HTTP headers in production) -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
-      script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline';
+      script-src 'self' 'wasm-unsafe-eval';
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       style-src-attr 'unsafe-inline';
       img-src 'self' data: blob:;
       font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com;
-      connect-src 'self' ws: wss: https: http://localhost:*;
+      connect-src 'self' ws: wss: https:;
       media-src 'self' blob: https:;
       object-src 'none';
       base-uri 'self';
       form-action 'self';
+      frame-ancestors 'none';
       upgrade-insecure-requests;
     ">
     

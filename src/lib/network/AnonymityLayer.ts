@@ -3,6 +3,7 @@
 // relay-only mode, timestamp fuzzing, and metadata killswitches.
 
 import { useAppStore } from '../../store'
+import { STORAGE_KEYS } from '../../constants/storage'
 
 export interface AnonymityConfig {
   enabled: boolean
@@ -90,7 +91,7 @@ export class AnonymityLayer {
   static shouldShowOnlineStatus(): boolean {
     const state = useAppStore.getState()
     if (this.config.enabled) return false // kill metadata
-    return !state.readReceipts
+    return !state.onlineStatus
   }
 
   static shouldShowReadReceipt(): boolean {
@@ -117,13 +118,13 @@ export class AnonymityLayer {
 
   private static saveConfig(): void {
     try {
-      localStorage.setItem('anonymity_config', JSON.stringify(this.config))
+      localStorage.setItem(STORAGE_KEYS.ANONYMITY_CONFIG, JSON.stringify(this.config))
     } catch { /* noop */ }
   }
 
   private static loadConfig(): void {
     try {
-      const saved = localStorage.getItem('anonymity_config')
+      const saved = localStorage.getItem(STORAGE_KEYS.ANONYMITY_CONFIG)
       if (saved) {
         this.config = { ...this.config, ...JSON.parse(saved) }
       }

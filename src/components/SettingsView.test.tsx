@@ -64,6 +64,9 @@ vi.mock('../lib/i18n', () => {
   const translations: Record<string, string> = {
     'settings.searchPlaceholder': 'Search settings...',
     'settings.accountSection': 'Account',
+    'settings.account': 'Account',
+    'settings.accountSubtitle': 'Manage your accounts',
+    'settings.accounts': 'Accounts',
     'settings.addAccount': 'Add account',
     'settings.appearance': 'Appearance',
     'settings.appearanceSection': 'Appearance',
@@ -167,6 +170,8 @@ vi.mock('../lib/i18n', () => {
     'settings.disabled': 'Disabled',
     'settings.spamActive': 'Active',
     'settings.spamDisabled': 'Disabled',
+    'settings.spamFilter': 'Spam Filter',
+    'settings.spamFilterSubtitle': 'Automatically detect and filter spam messages',
     'settings.photoEditorSubtitle': 'Crop, draw, text',
     'settings.autoSaveChanges': 'Auto-save changes',
     'settings.lastBuild': 'Last build',
@@ -251,13 +256,11 @@ describe('SettingsView', () => {
     expect(screen.getByText('Add to home screen')).toBeInTheDocument();
   });
 
-  it('shows grouped Account section with user info', () => {
+  it('shows Account section button in main settings', () => {
     render(<SettingsView {...defaultProps} />);
 
     expect(screen.getByText('Account')).toBeInTheDocument();
-    expect(screen.getByText('Joker')).toBeInTheDocument();
-    expect(screen.getByText('@joker')).toBeInTheDocument();
-    expect(screen.getByText('Add account')).toBeInTheDocument();
+    expect(screen.getByText('Manage your accounts')).toBeInTheDocument();
   });
 
   it('shows Appearance section', () => {

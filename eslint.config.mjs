@@ -19,6 +19,10 @@ export default [
       "security/detect-eval-with-expression": "warn",
       "security/detect-unsafe-regex": "warn",
       "security/detect-possible-timing-attacks": "warn",
+      "security/detect-non-literal-fs-filename": "warn",
+      "security/detect-child-process": "warn",
+      "security/detect-object-injection": "warn",
+      "security/detect-new-buffer": "warn",
     },
   },
 ];

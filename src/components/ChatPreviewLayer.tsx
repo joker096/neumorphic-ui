@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   BellOff,
@@ -28,6 +28,8 @@ import { FormattedText } from "./FormattedText";
 import { Tooltip } from "./Tooltip";
 import { useAppStore } from "../store";
 import { useI18n } from "../lib/i18n";
+import { useDebounce } from "../hooks/useDebounce";
+import { VirtualizedMessageList } from "./chat/VirtualizedMessageList";
 import { getICQStickerSrc } from "../lib/icqEmojis";
 import { toast } from "sonner";
 
@@ -132,7 +134,13 @@ interface ChatPreviewLayerProps {
 export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact }: any) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
-  const { stealthMode, scheduledQueue, setActiveCall, setChats, setChannels, contacts, setContacts } = useAppStore();
+  const stealthMode = useAppStore(s => s.stealthMode);
+  const scheduledQueue = useAppStore(s => s.scheduledQueue);
+  const setActiveCall = useAppStore(s => s.setActiveCall);
+  const setChats = useAppStore(s => s.setChats);
+  const setChannels = useAppStore(s => s.setChannels);
+  const contacts = useAppStore(s => s.contacts);
+  const setContacts = useAppStore(s => s.setContacts);
   const [videoOpen, setVideoOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [activePhotoUrl, setActivePhotoUrl] = useState<string | null>(null);
@@ -218,42 +226,48 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
   };
 
-  const filteredHistory =
+  const debouncedSearch = useDebounce(searchQuery, 200);
+
+  const filteredHistory = useMemo(() =>
     chat.history?.filter(
-      (msg: any) => {
-        // Apply sender filter
+      (msg: any, idx: number) => {
         if (filterBySender === 'me' && msg.sender !== 'me') return false;
         if (filterBySender === 'them' && msg.sender === 'me') return false;
         
-        // Apply date filters
         if (filterStartDate || filterEndDate) {
-          const msgDate = new Date(chat.history?.findIndex((m: any) => m.id === msg.id) * 86400000 + Date.now());
+          const msgDate = new Date(idx * 86400000 + Date.now());
           if (filterStartDate && msgDate < new Date(filterStartDate)) return false;
           if (filterEndDate && msgDate > new Date(filterEndDate)) return false;
         }
         
-        // Apply text search
-        const matchesSearch = searchQuery ? msg.text?.toLowerCase().includes(searchQuery.toLowerCase()) || !msg.text : true;
+        const matchesSearch = debouncedSearch ? msg.text?.toLowerCase().includes(debouncedSearch.toLowerCase()) || !msg.text : true;
         
         return matchesSearch;
       },
-    ) || [];
+    ) || [],
+    [chat.history, filterBySender, filterStartDate, filterEndDate, debouncedSearch]);
 
-  const mediaItems = (chat.history || []).filter((msg: any) => {
-    // Apply sender filter to media items too
-    if (filterBySender === 'me' && msg.sender !== 'me') return false;
-    if (filterBySender === 'them' && msg.sender === 'me') return false;
-    
-    // Apply text search to media items
-    if (searchQuery && !msg.text?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    
-    if (mediaTab === 'photos') return msg.type === 'image';
-    if (mediaTab === 'audio') return msg.type === 'audio';
-    if (mediaTab === 'links') return typeof msg.text === 'string' && /https?:\/\//i.test(msg.text);
-    return msg.type === 'image' || msg.type === 'audio' || (typeof msg.text === 'string' && /https?:\/\//i.test(msg.text));
-  });
+  const mediaItems = useMemo(() =>
+    (chat.history || []).filter((msg: any) => {
+      if (filterBySender === 'me' && msg.sender !== 'me') return false;
+      if (filterBySender === 'them' && msg.sender === 'me') return false;
+      
+      if (debouncedSearch && !msg.text?.toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
+      
+      if (mediaTab === 'photos') return msg.type === 'image';
+      if (mediaTab === 'audio') return msg.type === 'audio';
+      if (mediaTab === 'links') return typeof msg.text === 'string' && /https?:\/\//i.test(msg.text);
+      return msg.type === 'image' || msg.type === 'audio' || (typeof msg.text === 'string' && /https?:\/\//i.test(msg.text));
+    }),
+    [chat.history, filterBySender, debouncedSearch, mediaTab]);
 
-  const chatSavedMessages = savedMessages.filter((saved: any) => saved.chatId === chat.id);
+  const chatSavedMessages = useMemo(() =>
+    savedMessages.filter((saved: any) => saved.chatId === chat.id),
+    [savedMessages, chat.id]);
+
+  const chatScheduledMessages = useMemo(() =>
+    scheduledQueue.messages.filter((m: any) => m.chatId === chat.id),
+    [scheduledQueue.messages, chat.id]);
 
   return (
     <>
@@ -571,11 +585,14 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         )}
 
         {/* Messages */}
-        <div
-          className={`flex-1 overflow-y-auto overflow-x-hidden p-6 flex flex-col gap-6 relative z-0 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}
+        <VirtualizedMessageList
+          items={filteredHistory}
+          estimateSize={72}
+          overscan={3}
+          isDark={isDark}
+          className="p-6"
         >
-        <AnimatePresence mode="popLayout">
-          {filteredHistory.map((msg: any) => {
+          {(msg: any) => {
             const isMe = msg.sender === "me";
             const stickerSrc = msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null;
             return (
@@ -819,8 +836,11 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                   )}
                   </motion.div>
             );
-          })}
-          {scheduledQueue.messages.filter((m: any) => m.chatId === chat.id).map((msg: any) => (
+          }}
+          </VirtualizedMessageList>
+          {chatScheduledMessages.length > 0 && (
+          <div className="px-6 pb-4">
+          {chatScheduledMessages.map((msg: any) => (
              <motion.div
                layout
                key={msg.id}
@@ -843,10 +863,10 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                      <span className="cursor-pointer ml-2 hover:text-red-500" onClick={() => scheduledQueue.removeMessage(msg.id)}>✕</span>
                   </div>
                 </div>
-             </motion.div>
-          ))}
-        </AnimatePresence>
-        </div>
+              </motion.div>
+           ))}
+           </div>
+           )}
 
         {/* Input or Channel Footer */}
         <div

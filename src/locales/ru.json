@@ -1,6 +1,7 @@
 {
   "chat": {
     "archive": "Архив",
+    "unarchive": "Разархивировать",
     "archived": "В архиве",
     "createChannel": "Создать канал",
     "createBot": "Создать бота",

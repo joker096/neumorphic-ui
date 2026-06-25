@@ -6,10 +6,14 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
+    "build:web": "pwsh -NoProfile -File scripts/build-web.ps1",
+    "build:android": "node scripts/build-android.mjs",
+    "build:all": "node scripts/build-android.mjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "eslint . --ext .ts,.tsx --quiet && tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -17,6 +21,7 @@
     "@otplib/core": "^13.4.1",
     "@privacyresearch/libsignal-protocol-typescript": "^0.0.16",
     "@tailwindcss/vite": "^4.1.14",
+    "@tanstack/react-virtual": "^3.14.3",
     "@vitejs/plugin-react": "^5.0.4",
     "@yudiel/react-qr-scanner": "^2.6.0",
     "bcrypt": "^6.0.0",
@@ -42,6 +47,8 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@bubblewrap/core": "^1.24.1",
+    "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/express": "^4.17.21",

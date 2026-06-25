@@ -1,0 +1,100 @@
+              {pinMode === 'set' ? t('settings.confirmPin') : t('settings.removePin')}
+              {t('settings.proxyUrl')}
+              placeholder={t('settings.enterPin')}
+              subtitle={bot.isRunning ? t('settings.botRunning') : t('settings.botStopped')}
+              toast.info(t('settings.storageInfo'));
+            <div className={`text-xs mb-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.proxyUrlSubtitle')}</div>
+            title={t('settings.dndFrom')}
+            title={t('settings.dndTo')}
+          {t('settings.noBots')}
+          subtitle={hasPin ? t('settings.pinEnabled') : t('settings.pinDisabled')}
+          subtitle={importStatus === 'importing' ? t('settings.importing') : 'JSON file'}
+          subtitle={t('settings.addBotSubtitle')}
+          subtitle={t('settings.allowMetadataSubtitle')}
+          subtitle={t('settings.animationsSubtitle')}
+          subtitle={t('settings.clearCacheSubtitle')}
+          subtitle={t('settings.darkThemeSubtitle')}
+          subtitle={t('settings.fontSizeSubtitle')}
+          subtitle={t('settings.forwardAllowSubtitle')}
+          subtitle={t('settings.onlineStatusSubtitle') || 'Show when you are online'}
+          subtitle={t('settings.pwaPromptSubtitle')}
+          subtitle={t('settings.regionBlockedSubtitle')}
+          subtitle={t('settings.storageInfo')}
+          subtitle={t('settings.wipeSubtitle')}
+          title={t('settings.addBot')}
+          title={t('settings.allowMetadata')}
+          title={t('settings.animations')}
+          title={t('settings.clearCache')}
+          title={t('settings.darkTheme')}
+          title={t('settings.exportBackup')}
+          title={t('settings.exportHtml')}
+          title={t('settings.fontSize')}
+          title={t('settings.forwardAllow')}
+          title={t('settings.forwardLimit')}
+          title={t('settings.importBackup')}
+          title={t('settings.obfuscation')}
+          title={t('settings.pinLock')}
+          title={t('settings.pwaPrompt')}
+          title={t('settings.regionBlocked')}
+          title={t('settings.torBridge')}
+          title={t('settings.useProxy')}
+          title={t('settings.wipeAllData')}
+        <SettingsSectionTitle title={t('settings.blockedBackends')} isDark={isDark} />
+        <SettingsSectionTitle title={t('settings.turnServer')} isDark={isDark} />
+        onClick={() => setVisActivity(visActivity === t('settings.visibility.none') ? t('settings.visibility.contacts') : visActivity === t('settings.visibility.contacts') ? t('settings.visibility.everyone') : t('settings.visibility.none'))}
+        onClick={() => setVisNumber(visNumber === t('settings.visibility.none') ? t('settings.visibility.contacts') : visNumber === t('settings.visibility.contacts') ? t('settings.visibility.everyone') : t('settings.visibility.none'))}
+        subtitle={t('settings.anonymousModeSubtitle')}
+        subtitle={t('settings.deliveryReceiptsSubtitle')}
+        subtitle={t('settings.dndSubtitle')}
+        subtitle={t('settings.receiptsEnableSubtitle')}
+        subtitle={t('settings.spamFilterSubtitle')}
+        subtitle={t('settings.stealthModeSubtitle')}
+        subtitle={t('settings.typingIndicatorsSubtitle')}
+        title={t('settings.connectionStatus')}
+        title={t('settings.deliveryReceipts')}
+        title={t('settings.dnd')}
+        title={t('settings.lastSeen')}
+        title={t('settings.latency')}
+        title={t('settings.receipts')}
+        title={t('settings.spamFilter')}
+        title={t('settings.stealthMode')}
+        title={t('settings.transportBackend')}
+        title={t('settings.typingIndicators')}
+        title={t('settings.whoSeesNumber')}
+        title={t("settings.anonymousMode")}
+        toast.error(t('settings.importFailed'));
+        toast.success(`${t('settings.obfuscation')}: ${next}`);
+        toast.success(t('settings.importSuccess'));
+      <SettingsRow title={t('settings.blacklist')} value="0 users" isDark={isDark} />
+      <SettingsSectionTitle title={t('settings.appearanceDescription')} isDark={isDark} />
+      <SettingsSectionTitle title={t('settings.appLock')} isDark={isDark} />
+      <SettingsSectionTitle title={t('settings.backup')} isDark={isDark} />
+      <SettingsSectionTitle title={t('settings.dangerZone')} isDark={isDark} />
+      <SettingsSectionTitle title={t('settings.storageUsage')} isDark={isDark} />
+      toast.error(t('settings.exportFailed'));
+      toast.error(t('settings.pinIncorrect'));
+      toast.error(t('settings.pinTooShort'));
+      toast.error(t('settings.wipeFailed'));
+      toast.success(`${botName} ${t('settings.removed')}`);
+      toast.success(t('settings.dataWiped'));
+      toast.success(t('settings.exportSuccess'));
+    <SettingsSectionTitle title={t('settings.about')} isDark={isDark} />
+    <SettingsSectionTitle title={t('settings.advancedPrivacy')} isDark={isDark} />
+    <SettingsSectionTitle title={t('settings.connection')} isDark={isDark} />
+    <SettingsSectionTitle title={t('settings.dndMode')} isDark={isDark} />
+    <SubView key="network" title={t('settings.network')} isDark={isDark} onBack={onBack}>
+    <SubView title={t('settings.appearance')} isDark={isDark} onBack={onBack}>
+    <SubView title={t('settings.bots')} isDark={isDark} onBack={onBack}>
+    <SubView title={t('settings.dataStorage')} isDark={isDark} onBack={onBack}>
+    <SubView title={t('settings.security')} isDark={isDark} onBack={onBack}>
+    const name = prompt(t('settings.enterBotName'));
+    if (!confirm(t('settings.confirmWipe'))) return;
+    if (confirm(t('settings.confirmClearCache'))) {
+    if (confirm(t('settings.confirmRemoveBot'))) {
+    toast.success(t('settings.botAdded'));
+    toast.success(t('settings.pinRemoved'));
+    toast.success(t('settings.pinSet'));
+  <SubView key="privacy" title={t('settings.privacy')} isDark={isDark} onBack={onBack}>
+  <SubView title={t('settings.language')} isDark={isDark} onBack={onBack}>
+  <SubView title={t('settings.spamProtection')} isDark={isDark} onBack={onBack}>
+  <SubView title={t('settings.systemStatus')} isDark={isDark} onBack={onBack}>

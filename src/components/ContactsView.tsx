@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useI18n } from '../lib/i18n';
 import { toast } from 'sonner';
 import { QrCode, Scan, Users, UserPlus, X, ArrowDownAZ, Clock, Check, Copy, Share, Phone, MessageSquare, Trash2, Edit, Loader2, Search, Star, StarOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { ContactProfileModal, ContactProfile } from './ContactProfileModal';
+import { useDebounce } from '../hooks/useDebounce';
 import { ContactCreateEditModal } from './ContactCreateEditModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import type { Contact, ContactField } from '../types/contact';
@@ -87,8 +88,10 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
     });
   };
 
-  const filteredContacts = contacts.filter(c => {
-    const matchesSearch = !searchQuery || c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.id.toLowerCase().includes(searchQuery.toLowerCase());
+  const debouncedSearch = useDebounce(searchQuery, 200);
+
+  const filteredContacts = useMemo(() => contacts.filter(c => {
+    const matchesSearch = !debouncedSearch || c.name.toLowerCase().includes(debouncedSearch.toLowerCase()) || c.id.toLowerCase().includes(debouncedSearch.toLowerCase());
     if (!matchesSearch) return false;
     switch (activeTab) {
       case 'favorites': return c.isFavorite;
@@ -96,16 +99,16 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
       case 'blocked': return false;
       default: return true;
     }
-  });
+  }), [contacts, debouncedSearch, activeTab]);
 
-  const sortedContacts = [...filteredContacts].sort((a, b) => {
+  const sortedContacts = useMemo(() => [...filteredContacts].sort((a, b) => {
     if (a.isFavorite !== b.isFavorite) return b.isFavorite ? 1 : -1;
     if (sortBy === 'alpha') {
       return a.name.localeCompare(b.name);
     } else {
       return b.lastSeen - a.lastSeen;
     }
-  });
+  }), [filteredContacts, sortBy]);
 
   const tabs: { key: TabOption; label: string; icon: React.ReactNode }[] = [
     { key: 'all', label: t('contacts.allTab', { count: contacts.length }), icon: <Users size={14} /> },
