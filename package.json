@@ -9,11 +9,16 @@
     "build:web": "pwsh -NoProfile -File scripts/build-web.ps1",
     "build:android": "node scripts/build-android.mjs",
     "build:all": "node scripts/build-android.mjs",
+    "deploy": "pwsh -NoProfile -File scripts/deploy-all.ps1",
+    "deploy:web": "pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipAndroid -SkipSignaling",
+    "deploy:quick": "pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipTests -SkipAndroid",
+    "deploy:server": "pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipBuild -SkipAndroid",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "eslint . --ext .ts,.tsx --quiet && tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "admin:create": "npx tsx server/cli.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -49,6 +54,8 @@
   "devDependencies": {
     "@bubblewrap/core": "^1.24.1",
     "@playwright/test": "^1.61.1",
+    "@scure/base": "^2.2.0",
+    "@scure/bip39": "^2.2.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/express": "^4.17.21",

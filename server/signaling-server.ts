@@ -1,6 +1,10 @@
 import { WebSocketServer, WebSocket } from 'ws'
 import { createServer } from 'node:http'
 import jwt from 'jsonwebtoken'
+import { logConnection, logDisconnection, closeDb } from './db.js'
+import { handleAuthRoute } from './routes/auth.js'
+import { handleStatsRoute } from './routes/stats.js'
+import { handleAdsRoute } from './routes/ads.js'
 
 const PORT = parseInt(process.env.PORT || '8765', 10)
 
@@ -83,6 +87,10 @@ wss.on('connection', (ws, req) => {
     }
   }
 
+  // Capture IP and User-Agent for connection logging
+  const clientIp = req.socket.remoteAddress || 'unknown'
+  const clientUa = req.headers?.['user-agent'] || ''
+
   ws.on('message', (raw) => {
     let msg: any
     try {
@@ -100,6 +108,7 @@ wss.on('connection', (ws, req) => {
         }
         registeredKey = msg.publicKey
         clients.set(registeredKey, ws)
+        logConnection(registeredKey, clientIp, clientUa)
         send({ type: 'registered', publicKey: registeredKey })
         break
 
@@ -181,20 +190,68 @@ wss.on('connection', (ws, req) => {
   })
 
   ws.on('close', () => {
-    if (registeredKey && clients.get(registeredKey) === ws) {
-      clients.delete(registeredKey)
+    if (registeredKey) {
+      logDisconnection(registeredKey)
+      if (clients.get(registeredKey) === ws) {
+        clients.delete(registeredKey)
+      }
     }
   })
 
   ws.on('error', () => {
-    if (registeredKey && clients.get(registeredKey) === ws) {
-      clients.delete(registeredKey)
+    if (registeredKey) {
+      logDisconnection(registeredKey)
+      if (clients.get(registeredKey) === ws) {
+        clients.delete(registeredKey)
+      }
     }
   })
+})
+
+// --- REST API Server (port 8766) ---
+const restServer = createServer((req, res) => {
+  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
+  const path = url.pathname
+
+  res.setHeader('Content-Type', 'application/json')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204)
+    res.end()
+    return
+  }
+
+  const handled =
+    handleAuthRoute(req, res, path) ||
+    handleStatsRoute(req, res, path) ||
+    handleAdsRoute(req, res, path)
+
+  if (!handled) {
+    res.writeHead(404)
+    res.end(JSON.stringify({ error: 'Not found' }))
+  }
+})
+
+const REST_PORT = parseInt(process.env.REST_PORT || '8766', 10)
+restServer.listen(REST_PORT, () => {
+  console.log(`[Mess&Anger] REST API listening on port ${REST_PORT}`)
 })
 
 server.listen(PORT, () => {
   console.log(`[Mess&Anger] Signaling server listening on port ${PORT}`)
 })
 
-export { server, wss }
+process.on('SIGINT', () => {
+  console.log('\nShutting down...')
+  closeDb()
+  process.exit(0)
+})
+process.on('SIGTERM', () => {
+  closeDb()
+  process.exit(0)
+})
+
+export { server, wss, restServer }

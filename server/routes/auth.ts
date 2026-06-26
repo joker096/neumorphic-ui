@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 import bcrypt from 'bcrypt'
 import { getDb } from '../db.js'
-import { signToken, verifyTotp, createAdminSession, invalidateSession, validateSession } from '../auth.js'
+import { signToken, verifyToken, verifyTotp, createAdminSession, invalidateSession } from '../auth.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 
 interface RateLimitEntry {
@@ -114,8 +114,10 @@ async function handleVerify2FA(req: IncomingMessage, res: ServerResponse): Promi
       return
     }
 
-    const payload = validateSession(sessionToken)
-    if (!payload) {
+    let payload: { adminId: number; username: string }
+    try {
+      payload = verifyToken(sessionToken)
+    } catch {
       res.writeHead(401, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ error: 'Invalid or expired session token' }))
       return
