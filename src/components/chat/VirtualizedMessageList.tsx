@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface VirtualizedMessageListProps<T> {
@@ -8,16 +8,21 @@ interface VirtualizedMessageListProps<T> {
   className?: string;
   isDark: boolean;
   children: (item: T, index: number) => React.ReactNode;
+  onScrollPosition?: (isNearBottom: boolean) => void;
 }
 
-export function VirtualizedMessageList<T>({
-  items,
-  estimateSize = 72,
-  overscan = 5,
-  className = '',
-  isDark,
-  children,
-}: VirtualizedMessageListProps<T>) {
+export function VirtualizedMessageListInner<T>(
+  {
+    items,
+    estimateSize = 72,
+    overscan = 5,
+    className = '',
+    isDark,
+    children,
+    onScrollPosition,
+  }: VirtualizedMessageListProps<T>,
+  ref: React.Ref<{ scrollToBottom: () => void }>
+) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
@@ -27,11 +32,31 @@ export function VirtualizedMessageList<T>({
     overscan,
   });
 
+  useImperativeHandle(ref, () => ({
+    scrollToBottom: () => {
+      virtualizer.scrollToIndex(items.length - 1, { align: 'end' })
+    },
+  }), [virtualizer, items.length]);
+
   const measureElement = useCallback((el: HTMLElement | null) => {
     if (el) {
       virtualizer.measureElement(el);
     }
   }, [virtualizer]);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current
+    if (!el || !onScrollPosition) return
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    onScrollPosition(distanceFromBottom < 200)
+  }, [onScrollPosition])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [handleScroll])
 
   return (
     <div
@@ -64,3 +89,7 @@ export function VirtualizedMessageList<T>({
     </div>
   );
 }
+
+export const VirtualizedMessageList = forwardRef(VirtualizedMessageListInner) as <T>(
+  props: VirtualizedMessageListProps<T> & { ref?: React.Ref<{ scrollToBottom: () => void }> }
+) => React.ReactElement;

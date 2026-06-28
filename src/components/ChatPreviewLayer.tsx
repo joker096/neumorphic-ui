@@ -120,6 +120,19 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const [activePostId, setActivePostId] = useState<number | null>(null);
   const [activeReactionPicker, setActiveReactionPicker] = useState<number | string | null>(null);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
+  const [bounceMsgId, setBounceMsgId] = useState<string | number | null>(null);
+  const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
+  const msgListRef = useRef<{ scrollToBottom: () => void }>(null);
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [unreadSinceScroll, setUnreadSinceScroll] = useState(0);
+  const prevHistoryLen = useRef(chat.history?.length || 0);
+  useEffect(() => {
+    const curLen = chat.history?.length || 0
+    if (!isNearBottom && curLen > prevHistoryLen.current) {
+      setUnreadSinceScroll(prev => prev + (curLen - prevHistoryLen.current))
+    }
+    prevHistoryLen.current = curLen
+  }, [chat.history?.length, isNearBottom]);
   
   const AVAILABLE_EMOJIS = ["👍", "❤️", "😂", "🔥", "😢", "🎉"];
 
@@ -394,11 +407,16 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
 
         {/* Messages */}
         <VirtualizedMessageList
+          ref={msgListRef}
           items={flatItems}
           estimateSize={72}
           overscan={3}
           isDark={isDark}
           className="p-6"
+          onScrollPosition={(nearBottom) => {
+            setIsNearBottom(nearBottom)
+            if (nearBottom) setUnreadSinceScroll(0)
+          }}
         >
           {(msg: any) => {
             if (msg._isDateSeparator) {
@@ -435,12 +453,27 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                 layout
                 key={msg.id}
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: bounceMsgId === msg.id ? [1, 0.95, 1.05, 1] : 1,
+                }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 className={`flex flex-col w-full group relative ${isMe ? "items-end" : "items-start"} ${msg._isLastInGroup !== false ? "mb-4" : "mb-1"}`}
               >
                  <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
                     <div
+                      onClick={() => {
+                        const now = Date.now()
+                        if (now - lastTapRef.current.time < 300 && lastTapRef.current.msgId === msg.id) {
+                          handleReactionMessage(msg.id, '👍')
+                          setBounceMsgId(msg.id)
+                          setTimeout(() => setBounceMsgId(null), 300)
+                          lastTapRef.current = { time: 0, msgId: 0 }
+                        } else {
+                          lastTapRef.current = { time: now, msgId: msg.id }
+                        }
+                      }}
                        className={`max-w-[80%] md:max-w-[80%] sm:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${
                          isMe
                            ? isDark
@@ -558,17 +591,42 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                         {msg.silent && <BellOff size={10} className="mr-0.5 opacity-60" />}
                         {fuzzTime(msg.time, msg.id)}
                         {isMe && (
-                          !deliveryReceipts ? (
-                            <Check size={12} strokeWidth={2.5} />
-                          ) : msg.status === "sent" ? (
-                            <Check size={12} strokeWidth={2.5} />
-                          ) : msg.status === "delivered" ? (
-                            <CheckCheck size={12} strokeWidth={2.5} />
-                          ) : readReceipts ? (
-                            <CheckCheck size={12} strokeWidth={2.5} className={isDark ? "text-blue-400" : "text-blue-500"} />
-                          ) : (
-                            <CheckCheck size={12} strokeWidth={2.5} />
-                          )
+                          <span className="inline-flex items-center">
+                            <AnimatePresence mode="wait">
+                              {(!deliveryReceipts || msg.status === 'sent') && (
+                                <motion.span
+                                  key="sent"
+                                  initial={{ opacity: 0, scale: 0.5 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.5 }}
+                                  transition={{ duration: 0.15 }}
+                                >
+                                  <Check size={12} strokeWidth={2.5} />
+                                </motion.span>
+                              )}
+                              {deliveryReceipts && msg.status === 'delivered' && (
+                                <motion.span
+                                  key="delivered"
+                                  initial={{ opacity: 0, scale: 0.5 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.5 }}
+                                  transition={{ duration: 0.15 }}
+                                >
+                                  <CheckCheck size={12} strokeWidth={2.5} />
+                                </motion.span>
+                              )}
+                              {deliveryReceipts && readReceipts && msg.status === 'read' && (
+                                <motion.span
+                                  key="read"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  transition={{ duration: 0.3 }}
+                                >
+                                  <CheckCheck size={12} strokeWidth={2.5} className={isDark ? 'text-blue-400' : 'text-blue-500'} />
+                                </motion.span>
+                              )}
+                            </AnimatePresence>
+                          </span>
                         )}
                       </div>
                       )}
@@ -677,6 +735,29 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
             );
           }}
           </VirtualizedMessageList>
+          <AnimatePresence>
+            {!isNearBottom && (
+              <motion.button
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                onClick={() => {
+                  msgListRef.current?.scrollToBottom()
+                  setUnreadSinceScroll(0)
+                }}
+                className={`absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 rounded-full shadow-lg cursor-pointer ${
+                  isDark ? 'bg-orange-500 text-white hover:bg-orange-400' : 'bg-orange-500 text-white hover:bg-orange-400'
+                }`}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+                {unreadSinceScroll > 0 && (
+                  <span className="text-[11px] font-bold">{unreadSinceScroll}</span>
+                )}
+              </motion.button>
+            )}
+          </AnimatePresence>
           {chatScheduledMessages.length > 0 && (
           <div className="px-6 pb-4">
           {chatScheduledMessages.map((msg: any) => (
