@@ -5,6 +5,8 @@ import * as idb from 'idb-keyval';
 import { deviceSecurity } from '../lib/deviceSecurity';
 import type { Contact } from '../types/contact';
 import type { ActiveCall } from '../lib/call/types';
+import type { CompanyChannel, CompanyMessage, CompanyMember } from '../constants';
+import type { InviteQRPayload } from '../lib/company/types';
 
 let sessionMasterKey: CryptoKey | null = null;
 
@@ -95,7 +97,7 @@ export interface P2PChannel {
       allowDeletionByUser?: boolean;
       allowDeletionBySystem?: boolean;
    };
- signedAt?: number;
+   signedAt?: number;
    signedBy?: string;
    signingKey?: string;
    privateKey?: string;
@@ -300,6 +302,7 @@ interface AppState {
   scheduledQueue: ScheduledMessageQueue;
   archivedChats: (string | number)[];
   toggleArchive: (id: string | number) => void;
+  pinChat: (chatId: string | number) => void;
 
   activeCall: ActiveCall | null;
   setActiveCall: (call: ActiveCall | null) => void;
@@ -338,6 +341,28 @@ interface AppState {
   setLatency: (ms: number) => void;
   setBlockedBackends: (backends: string[]) => void;
   setRegionBlocked: (blocked: boolean) => void;
+
+  syncStatus: 'idle' | 'requesting' | 'syncing' | 'live' | 'error';
+  syncLastTimestamp: string;
+  totpSecret: string;
+  pairingQrData: string;
+  setSyncStatus: (status: AppState['syncStatus']) => void;
+  setSyncLastTimestamp: (ts: string) => void;
+  setTotpSecret: (secret: string) => void;
+  setPairingQrData: (data: string) => void;
+
+  companyId: string | null;
+  companyChannels: CompanyChannel[];
+  companyMessages: CompanyMessage[];
+  companyMembers: CompanyMember[];
+  hideWhenOfficeOnly: boolean;
+  pendingInvite: InviteQRPayload | null;
+  setCompanyId: (id: string | null) => void;
+  setCompanyChannels: (channels: CompanyChannel[]) => void;
+  addCompanyMessage: (msg: CompanyMessage) => void;
+  setCompanyMembers: (members: CompanyMember[]) => void;
+  setHideWhenOfficeOnly: (hide: boolean) => void;
+  initCompanyFromInvite: (payload: InviteQRPayload) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>()(
@@ -547,6 +572,16 @@ export const useAppStore = create<AppState>()(
       },
       archivedChats: [],
       toggleArchive: (id) => set((state) => ({ archivedChats: state.archivedChats.includes(id) ? state.archivedChats.filter(i => i !== id) : [...state.archivedChats, id] })),
+      pinChat: (chatId) => set((state) => {
+        const pinnedCount = state.chats.filter((c: any) => c.pinned).length;
+        const chat = state.chats.find((c: any) => c.id === chatId);
+        if (!chat) return state;
+        if (chat.pinned) {
+          return { chats: state.chats.map((c: any) => c.id === chatId ? { ...c, pinned: false } : c) };
+        }
+        if (pinnedCount >= 3) return state;
+        return { chats: state.chats.map((c: any) => c.id === chatId ? { ...c, pinned: true } : c) };
+      }),
       activeCall: null,
       setActiveCall: (call) => set({ activeCall: call }),
       callHistory: [],
@@ -583,6 +618,32 @@ export const useAppStore = create<AppState>()(
       setLatency: (ms) => set({ latencyMs: ms }),
       setBlockedBackends: (backends) => set({ blockedBackends: backends }),
       setRegionBlocked: (blocked) => set({ regionBlocked: blocked }),
+
+      syncStatus: 'idle',
+      syncLastTimestamp: '',
+      totpSecret: '',
+      pairingQrData: '',
+      setSyncStatus: (status) => set({ syncStatus: status }),
+      setSyncLastTimestamp: (ts) => set({ syncLastTimestamp: ts }),
+      setTotpSecret: (secret) => set({ totpSecret: secret }),
+      setPairingQrData: (data) => set({ pairingQrData: data }),
+
+      companyId: null,
+      companyChannels: [],
+      companyMessages: [],
+      companyMembers: [],
+      hideWhenOfficeOnly: false,
+      pendingInvite: null,
+      setCompanyId: (id) => set({ companyId: id }),
+      setCompanyChannels: (channels) => set({ companyChannels: channels }),
+      addCompanyMessage: (msg) => set((state) => ({ companyMessages: [...state.companyMessages, msg] })),
+      setCompanyMembers: (members) => set({ companyMembers: members }),
+      setHideWhenOfficeOnly: (hide) => set({ hideWhenOfficeOnly: hide }),
+      initCompanyFromInvite: async (payload) => {
+        const { initializeJoinFlow } = await import('../lib/company/onboarding/joinFlow');
+        await initializeJoinFlow(payload, '');
+        set({ pendingInvite: payload });
+      },
     }),
     {
       name: 'nexus-messenger-storage',

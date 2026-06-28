@@ -5,21 +5,22 @@ type SidebarNavProps = {
   activeView: string;
   isDark: boolean;
   unreadCount: number;
+  companyUnreadCount?: number;
   onNavigate: (view: string) => void;
   t: (key: string) => string;
 };
 
 const NAV_ITEMS = [
   { id: "chats", label: "nav.chats", icon: MessageCircle },
-  { id: "contacts", label: "nav.contacts", icon: Users },
   { id: "calls", label: "nav.calls", icon: Phone },
+  { id: "contacts", label: "nav.contacts", icon: Users },
   { id: "settings", label: "nav.settings", icon: Settings },
 ];
 
-export const SidebarNav = ({ activeView, isDark, unreadCount, onNavigate, t }: SidebarNavProps) => (
+export const SidebarNav = ({ activeView, isDark, unreadCount, companyUnreadCount, onNavigate, t }: SidebarNavProps) => (
   <aside
     className={`hidden md:flex flex-col w-64 h-[100dvh] shrink-0 border-r ${
-      isDark ? "bg-[#0d1017] border-r-white/[0.06]" : "bg-[#eaeff4] border-r-black/[0.06]"
+      isDark ? "bg-[#0d1017] border-r-white/[0.06]" : "bg-[#f0f2f5] border-r-black/[0.06]"
     }`}
   >
     <div className="flex items-center gap-3 px-6 pt-8 pb-6">
@@ -39,6 +40,8 @@ export const SidebarNav = ({ activeView, isDark, unreadCount, onNavigate, t }: S
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
         const isActive = activeView === item.id;
+        const showBadge = (item.id === "chats" && unreadCount > 0) || (item.id === "company" && companyUnreadCount > 0);
+        const badgeCount = item.id === "chats" ? unreadCount : companyUnreadCount;
         return (
           <button
             key={item.id}
@@ -55,13 +58,13 @@ export const SidebarNav = ({ activeView, isDark, unreadCount, onNavigate, t }: S
           >
             <div className="relative">
               <Icon size={20} strokeWidth={isActive ? 2.5 : 1.75} />
-              {item.id === "chats" && unreadCount > 0 && (
+              {showBadge && (
                 <div className={`absolute -top-1.5 -right-2 min-w-[14px] h-3.5 px-1 rounded-full flex items-center justify-center ${
                   isDark
                     ? "bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.5)]"
                     : "bg-orange-500 shadow-[0_1px_3px_rgba(249,115,22,0.3)]"
                 }`}>
-                  <span className="text-[8px] font-bold text-white leading-none">{unreadCount > 99 ? "99+" : unreadCount}</span>
+                  <span className="text-[8px] font-bold text-white leading-none">{badgeCount > 99 ? "99+" : badgeCount}</span>
                 </div>
               )}
             </div>

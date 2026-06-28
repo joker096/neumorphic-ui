@@ -5,18 +5,19 @@ type BottomNavProps = {
   activeView: string;
   isDark: boolean;
   unreadCount: number;
+  companyUnreadCount?: number;
   onNavigate: (view: string) => void;
   t: (key: string) => string;
 };
 
 const NAV_ITEMS = [
   { id: "chats", label: "nav.chats", icon: MessageCircle },
-  { id: "contacts", label: "nav.contacts", icon: Users },
   { id: "calls", label: "nav.calls", icon: Phone },
+  { id: "contacts", label: "nav.contacts", icon: Users },
   { id: "settings", label: "nav.settings", icon: Settings },
 ];
 
-export const BottomNav = ({ activeView, isDark, unreadCount, onNavigate, t }: BottomNavProps) => (
+export const BottomNav = ({ activeView, isDark, unreadCount, companyUnreadCount, onNavigate, t }: BottomNavProps) => (
   <nav
     className={`fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom,0px)] pt-2 md:hidden ${
       isDark
@@ -28,6 +29,8 @@ export const BottomNav = ({ activeView, isDark, unreadCount, onNavigate, t }: Bo
     {NAV_ITEMS.map((item) => {
       const Icon = item.icon;
       const isActive = activeView === item.id;
+      const showBadge = (item.id === "chats" && unreadCount > 0) || (item.id === "company" && companyUnreadCount > 0);
+      const badgeCount = item.id === "chats" ? unreadCount : companyUnreadCount;
       return (
         <button
           key={item.id}
@@ -44,13 +47,13 @@ export const BottomNav = ({ activeView, isDark, unreadCount, onNavigate, t }: Bo
         >
           <div className="relative">
             <Icon size={22} strokeWidth={isActive ? 2.5 : 1.75} />
-            {item.id === "chats" && unreadCount > 0 && (
+            {showBadge && (
               <div className={`absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center ${
                 isDark
                   ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"
                   : "bg-orange-500 shadow-[0_2px_4px_rgba(249,115,22,0.4)]"
               }`}>
-                <span className="text-[9px] font-bold text-white leading-none">{unreadCount > 99 ? "99+" : unreadCount}</span>
+                <span className="text-[9px] font-bold text-white leading-none">{badgeCount > 99 ? "99+" : badgeCount}</span>
               </div>
             )}
           </div>

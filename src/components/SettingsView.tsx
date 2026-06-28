@@ -8,8 +8,9 @@ import { SubView } from './ui/SubView';
 import { BatteryStatus } from './ui/BatteryStatus';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useDebounce } from '../hooks/useDebounce';
-import { exportBackup, exportBackupHtml } from '../lib/backup';
-import { ChevronRight, Smartphone, Download, Palette, Globe, Bell, BellOff, Shield, Lock, HardDrive, Bot, Network, ShieldAlert, Activity, ChevronLeft, UserPlus, Cloud, MapPin, RefreshCw, Key, Search } from 'lucide-react';
+import { exportBackup } from '../lib/backup';
+import { ChevronRight, Smartphone, Palette, Globe, Bell, BellOff, Shield, Lock, HardDrive, Bot, Network, ShieldAlert, Activity, ChevronLeft, UserPlus, Cloud, MapPin, RefreshCw, Key, Search, Building2, Mic, Radar } from 'lucide-react';
+import { CompanySettingsView } from './settings/CompanySettingsView';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppearanceSettings } from './settings/AppearanceSettings';
 import { LanguageSection } from './settings/LanguageSection';
@@ -23,7 +24,7 @@ const BotsSection = React.lazy(() => import('./settings/BotsSection').then(m => 
 const SpamSection = React.lazy(() => import('./settings/SpamSection').then(m => ({ default: m.SpamSection })));
 const SystemStatusSection = React.lazy(() => import('./settings/SystemStatusSection').then(m => ({ default: m.SystemStatusSection })));
 
-export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', setTheme?: (t: 'light' | 'dark') => void }) => {
+export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' | 'dark', setTheme?: (t: 'light' | 'dark') => void, setSubView?: (view: string | null) => void }) => {
   const isDark = theme === 'dark';
   const { t, setLang } = useI18n();
 
@@ -99,8 +100,8 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
   const handleGenerateRecoveryPhrase = async () => {
     try {
       const { RecoveryManager } = await import('../lib/recovery/RecoveryManager');
-      const phrase = await RecoveryManager.generateRecoveryPhrase();
-      setRecoveryPhrase(phrase);
+      const result = await RecoveryManager.generateRecoveryPhrase();
+      setRecoveryPhrase(result.phrase);
       setShowRecoveryModal(true);
     } catch (error) {
       console.error('Failed to generate recovery phrase:', error);
@@ -167,39 +168,6 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
       </div>
 
       <div className={`flex-1 overflow-y-auto overflow-x-hidden pr-1 pb-4 flex flex-col gap-5 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
-        <AnimatePresence>
-          {showPwaBanner && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9, height: 0, marginBottom: 0 }}
-              className={`w-full rounded-2xl border p-5 mb-2 shadow-lg relative overflow-hidden ${isDark ? "bg-[#1a1d24] border-white/10" : "bg-white border-blue-100"}`}
-            >
-              <div className="flex items-center gap-3 mb-2 relative z-10">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-100 text-emerald-600"}`}>
-                  <Download size={16} />
-                </div>
-                <div className={`text-sm font-bold leading-tight ${isDark ? "text-white" : "text-slate-800"}`}>{t('settings.installApp', { app: 'Mess&Anger' })}</div>
-              </div>
-              <div className={`text-xs mb-4 leading-5 relative z-10 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-                <ul className="space-y-1">
-                  <li>{t('settings.pwaWorksOffline')}</li>
-                  <li>{t('settings.pwaFasterLoading')}</li>
-                  <li>{t('settings.pwaAddToHomeScreen')}</li>
-                </ul>
-              </div>
-              <div className="flex gap-2 relative z-10">
-                <button onClick={() => setShowPwaBanner(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${isDark ? "border-white/10 hover:bg-white/10 text-gray-300" : "border-black/10 hover:bg-black/5 text-slate-600"}`}>
-                  {t('settings.installDismiss')}
-                </button>
-                <button onClick={() => { setShowPwaBanner(false); }} className="flex-1 py-2 rounded-lg text-xs font-bold bg-emerald-500 active:scale-95 transition-transform text-white shadow-sm hover:bg-emerald-600">
-                  {t('settings.installBtn')}
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <button onClick={() => setActiveSection('account')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-emerald-500/10 to-transparent border border-white/5 hover:bg-white/5" : "bg-gradient-to-br from-emerald-50 to-transparent border border-emerald-100 hover:bg-emerald-50/50"}`}>
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
@@ -214,60 +182,33 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
 
         <div className="w-full">
           <SettingsSectionTitle title={t('settings.appearanceSection')} isDark={isDark} />
-          <div className="rounded-xl overflow-hidden">
-            <div className={`rounded-xl ${isDark ? "bg-gradient-to-br from-emerald-500/10 to-transparent border border-white/5" : "bg-gradient-to-br from-emerald-50 to-transparent border border-black/5"} p-4`}>
-              <div className="flex items-center gap-3 mb-3 cursor-pointer transition-colors hover:opacity-80" onClick={() => setActiveSection('appearance')}>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
-                  <Palette size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.theme')}</div>
-                  <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.appearanceTheme')}</div>
-                </div>
+          <div className={`rounded-xl ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"} overflow-hidden`}>
+            <div className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:opacity-80" onClick={() => setActiveSection('appearance')}>
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
+                <Palette size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
               </div>
-              <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"} my-1`} />
-              <div className="flex items-center gap-3 cursor-pointer transition-colors hover:opacity-80" onClick={() => setActiveSection('language')}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
-                  <Globe size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.language')}</div>
-                  <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{language}</div>
-                </div>
-                <span className={`text-xs ${isDark ? "text-gray-300" : "text-slate-600"}`}>{language}</span>
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.theme')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.appearanceTheme')}</div>
               </div>
+              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
+            </div>
+            <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"}`} />
+            <div className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:opacity-80" onClick={() => setActiveSection('language')}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
+                <Globe size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.language')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{language}</div>
+              </div>
+              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
             </div>
           </div>
         </div>
 
         <div className="w-full">
-          <SettingsSectionTitle title={t('settings.quickOptions')} isDark={isDark} />
-          <div className="grid grid-cols-3 gap-2">
-            <div onClick={() => setNotificationsEnabled(!notificationsEnabled)} className={`rounded-xl p-3 text-center cursor-pointer transition-colors ${notificationsEnabled ? (isDark ? "bg-emerald-500/10 border border-emerald-500/30" : "bg-emerald-50 border border-emerald-200") : (isDark ? "bg-white/[0.03] border border-white/5 hover:bg-white/5" : "bg-black/[0.03] border border-black/5 hover:bg-black/5")}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${notificationsEnabled ? (isDark ? "bg-emerald-500" : "bg-emerald-500") : (isDark ? "bg-gray-600" : "bg-slate-300")}`}>
-                <Bell size={14} className={notificationsEnabled ? "text-white" : ""} />
-              </div>
-              <div className={`text-[11px] font-medium ${notificationsEnabled ? (isDark ? "text-emerald-400" : "text-emerald-700") : (isDark ? "text-gray-400" : "text-slate-500")}`}>{t('settings.notificationsOption')}</div>
-            </div>
-            <div onClick={() => setSoundEnabled(!soundEnabled)} className={`rounded-xl p-3 text-center cursor-pointer transition-colors ${soundEnabled ? (isDark ? "bg-orange-500/10 border border-orange-500/30" : "bg-orange-50 border border-orange-200") : (isDark ? "bg-white/[0.03] border border-white/5 hover:bg-white/5" : "bg-black/[0.03] border border-black/5 hover:bg-black/5")}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${soundEnabled ? (isDark ? "bg-orange-500" : "bg-orange-500") : (isDark ? "bg-gray-600" : "bg-slate-300")}`}>
-                {soundEnabled ? <Bell size={14} className="text-white" /> : <BellOff size={14} />}
-              </div>
-              <div className={`text-[11px] font-medium ${soundEnabled ? (isDark ? "text-orange-400" : "text-orange-700") : (isDark ? "text-gray-400" : "text-slate-500")}`}>{t('settings.soundOption')}</div>
-            </div>
-            <div onClick={() => setCloudSyncEnabled(!cloudSync.enabled)} className={`rounded-xl p-3 text-center cursor-pointer transition-colors ${cloudSync.enabled ? (isDark ? "bg-blue-500/10 border border-blue-500/30" : "bg-blue-50 border border-blue-200") : (isDark ? "bg-white/[0.03] border border-white/5 hover:bg-white/5" : "bg-black/[0.03] border border-black/5 hover:bg-black/5")}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${cloudSync.enabled ? (isDark ? "bg-blue-500" : "bg-blue-500") : (isDark ? "bg-gray-600" : "bg-slate-300")}`}>
-                <Cloud size={14} className={cloudSync.enabled ? "text-white" : (isDark ? "text-gray-300" : "text-slate-400")} />
-              </div>
-              <div className={`text-[11px] font-medium ${cloudSync.enabled ? (isDark ? "text-blue-400" : "text-blue-700") : (isDark ? "text-gray-400" : "text-slate-500")}`}>{t('settings.cloudSyncOption')}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full">
-          <div className="mb-2 flex items-center justify-between">
-            <SettingsSectionTitle title={t('settings.notificationsSection')} isDark={isDark} />
-          </div>
+          <SettingsSectionTitle title={t('settings.notificationsSection')} isDark={isDark} />
           <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
             <div className={`flex items-center justify-between px-4 py-3 ${notificationsEnabled ? (isDark ? "bg-emerald-500/5" : "bg-emerald-50/50") : ""}`}>
               <div className="flex items-center gap-3">
@@ -285,13 +226,25 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-orange-500/10" : "bg-orange-100"}`}>
-                  <Bell size={16} className={isDark ? "text-orange-400" : "text-orange-600"} />
+                  {soundEnabled ? <Bell size={16} className={isDark ? "text-orange-400" : "text-orange-600"} /> : <BellOff size={16} className={isDark ? "text-gray-500" : "text-slate-400"} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.sound')}</div>
                 </div>
               </div>
               <ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} />
+            </div>
+            <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"}`} />
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
+                  <Cloud size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.cloudSyncOption')}</div>
+                </div>
+              </div>
+              <ToggleSwitch isOn={cloudSync.enabled} onToggle={() => setCloudSyncEnabled(!cloudSync.enabled)} isDark={isDark} />
             </div>
           </div>
         </div>
@@ -334,6 +287,21 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
         </div>
 
         <div className="w-full mb-6">
+          <SettingsSectionTitle title={t('settings.companySection')} isDark={isDark} />
+          <button onClick={() => setActiveSection('company')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-purple-500/10 to-transparent border border-white/5 hover:bg-white/5" : "bg-gradient-to-br from-purple-50 to-transparent border border-purple-100 hover:bg-purple-50/50"}`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-purple-500/20" : "bg-purple-100"}`}>
+                <Building2 size={18} className={isDark ? "text-purple-400" : "text-purple-600"} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.company')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.companySubtitle')}</div>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <div className="w-full mb-6">
           <SettingsSectionTitle title={t('settings.servicesSection')} isDark={isDark} />
           <div className="rounded-xl overflow-hidden">
             <button onClick={() => setActiveSection('bots')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
@@ -342,6 +310,28 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.bots')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.botsSubtitle')}</div>
+              </div>
+              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
+            </button>
+            <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"}`} />
+            <button onClick={() => setSubView?.("recordings")} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-amber-500/10" : "bg-amber-100"}`}>
+                <Mic size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('nav.recordings')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.botsSubtitle')}</div>
+              </div>
+              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
+            </button>
+            <div className={`border-t ${isDark ? "border-white/5" : "border-black/5"}`} />
+            <button onClick={() => setSubView?.("radar")} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-cyan-500/10" : "bg-cyan-100"}`}>
+                <Radar size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('nav.radar')}</div>
                 <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.botsSubtitle')}</div>
               </div>
               <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
@@ -533,10 +523,17 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
     />
   );
 
-  const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>Loading...</div>;
+  const renderCompanySettings = () => (
+    <CompanySettingsView
+      isDark={isDark}
+      onBack={() => setActiveSection('main')}
+    />
+  );
+
+  const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('common.loading')}</div>;
 
   return (
-    <div className={`w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col rounded-[32px] p-6 mb-8 h-full min-h-0 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
+    <div className={`w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col rounded-[32px] p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
       <AnimatePresence mode="wait">
         {activeSection === 'main' && renderMainSettings()}
         {activeSection === 'appearance' && renderAppearanceSettings()}
@@ -549,6 +546,7 @@ export const SettingsView = ({ theme, setTheme }: { theme: 'light' | 'dark', set
         {activeSection === 'bots' && <Suspense fallback={fallback}>{renderBotsSettings()}</Suspense>}
         {activeSection === 'spam' && <Suspense fallback={fallback}>{renderSpamSettings()}</Suspense>}
         {activeSection === 'systemStatus' && <Suspense fallback={fallback}>{renderSystemStatusSettings()}</Suspense>}
+        {activeSection === 'company' && <Suspense fallback={fallback}>{renderCompanySettings()}</Suspense>}
       </AnimatePresence>
       
       {confirmAction?.type === 'wipe' && (

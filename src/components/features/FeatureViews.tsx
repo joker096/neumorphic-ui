@@ -3,12 +3,14 @@ import { Dialpad } from "../Dialpad";
 import { MeshRadar } from "../MeshRadar";
 import { RecordingsScreen } from "../RecordingsScreen";
 import { SettingsView } from "../SettingsView";
-import { SystemPulsePlayer } from "../SystemPulsePlayer";
+import { SystemPulsePlayer } from "../SystemPulsePlayer/SystemPulsePlayer";
+import { CompanyContactsView } from "../CompanyContactsView";
+import { useTheme } from "../../contexts/ThemeContext";
 
 type FeatureViewsProps = {
   view: string;
-  theme: "light" | "dark";
-  setTheme: (t: "light" | "dark") => void;
+  subView?: string | null;
+  setSubView?: (subView: string | null) => void;
   contacts: any[];
   setContacts: (contacts: any[]) => void;
   showContactPicker: boolean;
@@ -25,8 +27,8 @@ type FeatureViewsProps = {
 
 export const FeatureViews = ({
   view,
-  theme,
-  setTheme,
+  subView,
+  setSubView,
   contacts,
   setContacts,
   showContactPicker,
@@ -40,6 +42,7 @@ export const FeatureViews = ({
   onVideoCall,
   onMessage,
 }: FeatureViewsProps) => {
+  const { theme } = useTheme();
   switch (view) {
     case "pulse":
       return <SystemPulsePlayer theme={theme} />;
@@ -62,7 +65,13 @@ export const FeatureViews = ({
         />
       );
     case "settings":
-      return <SettingsView theme={theme} setTheme={setTheme} />;
+      if (subView === "recordings") {
+        return <RecordingsScreen theme={theme} onBack={() => setSubView?.(null)} />;
+      }
+      if (subView === "radar") {
+        return <MeshRadar theme={theme} />;
+      }
+      return <SettingsView theme={theme} setTheme={setView} setSubView={setSubView} />;
     case "recordings":
       return <RecordingsScreen theme={theme} onBack={() => setView("settings")} />;
     case "contacts":
@@ -77,6 +86,15 @@ export const FeatureViews = ({
             onMessage(name, color);
             setView("chats");
           }}
+        />
+      );
+    case "company":
+      return (
+        <CompanyContactsView
+          theme={theme}
+          onCall={onCall}
+          onVideoCall={onVideoCall}
+          onMessage={onMessage}
         />
       );
     default:

@@ -6,7 +6,7 @@ import { BottomNav, SidebarNav } from "./components/navigation";
 import { SafeRender } from "./components/resilience";
 import { encodeMorse } from "./components/MorseDecoder";
 import { MOCK_DATA_ENABLED } from "./lib/mockDataFlag";
-import { MOCK_CHATS, MOCK_CHANNELS } from "./components/mockData";
+import { MOCK_CHATS, MOCK_CHANNELS, MOCK_CONTACTS } from "./constants";
 import { CallScreen } from "./components/call/CallScreen";
 import { IncomingCallSheet } from "./components/call/IncomingCallSheet";
 import { HuddleWidget } from "./components/huddle/HuddleWidget";
@@ -26,12 +26,18 @@ import { parseMentions, isDNDEnabled, isPriorityContact } from "./constants";
 import { SignallingManager } from './lib/signaling/manager';
 import { TransportIndicator } from './components/status/TransportIndicator';
 import { STORAGE_KEYS } from './constants/storage';
+import { ThemeContext, useTheme, type Theme } from './contexts/ThemeContext';
 
 export default function App() {
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+  const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.THEME);
-    return (saved === 'dark' || saved === 'light') ? saved : 'dark';
+    return (saved === 'dark' || saved === 'light') ? (saved as Theme) : 'dark';
   });
+  const setTheme = (t: Theme) => {
+    setThemeState(t);
+    localStorage.setItem(STORAGE_KEYS.THEME, t);
+  };
+  const isDark = theme === 'dark';
   const { t, setLang } = useI18n();
   const [language, setLanguage] = useState(() => localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'en');
 
@@ -137,19 +143,12 @@ useEffect(() => {
   }, [savedMessages]);
 
 
-  useEffect(() => {
-    if (!MOCK_DATA_ENABLED) return;
-    if (chats.length === 0) setChats(MOCK_CHATS as any);
-    if (contacts.length === 0) {
-      setContacts([
-        { name: "Alice", id: "5a2f...9b1c", color: "from-rose-400 to-red-500", lastSeen: 1000 * 60 * 5 },
-        { name: "Bob (Relay)", id: "node_f88b", color: "from-blue-400 to-indigo-500", lastSeen: 1000 * 60 * 60 * 2 },
-        { name: "Charlie", id: "3c4d...5e6f", color: "from-amber-400 to-orange-400", lastSeen: 1000 * 60 * 30 },
-        { name: "Diana", id: "7g8h...9i0j", color: "from-purple-400 to-fuchsia-400", lastSeen: 1000 * 60 * 60 * 24 },
-      ]);
-    }
-    if (channels.length === 0) {
-      setChannels(MOCK_CHANNELS.map(c => ({
+useEffect(() => {
+     if (!MOCK_DATA_ENABLED) return;
+     if (chats.length === 0) setChats(MOCK_CHATS as any);
+     if (contacts.length === 0) setContacts(MOCK_CONTACTS);
+     if (channels.length === 0) {
+       setChannels(MOCK_CHANNELS.map(c => ({
          id: c.id.toString(),
          name: c.name,
          ownerPublicKey: "MOCK_OWNER",
@@ -267,25 +266,25 @@ localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, '0');
     }
   };
 
-  const [view, setView] = useState<'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'contacts' | 'stories' | 'recordings'>('chats');
-  const [activeFolder, setActiveFolder] = useState<string>('all');
-  const [activeChat, setActiveChat] = useState<any>(null);
-  const [messageText, setMessageText] = useState("");
-  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
-  const [voiceNoteError, setVoiceNoteError] = useState("");
-  const [showSchedulePopup, setShowSchedulePopup] = useState(false);
-   const [scheduleDateTime, setScheduleDateTime] = useState("");
-  const [morseMode, setMorseMode] = useState(false);
-  const [silentMode, setSilentMode] = useState(false);
-  const [showStickerPicker, setShowStickerPicker] = useState(false);
-  const [chatSearchQuery, setChatSearchQuery] = useState("");
-  const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
-  const [advancedFilters, setAdvancedFilters] = useState({ hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false });
-  const [showContactPicker, setShowContactPicker] = useState(false);
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  
-  const isDark = theme === 'dark';
-  const currentChatList = chats;
+const [view, setView] = useState<'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'contacts' | 'stories' | 'recordings' | 'company'>('chats');
+   const [subView, setSubView] = useState<string | null>(null);
+   const [activeFolder, setActiveFolder] = useState<string>('all');
+   const [activeChat, setActiveChat] = useState<any>(null);
+   const [messageText, setMessageText] = useState("");
+   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+   const [voiceNoteError, setVoiceNoteError] = useState("");
+   const [showSchedulePopup, setShowSchedulePopup] = useState(false);
+    const [scheduleDateTime, setScheduleDateTime] = useState("");
+   const [morseMode, setMorseMode] = useState(false);
+   const [silentMode, setSilentMode] = useState(false);
+   const [showStickerPicker, setShowStickerPicker] = useState(false);
+   const [chatSearchQuery, setChatSearchQuery] = useState("");
+   const [showAdvancedFilterModal, setShowAdvancedFilterModal] = useState(false);
+   const [advancedFilters, setAdvancedFilters] = useState({ hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false });
+   const [showContactPicker, setShowContactPicker] = useState(false);
+   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+   const [companySearchQuery, setCompanySearchQuery] = useState("");
+   const currentChatList = chats;
 
   const archivedUnreadCount = useMemo(() => {
      let count = 0;
@@ -561,9 +560,10 @@ const sendVoiceMessage = (audioUrl: string, durationStr: string) => {
     setMessageText(savedDraft);
   }, [activeChat?.id]);
 
-  const chatsUnread = useMemo(() => chats.reduce((sum, c) => sum + (c.unread || 0), 0), [chats]);
-  const channelsUnread = useMemo(() => channels.reduce((sum, c) => sum + ((c as any).unread || 0), 0), [channels]);
-  const missedCalls = useMemo(() => callHistory.filter((c) => c.type === 'missed').length + (activeCall ? 1 : 0), [callHistory, activeCall]);
+const chatsUnread = useMemo(() => chats.reduce((sum, c) => sum + (c.unread || 0), 0), [chats]);
+   const channelsUnread = useMemo(() => channels.reduce((sum, c) => sum + ((c as any).unread || 0), 0), [channels]);
+   const companyUnread = useAppStore(state => state.companyChannels?.reduce((sum: number, c: any) => sum + (c.unread || 0), 0) || 0);
+   const missedCalls = useMemo(() => callHistory.filter((c) => c.type === 'missed').length + (activeCall ? 1 : 0), [callHistory, activeCall]);
 
   if (appLockHashedPIN && !isUnlocked) {
     return (
@@ -620,18 +620,19 @@ const sendVoiceMessage = (audioUrl: string, durationStr: string) => {
     );
   }
 
-  const handleBack = () => {
-    if (activeChat) setActiveChat(null);
-    else setView("chats");
-  };
-
   const handleNavigate = (target: string) => {
     setActiveChat(null);
     setView(target as any);
+    setSubView(null);
   };
 
 const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'video' = 'audio') => {
-    const isVideo = callType === 'video';
+    const existingCall = useAppStore.getState().activeCall;
+    if (existingCall && existingCall.callType === callType && existingCall.status !== 'ended') {
+      setActiveCall(existingCall);
+      setView("calls");
+      return;
+    }
     const mockCall = {
       callId: `preview_${Date.now()}`,
       direction: 'outgoing' as const,
@@ -642,8 +643,8 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
       screenStream: null,
       isMuted: false,
       isSpeaker: false,
-      isVideoEnabled: isVideo,
-      isVideo,
+      isVideoEnabled: callType === 'video',
+      isVideo: callType === 'video',
       isRecording: false,
       startTime: Date.now(),
       participants: [],
@@ -752,29 +753,12 @@ const handlePreviewCall = (name: string, color?: string, callType: 'audio' | 'vi
     setGlobalSelectedContact(null);
   };
 
-  const { call, startCall, acceptCall, endCall, toggleMute, toggleVideo, toggleScreenShare, toggleRecording } = useCall();
+  const { call, startCall, acceptCall, endCall, toggleMute, toggleVideo, toggleScreenShare, toggleRecording, changeCallType: changeCallTypeHook } = useCall();
   const [incomingCall, setIncomingCall] = useState<{ peerId: string; displayName: string; callType: 'audio' | 'video' } | null>(null);
   const riskDebugId = useAppStore((state) => state.riskShellActive ? getLastActionDebugId(globalSelectedContact?.id || '') : undefined);
   const activeRiskContactId = useAppStore((state) => state.riskShellActive ? globalSelectedContact?.id : undefined);
 
-const contentViewTitle = useMemo(() => {
-    if (activeChat) return activeChat.name;
-    const titles: Record<string, string> = {
-      chats: t('nav.chats'),
-      contacts: t('nav.contacts'),
-      calls: t('nav.calls'),
-      settings: t('nav.settings'),
-      channels: t('chat.tabs.channels'),
-      bots: t('chat.tabs.bots'),
-      stories: t('chat.tabs.stories'),
-      recordings: t('hub.recordings'),
-      pulse: t('hub.metropulse'),
-      radar: t('hub.radar'),
-    };
-    return titles[view] || '';
-  }, [activeChat?.name, view, t]);
-
-  const isChatListRoute = useMemo(() => view === "chats" || view === "channels" || view === "bots" || view === "stories", [view]);
+const isChatListRoute = useMemo(() => view === "chats" || view === "channels" || view === "bots" || view === "stories", [view]);
 
   const handleSendMessageRef = useRef(handleSendMessage);
   const sendVoiceMessageRef = useRef(sendVoiceMessage);
@@ -789,7 +773,6 @@ const contentViewTitle = useMemo(() => {
   useEffect(() => { handlePreviewMessageRef.current = handlePreviewMessage }, [handlePreviewMessage]);
 
 const activeChatWorkspaceProps = useMemo(() => ({
-    theme,
     activeChat,
     setActiveChat,
     messageText,
@@ -851,7 +834,7 @@ const activeChatWorkspaceProps = useMemo(() => ({
     onToggleSilent: () => setSilentMode(!silentMode),
     onToggleMorse: () => setMorseMode(!morseMode),
   }), [
-    theme, activeChat, setActiveChat, messageText, setMessageText, scheduleDateTime,
+    activeChat, setActiveChat, messageText, setMessageText, scheduleDateTime,
     showSchedulePopup, setShowSchedulePopup, setScheduleDateTime, isRecordingVoice,
     setIsRecordingVoice, voiceNoteError, showStickerPicker, setShowStickerPicker,
     morseMode, silentMode, replyTarget, setReplyTarget, draftTextByChat,
@@ -887,41 +870,40 @@ const chatListWorkspaceProps = useMemo(() => ({
     onCall: handlePreviewCallRef.current,
     onVideoCall: (name: string, color?: string) => handlePreviewCallRef.current(name, color, 'video'),
   }), [
-    theme, view, activeFolder, setActiveFolder, chatSearchQuery, setChatSearchQuery,
+    view, activeFolder, setActiveFolder, chatSearchQuery, setChatSearchQuery,
     filteredChats, filteredChannels, bots, archivedUnreadCount, toggleArchive,
     contacts, setGlobalSelectedContact, setActiveChat, setView, setActiveStory,
     setShowCreateChannel, setShowCreateBot, setShowAdvancedFilterModal, advancedFilters,
     t, isDark, handlePreviewCallRef.current
   ]);
 
+  // Design read: messenger/product UI with premium consumer aesthetic, dark mode primary, orange accent.
+  // Layout: sidebar navigation, central content, bottom nav for mobile.
   return (
-    <>
+    <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
       <Toaster position="top-right" duration={3000} theme={isDark ? 'dark' : 'light'} />
-      <div className={`w-full h-[100dvh] flex font-sans select-none overflow-hidden relative ${isDark ? "bg-[#0d1017] text-white" : "bg-[#eaeff4] text-slate-800"}`}>
+      <div data-theme={theme} className={`w-full h-[100dvh] flex font-sans select-none overflow-hidden relative ${isDark ? "bg-[#0d1017] text-white" : "bg-[#f0f2f5] text-slate-800"}`}>
         {isDark && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none" />
         )}
 
         <div className="absolute top-2 right-2 z-50">
           <TransportIndicator status={connectionStatus} />
         </div>
 
-        <SidebarNav
-          activeView={view}
-          isDark={isDark}
-          unreadCount={chatsUnread}
-          onNavigate={handleNavigate}
-          t={t}
-        />
+<SidebarNav
+           activeView={view}
+           isDark={isDark}
+           unreadCount={chatsUnread}
+           companyUnreadCount={companyUnread}
+           onNavigate={handleNavigate}
+           t={t}
+         />
 
         <div className="flex-1 flex flex-col min-w-0 pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0">
           <AnimatePresence mode="wait">
             <ContentView
-              title={contentViewTitle}
-              theme={theme}
               isDark={isDark}
-              t={t}
-              onBack={handleBack}
               onCloseStory={() => setActiveStory(null)}
               activeStory={activeStory}
               isStealthMode={useAppStore.getState().stealthMode}
@@ -938,8 +920,8 @@ const chatListWorkspaceProps = useMemo(() => ({
               <SafeRender>
                 <FeatureViews
                   view={view}
-                  theme={theme}
-                  setTheme={setTheme}
+                  subView={subView}
+                  setSubView={setSubView}
                   contacts={contacts}
                   setContacts={setContacts as any}
                   showContactPicker={showContactPicker}
@@ -958,16 +940,16 @@ const chatListWorkspaceProps = useMemo(() => ({
           </AnimatePresence>
         </div>
 
-        <BottomNav
-          activeView={view}
-          isDark={isDark}
-          unreadCount={chatsUnread}
-          onNavigate={handleNavigate}
-          t={t}
-        />
+<BottomNav
+           activeView={view}
+           isDark={isDark}
+           unreadCount={chatsUnread}
+           companyUnreadCount={companyUnread}
+           onNavigate={handleNavigate}
+           t={t}
+         />
 
         <AppOverlays
-          theme={theme}
           isDark={isDark}
           view={view}
           showCreateChannel={showCreateChannel}
@@ -1016,6 +998,18 @@ const chatListWorkspaceProps = useMemo(() => ({
               onToggleVideo={toggleVideo}
               onToggleScreen={toggleScreenShare}
               onToggleRecord={toggleRecording}
+              onChangeCallType={(newType) => {
+                if (call) {
+                  if (newType === call.callType) {
+                    return;
+                  }
+                  if (newType === 'video') {
+                    toggleVideo();
+                  }
+                  const newCall = { ...call, callType: newType, isVideoEnabled: newType === 'video', isVideo: newType === 'video' };
+                  setActiveCall(newCall);
+                }
+              }}
             />
           )}
           {incomingCall && (
@@ -1030,10 +1024,14 @@ const chatListWorkspaceProps = useMemo(() => ({
                 await endCall();
                 setIncomingCall(null);
               }}
+              onAcceptVideo={async () => {
+                await acceptCall(incomingCall.peerId, incomingCall.displayName, 'video');
+                setIncomingCall(null);
+              }}
             />
           )}
         </AnimatePresence>
       </div>
-    </>
+    </ThemeContext.Provider>
   );
-  }
+}
