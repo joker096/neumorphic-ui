@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import { Mic, Square, Trash2, Send, Pause, Play } from 'lucide-react';
 import { VoiceWaveform } from './VoiceWaveform';
 import { useI18n } from '../lib/i18n';
@@ -176,46 +177,58 @@ return (
                   </button>
              </div>
           </div>
-       ) : (
-          // Recording mode
-          <div className={`w-full flex items-center justify-between gap-3 h-10 ${isDark ? "bg-[#13151b]" : "bg-[#f4f7f9]"} rounded-2xl px-1`}>
-             <div 
-                 onClick={handleCancel}
-                 className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 ${isDark ? "text-gray-400 hover:text-red-400" : "text-slate-500 hover:text-red-500"}`}
-                   title={label('voiceRecorder.discard', 'Discard')}
-               >
-                 <Trash2 size={18} />
+        ) : (
+           // Recording mode with swipe-to-cancel
+           <div className={`w-full ${isDark ? "bg-[#13151b]" : "bg-[#f4f7f9]"} rounded-2xl px-1 relative overflow-hidden`}>
+             <motion.div
+               drag="y"
+               dragConstraints={{ top: -120, bottom: 0 }}
+               dragElastic={0.2}
+               onDragEnd={(_: any, info: any) => {
+                 if (info.offset.y < -60 || info.velocity.y < -300) {
+                   handleCancel()
+                 }
+               }}
+               className="flex items-center justify-between gap-3 h-10"
+             >
+              <div 
+                  onClick={handleCancel}
+                  className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 ${isDark ? "text-gray-400 hover:text-red-400" : "text-slate-500 hover:text-red-500"}`}
+                    title={label('voiceRecorder.discard', 'Discard')}
+                >
+                  <Trash2 size={18} />
+               </div>
+              
+              <div className="flex-1 flex items-center gap-3 overflow-hidden">
+                 <div className={`w-2 h-2 rounded-full ${isPaused ? "bg-yellow-500" : "bg-red-500"} ${!isPaused && isRecording ? "animate-pulse" : ""}`} />
+                 <span className={`text-[13px] font-bold tracking-wide font-mono min-w-[36px] ${isDark ? "text-white" : "text-slate-800"}`}>
+                    {formatTime(duration)}
+                 </span>
+                 <div className="flex-1 h-8 px-2 flex items-center">
+                    <VoiceWaveform stream={stream} isDark={isDark} />
+                 </div>
               </div>
-             
-             <div className="flex-1 flex items-center gap-3 overflow-hidden">
-                <div className={`w-2 h-2 rounded-full ${isPaused ? "bg-yellow-500" : "bg-red-500"} ${!isPaused && isRecording ? "animate-pulse" : ""}`} />
-                <span className={`text-[13px] font-bold tracking-wide font-mono min-w-[36px] ${isDark ? "text-white" : "text-slate-800"}`}>
-                   {formatTime(duration)}
-                </span>
-                <div className="flex-1 h-8 px-2 flex items-center">
-                   <VoiceWaveform stream={stream} isDark={isDark} />
-                </div>
-             </div>
-             
-             <div className="flex items-center gap-2">
-                {isRecording && (
-                  <button 
-                       onClick={handlePauseResume}
-                       className={`w-8 h-8 flex items-center justify-center rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-black/5 text-slate-500"}`}
-                        title={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
-                    >
-                       {isPaused ? <Play size={14} /> : <Pause size={14} />}
-                    </button>
-                )}
-                <button 
-                    onClick={handleStopRecording}
-                    className={`w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 ${isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950 shadow-md"}`}
-                    title={label('voiceRecorder.stopAndSend', 'Stop and Send')}
-                 >
-                    <Send size={18} className="-ml-0.5" />
-                 </button>
-             </div>
-          </div>
-       )
+              
+              <div className="flex items-center gap-2">
+                 {isRecording && (
+                   <button 
+                        onClick={handlePauseResume}
+                        className={`w-8 h-8 flex items-center justify-center rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-black/5 text-slate-500"}`}
+                         title={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
+                     >
+                        {isPaused ? <Play size={14} /> : <Pause size={14} />}
+                     </button>
+                 )}
+                 <button 
+                     onClick={handleStopRecording}
+                     className={`w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 ${isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950 shadow-md"}`}
+                     title={label('voiceRecorder.stopAndSend', 'Stop and Send')}
+                  >
+                     <Send size={18} className="-ml-0.5" />
+                  </button>
+              </div>
+             </motion.div>
+           </div>
+        )
     );
 };
