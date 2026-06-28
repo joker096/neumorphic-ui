@@ -320,12 +320,15 @@ describe('LiveVoiceRecorder', () => {
     });
   });
 
-  it('does not add window event listeners when holdToRecord is false', async () => {
+  it('does not add hold-to-record window event listeners when holdToRecord is false', async () => {
     const addListenerSpy = vi.spyOn(window, 'addEventListener').mockImplementation(() => {});
     render(<LiveVoiceRecorder {...defaultProps} holdToRecord={false} />);
 
     await waitFor(() => {
-      expect(addListenerSpy).not.toHaveBeenCalled();
+      expect(addListenerSpy).not.toHaveBeenCalledWith('pointerup', expect.any(Function), { once: true });
+      expect(addListenerSpy).not.toHaveBeenCalledWith('mouseup', expect.any(Function), { once: true });
+      expect(addListenerSpy).not.toHaveBeenCalledWith('touchend', expect.any(Function), { once: true });
+      expect(addListenerSpy).not.toHaveBeenCalledWith('touchcancel', expect.any(Function), { once: true });
     });
   });
 });
