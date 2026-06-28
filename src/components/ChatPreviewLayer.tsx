@@ -122,6 +122,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const [showSavedPanel, setShowSavedPanel] = useState(false);
   const [bounceMsgId, setBounceMsgId] = useState<string | number | null>(null);
   const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
+  const [swipeReplyId, setSwipeReplyId] = useState<string | number | null>(null);
   const msgListRef = useRef<{ scrollToBottom: () => void }>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [unreadSinceScroll, setUnreadSinceScroll] = useState(0);
@@ -457,10 +458,27 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                   opacity: 1,
                   y: 0,
                   scale: bounceMsgId === msg.id ? [1, 0.95, 1.05, 1] : 1,
+                  x: !isMe && swipeReplyId === msg.id ? 40 : 0,
                 }}
                 exit={{ opacity: 0, scale: 0.95 }}
+                drag={!isMe ? "x" : false}
+                dragConstraints={!isMe ? { left: 0, right: 80 } : undefined}
+                dragElastic={!isMe ? 0.1 : undefined}
+                onDragEnd={!isMe ? (_: any, info: any) => {
+                  if (info.offset.x > 60) {
+                    onReply?.(msg)
+                  }
+                  setSwipeReplyId(null)
+                } : undefined}
+                onDrag={!isMe ? (_: any, info: any) => {
+                  if (info.offset.x > 10) setSwipeReplyId(msg.id)
+                  else setSwipeReplyId(null)
+                } : undefined}
                 className={`flex flex-col w-full group relative ${isMe ? "items-end" : "items-start"} ${msg._isLastInGroup !== false ? "mb-4" : "mb-1"}`}
               >
+                 {!isMe && swipeReplyId === msg.id && (
+                   <div className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r-full bg-blue-500 z-10" />
+                 )}
                  <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
                     <div
                       onClick={() => {
