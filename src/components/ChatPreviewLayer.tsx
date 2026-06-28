@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   BellOff,
@@ -9,18 +9,15 @@ import {
   Clock,
   ListFilter,
   Mic,
-  Phone,
   Play,
   Plus,
   Search,
-  Shield,
-  Trash2,
   Video,
   Volume2,
   Maximize2,
   X,
 } from "lucide-react";
-import { ContactProfileModal, type ContactProfile } from "./ContactProfileModal";
+import { VideoPlayerOverlay } from "./chat/VideoPlayerOverlay";
 import { PhotoViewerOverlay } from "./PhotoViewer";
 import { VoiceWaveform } from "./VoiceWaveform";
 import { ChannelCommentsView } from "./ChannelCommentsView";
@@ -32,87 +29,13 @@ import { useDebounce } from "../hooks/useDebounce";
 import { VirtualizedMessageList } from "./chat/VirtualizedMessageList";
 import { getICQStickerSrc } from "../lib/icqEmojis";
 import { toast } from "sonner";
-
-const VideoPlayerOverlay = ({
-  theme = "dark",
-  open,
-  onClose,
-}: {
-  theme?: "dark" | "light";
-  open: boolean;
-  onClose: () => void;
-}) => {
-  const isDark = theme === "dark";
-  return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-          className={`fixed inset-0 m-auto w-[90vw] max-w-[600px] h-[400px] rounded-[32px] overflow-hidden flex flex-col z-[110] shadow-[0_40px_80px_rgba(0,0,0,0.6)] ${
-            isDark
-              ? "bg-[#13151b] border border-white/10"
-              : "bg-[#e2e8f0] border border-white"
-          }`}
-        >
-          <div className="absolute top-0 w-full p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/60 to-transparent">
-            <span className="text-white font-bold tracking-widest text-[11px] uppercase drop-shadow">
-              Media Player
-            </span>
-            <div
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur flex items-center justify-center cursor-pointer text-white"
-            >
-              <X size={16} strokeWidth={2.5} />
-            </div>
-          </div>
-
-          <div className="flex-1 bg-black relative flex items-center justify-center">
-            <img
-              src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1425&q=80"
-              className="opacity-80 w-full h-full object-cover"
-              alt="Video frame"
-            />
-            <div className="absolute w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-2xl border border-white/20">
-              <Play size={28} className="text-white fill-current ml-1" />
-            </div>
-          </div>
-
-          <div
-            className={`p-4 flex flex-col gap-3 relative z-10 ${isDark ? "bg-[#1a1d24]/90 backdrop-blur" : "bg-[#f4f7f9]/90 backdrop-blur"}`}
-          >
-            <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className={isDark ? "text-gray-400" : "text-slate-500"}>
-                0:42
-              </span>
-              <span className={isDark ? "text-gray-400" : "text-slate-500"}>
-                2:30
-              </span>
-            </div>
-            <div
-              className={`h-1.5 w-full rounded-full cursor-pointer relative ${isDark ? "bg-black/30" : "bg-black/10"}`}
-            >
-              <div className="absolute top-0 left-0 h-full w-[35%] rounded-full bg-orange-500" />
-              <div className="absolute top-1/2 left-[35%] -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md border border-black/10" />
-            </div>
-            <div className="flex justify-between items-center mt-2 px-2">
-              <Volume2
-                size={18}
-                className={isDark ? "text-gray-400" : "text-slate-500"}
-              />
-              <Maximize2
-                size={16}
-                className={isDark ? "text-gray-400" : "text-slate-500"}
-              />
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
+import { ContactProfileModal, type ContactProfile } from "./ContactProfileModal";
+import { ChatHeader } from "./chat-preview/ChatHeader";
+import { SearchBar } from "./chat-preview/SearchBar";
+import { ReactionPicker } from "./chat-preview/ReactionPicker";
+import { MessageActions } from "./chat-preview/MessageActions";
+import { InputFooter } from "./chat-preview/InputFooter";
+import { SavedMessagesPanel } from "./chat-preview/SavedMessagesPanel";
 
 interface ChatPreviewLayerProps {
   chat: any;
@@ -129,6 +52,44 @@ interface ChatPreviewLayerProps {
   deliveryReceipts?: boolean;
   readReceipts?: boolean;
   setEditingContact: (contact: ContactProfile | null) => void;
+}
+
+type GroupPosition = 'single' | 'first' | 'middle' | 'last'
+
+function groupMessages(history: any[]): { messages: any[]; groupPositions: GroupPosition[] }[] {
+  const groups: { messages: any[]; groupPositions: GroupPosition[] }[] = []
+  for (const msg of history) {
+    const lastGroup = groups[groups.length - 1]
+    const lastMsg = lastGroup?.messages?.at(-1)
+    if (lastMsg && lastMsg.sender === msg.sender) {
+      lastGroup.messages.push(msg)
+    } else {
+      groups.push({ messages: [msg], groupPositions: [] })
+    }
+  }
+  for (const group of groups) {
+    if (group.messages.length === 1) {
+      group.groupPositions = ['single']
+    } else {
+      group.groupPositions = group.messages.map((_, i) => {
+        if (i === 0) return 'first'
+        if (i === group.messages.length - 1) return 'last'
+        return 'middle'
+      })
+    }
+  }
+  return groups
+}
+
+function formatDateLabel(timeStr: string): string {
+  const match = timeStr.match(/(\d{1,2}):(\d{2})/)
+  if (!match) return timeStr
+  const now = new Date()
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(match[1]), parseInt(match[2]))
+  const diffDays = Math.round((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: now.getFullYear() !== d.getFullYear() ? 'numeric' : undefined })
 }
 
 export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact }: any) => {
@@ -269,6 +230,28 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     scheduledQueue.messages.filter((m: any) => m.chatId === chat.id),
     [scheduledQueue.messages, chat.id]);
 
+  const flatItems = useMemo(() => {
+    const groups = groupMessages(filteredHistory)
+    const items: any[] = []
+    let lastDateLabel = ''
+    for (const group of groups) {
+      const firstMsg = group.messages[0]
+      const dateLabel = formatDateLabel(firstMsg.time)
+      if (dateLabel !== lastDateLabel && items.length > 0) {
+        items.push({ id: `sep-${dateLabel}`, _isDateSeparator: true, _dateLabel: dateLabel })
+      }
+      lastDateLabel = dateLabel
+      group.messages.forEach((msg, mi) => {
+        items.push({
+          ...msg,
+          _groupPosition: group.groupPositions[mi],
+          _isLastInGroup: mi === group.messages.length - 1,
+        })
+      })
+    }
+    return items
+  }, [filteredHistory])
+
   return (
     <>
       <motion.div
@@ -282,208 +265,33 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
             : "bg-[#eaeff4] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-white"
         }`}
       >
-        {/* Header */}
-        <div
-          className={`p-5 pb-4 flex items-center gap-4 relative z-10 ${isDark ? "bg-[#1a1d24]/90 border-b border-white/5 backdrop-blur-md" : "bg-[#f4f7f9]/90 border-b border-black/5 backdrop-blur-md"}`}
-        >
-          {/* Button Back */}
-          <div
-            onClick={onClose}
-            className={`cursor-pointer w-10 h-10 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
-              isDark
-                ? "bg-[#13151b] hover:bg-[#20242e] text-gray-400 shadow-[0_4px_8px_rgba(0,0,0,0.4),_inset_0_1px_1px_rgba(255,255,255,0.05)] border border-white/[0.02]"
-                : "bg-[#eaeff4] hover:bg-white text-slate-500 shadow-[-2px_-2px_6px_rgba(255,255,255,0.9),_4px_4px_8px_rgba(165,175,190,0.4),_inset_1px_1px_2px_rgba(255,255,255,1)]"
-            }`}
-          >
-            <ChevronRight size={22} className="rotate-180" strokeWidth={2} />
-          </div>
+        <ChatHeader
+          chat={chat}
+          isDark={isDark}
+          onClose={onClose}
+          onProfileClick={() => {
+            const allContacts = useAppStore.getState().contacts;
+            const profileContact = allContacts.find(ct => ct.name === chat.name);
+            setSelectedContact({
+              id: `hash_${chat.id}`,
+              name: chat.name,
+              color: chat.color,
+              lastSeen: chat.online ? 0 : Date.now() - 3600000,
+              online: chat.online,
+              isFavorite: chat.isFavorite,
+              localFields: profileContact?.localFields
+            });
+          }}
+          t={t}
+        />
 
-          {/* Avatar mini */}
-          <div
-            onClick={() => {
-              const allContacts = useAppStore.getState().contacts;
-              const profileContact = allContacts.find(ct => ct.name === chat.name);
-              setSelectedContact({
-                id: `hash_${chat.id}`,
-                name: chat.name,
-                color: chat.color,
-                lastSeen: chat.online ? 0 : Date.now() - 3600000,
-                online: chat.online,
-                isFavorite: chat.isFavorite,
-                localFields: profileContact?.localFields
-              });
-            }}
-            className={`w-11 h-11 cursor-pointer rounded-full bg-gradient-to-br flex-shrink-0 ${chat.color} flex items-center justify-center text-white font-bold text-lg shadow-sm relative transition-all active:scale-95`}
-          >
-            {chat.name.charAt(0)}
-            {chat.online && (
-              <div
-                className={`absolute -bottom-0.5 -right-0.5 w-[12px] h-[12px] rounded-full border-[2px] ${isDark ? "bg-green-400 border-[#1a1d24]" : "bg-emerald-500 border-[#f4f7f9]"}`}
-              />
-            )}
-            <div className={`absolute -top-1 -right-1 rounded-full w-4 h-4 flex items-center justify-center border-[2px] ${isDark ? "border-[#1a1d24] bg-[#ff6b6b]" : "border-[#f4f7f9] bg-rose-500"}`} title={t('chat.selfDestructActive')}>
-              <span className="text-[7px] text-white font-bold tracking-tighter">1h</span>
-            </div>
-          </div>
-
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <span
-              className={`font-bold text-[15px] truncate leading-tight flex items-center gap-1.5 ${isDark ? "text-white drop-shadow-sm" : "text-slate-800"}`}
-            >
-              {chat.name}
-              <div title={t('chat.e2eEncrypted')} className="flex items-center justify-center">
-                 <Shield size={12} className={isDark ? "text-orange-400" : "text-emerald-500"} />
-              </div>
-            </span>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${chat.online ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]" : "bg-gray-500"}`} />
-              <span className={`text-[11px] font-bold tracking-wider uppercase ${isDark ? "text-orange-400" : "text-orange-600"}`}>
-                {chat.online ? t('chat.filters.online') : t('chat.filters.offline')}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <div
-              onClick={() => setShowSearch(!showSearch)}
-              title={t('chat.filters.searchMessages')}
-              className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"} ${showSearch ? (isDark ? "bg-white/10 text-white" : "bg-black/10 text-slate-800") : ""}`}
-            >
-              <Search size={18} />
-            </div>
-{!chat.isChannel && (
-                <div
-                  title={t('chat.startAudioCall')}
-                  onClick={() => {
-                    const mockCall = {
-                      callId: `preview_${Date.now()}`,
-                      direction: 'outgoing' as const,
-                      status: 'connecting' as const,
-                      callType: 'audio' as const,
-                      remotePeer: { peerId: chat.id, displayName: chat.name || t('chat.unknownCall') },
-                      localStream: null,
-                      screenStream: null,
-                      isMuted: false,
-                      isSpeaker: false,
-                      isVideoEnabled: false,
-                      isVideo: false,
-                      isRecording: false,
-                      startTime: Date.now(),
-                      participants: [],
-                    };
-                    setActiveCall(mockCall);
-                  }}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
-                >
-                  <Phone size={18} />
-                </div>
-              )}
-              {!chat.isChannel && (
-                <div
-                  title={t('chat.filters.startVideoCall')}
-                  onClick={() => {
-                    const mockCall = {
-                      callId: `preview_${Date.now()}`,
-                      direction: 'outgoing' as const,
-                      status: 'connecting' as const,
-                      callType: 'video' as const,
-                      remotePeer: { peerId: chat.id, displayName: chat.name || t('chat.unknownCall') },
-                      localStream: null,
-                      screenStream: null,
-                      isMuted: false,
-                      isSpeaker: false,
-                      isVideoEnabled: true,
-                      isVideo: true,
-                      isRecording: false,
-                      startTime: Date.now(),
-                      participants: [],
-                    };
-                    setActiveCall(mockCall);
-                  }}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
-                >
-                  <Video size={20} />
-                </div>
-              )}
-            {!chat.isChannel && (
-              <div
-                title={t('chat.saved')}
-                onClick={() => setShowSavedPanel(true)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 relative ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800"}`}
-              >
-                <Bookmark size={18} />
-                {chatSavedMessages.length > 0 && (
-                  <span className={`absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center ${isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white"}`}>
-                    {chatSavedMessages.length}
-                  </span>
-                )}
-              </div>
-            )}
-            {!chat.isChannel && (
-              <div
-                title={t('chat.filters.clearHistory')}
-                onClick={() => {
-                   setChats(prevChats => prevChats.map(c => c.id === chat.id ? { ...c, history: [] } : c));
-                   onClose();
-                }}
-                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white" : "bg-black/5 hover:bg-black/10 text-slate-400 hover:text-slate-800"}`}
-              >
-                <Trash2 size={18} />
-              </div>
-            )}
-            {!chat.isChannel && (
-              <div
-                title={t('chat.filters.button')}
-                onClick={() => { setShowMediaPanel((value) => !value); setShowFilterMenu(false); }}
-                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0 active:scale-95 ${showMediaPanel ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-400 hover:text-slate-800")}`}
-              >
-                <ListFilter size={18} />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <AnimatePresence>
-          {showSearch && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className={`px-5 relative z-10 overflow-hidden ${isDark ? "bg-[#1a1d24]/90 border-b border-white/5 backdrop-blur-md" : "bg-[#f4f7f9]/90 border-b border-black/5 backdrop-blur-md"}`}
-            >
-              <div className="py-2.5">
-                <div
-                  className={`w-full h-10 rounded-full px-4 flex items-center ${
-                    isDark
-                      ? "bg-[#13151b] border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]"
-                      : "bg-[#eaeff4] border border-black/5 shadow-[inset_2px_2px_4px_rgba(165,175,190,0.3),_inset_-1px_-1px_2px_rgba(255,255,255,1)]"
-                  }`}
-                >
-                  <Search
-                    size={16}
-                    className={`mr-2 shrink-0 ${isDark ? "text-gray-500" : "text-slate-400"}`}
-                  />
-                  <input
-                    type="text"
-                    placeholder={t('chat.filters.searchPlaceholder')}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full bg-transparent border-none outline-none text-[13.5px] font-medium ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
-                  />
-                  {searchQuery && (
-                    <div
-                      onClick={() => setSearchQuery("")}
-                      className={`ml-2 shrink-0 cursor-pointer w-6 h-6 flex items-center justify-center rounded-full ${isDark ? "hover:bg-white/10 text-gray-400" : "hover:bg-black/10 text-slate-500"}`}
-                    >
-                      <X size={14} strokeWidth={2.5} />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <SearchBar
+          showSearch={showSearch}
+          isDark={isDark}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          placeholder={t('chat.filters.searchPlaceholder')}
+        />
 
         {/* Media Tabs & Filters */}
         {showMediaPanel && (
@@ -586,15 +394,42 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
 
         {/* Messages */}
         <VirtualizedMessageList
-          items={filteredHistory}
+          items={flatItems}
           estimateSize={72}
           overscan={3}
           isDark={isDark}
           className="p-6"
         >
           {(msg: any) => {
+            if (msg._isDateSeparator) {
+              return (
+                <div className="sticky top-0 z-10 flex items-center gap-3 py-2" key={msg.id}>
+                  <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+                  <span className={`text-[11px] font-bold uppercase tracking-widest shrink-0 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+                    {msg._dateLabel}
+                  </span>
+                  <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+                </div>
+              )
+            }
             const isMe = msg.sender === "me";
             const stickerSrc = msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null;
+            const gp = msg._groupPosition as GroupPosition
+            const bubbleCornerClass = (() => {
+              if (isMe) {
+                if (gp === 'single') return 'rounded-[20px] rounded-br-sm'
+                if (gp === 'first') return 'rounded-t-[20px] rounded-bl-[20px] rounded-br-[20px] rounded-bl-sm'
+                if (gp === 'middle') return 'rounded-l-[20px] rounded-r-[20px] rounded-br-[20px] rounded-bl-[20px]'
+                if (gp === 'last') return 'rounded-tl-[20px] rounded-tr-[20px] rounded-br-sm rounded-bl-[20px]'
+                return 'rounded-[20px] rounded-br-sm'
+              } else {
+                if (gp === 'single') return 'rounded-[20px] rounded-bl-sm'
+                if (gp === 'first') return 'rounded-t-[20px] rounded-br-[20px] rounded-br-sm rounded-bl-[20px]'
+                if (gp === 'middle') return 'rounded-r-[20px] rounded-l-[20px] rounded-bl-[20px] rounded-br-[20px]'
+                if (gp === 'last') return 'rounded-tr-[20px] rounded-tl-[20px] rounded-bl-sm rounded-br-[20px]'
+                return 'rounded-[20px] rounded-bl-sm'
+              }
+            })()
             return (
               <motion.div
                 layout
@@ -602,20 +437,20 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className={`flex flex-col w-full mb-4 group relative ${isMe ? "items-end" : "items-start"}`}
+                className={`flex flex-col w-full group relative ${isMe ? "items-end" : "items-start"} ${msg._isLastInGroup !== false ? "mb-4" : "mb-1"}`}
               >
                  <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
                     <div
-                      className={`max-w-[80%] md:max-w-[80%] sm:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} rounded-[20px] text-[14px] shadow-md relative leading-relaxed break-words ${
-                        isMe
-                          ? isDark
-                            ? "bg-orange-600/20 text-orange-50 border border-orange-500/30 rounded-br-sm shadow-[0_8px_16px_rgba(249,115,22,0.1),_inset_0_1px_1px_rgba(255,255,255,0.05)]"
-                            : "bg-gradient-to-br from-orange-400 to-orange-500 text-white rounded-br-sm shadow-[0_8px_16px_rgba(249,115,22,0.3),_inset_0_2px_4px_rgba(255,255,255,0.3)]"
-                          : isDark
-                            ? "bg-[#1a1d24] text-gray-300 border border-white/5 rounded-bl-sm shadow-[0_8px_16px_rgba(0,0,0,0.4),_inset_0_1px_2px_rgba(255,255,255,0.02)]"
-                            : "bg-white text-slate-700 border border-black/5 rounded-bl-sm shadow-[0_8px_16px_rgba(165,175,190,0.2)]"
-                      }`}
-                    >
+                       className={`max-w-[80%] md:max-w-[80%] sm:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${
+                         isMe
+                           ? isDark
+                             ? "bg-orange-600/20 text-orange-50 border border-orange-500/30 shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
+                             : "bg-gradient-to-br from-orange-400 to-orange-500 text-white shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
+                           : isDark
+                             ? "bg-[#1a1d24] text-gray-300 border border-white/5 shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
+                             : "bg-white text-slate-700 border border-black/5 shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
+                       }`}
+                     >
                       {msg.type === "image" && (
                         <div 
                            className="rounded-[14px] overflow-hidden mb-1 relative border border-white/10 cursor-pointer"
@@ -684,9 +519,9 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                         </div>
                       )}
                       {msg.text && msg.type !== "sticker" && (
-                        <span className={msg.type ? "px-2 pb-1 block" : ""}>
-                          <FormattedText text={msg.text} searchTerm={searchQuery} />
-                        </span>
+                    <span className={`px-2 pb-1 block ${msg.type ? "font-medium" : ""}`}>
+                        <FormattedText text={msg.text} searchTerm={searchQuery} />
+                     </span>
                       )}
                       {msg.text && typeof msg.text === "string" && /https?:\/\/[^\s]+/i.test(msg.text) && (
                         <div className={`mt-2 p-2 rounded-2xl border text-[11px] ${isDark ? "bg-white/5 border-white/10 text-gray-300" : "bg-slate-50 border-black/5 text-slate-600"}`}>
@@ -716,6 +551,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                           ))}
                         </div>
                       )}
+                      {msg._isLastInGroup && (
                       <div
                         className={`flex items-center justify-end gap-1 mt-1 text-[10px] font-bold tracking-wide opacity-70 ${isMe && !isDark ? "text-orange-100" : ""} ${msg.type ? "px-2" : ""}`}
                       >
@@ -735,7 +571,9 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                           )
                         )}
                       </div>
-                      
+                      )}
+
+                      {msg._isLastInGroup && (
                       <div className={`mt-2 flex items-center gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
                         {!chat.isChannel && (
                           <button
@@ -763,6 +601,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                           </button>
                         )}
                       </div>
+                      )}
 
                       {/* Render Comments for Channels */}
                       {chat.isChannel && (
@@ -869,56 +708,16 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
            )}
 
         {/* Input or Channel Footer */}
-        <div
-          className={`p-5 flex items-center justify-center gap-3 relative z-10 ${isDark ? "bg-[#1a1d24]/90 border-t border-white/5 backdrop-blur-md" : "bg-[#f4f7f9]/90 border-t border-black/5 backdrop-blur-md"}`}
-        >
-          {chat.isChannel ? (
-            <div 
-               onClick={() => {
-                  setChannels(prev => prev.map(c => c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c) as any);
-                  // Since ChatPreviewLayer only gets chat from parent and doesn't have setActiveChat, it will have to rely on global state or parent updating. Wait, I can pass Mute action to onAction!
-                  if (onAction) onAction("MUTE_TOGGLE");
-               }}
-               className={`w-full py-3 rounded-2xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${isDark ? "bg-[#13151b] hover:bg-[#20242e] text-orange-400 border border-white/5" : "bg-white hover:bg-slate-50 text-orange-600 border border-black/5 shadow-sm"}`}
-            >
-               {chat.isMuted ? t('chat.filters.unmuteChannel') : t('chat.filters.muteChannel')}
-            </div>
-          ) : (
-            <>
-              <div
-                className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
-                  isDark
-                    ? "bg-[#13151b] hover:bg-[#20242e] text-gray-400 shadow-[0_4px_8px_rgba(0,0,0,0.4),_inset_0_1px_1px_rgba(255,255,255,0.05)] border border-white/[0.02]"
-                    : "bg-[#eaeff4] hover:bg-white text-slate-500 shadow-[-2px_-2px_6px_rgba(255,255,255,0.9),_4px_4px_8px_rgba(165,175,190,0.4),_inset_1px_1px_2px_rgba(255,255,255,1)]"
-                }`}
-              >
-                <Plus size={22} />
-              </div>
-              <div
-                className={`flex-1 h-12 rounded-full px-5 flex items-center transition-all duration-300 focus-within:scale-[1.01] ${
-                  isDark
-                    ? "bg-[#13151b] border border-white/5 shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_2px_4px_rgba(255,255,255,0.02)] focus-within:border-orange-500/30 focus-within:shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_0_12px_rgba(249,115,22,0.15)]"
-                    : "bg-[#eaeff4] border border-black/5 shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1)] focus-within:border-orange-400/40 focus-within:shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1),_0_0_12px_rgba(249,115,22,0.1)]"
-                }`}
-              >
-                <input
-                  type="text"
-                  placeholder={t('chat.messagePlaceholder')}
-                  className={`w-full bg-transparent border-none outline-none text-[14.5px] ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
-                />
-              </div>
-              <div
-                className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
-                  isDark
-                    ? "bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/20 shadow-[0_4px_8px_rgba(249,115,22,0.15)]"
-                    : "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 border border-orange-500/20 shadow-[0_2px_6px_rgba(249,115,22,0.15)]"
-                }`}
-              >
-                <Mic size={20} />
-              </div>
-            </>
-          )}
-        </div>
+        <InputFooter
+          isDark={isDark}
+          isChannel={chat.isChannel}
+          isMuted={chat.isMuted}
+          t={t}
+          onMuteToggle={() => {
+            setChannels(prev => prev.map(c => c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c) as any);
+            if (onAction) onAction("MUTE_TOGGLE");
+          }}
+        />
       </motion.div>
       <VideoPlayerOverlay
         open={videoOpen}
@@ -939,69 +738,15 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         postKey=""
         channelChatId={"test_channel"}
       />
-      <AnimatePresence>
-        {showSavedPanel && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-blur-sm"
-            onClick={() => setShowSavedPanel(false)}
-          >
-            <motion.div
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 40, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className={`w-full max-w-[760px] max-h-[78%] rounded-t-[32px] overflow-hidden border-t border-x ${isDark ? "bg-[#13151b] border-white/10" : "bg-[#f4f7f9] border-black/5"} shadow-2xl`}
-            >
-              <div className={`p-4 flex items-center justify-between ${isDark ? "border-b border-white/5" : "border-b border-black/5"}`}>
-                <div>
-                  <div className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-orange-400" : "text-orange-600"}`}>{t('chat.savedMessages')}</div>
-                  <div className={`text-sm mt-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{t('chat.savedItems', { n: chatSavedMessages.length, chatName: chat.name })}</div>
-                </div>
-                <button
-                  onClick={() => setShowSavedPanel(false)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center ${isDark ? "bg-white/5 text-gray-300" : "bg-white text-slate-500 border border-black/5"}`}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-              <div className={`p-4 overflow-y-auto max-h-[calc(78vh-76px)] ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
-                {chatSavedMessages.length > 0 ? (
-                  <div className="flex flex-col gap-3">
-                    {chatSavedMessages.slice().reverse().map((saved: any) => (
-                      <div key={saved.key} className={`p-4 rounded-2xl border ${isDark ? "bg-[#1a1d24] border-white/5" : "bg-white border-black/5"}`}>
-                        <div className="flex items-center justify-between gap-3 mb-2">
-                          <div className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-                            {saved.sourceLabel || chat.name}
-                          </div>
-                          <button
-                            onClick={() => onToggleSavedMessage?.(chat, { id: saved.messageId })}
-                            className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600"}`}
-                          >
-                            Unsave
-                          </button>
-                        </div>
-                        <div className={`text-sm ${isDark ? "text-white" : "text-slate-800"}`}>
-                          {saved.preview}
-                        </div>
-                        <div className={`mt-2 text-[10px] font-medium ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-                          {saved.time}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className={`py-12 text-center ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-                    No saved messages yet
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <SavedMessagesPanel
+        show={showSavedPanel}
+        isDark={isDark}
+        chatSavedMessages={chatSavedMessages}
+        chatName={chat.name}
+        onClose={() => setShowSavedPanel(false)}
+        onToggleSavedMessage={(chat, msg) => onToggleSavedMessage?.(chat, msg)}
+        t={t}
+      />
        <ContactProfileModal 
           contact={selectedContact}
           theme={theme}
