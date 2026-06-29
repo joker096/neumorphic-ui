@@ -120,7 +120,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
            className={`flex items-center gap-1.5 sm:gap-2 cursor-pointer ${swipedOpen === "left" ? "pointer-events-auto" : "pointer-events-none"}`}
            aria-label={t('chat.unarchive')}
          >
-           <Archive size={16} className={`sm:size-20 ${isDark ? "text-orange-500" : "text-white"}`} />
+           <Archive size={16} className={`${isDark ? "text-orange-500" : "text-white"}`} />
            <span className={`text-[10px] sm:text-sm font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
          </button>
        </div>

@@ -165,7 +165,7 @@ export const ChatListView = ({
               title={view === "channels" ? t("chat.createChannel") : t("chat.createBot")}
               className={`w-9 h-9 sm:w-[40px] sm:h-[40px] flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 shadow-sm"}`}
             >
-              <Plus size={18} className="sm:size-20" />
+              <Plus size={18} />
           </div>
         ) : (
          <div
@@ -173,7 +173,7 @@ export const ChatListView = ({
               onClick={() => { setView("chats"); setActiveFolder("archived"); }}
               className={`w-9 h-9 sm:w-[40px] sm:h-[40px] flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[#1a1d24] border border-white/5 hover:bg-white/5 text-gray-400 hover:text-white" : "bg-white border border-black/5 hover:bg-black/5 text-slate-500 hover:text-slate-800 shadow-sm"}`}
             >
-              <Archive size={16} className="sm:size-20" />
+              <Archive size={16} />
             {archivedUnreadCount > 0 && (
               <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md border-[2px] border-[#eaeff4] dark:border-[#11141c] px-1">
                 {archivedUnreadCount}
