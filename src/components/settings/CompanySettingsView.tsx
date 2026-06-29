@@ -34,7 +34,7 @@ export const CompanySettingsView = ({ isDark, onBack }: CompanySettingsViewProps
         </div>
       </div>
 
-<div className={`flex-1 overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-6 ${isDark ? 'scrollbar-dark' : 'scrollbar-light'}`}>
+<div className="flex-1 overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-6">
          <div className="pb-16 sm:pb-0">
            <div className="w-full">
              <SettingsSectionTitle title={t('settings.companyVisibility') || 'Company Visibility'} isDark={isDark} />

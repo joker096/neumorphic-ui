@@ -80,7 +80,7 @@ export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme, c
                </div>
 
                {/* Comments List */}
-               <div className={`flex-1 overflow-y-auto p-4 flex flex-col gap-4 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+               <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
                   {comments.map((c) => (
                      <motion.div 
                         initial={{ opacity: 0, y: 10 }}

@@ -61,7 +61,7 @@ export function VirtualizedMessageListInner<T>(
   return (
     <div
       ref={scrollRef}
-      className={`flex-1 overflow-y-auto overflow-x-hidden relative z-0 ${isDark ? "scrollbar-dark" : "scrollbar-light"} ${className}`}
+      className={`flex-1 overflow-y-auto overflow-x-hidden relative z-0 ${className}`}
     >
       <div
         style={{

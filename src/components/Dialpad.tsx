@@ -790,7 +790,7 @@ export const Dialpad = ({
                 </div>
               </div>
               <div
-                className={`flex flex-col gap-1.5 flex-1 overflow-y-auto ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}
+                className="flex flex-col gap-1.5 flex-1 overflow-y-auto"
               >
                 {folderCalls.length === 0 ? (
                   <div className={`text-center py-8 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
@@ -1013,7 +1013,7 @@ export const Dialpad = ({
               <p className={`text-xs text-center mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.chooseContact')}</p>
             </div>
 
-            <div className={`flex flex-col gap-2 max-h-[300px] overflow-y-auto ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+            <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
               {contacts.map((c) => (
                 <div
                   key={c.id}

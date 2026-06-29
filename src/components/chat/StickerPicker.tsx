@@ -68,7 +68,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
         />
       </div>
 
-      <div className={`flex flex-col gap-2 max-h-[200px] overflow-y-auto ${isDark ? 'scrollbar-dark' : 'scrollbar-light'}`}>
+      <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
         {visiblePacks.map(pack => (
           <div key={pack.id} className="flex flex-col gap-1">
             <div className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{pack.name}</div>

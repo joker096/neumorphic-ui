@@ -164,7 +164,7 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
         </div>
       </div>
 
-      <div className={`flex-1 overflow-y-auto overflow-x-hidden pr-1 pb-4 flex flex-col gap-5 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1 pb-4 flex flex-col gap-5">
         <button onClick={() => setActiveSection('account')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-emerald-500/10 to-transparent border border-white/5 hover:bg-white/5" : "bg-gradient-to-br from-emerald-50 to-transparent border border-emerald-100 hover:bg-emerald-50/50"}`}>
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>

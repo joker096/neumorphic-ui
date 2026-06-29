@@ -24,7 +24,7 @@ export const SubView = ({ title, onBack, children, isDark }: SubViewProps) => (
         {title}
       </h2>
     </div>
-    <div className={`w-full flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-6 ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}>
+    <div className="w-full flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-6">
       {children}
     </div>
   </motion.div>
