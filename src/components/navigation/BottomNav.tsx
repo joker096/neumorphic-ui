@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { MessageCircle, Phone, Settings, Users } from "lucide-react";
+import { MessageCircle, Phone, Settings, Users, Building2 } from "lucide-react";
 
 type BottomNavProps = {
   activeView: string;
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { id: "chats", label: "nav.chats", icon: MessageCircle },
   { id: "calls", label: "nav.calls", icon: Phone },
   { id: "contacts", label: "nav.contacts", icon: Users },
+  { id: "company", label: "settings.company", icon: Building2 },
   { id: "settings", label: "nav.settings", icon: Settings },
 ];
 

@@ -65,7 +65,7 @@ export const CreateBotModal = ({ theme, onClose }: { theme: 'dark' | 'light', on
          initial={{ y: 50, scale: 0.95 }}
          animate={{ y: 0, scale: 1 }}
          exit={{ y: 50, scale: 0.95 }}
-         className={`w-full max-w-sm rounded-[32px] p-6 shadow-2xl relative flex flex-col gap-5 ${isDark ? "bg-[#1a1d24] border border-white/10 text-white" : "bg-white border border-black/5 text-slate-800"}`}
+         className={`w-full max-w-sm p-6 shadow-2xl relative flex flex-col gap-5 ${isDark ? "bg-[#1a1d24] border border-white/10 text-white" : "bg-white border border-black/5 text-slate-800"}`}
        >
           <div className="flex items-center justify-between mb-2">
              <div className="flex items-center gap-3">

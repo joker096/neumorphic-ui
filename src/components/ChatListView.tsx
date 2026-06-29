@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "motion/react";
 import { Archive, Bot, ListFilter, Plus, Search } from "lucide-react";
 import { useAppStore } from "../store";
 import { ONLINE_CONTACTS } from "./mockData";
-import { DarkSearchBar, LightSearchBar } from "./DialpadComponents";
+import { DarkSearchBar, LightSearchBar } from "./Dialpad";
 import { ChatListItem } from "./chat-preview";
 
 type Translate = (key: string, options?: any) => string;
@@ -40,12 +40,12 @@ const AvatarRow = ({ theme, onStoryClick, t }: any) => {
   return (
     <div className="flex flex-col w-full overflow-visible mb-2 pt-2 pb-1 bg-transparent shrink-0">
       <div className={`px-4 mb-2 font-mono text-[9px] uppercase tracking-widest font-bold ${isDark ? "text-gray-400" : "text-slate-400"}`}>{t("header.stories")}</div>
-      <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
-        <div className="flex flex-col items-center gap-2 group cursor-pointer shrink-0">
-          <div className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${isDark ? "bg-[#1f222a] border border-white/5 border-dashed" : "bg-[#f4f7f9] border border-black/10 border-dashed"}`}>
-            <Plus size={24} className={isDark ? "text-gray-300 group-hover:text-white" : "text-slate-500 group-hover:text-black"} />
+      <div className="flex items-center gap-3 sm:gap-4 px-2 sm:px-3 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+        <div className="flex flex-col items-center gap-1.5 sm:gap-2 group cursor-pointer shrink-0">
+          <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${isDark ? "bg-[#1f222a] border border-white/5 border-dashed" : "bg-[#f4f7f9] border border-black/10 border-dashed"}`}>
+            <Plus size={20} className={isDark ? "text-gray-300 group-hover:text-white" : "text-slate-500 group-hover:text-black"} />
           </div>
-          <span className={`text-[10px] font-semibold tracking-wide transition-colors ${isDark ? "text-gray-300 group-hover:text-gray-100" : "text-slate-500 group-hover:text-slate-800"}`}>
+          <span className={`text-[9px] sm:text-[10px] font-semibold tracking-wide transition-colors ${isDark ? "text-gray-300 group-hover:text-gray-100" : "text-slate-500 group-hover:text-slate-800"}`}>
             {t("header.myStory")}
           </span>
         </div>
@@ -56,7 +56,7 @@ const AvatarRow = ({ theme, onStoryClick, t }: any) => {
             className="flex flex-col items-center gap-2 group cursor-pointer shrink-0"
           >
             <div
-              className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${
+              className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${
                 isDark
                   ? "bg-[#1a1d24] shadow-[0_2px_8px_rgba(0,0,0,0.3)] border border-white/5"
                   : "bg-[#eaeff4] shadow-[4px_4px_8px_rgba(165,175,190,0.3),_-4px_-4px_8px_rgba(255,255,255,0.8),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border border-black/5"
@@ -71,7 +71,7 @@ const AvatarRow = ({ theme, onStoryClick, t }: any) => {
               </div>
             </div>
             <span
-              className={`text-[10px] font-semibold tracking-wide transition-colors ${isDark ? "text-gray-300 group-hover:text-gray-100" : "text-slate-500 group-hover:text-slate-800"}`}
+              className={`text-[9px] sm:text-[10px] font-semibold tracking-wide transition-colors ${isDark ? "text-gray-300 group-hover:text-gray-100" : "text-slate-500 group-hover:text-slate-800"}`}
             >
               {c.name}
             </span>
@@ -112,8 +112,8 @@ export const ChatListView = ({
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
 
-  const pinnedChats = filteredChats.filter((c: any) => c.pinned);
-  const regularChats = filteredChats.filter((c: any) => !c.pinned);
+  const pinnedChats = useMemo(() => filteredChats.filter((c: any) => c.pinned), [filteredChats]);
+  const regularChats = useMemo(() => filteredChats.filter((c: any) => !c.pinned), [filteredChats]);
 
   const handleToggleSelect = (chatId: string | number) => {
     setSelectedIds(prev => {
@@ -150,8 +150,8 @@ export const ChatListView = ({
   };
 
   return (
-    <div className={`w-full max-w-[400px] flex-1 flex flex-col overflow-y-auto rounded-[32px] p-6 mb-8 pb-28 sm:pb-8 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
-      <div className="mb-6 relative z-30 flex items-center gap-3 shrink-0">
+    <div className={`w-full max-w-[320px] sm:max-w-[380px] md:max-w-[480px] lg:max-w-[580px] xl:max-w-[640px] flex-1 flex flex-col overflow-y-auto p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 md:mb-8 pb-[calc(56px+env(safe-area-inset-bottom,0px))] sm:pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-6 ${isDark ? "bg-[#11141c]/50 border border-white/5" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner"}`}>
+      <div className="mb-4 sm:mb-6 relative z-30 flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="flex-1">
           {isDark ? (
             <DarkSearchBar searchQuery={chatSearchQuery} onSearchChange={setChatSearchQuery} placeholder={view === "channels" ? t("chat.searchChannelsPlaceholder") : view === "bots" ? t("chat.searchBotsPlaceholder") : t("chat.searchPlaceholder")} />
@@ -160,20 +160,20 @@ export const ChatListView = ({
           )}
         </div>
         {(view === "channels" || view === "bots") ? (
-          <div
-            onClick={() => view === "channels" ? setShowCreateChannel(true) : setShowCreateBot(true)}
-            title={view === "channels" ? t("chat.createChannel") : t("chat.createBot")}
-            className={`w-[48px] h-[48px] rounded-2xl flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 shadow-sm"}`}
-          >
-            <Plus size={24} />
+         <div
+              onClick={() => view === "channels" ? setShowCreateChannel(true) : setShowCreateBot(true)}
+              title={view === "channels" ? t("chat.createChannel") : t("chat.createBot")}
+              className={`w-9 h-9 sm:w-[40px] sm:h-[40px] flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 shadow-sm"}`}
+            >
+              <Plus size={18} className="sm:size-20" />
           </div>
         ) : (
-          <div
-            title={t("chat.archived")}
-            onClick={() => { setView("chats"); setActiveFolder("archived"); }}
-            className={`w-[48px] h-[48px] rounded-2xl flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[#1a1d24] border border-white/5 hover:bg-white/5 text-gray-400 hover:text-white" : "bg-white border border-black/5 hover:bg-black/5 text-slate-500 hover:text-slate-800 shadow-sm"}`}
-          >
-            <Archive size={20} />
+         <div
+              title={t("chat.archived")}
+              onClick={() => { setView("chats"); setActiveFolder("archived"); }}
+              className={`w-9 h-9 sm:w-[40px] sm:h-[40px] flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[#1a1d24] border border-white/5 hover:bg-white/5 text-gray-400 hover:text-white" : "bg-white border border-black/5 hover:bg-black/5 text-slate-500 hover:text-slate-800 shadow-sm"}`}
+            >
+              <Archive size={16} className="sm:size-20" />
             {archivedUnreadCount > 0 && (
               <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md border-[2px] border-[#eaeff4] dark:border-[#11141c] px-1">
                 {archivedUnreadCount}
@@ -182,7 +182,7 @@ export const ChatListView = ({
           </div>
         )}
       </div>
-      <div className={`flex items-center gap-5 mb-6 px-1 border-b pb-3 overflow-x-auto scrollbar-none shrink-0 ${isDark ? "border-white/5" : "border-black/5"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+      <div className={`flex items-center gap-3 sm:gap-5 mb-4 sm:mb-6 px-1 border-b pb-3 overflow-x-auto scrollbar-none shrink-0 ${isDark ? "border-white/5" : "border-black/5"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         {[{ id: "stories", label: t("chat.tabs.stories") }, { id: "chats", label: t("chat.tabs.chats") }, { id: "channels", label: t("chat.tabs.channels") }, { id: "bots", label: t("chat.tabs.bots") }].map((tab) => (
           <div
              key={tab.id}
@@ -200,7 +200,7 @@ export const ChatListView = ({
       {view === "stories" && <AvatarRow theme={theme} onStoryClick={setActiveStory} t={t} />}
 
        {view === "chats" && (
-         <div className="flex items-center gap-2 mb-6 -mx-2 px-2 shrink-0">
+         <div className="flex items-center gap-2 mb-4 sm:mb-6 -mx-2 px-2 shrink-0">
            <div
              className="flex-1 flex gap-2 overflow-x-auto scrollbar-none pb-1"
              onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}
@@ -208,8 +208,8 @@ export const ChatListView = ({
             {["all", "personal", "unread", "work", "archived"].map(folder => (
               <div
                 key={folder}
-                onClick={() => setActiveFolder(folder)}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer transition-colors shrink-0 ${activeFolder === folder ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "bg-[#1a1d24] text-gray-400 hover:text-gray-200 border border-white/5" : "bg-white text-slate-500 hover:text-slate-800 border border-black/5 shadow-sm")}`}
+           onClick={() => setActiveFolder(folder)}
+                 className={`px-2 sm:px-4 py-1 rounded-sm sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold whitespace-nowrap cursor-pointer transition-colors shrink-0 ${activeFolder === folder ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "bg-[#1a1d24] text-gray-400 hover:text-gray-200 border border-white/5" : "bg-white text-slate-500 hover:text-slate-800 border border-black/5 shadow-sm")}`}
               >
                  {t("chat.folders." + folder as any)}
                </div>
@@ -224,40 +224,40 @@ export const ChatListView = ({
       {view === "chats" && filteredChats.length > 0 && (
        <>
          {selectMode && (
-           <div className={`flex items-center gap-2 mb-4 px-1 py-2 rounded-2xl shrink-0 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-             <button
-               onClick={handleCancelSelect}
-               className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${isDark ? "bg-[#1a1d24] text-gray-300 hover:text-white border border-white/5" : "bg-white text-slate-600 hover:text-slate-800 border border-black/5 shadow-sm"}`}
-             >
-               {t("chat.cancel") || "Cancel"}
-             </button>
-             <span className={`text-xs font-bold px-2 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
-               {selectedIds.size} {t("chat.selected") || "selected"}
-             </span>
+            <div className={`flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 px-1 py-2 rounded-2xl shrink-0 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+              <button
+                onClick={handleCancelSelect}
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-colors ${isDark ? "bg-[#1a1d24] text-gray-300 hover:text-white border border-white/5" : "bg-white text-slate-600 hover:text-slate-800 border border-black/5 shadow-sm"}`}
+              >
+                {t("chat.cancel")}
+               </button>
+              <span className={`text-xs font-bold px-2 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+                {selectedIds.size} {t("chat.selected")}
+              </span>
              <div className="flex-1" />
-             <button
-               onClick={handleBulkArchive}
-               className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${isDark ? "bg-[#1a1d24] text-gray-300 hover:text-white border border-white/5" : "bg-white text-slate-600 hover:text-slate-800 border border-black/5 shadow-sm"}`}
-             >
-               {t("chat.archive")}
-             </button>
-             <button
-               onClick={handleBulkDelete}
-               className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${isDark ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "bg-red-500/10 text-red-600 hover:bg-red-500/20"}`}
-             >
-               {t("chat.delete") || "Delete"}
-             </button>
-             <button
-               onClick={handleBulkMarkRead}
-               className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${isDark ? "bg-[#1a1d24] text-gray-300 hover:text-white border border-white/5" : "bg-white text-slate-600 hover:text-slate-800 border border-black/5 shadow-sm"}`}
-             >
-               {t("chat.markRead") || "Read"}
-             </button>
+          <button
+                onClick={handleBulkArchive}
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-colors ${isDark ? "bg-[#1a1d24] text-gray-300 hover:text-white border border-white/5" : "bg-white text-slate-600 hover:text-slate-800 border border-black/5 shadow-sm"}`}
+              >
+                {t("chat.archive")}
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-colors ${isDark ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "bg-red-500/10 text-red-600 hover:bg-red-500/20"}`}
+              >
+                {t("chat.delete")}
+              </button>
+              <button
+                onClick={handleBulkMarkRead}
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-colors ${isDark ? "bg-[#1a1d24] text-gray-300 hover:text-white border border-white/5" : "bg-white text-slate-600 hover:text-slate-800 border border-black/5 shadow-sm"}`}
+              >
+                {t("chat.markRead")}
+              </button>
            </div>
          )}
          {pinnedChats.length > 0 && (
            <>
-             <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-orange-500" : "text-orange-600"}`}>{t("chat.sectionPinned") || "Pinned"}</div>
+             <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-orange-500" : "text-orange-600"}`}>{t("chat.sectionPinned")}</div>
              {pinnedChats.map(c => (
                <ChatListItem
                  key={c.id}
@@ -331,7 +331,7 @@ export const ChatListView = ({
 
      {view === "channels" && filteredChannels.length > 0 && (
        <>
-          <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-purple-500" : "text-purple-600"}`}>{t("chat.sectionChannels")}</div>
+          <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-purple-500" : "text-purple-600"}`}>{t("chat.sectionChannels")}</div>
          {filteredChannels.map(c => (
             <ChatListItem
                key={c.id}
@@ -353,9 +353,9 @@ export const ChatListView = ({
      {view === "bots" && (
        bots.length > 0 ? (
          <>
-            <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-blue-500" : "text-blue-600"}`}>{t("chat.sectionBots")}</div>
+            <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-blue-500" : "text-blue-600"}`}>{t("chat.sectionBots")}</div>
            {bots.map(b => (
-             <div key={b.id} className={`w-full p-4 rounded-3xl mb-4 flex flex-col gap-2 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white border border-black/5 shadow-sm"}`}>
+             <div key={b.id} className={`w-full p-4 rounded-xl mb-4 flex flex-col gap-2 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white border border-black/5 shadow-sm"}`}>
                 <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center">
                      <Bot size={20} />

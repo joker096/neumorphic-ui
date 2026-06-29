@@ -24,6 +24,10 @@ import type { ContactProfile } from "./components/ContactProfileModal";
 import { registerRiskSession, getLastActionDebugId } from "./utils/riskShell";
 import { parseMentions, isDNDEnabled, isPriorityContact } from "./constants";
 import { SignallingManager } from './lib/signaling/manager';
+import type { TunnelBackend } from './lib/transport/wsTunnel';
+import { SIGNALING_SEED_URLS } from './config/signalling';
+import { getLockBlockDuration } from './config/lockBackoff';
+import { seedMockData } from './utils/mockSeeding';
 import { TransportIndicator } from './components/status/TransportIndicator';
 import { STORAGE_KEYS } from './constants/storage';
 import { ThemeContext, useTheme, type Theme } from './contexts/ThemeContext';
@@ -35,11 +39,14 @@ export default function App() {
   });
   const setTheme = (t: Theme) => {
     setThemeState(t);
-    localStorage.setItem(STORAGE_KEYS.THEME, t);
   };
   const isDark = theme === 'dark';
   const { t, setLang } = useI18n();
-  const [language, setLanguage] = useState(() => localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'en');
+  const [language, setLanguageState] = useState(() => localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'en');
+
+  const setLanguage = (l: string) => {
+    setLanguageState(l);
+  };
 
 
   const appLockHashedPIN = useAppStore(s => s.appLockHashedPIN);
@@ -99,24 +106,35 @@ const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'conne
 const [regionBlocked, setRegionBlocked] = useState(false);
 const managerRef = useRef<SignallingManager | null>(null);
 
+const syncToStore = (mgr: SignallingManager, status: string) => {
+  useAppStore.getState().setConnectionStatus(status as any);
+  useAppStore.getState().setTransportBackend(mgr.getBackend());
+  useAppStore.getState().setLatency(mgr.getLatency());
+  if (status === 'blocked' || status === 'error') {
+    useAppStore.getState().setBlockedBackends(['all']);
+  }
+};
+
 useEffect(() => {
-  const seedUrls = [
-    'wss://signaling1.messanger.app/ws',
-    'wss://signaling2.messanger.app/ws',
-    'wss://signaling3.messanger.app/ws',
-  ];
-  const mgr = new SignallingManager(seedUrls);
-  managerRef.current = mgr;
+ const savedBackend = (localStorage.getItem('app_relay_backend') || 'direct') as TunnelBackend;
+   const mgr = new SignallingManager(SIGNALING_SEED_URLS, savedBackend);
+   managerRef.current = mgr;
 
   setConnectionStatus('connecting');
-  mgr.connect().catch(() => setConnectionStatus('error'));
+  syncToStore(mgr, 'connecting');
+  mgr.connect().catch(() => {
+    setConnectionStatus('error');
+    syncToStore(mgr, 'error');
+  });
 
   const unsub1 = mgr.onStateChange((state) => {
     setConnectionStatus(state);
+    syncToStore(mgr, state);
   });
 
   const unsub2 = mgr.onBlockedRegion((event) => {
     setRegionBlocked(true);
+    useAppStore.getState().setRegionBlocked(true);
   });
 
   return () => {
@@ -144,30 +162,9 @@ useEffect(() => {
 
 
 useEffect(() => {
-     if (!MOCK_DATA_ENABLED) return;
-     if (chats.length === 0) setChats(MOCK_CHATS as any);
-     if (contacts.length === 0) setContacts(MOCK_CONTACTS);
-     if (channels.length === 0) {
-       setChannels(MOCK_CHANNELS.map(c => ({
-         id: c.id.toString(),
-         name: c.name,
-         ownerPublicKey: "MOCK_OWNER",
-         ownerId: "mock1",
-         subscribers: [],
-         subscriberCount: 15,
-         postCount: c.history.length,
-         isPrivate: false,
-         isPublic: true,
-         createdAt: Date.now(),
-         color: c.color,
-         message: c.message,
-         time: c.time,
-         unread: c.unread,
-         isChannel: true,
-         history: c.history
-      })) as any);
-    }
-  }, []);
+      if (!MOCK_DATA_ENABLED) return;
+      seedMockData(setChats, setContacts, setChannels, chats, contacts, channels);
+    }, []);
 
   // Check scheduled messages periodically
   useEffect(() => {
@@ -203,16 +200,8 @@ useEffect(() => {
     return () => clearInterval(interval);
   }, [scheduledQueue, setChats]);
 
-  // Handle App Lock authentication logic with exponential backoff
-  const getBlockDuration = (attempts: number): number => {
-    if (attempts <= 2) return 0
-    if (attempts === 3) return 30000
-    if (attempts === 4) return 60000
-    if (attempts === 5) return 120000
-    if (attempts === 6) return 300000
-    if (attempts === 7) return 900000
-    return Infinity
-  }
+// Handle App Lock authentication logic with exponential backoff
+   const getBlockDuration = getLockBlockDuration;
 
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>
@@ -773,6 +762,7 @@ const isChatListRoute = useMemo(() => view === "chats" || view === "channels" ||
   useEffect(() => { handlePreviewMessageRef.current = handlePreviewMessage }, [handlePreviewMessage]);
 
 const activeChatWorkspaceProps = useMemo(() => ({
+    theme,
     activeChat,
     setActiveChat,
     messageText,
@@ -807,12 +797,12 @@ const activeChatWorkspaceProps = useMemo(() => ({
     onPreviewMessage: handlePreviewMessageRef.current,
     setEditingContact,
     onToggleMute: () => {
-      setActiveChat({ ...activeChat, isMuted: !activeChat?.isMuted });
+      setActiveChat((prev: any) => prev ? { ...prev, isMuted: !prev.isMuted } : null);
       setChannels((prev) => prev.map((channel) => channel.id === activeChat?.id ? { ...channel, isMuted: !activeChat?.isMuted } : channel) as any);
     },
     onAttachImage: (newMessage: any) => {
       setChats((prevChats) => prevChats.map((chat) => chat.id === activeChat?.id ? { ...chat, history: [...(chat.history || []), newMessage] } : chat));
-      setActiveChat((prev) => ({ ...prev, history: [...(prev.history || []), newMessage] }));
+      setActiveChat((prev: any) => prev ? ({ ...prev, history: [...(prev.history || []), newMessage] }) : null);
     },
     onHoldRecord: () => {
       if (!messageText) {
@@ -834,14 +824,14 @@ const activeChatWorkspaceProps = useMemo(() => ({
     onToggleSilent: () => setSilentMode(!silentMode),
     onToggleMorse: () => setMorseMode(!morseMode),
   }), [
-    activeChat, setActiveChat, messageText, setMessageText, scheduleDateTime,
+    theme, activeChat, setActiveChat, messageText, setMessageText, scheduleDateTime,
     showSchedulePopup, setShowSchedulePopup, setScheduleDateTime, isRecordingVoice,
     setIsRecordingVoice, voiceNoteError, showStickerPicker, setShowStickerPicker,
     morseMode, silentMode, replyTarget, setReplyTarget, draftTextByChat,
     setDraftTextByChat, setChats, setChannels, setVoiceNoteError, setSilentMode,
     setMorseMode, toggleSavedMessage, savedMessages, activeChat?.isMuted,
     handleSendMessageRef.current, sendVoiceMessageRef.current, sendStickerMessageRef.current,
-    handlePreviewCallRef.current, handlePreviewMessageRef.current, messageText
+    handlePreviewCallRef.current, handlePreviewMessageRef.current
   ]);
 
 const chatListWorkspaceProps = useMemo(() => ({
@@ -880,74 +870,81 @@ const chatListWorkspaceProps = useMemo(() => ({
   // Design read: messenger/product UI with premium consumer aesthetic, dark mode primary, orange accent.
   // Layout: sidebar navigation, central content, bottom nav for mobile.
   return (
-    <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
-      <Toaster position="top-right" duration={3000} theme={isDark ? 'dark' : 'light'} />
-      <div data-theme={theme} className={`w-full h-[100dvh] flex font-sans select-none overflow-hidden relative ${isDark ? "bg-[#0d1017] text-white" : "bg-[#f0f2f5] text-slate-800"}`}>
-        {isDark && (
-          <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none" />
-        )}
+<ThemeContext.Provider value={{ theme, isDark, setTheme }}>
+       <Toaster position="top-right" duration={3000} theme={isDark ? 'dark' : 'light'} />
+       <div data-theme={theme} className={`w-full h-[100dvh] flex font-sans select-none overflow-hidden relative ${isDark ? "bg-[#0d1017] text-white" : "bg-[#f0f2f5] text-slate-800"}`}>
+         {isDark && (
+           <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none" />
+         )}
 
-        <div className="absolute top-2 right-2 z-50">
-          <TransportIndicator status={connectionStatus} />
-        </div>
+         <div className="absolute top-2 right-2 z-50">
+           <TransportIndicator status={connectionStatus} />
+         </div>
 
-<SidebarNav
-           activeView={view}
-           isDark={isDark}
-           unreadCount={chatsUnread}
-           companyUnreadCount={companyUnread}
-           onNavigate={handleNavigate}
-           t={t}
-         />
-
-        <div className="flex-1 flex flex-col min-w-0 pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0">
-          <AnimatePresence mode="wait">
-            <ContentView
+  <aside className="z-40 md:z-40">
+           <SidebarNav
+              activeView={view}
               isDark={isDark}
-              onCloseStory={() => setActiveStory(null)}
-              activeStory={activeStory}
-              isStealthMode={useAppStore.getState().stealthMode}
-            >
-              {isChatListRoute && (
-                <SafeRender>
-                  <ChatWorkspace
-                    hasActiveChat={Boolean(activeChat)}
-                    listProps={chatListWorkspaceProps}
-                    activeProps={activeChatWorkspaceProps}
-                  />
-                </SafeRender>
-              )}
-              <SafeRender>
-                <FeatureViews
-                  view={view}
-                  subView={subView}
-                  setSubView={setSubView}
-                  contacts={contacts}
-                  setContacts={setContacts as any}
-                  showContactPicker={showContactPicker}
-                  setShowContactPicker={setShowContactPicker}
-                  setEditingContact={setEditingContact}
-                  chats={chats}
-                  setChats={setChats as any}
-                  setActiveChat={setActiveChat}
-                  setView={setView as any}
-                  onCall={handlePreviewCall}
-                  onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
-                  onMessage={handlePreviewMessage}
-                />
-              </SafeRender>
-            </ContentView>
-          </AnimatePresence>
-        </div>
+              unreadCount={chatsUnread}
+              companyUnreadCount={companyUnread}
+              onNavigate={handleNavigate}
+              t={t}
+            />
+</aside>
 
-<BottomNav
-           activeView={view}
-           isDark={isDark}
-           unreadCount={chatsUnread}
-           companyUnreadCount={companyUnread}
-           onNavigate={handleNavigate}
-           t={t}
-         />
+          <main className="flex-1 flex flex-col min-w-0 pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0">
+           <div className="flex-1 overflow-y-auto overflow-x-hidden w-full flex flex-col" style={{ minHeight: 0 }}>
+           <AnimatePresence mode="wait">
+             <ContentView
+               isDark={isDark}
+               onCloseStory={() => setActiveStory(null)}
+               activeStory={activeStory}
+               isStealthMode={useAppStore.getState().stealthMode}
+             >
+               {isChatListRoute && (
+                 <SafeRender>
+                   <ChatWorkspace
+                     hasActiveChat={Boolean(activeChat)}
+                     listProps={chatListWorkspaceProps}
+                     activeProps={activeChatWorkspaceProps}
+                   />
+                 </SafeRender>
+               )}
+               <SafeRender>
+                 <FeatureViews
+                   view={view}
+                   subView={subView}
+                   setSubView={setSubView}
+                   contacts={contacts}
+                   setContacts={setContacts as any}
+                   showContactPicker={showContactPicker}
+                   setShowContactPicker={setShowContactPicker}
+                   setEditingContact={setEditingContact}
+                   chats={chats}
+                   setChats={setChats as any}
+                   setActiveChat={setActiveChat}
+                   setView={setView as any}
+                   onCall={handlePreviewCall}
+                   onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
+                   onMessage={handlePreviewMessage}
+                 />
+               </SafeRender>
+             </ContentView>
+           </AnimatePresence>
+            </div>
+          </main>
+
+         <footer className="fixed bottom-0 left-0 right-0 md:hidden z-50">
+           <BottomNav
+              activeView={view}
+              isDark={isDark}
+              unreadCount={chatsUnread}
+              companyUnreadCount={companyUnread}
+              onNavigate={handleNavigate}
+              t={t}
+            />
+</footer>
+
 
         <AppOverlays
           isDark={isDark}

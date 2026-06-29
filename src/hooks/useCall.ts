@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { callManager } from '../lib/call/CallManager';
-import type { ActiveCall, CallEventType } from '../lib/call/types';
+ import { callManager } from '../lib/call/CallManager';
+ import type { ActiveCall, CallEventType, CallType } from '../lib/call/types';
 
 export const useCall = () => {
   const [call, setCall] = useState<ActiveCall | null>(callManager.getActiveCall());
@@ -69,6 +69,12 @@ export const useCall = () => {
     setCall(callManager.getActiveCall());
   }, []);
 
+  const changeCallType = useCallback(async (newType: CallType) => {
+    const ok = await callManager.changeCallType(newType);
+    if (ok) setCall(callManager.getActiveCall());
+    return ok;
+  }, []);
+
   return {
     call,
     startCall,
@@ -78,5 +84,6 @@ export const useCall = () => {
     toggleVideo,
     toggleScreenShare,
     toggleRecording,
+    changeCallType,
   };
 };

@@ -1,5 +1,4 @@
-import { MessageCircle, Phone, Settings, Users } from "lucide-react";
-import { CustomDiamondIcon } from "../app/CustomDiamondIcon";
+import { MessageCircle, Phone, Settings, Users, Building2 } from "lucide-react";
 
 type SidebarNavProps = {
   activeView: string;
@@ -14,6 +13,7 @@ const NAV_ITEMS = [
   { id: "chats", label: "nav.chats", icon: MessageCircle },
   { id: "calls", label: "nav.calls", icon: Phone },
   { id: "contacts", label: "nav.contacts", icon: Users },
+  { id: "company", label: "settings.company", icon: Building2 },
   { id: "settings", label: "nav.settings", icon: Settings },
 ];
 
@@ -23,24 +23,11 @@ export const SidebarNav = ({ activeView, isDark, unreadCount, companyUnreadCount
       isDark ? "bg-[#0d1017] border-r-white/[0.06]" : "bg-[#f0f2f5] border-r-black/[0.06]"
     }`}
   >
-    <div className="flex items-center gap-3 px-6 pt-8 pb-6">
-      <CustomDiamondIcon
-        className={`w-8 h-8 ${
-          isDark
-            ? "text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.4)]"
-            : "text-orange-600 drop-shadow-[0_2px_4px_rgba(249,115,22,0.3)]"
-        }`}
-      />
-      <span className={`text-lg font-bold tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}>
-        Mess&Anger
-      </span>
-    </div>
-
-    <nav className="flex-1 flex flex-col gap-1 px-3">
+    <nav className="flex-1 flex flex-col gap-1 px-3 mt-6">
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
         const isActive = activeView === item.id;
-        const showBadge = (item.id === "chats" && unreadCount > 0) || (item.id === "company" && companyUnreadCount > 0);
+        const showBadge = (item.id === "chats" && unreadCount > 0) || (item.id === "company" && companyUnreadCount && companyUnreadCount > 0);
         const badgeCount = item.id === "chats" ? unreadCount : companyUnreadCount;
         return (
           <button
@@ -64,7 +51,7 @@ export const SidebarNav = ({ activeView, isDark, unreadCount, companyUnreadCount
                     ? "bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.5)]"
                     : "bg-orange-500 shadow-[0_1px_3px_rgba(249,115,22,0.3)]"
                 }`}>
-                  <span className="text-[8px] font-bold text-white leading-none">{badgeCount > 99 ? "99+" : badgeCount}</span>
+                  <span className="text-[8px] font-bold text-white leading-none">{badgeCount && badgeCount > 99 ? "99+" : badgeCount}</span>
                 </div>
               )}
             </div>

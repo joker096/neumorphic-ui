@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { SystemPulsePlayer } from './SystemPulsePlayer';
+import { SystemPulsePlayer } from './SystemPulsePlayer/SystemPulsePlayer';
 
 // Mock Web Audio API
 beforeAll(() => {

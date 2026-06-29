@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Download, Palette } from 'lucide-react';
+import { Download, Palette, Sparkles } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
@@ -33,7 +33,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
             </div>
             <div>
-              <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.darkTheme')}</div>
+              <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.darkTheme')}</div>
               <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.darkThemeSubtitle')}</div>
             </div>
           </div>
@@ -58,6 +58,8 @@ export const AppearanceSettings = ({
           isOn={uiAnimations}
           isDark={isDark}
           onToggle={() => setUiAnimations(!uiAnimations)}
+          toggleOnIcon={<Sparkles size={14} />}
+          toggleOffIcon={<Sparkles size={14} />}
         />
         <SettingsToggleRow
           icon={<Download size={16} />}
@@ -68,6 +70,8 @@ export const AppearanceSettings = ({
           isOn={showPwaBanner}
           isDark={isDark}
           onToggle={() => setShowPwaBanner(!showPwaBanner)}
+          toggleOnIcon={<Download size={14} />}
+          toggleOffIcon={<Download size={14} />}
         />
       </SettingsGroup>
     </SubView>

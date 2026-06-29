@@ -55,10 +55,10 @@ describe('ContactProfileModal', () => {
   });
 
   it('shows last seen time when offline', () => {
-    const modalProps = { ...defaultProps, contact: { ...mockContact, online: false, lastSeen: 3600000 } };
+    const modalProps = { ...defaultProps, contact: { ...mockContact, online: false, lastSeen: Date.now() - 3600000 } };
     render(<ContactProfileModal {...modalProps} />);
 
-    expect(screen.getByText(/contacts\.lastSeenAgo|hours ago/)).toBeInTheDocument();
+    expect(screen.getByText(/chat\.hoursAgo|hours ago/)).toBeInTheDocument();
   });
 
   it('shows call info when provided', async () => {

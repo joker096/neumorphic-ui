@@ -54,7 +54,7 @@ export const SettingsGroup = ({ children, isDark, className = "" }: { children: 
   </div>
 );
 
-export const ToggleSwitch = ({ isOn, onToggle, isDark }: { isOn: boolean, onToggle: () => void, isDark: boolean }) => {
+export const ToggleSwitch = ({ isOn, onToggle, isDark, onIcon, offIcon }: { isOn: boolean, onToggle: () => void, isDark: boolean, onIcon?: React.ReactNode, offIcon?: React.ReactNode }) => {
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggle();
@@ -65,7 +65,7 @@ export const ToggleSwitch = ({ isOn, onToggle, isDark }: { isOn: boolean, onTogg
       onClick={handleToggle}
       className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${isOn ? 'bg-emerald-500' : (isDark ? 'bg-gray-600' : 'bg-slate-300')}`}
     >
-      <div className={`w-4 h-4 rounded-full bg-white shadow-sm flex-shrink-0 ${isOn ? 'ml-auto' : 'mr-auto'}`} />
+      {isOn ? (onIcon || <div className={`w-4 h-4 rounded-full bg-white shadow-sm flex-shrink-0 ml-auto`} />) : (offIcon || <div className={`w-4 h-4 rounded-full bg-white shadow-sm flex-shrink-0 mr-auto`} />)}
     </div>
   );
 };
@@ -73,9 +73,11 @@ export const ToggleSwitch = ({ isOn, onToggle, isDark }: { isOn: boolean, onTogg
 interface SettingsToggleRowProps extends Omit<SettingsRowProps, 'rightElement' | 'onClick'> {
   isOn: boolean;
   onToggle: () => void;
+  toggleOnIcon?: React.ReactNode;
+  toggleOffIcon?: React.ReactNode;
 }
 
-export const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, isOn, isDark, onToggle }: SettingsToggleRowProps) => (
+export const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, isOn, isDark, onToggle, toggleOnIcon, toggleOffIcon }: SettingsToggleRowProps) => (
   <SettingsRow
     icon={icon}
     iconBg={iconBg}
@@ -83,7 +85,7 @@ export const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, is
     title={title}
     subtitle={subtitle}
     isDark={isDark}
-    rightElement={<ToggleSwitch isOn={isOn} onToggle={onToggle} isDark={isDark} />}
+    rightElement={<ToggleSwitch isOn={isOn} onToggle={onToggle} isDark={isDark} onIcon={toggleOnIcon} offIcon={toggleOffIcon} />}
     onClick={onToggle}
   />
 );

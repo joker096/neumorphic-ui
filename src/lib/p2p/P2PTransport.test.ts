@@ -114,11 +114,11 @@ function makeTransport(opts: Partial<{
     signalingUrl: opts.signalingUrl ?? 'ws://localhost:8080',
     localPublicKey: opts.localPublicKey ?? 'local-pub-key',
     iceServers: opts.iceServers,
-    onMessage,
+    onMessage: onMessage as any,
     onConnected,
     onDisconnected,
     obfuscator: opts.obfuscator,
-  });
+  } as any);
 }
 
 async function connectTransport(transport: P2PTransport): Promise<void> {
@@ -431,7 +431,7 @@ describe('P2PTransport', () => {
       const transport = makeTransport();
       expect((transport as any).obfuscator).toBeNull();
 
-      const obfuscator = { obfuscate: vi.fn(), deobfuscate: vi.fn() };
+      const obfuscator = { obfuscate: vi.fn(), deobfuscate: vi.fn() } as any;
       transport.setObfuscator(obfuscator);
 
       expect((transport as any).obfuscator).toBe(obfuscator);

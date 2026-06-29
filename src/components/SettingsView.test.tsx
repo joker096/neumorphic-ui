@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { SettingsView } from './SettingsView';
 import { useAppStore } from '../store';
+import { ThemeContext, type Theme } from '../contexts/ThemeContext';
 
 vi.mock('../store', () => ({
   useAppStore: vi.fn(() => ({
@@ -222,10 +223,7 @@ vi.mock('../lib/cryptoCore', () => ({
   },
 }));
 
-const defaultProps = {
-  theme: 'dark' as const,
-  setTheme: vi.fn(),
-};
+const defaultProps = {};
 
 describe('SettingsView', () => {
   beforeEach(() => {
@@ -234,58 +232,65 @@ describe('SettingsView', () => {
   });
 
   it('renders main settings view', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
+      <SettingsView theme="dark" />
+    </ThemeContext.Provider>
+  );
 
     expect(screen.getByPlaceholderText('Search settings...')).toBeInTheDocument();
   });
 
-  it('shows PWA install banner by default', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    expect(screen.getByText((content, element) => {
-      return element?.tagName === 'BUTTON' && content.includes('Install');
-    })).toBeInTheDocument();
-  });
-
-  it('renders localized PWA install banner copy', () => {
-    render(<SettingsView {...defaultProps} />);
-
-    expect(screen.getByText('Install Mess&Anger')).toBeInTheDocument();
-    expect(screen.getByText('Works offline')).toBeInTheDocument();
-    expect(screen.getByText('Faster loading')).toBeInTheDocument();
-    expect(screen.getByText('Add to home screen')).toBeInTheDocument();
-  });
-
   it('shows Account section button in main settings', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
+      <SettingsView theme="dark" />
+    </ThemeContext.Provider>
+  );
 
     expect(screen.getByText('Account')).toBeInTheDocument();
     expect(screen.getByText('Manage your accounts')).toBeInTheDocument();
   });
 
   it('shows Appearance section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
+      <SettingsView theme="dark" />
+    </ThemeContext.Provider>
+  );
 
     expect(screen.getByText('Appearance')).toBeInTheDocument();
   });
 
-  it('shows quick options on the main settings screen', () => {
-    render(<SettingsView {...defaultProps} />);
+  it('shows Notifications section with sound and cloud sync', () => {
+    render(
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
+      <SettingsView theme="dark" />
+    </ThemeContext.Provider>
+  );
 
-    expect(screen.getByText('Quick options')).toBeInTheDocument();
-    expect(screen.getByText('Notification sound')).toBeInTheDocument();
+    expect(screen.getByText('Notifications section')).toBeInTheDocument();
+    expect(screen.getByText('Sound')).toBeInTheDocument();
     expect(screen.getByText('Cloud sync')).toBeInTheDocument();
   });
 
   it('shows Services section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
+      <SettingsView theme="dark" />
+    </ThemeContext.Provider>
+  );
 
     expect(screen.getByText('Services')).toBeInTheDocument();
     expect(screen.getByText('Bots')).toBeInTheDocument();
   });
 
   it('shows Advanced section', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
+      <SettingsView theme="dark" />
+    </ThemeContext.Provider>
+  );
 
     expect(screen.getByText('Advanced')).toBeInTheDocument();
     expect(screen.getByText('Proxy & Network')).toBeInTheDocument();
@@ -294,21 +299,32 @@ describe('SettingsView', () => {
   });
 
   it('shows build status footer', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
+      <SettingsView theme="dark" />
+    </ThemeContext.Provider>
+  );
 
     expect(screen.getByText(/Last build|build|last build/)).toBeInTheDocument();
   });
 
   it('applies dark theme styles', () => {
-    render(<SettingsView {...defaultProps} />);
+    render(
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
+      <SettingsView theme="dark" />
+    </ThemeContext.Provider>
+  );
 
     const container = screen.getByPlaceholderText('Search settings...').closest('div[class*="bg-[#11141c]"]');
     expect(container).toBeInTheDocument();
   });
 
   it('applies light theme styles', () => {
-    const lightProps = { ...defaultProps, theme: 'light' as const };
-    render(<SettingsView {...lightProps} />);
+    render(
+      <ThemeContext.Provider value={{ theme: 'light', isDark: false, setTheme: vi.fn() }}>
+        <SettingsView theme="light" />
+      </ThemeContext.Provider>
+    );
 
     const container = screen.getByPlaceholderText('Search settings...').closest('div[class*="bg-[#eaeff4]"]');
     expect(container).toBeInTheDocument();

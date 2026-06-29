@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MeshRouter } from './MeshRouter';
 
 vi.stubGlobal('crypto', { randomUUID: () => 'test-uuid-123' });
 
 describe('MeshRouter', () => {
   let router: MeshRouter;
-  let broadcastSpy: ReturnType<typeof vi.fn>;
+  let broadcastSpy: any;
 
   beforeEach(() => {
     vi.useFakeTimers();

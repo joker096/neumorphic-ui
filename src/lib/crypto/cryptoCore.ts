@@ -245,31 +245,66 @@ export class CryptoCore {
 
   async secureWipe(): Promise<void> {
     try {
-      const dbs = await window.indexedDB.databases()
+      // Zero out identity key material before dropping the reference
+      if (this.identityKeys) {
+        const len = this.identityKeys.publicKey.length
+        const zeroed = new Uint8Array(len)
+        // Write zero bytes over the key bytes before nulling the reference
+        for (let i = 0; i < len; i++) {
+          this.identityKeys.publicKey[i] = 0
+          this.identityKeys.secretKey[i] = 0
+          zeroed[i] = 0
+        }
+        this.identityKeys = null
+      }
+      this.keyRotationCount = 0
+    } catch { /* noop */ }
+
+    try {
+      // Delete all IndexedDB databases
+      let dbs: IDBDatabaseInfo[] = []
+      if (window.indexedDB.databases) {
+        try {
+          dbs = await window.indexedDB.databases()
+        } catch { /* noop */ }
+      }
+      // Delete each database
       for (const db of dbs) {
-        if (db.name) window.indexedDB.deleteDatabase(db.name)
+        if (db.name) {
+          await new Promise<void>((resolve) => {
+            const req = window.indexedDB.deleteDatabase(db.name)
+            req.onsuccess = () => resolve()
+            req.onerror = () => resolve()
+          })
+        }
       }
     } catch { /* noop */ }
+
     if ('caches' in window) {
       try {
         const cacheNames = await caches.keys()
         await Promise.all(cacheNames.map((name) => caches.delete(name)))
       } catch { /* noop */ }
     }
+
     if ('serviceWorker' in navigator) {
       try {
         const regs = await navigator.serviceWorker.getRegistrations()
         for (const reg of regs) {
-          await reg.unregister()
+          await reg.unregister().catch(() => { /* noop */ })
         }
       } catch { /* noop */ }
     }
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (key) localStorage.setItem(key, '00000000000000000000000000000000')
-    }
-    localStorage.clear()
-    sessionStorage.clear()
+
+    // Properly clear localStorage and sessionStorage
+    try {
+      localStorage.clear()
+    } catch { /* noop */ }
+    try {
+      sessionStorage.clear()
+    } catch { /* noop */ }
+
+    // Reload to clear any in-memory state
     window.location.reload()
   }
 }

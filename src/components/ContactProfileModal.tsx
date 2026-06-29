@@ -94,23 +94,23 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
         >
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmAction(null)} />
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.deleteContact')}</h3>
-            <p className={`text-sm mb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('contacts.confirmDeleteMessage', { name: contact?.name || '' })}</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmAction(null)} className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
-                {t('contacts.close')}
-              </button>
-              <button onClick={handleDelete} className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-red-500 hover:bg-red-600 text-white">
-                {t('contacts.deleteContact')}
-              </button>
-            </div>
-          </motion.div>
+             initial={{ opacity: 0, scale: 0.92, y: 20 }}
+             animate={{ opacity: 1, scale: 1, y: 0 }}
+             exit={{ opacity: 0, scale: 0.92, y: 20 }}
+             className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
+             onClick={(event) => event.stopPropagation()}
+           >
+             <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.deleteContact')}</h3>
+             <p className={`text-sm mb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('contacts.confirmDeleteMessage', { name: contact?.name || '' })}</p>
+             <div className="flex gap-3">
+               <button onClick={() => setConfirmAction(null)} className={`flex-1 h-11 rounded-xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
+                 {t('contacts.close')}
+               </button>
+               <button onClick={handleDelete} className="flex-1 h-11 rounded-xl text-sm font-bold transition-colors active:scale-95 bg-red-500 hover:bg-red-600 text-white">
+                 {t('contacts.deleteContact')}
+               </button>
+             </div>
+           </motion.div>
         </motion.div>
       )}
       {confirmAction === 'block' && (
@@ -121,22 +121,22 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
           className="fixed inset-0 z-[200] flex items-center justify-center p-4"
         >
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmAction(null)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.blockSpammer')}</h3>
-            <p className={`text-sm mb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('contacts.confirmBlockMessage', { name: contact?.name || '' })}</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmAction(null)} className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
-                {t('contacts.close')}
-              </button>
-              <button onClick={handleBlock} className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-red-500 hover:bg-red-600 text-white">
-                {t('contacts.blockSpammer')}
-              </button>
+         <motion.div
+             initial={{ opacity: 0, scale: 0.92, y: 20 }}
+             animate={{ opacity: 1, scale: 1, y: 0 }}
+             exit={{ opacity: 0, scale: 0.92, y: 20 }}
+             className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
+             onClick={(event) => event.stopPropagation()}
+           >
+             <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.blockSpammer')}</h3>
+             <p className={`text-sm mb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('contacts.confirmBlockMessage', { name: contact?.name || '' })}</p>
+             <div className="flex gap-3">
+               <button onClick={() => setConfirmAction(null)} className={`flex-1 h-11 rounded-xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
+                 {t('contacts.close')}
+               </button>
+               <button onClick={handleBlock} className="flex-1 h-11 rounded-xl text-sm font-bold transition-colors active:scale-95 bg-red-500 hover:bg-red-600 text-white">
+                 {t('contacts.blockSpammer')}
+               </button>
             </div>
           </motion.div>
         </motion.div>
@@ -152,7 +152,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className={`w-full max-w-[340px] rounded-[32px] p-6 shadow-2xl relative flex flex-col items-center ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
+ className={`w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 shadow-2xl relative flex flex-col items-center ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
           >
             <div
               className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
@@ -219,7 +219,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </button>
             </div>
 
-            <h2 className={`text-2xl font-bold mt-4 text-center flex items-center justify-center gap-2 ${isDark ? "text-white" : "text-slate-800"}`}>
+            <h2 className={`text-2xl font-bold mt-4 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}>
               {contact.name}
               <button
                 onClick={() => handleToggleFavorite(contact.id, contact.isFavorite || false)}
@@ -235,7 +235,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             </div>
 
             {contact.callInfo ? (
-              <div className={`mt-4 w-full p-4 rounded-2xl flex flex-col items-center gap-1 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+              <div className={`mt-4 w-full p-4 rounded-xl flex flex-col items-center gap-1 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
                 <div className={`text-sm font-semibold capitalize ${contact.callInfo.type === 'missed' ? 'text-red-500' : isDark ? 'text-white' : 'text-slate-800'}`}>
                   {t('contacts.callType', { type: contact.callInfo.type })}
                 </div>
@@ -245,7 +245,18 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </div>
             ) : (contact.online || contact.lastSeen !== undefined) && !ghostViewMode && (
               <div className={`text-xs mt-2 font-medium ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-                {contact.online ? t('contacts.activeNow') : t('contacts.lastSeenAgo', { time: contact.lastSeen && contact.lastSeen < 60000 ? t('contacts.activeNow') : contact.lastSeen && contact.lastSeen < 3600000 ? t('chat.minutesAgo', { count: Math.floor(contact.lastSeen / 60000) }) : contact.lastSeen && contact.lastSeen < 86400000 ? t('chat.hoursAgo', { count: Math.floor(contact.lastSeen / 3600000) }) : t('chat.daysAgo', { count: Math.floor((contact.lastSeen || 0) / 86400000) }) })}
+                {(() => {
+                  if (contact.online) return t('contacts.activeNow');
+                  if (!contact.lastSeen) return '—';
+                  const delta = Date.now() - contact.lastSeen;
+                  if (delta < 0 || isNaN(delta)) return '—';
+                  if (delta < 60000) return t('contacts.activeNow');
+                  if (delta < 3600000) return t('chat.minutesAgo', { count: Math.floor(delta / 60000) });
+                  if (delta < 86400000) return t('chat.hoursAgo', { count: Math.floor(delta / 3600000) });
+                  const days = Math.floor(delta / 86400000);
+                  if (days > 365) return t('chat.yearsAgo', { count: Math.floor(days / 365) });
+                  return t('chat.daysAgo', { count: days });
+                })()}
               </div>
             )}
 
@@ -305,7 +316,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                     initial={{ opacity: 0, scale: 0.92, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.92, y: 20 }}
-                    className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
+className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
                     onClick={(event) => event.stopPropagation()}
                   >
                     <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.safetyNumbersTitle')}</h3>

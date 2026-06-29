@@ -2,13 +2,10 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useAppStore } from '../store';
 import { useI18n, detectBrowserLanguage } from '../lib/i18n';
 import { toast } from 'sonner';
-import { ConfirmDialog } from './ui/ConfirmDialog';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow, ToggleSwitch } from './ui/SettingsRow';
 import { SubView } from './ui/SubView';
-import { BatteryStatus } from './ui/BatteryStatus';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { useDebounce } from '../hooks/useDebounce';
-import { exportBackup } from '../lib/backup';
+import { DEFAULTS, KEYS } from '../config/settingsDefaults';
 import { ChevronRight, Smartphone, Palette, Globe, Bell, BellOff, Shield, Lock, HardDrive, Bot, Network, ShieldAlert, Activity, ChevronLeft, UserPlus, Cloud, MapPin, RefreshCw, Key, Search, Building2, Mic, Radar } from 'lucide-react';
 import { CompanySettingsView } from './settings/CompanySettingsView';
 import { motion, AnimatePresence } from 'motion/react';
@@ -31,28 +28,32 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState<string>('main');
   
-  const [language, setLanguage] = useLocalStorage<string>("app_language", detectBrowserLanguage());
-  const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage("app_notifications", true);
+  const [language, setLanguage] = useLocalStorage<string>(KEYS.LANGUAGE, detectBrowserLanguage());
+  const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage(KEYS.NOTIFICATIONS, DEFAULTS.notifications);
   const soundEnabled = useAppStore(state => state.soundEnabled);
   const setSoundEnabled = useAppStore(state => state.setSoundEnabled);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useLocalStorage("app_2fa", false);
-  const [proxyEnabled, setProxyEnabled] = useLocalStorage("app_proxy", false);
-  const [spamFilterEnabled, setSpamFilterEnabled] = useLocalStorage("app_spam_filter", true);
-  const [showPwaBanner, setShowPwaBanner] = useLocalStorage("app_pwa_banner", true);
-  const [deadMansSwitch, setDeadMansSwitch] = useLocalStorage("app_dead_mans_switch", "6 months");
-  const [mediaAutoLoad, setMediaAutoLoad] = useLocalStorage("app_media_autoload", "Wi-Fi");
-  const [selfDestructDefault, setSelfDestructDefault] = useLocalStorage("app_self_destruct", "Off");
-  const [obfuscationMode, setObfuscationMode] = useLocalStorage("app_obfuscation", "Auto");
-  const [proxyUrl, setProxyUrl] = useLocalStorage("app_proxy_url", "");
-  const [torBridge, setTorBridge] = useLocalStorage("app_tor_bridge", "None");
-  const [visNumber, setVisNumber] = useLocalStorage("app_vis_number", "Nobody");
-  const [visActivity, setVisActivity] = useLocalStorage("app_vis_activity", "My contacts");
-  const [uiAnimations, setUiAnimations] = useLocalStorage("app_ui_animations", true);
-  const [fontSize, setFontSize] = useLocalStorage("app_font_size", "Medium");
-  const [dndEnabled, setDndEnabled] = useLocalStorage("app_dnd_enabled", false);
-  const [dndFrom, setDndFrom] = useLocalStorage("app_dnd_from", "22:00");
-  const [dndTo, setDndTo] = useLocalStorage("app_dnd_to", "08:00");
-  const [priorityContacts, setPriorityContacts] = useLocalStorage("app_priority_contacts", "Joker,Design Team");
+  const [twoFactorEnabled, setTwoFactorEnabled] = useLocalStorage(KEYS.TWO_FACTOR, DEFAULTS.twoFactor);
+  const [proxyEnabled, setProxyEnabled] = useLocalStorage(KEYS.PROXY, DEFAULTS.proxy);
+  const [spamFilterEnabled, setSpamFilterEnabled] = useLocalStorage(KEYS.SPAM_FILTER, DEFAULTS.spamFilter);
+  const [showPwaBanner, setShowPwaBanner] = useLocalStorage(KEYS.PWA_BANNER, DEFAULTS.pwaBanner);
+  const [deadMansSwitch, setDeadMansSwitch] = useLocalStorage(KEYS.DEAD_MANS_SWITCH, DEFAULTS.deadMansSwitch);
+  const [mediaAutoLoad, setMediaAutoLoad] = useLocalStorage(KEYS.MEDIA_AUTO_LOAD, DEFAULTS.mediaAutoLoad);
+  const [selfDestructDefault, setSelfDestructDefault] = useLocalStorage(KEYS.SELF_DESTRUCT, DEFAULTS.selfDestructDefault);
+  const [obfuscationMode, setObfuscationMode] = useLocalStorage(KEYS.OBFUSCATION_MODE, DEFAULTS.obfuscationMode);
+  const [obfuscationEnabled, setObfuscationEnabled] = useLocalStorage(KEYS.OBFUSCATION_ENABLED, DEFAULTS.obfuscationEnabled);
+  const [proxyUrl, setProxyUrl] = useLocalStorage(KEYS.PROXY_URL, DEFAULTS.proxyUrl);
+  const [torBridge, setTorBridge] = useLocalStorage(KEYS.TOR_BRIDGE, DEFAULTS.torBridge);
+  const [relayBackend, setRelayBackend] = useLocalStorage(KEYS.RELAY_BACKEND, DEFAULTS.relayBackend);
+  const [autoReconnectEnabled, setAutoReconnectEnabled] = useLocalStorage(KEYS.AUTO_RECONNECT, DEFAULTS.autoReconnect);
+  const [p2pMeshEnabled, setP2pMeshEnabled] = useLocalStorage(KEYS.P2P_MESH, DEFAULTS.p2pMesh);
+  const [visNumber, setVisNumber] = useLocalStorage(KEYS.VIS_NUMBER, DEFAULTS.visNumber);
+  const [visActivity, setVisActivity] = useLocalStorage(KEYS.VIS_ACTIVITY, DEFAULTS.visActivity);
+  const [uiAnimations, setUiAnimations] = useLocalStorage(KEYS.UI_ANIMATIONS, DEFAULTS.uiAnimations);
+  const [fontSize, setFontSize] = useLocalStorage(KEYS.FONT_SIZE, DEFAULTS.fontSize);
+  const [dndEnabled, setDndEnabled] = useLocalStorage(KEYS.DND_ENABLED, DEFAULTS.dndEnabled);
+  const [dndFrom, setDndFrom] = useLocalStorage(KEYS.DND_FROM, DEFAULTS.dndFrom);
+  const [dndTo, setDndTo] = useLocalStorage(KEYS.DND_TO, DEFAULTS.dndTo);
+  const [priorityContacts, setPriorityContacts] = useLocalStorage(KEYS.PRIORITY_CONTACTS, DEFAULTS.priorityContacts);
 
   const { 
     stealthMode, 
@@ -64,6 +65,9 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
     allowForwarding,
     allowMetadata,
     forwardCountLimit,
+    forwardAnonymization,
+    onlineStatus,
+    ghostViewMode,
     contactReadReceipts,
     devices,
     currentSession,
@@ -86,8 +90,6 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
     regionBlocked,
   } = useAppStore();
 
-  const [confirmAction, setConfirmAction] = useState<{ type: 'wipe' } | { type: 'removeDevice'; id: string; name: string } | null>(null);
-  
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [backupPassword, setBackupPassword] = useState("");
   
@@ -135,11 +137,6 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
       setRecoveryStatus('error');
       toast.error(t('settings.recoveryFailed'), { description: t('settings.recoveryError') });
     }
-  };
-
-  const handleWipeData = async () => {
-    await import('../lib/crypto/cryptoCore').then(m => m.cryptoCore.secureWipe());
-    setConfirmAction(null);
   };
 
   const renderMainSettings = () => (
@@ -321,7 +318,7 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('nav.recordings')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.botsSubtitle')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.recordingsSubtitle')}</div>
               </div>
               <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
             </button>
@@ -332,7 +329,7 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('nav.radar')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.botsSubtitle')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.radarSubtitle')}</div>
               </div>
               <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
             </button>
@@ -448,13 +445,14 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
       deliveryReceipts={deliveryReceipts}
       readReceipts={readReceipts}
       typingIndicators={typingIndicators}
-      ghostViewMode={useAppStore.getState().ghostViewMode}
-      forwardAnonymization={useAppStore.getState().forwardAnonymization}
-      onlineStatus={useAppStore.getState().onlineStatus}
-      allowForwarding={useAppStore.getState().allowForwarding}
+      ghostViewMode={ghostViewMode}
+      forwardAnonymization={forwardAnonymization}
+      onlineStatus={onlineStatus}
+      allowMetadata={allowMetadata}
+      allowForwarding={allowForwarding}
       setAllowForwarding={(v) => updateSettings({ allowForwarding: v })}
       setAllowMetadata={(v) => updateSettings({ allowMetadata: v })}
-      forwardCountLimit={useAppStore.getState().forwardCountLimit}
+      forwardCountLimit={forwardCountLimit}
       setForwardCountLimit={(v) => updateSettings({ forwardCountLimit: v })}
       onUpdateSettings={updateSettings}
       onBack={() => setActiveSection('main')}
@@ -471,11 +469,17 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
       setProxyUrl={setProxyUrl}
       obfuscationMode={obfuscationMode}
       setObfuscationMode={setObfuscationMode}
-      obfuscationEnabled={true}
-      setObfuscationEnabled={(v) => {}}
+      obfuscationEnabled={obfuscationEnabled}
+      setObfuscationEnabled={setObfuscationEnabled}
       torBridge={torBridge}
       setTorBridge={setTorBridge}
       turnServerUrl={turnServerUrl}
+      relayBackend={relayBackend}
+      setRelayBackend={setRelayBackend}
+      autoReconnectEnabled={autoReconnectEnabled}
+      setAutoReconnectEnabled={setAutoReconnectEnabled}
+      p2pMeshEnabled={p2pMeshEnabled}
+      setP2pMeshEnabled={setP2pMeshEnabled}
       onUpdateSettings={updateSettings}
       onBack={() => setActiveSection('main')}
       t={t}
@@ -533,7 +537,7 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
   const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('common.loading')}</div>;
 
   return (
-    <div className={`w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col rounded-[32px] p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
+    <div className={`w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 ${isDark ? "bg-[#11141c]/50 border border-white/5" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner"}`}>
       <AnimatePresence mode="wait">
         {activeSection === 'main' && renderMainSettings()}
         {activeSection === 'appearance' && renderAppearanceSettings()}
@@ -548,20 +552,6 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
         {activeSection === 'systemStatus' && <Suspense fallback={fallback}>{renderSystemStatusSettings()}</Suspense>}
         {activeSection === 'company' && <Suspense fallback={fallback}>{renderCompanySettings()}</Suspense>}
       </AnimatePresence>
-      
-      {confirmAction?.type === 'wipe' && (
-        <ConfirmDialog
-          isOpen={true}
-          title={t('settings.wipeAllData')}
-          message={t('settings.confirmWipe')}
-          confirmLabel={t('settings.wipeAllData')}
-          cancelLabel={t('common.delete')}
-          variant="danger"
-          theme={isDark ? 'dark' : 'light'}
-          onConfirm={handleWipeData}
-          onCancel={() => setConfirmAction(null)}
-        />
-      )}
     </div>
   );
 };

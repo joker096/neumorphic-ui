@@ -20,7 +20,7 @@ export const GroupCallParticipants: React.FC<GroupCallParticipantsProps> = ({
       {participants.map((participant) => (
         <div
           key={participant.peerId}
-          className="relative aspect-video bg-gray-800 rounded-2xl overflow-hidden"
+          className="relative aspect-video bg-gray-800 rounded-xl overflow-hidden"
         >
           {participant.stream ? (
             <video

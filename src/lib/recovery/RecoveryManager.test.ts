@@ -44,7 +44,7 @@ describe('RecoveryManager security', () => {
 
   it('should verify correct phrase with PBKDF2', async () => {
     const { RecoveryManager } = await import('./RecoveryManager')
-    const phrase = await RecoveryManager.generateRecoveryPhrase()
+    const { phrase } = await RecoveryManager.generateRecoveryPhrase()
     const result = await RecoveryManager.restoreFromPhrase(phrase)
     expect(result).toBe(true)
   })

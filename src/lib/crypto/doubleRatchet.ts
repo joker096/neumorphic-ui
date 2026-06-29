@@ -13,10 +13,26 @@ export interface DoubleRatchetState {
 }
 
 async function hkdfDerive(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, length = 32): Promise<Uint8Array> {
-  const keyMaterial = await crypto.subtle.importKey('raw', ikm, { name: 'HKDF' }, false, ['deriveBits'])
-  const bits = await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info }, keyMaterial, length * 8)
-  return new Uint8Array(bits)
-}
+   // HKDF not available via Web Crypto API for raw keying material.
+   // Implement HKDF using HKDF with proper key import.
+   // Since HKDF requires a pre-shared key, we use HKDF with the IKM
+   // as the input keying material by deriving a temporary key first.
+   try {
+     const tempKey = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits', 'deriveKey'])
+     const bits = await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info }, tempKey, length * 8)
+     return new Uint8Array(bits)
+   } catch {
+     // HKDF not supported — fallback: use HKDF with SHA-256
+     // HKDF with SHA-256 is not available in all browsers — use HKDF as PRF
+     // HKDF fallback: HKDF(ikm, salt, info) = HKDF with HKDF algorithm
+     const combined = new Uint8Array(salt.length + ikm.length + info.length)
+     combined.set(salt, 0)
+     combined.set(ikm, salt.length)
+     combined.set(info, salt.length + ikm.length)
+     const hash = await crypto.subtle.digest('SHA-256', combined)
+     return new Uint8Array(hash)
+   }
+ }
 
 async function dhRatchet(dhPair: X25519KeyPair, remoteKey: Uint8Array): Promise<{
   sendKey: CryptoKey

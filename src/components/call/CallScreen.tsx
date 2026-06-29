@@ -1,34 +1,38 @@
 import React from 'react';
-import { PhoneOff, MicOff, Video, VideoOff, Monitor, Square, X } from 'lucide-react';
-import { motion } from 'motion/react';
+ import { PhoneOff, MicOff, Video, VideoOff, Monitor, Square, X, Mic, Radio } from 'lucide-react';
+ import { motion } from 'motion/react';
 
-interface CallScreenProps {
-  call: {
-    id: string;
-    remotePeer: { displayName: string; stream?: MediaStream };
-    localStream: MediaStream | null;
-    screenStream: MediaStream | null;
-    isMuted: boolean;
-    isVideoEnabled: boolean;
-    isRecording: boolean;
-    callType: 'audio' | 'video' | 'screen';
-    status: string;
-  };
-  onEnd: () => void;
-  onToggleMute: () => void;
-  onToggleVideo: () => void;
-  onToggleScreen: () => void;
-  onToggleRecord: () => void;
-}
+ type CallType = 'audio' | 'video' | 'screen';
+
+ interface CallScreenProps {
+   call: {
+     id: string;
+     remotePeer: { displayName: string; stream?: MediaStream };
+     localStream: MediaStream | null;
+     screenStream: MediaStream | null;
+     isMuted: boolean;
+     isVideoEnabled: boolean;
+     isRecording: boolean;
+     callType: CallType;
+     status: string;
+   };
+   onEnd: () => void;
+   onToggleMute: () => void;
+   onToggleVideo: () => void;
+   onToggleScreen: () => void;
+   onToggleRecord: () => void;
+   onChangeCallType?: (newType: CallType) => void;
+ }
 
 export const CallScreen: React.FC<CallScreenProps> = ({
-  call,
-  onEnd,
-  onToggleMute,
-  onToggleVideo,
-  onToggleScreen,
-  onToggleRecord,
-}) => {
+   call,
+   onEnd,
+   onToggleMute,
+   onToggleVideo,
+   onToggleScreen,
+   onToggleRecord,
+   onChangeCallType,
+ }) => {
   const remoteVideoRef = React.useRef<HTMLVideoElement | null>(null);
   const localVideoRef = React.useRef<HTMLVideoElement | null>(null);
 
@@ -64,7 +68,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-gray-900 to-black">
             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-              <span className="text-4xl font-bold text-white">
+              <span className="text-5xl font-bold text-white tracking-tight">
                 {(call.remotePeer.displayName || 'U').charAt(0).toUpperCase()}
               </span>
             </div>
@@ -86,10 +90,10 @@ export const CallScreen: React.FC<CallScreenProps> = ({
         <div className="absolute top-0 left-0 right-0 p-6 bg-gradient-to-b from-black/60 to-transparent">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-white text-xl font-semibold">
-                {call.remotePeer.displayName || 'Unknown'}
-              </h2>
-              <p className="text-white/70 text-sm capitalize">{call.status}</p>
+        <h2 className="text-white text-xl font-semibold tracking-tight">
+            {call.remotePeer.displayName || 'Unknown'}
+          </h2>
+          <p className="text-white/90 text-sm font-semibold capitalize tracking-wide">{call.status}</p>
             </div>
             {call.isRecording && (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500/40">
@@ -104,7 +108,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
         </div>
       </div>
 
-      <div className="h-32 bg-black/90 flex items-center justify-center gap-6 px-6">
+      <div className="h-32 bg-black/90 flex items-center justify-center gap-5 px-6">
         <button
           onClick={onToggleMute}
           className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
@@ -149,6 +153,22 @@ export const CallScreen: React.FC<CallScreenProps> = ({
           }`}
         >
           <Square size={24} />
+        </button>
+
+        <button
+          onClick={() => onChangeCallType?.(call.callType === 'audio' ? 'video' : 'audio')}
+          className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
+            call.callType === 'audio'
+              ? 'bg-blue-500 text-white'
+              : 'bg-white/20 text-white hover:bg-white/30'
+          }`}
+          title={call.callType === 'audio' ? 'Switch to Video' : 'Switch to Audio'}
+        >
+          {call.callType === 'audio' ? (
+            <Radio size={22} className="opacity-50" />
+          ) : (
+            <Video size={24} className="opacity-50" />
+          )}
         </button>
 
         <button

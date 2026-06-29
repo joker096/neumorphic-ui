@@ -18,13 +18,17 @@ import {
   Volume1,
   Volume2,
   X,
+  Folder,
+  Trash2,
+  FolderOpen,
+  MoreVertical,
 } from "lucide-react";
 import { ContactProfileModal, type ContactProfile } from "./ContactProfileModal";
 import { useAppStore } from "../store";
 import { useI18n } from "../lib/i18n";
 import type { Contact } from "../types/contact";
 import { toast } from "sonner";
-import { MOCK_CALLS } from "./mockData";
+import { MOCK_CALLS } from "../constants";
 
 interface DialpadProps {
   theme: "light" | "dark";
@@ -73,7 +77,7 @@ export const LightPillButton = ({ title, subtitle, icon: Icon, badge }: any) => 
   return (
     <div
       onClick={() => setActive(!active)}
-      className={`w-[260px] h-[66px] rounded-[33px] pl-6 pr-5 py-3 flex items-center justify-between cursor-pointer transition-all duration-300 select-none group border ${
+      className={`w-[260px] h-[66px] rounded-xl pl-6 pr-5 py-3 flex items-center justify-between cursor-pointer transition-all duration-300 select-none group border ${
         active
           ? "bg-[#e2e8f0] shadow-[inset_4px_4px_8px_rgba(165,175,190,0.25),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border-black/5"
           : "bg-[#eaeff4] shadow-[-10px_-10px_22px_rgba(255,255,255,0.9),_14px_18px_32px_rgba(165,175,190,0.55),_inset_1.5px_1.5px_2.5px_rgba(255,255,255,1)] hover:scale-[1.03] active:scale-[0.97] border-white/80"
@@ -118,23 +122,23 @@ export const LightSearchBar = ({ searchQuery, onSearchChange, placeholder }: { s
   return (
     <div className="relative group w-full">
       <div
-        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-3 bg-orange-400 blur-[10px] rounded-full pointer-events-none transition-all duration-500 ${focused ? "w-[250px] opacity-100" : "w-[100px] opacity-0 group-hover:opacity-40"}`}
+        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-2 bg-orange-400 blur-[8px] rounded-full pointer-events-none transition-all duration-500 ${focused ? "w-[180px] opacity-100" : "w-[80px] opacity-0 group-hover:opacity-40"}`}
       />
       <div
-        className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 h-[2px] bg-white rounded-full blur-[1px] pointer-events-none transition-all duration-500 ${focused ? "w-[80px] opacity-100" : "w-[20px] opacity-0 group-hover:opacity-30"}`}
+        className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 h-[1px] bg-white rounded-full blur-[1px] pointer-events-none transition-all duration-500 ${focused ? "w-[60px] opacity-100" : "w-[16px] opacity-0 group-hover:opacity-30"}`}
       />
       <div
-        className={`absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-6 h-[4px] bg-white rounded-full blur-[4px] opacity-100 pointer-events-none transition-all duration-500 ${focused ? "opacity-100" : "opacity-0"}`}
+        className={`absolute -bottom-[4px] left-1/2 -translate-x-1/2 w-4 h-[2px] bg-white rounded-full blur-[3px] opacity-100 pointer-events-none transition-all duration-500 ${focused ? "opacity-100" : "opacity-0"}`}
       />
 
       <div
-        className={`relative w-full h-[64px] rounded-full px-8 py-0 flex items-center justify-between border transition-all duration-300 
+        className={`relative w-full h-[44px] rounded-full px-6 py-0 flex items-center justify-between border transition-all duration-300 
         ${
           pressed
-            ? "bg-[#e2e8f0] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border-black/5 scale-[0.98]"
+            ? "bg-[#e2e8f0] shadow-[inset_3px_3px_8px_rgba(165,175,190,0.4),_inset_-1px_-1px_4px_rgba(255,255,255,1)] border-black/5 scale-[0.98]"
             : focused
-              ? "bg-[#eaeff4] border-orange-300/60 scale-[1.02] shadow-[-6px_-6px_12px_rgba(255,255,255,1),_8px_10px_20px_rgba(165,175,190,0.4),_inset_3px_3px_6px_rgba(165,175,190,0.1)]"
-              : "bg-[#eaeff4] shadow-[-12px_-12px_24px_rgba(255,255,255,0.9),_16px_20px_35px_rgba(165,175,190,0.5),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border-white/80 hover:scale-[1.01]"
+              ? "bg-[#eaeff4] border-orange-300/60 scale-[1.01] shadow-[-4px_-4px_8px_rgba(255,255,255,1),_6px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(165,175,190,0.1)]"
+              : "bg-[#eaeff4] shadow-[-8px_-8px_16px_rgba(255,255,255,0.9),_12px_16px_28px_rgba(165,175,190,0.5),_inset_1px_1px_2px_rgba(255,255,255,1)] border-white/80 hover:scale-[1.005]"
         }`}
         onPointerDown={() => setPressed(true)}
         onPointerUp={() => setPressed(false)}
@@ -147,16 +151,10 @@ export const LightSearchBar = ({ searchQuery, onSearchChange, placeholder }: { s
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={placeholder || "Search chats or messages..."}
-          className="bg-transparent border-none outline-none w-full text-[15.5px] font-medium text-[#4b5563] placeholder:text-[#88909e] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"
+          className="bg-transparent border-none outline-none w-full text-[14px] font-medium text-[#4b5563] placeholder:text-[#88909e] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"
         />
-        <div
-          className={`ml-3 cursor-pointer w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${focused ? "bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 active:scale-90 active:bg-orange-500/30" : "text-[#5b6371] hover:bg-gray-200/50"}`}
-        >
-          <Search
-            size={22}
-            strokeWidth={1.75}
-            className={`drop-shadow-[0_1px_1px_rgba(255,255,255,1)]`}
-          />
+        <div className={`ml-3 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${focused ? "bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 active:scale-90" : "text-[#5b6371] hover:bg-gray-200/50"}`}>
+          <Search size={18} strokeWidth={1.75} className="drop-shadow-[0_1px_1px_rgba(255,255,255,1)]" />
         </div>
       </div>
     </div>
@@ -170,7 +168,7 @@ export const DarkPillButton = ({ title, subtitle, icon: Icon, badge }: any) => {
   return (
     <div
       onClick={() => setActive(!active)}
-      className={`relative group w-[260px] h-[66px] rounded-[33px] cursor-pointer transition-all duration-300 select-none ${!active && "hover:scale-[1.03] active:scale-[0.97]"} ${
+      className={`relative group w-[260px] h-[66px] cursor-pointer transition-all duration-300 select-none ${!active && "hover:scale-[1.03] active:scale-[0.97]"} ${
         active
           ? "shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] bg-[#101216] border border-orange-500/20"
           : "shadow-[0_22px_38px_rgba(0,0,0,0.5),_0_10px_16px_rgba(0,0,0,0.35),_inset_0_1.5px_2px_rgba(255,255,255,0.08),_inset_0_-2px_4px_rgba(0,0,0,0.8)] bg-[#13151b] border border-white/[0.04]"
@@ -185,7 +183,7 @@ export const DarkPillButton = ({ title, subtitle, icon: Icon, badge }: any) => {
         </>
       )}
 
-      <div className="w-full h-full rounded-[33px] pl-6 pr-5 py-3 flex items-center justify-between pointer-events-none overflow-hidden relative z-10 transition-colors">
+      <div className="w-full h-full pl-6 pr-5 py-3 flex items-center justify-between pointer-events-none overflow-hidden relative z-10 transition-colors">
         <div className="flex flex-col -space-y-[1px] mt-0.5 mt-1">
           <span
             className={`text-[14.5px] font-semibold tracking-wide truncate w-full transition-colors ${active ? "text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]" : "text-[#e8ecf2]"}`}
@@ -226,23 +224,23 @@ export const DarkSearchBar = ({ searchQuery, onSearchChange, placeholder }: { se
   return (
     <div className="relative group w-full">
       <div
-        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-3 bg-orange-500 blur-[10px] rounded-full pointer-events-none transition-all duration-500 ${focused ? "w-[250px] opacity-100" : "w-[100px] opacity-0 group-hover:opacity-40"}`}
+        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-2 bg-orange-500 blur-[8px] rounded-full pointer-events-none transition-all duration-500 ${focused ? "w-[180px] opacity-100" : "w-[80px] opacity-0 group-hover:opacity-40"}`}
       />
       <div
-        className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 h-[2px] bg-white rounded-full blur-[1px] pointer-events-none transition-all duration-500 ${focused ? "w-[80px] opacity-80" : "w-[20px] opacity-0 group-hover:opacity-30"}`}
+        className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 h-[1px] bg-white rounded-full blur-[1px] pointer-events-none transition-all duration-500 ${focused ? "w-[60px] opacity-80" : "w-[16px] opacity-0 group-hover:opacity-30"}`}
       />
       <div
-        className={`absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-6 h-[4px] bg-white rounded-full blur-[4px] opacity-100 pointer-events-none transition-all duration-500 ${focused ? "opacity-100" : "opacity-0"}`}
+        className={`absolute -bottom-[4px] left-1/2 -translate-x-1/2 w-4 h-[2px] bg-white rounded-full blur-[3px] opacity-100 pointer-events-none transition-all duration-500 ${focused ? "opacity-100" : "opacity-0"}`}
       />
 
       <div
-        className={`relative w-full h-[64px] rounded-full px-8 py-0 flex items-center justify-between border transition-all duration-300 
+        className={`relative w-full h-[44px] rounded-full px-6 py-0 flex items-center justify-between border transition-all duration-300 
         ${
           pressed
-            ? "bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border-orange-500/20 scale-[0.98]"
+            ? "bg-[#101216] shadow-[inset_0_8px_16px_rgba(0,0,0,0.9),_inset_0_2px_4px_rgba(0,0,0,0.9)] border-orange-500/20 scale-[0.98]"
             : focused
-              ? "bg-[#13151b] border-orange-500/40 scale-[1.02] shadow-[0_12px_24px_rgba(0,0,0,0.6),_inset_0_1.5px_2px_rgba(249,115,22,0.1),_inset_0_-2px_4px_rgba(0,0,0,0.9)]"
-              : "bg-[#13151b] shadow-[0_16px_28px_rgba(0,0,0,0.4),_0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.08),_inset_0_-2px_4px_rgba(0,0,0,0.8)] border-white/[0.04] hover:scale-[1.01]"
+              ? "bg-[#13151b] border-orange-500/40 scale-[1.01] shadow-[0_8px_16px_rgba(0,0,0,0.6),_inset_0_1px_1px_rgba(249,115,22,0.1),_inset_0_-1px_2px_rgba(0,0,0,0.9)]"
+              : "bg-[#13151b] shadow-[0_10px_18px_rgba(0,0,0,0.4),_0_4px_8px_rgba(0,0,0,0.3),_inset_0_1px_1px_rgba(255,255,255,0.08),_inset_0_-1px_2px_rgba(0,0,0,0.8)] border-white/[0.04] hover:scale-[1.005]"
         }`}
         onPointerDown={() => setPressed(true)}
         onPointerUp={() => setPressed(false)}
@@ -255,12 +253,10 @@ export const DarkSearchBar = ({ searchQuery, onSearchChange, placeholder }: { se
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={placeholder || "Search messages, people..."}
-          className="bg-transparent border-none outline-none w-full text-[15.5px] font-medium text-[#e8ecf2] placeholder:text-[#7a8190]"
+          className="bg-transparent border-none outline-none w-full text-[14px] font-medium text-[#e8ecf2] placeholder:text-[#7a8190]"
         />
-        <div
-          className={`ml-3 cursor-pointer w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${focused ? "bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 active:scale-90 active:bg-orange-500/30" : "text-[#a0a5b1] hover:bg-white/5"}`}
-        >
-          <Search size={22} strokeWidth={1.5} />
+        <div className={`ml-3 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${focused ? "bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 active:scale-90" : "text-[#a0a5b1] hover:bg-white/5"}`}>
+          <Search size={18} strokeWidth={1.5} />
         </div>
       </div>
     </div>
@@ -496,8 +492,11 @@ export const Dialpad = ({
   const [callFilter, setCallFilter] = useState<
     "all" | "incoming" | "outgoing" | "missed"
   >("all");
-  
-  const { activeCall, setActiveCall, setContacts } = useAppStore();
+  const [activeFolder, setActiveFolder] = useState<string>('all');
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+
+  const { activeCall, setActiveCall, setContacts, callFolders, addCallFolder, removeCallFolder } = useAppStore();
   const isCalling = !!activeCall;
   const isVideoCall = activeCall?.isVideo || false;
   const isMuted = activeCall?.isMuted || false;
@@ -573,9 +572,31 @@ export const Dialpad = ({
     (call) => callFilter === "all" || call.type === callFilter,
   );
 
+  const folderCalls = activeFolder === 'all'
+    ? filteredCalls
+    : activeFolder === 'missed'
+      ? MOCK_CALLS.filter((call) => call.type === 'missed')
+      : activeFolder === 'incoming'
+        ? MOCK_CALLS.filter((call) => call.type === 'incoming')
+        : activeFolder === 'outgoing'
+          ? MOCK_CALLS.filter((call) => call.type === 'outgoing')
+          : filteredCalls;
+
+  const createFolder = () => {
+    if (!newFolderName.trim()) return;
+    addCallFolder({ name: newFolderName.trim() });
+    setNewFolderName('');
+    setShowCreateFolder(false);
+  };
+
+  const deleteFolder = (id: string) => {
+    removeCallFolder(id);
+    if (activeFolder === id) setActiveFolder('all');
+  };
+
   return (
     <div
-      className={`p-8 rounded-[48px] flex flex-col items-center shadow-2xl relative overflow-hidden flex-1 min-h-0 w-full ${
+      className={`p-8 flex flex-col items-center shadow-2xl relative overflow-hidden h-[70vh] min-h-[540px] max-h-[720px] w-full ${
         isDark
           ? "bg-[#1a1d24] border border-white/10"
           : "bg-[#eaeff4] border border-white/60"
@@ -664,7 +685,7 @@ export const Dialpad = ({
         </div>
       ) : (
         <>
-          <div className="relative w-full h-10 mb-4 flex items-center justify-center z-10 transition-colors">
+          <div className="relative w-full h-12 mb-6 flex items-center justify-center z-10 transition-colors">
             <Search
               size={18}
               className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDark ? "text-gray-500" : "text-slate-400"}`}
@@ -690,8 +711,8 @@ export const Dialpad = ({
           </div>
 
           {number.length === 0 ? (
-            <div className="w-full relative z-10 flex-1 min-h-0 flex flex-col">
-              <div className="flex items-center justify-between px-2 mb-4 shrink-0">
+            <div className="w-full relative z-10 h-[480px] flex flex-col">
+              <div className="flex items-center justify-between px-2 mb-4">
                 <div
                   className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-gray-500" : "text-slate-400"}`}
                 >
@@ -706,9 +727,9 @@ export const Dialpad = ({
                   ].map((tab) => (
                     <div
                       key={tab.id}
-                      onClick={() => setCallFilter(tab.id as any)}
+                      onClick={() => { setCallFilter(tab.id as any); setActiveFolder('all'); }}
                       className={`text-[10px] font-bold uppercase cursor-pointer transition-colors px-2 py-1 rounded-md shrink-0 ${
-                        callFilter === tab.id
+                        callFilter === tab.id && activeFolder === 'all'
                           ? isDark
                             ? "bg-white/10 text-white"
                             : "bg-black/10 text-slate-800"
@@ -722,10 +743,61 @@ export const Dialpad = ({
                   ))}
                 </div>
               </div>
+
+              {/* Folder tabs */}
+              <div className={`flex gap-2 overflow-x-auto scrollbar-none pb-1 shrink-0 ${number.length === 0 ? '' : 'hidden'}`}>
+                <div
+                  onClick={() => setActiveFolder('all')}
+                  className={`text-[10px] font-bold uppercase cursor-pointer transition-colors px-2 py-1 rounded-md shrink-0 whitespace-nowrap ${
+                    activeFolder === 'all'
+                      ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600")
+                      : (isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-400 hover:text-slate-600")
+                  }`}
+                >
+                  {t('chat.all')}
+                </div>
+                <div
+                  onClick={() => setActiveFolder('missed')}
+                  className={`text-[10px] font-bold uppercase cursor-pointer transition-colors px-2 py-1 rounded-md shrink-0 whitespace-nowrap ${
+                    activeFolder === 'missed'
+                      ? (isDark ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-600")
+                      : (isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-400 hover:text-slate-600")
+                  }`}
+                >
+                  {t('chat.missed')}
+                </div>
+                {callFolders.map(folder => (
+                  <div
+                    key={folder.id}
+                    onClick={() => setActiveFolder(folder.id)}
+                    className={`text-[10px] font-bold uppercase cursor-pointer transition-colors px-2 py-1 rounded-md shrink-0 whitespace-nowrap flex items-center gap-1 group`}
+                  >
+                    <span className={activeFolder === folder.id ? (isDark ? "text-orange-400" : "text-orange-600") : ""}>{folder.name}</span>
+                    <div
+                      onClick={(e) => { e.stopPropagation(); deleteFolder(folder.id); }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity w-3 h-3 cursor-pointer"
+                    >
+                      <X size={10} />
+                    </div>
+                  </div>
+                ))}
+                <div
+                  onClick={() => setShowCreateFolder(true)}
+                  className={`text-[10px] font-bold uppercase cursor-pointer transition-colors px-2 py-1 rounded-md shrink-0 whitespace-nowrap flex items-center gap-1 ${isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-400 hover:text-slate-600"}`}
+                >
+                  <Plus size={10} />
+                  {t('chat.newFolder')}
+                </div>
+              </div>
               <div
                 className={`flex flex-col gap-1.5 flex-1 overflow-y-auto ${isDark ? "scrollbar-dark" : "scrollbar-light"}`}
               >
-                {filteredCalls.map((call) => (
+                {folderCalls.length === 0 ? (
+                  <div className={`text-center py-8 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+                    <p className="text-sm">{t('chat.noCalls')}</p>
+                  </div>
+                ) : (
+                  folderCalls.map((call) => (
                   <div
                     key={call.id}
                     onClick={() => {
@@ -782,21 +854,22 @@ export const Dialpad = ({
                     {(call.name.startsWith("+") || call.name === "Unknown") && (
                        <div 
                           className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity active:scale-95 ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-700"}`}
-                          onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingContact({ name: call.name, id: call.name.replace(/[^0-9]/g, ''), color: 'from-gray-400 to-gray-500', lastSeen: Date.now() } as any);
-                           }}
+                         onClick={(e) => {
+                             e.stopPropagation();
+                              toast.info(t('toast.contact'), { description: t('chat.creatingContact', { name: call.name }) });
+                          }}
                          title={t('contacts.addContact')}
                        >
                           <UserPlus size={14} />
                        </div>
                     )}
                   </div>
-                ))}
+                ))
+                )}
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-x-6 gap-y-5 relative z-10 w-full justify-items-center flex-1 min-h-0 content-center">
+            <div className="grid grid-cols-3 gap-x-6 gap-y-5 relative z-10 w-full justify-items-center h-[360px]">
               {keys.map((k) => (
                 <div
                   key={k.num}
@@ -922,12 +995,12 @@ export const Dialpad = ({
           <motion.div 
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className={`w-full max-w-[340px] rounded-[32px] p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
-          >
-            <div 
-              className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
-              onClick={() => setShowContactPicker(false)}
+          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+             className={`w-full max-w-[340px] rounded-xl p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
+           >
+             <div 
+               className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+               onClick={() => setShowContactPicker(false)}
             >
               <X size={18} />
             </div>
@@ -948,7 +1021,7 @@ export const Dialpad = ({
                     setNumber(c.name);
                     setShowContactPicker(false);
                   }}
-                  className={`flex items-center gap-4 p-3 rounded-2xl cursor-pointer transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+                  className={`flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
                 >
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br ${c.color} text-white font-bold text-lg shadow-md shrink-0`}>
                     {c.name.charAt(0)}
@@ -966,6 +1039,77 @@ export const Dialpad = ({
                 </div>
               )}
             </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Create Folder Modal */}
+      {showCreateFolder && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+           exit={{ scale: 0.95, opacity: 0, y: 20 }}
+             className={`w-full max-w-[340px] rounded-xl p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
+           >
+             <div className="flex flex-col items-center mb-6">
+               <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}>
+                 <Folder size={32} />
+              </div>
+              <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{t('chat.createFolder')}</h3>
+              <p className={`text-xs text-center mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.folderNameHint')}</p>
+            </div>
+
+            <input
+              type="text"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && createFolder()}
+              placeholder={t('chat.folderPlaceholder')}
+              className={`w-full px-4 py-3 rounded-xl border outline-none text-center text-lg ${isDark ? "bg-[#13151b] border-white/10 text-white placeholder:text-gray-500 focus:border-orange-500/50" : "bg-[#f4f7f9] border-black/10 text-slate-800 placeholder:text-slate-400 focus:border-orange-500/50"}`}
+              autoFocus
+            />
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => { setShowCreateFolder(false); setNewFolderName(''); }}
+                className={`flex-1 py-3 rounded-xl font-bold transition-colors ${isDark ? "bg-[#13151b] text-gray-300 hover:bg-white/10" : "bg-white text-slate-600 hover:bg-black/5 border border-black/5"}`}
+              >
+                {t('chat.cancel')}
+              </button>
+              <button
+                onClick={createFolder}
+                className={`flex-1 py-3 rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-95 ${isDark ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg" : "bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-lg"}`}
+              >
+                {t('chat.create')}
+              </button>
+            </div>
+
+            {/* Existing custom folders */}
+            {callFolders.length > 0 && (
+              <div className="mt-6">
+                <div className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-3 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.yourFolders')}</div>
+                <div className="flex flex-col gap-2">
+                  {callFolders.map(folder => (
+                    <div key={folder.id} className={`flex items-center gap-3 p-2.5 rounded-xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                      <Folder size={14} className={isDark ? "text-gray-400" : "text-slate-500"} />
+                      <span className={`flex-1 text-sm font-medium ${isDark ? "text-gray-200" : "text-slate-700"}`}>{folder.name}</span>
+                      <button
+                        onClick={() => deleteFolder(folder.id)}
+                        className={`w-6 h-6 rounded-full flex items-center justify-center ${isDark ? "text-red-400 hover:bg-white/10" : "text-red-500 hover:bg-black/5"}`}
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

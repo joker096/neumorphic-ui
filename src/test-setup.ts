@@ -1,5 +1,10 @@
 if (typeof HTMLCanvasElement !== 'undefined') {
-  HTMLCanvasElement.prototype.getContext = (() => {
+  (HTMLCanvasElement.prototype as any).getContext = function(this: HTMLCanvasElement, contextId: string, ...args: any[]): any {
+    if (contextId !== '2d') {
+      return (function originalGetContext(this: HTMLCanvasElement, id: string, ...rest: any[]) {
+        return originalGetContext.call(this, id, ...rest);
+      }).apply(this, [contextId, ...args]);
+    }
     return {
       fillRect: () => {},
       clearRect: () => {},
@@ -32,6 +37,7 @@ if (typeof HTMLCanvasElement !== 'undefined') {
       rect: () => {},
       clip: () => {},
       canvas: { width: 0, height: 0 },
-    } as unknown as CanvasRenderingContext2D;
-  }) as typeof HTMLCanvasElement.prototype.getContext;
+      transferFromImageBitmap: () => {},
+    };
+  };
 }

@@ -1,220 +1,98 @@
-import { toast } from 'sonner';
-import { useAppStore } from '../../store';
-import { STORAGE_KEYS } from '../../constants/storage';
+import {
+  deriveBackupEncryptionKey,
+  deriveBackupHmacKey,
+  encryptBackupPayload,
+  decryptBackupPayload,
+  computeHmac,
+  verifyHmac,
+  SALT_LENGTH,
+  IV_LENGTH,
+} from './backupCrypto'
+import { encodeMabak, decodeMabak } from './backupFormat'
+import { getMasterKeySet } from '../identity/masterKey'
+import type { MasterKeySet } from '../identity/masterKey'
+import { deviceSecurity } from '../deviceSecurity'
+import { deriveKeysFromSeed } from '../identity/masterKey'
 
-export async function exportBackup(
-  encrypted: boolean,
-  showPasswordInput: boolean,
-  backupPassword: string,
-  chats: unknown[],
-  channels: unknown[],
-  bots: unknown[],
-  archivedChats: unknown[],
-  theme: 'light' | 'dark',
-  language: string,
-  notificationsEnabled: boolean,
-  soundEnabled: boolean,
-  twoFactorEnabled: boolean,
-  proxyEnabled: boolean,
-  spamFilterEnabled: boolean,
-  showPwaBanner: boolean,
-  deadMansSwitch: string,
-  mediaAutoLoad: string,
-  selfDestructDefault: string,
-  obfuscationMode: string,
-  visNumber: string,
-  visActivity: string,
-  uiAnimations: boolean,
-  fontSize: string,
-  dndEnabled: boolean,
-  dndFrom: string,
-  dndTo: string,
-  priorityContacts: string,
-  t: (key: string) => string
-) {
-  if (encrypted) {
-    const password = backupPassword || window.prompt("Enter backup password:");
-    if (!password) {
-      toast.error(t('toast.encryptionFailed'), { description: t('toast.noPasswordProvided') });
-      return;
-    }
-    
-    const salt = window.crypto.getRandomValues(new Uint8Array(32));
-    const iv = window.crypto.getRandomValues(new Uint8Array(16));
-    
-    const backupData = {
-      version: 2,
-      exportedAt: Date.now(),
-      encrypted: true,
-      chats,
-      channels,
-      bots,
-      archivedChats,
-      drafts: localStorage.getItem("mess_drafts") ? JSON.parse(localStorage.getItem("mess_drafts") as string) : {},
-      savedMessages: localStorage.getItem("mess_saved_messages") ? JSON.parse(localStorage.getItem("mess_saved_messages") as string) : [],
-      settings: {
-        theme,
-        language,
-        notificationsEnabled,
-        soundEnabled,
-        twoFactorEnabled,
-        proxyEnabled,
-        spamFilterEnabled,
-        showPwaBanner,
-        deadMansSwitch,
-        mediaAutoLoad,
-        selfDestructDefault,
-        obfuscationMode,
-        visNumber,
-        visActivity,
-        uiAnimations,
-        fontSize
-      },
-      privacyTools: {
-        dndEnabled,
-        dndFrom,
-        dndTo,
-        priorityContacts
-      }
-    };
-    
-    const dataStr = JSON.stringify(backupData);
-    const encoded = new TextEncoder().encode(dataStr);
-    
-    try {
-      const keyMaterial = await window.crypto.subtle.importKey("raw", new TextEncoder().encode(password), { name: "PBKDF2" }, false, ["deriveKey"]);
-      const key = await window.crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
-      const ciphertext = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
-      
-      const encryptedData = {
-        version: 2,
-        exportedAt: Date.now(),
-        encrypted: true,
-        salt: Array.from(salt).map(b => b.toString(16).padStart(2, "0")).join(""),
-        iv: Array.from(iv).map(b => b.toString(16).padStart(2, "0")).join(""),
-        ciphertext: Array.from(new Uint8Array(ciphertext)).map(b => b.toString(16).padStart(2, "0")).join(""),
-        data: null
-      };
-      
-      downloadJson(encryptedData, `mess-anger-backup-encrypted-${new Date().toISOString().slice(0, 10)}.json`);
-      toast.success(t('toast.encryptedBackupCreated'), { description: t('toast.backupEncryptedWithPassword') });
-    } catch {
-      toast.error(t('toast.encryptionError'), { description: t('toast.couldNotEncryptBackup') });
-    }
-    return;
-  }
-  
-  const backupData = {
+export interface BackupOptions {
+  password: string
+  totpCode?: string
+}
+
+export interface BackupPayload {
+  version: number
+  createdAt: string
+  masterSeed: string
+  x25519Secret: string
+  x25519Public: string
+  ed25519Secret: string
+  ed25519Public: string
+  store: Record<string, unknown>
+}
+
+export async function exportBackup(storeState: Record<string, unknown>, options: BackupOptions): Promise<Blob> {
+  const masterSet = await getMasterKeySet()
+
+  const payload: BackupPayload = {
     version: 1,
-    exportedAt: Date.now(),
-    encrypted: false,
-    chats,
-    channels,
-    bots,
-    archivedChats,
-    drafts: localStorage.getItem("mess_drafts") ? JSON.parse(localStorage.getItem("mess_drafts") as string) : {},
-    savedMessages: localStorage.getItem("mess_saved_messages") ? JSON.parse(localStorage.getItem("mess_saved_messages") as string) : [],
-    settings: {
-      theme,
-      language,
-      notificationsEnabled,
-      soundEnabled,
-      twoFactorEnabled,
-      proxyEnabled,
-      spamFilterEnabled,
-      showPwaBanner,
-      deadMansSwitch,
-      mediaAutoLoad,
-      selfDestructDefault,
-      obfuscationMode,
-      visNumber,
-      visActivity,
-      uiAnimations,
-      fontSize
-    },
-    privacyTools: {
-      dndEnabled,
-      dndFrom,
-      dndTo,
-      priorityContacts
-    }
-  };
-
-  downloadJson(backupData, `mess-anger-backup-${new Date().toISOString().slice(0, 10)}.json`);
-  toast.success(t('toast.backupCreated'), { description: t('toast.backupReady') });
-}
-
-export async function exportBackupFromStore(t: (key: string) => string, html = false) {
-  const s = useAppStore.getState()
-  const draftsRaw = localStorage.getItem(STORAGE_KEYS.DRAFTS)
-  const savedRaw = localStorage.getItem(STORAGE_KEYS.SAVED_MESSAGES)
-
-  const savedTheme = localStorage.getItem('app_theme') as 'light' | 'dark' || 'dark';
-  if (html) {
-    return exportBackupHtml(
-      s.chats, s.channels, s.bots, s.archivedChats,
-      savedTheme, s.currentLanguage,
-      true, false, ''
-    )
+    createdAt: new Date().toISOString(),
+    masterSeed: buf2hex(masterSet.seed),
+    x25519Secret: buf2hex(masterSet.x25519Secret),
+    x25519Public: buf2hex(masterSet.x25519Public),
+    ed25519Secret: buf2hex(masterSet.ed25519Secret),
+    ed25519Public: buf2hex(masterSet.ed25519Public),
+    store: storeState,
   }
 
-  return exportBackup(
-    false, false, '',
-    s.chats, s.channels, s.bots, s.archivedChats,
-    savedTheme, s.currentLanguage,
-    true, true, false, false, false, false, '',
-    '', '', '', '', '', false,
-    true, 'Medium', '00:00', '00:00', '',
-    t
-  )
+  const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH))
+  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH))
+
+  const encKey = await deriveBackupEncryptionKey({ salt, iv, password: options.password, totpCode: options.totpCode })
+  const plaintext = new TextEncoder().encode(JSON.stringify(payload))
+  const encrypted = await encryptBackupPayload(plaintext, encKey, iv)
+
+  const hmacKey = await deriveBackupHmacKey(options.password, salt, options.totpCode)
+  const hmac = await computeHmac(encrypted, hmacKey)
+
+  const binary = encodeMabak(encrypted, salt, iv, hmac)
+  return new Blob([binary], { type: 'application/octet-stream' })
 }
 
-function downloadJson(data: unknown, filename: string) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+export async function importBackup(blob: Blob, options: BackupOptions): Promise<BackupPayload> {
+  const data = new Uint8Array(await blob.arrayBuffer())
+  const file = decodeMabak(data)
+
+  const hmacKey = await deriveBackupHmacKey(options.password, file.header.salt, file.header.hasTotp ? options.totpCode : undefined)
+  const valid = await verifyHmac(file.payload, file.hmac, hmacKey)
+  if (!valid) throw new Error('Backup integrity check failed — wrong password or corrupted file')
+
+  const encKey = await deriveBackupEncryptionKey({
+    salt: file.header.salt,
+    iv: file.header.iv,
+    password: options.password,
+    totpCode: file.header.hasTotp ? options.totpCode : undefined,
+  })
+  const decrypted = await decryptBackupPayload(file.payload, encKey, file.header.iv)
+  const payload: BackupPayload = JSON.parse(new TextDecoder().decode(decrypted))
+
+  const seed = hex2buf(payload.masterSeed)
+  const masterKeySet = await deriveKeysFromSeed(seed)
+  await deviceSecurity.storeMasterKeyHex(masterKeySet.aesKeyHex)
+
+  return payload
 }
 
-export function exportBackupHtml(
-  chats: unknown[],
-  channels: unknown[],
-  bots: unknown[],
-  archivedChats: unknown[],
-  theme: 'light' | 'dark',
-  language: string,
-  notificationsEnabled: boolean,
-  dndEnabled: boolean,
-  priorityContacts: string
-) {
-  const rows = (label: string, value: unknown) => 
-    `<tr><td style="padding:8px 12px;border-bottom:1px solid #ddd;font-weight:600;">${label}</td><td style="padding:8px 12px;border-bottom:1px solid #ddd;">${typeof value === 'string' ? value : JSON.stringify(value)}</td></tr>`;
-  
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Mess&Anger Backup</title></head><body style="font-family:Arial,sans-serif;padding:24px;background:#f6f7fb;color:#111;">
-    <h1>Mess&Anger Backup</h1>
-    <p>Exported at ${new Date().toISOString()}</p>
-    <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #ddd;">
-      ${rows("Chats", chats.length)}
-      ${rows("Channels", channels.length)}
-      ${rows("Bots", bots.length)}
-      ${rows("Archived chats", archivedChats.length)}
-      ${rows("Saved messages", localStorage.getItem("mess_saved_messages") ? JSON.parse(localStorage.getItem("mess_saved_messages") as string).length : 0)}
-      ${rows("Theme", theme)}
-      ${rows("Language", language)}
-      ${rows("Notifications", notificationsEnabled)}
-      ${rows("DND", dndEnabled)}
-      ${rows("Priority contacts", priorityContacts)}
-    </table>
-  </body></html>`;
-  
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `mess-anger-backup-${new Date().toISOString().slice(0, 10)}.html`;
-  a.click();
-  URL.revokeObjectURL(url);
+// Legacy exports
+export { encryptBackupData, decryptBackupData } from './cloudBackup'
+
+function buf2hex(buf: Uint8Array): string {
+  return Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+function hex2buf(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(hex.substr(i * 2, 2), 16)
+  }
+  return bytes
 }

@@ -1,5 +1,6 @@
 export type FieldType = 'phone' | 'email' | 'telegram' | 'whatsapp' | 'signal' | 'custom';
 export type PhoneSubtype = 'mobile' | 'work' | 'home' | 'main';
+export type ContactTag = 'client' | 'lead' | 'partner' | 'vendor' | 'internal' | 'vip';
 
 export interface ContactField {
   id: string;
@@ -18,6 +19,14 @@ export interface Contact {
   isBlocked?: boolean;
   localFields?: ContactField[];
   telegram?: string;
+  whatsapp?: string;
+  signal?: string;
+  email?: string;
+  company?: string;
+  position?: string;
+  tags?: ContactTag[];
+  lastInteraction?: number;
+  notes?: string;
   profileShare?: {
     state?: string;
     updatedAt?: number;

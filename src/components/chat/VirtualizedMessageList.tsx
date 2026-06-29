@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useCallback, useEffect, useImperativeHandle } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface VirtualizedMessageListProps<T> {
@@ -90,6 +90,6 @@ export function VirtualizedMessageListInner<T>(
   );
 }
 
-export const VirtualizedMessageList = forwardRef(VirtualizedMessageListInner) as <T>(
+export const VirtualizedMessageList = React.forwardRef(VirtualizedMessageListInner) as <T>(
   props: VirtualizedMessageListProps<T> & { ref?: React.Ref<{ scrollToBottom: () => void }> }
 ) => React.ReactElement;

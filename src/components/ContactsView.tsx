@@ -1,13 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useI18n } from '../lib/i18n';
 import { toast } from 'sonner';
-import { QrCode, Scan, Users, UserPlus, X, ArrowDownAZ, Clock, Check, Copy, Share, Phone, MessageSquare, Trash2, Edit, Loader2, Search, Star, StarOff } from 'lucide-react';
+import { QrCode, Scan, Users, UserPlus, X, ArrowDownAZ, Clock, Check, Copy, Share, Phone, MessageSquare, Trash2, Edit, Loader2, Search, Star, StarOff, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { ContactProfileModal, ContactProfile } from './ContactProfileModal';
 import { useDebounce } from '../hooks/useDebounce';
 import { ContactCreateEditModal } from './ContactCreateEditModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
+import { ContactItem } from './contacts/ContactItem';
 import type { Contact, ContactField } from '../types/contact';
 
 type TabOption = 'all' | 'favorites' | 'recent' | 'blocked';
@@ -27,7 +28,7 @@ const itemVariants: any = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
-export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall, onMessage, onEdit }: { 
+export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall, onMessage, onEdit }: {
   theme: 'light' | 'dark', 
   contacts: Contact[],
   setContacts: (updater: Contact[] | ((prev: Contact[]) => Contact[])) => void,
@@ -117,7 +118,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
   ];
 
   return (
-    <div data-testid="contacts-container" className={`w-full max-w-[400px] flex-1 flex flex-col items-center rounded-[32px] p-6 mb-8 overflow-y-auto ${isDark ? "bg-[#11141c]/50 border border-white/5 scrollbar-dark" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner scrollbar-light"}`}>
+    <div data-testid="contacts-container" className={`w-full max-w-[500px] md:max-w-[600px] flex-1 flex flex-col items-center p-4 md:p-5 mb-8 pb-[calc(56px+env(safe-area-inset-bottom,0px))] sm:pb-8 overflow-y-auto ${isDark ? "bg-[#11141c]/50 border border-white/5" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner"}`}>
       
       <div className="w-full flex items-center justify-between mb-4 px-2">
         <h2 className={`font-sans text-2xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
@@ -171,7 +172,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
       </div>
 
       <div className="w-full px-2">
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
@@ -185,38 +186,17 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
               </div>
             )}
             {sortedContacts.map((c, i) => (
-              <motion.div 
-                key={c.id} 
-                layout
+              <ContactItem
+                key={c.id}
+                contact={c}
+                theme={theme}
+                isDark={isDark}
+                onCall={onCall}
+                onVideoCall={onVideoCall}
+                onToggleFavorite={toggleFavorite}
                 onClick={() => setSelectedContact(c)}
-                variants={itemVariants} 
-                initial="hidden"
-                animate="show"
-                exit="hidden"
-                className={`flex items-center gap-4 p-3 rounded-2xl cursor-pointer transition-all active:scale-95 ${isDark ? "hover:bg-[#1a1d24]" : "hover:bg-white shadow-sm"}`}
-              >
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br ${c.color} text-white font-bold text-lg shadow-md shrink-0`}>
-                  {c.name.charAt(0)}
-                </div>
-                <div className="flex-1 flex flex-col min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className={`font-bold truncate ${isDark ? "text-gray-100" : "text-slate-800"}`}>{c.name}</span>
-                    {c.isFavorite && <Star size={12} className="text-yellow-400 shrink-0" />}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`font-mono text-[9px] tracking-wider truncate ${isDark ? "text-gray-500" : "text-slate-400"}`}>{c.id}</span>
-                    <span className={`text-[9px] font-bold shrink-0 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
-                      &bull; {(() => { const delta = Date.now() - c.lastSeen; return delta < 3600000 ? t('chat.minutesAgo', { count: Math.floor(delta / 60000) || 1 }) : delta < 86400000 ? t('chat.hoursAgo', { count: Math.floor(delta / 3600000) }) : t('chat.daysAgo', { count: Math.floor(delta / 86400000) }); })()}
-                    </span>
-                  </div>
-                </div>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); toggleFavorite(c.id, c.isFavorite); }}
-                  className={`shrink-0 transition-transform active:scale-90 ${c.isFavorite ? (isDark ? 'text-yellow-400' : 'text-yellow-500') : (isDark ? 'text-gray-600' : 'text-slate-300')}`}
-                >
-                  {c.isFavorite ? <Star size={16} fill="currentColor" /> : <StarOff size={16} />}
-                </button>
-              </motion.div>
+                t={t}
+              />
             ))}
           </AnimatePresence>
         </motion.div>
@@ -288,7 +268,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className={`w-full max-w-[340px] rounded-[32px] p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
+              className={`w-full max-w-[340px] p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
             >
               <div 
                 className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
@@ -355,7 +335,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
               {isScanning && (
                 <div className="flex flex-col items-center mt-4">
                   <h3 className={`text-xl font-bold mb-6 ${isDark ? "text-white" : "text-slate-800"}`}>{t('contacts.scanContactQR')}</h3>
-                  <div className={`w-full aspect-square rounded-[32px] overflow-hidden relative shadow-inner ${isDark ? "bg-black" : "bg-gray-100"}`}>
+                  <div className={`w-full aspect-square overflow-hidden relative shadow-inner ${isDark ? "bg-black" : "bg-gray-100"}`}>
                     <Scanner 
                       onScan={(result) => {
                         if (result && result.length > 0) {
@@ -366,7 +346,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
                       }}
                       styles={{ container: { width: '100%', height: '100%' } }}
                     />
-                    <div className="absolute inset-0 border-4 border-orange-500/50 rounded-[32px] pointer-events-none mix-blend-overlay"></div>
+                    <div className="absolute inset-0 border-4 border-orange-500/50 pointer-events-none mix-blend-overlay"></div>
                   </div>
                   <p className={`text-xs text-center mt-6 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('contacts.scanDescription')}</p>
                 </div>
@@ -377,7 +357,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
                   <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-800"}`}>{t('contacts.shareIdentity')}</h3>
                   <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('contacts.shareDescription')}</p>
                   
-                  <div className={`w-[220px] h-[220px] rounded-[32px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
+                  <div className={`w-[220px] h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
                       <QrCode size="100%" strokeWidth={1} className="text-black" />
                   </div>
                   

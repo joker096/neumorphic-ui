@@ -42,7 +42,7 @@ export const FloatingCallWidget = ({ theme }: { theme: 'dark' | 'light' }) => {
         exit={{ opacity: 0, y: 50, scale: 0.9 }}
         drag
         dragMomentum={false}
-        className={`fixed bottom-6 right-6 z-[100] p-4 rounded-[28px] shadow-2xl flex items-center gap-4 cursor-grab active:cursor-grabbing border ${
+        className={`fixed bottom-6 right-6 z-[100] p-4 shadow-2xl flex items-center gap-4 cursor-grab active:cursor-grabbing border ${
           isDark 
             ? "bg-[#1a1d24]/90 backdrop-blur-xl border-white/10 shadow-[0_16px_32px_rgba(0,0,0,0.6)]" 
             : "bg-white/90 backdrop-blur-xl border-black/5 shadow-[0_16px_32px_rgba(165,175,190,0.4)]"

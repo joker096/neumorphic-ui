@@ -47,7 +47,7 @@ export const CallHistorySheet = ({ open, onClose, onCall, theme }: Props) => {
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className={`w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden ${isDark ? 'bg-[#1a1d24] border border-white/10' : 'bg-white border border-black/10'}`}
+            className={`w-full max-w-md shadow-2xl overflow-hidden ${isDark ? 'bg-[#1a1d24] border border-white/10' : 'bg-white border border-black/10'}`}
           >
             <div className="flex items-center justify-between p-5 pb-3">
               <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Call History</h2>

@@ -197,6 +197,22 @@ class CallManager {
     }
   }
 
+  async changeCallType(newType: CallType): Promise<boolean> {
+    if (!this.activeCall) return false;
+    if (newType === this.activeCall.callType) return true;
+    
+    const isVideo = newType === 'video' || newType === 'screen';
+    this.activeCall = {
+      ...this.activeCall,
+      callType: newType,
+      isVideoEnabled: isVideo,
+      isVideo: isVideo,
+    };
+    this.updateStore(this.activeCall);
+    this.emit('call:accepted', { call: this.activeCall });
+    return true;
+  }
+
   async toggleRecording(): Promise<boolean> {
     if (!this.activeCall) return false;
     if (this.activeCall.isRecording) {

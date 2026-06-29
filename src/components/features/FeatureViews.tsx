@@ -1,5 +1,6 @@
 import { ContactsView } from "../ContactsView";
 import { Dialpad } from "../Dialpad";
+import { LandingPage } from "../landing/LandingPage";
 import { MeshRadar } from "../MeshRadar";
 import { RecordingsScreen } from "../RecordingsScreen";
 import { SettingsView } from "../SettingsView";
@@ -42,8 +43,10 @@ export const FeatureViews = ({
   onVideoCall,
   onMessage,
 }: FeatureViewsProps) => {
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
   switch (view) {
+    case "hub":
+      return <LandingPage isDark={theme === 'dark'} onGetStarted={() => setView('chats')} />;
     case "pulse":
       return <SystemPulsePlayer theme={theme} />;
     case "radar":
@@ -71,7 +74,7 @@ export const FeatureViews = ({
       if (subView === "radar") {
         return <MeshRadar theme={theme} />;
       }
-      return <SettingsView theme={theme} setTheme={setView} setSubView={setSubView} />;
+      return <SettingsView theme={theme} setTheme={setTheme} setSubView={setSubView} />;
     case "recordings":
       return <RecordingsScreen theme={theme} onBack={() => setView("settings")} />;
     case "contacts":

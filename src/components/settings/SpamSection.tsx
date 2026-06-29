@@ -1,5 +1,6 @@
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
+import { Shield, ShieldOff } from 'lucide-react';
 
 interface SpamSectionProps {
   isDark: boolean;
@@ -17,7 +18,7 @@ export const SpamSection = ({ isDark, spamFilterEnabled, setSpamFilterEnabled, o
         subtitle={t('settings.spamFilterSubtitle')}
         isDark={isDark}
         rightElement={
-          <ToggleSwitch isOn={spamFilterEnabled} onToggle={() => setSpamFilterEnabled(!spamFilterEnabled)} isDark={isDark} />
+          <ToggleSwitch isOn={spamFilterEnabled} onToggle={() => setSpamFilterEnabled(!spamFilterEnabled)} isDark={isDark} onIcon={<Shield size={14} />} offIcon={<ShieldOff size={14} />} />
         }
         onClick={() => setSpamFilterEnabled(!spamFilterEnabled)}
       />

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Check } from 'lucide-react';
+import { Plus, Check, QrCode, Copy, Share2, X } from 'lucide-react';
 import { SubView } from '../ui/SubView';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface AccountSectionProps {
   isDark: boolean;
@@ -8,21 +10,36 @@ interface AccountSectionProps {
   t: (key: string, options?: any) => string;
 }
 
+interface Account {
+  id: number;
+  name: string;
+  color: string;
+}
+
+const ACCOUNT_COLORS = [
+  "from-blue-500 to-cyan-500",
+  "from-purple-500 to-indigo-500",
+  "from-green-500 to-emerald-500",
+  "from-pink-500 to-rose-500",
+  "from-yellow-500 to-orange-500",
+];
+
 export const AccountSection = ({ isDark, onBack, t }: AccountSectionProps) => {
-  const [activeId, setActiveId] = useState(1);
-  const [accounts, setAccounts] = useState([
+  const [activeId, setActiveId] = useState<number>(1);
+  const [accounts, setAccounts] = useLocalStorage<Account[]>("app_accounts", [
     { id: 1, name: "Nexus Terminal", color: "from-blue-500 to-cyan-500" },
-    { id: 2, name: "Work Node", color: "from-purple-500 to-indigo-500" }
+    { id: 2, name: "Work Node", color: "from-purple-500 to-indigo-500" },
   ]);
   const [showAddInput, setShowAddInput] = useState(false);
   const [newName, setNewName] = useState("");
+  const [showShareId, setShowShareId] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleAddAccount = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (newName.trim()) {
-      const colors = ["from-green-500 to-emerald-500", "from-pink-500 to-rose-500", "from-yellow-500 to-orange-500"];
-      const color = colors[accounts.length % colors.length];
-      const newAcc = { id: Date.now(), name: newName.trim(), color };
+      const color = ACCOUNT_COLORS[accounts.length % ACCOUNT_COLORS.length];
+      const newAcc: Account = { id: Date.now(), name: newName.trim(), color };
       setAccounts([...accounts, newAcc]);
       setActiveId(newAcc.id);
       setNewName("");
@@ -30,10 +47,26 @@ export const AccountSection = ({ isDark, onBack, t }: AccountSectionProps) => {
     }
   };
 
+  const handleCopyId = () => {
+    navigator.clipboard.writeText("nexus://id/fingerprint").then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   const activeAcc = accounts.find(a => a.id === activeId) || accounts[0];
 
   return (
     <SubView title={t('settings.account')} isDark={isDark} onBack={onBack}>
+      <div className="absolute right-4 top-4 flex gap-2">
+        <button
+          onClick={() => setShowShareId(true)}
+          className={`p-2 rounded-full transition-colors ${isDark ? "hover:bg-white/10 text-gray-400" : "hover:bg-black/5 text-slate-500"}`}
+          title={t('settings.shareIdentity') || 'Share Identity'}
+        >
+          <Share2 size={18} />
+        </button>
+      </div>
       <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
         <div className="p-4">
           <div className={`text-[10px] uppercase tracking-widest font-bold mb-3 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
@@ -88,6 +121,55 @@ export const AccountSection = ({ isDark, onBack, t }: AccountSectionProps) => {
           </div>
         </div>
       </div>
+
+      {/* Share Identity Modal */}
+      {showShareId && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            className={`w-full max-w-[340px] p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
+          >
+            <div 
+              className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+              onClick={() => setShowShareId(false)}
+              title={t('contacts.close')}
+            >
+              <X size={18} />
+            </div>
+
+            <div className="flex flex-col items-center mt-4">
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-800"}`}>{t('settings.shareIdentity') || 'Share Identity'}</h3>
+              <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.shareDescription') || 'Share your identity so others can find and connect with you.'}</p>
+              
+              <div className={`w-[220px] h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
+                  <QrCode size="100%" strokeWidth={1} className="text-black" />
+              </div>
+              
+              <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"}`}>
+                  <div className={`font-mono text-xs tracking-widest break-all text-center ${isDark ? "text-orange-400" : "text-orange-600"}`}>
+                    nexus://id/fingerprint
+                  </div>
+                  <div className="flex gap-2 w-full">
+                     <button onClick={handleCopyId} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-white" : (isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
+                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                        {copied ? t('header.copied') : t('settings.copyLink')}
+                     </button>
+                     <button className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
+                        <Share2 size={14} />
+                     </button>
+                  </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </SubView>
   );
 };

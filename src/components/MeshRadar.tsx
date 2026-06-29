@@ -147,7 +147,7 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
 
   return (
     <div
-      className={`p-6 rounded-[32px] flex flex-col items-center relative overflow-hidden w-full ${
+      className={`p-6 flex flex-col items-center relative overflow-hidden w-full ${
         isDark
           ? "bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border border-green-500/20"
           : "bg-[#e2e8f0] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border-black/5"
@@ -183,10 +183,19 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
         }`}
       >
         {peers.length === 0 ? (
-          <div className={`flex items-center justify-center p-4 text-[11px] font-mono ${
-            isDark ? "text-gray-500" : "text-slate-500"
-          }`}>
-            No peers connected
+          <div className="flex flex-col items-center justify-center p-4 text-[11px] font-mono">
+            <span className={isDark ? "text-gray-500" : "text-slate-500"}>
+              No peers connected
+            </span>
+            <span className={`mt-1.5 text-[10px] opacity-60 text-center max-w-[280px] leading-relaxed ${
+              isDark ? "text-gray-600" : "text-slate-400"
+            }`}>
+              {label('meshRadar.emptyHint', 'Connect with contacts via QR or share your ID to appear on the radar')}
+              <br className="my-1" />
+              <span className="opacity-50">
+                {label('meshRadar.emptyDesc', 'The radar shows your P2P mesh network nodes in real-time. Direct connections (WebRTC) appear with pulse, relayed connections show hop count.')}
+              </span>
+            </span>
           </div>
         ) : (
           peers.map((p, i) => (
@@ -204,12 +213,19 @@ export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
               />
               <span>{p.label}</span>
               <span className="ml-auto opacity-50">
-                {p.type === 'direct' ? 'WebRTC' : `${p.hops} hops`}
+                {p.type === 'direct' ? (p.connected ? 'Connected' : 'Connecting') : `${p.hops} hops`}
               </span>
             </div>
           ))
         )}
       </div>
+      {peers.length > 0 && (
+        <div className={`mt-3 text-[10px] font-mono text-center ${
+          isDark ? "text-gray-600" : "text-slate-500"
+        }`}>
+          {label('meshRadar.hint', 'Drag contacts from list to connect directly')}
+        </div>
+      )}
     </div>
   );
 };

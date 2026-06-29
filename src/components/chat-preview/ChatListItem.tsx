@@ -64,7 +64,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
   };
 
   const isGroup = type === "channel";
-  const roundedClass = isGroup ? "rounded-2xl" : "rounded-full";
+  const roundedClass = isGroup ? "rounded-xl" : "rounded-full";
 
   const fuzzedTime = React.useMemo(() => {
     if (!stealthMode || !chat.time) return chat.time;
@@ -89,38 +89,41 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
   const targetX = swipedOpen === "left" ? -120 : swipedOpen === "right" ? 120 : 0;
 
   return (
-    <div className="relative mb-4 last:mb-0 overflow-hidden rounded-3xl">
+    <div className="relative mb-4 last:mb-0 overflow-hidden" role="listitem">
       {!isGroup && onCall && onVideoCall && (
-        <div className={`absolute inset-0 flex items-center justify-start rounded-3xl overflow-hidden ${swipedOpen === "right" ? "z-10" : ""}`}>
+        <div className={`absolute inset-0 flex items-center justify-start overflow-hidden ${swipedOpen === "right" ? "z-10" : ""}`} aria-hidden={swipedOpen !== "right"}>
           <div className={`flex h-full ${swipedOpen === "right" ? "pointer-events-auto" : "pointer-events-none"}`}>
             <button
               onClick={() => handleSwipeAction("call")}
-              className={`h-full flex flex-col items-center justify-center gap-1 px-4 text-[11px] font-bold text-white cursor-pointer border-none ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
-              style={{ width: "76px" }}
+              className={`h-full flex flex-col items-center justify-center gap-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-bold text-white cursor-pointer border-none ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
+              style={{ width: "64px" }}
+              aria-label={t('chat.startCall')}
             >
-              <Phone size={18} fill="white" stroke="white" />
-              Voice
+              <Phone size={16} fill="white" stroke="white" />
+              <span className="text-[8px] sm:text-[10px]">{t('chat.startCall')}</span>
             </button>
-            <button
+           <button
               onClick={() => handleSwipeAction("video")}
-              className={`h-full flex flex-col items-center justify-center gap-1 px-4 text-[11px] font-bold text-white cursor-pointer border-none bg-blue-500`}
-              style={{ width: "76px" }}
+              className={`h-full flex flex-col items-center justify-center gap-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-bold text-white cursor-pointer border-none bg-blue-500`}
+              style={{ width: "64px" }}
+              aria-label={t('chat.startVideoCall')}
             >
-              <Video size={18} fill="white" stroke="white" />
-              Video
+              <Video size={16} fill="white" stroke="white" />
+              <span className="text-[8px] sm:text-[10px]">Video</span>
             </button>
           </div>
         </div>
       )}
-      <div className={`absolute inset-0 flex items-center justify-end px-6 rounded-3xl ${isDark ? "bg-orange-500/20" : "bg-orange-500"} text-white overflow-hidden ${swipedOpen === "left" ? "z-10" : ""}`}>
-        <button
-          onClick={() => handleSwipeAction("archive")}
-          className={`flex items-center gap-2 cursor-pointer ${swipedOpen === "left" ? "pointer-events-auto" : "pointer-events-none"}`}
-        >
-          <Archive size={20} className={isDark ? "text-orange-500" : "text-white"} />
-          <span className={`text-sm font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
-        </button>
-      </div>
+    <div className={`absolute inset-0 flex items-center justify-end px-4 sm:px-6 text-white overflow-hidden ${swipedOpen === "left" ? "z-10" : ""}`} aria-hidden={swipedOpen !== "left"}>
+         <button
+           onClick={() => handleSwipeAction("archive")}
+           className={`flex items-center gap-1.5 sm:gap-2 cursor-pointer ${swipedOpen === "left" ? "pointer-events-auto" : "pointer-events-none"}`}
+           aria-label={t('chat.unarchive')}
+         >
+           <Archive size={16} className={`sm:size-20 ${isDark ? "text-orange-500" : "text-white"}`} />
+           <span className={`text-[10px] sm:text-sm font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
+         </button>
+       </div>
       <motion.div
         drag={selectMode ? false : "x"}
         dragConstraints={{ left: -160, right: 160 }}
@@ -161,7 +164,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
         }}
         animate={{ x: targetX }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`relative w-full p-3 flex items-center gap-4 cursor-pointer transition-all duration-300 select-none group rounded-3xl ${
+        className={`relative w-full p-3 flex items-center gap-4 cursor-pointer transition-all duration-300 select-none group ${
           isDark
             ? active
               ? "bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border border-orange-500/20"

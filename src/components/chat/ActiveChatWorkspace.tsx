@@ -93,8 +93,8 @@ export const ActiveChatWorkspace = ({
   onToggleSilent,
   onToggleMorse,
 }: ActiveChatWorkspaceProps) => (
-  <div className="w-full max-w-[800px] h-[90%] relative z-10 animate-fade-in mt-6 max-h-[800px]">
-    <ChatPreviewLayer
+ <div className="w-full max-w-[800px] h-full md:h-[calc(100%-0.5rem)] relative z-10 md:z-10 animate-fade-in md:mt-2 max-h-[calc(100vh-2rem)]">
+   <ChatPreviewLayer
       chat={activeChat}
       theme={theme}
       onClose={() => setActiveChat(null)}
@@ -109,6 +109,42 @@ export const ActiveChatWorkspace = ({
       deliveryReceipts
       readReceipts
       setEditingContact={setEditingContact}
+      // Pass input props to ChatPreviewLayer
+      messageText={messageText}
+      setMessageText={setMessageText}
+      morseMode={morseMode}
+      setMorseMode={setMorseMode}
+      silentMode={silentMode}
+      setSilentMode={setSilentMode}
+      showStickerPicker={showStickerPicker}
+      setShowStickerPicker={setShowStickerPicker}
+      isRecordingVoice={isRecordingVoice}
+      setIsRecordingVoice={setIsRecordingVoice}
+      voiceNoteError={voiceNoteError}
+      setVoiceNoteError={setVoiceNoteError}
+      scheduleDateTime={scheduleDateTime}
+      setScheduleDateTime={setScheduleDateTime}
+      showSchedulePopup={showSchedulePopup}
+      setShowSchedulePopup={setShowSchedulePopup}
+      replyTarget={replyTarget}
+      setReplyTarget={setReplyTarget}
+      draftTextByChat={draftTextByChat}
+      setDraftTextByChat={setDraftTextByChat}
+      setChats={setChats}
+      sendVoiceMessage={sendVoiceMessage}
+      sendStickerMessage={sendStickerMessage}
+      handleSendMessage={handleSendMessage}
+      onScheduleChange={setScheduleDateTime}
+      onToggleMute={onToggleMute}
+      onAttachImage={onAttachImage}
+      onToggleSchedulePopup={onToggleSchedulePopup}
+      onToggleSilent={onToggleSilent}
+      onToggleMorse={onToggleMorse}
+      onHoldRecord={onHoldRecord}
+      onReRecord={onReRecord}
+      onPermissionDenied={onPermissionDenied}
+      onSendVoice={onSendVoice}
+      onToggleStickerPicker={() => setShowStickerPicker(!showStickerPicker)}
     />
     <ChatInputOverlay
       theme={theme}

@@ -1,19 +1,21 @@
 import React from 'react';
-import { motion } from 'motion/react';
-import { Phone, PhoneOff, Video, Mic } from 'lucide-react';
+ import { motion } from 'motion/react';
+ import { Phone, PhoneOff, Video, Mic } from 'lucide-react';
 
-interface IncomingCallSheetProps {
-  callerName: string;
-  callType: 'audio' | 'video';
-  onAccept: () => void;
-  onReject: () => void;
-}
+ interface IncomingCallSheetProps {
+   callerName: string;
+   callType: 'audio' | 'video';
+   onAccept: () => void;
+   onReject: () => void;
+   onAcceptVideo?: () => void;
+ }
 
 export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
   callerName,
   callType,
   onAccept,
   onReject,
+  onAcceptVideo,
 }) => {
   return (
     <motion.div
@@ -73,13 +75,24 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
           <PhoneOff size={36} />
         </motion.button>
 
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={onAccept}
-          className="w-20 h-20 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-2xl"
-        >
-          <Phone size={36} />
-        </motion.button>
+        <div className="flex flex-col gap-3">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={onAccept}
+            className="w-20 h-20 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-2xl"
+          >
+            <Phone size={36} />
+          </motion.button>
+          {onAcceptVideo && (
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={onAcceptVideo}
+              className="w-20 h-20 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-2xl"
+            >
+              <Video size={36} />
+            </motion.button>
+          )}
+        </div>
       </div>
     </motion.div>
   );

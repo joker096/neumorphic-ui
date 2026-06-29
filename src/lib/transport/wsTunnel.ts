@@ -1,4 +1,4 @@
-type TunnelBackend = 'direct' | 'cfworker' | 'domainfront' | 'peertunnel';
+export type TunnelBackend = 'direct' | 'cfworker' | 'domainfront' | 'peertunnel';
 type TunnelStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
 interface TunnelConfig {

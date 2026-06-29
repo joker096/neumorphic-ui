@@ -25,6 +25,16 @@ export const STORAGE_KEYS = {
   RATE_LIMITS: '__mess_rate_limits',
   SECURITY_LOG: '__mess_security_log',
   NEXUS_STORAGE: 'nexus-messenger-storage',
+  COMPANY_USER: 'mess_company_user',
+  COMPANY_GROUPKEY: (v: number) => `mess_company_groupkey_v${v}` as const,
+  COMPANY_GROUPKEY_OLD: (v: number) => `mess_company_groupkey_old_${v}` as const,
+  COMPANY_DEVICES: 'mess_company_devices',
+  COMPANY_MEMBERS: 'mess_company_members',
+  COMPANY_CHANNELS: 'mess_company_channels',
+  COMPANY_MESSAGES: (channelId: string) => `mess_company_msgs_${channelId}` as const,
+  COMPANY_PEERS: 'mess_company_peers',
+  COMPANY_PEEKED: 'mess_company_peeked',
+  COMPANY_LAST_SYNC: 'mess_company_last_sync',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

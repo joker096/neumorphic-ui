@@ -21,6 +21,8 @@ import { VideoPlayerOverlay } from "./chat/VideoPlayerOverlay";
 import { PhotoViewerOverlay } from "./PhotoViewer";
 import { VoiceWaveform } from "./VoiceWaveform";
 import { ChannelCommentsView } from "./ChannelCommentsView";
+import { LiveVoiceRecorder } from "./LiveVoiceRecorder";
+import { StickerPicker } from "./chat/StickerPicker";
 import { FormattedText } from "./FormattedText";
 import { Tooltip } from "./Tooltip";
 import { useAppStore } from "../store";
@@ -28,6 +30,8 @@ import { useI18n } from "../lib/i18n";
 import { useDebounce } from "../hooks/useDebounce";
 import { VirtualizedMessageList } from "./chat/VirtualizedMessageList";
 import { getICQStickerSrc } from "../lib/icqEmojis";
+import { encodeMorse } from "./MorseDecoder";
+import { Smile } from "lucide-react";
 import { toast } from "sonner";
 import { ContactProfileModal, type ContactProfile } from "./ContactProfileModal";
 import { ChatHeader } from "./chat-preview/ChatHeader";
@@ -52,6 +56,42 @@ interface ChatPreviewLayerProps {
   deliveryReceipts?: boolean;
   readReceipts?: boolean;
   setEditingContact: (contact: ContactProfile | null) => void;
+  // Message input props
+  messageText?: string;
+  setMessageText?: (text: string) => void;
+  morseMode?: boolean;
+  setMorseMode?: (mode: boolean) => void;
+  silentMode?: boolean;
+  setSilentMode?: (mode: boolean) => void;
+  showStickerPicker?: boolean;
+  setShowStickerPicker?: (show: boolean) => void;
+  isRecordingVoice?: boolean;
+  setIsRecordingVoice?: (recording: boolean) => void;
+  voiceNoteError?: string;
+  setVoiceNoteError?: (error: string) => void;
+  scheduleDateTime?: string;
+  setScheduleDateTime?: (value: string) => void;
+  showSchedulePopup?: boolean;
+  setShowSchedulePopup?: (show: boolean) => void;
+  replyTarget?: any;
+  setReplyTarget?: (target: any) => void;
+  draftTextByChat?: Record<string, string>;
+  setDraftTextByChat?: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setChats?: (updater: any[] | ((prev: any[]) => any[])) => void;
+  sendVoiceMessage?: (audioUrl: string, durationStr: string) => void;
+  sendStickerMessage?: (sticker: string) => void;
+  handleSendMessage?: () => void;
+  onScheduleChange?: (value: string) => void;
+  onToggleMute?: () => void;
+  onAttachImage?: (message: any) => void;
+  onToggleSchedulePopup?: () => void;
+  onToggleSilent?: () => void;
+  onToggleMorse?: () => void;
+  onHoldRecord?: () => void;
+  onReRecord?: () => void;
+  onPermissionDenied?: (message: string) => void;
+  onSendVoice?: (url: string, duration: string) => void;
+  onToggleStickerPicker?: () => void;
 }
 
 type GroupPosition = 'single' | 'first' | 'middle' | 'last'
@@ -92,7 +132,7 @@ function formatDateLabel(timeStr: string): string {
   return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: now.getFullYear() !== d.getFullYear() ? 'numeric' : undefined })
 }
 
-export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact }: any) => {
+export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, draftTextByChat, setDraftTextByChat, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onHoldRecord, onReRecord, onPermissionDenied, onSendVoice, onToggleStickerPicker, }: any) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const stealthMode = useAppStore(s => s.stealthMode);
@@ -121,6 +161,78 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const [activeReactionPicker, setActiveReactionPicker] = useState<number | string | null>(null);
   const [showSavedPanel, setShowSavedPanel] = useState(false);
   const [bounceMsgId, setBounceMsgId] = useState<string | number | null>(null);
+
+  // Handle image attachment
+  const handleImageAttach = (e: React.ChangeEvent<HTMLInputElement>, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const newMsg = { id: Date.now(), sender: "me", text: "", type: "image", attachment: url, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: "sent", silent };
+    const updated = { ...chatData, history: [...(chatData.history || []), newMsg] };
+    if (onUpdChat) onUpdChat(updated);
+  };
+
+  // Input state (managed by parent via props, or locally if not provided)
+  const [localMessageText, setLocalMessageText] = useState("");
+  const [localMorseMode, setLocalMorseMode] = useState(false);
+  const [localSilentMode, setLocalSilentMode] = useState(false);
+  const [localShowStickerPicker, setLocalShowStickerPicker] = useState(false);
+  const [localIsRecordingVoice, setLocalIsRecordingVoice] = useState(false);
+  const [localVoiceNoteError, setLocalVoiceNoteError] = useState("");
+  const [localScheduleDateTime, setLocalScheduleDateTime] = useState("");
+  const [localShowSchedulePopup, setLocalShowSchedulePopup] = useState(false);
+  const [localReplyTarget, setLocalReplyTarget] = useState<any>(null);
+
+  // Resolve effective values: prefer prop if provided, otherwise local state
+  const eMsgText = messageText ?? localMessageText;
+  const eMorseMode = morseMode ?? localMorseMode;
+  const eSilentMode = silentMode ?? localSilentMode;
+  const eShowStickerPicker = showStickerPicker ?? localShowStickerPicker;
+  const eIsRecordingVoice = isRecordingVoice ?? localIsRecordingVoice;
+  const eVoiceNoteError = voiceNoteError ?? localVoiceNoteError;
+  const eScheduleDateTime = scheduleDateTime ?? localScheduleDateTime;
+  const eShowSchedulePopup = showSchedulePopup ?? localShowSchedulePopup;
+  const eReplyTarget = replyTarget ?? localReplyTarget;
+  const setMsgTextFn = setMessageText ?? ((v: string) => { setLocalMessageText(v); });
+  const setMorseModeFn2 = setMorseMode ?? ((v: boolean) => { setLocalMorseMode(v); });
+  const setSilentModeFn2 = setSilentMode ?? ((v: boolean) => { setLocalSilentMode(v); });
+  const setShowStickerPickerFn2 = setShowStickerPicker ?? ((v: boolean) => { setLocalShowStickerPicker(v); });
+  const setIsRecordingVoiceFn2 = setIsRecordingVoice ?? ((v: boolean) => { setLocalIsRecordingVoice(v); });
+  const setVoiceNoteErrFn2 = setVoiceNoteError ?? ((v: string) => { setLocalVoiceNoteError(v); });
+  const setScheduleDtFn2 = setScheduleDateTime ?? ((v: string) => { setLocalScheduleDateTime(v); });
+  const setShowSchedulePopupFn2 = setShowSchedulePopup ?? ((v: boolean) => { setLocalShowSchedulePopup(v); });
+  const setReplyTargetFn2 = setReplyTargetProp ?? ((t: any) => { setLocalReplyTarget(t); });
+
+  // Send message handler
+  const sendMessage = () => {
+    const textToSend = eMorseMode ? encodeMorse(eMsgText) : eMsgText.trim();
+    if (!textToSend) return;
+    const newMessage = {
+      id: Date.now(),
+      sender: "me",
+      text: textToSend,
+      type: eMorseMode ? "morse" : undefined,
+      replyTo: eReplyTarget ? {
+        id: eReplyTarget.id,
+        sender: eReplyTarget.sender,
+        text: eReplyTarget.text,
+        type: eReplyTarget.type,
+        duration: eReplyTarget.duration
+      } : undefined,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: "sent",
+      silent: eSilentMode,
+    };
+    const updatedChat = {
+      ...chat,
+      history: [...(chat.history || []), newMessage],
+    };
+    if (onUpdateChat) onUpdateChat(updatedChat);
+    setMsgTextFn("");
+    setLocalReplyTarget(null);
+    setLocalMorseMode(false);
+    setLocalSilentMode(false);
+  };
   const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
   const [swipeReplyId, setSwipeReplyId] = useState<string | number | null>(null);
   const msgListRef = useRef<{ scrollToBottom: () => void }>(null);
@@ -273,7 +385,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         animate={{ opacity: 1, x: 0, scale: 1 }}
         exit={{ opacity: 0, x: 40, scale: 0.95 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className={`absolute inset-0 w-full h-full rounded-[48px] flex flex-col overflow-hidden z-50 ${
+className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 ${
           isDark
             ? "bg-[#13151b] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] border border-orange-500/10"
             : "bg-[#eaeff4] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-white"
@@ -309,21 +421,21 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
 
         {/* Media Tabs & Filters */}
         {showMediaPanel && (
-        <div className={`px-5 pt-4 pb-2 flex flex-col gap-2 overflow-x-auto scrollbar-none ${isDark ? "bg-[#1a1d24]/60" : "bg-[#f4f7f9]/60"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+        <div className={`px-3 sm:px-5 pt-3 sm:pt-4 pb-2 flex flex-col gap-2 overflow-x-auto scrollbar-none ${isDark ? "bg-[#1a1d24]/60" : "bg-[#f4f7f9]/60"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
           {/* Filter buttons row */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowFilterMenu(!showFilterMenu)}
               title={t('chat.filters.button')}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold whitespace-nowrap transition-colors ${showFilterMenu ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white") : (isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500")}`}
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] font-bold whitespace-nowrap transition-colors ${showFilterMenu ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white") : (isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500")}`}
             >
               <ListFilter size={14} />
             </button>
             {(filterBySender || filterStartDate || filterEndDate) && (
-              <button
-                onClick={() => { setFilterBySender(""); setFilterStartDate(""); setFilterEndDate(""); }}
-                className={`px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-colors ${isDark ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-500"}`}
-              >
+        <button
+               onClick={() => { setFilterBySender(""); setFilterStartDate(""); setFilterEndDate(""); }}
+               className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold whitespace-nowrap transition-colors ${isDark ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-500"}`}
+             >
                 {t('chat.filters.clear')}
               </button>
             )}
@@ -336,7 +448,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
           {showFilterMenu && (
             <div className={`space-y-2 pb-2 border-b ${isDark ? "border-white/5" : "border-black/5"}`}>
               {/* Sender filter */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <span className={`text-[10px] font-bold uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.filters.from')}</span>
                 <button onClick={() => setFilterBySender("")} className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === '' ? (isDark ? "bg-green-500 text-white" : "bg-green-500 text-white") : (isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500")}`}>{t('chat.filters.all')}</button>
                 <button onClick={() => setFilterBySender('me')} className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === 'me' ? (isDark ? "bg-green-500 text-white" : "bg-green-500 text-white") : (isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500")}`}>{t('chat.filters.me')}</button>
@@ -364,7 +476,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
               <button
                 key={tab.id}
                 onClick={() => setMediaTab(tab.id as any)}
-                className={`px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab.id ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "bg-white/5 text-gray-400 hover:text-white" : "bg-black/5 text-slate-500 hover:text-slate-800")}`}
+                className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab.id ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "bg-white/5 text-gray-400 hover:text-white" : "bg-black/5 text-slate-500 hover:text-slate-800")}`}
               >
                 {tab.label}
               </button>
@@ -374,19 +486,19 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         )}
 
         {showMediaPanel && mediaItems.length > 0 && (
-          <div className="px-5 pb-3 overflow-x-auto scrollbar-none" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+          <div className="px-3 sm:px-5 pb-2 sm:pb-3 overflow-x-auto scrollbar-none" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
             <div className="flex gap-3">
               {mediaItems.slice(0, 6).map((msg: any) => (
                 <div
-                  key={msg.id}
-                  className={`w-[120px] h-[84px] rounded-2xl overflow-hidden flex-shrink-0 relative cursor-pointer border ${isDark ? "border-white/10 bg-white/5" : "border-black/5 bg-white"}`}
-                  onClick={() => {
-                    if (msg.type === 'image' && (msg.attachment || msg.url)) {
-                      setActivePhotoUrl(msg.attachment || msg.url);
-                      setPhotoOpen(true);
-                    }
-                  }}
-                >
+                   key={msg.id}
+                   className={`w-[90px] h-[64px] sm:w-[110px] sm:h-[78px] md:w-[120px] md:h-[84px] rounded-2xl overflow-hidden flex-shrink-0 relative cursor-pointer border ${isDark ? "border-white/10 bg-white/5" : "border-black/5 bg-white"}`}
+                   onClick={() => {
+                     if (msg.type === 'image' && (msg.attachment || msg.url)) {
+                       setActivePhotoUrl(msg.attachment || msg.url);
+                       setPhotoOpen(true);
+                     }
+                   }}
+                 >
                   {msg.type === 'image' ? (
                     <img src={msg.attachment || msg.url} alt="media" className="w-full h-full object-cover" />
                   ) : msg.type === 'audio' ? (
@@ -413,7 +525,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
           estimateSize={72}
           overscan={3}
           isDark={isDark}
-          className="p-6"
+          className="p-4 sm:p-6"
           onScrollPosition={(nearBottom) => {
             setIsNearBottom(nearBottom)
             if (nearBottom) setUnreadSinceScroll(0)
@@ -436,17 +548,17 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
             const gp = msg._groupPosition as GroupPosition
             const bubbleCornerClass = (() => {
               if (isMe) {
-                if (gp === 'single') return 'rounded-[20px] rounded-br-sm'
-                if (gp === 'first') return 'rounded-t-[20px] rounded-bl-[20px] rounded-br-[20px] rounded-bl-sm'
-                if (gp === 'middle') return 'rounded-l-[20px] rounded-r-[20px] rounded-br-[20px] rounded-bl-[20px]'
-                if (gp === 'last') return 'rounded-tl-[20px] rounded-tr-[20px] rounded-br-sm rounded-bl-[20px]'
-                return 'rounded-[20px] rounded-br-sm'
+                if (gp === 'single') return 'rounded-xl rounded-br-sm'
+                if (gp === 'first') return 'rounded-t-xl rounded-bl-xl rounded-br-xl rounded-bl-sm'
+                if (gp === 'middle') return 'rounded-l-xl rounded-r-xl rounded-br-xl rounded-bl-xl'
+                if (gp === 'last') return 'rounded-tl-xl rounded-tr-xl rounded-br-sm rounded-bl-xl'
+                return 'rounded-xl rounded-br-sm'
               } else {
-                if (gp === 'single') return 'rounded-[20px] rounded-bl-sm'
-                if (gp === 'first') return 'rounded-t-[20px] rounded-br-[20px] rounded-br-sm rounded-bl-[20px]'
-                if (gp === 'middle') return 'rounded-r-[20px] rounded-l-[20px] rounded-bl-[20px] rounded-br-[20px]'
-                if (gp === 'last') return 'rounded-tr-[20px] rounded-tl-[20px] rounded-bl-sm rounded-br-[20px]'
-                return 'rounded-[20px] rounded-bl-sm'
+                if (gp === 'single') return 'rounded-xl rounded-bl-sm'
+                if (gp === 'first') return 'rounded-t-xl rounded-br-xl rounded-br-sm rounded-bl-xl'
+                if (gp === 'middle') return 'rounded-r-xl rounded-l-xl rounded-bl-xl rounded-br-xl'
+                if (gp === 'last') return 'rounded-tr-xl rounded-tl-xl rounded-bl-sm rounded-br-xl'
+                return 'rounded-xl rounded-bl-sm'
               }
             })()
             return (
@@ -481,36 +593,36 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                  )}
                  <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
                     <div
-                      onClick={() => {
-                        const now = Date.now()
-                        if (now - lastTapRef.current.time < 300 && lastTapRef.current.msgId === msg.id) {
-                          handleReactionMessage(msg.id, '👍')
-                          setBounceMsgId(msg.id)
-                          setTimeout(() => setBounceMsgId(null), 300)
-                          lastTapRef.current = { time: 0, msgId: 0 }
-                        } else {
-                          lastTapRef.current = { time: now, msgId: msg.id }
-                        }
-                      }}
-                       className={`max-w-[80%] md:max-w-[80%] sm:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${
-                         isMe
-                           ? isDark
-                             ? "bg-orange-600/20 text-orange-50 border border-orange-500/30 shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
-                             : "bg-gradient-to-br from-orange-400 to-orange-500 text-white shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
-                           : isDark
-                             ? "bg-[#1a1d24] text-gray-300 border border-white/5 shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
-                             : "bg-white text-slate-700 border border-black/5 shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
-                       }`}
+                       onClick={() => {
+                         const now = Date.now()
+                         if (now - lastTapRef.current.time < 300 && lastTapRef.current.msgId === msg.id) {
+                           handleReactionMessage(msg.id, '👍')
+                           setBounceMsgId(msg.id)
+                           setTimeout(() => setBounceMsgId(null), 300)
+                           lastTapRef.current = { time: 0, msgId: 0 }
+                         } else {
+                           lastTapRef.current = { time: now, msgId: msg.id }
+                         }
+                       }}
+                        className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${
+                          isMe
+                            ? isDark
+                              ? "bg-orange-600/20 text-orange-50 border border-orange-500/30 shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
+                              : "bg-gradient-to-br from-orange-400 to-orange-500 text-white shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
+                            : isDark
+                              ? "bg-[#1a1d24] text-gray-300 border border-white/5 shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
+                              : "bg-white text-slate-700 border border-black/5 shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
+                        }`}
                      >
                       {msg.type === "image" && (
                         <div 
-                           className="rounded-[14px] overflow-hidden mb-1 relative border border-white/10 cursor-pointer"
+                           className="rounded-xl overflow-hidden mb-1 relative border border-white/10 cursor-pointer"
                            onClick={() => { setActivePhotoUrl(msg.attachment || msg.url); setPhotoOpen(true); }}
                         >
                           <img
                             src={msg.attachment || msg.url}
                             alt="Shared"
-                            className="w-full h-auto object-cover max-h-[220px]"
+                            className="w-full h-auto object-cover max-h-[240px] sm:max-h-[280px] md:max-h-[320px]"
                           />
                         </div>
                       )}
@@ -519,11 +631,11 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                           className="rounded-[14px] overflow-hidden mb-1 relative border border-white/10 group cursor-pointer"
                           onClick={() => setVideoOpen(true)}
                         >
-                          <img
-                            src={msg.thumb}
-                            alt="Video thumbnail"
-                            className="w-[200px] h-[120px] object-cover opacity-80"
-                          />
+                             <img
+                                 src={msg.thumb}
+                                 alt="Video thumbnail"
+                                 className="w-full h-auto sm:w-[180px] sm:h-[100px] md:w-[200px] md:h-[120px] object-cover opacity-80"
+                               />
                           <div className="absolute inset-0 flex items-center justify-center">
                             <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                               <Play
@@ -543,7 +655,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                       {msg.type === "sticker" && (
                         <div className="flex items-center justify-center">
                           {stickerSrc ? (
-                            <img src={stickerSrc} alt="Sticker" className="w-24 h-24 object-contain" />
+                            <img src={stickerSrc} alt="Sticker" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
                           ) : (
                             <span className="text-4xl">{msg.text}</span>
                           )}
@@ -575,7 +687,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                      </span>
                       )}
                       {msg.text && typeof msg.text === "string" && /https?:\/\/[^\s]+/i.test(msg.text) && (
-                        <div className={`mt-2 p-2 rounded-2xl border text-[11px] ${isDark ? "bg-white/5 border-white/10 text-gray-300" : "bg-slate-50 border-black/5 text-slate-600"}`}>
+                        <div className={`mt-2 p-2 rounded-xl border text-[11px] ${isDark ? "bg-white/5 border-white/10 text-gray-300" : "bg-slate-50 border-black/5 text-slate-600"}`}>
                           <div className="font-bold uppercase tracking-widest text-[9px] opacity-70 mb-1">{t('chat.linkPreview')}</div>
                           <div className="break-all line-clamp-2">{msg.text.match(/https?:\/\/[^\s]+/i)?.[0]}</div>
                         </div>
@@ -650,11 +762,11 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                       )}
 
                       {msg._isLastInGroup && (
-                      <div className={`mt-2 flex items-center gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
+                      <div className={`mt-1.5 flex items-center gap-1.5 sm:gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
                         {!chat.isChannel && (
                           <button
                             onClick={() => onReply?.(msg)}
-                            className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full transition-colors ${
+                            className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors ${
                               isDark
                                 ? "text-gray-400 hover:text-white hover:bg-white/5"
                                 : "text-slate-500 hover:text-slate-800 hover:bg-black/5"
@@ -666,7 +778,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                         {!chat.isChannel && (
                           <button
                             onClick={() => onToggleSavedMessage?.(chat, msg)}
-                            className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full transition-colors flex items-center gap-1 ${
+                            className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors flex items-center gap-1 ${
                               isDark
                                 ? "text-gray-400 hover:text-white hover:bg-white/5"
                                 : "text-slate-500 hover:text-slate-800 hover:bg-black/5"
@@ -777,7 +889,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
             )}
           </AnimatePresence>
           {chatScheduledMessages.length > 0 && (
-          <div className="px-6 pb-4">
+          <div className="px-4 sm:px-6 pb-3 sm:pb-4">
           {chatScheduledMessages.map((msg: any) => (
              <motion.div
                layout
@@ -788,7 +900,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
                className="flex w-full justify-end"
              >
                 <div
-                  className={`max-w-[80%] p-3.5 rounded-[20px] text-[14px] shadow-sm border border-dashed relative leading-relaxed overflow-hidden break-words ${
+                   className={`max-w-[80%] sm:max-w-[70%] p-3 rounded-xl sm:rounded-[16px] text-[13px] sm:text-[14px] shadow-sm border border-dashed relative leading-relaxed overflow-hidden break-words ${
                     isDark
                       ? "bg-[#1a1d24] text-gray-400 border-gray-600 rounded-br-sm"
                       : "bg-gray-50 text-gray-500 border-gray-300 rounded-br-sm"
@@ -806,17 +918,105 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
            </div>
            )}
 
-        {/* Input or Channel Footer */}
-        <InputFooter
-          isDark={isDark}
-          isChannel={chat.isChannel}
-          isMuted={chat.isMuted}
-          t={t}
-          onMuteToggle={() => {
-            setChannels(prev => prev.map(c => c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c) as any);
-            if (onAction) onAction("MUTE_TOGGLE");
-          }}
-        />
+        {/* Input area */}
+         {chat.isChannel ? (
+           <div className={`px-4 pb-3 pt-1`}>
+             <button
+               onClick={() => {
+                 setChannels && setChannels((prev: any) => prev.map((c: any) => c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c));
+                 if (onAction) onAction("MUTE_TOGGLE");
+               }}
+               className={`w-full py-3 rounded-xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${isDark ? "bg-[#13151b] hover:bg-[#20242e] text-orange-400 border border-white/5" : "bg-white hover:bg-slate-50 text-orange-600 border border-black/5 shadow-sm"}`}
+             >
+               {chat.isMuted ? t('chat.filters.unmuteChannel') : t('chat.filters.muteChannel')}
+             </button>
+           </div>
+         ) : (
+           <>
+             {eShowSchedulePopup && (
+                <div className={`mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-xl flex flex-col gap-2 ${isDark ? "bg-[#13151b] border border-white/5" : "bg-white border border-black/5 shadow-sm"}`}>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-widest text-orange-500">{t('chat.scheduleSend')}</span>
+                    <X size={16} className={`cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-slate-400 hover:text-slate-800"}`} onClick={() => setShowSchedulePopupFn2(false)} />
+                  </div>
+                  <input type="datetime-local" value={eScheduleDateTime} onChange={(e) => setScheduleDtFn2(e.target.value)} className={`w-full outline-none text-sm p-2 rounded-lg ${isDark ? "bg-[#1a1d24] text-white" : "bg-slate-50 text-slate-800"}`} />
+                  <div className="flex gap-2">
+                    <button onClick={() => { setScheduleDtFn2(""); setShowSchedulePopupFn2(false); }} className={`flex-1 py-2 text-xs font-bold rounded-lg ${isDark ? "bg-white/5 text-gray-400 hover:bg-white/10" : "bg-black/5 text-slate-500 hover:bg-black/10"}`}>{t('common.cancel')}</button>
+                    <button onClick={() => setShowSchedulePopupFn2(false)} disabled={!eScheduleDateTime} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${!eScheduleDateTime ? "opacity-50 cursor-not-allowed" : ""} ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}>{t('chat.setTime')}</button>
+                  </div>
+                </div>
+              )}
+              {eIsRecordingVoice ? (
+                <div className="px-3 pb-2">
+                  <LiveVoiceRecorder
+                    isDark={isDark}
+                    onCancel={() => setIsRecordingVoiceFn2(false)}
+                    onReRecord={() => setIsRecordingVoiceFn2(true)}
+                    onPermissionDenied={(msg: string) => { setIsRecordingVoiceFn2(false); setVoiceNoteErrFn2(msg); }}
+                    onSend={(url, dur) => { setIsRecordingVoiceFn2(false); if (sendVoiceMessage) sendVoiceMessage(url, dur); else setVoiceNoteErrFn2(""); }}
+                    holdToRecord
+                  />
+                </div>
+              ) : null}
+             <div className={`flex items-center gap-2 px-2 sm:px-3 pb-3 pt-1`}>
+                {!eIsRecordingVoice && (
+                  <>
+                    <div className="relative group">
+                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => { handleImageAttach(e, chat, onUpdateChat, eSilentMode); e.target.value = ''; }} />
+                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200"}`}><Plus size={16} /></div>
+                    </div>
+                     <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eScheduleDateTime ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200")}`} onClick={() => setShowSchedulePopupFn2(!eShowSchedulePopup)}><Clock size={16} /></div>
+                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eShowStickerPicker ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200")}`} onClick={() => setShowStickerPickerFn2(!eShowStickerPicker)}><Smile size={16} /></div>
+                  </>
+                )}
+                <div className={`flex-1 min-w-0 h-11 sm:h-12 rounded-full px-3 sm:px-4 flex items-center relative ${isDark ? "bg-[#13151b] border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]" : "bg-[#f4f7f9] border border-black/5 shadow-[inset_2px_2px_4px_rgba(165,175,190,0.2)]"}`}>
+                  <input type="text" value={eMsgText} onChange={(e) => setMsgTextFn(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendMessage()} placeholder={eMorseMode ? t('chat.morsePlaceholder') : t('chat.messagePlaceholder')} className={`w-full bg-transparent border-none outline-none text-[13px] sm:text-[14px] ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`} style={{ ...(eMorseMode ? { fontFamily: 'monospace', color: '#f5941', filter: 'saturate(0.8)' } : {}) }} />
+                  <div className="absolute right-2 flex items-center gap-1">
+                    <div title={t('chat.silentMessage')} onClick={() => { setSilentModeFn2(!eSilentMode); }} className={`px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${eSilentMode ? (isDark ? "text-blue-400" : "text-blue-500") : (isDark ? "text-gray-600 hover:text-gray-400" : "text-slate-400 hover:text-slate-600")}`}><BellOff size={12} /></div>
+                    <div title={t('chat.toggleMorseEncoder')} onClick={() => { setMorseModeFn2(!eMorseMode); }} className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-mono font-bold cursor-pointer transition-colors ${eMorseMode ? (isDark ? "bg-amber-500 text-white" : "bg-amber-500 text-white") : (isDark ? "hover:bg-white/10 text-gray-400" : "hover:bg-black/5 text-slate-400")}`}>M</div>
+                  </div>
+                </div>
+                <div
+                  title={eMsgText ? (eScheduleDateTime ? t('chat.scheduleSend') : t('chat.sendMessage')) : t('chat.holdToRecordVoiceNote')}
+                  onClick={() => { if (eMsgText) sendMessage(); else { setVoiceNoteErrFn2(""); setIsRecordingVoiceFn2(true); } }}
+                  onPointerDown={() => { if (!eMsgText) { setVoiceNoteErrFn2(""); setIsRecordingVoiceFn2(true); } }}
+                  onContextMenu={(e) => e.preventDefault()}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${eScheduleDateTime && eMsgText ? (isDark ? "bg-blue-600 text-white" : "bg-blue-500 text-white") : (eMsgText ? (isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950") : (isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20"))}`}
+                >
+                  {eMsgText ? (eScheduleDateTime ? <Clock size={16} /> : <ChevronRight size={18} />) : <Mic size={18} />}
+                </div>
+              </div>
+              {eReplyTarget && (
+               <div className={`mx-2 sm:mx-3 mb-1 px-2 sm:px-3 py-2 rounded-xl border-l-2 flex items-start justify-between gap-1.5 sm:gap-2 ${isDark ? "bg-[#1a1d24]/80 border-orange-400/60 text-gray-300" : "bg-white/80 border-orange-500 text-slate-700"}`}>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold opacity-70">
+                      <ChevronRight size={10} className="rotate-180" />
+                      {t('chat.replyingTo')} {eReplyTarget.sender === "me" ? t('chat.yourMessage') : eReplyTarget.sender}
+                    </div>
+                    <div className="text-[12px] truncate mt-0.5">{eReplyTarget.text || (eReplyTarget.type === "audio" ? `${t('chat.voiceNote')} ${eReplyTarget.duration || ""}` : eReplyTarget.type === "image" ? t('chat.photoAttachment') : t('chat.attachment'))}</div>
+                  </div>
+                  <button onClick={() => setLocalReplyTarget(null)} className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 ${isDark ? "text-gray-500 hover:text-white hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"}`}>
+                    <X size={14} strokeWidth={2} />
+                  </button>
+                </div>
+              )}
+              {eVoiceNoteError && (
+                <div className={`mx-3 text-[11px] px-3 py-2 rounded-xl ${isDark ? "bg-red-500/10 text-red-300 border border-red-500/20" : "bg-red-50 text-red-600 border border-red-200"}`}>
+                  {eVoiceNoteError}
+                </div>
+              )}
+              {eMorseMode && eMsgText && (
+               <div className="mx-2 sm:mx-3 px-3 sm:px-5 pt-1 pb-1 font-mono text-[9.5px] sm:text-[10.5px] text-amber-500/80 tracking-widest break-all">
+                  {encodeMorse(eMsgText)}
+                </div>
+              )}
+              {eShowStickerPicker && (
+                <div className="animate-fade-in">
+                  <StickerPicker theme={theme} onSelect={(sticker: string) => { if (sendStickerMessage) sendStickerMessage(sticker); setShowStickerPickerFn2(false); }} onClose={() => setShowStickerPickerFn2(false)} />
+                </div>
+              )}
+           </>
+         )}
       </motion.div>
       <VideoPlayerOverlay
         open={videoOpen}

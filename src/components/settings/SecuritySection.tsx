@@ -3,6 +3,7 @@ import { Shield, Key, Lock, Unlock } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from 'sonner';
+import { ConfirmModal } from './ConfirmModal';
 import { cryptoCore } from '../../lib/crypto/cryptoCore';
 import { useAppStore } from '../../store';
 
@@ -16,6 +17,7 @@ export const SecuritySection = ({ isDark, onBack, t }: SecuritySectionProps) => 
   const [showPinInput, setShowPinInput] = useState(false);
   const [pinValue, setPinValue] = useState('');
   const [pinMode, setPinMode] = useState<'set' | 'remove'>('set');
+  const [showWipeConfirm, setShowWipeConfirm] = useState(false);
   const setAppLock = useAppStore(s => s.setAppLock);
   const appLockHashedPIN = useAppStore(s => s.appLockHashedPIN);
   const hasPin = appLockHashedPIN !== null;
@@ -57,8 +59,12 @@ export const SecuritySection = ({ isDark, onBack, t }: SecuritySectionProps) => 
     else handlePinRemove();
   };
 
-  const handleWipeData = async () => {
-    if (!confirm(t('settings.confirmWipe'))) return;
+  const handleWipeData = () => {
+    setShowWipeConfirm(true);
+  };
+
+  const handleConfirmWipe = async () => {
+    setShowWipeConfirm(false);
     try {
       await cryptoCore.secureWipe();
       toast.success(t('settings.dataWiped'));
@@ -86,6 +92,8 @@ export const SecuritySection = ({ isDark, onBack, t }: SecuritySectionProps) => 
                 else startPinAction('set');
               }}
               isDark={isDark}
+              onIcon={<Lock size={14} />}
+              offIcon={<Unlock size={14} />}
             />
           }
           onClick={() => {
@@ -127,6 +135,17 @@ export const SecuritySection = ({ isDark, onBack, t }: SecuritySectionProps) => 
           onClick={handleWipeData}
         />
       </SettingsGroup>
+
+      <ConfirmModal
+        isOpen={showWipeConfirm}
+        title={t('settings.wipeAllData')}
+        message={t('settings.confirmWipe')}
+        confirmLabel={t('settings.wipeAllData')}
+        cancelLabel={t('common.cancel')}
+        variant="danger"
+        onConfirm={handleConfirmWipe}
+        onCancel={() => setShowWipeConfirm(false)}
+      />
     </SubView>
   );
 };

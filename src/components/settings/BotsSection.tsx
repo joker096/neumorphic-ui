@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { Bot, Plus, Power, Trash2 } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from 'sonner';
+import { ConfirmModal } from './ConfirmModal';
+import { TextInputModal } from './TextInputModal';
 import type { BotConfig } from '../../store';
+import { DEFAULT_BOT_PERMISSIONS } from '../../store';
 
 interface BotsSectionProps {
   isDark: boolean;
@@ -13,8 +17,16 @@ interface BotsSectionProps {
 }
 
 export const BotsSection = ({ isDark, bots, setBots, onBack, t }: BotsSectionProps) => {
+  const [showAddBotModal, setShowAddBotModal] = useState(false);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const [removeBotId, setRemoveBotId] = useState<string | null>(null);
+  const [removeBotName, setRemoveBotName] = useState('');
+
   const handleAddBot = () => {
-    const name = prompt(t('settings.enterBotName'));
+    setShowAddBotModal(true);
+  };
+
+  const handleConfirmAddBot = (name: string) => {
     if (!name?.trim()) return;
     const newBot: BotConfig = {
       id: `bot_${Date.now()}`,
@@ -23,20 +35,12 @@ export const BotsSection = ({ isDark, bots, setBots, onBack, t }: BotsSectionPro
       publicKey: '',
       ownerId: 'current-user',
       commands: [],
-      permissions: {
-        readMessages: true,
-        sendMessages: true,
-        editMessages: false,
-        deleteMessages: false,
-        inlineKeyboard: true,
-        readUserData: false,
-        accessGroups: false,
-        accessFiles: false,
-      },
+      permissions: { ...DEFAULT_BOT_PERMISSIONS },
       isRunning: false,
     };
     setBots(prev => [...prev, newBot]);
     toast.success(t('settings.botAdded'));
+    setShowAddBotModal(false);
   };
 
   const handleToggleBot = (botId: string) => {
@@ -44,10 +48,19 @@ export const BotsSection = ({ isDark, bots, setBots, onBack, t }: BotsSectionPro
   };
 
   const handleRemoveBot = (botId: string, botName: string) => {
-    if (confirm(t('settings.confirmRemoveBot'))) {
-      setBots(prev => prev.filter(b => b.id !== botId));
-      toast.success(`${botName} ${t('settings.removed')}`);
+    setRemoveBotId(botId);
+    setRemoveBotName(botName);
+    setShowRemoveConfirm(true);
+  };
+
+  const handleConfirmRemove = () => {
+    if (removeBotId) {
+      setBots(prev => prev.filter(b => b.id !== removeBotId));
+      toast.success(`${removeBotName} ${t('settings.removed')}`);
     }
+    setShowRemoveConfirm(false);
+    setRemoveBotId(null);
+    setRemoveBotName('');
   };
 
   return (
@@ -68,6 +81,15 @@ export const BotsSection = ({ isDark, bots, setBots, onBack, t }: BotsSectionPro
               title={bot.name}
               subtitle={bot.isRunning ? t('settings.botRunning') : t('settings.botStopped')}
               isDark={isDark}
+              rightElement={
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleRemoveBot(bot.id, bot.name); }}
+                  className="p-1 hover:text-red-400 transition-colors"
+                  title={t('settings.removeBot')}
+                >
+                  <Trash2 size={16} />
+                </button>
+              }
               onClick={() => handleToggleBot(bot.id)}
             />
           ))}
@@ -85,6 +107,26 @@ export const BotsSection = ({ isDark, bots, setBots, onBack, t }: BotsSectionPro
           onClick={handleAddBot}
         />
       </SettingsGroup>
+
+      <ConfirmModal
+        isOpen={showRemoveConfirm}
+        title={t('settings.confirmRemoveBot')}
+        confirmLabel={t('settings.remove')}
+        cancelLabel={t('common.cancel')}
+        variant="danger"
+        onConfirm={handleConfirmRemove}
+        onCancel={() => { setShowRemoveConfirm(false); setRemoveBotId(null); setRemoveBotName(''); }}
+      />
+
+<TextInputModal
+         isOpen={showAddBotModal}
+         title={t('settings.addBot')}
+         placeholder={t('settings.enterBotName')}
+         onConfirm={handleConfirmAddBot}
+         onCancel={() => setShowAddBotModal(false)}
+         confirmLabel={t('common.confirm')}
+         cancelLabel={t('common.cancel')}
+       />
     </SubView>
   );
 };

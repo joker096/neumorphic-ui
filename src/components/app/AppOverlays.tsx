@@ -5,9 +5,9 @@ import { ContactProfileModal } from "../ContactProfileModal";
 import { CreateBotModal } from "../CreateBotModal";
 import { CreateChannelModal } from "../CreateChannelModal";
 import { FloatingCallWidget } from "../FloatingCallWidget";
+import { useTheme } from "../../contexts/ThemeContext";
 
 type AppOverlaysProps = {
-  theme: "light" | "dark";
   isDark: boolean;
   view: string;
   showCreateChannel: boolean;
@@ -38,7 +38,6 @@ type AppOverlaysProps = {
 };
 
 export const AppOverlays = ({
-  theme,
   isDark,
   view,
   showCreateChannel,
@@ -66,54 +65,58 @@ export const AppOverlays = ({
   onProfileDelete,
   onProfileEdit,
   onProfileBlock,
-}: AppOverlaysProps) => (
-  <>
-    <AnimatePresence>
-      {showCreateChannel && <CreateChannelModal theme={theme} onClose={() => setShowCreateChannel(false)} />}
-      {showCreateBot && <CreateBotModal theme={theme} onClose={() => setShowCreateBot(false)} />}
-      <AdvancedFilterModal
-        isOpen={showAdvancedFilterModal}
-        onClose={() => setShowAdvancedFilterModal(false)}
-        isDark={isDark}
-        filters={advancedFilters}
-        setFilters={setAdvancedFilters}
-        t={t}
+}: AppOverlaysProps) => {
+  const { theme } = useTheme();
+  return (
+    <>
+      <AnimatePresence>
+        {showCreateChannel && <CreateChannelModal theme={theme} onClose={() => setShowCreateChannel(false)} />}
+        {showCreateBot && <CreateBotModal theme={theme} onClose={() => setShowCreateBot(false)} />}
+        {showAdvancedFilterModal && (
+          <AdvancedFilterModal
+            onClose={() => setShowAdvancedFilterModal(false)}
+            isDark={isDark}
+            filters={advancedFilters}
+            setFilters={setAdvancedFilters}
+            t={t}
+          />
+        )}
+      </AnimatePresence>
+
+      <ContactProfileModal
+        contact={globalSelectedContact}
+        theme={theme}
+        onClose={() => setGlobalSelectedContact(null)}
+        onCall={onProfileCall}
+        onVideoCall={onProfileVideoCall}
+        onMessage={onProfileMessage}
+        onDelete={onProfileDelete}
+        onEdit={onProfileEdit}
+        onBlock={onProfileBlock}
       />
-    </AnimatePresence>
 
-    <ContactProfileModal
-      contact={globalSelectedContact}
-      theme={theme}
-      onClose={() => setGlobalSelectedContact(null)}
-      onCall={onProfileCall}
-      onVideoCall={onProfileVideoCall}
-      onMessage={onProfileMessage}
-      onDelete={onProfileDelete}
-      onEdit={onProfileEdit}
-      onBlock={onProfileBlock}
-    />
+      <AnimatePresence>
+        {editingContact && (
+          <ContactCreateEditModal
+            contact={editingContact}
+            isDark={isDark}
+            onClose={() => setEditingContact(null)}
+            onSave={(name: string, id: string, color: string, localFields: any) => {
+              const existing = contacts.find((c) => c.id === editingContact.id);
+              if (existing) {
+                setContacts(contacts.map((contact) =>
+                  contact.id === editingContact.id ? { ...contact, name, id, color: color || contact.color, localFields } : contact
+                ));
+              } else {
+                setContacts([...contacts, { name, id, color: color || 'from-blue-400 to-indigo-500', lastSeen: Date.now(), localFields } as any]);
+              }
+              setEditingContact(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
-    <AnimatePresence>
-      {editingContact && (
-        <ContactCreateEditModal
-          contact={editingContact}
-          isDark={isDark}
-          onClose={() => setEditingContact(null)}
-          onSave={(name: string, id: string, color: string, localFields: any) => {
-            const existing = contacts.find((c) => c.id === editingContact.id);
-            if (existing) {
-              setContacts(contacts.map((contact) =>
-                contact.id === editingContact.id ? { ...contact, name, id, color: color || contact.color, localFields } : contact
-              ));
-            } else {
-              setContacts([...contacts, { name, id, color: color || 'from-blue-400 to-indigo-500', lastSeen: Date.now(), localFields } as any]);
-            }
-            setEditingContact(null);
-          }}
-        />
-      )}
-    </AnimatePresence>
-
-    {view !== "calls" && <FloatingCallWidget theme={theme} />}
-  </>
-);
+      {view !== "calls" && <FloatingCallWidget theme={theme} />}
+    </>
+  );
+};

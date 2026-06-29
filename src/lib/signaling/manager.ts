@@ -1,4 +1,4 @@
-import { createWsTunnel, WsTunnel } from '../transport/wsTunnel';
+import { createWsTunnel, WsTunnel, type TunnelBackend } from '../transport/wsTunnel';
 import { SignallingPool } from '../network/signallingPool';
 
 type MgrState = 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
@@ -11,14 +11,21 @@ export class SignallingManager {
   private stateChangeCallbacks: Set<(state: MgrState) => void> = new Set();
   private blockedRegionCallbacks: Set<(event: BlockedRegionEvent) => void> = new Set();
   private latencyMs: number = 0;
+  private backend: TunnelBackend = 'direct';
 
-  constructor(seedUrls: string[]) {
+  constructor(seedUrls: string[], backend?: TunnelBackend) {
     this.pool = new SignallingPool(seedUrls);
+    if (backend) this.backend = backend;
   }
 
   getState(): MgrState { return this.state; }
   getLatency(): number { return this.latencyMs; }
   getPool(): SignallingPool { return this.pool; }
+  getBackend(): TunnelBackend { return this.backend; }
+
+  setBackend(backend: TunnelBackend): void {
+    this.backend = backend;
+  }
 
   setState(s: MgrState): void {
     this.state = s;
@@ -39,7 +46,7 @@ export class SignallingManager {
 
     const start = Date.now();
     try {
-      this.tunnel = createWsTunnel(url, 'direct');
+      this.tunnel = createWsTunnel(url, this.backend);
       await this.tunnel.connect();
       this.latencyMs = Date.now() - start;
       this.pool.markActive(url, this.latencyMs);
