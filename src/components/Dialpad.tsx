@@ -122,16 +122,6 @@ export const LightSearchBar = ({ searchQuery, onSearchChange, placeholder }: { s
   return (
     <div className="relative group w-full">
       <div
-        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-2 bg-orange-400 blur-[8px] rounded-full pointer-events-none transition-all duration-500 ${focused ? "w-[180px] opacity-100" : "w-[80px] opacity-0 group-hover:opacity-40"}`}
-      />
-      <div
-        className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 h-[1px] bg-white rounded-full blur-[1px] pointer-events-none transition-all duration-500 ${focused ? "w-[60px] opacity-100" : "w-[16px] opacity-0 group-hover:opacity-30"}`}
-      />
-      <div
-        className={`absolute -bottom-[4px] left-1/2 -translate-x-1/2 w-4 h-[2px] bg-white rounded-full blur-[3px] opacity-100 pointer-events-none transition-all duration-500 ${focused ? "opacity-100" : "opacity-0"}`}
-      />
-
-      <div
         className={`relative w-full h-[44px] rounded-full px-6 py-0 flex items-center justify-between border transition-all duration-300 
         ${
           pressed
@@ -223,16 +213,6 @@ export const DarkSearchBar = ({ searchQuery, onSearchChange, placeholder }: { se
 
   return (
     <div className="relative group w-full">
-      <div
-        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-2 bg-orange-500 blur-[8px] rounded-full pointer-events-none transition-all duration-500 ${focused ? "w-[180px] opacity-100" : "w-[80px] opacity-0 group-hover:opacity-40"}`}
-      />
-      <div
-        className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 h-[1px] bg-white rounded-full blur-[1px] pointer-events-none transition-all duration-500 ${focused ? "w-[60px] opacity-80" : "w-[16px] opacity-0 group-hover:opacity-30"}`}
-      />
-      <div
-        className={`absolute -bottom-[4px] left-1/2 -translate-x-1/2 w-4 h-[2px] bg-white rounded-full blur-[3px] opacity-100 pointer-events-none transition-all duration-500 ${focused ? "opacity-100" : "opacity-0"}`}
-      />
-
       <div
         className={`relative w-full h-[44px] rounded-full px-6 py-0 flex items-center justify-between border transition-all duration-300 
         ${

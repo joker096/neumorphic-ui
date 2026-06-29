@@ -156,7 +156,13 @@
       "sectionWork": "Travail",
       "sectionArchived": "Archivé",
       "startCall": "Appeler"
-    }
+    },
+    "createFolder": "Créer dossier",
+    "folderNameHint": "Nommez votre dossier personnalisé",
+    "folderPlaceholder": "Nom du dossier...",
+    "cancel": "Annuler",
+    "create": "Créer",
+    "yourFolders": "Vos dossiers"
   },
   "common": {
     "addDevice": "Ajouter un appareil",

@@ -156,7 +156,13 @@
       "sectionWork": "Work",
       "sectionArchived": "Archived",
       "startCall": "Call"
-    }
+    },
+    "createFolder": "创建文件夹",
+    "folderNameHint": "命名您的自定义文件夹",
+    "folderPlaceholder": "文件夹名称...",
+    "cancel": "取消",
+    "create": "创建",
+    "yourFolders": "您的文件夹"
   },
   "common": {
     "addDevice": "デバイスを追加",
