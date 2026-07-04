@@ -24,8 +24,20 @@ export function b64decode(s: string): Uint8Array {
 export { DoubleRatchet } from './doubleRatchet'
 export type { DoubleRatchetState } from './doubleRatchet'
 
+const HEX_TABLE = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'))
+
 export function buf2hex(buffer: ArrayBuffer): string {
-  return Array.prototype.map.call(new Uint8Array(buffer), (x: number) => ('00' + x.toString(16)).slice(-2)).join('')
+  const bytes = new Uint8Array(buffer)
+  const parts: string[] = []
+  for (let i = 0; i < bytes.length; i += 4096) {
+    const end = Math.min(i + 4096, bytes.length)
+    let hex = ''
+    for (let j = i; j < end; j++) {
+      hex += HEX_TABLE[bytes[j]]
+    }
+    parts.push(hex)
+  }
+  return parts.join('')
 }
 
 export function hex2buf(hexString: string): Uint8Array {
