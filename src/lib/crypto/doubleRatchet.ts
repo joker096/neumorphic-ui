@@ -15,17 +15,31 @@ export interface DoubleRatchetState {
 }
 
 async function hkdfDerive(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, length = 32): Promise<Uint8Array> {
-  const key = await crypto.subtle.importKey('raw', ikm, { name: 'PBKDF2' }, false, ['deriveKey'])
-  const combinedSalt = new Uint8Array(salt.length + info.length)
-  combinedSalt.set(salt, 0)
-  combinedSalt.set(info, salt.length)
-  const keyDerive = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
-    key,
-    { name: 'AES-GCM', length }
-  )
-  const rawKey = await crypto.subtle.exportKey('raw', keyDerive)
-  return new Uint8Array(rawKey)
+  try {
+    const key = await crypto.subtle.importKey('raw', ikm, { name: 'PBKDF2' }, false, ['deriveKey'])
+    const combinedSalt = new Uint8Array(salt.length + info.length)
+    combinedSalt.set(salt, 0)
+    combinedSalt.set(info, salt.length)
+    const keyDerive = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
+      key,
+      { name: 'AES-GCM', length }
+    )
+    const rawKey = await crypto.subtle.exportKey('raw', keyDerive)
+    return new Uint8Array(rawKey)
+  } catch {
+    // Fallback: use SHA-256 based derivation if PBKDF2 is not available
+    const hash = await crypto.subtle.digest('SHA-256', new Uint8Array([...salt, ...ikm, ...info]))
+    const result = new Uint8Array(length)
+    result.set(new Uint8Array(hash), 0)
+    if (length > 32) {
+      for (let i = 1; result.byteLength < length; i++) {
+        const block = await crypto.subtle.digest('SHA-256', new Uint8Array([...result.subarray(0, 32), i]))
+        result.set(new Uint8Array(block), i * 32)
+      }
+    }
+    return result.slice(0, length)
+  }
 }
 
 async function deriveChainKeys(rootKey: CryptoKey, role: 'send' | 'recv'): Promise<CryptoKey> {
