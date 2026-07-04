@@ -1,3 +1,4 @@
+// src/lib/crypto/doubleRatchet.ts
 import { generateX25519KeyPair, x25519DH, buf2hex, hex2buf } from '../cryptoCore'
 import type { X25519KeyPair } from './types'
 
@@ -10,37 +11,58 @@ export interface DoubleRatchetState {
   remotePublicKey: Uint8Array
   previousRemoteKey: Uint8Array | null
   skippedMessageKeys: Map<string, { key: CryptoKey; counter: number }>
+  rootKey?: CryptoKey
 }
 
 async function hkdfDerive(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, length = 32): Promise<Uint8Array> {
-   // HKDF not available via Web Crypto API for raw keying material.
-   // Implement HKDF using HKDF with proper key import.
-   // Since HKDF requires a pre-shared key, we use HKDF with the IKM
-   // as the input keying material by deriving a temporary key first.
-   try {
-     const tempKey = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits', 'deriveKey'])
-     const bits = await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info }, tempKey, length * 8)
-     return new Uint8Array(bits)
-   } catch {
-     // HKDF not supported — fallback: use HKDF with SHA-256
-     // HKDF with SHA-256 is not available in all browsers — use HKDF as PRF
-     // HKDF fallback: HKDF(ikm, salt, info) = HKDF with HKDF algorithm
-     const combined = new Uint8Array(salt.length + ikm.length + info.length)
-     combined.set(salt, 0)
-     combined.set(ikm, salt.length)
-     combined.set(info, salt.length + ikm.length)
-     const hash = await crypto.subtle.digest('SHA-256', combined)
-     return new Uint8Array(hash)
-   }
- }
+  try {
+    const key = await crypto.subtle.importKey('raw', ikm, { name: 'PBKDF2' }, false, ['deriveKey'])
+    const combinedSalt = new Uint8Array(salt.length + info.length)
+    combinedSalt.set(salt, 0)
+    combinedSalt.set(info, salt.length)
+    const keyDerive = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
+      key,
+      { name: 'AES-GCM', length }
+    )
+    const rawKey = await crypto.subtle.exportKey('raw', keyDerive)
+    return new Uint8Array(rawKey)
+  } catch {
+    const prkHash = new Uint8Array(await crypto.subtle.digest('SHA-256', new Uint8Array([...salt, ...ikm])))
+    const result = new Uint8Array(length)
+    let prev = new Uint8Array(0)
+    const blockSize = 32
+    for (let i = 1; result.byteLength < length; i++) {
+      const input = new Uint8Array([...prev, ...info, i])
+      const block = new Uint8Array(await crypto.subtle.digest('SHA-256', new Uint8Array([...prkHash, ...input])))
+      result.set(block, (i - 1) * blockSize)
+      prev = block
+    }
+    return result.slice(0, length)
+  }
+}
+
+async function deriveChainKeys(rootKey: CryptoKey, role: 'send' | 'recv'): Promise<CryptoKey> {
+  const salt = crypto.getRandomValues(new Uint8Array(32))
+  const info = new TextEncoder().encode(role)
+  const combinedSalt = new Uint8Array(salt.length + info.length)
+  combinedSalt.set(salt, 0)
+  combinedSalt.set(info, salt.length)
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
+    rootKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    role === 'send' ? ['encrypt'] : ['decrypt'],
+  )
+}
 
 async function dhRatchet(dhPair: X25519KeyPair, remoteKey: Uint8Array): Promise<{
   sendKey: CryptoKey
   recvKey: CryptoKey
 }> {
   const sharedSecret = x25519DH(dhPair.secretKey, remoteKey)
-
-  const salt = new Uint8Array(32)
+  const salt = crypto.getRandomValues(new Uint8Array(32))
   const recvRoot = await hkdfDerive(salt, sharedSecret, new TextEncoder().encode('recv'))
   const sendRoot = await hkdfDerive(salt, sharedSecret, new TextEncoder().encode('send'))
 
@@ -59,9 +81,9 @@ export class DoubleRatchet {
 
   static async initialize(): Promise<{ ratchet: DoubleRatchet; publicKey: Uint8Array }> {
     const dhPair = generateX25519KeyPair()
-    const emptyKey = new Uint8Array(32)
-    const encryptDummyKey = await crypto.subtle.importKey('raw', emptyKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt'])
-    const recvDummyKey = await crypto.subtle.importKey('raw', emptyKey, { name: 'AES-GCM', length: 256 }, false, ['decrypt'])
+    const randomKey = crypto.getRandomValues(new Uint8Array(32))
+    const encryptDummyKey = await crypto.subtle.importKey('raw', randomKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt'])
+    const recvDummyKey = await crypto.subtle.importKey('raw', randomKey, { name: 'AES-GCM', length: 256 }, false, ['decrypt'])
 
     const state: DoubleRatchetState = {
       sendChainKey: encryptDummyKey,
@@ -69,7 +91,7 @@ export class DoubleRatchet {
       sendCounter: 0,
       recvCounter: 0,
       localDHKeyPair: dhPair,
-      remotePublicKey: emptyKey,
+      remotePublicKey: randomKey,
       previousRemoteKey: null,
       skippedMessageKeys: new Map(),
     }
@@ -133,12 +155,6 @@ export class DoubleRatchet {
     }
   }
 
-  /**
-   * Exchange the remote public key and derive symmetric keys.
-   * Both sides call this with each other's public key. Since X25519 DH
-   * is symmetric (DH(a_priv, b_pub) == DH(b_priv, a_pub)), both sides
-   * derive the same send/recv keys.
-   */
   async ratchet(remoteKey: Uint8Array): Promise<void> {
     this.state.previousRemoteKey = this.state.remotePublicKey
     this.state.remotePublicKey = remoteKey
@@ -151,17 +167,43 @@ export class DoubleRatchet {
     this.state.recvCounter = 0
   }
 
-  /**
-   * Perform an additional ratchet step (skip ratchet) without changing the DH key.
-   * This derives new chain keys from the current DH key pair.
-   */
   async ratchetStep(): Promise<void> {
+    const newDHKeyPair = generateX25519KeyPair()
     const { sendKey, recvKey } = await dhRatchet(this.state.localDHKeyPair, this.state.remotePublicKey)
 
     this.state.sendChainKey = sendKey
     this.state.recvChainKey = recvKey
+    this.state.localDHKeyPair = newDHKeyPair
     this.state.sendCounter = 0
     this.state.recvCounter = 0
+  }
+
+  /**
+   * Derive forward secrecy key from current ratchet state
+   */
+  async deriveForwardSecrecyKey(): Promise<CryptoKey> {
+    if (!this.state.rootKey) {
+      throw new Error('Root key not initialized')
+    }
+    const salt = crypto.getRandomValues(new Uint8Array(32))
+    const info = new TextEncoder().encode(`forward-secrecy-${this.state.sendCounter}`)
+    const combinedSalt = new Uint8Array(salt.length + info.length)
+    combinedSalt.set(salt, 0)
+    combinedSalt.set(info, salt.length)
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
+      this.state.rootKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt'],
+    )
+  }
+
+  /**
+   * Add a skipped message key for out-of-order delivery
+   */
+  addSkippedMessageKey(keyId: string, key: CryptoKey, counter: number): void {
+    this.state.skippedMessageKeys.set(keyId, { key, counter })
   }
 
   getState(): DoubleRatchetState {

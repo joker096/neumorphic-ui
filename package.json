@@ -8,9 +8,12 @@
     "build": "vite build",
     "build:web": "pwsh -NoProfile -File scripts/build-web.ps1",
     "build:android": "node scripts/build-android.mjs",
+    "build:ios": "node scripts/build-ios.mjs",
     "build:all": "node scripts/build-android.mjs",
     "deploy": "pwsh -NoProfile -File scripts/deploy-all.ps1",
     "deploy:web": "pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipAndroid -SkipSignaling",
+    "deploy:ios": "node scripts/build-ios.mjs",
+    "deploy:android": "node scripts/build-android.mjs",
     "deploy:quick": "pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipTests -SkipAndroid",
     "deploy:server": "pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipBuild -SkipAndroid",
     "preview": "vite preview",
@@ -21,7 +24,6 @@
     "admin:create": "npx tsx server/cli.ts"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
     "@noble/post-quantum": "^0.6.1",
     "@otplib/core": "^13.4.1",
     "@privacyresearch/libsignal-protocol-typescript": "^0.0.16",
@@ -68,12 +70,16 @@
     "esbuild": "^0.25.0",
     "eslint": "^9.39.4",
     "eslint-plugin-security": "^4.0.0",
+    "file-type": "^22.0.1",
     "jsdom": "^29.1.1",
     "sharp": "^0.35.2",
     "tailwindcss": "^4.1.14",
+    "tar": "^7.5.19",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
+    "uuid": "^14.0.1",
     "vite": "^6.2.3",
     "vitest": "^4.1.8"
-  }
+  },
+  "overrides": {}
 }

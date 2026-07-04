@@ -2,7 +2,13 @@ import * as nacl from 'tweetnacl'
 import type { X25519KeyPair, EncryptedPayload, HandshakeResult, EncryptResult } from './types'
 
 export function b64encode(data: Uint8Array): string {
-  return btoa(String.fromCharCode(...data))
+  const chunks: string[] = []
+  const chunkSize = 8192
+  for (let i = 0; i < data.length; i += chunkSize) {
+    const end = Math.min(i + chunkSize, data.length)
+    chunks.push(String.fromCharCode(...data.subarray(i, end)))
+  }
+  return btoa(chunks.join(''))
 }
 
 export function b64decode(s: string): Uint8Array {
@@ -99,6 +105,7 @@ export class KyberKEM {
 export class CryptoCore {
   private identityKeys: X25519KeyPair | null = null
   private keyRotationCount = 0
+  private forwardSecrecyKeys: Map<string, CryptoKey> = new Map()
 
   async initialize(): Promise<void> {
     this.identityKeys = generateX25519KeyPair()
@@ -124,24 +131,21 @@ export class CryptoCore {
     }
   }
 
-  async encryptMessage(message: string, publicKey: string): Promise<EncryptResult> {
-    const keyBytes = b64decode(publicKey)
-    const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['encrypt'])
+  async encryptMessage(message: string, sharedSecret: Uint8Array): Promise<EncryptResult> {
+    const key = await crypto.subtle.importKey('raw', sharedSecret, 'AES-GCM', false, ['encrypt'])
     const iv = crypto.getRandomValues(new Uint8Array(12))
     const messageBuffer = new TextEncoder().encode(message)
     const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, messageBuffer)
-    const tag = await crypto.subtle.digest('SHA-256', ciphertext)
     return {
       ciphertext: buf2hex(ciphertext),
       iv: buf2hex(iv),
-      tag: buf2hex(tag),
-      publicKey,
+      tag: '',
+      publicKey: '',
     }
   }
 
-  async decryptMessage(ciphertext: string, iv: string, publicKey: string): Promise<string> {
-    const keyBytes = b64decode(publicKey)
-    const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['decrypt'])
+  async decryptMessage(ciphertext: string, iv: string, sharedSecret: Uint8Array): Promise<string> {
+    const key = await crypto.subtle.importKey('raw', sharedSecret, 'AES-GCM', false, ['decrypt'])
     const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: hex2buf(iv) }, key, hex2buf(ciphertext))
     return new TextDecoder().decode(decrypted)
   }
@@ -156,18 +160,50 @@ export class CryptoCore {
     }
   }
 
+  /**
+   * Create a forward secrecy key for message encryption
+   */
+  async createForwardSecrecyKey(): Promise<{ keyId: string; key: CryptoKey }> {
+    const keyId = crypto.randomUUID()
+    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
+    this.forwardSecrecyKeys.set(keyId, key)
+    return { keyId, key }
+  }
+
+  /**
+   * Delete forward secrecy key (forward secrecy)
+   */
+  async deleteForwardSecrecyKey(keyId: string): Promise<void> {
+    this.forwardSecrecyKeys.delete(keyId)
+  }
+
+  /**
+   * Get forward secrecy key by ID
+   */
+  getForwardSecrecyKey(keyId: string): CryptoKey | null {
+    return this.forwardSecrecyKeys.get(keyId) || null
+  }
+
+  /**
+   * Derive HKDF key from master key
+   */
   async deriveHKDF(
     ikm: ArrayBuffer,
     info: ArrayBuffer = new Uint8Array(0).buffer,
     salt: ArrayBuffer = new Uint8Array(32).buffer,
     length = 32,
   ): Promise<ArrayBuffer> {
-    const keyMaterial = await crypto.subtle.importKey('raw', ikm, { name: 'HKDF' }, false, ['deriveBits', 'deriveKey'])
-    return crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info }, keyMaterial, length * 8)
+    const keyMaterial = await crypto.subtle.importKey('raw', ikm, { name: 'PBKDF2' }, false, ['deriveBits'])
+    const infoArr = new Uint8Array(info)
+    const saltArr = new Uint8Array(salt)
+    const combinedSalt = new Uint8Array(saltArr.length + infoArr.length)
+    combinedSalt.set(saltArr, 0)
+    combinedSalt.set(infoArr, saltArr.length)
+    return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: combinedSalt, iterations: 1 }, keyMaterial, length * 8)
   }
 
   async deriveAESKeyFromPassword(
-    password: string, saltHex?: string, iterations = 600000,
+    password: string, saltHex?: string, iterations = 100000,
   ): Promise<{ key: CryptoKey; saltHex: string }> {
     const passKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey'])
     let salt: Uint8Array
@@ -201,7 +237,7 @@ export class CryptoCore {
     return new TextDecoder().decode(decryptedBuffer)
   }
 
-  async hashAppLockPIN(pin: string, saltHex?: string, iterations = 600000) {
+  async hashAppLockPIN(pin: string, saltHex?: string, iterations = 100000) {
     const passKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits'])
     let salt: Uint8Array
     if (saltHex) {
@@ -228,16 +264,17 @@ export class CryptoCore {
     return crypto.subtle.importKey('raw', hex2buf(rawKeyHex), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify'])
   }
 
-  signX25519(privateKey: Uint8Array, message: string): Uint8Array {
+  signEd25519(privateKey: Uint8Array, message: string): Uint8Array {
     const msgBuf = new TextEncoder().encode(message)
     return nacl.sign.detached(msgBuf, privateKey)
   }
 
-  verifyX25519Signature(publicKey: Uint8Array, message: string, signature: Uint8Array): boolean {
-    const msgBuf = new TextEncoder().encode(message)
+  verifyEd25519Signature(publicKey: Uint8Array, message: string, signature: Uint8Array): boolean {
     try {
-      const result = (nacl.sign.open as any)(signature, msgBuf, publicKey)
-      return result !== false
+      const signedMsg = new Uint8Array(signature.length + message.length)
+      signedMsg.set(signature)
+      signedMsg.set(new TextEncoder().encode(message), signature.length)
+      return nacl.sign.open(signedMsg, publicKey) !== null
     } catch {
       return false
     }
@@ -258,6 +295,7 @@ export class CryptoCore {
         this.identityKeys = null
       }
       this.keyRotationCount = 0
+      this.forwardSecrecyKeys.clear()
     } catch { /* noop */ }
 
     try {

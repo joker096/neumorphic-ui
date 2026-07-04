@@ -1,10 +1,13 @@
 import { WebSocketServer, WebSocket } from 'ws'
-import { createServer } from 'node:http'
+import { createServer, RequestListener } from 'node:http'
+import { readFileSync, existsSync } from 'node:fs'
+import { join, dirname } from 'node:path'
 import jwt from 'jsonwebtoken'
 import { logConnection, logDisconnection, closeDb } from './db.js'
 import { handleAuthRoute } from './routes/auth.js'
 import { handleStatsRoute } from './routes/stats.js'
 import { handleAdsRoute } from './routes/ads.js'
+import { applyCSP } from './csp.js'
 
 const PORT = parseInt(process.env.PORT || '8765', 10)
 
@@ -57,6 +60,16 @@ function verifyWsToken(authHeader: string): boolean {
   } catch {
     return false
   }
+}
+
+// CORS allowlist from environment variable (comma-separated domains)
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+  : []
+
+function isOriginAllowed(origin: string): boolean {
+  if (ALLOWED_ORIGINS.length === 0) return false
+  return ALLOWED_ORIGINS.some((allowed) => origin === allowed)
 }
 
 const server = createServer()
@@ -209,12 +222,53 @@ wss.on('connection', (ws, req) => {
 })
 
 // --- REST API Server (port 8766) ---
+const ADMIN_DIST = join(__dirname, '..', 'dist', 'admin')
+
+function serveAdminFile(res: any, reqUrl: string, path: string): boolean {
+  if (!path.startsWith('/admin')) return false
+
+  // Normalize and validate path to prevent directory traversal
+  const fileRelPath = path.replace(/^\/admin(\/|$)/, '/')
+  const filePath = join(ADMIN_DIST, fileRelPath)
+  const normalizedPath = join(ADMIN_DIST, fileRelPath)
+  if (!normalizedPath.startsWith(ADMIN_DIST)) {
+    res.writeHead(403, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Access denied' }))
+    return true
+  }
+
+  if (existsSync(normalizedPath)) {
+    // Determine content type from extension
+    let contentType = 'text/plain'
+    if (normalizedPath.endsWith('.html')) contentType = 'text/html'
+    else if (normalizedPath.endsWith('.css')) contentType = 'text/css'
+    else if (normalizedPath.endsWith('.js')) contentType = 'application/javascript'
+    else if (normalizedPath.endsWith('.json')) contentType = 'application/json'
+    else if (normalizedPath.endsWith('.png')) contentType = 'image/png'
+    else if (normalizedPath.endsWith('.webp')) contentType = 'image/webp'
+    else if (normalizedPath.endsWith('.ico')) contentType = 'image/x-icon'
+    else if (normalizedPath.endsWith('.svg')) contentType = 'image/svg+xml'
+
+    res.writeHead(200, { 'Content-Type': contentType })
+    res.end(readFileSync(normalizedPath))
+    return true
+  }
+
+  return false
+}
+
 const restServer = createServer((req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
   const path = url.pathname
 
-  res.setHeader('Content-Type', 'application/json')
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  // Apply security headers (CSP, X-Content-Type-Options, etc.)
+  applyCSP(res)
+
+  // CORS headers - restricted to allowed origins
+  const origin = (req.headers['origin'] || '').toString()
+  if (ALLOWED_ORIGINS.length > 0 && isOriginAllowed(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 
@@ -224,6 +278,12 @@ const restServer = createServer((req, res) => {
     return
   }
 
+  res.setHeader('Content-Type', 'application/json')
+
+  // Try serving admin static files first
+  if (serveAdminFile(res, '', path)) return
+
+  // Handle API routes
   const handled =
     handleAuthRoute(req, res, path) ||
     handleStatsRoute(req, res, path) ||

@@ -2,7 +2,17 @@ import Database from 'better-sqlite3'
 import path from 'node:path'
 import fs from 'node:fs'
 
-const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'data', 'admin.db')
+const RAW_DB_PATH = process.env.DB_PATH
+const DB_PATH = (() => {
+  const raw = RAW_DB_PATH || path.join(process.cwd(), 'data', 'admin.db')
+  const normalized = path.resolve(raw)
+  // Validate that the resolved path is within a safe directory
+  const safeDir = path.resolve(path.join(process.cwd(), 'data'))
+  if (!normalized.startsWith(safeDir)) {
+    throw new Error('Invalid DB_PATH: must be within the data/ directory')
+  }
+  return normalized
+})()
 
 let db: Database.Database | null = null
 let initDone = false
