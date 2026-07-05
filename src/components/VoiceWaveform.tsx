@@ -5,12 +5,11 @@ import { useI18n } from '../lib/i18n';
 interface VoiceWaveformProps {
   duration?: string;
   isMe?: boolean;
-  isDark?: boolean;
   audioUrl?: string;
   stream?: MediaStream | null;
 }
 
-export const VoiceWaveform = ({ duration = "0:12", isMe, isDark, audioUrl, stream }: VoiceWaveformProps) => {
+export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream }: VoiceWaveformProps) => {
   const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -209,13 +208,9 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, isDark, audioUrl, strea
     const gap = 2; // px
     
     // Colors
-    const playedColor = isMe 
-      ? (isDark ? '#fff' : '#fff') 
-      : (isDark ? '#f97316' : '#f97316'); // Orange
+    const playedColor = isMe ? '#fff' : '#f97316'; // Orange
       
-    const unplayedColor = isMe
-      ? (isDark ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.4)')
-      : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)');
+    const unplayedColor = isMe ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)';
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
@@ -323,7 +318,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, isDark, audioUrl, strea
     return () => {
        if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [isMe, isDark, progress, isPlaying, staticWave, durationSec]);
+   }, [isMe, progress, isPlaying, staticWave, durationSec]);
 
   return (
     <div className={`flex items-center gap-3 ${stream ? 'w-full' : 'w-[220px]'}`}>
@@ -333,8 +328,8 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, isDark, audioUrl, strea
           title={isPlaying ? (t('systemPlayer.pause') === 'systemPlayer.pause' ? 'Pause' : t('systemPlayer.pause')) : (t('systemPlayer.play') === 'systemPlayer.play' ? 'Play' : t('systemPlayer.play'))}
           className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer flex-shrink-0 transition-transform active:scale-95 ${
               isMe 
-              ? (isDark ? "bg-white/20 hover:bg-white/30 text-white" : "bg-white/20 hover:bg-white/30 text-white shadow-sm") 
-              : (isDark ? "bg-orange-500 hover:bg-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)]" : "bg-orange-500 hover:bg-orange-600 text-white shadow-md")
+              ? "bg-white/20 hover:bg-white/30 text-white" 
+              : "bg-orange-500 hover:bg-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)]"
           }`}
         >
           {isPlaying ? (
@@ -351,7 +346,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, isDark, audioUrl, strea
            className="w-full h-8 block"
          />
          {!stream && (
-           <div className={`text-[10px] font-bold mt-1 tracking-wider ${isMe ? (isDark ? "text-orange-200" : "text-white/80") : (isDark ? "text-gray-500" : "text-slate-400")}`}>
+           <div className={`text-[10px] font-bold mt-1 tracking-wider ${isMe ? "text-orange-200" : "text-gray-500"}`}>
              {duration}
            </div>
          )}
@@ -367,9 +362,9 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, isDark, audioUrl, strea
               onChange={(e) => {
                 void handleSeek(Number(e.target.value) / 100);
               }}
-              className={`mt-2 w-full h-1.5 rounded-full appearance-none cursor-pointer accent-orange-500 disabled:opacity-40 ${isDark ? "bg-white/10" : "bg-black/10"}`}
-            />
-         )}
+              className="mt-2 w-full h-1.5 rounded-full appearance-none cursor-pointer accent-orange-500 disabled:opacity-40 bg-[var(--bg-secondary)]"
+           />
+          )}
       </div>
     </div>
   );
