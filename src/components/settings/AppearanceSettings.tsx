@@ -6,7 +6,7 @@ import { SubView } from '../ui/SubView';
 import { ThemeToggle } from '../app/ThemeToggle';
 
 interface AppearanceSettingsProps {
-  isDark: boolean;
+  isDark?: boolean;
   theme: 'light' | 'dark';
   setTheme: (t: 'light' | 'dark') => void;
   fontSize: string;
@@ -19,7 +19,7 @@ interface AppearanceSettingsProps {
 }
 
 export const AppearanceSettings = ({
-  isDark, theme, setTheme, fontSize, setFontSize, uiAnimations, setUiAnimations, showPwaBanner, setShowPwaBanner, onBack
+  isDark = false, theme, setTheme, fontSize, setFontSize, uiAnimations, setUiAnimations, showPwaBanner, setShowPwaBanner, onBack
 }: AppearanceSettingsProps) => {
   const { t } = useI18n();
   

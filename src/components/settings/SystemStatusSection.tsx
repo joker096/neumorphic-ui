@@ -3,7 +3,7 @@ import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/Settings
 import { SubView } from '../ui/SubView';
 
 interface SystemStatusSectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   connectionStatus: string;
   transportBackend: string;
   latencyMs: number;
@@ -11,6 +11,8 @@ interface SystemStatusSectionProps {
   regionBlocked: boolean;
   onBack: () => void;
   t: (key: string) => string;
+  isOnline?: boolean;
+  pendingMessages?: number;
 }
 
 const statusColors: Record<string, string> = {
@@ -30,7 +32,7 @@ const statusIcons: Record<string, string> = {
 };
 
 export const SystemStatusSection = ({
-  isDark, connectionStatus, transportBackend, latencyMs, blockedBackends, regionBlocked, onBack, t
+  isDark = false, connectionStatus, transportBackend, latencyMs, blockedBackends, regionBlocked, onBack, t
 }: SystemStatusSectionProps) => (
   <SubView title={t('settings.systemStatus')} isDark={isDark} onBack={onBack}>
     <SettingsSectionTitle title={t('settings.connection')} isDark={isDark} />

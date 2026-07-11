@@ -4,14 +4,14 @@ import { Plus } from "lucide-react";
 
 interface ReactionPickerProps {
   visible: boolean;
-  isDark: boolean;
+  isDark?: boolean;
   isMe: boolean;
   messageId: number | string;
   emojis: string[];
   onSelect: (emoji: string) => void;
 }
 
-export const ReactionPicker = ({ visible, isDark, isMe, messageId, emojis, onSelect }: ReactionPickerProps) => {
+export const ReactionPicker = ({ visible, isDark = false, isMe, messageId, emojis, onSelect }: ReactionPickerProps) => {
   if (!visible) return null;
 
   return (

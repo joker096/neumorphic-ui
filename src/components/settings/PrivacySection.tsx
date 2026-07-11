@@ -5,7 +5,7 @@ import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, UserCheck, UserX, Check,
 import { TextInputModal } from '../settings/TextInputModal';
 
 interface PrivacySectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   visNumber: string;
   setVisNumber: (v: string) => void;
   visActivity: string;
@@ -38,7 +38,7 @@ interface PrivacySectionProps {
 }
 
 export const PrivacySection = ({
-  isDark, visNumber, setVisNumber, visActivity, setVisActivity,
+  isDark = false, visNumber, setVisNumber, visActivity, setVisActivity,
   dndEnabled, setDndEnabled, dndFrom, setDndFrom, dndTo, setDndTo,
   priorityContacts, setPriorityContacts,
   stealthMode, anonymousMode, deliveryReceipts, readReceipts, typingIndicators,

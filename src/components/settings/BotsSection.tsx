@@ -9,14 +9,14 @@ import type { BotConfig } from '../../store';
 import { DEFAULT_BOT_PERMISSIONS } from '../../store';
 
 interface BotsSectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   bots: BotConfig[];
   setBots: (updater: BotConfig[] | ((prev: BotConfig[]) => BotConfig[])) => void;
   onBack: () => void;
   t: (key: string) => string;
 }
 
-export const BotsSection = ({ isDark, bots, setBots, onBack, t }: BotsSectionProps) => {
+export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSectionProps) => {
   const [showAddBotModal, setShowAddBotModal] = useState(false);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const [removeBotId, setRemoveBotId] = useState<string | null>(null);

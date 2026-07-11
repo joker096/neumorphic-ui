@@ -10,13 +10,13 @@ interface ChatHeaderProps {
     isFavorite?: boolean;
     id: string | number;
   };
-  isDark: boolean;
+  isDark?: boolean;
   onClose: () => void;
   onProfileClick: () => void;
   t: (key: string, options?: any) => string;
 }
 
-export const ChatHeader = ({ chat, isDark, onClose, onProfileClick, t }: ChatHeaderProps) => {
+export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, t }: ChatHeaderProps) => {
   return (
      <div
        className={`px-2 sm:px-3 py-2 flex items-center gap-2 sm:gap-3 relative z-10 ${

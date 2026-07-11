@@ -6,8 +6,8 @@ import type { Contact } from "../../types/contact";
 
 interface ContactItemProps {
   contact: Contact;
-  theme: "light" | "dark";
-  isDark: boolean;
+  theme?: "light" | "dark";
+  isDark?: boolean;
   onCall?: (name: string, color: string) => void;
   onVideoCall?: (name: string, color: string) => void;
   onToggleFavorite: (id: string, currentStatus: boolean) => void;
@@ -17,8 +17,8 @@ interface ContactItemProps {
 
 export const ContactItem: React.FC<ContactItemProps> = ({
   contact,
-  theme,
-  isDark,
+  theme = 'dark',
+  isDark = theme === 'dark',
   onCall,
   onVideoCall,
   onToggleFavorite,
@@ -155,7 +155,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
             e.stopPropagation();
             onToggleFavorite(contact.id, contact.isFavorite);
           }}
-          className={`shrink-0 transition-transform active:scale-90 min-w-[36px] min-h-[36px] flex items-center justify-center ${contact.isFavorite ? (isDark ? "text-yellow-400" : "text-yellow-500") : (isDark ? "text-gray-600" : "text-slate-300")}`}
+          className={`shrink-0 transition-transform active:scale-90 min-w-[44px] min-h-[44px] flex items-center justify-center ${contact.isFavorite ? (isDark ? "text-yellow-400" : "text-yellow-500") : (isDark ? "text-gray-600" : "text-slate-300")}`}
         >
           {contact.isFavorite ? <Star size={16} fill="currentColor" /> : <StarOff size={16} />}
         </button>

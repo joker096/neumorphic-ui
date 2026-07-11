@@ -1,5 +1,4 @@
 import React from 'react';
-import { Plus } from 'lucide-react';
 
 interface GlowingKnobLineProps {
   count?: number;

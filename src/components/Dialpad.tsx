@@ -576,10 +576,10 @@ export const Dialpad = ({
 
   return (
     <div
-      className={`p-8 flex flex-col items-center shadow-2xl relative overflow-hidden h-[70vh] min-h-[540px] max-h-[720px] w-full ${
+      className={`p-4 md:p-6 flex flex-col shadow-2xl relative overflow-y-auto w-full h-full ${
         isDark
-          ? "bg-[#1a1d24] border border-white/10"
-          : "bg-[#eaeff4] border border-white/60"
+          ? "bg-[#1a1d24]"
+          : "bg-[#eaeff4]"
       }`}
     >
       {/* Background radial soft light */}

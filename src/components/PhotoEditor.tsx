@@ -9,12 +9,12 @@ interface Props {
   imageUrl: string | null
   onClose: () => void
   onSave: (editedImageData: string) => void
-  theme: 'dark' | 'light'
+  theme?: 'dark' | 'light'
 }
 
 type Tool = 'draw' | 'rect' | 'text'
 
-export const PhotoEditor = ({ open, imageUrl, onClose, onSave, theme }: Props) => {
+export const PhotoEditor = ({ open, imageUrl, onClose, onSave, theme = 'dark' }: Props) => {
   const isDark = theme === 'dark'
   const { t } = useI18n()
   const canvasRef = useRef<HTMLCanvasElement>(null)

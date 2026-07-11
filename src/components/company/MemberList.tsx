@@ -4,7 +4,7 @@ import { MemberItem } from './MemberItem';
 import type { CompanyMember } from '../../lib/company/types';
 
 type MemberListProps = {
-  isDark: boolean;
+  isDark?: boolean;
   members: CompanyMember[];
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
@@ -13,7 +13,7 @@ type MemberListProps = {
   t: (key: string, args?: Record<string, string | number>) => string;
 };
 
-export const MemberList = ({ isDark, members, onCall, onVideoCall, onMemberClick, teamMembersLabel, t }: MemberListProps) => {
+export const MemberList = ({ isDark = false, members, onCall, onVideoCall, onMemberClick, teamMembersLabel, t }: MemberListProps) => {
   const colors = ["from-indigo-400 to-purple-500", "from-pink-400 to-rose-500", "from-yellow-400 to-orange-500", "from-teal-400 to-cyan-500"];
   
   return (

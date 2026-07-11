@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 
 interface SettingsToggleProps {
-  theme: 'light' | 'dark';
+  theme?: 'light' | 'dark';
   label: string;
   initialActive?: boolean;
   onToggle?: (active: boolean) => void;
 }
 
 export const SettingsToggle: React.FC<SettingsToggleProps> = ({
-  theme,
+  theme = 'dark',
   label,
   initialActive = false,
   onToggle,

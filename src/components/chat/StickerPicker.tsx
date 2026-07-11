@@ -82,7 +82,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
                     className={`w-10 h-10 rounded-full flex items-center justify-center text-xl hover:scale-110 transition-transform ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}
                   >
                     {stickerSrc ? (
-                      <img src={stickerSrc} alt={st} className="w-7 h-7 object-contain" />
+                      <img src={stickerSrc} alt={st} className="w-7 h-7 object-contain" loading="lazy" decoding="async" />
                     ) : (
                       st
                     )}

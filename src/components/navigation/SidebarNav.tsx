@@ -1,8 +1,9 @@
+import React from "react";
 import { MessageCircle, Phone, Settings, Users, Building2 } from "lucide-react";
 
 type SidebarNavProps = {
   activeView: string;
-  isDark: boolean;
+  isDark?: boolean;
   unreadCount: number;
   companyUnreadCount?: number;
   onNavigate: (view: string) => void;
@@ -17,7 +18,7 @@ const NAV_ITEMS = [
   { id: "settings", label: "nav.settings", icon: Settings },
 ];
 
-export const SidebarNav = ({ activeView, isDark, unreadCount, companyUnreadCount, onNavigate, t }: SidebarNavProps) => (
+export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount, companyUnreadCount, onNavigate, t }: SidebarNavProps) => (
   <aside
     className={`hidden md:flex flex-col w-64 h-[100dvh] shrink-0 border-r ${
       isDark ? "bg-[#0d1017] border-r-white/[0.06]" : "bg-[#f0f2f5] border-r-black/[0.06]"
@@ -61,4 +62,4 @@ export const SidebarNav = ({ activeView, isDark, unreadCount, companyUnreadCount
       })}
     </nav>
   </aside>
-);
+));

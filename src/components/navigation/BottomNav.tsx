@@ -1,9 +1,10 @@
+import React from "react";
 import { motion } from "motion/react";
 import { MessageCircle, Phone, Settings, Users, Building2 } from "lucide-react";
 
 type BottomNavProps = {
   activeView: string;
-  isDark: boolean;
+  isDark?: boolean;
   unreadCount: number;
   companyUnreadCount?: number;
   onNavigate: (view: string) => void;
@@ -18,7 +19,7 @@ const NAV_ITEMS = [
   { id: "settings", label: "nav.settings", icon: Settings },
 ];
 
-export const BottomNav = ({ activeView, isDark, unreadCount, companyUnreadCount, onNavigate, t }: BottomNavProps) => (
+export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, companyUnreadCount, onNavigate, t }: BottomNavProps) => (
   <nav
     className={`fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom,0px)] pt-2 md:hidden ${
       isDark
@@ -72,4 +73,4 @@ export const BottomNav = ({ activeView, isDark, unreadCount, companyUnreadCount,
       );
     })}
   </nav>
-);
+));

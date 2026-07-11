@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 
 interface AvatarRowProps {
-  theme: 'light' | 'dark';
+  theme?: 'light' | 'dark';
   onStoryClick?: (story: any) => void;
 }
 
@@ -13,7 +13,7 @@ interface ContactData {
   color: string;
 }
 
-export const AvatarRow: React.FC<AvatarRowProps> = ({ theme, onStoryClick }) => {
+export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryClick }) => {
   const { t } = useI18n();
   const isDark = theme === 'dark';
   

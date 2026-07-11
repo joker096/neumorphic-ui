@@ -6,7 +6,7 @@ import { useAppStore } from "../../store";
 
 interface ChatListItemProps {
   chat: any;
-  theme: "light" | "dark";
+  theme?: "light" | "dark";
   type?: "chat" | "channel";
   active?: boolean;
   onClick?: () => void;
@@ -23,9 +23,9 @@ interface ChatListItemProps {
   onLongPress?: () => void;
 }
 
-export const ChatListItem: React.FC<ChatListItemProps> = ({
+export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   chat,
-  theme,
+  theme = "dark",
   type = "chat",
   active = false,
   onClick,
@@ -89,18 +89,18 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
   const targetX = swipedOpen === "left" ? -120 : swipedOpen === "right" ? 120 : 0;
 
   return (
-    <div className="relative mb-4 last:mb-0 overflow-hidden" role="listitem">
+    <div className={`relative mb-4 last:mb-0 overflow-hidden chat-list-item ${active ? "chat-list-item-active" : ""}`} role="listitem">
       {!isGroup && onCall && onVideoCall && (
         <div className={`absolute inset-0 flex items-center justify-start overflow-hidden ${swipedOpen === "right" ? "z-10" : ""}`} aria-hidden={swipedOpen !== "right"}>
           <div className={`flex h-full ${swipedOpen === "right" ? "pointer-events-auto" : "pointer-events-none"}`}>
             <button
               onClick={() => handleSwipeAction("call")}
-              className={`h-full flex flex-col items-center justify-center gap-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-bold text-white cursor-pointer border-none ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
+              className={`h-full flex flex-col items-center justify-center gap-1 px-3 md:px-4 text-[10px] md:text-[11px] font-bold text-white cursor-pointer border-none ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
               style={{ width: "64px" }}
               aria-label={t('chat.startCall')}
             >
               <Phone size={16} fill="white" stroke="white" />
-              <span className="text-[8px] sm:text-[10px]">{t('chat.startCall')}</span>
+              <span className="text-[8px] md:text-[10px]">{t('chat.startCall')}</span>
             </button>
            <button
               onClick={() => handleSwipeAction("video")}
@@ -109,19 +109,19 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
               aria-label={t('chat.startVideoCall')}
             >
               <Video size={16} fill="white" stroke="white" />
-              <span className="text-[8px] sm:text-[10px]">Video</span>
+              <span className="text-[8px] md:text-[10px]">Video</span>
             </button>
           </div>
         </div>
       )}
-    <div className={`absolute inset-0 flex items-center justify-end px-4 sm:px-6 text-white overflow-hidden ${swipedOpen === "left" ? "z-10" : ""}`} aria-hidden={swipedOpen !== "left"}>
+    <div className={`absolute inset-0 flex items-center justify-end px-4 md:px-5 text-white overflow-hidden ${swipedOpen === "left" ? "z-10" : ""}`} aria-hidden={swipedOpen !== "left"}>
          <button
            onClick={() => handleSwipeAction("archive")}
            className={`flex items-center gap-1.5 sm:gap-2 cursor-pointer ${swipedOpen === "left" ? "pointer-events-auto" : "pointer-events-none"}`}
            aria-label={t('chat.unarchive')}
          >
            <Archive size={16} className={`${isDark ? "text-orange-500" : "text-white"}`} />
-           <span className={`text-[10px] sm:text-sm font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
+            <span className={`text-[10px] md:text-xs font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
          </button>
        </div>
       <motion.div
@@ -186,7 +186,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
               onAvatarClick(chat);
             }
           }}
-          className={`relative shrink-0 w-[52px] h-[52px] ${roundedClass} p-[2px] transition-transform duration-300 ${active ? "scale-95" : ""}`}
+          className={`relative shrink-0 w-12 h-12 md:w-14 md:h-14 ${roundedClass} p-[2px] transition-transform duration-300 ${active ? "scale-95" : ""}`}
         >
           {selectMode ? (
             <div
@@ -225,7 +225,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
         <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
           <div className="flex justify-between items-center mb-[2px]">
             <span
-              className={`font-bold text-[14.5px] truncate pr-2 flex items-center gap-1 ${isDark ? "text-[#e8ecf2]" : "text-slate-800"}`}
+              className={`font-bold text-sm md:text-[15px] truncate pr-2 flex items-center gap-1 ${isDark ? "text-[#e8ecf2]" : "text-slate-800"}`}
             >
               {chat.pinned && (
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 opacity-60 rotate-45">
@@ -235,14 +235,14 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
               {chat.name}
             </span>
             <span
-              className={`text-[10.5px] font-semibold tracking-wide shrink-0 ${isDark ? "text-gray-500" : "text-slate-400"}`}
+              className={`text-[10px] md:text-[11px] font-semibold tracking-wide shrink-0 ${isDark ? "text-gray-500" : "text-slate-400"}`}
             >
               {fuzzedTime}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span
-              className={`text-[12.5px] truncate pr-4 ${isDark ? (active ? "text-orange-300" : "text-[#7a8190]") : active ? "text-orange-600" : "text-slate-500"} ${chat.unread ? "font-medium" : ""}`}
+              className={`text-xs md:text-[13px] truncate pr-4 ${isDark ? (active ? "text-orange-300" : "text-[#7a8190]") : active ? "text-orange-600" : "text-slate-500"} ${chat.unread ? "font-medium" : ""}`}
             >
               {typingIndicators && chat.id === 1 && type === "chat" ? (
                 <span className={`font-bold tracking-wide italic ${isDark ? "text-orange-500" : "text-orange-600"}`}>
@@ -281,4 +281,4 @@ export const ChatListItem: React.FC<ChatListItemProps> = ({
       </motion.div>
     </div>
   );
-};
+});

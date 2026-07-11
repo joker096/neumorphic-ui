@@ -2,8 +2,8 @@ import React from "react";
 import { motion } from "motion/react";
 
 type AddStationModalProps = {
-  isDark: boolean;
-  textColor: string;
+  isDark?: boolean;
+  textColor?: string;
   showAddStationModal: boolean;
   setShowAddStationModal: (v: boolean) => void;
   stationName: string;
@@ -20,7 +20,7 @@ type AddStationModalProps = {
 };
 
 export const AddStationModal = ({
-  isDark, textColor, showAddStationModal, setShowAddStationModal,
+  isDark = false, textColor, showAddStationModal, setShowAddStationModal,
   stationName, setStationName, stationUrl, setStationUrl, stationAddError, setStationAddError,
   setRadioStations, radioStations, setRadioStationIndex, setIsPlaying, setIsRadioMode
 }: AddStationModalProps) => {

@@ -4,13 +4,14 @@ import { ChannelItem } from './ChannelItem';
 import type { CompanyChannel } from '../../lib/company/types';
 
 type ChannelListProps = {
-  isDark: boolean;
+  isDark?: boolean;
   channels: CompanyChannel[];
   channelsLabel: string;
+  onChannelClick?: (channel: CompanyChannel) => void;
   t: (key: string, args?: Record<string, string | number>) => string;
 };
 
-export const ChannelList = ({ isDark, channels, channelsLabel, t }: ChannelListProps) => {
+export const ChannelList = ({ isDark = false, channels, channelsLabel, onChannelClick, t }: ChannelListProps) => {
   const gradients: Record<string, string> = {
     'company-all': 'from-blue-400 to-indigo-500',
     'company-dev': 'from-purple-400 to-purple-600',
@@ -32,6 +33,7 @@ export const ChannelList = ({ isDark, channels, channelsLabel, t }: ChannelListP
               isDark={isDark}
               index={i}
               gradient={gradients[channel.id] || "from-teal-400 to-cyan-500"}
+              onClick={() => onChannelClick?.(channel)}
               t={t}
             />
           ))}

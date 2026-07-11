@@ -6,7 +6,7 @@ import { generateChannelKeypair } from '../lib/crypto/channelSigning';
 import { generatePostKey } from '../lib/crypto/postKeyManager';
 import { useI18n } from '../lib/i18n';
 
-export const CreateChannelModal = ({ theme, onClose }: { theme: 'dark' | 'light', onClose: () => void }) => {
+export const CreateChannelModal = ({ theme = 'dark', onClose }: { theme?: 'dark' | 'light', onClose: () => void }) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const [name, setName] = useState('');

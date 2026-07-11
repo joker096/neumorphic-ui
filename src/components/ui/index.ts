@@ -4,8 +4,8 @@ export { GlowingKnobLine } from './GlowingKnobLine';
 export { GlowingPlusLight } from './GlowingPlusLight';
 export { LightPillButton } from './LightPillButton';
 export { DarkPillButton } from './DarkPillButton';
-export { LightSearchBar } from './LightSearchBar';
-export { DarkSearchBar } from './DarkSearchBar';
+// LightSearchBar and DarkSearchBar removed - modules not found
+
 export { ActionCircleButton } from './ActionCircleButton';
 export { PillButton } from './PillButton';
 export { ChatListItem } from './ChatListItem';

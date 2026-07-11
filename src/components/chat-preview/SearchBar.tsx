@@ -3,14 +3,14 @@ import { Search, X } from "lucide-react";
 
 interface SearchBarProps {
   showSearch: boolean;
-  isDark: boolean;
+  isDark?: boolean;
   searchQuery: string;
-  onSearchChange: (value: string) => void;
+  onSearchChange?: (value: string) => void;
   placeholder?: string;
   t?: (key: string, options?: any) => string;
 }
 
-export const SearchBar = ({ showSearch, isDark, searchQuery, onSearchChange, placeholder }: SearchBarProps) => {
+export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchChange = () => {}, placeholder }: SearchBarProps) => {
   if (!showSearch) return null;
 
   return (
@@ -28,7 +28,7 @@ export const SearchBar = ({ showSearch, isDark, searchQuery, onSearchChange, pla
             className={`mr-2 shrink-0 ${isDark ? "text-gray-500" : "text-slate-400"}`}
           />
           <input
-            type="text"
+            type="search"
             placeholder={placeholder || "Search..."}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}

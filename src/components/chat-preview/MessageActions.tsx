@@ -3,14 +3,14 @@ import { Bookmark } from "lucide-react";
 
 interface MessageActionsProps {
   isMe: boolean;
-  isDark: boolean;
+  isDark?: boolean;
   isSaved: boolean;
   onReply?: () => void;
   onToggleSaved?: () => void;
   t: (key: string) => string;
 }
 
-export const MessageActions = ({ isMe, isDark, isSaved, onReply, onToggleSaved, t }: MessageActionsProps) => {
+export const MessageActions = ({ isMe, isDark = false, isSaved, onReply, onToggleSaved, t }: MessageActionsProps) => {
   if (isMe && !onReply && !onToggleSaved) return null;
 
   return (

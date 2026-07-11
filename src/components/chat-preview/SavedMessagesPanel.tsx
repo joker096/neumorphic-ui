@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 
 interface SavedMessagesPanelProps {
   show: boolean;
-  isDark: boolean;
+  isDark?: boolean;
   chatSavedMessages: any[];
   chatName: string;
   onClose: () => void;
@@ -12,7 +12,7 @@ interface SavedMessagesPanelProps {
   t: (key: string, options?: any) => string;
 }
 
-export const SavedMessagesPanel = ({ show, isDark, chatSavedMessages, chatName, onClose, onToggleSavedMessage, t }: SavedMessagesPanelProps) => {
+export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, chatName, onClose, onToggleSavedMessage, t }: SavedMessagesPanelProps) => {
   return (
     <AnimatePresence>
       {show && (

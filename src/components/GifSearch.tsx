@@ -7,7 +7,7 @@ interface Props {
   open: boolean
   onClose: () => void
   onSelect: (url: string) => void
-  theme: 'dark' | 'light'
+  theme?: 'dark' | 'light'
 }
 
 const TRENDING_GIFS = [
@@ -21,7 +21,7 @@ const TRENDING_GIFS = [
   'https://media.tenor.com/rUGjX6PtVQsAAAAC/heart-love.gif',
 ]
 
-export const GifSearch = ({ open, onClose, onSelect, theme }: Props) => {
+export const GifSearch = ({ open, onClose, onSelect, theme = 'dark' }: Props) => {
   const isDark = theme === 'dark'
   const { t } = useI18n()
   const [query, setQuery] = useState('')
@@ -99,7 +99,7 @@ export const GifSearch = ({ open, onClose, onSelect, theme }: Props) => {
                     onClick={() => { onSelect(gif.url); onClose() }}
                     className="aspect-square rounded-xl overflow-hidden hover:ring-2 ring-orange-500 transition-all active:scale-95"
                   >
-                    <img src={gif.preview} alt="" className="w-full h-full object-cover" loading="lazy" />
+                    <img src={gif.preview} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>

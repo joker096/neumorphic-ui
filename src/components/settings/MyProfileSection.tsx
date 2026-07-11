@@ -94,7 +94,7 @@ return (
           {/* Header gradient */}
           <div className={`h-24 bg-gradient-to-br ${userProfile.avatar ? '' : 'from-orange-400 to-red-500'}`}>
            {userProfile.avatar && (
-              <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" loading="lazy" />
+              <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" loading="lazy" decoding="async" />
             )}
           </div>
 
@@ -102,9 +102,9 @@ return (
           <div className="flex justify-center -mt-8 relative">
             <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-[var(--bg-primary)] bg-gradient-to-br bg-[var(--accent)]">
               {userProfile.avatar ? (
-                 <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" loading="lazy" />
+                 <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                ) : (
-                <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                 <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
                   <span className="text-white text-2xl font-bold">{(userProfile.name || 'U').charAt(0).toUpperCase()}</span>
                 </div>
               )}
@@ -160,9 +160,9 @@ return (
             <label className="relative cursor-pointer group">
               <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-[var(--bg-primary)] bg-gradient-to-br from-orange-400 to-red-500">
               {editAvatar ? (
-                   <img src={editAvatar} alt="avatar" className="w-full h-full object-cover" loading="lazy" />
+                   <img src={editAvatar} alt="avatar" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                  ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                   <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
                     <span className="text-white text-3xl font-bold">{(editName || 'U').charAt(0).toUpperCase() || 'U'}</span>
                   </div>
                 )}

@@ -5,7 +5,7 @@ import type { TunnelBackend } from '../../lib/transport/wsTunnel';
 import { Globe, RefreshCw, Network, Radio } from 'lucide-react';
 
 interface NetworkSectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   proxyEnabled: boolean;
   setProxyEnabled: (v: boolean) => void;
   proxyUrl: string;
@@ -17,6 +17,8 @@ interface NetworkSectionProps {
   torBridge: string;
   setTorBridge: (v: string) => void;
   turnServerUrl: string;
+  turnServerUser?: string;
+  turnServerPass?: string;
   relayBackend: string;
   setRelayBackend: (v: string) => void;
   autoReconnectEnabled: boolean;
@@ -33,7 +35,7 @@ const TOR_BRIDGES = ['None', 'obfs4', 'meek', 'Snowflake'];
 const RELAY_BACKENDS: TunnelBackend[] = ['direct', 'cfworker', 'domainfront', 'peertunnel'];
 
 export const NetworkSection = ({
-  isDark, proxyEnabled, setProxyEnabled, proxyUrl, setProxyUrl,
+  isDark = false, proxyEnabled, setProxyEnabled, proxyUrl, setProxyUrl,
   obfuscationMode, setObfuscationMode, obfuscationEnabled, setObfuscationEnabled,
   torBridge, setTorBridge, turnServerUrl, onUpdateSettings, onBack, t,
   relayBackend, setRelayBackend, autoReconnectEnabled, setAutoReconnectEnabled,

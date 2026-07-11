@@ -7,7 +7,7 @@ import { useAppStore } from "../../store";
 import { useI18n } from "../../lib/i18n";
 import { STORAGE_KEYS } from "../../constants/storage";
 
-type LockScreenProps = {
+export type LockScreenProps = {
   appLockHashedPIN: string | null;
   isUnlocked: boolean;
   setIsUnlocked: (v: boolean) => void;
@@ -21,8 +21,8 @@ type LockScreenProps = {
   setLockBlockedUntil: (v: number) => void;
   lockBlockTimer: number;
   setLockBlockTimer: (v: number) => void;
-  isDark: boolean;
-  theme: "light" | "dark";
+  isDark?: boolean;
+  theme?: "light" | "dark";
 };
 
 const getBlockDuration = (attempts: number): number => {
@@ -73,7 +73,8 @@ export function LockScreen({
   setLockBlockedUntil,
   lockBlockTimer,
   setLockBlockTimer,
-  isDark,
+  isDark = false,
+  theme = 'dark',
 }: LockScreenProps) {
   const { t } = useI18n();
 

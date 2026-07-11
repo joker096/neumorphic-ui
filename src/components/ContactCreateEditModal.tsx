@@ -6,13 +6,13 @@ import type { Contact, ContactField, FieldType, PhoneSubtype, ContactTag } from 
 
 type ContactFormProps = {
   contact?: Contact;
-  isDark: boolean;
+  isDark?: boolean;
   onClose: () => void;
   onSave: (name: string, id: string, color?: string, localFields?: ContactField[], extra?: { company?: string; position?: string; tags?: ContactTag[]; notes?: string }) => void;
   isLoading?: boolean;
 };
 
-export const ContactCreateEditModal = ({ contact, isDark, onClose, onSave, isLoading }: ContactFormProps) => {
+export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSave, isLoading }: ContactFormProps) => {
   const isEditing = !!contact;
   const { t } = useI18n();
   const [name, setName] = useState(contact?.name || '');

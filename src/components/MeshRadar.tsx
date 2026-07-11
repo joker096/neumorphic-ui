@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useI18n } from '../lib/i18n';
 import { useMeshPeers } from '../hooks/useMeshPeers';
 
-export const MeshRadar = ({ theme }: { theme: "dark" | "light" }) => {
+export const MeshRadar = ({ theme = 'dark' }: { theme?: "dark" | "light" }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDark = theme === "dark";
   const { t } = useI18n();

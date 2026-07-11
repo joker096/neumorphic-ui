@@ -12,11 +12,11 @@ interface ChannelCommentsProps {
    onClose: () => void;
    postId: number;
    postKey: string; // base64-encoded X25519 public key for E2EE
-   theme: 'dark' | 'light';
+   theme?: 'dark' | 'light';
    channelChatId: string;
 }
 
-export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme, channelChatId }: ChannelCommentsProps) => {
+export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme = 'dark', channelChatId }: ChannelCommentsProps) => {
    const isDark = theme === "dark";
    const { t } = useI18n();
    const [comment, setComment] = useState("");

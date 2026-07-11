@@ -8,65 +8,79 @@ export interface SettingsRowProps {
   iconColor?: string;
   title: string;
   subtitle?: string;
-  isDark: boolean;
+  isDark?: boolean;
   value?: string;
   rightElement?: React.ReactNode;
   onClick?: () => void;
   className?: string;
 }
 
-export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark, value, rightElement, onClick, className = "" }: SettingsRowProps) => (
-  <button
-    onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b last:border-b-0 ${isDark ? "border-white/5 hover:bg-white/5" : "border-black/5 hover:bg-black/5"} ${className}`}
-  >
-    {icon && (
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
-        {icon}
-      </div>
-    )}
-    <div className="flex-1 min-w-0">
-      <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{title}</div>
-      {subtitle && <div className={`text-xs mt-0.5 line-clamp-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>}
-    </div>
-    {rightElement ? (
-      rightElement
-    ) : (
-      <>
-        {value && (
-          <span className={`text-xs font-medium mr-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{value}</span>
-        )}
-        <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
-      </>
-    )}
-  </button>
-);
+export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark = false, value, rightElement, onClick, className = "" }: SettingsRowProps) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
 
-export const SettingsSectionTitle = ({ title, isDark }: { title: string; isDark: boolean }) => (
+  return (
+    <button
+      role="button"
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b last:border-b-0 ${isDark ? "border-white/5 hover:bg-white/5" : "border-black/5 hover:bg-black/5"} ${className}`}
+    >
+      {icon && (
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
+          {icon}
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{title}</div>
+        {subtitle && <div className={`text-xs mt-0.5 line-clamp-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>}
+      </div>
+      {rightElement ? (
+        rightElement
+      ) : (
+        <>
+          {value && (
+            <span className={`text-xs font-medium mr-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{value}</span>
+          )}
+          <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
+        </>
+      )}
+    </button>
+  );
+};
+
+export const SettingsSectionTitle = ({ title, isDark = false }: { title: string; isDark?: boolean }) => (
   <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
     {title}
   </div>
 );
 
-export const SettingsGroup = ({ children, isDark, className = "" }: { children: React.ReactNode; isDark: boolean; className?: string }) => (
+export const SettingsGroup = ({ children, isDark = false, className = "" }: { children: React.ReactNode; isDark?: boolean; className?: string }) => (
   <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"} ${className}`}>
     {children}
   </div>
 );
 
-export const ToggleSwitch = ({ isOn, onToggle, isDark, onIcon, offIcon }: { isOn: boolean, onToggle: () => void, isDark: boolean, onIcon?: React.ReactNode, offIcon?: React.ReactNode }) => {
+export const ToggleSwitch = ({ isOn, onToggle, isDark = false, onIcon, offIcon }: { isOn: boolean, onToggle: () => void, isDark?: boolean, onIcon?: React.ReactNode, offIcon?: React.ReactNode }) => {
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggle();
   };
   
   return (
-    <div 
+    <button
+      role="switch"
+      type="button"
       onClick={handleToggle}
       className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${isOn ? 'bg-emerald-500' : (isDark ? 'bg-gray-600' : 'bg-slate-300')}`}
+      aria-checked={isOn}
     >
       {isOn ? (onIcon || <div className={`w-4 h-4 rounded-full bg-white shadow-sm flex-shrink-0 ml-auto`} />) : (offIcon || <div className={`w-4 h-4 rounded-full bg-white shadow-sm flex-shrink-0 mr-auto`} />)}
-    </div>
+    </button>
   );
 };
 
@@ -77,7 +91,7 @@ interface SettingsToggleRowProps extends Omit<SettingsRowProps, 'rightElement' |
   toggleOffIcon?: React.ReactNode;
 }
 
-export const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, isOn, isDark, onToggle, toggleOnIcon, toggleOffIcon }: SettingsToggleRowProps) => (
+export const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, isOn, isDark = false, onToggle, toggleOnIcon, toggleOffIcon }: SettingsToggleRowProps) => (
   <SettingsRow
     icon={icon}
     iconBg={iconBg}

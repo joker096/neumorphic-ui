@@ -30,7 +30,7 @@ interface ChatListViewProps {
   setShowAdvancedFilterModal: (show: boolean) => void;
   advancedFilters: Record<string, boolean>;
   t: Translate;
-  isDark: boolean;
+  isDark?: boolean;
   onCall: (name: string, color?: string) => void;
   onVideoCall: (name: string, color?: string) => void;
 }
@@ -104,7 +104,7 @@ export const ChatListView = ({
   setShowAdvancedFilterModal,
   advancedFilters,
   t,
-  isDark,
+  isDark = false,
   onCall,
   onVideoCall,
 }: ChatListViewProps) => {
@@ -150,7 +150,7 @@ export const ChatListView = ({
   };
 
   return (
-    <div className={`w-full max-w-[320px] sm:max-w-[380px] md:max-w-[480px] lg:max-w-[580px] xl:max-w-[640px] flex-1 flex flex-col overflow-y-auto p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 md:mb-8 pb-[calc(56px+env(safe-area-inset-bottom,0px))] sm:pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-6 ${isDark ? "bg-[#11141c]/50 border border-white/5" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner"}`}>
+    <div className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[#11141c]/50" : "bg-[#eaeff4]/50"}`}>
       <div className="mb-4 sm:mb-6 relative z-30 flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="flex-1">
           {isDark ? (

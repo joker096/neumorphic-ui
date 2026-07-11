@@ -8,7 +8,7 @@ import { FloatingCallWidget } from "../FloatingCallWidget";
 import { useTheme } from "../../contexts/ThemeContext";
 
 type AppOverlaysProps = {
-  isDark: boolean;
+  isDark?: boolean;
   view: string;
   showCreateChannel: boolean;
   setShowCreateChannel: (show: boolean) => void;
@@ -38,7 +38,7 @@ type AppOverlaysProps = {
 };
 
 export const AppOverlays = ({
-  isDark,
+  isDark = false,
   view,
   showCreateChannel,
   setShowCreateChannel,

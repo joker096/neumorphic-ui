@@ -5,7 +5,7 @@ import { VoiceWaveform } from './VoiceWaveform';
 import { useI18n } from '../lib/i18n';
 
 interface LiveVoiceRecorderProps {
-   isDark: boolean;
+   isDark?: boolean;
    onCancel: () => void;
    onSend: (audioUrl: string, durationStr: string) => void;
    onReRecord: () => void;
@@ -13,7 +13,7 @@ interface LiveVoiceRecorderProps {
    holdToRecord?: boolean;
  }
 
-export const LiveVoiceRecorder = ({ isDark, onCancel, onSend, onReRecord, onPermissionDenied, holdToRecord = true }: LiveVoiceRecorderProps) => {
+export const LiveVoiceRecorder = ({ isDark = false, onCancel, onSend, onReRecord, onPermissionDenied, holdToRecord = true }: LiveVoiceRecorderProps) => {
     const { t } = useI18n();
     const label = (key: string, fallback: string) => {
       const translated = t(key);

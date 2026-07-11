@@ -6,13 +6,13 @@ type Translate = (key: string, options?: any) => string;
 
 type AdvancedFilterModalProps = {
   onClose: () => void;
-  isDark: boolean;
+  isDark?: boolean;
   filters: Record<string, boolean>;
   setFilters: Dispatch<SetStateAction<Record<string, boolean>>>;
   t: Translate;
 };
 
-export const AdvancedFilterModal = ({ onClose, isDark, filters, setFilters, t }: AdvancedFilterModalProps) => (
+export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilters, t }: AdvancedFilterModalProps) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}

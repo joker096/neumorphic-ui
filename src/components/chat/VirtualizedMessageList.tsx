@@ -6,7 +6,7 @@ interface VirtualizedMessageListProps<T> {
   estimateSize?: number;
   overscan?: number;
   className?: string;
-  isDark: boolean;
+  isDark?: boolean;
   children: (item: T, index: number) => React.ReactNode;
   onScrollPosition?: (isNearBottom: boolean) => void;
 }
@@ -17,7 +17,7 @@ export function VirtualizedMessageListInner<T>(
     estimateSize = 72,
     overscan = 5,
     className = '',
-    isDark,
+    isDark = false,
     children,
     onScrollPosition,
   }: VirtualizedMessageListProps<T>,

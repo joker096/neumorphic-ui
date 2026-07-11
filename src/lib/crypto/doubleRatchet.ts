@@ -23,7 +23,9 @@ async function hkdfDerive(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, l
     const keyDerive = await crypto.subtle.deriveKey(
       { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
       key,
-      { name: 'AES-GCM', length }
+      { name: 'AES-GCM', length },
+      false,
+      ['encrypt', 'decrypt']
     )
     const rawKey = await crypto.subtle.exportKey('raw', keyDerive)
     return new Uint8Array(rawKey)

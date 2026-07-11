@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { motion } from "motion/react";
 
 type VideoOverlayProps = {
-  isDark: boolean;
+  isDark?: boolean;
   showVideo: boolean;
   videoUrl: string | null;
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -11,7 +11,7 @@ type VideoOverlayProps = {
 };
 
 export const VideoOverlay = ({
-  isDark, showVideo, videoUrl, videoRef, closeVideo
+  isDark = false, showVideo, videoUrl, videoRef, closeVideo
 }: VideoOverlayProps) => {
   if (!showVideo || !videoUrl) return null;
 

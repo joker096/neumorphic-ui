@@ -8,7 +8,7 @@ interface Props {
   open: boolean
   onClose: () => void
   onCall: (name: string) => void
-  theme: 'dark' | 'light'
+  theme?: 'dark' | 'light'
 }
 
 const typeIcon = {
@@ -23,7 +23,7 @@ const typeColor = (type: string, isDark: boolean) => {
   return isDark ? 'text-orange-400' : 'text-orange-600'
 }
 
-export const CallHistorySheet = ({ open, onClose, onCall, theme }: Props) => {
+export const CallHistorySheet = ({ open, onClose, onCall, theme = 'dark' }: Props) => {
   const isDark = theme === 'dark'
   const { t } = useI18n()
   const callHistory = useAppStore(state => state.callHistory)

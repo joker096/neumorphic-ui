@@ -47,7 +47,7 @@ interface ChatInputOverlayProps {
   onSendVoice: (url: string, duration: string) => void;
   onToggleStickerPicker: () => void;
   onSendSticker: (sticker: string) => void;
-  isDark: boolean;
+  isDark?: boolean;
 }
 
 export const ChatInputOverlay = ({
@@ -91,7 +91,7 @@ export const ChatInputOverlay = ({
   onSendVoice,
   onToggleStickerPicker,
   onSendSticker,
-  isDark,
+  isDark = false,
 }: ChatInputOverlayProps) => {
   const { t } = useI18n();
 

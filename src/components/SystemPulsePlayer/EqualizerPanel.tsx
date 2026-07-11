@@ -4,9 +4,9 @@ import { Volume2, VolumeX, ArrowLeft } from "lucide-react";
 import type { EQPreset } from "./utils";
 
 type EqualizerPanelProps = {
-  isDark: boolean;
+  isDark?: boolean;
   isRadioMode: boolean;
-  textColor: string;
+  textColor?: string;
   volume: number;
   setVolume: (v: number) => void;
   eqGains: number[];
@@ -23,7 +23,7 @@ type EqualizerPanelProps = {
 };
 
 export const EqualizerPanel = ({
-  isDark, isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
+  isDark = false, isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
   showEq, setShowEq, currentPreset, setCurrentPreset, savedPresets, setSavedPresets,
   applyPreset, savePreset, deletePreset
 }: EqualizerPanelProps) => {

@@ -5,7 +5,7 @@ import type { Contact, ContactTag } from '../types/contact';
 import { ContactProfileModal } from './ContactProfileModal';
 
 type CRMViewProps = {
-  isDark: boolean;
+  isDark?: boolean;
   onClose?: () => void;
   onMessage?: () => void;
   onCall?: () => void;
@@ -15,7 +15,7 @@ type CRMViewProps = {
   setChats: (updater: any[] | ((prev: any[]) => any[])) => void;
 };
 
-export const CRMView: React.FC<CRMViewProps> = ({ isDark, onClose, onMessage, onCall, onVideoCall, contacts, setContacts, setChats }) => {
+export const CRMView: React.FC<CRMViewProps> = ({ isDark = false, onClose, onMessage, onCall, onVideoCall, contacts, setContacts, setChats }) => {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'all' | 'company' | 'tag'>('all');
   const [searchQuery, setSearchQuery] = useState('');

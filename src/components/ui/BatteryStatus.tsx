@@ -3,10 +3,10 @@ import { motion } from 'motion/react';
 import { Download } from 'lucide-react';
 
 interface BatteryStatusProps {
-  isDark: boolean;
+  isDark?: boolean;
 }
 
-export const BatteryStatus = ({ isDark }: BatteryStatusProps) => {
+export const BatteryStatus = ({ isDark = false }: BatteryStatusProps) => {
   const [level, setLevel] = useState<number>(100);
   const [charging, setCharging] = useState(false);
 

@@ -8,12 +8,12 @@ import { cryptoCore } from '../../lib/crypto/cryptoCore';
 import { useAppStore } from '../../store';
 
 interface SecuritySectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   onBack: () => void;
   t: (key: string) => string;
 }
 
-export const SecuritySection = ({ isDark, onBack, t }: SecuritySectionProps) => {
+export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionProps) => {
   const [showPinInput, setShowPinInput] = useState(false);
   const [pinValue, setPinValue] = useState('');
   const [pinMode, setPinMode] = useState<'set' | 'remove'>('set');

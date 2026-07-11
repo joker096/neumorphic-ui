@@ -4,18 +4,20 @@ import type { CompanyChannel } from '../../lib/company/types';
 
 type ChannelItemProps = {
   channel: CompanyChannel;
-  isDark: boolean;
+  isDark?: boolean;
   index: number;
   gradient: string;
+  onClick?: () => void;
   t: (key: string, args?: Record<string, string | number>) => string;
 };
 
-export const ChannelItem = ({ channel, isDark, index, gradient, t }: ChannelItemProps) => (
+export const ChannelItem = ({ channel, isDark = false, index, gradient, onClick, t }: ChannelItemProps) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: index * 0.05 }}
     className={`w-full flex items-center gap-3 p-3 md:p-3 rounded-2xl cursor-pointer transition-all active:scale-95 min-h-[56px] ${isDark ? "hover:bg-[#1a1d24]" : "hover:bg-white shadow-sm"}`}
+    onClick={onClick}
   >
     <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white shrink-0`}>
       <Briefcase size={18} />

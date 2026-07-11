@@ -118,7 +118,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
   ];
 
   return (
-    <div data-testid="contacts-container" className={`w-full max-w-[500px] md:max-w-[600px] flex-1 flex flex-col items-center p-4 md:p-5 mb-8 pb-[calc(56px+env(safe-area-inset-bottom,0px))] sm:pb-8 overflow-y-auto ${isDark ? "bg-[#11141c]/50 border border-white/5" : "bg-[#eaeff4]/50 border border-black/5 shadow-inner"}`}>
+    <div data-testid="contacts-container" className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[#11141c]/50" : "bg-[#eaeff4]/50"}`}>
       
       <div className="w-full flex items-center justify-between mb-4 px-2">
         <h2 className={`font-sans text-2xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
@@ -138,7 +138,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
       </div>
 
       {/* Search + Tabs */}
-      <div className="w-full px-2 mb-4">
+      <div className="w-full mb-4">
         {/* Search */}
         <div className="relative mb-3">
           <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-500" : "text-slate-400"}`} />
@@ -171,7 +171,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
         )}
       </div>
 
-      <div className="w-full px-2">
+      <div className="w-full">
         <motion.div
           variants={containerVariants}
           initial="hidden"

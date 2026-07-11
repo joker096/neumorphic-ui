@@ -11,7 +11,7 @@ type Track = {
 };
 
 type PlaylistViewProps = {
-  isDark: boolean;
+  isDark?: boolean;
   isRadioMode: boolean;
   isPlaying: boolean;
   setIsPlaying: (v: boolean) => void;
@@ -35,7 +35,7 @@ type PlaylistViewProps = {
   setVideoUrl: (v: string | null) => void;
   setShowVideo: (v: boolean) => void;
   setIsVideoPlaying: (v: boolean) => void;
-  textColor: string;
+  textColor?: string;
   setShowAddStationModal: (v: boolean) => void;
   stationName: string;
   setStationName: (v: string) => void;
@@ -46,7 +46,7 @@ type PlaylistViewProps = {
 };
 
 export const PlaylistView = ({
-  isDark, isRadioMode, isPlaying, setIsPlaying, showPlaylist, setShowPlaylist, activeList, activeIndex,
+  isDark = false, isRadioMode, isPlaying, setIsPlaying, showPlaylist, setShowPlaylist, activeList, activeIndex,
   confirmDeleteIndex, setConfirmDeleteIndex, confirmDeleteMode, setConfirmDeleteMode,
   currentTrackIndex, setCurrentTrackIndex, radioStationIndex, setRadioStationIndex,
   playlist, setPlaylist, radioStations, setRadioStations, videoUrl, setVideoUrl, setShowVideo, setIsVideoPlaying,

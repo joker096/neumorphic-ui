@@ -14,9 +14,11 @@ type CompanyContactsViewProps = {
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
   onMessage?: (name: string, color?: string) => void;
+  theme?: 'dark' | 'light';
 };
 
-export const CompanyContactsView = ({ onCall, onVideoCall, onMessage }: CompanyContactsViewProps) => {
+export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: CompanyContactsViewProps) => {
+  const isDark = theme === 'dark';
   const { t } = useI18n();
   const companyMembers = useAppStore(state => state.companyMembers);
   const companyChannels = useAppStore(state => state.companyChannels);
@@ -62,12 +64,14 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage }: CompanyC
   );
 
   return (
-    <div className="w-full flex-1 flex flex-col items-center p-4 md:p-5 overflow-y-auto">
-      <CompanyHeader onScanQR={handleScanQR} onInvite={handleInvite} />
+    <div className="w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5">
+      <CompanyHeader isDark={isDark} onScanQR={handleScanQR} onInvite={handleInvite} />
       <CompanyInfoCard
+        isDark={isDark}
         connected={t('company.connected') || 'Connected'}
       />
       <MemberList
+        isDark={isDark}
         members={displayMembers}
         onCall={onCall}
         onVideoCall={onVideoCall}
@@ -76,6 +80,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage }: CompanyC
         t={t}
       />
       <ChannelList
+        isDark={isDark}
         channels={displayChannels}
         channelsLabel={t('company.channels') || 'Company Channels'}
         t={t}
@@ -144,8 +149,8 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage }: CompanyC
               </button>
               <h3 className="text-xl font-bold mb-4 text-[--text-primary]">{t('company.invite') || 'Invite Members'}</h3>
               <p className="text-sm text-center mb-4 text-[--text-secondary]">{t('company.inviteDescription') || 'Share this QR code with team members'}</p>
-              <div className="w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 bg-white">
-                <QrCode size="100%" strokeWidth={1} className="text-black" />
+              <div className={`w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 ${isDark ? "bg-[#1a1d24]" : "bg-white"}`}>
+                  <QrCode size="100%" strokeWidth={1} className={isDark ? "text-white" : "text-black"} />
               </div>
               <div className="w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset">
                 <div className="font-mono text-xs tracking-widest break-all text-center text-[--accent]">

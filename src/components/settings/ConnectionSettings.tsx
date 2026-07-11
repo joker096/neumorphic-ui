@@ -16,9 +16,11 @@ const RELAY_PREFERENCES = [
 
 interface ConnectionSettingsProps {
   t: (key: string) => string;
+  isDark?: boolean;
+  onBack: () => void;
 }
 
-export function ConnectionSettings({ t }: ConnectionSettingsProps) {
+export function ConnectionSettings({ t, isDark = false, onBack }: ConnectionSettingsProps) {
   const [transportMode, setTransportMode] = useState('httpmask');
   const [relayPref, setRelayPref] = useState('auto');
 

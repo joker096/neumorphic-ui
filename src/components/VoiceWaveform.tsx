@@ -7,9 +7,10 @@ interface VoiceWaveformProps {
   isMe?: boolean;
   audioUrl?: string;
   stream?: MediaStream | null;
+  isDark?: boolean;
 }
 
-export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream }: VoiceWaveformProps) => {
+export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDark }: VoiceWaveformProps) => {
   const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);

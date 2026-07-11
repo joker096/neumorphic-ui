@@ -3,14 +3,14 @@ import { SubView } from '../ui/SubView';
 import { Shield, ShieldOff } from 'lucide-react';
 
 interface SpamSectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   spamFilterEnabled: boolean;
   setSpamFilterEnabled: (v: boolean) => void;
   onBack: () => void;
   t: (key: string) => string;
 }
 
-export const SpamSection = ({ isDark, spamFilterEnabled, setSpamFilterEnabled, onBack, t }: SpamSectionProps) => (
+export const SpamSection = ({ isDark = false, spamFilterEnabled, setSpamFilterEnabled, onBack, t }: SpamSectionProps) => (
   <SubView title={t('settings.spamProtection')} isDark={isDark} onBack={onBack}>
     <SettingsGroup isDark={isDark} className="mb-6">
       <SettingsRow

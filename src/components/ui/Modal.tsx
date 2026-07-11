@@ -1,13 +1,15 @@
 import { type ReactNode, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  title?: string;
 }
 
 export function Modal({ isOpen, onClose, children }: ModalProps) {
+  const reduce = useReducedMotion();
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e: KeyboardEvent) => {
@@ -22,16 +24,16 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={reduce ? false : { opacity: 0 }}
+            animate={reduce ? undefined : { opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="absolute inset-0 bg-black/50 material-thin"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            initial={reduce ? false : { opacity: 0, scale: 0.92, y: 20 }}
+            animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
             className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-[var(--system-background)] shadow-2xl border border-[var(--separator)] p-6"

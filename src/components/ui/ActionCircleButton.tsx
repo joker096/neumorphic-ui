@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 
 export const ActionCircleButton: React.FC<{
   icon: any;
-  theme: 'light' | 'dark';
+  theme?: 'light' | 'dark';
   label: string;
   color?: string;
   isToggleable?: boolean;
-}> = ({ icon: Icon, theme, label, color = "default", isToggleable = true }) => {
+}> = ({ icon: Icon, theme = 'dark', label, color = "default", isToggleable = true }) => {
   const [active, setActive] = useState(false);
   const isDark = theme === "dark";
 

@@ -7,7 +7,7 @@ import { Check } from 'lucide-react';
 type Translate = (key: string, options?: any) => string;
 
 interface LanguageSectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   language: string;
   setLanguage: (lang: string) => void;
   setLang: (lang: string) => void;
@@ -26,7 +26,7 @@ const LANGUAGES = [
   { code: 'ko', name: '한국어' },
 ];
 
-export const LanguageSection = ({ isDark, language, setLanguage, setLang, onBack, t }: LanguageSectionProps) => (
+export const LanguageSection = ({ isDark = false, language, setLanguage, setLang, onBack, t }: LanguageSectionProps) => (
   <SubView title={t('settings.language')} isDark={isDark} onBack={onBack}>
     <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
       {LANGUAGES.map(lang => (

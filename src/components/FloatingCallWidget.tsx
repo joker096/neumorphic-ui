@@ -5,7 +5,7 @@ import { useI18n } from '../lib/i18n';
 import { useAppStore } from '../store';
 import { callRecorderService } from '../lib/callRecorderService';
 
-export const FloatingCallWidget = ({ theme }: { theme: 'dark' | 'light' }) => {
+export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light' }) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const { activeCall, setActiveCall } = useAppStore();

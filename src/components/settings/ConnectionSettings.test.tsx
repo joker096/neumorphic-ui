@@ -37,7 +37,7 @@ vi.mock('../../store', () => ({
 
 describe('ConnectionSettings', () => {
   it('should render transport mode selector', () => {
-    render(<ConnectionSettings t={t} />);
+    render(<ConnectionSettings t={t} onBack={vi.fn()} />);
     expect(screen.getByText('Transport Mode')).toBeDefined();
   });
 });

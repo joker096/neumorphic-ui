@@ -15,7 +15,7 @@ const LANGUAGES = [
 type Translate = (key: string, options?: any) => string;
 
 type LanguageSelectorProps = {
-  isDark: boolean;
+  isDark?: boolean;
   showLangMenu: boolean;
   setShowLangMenu: (show: boolean) => void;
   language: string;
@@ -24,7 +24,7 @@ type LanguageSelectorProps = {
 };
 
 export const LanguageSelector = ({
-  isDark,
+  isDark = false,
   showLangMenu,
   setShowLangMenu,
   language,

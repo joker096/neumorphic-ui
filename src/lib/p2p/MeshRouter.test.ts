@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { MeshRouter } from './MeshRouter';
+import { MeshRouter, MeshRouterCore } from './MeshRouter';
 
 vi.stubGlobal('crypto', { randomUUID: () => 'test-uuid-123' });
 
 describe('MeshRouter', () => {
-  let router: MeshRouter;
+  let router: MeshRouterCore;
   let broadcastSpy: any;
 
   beforeEach(() => {
     vi.useFakeTimers();
     broadcastSpy = vi.fn();
-    router = new MeshRouter('peer-a');
+    router = new MeshRouterCore('peer-a');
   });
 
   afterEach(() => {
@@ -72,7 +72,7 @@ describe('MeshRouter', () => {
     });
 
     it('returns peers via getPeers()', () => {
-      const router = new MeshRouter('peer-a');
+      const router = new MeshRouterCore('peer-a');
       router.addDirectPeer('peer-b');
       router.addDirectPeer('peer-c');
       const peers = router.getPeers();

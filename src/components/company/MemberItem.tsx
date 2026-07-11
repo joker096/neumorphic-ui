@@ -4,7 +4,7 @@ import type { CompanyMember } from '../../lib/company/types';
 
 type MemberItemProps = {
   member: CompanyMember;
-  isDark: boolean;
+  isDark?: boolean;
   index: number;
   color: string;
   onCall?: (name: string, color?: string) => void;
@@ -13,7 +13,7 @@ type MemberItemProps = {
   t: (key: string, args?: Record<string, string | number>) => string;
 };
 
-export const MemberItem = ({ member, isDark, index, color, onCall, onVideoCall, onClick, t }: MemberItemProps) => (
+export const MemberItem = ({ member, isDark = false, index, color, onCall, onVideoCall, onClick, t }: MemberItemProps) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
@@ -41,7 +41,7 @@ export const MemberItem = ({ member, isDark, index, color, onCall, onVideoCall, 
           e.stopPropagation();
           onCall?.(member.displayName, color);
         }}
-        className={`p-1.5 min-w-[36px] min-h-[36px] rounded-lg ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-300" : "bg-black/5 hover:bg-black/10 text-slate-600"}`}
+        className={`p-1.5 min-w-[44px] min-h-[44px] rounded-lg ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-300" : "bg-black/5 hover:bg-black/10 text-slate-600"}`}
       >
         <Phone size={14} />
       </button>
@@ -50,7 +50,7 @@ export const MemberItem = ({ member, isDark, index, color, onCall, onVideoCall, 
           e.stopPropagation();
           onVideoCall?.(member.displayName, color);
         }}
-        className={`p-1.5 min-w-[36px] min-h-[36px] rounded-lg ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-300" : "bg-black/5 hover:bg-black/10 text-slate-600"}`}
+        className={`p-1.5 min-w-[44px] min-h-[44px] rounded-lg ${isDark ? "bg-white/5 hover:bg-white/10 text-gray-300" : "bg-black/5 hover:bg-black/10 text-slate-600"}`}
       >
         <Video size={14} />
       </button>

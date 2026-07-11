@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useI18n } from '../../lib/i18n';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
   title: string;
-  message: string;
+  message?: string;
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: 'default' | 'danger';
@@ -17,7 +17,7 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   isOpen,
   title,
-  message,
+  message = '',
   confirmLabel = 'OK',
   cancelLabel = 'Cancel',
   variant = 'default',
@@ -26,6 +26,7 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const isDark = theme === 'dark';
+  const reduce = useReducedMotion();
   const { t } = useI18n();
 
   useEffect(() => {
@@ -43,16 +44,16 @@ export function ConfirmDialog({
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={reduce ? false : { opacity: 0 }}
+            animate={reduce ? undefined : { opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onCancel}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            initial={reduce ? false : { opacity: 0, scale: 0.92, y: 20 }}
+            animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
             className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 border ${

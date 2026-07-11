@@ -41,7 +41,7 @@ export function generateChannelKeypair(): ChannelKeypair {
  */
 export function signMessage(message: string, privateKey: string): SignedMessage {
   const privateBuf = hex2buf(privateKey);
-  const signature = cryptoCore.signX25519(privateBuf, message);
+  const signature = cryptoCore.signEd25519(privateBuf, message);
   
   return {
     message,
@@ -58,7 +58,7 @@ export function verifySignedMessage(message: SignedMessage): boolean {
   try {
     const publicBuf = hex2buf(message.publicKey);
     const signatureBuf = hex2buf(message.signature);
-    const isValid = cryptoCore.verifyX25519Signature(publicBuf, message.message, signatureBuf);
+    const isValid = cryptoCore.verifyEd25519Signature(publicBuf, message.message, signatureBuf);
     return isValid;
   } catch {
     return false;

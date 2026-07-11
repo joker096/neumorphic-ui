@@ -79,10 +79,10 @@ export const isMorseCode = (text: string) => {
 };
 
 export const MorseDecoder = ({
-  theme,
+  theme = 'dark',
   encodedText,
 }: {
-  theme: "dark" | "light";
+  theme?: "dark" | "light";
   encodedText: string;
 }) => {
   const isDark = theme === "dark";

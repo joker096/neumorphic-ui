@@ -22,7 +22,7 @@ type ChatListWorkspaceProps = {
   setShowAdvancedFilterModal: (show: boolean) => void;
   advancedFilters: Record<string, boolean>;
   t: (key: string, options?: any) => string;
-  isDark: boolean;
+  isDark?: boolean;
   onCall: (name: string, color?: string) => void;
   onVideoCall: (name: string, color?: string) => void;
 };

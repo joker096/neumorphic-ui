@@ -5,7 +5,7 @@ import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface AccountSectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   onBack: () => void;
   t: (key: string, options?: any) => string;
 }
@@ -24,7 +24,7 @@ const ACCOUNT_COLORS = [
   "from-yellow-500 to-orange-500",
 ];
 
-export const AccountSection = ({ isDark, onBack, t }: AccountSectionProps) => {
+export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProps) => {
   const [activeId, setActiveId] = useState<number>(1);
   const [accounts, setAccounts] = useLocalStorage<Account[]>("app_accounts", [
     { id: 1, name: "Nexus Terminal", color: "from-blue-500 to-cyan-500" },

@@ -1,39 +1,36 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
-const cache = new Map<string, Record<string, any>>();
+const cache: Map<string, Record<string, any>> =
+  (globalThis as any).__i18nCache ?? ((globalThis as any).__i18nCache = new Map<string, Record<string, any>>());
 
-async function loadLocale(lang: string): Promise<Record<string, any>> {
-  if (cache.has(lang)) return cache.get(lang)!;
-  
-  try {
-    const mod = await import(`../locales/${lang}.json`);
-    const data = mod.default || mod;
-    cache.set(lang, data);
-    return data;
-  } catch {
-    console.warn(`Failed to load locale: ${lang}`);
-    return {};
-  }
+const localeModules = (import.meta as any).glob('../locales/*.json', { eager: true, import: 'default' }) as Record<string, Record<string, any>>;
+
+for (const [path, data] of Object.entries(localeModules)) {
+  const lang = path.split('/').pop()!.replace('.json', '');
+  cache.set(lang, data);
 }
 
 export async function preloadLocales() {
-  await Promise.all([
-    loadLocale('en'),
-    loadLocale('ru'),
-    loadLocale('de'),
-    loadLocale('es'),
-    loadLocale('fr'),
-    loadLocale('zh'),
-    loadLocale('ja'),
-    loadLocale('ko'),
-  ]);
+  return;
+}
+
+function resolveKey(dict: Record<string, any> | undefined, key: string): string | undefined {
+  if (!dict) return undefined;
+  const value = key.split('.').reduce((obj: any, k: string) => obj?.[k], dict);
+  return value == null ? undefined : String(value);
 }
 
 export function getTranslation(key: string, lang: string): string {
   const cached = cache.get(lang);
-  if (!cached) return key;
-  
-  return key.split('.').reduce((obj: any, k: string) => obj?.[k], cached) as string || key;
+  if (cached) {
+    const value = resolveKey(cached, key);
+    if (value != null && value !== key) return value;
+    if (lang !== 'en') {
+      const fallback = resolveKey(cache.get('en'), key);
+      if (fallback != null) return fallback;
+    }
+  }
+  return key;
 }
 
 export function getTranslationWithFallback(key: string, lang: string): string {
@@ -74,7 +71,6 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const setLang = useCallback((newLang: string) => {
     setLangState(newLang);
     localStorage.setItem('app_language', newLang);
-    loadLocale(newLang);
   }, []);
   
   const t = useCallback((key: string, args?: Record<string, string | number>) => {

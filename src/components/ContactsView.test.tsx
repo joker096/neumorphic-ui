@@ -215,7 +215,6 @@ describe('ContactsView', () => {
 
     const container = screen.getByTestId('contacts-container');
     expect(container).toHaveClass('bg-[#11141c]/50');
-    expect(container).toHaveClass('border-white/5');
   });
 
   it('applies light theme styles', () => {
@@ -224,7 +223,6 @@ describe('ContactsView', () => {
 
     const container = screen.getByTestId('contacts-container');
     expect(container).toHaveClass('bg-[#eaeff4]/50');
-    expect(container).toHaveClass('border-black/5');
   });
 
   it('shows empty state when no contacts', () => {

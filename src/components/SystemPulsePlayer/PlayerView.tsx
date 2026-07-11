@@ -24,6 +24,10 @@ type PlayerViewProps = {
   prevTrack: () => void;
   createRipple: (e: React.MouseEvent<HTMLDivElement>) => void;
   initWebAudio: () => void;
+  textColor?: string;
+  isDark?: boolean;
+  darkShadow?: string;
+  insetShadow?: string;
 };
 
 export const PlayerView = ({

@@ -6,10 +6,10 @@ interface SubViewProps {
   title: string;
   onBack: () => void;
   children: React.ReactNode;
-  isDark: boolean;
+  isDark?: boolean;
 }
 
-export const SubView = ({ title, onBack, children, isDark }: SubViewProps) => (
+export const SubView = ({ title, onBack, children, isDark = false }: SubViewProps) => (
   <motion.div 
     initial={{ opacity: 0, x: 20 }}
     animate={{ opacity: 1, x: 0 }}

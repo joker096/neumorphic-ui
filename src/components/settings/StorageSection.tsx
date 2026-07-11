@@ -10,12 +10,12 @@ import { useAppStore } from '../../store';
 import { getMasterKeySet } from '../../lib/identity/masterKey';
 
 interface StorageSectionProps {
-  isDark: boolean;
+  isDark?: boolean;
   onBack: () => void;
   t: (key: string) => string;
 }
 
-export const StorageSection = ({ isDark, onBack, t }: StorageSectionProps) => {
+export const StorageSection = ({ isDark = false, onBack, t }: StorageSectionProps) => {
   const [importStatus, setImportStatus] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showBackupInfo, setShowBackupInfo] = useState(false);

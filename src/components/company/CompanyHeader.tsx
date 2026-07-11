@@ -1,14 +1,15 @@
-import { QrCode, UserPlus } from 'lucide-react';
+import { QrCode, UserPlus, Settings } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { useAppStore } from '../../store';
 
 type CompanyHeaderProps = {
-  isDark: boolean;
+  isDark?: boolean;
   onScanQR?: () => void;
   onInvite?: () => void;
+  onSettings?: () => void;
 };
 
-export const CompanyHeaderUI = ({ isDark, onScanQR, onInvite }: CompanyHeaderProps) => {
+export const CompanyHeader = ({ isDark = false, onScanQR, onInvite, onSettings }: CompanyHeaderProps) => {
   const { t } = useI18n();
   const companyName = useAppStore(state => state.companySettings?.name);
 
@@ -34,7 +35,17 @@ export const CompanyHeaderUI = ({ isDark, onScanQR, onInvite }: CompanyHeaderPro
         >
           <UserPlus size={24} />
         </button>
+        <button
+          onClick={onSettings}
+          className="cursor-pointer hover:opacity-80 transition-all active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+          aria-label="Edit company"
+          title={t('company.edit') || 'Edit company'}
+        >
+          <Settings size={24} />
+        </button>
       </div>
     </div>
   );
 };
+
+export const CompanyHeaderUI = CompanyHeader;

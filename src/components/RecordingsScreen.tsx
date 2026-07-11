@@ -6,7 +6,7 @@ import { callRecorderService, type CallRecording } from '../lib/callRecorderServ
 import { useI18n } from '../lib/i18n';
 
 interface RecordingsScreenProps {
-  theme: 'dark' | 'light';
+  theme?: 'dark' | 'light';
   onBack: () => void;
 }
 
@@ -20,13 +20,13 @@ function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite, isDark }: {
+function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite, isDark = false }: {
   recording: CallRecording;
   onPlay: (r: CallRecording) => void;
   onDelete: (id: string) => void;
   onExport: (id: string, title: string) => void;
   onToggleFavorite: (id: string) => void;
-  isDark: boolean;
+  isDark?: boolean;
 }) {
   const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -81,10 +81,10 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
   );
 }
 
-function RecordingPlayer({ recording, blobUrl, isDark, onClose, onDelete, onExport }: {
+function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, onDelete, onExport }: {
   recording: CallRecording;
   blobUrl: string;
-  isDark: boolean;
+  isDark?: boolean;
   onClose: () => void;
   onDelete: (id: string) => void;
   onExport: (id: string, title: string) => void;
@@ -175,7 +175,7 @@ function RecordingPlayer({ recording, blobUrl, isDark, onClose, onDelete, onExpo
   );
 }
 
-export function RecordingsScreen({ theme, onBack }: RecordingsScreenProps) {
+export function RecordingsScreen({ theme = 'dark', onBack }: RecordingsScreenProps) {
   const isDark = theme === 'dark';
   const { t } = useI18n();
   const recordings = useAppStore((s: any) => s.recordings || []);

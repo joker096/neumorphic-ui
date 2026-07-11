@@ -7,10 +7,10 @@ interface Props {
   message: string
   onUndo: () => void
   onDismiss: () => void
-  theme: 'dark' | 'light'
+  theme?: 'dark' | 'light'
 }
 
-export const UndoDeleteSnackbar = ({ visible, message, onUndo, onDismiss, theme }: Props) => {
+export const UndoDeleteSnackbar = ({ visible, message, onUndo, onDismiss, theme = 'dark' }: Props) => {
   const isDark = theme === 'dark'
 
   return (

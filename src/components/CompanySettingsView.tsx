@@ -4,8 +4,8 @@ import { useAppStore } from '../store';
 
 export const CompanySettingsView: React.FC<{
   onClose: () => void;
-  isDark: boolean;
-}> = ({ onClose, isDark }) => {
+  isDark?: boolean;
+}> = ({ onClose, isDark = false }) => {
   const companySettings = useAppStore(s => s.companySettings);
   const setCompanyName = useAppStore(s => s.setCompanyName);
   const setCompanySettings = useAppStore(s => s.setCompanySettings);

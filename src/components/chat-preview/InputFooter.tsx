@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Plus, Mic } from "lucide-react";
 
 interface InputFooterProps {
-  isDark: boolean;
+  isDark?: boolean;
   isChannel: boolean;
   isMuted?: boolean;
   placeholder?: string;
@@ -10,7 +10,7 @@ interface InputFooterProps {
   onMuteToggle?: () => void;
 }
 
-export const InputFooter = ({ isDark, isChannel, isMuted, placeholder, t, onMuteToggle }: InputFooterProps) => {
+export const InputFooter = ({ isDark = false, isChannel, isMuted, placeholder, t, onMuteToggle }: InputFooterProps) => {
   return (
     <div
       className={`p-4 md:p-5 flex items-center justify-center gap-3 md:gap-4 relative z-10 ${isDark ? "bg-[#1a1d24]/90 border-t border-white/5 backdrop-blur-md" : "bg-[#f4f7f9]/90 border-t border-black/5 backdrop-blur-md"}`}

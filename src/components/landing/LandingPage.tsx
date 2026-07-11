@@ -1,8 +1,8 @@
 import { motion } from "motion/react";
 import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } from "lucide-react";
 
-type LandingPageProps = {
-  isDark: boolean;
+export type LandingPageProps = {
+  isDark?: boolean;
   onGetStarted: () => void;
 };
 
@@ -45,7 +45,7 @@ const features = [
   },
 ];
 
-export const LandingPage = ({ isDark, onGetStarted }: LandingPageProps) => {
+export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) => {
   return (
     <div className={`w-full min-h-[100dvh] overflow-x-hidden ${isDark ? "bg-[#050505]" : "bg-[#faf8f5]"}`}>
       {isDark && (

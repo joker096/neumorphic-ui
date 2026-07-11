@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
 
 interface VideoPlayerOverlayProps {
-  theme: "dark" | "light";
+  theme?: "dark" | "light";
   open: boolean;
   onClose: () => void;
 }
@@ -45,6 +45,7 @@ export const VideoPlayerOverlay = ({
               src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1425&q=80"
               className="opacity-80 w-full h-full object-cover"
               alt="Video frame"
+              loading="lazy" decoding="async"
             />
             <div className="absolute w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-2xl border border-white/20">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

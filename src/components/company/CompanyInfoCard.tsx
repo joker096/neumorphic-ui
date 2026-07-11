@@ -1,12 +1,12 @@
 import { useAppStore } from '../../store';
 
 type CompanyInfoCardProps = {
-  isDark: boolean;
+  isDark?: boolean;
   orgId?: string;
   connected: string;
 };
 
-export const CompanyInfoCard = ({ isDark, orgId = 'N/A', connected }: CompanyInfoCardProps) => {
+export const CompanyInfoCard = ({ isDark = false, orgId = 'N/A', connected }: CompanyInfoCardProps) => {
   const companyName = useAppStore(state => state.companySettings?.name || 'Company');
 
   return (

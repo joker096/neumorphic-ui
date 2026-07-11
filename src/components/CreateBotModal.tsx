@@ -6,7 +6,7 @@ import { deviceSecurity } from '../lib/deviceSecurity';
 import { buf2hex } from '../lib/crypto/cryptoCore';
 import { useI18n } from '../lib/i18n';
 
-export const CreateBotModal = ({ theme, onClose }: { theme: 'dark' | 'light', onClose: () => void }) => {
+export const CreateBotModal = ({ theme = 'dark', onClose }: { theme?: 'dark' | 'light', onClose: () => void }) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const [name, setName] = useState('');
