@@ -40,8 +40,11 @@ function generateQrCanvas(data: string, size: number): string {
   let seed = parseInt(hash.slice(0, 8), 16)
   for (let y = 0; y < 21; y++) {
     for (let x = 0; x < 21; x++) {
+      // eslint-disable-next-line security/detect-object-injection -- deterministic QR visual pattern
       if (grid[y][x] === 0) {
+         
         seed = (seed * 1103515245 + 12345) & 0x7fffffff
+        // eslint-disable-next-line security/detect-object-injection -- deterministic QR visual pattern
         grid[y][x] = (seed % 3 === 0) ? 1 : 0
       }
     }
@@ -50,7 +53,9 @@ function generateQrCanvas(data: string, size: number): string {
   const cellSize = canvas.width / 21
   for (let y = 0; y < 21; y++) {
     for (let x = 0; x < 21; x++) {
+      // eslint-disable-next-line security/detect-object-injection -- deterministic QR visual pattern
       if (grid[y][x] === 1) {
+         
         ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize)
       }
     }
