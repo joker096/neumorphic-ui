@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { Search, X, TrendingUp, WifiOff } from 'lucide-react'
+import { X, TrendingUp, WifiOff } from 'lucide-react'
+import { SearchInput } from './SearchInput'
 import { useI18n } from '../../lib/i18n'
 
 interface Props {
@@ -60,7 +61,7 @@ export const GifSearch = ({ open, onClose, onSelect }: Props) => {
           media_filter: 'minimal',
           ar_range: 'standard',
         })
-        const res = await fetch(`https://g.tenor.com/v1/search?${params}&key=LIVDSRZULELA`)
+        const res = await fetch(`https://g.tenor.com/v1/search?${params}&key=${import.meta.env.VITE_TENOR_API_KEY || 'LIVDSRZULELA'}`)
         if (!res.ok) throw new Error('API error')
         const data = await res.json()
         setResults((data.results || []).map((r: any) => ({
@@ -88,18 +89,16 @@ export const GifSearch = ({ open, onClose, onSelect }: Props) => {
           className={`absolute bottom-20 left-4 right-4 z-[150] max-h-80 rounded-md shadow-2xl overflow-hidden border ${'bg-[var(--bg-primary)] border-[var(--border-color)]'}`}
         >
           <div className="flex items-center gap-2 p-3">
-            <div className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-md ${'bg-[var(--bg-elevated)]'}`}>
-              <Search size={16} className="text-gray-500" />
-              <input
-                autoFocus
+            <div className="flex-1">
+              <SearchInput
                 value={query}
-                onChange={e => { setQuery(e.target.value); searchGifs(e.target.value) }}
+                onChange={v => { setQuery(v); searchGifs(v) }}
                 placeholder={t('gifSearch.searchPlaceholder')}
-                className={`flex-1 bg-transparent text-sm outline-none ${'text-[var(--text-primary)] placeholder-[var(--text-tertiary)]'}`}
+                isDark
+                autoFocus
               />
-              {query && <button onClick={() => { setQuery(''); setResults([]) }} className="text-gray-500"><X size={14} /></button>}
             </div>
-            <button onClick={onClose} className={`w-8 h-8 rounded-full flex items-center justify-center ${'text-[var(--text-primary)] hover:bg-white/10'}`}>
+            <button onClick={onClose} className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${'text-[var(--text-primary)] hover:bg-white/10'}`}>
               <X size={16} />
             </button>
           </div>

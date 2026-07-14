@@ -16,7 +16,7 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
             key={index}
             href={chunk}
             target="_blank"
-            rel="noreferrer"
+            rel="noreferrer noopener"
             className="text-orange-500 underline decoration-orange-500/40 underline-offset-2 break-all hover:opacity-80"
             onClick={(e) => e.stopPropagation()}
           >

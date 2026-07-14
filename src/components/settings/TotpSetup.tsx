@@ -3,6 +3,7 @@ import { Shield, Check, Copy, Smartphone } from 'lucide-react'
 import { SubView } from '../ui/SubView'
 import { useAppStore } from '../../store'
 import { generateTotp, verifyTotp } from '../../lib/auth/clientTotp'
+import { QrCode } from '../QrCode'
 
 interface TotpSetupProps {
   isDark: boolean
@@ -52,7 +53,7 @@ export const TotpSetup = ({ isDark, onBack, t }: TotpSetupProps) => {
             <p className="text-sm opacity-70">{t('settings.totpInstruction')}</p>
             {qrUrl && (
               <div className="flex justify-center">
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrUrl)}&size=200x200`} alt={t('settings.twoFactorAuth')} className="rounded-lg" />
+                <QrCode data={qrUrl} size={200} />
               </div>
             )}
             <div className="flex items-center gap-2 p-2 rounded-lg bg-black/10 dark:bg-white/10">

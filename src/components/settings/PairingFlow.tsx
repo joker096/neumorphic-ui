@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { QrCode, Camera, Smartphone, Check, X } from 'lucide-react'
+import { Camera, Smartphone, Check, X, QrCode as QrCodeIcon } from 'lucide-react'
 import { SubView } from '../ui/SubView'
 import { useAppStore } from '../../store'
 import { createPairingQrData, parsePairingQrData } from '../../lib/identity/devicePairing'
+import { QrCode } from '../QrCode'
 
 interface PairingFlowProps {
   isDark: boolean
@@ -29,7 +30,7 @@ export const PairingFlow = ({ isDark, onBack, t }: PairingFlowProps) => {
           <div className="space-y-3">
             <button onClick={handleHost}
               className="w-full p-4 rounded-xl border flex items-center gap-3 hover:bg-black/5 dark:hover:bg-white/5">
-              <QrCode size={24} />
+              <QrCodeIcon size={24} />
               <div className="text-left">
                 <p className="font-semibold">{t('settings.hostDevice')}</p>
                 <p className="text-sm opacity-60">{t('settings.hostDeviceSubtitle')}</p>
@@ -48,8 +49,7 @@ export const PairingFlow = ({ isDark, onBack, t }: PairingFlowProps) => {
           <div className="text-center space-y-4">
             <p className="text-sm opacity-70">{t('settings.scanWithNewDevice')}</p>
             {pairingQrData ? (
-              <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(pairingQrData)}&size=250x250`}
-                alt={t('settings.pairDevice')} className="mx-auto rounded-lg" />
+              <QrCode data={pairingQrData} size={250} />
             ) : (
               <p className="text-sm opacity-50">{t('settings.generateQR')}</p>
             )}
