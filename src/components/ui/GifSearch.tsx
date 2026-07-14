@@ -55,13 +55,19 @@ export const GifSearch = ({ open, onClose, onSelect }: Props) => {
           setLoading(false)
           return
         }
-        const params = new URLSearchParams({
-          q: q.trim(),
-          limit: '20',
-          media_filter: 'minimal',
-          ar_range: 'standard',
-        })
-        const res = await fetch(`https://g.tenor.com/v1/search?${params}&key=${import.meta.env.VITE_TENOR_API_KEY || 'LIVDSRZULELA'}`)
+        const apiKey = import.meta.env.VITE_TENOR_API_KEY
+         if (!apiKey) {
+           setResults([])
+           setLoading(false)
+           return
+         }
+         const params = new URLSearchParams({
+           q: q.trim(),
+           limit: '20',
+           media_filter: 'minimal',
+           ar_range: 'standard',
+         })
+         const res = await fetch(`https://g.tenor.com/v1/search?${params}&key=${apiKey}`)
         if (!res.ok) throw new Error('API error')
         const data = await res.json()
         setResults((data.results || []).map((r: any) => ({
