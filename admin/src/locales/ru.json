@@ -18,7 +18,11 @@
     "passwordPlaceholder": "••••••••",
     "signIn": "Войти",
     "signingIn": "Вход...",
-    "invalidCredentials": "Неверное имя пользователя или пароль"
+    "invalidCredentials": "Неверное имя пользователя или пароль",
+    "captcha": "Капча",
+    "captchaPlaceholder": "Введите ответ",
+    "captchaInvalid": "Неверный ответ. Попробуйте снова.",
+    "refreshCaptcha": "Обновить"
   },
   "verify2fa": {
     "title": "Двухфакторная аутентификация",

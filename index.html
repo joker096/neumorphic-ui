@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
     <title>Mess&Anger — Secure P2P Messenger</title>
     <meta name="description" content="End-to-end encrypted P2P messenger with post-quantum cryptography. No phone required." />
     
@@ -10,19 +10,32 @@
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0a0a0a" />
+    <meta name="color-scheme" content="dark" />
+    
+    <!-- Apple/iOS specific meta tags -->
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Mess&Anger" />
+    <meta name="apple-touch-icon" content="/icon-192.png" />
+    <link rel="apple-touch-startup-image" href="/icon-512.png" />
+    
+    <!-- iOS-specific: prevent text size changes -->
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Android specific -->
+    <meta name="mobile-web-app-capable" content="yes" />
     
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/webp" href="/icons/favicon.webp" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
+    
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

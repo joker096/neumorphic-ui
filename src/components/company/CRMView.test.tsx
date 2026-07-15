@@ -6,7 +6,7 @@ vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t: (k: string) => k }) }));
 
 vi.mock('../../store', () => ({ useAppStore: vi.fn(() => ({})) }));
 
-vi.mock('../contacts/ContactProfileModal', () => ({
+vi.mock('../ContactProfileModal', () => ({
   ContactProfileModal: () => <div>ContactProfileModal</div>,
 }));
 

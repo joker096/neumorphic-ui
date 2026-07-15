@@ -1,62 +1,23 @@
 import React, { useState } from 'react';
+import { getButtonTheme, ACTIVE_DEFAULT_COLOR } from '../../config/buttonThemes';
+import type { ButtonColor } from '../../config/buttonThemes';
 
 export const ActionCircleButton: React.FC<{
   icon: any;
   theme?: 'light' | 'dark';
   label: string;
-  color?: string;
+  color?: ButtonColor;
   isToggleable?: boolean;
 }> = ({ icon: Icon, theme = 'dark', label, color = "default", isToggleable = true }) => {
   const [active, setActive] = useState(false);
   const isDark = theme === "dark";
 
-  let iconColor = isDark ? "text-white/70" : "text-slate-500";
-  let hoverIconColor = isDark
-    ? "group-hover:text-white"
-    : "group-hover:text-slate-800";
-  let activeIconColor = isDark
-    ? "text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]"
-    : "text-slate-900 drop-shadow-[0_1px_1px_rgba(255,255,255,1)]";
-
-  if (color === "red") {
-    iconColor = isDark ? "text-red-400/80" : "text-red-500";
-    hoverIconColor = isDark
-      ? "group-hover:text-red-300 drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]"
-      : "group-hover:text-red-600";
-    activeIconColor = isDark
-      ? "text-red-400 drop-shadow-[0_0_12px_rgba(248,113,113,0.8)] scale-105"
-      : "text-red-600 drop-shadow-[0_2px_4px_rgba(220,38,38,0.3)] scale-105";
-  } else if (color === "yellow") {
-    iconColor = "text-amber-500";
-    hoverIconColor = isDark
-      ? "group-hover:text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
-      : "group-hover:text-amber-400";
-    activeIconColor = isDark
-      ? "text-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)] scale-105"
-      : "text-amber-500 drop-shadow-[0_1px_1px_rgba(255,255,255,1)] scale-105";
-  } else if (color === "green") {
-    iconColor = isDark ? "text-teal-400" : "text-teal-600";
-    hoverIconColor = isDark
-      ? "group-hover:text-teal-300 drop-shadow-[0_0_8px_rgba(45,212,191,0.5)]"
-      : "group-hover:text-teal-700";
-    activeIconColor =
-      "text-teal-400 drop-shadow-[0_0_12px_rgba(45,212,191,0.8)] scale-105";
-  } else if (color === "blue") {
-    iconColor = isDark ? "text-blue-400" : "text-blue-600";
-    hoverIconColor = isDark
-      ? "group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]"
-      : "group-hover:text-blue-700";
-    activeIconColor = isDark
-      ? "text-blue-400 drop-shadow-[0_0_12px_rgba(59,130,246,0.8)] scale-105"
-      : "text-blue-600 drop-shadow-[0_1px_1px_rgba(255,255,255,1)] scale-105";
-  }
-
-  // default blue/teal when active if no color specified
-  if (active && color === "default") {
-    activeIconColor = isDark
-      ? "text-orange-400 drop-shadow-[0_0_12px_rgba(251,146,60,0.8)] scale-105"
-      : "text-orange-500 scale-105 drop-shadow-[0_2px_4px_rgba(249,115,22,0.3)]";
-  }
+  const themeColors = getButtonTheme(isDark ? 'dark' : 'light', color);
+  const activeIconColor = active
+    ? color === 'default'
+      ? ACTIVE_DEFAULT_COLOR[isDark ? 'dark' : 'light']
+      : themeColors.activeIcon
+    : '';
 
   return (
     <div
@@ -80,7 +41,7 @@ export const ActionCircleButton: React.FC<{
         <Icon
           size={24}
           strokeWidth={1.75}
-          className={`transition-all duration-300 ${active ? activeIconColor : `${iconColor} ${hoverIconColor} text-slate-800`}`}
+          className={`transition-all duration-300 ${active ? activeIconColor : `${themeColors.icon} ${themeColors.hoverIcon}`}`}
         />
       </div>
       <span

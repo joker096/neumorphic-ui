@@ -2,7 +2,34 @@ import { IncomingMessage, ServerResponse } from 'node:http'
 import { getDb } from '../db.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 
+const statsRateLimit = new Map<string, { count: number; resetAt: number }>()
+
+function checkStatsRateLimit(ip: string, maxRequests = 30, windowMs = 60000): boolean {
+  const now = Date.now()
+  let entry = statsRateLimit.get(ip)
+  if (!entry || now > entry.resetAt) {
+    statsRateLimit.set(ip, { count: 1, resetAt: now + windowMs })
+    return true
+  }
+  if (entry.count >= maxRequests) return false
+  entry.count++
+  return true
+}
+
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of statsRateLimit) {
+    if (now > entry.resetAt) statsRateLimit.delete(key)
+  }
+}, 300000)
+
 export function handleStatsRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
+  const ip = req.socket.remoteAddress || 'unknown'
+  if (!checkStatsRateLimit(ip)) {
+    res.writeHead(429, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Too many requests' }))
+    return true
+  }
   const authReq = req as AuthenticatedRequest
   if (path === '/api/stats/overview' && req.method === 'GET') {
     if (!requireAuth(authReq, res)) return true

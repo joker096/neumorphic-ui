@@ -69,4 +69,73 @@ describe('Button', () => {
     const btn = container.querySelector('button');
     expect(btn?.className).toContain('rounded-full');
   });
+
+  it('renders icon when provided', () => {
+    const { container } = render(<Button icon={<span data-testid="icon" />}>With Icon</Button>);
+    expect(container.querySelector('[data-testid="icon"]')).toBeInTheDocument();
+  });
+
+  it('renders icon inside rounded circle wrapper', () => {
+    const { container } = render(<Button icon={<span>i</span>}>Icon</Button>);
+    const iconWrapper = container.querySelector('button')?.querySelector('.rounded-full');
+    expect(iconWrapper).toBeInTheDocument();
+  });
+
+  it('applies rounded-full class when icon is provided (non-premium)', () => {
+    const { container } = render(<Button icon={<span>i</span>}>Icon</Button>);
+    const btn = container.querySelector('button');
+    expect(btn?.className).toContain('rounded-full');
+  });
+
+  it('renders md size by default', () => {
+    const { container } = render(<Button>Default Size</Button>);
+    const btn = container.querySelector('button');
+    expect(btn?.className).toContain('px-4');
+    expect(btn?.className).toContain('py-2');
+    expect(btn?.className).toContain('text-base');
+  });
+
+  it('merges custom className', () => {
+    const { container } = render(<Button className="my-custom-class">Custom</Button>);
+    const btn = container.querySelector('button');
+    expect(btn?.className).toContain('my-custom-class');
+  });
+
+  it('renders disabled button with cursor-not-allowed', () => {
+    const { container } = render(<Button disabled>Disabled</Button>);
+    expect(container.querySelector('button')).toBeDisabled();
+    expect(container.querySelector('button')?.className).toContain('cursor-pointer');
+  });
+
+  it('renders premium variant with icon', () => {
+    const { container } = render(<Button variant="premium" icon={<span data-testid="premium-icon" />}>Premium Icon</Button>);
+    expect(container.querySelector('[data-testid="premium-icon"]')).toBeInTheDocument();
+  });
+
+  it('passes aria attributes to button element', () => {
+    const { container } = render(<Button aria-label="Close" aria-expanded={true}>X</Button>);
+    const btn = container.querySelector('button');
+    expect(btn).toHaveAttribute('aria-label', 'Close');
+    expect(btn).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('renders focus-visible ring classes', () => {
+    const { container } = render(<Button>Focus</Button>);
+    const btn = container.querySelector('button');
+    expect(btn?.className).toContain('focus-visible:ring-2');
+  });
+
+  it('does not call onClick when disabled', () => {
+    const onClick = vi.fn();
+    const { container } = render(<Button disabled onClick={onClick}>Disabled Click</Button>);
+    const btn = container.querySelector('button')!;
+    fireEvent.click(btn);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('renders with group class', () => {
+    const { container } = render(<Button>Group</Button>);
+    const btn = container.querySelector('button');
+    expect(btn?.className).toContain('group');
+  });
 });

@@ -18,8 +18,14 @@ const ROOT = path.resolve(__dirname, '..');
 const ANDROID_DIR = path.join(ROOT, 'android');
 const TWA_MANIFEST = path.join(ANDROID_DIR, 'twa-manifest.json');
 const KEYSTORE = path.join(ROOT, 'messandanger-keystore.jks');
-const KEYSTORE_PASS = process.env.BUBBLEWRAP_KEYSTORE_PASSWORD || 'changeme';
-const KEY_PASS = process.env.BUBBLEWRAP_KEY_PASSWORD || 'changeme';
+const KEYSTORE_PASS = (() => {
+  if (!process.env.BUBBLEWRAP_KEYSTORE_PASSWORD) throw new Error('BUBBLEWRAP_KEYSTORE_PASSWORD env var required');
+  return process.env.BUBBLEWRAP_KEYSTORE_PASSWORD;
+})();
+const KEY_PASS = (() => {
+  if (!process.env.BUBBLEWRAP_KEY_PASSWORD) throw new Error('BUBBLEWRAP_KEY_PASSWORD env var required');
+  return process.env.BUBBLEWRAP_KEY_PASSWORD;
+})();
 
 const log = new ConsoleLog('build-android');
 

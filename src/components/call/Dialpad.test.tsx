@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { Dialpad, LightSearchBar, DarkSearchBar } from './Dialpad';
+import { Dialpad } from './Dialpad';
 
 // Mock store
 vi.mock('../../store', () => ({
@@ -13,11 +13,6 @@ vi.mock('../../store', () => ({
     addCallFolder: vi.fn(),
     removeCallFolder: vi.fn(),
   })),
-}));
-
-// Mock i18n
-vi.mock('../../lib/i18n', () => ({
-  useI18n: () => ({ t: (key: string) => key }),
 }));
 
 // Mock i18n
@@ -62,57 +57,5 @@ describe('Dialpad', () => {
     const onMessage = vi.fn();
     render(<Dialpad theme="dark" contacts={mockContacts} showContactPicker={false} setShowContactPicker={() => {}} setEditingContact={() => {}} onMessage={onMessage} />);
     expect(screen.getByRole('textbox')).toBeInTheDocument();
-  });
-});
-
-describe('LightSearchBar', () => {
-  it('renders search input', () => {
-    render(<LightSearchBar searchQuery="" />);
-    expect(screen.getByRole('searchbox')).toBeInTheDocument();
-  });
-
-  it('renders with placeholder', () => {
-    render(<LightSearchBar searchQuery="" placeholder="Search..." />);
-    expect(screen.getByRole('searchbox')).toHaveAttribute('placeholder', 'Search...');
-  });
-
-  it('renders with controlled value', () => {
-    const { rerender } = render(<LightSearchBar searchQuery="controlled" />);
-    expect(screen.getByRole('searchbox')).toHaveValue('controlled');
-    rerender(<LightSearchBar searchQuery="updated" />);
-    expect(screen.getByRole('searchbox')).toHaveValue('updated');
-  });
-
-  it('renders with onSearchChange callback', () => {
-    const onSearchChange = vi.fn();
-    render(<LightSearchBar searchQuery="" onSearchChange={onSearchChange} />);
-    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'test' } });
-    expect(onSearchChange).toHaveBeenCalledWith('test');
-  });
-});
-
-describe('DarkSearchBar', () => {
-  it('renders search input', () => {
-    render(<DarkSearchBar searchQuery="" />);
-    expect(screen.getByRole('searchbox')).toBeInTheDocument();
-  });
-
-  it('renders with placeholder', () => {
-    render(<DarkSearchBar searchQuery="" placeholder="Search..." />);
-    expect(screen.getByRole('searchbox')).toHaveAttribute('placeholder', 'Search...');
-  });
-
-  it('renders with controlled value', () => {
-    const { rerender } = render(<DarkSearchBar searchQuery="controlled" />);
-    expect(screen.getByRole('searchbox')).toHaveValue('controlled');
-    rerender(<DarkSearchBar searchQuery="updated" />);
-    expect(screen.getByRole('searchbox')).toHaveValue('updated');
-  });
-
-  it('renders with onSearchChange callback', () => {
-    const onSearchChange = vi.fn();
-    render(<DarkSearchBar searchQuery="" onSearchChange={onSearchChange} />);
-    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'test' } });
-    expect(onSearchChange).toHaveBeenCalledWith('test');
   });
 });

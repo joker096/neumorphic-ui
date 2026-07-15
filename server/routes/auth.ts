@@ -38,8 +38,6 @@ function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 60000): boolean 
 }
 
 function getRemoteAddress(req: IncomingMessage): string {
-  const forwarded = req.headers['x-forwarded-for']
-  if (typeof forwarded === 'string') return forwarded.split(',')[0].trim()
   return req.socket.remoteAddress || 'unknown'
 }
 
@@ -50,16 +48,67 @@ export function handleAuthRoute(req: IncomingMessage, res: ServerResponse, path:
   return false
 }
 
+const MAX_BODY_SIZE = 1024 * 100 // 100KB limit
+
 function readBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     let body = ''
-    req.on('data', (chunk: Buffer) => body += chunk.toString())
+    let size = 0
+    req.on('data', (chunk: Buffer) => {
+      size += chunk.length
+      if (size > MAX_BODY_SIZE) {
+        req.destroy()
+        reject(new Error('Request body too large'))
+        return
+      }
+      body += chunk.toString()
+    })
     req.on('end', () => {
       try { resolve(JSON.parse(body)) } catch { reject(new Error('Invalid JSON')) }
     })
     req.on('error', reject)
   })
 }
+
+let captchaSessions = new Map<string, { answer: number; expiresAt: number }>()
+
+function generateCaptchaChallenge(): { challenge: string; answer: number; sessionId: string } {
+  const ops = ['+', '-', '\u00d7']
+  const op = ops[Math.floor(Math.random() * ops.length)]
+  let a = 0, b = 0, answer = 0
+  if (op === '+') {
+    a = Math.floor(Math.random() * 50) + 1
+    b = Math.floor(Math.random() * 50) + 1
+    answer = a + b
+  } else if (op === '-') {
+    a = Math.floor(Math.random() * 50) + 10
+    b = Math.floor(Math.random() * Math.min(a, 50)) + 1
+    answer = a - b
+  } else {
+    a = Math.floor(Math.random() * 12) + 1
+    b = Math.floor(Math.random() * 12) + 1
+    answer = a * b
+  }
+  const sessionId = crypto.randomUUID()
+  const expiresAt = Date.now() + 5 * 60 * 1000
+  captchaSessions.set(sessionId, { answer, expiresAt })
+  return { challenge: `${a} ${op} ${b} = ?`, answer: -1, sessionId }
+}
+
+function verifyCaptcha(sessionId: string, userAnswer: number): boolean {
+  const entry = captchaSessions.get(sessionId)
+  if (!entry || Date.now() > entry.expiresAt) return false
+  captchaSessions.delete(sessionId)
+  return userAnswer === entry.answer
+}
+
+function cleanupCaptchas() {
+  const now = Date.now()
+  for (const [key, entry] of captchaSessions.entries()) {
+    if (now > entry.expiresAt) captchaSessions.delete(key)
+  }
+}
+setInterval(cleanupCaptchas, 60000)
 
 async function handleLogin(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const ip = getRemoteAddress(req)
@@ -69,7 +118,18 @@ async function handleLogin(req: IncomingMessage, res: ServerResponse): Promise<v
     return
   }
   try {
-    const { username, password } = await readBody(req)
+    const { username, password, captchaSession, captchaAnswer } = await readBody(req)
+    if (!captchaSession || captchaAnswer === undefined) {
+      const challenge = generateCaptchaChallenge()
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ needsCaptcha: true, sessionId: challenge.sessionId, challenge: challenge.challenge }))
+      return
+    }
+    if (!verifyCaptcha(captchaSession, captchaAnswer)) {
+      res.writeHead(403, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: 'CAPTCHA verification failed' }))
+      return
+    }
     if (!username || !password) {
       res.writeHead(400, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ error: 'Username and password required' }))

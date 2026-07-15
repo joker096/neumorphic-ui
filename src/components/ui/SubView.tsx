@@ -17,7 +17,7 @@ export const SubView = ({ title, onBack, children, isDark = false }: SubViewProp
     className="w-full flex-1 flex flex-col min-h-0"
   >
     <div className="flex items-center gap-3 mb-6 shrink-0 pt-2">
-      <button onClick={onBack} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}>
+      <button onClick={onBack} className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}>
         <ChevronLeft size={18} className={isDark ? "text-white" : "text-slate-800"} />
       </button>
       <h2 className={`font-sans text-xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>

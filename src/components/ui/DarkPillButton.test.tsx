@@ -72,4 +72,46 @@ describe('DarkPillButton', () => {
     const title = screen.getByText('Weight Test');
     expect(title.className).toContain('semibold');
   });
+
+  it('does not render subtitle when not provided', () => {
+    render(<DarkPillButton title="No Sub" />);
+    expect(screen.queryByText(/subtitle/i)).not.toBeInTheDocument();
+  });
+
+  it('renders with fixed w-[260px] wrapper', () => {
+    const { container } = render(<DarkPillButton title="FixedW" />);
+    const outer = container.firstElementChild;
+    expect(outer?.className).toContain('w-[260px]');
+  });
+
+  it('renders with fixed h-[66px] wrapper', () => {
+    const { container } = render(<DarkPillButton title="FixedH" />);
+    const outer = container.firstElementChild;
+    expect(outer?.className).toContain('h-[66px]');
+  });
+
+  it('has hover scale effect when inactive', () => {
+    const { container } = render(<DarkPillButton title="Scale" />);
+    const outer = container.firstElementChild;
+    expect(outer?.className).toContain('hover:scale-[1.03]');
+  });
+
+  it('has active scale effect when inactive', () => {
+    const { container } = render(<DarkPillButton title="ActiveScale" />);
+    const outer = container.firstElementChild;
+    expect(outer?.className).toContain('active:scale-[0.97]');
+  });
+
+  it('renders with group class', () => {
+    const { container } = render(<DarkPillButton title="Group" />);
+    const outer = container.firstElementChild;
+    expect(outer?.className).toContain('group');
+  });
+
+  it('renders border-orange-500/20 when active', () => {
+    const { container } = render(<DarkPillButton title="BorderActive" />);
+    const outer = container.firstElementChild as HTMLElement;
+    fireEvent.click(outer);
+    expect(outer.className).toContain('border-orange-500/20');
+  });
 });

@@ -1,23 +1,36 @@
+import { randomBytes } from 'crypto'
+
 export interface CSPOptions {
   reportUri?: string
   nonce?: string
 }
 
 /**
+ * Generate a random nonce for CSP
+ */
+function generateNonce(): string {
+  return randomBytes(16).toString('hex')
+}
+
+/**
  * Generate a Content Security Policy header string for the app
  */
 export function buildCSP(options: CSPOptions = {}): string {
-  const { reportUri } = options
+  const { reportUri, nonce } = options
+
+  const nonceStr = nonce || generateNonce()
+  const scriptSrc = nonceStr
+    ? `'nonce-${nonceStr}'`
+    : "'self'"
 
   const directives = [
     "default-src 'self'",
-    "script-src 'self' 'wasm-unsafe-eval'",
+    `script-src 'self' ${scriptSrc}`,
     "style-src 'self'",
-    "style-src-attr 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self' wss: https:",
-    "media-src 'self' blob: https:",
+    "connect-src 'self' wss:",
+    "media-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -26,11 +39,17 @@ export function buildCSP(options: CSPOptions = {}): string {
   ]
 
   if (reportUri) {
-    directives.push(`report-uri "${reportUri}"`)
-    directives.push(`report-to "csp-endpoint"`)
+    directives.push(`report-uri ${reportUri}`)
   }
 
   return directives.join('; ')
+}
+
+/**
+ * Generate nonce for use in script/style tags
+ */
+export function getNonce(): string {
+  return generateNonce()
 }
 
 /**
@@ -46,5 +65,7 @@ export function applyCSP(
   res.setHeader('X-Content-Type-Options', 'nosniff')
   res.setHeader('X-Frame-Options', 'DENY')
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+  res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()')
   res.setHeader('X-Content-Security-Policy', csp)
 }

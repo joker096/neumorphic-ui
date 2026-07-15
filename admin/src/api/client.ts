@@ -1,4 +1,4 @@
-const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8766'
+const API_BASE = (import.meta as any).env?.VITE_API_URL || ''
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = sessionStorage.getItem('admin_token')
@@ -20,10 +20,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
-  login: (username: string, password: string) =>
-    request<{ sessionToken: string; requires2FA: boolean }>('/api/auth/login', {
+  login: (username: string, password: string, captchaSession?: string, captchaAnswer?: string) =>
+    request<{ sessionToken: string; requires2FA: boolean; needsCaptcha?: boolean; sessionId?: string; challenge?: string }>('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password, captchaSession, captchaAnswer: captchaAnswer !== undefined ? String(captchaAnswer) : undefined }),
     }),
 
   verify2FA: (sessionToken: string, code: string) =>

@@ -33,7 +33,12 @@ export function useHealthCheck(): {
 
   const clearErrors = useCallback(() => {
     clearErrorLog();
-    setStats(getErrorStats());
+    const newStats = getErrorStats();
+    setStats(newStats);
+    const { critical, major } = newStats;
+    if (critical > 3 || major > 5) setStatus("unhealthy");
+    else if (critical > 0 || major > 0) setStatus("degraded");
+    else setStatus("healthy");
   }, []);
 
   return {

@@ -53,11 +53,11 @@ export const CallHistorySheet = ({ open, onClose, onCall, theme = 'dark' }: Prop
               <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Call History</h2>
               <div className="flex items-center gap-2">
                 {callHistory.length > 0 && (
-                  <button onClick={clearCallHistory} className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? 'text-gray-400 hover:text-red-400 hover:bg-white/10' : 'text-slate-500 hover:text-red-500 hover:bg-black/10'}`} title="Clear all">
+                  <button onClick={clearCallHistory} className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${isDark ? 'text-gray-400 hover:text-red-400 hover:bg-white/10' : 'text-slate-500 hover:text-red-500 hover:bg-black/10'}`} title="Clear all">
                     <Trash2 size={16} />
                   </button>
                 )}
-                <button onClick={onClose} className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? 'hover:bg-white/10 text-white' : 'hover:bg-black/10 text-slate-800'}`}>
+                <button onClick={onClose} className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${isDark ? 'hover:bg-white/10 text-white' : 'hover:bg-black/10 text-slate-800'}`}>
                   <X size={18} />
                 </button>
               </div>

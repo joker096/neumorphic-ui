@@ -207,7 +207,7 @@ export const ChatInputOverlay = ({
                 </div>
                 <div className="text-[12px] truncate mt-0.5">{replyTarget.text || (replyTarget.type === "audio" ? `${t('chat.voiceNote')} ${replyTarget.duration || ""}` : replyTarget.type === "image" ? t('chat.photoAttachment') : t('chat.attachment'))}</div>
               </div>
-              <button onClick={() => setReplyTarget(null)} className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 ${isDark ? "text-gray-500 hover:text-white hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"}`}>
+              <button onClick={() => setReplyTarget(null)} className={`mt-0.5 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 ${isDark ? "text-gray-500 hover:text-white hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"}`}>
                 <X size={14} strokeWidth={2} />
               </button>
             </div>

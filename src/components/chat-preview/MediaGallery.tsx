@@ -65,7 +65,8 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
           <button
             onClick={() => setShowFilterMenu(!showFilterMenu)}
             title={t("chat.filters.button")}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] font-bold whitespace-nowrap transition-colors ${showFilterMenu ? "bg-orange-500 text-white" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"}`}
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-bold whitespace-nowrap transition-colors`}
+            aria-label={t("chat.filters.button")}
           >
             <ListFilter size={14} />
           </button>

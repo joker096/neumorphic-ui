@@ -18,6 +18,7 @@ const mockSalt = 'mock_salt_12345';
 
 const getMockProps = (hashPIN: string | null = 'hashed_pin', unlocked: boolean = false): LockScreenProps => ({
   appLockHashedPIN: hashPIN,
+  appLockSalt: 'mock_salt',
   isUnlocked: unlocked,
   setIsUnlocked: vi.fn(),
   pinInput: '',
@@ -73,9 +74,7 @@ describe('LockScreen', () => {
   });
 
   it('renders nothing when no salt', () => {
-    vi.restoreAllMocks();
-    vi.stubGlobal('localStorage', createMockLocalStorage(false));
-    const { container } = render(<LockScreen {...getMockProps('hashed_pin')} />);
+    const { container } = render(<LockScreen {...getMockProps('hashed_pin')} appLockSalt={null} />);
     expect(container.innerHTML).toBe('');
   });
 

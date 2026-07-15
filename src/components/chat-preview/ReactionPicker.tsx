@@ -22,13 +22,15 @@ export const ReactionPicker = ({ visible, isDark = false, isMe, messageId, emoji
       className={`absolute top-1/2 -translate-y-1/2 ${isMe ? "right-[calc(100%+8px)] mr-0" : "left-[calc(100%+8px)] ml-0"} z-20 flex bg-black/80 backdrop-blur-md rounded-full shadow-xl px-1 py-1`}
     >
       {emojis.map(emoji => (
-        <div
+        <button
           key={emoji}
-          className="w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
+          type="button"
+          className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
           onClick={() => onSelect(emoji)}
+          aria-label={emoji}
         >
           {emoji}
-        </div>
+        </button>
       ))}
     </motion.div>
   );

@@ -72,9 +72,9 @@ export const CreateBotModal = ({ theme = 'dark', onClose }: { theme?: 'dark' | '
                <Bot className={isDark ? "text-orange-400" : "text-orange-600"} size={28} />
                 <h3 className="text-xl font-bold tracking-tight">{t('createBot.title')}</h3>
              </div>
-             <div onClick={onClose} className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}>
-               <X size={16} />
-             </div>
+             <div onClick={onClose} className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}>
+                <X size={16} />
+              </div>
           </div>
           
           <div className="flex flex-col gap-2">

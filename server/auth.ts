@@ -1,11 +1,19 @@
+import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import { TOTP } from 'otpauth'
 import { getDb } from './db.js'
 
+dotenv.config()
+
 const JWT_SECRET = process.env.JWT_SECRET
-if (!JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET environment variable is required. Generate one with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"')
-  process.exit(1)
+let _signToken, _verifyToken
+
+if (JWT_SECRET) {
+  _signToken = (payload: { adminId: number; username: string }) => jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' })
+  _verifyToken = (token: string) => jwt.verify(token, JWT_SECRET)
+} else {
+  console.warn('WARN: JWT_SECRET not set. Signaling server will fail to start.')
+  console.warn('CLI commands work without it. Run once: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"')
 }
 
 export interface JwtPayload {
@@ -14,11 +22,13 @@ export interface JwtPayload {
 }
 
 export function signToken(payload: JwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' })
+  if (!_signToken) throw new Error('JWT_SECRET not configured. Cannot sign token.')
+  return _signToken(payload)
 }
 
 export function verifyToken(token: string): JwtPayload {
-  return jwt.verify(token, JWT_SECRET) as JwtPayload
+  if (!_verifyToken) throw new Error('JWT_SECRET not configured. Cannot verify token.')
+  return _verifyToken(token) as JwtPayload
 }
 
 export function generateTotpSecret(): { secret: string; uri: string } {

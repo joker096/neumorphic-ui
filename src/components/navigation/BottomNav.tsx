@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { MessageCircle, Phone, Settings, Users, Building2 } from "lucide-react";
+import { NAV_ITEMS } from "../../config/navigation";
 
 type BottomNavProps = {
   activeView: string;
@@ -11,13 +11,7 @@ type BottomNavProps = {
   t: (key: string) => string;
 };
 
-const NAV_ITEMS = [
-  { id: "chats", label: "nav.chats", icon: MessageCircle },
-  { id: "calls", label: "nav.calls", icon: Phone },
-  { id: "contacts", label: "nav.contacts", icon: Users },
-  { id: "company", label: "settings.company", icon: Building2 },
-  { id: "settings", label: "nav.settings", icon: Settings },
-];
+const BADGE_ITEM_IDS = new Set(["chats", "company"]);
 
 export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, companyUnreadCount, onNavigate, t }: BottomNavProps) => (
   <nav
@@ -31,7 +25,8 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
     {NAV_ITEMS.map((item) => {
       const Icon = item.icon;
       const isActive = activeView === item.id;
-      const showBadge = (item.id === "chats" && unreadCount > 0) || (item.id === "company" && companyUnreadCount > 0);
+      const showBadge = BADGE_ITEM_IDS.has(item.id) &&
+        (item.id === "chats" ? unreadCount > 0 : (companyUnreadCount ?? 0) > 0);
       const badgeCount = item.id === "chats" ? unreadCount : companyUnreadCount;
       return (
         <button

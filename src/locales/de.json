@@ -162,7 +162,14 @@
       "sectionWork": "Work",
       "sectionArchived": "Archived",
       "startCall": "Call"
-    }
+    },
+    "newFolder": "+ Neuer Ordner",
+    "noCalls": "No calls found",
+    "selected": "selected",
+    "delete": "Delete",
+    "markRead": "Mark Read",
+    "sectionPinned": "Pinned",
+    "startVideoCall": "Start Video Call"
   },
   "common": {
     "addDevice": "Gerät hinzufügen",
@@ -222,7 +229,8 @@
   "channelComments": {
     "title": "Comments",
     "replies": "{count} replies",
-    "placeholder": "Write a comment..."
+    "placeholder": "Write a comment...",
+    "leaveAComment": "Leave a comment"
   },
   "recordings": {
     "description": "Campaign recordings history",
@@ -434,7 +442,8 @@
     "crmTagPartner": "Partner",
     "crmTagVendor": "Vendor",
     "crmTagVip": "VIP",
-    "crmTitle": "CRM"
+    "crmTitle": "CRM",
+    "open": "Open"
   },
   "header": {
     "copied": "Kopiert!",
@@ -795,7 +804,13 @@
     "cameraRequired": "settings.cameraRequired",
     "relaySection": "settings.relaySection",
     "relayBackend": "settings.relayBackend",
-    "importWarningNote": "importWarningNote"
+    "importWarningNote": "importWarningNote",
+    "shareIdentity": "Share Identity",
+    "shareDescription": "Share your identity so others can find and connect with you.",
+    "copyLink": "Copy Link",
+    "dndActive": "Do Not Disturb is active",
+    "myProfile": "My Profile",
+    "myProfileSubtitle": "Personal information"
   },
   "gifSearch": {
     "searchPlaceholder": "Search GIFs...",
@@ -850,6 +865,35 @@
     "officeMoscow": "company.officeMoscow",
     "officeLondon": "company.officeLondon",
     "members": "company.members",
-    "memberCount": "company.memberCount"
+    "memberCount": "company.memberCount",
+    "edit": "Edit",
+    "name": "[missing: company.name]",
+    "phone": "[missing: company.phone]",
+    "email": "[missing: company.email]",
+    "address": "[missing: company.address]",
+    "website": "[missing: company.website]",
+    "taxId": "[missing: company.taxId]",
+    "contactInfo": "[missing: company.contactInfo]",
+    "contactPhone": "[missing: company.contactPhone]",
+    "contactEmail": "[missing: company.contactEmail]",
+    "contactAddress": "[missing: company.contactAddress]"
+  },
+  "login": {
+    "title": "Login",
+    "subtitle": "Sign in to your account",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "captcha": "CAPTCHA",
+    "captchaPlaceholder": "Enter the code shown",
+    "refreshCaptcha": "Refresh",
+    "signIn": "Sign In"
+  },
+  "crm": {
+    "all": "All",
+    "byCompany": "By Company",
+    "byTag": "By Tag",
+    "searchContacts": "Search contacts..."
   }
 }

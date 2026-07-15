@@ -61,7 +61,6 @@ export class P2PNetwork {
 
     // Listen for new peer discoveries
     MeshDHT.onNewPeer((peer) => {
-      console.log('[P2PNetwork] New peer discovered:', peer.peerId);
       // Try to connect to this peer
       this.connectToPeer(peer.peerId).catch(() => {});
     });
@@ -116,7 +115,6 @@ export class P2PNetwork {
     // This is called by the router when it needs to broadcast
     // In a real Kadabra implementation, this would send data
     // to all direct peers via WebRTC data channels.
-    console.log('[P2PNetwork] Broadcast:', data);
   }
 
   private handleNetworkChange(_online: boolean): void {

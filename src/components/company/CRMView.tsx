@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { useAppStore } from '../../store';
 import type { Contact, ContactTag } from '../../types/contact';
-import { ContactProfileModal } from '../contacts/ContactProfileModal';
+import { ContactProfileModal } from '../ContactProfileModal';
 
 type CRMViewProps = {
   onClose?: () => void;
@@ -20,6 +20,7 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const theme = typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? 'dark' : 'light';
 
   const companyContacts = contacts.filter(c => c.company);
   const noCompanyContacts = contacts.filter(c => !c.company);
@@ -168,6 +169,7 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
 
       <ContactProfileModal
         contact={selectedContact}
+        theme={theme}
         onClose={() => setSelectedContact(null)}
         onMessage={onMessage}
         onCall={onCall}

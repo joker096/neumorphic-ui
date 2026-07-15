@@ -35,6 +35,7 @@ export const STORAGE_KEYS = {
   COMPANY_PEERS: 'mess_company_peers',
   COMPANY_PEEKED: 'mess_company_peeked',
   COMPANY_LAST_SYNC: 'mess_company_last_sync',
+  COMPANY_SETTINGS: 'mess_company_settings',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

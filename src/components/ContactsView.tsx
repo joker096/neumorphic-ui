@@ -1,32 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import { useI18n } from '../lib/i18n';
 import { toast } from 'sonner';
-import { QrCode, Scan, Users, UserPlus, X, ArrowDownAZ, Clock, Check, Copy, Share, Phone, MessageSquare, Trash2, Edit, Loader2, Search, Star, StarOff, Video } from 'lucide-react';
+import { QrCode, Scan, Users, UserPlus, X, ArrowDownAZ, Clock, Check, Copy, Share, Phone, MessageSquare, Trash2, Edit, Loader2, Star, StarOff, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { ContactProfileModal, ContactProfile } from './ContactProfileModal';
 import { useDebounce } from '../hooks/useDebounce';
+import type { ContactTag } from '../types/contact';
 import { ContactCreateEditModal } from './ContactCreateEditModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { ContactItem } from './contacts/ContactItem';
 import type { Contact, ContactField } from '../types/contact';
+import { FormModal } from './ui/FormModal';
+import { FormField } from './ui/FormField';
+import { FormActions } from './ui/FormActions';
+import { SearchInput } from './ui/SearchInput';
 
 type TabOption = 'all' | 'favorites' | 'recent' | 'blocked';
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants: any = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-};
 
 export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall, onMessage, onEdit }: {
   theme: 'light' | 'dark', 
@@ -60,32 +50,28 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
   const handleAddContact = (e: React.FormEvent) => {
     e.preventDefault();
     if (newContactName.trim() && newContactId.trim()) {
-       const colors = ["from-teal-400 to-emerald-500", "from-pink-400 to-rose-500", "from-yellow-400 to-orange-500"];
-       const color = colors[contacts.length % colors.length];
-       setContacts([{ name: newContactName.trim(), id: newContactId.trim(), color, lastSeen: Date.now() }, ...contacts]);
-       setNewContactName("");
-       setNewContactId("");
-       setShowAddForm(false);
+      const colors = ["from-teal-400 to-emerald-500", "from-pink-400 to-rose-500", "from-yellow-400 to-orange-500"];
+      const color = colors[contacts.length % colors.length];
+      setContacts([{ name: newContactName.trim(), id: newContactId.trim(), color, lastSeen: Date.now() }, ...contacts]);
+      setNewContactName(""); setNewContactId(""); setShowAddForm(false);
     }
   };
 
-  const handleSaveContact = (name: string, id: string, color?: string, localFields?: ContactField[]) => {
+  const handleSaveContact = (name: string, id: string, color?: string, localFields?: ContactField[], extra?: { company?: string; position?: string; tags?: ContactTag[]; notes?: string }) => {
     if (editingContact) {
-      setContacts(contacts.map(c => c.id === editingContact.id ? { ...c, name, id, color: color || c.color, localFields } : c));
+      setContacts(contacts.map(c => c.id === editingContact.id ? { ...c, name, id, color: color || c.color, localFields, ...extra } : c));
     } else {
       const colors = ["from-teal-400 to-emerald-500", "from-pink-400 to-rose-500", "from-yellow-400 to-orange-500"];
       const newColor = colors[contacts.length % colors.length];
-      setContacts([{ name, id, color: newColor, lastSeen: Date.now(), localFields }, ...contacts]);
+      setContacts([{ name, id, color: newColor, lastSeen: Date.now(), localFields, ...extra }, ...contacts]);
     }
-    setShowAddForm(false);
-    setShowEditForm(false);
-    setEditingContact(null);
+    setShowAddForm(false); setShowEditForm(false); setEditingContact(null);
   };
 
   const copyId = () => {
     navigator.clipboard.writeText("nexus://id/fingerprint").then(() => {
-       setCopied(true);
-       setTimeout(() => setCopied(false), 2000);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     });
   };
 
@@ -104,11 +90,8 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
 
   const sortedContacts = useMemo(() => [...filteredContacts].sort((a, b) => {
     if (a.isFavorite !== b.isFavorite) return b.isFavorite ? 1 : -1;
-    if (sortBy === 'alpha') {
-      return a.name.localeCompare(b.name);
-    } else {
-      return b.lastSeen - a.lastSeen;
-    }
+    if (sortBy === 'alpha') return a.name.localeCompare(b.name);
+    return b.lastSeen - a.lastSeen;
   }), [filteredContacts, sortBy]);
 
   const tabs: { key: TabOption; label: string; icon: React.ReactNode }[] = [
@@ -124,263 +107,170 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
         <h2 className={`font-sans text-2xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
           {t('contacts.title')}
         </h2>
-        <div className={`flex gap-3 ${isDark ? "text-orange-400" : "text-orange-600"}`}>
-          <div onClick={() => { setIsScanning(true); setShowAddForm(false); setShowShareId(false); }} title={t('contacts.scanContactQR')} className="cursor-pointer hover:opacity-80 transition-all active:scale-95">
-            <Scan className="cursor-pointer hover:opacity-80 transition-all active:scale-95" size={24} />
-          </div>
-          <div onClick={() => { setShowShareId(true); setIsScanning(false); setShowAddForm(false); }} title={t('contacts.shareIdentity')} className="cursor-pointer hover:opacity-80 transition-all active:scale-95">
-            <QrCode className="cursor-pointer hover:opacity-80 transition-all active:scale-95" size={24} />
-          </div>
-          <div onClick={() => { setShowAddForm(true); setIsScanning(false); setShowShareId(false); }} title={t('contacts.addContact')} className="cursor-pointer hover:opacity-80 transition-all active:scale-95">
-            <UserPlus className="cursor-pointer hover:opacity-80 transition-all active:scale-95" size={24} />
-          </div>
+        <div className={`flex gap-2 ${isDark ? "text-orange-400" : "text-orange-600"}`}>
+          <motion.button whileTap={{ scale: 0.9 }}
+            onClick={() => { setIsScanning(true); setShowAddForm(false); setShowShareId(false); }}
+            title={t('contacts.scanContactQR')}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
+            <Scan size={22} />
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.9 }}
+            onClick={() => { setShowShareId(true); setIsScanning(false); setShowAddForm(false); }}
+            title={t('contacts.shareIdentity')}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
+            <QrCode size={22} />
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.9 }}
+            onClick={() => { setShowAddForm(true); setIsScanning(false); setShowShareId(false); }}
+            title={t('contacts.addContact')}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
+            <UserPlus size={22} />
+          </motion.button>
         </div>
       </div>
 
-      {/* Search + Tabs */}
       <div className="w-full mb-4">
-        {/* Search */}
-        <div className="relative mb-3">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-500" : "text-slate-400"}`} />
-          <input 
-            placeholder={t('contacts.searchPlaceholder')} 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full pl-9 pr-4 py-2 rounded-xl text-sm outline-none border transition-colors ${isDark ? "bg-[#1a1d24] border-white/10 text-white placeholder:text-gray-500 focus:border-emerald-500/50" : "bg-white border-black/10 text-slate-800 placeholder:text-slate-400 focus:border-blue-500/50"}`}
-          />
+        <div className="mb-3">
+          <SearchInput value={searchQuery} onChange={setSearchQuery}
+            placeholder={t('contacts.searchPlaceholder')} isDark={isDark} shape="pill" />
         </div>
 
-        {/* Tabs */}
         <div className={`flex rounded-full p-1 overflow-x-auto scrollbar-none ${isDark ? "bg-white/5" : "bg-black/5"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
           {tabs.map(tab => (
-            <button
-              key={tab.key}
+            <motion.button key={tab.key} whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${activeTab === tab.key ? (isDark ? 'bg-white/10 text-white' : 'bg-white shadow text-slate-800') : (isDark ? 'text-gray-400 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')}`}
-            >
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                activeTab === tab.key
+                  ? (isDark ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-slate-800')
+                  : (isDark ? 'text-gray-400 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')
+              }`}>
               {tab.icon}
               {tab.label}
-            </button>
+            </motion.button>
           ))}
         </div>
 
         {searchQuery && (
-          <div className={`text-xs mt-2 ${isDark ? "text-gray-500" : "text-slate-500"}`}>
+          <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+            className={`text-xs mt-2 px-1 ${isDark ? "text-gray-500" : "text-slate-500"}`}>
             {t('contacts.foundResults', { count: filteredContacts.length, total: contacts.length })}
-          </div>
-        )}
-      </div>
-
-      <div className="w-full">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="flex flex-col gap-3"
-        >
-          <AnimatePresence mode="popLayout">
-            {sortedContacts.length === 0 && !showAddForm && !isScanning && !showShareId && (
-              <div className={`text-center py-8 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-                <p className="text-sm">{t('contacts.noContacts')}</p>
-                <p className="text-xs mt-1 opacity-60">{t('contacts.noContactsSubtitle')}</p>
-              </div>
-            )}
-            {sortedContacts.map((c, i) => (
-              <ContactItem
-                key={c.id}
-                contact={c}
-                theme={theme}
-                isDark={isDark}
-                onCall={onCall}
-                onVideoCall={onVideoCall}
-                onToggleFavorite={toggleFavorite}
-                onClick={() => setSelectedContact(c)}
-                t={t}
-              />
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </div>
-
-      {/* Modals */}
-       <ContactProfileModal 
-          contact={selectedContact}
-          theme={theme}
-          onClose={() => setSelectedContact(null)}
-           onCall={() => {
-               if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
-               setSelectedContact(null);
-           }}
-           onVideoCall={() => {
-               if (onVideoCall && selectedContact) onVideoCall(selectedContact.name, selectedContact.color);
-               setSelectedContact(null);
-           }}
-           onMessage={() => {
-              if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
-              setSelectedContact(null);
-          }}
-           onDelete={() => {}}
-           onRequestDelete={() => {
-               if (selectedContact) {
-                 setConfirmDeleteId(selectedContact.id);
-               }
-           }}
-            onBlock={() => {
-               if (selectedContact) setContacts(contacts.map(c => c.id === selectedContact.id ? { ...c, isBlocked: true } : c));
-               setSelectedContact(null);
-           }}
-          onEdit={() => {
-                if (selectedContact) {
-                  setEditingContact(selectedContact);
-                  setShowEditForm(true);
-                }
-                setSelectedContact(null);
-            }}
-           onToggleFavorite={(id) => toggleFavorite(id, selectedContact?.isFavorite ?? false)}
-       />
-
-       <ConfirmDialog
-         isOpen={confirmDeleteId !== null}
-         title={t('contacts.deleteContact')}
-         message={t('contacts.confirmDeleteMessage', { name: contacts.find(c => c.id === confirmDeleteId)?.name || '' })}
-         confirmLabel={t('contacts.deleteContact')}
-         cancelLabel={t('contacts.close')}
-         variant="danger"
-         theme={isDark ? 'dark' : 'light'}
-         onConfirm={() => {
-           if (confirmDeleteId) {
-             setContacts(contacts.filter(c => c.id !== confirmDeleteId));
-           }
-           setConfirmDeleteId(null);
-         }}
-         onCancel={() => setConfirmDeleteId(null)}
-       />
-
-      <AnimatePresence>
-        {(showAddForm || isScanning || showShareId || showEditForm) && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className={`w-full max-w-[340px] p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
-            >
-              <div 
-                className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
-                onClick={() => { setShowAddForm(false); setIsScanning(false); setShowShareId(false); setShowEditForm(false); setEditingContact(null); }}
-                title={t('contacts.close')}
-              >
-                <X size={18} />
-              </div>
-
-              {showAddForm && (
-                <form onSubmit={handleAddContact} className="flex flex-col gap-4 mt-4">
-                  <div className="flex flex-col items-center mb-2">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}>
-                      <UserPlus size={32} />
-                    </div>
-                    <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{t('contacts.addContact')}</h3>
-                    <p className={`text-xs text-center mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>Enter their name and unique network ID to establish a connection.</p>
-                  </div>
-                  
-                  <div className="flex flex-col gap-3">
-                    <input 
-                      type="text" 
-                      autoFocus
-                      placeholder={t('contacts.contactName')} 
-                      value={newContactName}
-                      onChange={e => setNewContactName(e.target.value)}
-                      className={`w-full h-12 px-4 rounded-2xl text-sm outline-none border-2 transition-colors ${isDark ? "bg-[#13151b] text-white border-white/10 focus:border-orange-500" : "bg-slate-50 text-slate-800 border-black/5 focus:border-orange-500"}`}
-                    />
-                    <div className="relative">
-                       <input 
-                         type="text" 
-                         placeholder={t('contacts.networkId')} 
-                         value={newContactId}
-                         onChange={e => setNewContactId(e.target.value)}
-                         className={`w-full h-12 pl-4 pr-12 rounded-2xl text-sm font-mono outline-none border-2 transition-colors ${isDark ? "bg-[#13151b] text-white border-white/10 focus:border-orange-500" : "bg-slate-50 text-slate-800 border-black/5 focus:border-orange-500"}`}
-                       />
-                       <button 
-                         type="button" 
-                         onClick={() => { setShowAddForm(false); setIsScanning(true); }}
-                         className={`absolute right-2 top-2 bottom-2 w-8 rounded-xl flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
-                         title={t('header.scanQR')}
-                       >
-                         <Scan size={16} />
-                       </button>
-                    </div>
-                  </div>
-
-                  <button type="submit" disabled={!newContactName.trim() || !newContactId.trim()} className={`w-full h-12 rounded-2xl font-bold mt-4 transition-all flex items-center justify-center gap-2 ${(!newContactName.trim() || !newContactId.trim()) ? "opacity-50 cursor-not-allowed text-white/50 bg-gray-500" : "bg-orange-500 text-white hover:bg-orange-600 active:scale-95 shadow-lg shadow-orange-500/20"}`}>
-                     <Check size={18} />
-                      {t('contacts.saveContact')}
-                   </button>
-                 </form>
-               )}
-
-              {showEditForm && editingContact && (
-                <ContactCreateEditModal
-                  contact={editingContact}
-                  isDark={isDark}
-                  onClose={() => { setShowEditForm(false); setEditingContact(null); }}
-                  onSave={handleSaveContact}
-                />
-              )}
-
-              {isScanning && (
-                <div className="flex flex-col items-center mt-4">
-                  <h3 className={`text-xl font-bold mb-6 ${isDark ? "text-white" : "text-slate-800"}`}>{t('contacts.scanContactQR')}</h3>
-                  <div className={`w-full aspect-square overflow-hidden relative shadow-inner ${isDark ? "bg-black" : "bg-gray-100"}`}>
-                    <Scanner 
-                      onScan={(result) => {
-                        if (result && result.length > 0) {
-                          setIsScanning(false);
-                          setNewContactId(result[0].rawValue);
-                          setShowAddForm(true);
-                        }
-                      }}
-                      styles={{ container: { width: '100%', height: '100%' } }}
-                    />
-                    <div className="absolute inset-0 border-4 border-orange-500/50 pointer-events-none mix-blend-overlay"></div>
-                  </div>
-                  <p className={`text-xs text-center mt-6 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('contacts.scanDescription')}</p>
-                </div>
-              )}
-
-              {showShareId && (
-                <div className="flex flex-col items-center mt-4">
-                  <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-800"}`}>{t('contacts.shareIdentity')}</h3>
-                  <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('contacts.shareDescription')}</p>
-                  
-                  <div className={`w-[220px] h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
-                      <QrCode size="100%" strokeWidth={1} className="text-black" />
-                  </div>
-                  
-                  <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"}`}>
-                      <div className={`font-mono text-xs tracking-widest break-all text-center ${isDark ? "text-orange-400" : "text-orange-600"}`}>
-                        nexus://id/fingerprint
-                      </div>
-                      <div className="flex gap-2 w-full">
-                         <button onClick={copyId} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-white" : (isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
-                            {copied ? <Check size={14} /> : <Copy size={14} />}
-                            {copied ? t('header.copied') : t('header.copyLink')}
-                         </button>
-                         <button className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
-                            <Share size={14} />
-                         </button>
-                      </div>
-                  </div>
-                </div>
-              )}
-            </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </div>
+
+      <div className="w-full flex-1 overflow-y-auto">
+        <AnimatePresence mode="popLayout">
+          {sortedContacts.length === 0 && !showAddForm && !isScanning && !showShareId ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className={`flex flex-col items-center justify-center h-full py-16 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                <Users className="w-7 h-7 opacity-40" />
+              </div>
+              <p className="text-sm font-medium">{t('contacts.noContacts')}</p>
+              <p className="text-xs mt-1 opacity-60">{t('contacts.noContactsSubtitle')}</p>
+            </motion.div>
+          ) : (
+            <motion.div initial="hidden" animate="show" className="flex flex-col gap-2">
+              {sortedContacts.map((c, i) => (
+                <ContactItem key={c.id} contact={c} theme={theme} isDark={isDark}
+                  onCall={onCall} onVideoCall={onVideoCall}
+                  onToggleFavorite={toggleFavorite} onClick={() => setSelectedContact(c)} t={t} />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <ContactProfileModal contact={selectedContact} theme={theme}
+        onClose={() => setSelectedContact(null)}
+        onCall={() => { if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color); setSelectedContact(null); }}
+        onVideoCall={() => { if (onVideoCall && selectedContact) onVideoCall(selectedContact.name, selectedContact.color); setSelectedContact(null); }}
+        onMessage={() => { if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color); setSelectedContact(null); }}
+        onDelete={() => {}}
+        onRequestDelete={() => { if (selectedContact) setConfirmDeleteId(selectedContact.id); }}
+        onBlock={() => { if (selectedContact) setContacts(contacts.map(c => c.id === selectedContact.id ? { ...c, isBlocked: true } : c)); setSelectedContact(null); }}
+        onEdit={() => { if (selectedContact) { setEditingContact(selectedContact); setShowEditForm(true); } setSelectedContact(null); }}
+        onToggleFavorite={(id) => toggleFavorite(id, selectedContact?.isFavorite ?? false)}
+      />
+
+      <ConfirmDialog isOpen={confirmDeleteId !== null}
+        title={t('contacts.deleteContact')}
+        message={t('contacts.confirmDeleteMessage', { name: contacts.find(c => c.id === confirmDeleteId)?.name || '' })}
+        confirmLabel={t('contacts.deleteContact')} cancelLabel={t('contacts.close')}
+        variant="danger" theme={isDark ? 'dark' : 'light'}
+        onConfirm={() => { if (confirmDeleteId) setContacts(contacts.filter(c => c.id !== confirmDeleteId)); setConfirmDeleteId(null); }}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
+
+      <FormModal isOpen={showAddForm}
+        onClose={() => { setShowAddForm(false); setNewContactName(''); setNewContactId(''); }}
+        title={t('contacts.addContact')} subtitle="Enter their name and unique network ID to establish a connection."
+        icon={UserPlus} theme={theme} closeTitle={t('contacts.close')}>
+        <div className="flex flex-col gap-3 mt-2">
+          <FormField theme={theme} autoFocus placeholder={t('contacts.contactName')}
+            value={newContactName} onChange={setNewContactName} />
+          <FormField theme={theme} placeholder={t('contacts.networkId')}
+            value={newContactId} onChange={setNewContactId} monospace
+            icon={Scan} iconAction={() => { setShowAddForm(false); setIsScanning(true); }} iconTooltip={t('header.scanQR')} />
+          <FormActions theme={theme} submitLabel={t('contacts.saveContact')} cancelLabel={t('contacts.close')}
+            onSubmit={() => handleAddContact({ preventDefault: () => {} } as any)}
+            onCancel={() => { setShowAddForm(false); setNewContactName(''); setNewContactId(''); }}
+            disabled={!newContactName.trim() || !newContactId.trim()} />
+        </div>
+      </FormModal>
+
+      {showEditForm && editingContact && (
+        <ContactCreateEditModal contact={editingContact} isDark={isDark}
+          onClose={() => { setShowEditForm(false); setEditingContact(null); }}
+          onSave={handleSaveContact} />
+      )}
+
+      <FormModal isOpen={isScanning} onClose={() => setIsScanning(false)}
+        title={t('contacts.scanContactQR')} subtitle={t('contacts.scanDescription')}
+        icon={Scan} theme={theme} closeTitle={t('contacts.close')}>
+        <div className={`w-full aspect-square overflow-hidden relative shadow-inner rounded-xl ${isDark ? "bg-black" : "bg-gray-100"}`}>
+          <Scanner onScan={(result) => {
+            if (result && result.length > 0) {
+              setIsScanning(false); setNewContactId(result[0].rawValue); setShowAddForm(true);
+            }
+          }} styles={{ container: { width: '100%', height: '100%' } }} />
+          <div className="absolute inset-0 border-4 border-orange-500/50 pointer-events-none mix-blend-overlay rounded-xl" />
+        </div>
+      </FormModal>
+
+      <FormModal isOpen={showShareId} onClose={() => setShowShareId(false)}
+        title={t('contacts.shareIdentity')} subtitle={t('contacts.shareDescription')}
+        icon={QrCode} theme={theme} closeTitle={t('contacts.close')}>
+        <div className="flex flex-col items-center gap-4 mt-2">
+          <div className={`w-[220px] h-[220px] flex items-center justify-center p-4 shadow-xl ${
+            isDark ? "bg-white" : "bg-white border-2 border-gray-100"
+          }`}>
+            <QrCode size="100%" strokeWidth={1} className="text-black" />
+          </div>
+          <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${
+            isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"
+          }`}>
+            <div className={`font-mono text-xs tracking-widest break-all text-center ${isDark ? "text-orange-400" : "text-orange-600"}`}>
+              nexus://id/fingerprint
+            </div>
+            <div className="flex gap-2 w-full">
+              <motion.button whileTap={{ scale: 0.95 }} onClick={copyId}
+                className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${
+                  copied ? "bg-green-500 text-white" : (isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800")
+                }`}>
+                {copied ? <Check size={14} /> : <Copy size={14} />}
+                {copied ? t('header.copied') : t('header.copyLink')}
+              </motion.button>
+              <motion.button whileTap={{ scale: 0.95 }}
+                className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${
+                  isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800"
+                }`}>
+                <Share size={14} />
+              </motion.button>
+            </div>
+          </div>
+        </div>
+      </FormModal>
     </div>
   );
 };

@@ -107,7 +107,7 @@ export function FluidNav({ items, activeView, onNavigate, t }: FluidNavProps) {
           {/* Hamburger */}
           <button
             onClick={() => setOpen(!open)}
-            className="relative w-8 h-8 flex flex-col items-center justify-center gap-[3.5px] rounded-full hover:bg-[var(--bg-tertiary)] transition-colors duration-300"
+            className="relative w-10 h-10 flex flex-col items-center justify-center gap-[3.5px] rounded-full hover:bg-[var(--bg-tertiary)] transition-colors duration-300"
             aria-label={open ? "Close menu" : "Open menu"}
           >
             <motion.span

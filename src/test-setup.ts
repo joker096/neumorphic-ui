@@ -1,3 +1,6 @@
+import '@testing-library/jest-dom/vitest';
+
+// Suppress canvas-related warnings in test environment
 if (typeof HTMLCanvasElement !== 'undefined') {
   (HTMLCanvasElement.prototype as any).getContext = function(this: HTMLCanvasElement, contextId: string, ...args: any[]): any {
     if (contextId !== '2d') {

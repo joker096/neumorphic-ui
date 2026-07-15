@@ -34,6 +34,18 @@ OUTPUT:
 $RootDir = Resolve-Path "$PSScriptRoot/.."
 Write-Host "=== Mess&Anger Android Build ===" -ForegroundColor Cyan
 
+# Load .env file into environment variables
+$EnvFile = Join-Path $RootDir ".env"
+if (Test-Path $EnvFile) {
+  Get-Content $EnvFile | ForEach-Object {
+    if ($_ -match '^\s*([^#=]+)=(.+)\s*$') {
+      $key = $matches[1].Trim()
+      $val = $matches[2].Trim()
+      Set-Item -Path "Env:$key" -Value $val
+    }
+  }
+}
+
 # Check prerequisites
 $ok = $true
 if (-not (Get-Command java -ErrorAction SilentlyContinue)) {

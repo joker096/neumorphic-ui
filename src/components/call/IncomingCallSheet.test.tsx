@@ -21,30 +21,30 @@ describe('IncomingCallSheet - additional tests', () => {
 
   it('renders reject button', () => {
     render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    const rejectBtn = document.querySelector('[class*="bg-red-500"]')?.closest('button') || document.querySelector('[class*="bg-red-500"]');
+    const rejectBtn = document.querySelector('[class*="from-red-500"]')?.closest('button') || document.querySelector('[class*="from-red-500"]');
     expect(rejectBtn).toBeInTheDocument();
   });
 
   it('renders accept button', () => {
     render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    const acceptBtn = document.querySelector('[class*="bg-green-500"]')?.closest('button') || document.querySelector('[class*="bg-green-500"]');
+    const acceptBtn = document.querySelector('[class*="from-green-500"]')?.closest('button') || document.querySelector('[class*="from-green-500"]');
     expect(acceptBtn).toBeInTheDocument();
   });
 
   it('renders video accept button', () => {
     render(<IncomingCallSheet callerName="John" callType="video" onAccept={() => {}} onReject={() => {}} onAcceptVideo={() => {}} />);
-    const videoBtn = document.querySelector('[class*="bg-blue-500"]')?.closest('button') || document.querySelector('[class*="bg-blue-500"]');
+    const videoBtn = document.querySelector('[class*="from-blue-500"]')?.closest('button') || document.querySelector('[class*="from-blue-500"]');
     expect(videoBtn).toBeInTheDocument();
   });
 
   it('renders avatar circle', () => {
     const { container } = render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    expect(container.querySelector('[class*="w-32.h-32"]') || container.querySelector('[class*="from-blue-500"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="w-36.h-36"]') || container.querySelector('[class*="from-orange-500"]')).toBeInTheDocument();
   });
 
   it('renders gradient background', () => {
     const { container } = render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    expect(container.querySelector('[class*="from-gray-900"]') || container.querySelector('[class*="to-black"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="from-zinc-900"]') || container.querySelector('[class*="to-black"]')).toBeInTheDocument();
   });
 
   it('renders Incoming call text', () => {

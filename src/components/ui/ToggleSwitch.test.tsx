@@ -44,26 +44,26 @@ describe('ToggleSwitch - additional tests', () => {
 
   it('applies custom className', () => {
     const { container } = render(<ToggleSwitch isOn={false} className="custom-class" />);
-    expect(container.querySelector('button').classList.contains('custom-class')).toBeTruthy();
+    expect(container.querySelector('[role="switch"]').classList.contains('custom-class')).toBeTruthy();
   });
 
   it('renders with active state', () => {
     const { container } = render(<ToggleSwitch isOn={true} />);
-    expect(container.querySelector('button')).toBeInTheDocument();
+    expect(container.querySelector('[role="switch"]')).toBeInTheDocument();
   });
 
   it('renders with inactive state', () => {
     const { container } = render(<ToggleSwitch isOn={false} />);
-    expect(container.querySelector('button')).toBeInTheDocument();
+    expect(container.querySelector('[role="switch"]')).toBeInTheDocument();
   });
 
   it('applies disabled attribute', () => {
     render(<ToggleSwitch isOn={false} disabled={true} />);
-    expect(screen.getByRole('switch')).toHaveAttribute('disabled');
+    expect(screen.getByRole('switch')).toHaveAttribute('aria-disabled');
   });
 
   it('does not apply disabled attribute when not disabled', () => {
     render(<ToggleSwitch isOn={false} />);
-    expect(screen.getByRole('switch')).not.toHaveAttribute('disabled');
+    expect(screen.getByRole('switch')).not.toHaveAttribute('aria-disabled');
   });
 });

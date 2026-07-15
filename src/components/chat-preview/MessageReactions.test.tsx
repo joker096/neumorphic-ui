@@ -51,7 +51,7 @@ describe('MessageReactions', () => {
         msg={{ id: 1, reactions: { '👍': 1 } }}
       />,
     );
-    const emojiButtons = document.querySelectorAll('[class*="w-8 h-8 flex items-center justify-center cursor-pointer"]');
+    const emojiButtons = document.querySelectorAll('[role="button"]');
     expect(emojiButtons.length).toBeGreaterThanOrEqual(6);
   });
 

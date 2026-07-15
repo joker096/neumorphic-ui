@@ -203,6 +203,15 @@ export const MOCK_COMPANY_MESSAGES: CompanyMessage[] = [
   },
 ];
 
+export const MOCK_COMPANY_SETTINGS = {
+  name: 'Neumorphic Corp',
+  phone: '+7 (495) 123-45-67',
+  email: 'info@neumorphic.dev',
+  address: 'ул. Тверь 15, Москва 1016',
+  website: 'https://neumorphic.dev',
+  taxId: '7701234567',
+};
+
 export const MOCK_COMPANY_OFFICES = [
   { id: 'moscow', name: 'Москва', country: 'Россия', flag: '🇷🇺' },
   { id: 'london', name: 'Лондон', country: 'Великобритания', flag: '🇬🇧' },

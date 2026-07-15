@@ -81,4 +81,55 @@ describe('PillButton - additional tests', () => {
     const { container } = render(<PillButton label="Test" isLarge={true} active={true} />);
     expect(container.querySelector('.group')).toBeInTheDocument();
   });
+
+  it('renders label text', () => {
+    render(<PillButton label="Hello World" />);
+    expect(screen.getByText('Hello World')).toBeInTheDocument();
+  });
+
+  it('renders subtitle in non-large mode', () => {
+    render(<PillButton label="Main" subtitle="Subtitle text" />);
+    expect(screen.getByText('Subtitle text')).toBeInTheDocument();
+  });
+
+  it('does not render subtitle in large mode', () => {
+    render(<PillButton label="Main" subtitle="Sub" isLarge={true} />);
+    expect(screen.queryByText('Sub')).not.toBeInTheDocument();
+  });
+
+  it('calls onClick when clicked', () => {
+    const onClick = vi.fn();
+    const { container } = render(<PillButton label="Click" onClick={onClick} />);
+    const btn = container.querySelector('[class*="cursor-pointer"]') as HTMLElement;
+    fireEvent.click(btn);
+    expect(onClick).toHaveBeenCalledOnce();
+  });
+
+  it('renders with light theme', () => {
+    const { container } = render(<PillButton label="Light" theme="light" />);
+    expect(container.querySelector('.group')).toBeInTheDocument();
+  });
+
+  it('renders with light theme active', () => {
+    const { container } = render(<PillButton label="Light Active" theme="light" active={true} />);
+    expect(container.querySelector('.group')).toBeInTheDocument();
+  });
+
+  it('has pointer cursor', () => {
+    const { container } = render(<PillButton label="Pointer" />);
+    const el = container.querySelector('[class*="cursor-pointer"]');
+    expect(el).toBeInTheDocument();
+  });
+
+  it('has hover scale transform', () => {
+    const { container } = render(<PillButton label="Hover" />);
+    const el = container.querySelector('[class*="hover:scale-"]');
+    expect(el).toBeInTheDocument();
+  });
+
+  it('has active scale transform', () => {
+    const { container } = render(<PillButton label="Active" />);
+    const el = container.querySelector('[class*="active:scale-"]');
+    expect(el).toBeInTheDocument();
+  });
 });

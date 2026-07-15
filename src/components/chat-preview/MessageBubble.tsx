@@ -289,8 +289,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(({
 
         {/* Reaction trigger */}
         <div
-          className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer w-8 h-8 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[--border-color]/5 bg-[--bg-secondary] text-[--text-tertiary] hover:text-[--text-primary] hover:bg-[--bg-tertiary]"
+          className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer w-10 h-10 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[--border-color]/5 bg-[--bg-secondary] text-[--text-tertiary] hover:text-[--text-primary] hover:bg-[--bg-tertiary]"
           onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
+          aria-label="Reactions"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id); }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 3l0 18-9-9 18 0-9-9z" />

@@ -1,14 +1,13 @@
-/**
- * Lock screen component for App.tsx
- */
 import React, { FormEvent, useEffect, useState } from "react";
 import { Lock } from "lucide-react";
-import { useAppStore } from "../../store";
 import { useI18n } from "../../lib/i18n";
 import { STORAGE_KEYS } from "../../constants/storage";
+import { cryptoCore } from "../../lib/crypto/cryptoCore";
+import { getLockBlockDuration } from "../../config/lockBackoff";
 
 export type LockScreenProps = {
   appLockHashedPIN: string | null;
+  appLockSalt: string | null;
   isUnlocked: boolean;
   setIsUnlocked: (v: boolean) => void;
   pinInput: string;
@@ -22,45 +21,11 @@ export type LockScreenProps = {
   lockBlockTimer: number;
   setLockBlockTimer: (v: number) => void;
   isDark?: boolean;
-  theme?: "light" | "dark";
-};
-
-const getBlockDuration = (attempts: number): number => {
-  if (attempts <= 2) return 0;
-  if (attempts === 3) return 30000;
-  if (attempts === 4) return 60000;
-  if (attempts === 5) return 120000;
-  if (attempts === 6) return 300000;
-  if (attempts === 7) return 900000;
-  return Infinity;
-};
-
-const cryptoCore = {
-  hashAppLockPIN: async (pin: string, salt: string) => {
-    try {
-      const encoder = new TextEncoder();
-      const key = await crypto.subtle.importKey(
-        "raw",
-        encoder.encode(pin),
-        "PBKDF2",
-        false,
-        ["deriveBits"],
-      );
-      const saltBuffer = new TextEncoder().encode(salt);
-      const bits = await crypto.subtle.deriveBits(
-        { name: "PBKDF2", salt: saltBuffer, iterations: 10000, hash: "SHA-256" },
-        key,
-        256,
-      );
-      return { hash: btoa(String.fromCharCode(...new Uint8Array(bits))) };
-    } catch {
-      return { hash: "" };
-    }
-  },
 };
 
 export function LockScreen({
   appLockHashedPIN,
+  appLockSalt,
   isUnlocked,
   setIsUnlocked,
   pinInput,
@@ -74,7 +39,6 @@ export function LockScreen({
   lockBlockTimer,
   setLockBlockTimer,
   isDark = false,
-  theme = 'dark',
 }: LockScreenProps) {
   const { t } = useI18n();
 
@@ -97,47 +61,38 @@ export function LockScreen({
 
   const handleUnlock = async (e?: FormEvent) => {
     if (e) e.preventDefault();
-    if (!appLockHashedPIN) return;
-    const salt = localStorage.getItem(STORAGE_KEYS.LOCK_SALT);
-    if (!salt) return;
+    if (!appLockHashedPIN || !appLockSalt) return;
 
     if (lockBlockedUntil > Date.now()) {
       setPinError(true);
       return;
     }
 
-    try {
-      const hashed = await cryptoCore.hashAppLockPIN(pinInput, salt);
-      if (hashed.hash === appLockHashedPIN) {
-        setIsUnlocked(true);
-        setPinError(false);
-        setLockAttempts(0);
-        setLockBlockedUntil(0);
-        localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, "0");
-        localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, "0");
-      } else {
-        const newAttempts = lockAttempts + 1;
-        setLockAttempts(newAttempts);
-        localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, String(newAttempts));
-        const duration = getBlockDuration(newAttempts);
-        if (duration > 0 && duration !== Infinity) {
-          const blockedUntil = Date.now() + duration;
-          setLockBlockedUntil(blockedUntil);
-          localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, String(blockedUntil));
-        } else if (duration === Infinity) {
-          setLockBlockedUntil(Infinity);
-          localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, "permanent");
-        }
-        setPinError(true);
-        setPinInput("");
+    const hashed = await cryptoCore.hashAppLockPIN(pinInput, appLockSalt);
+    if (hashed.hash === appLockHashedPIN) {
+      setIsUnlocked(true);
+      setPinError(false);
+      setLockAttempts(0);
+      setLockBlockedUntil(0);
+      localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, "0");
+      localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, "0");
+    } else {
+      const newAttempts = lockAttempts + 1;
+      setLockAttempts(newAttempts);
+      localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, String(newAttempts));
+      const duration = getLockBlockDuration(newAttempts);
+      if (duration > 0 && duration !== Infinity) {
+        const blockedUntil = Date.now() + duration;
+        setLockBlockedUntil(blockedUntil);
+        localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, String(blockedUntil));
+      } else if (duration === Infinity) {
+        setLockBlockedUntil(Infinity);
+        localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, "permanent");
       }
-    } catch {
       setPinError(true);
       setPinInput("");
     }
   };
-
-  const appLockSalt = localStorage.getItem(STORAGE_KEYS.LOCK_SALT);
 
   if (!appLockHashedPIN || !appLockSalt || isUnlocked) return null;
 

@@ -34,7 +34,11 @@ export const VideoPlayerOverlay = ({
             </span>
             <div
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur flex items-center justify-center cursor-pointer text-white"
+              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur flex items-center justify-center cursor-pointer text-white"
+              aria-label="Close video"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}
             >
               <X size={16} strokeWidth={2.5} />
             </div>

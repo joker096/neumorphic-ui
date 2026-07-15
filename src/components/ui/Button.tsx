@@ -28,7 +28,7 @@ export function Button({
   const premiumIconSize = {
     sm: "w-5 h-5",
     md: "w-7 h-7",
-    lg: "w-8 h-8",
+    lg: "w-10 h-10",
   }[size]
 
   let base: string

@@ -5,6 +5,8 @@ import "./index.css";
 import { useAppStore } from "./store";
 import { I18nProvider, preloadLocales } from "./lib/i18n";
 import { ErrorBoundary } from "./components/resilience";
+import { initPerformanceMonitoring } from "./lib/performance";
+import { AnimationProvider } from "./contexts/AnimationContext";
 
 type ErrorHandler = {
   lastError: Error | null;
@@ -58,6 +60,8 @@ const bootstrap = async () => {
 
   installRuntimeGuards();
 
+  initPerformanceMonitoring();
+
   // Register service worker for offline support
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
@@ -73,7 +77,9 @@ const bootstrap = async () => {
     <StrictMode>
       <ErrorBoundary>
         <I18nProvider>
-          <App />
+          <AnimationProvider>
+            <App />
+          </AnimationProvider>
         </I18nProvider>
       </ErrorBoundary>
     </StrictMode>,

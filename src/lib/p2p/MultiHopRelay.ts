@@ -26,8 +26,7 @@ export class MultiHopRelay {
       const nextHop = path[i];
       // In a real Kadabra implementation, this would forward
       // the message to the next hop in the path.
-      console.log(`[MultiHopRelay] Forwarding to ${nextHop}`);
-    }
+      }
 
     return true;
   }

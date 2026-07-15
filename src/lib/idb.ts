@@ -4,6 +4,7 @@
  */
 
 import { set, get, del, clear, keys } from 'idb-keyval';
+import { STORAGE_KEYS } from '../constants/storage';
 
 // Re-export for use in store
 export { set, get, del, clear, keys };
@@ -174,6 +175,17 @@ export async function addCompanyMessage(msg: any): Promise<void> {
 
 export async function getAllCompanyMessages(): Promise<any[]> {
   return (await get('company_msgs_list')) || [];
+}
+
+// --- Company settings operations ---
+
+export async function saveCompanySettings(settings: Record<string, string>): Promise<void> {
+  await set(STORAGE_KEYS.COMPANY_SETTINGS, settings);
+}
+
+export async function getCompanySettings(): Promise<Record<string, string> | null> {
+  const data = await get(STORAGE_KEYS.COMPANY_SETTINGS);
+  return data || null;
 }
 
 // --- Bulk reset ---

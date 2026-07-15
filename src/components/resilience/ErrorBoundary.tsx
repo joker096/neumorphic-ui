@@ -115,9 +115,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           </div>
         </div>
       );
-      // </div>
-      // </div>
-      // </div>
+
     }
     return <Suspense fallback={<SuspenseFallback />}>{this.props.children}</Suspense>;
   }

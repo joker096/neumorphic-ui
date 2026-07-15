@@ -322,7 +322,8 @@ export const MusicHubPlayer: React.FC<MusicHubPlayerProps> = ({ theme }) => {
                         </span>
                         <button
                           onClick={() => setShowPlaylist(false)}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"} transition-colors`}
+                          className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"} transition-colors`}
+                          aria-label="Close playlist"
                         >
                           <X size={16} className={isDark ? "text-white" : "text-slate-700"} />
                         </button>

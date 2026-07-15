@@ -3,7 +3,7 @@ import { api } from '../api/client'
 
 interface AuthContextType {
   token: string | null
-  login: (username: string, password: string) => Promise<{ sessionToken: string }>
+  login: (username: string, password: string, captchaSession?: string, captchaAnswer?: string) => Promise<{ sessionToken: string }>
   verify2FA: (code: string) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
@@ -18,8 +18,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [needs2FA, setNeeds2FA] = useState(false)
 
-  const login = async (username: string, password: string) => {
-    const res = await api.login(username, password)
+  const login = async (username: string, password: string, captchaSession?: string, captchaAnswer?: string) => {
+    const res = await api.login(username, password, captchaSession, captchaAnswer)
     setSessionToken(res.sessionToken)
     setNeeds2FA(true)
     return { sessionToken: res.sessionToken }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { getErrorLog, getErrorStats, type ErrorRecord } from "../lib/errorHandling";
+import { getErrorLog, getErrorStats, subscribeToErrors, type ErrorRecord } from "../lib/errorHandling";
 
 export function useGlobalErrorHandler() {
   const [errors, setErrors] = useState<ErrorRecord[]>(() => getErrorLog());
@@ -35,8 +35,6 @@ export function useGlobalErrorHandler() {
       setErrors(getErrorLog());
     };
 
-    // Import dynamically to avoid circular dependency
-    const { subscribeToErrors } = require("./errorHandling");
     const cleanup = subscribeToErrors(unsubscribe);
 
     return cleanup;

@@ -26,20 +26,20 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, t }:
       }`}
     >
      <div
-         onClick={onClose}
-         className={`cursor-pointer w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 shrink-0 ${
-           isDark
-             ? "bg-[#13151b] hover:bg-[#20242e] text-gray-400"
-             : "bg-[#f4f7f9] hover:bg-white text-slate-500 shadow-sm"
-         }`}
-       >
+          onClick={onClose}
+          className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 shrink-0 ${
+            isDark
+              ? "bg-[#13151b] hover:bg-[#20242e] text-gray-400"
+              : "bg-[#f4f7f9] hover:bg-white text-slate-500 shadow-sm"
+          }`}
+        >
          <ChevronRight size={14} className="sm:size-16 rotate-180" strokeWidth={2} />
       </div>
 
     <div
-         onClick={onProfileClick}
-         className={`w-8 h-8 rounded-full bg-gradient-to-br shrink-0 ${chat.color} flex items-center justify-center text-white font-bold text-sm shadow-sm relative cursor-pointer`}
-       >
+          onClick={onProfileClick}
+          className={`w-10 h-10 rounded-full bg-gradient-to-br shrink-0 ${chat.color} flex items-center justify-center text-white font-bold text-sm shadow-sm relative cursor-pointer`}
+        >
          {chat.name.charAt(0)}
          {chat.online && (
            <div className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-[2px] ${isDark ? "bg-green-400 border-[#1a1d24]" : "bg-emerald-500 border-[#f4f7f9]"}`} />

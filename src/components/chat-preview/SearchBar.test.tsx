@@ -17,8 +17,8 @@ describe('SearchBar', () => {
 
   it('renders with custom placeholder', () => {
     render(<SearchBar searchQuery="" placeholder="Test placeholder" showSearch={true} />);
-    const input = screen.getByRole('searchbox');
-    expect(input).toHaveAttribute('placeholder', 'Test placeholder');
+    const input = screen.getByPlaceholderText('Test placeholder');
+    expect(input).toBeInTheDocument();
   });
 
   it('does not render when showSearch is false', () => {
@@ -28,16 +28,19 @@ describe('SearchBar', () => {
 
   it('renders when showSearch is true', () => {
     render(<SearchBar searchQuery="" showSearch={true} />);
-    expect(screen.getByRole('searchbox')).toBeInTheDocument();
+    const input = document.querySelector('input');
+    expect(input).toBeInTheDocument();
   });
 
   it('renders when isDark is true', () => {
     render(<SearchBar searchQuery="" isDark={true} showSearch={true} />);
-    expect(screen.getByRole('searchbox')).toBeInTheDocument();
+    const input = document.querySelector('input');
+    expect(input).toBeInTheDocument();
   });
 
   it('renders when isDark is false', () => {
     render(<SearchBar searchQuery="" isDark={false} showSearch={true} />);
-    expect(screen.getByRole('searchbox')).toBeInTheDocument();
+    const input = document.querySelector('input');
+    expect(input).toBeInTheDocument();
   });
 });

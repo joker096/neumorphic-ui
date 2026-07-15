@@ -4,7 +4,7 @@ import { logError } from '../lib/errorHandling';
 import type { ActiveCall } from '../lib/call/types';
 import type { CompanyChannel, CompanyMessage, CompanyMember } from '../constants';
 import type { InviteQRPayload } from '../lib/company/types';
-import type { Contact } from '../types/contact';
+import type { Contact, UserProfile } from '../types/contact';
 import { DEFAULT_BOT_PERMISSIONS } from './defaults';
 import type {
   BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage,
@@ -36,7 +36,7 @@ export const initAppStorage = async () => {
 export { DEFAULT_BOT_PERMISSIONS };
 
 // --- Store interface ---
-interface AppState {
+export interface AppState {
   appLockHashedPIN: string | null;
   appLockSalt: string | null;
   turnServerUrl: string;
@@ -49,6 +49,8 @@ interface AppState {
   stealthMode: boolean;
   deliveryReceipts: boolean;
   onlineStatus: boolean;
+  isOnline: boolean;
+  setOnlineStatus: (status: boolean) => void;
   forwardAnonymization: boolean;
   currentLanguage: string;
   soundEnabled: boolean;
@@ -152,13 +154,18 @@ interface AppState {
   setSyncLastTimestamp: (ts: string) => void;
   setTotpSecret: (secret: string) => void;
   setPairingQrData: (data: string) => void;
+  userProfile: UserProfile;
+  setUserProfile: (profile: Partial<UserProfile>) => void;
   companyId: string | null;
   companyChannels: CompanyChannel[];
   companyMessages: CompanyMessage[];
   companyMembers: CompanyMember[];
-  companySettings: { name: string; logo: string } | null;
+  companySettings: { name: string; logo?: string; phone?: string; email?: string; address?: string; website?: string; taxId?: string } | null;
   setCompanyName: (name: string) => void;
-  setCompanySettings: (settings: { name: string; logo: string } | null) => void;
+  setCompanySettings: (settings: { name: string; logo?: string; phone?: string; email?: string; address?: string; website?: string; taxId?: string } | null) => void;
+  updateCompanyField: (field: string, value: any) => void;
+  loadCompanySettings: () => Promise<void>;
+  saveCompanySettings: () => Promise<void>;
   hideWhenOfficeOnly: boolean;
   pendingInvite: InviteQRPayload | null;
   setCompanyId: (id: string | null) => void;
@@ -182,6 +189,7 @@ export const useAppStore = create<AppState>((set) => ({
   stealthMode: false,
   deliveryReceipts: true,
   onlineStatus: true,
+  isOnline: true,
   forwardAnonymization: false,
   currentLanguage: 'en',
   soundEnabled: true,
@@ -284,7 +292,13 @@ export const useAppStore = create<AppState>((set) => ({
   setRadialProxy: (proxy) => set({ radialProxy: proxy }),
   setRadialEnergy: (energy) => set({ radialEnergy: energy }),
   setAppLock: (hash, salt) => set({ appLockHashedPIN: hash, appLockSalt: salt }),
-  updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
+  updateSettings: (settings) => {
+    set((state) => ({ ...state, ...settings }));
+    try {
+      const prev = JSON.parse(localStorage.getItem('mess_privacy_settings_v2') || '{}');
+      localStorage.setItem('mess_privacy_settings_v2', JSON.stringify({ ...prev, ...settings }));
+    } catch {}
+  },
   forwardMessage: (message: any, targetChatId: string) => {
     set((storeState: any) => {
       const anonymized = storeState.forwardAnonymization ? {
@@ -397,6 +411,10 @@ export const useAppStore = create<AppState>((set) => ({
   setSyncLastTimestamp: (ts) => set({ syncLastTimestamp: ts }),
   setTotpSecret: (secret) => set({ totpSecret: secret }),
   setPairingQrData: (data) => set({ pairingQrData: data }),
+  userProfile: { name: 'User', bio: '', avatar: '', fields: [] },
+  setUserProfile: (profile) => set((s: any) => ({
+    userProfile: { ...s.userProfile, ...profile }
+  })),
   companyId: null,
   companyChannels: [],
   companyMessages: [],
@@ -412,6 +430,27 @@ export const useAppStore = create<AppState>((set) => ({
   setCompanyChannels: (channels) => set({ companyChannels: channels }),
   addCompanyMessage: (msg) => set((state) => ({ companyMessages: [...state.companyMessages, msg] })),
   setCompanyMembers: (members) => set({ companyMembers: members }),
+  updateCompanyField: (field, value) => set((s: any) => ({
+    companySettings: { ...(s.companySettings || { name: '' }), [field]: value }
+  })),
+  loadCompanySettings: async () => {
+    const { getCompanySettings } = await import('../lib/idb');
+    const stored = await getCompanySettings();
+    if (stored) {
+      set({ companySettings: stored as any });
+    } else {
+      const { MOCK_COMPANY_SETTINGS } = await import('../constants/companyMockData');
+      set({ companySettings: { ...MOCK_COMPANY_SETTINGS } });
+    }
+  },
+  saveCompanySettings: async () => {
+    const { saveCompanySettings: persistSettings } = await import('../lib/idb');
+    const current = useAppStore.getState().companySettings;
+    if (current) {
+      await persistSettings(current as unknown as Record<string, string>);
+    }
+  },
+  setOnlineStatus: (status) => set({ onlineStatus: status, isOnline: status }),
   setHideWhenOfficeOnly: (hide) => set({ hideWhenOfficeOnly: hide }),
   initCompanyFromInvite: async (payload) => {
     const { initializeJoinFlow } = await import('../lib/company/onboarding/joinFlow');

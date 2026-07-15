@@ -162,7 +162,14 @@
       "sectionWork": "Рабочие",
       "sectionArchived": "Архив",
       "startCall": "Вызов"
-    }
+    },
+    "newFolder": "+ Новая папка",
+    "noCalls": "Звонков нет",
+    "selected": "выбрано",
+    "delete": "Удалить",
+    "markRead": "Отметить прочитанным",
+    "sectionPinned": "Закреплено",
+    "startVideoCall": "Начать видеозвонок"
   },
   "common": {
     "addDevice": "Добавить устройство",
@@ -222,7 +229,8 @@
   "channelComments": {
     "title": "Комментарии",
     "replies": "{count} ответов",
-    "placeholder": "Написать комментарий..."
+    "placeholder": "Написать комментарий...",
+    "leaveAComment": "Оставить комментарий"
   },
   "recordings": {
     "description": "История записей кампании",
@@ -434,7 +442,8 @@
     "crmTagPartner": "Partner",
     "crmTagVendor": "Vendor",
     "crmTagInternal": "Internal",
-    "crmTagVip": "VIP"
+    "crmTagVip": "VIP",
+    "open": "Открыть"
   },
   "header": {
     "copied": "Скопировано!",
@@ -795,7 +804,13 @@
     "transportModeXorShroud": "XOR Shroud (базовый)",
     "turnServerExample": "turn:example.com:3478",
     "twoFactorAuth": "Двухфакторная аутентификация",
-    "verify": "Проверить"
+    "verify": "Проверить",
+    "shareIdentity": "Share Identity",
+    "shareDescription": "Share your identity so others can find and connect with you.",
+    "copyLink": "Copy Link",
+    "dndActive": "Do Not Disturb is active",
+    "myProfile": "My Profile",
+    "myProfileSubtitle": "Personal information"
   },
   "gifSearch": {
     "searchPlaceholder": "Поиск GIF...",
@@ -850,6 +865,35 @@
     "officeLondon": "London",
     "officeMoscow": "Moscow",
     "roleAdmin": "Admin",
-    "roleMember": "Member"
+    "roleMember": "Member",
+    "edit": "Редактировать",
+    "name": "Название",
+    "phone": "Телефон",
+    "email": "Email",
+    "address": "Адрес",
+    "website": "Сайт",
+    "taxId": "Нал. ID (INN)",
+    "contactInfo": "Контактная информация",
+    "contactPhone": "Тел.: +7 (495) 123-45-67",
+    "contactEmail": "Email: info@neumorphic.dev",
+    "contactAddress": "Адрес: ул. Тверь 15, Москва"
+  },
+  "login": {
+    "title": "Вод",
+    "subtitle": "Sign in to your account",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "captcha": "CAPTCHA",
+    "captchaPlaceholder": "Enter the code shown",
+    "refreshCaptcha": "Refresh",
+    "signIn": "Войти"
+  },
+  "crm": {
+    "all": "Все",
+    "byCompany": "По компании",
+    "byTag": "По тегу",
+    "searchContacts": "Поиск контактов..."
   }
 }

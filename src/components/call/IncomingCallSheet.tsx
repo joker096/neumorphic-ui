@@ -1,26 +1,44 @@
 import React from 'react';
- import { motion } from 'motion/react';
- import { Phone, PhoneOff, Video, Mic } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Phone, PhoneOff, Video, Mic } from 'lucide-react';
 import { useAnimationsEnabled } from '../../contexts/AnimationContext';
 
- interface IncomingCallSheetProps {
-   callerName: string;
-   callType: 'audio' | 'video';
-   onAccept: () => void;
-   onReject: () => void;
-   onAcceptVideo?: () => void;
- }
+interface IncomingCallSheetProps {
+  callerName: string;
+  callType: 'audio' | 'video';
+  onAccept: () => void;
+  onReject: () => void;
+  onAcceptVideo?: () => void;
+}
 
-const containerVariants = {
-  hidden: { y: '100%' },
-  visible: { y: 0 },
-  exit: { y: '100%' },
-};
+function ActionButton({
+  icon: Icon,
+  color,
+  onClick,
+  enabled,
+}: {
+  icon: React.ElementType;
+  color: 'red' | 'green' | 'blue';
+  onClick: () => void;
+  enabled?: boolean;
+}) {
+  const colorMap = {
+    red: 'from-red-500 to-red-700 shadow-red-500/30',
+    green: 'from-green-500 to-green-700 shadow-green-500/30',
+    blue: 'from-blue-500 to-blue-700 shadow-blue-500/30',
+  };
 
-const contentVariants = {
-  hidden: { scale: 0.8, opacity: 0 },
-  visible: { scale: 1, opacity: 1 },
-};
+  return (
+    <motion.button
+      onClick={onClick}
+      whileTap={enabled ? { scale: 0.9 } : undefined}
+      whileHover={enabled ? { scale: 1.1 } : undefined}
+      className={`w-20 h-20 rounded-full bg-gradient-to-br ${colorMap[color]} text-white flex items-center justify-center shadow-2xl transition-shadow hover:shadow-2xl`}
+    >
+      <Icon size={32} strokeWidth={2.5} />
+    </motion.button>
+  );
+}
 
 export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
   callerName,
@@ -33,71 +51,80 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
 
   return (
     <motion.div
-      variants={containerVariants}
-      initial={enabled ? "hidden" : false}
-      animate={enabled ? "visible" : undefined}
-      exit={enabled ? "exit" : undefined}
-      transition={enabled ? { duration: 0.35, ease: [0.32, 0.72, 0, 1] } : undefined}
-      className="fixed inset-0 z-[200] bg-gradient-to-b from-gray-900 to-black flex flex-col items-center justify-center"
+      initial={enabled ? { opacity: 0 } : undefined}
+      animate={enabled ? { opacity: 1 } : undefined}
+      exit={enabled ? { opacity: 0 } : undefined}
+      transition={enabled ? { duration: 0.3, ease: [0.16, 1, 0.3, 1] } : undefined}
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-gradient-to-b from-zinc-900 via-black to-black"
     >
-      <div className="flex-1 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(249,115,22,0.08)_0%,_transparent_70%)] pointer-events-none" />
+
+      <div className="flex-1 flex flex-col items-center justify-center relative z-10">
         <motion.div
-          variants={contentVariants}
-          initial={enabled ? "hidden" : false}
-          animate={enabled ? "visible" : undefined}
-          transition={enabled ? { duration: 0.3, delay: 0.15 } : undefined}
-          className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-6"
+          initial={enabled ? { scale: 0.6, opacity: 0 } : undefined}
+          animate={enabled ? { scale: 1, opacity: 1 } : undefined}
+          transition={enabled ? { duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] } : undefined}
+          className="relative mb-8"
         >
-          <span className="text-5xl font-bold text-white">
-            {callerName.charAt(0).toUpperCase()}
-          </span>
+          <div className="w-36 h-36 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-2xl shadow-orange-500/20">
+            <span className="text-6xl font-bold text-white drop-shadow-lg">
+              {callerName.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          {enabled && (
+            <>
+              <div className="absolute -inset-3 rounded-full bg-orange-500/10 animate-pulse" />
+              <div className="absolute -inset-6 rounded-full bg-orange-500/5 animate-pulse" style={{ animationDelay: '0.4s' }} />
+            </>
+          )}
         </motion.div>
 
-        <h2 className="text-3xl font-bold text-white mb-2">
-          {callerName}
-        </h2>
-
-        <p className="text-white/70 text-lg flex items-center gap-2">
-          {callType === 'video' ? <Video size={20} /> : <Mic size={20} />}
-          {callType === 'video' ? 'Video call' : 'Voice call'}
-        </p>
-
-        <p className="text-white/50 text-sm mt-2">
-          Incoming call...
-        </p>
+        <motion.div
+          initial={enabled ? { y: 20, opacity: 0 } : undefined}
+          animate={enabled ? { y: 0, opacity: 1 } : undefined}
+          transition={enabled ? { duration: 0.4, delay: 0.25 } : undefined}
+          className="text-center"
+        >
+          <h2 className="text-4xl font-bold text-white mb-3 drop-shadow-lg tracking-tight">
+            {callerName}
+          </h2>
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+              {callType === 'video' ? (
+                <Video size={16} className="text-blue-400" />
+              ) : (
+                <Mic size={16} className="text-orange-400" />
+              )}
+              <span className="text-white/70 text-sm font-medium">
+                {callType === 'video' ? 'Video call' : 'Voice call'}
+              </span>
+            </div>
+          </div>
+          <motion.p
+            animate={enabled ? { opacity: [0.4, 0.8, 0.4] } : undefined}
+            transition={enabled ? { duration: 2, repeat: Infinity } : undefined}
+            className="text-white/40 text-sm mt-4 font-medium tracking-wide"
+          >
+            Incoming call...
+          </motion.p>
+        </motion.div>
       </div>
 
-      <div className="h-40 flex items-center justify-center gap-12 px-6">
-        <motion.button
-          whileTap={enabled ? { scale: 0.9 } : undefined}
-          whileHover={enabled ? { scale: 1.05 } : undefined}
-          onClick={onReject}
-          className="w-20 h-20 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-2xl active:scale-90 transition-transform"
-        >
-          <PhoneOff size={36} />
-        </motion.button>
+      <motion.div
+        initial={enabled ? { y: 40, opacity: 0 } : undefined}
+        animate={enabled ? { y: 0, opacity: 1 } : undefined}
+        transition={enabled ? { duration: 0.4, delay: 0.35 } : undefined}
+        className="h-44 flex items-center justify-center gap-12 px-6 relative z-10"
+      >
+        <ActionButton icon={PhoneOff} color="red" onClick={onReject} enabled={enabled} />
 
         <div className="flex flex-col gap-3">
-          <motion.button
-            whileTap={enabled ? { scale: 0.9 } : undefined}
-            whileHover={enabled ? { scale: 1.05 } : undefined}
-            onClick={onAccept}
-            className="w-20 h-20 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-2xl active:scale-90 transition-transform"
-          >
-            <Phone size={36} />
-          </motion.button>
+          <ActionButton icon={Phone} color="green" onClick={onAccept} enabled={enabled} />
           {onAcceptVideo && (
-            <motion.button
-              whileTap={enabled ? { scale: 0.9 } : undefined}
-              whileHover={enabled ? { scale: 1.05 } : undefined}
-              onClick={onAcceptVideo}
-              className="w-20 h-20 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-2xl active:scale-90 transition-transform"
-            >
-              <Video size={36} />
-            </motion.button>
+            <ActionButton icon={Video} color="blue" onClick={onAcceptVideo} enabled={enabled} />
           )}
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

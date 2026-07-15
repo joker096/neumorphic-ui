@@ -22,5 +22,17 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "admin",
+    "public/sw.js",
+    "screen",
+    "tmp_*.js",
+    "tmp_*.ts",
+    "tmp_*.tsx",
+    "*.tmp",
+    ".tmp"
+  ]
 }

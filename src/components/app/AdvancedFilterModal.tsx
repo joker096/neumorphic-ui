@@ -34,9 +34,13 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
         <h3 className={`font-bold font-sans text-lg ${isDark ? "text-white" : "text-black"}`}>{t("chat.filters.title")}</h3>
         <div
           onClick={onClose}
-          className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ${
+          className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
             isDark ? "bg-[#1a1d24] text-gray-400 hover:text-white" : "bg-black/5 text-slate-500 hover:text-slate-800"
           }`}
+          aria-label="Close"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}
         >
           <X size={16} />
         </div>

@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import { motion } from "motion/react";
-import { Star, StarOff } from "lucide-react";
-import { Phone, Video } from "lucide-react";
+import { Star, StarOff, Phone, Video } from "lucide-react";
 import type { Contact } from "../../types/contact";
 
 interface ContactItemProps {

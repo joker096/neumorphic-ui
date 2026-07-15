@@ -1,7 +1,10 @@
+import dotenv from 'dotenv'
 import bcrypt from 'bcrypt'
 import QRCode from 'qrcode'
 import { getDb, closeDb } from './db.js'
 import { generateTotpSecret } from './auth.js'
+
+dotenv.config()
 
 async function createAdmin(username: string, password: string): Promise<void> {
   getDb()
@@ -19,7 +22,8 @@ async function createAdmin(username: string, password: string): Promise<void> {
   ).run(username, passwordHash, secret)
 
   console.log(`\nAdmin "${username}" created successfully!\n`)
-  console.log(`TOTP Secret: ${secret}`)
+  console.log(`TOTP Secret: ${secret.slice(0, 4)}...${secret.slice(-4)} (use QR code or URI below)`)
+  console.log(`WARNING: The full TOTP secret is only displayed in the QR code. Do not share it.`)
 
   try {
     const qr = await QRCode.toString(uri, { type: 'terminal', small: true })

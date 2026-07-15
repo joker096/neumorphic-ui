@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react'
 
 const cache = new Map<string, Record<string, any>>()
 
@@ -40,12 +40,14 @@ interface I18nContextValue {
   lang: string
   setLang: (lang: string) => void
   t: (key: string, args?: Record<string, string | number>) => string
+  ready: boolean
 }
 
 export const I18nContext = createContext<I18nContextValue>({
   lang: 'en',
   setLang: () => {},
   t: (key: string) => key,
+  ready: false,
 })
 
 export const useAdminI18n = () => useContext(I18nContext)
@@ -64,13 +66,20 @@ export function detectBrowserLanguage(): string {
 
 export const AdminI18nProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [lang, setLangState] = useState(detectBrowserLanguage)
-  
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    Promise.all([loadLocale('en'), loadLocale('ru')]).then(() => {
+      setReady(true)
+    })
+  }, [])
+
   const setLang = useCallback((newLang: string) => {
     setLangState(newLang)
     localStorage.setItem('admin_language', newLang)
     loadLocale(newLang)
   }, [])
-  
+
   const t = useCallback((key: string, args?: Record<string, string | number>) => {
     let text = getTranslationWithFallback(key, lang)
     if (args && Object.keys(args).length > 0) {
@@ -79,10 +88,10 @@ export const AdminI18nProvider: React.FC<{ children: ReactNode }> = ({ children 
       }
     }
     return text
-  }, [lang])
-  
+  }, [lang, ready])
+
   return (
-    <I18nContext.Provider value={{ lang, setLang, t }}>
+    <I18nContext.Provider value={{ lang, setLang, t, ready }}>
       {children}
     </I18nContext.Provider>
   )

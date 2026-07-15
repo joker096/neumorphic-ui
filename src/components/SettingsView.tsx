@@ -6,7 +6,8 @@ import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow, To
 import { SubView } from './ui/SubView';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { DEFAULTS, KEYS } from '../config/settingsDefaults';
-import { ChevronRight, Smartphone, Palette, Globe, Bell, BellOff, Shield, Lock, HardDrive, Bot, Network, ShieldAlert, Activity, ChevronLeft, UserPlus, Cloud, MapPin, RefreshCw, Key, Search, Building2, Mic, Radar } from 'lucide-react';
+import { ChevronRight, Smartphone, Palette, Globe, Bell, BellOff, Shield, Lock, HardDrive, Bot, Network, ShieldAlert, Activity, ChevronLeft, UserPlus, Cloud, MapPin, RefreshCw, Key, Building2, Mic, Radar } from 'lucide-react';
+import { SearchInput } from './ui/SearchInput';
 import { CompanySettingsView } from './settings/CompanySettingsView';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppearanceSettings } from './settings/AppearanceSettings';
@@ -147,21 +148,13 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
       exit={{ opacity: 0, x: -20 }}
       className="w-full flex-1 flex flex-col min-h-0"
     >
-      <div className="w-full shrink-0 mb-4">
-        <div className="relative">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-gray-500" : "text-slate-400"}`} />
-          <input 
-            placeholder={t('settings.searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none transition-colors ${
-              isDark 
-                ? "bg-[#1a1d24] border-white/10 text-white placeholder:text-gray-500 focus:border-emerald-500/50" 
-                : "bg-white border-black/10 text-slate-800 placeholder:text-slate-400 focus:border-blue-500/50"
-            }`}
-            type="text"
-          />
-        </div>
+      <div className="w-full mb-4">
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder={t('settings.searchPlaceholder')}
+          isDark={isDark}
+        />
       </div>
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1 pb-4 flex flex-col gap-5">
@@ -318,7 +311,7 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('nav.recordings')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.recordingsSubtitle')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('hub.recordingsSubtitle')}</div>
               </div>
               <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
             </button>
@@ -329,7 +322,7 @@ export const SettingsView = ({ theme, setTheme, setSubView }: { theme: 'light' |
               </div>
               <div className="flex-1 min-w-0 text-left">
                 <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{t('nav.radar')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.radarSubtitle')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('hub.radarSubtitle')}</div>
               </div>
               <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
             </button>

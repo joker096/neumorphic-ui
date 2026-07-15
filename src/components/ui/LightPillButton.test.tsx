@@ -75,4 +75,34 @@ describe('LightPillButton', () => {
     const rightSection = container.querySelector('[class*="shrink-0"]');
     expect(rightSection?.children.length || 0).toBe(0);
   });
+
+  it('does not render subtitle when not provided', () => {
+    render(<LightPillButton title="No Sub" />);
+    expect(screen.queryByText(/subtitle/i)).not.toBeInTheDocument();
+  });
+
+  it('has hover scale effect when inactive', () => {
+    const { container } = render(<LightPillButton title="Scale" />);
+    const outer = container.firstElementChild;
+    expect(outer?.className).toContain('hover:scale-[1.03]');
+  });
+
+  it('has active scale effect when inactive', () => {
+    const { container } = render(<LightPillButton title="ActiveScale" />);
+    const outer = container.firstElementChild;
+    expect(outer?.className).toContain('active:scale-[0.97]');
+  });
+
+  it('renders border-white/80 when inactive', () => {
+    const { container } = render(<LightPillButton title="BorderInactive" />);
+    const outer = container.firstElementChild;
+    expect(outer?.className).toContain('border-white/80');
+  });
+
+  it('renders border-black/5 when active', () => {
+    const { container } = render(<LightPillButton title="BorderActive" />);
+    const outer = container.firstElementChild as HTMLElement;
+    fireEvent.click(outer);
+    expect(outer.className).toContain('border-black/5');
+  });
 });

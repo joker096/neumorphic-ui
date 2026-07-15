@@ -2,7 +2,36 @@ import { IncomingMessage, ServerResponse } from 'node:http'
 import { getDb } from '../db.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 
+const adsRateLimit = new Map<string, { count: number; resetAt: number }>()
+
+function checkAdsRateLimit(ip: string, maxRequests = 50, windowMs = 60000): boolean {
+  const now = Date.now()
+  let entry = adsRateLimit.get(ip)
+  if (!entry || now > entry.resetAt) {
+    adsRateLimit.set(ip, { count: 1, resetAt: now + windowMs })
+    return true
+  }
+  if (entry.count >= maxRequests) return false
+  entry.count++
+  return true
+}
+
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of adsRateLimit) {
+    if (now > entry.resetAt) adsRateLimit.delete(key)
+  }
+}, 300000)
+
 export function handleAdsRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
+  // Rate limit for client endpoints
+  const ip = req.socket.remoteAddress || 'unknown'
+  if (!checkAdsRateLimit(ip)) {
+    res.writeHead(429, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Too many requests' }))
+    return true
+  }
+
   // Client endpoints (no auth)
   if (path === '/api/ads/active' && req.method === 'GET') { handleGetActiveAd(res); return true }
   const impMatch = path.match(/^\/api\/ads\/(\d+)\/impression$/)
@@ -35,10 +64,21 @@ export function handleAdsRoute(req: IncomingMessage, res: ServerResponse, path: 
   return false
 }
 
+const MAX_BODY_SIZE = 1024 * 100 // 100KB limit
+
 function readBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     let body = ''
-    req.on('data', (chunk: Buffer) => body += chunk.toString())
+    let size = 0
+    req.on('data', (chunk: Buffer) => {
+      size += chunk.length
+      if (size > MAX_BODY_SIZE) {
+        req.destroy()
+        reject(new Error('Request body too large'))
+        return
+      }
+      body += chunk.toString()
+    })
     req.on('end', () => {
       try { resolve(JSON.parse(body)) } catch { reject(new Error('Invalid JSON')) }
     })

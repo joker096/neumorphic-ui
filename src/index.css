@@ -44,9 +44,9 @@ body, html {
   color: var(--text-primary);
 }
 
-/* Custom Scrollbars */
-.scrollbar-none::-webkit-scrollbar { display: none; }
-.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+/* Scrollbars hidden — user knows to scroll if content overflows */
+*::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
 
 
 
@@ -84,6 +84,28 @@ body, html {
   box-shadow: var(--neu-inset-light);
 }
 
+/* Neu card inset utility */
+.neu-card-inset {
+  background: var(--bg-secondary);
+  box-shadow: var(--neu-inset-dark);
+}
+[data-theme="light"] .neu-card-inset {
+  background: var(--bg-secondary);
+  box-shadow: var(--neu-inset-light);
+}
+
+/* Neu input utility */
+.neu-input {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  outline: none;
+}
+.neu-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
 /* Focus ring utility */
 .focus-ring:focus-visible {
   outline: 2px solid var(--accent);
@@ -93,4 +115,14 @@ body, html {
 /* Ensure dark theme overrides any light colors on the root */
 [data-theme="dark"] {
   background: var(--bg-primary) !important;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+  }
 }

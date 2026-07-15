@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Search } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
+import { SearchInput } from "../ui/SearchInput";
 import {
   getICQEmojiPath,
   getICQStickerSrc,
@@ -58,15 +58,12 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
         ))}
       </div>
 
-      <div className="relative">
-        <Search size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('stickers.searchPlaceholder')}
-          className={`w-full pl-7 pr-4 py-2 rounded-xl text-[12px] outline-none ${isDark ? 'bg-white/5 text-white' : 'bg-black/5 text-slate-800'}`}
-        />
-      </div>
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder={t('stickers.searchPlaceholder')}
+        isDark={isDark}
+      />
 
       <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
         {visiblePacks.map(pack => (

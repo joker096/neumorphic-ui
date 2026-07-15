@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Pause, Trash2, Download, Heart, Star, Mic, Video, MoreVertical, Search, X, Volume2, VolumeX, SkipBack, SkipForward, ListFilter } from 'lucide-react';
+import { Play, Pause, Trash2, Download, Heart, Star, Mic, Video, MoreVertical, X, Volume2, VolumeX, ChevronLeft, ListFilter } from 'lucide-react';
+import { SearchInput } from './ui/SearchInput';
 import { useAppStore } from '../store';
 import { callRecorderService, type CallRecording } from '../lib/callRecorderService';
 import { useI18n } from '../lib/i18n';
@@ -34,50 +35,76 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
   const names = recording.participants.map(p => p.displayName).join(', ');
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-2xl transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>
-      <button onClick={() => onPlay(recording)} className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-500/10 text-orange-600'}`}>
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`flex items-center gap-3 p-3 rounded-2xl transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+    >
+      <motion.button
+        whileTap={{ scale: 0.9 }}
+        onClick={() => onPlay(recording)}
+        className={`shrink-0 w-10 h-10 rounded-[14px] flex items-center justify-center ${isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-500/10 text-orange-600'}`}
+      >
         {isVideo ? <Video className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-      </button>
+      </motion.button>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className={`font-medium text-sm truncate ${isDark ? 'text-gray-200' : 'text-slate-800'}`}>
+          <span className={`font-semibold text-sm truncate ${isDark ? 'text-gray-200' : 'text-slate-800'}`}>
             {recording.title || names || t('recordings.untitled')}
           </span>
-          {recording.isFavorite && <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />}
+          {recording.isFavorite && <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400 shrink-0" />}
         </div>
-        <div className={`flex items-center gap-2 text-xs ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
+        <div className={`flex items-center gap-2 text-xs mt-0.5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
           <span>{formatDate(recording.createdAt)}</span>
-          <span>&middot;</span>
+          <span className="opacity-30">&middot;</span>
           <span>{formatDuration(recording.recordingDuration)}</span>
-          <span>&middot;</span>
+          <span className="opacity-30">&middot;</span>
           <span>{(recording.fileSize / 1024 / 1024).toFixed(1)} MB</span>
         </div>
       </div>
-      <button onClick={() => onPlay(recording)} className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? 'bg-orange-500 text-white' : 'bg-orange-500 text-white'}`}>
-        <Play className="w-4 h-4" />
-      </button>
+      <motion.button
+        whileTap={{ scale: 0.9 }}
+        onClick={() => onPlay(recording)}
+        className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-orange-500 text-white`}
+      >
+        <Play className="w-4 h-4 ml-0.5" />
+      </motion.button>
       <div className="relative">
-        <button onClick={() => setMenuOpen(!menuOpen)} className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
-          <MoreVertical className="w-4 h-4" />
+        <button onClick={() => setMenuOpen(!menuOpen)}
+          className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}
+          aria-label="More options" role="button" tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setMenuOpen(!menuOpen); }}>
+          <MoreVertical className="w-5 h-5" />
         </button>
         {menuOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-            <div className={`absolute right-0 top-full mt-1 z-20 w-44 rounded-2xl py-1 shadow-2xl border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}>
-              <button onClick={() => { onToggleFavorite(recording.id); setMenuOpen(false); }} className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-slate-700'}`}>
+            <div className={`absolute right-0 top-full mt-1 z-20 w-44 rounded-2xl py-1.5 shadow-2xl border ${
+              isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'
+            }`}>
+              <button onClick={() => { onToggleFavorite(recording.id); setMenuOpen(false); }}
+                className={`w-full px-3.5 py-2.5 text-sm text-left flex items-center gap-2.5 ${
+                  isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-slate-700'
+                }`}>
                 <Heart className="w-4 h-4" /> {recording.isFavorite ? t('recordings.removeFavorite') : t('recordings.addToFavorites')}
               </button>
-              <button onClick={() => { onExport(recording.id, recording.title || 'recording'); setMenuOpen(false); }} className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-slate-700'}`}>
+              <button onClick={() => { onExport(recording.id, recording.title || 'recording'); setMenuOpen(false); }}
+                className={`w-full px-3.5 py-2.5 text-sm text-left flex items-center gap-2.5 ${
+                  isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-slate-700'
+                }`}>
                 <Download className="w-4 h-4" /> {t('recordings.export')}
               </button>
-              <button onClick={() => { onDelete(recording.id); setMenuOpen(false); }} className="w-full px-3 py-2 text-sm text-left flex items-center gap-2 text-red-500 hover:bg-red-500/10">
+              <div className={`border-t my-1 ${isDark ? 'border-white/5' : 'border-black/5'}`} />
+              <button onClick={() => { onDelete(recording.id); setMenuOpen(false); }}
+                className="w-full px-3.5 py-2.5 text-sm text-left flex items-center gap-2.5 text-red-500 hover:bg-red-500/10">
                 <Trash2 className="w-4 h-4" /> {t('recordings.delete')}
               </button>
             </div>
           </>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -127,50 +154,103 @@ function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, onDelete
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} className={`w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 pb-8 ${isDark ? 'bg-[#1a1d24]' : 'bg-white'}`}>
-        <audio ref={audioRef} onTimeUpdate={() => { if (audioRef.current) setCurrentTime(audioRef.current.currentTime); }} onLoadedMetadata={() => { if (audioRef.current) setDuration(audioRef.current.duration); }} onEnded={() => setPlaying(false)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-end sm:items-center justify-center"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: '100%', opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: '100%', opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        onClick={(e) => e.stopPropagation()}
+        className={`w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl ${
+          isDark ? 'bg-[#1a1d24] border border-white/5' : 'bg-white'
+        }`}
+      >
+        <audio ref={audioRef}
+          onTimeUpdate={() => { if (audioRef.current) setCurrentTime(audioRef.current.currentTime); }}
+          onLoadedMetadata={() => { if (audioRef.current) setDuration(audioRef.current.duration); }}
+          onEnded={() => setPlaying(false)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
+        />
 
-        <div className={`flex items-center justify-between mb-4 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-          <h3 className="font-semibold text-sm truncate">{recording.title || t('recordings.recording')}</h3>
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-white/10"><X className="w-5 h-5" /></button>
+        <div className={`flex items-center justify-between mb-5 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-sm truncate">{recording.title || t('recordings.recording')}</h3>
+            {recording.participants.length > 0 && (
+              <p className={`text-xs mt-0.5 truncate ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+                {recording.participants.map(p => p.displayName).join(', ')}
+              </p>
+            )}
+          </div>
+          <motion.button whileTap={{ scale: 0.9 }} onClick={onClose}
+            className={`p-2 rounded-full shrink-0 ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
+            <X className="w-5 h-5" />
+          </motion.button>
         </div>
 
-        <div className={`mb-4 text-xs space-y-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-          {recording.participants.length > 0 && <p>{recording.participants.map(p => p.displayName).join(', ')}</p>}
-          <p>{t('recordings.duration')}{formatDuration(recording.duration)}</p>
-        </div>
-
-        <input type="range" min={0} max={duration || 0} value={currentTime} onChange={(e) => { const t = Number(e.target.value); if (audioRef.current) audioRef.current.currentTime = t; setCurrentTime(t); }} className="w-full h-1.5 accent-orange-500 cursor-pointer mb-1" />
-        <div className={`flex justify-between text-xs mb-4 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
+        <input type="range" min={0} max={duration || 0} value={currentTime}
+          onChange={(e) => { const t = Number(e.target.value); if (audioRef.current) audioRef.current.currentTime = t; setCurrentTime(t); }}
+          className="w-full h-1.5 accent-orange-500 cursor-pointer mb-1.5 rounded-full appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-orange-500 [&::-webkit-slider-thumb]:shadow-md" />
+        <div className={`flex justify-between text-xs mb-5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
           <span>{formatDuration(currentTime)}</span>
           <span>{formatDuration(duration)}</span>
         </div>
 
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <button onClick={() => skip(-15)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-15s</button>
-          <button onClick={() => skip(-5)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-5s</button>
-          <button onClick={togglePlay} className="w-14 h-14 rounded-full bg-orange-500 text-white flex items-center justify-center hover:brightness-110 transition-all">
+        <div className="flex items-center justify-center gap-4 mb-5">
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(-15)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${
+              isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'
+            }`}>-15s</motion.button>
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(-5)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${
+              isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'
+            }`}>-5s</motion.button>
+          <motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.05 }}
+            onClick={togglePlay}
+            className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/20">
             {playing ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
-          </button>
-          <button onClick={() => skip(5)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+5s</button>
-          <button onClick={() => skip(15)} className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+15s</button>
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(5)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${
+              isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'
+            }`}>+5s</motion.button>
+          <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(15)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${
+              isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'
+            }`}>+15s</motion.button>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button onClick={() => setMuted(!muted)} className={`p-1.5 rounded-full ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={() => setMuted(!muted)}
+              className={`p-2 rounded-full ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
               {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            </button>
-            <input type="range" min={0} max={1} step={0.05} value={muted ? 0 : volume} onChange={(e) => { const v = Number(e.target.value); setVolume(v); if (audioRef.current) audioRef.current.volume = v; setMuted(false); }} className="w-20 h-1 accent-orange-500 cursor-pointer" />
+            </motion.button>
+            <input type="range" min={0} max={1} step={0.05} value={muted ? 0 : volume}
+              onChange={(e) => { const v = Number(e.target.value); setVolume(v); if (audioRef.current) audioRef.current.volume = v; setMuted(false); }}
+              className="w-20 h-1 accent-orange-500 cursor-pointer" />
           </div>
-          <button onClick={cycleRate} className={`px-2 py-1 text-xs font-mono rounded ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{rate}x</button>
+          <motion.button whileTap={{ scale: 0.9 }} onClick={cycleRate}
+            className={`px-2.5 py-1 text-xs font-mono rounded-lg ${
+              isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'
+            }`}>{rate}x</motion.button>
           <div className="flex items-center gap-1">
-            <button onClick={() => onExport(recording.id, recording.title || 'recording')} className={`p-1.5 rounded-full ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}><Download className="w-4 h-4" /></button>
-            <button onClick={() => onDelete(recording.id)} className="p-1.5 rounded-full text-red-500 hover:bg-red-500/10"><Trash2 className="w-4 h-4" /></button>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={() => onExport(recording.id, recording.title || 'recording')}
+              className={`p-2 rounded-full ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>
+              <Download className="w-4 h-4" />
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={() => onDelete(recording.id)}
+              className="p-2 rounded-full text-red-500 hover:bg-red-500/10">
+              <Trash2 className="w-4 h-4" />
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -246,60 +326,74 @@ export function RecordingsScreen({ theme = 'dark', onBack }: RecordingsScreenPro
   return (
     <div className="flex flex-col h-full w-full max-w-md mx-auto">
       <div className="flex items-center gap-3 px-4 py-3">
-        <button onClick={onBack} className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-[#1a1d24] border border-white/10 hover:bg-white/10' : 'bg-white border border-black/10 hover:bg-black/5'}`}>
-          <SkipBack className="w-5 h-5 rotate-180" />
-        </button>
+        <motion.button whileTap={{ scale: 0.9 }} onClick={onBack}
+          className={`w-10 h-10 rounded-full flex items-center justify-center ${
+            isDark ? 'bg-[#1a1d24] border border-white/10 hover:bg-white/10' : 'bg-white border border-black/10 hover:bg-black/5'
+          }`}>
+          <ChevronLeft className="w-5 h-5" />
+        </motion.button>
         <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('recordings.title')}</h2>
       </div>
 
       <div className="px-4 mb-3">
-        <div className="relative">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-gray-500' : 'text-slate-400'}`} />
-          <input type="text" value={searchQuery} onChange={(e) => updateSettings({ recordingsSearchQuery: e.target.value })}
-            placeholder={t('recordings.searchPlaceholder')}
-            className={`w-full pl-9 pr-3 py-2 rounded-2xl text-sm outline-none ${isDark ? 'bg-[#1a1d24] text-gray-200 placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400 border border-black/10'}`} />
-        </div>
+        <SearchInput value={searchQuery} onChange={(v) => updateSettings({ recordingsSearchQuery: v })}
+          placeholder={t('recordings.searchPlaceholder')} isDark={isDark} />
       </div>
 
-      <div className="flex items-center gap-2 px-4 mb-3 overflow-x-auto" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+      <div className="flex items-center gap-2 px-4 mb-3 overflow-x-auto scrollbar-none" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         {sortOptions.map(opt => (
-          <button key={opt.value} onClick={() => updateSettings({ recordingsSortBy: opt.value })}
-            className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${sortBy === opt.value ? 'bg-orange-500 text-white' : isDark ? 'bg-[#1a1d24] text-gray-400 hover:text-gray-200' : 'bg-white text-slate-500 hover:text-slate-800 border border-black/10'}`}>
+          <motion.button key={opt.value} whileTap={{ scale: 0.95 }}
+            onClick={() => updateSettings({ recordingsSortBy: opt.value })}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+              sortBy === opt.value
+                ? 'bg-orange-500 text-white shadow-sm'
+                : isDark ? 'bg-[#1a1d24] text-gray-400 hover:text-gray-200' : 'bg-white text-slate-500 hover:text-slate-800 border border-black/10'
+            }`}>
             {opt.label} {sortBy === opt.value && (sortOrder === 'asc' ? '\u2191' : '\u2193')}
-          </button>
+          </motion.button>
         ))}
-        <button onClick={() => updateSettings({ recordingsSortOrder: sortOrder === 'asc' ? 'desc' : 'asc' })}
-          className={`px-3 py-1 rounded-full text-xs font-medium ${isDark ? 'bg-[#1a1d24] text-gray-400' : 'bg-white text-slate-500 border border-black/10'}`}>
+        <motion.button whileTap={{ scale: 0.95 }}
+          onClick={() => updateSettings({ recordingsSortOrder: sortOrder === 'asc' ? 'desc' : 'asc' })}
+          className={`px-3 py-1.5 rounded-full text-xs font-medium ${
+            isDark ? 'bg-[#1a1d24] text-gray-400' : 'bg-white text-slate-500 border border-black/10'
+          }`}>
           {sortOrder === 'asc' ? 'ASC' : 'DESC'}
-        </button>
+        </motion.button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pb-4">
-{filtered.length === 0 ? (
-           <div className="flex flex-col items-center justify-center h-full text-center">
-             <Mic className={`w-16 h-16 mb-4 ${isDark ? 'text-gray-600' : 'text-slate-300'}`} />
-             <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{t('recordings.empty')}</p>
-           </div>
-         ) : (
-           <div className="space-y-1">
-             {filtered.map(rec => (
-               <React.Fragment key={rec.id}>
-                 <RecordingItem recording={rec} isDark={isDark} onPlay={handlePlay} onDelete={handleDelete} onExport={handleExport} onToggleFavorite={toggleFavorite} />
-               </React.Fragment>
-             ))}
-           </div>
-         )}
+        {filtered.length === 0 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center h-full text-center">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
+              <Mic className={`w-7 h-7 ${isDark ? 'text-gray-600' : 'text-slate-300'}`} />
+            </div>
+            <p className={`text-sm font-medium ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{t('recordings.empty')}</p>
+            <p className={`text-xs mt-1 opacity-50 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{t('recordings.emptySubtitle') || 'No recordings yet'}</p>
+          </motion.div>
+        ) : (
+          <div className="space-y-1">
+            {filtered.map(rec => (
+              <RecordingItem key={rec.id} recording={rec} isDark={isDark}
+                onPlay={handlePlay} onDelete={handleDelete} onExport={handleExport} onToggleFavorite={toggleFavorite} />
+            ))}
+          </div>
+        )}
       </div>
 
-      {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-      )}
+      <AnimatePresence>
+        {loading && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+            <div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {selectedRecording && blobUrl && (
-          <RecordingPlayer recording={selectedRecording} blobUrl={blobUrl} isDark={isDark} onClose={handleClose} onDelete={handleDelete} onExport={handleExport} />
+          <RecordingPlayer recording={selectedRecording} blobUrl={blobUrl} isDark={isDark}
+            onClose={handleClose} onDelete={handleDelete} onExport={handleExport} />
         )}
       </AnimatePresence>
     </div>

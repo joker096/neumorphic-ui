@@ -51,7 +51,7 @@ describe('NetworkSection - additional tests', () => {
 
  it('renders all toggles', () => {
    render(<NetworkSection {...defaultProps} />);
-   const toggles = document.querySelectorAll('button[role="switch"]');
+   const toggles = document.querySelectorAll('[role="switch"]');
    expect(toggles.length).toBeGreaterThanOrEqual(1);
   });
 

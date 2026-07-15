@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Archive, Bot, ListFilter, Plus, Search } from "lucide-react";
 import { useAppStore } from "../store";
 import { ONLINE_CONTACTS } from "./mockData";
-import { DarkSearchBar, LightSearchBar } from "./Dialpad";
+import { SearchInput } from "./ui/SearchInput";
 import { ChatListItem } from "./chat-preview";
 
 type Translate = (key: string, options?: any) => string;
@@ -153,11 +153,13 @@ export const ChatListView = ({
     <div className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[#11141c]/50" : "bg-[#eaeff4]/50"}`}>
       <div className="mb-4 sm:mb-6 relative z-30 flex items-center gap-2 sm:gap-3 shrink-0">
         <div className="flex-1">
-          {isDark ? (
-            <DarkSearchBar searchQuery={chatSearchQuery} onSearchChange={setChatSearchQuery} placeholder={view === "channels" ? t("chat.searchChannelsPlaceholder") : view === "bots" ? t("chat.searchBotsPlaceholder") : t("chat.searchPlaceholder")} />
-          ) : (
-            <LightSearchBar searchQuery={chatSearchQuery} onSearchChange={setChatSearchQuery} placeholder={view === "channels" ? t("chat.searchChannelsPlaceholder") : view === "bots" ? t("chat.searchBotsPlaceholder") : t("chat.searchPlaceholder")} />
-          )}
+          <SearchInput
+            value={chatSearchQuery}
+            onChange={setChatSearchQuery}
+            placeholder={view === "channels" ? t("chat.searchChannelsPlaceholder") : view === "bots" ? t("chat.searchBotsPlaceholder") : t("chat.searchPlaceholder")}
+            isDark={isDark}
+            shape="pill"
+          />
         </div>
         {(view === "channels" || view === "bots") ? (
          <div

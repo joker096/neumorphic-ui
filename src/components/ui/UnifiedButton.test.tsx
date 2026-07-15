@@ -94,4 +94,60 @@ describe('UnifiedButton', () => {
     render(<UnifiedButton label="With Icon" rightIcon="icon" />);
     expect(screen.getByText('With Icon')).toBeInTheDocument();
   });
+
+  it('renders with hasDropdown prop', () => {
+    render(<UnifiedButton label="Dropdown" hasDropdown />);
+    expect(screen.getByText('Dropdown')).toBeInTheDocument();
+  });
+
+  it('renders with size sm', () => {
+    render(<UnifiedButton label="Small" size="sm" />);
+    expect(screen.getByText('Small')).toBeInTheDocument();
+  });
+
+  it('renders with size lg', () => {
+    render(<UnifiedButton label="Large" size="lg" />);
+    expect(screen.getByText('Large')).toBeInTheDocument();
+  });
+
+  it('renders with size xl', () => {
+    render(<UnifiedButton label="XL" size="xl" />);
+    expect(screen.getByText('XL')).toBeInTheDocument();
+  });
+
+  it('renders glow DOM element when active', () => {
+    const { container } = render(<UnifiedButton label="GlowActive" active glowColor="orange" />);
+    const glow = container.querySelector('[class*="blur-["]') || container.querySelector('[class*="blur-["]');
+    expect(container.querySelector('[class*="blur-"]')).toBeInTheDocument();
+  });
+
+  it('does not render glow when ghost variant', () => {
+    const { container } = render(<UnifiedButton label="GhostNoGlow" variant="ghost" active />);
+    expect(container.querySelector('[class*="bg-\\[var\\(--accent\\)\\]"]') || container.querySelector('[class*="bg-blue-500"]')).toBeNull();
+  });
+
+  it('fires onClick when clicked', () => {
+    const onClick = vi.fn();
+    render(<UnifiedButton label="Clickable" onClick={onClick} />);
+    fireEvent.click(screen.getByText('Clickable'));
+    expect(onClick).toHaveBeenCalledOnce();
+  });
+
+  it('has pointer cursor', () => {
+    const { container } = render(<UnifiedButton label="Pointer" />);
+    const el = container.querySelector('[class*="cursor-pointer"]');
+    expect(el).toBeInTheDocument();
+  });
+
+  it('has hover scale transform', () => {
+    const { container } = render(<UnifiedButton label="Hover" />);
+    const el = container.querySelector('[class*="hover:scale-"]');
+    expect(el).toBeInTheDocument();
+  });
+
+  it('has active scale transform', () => {
+    const { container } = render(<UnifiedButton label="ActiveScale" />);
+    const el = container.querySelector('[class*="active:scale-"]');
+    expect(el).toBeInTheDocument();
+  });
 });

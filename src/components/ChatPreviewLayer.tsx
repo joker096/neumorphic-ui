@@ -35,11 +35,14 @@ import { Smile } from "lucide-react";
 import { toast } from "sonner";
 import { ContactProfileModal, type ContactProfile } from "./ContactProfileModal";
 import { ChatHeader } from "./chat-preview/ChatHeader";
+import { groupMessages, formatDateLabel, fuzzTime, getBubbleCornerClass, type GroupPosition } from "../utils/chatUtils";
 import { SearchBar } from "./chat-preview/SearchBar";
 import { ReactionPicker } from "./chat-preview/ReactionPicker";
 import { MessageActions } from "./chat-preview/MessageActions";
 import { InputFooter } from "./chat-preview/InputFooter";
 import { SavedMessagesPanel } from "./chat-preview/SavedMessagesPanel";
+import { ChatMediaPanel } from "./chat-preview/ChatMediaPanel";
+import { ChatInputArea } from "./chat-preview/ChatInputArea";
 
 interface ChatPreviewLayerProps {
   chat: any;
@@ -94,43 +97,7 @@ interface ChatPreviewLayerProps {
   onToggleStickerPicker?: () => void;
 }
 
-type GroupPosition = 'single' | 'first' | 'middle' | 'last'
 
-function groupMessages(history: any[]): { messages: any[]; groupPositions: GroupPosition[] }[] {
-  const groups: { messages: any[]; groupPositions: GroupPosition[] }[] = []
-  for (const msg of history) {
-    const lastGroup = groups[groups.length - 1]
-    const lastMsg = lastGroup?.messages?.at(-1)
-    if (lastMsg && lastMsg.sender === msg.sender) {
-      lastGroup.messages.push(msg)
-    } else {
-      groups.push({ messages: [msg], groupPositions: [] })
-    }
-  }
-  for (const group of groups) {
-    if (group.messages.length === 1) {
-      group.groupPositions = ['single']
-    } else {
-      group.groupPositions = group.messages.map((_, i) => {
-        if (i === 0) return 'first'
-        if (i === group.messages.length - 1) return 'last'
-        return 'middle'
-      })
-    }
-  }
-  return groups
-}
-
-function formatDateLabel(timeStr: string): string {
-  const match = timeStr.match(/(\d{1,2}):(\d{2})/)
-  if (!match) return timeStr
-  const now = new Date()
-  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(match[1]), parseInt(match[2]))
-  const diffDays = Math.round((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
-  if (diffDays === 0) return 'Today'
-  if (diffDays === 1) return 'Yesterday'
-  return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: now.getFullYear() !== d.getFullYear() ? 'numeric' : undefined })
-}
 
 export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, draftTextByChat, setDraftTextByChat, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onHoldRecord, onReRecord, onPermissionDenied, onSendVoice, onToggleStickerPicker, }: any) => {
   const isDark = theme === "dark";
@@ -207,6 +174,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const sendMessage = () => {
     const textToSend = eMorseMode ? encodeMorse(eMsgText) : eMsgText.trim();
     if (!textToSend) return;
+    // Enforce maximum message length (20000 chars)
+    if (textToSend.length > 20000) return;
     const newMessage = {
       id: Date.now(),
       sender: "me",
@@ -295,23 +264,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   }, [chat, onUpdateChat, setChats]);
 
   // Deterministic fuzzing by message ID up to ±5 minutes
-  const fuzzTime = (timeStr: string, id: number) => {
-    if (!stealthMode) return timeStr;
-    const match = timeStr.match(/(\d{1,2}):(\d{2})/);
-    if (!match) return timeStr; // fallback for strings like "Yesterday"
-    let h = parseInt(match[1]);
-    let m = parseInt(match[2]);
-    const offset = (id % 11) - 5; // -5 to +5
-    m += offset;
-    if (m < 0) {
-      m += 60;
-      h = (h - 1 + 24) % 24;
-    } else if (m >= 60) {
-      m -= 60;
-      h = (h + 1) % 24;
-    }
-    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-  };
 
   const debouncedSearch = useDebounce(searchQuery, 200);
 
@@ -419,104 +371,24 @@ className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md
           placeholder={t('chat.filters.searchPlaceholder')}
         />
 
-        {/* Media Tabs & Filters */}
-        {showMediaPanel && (
-        <div className={`px-3 sm:px-5 pt-3 sm:pt-4 pb-2 flex flex-col gap-2 overflow-x-auto scrollbar-none ${isDark ? "bg-[#1a1d24]/60" : "bg-[#f4f7f9]/60"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
-          {/* Filter buttons row */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowFilterMenu(!showFilterMenu)}
-              title={t('chat.filters.button')}
-              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] font-bold whitespace-nowrap transition-colors ${showFilterMenu ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white") : (isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500")}`}
-            >
-              <ListFilter size={14} />
-            </button>
-            {(filterBySender || filterStartDate || filterEndDate) && (
-        <button
-               onClick={() => { setFilterBySender(""); setFilterStartDate(""); setFilterEndDate(""); }}
-               className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold whitespace-nowrap transition-colors ${isDark ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-500"}`}
-             >
-                {t('chat.filters.clear')}
-              </button>
-            )}
-            <div className={`ml-auto text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-              {t('chat.filters.items', { count: mediaItems.length })}
-            </div>
-          </div>
-          
-          {/* Filter menu */}
-          {showFilterMenu && (
-            <div className={`space-y-2 pb-2 border-b ${isDark ? "border-white/5" : "border-black/5"}`}>
-              {/* Sender filter */}
-              <div className="flex items-center gap-1 sm:gap-2">
-                <span className={`text-[10px] font-bold uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.filters.from')}</span>
-                <button onClick={() => setFilterBySender("")} className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === '' ? (isDark ? "bg-green-500 text-white" : "bg-green-500 text-white") : (isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500")}`}>{t('chat.filters.all')}</button>
-                <button onClick={() => setFilterBySender('me')} className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === 'me' ? (isDark ? "bg-green-500 text-white" : "bg-green-500 text-white") : (isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500")}`}>{t('chat.filters.me')}</button>
-                <button onClick={() => setFilterBySender('them')} className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === 'them' ? (isDark ? "bg-green-500 text-white" : "bg-green-500 text-white") : (isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500")}`}>{t('chat.filters.others')}</button>
-              </div>
-              
-              {/* Date filter */}
-              <div className="flex items-center gap-2 mt-1">
-                <span className={`text-[10px] font-bold uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.filters.from')}</span>
-                <input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className={`text-[10px] ${isDark ? "text-white bg-transparent" : "text-slate-700 bg-transparent"} outline-none`} />
-                <span className={`text-[10px] ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('chat.filters.to')}</span>
-                <input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className={`text-[10px] ${isDark ? "text-white bg-transparent" : "text-slate-700 bg-transparent"} outline-none`} />
-              </div>
-            </div>
-          )}
-          
-          {/* Media Tabs */}
-          <div className="flex items-center gap-2">
-            {[
-              { id: 'all', label: t('chat.filters.mediaTabs.all') },
-              { id: 'photos', label: t('chat.filters.mediaTabs.photos') },
-              { id: 'audio', label: t('chat.filters.mediaTabs.audio') },
-              { id: 'links', label: t('chat.filters.mediaTabs.links') },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setMediaTab(tab.id as any)}
-                className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab.id ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "bg-white/5 text-gray-400 hover:text-white" : "bg-black/5 text-slate-500 hover:text-slate-800")}`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        )}
-
-        {showMediaPanel && mediaItems.length > 0 && (
-          <div className="px-3 sm:px-5 pb-2 sm:pb-3 overflow-x-auto scrollbar-none" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
-            <div className="flex gap-3">
-              {mediaItems.slice(0, 6).map((msg: any) => (
-                <div
-                   key={msg.id}
-                   className={`w-[90px] h-[64px] sm:w-[110px] sm:h-[78px] md:w-[120px] md:h-[84px] rounded-2xl overflow-hidden flex-shrink-0 relative cursor-pointer border ${isDark ? "border-white/10 bg-white/5" : "border-black/5 bg-white"}`}
-                   onClick={() => {
-                     if (msg.type === 'image' && (msg.attachment || msg.url)) {
-                       setActivePhotoUrl(msg.attachment || msg.url);
-                       setPhotoOpen(true);
-                     }
-                   }}
-                 >
-                  {msg.type === 'image' ? (
-                    <img src={msg.attachment || msg.url} alt="media" className="w-full h-full object-cover" />
-                  ) : msg.type === 'audio' ? (
-                    <div className={`w-full h-full flex flex-col items-start justify-between p-3 ${isDark ? "bg-[#1a1d24]" : "bg-slate-50"}`}>
-                      <Mic size={18} className={isDark ? "text-orange-400" : "text-orange-600"} />
-                      <div className={`text-[11px] font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{t('chat.filters.voiceNote')}</div>
-                      <div className={`text-[10px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{msg.duration || '0:00'}</div>
-                    </div>
-                  ) : (
-                    <div className={`w-full h-full flex items-center justify-center p-3 text-center text-[11px] ${isDark ? "bg-[#1a1d24] text-gray-300" : "bg-white text-slate-600"}`}>
-                      <span className="break-all line-clamp-3">{msg.text}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <ChatMediaPanel
+          isDark={isDark}
+          showMediaPanel={showMediaPanel}
+          showFilterMenu={showFilterMenu}
+          setShowFilterMenu={setShowFilterMenu}
+          filterBySender={filterBySender}
+          setFilterBySender={setFilterBySender}
+          filterStartDate={filterStartDate}
+          setFilterStartDate={setFilterStartDate}
+          filterEndDate={filterEndDate}
+          setFilterEndDate={setFilterEndDate}
+          mediaTab={mediaTab}
+          setMediaTab={setMediaTab}
+          mediaItems={mediaItems}
+          setActivePhotoUrl={setActivePhotoUrl}
+          setPhotoOpen={setPhotoOpen}
+          t={t}
+        />
 
         {/* Messages */}
         <VirtualizedMessageList
@@ -546,21 +418,7 @@ className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md
             const isMe = msg.sender === "me";
             const stickerSrc = msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null;
             const gp = msg._groupPosition as GroupPosition
-            const bubbleCornerClass = (() => {
-              if (isMe) {
-                if (gp === 'single') return 'rounded-xl rounded-br-sm'
-                if (gp === 'first') return 'rounded-t-xl rounded-bl-xl rounded-br-xl rounded-bl-sm'
-                if (gp === 'middle') return 'rounded-l-xl rounded-r-xl rounded-br-xl rounded-bl-xl'
-                if (gp === 'last') return 'rounded-tl-xl rounded-tr-xl rounded-br-sm rounded-bl-xl'
-                return 'rounded-xl rounded-br-sm'
-              } else {
-                if (gp === 'single') return 'rounded-xl rounded-bl-sm'
-                if (gp === 'first') return 'rounded-t-xl rounded-br-xl rounded-br-sm rounded-bl-xl'
-                if (gp === 'middle') return 'rounded-r-xl rounded-l-xl rounded-bl-xl rounded-br-xl'
-                if (gp === 'last') return 'rounded-tr-xl rounded-tl-xl rounded-bl-sm rounded-br-xl'
-                return 'rounded-xl rounded-bl-sm'
-              }
-            })()
+            const bubbleCornerClass = getBubbleCornerClass(gp, isMe)
             return (
               <motion.div
                 layout
@@ -719,7 +577,7 @@ className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md
                         className={`flex items-center justify-end gap-1 mt-1 text-[10px] font-bold tracking-wide opacity-70 ${isMe && !isDark ? "text-orange-100" : ""} ${msg.type ? "px-2" : ""}`}
                       >
                         {msg.silent && <BellOff size={10} className="mr-0.5 opacity-60" />}
-                        {fuzzTime(msg.time, msg.id)}
+                        {stealthMode ? fuzzTime(msg.time, msg.id) : msg.time}
                         {isMe && (
                           <span className="inline-flex items-center">
                             <AnimatePresence mode="wait">
@@ -812,8 +670,12 @@ className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md
                     
                     {/* Reaction trigger */}
                     <div 
-                        className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-white" : "bg-white text-slate-400 hover:text-slate-800"} w-8 h-8 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-black/5`}
+                        className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-white" : "bg-white text-slate-400 hover:text-slate-800"} w-10 h-10 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-black/5`}
                         onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
+                        aria-label="Reactions"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id); }}
                     >
                         <Plus size={16} />
                     </div>
@@ -827,15 +689,17 @@ className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md
                           exit={{ opacity: 0, scale: 0.9, x: isMe ? 10 : -10 }}
                           className={`absolute top-1/2 -translate-y-1/2 ${isMe ? "right-[calc(100%+8px)] mr-0" : "left-[calc(100%+8px)] ml-0"} z-20 flex bg-black/80 backdrop-blur-md rounded-full shadow-xl px-1 py-1`}
                        >
-                          {AVAILABLE_EMOJIS.map(emoji => (
-                             <div 
-                                key={emoji}
-                                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
-                                onClick={() => handleReactionMessage(msg.id, emoji)}
-                             >
-                                {emoji}
-                             </div>
-                          ))}
+                       {AVAILABLE_EMOJIS.map(emoji => (
+                           <button
+                              key={emoji}
+                              type="button"
+                              className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
+                              onClick={() => handleReactionMessage(msg.id, emoji)}
+                              aria-label={emoji}
+                           >
+                              {emoji}
+                           </button>
+                        ))}
                        </motion.div>
                     )}
                     </AnimatePresence>
@@ -918,105 +782,38 @@ className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md
            </div>
            )}
 
-        {/* Input area */}
-         {chat.isChannel ? (
-           <div className={`px-4 pb-3 pt-1`}>
-             <button
-               onClick={() => {
-                 setChannels && setChannels((prev: any) => prev.map((c: any) => c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c));
-                 if (onAction) onAction("MUTE_TOGGLE");
-               }}
-               className={`w-full py-3 rounded-xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${isDark ? "bg-[#13151b] hover:bg-[#20242e] text-orange-400 border border-white/5" : "bg-white hover:bg-slate-50 text-orange-600 border border-black/5 shadow-sm"}`}
-             >
-               {chat.isMuted ? t('chat.filters.unmuteChannel') : t('chat.filters.muteChannel')}
-             </button>
-           </div>
-         ) : (
-           <>
-             {eShowSchedulePopup && (
-                <div className={`mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-xl flex flex-col gap-2 ${isDark ? "bg-[#13151b] border border-white/5" : "bg-white border border-black/5 shadow-sm"}`}>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold uppercase tracking-widest text-orange-500">{t('chat.scheduleSend')}</span>
-                    <X size={16} className={`cursor-pointer ${isDark ? "text-gray-400 hover:text-white" : "text-slate-400 hover:text-slate-800"}`} onClick={() => setShowSchedulePopupFn2(false)} />
-                  </div>
-                  <input type="datetime-local" value={eScheduleDateTime} onChange={(e) => setScheduleDtFn2(e.target.value)} className={`w-full outline-none text-sm p-2 rounded-lg ${isDark ? "bg-[#1a1d24] text-white" : "bg-slate-50 text-slate-800"}`} />
-                  <div className="flex gap-2">
-                    <button onClick={() => { setScheduleDtFn2(""); setShowSchedulePopupFn2(false); }} className={`flex-1 py-2 text-xs font-bold rounded-lg ${isDark ? "bg-white/5 text-gray-400 hover:bg-white/10" : "bg-black/5 text-slate-500 hover:bg-black/10"}`}>{t('common.cancel')}</button>
-                    <button onClick={() => setShowSchedulePopupFn2(false)} disabled={!eScheduleDateTime} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${!eScheduleDateTime ? "opacity-50 cursor-not-allowed" : ""} ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}>{t('chat.setTime')}</button>
-                  </div>
-                </div>
-              )}
-              {eIsRecordingVoice ? (
-                <div className="px-3 pb-2">
-                  <LiveVoiceRecorder
-                    isDark={isDark}
-                    onCancel={() => setIsRecordingVoiceFn2(false)}
-                    onReRecord={() => setIsRecordingVoiceFn2(true)}
-                    onPermissionDenied={(msg: string) => { setIsRecordingVoiceFn2(false); setVoiceNoteErrFn2(msg); }}
-                    onSend={(url, dur) => { setIsRecordingVoiceFn2(false); if (sendVoiceMessage) sendVoiceMessage(url, dur); else setVoiceNoteErrFn2(""); }}
-                    holdToRecord
-                  />
-                </div>
-              ) : null}
-             <div className={`flex items-center gap-2 px-2 sm:px-3 pb-3 pt-1`}>
-                {!eIsRecordingVoice && (
-                  <>
-                    <div className="relative group">
-                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => { handleImageAttach(e, chat, onUpdateChat, eSilentMode); e.target.value = ''; }} />
-                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200"}`}><Plus size={16} /></div>
-                    </div>
-                     <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eScheduleDateTime ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200")}`} onClick={() => setShowSchedulePopupFn2(!eShowSchedulePopup)}><Clock size={16} /></div>
-                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eShowStickerPicker ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200")}`} onClick={() => setShowStickerPickerFn2(!eShowStickerPicker)}><Smile size={16} /></div>
-                  </>
-                )}
-                <div className={`flex-1 min-w-0 h-11 sm:h-12 rounded-full px-3 sm:px-4 flex items-center relative ${isDark ? "bg-[#13151b] border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]" : "bg-[#f4f7f9] border border-black/5 shadow-[inset_2px_2px_4px_rgba(165,175,190,0.2)]"}`}>
-                  <input type="text" value={eMsgText} onChange={(e) => setMsgTextFn(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendMessage()} placeholder={eMorseMode ? t('chat.morsePlaceholder') : t('chat.messagePlaceholder')} className={`w-full bg-transparent border-none outline-none text-[13px] sm:text-[14px] ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`} style={{ ...(eMorseMode ? { fontFamily: 'monospace', color: '#f5941', filter: 'saturate(0.8)' } : {}) }} />
-                  <div className="absolute right-2 flex items-center gap-1">
-                    <div title={t('chat.silentMessage')} onClick={() => { setSilentModeFn2(!eSilentMode); }} className={`px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${eSilentMode ? (isDark ? "text-blue-400" : "text-blue-500") : (isDark ? "text-gray-600 hover:text-gray-400" : "text-slate-400 hover:text-slate-600")}`}><BellOff size={12} /></div>
-                    <div title={t('chat.toggleMorseEncoder')} onClick={() => { setMorseModeFn2(!eMorseMode); }} className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-mono font-bold cursor-pointer transition-colors ${eMorseMode ? (isDark ? "bg-amber-500 text-white" : "bg-amber-500 text-white") : (isDark ? "hover:bg-white/10 text-gray-400" : "hover:bg-black/5 text-slate-400")}`}>M</div>
-                  </div>
-                </div>
-                <div
-                  title={eMsgText ? (eScheduleDateTime ? t('chat.scheduleSend') : t('chat.sendMessage')) : t('chat.holdToRecordVoiceNote')}
-                  onClick={() => { if (eMsgText) sendMessage(); else { setVoiceNoteErrFn2(""); setIsRecordingVoiceFn2(true); } }}
-                  onPointerDown={() => { if (!eMsgText) { setVoiceNoteErrFn2(""); setIsRecordingVoiceFn2(true); } }}
-                  onContextMenu={(e) => e.preventDefault()}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${eScheduleDateTime && eMsgText ? (isDark ? "bg-blue-600 text-white" : "bg-blue-500 text-white") : (eMsgText ? (isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950") : (isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20"))}`}
-                >
-                  {eMsgText ? (eScheduleDateTime ? <Clock size={16} /> : <ChevronRight size={18} />) : <Mic size={18} />}
-                </div>
-              </div>
-              {eReplyTarget && (
-               <div className={`mx-2 sm:mx-3 mb-1 px-2 sm:px-3 py-2 rounded-xl border-l-2 flex items-start justify-between gap-1.5 sm:gap-2 ${isDark ? "bg-[#1a1d24]/80 border-orange-400/60 text-gray-300" : "bg-white/80 border-orange-500 text-slate-700"}`}>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold opacity-70">
-                      <ChevronRight size={10} className="rotate-180" />
-                      {t('chat.replyingTo')} {eReplyTarget.sender === "me" ? t('chat.yourMessage') : eReplyTarget.sender}
-                    </div>
-                    <div className="text-[12px] truncate mt-0.5">{eReplyTarget.text || (eReplyTarget.type === "audio" ? `${t('chat.voiceNote')} ${eReplyTarget.duration || ""}` : eReplyTarget.type === "image" ? t('chat.photoAttachment') : t('chat.attachment'))}</div>
-                  </div>
-                  <button onClick={() => setLocalReplyTarget(null)} className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 ${isDark ? "text-gray-500 hover:text-white hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"}`}>
-                    <X size={14} strokeWidth={2} />
-                  </button>
-                </div>
-              )}
-              {eVoiceNoteError && (
-                <div className={`mx-3 text-[11px] px-3 py-2 rounded-xl ${isDark ? "bg-red-500/10 text-red-300 border border-red-500/20" : "bg-red-50 text-red-600 border border-red-200"}`}>
-                  {eVoiceNoteError}
-                </div>
-              )}
-              {eMorseMode && eMsgText && (
-               <div className="mx-2 sm:mx-3 px-3 sm:px-5 pt-1 pb-1 font-mono text-[9.5px] sm:text-[10.5px] text-amber-500/80 tracking-widest break-all">
-                  {encodeMorse(eMsgText)}
-                </div>
-              )}
-              {eShowStickerPicker && (
-                <div className="animate-fade-in">
-                  <StickerPicker theme={theme} onSelect={(sticker: string) => { if (sendStickerMessage) sendStickerMessage(sticker); setShowStickerPickerFn2(false); }} onClose={() => setShowStickerPickerFn2(false)} />
-                </div>
-              )}
-           </>
-         )}
+        <ChatInputArea
+          isDark={isDark}
+          isChannel={chat.isChannel}
+          chat={chat}
+          eMsgText={eMsgText}
+          setMsgTextFn={setMsgTextFn}
+          eMorseMode={eMorseMode}
+          setMorseModeFn2={setMorseModeFn2}
+          eSilentMode={eSilentMode}
+          setSilentModeFn2={setSilentModeFn2}
+          eShowStickerPicker={eShowStickerPicker}
+          setShowStickerPickerFn2={setShowStickerPickerFn2}
+          eIsRecordingVoice={eIsRecordingVoice}
+          setIsRecordingVoiceFn2={setIsRecordingVoiceFn2}
+          eVoiceNoteError={eVoiceNoteError}
+          setVoiceNoteErrFn2={setVoiceNoteErrFn2}
+          eScheduleDateTime={eScheduleDateTime}
+          setScheduleDtFn2={setScheduleDtFn2}
+          eShowSchedulePopup={eShowSchedulePopup}
+          setShowSchedulePopupFn2={setShowSchedulePopupFn2}
+          eReplyTarget={eReplyTarget}
+          setLocalReplyTarget={setLocalReplyTarget}
+          sendMessage={sendMessage}
+          sendVoiceMessage={sendVoiceMessage}
+          sendStickerMessage={sendStickerMessage}
+          handleImageAttach={handleImageAttach}
+          onUpdateChat={onUpdateChat}
+          onAction={onAction}
+          setChannels={setChannels}
+          theme={theme}
+          t={t}
+        />
       </motion.div>
       <VideoPlayerOverlay
         open={videoOpen}

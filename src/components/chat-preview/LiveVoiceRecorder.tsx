@@ -210,15 +210,16 @@ return (
               </div>
               
               <div className="flex items-center gap-2">
-                 {isRecording && (
-                   <button 
-                        onClick={handlePauseResume}
-                        className={`w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-300`}
-                         title={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
-                      >
-                         {isPaused ? <Play size={14} /> : <Pause size={14} />}
-                      </button>
-                 )}
+{isRecording && (
+                    <button 
+                         onClick={handlePauseResume}
+                         className={`w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-gray-300`}
+                          title={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
+                          aria-label={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
+                       >
+                          {isPaused ? <Play size={16} /> : <Pause size={16} />}
+                       </button>
+                  )}
                  <button 
                      onClick={handleStopRecording}
                      className="w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]"

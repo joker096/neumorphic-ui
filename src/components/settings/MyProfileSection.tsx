@@ -289,7 +289,7 @@ return (
                   <button
                     type="button"
                      onClick={() => removeField(field.id)}
-                     className="w-8 h-8 rounded-full flex items-center justify-center text-red-600 hover:bg-red-100 text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--bg-secondary)] transition-colors"
+                     className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-red-600 hover:bg-red-100 text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--bg-secondary)] transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>

@@ -13,6 +13,7 @@ export {
   MOCK_COMPANY_CHANNELS,
   MOCK_COMPANY_MESSAGES,
   MOCK_COMPANY_OFFICES,
+  MOCK_COMPANY_SETTINGS,
 } from './constants/companyMockData';
 
 // UI config

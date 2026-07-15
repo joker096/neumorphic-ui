@@ -147,26 +147,27 @@ export const PhotoEditor = ({ open, imageUrl, onClose, onSave, theme = 'dark' }:
           className="fixed inset-0 z-[200] flex flex-col bg-black/95"
         >
           <div className="flex items-center justify-between px-4 py-3 shrink-0">
-            <button onClick={handleClose} className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:bg-white/10">
+            <button onClick={handleClose} className="w-10 h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10" aria-label="Close editor">
               <X size={20} />
             </button>
             <div className="flex items-center gap-2">
               <div className={`flex rounded-xl p-1 ${isDark ? 'bg-white/10' : 'bg-white/10'}`}>
-                {(['draw', 'rect', 'text'] as Tool[]).map(t => (
-                  <button
-                    key={t}
-                    onClick={() => setTool(t)}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${tool === t ? 'bg-white/20 text-white' : 'text-white/50 hover:text-white'}`}
-                  >
-                    {t === 'draw' && <Pencil size={16} />}
-                    {t === 'rect' && <Square size={16} />}
-                    {t === 'text' && <Type size={16} />}
-                  </button>
-                ))}
+{(['draw', 'rect', 'text'] as Tool[]).map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setTool(t)}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${tool === t ? 'bg-white/20 text-white' : 'text-white/50 hover:text-white'}`}
+                      aria-label={t}
+                    >
+                      {t === 'draw' && <Pencil size={16} />}
+                      {t === 'rect' && <Square size={16} />}
+                      {t === 'text' && <Type size={16} />}
+                    </button>
+                  ))}
               </div>
-              <input type="color" value={color} onChange={e => setColor(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0" />
+              <input type="color" value={color} onChange={e => setColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0" aria-label="Color picker" />
               <input type="range" min="1" max="20" value={brushSize} onChange={e => setBrushSize(Number(e.target.value))} className="w-20 h-1 accent-orange-500" />
-              <button onClick={undo} disabled={history.length <= 1} className={`w-8 h-8 rounded-full flex items-center justify-center ${history.length <= 1 ? 'text-white/20' : 'text-white hover:bg-white/10'}`}>
+              <button onClick={undo} disabled={history.length <= 1} className={`w-10 h-10 rounded-full flex items-center justify-center ${history.length <= 1 ? 'text-white/20' : 'text-white hover:bg-white/10'}`} aria-label="Undo">
                 <Undo2 size={16} />
               </button>
             </div>

@@ -4,9 +4,13 @@
   "description": "End-to-end encrypted P2P messenger with post-quantum cryptography. No phone required.",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay"],
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
   "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "scope": "/",
+  "edge_side_panel": {},
   "icons": [
     {
       "src": "/icons/pwa-192x192.png",
@@ -22,6 +26,11 @@
     }
   ],
   "categories": ["communication", "security"],
+  "lang": "en",
+  "dir": "ltr",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
   "shortcuts": [
     {
       "name": "New Chat",
@@ -29,6 +38,15 @@
       "description": "Start a new encrypted chat",
       "url": "/#new-chat",
       "icons": [{ "src": "/icons/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Settings",
+      "short_name": "Settings",
+      "description": "Open app settings",
+      "url": "/#settings",
+      "icons": [{ "src": "/icons/pwa-192x192.png", "sizes": "192x192" }]
     }
-  ]
+  ],
+  "screenshots": [],
+  "related_applications": []
 }

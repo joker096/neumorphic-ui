@@ -31,7 +31,7 @@ export const ThemeToggle = ({ isDark = false, theme = 'dark', setTheme = () => {
         <Sun size={14} className={isDark ? "text-gray-600/50" : "text-transparent"} />
       </div>
       <motion.div
-        className={`w-8 h-8 rounded-full flex items-center justify-center relative z-10 ${
+        className={`w-10 h-10 rounded-full flex items-center justify-center relative z-10 ${
           isDark
             ? "bg-gradient-to-br from-[#2a2d36] to-[#1f222a] text-orange-400 border border-white/5 shadow-[0_4px_12px_rgba(0,0,0,0.8),_inset_0_2px_2px_rgba(255,255,255,0.1)]"
             : "bg-gradient-to-br from-white to-[#f8fafc] text-orange-500 border border-black/5 shadow-[0_4px_12px_rgba(165,175,190,0.4),_inset_0_2px_2px_rgba(255,255,255,1)]"

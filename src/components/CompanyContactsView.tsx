@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useI18n } from '../lib/i18n';
 import { useAppStore } from '../store';
 import { MOCK_COMPANY_MEMBERS, MOCK_COMPANY_CHANNELS, MOCK_COMPANY_ID } from '../constants';
@@ -6,6 +6,7 @@ import { CompanyHeader } from './company/CompanyHeader';
 import { CompanyInfoCard } from './company/CompanyInfoCard';
 import { MemberList } from './company/MemberList';
 import { ChannelList } from './company/ChannelList';
+import { CompanySettingsView } from './company/CompanySettingsView';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, QrCode } from 'lucide-react';
@@ -26,10 +27,19 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
   const setCompanyMembers = useAppStore(state => state.setCompanyMembers);
   const setCompanyChannels = useAppStore(state => state.setCompanyChannels);
   const setCompanyId = useAppStore(state => state.setCompanyId);
+  const loadCompanySettings = useAppStore(state => state.loadCompanySettings);
   const hideWhenOfficeOnly = useAppStore(state => state.hideWhenOfficeOnly);
   const connectionStatus = useAppStore(state => state.connectionStatus);
+  const companySettings = useAppStore(state => state.companySettings);
   const [showScanQR, setShowScanQR] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  useEffect(() => {
+    if (!companySettings) {
+      loadCompanySettings();
+    }
+  }, []);
 
   const isInOffice = connectionStatus === 'connected';
   const shouldHideCompany = hideWhenOfficeOnly && !isInOffice;
@@ -49,11 +59,16 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
     setShowInvite(true);
   };
 
+  const handleSettings = () => {
+    setShowSettings(true);
+  };
+
   const handleJoinCompanyFromQR = (scannedData: string) => {
     if (!companyId) {
       setCompanyId(MOCK_COMPANY_ID);
       setCompanyMembers(MOCK_COMPANY_MEMBERS);
       setCompanyChannels(MOCK_COMPANY_CHANNELS);
+      loadCompanySettings();
     }
     setShowScanQR(false);
   };
@@ -65,7 +80,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
 
   return (
     <div className="w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5">
-      <CompanyHeader isDark={isDark} onScanQR={handleScanQR} onInvite={handleInvite} />
+      <CompanyHeader isDark={isDark} onScanQR={handleScanQR} onInvite={handleInvite} onSettings={handleSettings} />
       <CompanyInfoCard
         isDark={isDark}
         connected={t('company.connected') || 'Connected'}
@@ -105,7 +120,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
             >
               <button
                 onClick={() => setShowScanQR(false)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors neu-button"
+                className="absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors neu-button"
               >
                 <X size={18} />
               </button>
@@ -143,7 +158,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
             >
               <button
                 onClick={() => setShowInvite(false)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors neu-button"
+                className="absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors neu-button"
               >
                 <X size={18} />
               </button>
@@ -158,6 +173,18 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
                 </div>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowSettings(false)}
+          >
+            <CompanySettingsView onClose={() => setShowSettings(false)} />
           </motion.div>
         )}
       </AnimatePresence>

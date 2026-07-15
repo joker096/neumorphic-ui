@@ -19,7 +19,7 @@ export const CompanySettingsView = ({ isDark, onBack }: CompanySettingsViewProps
       <div className="w-full shrink-0 mb-4 flex items-center gap-3">
         <button
           onClick={onBack}
-          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+          className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-200 ${
             isDark
               ? 'bg-[#1a1d24] hover:bg-[#20242e] text-gray-400'
               : 'bg-[#f4f7f9] hover:bg-white text-slate-500 shadow-sm'

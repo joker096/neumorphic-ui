@@ -9,16 +9,20 @@
     "settings": "Settings",
     "logout": "Logout"
   },
-  "login": {
+ "login": {
     "title": "Admin Panel",
     "subtitle": "Mess&Anger",
     "username": "Username",
     "password": "Password",
     "usernamePlaceholder": "admin",
-    "passwordPlaceholder": "••••••••",
+    "passwordPlaceholder": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     "signIn": "Sign In",
     "signingIn": "Signing in...",
-    "invalidCredentials": "Invalid username or password"
+    "invalidCredentials": "Invalid username or password",
+    "captcha": "CAPTCHA",
+    "captchaPlaceholder": "Enter answer",
+    "captchaInvalid": "Wrong answer. Try again.",
+    "refreshCaptcha": "Refresh"
   },
   "verify2fa": {
     "title": "Two-Factor Auth",

@@ -26,7 +26,7 @@ describe('AppearanceSettings - additional tests', () => {
 
   it('renders all toggle rows', () => {
     render(<AppearanceSettings {...defaultProps} />);
-    const toggles = document.querySelectorAll('button[role="switch"]');
+    const toggles = document.querySelectorAll('[role="switch"]');
     expect(toggles.length).toBeGreaterThan(0);
   });
 

@@ -1,0 +1,68 @@
+{
+  "theme": {
+    "initial": {
+      "desktop": {
+        "theme": "dark",
+        "rootBg": "rgb(11, 15, 20)",
+        "asideVisible": true,
+        "footerVisible": false,
+        "bodyText": "\n    Skip to content⚠DegradedЧатыЗвонкиКонтактыКомпанияНастройкиUserOnlineИсторииЧатыКаналыБотыВсеЛичныеНепрочитанныеРабочиеАрхивНичего не найденоЧатыЗвонкиКонтактыКомпанияНастройки\n    \n  \n\n"
+      }
+    },
+    "light": {
+      "desktop": {
+        "theme": "light",
+        "bg": "rgb(242, 245, 248)"
+      }
+    },
+    "mobileLight": {
+      "info": {
+        "theme": "light",
+        "bg": "rgb(242, 245, 248)"
+      }
+    }
+  },
+  "viewports": {
+    "desktop": {
+      "width": 1440,
+      "height": 900,
+      "sidebarVisible": true
+    },
+    "mobile": {
+      "info": {
+        "theme": "dark",
+        "bg": "rgb(11, 15, 20)",
+        "footerVisible": true,
+        "footerClass": "fixed bottom-0 left-0 right-0 md:hidden z-50"
+      },
+      "bottomNavButtons": 5
+    }
+  },
+  "components": [
+    {
+      "name": "desktop-theme-toggle",
+      "visible": true
+    },
+    {
+      "name": "desktop-sidebar",
+      "visible": false
+    },
+    {
+      "name": "desktop-chat-input",
+      "visible": true
+    }
+  ],
+  "issues": [],
+  "screenshots": [
+    "desktop-dark.png",
+    "desktop-settings.png",
+    "desktop-appearance.png",
+    "desktop-light.png",
+    "desktop-dark-again.png",
+    "desktop-back-to-chats.png",
+    "mobile-dark.png",
+    "mobile-settings.png",
+    "mobile-settings-appearance.png",
+    "mobile-light.png"
+  ]
+}

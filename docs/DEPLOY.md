@@ -1,133 +1,155 @@
 # Mess&Anger — Deployment Guide
 
-## Структура
-
-| Компонент | Расположение | Назначение |
-|-----------|-------------|------------|
-| **Web SPA** | `/var/www/mess.cvr.name/` | React PWA фронтенд |
-| **Signaling Server** | PM2 `mess-signaling` (порт 3006) | WebSocket relay для P2P |
-| **Admin Panel** | `/var/www/admin.mess.cvr.name/` (порт 3003) | Admin REST API + UI |
-| **Android APK** | `app-release-signed.apk` | TWA обёртка для PWA |
-
-## Быстрый деплой
-
-### Локально (Windows):
+## Одна команда — всё сразу
 
 ```powershell
-# 1. Собрать web + деплой на сервер + собрать APK
-.\scripts\deploy-all.ps1
-
-# 2. Только web деплой
-.\scripts\deploy-web.ps1
-
-# 3. Только APK (без пересборки web)
-.\scripts\build-android.ps1 -SkipWebBuild
+npm run deploy
 ```
 
-### На сервере (Linux):
+# Создание администратора
+npm run admin:create admin fuckoff190
+
+# Запуск сервера
+JWT_SECRET=your-secret npx tsx server/signaling-server.ts
+
+# Проверка 2FA (через curl)
+curl -X POST http://localhost:8766/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"fuckoff190"}'
+
+Запускает полный пайплайн:
+
+| Шаг | Что делает |
+|-----|-----------|
+| 1. Build | Линт → тесты → сборка main SPA |
+| 2. Admin | Сборка admin панели, копирование в `dist/admin` |
+| 3. Server | Подготовка signaling-файлов (`dist/server/`) |
+| 4. Deploy web | SSH → загрузка `dist/` на сервер (`/var/www/mess.cvr.name`) |
+| 5. Deploy signaling | SSH → загрузка серверных файлов → npm install → PM2 restart |
+| 6. APK (опционально) | Сборка Android APK/AAB |
+
+## Быстрые варианты
+
+```powershell
+# Только web деплой (без адроида, без сигналинга)
+npm run deploy:web
+
+# Быстрый деплой (без тестов и адроида)
+npm run deploy:quick
+
+# Передеплой с существующей сборки (не пересобирает)
+npm run deploy:server
+```
+
+## Что и куда деплоится
+
+| Компонент | Куда на сервере |
+|-----------|----------------|
+| Main SPA (dist/) | `/var/www/mess.cvr.name/` |
+| Admin UI (dist/admin/) | `/var/www/mess.cvr.name/admin/` |
+| Signaling server | `/home/user0/messanger/server/` |
+| PM2 процесс | `mess-signaling` (порт 8765) |
+
+## Требования
+
+- **SSH доступ** — настроен в `~/.ssh/config` (хост `prod`):
+  ```
+  Host prod
+      HostName 130.49.175.224
+      User user0
+      IdentityFile ~/.ssh/id_ed25519
+  ```
+- **На сервере:** Node.js, npm, PM2 (`npm i -g pm2 tsx`)
+
+## Структура
+
+| Компонент | Назначение |
+|-----------|-----------|
+| **Web SPA** (`/var/www/mess.cvr.name/`) | React PWA фронтенд |
+| **Admin Panel** (`/var/www/mess.cvr.name/admin/`) | Admin UI (React SPA) |
+| **Signaling Server** (PM2, порт 8765) | WebSocket relay для P2P |
+| **REST API** (порт 8766) | Админ-эндпоинты (статистика, реклама) |
+| **Android APK** (`app-release-signed.apk`) | TWA обёртка для PWA |
+
+## Управление сервером (Linux)
 
 ```bash
-# Управление signaling сервером
+# Статус сигналинга
 pm2 status mess-signaling
 pm2 logs mess-signaling
 pm2 restart mess-signaling
-
-# Сохранить PM2 для автозапуска
 pm2 save
-pm2 startup
 ```
 
-## Настройка сервера
+## Nginx
 
-### SSH доступ
+Конфиг в `/etc/nginx/conf.d/mess.cvr.name.conf` (управляется HestiaCP).
 
-Настроен в `~/.ssh/config`:
-```
-Host prod
-    HostName 130.49.175.224
-    User user0
-    IdentityFile ~/.ssh/id_ed25519
-```
+**Важно:** SPA использует хэш-роутинг (`/#settings`). Если нужны красивые URL,
+обновите в nginx:
 
-### Nginx
-
-Конфиг находится в `/etc/nginx/conf.d/mess.cvr.name.conf` (управляется HestiaCP).
-
-**Важно:** SPA использует хэш-роутинг (`/#settings`). Если нужны красивые URL
-(`/settings`), обновите в nginx:
 ```
 location / {
     try_files $uri $uri/ /index.html;
 }
 ```
 
-### Signaling Server
+### Прокси WebSocket
 
-Уже запущен через PM2 на порту 8765.
-
-```bash
-cd /home/user0/messanger
-pm2 status mess-signaling
-pm2 logs mess-signaling
-pm2 restart mess-signaling
-pm2 save
 ```
-
-**Проблема:** Порт 3006 занят старым процессом (владелец root). Пока он не освобождён,
-сигналинг работает на порту 8765. Nginx проксирует `/ws` → `3006`, но старый процесс
-на 3006 не является нашим signaling сервером.
-
-**Исправление (требуется root):**
-```bash
-# Узнать PID процесса на порту 3006
-ss -tlnp | grep 3006
-# Убить процесс
-sudo fuser -k 3006/tcp
-# Или через systemctl (если это systemd-сервис)
-sudo systemctl stop messanger-signaling
-# ИЛИ просто дождаться перезагрузки сервера
-# После освобождения порта:
-cd /home/user0/messanger && pm2 restart mess-signaling --update-env
-```
-
-**Либо изменить nginx (требуется root):**
-```nginx
 location /ws {
     proxy_pass http://127.0.0.1:8765;
-    # ... остальные настройки
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    proxy_read_timeout 86400s;
 }
 ```
 
-### SSL (Let's Encrypt)
+### Прокси REST API
 
-Сертификаты уже установлены. Обновление:
-```bash
-certbot renew
+```
+location /api/ {
+    proxy_pass http://127.0.0.1:8766;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Authorization $http_authorization;
+    proxy_pass_header Authorization;
+}
 ```
 
 ## Android APK
 
-### Требования для сборки:
-- JDK 17+
-- Android SDK (ANDROID_HOME)
-- Keystore: `messandanger-keystore.jks`
-
-### Сборка:
-
 ```powershell
+# Сборка отдельно
 .\scripts\build-android.ps1
+
+# Или через npm run deploy (включается автоматически)
+npm run deploy
 ```
 
-**Выходные файлы:**
-- `app-release-signed.apk` — для прямой установки
-- `app-release-bundle.aab` — для Google Play
+**Выход:**
+- `app-release-signed.apk` — прямая установка
+- `app-release-bundle.aab` — Google Play
 
-## Pull деплой (альтернатива)
+## Переменные окружения
 
-Если на сервере есть git:
+| Переменная | Где | Назначение |
+|-----------|-----|-----------|
+| `JWT_SECRET` | Server env | Подпись JWT (авто-генерация) |
+| `DB_PATH` | Server env | Путь к SQLite (`data/admin.db`) |
+| `PORT` | Server env | WebSocket порт (8765) |
+| `REST_PORT` | Server env | REST API порт (8766) |
+| `VITE_API_URL` | Admin build | URL REST API (`http://localhost:8766`) |
+| `GEMINI_API_KEY` | Main app | Gemini AI API |
+
+## Pull-деплой (альтернатива)
 
 ```bash
-# На сервере:
 git clone https://github.com/joker096/neumorphic-ui.git /home/user0/messanger
 cd /home/user0/messanger
 npm install --omit=dev

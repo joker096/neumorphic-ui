@@ -85,7 +85,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
         className={`w-full max-w-[380px] max-h-[90vh] overflow-y-auto p-5 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
       >
         <div
-          className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+          className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
           onClick={onClose}
           title={t('contacts.close')}
         >
@@ -129,8 +129,9 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
               {!isEditing && (
                 <button
                   type="button"
-                  className={`absolute right-2 top-2 bottom-2 w-8 rounded-xl flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+                  className={`absolute right-2 top-2 bottom-2 w-10 h-10 flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
                   title={t('header.scanQR')}
+                  aria-label={t('header.scanQR')}
                 >
                   <Scan size={16} />
                 </button>
@@ -221,7 +222,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
                   <button
                     type="button"
                     onClick={() => removeField(field.id)}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "text-red-400 hover:bg-red-500/20" : "text-red-500 hover:bg-red-100"}`}
+                    className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${isDark ? "text-red-400 hover:bg-red-500/20" : "text-red-500 hover:bg-red-100"}`}
                   >
                     <Trash2 size={14} />
                   </button>

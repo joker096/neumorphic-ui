@@ -59,7 +59,7 @@ export const GroupCallParticipants: React.FC<GroupCallParticipantsProps> = ({
           {onMuteToggle && (
             <button
               onClick={() => onMuteToggle(participant.peerId)}
-              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white"
+              className="absolute top-2 right-2 min-w-[44px] min-h-[44px] rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white"
             >
               {participant.isMuted ? <MicOff size={14} /> : <Mic size={14} />}
             </button>

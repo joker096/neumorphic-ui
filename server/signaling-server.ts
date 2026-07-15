@@ -45,10 +45,7 @@ setInterval(() => {
 
 function getClientIp(ws: WebSocket): string {
   const req = (ws as any).request
-  if (req && req.headers) {
-    const forwarded = req.headers['x-forwarded-for']
-    if (typeof forwarded === 'string') return forwarded.split(',')[0].trim()
-  }
+  if (req && req.socket && req.socket.remoteAddress) return req.socket.remoteAddress
   return 'unknown'
 }
 
@@ -184,6 +181,16 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'Invalid target' })
           return
         }
+        // Validate metadata payload size
+        if (msg.data && typeof msg.data === 'string' && msg.data.length > 4096) {
+          send({ type: 'error', message: 'Metadata payload too large' })
+          return
+        }
+        // Only forward primitive types (string, number, boolean, null)
+        if (msg.data !== undefined && msg.data !== null && !['string', 'number', 'boolean'].includes(typeof msg.data)) {
+          send({ type: 'error', message: 'Invalid metadata payload type' })
+          return
+        }
         const target = clients.get(msg.target)
         if (!target || target.readyState !== WebSocket.OPEN) {
           send({ type: 'error', message: 'Target not available' })
@@ -224,21 +231,26 @@ wss.on('connection', (ws, req) => {
 // --- REST API Server (port 8766) ---
 const ADMIN_DIST = join(__dirname, '..', 'dist', 'admin')
 
-function serveAdminFile(res: any, reqUrl: string, path: string): boolean {
+function serveAdminFile(res: any, req: any, path: string): boolean {
   if (!path.startsWith('/admin')) return false
 
-  // Normalize and validate path to prevent directory traversal
-  const fileRelPath = path.replace(/^\/admin(\/|$)/, '/')
-  const filePath = join(ADMIN_DIST, fileRelPath)
+  // Path traversal prevention: decode and normalize
+  const decodedPath = decodeURIComponent(path)
+  const fileRelPath = decodedPath.replace(/^\/admin(\/|$)/, '/').replace(/\.\.\//g, '').replace(/\.\.\\/g, '')
   const normalizedPath = join(ADMIN_DIST, fileRelPath)
   if (!normalizedPath.startsWith(ADMIN_DIST)) {
     res.writeHead(403, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ error: 'Access denied' }))
     return true
   }
+  // Block any path still containing traversal sequences
+  if (normalizedPath.includes('..') || /[/\\]\.\./.test(normalizedPath)) {
+    res.writeHead(403, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Access denied' }))
+    return true
+  }
 
   if (existsSync(normalizedPath)) {
-    // Determine content type from extension
     let contentType = 'text/plain'
     if (normalizedPath.endsWith('.html')) contentType = 'text/html'
     else if (normalizedPath.endsWith('.css')) contentType = 'text/css'
@@ -249,7 +261,36 @@ function serveAdminFile(res: any, reqUrl: string, path: string): boolean {
     else if (normalizedPath.endsWith('.ico')) contentType = 'image/x-icon'
     else if (normalizedPath.endsWith('.svg')) contentType = 'image/svg+xml'
 
-    res.writeHead(200, { 'Content-Type': contentType })
+    const headers: Record<string, string> = { 'Content-Type': contentType }
+    if (normalizedPath.endsWith('.js') || normalizedPath.endsWith('.css') || normalizedPath.endsWith('.html')) {
+      headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    } else if (normalizedPath.match(/\.(png|jpg|jpeg|gif|ico|svg|webp|woff2|woff|ttf|eot)$/)) {
+      headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    } else {
+      headers['Cache-Control'] = 'public, max-age=3600'
+    }
+
+    const acceptEncoding = (req.headers['accept-encoding'] || '') as string
+    const supportsBrotli = acceptEncoding.includes('br')
+    const supportsGzip = acceptEncoding.includes('gzip')
+
+    if (supportsBrotli && existsSync(normalizedPath + '.br')) {
+      headers['Content-Encoding'] = 'br'
+      headers['Content-Type'] = contentType
+      res.writeHead(200, headers)
+      res.end(readFileSync(normalizedPath + '.br'))
+      return true
+    }
+
+    if (supportsGzip && existsSync(normalizedPath + '.gz')) {
+      headers['Content-Encoding'] = 'gzip'
+      headers['Content-Type'] = contentType
+      res.writeHead(200, headers)
+      res.end(readFileSync(normalizedPath + '.gz'))
+      return true
+    }
+
+    res.writeHead(200, headers)
     res.end(readFileSync(normalizedPath))
     return true
   }
@@ -281,7 +322,7 @@ const restServer = createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json')
 
   // Try serving admin static files first
-  if (serveAdminFile(res, '', path)) return
+  if (serveAdminFile(res, req, path)) return
 
   // Handle API routes
   const handled =

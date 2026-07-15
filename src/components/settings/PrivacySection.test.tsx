@@ -51,7 +51,7 @@ describe('PrivacySection - additional tests', () => {
 
  it('renders all toggles', () => {
   render(<PrivacySection {...defaultProps} />);
-  const toggles = document.querySelectorAll('button[role="switch"]');
+  const toggles = document.querySelectorAll('[role="switch"]');
   expect(toggles.length).toBeGreaterThan(0);
  });
 

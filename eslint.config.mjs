@@ -3,7 +3,7 @@ import security from "eslint-plugin-security";
 
 export default [
   {
-    ignores: ["node_modules/", "dist/"],
+    ignores: ["node_modules/", "dist/", "public/sw.js", "screen/"],
   },
   {
     files: ["**/*.ts", "**/*.tsx"],
