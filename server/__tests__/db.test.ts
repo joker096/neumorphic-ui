@@ -28,7 +28,7 @@ describe('Database Layer', () => {
     expect(names).toContain('sessions')
     expect(names).toContain('ads')
     expect(names).toContain('ad_events')
-    expect(names).toContain('logs')
+    expect(names).toContain('audit_logs')
   })
 
   it('should insert and read a connection', () => {

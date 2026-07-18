@@ -1,5 +1,5 @@
 // src/lib/p2p/MultiHopRelay.test.ts
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { MultiHopRelay } from './MultiHopRelay'
 import { MeshRouter } from './MeshRouter'
 import type { MessageEnvelope } from '../messaging/MessageEnvelope'
@@ -26,6 +26,10 @@ describe('MultiHopRelay', () => {
       forwardSecrecy: true,
       priority: 'normal' as const,
     }
+
+    // Set up forward handler before calling relayMessage
+    const forwardSpy = vi.fn()
+    MultiHopRelay.setForwardHandler(forwardSpy)
 
     const result = await MultiHopRelay.relayMessage(envelope)
     expect(result).toBe(true)

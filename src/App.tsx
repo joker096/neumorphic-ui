@@ -17,7 +17,6 @@ import { Lock } from "lucide-react";
 import { useAppStore } from "./store";
 import { cryptoCore } from "./lib/crypto/cryptoCore";
 import { useI18n } from "./lib/i18n";
-import { useKeyboardScroll } from "./hooks/useKeyboardScroll";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
 import type { Contact } from "./types/contact";
@@ -34,8 +33,6 @@ import { STORAGE_KEYS } from './constants/storage';
 import { ThemeContext, useTheme, type Theme } from './contexts/ThemeContext';
 
 export default function App() {
-  const mainRef = useRef<HTMLDivElement>(null);
-  useKeyboardScroll(mainRef);
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.THEME);
     return (saved === 'dark' || saved === 'light') ? (saved as Theme) : 'dark';
@@ -875,8 +872,7 @@ const chatListWorkspaceProps = useMemo(() => ({
   return (
 <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
        <Toaster position="top-right" duration={3000} theme={isDark ? 'dark' : 'light'} />
-       <div ref={mainRef}
-          data-theme={theme} className={`w-full h-[100dvh] flex font-sans select-none overflow-hidden relative ${isDark ? "bg-[#0d1017] text-white" : "bg-[#f0f2f5] text-slate-800"}`}>
+       <div data-theme={theme} className={`w-full h-[100dvh] flex font-sans select-none overflow-hidden relative ${isDark ? "bg-[#0d1017] text-white" : "bg-[#f0f2f5] text-slate-800"}`}>
          {isDark && (
            <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none" />
          )}

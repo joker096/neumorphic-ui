@@ -222,11 +222,9 @@ describe('P2PTransport', () => {
   });
 
   describe('call()', () => {
-    it('throws if not connected to signaling server', async () => {
+    it('resolves when not connected (mesh mode allows calls)', async () => {
       const transport = makeTransport();
-      await expect(transport.call('peer-key')).rejects.toThrow(
-        'Not connected to signaling server',
-      );
+      await expect(transport.call('peer-key')).resolves.toBeUndefined();
     });
 
     it('creates RTCPeerConnection with configured ICE servers', async () => {
