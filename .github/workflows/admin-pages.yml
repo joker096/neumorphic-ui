@@ -28,13 +28,16 @@ jobs:
           npm run build
       - name: Deploy
         run: |
+          mkdir -p /tmp/admin-dist
+          cp -r admin/dist/. /tmp/admin-dist/
           git config user.name github-actions
           git config user.email github-actions@github.com
           git fetch origin gh-pages --depth=1 || true
           git checkout --orphan gh-pages-temp
-          rm -rf ./*
-          cp -r admin/dist/* .
+           rm -f ./*.html ./*.ts ./*.tsx ./*.json ./*.mjs 2>/dev/null || true
+          rm -rf assets/ src/ public/ admin/ server/ config/ data/ docs/ scripts/ 2>/dev/null || true
+          cp -r /tmp/admin-dist/. .
           touch .nojekyll
           git add -A
-          git commit -m "[skip ci] Deploy admin panel"
+          git commit -m "[skip ci] Deploy admin panel" || true
           git push -f origin gh-pages-temp:gh-pages
