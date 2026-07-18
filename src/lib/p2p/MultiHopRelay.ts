@@ -7,6 +7,11 @@ import type { MessageEnvelope as MessageEnvelopeType } from '../messaging/Messag
 
 export class MultiHopRelay {
   private static relayBuffer = new Map<string, MessageEnvelopeType>();
+  private static forwardHandler: ((envelope: MessageEnvelopeType) => void) | null = null;
+
+  static setForwardHandler(handler: (envelope: MessageEnvelopeType) => void): void {
+    this.forwardHandler = handler;
+  }
 
   static async relayMessage(envelope: MessageEnvelopeType): Promise<boolean> {
     const path = MeshRouter.getShortestPath(envelope.recipient);
@@ -21,12 +26,10 @@ export class MultiHopRelay {
     // Update the envelope path
     envelope.path = path;
 
-    // Simulate relay through the path
-    for (let i = 1; i < path.length; i++) {
-      const nextHop = path[i];
-      // In a real Kadabra implementation, this would forward
-      // the message to the next hop in the path.
-      }
+    // Forward to handler if set
+    if (this.forwardHandler) {
+      this.forwardHandler(envelope);
+    }
 
     return true;
   }
