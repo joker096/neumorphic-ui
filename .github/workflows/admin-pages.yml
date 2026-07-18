@@ -27,10 +27,14 @@ jobs:
           npm install --ignore-scripts
           npm run build
       - name: Deploy
-        working-directory: ./admin
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          npx gh-pages -d dist -m "[skip ci] Deploy admin panel"
+          git fetch origin gh-pages --depth=1 || true
+          git checkout --orphan gh-pages-temp
+          rm -rf ./*
+          cp -r admin/dist/* .
+          touch .nojekyll
+          git add -A
+          git commit -m "[skip ci] Deploy admin panel"
+          git push -f origin gh-pages-temp:gh-pages
