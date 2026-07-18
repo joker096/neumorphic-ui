@@ -19,6 +19,8 @@ export default function Users() {
     }).finally(() => setLoading(false))
   }, [page])
 
+  if (loading) return <div className="text-center text-gray-500 py-12">{t('dashboard.loading')}</div>
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">

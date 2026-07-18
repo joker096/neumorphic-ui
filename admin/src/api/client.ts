@@ -12,7 +12,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (res.status === 401) {
     sessionStorage.removeItem('admin_token')
-    window.location.href = '/login'
+    window.location.hash = '#/login'
     throw new Error('Unauthorized')
   }
 

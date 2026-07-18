@@ -10,3 +10,7 @@ coverage/
 *.keystore
 .env*
 !.env.example
+*.db
+android/.gradle/
+test-results/
+screen/

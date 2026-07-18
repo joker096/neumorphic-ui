@@ -84,7 +84,7 @@ export const AdminI18nProvider: React.FC<{ children: ReactNode }> = ({ children 
     let text = getTranslationWithFallback(key, lang)
     if (args && Object.keys(args).length > 0) {
       for (const [k, v] of Object.entries(args)) {
-        text = text.replace(`{${k}}`, () => String(v))
+        text = text.replace(`{${k}}`, String(v))
       }
     }
     return text

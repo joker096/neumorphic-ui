@@ -2,7 +2,7 @@ name: Deploy Admin to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - admin/**
   workflow_dispatch:
@@ -21,6 +21,8 @@ jobs:
           node-version: 22
       - name: Install & build
         working-directory: ./admin
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || secrets.VITE_API_URL || 'http://localhost:8766' }}
         run: |
           npm ci --ignore-scripts
           npm run build
