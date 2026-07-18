@@ -4,30 +4,24 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/admin/',
+  base: '/neumorphic-ui/',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+  },
   server: {
     port: 5174,
     headers: {
       'Content-Security-Policy': [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+        "script-src 'self' 'unsafe-inline'",
         "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data: blob:",
-        "font-src 'self' data:",
-        "connect-src 'self' wss:",
-        "media-src 'self' blob:",
-        "object-src 'none'",
+        "connect-src 'self'",
         "base-uri 'self'",
-        "form-action 'self'",
-        "frame-ancestors 'none'",
-        "upgrade-insecure-requests",
       ].join('; '),
-      'X-Content-Type-Options': 'nosniff',
+      'X-Content-Security-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
     },
-  },
-  build: {
-    assetsDir: 'assets',
   },
 })

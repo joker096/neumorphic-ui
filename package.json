@@ -21,7 +21,8 @@
     "lint": "eslint . --ext .ts,.tsx --quiet && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "admin:create": "npx tsx server/cli.ts"
+    "admin:create": "npx tsx server/cli.ts",
+    "build:admin": "pwsh -NoProfile -File scripts/build-admin.ps1"
   },
   "dependencies": {
     "@noble/post-quantum": "^0.6.1",
