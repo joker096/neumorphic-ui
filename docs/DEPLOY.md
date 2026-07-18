@@ -6,39 +6,49 @@
 npm run deploy
 ```
 
-# Создание администратора
-npm run admin:create admin fuckoff190
-
-# Запуск сервера
-JWT_SECRET=your-secret npx tsx server/signaling-server.ts
-
-# Проверка 2FA (через curl)
-curl -X POST http://localhost:8766/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"fuckoff190"}'
-
-Запускает полный пайплайн:
+Запускает полный пайплайн и деплоит на сервер:
 
 | Шаг | Что делает |
 |-----|-----------|
 | 1. Build | Линт → тесты → сборка main SPA |
-| 2. Admin | Сборка admin панели, копирование в `dist/admin` |
+| 2. Admin | Сборка admin панели → `dist/admin` |
 | 3. Server | Подготовка signaling-файлов (`dist/server/`) |
 | 4. Deploy web | SSH → загрузка `dist/` на сервер (`/var/www/mess.cvr.name`) |
 | 5. Deploy signaling | SSH → загрузка серверных файлов → npm install → PM2 restart |
-| 6. APK (опционально) | Сборка Android APK/AAB |
+| 6. Admin user | Создание администратора через CLI |
+| 7. APK (опционально) | Сборка Android APK/AAB |
 
 ## Быстрые варианты
 
 ```powershell
-# Только web деплой (без адроида, без сигналинга)
+# Только web деплой (без signaling, без Android)
 npm run deploy:web
 
-# Быстрый деплой (без тестов и адроида)
+# Быстрый деплой (без тестов и Android)
 npm run deploy:quick
 
 # Передеплой с существующей сборки (не пересобирает)
 npm run deploy:server
+```
+
+## Создание администратора вручную
+
+```powershell
+npm run admin:create admin fuckoff190
+```
+
+## Запуск сервера локально
+
+```powershell
+JWT_SECRET=your-secret npx tsx server/signaling-server.ts
+```
+
+## Проверка 2FA (через curl)
+
+```bash
+curl -X POST http://localhost:8766/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"fuckoff190"}'
 ```
 
 ## Что и куда деплоится

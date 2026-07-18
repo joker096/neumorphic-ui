@@ -71,13 +71,16 @@ if (-not $SkipBuild) {
   try {
     if (-not $SkipTests) {
       Write-Host "  Lint + typecheck..." -ForegroundColor Yellow
-      npx eslint src/ --ext .ts,.tsx --quiet 2>&1 | Out-Null
-      npx tsc --noEmit 2>&1 | Out-Null
+      npx eslint . --quiet
+      if ($LASTEXITCODE -ne 0) { throw "Lint failed" }
+      npx tsc --noEmit
+      if ($LASTEXITCODE -ne 0) { throw "TypeScript check failed" }
       Write-Host "  Running tests..." -ForegroundColor Yellow
-      npx vitest run 2>&1 | Out-Null
+      npx vitest run
+      if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
     }
     Write-Host "  Building main SPA..." -ForegroundColor Yellow
-    npm run build 2>&1 | Out-Null
+    npm run build
     if ($LASTEXITCODE -ne 0) { throw "Main SPA build failed" }
     Write-Host "  ✓ Main SPA built" -ForegroundColor Green
   } finally { Pop-Location }
@@ -85,9 +88,10 @@ if (-not $SkipBuild) {
   Write-Host "`n━━━ [2/5] Build Admin Panel ━━━" -ForegroundColor Cyan
   Push-Location $AdminDir
   try {
-    npm install 2>&1 | Out-Null
+    npm install --ignore-scripts
+    if ($LASTEXITCODE -ne 0) { throw "Admin npm install failed" }
     Write-Host "  Building admin SPA..." -ForegroundColor Yellow
-    npm run build 2>&1 | Out-Null
+    npm run build
     if ($LASTEXITCODE -ne 0) { throw "Admin build failed" }
     $AdminDistTarget = "$RootDir/dist/admin"
     if (Test-Path "$AdminDir/dist") {
@@ -114,15 +118,16 @@ if (-not $SkipBuild) {
   Write-Host "`n━━━ Build phase skipped (-SkipBuild) ━━━" -ForegroundColor Yellow
 }
 
-# ── Copy admin build to server dir (for signaling-server) ━━━
+# ── Copy admin build to server dist (for REST API serving) ━━━
    if (-not $SkipBuild) {
      Write-Host "`n━━━ [2b/5] Copy Admin to Server Dist ━━━" -ForegroundColor Cyan
      $AdminSrc = "$RootDir/dist/admin"
   if (Test-Path $AdminSrc) {
-      $AdminDest2 = "$RootDir/dist/dist/admin"
+      $AdminDest2 = "$RootDir/dist/server/dist/admin"
+      $null = New-Item -ItemType Directory -Path "$RootDir/dist/server/dist" -Force
       if (Test-Path $AdminDest2) { Remove-Item -Recurse -Force $AdminDest2 }
       Copy-Item -Recurse "$AdminSrc" $AdminDest2
-      Write-Host "  ✓ Admin copied to dist/dist/admin (server can find it)" -ForegroundColor Green
+      Write-Host "  ✓ Admin copied to dist/server/dist/admin (signaling server can serve it)" -ForegroundColor Green
     }
   }
 
@@ -141,15 +146,17 @@ if (-not $SkipWebDeploy) {
   Write-Host "  Uploading web files..." -ForegroundColor Yellow
   Push-Location $DistDir
   try {
+    ssh $Server "mkdir -p $WebRoot/admin"
     tar cf - . | ssh $Server "tar xf - -C $WebRoot"
+    if ($LASTEXITCODE -ne 0) { throw "Web file upload failed" }
     Write-Host "  ✓ Web files uploaded to $WebRoot" -ForegroundColor Green
   } finally { Pop-Location }
 
-  $status = ssh $Server "curl -s -o /dev/null -w '%{http_code}' https://mess.cvr.name/" 2>&1
+  $status = ssh $Server "curl -s -o /dev/null -w '%{http_code}' https://mess.cvr.name/ --connect-timeout 10" 2>&1
   if ($status -eq "200") {
     Write-Host "  ✓ Site responding: HTTPS 200" -ForegroundColor Green
   } else {
-    Write-Host "  ⚠ Site status: $status (may need HTTPS setup)" -ForegroundColor Yellow
+    Write-Host "  ⚠ Site status: $status" -ForegroundColor Yellow
   }
 } else {
   Write-Host "`n━━━ Web deploy skipped (-SkipWebDeploy) ━━━" -ForegroundColor Yellow
@@ -178,14 +185,15 @@ if (-not $SkipSignaling) {
   scp "$ServerDist/package.json" "${Server}:$AppRoot/package.json" 2>&1 | Out-Null
 
  Write-Host "  Installing deps on server..." -ForegroundColor Yellow
-   ssh $Server "cd $AppRoot && npm install --omit=dev 2>&1 | tail -3" 2>&1 | Out-Null
+   $installResult = ssh $Server "cd $AppRoot && npm install --omit=dev 2>&1" 2>&1
+   if ($LASTEXITCODE -ne 0) { Write-Host "  ⚠ npm install may have issues: $installResult" -ForegroundColor Yellow }
 
   # Deploy admin build to server dist (for REST API serving)
    Write-Host "  Deploying admin build..." -ForegroundColor Yellow
    $AdminSrc = "$RootDir/dist/admin"
    if (Test-Path $AdminSrc) {
-     ssh $Server "mkdir -p $AppRoot/dist" 2>&1 | Out-Null
-     scp -r "$AdminSrc" "${Server}:$AppRoot/dist/admin" 2>&1 | Out-Null
+     ssh $Server "mkdir -p $AppRoot/dist/admin" 2>&1 | Out-Null
+     scp -r "$AdminSrc" "${Server}:$AppRoot/dist/admin" 2>&1
      Write-Host "  ✓ Admin deployed to $AppRoot/dist/admin/" -ForegroundColor Green
    }
 
@@ -213,24 +221,23 @@ if (-not $SkipSignaling) {
      Write-Host "  ✓ JWT_SECRET already configured" -ForegroundColor Green
    }
 
-   # ── Create admin user if not skipped ──
-    if (-not $SkipAdminCreate) {
-      Write-Host "`n━━━ [6/6] Create Admin User ━━━" -ForegroundColor Cyan
-      Write-Host "  Creating admin '$AdminUser' on server..." -ForegroundColor Yellow
-      $adminDbPath = $AppRoot + "/admin.db"
-      $adminCheck = ssh $Server "sqlite3 '$adminDbPath' 'SELECT id FROM admins WHERE username=`'$AdminUser`';'" 2>&1
-      if ($adminCheck -ne "") {
-        Write-Host "  ⚠ Admin '$AdminUser' already exists, skipping creation" -ForegroundColor Yellow
-      } else {
-        $env:JWT_SECRET = (ssh $Server "grep 'JWT_SECRET=' '$AppRoot/.env' | cut -d= -f2").Trim()
-        $cliResult = ssh $Server "cd '$AppRoot' && npx tsx server/cli.ts '$AdminUser' '$AdminPass'" 2>&1
-        if ($LASTEXITCODE -eq 0 -or $cliResult -match "created successfully") {
-          Write-Host "  ✓ Admin '$AdminUser' created (password: $AdminPass)" -ForegroundColor Green
-        } else {
-          Write-Host "  ⚠ Admin creation may have failed. Check server logs." -ForegroundColor Yellow
-        }
-      }
-    }
+    # ── Create admin user if not skipped ──
+     if (-not $SkipAdminCreate) {
+       Write-Host "`n━━━ [6/6] Create Admin User ━━━" -ForegroundColor Cyan
+       Write-Host "  Creating admin '$AdminUser' on server..." -ForegroundColor Yellow
+       $jwtSecret = ssh $Server "grep 'JWT_SECRET=' '$AppRoot/.env' | cut -d= -f2" 2>&1
+       if (-not $jwtSecret) {
+         Write-Host "  ⚠ JWT_SECRET not found in .env, generating..." -ForegroundColor Yellow
+         $jwtSecret = node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+         ssh $Server "echo 'JWT_SECRET=$jwtSecret' >> '$AppRoot/.env'" 2>&1 | Out-Null
+       }
+       $cliResult = ssh $Server "cd '$AppRoot' && JWT_SECRET='$jwtSecret' npx tsx server/cli.ts '$AdminUser' '$AdminPass'" 2>&1
+       if ($LASTEXITCODE -eq 0 -or $cliResult -match "created successfully") {
+         Write-Host "  ✓ Admin '$AdminUser' created (password: $AdminPass)" -ForegroundColor Green
+       } else {
+         Write-Host "  ⚠ Admin creation may have failed: $cliResult" -ForegroundColor Yellow
+       }
+     }
 
    $sigStatus = ssh $Server "pm2 list 2>&1 | grep $Pm2Name | grep online" 2>&1
    if ($sigStatus) {
@@ -283,9 +290,6 @@ if ($ApkBuildSuccess) {
  } else {
    Write-Host "`n━━━ iOS validation skipped (-SkipIOS) ━━━" -ForegroundColor Yellow
  }
-
-# ────────────────────────────────────────────────────────────
-$stopwatch.Stop()
 
 # ────────────────────────────────────────────────────────────
 $stopwatch.Stop()

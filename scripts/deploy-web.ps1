@@ -42,11 +42,17 @@ if (-not $SkipWebBuild) {
   Write-Host "  ✓ Build complete" -ForegroundColor Green
 }
 
+$AdminDist = "$RootDir/dist/admin"
+if (Test-Path $AdminDist) {
+  Write-Host "  Including admin panel from dist/admin..." -ForegroundColor Gray
+}
+
 Write-Host "[2/3] Deploying to $Server`:$RemotePath..." -ForegroundColor Yellow
 Push-Location "$RootDir/dist"
 try {
-  ssh $Server "mkdir -p $RemotePath" 2>&1 | Out-Null
+  ssh $Server "mkdir -p $RemotePath/admin" 2>&1 | Out-Null
   tar cf - . | ssh $Server "tar xf - -C $RemotePath"
+  if ($LASTEXITCODE -ne 0) { throw "Deploy failed" }
 } finally { Pop-Location }
 Write-Host "  ✓ Deploy complete" -ForegroundColor Green
 

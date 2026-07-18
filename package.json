@@ -18,7 +18,7 @@
     "deploy:server": "pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipBuild -SkipAndroid",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "eslint . --ext .ts,.tsx --quiet && tsc --noEmit",
+    "lint": "eslint . --quiet && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "admin:create": "npx tsx server/cli.ts",
