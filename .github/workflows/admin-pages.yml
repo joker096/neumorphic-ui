@@ -24,7 +24,7 @@ jobs:
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL || secrets.VITE_API_URL || 'http://localhost:8766' }}
         run: |
-          npm ci --ignore-scripts
+          npm install --ignore-scripts
           npm run build
       - name: Deploy
         working-directory: ./admin
