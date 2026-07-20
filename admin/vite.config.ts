@@ -19,7 +19,7 @@ export default defineConfig({
         "connect-src 'self'",
         "base-uri 'self'",
       ].join('; '),
-      'X-Content-Security-Options': 'nosniff',
+      'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
     },

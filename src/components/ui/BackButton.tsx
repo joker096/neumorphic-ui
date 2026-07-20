@@ -8,9 +8,9 @@ type BackButtonProps = {
 };
 
 const SIZE_MAP = {
-  sm: { icon: 14, wrapper: 'w-8 h-8' },
-  md: { icon: 16, wrapper: 'w-9 h-9' },
-  lg: { icon: 20, wrapper: 'w-10 h-10' },
+  sm: { icon: 16, wrapper: 'min-w-[44px] min-h-[44px]' },
+  md: { icon: 18, wrapper: 'min-w-[44px] min-h-[44px]' },
+  lg: { icon: 22, wrapper: 'min-w-[44px] min-h-[44px]' },
 } as const;
 
 export const BackButton = ({ onClick, className = '', label, size = 'md' }: BackButtonProps) => {

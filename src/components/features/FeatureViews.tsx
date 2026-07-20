@@ -29,6 +29,8 @@ type FeatureViewsProps = {
   onCall: (name: string, color?: string) => void;
   onVideoCall: (name: string, color?: string) => void;
   onMessage: (name: string, color?: string) => void;
+  fontSize?: string;
+  setFontSize?: (s: string) => void;
 };
 
 function Loader() {
@@ -57,6 +59,8 @@ export const FeatureViews = ({
   onCall,
   onVideoCall,
   onMessage,
+  fontSize,
+  setFontSize,
 }: FeatureViewsProps) => {
   const { theme, setTheme } = useTheme();
 
@@ -121,7 +125,7 @@ export const FeatureViews = ({
       }
       return (
         <Suspense fallback={<Loader />}>
-          <SettingsView theme={theme} setTheme={setTheme} setSubView={setSubView} />
+          <SettingsView theme={theme} setTheme={setTheme} setSubView={setSubView} fontSize={fontSize} setFontSize={setFontSize} />
         </Suspense>
       );
     case "recordings":

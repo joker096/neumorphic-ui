@@ -37,7 +37,7 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
               </div>
               <button
                 onClick={onClose}
-                className={`w-9 h-9 rounded-full flex items-center justify-center ${isDark ? "bg-white/5 text-gray-300" : "bg-white text-slate-500 border border-black/5"}`}
+                className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${isDark ? "bg-white/5 text-gray-300" : "bg-white text-slate-500 border border-black/5"}`}
               >
                 <X size={16} />
               </button>

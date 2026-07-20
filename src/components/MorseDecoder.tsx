@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useI18n } from '../lib/i18n';
 
 const MORSE_MAP: Record<string, string> = {
+  // Latin (ITU-R standard)
   A: ".-",
   B: "-...",
   C: "-.-.",
@@ -28,6 +29,37 @@ const MORSE_MAP: Record<string, string> = {
   X: "-..-",
   Y: "-.--",
   Z: "--..",
+  // Cyrillic (Russian standard)
+  А: ".",
+  Б: "...-",
+  В: "-...",
+  Г: "..-",
+  Д: "-..",
+  Е: "-",
+  Ж: "-.-.",
+  З: ".-.",
+  И: "..",
+  Й: ".-.-",
+  К: "..-.",
+  Л: "-.-",
+  М: "-.",
+  Н: "...",
+  О: ".-.-",
+  П: "...-",
+  Р: "..-.",
+  С: "...-",
+  Т: "...",
+  У: "-.-",
+  Ф: "-...",
+  Х: ".-.-",
+  Ц: "..--",
+  Ч: "..-",
+  Ш: "....",
+  Щ: "...-",
+  Ы: ".-.",
+  Ь: "-..-",
+  Ћ: "-.-.",
+  Ќ: ".--.",
   "0": "-----",
   "1": ".----",
   "2": "..---",
@@ -63,10 +95,11 @@ export const encodeMorse = (text: string) => {
 };
 
 export const decodeMorse = (morse: string) => {
-  const reverseMap = Object.entries(MORSE_MAP).reduce(
-    (acc, [k, v]) => ({ ...acc, [v]: k }),
-    {} as Record<string, string>,
-  );
+  const reverseMap: Record<string, string> = {};
+  // Reverse map - take first occurrence for each code
+  for (const [k, v] of Object.entries(MORSE_MAP)) {
+    if (!reverseMap[v]) reverseMap[v] = k;
+  }
   return morse
     .split(" ")
     .map((m) => reverseMap[m] || m)
@@ -79,13 +112,10 @@ export const isMorseCode = (text: string) => {
 };
 
 export const MorseDecoder = ({
-  theme = 'dark',
   encodedText,
 }: {
-  theme?: "dark" | "light";
   encodedText: string;
 }) => {
-  const isDark = theme === "dark";
   const { t } = useI18n();
   const [decoded, setDecoded] = useState("");
 
@@ -101,16 +131,14 @@ export const MorseDecoder = ({
   return (
     <div className="flex flex-col gap-2 mt-2 w-full">
       <div
-        className={`p-3 rounded-xl ${
-          isDark
-            ? "bg-[#1a3a5c] text-[#d4eaff]"
-            : "bg-blue-100 text-blue-900 border border-blue-200"
+        className={`p-3 rounded-md ${
+          'bg-[var(--bg-secondary)] text-[var(--text-primary)]'
         }`}
       >
         <div className="flex items-center gap-2 mb-2">
           <div
             className={`text-[8px] font-mono tracking-widest px-2 py-0.5 rounded ${
-              isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-500/10 text-orange-600"
+              'bg-orange-500/20 text-orange-400'
             }`}
           >
             {label('morseDecoder.morseEncoded', 'MORSE ENCODED')}
@@ -123,9 +151,7 @@ export const MorseDecoder = ({
           <button
             onClick={handleDecode}
             className={`mt-3 px-3 py-1.5 rounded flex items-center gap-2 font-mono text-[10px] tracking-widest transition-colors ${
-              isDark
-                ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30"
-                : "bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-300"
+              'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30'
             }`}
           >
             <svg
@@ -144,21 +170,19 @@ export const MorseDecoder = ({
         ) : (
           <div
             className={`mt-3 p-3 rounded-lg border ${
-              isDark
-                ? "bg-amber-500/10 border-amber-500/20"
-                : "bg-amber-50 border-amber-200/50"
+              'bg-amber-500/10 border-amber-500/20'
             }`}
           >
             <div
               className={`text-[9px] font-mono tracking-wider mb-1 ${
-                isDark ? "text-amber-500/70" : "text-amber-600/70"
+                'text-amber-500/70'
               }`}
             >
               {label('morseDecoder.decodedText', 'DECODED TEXT')}
             </div>
             <div
               className={`font-mono font-medium text-[13px] ${
-                isDark ? "text-amber-100" : "text-amber-900"
+                'text-amber-100'
               }`}
             >
               {decoded}

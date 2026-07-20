@@ -33,8 +33,13 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
-body, html {
+html {
+  font-size: var(--font-size-base);
+}
+
+body {
   font-family: "Roboto", sans-serif;
+  font-size: var(--font-size-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -44,9 +49,22 @@ body, html {
   color: var(--text-primary);
 }
 
-/* Scrollbars hidden — user knows to scroll if content overflows */
-*::-webkit-scrollbar { display: none; }
-* { -ms-overflow-style: none; scrollbar-width: none; }
+/* Thin styled scrollbars */
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(128,128,128,0.25);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(128,128,128,0.4);
+}
+* { -ms-overflow-style: auto; scrollbar-width: thin; }
 
 
 
@@ -104,6 +122,19 @@ body, html {
 .neu-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* Screen-reader-only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Focus ring utility */

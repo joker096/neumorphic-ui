@@ -19,7 +19,7 @@ export const UndoDeleteSnackbar = ({ visible, message, onUndo, onDismiss }: { vi
           >
             <RotateCcw size={12} /> Undo
           </button>
-          <button onClick={onDismiss} className="w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+          <button onClick={onDismiss} className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
             <X size={14} />
           </button>
         </motion.div>

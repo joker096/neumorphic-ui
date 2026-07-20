@@ -122,14 +122,6 @@ export interface LocationShare {
   isLive: boolean;
 }
 
-// --- Photo Edit ---
-export interface PhotoEditState {
-  imageData: string;
-  crop: { x: number; y: number; width: number; height: number } | null;
-  drawings: Array<{ type: 'line' | 'rect' | 'text'; points: number[]; color: string; size: number }>;
-  textElements: Array<{ x: number; y: number; text: string; color: string; size: number }>;
-}
-
 // --- Call Folders ---
 export interface CallFolder {
   id: string;

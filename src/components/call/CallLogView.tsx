@@ -214,7 +214,7 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       onClick={(e) => { e.stopPropagation(); openAddContact(entry.name) }}
-                      className={`w-9 h-9 rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all active:scale-90 ${
+                      className={`min-w-[44px] min-h-[44px] rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all active:scale-90 ${
                         isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-black/5 hover:bg-black/10 text-slate-700'
                       }`}
                       title={t('contacts.addContact')}

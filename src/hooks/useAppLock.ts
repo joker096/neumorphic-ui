@@ -2,6 +2,7 @@ import { useState, FormEvent, useEffect } from "react";
 import { cryptoCore } from "../lib/crypto/cryptoCore";
 import { STORAGE_KEYS } from "../constants";
 import { useAppStore } from "../store";
+import { getLockBlockDuration } from "../config/lockBackoff";
 
 export const useAppLock = () => {
   const appLockHashedPIN = useAppStore(s => s.appLockHashedPIN);
@@ -17,16 +18,6 @@ export const useAppLock = () => {
     try { return parseInt(localStorage.getItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL) || '0', 10) } catch { return 0 }
   });
   const [lockBlockTimer, setLockBlockTimer] = useState(0);
-
-  const getBlockDuration = (attempts: number): number => {
-    if (attempts <= 2) return 0;
-    if (attempts === 3) return 30000;
-    if (attempts === 4) return 60000;
-    if (attempts === 5) return 120000;
-    if (attempts === 6) return 300000;
-    if (attempts === 7) return 900000;
-    return Infinity;
-  };
 
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
@@ -66,7 +57,7 @@ export const useAppLock = () => {
       const newAttempts = lockAttempts + 1;
       setLockAttempts(newAttempts);
       localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, String(newAttempts));
-      const duration = getBlockDuration(newAttempts);
+      const duration = getLockBlockDuration(newAttempts);
       if (duration > 0 && duration !== Infinity) {
         const blockedUntil = Date.now() + duration;
         setLockBlockedUntil(blockedUntil);

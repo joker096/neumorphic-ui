@@ -79,7 +79,7 @@ function initSchema(): void {
       timestamp TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
-    CREATE TABLE IF NOT EXISTS logs (
+    CREATE TABLE IF NOT EXISTS audit_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       admin_id INTEGER NOT NULL REFERENCES admins(id),
       action TEXT NOT NULL,
@@ -123,6 +123,13 @@ export function getActiveConnectionCount(): number {
 export function resetDbForTests(): void {
   closeDb()
   if (fs.existsSync(DB_PATH)) {
-    fs.unlinkSync(DB_PATH)
+    try {
+      fs.unlinkSync(DB_PATH)
+    } catch (e: any) {
+      // On Windows, the file may be locked - that's okay for tests
+      if (e?.code !== 'EBUSY' && e?.code !== 'EPERM') {
+        throw e
+      }
+    }
   }
 }

@@ -4,10 +4,11 @@ import { SIGNALING_SEED_URLS } from "../config/signalling";
 import { SignallingManager } from "../lib/signaling/manager";
 import type { TunnelBackend } from "../lib/transport/wsTunnel";
 
-type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
+export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
 
 export const useAppConnection = () => {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionState>('disconnected');
+  const [regionBlocked, setRegionBlocked] = useState(false);
   const managerRef = useRef<SignallingManager | null>(null);
 
   useEffect(() => {
@@ -23,16 +24,22 @@ export const useAppConnection = () => {
     mgr.connect().catch(() => {
       setConnectionStatus('error');
       useAppStore.getState().setConnectionStatus('error');
+      useAppStore.getState().setBlockedBackends(['all']);
     });
 
     const unsub1 = mgr.onStateChange((state) => {
-      setConnectionStatus(state);
-      useAppStore.getState().setConnectionStatus(state);
+      const s = state as ConnectionState;
+      setConnectionStatus(s);
+      useAppStore.getState().setConnectionStatus(s);
       useAppStore.getState().setTransportBackend(mgr.getBackend());
       useAppStore.getState().setLatency(mgr.getLatency());
+      if (s === 'blocked' || s === 'error') {
+        useAppStore.getState().setBlockedBackends(['all']);
+      }
     });
 
     const unsub2 = mgr.onBlockedRegion(() => {
+      setRegionBlocked(true);
       useAppStore.getState().setRegionBlocked(true);
     });
 
@@ -43,5 +50,5 @@ export const useAppConnection = () => {
     };
   }, []);
 
-  return { connectionStatus, managerRef };
+  return { connectionStatus, regionBlocked, managerRef };
 };

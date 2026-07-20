@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAppStore } from '../store';
-import { encodeMorse } from '../components/chat-preview/MorseDecoder';
+import { encodeMorse } from '../components/MorseDecoder';
 import { isDNDEnabled, isPriorityContact, parseMentions } from '../constants';
 import { toast } from 'sonner';
 import { STORAGE_KEYS } from '../constants/storage';

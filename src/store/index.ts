@@ -8,12 +8,23 @@ import type { Contact, UserProfile } from '../types/contact';
 import { DEFAULT_BOT_PERMISSIONS } from './defaults';
 import type {
   BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage,
-  CloudSyncState, LocationShare, PhotoEditState, CallFolder, ScheduledMessage,
+  CloudSyncState, LocationShare, CallFolder, ScheduledMessage,
   ConnectionState, P2PChannel,
 } from './types';
 
 // Re-export types for consumers
-export type { BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage, CloudSyncState, LocationShare, PhotoEditState, CallFolder, ScheduledMessage, ConnectionState, P2PChannel } from './types';
+export type { BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage, CloudSyncState, LocationShare, CallFolder, ScheduledMessage, ConnectionState, P2PChannel } from './types';
+
+// Load persisted privacy/company settings from localStorage
+const savedPrivacy = (() => {
+  try {
+    const raw = localStorage.getItem('mess_privacy_settings_v2');
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {};
+})();
+
+const savedCompanyHide = localStorage.getItem('app_hide_when_office_only') === 'true';
 
 // --- Session master key ---
 let sessionMasterKey: CryptoKey | null = null;
@@ -81,12 +92,6 @@ export interface AppState {
   updateLocationShare: (id: string, updates: Partial<LocationShare>) => void;
   startLiveLocation: (chatId: string | number, durationMinutes: number) => void;
   stopLiveLocation: (chatId: string | number) => void;
-  photoEditState: PhotoEditState | null;
-  setPhotoEditState: (state: PhotoEditState | null) => void;
-  updatePhotoEditCrop: (crop: PhotoEditState['crop']) => void;
-  addPhotoEditDrawing: (drawing: PhotoEditState['drawings'][0]) => void;
-  addPhotoEditText: (text: PhotoEditState['textElements'][0]) => void;
-  resetPhotoEditor: () => void;
   setSoundEnabled: (enabled: boolean) => void;
   setSoundVolume: (volume: number) => void;
   setRadialDnd: (dnd: boolean) => void;
@@ -182,24 +187,24 @@ export const useAppStore = create<AppState>((set) => ({
   turnServerUrl: '',
   turnServerUser: '',
   turnServerPass: '',
-  anonymousMode: false,
-  ghostViewMode: false,
-  readReceipts: true,
-  typingIndicators: true,
-  stealthMode: false,
-  deliveryReceipts: true,
-  onlineStatus: true,
+  anonymousMode: savedPrivacy.anonymousMode ?? false,
+  ghostViewMode: savedPrivacy.ghostViewMode ?? false,
+  readReceipts: savedPrivacy.readReceipts ?? true,
+  typingIndicators: savedPrivacy.typingIndicators ?? true,
+  stealthMode: savedPrivacy.stealthMode ?? false,
+  deliveryReceipts: savedPrivacy.deliveryReceipts ?? true,
+  onlineStatus: savedPrivacy.onlineStatus ?? true,
   isOnline: true,
-  forwardAnonymization: false,
-  currentLanguage: 'en',
-  soundEnabled: true,
-  soundVolume: 0.7,
+  forwardAnonymization: savedPrivacy.forwardAnonymization ?? false,
+  currentLanguage: savedPrivacy.currentLanguage ?? 'en',
+  soundEnabled: savedPrivacy.soundEnabled ?? true,
+  soundVolume: savedPrivacy.soundVolume ?? 0.7,
   radialDnd: false,
   radialProxy: true,
   radialEnergy: false,
-  allowForwarding: true,
-  allowMetadata: true,
-  forwardCountLimit: 3,
+  allowForwarding: savedPrivacy.allowForwarding ?? true,
+  allowMetadata: savedPrivacy.allowMetadata ?? true,
+  forwardCountLimit: savedPrivacy.forwardCountLimit ?? 3,
   contactReadReceipts: {},
   toggleContactReadReceipt: (chatId, enabled) => set((state) => ({
     contactReadReceipts: { ...state.contactReadReceipts, [String(chatId)]: enabled }
@@ -274,20 +279,20 @@ export const useAppStore = create<AppState>((set) => ({
   stopLiveLocation: (chatId) => set((state) => ({
     locationShares: state.locationShares.map(s => s.chatId === chatId && s.isLive ? { ...s, isLive: false } : s)
   })),
-  photoEditState: null,
-  setPhotoEditState: (state) => set({ photoEditState: state }),
-  updatePhotoEditCrop: (crop) => set((state) => ({
-    photoEditState: state.photoEditState ? { ...state.photoEditState, crop } : null
-  })),
-  addPhotoEditDrawing: (drawing) => set((state) => ({
-    photoEditState: state.photoEditState ? { ...state.photoEditState, drawings: [...state.photoEditState.drawings, drawing] } : null
-  })),
-  addPhotoEditText: (text) => set((state) => ({
-    photoEditState: state.photoEditState ? { ...state.photoEditState, textElements: [...state.photoEditState.textElements, text] } : null
-  })),
-  resetPhotoEditor: () => set({ photoEditState: null }),
-  setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
-  setSoundVolume: (volume) => set({ soundVolume: volume }),
+  setSoundEnabled: (enabled) => {
+    set({ soundEnabled: enabled });
+    try {
+      const prev = JSON.parse(localStorage.getItem('mess_privacy_settings_v2') || '{}');
+      localStorage.setItem('mess_privacy_settings_v2', JSON.stringify({ ...prev, soundEnabled: enabled }));
+    } catch {}
+  },
+  setSoundVolume: (volume) => {
+    set({ soundVolume: volume });
+    try {
+      const prev = JSON.parse(localStorage.getItem('mess_privacy_settings_v2') || '{}');
+      localStorage.setItem('mess_privacy_settings_v2', JSON.stringify({ ...prev, soundVolume: volume }));
+    } catch {}
+  },
   setRadialDnd: (dnd) => set({ radialDnd: dnd }),
   setRadialProxy: (proxy) => set({ radialProxy: proxy }),
   setRadialEnergy: (energy) => set({ radialEnergy: energy }),
@@ -424,7 +429,7 @@ export const useAppStore = create<AppState>((set) => ({
     companySettings: s.companySettings ? { ...s.companySettings, name } : { name } as { name: string; logo?: string }
   })),
   setCompanySettings: (settings) => set({ companySettings: settings }),
-  hideWhenOfficeOnly: false,
+  hideWhenOfficeOnly: savedCompanyHide,
   pendingInvite: null,
   setCompanyId: (id) => set({ companyId: id }),
   setCompanyChannels: (channels) => set({ companyChannels: channels }),
@@ -451,7 +456,10 @@ export const useAppStore = create<AppState>((set) => ({
     }
   },
   setOnlineStatus: (status) => set({ onlineStatus: status, isOnline: status }),
-  setHideWhenOfficeOnly: (hide) => set({ hideWhenOfficeOnly: hide }),
+  setHideWhenOfficeOnly: (hide) => {
+    set({ hideWhenOfficeOnly: hide });
+    localStorage.setItem('app_hide_when_office_only', String(hide));
+  },
   initCompanyFromInvite: async (payload) => {
     const { initializeJoinFlow } = await import('../lib/company/onboarding/joinFlow');
     await initializeJoinFlow(payload, '');

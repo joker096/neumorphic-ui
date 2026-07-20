@@ -8,8 +8,8 @@ import { Clock, X } from "lucide-react";
 import { FormattedText } from "./FormattedText";
 
 export interface ScheduledMessage {
-  id: number;
-  chatId: string;
+  id: string | number;
+  chatId: string | number;
   text: string;
   type?: string;
   originalText?: string;
@@ -19,7 +19,7 @@ export interface ScheduledMessage {
 export interface ScheduledMessagesProps {
   messages: any[];
   chatScheduledMessages: ScheduledMessage[];
-  scheduledQueue: { removeMessage: (id: number) => void };
+  scheduledQueue: { removeMessage: (id: any) => void };
 }
 
 export const ScheduledMessages: React.FC<ScheduledMessagesProps> = ({

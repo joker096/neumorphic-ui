@@ -5,6 +5,7 @@ import { SubView } from '../ui/SubView';
 import { toast } from 'sonner';
 import { ConfirmModal } from './ConfirmModal';
 import { TextInputModal } from './TextInputModal';
+import { InfoModal } from './InfoModal';
 import { exportBackup, importBackup } from '../../lib/backup';
 import { useAppStore } from '../../store';
 import { getMasterKeySet } from '../../lib/identity/masterKey';
@@ -259,63 +260,17 @@ rightElement={
          cancelLabel={t('common.cancel')}
        />
 
-      {/* Backup Info Modal */}
-      {showBackupInfo && (
-        <div className={`fixed inset-0 z-[200] flex items-center justify-center p-4`}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowBackupInfo(false)} />
-          <div className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}>
-            <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('settings.exportBackup')}</h3>
-            <div className={`text-sm leading-relaxed space-y-3 mb-4 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-              <p>• {t('settings.backupHowToExport')}</p>
-              <p className="mt-2">• {t('settings.backupPasswordNote')}</p>
-              <p className="mt-2">• {t('settings.backupStoreSecurely')}</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowBackupInfo(false)}
-                className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}
-              >
-                {t('common.close')}
-              </button>
-              <button
-                onClick={() => { setShowBackupInfo(false); handleExport(); }}
-                className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-emerald-500 hover:bg-emerald-600 text-white`}
-              >
-                {t('settings.exportBackup')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <InfoModal isOpen={showBackupInfo} isDark={isDark} title={t('settings.exportBackup')} actionLabel={t('settings.exportBackup')} actionColor="emerald" onClose={() => setShowBackupInfo(false)} onAction={handleExport} t={t}>
+        <p>• {t('settings.backupHowToExport')}</p>
+        <p className="mt-2">• {t('settings.backupPasswordNote')}</p>
+        <p className="mt-2">• {t('settings.backupStoreSecurely')}</p>
+      </InfoModal>
 
-      {/* Import Info Modal */}
-      {showImportInfo && (
-        <div className={`fixed inset-0 z-[200] flex items-center justify-center p-4`}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowImportInfo(false)} />
-          <div className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}>
-            <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('settings.importBackup.title')}</h3>
-            <div className={`text-sm leading-relaxed space-y-3 mb-4 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-              <p>• {t('settings.importHowToImport')}</p>
-              <p className="mt-2">• {t('settings.importWarning')}</p>
-              <p className="mt-2">• {t('settings.importCurrentDataWiped')}</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowImportInfo(false)}
-                className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}
-              >
-                {t('common.close')}
-              </button>
-<button
-                 onClick={() => { setShowImportInfo(false); handleImport(); }}
-                 className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-amber-500 hover:bg-amber-600 text-white`}
-               >
-                 {t('settings.importBackup.title')}
-               </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <InfoModal isOpen={showImportInfo} isDark={isDark} title={t('settings.importBackup.title')} actionLabel={t('settings.importBackup.title')} actionColor="amber" onClose={() => setShowImportInfo(false)} onAction={handleImport} t={t}>
+        <p>• {t('settings.importHowToImport')}</p>
+        <p className="mt-2">• {t('settings.importWarning')}</p>
+        <p className="mt-2">• {t('settings.importCurrentDataWiped')}</p>
+      </InfoModal>
     </SubView>
   );
 };

@@ -12,11 +12,11 @@ vi.mock('../../contexts/ThemeContext', () => ({
   useTheme: () => ({ isDark: true, theme: 'dark', toggleTheme: vi.fn() }),
 }));
 
-vi.mock('./LiveVoiceRecorder', () => ({
+vi.mock('../LiveVoiceRecorder', () => ({
   LiveVoiceRecorder: () => <div>LiveVoiceRecorder</div>,
 }));
 
-vi.mock('./MorseDecoder', () => ({
+vi.mock('../MorseDecoder', () => ({
   encodeMorse: (s: string) => s.split('').join(' '),
 }));
 

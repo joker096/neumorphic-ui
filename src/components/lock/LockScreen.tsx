@@ -121,6 +121,8 @@ export function LockScreen({
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value)}
               autoFocus
+              autoComplete="off"
+              inputMode="numeric"
               className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 focus:outline-none transition-colors ${
                 isDark
                   ? "bg-[#16181d] border-white/10 focus:border-orange-500/50"

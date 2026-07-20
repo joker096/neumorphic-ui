@@ -14,7 +14,6 @@ const INPUTMODE_MAP: Record<string, React.InputHTMLAttributes<HTMLInputElement>[
   url: 'url',
   search: 'search',
   number: 'numeric',
-  password: 'text',
 };
 
 export function Input({
@@ -24,6 +23,7 @@ export function Input({
   autoComplete,
   inputMode,
   error,
+  required,
   ...rest
 }: InputProps) {
   const base = {
@@ -39,6 +39,7 @@ export function Input({
         type={type}
         autoComplete={autoComplete}
         inputMode={resolvedInputMode}
+        required={required}
         className={
           "rounded-lg px-3 py-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2" +
           " " +

@@ -5,9 +5,9 @@
 import React, { useState, useRef } from "react";
 import { Clock, X, Smile, Mic, ChevronRight } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
-import { LiveVoiceRecorder } from "./LiveVoiceRecorder";
+import { LiveVoiceRecorder } from "../LiveVoiceRecorder";
 import { StickerPicker } from "../chat/StickerPicker";
-import { encodeMorse } from "./MorseDecoder";
+import { encodeMorse } from "../MorseDecoder";
 import { FormattedText } from "./FormattedText";
 import { useTheme } from "../../contexts/ThemeContext";
 

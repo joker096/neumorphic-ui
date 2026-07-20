@@ -44,7 +44,7 @@ describe('Button', () => {
     const { container } = render(<Button size="sm">Small</Button>);
     const btn = container.querySelector('button');
     expect(btn?.className).toContain('px-3');
-    expect(btn?.className).toContain('py-1.5');
+    expect(btn?.className).toContain('py-2.5');
   });
 
   it('renders with size lg classes', () => {

@@ -1,0 +1,300 @@
+import React, { useRef } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  BellOff, Bookmark, Check, CheckCheck, Play, Plus,
+} from "lucide-react";
+import { getICQStickerSrc } from "../../lib/icqEmojis";
+import { FormattedText } from "./FormattedText";
+import { Tooltip } from "../Tooltip";
+import { VoiceWaveform } from "./VoiceWaveform";
+import { useI18n } from "../../lib/i18n";
+import { fuzzTime, getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
+
+const AVAILABLE_EMOJIS = ["👍", "❤️", "😂", "🔥", "😢", "🎉"];
+
+interface ChatMessageProps {
+  msg: any;
+  isMe: boolean;
+  isDark: boolean;
+  isChannel?: boolean;
+  chat: any;
+  stealthMode: boolean;
+  deliveryReceipts: boolean;
+  readReceipts: boolean;
+  chatSavedMessages: any[];
+  searchQuery: string;
+  swipeReplyId: string | number | null;
+  activeReactionPicker: string | number | null;
+  theme: "light" | "dark";
+  onReply: (msg: any) => void;
+  onToggleSavedMessage: (chat: any, msg: any) => void;
+  onSetActivePhotoUrl: (url: string) => void;
+  onSetPhotoOpen: (open: boolean) => void;
+  onSetActiveReactionPicker: (id: string | number | null) => void;
+  onSwipeReplyId: (id: string | number | null) => void;
+  onSetVideoOpen: (open: boolean) => void;
+  onSetShowComments: (show: boolean) => void;
+  onSetActivePostId: (id: number | null) => void;
+  onSetBounceMsgId: (id: string | number | null) => void;
+  onReactionMessage: (msgId: string | number, emoji: string) => void;
+  onAction?: (action: string) => void;
+}
+
+export function ChatMessage({
+  msg, isMe, isDark, isChannel, chat, stealthMode,
+  deliveryReceipts, readReceipts, chatSavedMessages, searchQuery,
+  swipeReplyId, activeReactionPicker, theme,
+  onReply, onToggleSavedMessage,
+  onSetActivePhotoUrl, onSetPhotoOpen,
+  onSetActiveReactionPicker, onSwipeReplyId,
+  onSetVideoOpen, onSetShowComments, onSetActivePostId,
+  onSetBounceMsgId, onReactionMessage, onAction,
+}: ChatMessageProps) {
+  const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
+  const { t } = useI18n();
+
+  if (msg._isDateSeparator) {
+    return (
+      <div className="sticky top-0 z-10 flex items-center gap-3 py-2" key={msg.id}>
+        <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+        <span className={`text-[11px] font-bold uppercase tracking-widest shrink-0 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+          {msg._dateLabel}
+        </span>
+        <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+      </div>
+    );
+  }
+
+  const stickerSrc = msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null;
+  const bubbleCornerClass = getBubbleCornerClass(msg._groupPosition as GroupPosition, isMe);
+
+  return (
+    <motion.div
+      layout
+      key={msg.id}
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{
+        opacity: 1, y: 0, scale: 1,
+      }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      drag={!isMe ? "x" : false}
+      dragConstraints={!isMe ? { left: 0, right: 80 } : undefined}
+      dragElastic={!isMe ? 0.1 : undefined}
+      onDragEnd={!isMe ? (_: any, info: any) => {
+        if (info.offset.x > 60) onReply(msg);
+        onSwipeReplyId(null);
+      } : undefined}
+      onDrag={!isMe ? (_: any, info: any) => {
+        onSwipeReplyId(info.offset.x > 10 ? msg.id : null);
+      } : undefined}
+      className={`flex flex-col w-full group relative ${isMe ? "items-end" : "items-start"} ${msg._isLastInGroup !== false ? "mb-4" : "mb-1"}`}
+    >
+      {!isMe && swipeReplyId === msg.id && (
+        <div className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r-full bg-blue-500 z-10" />
+      )}
+      <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
+        <div
+          onClick={() => {
+            const now = Date.now();
+            if (now - lastTapRef.current.time < 300 && lastTapRef.current.msgId === msg.id) {
+              onReactionMessage(msg.id, '👍');
+              onSetBounceMsgId(msg.id);
+              setTimeout(() => onSetBounceMsgId(null), 300);
+              lastTapRef.current = { time: 0, msgId: 0 };
+            } else {
+              lastTapRef.current = { time: now, msgId: msg.id };
+            }
+          }}
+          className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${
+            isMe
+              ? isDark
+                ? "bg-orange-600/20 text-orange-50 border border-orange-500/30 shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
+                : "bg-gradient-to-br from-orange-400 to-orange-500 text-white shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
+              : isDark
+                ? "bg-[#1a1d24] text-gray-300 border border-white/5 shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
+                : "bg-white text-slate-700 border border-black/5 shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
+          }`}
+        >
+          {msg.type === "image" && (
+            <div
+              className="rounded-xl overflow-hidden mb-1 relative border border-white/10 cursor-pointer"
+              onClick={() => { onSetActivePhotoUrl(msg.attachment || msg.url); onSetPhotoOpen(true); }}
+            >
+              <img src={msg.attachment || msg.url} alt="Shared" className="w-full h-auto object-cover max-h-[240px] sm:max-h-[280px] md:max-h-[320px]" />
+            </div>
+          )}
+          {msg.type === "video" && (
+            <div
+              className="rounded-[14px] overflow-hidden mb-1 relative border border-white/10 group cursor-pointer"
+              onClick={() => onSetVideoOpen(true)}
+            >
+              <img src={msg.thumb} alt="Video thumbnail" className="w-full h-auto sm:w-[180px] sm:h-[100px] md:w-[200px] md:h-[120px] object-cover opacity-80" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  <Play size={20} className="text-white fill-white ml-1" />
+                </div>
+              </div>
+              <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded text-[10px] font-bold text-white tracking-wider">{msg.duration}</div>
+            </div>
+          )}
+          {msg.type === "audio" && (
+            <VoiceWaveform duration={msg.duration} isMe={isMe} isDark={isDark} audioUrl={msg.audioUrl} />
+          )}
+          {msg.type === "sticker" && (
+            <div className="flex items-center justify-center">
+              {stickerSrc ? (
+                <img src={stickerSrc} alt="Sticker" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
+              ) : (
+                <span className="text-4xl">{msg.text}</span>
+              )}
+            </div>
+          )}
+          {msg.type === "image" && (
+            <div className={`mb-2 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}>
+              <span>{t('chat.filters.photo')}</span>
+              {msg.attachment && <span className="opacity-70">{t('chat.filters.ready')}</span>}
+            </div>
+          )}
+          {msg.replyTo && (
+            <div className={`mb-2 px-3 py-2 rounded-xl border-l-2 text-[12px] ${isDark ? "bg-white/5 border-orange-400 text-gray-300" : "bg-black/5 border-orange-500 text-slate-600"}`}>
+              <div className="font-bold text-[10px] uppercase tracking-widest opacity-70 mb-1">
+                Replying to {msg.replyTo.sender === "me" ? "your message" : msg.replyTo.sender}
+              </div>
+              <div className="line-clamp-2">{msg.replyTo.text || (msg.replyTo.type === "audio" ? `Voice note · ${msg.replyTo.duration || ""}` : "Attachment")}</div>
+            </div>
+          )}
+          {msg.text && msg.type !== "sticker" && (
+            <span className={`px-2 pb-1 block ${msg.type ? "font-medium" : ""}`}>
+              <FormattedText text={msg.text} searchTerm={searchQuery} />
+            </span>
+          )}
+          {msg.text && typeof msg.text === "string" && /https?:\/\/[^\s]+/i.test(msg.text) && (
+            <div className={`mt-2 p-2 rounded-xl border text-[11px] ${isDark ? "bg-white/5 border-white/10 text-gray-300" : "bg-slate-50 border-black/5 text-slate-600"}`}>
+              <div className="font-bold uppercase tracking-widest text-[9px] opacity-70 mb-1">{t('chat.linkPreview')}</div>
+              <div className="break-all line-clamp-2">{msg.text.match(/https?:\/\/[^\s]+/i)?.[0]}</div>
+            </div>
+          )}
+          {msg.keyboard && (
+            <div className="flex flex-col gap-1.5 mt-3 mb-1 w-full shrink-0">
+              {msg.keyboard.map((row: any[], i: number) => (
+                <div key={i} className="flex gap-1.5 w-full">
+                  {row.map((btn: any, j: number) => (
+                    <button
+                      key={j}
+                      onClick={() => { if (onAction) onAction(btn.action || btn.text); }}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[#2a2d36] hover:bg-[#343842] text-white border border-white/5" : "bg-[#f4f7f9] hover:bg-slate-200 text-slate-700 border border-black/5"}`}
+                    >
+                      {btn.text}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+          {msg._isLastInGroup && (
+            <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] font-bold tracking-wide opacity-70 ${isMe && !isDark ? "text-orange-100" : ""} ${msg.type ? "px-2" : ""}`}>
+              {msg.silent && <BellOff size={10} className="mr-0.5 opacity-60" />}
+              {stealthMode ? fuzzTime(msg.time, msg.id) : msg.time}
+              {isMe && (
+                <span className="inline-flex items-center">
+                  <AnimatePresence mode="wait">
+                    {(!deliveryReceipts || msg.status === 'sent') && (
+                      <motion.span key="sent" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.15 }}>
+                        <Check size={12} strokeWidth={2.5} />
+                      </motion.span>
+                    )}
+                    {deliveryReceipts && msg.status === 'delivered' && (
+                      <motion.span key="delivered" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.15 }}>
+                        <CheckCheck size={12} strokeWidth={2.5} />
+                      </motion.span>
+                    )}
+                    {deliveryReceipts && readReceipts && msg.status === 'read' && (
+                      <motion.span key="read" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                        <CheckCheck size={12} strokeWidth={2.5} className={isDark ? 'text-blue-400' : 'text-blue-500'} />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </span>
+              )}
+            </div>
+          )}
+          {msg._isLastInGroup && (
+            <div className={`mt-1.5 flex items-center gap-1.5 sm:gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
+              {!isChannel && (
+                <button onClick={() => onReply(msg)} className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors ${isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-black/5"}`}>
+                  {t('chat.reply')}
+                </button>
+              )}
+              {!isChannel && (
+                <button onClick={() => onToggleSavedMessage(chat, msg)} className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors flex items-center gap-1 ${isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-black/5"}`}>
+                  <Bookmark size={10} />
+                  {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? t('chat.saved') : t('chat.save')}
+                </button>
+              )}
+            </div>
+          )}
+          {isChannel && (
+            <div
+              className={`flex items-center gap-1 mt-2 -mb-1 px-1 py-1 rounded-lg cursor-pointer ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-500 hover:text-slate-800"} transition-colors w-max`}
+              onClick={() => { onSetActivePostId(msg.id); onSetShowComments(true); }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+              </svg>
+              <span className="text-[11px] font-medium tracking-wide">{msg.id === 402 ? "45 Comments" : "Leave a Comment"}</span>
+            </div>
+          )}
+        </div>
+        <div
+          className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-white" : "bg-white text-slate-400 hover:text-slate-800"} w-10 h-10 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-black/5`}
+          onClick={() => onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
+          aria-label="Reactions"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id); }}
+        >
+          <Plus size={16} />
+        </div>
+        <AnimatePresence>
+          {activeReactionPicker === msg.id && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, x: isMe ? 10 : -10 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.9, x: isMe ? 10 : -10 }}
+              className={`absolute top-1/2 -translate-y-1/2 ${isMe ? "right-[calc(100%+8px)] mr-0" : "left-[calc(100%+8px)] ml-0"} z-20 flex bg-black/80 backdrop-blur-md rounded-full shadow-xl px-1 py-1`}
+            >
+              {AVAILABLE_EMOJIS.map(emoji => (
+                <button
+                  key={emoji}
+                  type="button"
+                  className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
+                  onClick={() => onReactionMessage(msg.id, emoji)}
+                  aria-label={emoji}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+        <div className="flex gap-1.5 mt-1 z-10 relative">
+          {Object.entries(msg.reactions).map(([emoji, count]) => (
+            <React.Fragment key={emoji}>
+              <Tooltip content={`${count === 1 ? 'You' : count + ' users'} reacted with ${emoji}`} position="top" theme={isDark ? 'dark' : 'light'}>
+                <div
+                  className={`rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center cursor-help group select-none border transition-colors ${isDark ? "bg-[#1a1d24] text-gray-300 border-white/5 hover:border-white/20 hover:bg-[#20242e]" : "bg-white text-slate-700 border-black/5 hover:bg-slate-50 hover:border-black/10"}`}
+                  onClick={() => onReactionMessage(msg.id, emoji)}
+                >
+                  {emoji}
+                  <span className={`ml-1.5 text-[11px] font-bold ${isDark ? "opacity-60" : "opacity-80"}`}>{String(count)}</span>
+                </div>
+              </Tooltip>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+}

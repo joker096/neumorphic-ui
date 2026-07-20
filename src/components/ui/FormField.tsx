@@ -19,6 +19,7 @@ interface FormFieldProps {
   iconTooltip?: string
   monospace?: boolean
   maxLength?: number
+  required?: boolean
   onKeyDown?: (e: React.KeyboardEvent) => void
 }
 
@@ -55,6 +56,7 @@ export const FormField = ({
   iconTooltip,
   monospace,
   maxLength,
+  required,
   onKeyDown,
 }: FormFieldProps) => {
   const isDark = theme === 'dark'
@@ -74,6 +76,7 @@ export const FormField = ({
           autoFocus={autoFocus}
           autoComplete={autoComplete}
           inputMode={inputMode}
+          required={required}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value.slice(0, maxLength || 999))}

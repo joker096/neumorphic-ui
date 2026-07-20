@@ -102,7 +102,7 @@ export const CallHistorySheet = ({ open, onClose, onCall, theme = 'dark' }: Prop
                       </div>
                       <button
                         onClick={() => { onCall(entry.name); onClose() }}
-                        className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' : 'bg-green-500/10 text-green-600 hover:bg-green-500/20'}`}
+                        className={`shrink-0 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' : 'bg-green-500/10 text-green-600 hover:bg-green-500/20'}`}
                       >
                         <Phone size={14} fill="currentColor" />
                       </button>

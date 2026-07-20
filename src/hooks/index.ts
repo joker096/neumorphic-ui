@@ -15,3 +15,6 @@ export { useAppView } from './useAppView';
 export { useChatInteraction } from './useChatInteraction';
 export { useConnectionSetup } from './useConnectionSetup';
 export { useKeyboardScroll } from './useKeyboardScroll';
+export { useChatPreviewState } from './useChatPreviewState';
+export { useChatPreviewTyping } from './useChatPreviewTyping';
+export { useVoiceWaveformAudio } from './useVoiceWaveformAudio';

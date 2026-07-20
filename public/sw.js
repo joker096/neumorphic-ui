@@ -195,30 +195,34 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  function shouldCache(method) {
+    return method === 'GET';
+  }
+
   // App shell: cache-first with offline fallback
   if (url.pathname === '/' || url.pathname === '/index.html') {
     event.respondWith(
       caches.open(APP_CACHE).then(async (cache) => {
-        // Try cache first
         const cachedResponse = await cache.match(request);
         if (cachedResponse) {
-          // Stale-while-fetch: serve from cache, update in background
-          fetch(request, { cache: 'no-cache' })
-            .then((networkResponse) => {
-              if (networkResponse) {
-                cache.put(request, networkResponse.clone());
-              }
-            })
-            .catch(() => {});
+          if (shouldCache(request.method)) {
+            fetch(request, { cache: 'no-cache' })
+              .then((networkResponse) => {
+                if (networkResponse) {
+                  cache.put(request, networkResponse.clone());
+                }
+              })
+              .catch(() => {});
+          }
           return cachedResponse;
         }
-        // No cache: fetch from network
         try {
           const response = await fetch(request);
-          cache.put(request, response.clone());
+          if (shouldCache(request.method)) {
+            cache.put(request, response.clone());
+          }
           return response;
         } catch {
-          // Offline: return offline page
           return caches.match('/offline.html');
         }
       })
@@ -247,19 +251,21 @@ self.addEventListener('fetch', (event) => {
       caches.open(DATA_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         if (cached) {
-          // Serve stale cache, fetch fresh in background
-          fetch(request, { cache: 'no-cache' })
-            .then((freshResponse) => {
-              if (freshResponse) {
-                cache.put(request, freshResponse.clone());
-              }
-            })
-            .catch(() => {});
+          if (shouldCache(request.method)) {
+            fetch(request, { cache: 'no-cache' })
+              .then((freshResponse) => {
+                if (freshResponse) {
+                  cache.put(request, freshResponse.clone());
+                }
+              })
+              .catch(() => {});
+          }
           return cached;
         }
-        // No cache: fetch from network
         return fetch(request).then((response) => {
-          cache.put(request, response.clone());
+          if (shouldCache(request.method)) {
+            cache.put(request, response.clone());
+          }
           return response;
         });
       })
@@ -273,20 +279,22 @@ self.addEventListener('fetch', (event) => {
       caches.open(DATA_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         if (cached) {
-          // Try to update in background
-          fetch(request, { cache: 'no-cache' })
-            .then((networkResponse) => {
-              if (networkResponse) {
-                cache.put(request, networkResponse.clone());
-              }
-            })
-            .catch(() => {});
+          if (shouldCache(request.method)) {
+            fetch(request, { cache: 'no-cache' })
+              .then((networkResponse) => {
+                if (networkResponse) {
+                  cache.put(request, networkResponse.clone());
+                }
+              })
+              .catch(() => {});
+          }
           return cached;
         }
-        // Not cached: fetch from network and cache
         try {
           const response = await fetch(request);
-          cache.put(request, response.clone());
+          if (shouldCache(request.method)) {
+            cache.put(request, response.clone());
+          }
           return response;
         } catch {
           return new Response('', { status: 404 });

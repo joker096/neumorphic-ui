@@ -127,10 +127,6 @@ export class P2PTransport {
   }
 
   async call(peerPublicKey: string): Promise<void> {
-    if (!this.signalingWs || this.signalingWs.readyState !== WebSocket.OPEN) {
-      throw new Error('Not connected to signaling server. Call connect() first.')
-    }
-
     this.peerPublicKey = peerPublicKey
     this.hmacKey = await HMACAuth.generateKey()
 

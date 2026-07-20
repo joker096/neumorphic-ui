@@ -1,9 +1,9 @@
 import React from "react";
 import { X, BellOff, Clock, ChevronRight, Mic, Smile, Plus } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
-import { LiveVoiceRecorder } from "./LiveVoiceRecorder";
+import { LiveVoiceRecorder } from "../LiveVoiceRecorder";
 import { StickerPicker } from "../chat/StickerPicker";
-import { encodeMorse } from "./MorseDecoder";
+import { encodeMorse } from "../MorseDecoder";
 
 interface ChatInputAreaProps {
   isDark: boolean;
@@ -92,10 +92,10 @@ export const ChatInputArea = ({
           <>
             <div className="relative group">
               <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10" onChange={(e) => { handleImageAttach(e, chat, onUpdateChat, eSilentMode); e.target.value = ''; }} />
-              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200"}`}><Plus size={16} /></div>
+              <div className={`min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200"}`}><Plus size={16} /></div>
             </div>
-            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eScheduleDateTime ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200")}`} onClick={() => setShowSchedulePopupFn2(!eShowSchedulePopup)}><Clock size={16} /></div>
-            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eShowStickerPicker ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200")}`} onClick={() => setShowStickerPickerFn2(!eShowStickerPicker)}><Smile size={16} /></div>
+            <div className={`min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eScheduleDateTime ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200")}`} onClick={() => setShowSchedulePopupFn2(!eShowSchedulePopup)}><Clock size={16} /></div>
+            <div className={`min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eShowStickerPicker ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white hover:bg-white/5" : "bg-[#f4f7f9] text-slate-500 hover:text-slate-800 hover:bg-slate-200")}`} onClick={() => setShowStickerPickerFn2(!eShowStickerPicker)}><Smile size={16} /></div>
           </>
         )}
         <div className={`flex-1 min-w-0 h-11 sm:h-12 rounded-full px-3 sm:px-4 flex items-center relative ${isDark ? "bg-[#13151b] border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]" : "bg-[#f4f7f9] border border-black/5 shadow-[inset_2px_2px_4px_rgba(165,175,190,0.2)]"}`}>
@@ -110,7 +110,7 @@ export const ChatInputArea = ({
           onClick={() => { if (eMsgText) sendMessage(); else { setVoiceNoteErrFn2(""); setIsRecordingVoiceFn2(true); } }}
           onPointerDown={() => { if (!eMsgText) { setVoiceNoteErrFn2(""); setIsRecordingVoiceFn2(true); } }}
           onContextMenu={(e) => e.preventDefault()}
-          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${eScheduleDateTime && eMsgText ? (isDark ? "bg-blue-600 text-white" : "bg-blue-500 text-white") : (eMsgText ? (isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950") : (isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20"))}`}
+          className={`min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${eScheduleDateTime && eMsgText ? (isDark ? "bg-blue-600 text-white" : "bg-blue-500 text-white") : (eMsgText ? (isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950") : (isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20"))}`}
         >
           {eMsgText ? (eScheduleDateTime ? <Clock size={16} /> : <ChevronRight size={18} />) : <Mic size={18} />}
         </div>

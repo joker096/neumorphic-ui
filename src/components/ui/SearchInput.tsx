@@ -87,7 +87,7 @@ export function SearchInput({
       ? 'text-gray-500 hover:text-white hover:bg-white/10'
       : 'text-slate-400 hover:text-slate-800 hover:bg-black/10'
 
-    const btnClass = `shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors ${actionBtn}`
+    const btnClass = `shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
 
     return (
       <div
@@ -143,7 +143,7 @@ export function SearchInput({
   const actionBtn = isDark
     ? 'text-gray-500 hover:text-white hover:bg-white/10'
     : 'text-slate-400 hover:text-slate-800 hover:bg-black/10'
-  const btnClass = `shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors ${actionBtn}`
+  const btnClass = `shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
   const borderFocus = 'focus-within:border-orange-500/50'
 
   return (

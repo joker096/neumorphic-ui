@@ -16,7 +16,7 @@ export function PageHeader({ title, onBack, right, className = '', subtitle, ava
       {onBack && (
         <button
           onClick={onBack}
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-white/10 hover:bg-white/20 active:bg-white/30"
+          className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all bg-white/10 hover:bg-white/20 active:bg-white/30"
         >
           <ChevronLeft size={20} className="text-[var(--text-primary)]" />
         </button>

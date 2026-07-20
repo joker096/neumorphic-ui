@@ -12,6 +12,10 @@ export class SignallingManager {
   private blockedRegionCallbacks: Set<(event: BlockedRegionEvent) => void> = new Set();
   private latencyMs: number = 0;
   private backend: TunnelBackend = 'direct';
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 10;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private disposed = false;
 
   constructor(seedUrls: string[], backend?: TunnelBackend) {
     this.pool = new SignallingPool(seedUrls);
@@ -33,6 +37,7 @@ export class SignallingManager {
   }
 
   async connect(): Promise<void> {
+    if (this.disposed) return;
     this.setState('connecting');
     const url = this.pool.getNextAvailable();
     if (!url) {
@@ -51,24 +56,42 @@ export class SignallingManager {
       this.latencyMs = Date.now() - start;
       this.pool.markActive(url, this.latencyMs);
       this.setState('connected');
+      this.reconnectAttempts = 0;
 
       this.tunnel.onClose(() => {
-        this.setState('disconnected');
         this.pool.markFailed(url);
-        this.connect();
+        this.scheduleReconnect();
       });
       this.tunnel.onError(() => {
         this.pool.markFailed(url);
-        this.connect();
+        this.scheduleReconnect();
       });
     } catch {
       this.latencyMs = Date.now() - start;
       this.pool.markFailed(url);
-      await this.connect();
+      this.scheduleReconnect();
     }
   }
 
+  private scheduleReconnect(): void {
+    if (this.disposed) return;
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      this.setState('error');
+      return;
+    }
+    this.reconnectAttempts++;
+    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts - 1), 30000);
+    this.reconnectTimer = setTimeout(() => {
+      if (!this.disposed) this.connect();
+    }, delay);
+  }
+
   disconnect(): void {
+    this.disposed = true;
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
     this.tunnel?.close();
     this.tunnel = null;
     this.setState('disconnected');

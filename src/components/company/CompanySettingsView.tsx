@@ -87,7 +87,7 @@ export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClos
             </label>
             <div className="flex items-center gap-3">
               {f.icon && (
-                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[--text-secondary]">
+                <div className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[--text-secondary]">
                   {React.createElement(f.icon, { size: 16 })}
                 </div>
               )}

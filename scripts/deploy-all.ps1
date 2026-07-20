@@ -79,11 +79,18 @@ if (-not $SkipBuild) {
       npx vitest run
       if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
     }
-    Write-Host "  Building main SPA..." -ForegroundColor Yellow
-    npm run build
+   Write-Host "  Building main SPA..." -ForegroundColor Yellow
+     npm run build
     if ($LASTEXITCODE -ne 0) { throw "Main SPA build failed" }
+    # Add cache-busting version parameter to index.html
+    $timestamp = [int](Get-Date -UFormat %s)
+    $indexPath = "$RootDir/dist/index.html"
+    if (Test-Path $indexPath) {
+      (Get-Content $indexPath) -replace 'index\.html([^"]*)', 'index.html?v=$timestamp' | Set-Content $indexPath
+      Write-Host "  ✓ Added cache-busting to index.html" -ForegroundColor Green
+    }
     Write-Host "  ✓ Main SPA built" -ForegroundColor Green
-  } finally { Pop-Location }
+   } finally { Pop-Location }
 
   Write-Host "`n━━━ [2/5] Build Admin Panel ━━━" -ForegroundColor Cyan
   Push-Location $AdminDir
@@ -144,20 +151,29 @@ if (-not $SkipWebDeploy) {
   ssh $Server "mkdir -p $WebRoot" 2>&1 | Out-Null
 
   Write-Host "  Uploading web files..." -ForegroundColor Yellow
-  Push-Location $DistDir
-  try {
-    ssh $Server "mkdir -p $WebRoot/admin"
-    tar cf - . | ssh $Server "tar xf - -C $WebRoot"
-    if ($LASTEXITCODE -ne 0) { throw "Web file upload failed" }
-    Write-Host "  ✓ Web files uploaded to $WebRoot" -ForegroundColor Green
-  } finally { Pop-Location }
+    Push-Location $DistDir
+    try {
+      # Remove ALL files including hidden ones from the target directory
+      ssh $Server "rm -rf $WebRoot/* 2>/dev/null; rm -rf $WebRoot/.* 2>/dev/null; mkdir -p $WebRoot"
+      # Upload using tar with --overwrite to handle any conflicts
+      tar cf - . --exclude=./.git --exclude=./.DS_Store --exclude=./.gitignore | ssh $Server "tar xf - -C $WebRoot --overwrite" 2>$null
+      if ($LASTEXITCODE -ne 0) { throw "Web file upload failed" }
+      Write-Host "  ✓ Web files uploaded to $WebRoot" -ForegroundColor Green
+    } finally { Pop-Location }
 
-  $status = ssh $Server "curl -s -o /dev/null -w '%{http_code}' https://mess.cvr.name/ --connect-timeout 10" 2>&1
-  if ($status -eq "200") {
-    Write-Host "  ✓ Site responding: HTTPS 200" -ForegroundColor Green
-  } else {
-    Write-Host "  ⚠ Site status: $status" -ForegroundColor Yellow
-  }
+# Post-deploy: inject nginx cache-busting headers to prevent stale index.html
+    Write-Host "  Applying nginx cache-busting..." -ForegroundColor Yellow
+    ssh $Server '
+      sed -i "/location \//a\        add_header Cache-Control \"no-cache\";" /etc/nginx/conf.d/mess.conf
+      nginx -t 2>/dev/null && nginx -s reload 2>/dev/null
+    ' 2>&1 | Out-Null
+    
+    $status = ssh $Server "curl -s -o /dev/null -w '%{http_code}' https://mess.cvr.name/ --connect-timeout 10" 2>&1
+    if ($status -eq "200") {
+      Write-Host "  ✓ Site responding: HTTPS 200" -ForegroundColor Green
+    } else {
+      Write-Host "  ⚠ Site status: $status" -ForegroundColor Yellow
+    }
 } else {
   Write-Host "`n━━━ Web deploy skipped (-SkipWebDeploy) ━━━" -ForegroundColor Yellow
 }

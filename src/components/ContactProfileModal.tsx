@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Phone, Video, MessageSquare, Edit, Trash2, Ban, Mail, Send, Star, StarOff, MoreVertical, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { X, Phone, Video, MessageSquare, Edit, Trash2, Ban, Mail, Send, Star, StarOff, MoreVertical, ShieldCheck } from 'lucide-react';
 import { useAppStore } from '../store';
 import { useI18n } from '../lib/i18n';
-import { computeSafetyNumber, computeVerificationLevel, getVerificationColor } from '../lib/crypto/safetyNumber';
+import { ConfirmDialog } from './ui/ConfirmDialog';
+import { SafetyNumberModal } from './SafetyNumberModal';
 import type { ContactField } from '../types/contact';
 
 export type ContactProfile = {
@@ -43,104 +44,35 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const [confirmAction, setConfirmAction] = useState<'delete' | 'block' | null>(null);
   const [showActions, setShowActions] = useState(false);
   const [showSafetyNumber, setShowSafetyNumber] = useState(false);
-  const [safetyNumber, setSafetyNumber] = useState('');
-  const [verifyLevel, setVerifyLevel] = useState(0);
 
-  useEffect(() => {
-    if (showSafetyNumber && contact && myPeerId) {
-      computeSafetyNumber(myPeerId, contact.id).then(setSafetyNumber)
-    }
-  }, [showSafetyNumber, contact, myPeerId])
-
-  useEffect(() => {
-    if (safetyNumber) {
-      setVerifyLevel(computeVerificationLevel(safetyNumber))
-    }
-  }, [safetyNumber])
-
-  const requestDelete = () => {
-    onRequestDelete?.();
-    setConfirmAction('delete');
-  };
-
-  const requestBlock = () => {
-    setConfirmAction('block');
-  };
-
-  const handleDelete = () => {
-    onDelete?.();
-    onClose();
-    setConfirmAction(null);
-  };
-
-  const handleBlock = () => {
-    onBlock?.();
-    onClose();
-    setConfirmAction(null);
-  };
-
-  const handleToggleFavorite = (id: string, currentStatus: boolean) => {
-    onToggleFavorite?.(id, !currentStatus);
-  };
+  const handleDelete = () => { onDelete?.(); onClose(); setConfirmAction(null); };
+  const handleBlock = () => { onBlock?.(); onClose(); setConfirmAction(null); };
+  const handleToggleFavorite = (id: string, currentStatus: boolean) => onToggleFavorite?.(id, !currentStatus);
 
   return (
     <AnimatePresence>
-      {confirmAction === 'delete' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-        >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmAction(null)} />
-          <motion.div
-             initial={{ opacity: 0, scale: 0.92, y: 20 }}
-             animate={{ opacity: 1, scale: 1, y: 0 }}
-             exit={{ opacity: 0, scale: 0.92, y: 20 }}
-             className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
-             onClick={(event) => event.stopPropagation()}
-           >
-             <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.deleteContact')}</h3>
-             <p className={`text-sm mb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('contacts.confirmDeleteMessage', { name: contact?.name || '' })}</p>
-             <div className="flex gap-3">
-               <button onClick={() => setConfirmAction(null)} className={`flex-1 h-11 rounded-xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
-                 {t('contacts.close')}
-               </button>
-               <button onClick={handleDelete} className="flex-1 h-11 rounded-xl text-sm font-bold transition-colors active:scale-95 bg-red-500 hover:bg-red-600 text-white">
-                 {t('contacts.deleteContact')}
-               </button>
-             </div>
-           </motion.div>
-        </motion.div>
-      )}
-      {confirmAction === 'block' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-        >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmAction(null)} />
-         <motion.div
-             initial={{ opacity: 0, scale: 0.92, y: 20 }}
-             animate={{ opacity: 1, scale: 1, y: 0 }}
-             exit={{ opacity: 0, scale: 0.92, y: 20 }}
-             className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
-             onClick={(event) => event.stopPropagation()}
-           >
-             <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.blockSpammer')}</h3>
-             <p className={`text-sm mb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('contacts.confirmBlockMessage', { name: contact?.name || '' })}</p>
-             <div className="flex gap-3">
-               <button onClick={() => setConfirmAction(null)} className={`flex-1 h-11 rounded-xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
-                 {t('contacts.close')}
-               </button>
-               <button onClick={handleBlock} className="flex-1 h-11 rounded-xl text-sm font-bold transition-colors active:scale-95 bg-red-500 hover:bg-red-600 text-white">
-                 {t('contacts.blockSpammer')}
-               </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
+      <ConfirmDialog
+        isOpen={confirmAction === 'delete'}
+        title={t('contacts.deleteContact')}
+        message={t('contacts.confirmDeleteMessage', { name: contact?.name || '' })}
+        confirmLabel={t('contacts.deleteContact')}
+        cancelLabel={t('contacts.close')}
+        variant="danger"
+        theme={theme}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmAction(null)}
+      />
+      <ConfirmDialog
+        isOpen={confirmAction === 'block'}
+        title={t('contacts.blockSpammer')}
+        message={t('contacts.confirmBlockMessage', { name: contact?.name || '' })}
+        confirmLabel={t('contacts.blockSpammer')}
+        cancelLabel={t('contacts.close')}
+        variant="danger"
+        theme={theme}
+        onConfirm={handleBlock}
+        onCancel={() => setConfirmAction(null)}
+      />
       {contact && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -182,8 +114,8 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                       >
                         {onDelete && (
                           <button
-                            onClick={requestDelete}
-                            className="w-9 h-9 rounded-lg flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-500"
+                            onClick={() => { setConfirmAction('delete'); onRequestDelete?.(); }}
+                            className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-500"
                             aria-label={t('contacts.deleteContact')}
                           >
                             <Trash2 size={16} />
@@ -191,8 +123,8 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                         )}
                         {onBlock && (
                           <button
-                            onClick={requestBlock}
-                            className="w-9 h-9 rounded-lg flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400"
+                            onClick={() => setConfirmAction('block')}
+                            className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400"
                             aria-label={t('contacts.blockSpammer')}
                           >
                             <Ban size={16} />
@@ -208,7 +140,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || 'from-gray-500 to-gray-600'} text-white font-bold text-4xl shadow-lg relative group`}>
               {contact.name.charAt(0)}
               {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
-                <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[#1a1d24]" : "border-white"} ${(contact.online || contact.lastSeen < 60000) ? "bg-green-500" : "bg-gray-400"}`}></div>
+                <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[#1a1d24]" : "border-white"} ${(contact.online || contact.lastSeen < 60000) ? "bg-green-500" : "bg-gray-400"}`} />
               )}
               <button
                 onClick={() => { onEdit?.(); onClose(); }}
@@ -302,55 +234,17 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.verifySecurity')}</span>
               </button>
             </div>
-
-            <AnimatePresence>
-              {showSafetyNumber && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-                >
-                  <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSafetyNumber(false)} />
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.92, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.92, y: 20 }}
-className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.safetyNumbersTitle')}</h3>
-                    <p className={`text-xs mb-4 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                      {t('contacts.safetyNumbersDesc', { name: contact?.name })}
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mb-4">
-                      {safetyNumber.split(' ').map((g, i) => (
-                        <span key={i} className={`font-mono text-sm tracking-wider px-2 py-0.5 rounded ${isDark ? 'bg-white/5 text-gray-200' : 'bg-black/5 text-slate-700'}`}>{g}</span>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-center gap-2 mb-4">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getVerificationColor(verifyLevel) }} />
-                      <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                        {t('contacts.verificationLevel', { level: verifyLevel })}
-                      </span>
-                    </div>
-                    {myPeerId && (
-                      <div className={`text-[10px] font-mono mb-4 p-2 rounded-lg ${isDark ? 'bg-white/5 text-gray-500' : 'bg-black/5 text-slate-400'}`}>
-                        {t('contacts.yourId')} {myPeerId.slice(0, 16)}...
-                        <br />
-                        {t('contacts.theirId')} {contact?.id.slice(0, 16)}...
-                      </div>
-                    )}
-                    <button onClick={() => setShowSafetyNumber(false)} className={`w-full h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
-                      {t('contacts.close')}
-                    </button>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </motion.div>
         </motion.div>
       )}
+      <SafetyNumberModal
+        open={showSafetyNumber}
+        contactId={contact?.id || ''}
+        contactName={contact?.name || ''}
+        myPeerId={myPeerId}
+        theme={theme}
+        onClose={() => setShowSafetyNumber(false)}
+      />
     </AnimatePresence>
   );
 };

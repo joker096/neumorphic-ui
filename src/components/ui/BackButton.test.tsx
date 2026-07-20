@@ -59,19 +59,19 @@ describe('BackButton - additional tests', () => {
 
   it('renders with size sm', () => {
     const { container } = render(<BackButton size="sm" />);
-    const wrapper = container.querySelector('button')?.querySelector('[class*="w-8"]');
+    const wrapper = container.querySelector('button')?.querySelector('.rounded-full');
     expect(wrapper).toBeInTheDocument();
   });
 
   it('renders with size md by default', () => {
     const { container } = render(<BackButton />);
-    const wrapper = container.querySelector('button')?.querySelector('[class*="w-9"]');
+    const wrapper = container.querySelector('button')?.querySelector('.rounded-full');
     expect(wrapper).toBeInTheDocument();
   });
 
   it('renders with size lg', () => {
     const { container } = render(<BackButton size="lg" />);
-    const wrapper = container.querySelector('button')?.querySelector('[class*="w-10"]');
+    const wrapper = container.querySelector('button')?.querySelector('.rounded-full');
     expect(wrapper).toBeInTheDocument();
   });
 

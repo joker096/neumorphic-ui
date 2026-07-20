@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Send, ChevronLeft } from 'lucide-react';
-import { FormattedText } from './FormattedText';
+import { FormattedText } from './chat-preview/FormattedText';
 import { messageEncryption } from '../lib/crypto/MessageEncryptionService';
 import { p2pNetwork } from '../lib/p2p/network';
 import { generatePostKey, PostKey } from '../lib/crypto/postKeyManager';
@@ -114,7 +114,7 @@ export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme = 
                      />
                      <div 
                         onClick={handleSend}
-                        className={`w-9 h-9 flex items-center justify-center rounded-full ml-2 cursor-pointer transition-transform active:scale-95 ${comment ? (isDark ? "bg-orange-500 text-white" : "bg-orange-400 text-white shadow-md") : (isDark ? "bg-white/5 text-gray-500" : "bg-black/5 text-slate-400")}`}
+                        className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full ml-2 cursor-pointer transition-transform active:scale-95 ${comment ? (isDark ? "bg-orange-500 text-white" : "bg-orange-400 text-white shadow-md") : (isDark ? "bg-white/5 text-gray-500" : "bg-black/5 text-slate-400")}`}
                      >
                         <Send size={16} />
                      </div>

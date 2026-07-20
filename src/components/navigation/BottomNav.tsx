@@ -54,7 +54,7 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
               </div>
             )}
           </div>
-          <span className={`text-[9px] font-bold uppercase tracking-wider ${isActive ? "opacity-100" : "opacity-60"}`}>
+          <span className={`text-[11px] font-bold uppercase tracking-wider ${isActive ? "opacity-100" : "opacity-60"}`}>
             {t(item.label)}
           </span>
           {isActive && (

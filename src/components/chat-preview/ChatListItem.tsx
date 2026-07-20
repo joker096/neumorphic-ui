@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { motion } from "motion/react";
 import { Archive, Phone, Video } from "lucide-react";
-import { FormattedText } from "../FormattedText";
+import { FormattedText } from "./FormattedText";
 import { useAppStore } from "../../store";
 
 interface ChatListItemProps {
