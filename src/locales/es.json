@@ -895,5 +895,11 @@
     "byCompany": "By Company",
     "byTag": "By Tag",
     "searchContacts": "Search contacts..."
+  },
+  "onboarding": {
+    "welcome": "Welcome to Mess&Anger",
+    "description": "Secure, decentralized messaging. Start a conversation or connect with friends.",
+    "startChat": "Start a chat",
+    "invite": "Invite friends"
   }
 }

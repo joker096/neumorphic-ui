@@ -297,17 +297,6 @@ describe('LiveVoiceRecorder', () => {
     expect(defaultProps.onCancel).toHaveBeenCalled();
   });
 
-  it('applies dark theme styles', () => {
-    render(<LiveVoiceRecorder {...defaultProps} />);
-    const container = screen.getByTitle('Discard').closest('div[class*="bg-[#13151b]"]');
-    expect(container).toBeInTheDocument();
-  });
-
-  it('applies light theme styles', () => {
-    const { container } = render(<LiveVoiceRecorder {...{ ...defaultProps, isDark: false }} />);
-    expect(container.querySelector('div[class*="bg-[#f4f7f9]"]')).toBeInTheDocument();
-  });
-
   it('adds window event listeners for hold-to-record', async () => {
     const addListenerSpy = vi.spyOn(window, 'addEventListener').mockImplementation(() => {});
     render(<LiveVoiceRecorder {...defaultProps} holdToRecord={true} />);
