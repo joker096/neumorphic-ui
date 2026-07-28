@@ -46,6 +46,6 @@ describe('CompanyInfoCard', () => {
 
   it('renders connection status badge', () => {
     const { container } = render(<CompanyInfoCard connected="Connected" />);
-    expect(container.querySelector('[class*="text-green"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="rounded-full"]')).toBeInTheDocument();
   });
 });

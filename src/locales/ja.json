@@ -828,10 +828,8 @@
     "emoji": "絵文字",
     "default": "デフォルト",
     "animals": "動物",
-    "caveman": "穴居人",
     "food": "食べ物",
     "nature": "自然",
-    "raccoon": "アライグマ",
     "searchPlaceholder": "ステッカーを検索...",
     "spamProtection": "スパム保護",
     "spamActive": "アクティブ",
@@ -900,6 +898,8 @@
     "welcome": "Welcome to Mess&Anger",
     "description": "Secure, decentralized messaging. Start a conversation or connect with friends.",
     "startChat": "Start a chat",
-    "invite": "Invite friends"
+    "invite": "Invite friends",
+    "inviteText": "Join me on Mess&Anger — secure, decentralized messaging!",
+    "inviteCopied": "Invite link copied!"
   }
 }

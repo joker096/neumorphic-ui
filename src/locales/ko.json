@@ -828,10 +828,8 @@
     "emoji": "이모지",
     "default": "기본",
     "animals": "동물",
-    "caveman": "동굴 사람",
     "food": "음식",
     "nature": "자연",
-    "raccoon": "너구리",
     "searchPlaceholder": "스티커 검색...",
     "spamProtection": "스팸 방지",
     "spamActive": "활성",
@@ -900,6 +898,8 @@
     "welcome": "Welcome to Mess&Anger",
     "description": "Secure, decentralized messaging. Start a conversation or connect with friends.",
     "startChat": "Start a chat",
-    "invite": "Invite friends"
+    "invite": "Invite friends",
+    "inviteText": "Join me on Mess&Anger — secure, decentralized messaging!",
+    "inviteCopied": "Invite link copied!"
   }
 }

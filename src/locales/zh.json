@@ -828,10 +828,8 @@
     "emoji": "表情",
     "default": "默认",
     "animals": "动物",
-    "caveman": "穴居人",
     "food": "食物",
     "nature": "自然",
-    "raccoon": "浣熊",
     "searchPlaceholder": "搜索贴纸...",
     "spamProtection": "反垃圾保护",
     "spamActive": "已激活",
@@ -900,6 +898,8 @@
     "welcome": "Welcome to Mess&Anger",
     "description": "Secure, decentralized messaging. Start a conversation or connect with friends.",
     "startChat": "Start a chat",
-    "invite": "Invite friends"
+    "invite": "Invite friends",
+    "inviteText": "Join me on Mess&Anger — secure, decentralized messaging!",
+    "inviteCopied": "Invite link copied!"
   }
 }

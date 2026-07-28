@@ -9,14 +9,6 @@ vi.mock('../../lib/icqEmojis', () => ({
     { id: 'icq:2', name: 'laugh' },
     { id: 'icq:3', name: 'cry' },
   ],
-  CAVEMAN_STICKERS: [
-    { id: 'caveman-train', name: 'Train', file: 'caveman-train.png' },
-    { id: 'caveman-boulder', name: 'Boulder', file: 'caveman-boulder.png' },
-  ],
-  RACOON_STICKERS: [
-    { id: 'racoon-sleep', name: 'Sleep', file: 'racoon-sleep.png' },
-    { id: 'racoon-workout2', name: 'Workout', file: 'racoon-workout2.png' },
-  ],
   getICQEmojiPath: vi.fn((id: string) => `/icq/${id}.png`),
   getICQStickerSrc: vi.fn((path: string) => `/stickers/${path}.png`),
 }));
@@ -44,12 +36,11 @@ describe('StickerPicker', () => {
     mockOnClose.mockClear();
   });
 
-  it('renders all four tabs (all, icq, caveman, raccoon)', () => {
+  it('renders all tabs', () => {
     render(<StickerPicker {...defaultProps} />);
     expect(screen.getAllByText('stickers.all').length).toBeGreaterThan(0);
     expect(screen.getAllByText('stickers.icq').length).toBe(2);
-    expect(screen.getAllByText('stickers.caveman').length).toBe(1);
-    expect(screen.getAllByText('stickers.raccoon').length).toBe(1);
+    expect(screen.getAllByText('stickers.default').length).toBe(1);
   });
 
   it('renders search input with placeholder', () => {
@@ -64,14 +55,9 @@ describe('StickerPicker', () => {
     expect(screen.getAllByText('stickers.icq').length).toBe(2);
   });
 
-  it('renders Caveman sticker pack', () => {
+  it('renders Default sticker pack', () => {
     render(<StickerPicker {...defaultProps} />);
-    expect(screen.getAllByText('stickers.caveman').length).toBe(1);
-  });
-
-  it('renders Raccoon sticker pack', () => {
-    render(<StickerPicker {...defaultProps} />);
-    expect(screen.getAllByText('stickers.raccoon').length).toBe(1);
+    expect(screen.getAllByText('stickers.default').length).toBe(1);
   });
 
   it('renders emoji sticker pack', () => {
@@ -84,9 +70,9 @@ describe('StickerPicker', () => {
     const searchInput = document.querySelector('input');
     if (searchInput) {
       act(() => {
-        fireEvent.change(searchInput, { target: { value: 'caveman' } });
+        fireEvent.change(searchInput, { target: { value: 'icq' } });
       });
-      expect(screen.getAllByText('stickers.caveman').length).toBe(1);
+      expect(screen.getAllByText('stickers.icq').length).toBe(2);
     }
   });
 
@@ -103,14 +89,5 @@ describe('StickerPicker', () => {
   it('renders in light theme', () => {
     render(<StickerPicker {...defaultProps} theme="light" />);
     expect(screen.getAllByText('stickers.icq').length).toBe(2);
-    expect(screen.getAllByText('stickers.caveman').length).toBe(1);
-    expect(screen.getAllByText('stickers.raccoon').length).toBe(1);
-  });
-
-  it('switches to specific tab when clicked', () => {
-    render(<StickerPicker {...defaultProps} />);
-    const cavemanTab = screen.getAllByText('stickers.caveman')[0] as HTMLElement;
-    fireEvent.click(cavemanTab);
-    expect(screen.getAllByText('stickers.caveman').length).toBe(1);
   });
 });

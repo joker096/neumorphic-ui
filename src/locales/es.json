@@ -823,23 +823,21 @@
   },
   "stickers": {
     "title": "Stickers",
-    "all": "Todos",
+    "all": "All",
     "icq": "ICQ",
     "emoji": "Emoji",
-    "default": "Predeterminado",
-    "animals": "Animales",
-    "caveman": "Hombre de las cavernas",
-    "food": "Comida",
-    "nature": "Naturaleza",
-    "raccoon": "Mapache",
-    "searchPlaceholder": "Buscar stickers...",
-    "spamProtection": "Protección contra spam",
-    "spamActive": "Activa",
-    "spamDisabled": "Desactivada",
-    "systemStatus": "Estado del sistema",
-    "systemStatusSubtitle": "Nivel de batería, interruptores",
-    "spamFilter": "spamFilter",
-    "spamFilterSubtitle": "spamFilterSubtitle"
+    "default": "Default",
+    "animals": "Animals",
+    "food": "Food",
+    "nature": "Nature",
+    "searchPlaceholder": "Search stickers...",
+    "spamProtection": "Spam Protection",
+    "spamFilter": "Spam Filter",
+    "spamFilterSubtitle": "Automatically detect and filter spam messages",
+    "spamActive": "Active",
+    "spamDisabled": "Disabled",
+    "systemStatus": "System Status",
+    "systemStatusSubtitle": "Battery level, circuit breakers"
   },
   "nav": {
     "calls": "Llamadas",
@@ -900,6 +898,8 @@
     "welcome": "Welcome to Mess&Anger",
     "description": "Secure, decentralized messaging. Start a conversation or connect with friends.",
     "startChat": "Start a chat",
-    "invite": "Invite friends"
+    "invite": "Invite friends",
+    "inviteText": "Join me on Mess&Anger — secure, decentralized messaging!",
+    "inviteCopied": "Invite link copied!"
   }
 }

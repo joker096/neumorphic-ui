@@ -21,14 +21,14 @@ export const CompanySettingsView = ({ isDark, onBack }: CompanySettingsViewProps
           onClick={onBack}
           className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-200 ${
             isDark
-              ? 'bg-[#1a1d24] hover:bg-[#20242e] text-gray-400'
-              : 'bg-[#f4f7f9] hover:bg-white text-slate-500 shadow-sm'
+              ? 'bg-[var(--bg-tertiary)] hover:bg-[#20242e] text-[var(--text-secondary)]'
+              : 'bg-[#f4f7f9] hover:bg-white text-[var(--text-secondary)] shadow-sm'
           }`}
         >
           <ChevronLeft size={16} strokeWidth={2} />
         </button>
         <div className="flex-1">
-          <div className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+          <div className={`text-lg font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
             {t('settings.company') || 'Company'}
           </div>
         </div>
@@ -38,11 +38,11 @@ export const CompanySettingsView = ({ isDark, onBack }: CompanySettingsViewProps
          <div className="pb-16 sm:pb-0">
            <div className="w-full">
              <SettingsSectionTitle title={t('settings.companyVisibility') || 'Company Visibility'} isDark={isDark} />
-             <div className={`rounded-xl overflow-hidden ${isDark ? 'bg-[#1a1d24] border border-white/5' : 'bg-white shadow-sm border border-black/5'}`}>
+             <div className={`rounded-xl overflow-hidden ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white shadow-sm border border-[var(--border-color)]'}`}>
                <SettingsToggleRow
                  icon={<Building2 size={16} />}
                  iconColor={isDark ? 'text-orange-400' : 'text-orange-600'}
-                 iconBg={isDark ? 'bg-orange-500/10' : 'bg-orange-100'}
+                 iconBg={isDark ? 'bg-[var(--color-warning)]/10' : 'bg-orange-100'}
                  title={t('settings.hideWhenOfficeOnly') || 'Hide Company When Offline'}
                  subtitle={t('settings.hideWhenOfficeOnlySubtitle') || 'Hide company tab when not connected to office network'}
                  isOn={hideWhenOfficeOnly}

@@ -1,0 +1,51 @@
+{
+  "name": "Mess&Anger",
+  "short_name": "MessAnger",
+  "description": "Mesh-Powered Decentralized Messenger",
+  "start_url": "/",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#070707",
+  "background_color": "#070707",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "icon"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "icon"
+    }
+  ],
+  "orientation": [
+    "portrait"
+  ],
+  "prefer_native_cookies": false,
+  "installable": true,
+  "related_domains": [],
+  "categories": [
+    "messaging"
+  ],
+  "lang": [
+    "ru",
+    "en",
+    "de",
+    "fr",
+    "es",
+    "zh",
+    "ja",
+    "ko"
+  ],
+  "scope": [
+    "/",
+    "/features",
+    "/comparison",
+    "/security",
+    "/download"
+  ],
+  "service_worker": "/sw.js"
+}

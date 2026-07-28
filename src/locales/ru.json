@@ -828,10 +828,8 @@
     "emoji": "Эмодзи",
     "default": "Стандартные",
     "animals": "Животные",
-    "caveman": "Пещерный человек",
     "food": "Еда",
     "nature": "Природа",
-    "raccoon": "Енот",
     "searchPlaceholder": "Поиск стикеров...",
     "spamProtection": "Защита от спама",
     "spamActive": "Активна",
@@ -900,6 +898,8 @@
     "welcome": "Welcome to Mess&Anger",
     "description": "Secure, decentralized messaging. Start a conversation or connect with friends.",
     "startChat": "Start a chat",
-    "invite": "Invite friends"
+    "invite": "Invite friends",
+    "inviteText": "Join me on Mess&Anger — secure, decentralized messaging!",
+    "inviteCopied": "Invite link copied!"
   }
 }

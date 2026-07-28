@@ -828,10 +828,8 @@
     "emoji": "Emoji",
     "default": "Par défaut",
     "animals": "Animaux",
-    "caveman": "Homme des cavernes",
     "food": "Nourriture",
     "nature": "Nature",
-    "raccoon": "Raton laveur",
     "searchPlaceholder": "Rechercher des stickers...",
     "spamProtection": "Protection contre le spam",
     "spamActive": "Actif",
@@ -900,6 +898,8 @@
     "welcome": "Welcome to Mess&Anger",
     "description": "Secure, decentralized messaging. Start a conversation or connect with friends.",
     "startChat": "Start a chat",
-    "invite": "Invite friends"
+    "invite": "Invite friends",
+    "inviteText": "Join me on Mess&Anger — secure, decentralized messaging!",
+    "inviteCopied": "Invite link copied!"
   }
 }

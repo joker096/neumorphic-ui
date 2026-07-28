@@ -57,22 +57,9 @@ const defaultProps = {
 } as any;
 
 describe('ChatInputOverlay sticker picker', () => {
-  it('renders caveman and raccoon sticker pack tabs', () => {
+  it('renders sticker picker', () => {
     render(<ChatInputOverlay {...defaultProps} />);
-
-    expect(screen.getByText('stickers.caveman')).toBeInTheDocument();
-    expect(screen.getByText('stickers.raccoon')).toBeInTheDocument();
-  });
-
-  it('sends prefixed raccoon sticker ids when selected', () => {
-    const onSelect = vi.fn();
-    const onClose = vi.fn();
-
-    render(<ChatInputOverlay {...defaultProps} sendStickerMessage={onSelect} setShowStickerPicker={onClose} />);
-
-    fireEvent.click(screen.getByAltText('raccoon:racoon-workout2'));
-
-    expect(onSelect).toHaveBeenCalledWith('raccoon:racoon-workout2');
-    expect(onClose).toHaveBeenCalledWith(false);
+    const elements = screen.getAllByText('stickers.icq');
+    expect(elements.length).toBeGreaterThanOrEqual(1);
   });
 });

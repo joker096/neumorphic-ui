@@ -10,7 +10,7 @@ export { ErrorSeverity, generateErrorId, classifyError, logError, getErrorLog, c
 export type { ErrorRecord } from './errorHandling';
 export { trackComponentMount, safeSet, retryableWrite, safeRead, retryWithFallback, initWithFallback, safeAsync } from './gracefulDegradation';
 export { preloadLocales, getTranslation, getTranslationWithFallback, I18nContext, useI18n, detectBrowserLanguage, I18nProvider } from './i18n';
-export { getICQEmojiPath, getICQStickerPath, getRACOONStickerPath, getICQStickerSrc, getICQEmojiUrl, ICQ_EMOJI_MAP, CAVEMAN_STICKERS, RACOON_STICKERS } from './icqEmojis';
+export { getICQEmojiPath, getICQStickerSrc, getICQEmojiUrl, ICQ_EMOJI_MAP } from './icqEmojis';
 export type { ICQEmoji } from '../types/emoji';
 export { set, get, del, clear, keys, saveChat, getAllChats, deleteChat, clearChats, saveContact, getAllContacts, saveChannel, getAllChannels, saveBot, getAllBots, addScheduledMessage, removeScheduledMessage, getAllScheduledMessages, clearScheduledMessages, saveRecording, deleteRecording, getAllRecordings, clearRecordings, addCallHistoryEntry, getAllCallHistory, clearCallHistory, addCompanyMessage, getAllCompanyMessages, clearAll, reset } from './idb';
 export { lazyWithFallback } from './lazy';

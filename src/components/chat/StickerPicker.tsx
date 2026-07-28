@@ -5,8 +5,6 @@ import {
   getICQEmojiPath,
   getICQStickerSrc,
   ICQ_EMOJI_MAP,
-  CAVEMAN_STICKERS,
-  RACOON_STICKERS,
 } from "../../lib/icqEmojis";
 
 const STICKER_PACKS = [
@@ -14,8 +12,6 @@ const STICKER_PACKS = [
   { id: 'animals', name: 'Animals', stickers: ['🐱', '🐶', '🐾', '🦋', '🐮', '🐸'] },
   { id: 'nature', name: 'Nature', stickers: ['🌸', '🌿', '🌺', '🍃', '🌻', '🍀'] },
   { id: 'food', name: 'Food', stickers: ['🍕', '🍔', '🍱', '🍷', '☕', '🍯'] },
-  { id: 'caveman', name: 'Caveman', stickers: CAVEMAN_STICKERS.map(sticker => `caveman:${sticker.id}`) },
-  { id: 'raccoon', name: 'Raccoon', stickers: RACOON_STICKERS.map(sticker => `raccoon:${sticker.id}`) },
 ];
 const STICKER_EMOJI = ['😀', '😂', '🤣', '🤔', '😍', '😎', '🤖', '🥺', '😱', '🤯', '🫡', '🥳'];
 
@@ -33,7 +29,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
 
   const allPacks = [
     { id: 'icq', name: t('stickers.icq'), stickers: ICQ_EMOJI_MAP.map(e => e.id) },
-    ...STICKER_PACKS.filter(p => ['caveman', 'raccoon'].includes(p.id)),
+    ...STICKER_PACKS,
     { id: 'emoji', name: t('stickers.emoji'), stickers: STICKER_EMOJI },
   ];
 
@@ -43,7 +39,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
   return (
     <div className="w-full max-w-full flex flex-col gap-3">
       <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
-        {[{ id: 'all', label: t('stickers.all') }, { id: 'icq', label: t('stickers.icq') }, { id: 'caveman', label: t('stickers.caveman') }, { id: 'raccoon', label: t('stickers.raccoon') }].map(tab => (
+        {[{ id: 'all', label: t('stickers.all') }, { id: 'icq', label: t('stickers.icq') }, { id: 'default', label: t('stickers.default') }, { id: 'animals', label: t('stickers.animals') }].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
