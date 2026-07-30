@@ -13,8 +13,8 @@
   "backgroundColor": "#0A0A0A",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "http://localhost:5234/icons/pwa-512x512.png",
-  "maskableIconUrl": "http://localhost:5234/icons/pwa-512x512.png",
+  "iconUrl": "http://localhost:11637/icons/pwa-512x512.png",
+  "maskableIconUrl": "http://localhost:11637/icons/pwa-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "F:\\AISTUDIO\\neumorphic-ui\\messandanger-keystore.jks",
