@@ -38,13 +38,13 @@ export default function Ads() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-[#1a1d24] rounded-xl p-4 space-y-3 max-w-lg">
+        <form onSubmit={handleSubmit} className="bg-[var(--bg-tertiary)] rounded-xl p-4 space-y-3 max-w-lg">
           <input placeholder={t('ads.titleLabel')} value={title} onChange={e => setTitle(e.target.value)} required
-            className="w-full bg-[#0d0f12] text-white rounded-lg px-3 py-2 text-sm border border-white/5 outline-none focus:border-orange-500/50" />
+            className="w-full bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm border border-[var(--border-color)] outline-none focus:border-orange-500/50" />
           <input placeholder={t('ads.imageUrlLabel')} value={imageUrl} onChange={e => setImageUrl(e.target.value)} required
-            className="w-full bg-[#0d0f12] text-white rounded-lg px-3 py-2 text-sm border border-white/5 outline-none focus:border-orange-500/50" />
+            className="w-full bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm border border-[var(--border-color)] outline-none focus:border-orange-500/50" />
           <input placeholder={t('ads.targetUrlLabel')} value={targetUrl} onChange={e => setTargetUrl(e.target.value)} required
-            className="w-full bg-[#0d0f12] text-white rounded-lg px-3 py-2 text-sm border border-white/5 outline-none focus:border-orange-500/50" />
+            className="w-full bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-lg px-3 py-2 text-sm border border-[var(--border-color)] outline-none focus:border-orange-500/50" />
           <div className="flex gap-2">
             <button type="submit" className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold">{editingId ? t('ads.update') : t('ads.create')}</button>
             <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm">{t('ads.cancel')}</button>
@@ -54,7 +54,7 @@ export default function Ads() {
 
       <div className="grid gap-3">
         {ads.map(ad => (
-          <div key={ad.id} className="bg-[#1a1d24] rounded-xl p-4 flex items-center gap-4">
+          <div key={ad.id} className="bg-[var(--bg-tertiary)] rounded-xl p-4 flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center shrink-0 text-lg">📢</div>
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm">{ad.title}</div>

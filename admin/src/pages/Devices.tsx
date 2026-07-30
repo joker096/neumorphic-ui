@@ -16,7 +16,7 @@ export default function Devices() {
       <h1 className="text-lg font-bold">{t('devices.title')} ({total} {t('devices.total')})</h1>
       <div className="max-w-lg space-y-4">
         {devices.map(d => (
-          <div key={d.name} className="bg-[#1a1d24] rounded-xl p-4">
+          <div key={d.name} className="bg-[var(--bg-tertiary)] rounded-xl p-4">
             <div className="flex justify-between items-center mb-2">
               <span className="font-semibold">{d.name}</span>
               <span className="text-gray-400 text-sm">{d.count} ({d.percentage}%)</span>

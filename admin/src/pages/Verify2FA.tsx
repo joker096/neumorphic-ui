@@ -44,7 +44,7 @@ export default function Verify2FA() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-[#1a1d24] rounded-2xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
+      <div className="w-full max-w-sm bg-[var(--bg-tertiary)] rounded-2xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
         <div className="text-center mb-8">
           <div className="text-3xl font-bold mb-2">🔑</div>
           <h1 className="text-xl font-bold">{t('verify2fa.title')}</h1>
@@ -57,7 +57,7 @@ export default function Verify2FA() {
                 type="text" inputMode="numeric" maxLength={1}
                 value={digit} onChange={e => handleChange(i, e.target.value)}
                 onKeyDown={e => handleKeyDown(i, e)}
-                className="w-10 h-12 bg-[#0d0f12] text-white text-lg font-bold text-center rounded-xl border border-white/5 focus:border-orange-500/50 outline-none"
+                className="w-10 h-12 bg-[var(--bg-primary)] text-[var(--text-primary)] text-lg font-bold text-center rounded-xl border border-[var(--border-color)] focus:border-orange-500/50 outline-none"
                 autoFocus={i === 0} />
             ))}
           </div>

@@ -20,8 +20,8 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex h-screen">
-      <aside className={`bg-[#1a1d24] border-r border-white/5 flex flex-col transition-all duration-300 ${sidebarOpen ? 'w-56' : 'w-16'}`}>
-        <div className="p-4 border-b border-white/5 flex items-center justify-between">
+      <aside className={`bg-[var(--bg-tertiary)] border-r border-[var(--border-color)] flex flex-col transition-all duration-300 ${sidebarOpen ? 'w-56' : 'w-16'}`}>
+        <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between">
           <div className={`transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
             <div className="text-sm font-bold">{t('layout.adminPanel')}</div>
             <div className="text-[10px] text-gray-500">{t('layout.messenger')}</div>

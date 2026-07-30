@@ -37,14 +37,14 @@ export default function Users() {
         data={users} />
       <div className="flex justify-center gap-2">
         <button disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}
-          className="px-3 py-1.5 rounded-lg bg-[#1a1d24] text-sm disabled:opacity-30">
-          {t('users.previous')}
-        </button>
-        <span className="text-sm text-gray-500 self-center">{t('users.page')} {page} / {Math.ceil(total / limit)}</span>
-        <button disabled={page * limit >= total} onClick={() => setPage(p => p + 1)}
-          className="px-3 py-1.5 rounded-lg bg-[#1a1d24] text-sm disabled:opacity-30">
-          {t('users.next')}
-        </button>
+           className="px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] text-sm disabled:opacity-30">
+           {t('users.previous')}
+         </button>
+         <span className="text-sm text-gray-500 self-center">{t('users.page')} {page} / {Math.ceil(total / limit)}</span>
+         <button disabled={page * limit >= total} onClick={() => setPage(p => p + 1)}
+           className="px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] text-sm disabled:opacity-30">
+           {t('users.next')}
+         </button>
       </div>
     </div>
   )

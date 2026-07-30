@@ -14,7 +14,7 @@ export default function Settings() {
   return (
     <div className="space-y-6 max-w-lg">
       <h1 className="text-lg font-bold">{t('settings.title')}</h1>
-      <div className="bg-[#1a1d24] rounded-xl p-4 space-y-3">
+      <div className="bg-[var(--bg-tertiary)] rounded-xl p-4 space-y-3">
         <h2 className="font-semibold text-sm">{t('settings.security')}</h2>
         <button onClick={handleReset2FA}
           className="px-4 py-2 rounded-lg bg-orange-500/10 text-orange-400 text-sm hover:bg-orange-500/20 transition-colors">

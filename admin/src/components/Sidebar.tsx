@@ -1,5 +1,5 @@
 import {NavLink, useNavigate} from 'react-router-dom';
-import {t} from '../lib/i18n';
+import { t } from '../lib/i18n'
 
 const navItems = [
   {to: '/dashboard', icon: '▦', label: 'dashboard'},

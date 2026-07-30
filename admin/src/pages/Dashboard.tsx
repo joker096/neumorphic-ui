@@ -39,7 +39,7 @@ export default function Dashboard() {
         </div>
         <div>
           <h2 className="text-sm font-semibold text-gray-400 mb-3">{t('dashboard.deviceDistribution')}</h2>
-          <div className="bg-[#1a1d24] rounded-xl p-4 space-y-3">
+          <div className="bg-[var(--bg-tertiary)] rounded-xl p-4 space-y-3">
             {devices.map(d => (
               <div key={d.name}>
                 <div className="flex justify-between text-sm mb-1">
@@ -59,7 +59,7 @@ export default function Dashboard() {
           <h2 className="text-sm font-semibold text-gray-400 mb-3">{t('dashboard.recentAds')}</h2>
           <div className="grid grid-cols-4 gap-4">
             {ads.slice(0, 4).map(ad => (
-              <div key={ad.id} className="bg-[#1a1d24] rounded-xl p-3">
+              <div key={ad.id} className="bg-[var(--bg-tertiary)] rounded-xl p-3">
                 <div className="font-semibold text-sm truncate">{ad.title}</div>
                 <div className="text-xs text-gray-500 mt-1">{ad.impressions} {t('dashboard.impressions')}</div>
                 <div className="text-xs text-orange-400">

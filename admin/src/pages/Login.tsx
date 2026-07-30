@@ -79,7 +79,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-[#1a1d24] rounded-2xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
+      <div className="w-full max-w-sm bg-[var(--bg-tertiary)] rounded-2xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
         <div className="text-center mb-8">
           <div className="text-3xl font-bold mb-2">🔐</div>
           <h1 className="text-xl font-bold">{t('login.title')}</h1>
@@ -92,7 +92,7 @@ export default function Login() {
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input type="text" value={username} onChange={e => setUsername(e.target.value)}
-                className="w-full bg-[#0d0f12] text-white rounded-xl pl-10 pr-4 py-2.5 border border-white/5 focus:border-orange-500/50 outline-none text-sm"
+                className="w-full bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-xl pl-10 pr-4 py-2.5 border border-[var(--border-color)] focus:border-orange-500/50 outline-none text-sm"
                 placeholder={t('login.usernamePlaceholder')} required autoFocus />
             </div>
           </div>
@@ -101,14 +101,14 @@ export default function Login() {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full bg-[#0d0f12] text-white rounded-xl pl-10 pr-4 py-2.5 border border-white/5 focus:border-orange-500/50 outline-none text-sm"
+                className="w-full bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-xl pl-10 pr-4 py-2.5 border border-[var(--border-color)] focus:border-orange-500/50 outline-none text-sm"
                 placeholder={t('login.passwordPlaceholder')} required />
             </div>
           </div>
           <div>
             <label className="text-xs text-gray-500 uppercase tracking-wider block mb-1">{t('login.captcha')}</label>
             <div className="flex gap-2">
-              <div className="flex-1 bg-[#0d0f12] rounded-xl px-3 py-2.5 text-sm text-gray-300 font-mono select-none">
+              <div className="flex-1 bg-[var(--bg-primary)] rounded-xl px-3 py-2.5 text-sm text-gray-300 font-mono select-none">
                 {captcha.challenge}
               </div>
               <button type="button" onClick={handleRefreshCaptcha}
@@ -120,7 +120,7 @@ export default function Login() {
               <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input ref={captchaInputRef} type="number" inputMode="numeric" value={captchaAnswer}
                 onChange={e => setCaptchaAnswer(e.target.value)}
-                className="w-full bg-[#0d0f12] text-white rounded-xl pl-10 pr-4 py-2.5 border border-white/5 focus:border-orange-500/50 outline-none text-sm placeholder:text-gray-600"
+                className="w-full bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-xl pl-10 pr-4 py-2.5 border border-[var(--border-color)] focus:border-orange-500/50 outline-none text-sm placeholder:text-gray-600"
                 placeholder={t('login.captchaPlaceholder')} required />
             </div>
           </div>
