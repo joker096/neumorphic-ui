@@ -74,9 +74,9 @@ export const PlaylistView = ({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="flex flex-col w-full h-[450px] relative z-10"
+     className="flex flex-col w-full h-[60vh] sm:h-[500px] md:h-[450px] relative z-10"
     >
-      <div className="flex items-center justify-between mb-6 border-b border-white/[0.05] pb-4">
+      <div className="flex items-center justify-between mb-6 border-b border-[var(--border-color)]/[0.05] pb-4">
         <div
           role="button"
           tabIndex={0}
@@ -122,7 +122,7 @@ export const PlaylistView = ({
                 onClick={() => handleTrackClick(track, i)}
                 className="flex items-center flex-1 min-w-0 gap-4 cursor-pointer"
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isActive ? (isRadioMode ? "bg-[#45a045]" : "bg-[#c25c34]") : (isDark ? "bg-[#2a3036] border border-white/5" : "bg-white border border-black/5")} shadow-md transition-colors`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isActive ? (isRadioMode ? "bg-[#45a045]" : "bg-[#c25c34]") : (isDark ? "bg-[#2a3036] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]")} shadow-md transition-colors`}>
                   {isActive && isPlaying ? (
                     <div className="flex gap-0.5 items-end h-3">
                       {[0, 1, 2].map((bar) => (
@@ -141,7 +141,7 @@ export const PlaylistView = ({
                   )}
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
-                  <span className={`text-[14px] font-bold truncate ${isActive && isDark ? "text-white" : textColor}`}>{track.name}</span>
+                  <span className={`text-[14px] font-bold truncate ${isActive && isDark ? "text-[var(--text-primary)]" : textColor}`}>{track.name}</span>
                   <span className={`text-[11px] font-mono opacity-60 ${textColor}`}>M-NODE {track.id}</span>
                 </div>
                 <span className={`text-[11px] font-mono opacity-50 ${textColor} mr-2`}>{track.time}</span>
@@ -165,3 +165,5 @@ export const PlaylistView = ({
     </motion.div>
   );
 };
+
+

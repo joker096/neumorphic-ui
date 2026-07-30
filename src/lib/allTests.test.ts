@@ -34,15 +34,15 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
       expect(localeFiles).toHaveLength(8);
     });
 
-    it('should have 823 keys in en.json', () => {
+    it('should have 857 keys in en.json', () => {
       const enContent = JSON.parse(readFileSync(join(localesDir, 'en.json'), 'utf-8'));
-      expect(flattenKeys(enContent).size).toBe(823);
+      expect(flattenKeys(enContent).size).toBe(857);
     });
 
     it('should have same key count in all locales', () => {
       for (const file of localeFiles) {
         const content = JSON.parse(readFileSync(join(localesDir, file), 'utf-8'));
-        expect(flattenKeys(content).size).toBe(823);
+        expect(flattenKeys(content).size).toBe(857);
       }
     });
 

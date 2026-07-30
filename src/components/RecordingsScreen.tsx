@@ -58,7 +58,7 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => onPlay(recording)}
-        className={`shrink-0 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-orange-500 text-white`}
+        className={`shrink-0 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-orange-500 text-[var(--text-primary)]`}
       >
         <Play className="w-4 h-4 ml-0.5" />
       </motion.button>
@@ -73,7 +73,7 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
           <>
             <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
             <div className={`absolute right-0 top-full mt-1 z-20 w-44 rounded-2xl py-1.5 shadow-2xl border ${
-              isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'
+              isDark ? 'bg-[var(--bg-tertiary)] border-[var(--border-color)]' : 'bg-white border-[var(--border-color)]'
             }`}>
               <button onClick={() => { onToggleFavorite(recording.id); setMenuOpen(false); }}
                 className={`w-full px-3.5 py-2.5 text-sm text-left flex items-center gap-2.5 ${
@@ -87,7 +87,7 @@ function RecordingItem({ recording, onPlay, onDelete, onExport, onToggleFavorite
                 }`}>
                 <Download className="w-4 h-4" /> {t('recordings.export')}
               </button>
-              <div className={`border-t my-1 ${isDark ? 'border-white/5' : 'border-black/5'}`} />
+              <div className={`border-t my-1 ${isDark ? 'border-[var(--border-color)]' : 'border-[var(--border-color)]'}`} />
               <button onClick={() => { onDelete(recording.id); setMenuOpen(false); }}
                 className="w-full px-3.5 py-2.5 text-sm text-left flex items-center gap-2.5 text-red-500 hover:bg-red-500/10">
                 <Trash2 className="w-4 h-4" /> {t('recordings.delete')}
@@ -173,11 +173,11 @@ export function RecordingsScreen({ theme = 'dark', onBack }: RecordingsScreenPro
       <div className="flex items-center gap-3 px-4 py-3">
         <motion.button whileTap={{ scale: 0.9 }} onClick={onBack}
           className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            isDark ? 'bg-[#1a1d24] border border-white/10 hover:bg-white/10' : 'bg-white border border-black/10 hover:bg-black/5'
+            isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/10' : 'bg-white border border-[var(--border-color)] hover:bg-black/5'
           }`}>
           <ChevronLeft className="w-5 h-5" />
         </motion.button>
-        <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('recordings.title')}</h2>
+        <h2 className={`text-xl font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>{t('recordings.title')}</h2>
       </div>
 
       <div className="px-4 mb-3">
@@ -191,8 +191,8 @@ export function RecordingsScreen({ theme = 'dark', onBack }: RecordingsScreenPro
             onClick={() => updateSettings({ recordingsSortBy: opt.value })}
             className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
               sortBy === opt.value
-                ? 'bg-orange-500 text-white shadow-sm'
-                : isDark ? 'bg-[#1a1d24] text-gray-400 hover:text-gray-200' : 'bg-white text-slate-500 hover:text-slate-800 border border-black/10'
+                ? 'bg-orange-500 text-[var(--text-primary)] shadow-sm'
+                : isDark ? 'bg-[var(--bg-tertiary)] text-gray-400 hover:text-gray-200' : 'bg-white text-slate-500 hover:text-slate-800 border border-[var(--border-color)]'
             }`}>
             {opt.label} {sortBy === opt.value && (sortOrder === 'asc' ? '\u2191' : '\u2193')}
           </motion.button>
@@ -200,7 +200,7 @@ export function RecordingsScreen({ theme = 'dark', onBack }: RecordingsScreenPro
         <motion.button whileTap={{ scale: 0.95 }}
           onClick={() => updateSettings({ recordingsSortOrder: sortOrder === 'asc' ? 'desc' : 'asc' })}
           className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-            isDark ? 'bg-[#1a1d24] text-gray-400' : 'bg-white text-slate-500 border border-black/10'
+            isDark ? 'bg-[var(--bg-tertiary)] text-gray-400' : 'bg-white text-slate-500 border border-[var(--border-color)]'
           }`}>
           {sortOrder === 'asc' ? 'ASC' : 'DESC'}
         </motion.button>
@@ -244,3 +244,7 @@ export function RecordingsScreen({ theme = 'dark', onBack }: RecordingsScreenPro
     </div>
   );
 }
+
+
+
+

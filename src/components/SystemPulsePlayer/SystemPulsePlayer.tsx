@@ -14,13 +14,13 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
   const state = usePlayerState(theme);
   const { t } = useI18n();
 
-  const bgColor = state.isDark ? "bg-[#2a3036]" : "bg-[#e2e8f0]";
+  const bgColor = state.isDark ? "bg-[#2a3036]" : "bg-[var(--bg-secondary)]";
   const textColor = state.isDark ? "text-[#e6d6b8]" : "text-slate-700";
   const darkShadow = state.isDark ? "shadow-[8px_8px_16px_rgba(0,0,0,0.6),_-8px_-8px_16px_rgba(255,255,255,0.05)]" : "shadow-[8px_8px_16px_rgba(165,175,190,0.6),_-8px_-8px_16px_rgba(255,255,255,0.8)]";
   const insetShadow = state.isDark ? "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.05)]" : "shadow-[inset_4px_4px_8px_rgba(165,175,190,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.8)]";
 
   return (
-    <div className={`w-full max-w-[400px] flex flex-col items-center p-6 sm:p-8 ${bgColor} ${darkShadow} relative overflow-hidden font-sans border ${state.isDark ? "border-white/[0.02]" : "border-black/[0.02]"} transition-all duration-300`}>
+    <div className={`w-full max-w-[400px] flex flex-col items-center p-6 sm:p-8 ${bgColor} ${darkShadow} relative overflow-hidden font-sans border ${state.isDark ? "border-[var(--border-color)]/[0.02]" : "border-black/[0.02]"} transition-all duration-300`}>
       {state.rippleState.active && (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
           <div
@@ -186,3 +186,6 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
     </div>
   );
 };
+
+
+

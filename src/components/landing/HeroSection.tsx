@@ -9,7 +9,7 @@ export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStart
     transition={{ duration: 1, ease: [0.32, 0.72, 0, 1] }}
     className="flex flex-col items-center text-center max-w-3xl"
   >
-    <div className="mb-6 px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border border-white/10">
+    <div className="mb-6 px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border border-[var(--border-color)]">
       v1.0 &mdash; June 2026
     </div>
 
@@ -29,12 +29,12 @@ export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStart
     <div className="flex items-center gap-4">
       <button
         onClick={onGetStarted}
-        className="group relative overflow-hidden rounded-full px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
+        className="group relative overflow-hidden rounded-full px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
       >
         <span className="relative z-10 flex items-center gap-3">
           Open App
           <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5">
-            <ArrowRight size={14} className="text-white" />
+            <ArrowRight size={14} className="text-[var(--text-primary)]" />
           </span>
         </span>
       </button>
@@ -43,10 +43,11 @@ export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStart
         href="https://github.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="rounded-full px-7 py-3.5 text-sm font-bold border transition-all duration-300 border-white/10 text-[var(--text-tertiary)] hover:bg-white/5"
+        className="rounded-full px-7 py-3.5 text-sm font-bold border transition-all duration-300 border-[var(--border-color)] text-[var(--text-tertiary)] hover:bg-white/5"
       >
         Source Code
       </a>
     </div>
   </motion.div>
 );
+

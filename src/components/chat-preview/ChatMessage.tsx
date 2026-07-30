@@ -40,7 +40,7 @@ interface ChatMessageProps {
   onAction?: (action: string) => void;
 }
 
-export function ChatMessage({
+function ChatMessageImpl({
   msg, isMe, isDark, isChannel, chat, stealthMode,
   deliveryReceipts, readReceipts, chatSavedMessages, searchQuery,
   swipeReplyId, activeReactionPicker, theme,
@@ -52,6 +52,16 @@ export function ChatMessage({
 }: ChatMessageProps) {
   const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
   const { t } = useI18n();
+  const stickerSrc = React.useMemo(
+    () => (msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null),
+    [msg.text, msg.type, theme],
+  );
+  const linkPreview = React.useMemo(() => {
+    if (typeof msg.text !== "string") return null;
+    const match = msg.text.match(/https?:\/\/[^\s]+/i);
+    return match?.[0] ?? null;
+  }, [msg.text]);
+  const bubbleCornerClass = getBubbleCornerClass(msg._groupPosition as GroupPosition, isMe);
 
   if (msg._isDateSeparator) {
     return (
@@ -64,9 +74,6 @@ export function ChatMessage({
       </div>
     );
   }
-
-  const stickerSrc = msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null;
-  const bubbleCornerClass = getBubbleCornerClass(msg._groupPosition as GroupPosition, isMe);
 
   return (
     <motion.div
@@ -109,15 +116,15 @@ export function ChatMessage({
             isMe
               ? isDark
                 ? "bg-orange-600/20 text-orange-50 border border-orange-500/30 shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
-                : "bg-gradient-to-br from-orange-400 to-orange-500 text-white shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
+                : "bg-gradient-to-br from-orange-400 to-orange-500 text-[var(--text-primary)] shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
               : isDark
-                ? "bg-[#1a1d24] text-gray-300 border border-white/5 shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
-                : "bg-white text-slate-700 border border-black/5 shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
+                ? "bg-[var(--bg-tertiary)] text-gray-300 border border-[var(--border-color)] shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
+                : "bg-white text-slate-700 border border-[var(--border-color)] shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
           }`}
         >
           {msg.type === "image" && (
             <div
-              className="rounded-xl overflow-hidden mb-1 relative border border-white/10 cursor-pointer"
+              className="rounded-xl overflow-hidden mb-1 relative border border-[var(--border-color)] cursor-pointer"
               onClick={() => { onSetActivePhotoUrl(msg.attachment || msg.url); onSetPhotoOpen(true); }}
             >
               <img src={msg.attachment || msg.url} alt="Shared" className="w-full h-auto object-cover max-h-[240px] sm:max-h-[280px] md:max-h-[320px]" />
@@ -125,16 +132,16 @@ export function ChatMessage({
           )}
           {msg.type === "video" && (
             <div
-              className="rounded-[14px] overflow-hidden mb-1 relative border border-white/10 group cursor-pointer"
+              className="rounded-[14px] overflow-hidden mb-1 relative border border-[var(--border-color)] group cursor-pointer"
               onClick={() => onSetVideoOpen(true)}
             >
               <img src={msg.thumb} alt="Video thumbnail" className="w-full h-auto sm:w-[180px] sm:h-[100px] md:w-[200px] md:h-[120px] object-cover opacity-80" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <Play size={20} className="text-white fill-white ml-1" />
+                  <Play size={20} className="text-[var(--text-primary)] fill-white ml-1" />
                 </div>
               </div>
-              <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded text-[10px] font-bold text-white tracking-wider">{msg.duration}</div>
+              <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded text-[10px] font-bold text-[var(--text-primary)] tracking-wider">{msg.duration}</div>
             </div>
           )}
           {msg.type === "audio" && (
@@ -158,9 +165,15 @@ export function ChatMessage({
           {msg.replyTo && (
             <div className={`mb-2 px-3 py-2 rounded-xl border-l-2 text-[12px] ${isDark ? "bg-white/5 border-orange-400 text-gray-300" : "bg-black/5 border-orange-500 text-slate-600"}`}>
               <div className="font-bold text-[10px] uppercase tracking-widest opacity-70 mb-1">
-                Replying to {msg.replyTo.sender === "me" ? "your message" : msg.replyTo.sender}
+                {t('chat.replyingTo')} {msg.replyTo.sender === "me" ? t('chat.yourMessage') : msg.replyTo.sender}
               </div>
-              <div className="line-clamp-2">{msg.replyTo.text || (msg.replyTo.type === "audio" ? `Voice note · ${msg.replyTo.duration || ""}` : "Attachment")}</div>
+              <div className="line-clamp-2">
+                {msg.replyTo.text || (
+                  msg.replyTo.type === "audio"
+                    ? `${t('chat.voiceNote')}${msg.replyTo.duration || ""}`
+                    : t('chat.attachment')
+                )}
+              </div>
             </div>
           )}
           {msg.text && msg.type !== "sticker" && (
@@ -168,10 +181,10 @@ export function ChatMessage({
               <FormattedText text={msg.text} searchTerm={searchQuery} />
             </span>
           )}
-          {msg.text && typeof msg.text === "string" && /https?:\/\/[^\s]+/i.test(msg.text) && (
-            <div className={`mt-2 p-2 rounded-xl border text-[11px] ${isDark ? "bg-white/5 border-white/10 text-gray-300" : "bg-slate-50 border-black/5 text-slate-600"}`}>
+          {linkPreview && (
+            <div className={`mt-2 p-2 rounded-xl border text-[11px] ${isDark ? "bg-white/5 border-[var(--border-color)] text-gray-300" : "bg-slate-50 border-[var(--border-color)] text-slate-600"}`}>
               <div className="font-bold uppercase tracking-widest text-[9px] opacity-70 mb-1">{t('chat.linkPreview')}</div>
-              <div className="break-all line-clamp-2">{msg.text.match(/https?:\/\/[^\s]+/i)?.[0]}</div>
+              <div className="break-all line-clamp-2">{linkPreview}</div>
             </div>
           )}
           {msg.keyboard && (
@@ -182,7 +195,7 @@ export function ChatMessage({
                     <button
                       key={j}
                       onClick={() => { if (onAction) onAction(btn.action || btn.text); }}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[#2a2d36] hover:bg-[#343842] text-white border border-white/5" : "bg-[#f4f7f9] hover:bg-slate-200 text-slate-700 border border-black/5"}`}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[#2a2d36] hover:bg-[#343842] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[var(--bg-primary)] hover:bg-slate-200 text-slate-700 border border-[var(--border-color)]"}`}
                     >
                       {btn.text}
                     </button>
@@ -221,12 +234,12 @@ export function ChatMessage({
           {msg._isLastInGroup && (
             <div className={`mt-1.5 flex items-center gap-1.5 sm:gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
               {!isChannel && (
-                <button onClick={() => onReply(msg)} className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors ${isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-black/5"}`}>
+                <button onClick={() => onReply(msg)} className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors ${isDark ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-black/5"}`}>
                   {t('chat.reply')}
                 </button>
               )}
               {!isChannel && (
-                <button onClick={() => onToggleSavedMessage(chat, msg)} className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors flex items-center gap-1 ${isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-black/5"}`}>
+                <button onClick={() => onToggleSavedMessage(chat, msg)} className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors flex items-center gap-1 ${isDark ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-black/5"}`}>
                   <Bookmark size={10} />
                   {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? t('chat.saved') : t('chat.save')}
                 </button>
@@ -235,18 +248,20 @@ export function ChatMessage({
           )}
           {isChannel && (
             <div
-              className={`flex items-center gap-1 mt-2 -mb-1 px-1 py-1 rounded-lg cursor-pointer ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-white" : "hover:bg-black/5 text-slate-500 hover:text-slate-800"} transition-colors w-max`}
+              className={`flex items-center gap-1 mt-2 -mb-1 px-1 py-1 rounded-lg cursor-pointer ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "hover:bg-black/5 text-slate-500 hover:text-slate-800"} transition-colors max-w-full`}
               onClick={() => { onSetActivePostId(msg.id); onSetShowComments(true); }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
               </svg>
-              <span className="text-[11px] font-medium tracking-wide">{msg.id === 402 ? "45 Comments" : "Leave a Comment"}</span>
+              <span className="text-[11px] font-medium tracking-wide">
+                {msg.id === 402 ? t('channelComments.replies', { count: 45 }) : t('channelComments.leaveAComment')}
+              </span>
             </div>
           )}
         </div>
         <div
-          className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-white" : "bg-white text-slate-400 hover:text-slate-800"} w-10 h-10 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-black/5`}
+          className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-[var(--text-primary)]" : "bg-white text-slate-400 hover:text-slate-800"} w-10 h-10 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]`}
           onClick={() => onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
           aria-label="Reactions"
           role="button"
@@ -284,7 +299,7 @@ export function ChatMessage({
             <React.Fragment key={emoji}>
               <Tooltip content={`${count === 1 ? 'You' : count + ' users'} reacted with ${emoji}`} position="top" theme={isDark ? 'dark' : 'light'}>
                 <div
-                  className={`rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center cursor-help group select-none border transition-colors ${isDark ? "bg-[#1a1d24] text-gray-300 border-white/5 hover:border-white/20 hover:bg-[#20242e]" : "bg-white text-slate-700 border-black/5 hover:bg-slate-50 hover:border-black/10"}`}
+                  className={`rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center cursor-help group select-none border transition-colors ${isDark ? "bg-[var(--bg-tertiary)] text-gray-300 border-[var(--border-color)] hover:border-[var(--border-color)] hover:bg-[#20242e]" : "bg-white text-slate-700 border-[var(--border-color)] hover:bg-slate-50 hover:border-[var(--border-color)]"}`}
                   onClick={() => onReactionMessage(msg.id, emoji)}
                 >
                   {emoji}
@@ -298,3 +313,9 @@ export function ChatMessage({
     </motion.div>
   );
 }
+
+export const ChatMessage = React.memo(ChatMessageImpl);
+
+
+
+

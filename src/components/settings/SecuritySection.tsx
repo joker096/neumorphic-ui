@@ -102,7 +102,7 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
           }}
         />
         {showPinInput && (
-          <div className="px-4 py-3 border-t border-black/5 dark:border-white/5">
+          <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
             <input
               type="password"
               maxLength={10}
@@ -110,7 +110,7 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
               value={pinValue}
               onChange={e => setPinValue(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && confirmPinAction()}
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors border ${isDark ? "bg-[#11141c] border-white/10 text-white focus:border-emerald-500/50" : "bg-[#f4f7f9] border-black/10 text-slate-800 focus:border-emerald-500/50"}`}
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)] focus:border-emerald-500/50" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800 focus:border-emerald-500/50"}`}
               autoFocus
             />
             <button
@@ -149,3 +149,7 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
     </SubView>
   );
 };
+
+
+
+

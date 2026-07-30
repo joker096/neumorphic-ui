@@ -40,11 +40,11 @@ export const ChatListSearchHeader = ({
       <div
         title={t("chat.archived")}
         onClick={() => { setView("chats"); setActiveFolder("archived"); }}
-        className={`min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[#1a1d24] border border-white/5 hover:bg-white/5 text-gray-400 hover:text-white" : "bg-white border border-black/5 hover:bg-black/5 text-slate-500 hover:text-slate-800 shadow-sm"}`}
+        className={`min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "bg-white border border-[var(--border-color)] hover:bg-black/5 text-slate-500 hover:text-slate-800 shadow-sm"}`}
       >
         <Archive size={16} />
         {archivedUnreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md border-[2px] border-[#eaeff4] dark:border-[#11141c] px-1">
+          <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-[var(--text-primary)] shadow-md border-[2px] border-[var(--bg-secondary)] dark:border-[var(--bg-primary)] px-1">
             {archivedUnreadCount}
           </div>
         )}
@@ -52,3 +52,7 @@ export const ChatListSearchHeader = ({
     )}
   </div>
 );
+
+
+
+

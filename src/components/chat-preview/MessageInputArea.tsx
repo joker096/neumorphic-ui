@@ -92,7 +92,7 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
             setChats && setChats((prev: any) => prev.map((c: any) => c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c));
             if (onToggleMute) onToggleMute();
           }}
-          className="w-full py-3 rounded-md flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide bg-[--bg-secondary] hover:bg-[--bg-tertiary] text-orange-600 border border-[var(--border-color)] shadow-sm"
+          className="w-full py-3 rounded-md flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] text-orange-600 border border-[var(--border-color)] shadow-sm"
         >
           {chat.isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
         </button>
@@ -104,16 +104,16 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
     <>
       {/* Schedule popup */}
       {eShowSchedulePopup && (
-        <div className="mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-md flex flex-col gap-2 bg-[--bg-secondary] border border-[var(--border-color)] shadow-sm">
+        <div className="mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-md flex flex-col gap-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-sm">
           <div className="flex justify-between items-center">
             <span className="text-xs font-bold uppercase tracking-widest text-orange-500">{t("chat.scheduleSend")}</span>
-            <X size={16} className="cursor-pointer text-[--text-tertiary] hover:text-[--text-primary]" onClick={() => setShowSchedulePopupFn2(false)} />
+            <X size={16} className="cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)]" onClick={() => setShowSchedulePopupFn2(false)} />
           </div>
           <input
             type="datetime-local"
             value={eScheduleDateTime}
             onChange={(e) => setScheduleDtFn2(e.target.value)}
-            className="w-full outline-none text-sm p-2 rounded-lg bg-[--bg-secondary] text-[--text-primary] border border-[var(--border-color)]/10"
+            className="w-full outline-none text-sm p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)]/10"
           />
           <div className="flex gap-2">
             <button
@@ -121,7 +121,7 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
                 setScheduleDtFn2("");
                 setShowSchedulePopupFn2(false);
               }}
-              className="flex-1 py-2 text-xs font-bold rounded-lg transition-colors bg-[--bg-tertiary] text-[--text-secondary] hover:bg-[--bg-tertiary]/10"
+              className="flex-1 py-2 text-xs font-bold rounded-lg transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]/10"
             >
               {t("common.cancel")}
             </button>
@@ -171,14 +171,14 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
                   e.target.value = "";
                 }}
               />
-              <div className="w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 bg-[--bg-primary] text-[--text-secondary] hover:text-[--text-primary] hover:bg-[--bg-tertiary]">
+              <div className="w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 bg-[var(--bg-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]">
                 <Smile size={18} />
               </div>
             </div>
 
             {/* Schedule */}
             <div
-              className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eScheduleDateTime ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "bg-[--bg-primary] text-[--text-secondary] hover:text-[--text-primary] hover:bg-[--bg-tertiary]"}`}
+              className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eScheduleDateTime ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "bg-[var(--bg-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"}`}
               onClick={() => setShowSchedulePopupFn2(!eShowSchedulePopup)}
             >
               <Clock size={18} />
@@ -186,7 +186,7 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
 
             {/* Sticker picker */}
             <div
-              className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eShowStickerPicker ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "bg-[--bg-primary] text-[--text-secondary] hover:text-[--text-primary] hover:bg-[--bg-tertiary]"}`}
+              className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${eShowStickerPicker ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "bg-[var(--bg-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"}`}
               onClick={() => setShowStickerPickerFn2(!eShowStickerPicker)}
             >
               <Smile size={18} />
@@ -195,7 +195,7 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
         )}
 
         {/* Text input */}
-        <div className="flex-1 min-w-0 h-12 rounded-full px-4 flex items-center relative bg-[--bg-primary] border-[var(--border-color)] shadow-[var(--shadow-neu-inset)]">
+        <div className="flex-1 min-w-0 h-12 rounded-full px-4 flex items-center relative bg-[var(--bg-primary)] border-[var(--border-color)] shadow-[var(--shadow-neu-inset)]">
           <input
             type="text"
             value={eMsgText}
@@ -204,21 +204,21 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
             placeholder={eMorseMode ? t("chat.morsePlaceholder") : t("chat.messagePlaceholder")}
             autoComplete="off"
             inputMode="text"
-            className="w-full bg-transparent border-none outline-none text-[14px] text-[--text-primary] placeholder:text-[--text-tertiary]"
+            className="w-full bg-transparent border-none outline-none text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
              style={eMorseMode ? { fontFamily: "monospace", color: "var(--player-progress-orange)", filter: "saturate(0.8)" } : {}}
           />
           <div className="absolute right-2 flex items-center gap-1">
             <div
               title={t("chat.silentMessage")}
               onClick={() => setSilentModeFn2(!eSilentMode)}
-              className={`px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${eSilentMode ? "text-blue-500" : "text-[--text-tertiary] hover:text-[--text-secondary]"}`}
+              className={`px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${eSilentMode ? "text-blue-500" : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"}`}
             >
               <Mic size={12} />
             </div>
             <div
               title={t("chat.toggleMorseEncoder")}
               onClick={() => setMorseModeFn2(!eMorseMode)}
-              className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-mono font-bold cursor-pointer transition-colors ${eMorseMode ? "bg-amber-500 text-white" : "hover:bg-[--bg-tertiary] text-[--text-tertiary]"}`}
+              className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-mono font-bold cursor-pointer transition-colors ${eMorseMode ? "bg-amber-500 text-[var(--text-primary)]" : "hover:bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"}`}
             >
               M
             </div>
@@ -242,7 +242,7 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
             }
           }}
           onContextMenu={(e) => e.preventDefault()}
-          className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${eScheduleDateTime && eMsgText ? "bg-blue-500 text-white" : eMsgText ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white" : "bg-[var(--accent-soft)] text-[var(--accent)]"}`}
+          className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${eScheduleDateTime && eMsgText ? "bg-blue-500 text-[var(--text-primary)]" : eMsgText ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)]" : "bg-[var(--accent-soft)] text-[var(--accent)]"}`}
         >
           {eMsgText ? (eScheduleDateTime ? <Clock size={16} /> : <ChevronRight size={18} />) : <Mic size={18} />}
         </div>
@@ -250,7 +250,7 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
 
       {/* Reply target */}
       {eReplyTarget && (
-        <div className="mx-2 sm:mx-3 mb-1 px-2 sm:px-3 py-2 rounded-md border-l-2 flex items-start justify-between gap-1.5 sm:gap-2 bg-[--bg-secondary]/80 border-orange-500 text-[--text-primary]">
+        <div className="mx-2 sm:mx-3 mb-1 px-2 sm:px-3 py-2 rounded-md border-l-2 flex items-start justify-between gap-1.5 sm:gap-2 bg-[var(--bg-secondary)]/80 border-orange-500 text-[var(--text-primary)]">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold opacity-70">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -265,7 +265,7 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
           </div>
           <button
             onClick={() => setReplyTargetFn2(null)}
-            className="mt-0.5 w-11 h-11 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 text-[--text-tertiary] hover:text-[--text-primary] hover:bg-[--bg-tertiary]/10"
+            className="mt-0.5 w-11 h-11 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]/10"
             aria-label="Remove reply"
           >
             <X size={16} strokeWidth={2} />
@@ -303,3 +303,5 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
     </>
   );
 };
+
+

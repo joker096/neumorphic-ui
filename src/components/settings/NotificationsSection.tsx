@@ -67,7 +67,7 @@ export const NotificationsSection = ({
         isDark={isDark}
       />
       {dndEnabled && (
-        <div className="grid grid-cols-2 gap-4 px-4 py-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 px-2 sm:px-4 py-3">
           <div>
             <label className="text-[10px] uppercase tracking-widest font-bold text-[var(--text-secondary)]">
               {t('settings.dndFrom')}

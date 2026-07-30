@@ -35,9 +35,9 @@ export const EqualizerPanel = ({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="flex flex-col w-full h-[450px] relative z-10"
+      className="flex flex-col w-full h-[60vh] sm:h-[500px] md:h-[450px] relative z-10"
     >
-      <div className="flex items-center justify-between mb-6 border-b border-white/[0.05] pb-4">
+      <div className="flex items-center justify-between mb-6 border-b border-[var(--border-color)]/[0.05] pb-4">
         <div
           role="button"
           tabIndex={0}
@@ -89,12 +89,12 @@ export const EqualizerPanel = ({
                     newGains[i] = Number(e.target.value);
                     setEqGains(newGains);
                   }}
-                  className="w-1.5 h-[100px] rounded-full appearance-none outline-none slider-vertical"
+                  className="w-1.5 h-[80px] sm:h-[100px] rounded-full appearance-none outline-none slider-vertical"
                   style={{
                     writingMode: 'vertical-lr',
                     direction: 'rtl',
                     WebkitAppearance: 'slider-vertical',
-                    background: isDark ? '#1a1d24' : '#cbd5e1'
+                    background: isDark ? '[var(--bg-tertiary)]' : '#cbd5e1'
                   }}
                 />
                 <div className="text-[9px] font-bold mt-2">{freq}</div>
@@ -114,3 +114,5 @@ export const EqualizerPanel = ({
     </motion.div>
   );
 };
+
+

@@ -102,7 +102,7 @@ export const ChatListView = ({
   };
 
   return (
-    <div className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[#11141c]/50" : "bg-[#eaeff4]/50"}`}>
+    <div className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
       <ChatListSearchHeader
         isDark={isDark}
         view={view}
@@ -243,7 +243,7 @@ export const ChatListView = ({
          <>
             <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-blue-500" : "text-blue-600"}`}>{t("chat.sectionBots")}</div>
            {bots.map(b => (
-             <div key={b.id} className={`w-full p-4 rounded-xl mb-4 flex flex-col gap-2 ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white border border-black/5 shadow-sm"}`}>
+             <div key={b.id} className={`w-full p-4 rounded-xl mb-4 flex flex-col gap-2 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
                 <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center">
                      <Bot size={20} />
@@ -257,7 +257,7 @@ export const ChatListView = ({
            ))}
          </>
        ) : (
-         <div className={`flex flex-col items-center justify-center py-10 opacity-60 ${isDark ? "text-white" : "text-black"}`}>
+         <div className={`flex flex-col items-center justify-center py-10 opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>
            <Bot size={32} className={`mb-4 opacity-50 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
            <span className="text-[13px] text-center px-4">{t("chat.noBots")}</span>
          </div>
@@ -266,7 +266,7 @@ export const ChatListView = ({
 
      {view !== "bots" && filteredChats.length === 0 && filteredChannels.length === 0 && (
        chatSearchQuery.trim() ? (
-         <div className={`flex flex-col items-center justify-center py-10 opacity-60 ${isDark ? "text-white" : "text-black"}`}>
+         <div className={`flex flex-col items-center justify-center py-10 opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>
            <Search size={24} className="mb-2" />
            <span className="text-[13px]">{t("chat.noResults")}</span>
          </div>
@@ -288,3 +288,6 @@ export const ChatListView = ({
     </div>
   );
 };
+
+
+

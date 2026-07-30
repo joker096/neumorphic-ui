@@ -62,7 +62,7 @@ export const AddStationModal = ({
             value={stationName}
             onChange={(e) => setStationName(e.target.value)}
             placeholder="e.g. MetroPulse FM"
-            className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white border border-black/10"}`}
+            className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
             autoFocus
           />
         </div>
@@ -73,14 +73,14 @@ export const AddStationModal = ({
             value={stationUrl}
             onChange={(e) => setStationUrl(e.target.value)}
             placeholder="https://stream.example.com/live"
-            className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white border border-black/10"}`}
+            className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
           />
           {stationAddError && <p className="text-xs text-red-400 mt-1">{stationAddError}</p>}
         </div>
         <div className="flex gap-2 mt-4">
           <button
             onClick={handleSubmit}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-[#5cc25c] text-white" : "bg-green-600 text-white"}`}
+            className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-[#5cc25c] text-[var(--text-primary)]" : "bg-green-600 text-[var(--text-primary)]"}`}
           >
             Add Station
           </button>
@@ -95,3 +95,7 @@ export const AddStationModal = ({
     </div>
   );
 };
+
+
+
+

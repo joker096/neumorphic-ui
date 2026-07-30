@@ -67,7 +67,7 @@ export const TotpSetup = ({ isDark, onBack, t }: TotpSetupProps) => {
                 className="flex-1 px-3 py-2 rounded-lg border bg-transparent text-center text-lg font-mono tracking-widest"
               />
               <button onClick={handleVerify} disabled={verifyCode.length !== 6}
-                className="px-4 py-2 rounded-lg bg-emerald-500 text-white disabled:opacity-40">
+                className="px-4 py-2 rounded-lg bg-emerald-500 text-[var(--text-primary)] disabled:opacity-40">
                 {t('settings.verify')}
               </button>
             </div>
@@ -77,3 +77,4 @@ export const TotpSetup = ({ isDark, onBack, t }: TotpSetupProps) => {
     </SubView>
   )
 }
+

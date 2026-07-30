@@ -61,7 +61,7 @@ export const SecurityStatusBadge = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium tracking-wider border border-white/5 text-[var(--text-tertiary)]"
+          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium tracking-wider border border-[var(--border-color)] text-[var(--text-tertiary)]"
         >
           <span>Default mode</span>
         </motion.div>
@@ -69,3 +69,4 @@ export const SecurityStatusBadge = () => {
     </div>
   );
 };
+

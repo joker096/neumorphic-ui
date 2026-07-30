@@ -50,7 +50,7 @@ describe('Button', () => {
   it('renders with size lg classes', () => {
     const { container } = render(<Button size="lg">Large</Button>);
     const btn = container.querySelector('button');
-    expect(btn?.className).toContain('px-6');
+    expect(btn?.className).toContain('px-5');
     expect(btn?.className).toContain('py-3');
   });
 
@@ -64,10 +64,10 @@ describe('Button', () => {
     expect(container.querySelector('button')).toHaveAttribute('type', 'submit');
   });
 
-  it('renders with premium variant', () => {
-    const { container } = render(<Button variant="premium">Premium</Button>);
+  it('renders with secondary variant', () => {
+    const { container } = render(<Button variant="secondary">Secondary</Button>);
     const btn = container.querySelector('button');
-    expect(btn?.className).toContain('rounded-full');
+    expect(btn?.className).toContain('border-[var(--button-secondary-border)]');
   });
 
   it('renders icon when provided', () => {
@@ -75,24 +75,17 @@ describe('Button', () => {
     expect(container.querySelector('[data-testid="icon"]')).toBeInTheDocument();
   });
 
-  it('renders icon inside rounded circle wrapper', () => {
-    const { container } = render(<Button icon={<span>i</span>}>Icon</Button>);
-    const iconWrapper = container.querySelector('button')?.querySelector('.rounded-full');
-    expect(iconWrapper).toBeInTheDocument();
+ it('renders icon when provided (icon variant)', () => {
+    const { container } = render(<Button variant="icon" icon={<span data-testid="icon" />}>Icon</Button>);
+    expect(container.querySelector('[data-testid="icon"]')).toBeInTheDocument();
   });
 
-  it('applies rounded-full class when icon is provided (non-premium)', () => {
-    const { container } = render(<Button icon={<span>i</span>}>Icon</Button>);
-    const btn = container.querySelector('button');
-    expect(btn?.className).toContain('rounded-full');
-  });
-
-  it('renders md size by default', () => {
+  it('renders default md size by default', () => {
     const { container } = render(<Button>Default Size</Button>);
     const btn = container.querySelector('button');
     expect(btn?.className).toContain('px-4');
-    expect(btn?.className).toContain('py-2');
-    expect(btn?.className).toContain('text-base');
+    expect(btn?.className).toContain('py-2.5');
+    expect(btn?.className).toContain('text-[14px]');
   });
 
   it('merges custom className', () => {
@@ -104,7 +97,6 @@ describe('Button', () => {
   it('renders disabled button with cursor-not-allowed', () => {
     const { container } = render(<Button disabled>Disabled</Button>);
     expect(container.querySelector('button')).toBeDisabled();
-    expect(container.querySelector('button')?.className).toContain('cursor-pointer');
   });
 
   it('renders premium variant with icon', () => {

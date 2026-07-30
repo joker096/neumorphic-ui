@@ -10,8 +10,8 @@ export function KeyButton({ num, letters, isDark, onPress }: {
       whileHover={{ scale: 1.05 }}
       className={`w-[76px] h-[76px] rounded-[22px] flex flex-col items-center justify-center cursor-pointer select-none transition-colors ${
         isDark
-          ? "bg-[#13151b] border border-white/[0.06] active:bg-[#1e2129] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-          : "bg-[#eaeff4] border border-white/60 active:bg-[#dce2ea] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
+          ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]/[0.06] active:bg-[#1e2129] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+          : "bg-[var(--bg-secondary)] border border-[var(--border-color)] active:bg-[#dce2ea] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
       }`}
     >
       <span className={`text-[28px] font-semibold leading-none ${isDark ? "text-gray-200" : "text-slate-700"}`}>
@@ -25,3 +25,7 @@ export function KeyButton({ num, letters, isDark, onPress }: {
     </motion.button>
   );
 }
+
+
+
+

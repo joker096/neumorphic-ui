@@ -116,7 +116,7 @@ describe('MeshRadar', () => {
 
     const canvas = document.querySelector('canvas')!;
     const container = canvas.parentElement!;
-    expect(container).toHaveClass('bg-[#e2e8f0]');
+    expect(container).toHaveClass('bg-[var(--bg-secondary)]');
     expect(canvas).toHaveClass('border-emerald-500/30');
   });
 
@@ -173,6 +173,6 @@ describe('MeshRadar theme switching', () => {
     expect(screen.getByText(/LIVE/)).toBeInTheDocument();
     const canvas = document.querySelector('canvas')!;
     const container = canvas.parentElement!;
-    expect(container).toHaveClass('bg-[#e2e8f0]');
+    expect(container).toHaveClass('bg-[var(--bg-secondary)]');
   });
 });

@@ -11,6 +11,15 @@ import { Scanner } from '@yudiel/react-qr-scanner';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, QrCode } from 'lucide-react';
 
+const closeBtn = (onClick: () => void) => (
+  <button
+    onClick={onClick}
+    className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+  >
+    <X size={18} />
+  </button>
+);
+
 type CompanyContactsViewProps = {
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
@@ -118,13 +127,8 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 shadow-2xl relative modal-surface"
             >
-              <button
-                onClick={() => setShowScanQR(false)}
-                className="absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors neu-button"
-              >
-                <X size={18} />
-              </button>
-              <h3 className="text-xl font-bold mb-6 text-[--text-primary]">{t('company.scanQR') || 'Scan QR to Join'}</h3>
+              {closeBtn(() => setShowScanQR(false))}
+              <h3 className="text-xl font-bold mb-6 text-[var(--text-primary)]">{t('company.scanQR') || 'Scan QR to Join'}</h3>
               <div className="w-full aspect-square overflow-hidden relative shadow-inner bg-gray-100">
                 <Scanner
                   onScan={(result) => {
@@ -136,7 +140,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
                 />
                 <div className="absolute inset-0 border-4 border-orange-500/50 pointer-events-none mix-blend-overlay"></div>
               </div>
-              <p className="text-xs text-center mt-6 text-[--text-secondary]">{t('company.scanDescription') || 'Point camera at company QR code'}</p>
+              <p className="text-xs text-center mt-6 text-[var(--text-secondary)]">{t('company.scanDescription') || 'Point camera at company QR code'}</p>
             </motion.div>
           </motion.div>
         )}
@@ -156,19 +160,14 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative flex flex-col items-center modal-surface"
             >
-              <button
-                onClick={() => setShowInvite(false)}
-                className="absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors neu-button"
-              >
-                <X size={18} />
-              </button>
-              <h3 className="text-xl font-bold mb-4 text-[--text-primary]">{t('company.invite') || 'Invite Members'}</h3>
-              <p className="text-sm text-center mb-4 text-[--text-secondary]">{t('company.inviteDescription') || 'Share this QR code with team members'}</p>
-              <div className={`w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 ${isDark ? "bg-[#1a1d24]" : "bg-white"}`}>
-                  <QrCode size="100%" strokeWidth={1} className={isDark ? "text-white" : "text-black"} />
+              {closeBtn(() => setShowInvite(false))}
+              <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">{t('company.invite') || 'Invite Members'}</h3>
+              <p className="text-sm text-center mb-4 text-[var(--text-secondary)]">{t('company.inviteDescription') || 'Share this QR code with team members'}</p>
+              <div className={`w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-white"}`}>
+                  <QrCode size="100%" strokeWidth={1} className={isDark ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"} />
               </div>
               <div className="w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset">
-                <div className="font-mono text-xs tracking-widest break-all text-center text-[--accent]">
+                <div className="font-mono text-xs tracking-widest break-all text-center text-[var(--accent)]">
                   {MOCK_COMPANY_ID}
                 </div>
               </div>
@@ -191,3 +190,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
     </div>
   );
 };
+
+
+
+

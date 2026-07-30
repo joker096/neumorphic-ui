@@ -44,8 +44,8 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
         dragMomentum={false}
         className={`fixed bottom-6 right-6 z-[100] p-4 shadow-2xl flex items-center gap-4 cursor-grab active:cursor-grabbing border ${
           isDark 
-            ? "bg-[#1a1d24]/90 backdrop-blur-xl border-white/10 shadow-[0_16px_32px_rgba(0,0,0,0.6)]" 
-            : "bg-white/90 backdrop-blur-xl border-black/5 shadow-[0_16px_32px_rgba(165,175,190,0.4)]"
+            ? "bg-[var(--bg-tertiary)]/90 backdrop-blur-xl border-[var(--border-color)] shadow-[0_16px_32px_rgba(0,0,0,0.6)]" 
+            : "bg-white/90 backdrop-blur-xl border-[var(--border-color)] shadow-[0_16px_32px_rgba(165,175,190,0.4)]"
         }`}
       >
         <div className="flex items-center gap-3">
@@ -61,7 +61,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
            <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 {activeCall.isVideo && <Video size={14} className={isDark ? "text-orange-400" : "text-orange-600"} />}
-<span className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
+<span className={`text-sm font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
                    {activeCall.remotePeer?.displayName || "Unknown"}
                  </span>
               </div>
@@ -77,8 +77,8 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
               title={activeCall.isMuted ? t('chat.unmute') : t('chat.mute')}
               className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                 activeCall.isMuted 
-                  ? (isDark ? "bg-white/20 text-white" : "bg-black/10 text-black")
-                  : (isDark ? "bg-[#13151b] text-gray-400 hover:text-white" : "bg-slate-100 text-slate-500 hover:text-slate-700")
+                  ? (isDark ? "bg-white/20 text-[var(--text-primary)]" : "bg-black/10 text-[var(--text-secondary)]")
+                  : (isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)]" : "bg-slate-100 text-slate-500 hover:text-slate-700")
               }`}
             >
               <MicOff size={18} />
@@ -86,7 +86,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
             <button 
               onClick={() => setActiveCall(null)}
               title={t('chat.endCall')}
-              className="w-12 h-12 rounded-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-[var(--text-primary)] shadow-lg transition-transform hover:scale-105 active:scale-95"
             >
                <Phone size={20} className="rotate-[135deg] fill-white/20" strokeWidth={2.5} />
             </button>
@@ -95,3 +95,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
     </AnimatePresence>
   );
 };
+
+
+
+

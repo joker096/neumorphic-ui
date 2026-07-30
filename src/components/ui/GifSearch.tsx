@@ -122,7 +122,7 @@ export const GifSearch = ({ open, onClose, onSelect }: Props) => {
             )}
             {loading ? (
               <div className="flex items-center justify-center py-8">
-                <div className={`w-6 h-6 border-2 rounded-full animate-spin ${'border-white/20 border-t-white'}`} />
+                <div className={`w-6 h-6 border-2 rounded-full animate-spin ${'border-[var(--border-color)] border-t-white'}`} />
               </div>
             ) : (
               <div className="grid grid-cols-4 gap-2">
@@ -143,3 +143,4 @@ export const GifSearch = ({ open, onClose, onSelect }: Props) => {
     </AnimatePresence>
   )
 }
+

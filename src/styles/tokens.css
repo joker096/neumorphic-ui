@@ -45,8 +45,63 @@
   --border-color: rgba(255,255,255,0.06);
   --accent: #f97316;
   --accent-soft: rgba(249,115,22,0.12);
-  --waveform-played-self: #ffffff;
-  --waveform-played-other: #f97316;
+
+  /* Button tokens */
+  --button-primary-bg: #f97316;
+  --button-primary-text: #ffffff;
+  --button-secondary-bg: transparent;
+  --button-secondary-text: #f97316;
+  --button-secondary-hover-bg: rgba(249,115,22,0.15);
+  --button-secondary-border: rgba(249,115,22,0.4);
+
+  /* Card tokens */
+  --card-raised-bg: #1a1d24;
+  --card-flat-bg: #13151b;
+  --card-inset-bg: #13151b;
+
+  /* Input tokens */
+  --input-bg: #1a1d24;
+  --input-text: #f0f2f5;
+  --input-placeholder: #6b7280;
+  --inset-field-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.4);
+
+  /* Glass / backdrop tokens */
+  --glass-bg: rgba(19,21,27,0.6);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --glass-blur: 12px;
+
+  /* Doppelrand / double-bezel tokens */
+  --doppelrand-outer-bg: #1e2128;
+  --doppelrand-padding: 6px;
+  --doppelrand-radius-outer: 1rem;
+  --doppelrand-outer-border: rgba(255,255,255,0.08);
+  --doppelrand-radius-inner: 0.875rem;
+  --doppelrand-inner-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+
+  /* Shadow tokens */
+  --shadow-neu-raised: 3px 3px 6px #0a0c10, -3px -3px 6px #14171e;
+  --shadow-neu-inset: inset 3px 3px 6px #0a0c10, inset -3px -3px 6px #14171e;
+
+  /* System tokens */
+  --system-background: #0d1017;
+  --separator: rgba(255,255,255,0.06);
+
+  /* List / toggle tokens */
+  --list-item-hover-bg: rgba(255,255,255,0.04);
+  --toggle-active-bg: #f97316;
+  --toggle-inactive-bg: rgba(255,255,255,0.1);
+  --toggle-inactive-border: rgba(255,255,255,0.2);
+  --toggle-thumb-bg: #ffffff;
+
+  /* Player / progress tokens */
+  --player-progress-orange: #f97316;
+
+  /* Color utility tokens */
+  --color-success: #22c372;
+  --color-success-soft: rgba(34,195,114,0.15);
+  --color-warning: #f59f19;
+  --color-danger: #ef4424;
 }
 
 [data-theme="light"] {
@@ -62,6 +117,63 @@
   --accent-soft: rgba(234,88,12,0.1);
   --waveform-played-self: #0f172a;
   --waveform-played-other: #ea580c;
+
+  /* Button tokens */
+  --button-primary-bg: #ea580c;
+  --button-primary-text: #ffffff;
+  --button-secondary-bg: transparent;
+  --button-secondary-text: #ea580c;
+  --button-secondary-hover-bg: rgba(234,88,12,0.1);
+  --button-secondary-border: rgba(234,88,12,0.3);
+
+  /* Card tokens */
+  --card-raised-bg: #ffffff;
+  --card-flat-bg: #f1f5f9;
+  --card-inset-bg: #f1f5f9;
+
+  /* Input tokens */
+  --input-bg: #ffffff;
+  --input-text: #0f172a;
+  --input-placeholder: #94a3b8;
+  --inset-field-shadow: inset 0 1px 2px 0 rgba(0,0,0,0.15);
+
+  /* Glass / backdrop tokens */
+  --glass-bg: rgba(255,255,255,0.7);
+  --glass-border: rgba(0,0,0,0.08);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  --glass-blur: 12px;
+
+  /* Doppelrand / double-bezel tokens */
+  --doppelrand-outer-bg: #ffffff;
+  --doppelrand-padding: 6px;
+  --doppelrand-radius-outer: 1rem;
+  --doppelrand-outer-border: rgba(0,0,0,0.08);
+  --doppelrand-radius-inner: 0.875rem;
+  --doppelrand-inner-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+
+  /* Shadow tokens */
+  --shadow-neu-raised: 3px 3px 6px #c2c8d4, -3px -3px 6px #ffffff;
+  --shadow-neu-inset: inset 3px 3px 6px #c2c8d4, inset -3px -3px 6px #ffffff;
+
+  /* System tokens */
+  --system-background: #f8fafc;
+  --separator: rgba(0,0,0,0.08);
+
+  /* List / toggle tokens */
+  --list-item-hover-bg: rgba(0,0,0,0.03);
+  --toggle-active-bg: #ea580c;
+  --toggle-inactive-bg: rgba(0,0,0,0.12);
+  --toggle-inactive-border: rgba(0,0,0,0.2);
+  --toggle-thumb-bg: #ffffff;
+
+  /* Player / progress tokens */
+  --player-progress-orange: #ea580c;
+
+  /* Color utility tokens */
+  --color-success: #16a04a;
+  --color-success-soft: rgba(22,160,74,0.12);
+  --color-warning: #d97c0f;
+  --color-danger: #dc2023;
 }
 
 [data-font-size="Small"] {

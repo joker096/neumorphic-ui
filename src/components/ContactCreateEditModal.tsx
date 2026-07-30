@@ -82,22 +82,22 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
         initial={{ scale: 0.95, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
-        className={`w-full max-w-[380px] max-h-[90vh] overflow-y-auto p-5 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
+        className={`w-full max-w-[380px] max-h-[90vh] overflow-y-auto p-5 shadow-2xl relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
       >
-        <div
-          className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+        <button
+          className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]`}
           onClick={onClose}
           title={t('contacts.close')}
         >
           <X size={18} />
-        </div>
+        </button>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
           <div className="flex flex-col items-center mb-2">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}>
               {isEditing ? <Edit size={32} /> : <UserPlus size={32} />}
             </div>
-            <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{t(isEditing ? 'contacts.editContact' : 'contacts.addContact')}</h3>
+            <h3 className={`text-xl font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t(isEditing ? 'contacts.editContact' : 'contacts.addContact')}</h3>
             <p className={`text-xs text-center mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
               {isEditing ? 'Update contact details below.' : 'Enter their name and unique network ID.'}
             </p>
@@ -116,7 +116,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
               placeholder={t('contacts.contactName')}
               value={name}
               onChange={e => setName(e.target.value)}
-              className={`w-full h-12 px-4 rounded-xl text-sm outline-none border-2 transition-colors ${isDark ? "bg-[#13151b] text-white border-white/10 focus:border-orange-500" : "bg-slate-50 text-slate-800 border-black/5 focus:border-orange-500"}`}
+              className={`w-full h-12 px-4 rounded-xl text-sm outline-none border-2 transition-colors ${isDark ? "bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border-color)] focus:border-orange-500" : "bg-slate-50 text-slate-800 border-[var(--border-color)] focus:border-orange-500"}`}
             />
             <div className="relative">
               <input
@@ -124,12 +124,12 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
                 placeholder={t('contacts.networkId')}
                 value={id}
                 onChange={e => setId(e.target.value)}
-                className={`w-full h-12 pl-4 pr-12 rounded-xl text-sm font-mono outline-none border-2 transition-colors ${isDark ? "bg-[#13151b] text-white border-white/10 focus:border-orange-500" : "bg-slate-50 text-slate-800 border-black/5 focus:border-orange-500"}`}
+                className={`w-full h-12 pl-4 pr-12 rounded-xl text-sm font-mono outline-none border-2 transition-colors ${isDark ? "bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border-color)] focus:border-orange-500" : "bg-slate-50 text-slate-800 border-[var(--border-color)] focus:border-orange-500"}`}
               />
               {!isEditing && (
                 <button
                   type="button"
-                  className={`absolute right-2 top-2 bottom-2 w-10 h-10 flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+                  className={`absolute right-2 top-2 bottom-2 w-10 h-10 flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]`}
                   title={t('header.scanQR')}
                   aria-label={t('header.scanQR')}
                 >
@@ -142,38 +142,38 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
           {/* CRM Fields */}
           <div className="flex flex-col gap-3 mt-2">
             <div className="flex items-center gap-2">
-              <div className={`flex-1 h-10 rounded-xl px-3 flex items-center gap-2 ${isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"}`}>
+              <div className={`flex-1 h-10 rounded-xl px-3 flex items-center gap-2 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`}>
                 <Building size={14} className={isDark ? "text-gray-500" : "text-slate-400"} />
                 <input
                   type="text"
                   placeholder="Company"
                   value={company}
                   onChange={e => setCompany(e.target.value)}
-                  className={`flex-1 bg-transparent outline-none text-[13px] ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
+                  className={`flex-1 bg-transparent outline-none text-[13px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
                 />
               </div>
             </div>
 
-            <div className={`flex-1 h-10 rounded-xl px-3 flex items-center gap-2 ${isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"}`}>
+            <div className={`flex-1 h-10 rounded-xl px-3 flex items-center gap-2 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`}>
               <User size={14} className={isDark ? "text-gray-500" : "text-slate-400"} />
               <input
                 type="text"
                 placeholder="Position (e.g. CEO, Manager)"
                 value={position}
                 onChange={e => setPosition(e.target.value)}
-                className={`flex-1 bg-transparent outline-none text-[13px] ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
+                className={`flex-1 bg-transparent outline-none text-[13px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
               />
             </div>
 
             <div className="relative">
-              <div className={`h-10 rounded-xl px-3 flex items-center gap-2 cursor-pointer ${isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"}`} onClick={() => setShowTags(!showTags)}>
+              <div className={`h-10 rounded-xl px-3 flex items-center gap-2 cursor-pointer ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`} onClick={() => setShowTags(!showTags)}>
                 <Tag size={14} className={isDark ? "text-gray-500" : "text-slate-400"} />
-                <span className={`text-[13px] ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}>
+                <span className={`text-[13px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}>
                   {tags.length > 0 ? tags.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ') : 'Add tags...'}
                 </span>
               </div>
               {showTags && (
-                <div className={`absolute top-full left-0 right-0 z-20 mt-1 p-2 rounded-2xl ${isDark ? "bg-[#13151b] border border-white/5" : "bg-white border border-black/5 shadow-lg"}`}>
+                <div className={`absolute top-full left-0 right-0 z-20 mt-1 p-2 rounded-2xl ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-lg"}`}>
                   <div className="grid grid-cols-2 gap-2">
                     {allTags.map(tag => (
                       <button
@@ -195,15 +195,15 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
             <div className={`flex items-center justify-between ${isDark ? "text-gray-300" : "text-slate-700"}`}>
               <span className="text-xs font-bold uppercase tracking-widest">{t('contacts.localInfo')}</span>
               <button
-                type="button"
-                onClick={addField}
-                className={`text-[10px] font-bold px-2 py-1 rounded-full transition-colors ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"}`}
-              >
-                {t('contacts.addField')}
-              </button>
+                  type="button"
+                  onClick={addField}
+                  className={`text-[10px] font-bold px-2 py-1 rounded-full cursor-pointer transition-all ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-white/10 hover:text-[var(--text-primary)]" : "bg-orange-100 text-orange-600 hover:bg-black/5 hover:text-slate-800"}`}
+                >
+                  {t('contacts.addField')}
+                </button>
             </div>
             {localFields.map((field) => (
-              <div key={field.id} className={`p-3 rounded-xl flex flex-col gap-2 ${isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"}`}>
+              <div key={field.id} className={`p-3 rounded-xl flex flex-col gap-2 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`}>
                 <div className="flex items-center gap-2">
                   <select
                     value={field.type}
@@ -212,7 +212,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
                       const defaults: Record<string, string> = { phone: 'Phone', email: 'Email', telegram: 'Telegram', custom: field.label || '' };
                       updateField(field.id, { type: newType, label: defaults[newType] || '' });
                     }}
-                    className={`flex-1 h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white text-slate-800 border border-black/10"}`}
+                    className={`flex-1 h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}
                   >
                     <option value="phone">{t('contacts.fieldTypePhone')}</option>
                     <option value="email">{t('contacts.fieldTypeEmail')}</option>
@@ -220,18 +220,18 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
                     <option value="custom">{t('contacts.fieldTypeCustom')}</option>
                   </select>
                   <button
-                    type="button"
-                    onClick={() => removeField(field.id)}
-                    className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${isDark ? "text-red-400 hover:bg-red-500/20" : "text-red-500 hover:bg-red-100"}`}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                      type="button"
+                      onClick={() => removeField(field.id)}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all hover:bg-red-500/10 text-red-500`}
+                    >
+                      <Trash2 size={14} />
+                    </button>
                 </div>
                 {field.type === 'phone' && (
                   <select
                     value={field.phoneSubtype || 'mobile'}
                     onChange={(e) => updateField(field.id, { phoneSubtype: e.target.value as PhoneSubtype })}
-                    className={`h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white text-slate-800 border border-black/10"}`}
+                    className={`h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}
                   >
                     <option value="mobile">{t('contacts.fieldSubtypeMobile')}</option>
                     <option value="work">{t('contacts.fieldSubtypeWork')}</option>
@@ -245,7 +245,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
                     placeholder="Label"
                     value={field.label}
                     onChange={(e) => updateField(field.id, { label: e.target.value })}
-                    className={`w-full h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white text-slate-800 border border-black/10"}`}
+                    className={`w-full h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}
                   />
                 )}
                 <input
@@ -253,7 +253,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
                   placeholder={field.type === 'phone' ? '+7 999 123-45-67' : field.type === 'email' ? 'user@example.com' : field.type === 'telegram' ? '@username' : 'Value'}
                   value={field.value}
                   onChange={(e) => updateField(field.id, { value: e.target.value })}
-                  className={`w-full h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[#1a1d24] text-white border border-white/10" : "bg-white text-slate-800 border border-black/10"}`}
+                  className={`w-full h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}
                 />
               </div>
             ))}
@@ -267,7 +267,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
           <button
             type="submit"
             disabled={!name.trim() || !id.trim() || isLoading}
-            className={`w-full h-12 rounded-xl font-bold mt-4 transition-all flex items-center justify-center gap-2 ${(!name.trim() || !id.trim()) ? "opacity-50 cursor-not-allowed text-white/50 bg-gray-500" : "bg-orange-500 text-white hover:bg-orange-600 active:scale-95 shadow-lg shadow-orange-500/20"}`}
+            className={`w-full h-12 rounded-xl font-bold mt-4 transition-all flex items-center justify-center gap-2 ${(!name.trim() || !id.trim()) ? "opacity-50 cursor-not-allowed text-white/50 bg-gray-500" : "bg-orange-500 text-[var(--text-primary)] hover:bg-orange-600 active:scale-95 shadow-lg shadow-orange-500/20"}`}
           >
             {isLoading && <Loader2 size={18} className="animate-spin" />}
             <Check size={18} />
@@ -278,3 +278,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
     </motion.div>
   );
 };
+
+
+
+

@@ -57,7 +57,7 @@ describe('GroupCallParticipants - additional tests', () => {
 
   it('renders unknown when no displayName', () => {
     const { container } = render(<GroupCallParticipants participants={[{ peerId: '1', displayName: undefined }]} />);
-    expect(container.querySelector('[class*="text-2xl.font-bold"]') || container.querySelector('[class*="text-white"]') || container.querySelector('[class*="text-\\?\\?"') || container.querySelector('[class*="text-?"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="text-2xl"]') || container.querySelector('[class*="text-[var(--text-primary)]"]') || container.querySelector('[class*="text-\\\\?\\\\?"') || container.querySelector('[class*="text-?"]')).toBeInTheDocument();
   });
 
   it('renders with multiple participants', () => {

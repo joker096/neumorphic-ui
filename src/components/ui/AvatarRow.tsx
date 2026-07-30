@@ -31,9 +31,9 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryCli
       <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         <div className="flex flex-col items-center gap-2 group cursor-pointer shrink-0">
           <div className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${
-            isDark ? 'bg-[#1f222a] border border-white/5 border-dashed' : 'bg-[#f4f7f9] border border-black/10 border-dashed'
+            isDark ? 'bg-[#1f222a] border border-[var(--border-color)] border-dashed' : 'bg-[var(--bg-primary)] border border-[var(--border-color)] border-dashed'
           }`}>
-            <Plus size={24} className={isDark ? 'text-gray-400 group-hover:text-white' : 'text-slate-500 group-hover:text-black'} />
+            <Plus size={24} className={isDark ? 'text-gray-400 group-hover:text-[var(--text-primary)]' : 'text-slate-500 group-hover:text-[var(--text-secondary)]'} />
           </div>
           <span className={`text-[10px] font-semibold tracking-wide transition-colors ${isDark ? 'text-gray-400 group-hover:text-gray-200' : 'text-slate-500 group-hover:text-slate-800'}`}>
             {t('header.myStory')}
@@ -49,13 +49,13 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryCli
             <div
               className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${
                 isDark
-                  ? 'bg-[#13151b] shadow-[0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border-[2px] border-orange-500/50'
-                  : 'bg-[#eaeff4] shadow-[4px_4px_8px_rgba(165,175,190,0.3),_-4px_-4px_8px_rgba(255,255,255,0.8),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border-[2px] border-orange-400'
+                  ? 'bg-[var(--bg-secondary)] shadow-[0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border-[2px] border-orange-500/50'
+                  : 'bg-[var(--bg-secondary)] shadow-[4px_4px_8px_rgba(165,175,190,0.3),_-4px_-4px_8px_rgba(255,255,255,0.8),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border-[2px] border-orange-400'
               }`}
             >
               <div className="w-[85%] h-[85%] rounded-full shadow-inner overflow-hidden p-[2px]">
                 <div
-                  className={`w-full h-full rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-white font-bold text-lg`}
+                  className={`w-full h-full rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-[var(--text-primary)] font-bold text-lg`}
                 >
                   {c.name.charAt(0)}
                 </div>
@@ -72,3 +72,7 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryCli
     </div>
   );
 };
+
+
+
+

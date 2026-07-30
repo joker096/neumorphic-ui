@@ -87,10 +87,10 @@ export const FeatureViews = ({
       return (
         <Suspense fallback={<Loader />}>
           <div className="w-full flex-1 flex flex-col md:flex-row gap-0 md:gap-4 overflow-hidden">
-            <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-[#1a1d24] min-h-0">
+            <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] min-h-0">
               <CallLogView theme={theme} onCall={(name) => onCall(name)} />
             </div>
-            <div className="shrink-0 md:w-[320px] lg:w-[360px] border-t md:border-t-0 md:border-l border-white/5 bg-[#1a1d24] rounded-2xl overflow-hidden h-full">
+            <div className="shrink-0 md:w-[320px] lg:w-[360px] border-t md:border-t-0 md:border-l border-[var(--border-color)] bg-[var(--bg-tertiary)] rounded-2xl overflow-hidden h-full">
               <Dialpad
                 theme={theme}
                 contacts={contacts}
@@ -165,3 +165,7 @@ export const FeatureViews = ({
       return null;
   }
 };
+
+
+
+

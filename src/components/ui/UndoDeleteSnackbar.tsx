@@ -15,7 +15,7 @@ export const UndoDeleteSnackbar = ({ visible, message, onUndo, onDismiss }: { vi
           <span className="text-sm text-[var(--text-primary)]">{message}</span>
           <button
             onClick={onUndo}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-colors active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] text-xs font-bold transition-colors active:scale-95"
           >
             <RotateCcw size={12} /> Undo
           </button>
@@ -27,3 +27,4 @@ export const UndoDeleteSnackbar = ({ visible, message, onUndo, onDismiss }: { vi
     </AnimatePresence>
   )
 }
+

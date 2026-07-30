@@ -36,15 +36,15 @@ export const ConfirmModal = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 20 }}
           transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
-          className="relative w-full max-w-[340px] shadow-2xl p-6 border border-white/10 bg-[#1a1d24]"
+          className="relative w-full max-w-[340px] shadow-2xl p-6 border border-[var(--border-color)] bg-[var(--bg-tertiary)]"
           onClick={(e) => e.stopPropagation()}
         >
-          <h3 className="text-lg font-bold mb-2 text-white">{title}</h3>
+          <h3 className="text-lg font-bold mb-2 text-[var(--text-primary)]">{title}</h3>
           {message && <p className="text-sm mb-6 leading-relaxed text-gray-400">{message}</p>}
           <div className="flex gap-3">
             <button
               onClick={onCancel}
-              className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-white/10 hover:bg-white/20 text-white"
+              className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-white/10 hover:bg-white/20 text-[var(--text-primary)]"
             >
               {cancelLabel}
             </button>
@@ -52,8 +52,8 @@ export const ConfirmModal = ({
               onClick={onConfirm}
               className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${
                 variant === 'danger'
-                  ? 'bg-red-500 hover:bg-red-600 text-white'
-                  : 'bg-orange-500 hover:bg-orange-600 text-white'
+                  ? 'bg-red-500 hover:bg-red-600 text-[var(--text-primary)]'
+                  : 'bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)]'
               }`}
             >
               {confirmLabel}
@@ -64,3 +64,7 @@ export const ConfirmModal = ({
     )}
   </AnimatePresence>
 );
+
+
+
+

@@ -3,6 +3,20 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { IncomingCallSheet } from './IncomingCallSheet';
 
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => ({
+      'call.unknownCaller': 'Unknown',
+      'call.videoCall': 'Video call',
+      'call.voiceCall': 'Voice call',
+      'call.incomingCall': 'Incoming call...',
+      'call.rejectCall': 'Reject call',
+      'call.acceptCall': 'Accept call',
+      'call.acceptVideoCall': 'Accept as video',
+    }[key] ?? key),
+  }),
+}));
+
 describe('IncomingCallSheet - additional tests', () => {
   it('renders caller name first letter', () => {
     render(<IncomingCallSheet callerName="Jane Doe" callType="audio" onAccept={() => {}} onReject={() => {}} />);

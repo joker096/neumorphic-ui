@@ -47,7 +47,13 @@ describe('ScheduledMessages', () => {
 
   it('shows cancel/remove button for each message', () => {
     render(<ScheduledMessages {...defaultProps} />);
-    const removeButtons = screen.getAllByText('X');
+    const removeButtons = screen.getAllByRole('button', { name: 'Remove scheduled message' });
+    expect(removeButtons).toHaveLength(2);
+  });
+
+  it('shows cancel/remove buttons for all messages', () => {
+    render(<ScheduledMessages {...defaultProps} />);
+    const removeButtons = document.querySelectorAll('[aria-label="Remove scheduled message"]');
     expect(removeButtons).toHaveLength(2);
   });
 
@@ -60,7 +66,7 @@ describe('ScheduledMessages', () => {
         scheduledQueue={{ removeMessage }}
       />,
     );
-    const removeButtons = screen.getAllByText('X');
+    const removeButtons = document.querySelectorAll('[aria-label="Remove scheduled message"]');
     fireEvent.click(removeButtons[0]);
     expect(removeMessage).toHaveBeenCalledWith(1);
   });

@@ -44,7 +44,7 @@ export const MeshRadar = ({ theme = 'dark' }: { theme?: "dark" | "light" }) => {
       sweep += 0.02;
       if (sweep > Math.PI * 2) sweep -= Math.PI * 2;
 
-      ctx.fillStyle = isDark ? "#090b0a" : "#f8fafc";
+      ctx.fillStyle = isDark ? "#090b0a" : "[var(--bg-primary)]";
       ctx.beginPath();
       ctx.arc(CX, CY, R + 4, 0, Math.PI * 2);
       ctx.fill();
@@ -150,7 +150,7 @@ export const MeshRadar = ({ theme = 'dark' }: { theme?: "dark" | "light" }) => {
       className={`p-6 flex flex-col items-center relative overflow-hidden w-full ${
         isDark
           ? "bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border border-green-500/20"
-          : "bg-[#e2e8f0] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border-black/5"
+          : "bg-[var(--bg-secondary)] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border-[var(--border-color)]"
       }`}
     >
       <div className="flex items-center gap-2 mb-4 w-full">
@@ -178,8 +178,8 @@ export const MeshRadar = ({ theme = 'dark' }: { theme?: "dark" | "light" }) => {
       <div
         className={`mt-6 w-full flex flex-col rounded-xl overflow-hidden ${
           isDark
-            ? "bg-[#13151b] border border-white/5"
-            : "bg-[#eaeff4] border border-white/80 shadow-[inset_2px_2px_4px_rgba(255,255,255,1),_4px_4px_8px_rgba(165,175,190,0.3)]"
+            ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]"
+            : "bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-[inset_2px_2px_4px_rgba(255,255,255,1),_4px_4px_8px_rgba(165,175,190,0.3)]"
         }`}
       >
         {peers.length === 0 ? (
@@ -204,7 +204,7 @@ export const MeshRadar = ({ theme = 'dark' }: { theme?: "dark" | "light" }) => {
               className={`flex items-center gap-3 p-3 text-[11px] font-mono ${
                 i < peers.length - 1 ? "border-b" : ""
               } ${
-                isDark ? "border-white/5 text-gray-300" : "border-black/5 text-slate-700"
+                isDark ? "border-[var(--border-color)] text-gray-300" : "border-[var(--border-color)] text-slate-700"
               }`}
             >
               <div
@@ -229,3 +229,7 @@ export const MeshRadar = ({ theme = 'dark' }: { theme?: "dark" | "light" }) => {
     </div>
   );
 };
+
+
+
+

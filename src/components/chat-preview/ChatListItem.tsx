@@ -42,7 +42,8 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   onLongPress,
 }) => {
   const isDark = theme === "dark";
-  const { stealthMode, typingIndicators } = useAppStore();
+  const stealthMode = useAppStore((state) => state.stealthMode);
+  const typingIndicators = useAppStore((state) => state.typingIndicators);
   const dragged = useRef(false);
   const dragDistance = useRef(0);
   const [swipedOpen, setSwipedOpen] = React.useState<"closed" | "left" | "right">("closed");
@@ -93,35 +94,33 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
       {!isGroup && onCall && onVideoCall && (
         <div className={`absolute inset-0 flex items-center justify-start overflow-hidden ${swipedOpen === "right" ? "z-10" : ""}`} aria-hidden={swipedOpen !== "right"}>
           <div className={`flex h-full ${swipedOpen === "right" ? "pointer-events-auto" : "pointer-events-none"}`}>
-            <button
-              onClick={() => handleSwipeAction("call")}
-              className={`h-full flex flex-col items-center justify-center gap-1 px-3 md:px-4 text-[10px] md:text-[11px] font-bold text-white cursor-pointer border-none ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
-              style={{ width: "64px" }}
-              aria-label={t('chat.startCall')}
-            >
+             <button
+               onClick={() => handleSwipeAction("call")}
+               className={`h-full flex flex-col items-center justify-center gap-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-bold text-[var(--text-primary)] cursor-pointer border-none w-[64px] shrink-0 ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
+               aria-label={t('chat.startCall')}
+             >
               <Phone size={16} fill="white" stroke="white" />
               <span className="text-[8px] md:text-[10px]">{t('chat.startCall')}</span>
             </button>
-           <button
-              onClick={() => handleSwipeAction("video")}
-              className={`h-full flex flex-col items-center justify-center gap-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-bold text-white cursor-pointer border-none bg-blue-500`}
-              style={{ width: "64px" }}
-              aria-label={t('chat.startVideoCall')}
-            >
+            <button
+               onClick={() => handleSwipeAction("video")}
+               className={`h-full flex flex-col items-center justify-center gap-1 px-3 sm:px-4 text-[10px] sm:text-[11px] font-bold text-[var(--text-primary)] cursor-pointer border-none bg-blue-500 w-[64px] shrink-0`}
+               aria-label={t('chat.startVideoCall')}
+             >
               <Video size={16} fill="white" stroke="white" />
-              <span className="text-[8px] md:text-[10px]">Video</span>
+              <span className="text-[8px] md:text-[10px]">{t('chat.startVideoCall')}</span>
             </button>
           </div>
         </div>
       )}
-    <div className={`absolute inset-0 flex items-center justify-end px-4 md:px-5 text-white overflow-hidden ${swipedOpen === "left" ? "z-10" : ""}`} aria-hidden={swipedOpen !== "left"}>
+    <div className={`absolute inset-0 flex items-center justify-end px-4 md:px-5 text-[var(--text-primary)] overflow-hidden ${swipedOpen === "left" ? "z-10" : ""}`} aria-hidden={swipedOpen !== "left"}>
          <button
            onClick={() => handleSwipeAction("archive")}
            className={`flex items-center gap-1.5 sm:gap-2 cursor-pointer ${swipedOpen === "left" ? "pointer-events-auto" : "pointer-events-none"}`}
            aria-label={t('chat.unarchive')}
          >
-           <Archive size={16} className={`${isDark ? "text-orange-500" : "text-white"}`} />
-            <span className={`text-[10px] md:text-xs font-bold ${isDark ? "text-orange-500" : "text-white"}`}>{archiveLabel}</span>
+           <Archive size={16} className={`${isDark ? "text-orange-500" : "text-[var(--text-primary)]"}`} />
+            <span className={`text-[10px] md:text-xs font-bold ${isDark ? "text-orange-500" : "text-[var(--text-primary)]"}`}>{archiveLabel}</span>
          </button>
        </div>
       <motion.div
@@ -168,10 +167,10 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           isDark
             ? active
               ? "bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border border-orange-500/20"
-              : "bg-[#13151b] shadow-[0_8px_16px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border border-white/[0.02] hover:scale-[1.02]"
+              : "bg-[var(--bg-secondary)] shadow-[0_8px_16px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border border-[var(--border-color)]/[0.02] hover:scale-[1.02]"
             : active
-              ? "bg-[#e2e8f0] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border border-black/5"
-              : "bg-[#eaeff4] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-white/80 hover:scale-[1.02]"
+              ? "bg-[var(--bg-secondary)] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border border-[var(--border-color)]"
+              : "bg-[var(--bg-secondary)] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)] hover:scale-[1.02]"
         }`}
       >
         <div
@@ -196,8 +195,8 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
                     ? "bg-orange-500"
                     : "bg-orange-500"
                   : isDark
-                    ? "bg-[#1a1d24] border border-white/10"
-                    : "bg-white border border-black/10"
+                    ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]"
+                    : "bg-white border border-[var(--border-color)]"
               }`}
             >
               {selected ? (
@@ -210,14 +209,14 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             </div>
           ) : (
             <div
-              className={`w-full h-full ${roundedClass} bg-gradient-to-br ${chat.color} flex items-center justify-center text-white font-bold text-xl shadow-sm`}
+              className={`w-full h-full ${roundedClass} bg-gradient-to-br ${chat.color} flex items-center justify-center text-[var(--text-primary)] font-bold text-xl shadow-sm`}
             >
               {chat.name.charAt(0)}
             </div>
           )}
           {chat.online && !selectMode && (
             <div
-              className={`absolute -bottom-0.5 -right-0.5 w-[14px] h-[14px] rounded-full border-[2.5px] z-10 ${isDark ? "bg-green-400 border-[#13151b]" : "bg-emerald-500 border-[#eaeff4]"}`}
+              className={`absolute -bottom-0.5 -right-0.5 w-[14px] h-[14px] rounded-full border-[2.5px] z-10 ${isDark ? "bg-green-400 border-[var(--bg-secondary)]" : "bg-emerald-500 border-[var(--bg-secondary)]"}`}
             />
           )}
         </div>
@@ -256,7 +255,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               <div
                 className={`shrink-0 min-w-[20px] h-[20px] px-1.5 rounded-full flex items-center justify-center shadow-sm ${
                   isDark
-                    ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_8px_rgba(249,115,22,0.5)]"
+                    ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[0_0_8px_rgba(249,115,22,0.5)]"
                     : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950 shadow-[0_2px_4px_rgba(249,115,22,0.5)]"
                 }`}
               >
@@ -269,8 +268,8 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               <div
                 className={`shrink-0 min-w-[20px] h-[20px] px-1.5 rounded-full flex items-center justify-center shadow-sm ${
                   isDark
-                    ? "bg-blue-500/90 text-white shadow-[0_0_8px_rgba(59,130,250,0.5)]"
-                    : "bg-blue-500 text-white shadow-[0_2px_4px_rgba(29,78,183,0.5)]"
+                    ? "bg-blue-500/90 text-[var(--text-primary)] shadow-[0_0_8px_rgba(59,130,250,0.5)]"
+                    : "bg-blue-500 text-[var(--text-primary)] shadow-[0_2px_4px_rgba(29,78,183,0.5)]"
                 }`}
               >
                 <span className="text-[10px] font-bold pb-[0.5px] leading-none">@</span>
@@ -282,3 +281,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
     </div>
   );
 });
+
+
+
+

@@ -42,7 +42,7 @@ export const PlayerView = ({
       exit={{ opacity: 0, x: -20 }}
       className="flex flex-col items-center w-full"
     >
-      <div className="w-[220px] h-[50px] flex items-center justify-center relative z-10 mb-6 bg-[var(--bg-secondary)] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)] transition-colors">
+      <div className="w-[180px] h-[40px] sm:w-[220px] sm:h-[50px] flex items-center justify-center relative z-10 mb-6 bg-[var(--bg-secondary)] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)] transition-colors">
         <div className={`absolute top-[35px] left-[30px] w-4 h-4 rounded-full ${isRadioMode ? "bg-[#5cc25c]" : "bg-[#c25c34]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
         <div className={`absolute top-[45px] left-[70px] w-3 h-3 rounded-full ${isRadioMode ? "bg-[#2cab50]" : "bg-[#ab502c]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
         <div className={`absolute top-[48px] left-[105px] w-4 h-4 rounded-full ${isRadioMode ? "bg-[#5cc25c]" : "bg-[#c25c34]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
@@ -56,7 +56,7 @@ export const PlayerView = ({
         <motion.div
           onClick={() => setIsRadioMode(!isRadioMode)}
           whileTap={{ scale: 0.9 }}
-          className="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-primary)] border border-white/5 shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_-3px_-3px_6px_rgba(255,255,255,0.1),_inset_3px_3px_6px_rgba(0,0,0,0.3)] transition-all"
+          className="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-primary)] border border-[var(--border-color)] shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_-3px_-3px_6px_rgba(255,255,255,0.1),_inset_3px_3px_6px_rgba(0,0,0,0.3)] transition-all"
         >
           <div className={`absolute inset-0 rounded-full ${isRadioMode ? "bg-gradient-to-br from-[#5cc25c]/20 to-transparent" : "bg-gradient-to-br from-green-500/20 to-transparent"} ${isRadioMode ? "opacity-100" : "opacity-0"} transition-opacity`} />
           {isRadioMode ? <Radio size={22} className="text-[#5cc25c] drop-shadow-[0_0_4px_rgba(92,194,92,0.5)]" /> : <List size={22} className="text-[var(--text-primary)]" />}
@@ -135,3 +135,4 @@ export const PlayerView = ({
     </motion.div>
   );
 };
+

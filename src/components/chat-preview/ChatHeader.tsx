@@ -22,16 +22,16 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
      <div
        className={`px-2 sm:px-3 py-2 flex items-center gap-2 sm:gap-3 relative z-10 ${
         isDark
-          ? "bg-[#1a1d24]/90 border-b border-white/5 backdrop-blur-md"
-          : "bg-[#f4f7f9]/90 border-b border-black/5 backdrop-blur-md"
+          ? "bg-[var(--bg-tertiary)]/90 border-b border-[var(--border-color)] backdrop-blur-md"
+          : "bg-[var(--bg-primary)]/90 border-b border-[var(--border-color)] backdrop-blur-md"
       }`}
     >
      <div
           onClick={onClose}
           className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 shrink-0 ${
             isDark
-              ? "bg-[#13151b] hover:bg-[#20242e] text-gray-400"
-              : "bg-[#f4f7f9] hover:bg-white text-slate-500 shadow-sm"
+              ? "bg-[var(--bg-secondary)] hover:bg-[#20242e] text-gray-400"
+              : "bg-[var(--bg-primary)] hover:bg-white text-slate-500 shadow-sm"
           }`}
         >
          <ChevronRight size={14} className="sm:size-16 rotate-180" strokeWidth={2} />
@@ -39,18 +39,18 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
 
     <div
           onClick={onProfileClick}
-          className={`w-10 h-10 rounded-full bg-gradient-to-br shrink-0 ${chat.color} flex items-center justify-center text-white font-bold text-sm shadow-sm relative cursor-pointer`}
+          className={`w-10 h-10 rounded-full bg-gradient-to-br shrink-0 ${chat.color} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm shadow-sm relative cursor-pointer`}
         >
          {chat.name.charAt(0)}
          {chat.online && (
-           <div className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-[2px] ${isDark ? "bg-green-400 border-[#1a1d24]" : "bg-emerald-500 border-[#f4f7f9]"}`} />
+           <div className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-[2px] ${isDark ? "bg-green-400 border-[var(--bg-tertiary)]" : "bg-emerald-500 border-[var(--bg-primary)]"}`} />
          )}
        </div>
 
        <div className="flex-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
          <div className="flex flex-col min-w-0">
            <div className="flex items-center gap-1.5 sm:gap-2">
-             <span className={`font-bold text-[12px] sm:text-[13px] tracking-tight truncate ${isDark ? "text-white" : "text-slate-800"}`}>
+             <span className={`font-bold text-[12px] sm:text-[13px] tracking-tight truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
                {chat.name}
              </span>
              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${chat.online ? "bg-emerald-400" : "bg-gray-500"}`} />
@@ -61,7 +61,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
            {typing && (
              <div className="flex items-center gap-1 mt-0.5">
                <span className={`text-[11px] italic animate-pulse ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>
-                 typing
+                 {t('chat.typing')}
                </span>
                <span className="flex gap-0.5">
                  <span className={`w-1 h-1 rounded-full animate-bounce ${isDark ? "bg-emerald-400" : "bg-emerald-600"}`} style={{ animationDelay: "0ms" }} />
@@ -78,8 +78,8 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
           onClick={onSearchToggle}
           className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 shrink-0 ${
             isDark
-              ? "bg-[#13151b] hover:bg-[#20242e] text-gray-400"
-              : "bg-[#f4f7f9] hover:bg-white text-slate-500 shadow-sm"
+              ? "bg-[var(--bg-secondary)] hover:bg-[#20242e] text-gray-400"
+              : "bg-[var(--bg-primary)] hover:bg-white text-slate-500 shadow-sm"
           }`}
         >
           <Search size={16} strokeWidth={2} />
@@ -88,3 +88,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
     </div>
   );
 };
+
+
+
+

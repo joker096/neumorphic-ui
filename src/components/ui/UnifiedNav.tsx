@@ -17,7 +17,7 @@ export const NavItem = ({ label, icon: Icon, active, isActive, badge, badgeCount
   <button
     type="button"
     className={`flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium cursor-pointer transition-all ${
-      (active || isActive) ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white'
+      (active || isActive) ? 'text-[var(--text-primary)] bg-white/10' : 'text-gray-400 hover:text-[var(--text-primary)]'
     }`}
     onClick={onClick}
   >
@@ -26,3 +26,4 @@ export const NavItem = ({ label, icon: Icon, active, isActive, badge, badgeCount
     {badge && badgeCount ? <span className="ml-1 text-[10px]">{badgeCount}</span> : null}
   </button>
 );
+

@@ -65,14 +65,14 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
         exit={{ y: '100%', opacity: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         onClick={(e) => e.stopPropagation()}
-        className={`w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl ${isDark ? 'bg-[#1a1d24] border border-white/5' : 'bg-white'}`}
+        className={`w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white'}`}
       >
         <audio ref={audioRef}
           onTimeUpdate={() => { if (audioRef.current) setCurrentTime(audioRef.current.currentTime); }}
           onLoadedMetadata={() => { if (audioRef.current) setDuration(audioRef.current.duration); }}
           onEnded={() => setPlaying(false)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
         />
-        <div className={`flex items-center justify-between mb-5 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+        <div className={`flex items-center justify-between mb-5 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-sm truncate">{recording.title || t('recordings.recording')}</h3>
             {recording.participants.length > 0 && (
@@ -99,7 +99,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(-5)}
             className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-5s</motion.button>
           <motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.05 }} onClick={togglePlay}
-            className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/20">
+            className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-[var(--text-primary)] flex items-center justify-center shadow-lg shadow-orange-500/20">
             {playing ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(5)}
@@ -134,3 +134,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
     </motion.div>
   );
 }
+
+
+
+

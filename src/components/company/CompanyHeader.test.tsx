@@ -5,13 +5,7 @@ import { CompanyHeader } from './CompanyHeader';
 
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        company_scanQR: 'Scan QR to join',
-        company_invite: 'Invite members',
-      };
-      return translations[key] || key;
-    },
+    t: (key: string) => key,
     lang: 'ru',
     setLang: vi.fn(),
   }),
@@ -19,8 +13,9 @@ vi.mock('../../lib/i18n', () => ({
 
 vi.mock('../../store', () => ({
   useAppStore: (selector: any) => {
+    const mockState = { companySettings: { name: 'My Company' } };
     if (typeof selector === 'function') {
-      return selector({ companySettings: { name: 'My Company' } });
+      return selector(mockState);
     }
     return undefined;
   },
@@ -37,7 +32,7 @@ describe('CompanyHeader', () => {
   });
 
   it('renders QR scan button', () => {
-    render(<CompanyHeader onScanQR={() => {}} onInvite={() => {}} onSettings={() => {}} />);
+    render(<CompanyHeader />);
     const buttons = document.querySelectorAll('button');
     expect(buttons.length).toBeGreaterThanOrEqual(1);
   });
@@ -45,7 +40,7 @@ describe('CompanyHeader', () => {
   it('calls onScanQR when QR button is clicked', () => {
     const onScanQR = vi.fn();
     render(<CompanyHeader onScanQR={onScanQR} />);
-    const qrButton = document.querySelector('button[title="Scan QR"]');
+    const qrButton = document.querySelector('button[aria-label="QR Code"]');
     if (qrButton) {
       fireEvent.click(qrButton);
       expect(onScanQR).toHaveBeenCalledTimes(1);
@@ -55,7 +50,7 @@ describe('CompanyHeader', () => {
   it('calls onInvite when invite button is clicked', () => {
     const onInvite = vi.fn();
     render(<CompanyHeader onInvite={onInvite} />);
-    const inviteButton = document.querySelector('button[title="Invite"]');
+    const inviteButton = document.querySelector('button[aria-label="Invite"]');
     if (inviteButton) {
       fireEvent.click(inviteButton);
       expect(onInvite).toHaveBeenCalledTimes(1);
@@ -65,7 +60,7 @@ describe('CompanyHeader', () => {
   it('calls onSettings when settings button is clicked', () => {
     const onSettings = vi.fn();
     render(<CompanyHeader onSettings={onSettings} />);
-    const settingsButton = document.querySelector('button[title="Edit company"]');
+    const settingsButton = document.querySelector('button[aria-label="Settings"]');
     if (settingsButton) {
       fireEvent.click(settingsButton);
       expect(onSettings).toHaveBeenCalledTimes(1);

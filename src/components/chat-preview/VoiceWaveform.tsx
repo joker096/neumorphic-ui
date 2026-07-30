@@ -135,15 +135,15 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
   }, [isMe, progress, isPlaying, staticWave, durationSec]);
 
   return (
-    <div className={`flex items-center gap-3 ${stream ? 'w-full' : 'w-[220px]'}`}>
+    <div className={`flex items-center gap-3 ${stream ? 'w-full' : 'w-[160px] sm:w-[220px]'}`}>
       {!stream && (
         <div
           onClick={(e) => { e.stopPropagation(); togglePlayback(); }}
-          title={isPlaying ? (t('systemPlayer.pause') === 'systemPlayer.pause' ? 'Pause' : t('systemPlayer.pause')) : (t('systemPlayer.play') === 'systemPlayer.play' ? 'Play' : t('systemPlayer.play'))}
+          title={isPlaying ? t('systemPlayer.pause') : t('systemPlayer.play')}
           className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer flex-shrink-0 transition-transform active:scale-95 ${
               isMe
-              ? "bg-white/20 hover:bg-white/30 text-white"
-              : "bg-orange-500 hover:bg-orange-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+              ? "bg-white/20 hover:bg-white/30 text-[var(--text-primary)]"
+              : "bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-[0_0_15px_rgba(249,115,22,0.4)]"
           }`}
         >
           {isPlaying ? (
@@ -183,3 +183,4 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
     </div>
   );
 };
+

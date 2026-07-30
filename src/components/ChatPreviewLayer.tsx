@@ -2,7 +2,7 @@ import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { VideoPlayerOverlay } from "./chat/VideoPlayerOverlay";
 import { PhotoViewerOverlay } from "./PhotoViewer";
-import { VoiceWaveform } from "./chat-preview/VoiceWaveform";
+
 import { ChannelCommentsView } from "./ChannelCommentsView";
 import { LiveVoiceRecorder } from "./LiveVoiceRecorder";
 import { StickerPicker } from "./chat/StickerPicker";
@@ -124,7 +124,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     flatItems,
     scheduledQueue,
     stealthMode,
-    setChannels,
   } = useChatPreviewState(
     chat, onUpdateChat, onReply, savedMessages, onToggleSavedMessage,
     deliveryReceipts, readReceipts,
@@ -138,6 +137,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     showSchedulePopup, setShowSchedulePopup,
     replyTarget, setReplyTargetProp,
   );
+  const setChannels = useAppStore(s => s.setChannels);
 
   const handleProfileClick = () => {
     const allContacts = useAppStore.getState().contacts;
@@ -178,8 +178,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 ${
         isDark
-          ? "bg-[#13151b] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] border border-orange-500/10"
-          : "bg-[#eaeff4] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-white"
+          ? "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] border border-orange-500/10"
+          : "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)]"
       }`}
     >
       <ChatHeader
@@ -226,6 +226,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         overscan={3}
         isDark={isDark}
         className="p-4 sm:p-6"
+        stickToBottom={isNearBottom}
         onScrollPosition={(nearBottom) => {
           setIsNearBottom(nearBottom)
         }}
@@ -326,3 +327,4 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     </motion.div>
   );
 };
+

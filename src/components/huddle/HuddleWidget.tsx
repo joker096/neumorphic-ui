@@ -60,20 +60,20 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
 
   if (!isActive) {
     return (
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-white/10">
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-[var(--border-color)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-              <Mic size={18} className="text-white" />
+              <Mic size={18} className="text-[var(--text-primary)]" />
             </div>
             <div>
-              <p className="text-white font-medium text-sm">Huddle</p>
+              <p className="text-[var(--text-primary)] font-medium text-sm">Huddle</p>
               <p className="text-white/50 text-xs">Voice chat</p>
             </div>
           </div>
           <button
             onClick={handleJoin}
-            className="px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-white text-sm font-medium"
+            className="px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-[var(--text-primary)] text-sm font-medium"
           >
             Join
           </button>
@@ -87,10 +87,10 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center animate-pulse">
-            <Mic size={18} className="text-white" />
+            <Mic size={18} className="text-[var(--text-primary)]" />
           </div>
           <div>
-            <p className="text-white font-medium text-sm">Huddle Active</p>
+            <p className="text-[var(--text-primary)] font-medium text-sm">Huddle Active</p>
             <p className="text-white/50 text-xs">{participants.length + 1} participants</p>
           </div>
         </div>
@@ -99,15 +99,15 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
             onClick={handleToggleMute}
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
               isMuted
-                ? 'bg-red-500 text-white'
-                : 'bg-white/20 text-white hover:bg-white/30'
+                ? 'bg-red-500 text-[var(--text-primary)]'
+                : 'bg-white/20 text-[var(--text-primary)] hover:bg-white/30'
             }`}
           >
             {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
           </button>
           <button
             onClick={handleLeave}
-            className="px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium"
+            className="px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-[var(--text-primary)] text-sm font-medium"
           >
             Leave
           </button>
@@ -116,3 +116,4 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
     </div>
   );
 };
+

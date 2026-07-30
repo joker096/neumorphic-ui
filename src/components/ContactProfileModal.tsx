@@ -84,22 +84,22 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
- className={`w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 shadow-2xl relative flex flex-col items-center ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
+ className={`w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 shadow-2xl relative flex flex-col items-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
           >
-            <div
-              className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+            <button
+              className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]`}
               onClick={onClose}
               title={t('contacts.close')}
             >
               <X size={18} />
-            </div>
+            </button>
 
             {(onDelete || onBlock) && (
               <div className="absolute top-4 left-4 z-10">
                 <div className="relative">
                   <button
                     onClick={() => setShowActions(!showActions)}
-                    className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] min-w-[44px] min-h-[44px]`}
                     aria-label={t('contacts.moreActions')}
                   >
                     <MoreVertical size={18} />
@@ -110,12 +110,12 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                         initial={{ opacity: 0, scale: 0.95, y: -10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                        className={`absolute left-10 top-0 flex gap-2 ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/5"} rounded-xl p-2 shadow-lg`}
+                        className={`absolute left-10 top-0 flex gap-2 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"} rounded-xl p-2 shadow-lg`}
                       >
                         {onDelete && (
                           <button
                             onClick={() => { setConfirmAction('delete'); onRequestDelete?.(); }}
-                            className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-500"
+                            className="w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-red-500/10 hover:bg-red-500/20 text-red-500"
                             aria-label={t('contacts.deleteContact')}
                           >
                             <Trash2 size={16} />
@@ -124,7 +124,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                         {onBlock && (
                           <button
                             onClick={() => setConfirmAction('block')}
-                            className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400"
+                            className="w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-red-500/10 hover:bg-red-500/20 text-red-400"
                             aria-label={t('contacts.blockSpammer')}
                           >
                             <Ban size={16} />
@@ -137,25 +137,25 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </div>
             )}
 
-            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || 'from-gray-500 to-gray-600'} text-white font-bold text-4xl shadow-lg relative group`}>
+            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || 'from-gray-500 to-gray-600'} text-[var(--text-primary)] font-bold text-4xl shadow-lg relative group`}>
               {contact.name.charAt(0)}
               {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
-                <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[#1a1d24]" : "border-white"} ${(contact.online || contact.lastSeen < 60000) ? "bg-green-500" : "bg-gray-400"}`} />
+                <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < 60000) ? "bg-green-500" : "bg-gray-400"}`} />
               )}
               <button
                 onClick={() => { onEdit?.(); onClose(); }}
-                className={`absolute -top-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-orange-500 hover:bg-orange-600 text-white shadow-lg`}
+                className={`absolute -top-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-lg`}
                 aria-label={t('contacts.edit')}
               >
                 <Edit size={14} />
               </button>
             </div>
 
-            <h2 className={`text-2xl font-bold mt-4 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}>
+            <h2 className={`text-2xl font-bold mt-4 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
               {contact.name}
               <button
                 onClick={() => handleToggleFavorite(contact.id, contact.isFavorite || false)}
-                className={`p-1.5 rounded-full transition-all active:scale-90 ${contact.isFavorite ? (isDark ? "text-yellow-400 bg-white/10" : "text-yellow-500 bg-black/5") : (isDark ? "text-gray-500 hover:text-white" : "text-slate-400 hover:text-slate-800")}`}
+                className={`p-1.5 rounded-full transition-all active:scale-90 ${contact.isFavorite ? (isDark ? "text-yellow-400 bg-white/10" : "text-yellow-500 bg-black/5") : (isDark ? "text-gray-500 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800")}`}
                 title={contact.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
               >
                 {contact.isFavorite ? <Star size={18} fill="currentColor" /> : <StarOff size={18} />}
@@ -168,7 +168,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
             {contact.callInfo ? (
               <div className={`mt-4 w-full p-4 rounded-xl flex flex-col items-center gap-1 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                <div className={`text-sm font-semibold capitalize ${contact.callInfo.type === 'missed' ? 'text-red-500' : isDark ? 'text-white' : 'text-slate-800'}`}>
+                <div className={`text-sm font-semibold capitalize ${contact.callInfo.type === 'missed' ? 'text-red-500' : isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
                   {t('contacts.callType', { type: contact.callInfo.type })}
                 </div>
                 <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
@@ -216,20 +216,20 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
             <div className="w-full mt-6 space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => { onCall?.(); onClose(); }} className="h-14 rounded-2xl flex flex-col items-center justify-center gap-1 bg-green-500 hover:bg-green-600 text-white transition-colors active:scale-95 shadow-lg shadow-green-500/20">
+                <button onClick={() => { onCall?.(); onClose(); }} className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/20' : 'bg-green-50 hover:bg-green-100 text-green-600 border border-green-500/10'}`}>
                   <Phone size={20} fill="currentColor" />
                   <span className="text-[10px] font-bold uppercase tracking-wider">{t('contacts.call')}</span>
                 </button>
-                <button onClick={() => { onVideoCall?.(); onClose(); }} className="h-14 rounded-2xl flex flex-col items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white transition-colors active:scale-95 shadow-lg shadow-emerald-500/20">
+                <button onClick={() => { onVideoCall?.(); onClose(); }} className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 border border-teal-500/20' : 'bg-teal-50 hover:bg-teal-100 text-teal-600 border border-teal-500/10'}`}>
                   <Video size={20} fill="currentColor" />
                   <span className="text-[10px] font-bold uppercase tracking-wider">{t('contacts.videoCall')}</span>
                 </button>
               </div>
-              <button onClick={() => { onMessage?.(); onClose(); }} className="w-full h-14 rounded-2xl flex flex-col items-center justify-center gap-1 bg-blue-500 hover:bg-blue-600 text-white transition-colors active:scale-95 shadow-lg shadow-blue-500/20">
+              <button onClick={() => { onMessage?.(); onClose(); }} className={`w-full h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/20' : 'bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-500/10'}`}>
                 <MessageSquare size={20} fill="currentColor" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">{t('contacts.message')}</span>
               </button>
-              <button onClick={() => setShowSafetyNumber(true)} title={t('contacts.verifySecurityDesc')} className={`w-full h-10 rounded-2xl flex items-center justify-center gap-2 transition-colors active:scale-95 ${isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-black/5 hover:bg-black/10 text-slate-600'}`}>
+              <button onClick={() => setShowSafetyNumber(true)} title={t('contacts.verifySecurityDesc')} className={`w-full h-10 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-black/5 hover:bg-black/10 text-slate-600'}`}>
                 <ShieldCheck size={16} />
                 <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.verifySecurity')}</span>
               </button>
@@ -248,3 +248,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
     </AnimatePresence>
   );
 };
+
+
+
+

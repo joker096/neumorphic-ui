@@ -93,7 +93,7 @@ export const ActiveChatWorkspace = ({
   onToggleSilent,
   onToggleMorse,
 }: ActiveChatWorkspaceProps) => (
- <div className="w-full max-w-[800px] h-full md:h-[calc(100%-0.5rem)] relative z-10 md:z-10 animate-fade-in md:mt-2 max-h-[calc(100vh-2rem)]">
+ <div className="w-full max-w-full sm:max-w-[600px] md:max-w-[640px] lg:max-w-[800px] h-full md:h-[calc(100%-0.5rem)] relative z-10 md:z-10 animate-fade-in md:mt-2 max-h-[calc(100vh-2rem)]">
    <ChatPreviewLayer
       chat={activeChat}
       theme={theme}

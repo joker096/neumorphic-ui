@@ -1,17 +1,17 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { X } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import type { ComponentType, ReactNode } from 'react'
 
 interface FormModalProps {
   isOpen: boolean
   onClose: () => void
   title?: string
   subtitle?: string
-  icon?: LucideIcon
+  icon?: ComponentType<{ size?: number }>
   iconBg?: string
   iconColor?: string
-  children: React.ReactNode
+  children: ReactNode
   maxWidth?: string
   theme?: 'light' | 'dark'
   zIndex?: string
@@ -51,8 +51,8 @@ export const FormModal = ({
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
             className={`w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl relative ${
               isDark
-                ? 'bg-[#1a1d24] border border-white/10'
-                : 'bg-white border border-black/10'
+                ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]'
+                : 'bg-white border border-[var(--border-color)]'
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -61,7 +61,7 @@ export const FormModal = ({
               title={closeTitle}
                className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${
                  isDark
-                   ? 'bg-white/10 hover:bg-white/20 text-white'
+                   ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]'
                    : 'bg-black/5 hover:bg-black/10 text-slate-800'
                }`}
             >
@@ -81,7 +81,7 @@ export const FormModal = ({
                 )}
                 {title && (
                   <h3 className={`text-xl font-bold text-center ${
-                    isDark ? 'text-white' : 'text-slate-800'
+                    isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'
                   }`}>
                     {title}
                   </h3>
@@ -103,3 +103,7 @@ export const FormModal = ({
     </AnimatePresence>
   )
 }
+
+
+
+

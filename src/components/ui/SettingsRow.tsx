@@ -25,7 +25,7 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
     }
   };
 
-  const baseClasses = `w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b last:border-b-0 ${isDark ? "border-white/5 hover:bg-white/5" : "border-black/5 hover:bg-black/5"}`;
+  const baseClasses = `w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b last:border-b-0 ${isDark ? "border-[var(--border-color)] hover:bg-white/5" : "border-[var(--border-color)] hover:bg-black/5"}`;
   const rowClasses = hasRightAction
     ? `${baseClasses} ${className}`
     : `${baseClasses} cursor-pointer active:scale-[0.99] ${className}`;
@@ -43,7 +43,7 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{title}</div>
+        <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{title}</div>
         {subtitle && <div className={`text-xs mt-0.5 line-clamp-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>}
       </div>
       {rightElement}
@@ -62,7 +62,7 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <div className={`text-sm font-medium ${isDark ? "text-white" : "text-slate-900"}`}>{title}</div>
+        <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{title}</div>
         {subtitle && <div className={`text-xs mt-0.5 line-clamp-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>}
       </div>
       {value && (
@@ -74,13 +74,13 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
 };
 
 export const SettingsSectionTitle = ({ title, isDark = false }: { title: string; isDark?: boolean }) => (
-  <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-white" : "text-slate-800"}`}>
+  <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
     {title}
   </div>
 );
 
 export const SettingsGroup = ({ children, isDark = false, className = "" }: { children: React.ReactNode; isDark?: boolean; className?: string }) => (
-  <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"} ${className}`}>
+  <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"} ${className}`}>
     {children}
   </div>
 );
@@ -131,3 +131,6 @@ export const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, is
     onClick={onToggle}
   />
 );
+
+
+

@@ -97,19 +97,19 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
               </span>
               <button
                 onClick={() => setFilterBySender("")}
-                className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === "" ? "bg-green-500 text-white" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"}`}
+                className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === "" ? "bg-green-500 text-[var(--text-primary)]" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"}`}
               >
                 {t("chat.filters.all")}
               </button>
               <button
                 onClick={() => setFilterBySender("me")}
-                className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === "me" ? "bg-green-500 text-white" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"}`}
+                className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === "me" ? "bg-green-500 text-[var(--text-primary)]" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"}`}
               >
                 {t("chat.filters.me")}
               </button>
               <button
                 onClick={() => setFilterBySender("them")}
-                className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === "them" ? "bg-green-500 text-white" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"}`}
+                className={`px-2 py-0.5 rounded-full text-[10px] ${filterBySender === "them" ? "bg-green-500 text-[var(--text-primary)]" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"}`}
               >
                 {t("chat.filters.others")}
               </button>
@@ -148,7 +148,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
             <button
               key={tab.id}
               onClick={() => setMediaTab(tab.id as "all" | "photos" | "audio" | "links")}
-              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab.id ? "bg-orange-500 text-white shadow-md" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}
+              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab.id ? "bg-orange-500 text-[var(--text-primary)] shadow-md" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}
             >
               {tab.label}
             </button>
@@ -196,3 +196,4 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
     </>
   );
 };
+

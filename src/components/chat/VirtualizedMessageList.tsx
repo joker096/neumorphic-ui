@@ -9,6 +9,7 @@ interface VirtualizedMessageListProps<T> {
   isDark?: boolean;
   children: (item: T, index: number) => React.ReactNode;
   onScrollPosition?: (isNearBottom: boolean) => void;
+  stickToBottom?: boolean;
 }
 
 export function VirtualizedMessageListInner<T>(
@@ -20,6 +21,7 @@ export function VirtualizedMessageListInner<T>(
     isDark = false,
     children,
     onScrollPosition,
+    stickToBottom = false,
   }: VirtualizedMessageListProps<T>,
   ref: React.Ref<{ scrollToBottom: () => void }>
 ) {
@@ -34,7 +36,9 @@ export function VirtualizedMessageListInner<T>(
 
   useImperativeHandle(ref, () => ({
     scrollToBottom: () => {
-      virtualizer.scrollToIndex(items.length - 1, { align: 'end' })
+      if (items.length > 0) {
+        virtualizer.scrollToIndex(items.length - 1, { align: 'end' });
+      }
     },
   }), [virtualizer, items.length]);
 
@@ -52,16 +56,22 @@ export function VirtualizedMessageListInner<T>(
   }, [onScrollPosition])
 
   useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-    el.addEventListener('scroll', handleScroll, { passive: true })
-    return () => el.removeEventListener('scroll', handleScroll)
-  }, [handleScroll])
+    handleScroll();
+  }, [handleScroll, items.length]);
+
+  useEffect(() => {
+    if (!stickToBottom || items.length === 0) return;
+    const frame = window.requestAnimationFrame(() => {
+      virtualizer.scrollToIndex(items.length - 1, { align: 'end' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [items.length, stickToBottom, virtualizer]);
 
   return (
     <div
       ref={scrollRef}
       className={`flex-1 overflow-y-auto overflow-x-hidden relative z-0 ${className}`}
+      onScroll={handleScroll}
     >
       <div
         style={{

@@ -36,17 +36,17 @@ export function ActiveCallOverlay({
         transition={{ type: 'spring', stiffness: 200, damping: 15 }}
         className="relative"
       >
-        <div className={`w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner ${isDark ? "bg-[#13151b] text-white" : "bg-[#e2e8f0] text-slate-700"}`}>
+        <div className={`w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner ${isDark ? "bg-[var(--bg-secondary)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-slate-700"}`}>
           <User size={48} className={isDark ? "text-gray-500" : "text-slate-400"} />
         </div>
         {isVideoCall && (
-          <div className={`absolute -bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center border-2 ${isDark ? "bg-orange-500 border-[#13151b] text-white" : "bg-orange-500 border-[#e2e8f0] text-white"}`}>
+          <div className={`absolute -bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center border-2 ${isDark ? "bg-orange-500 border-[var(--bg-secondary)] text-[var(--text-primary)]" : "bg-orange-500 border-[var(--bg-secondary)] text-[var(--text-primary)]"}`}>
             <Video size={16} />
           </div>
         )}
       </motion.div>
       <div className="flex flex-col items-center gap-2">
-        <span className={`text-[24px] font-bold tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}>
+        <span className={`text-[24px] font-bold tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
           {number.length > 0 ? number : t('chat.unknownCaller')}
         </span>
         <motion.span
@@ -59,49 +59,62 @@ export function ActiveCallOverlay({
       </div>
       <div className="flex gap-6 mt-4">
         <motion.button
+          type="button"
           whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}
           onClick={onToggleMute}
           title={isMuted ? t('chat.unmuteMicrophone') : t('chat.muteMicrophone')}
+          aria-label={isMuted ? t('chat.unmuteMicrophone') : t('chat.muteMicrophone')}
           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-md ${
             isMuted
-              ? isDark ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]" : "bg-slate-800 text-white shadow-[0_4px_10px_rgba(0,0,0,0.2)]"
-              : isDark ? "bg-[#13151b] text-gray-400 hover:bg-white/10 border border-white/5" : "bg-[#f8fafc] text-slate-500 hover:bg-white border border-black/5"
+              ? isDark ? "bg-white text-[var(--text-secondary)] shadow-[0_0_20px_rgba(255,255,255,0.3)]" : "bg-slate-800 text-[var(--text-primary)] shadow-[0_4px_10px_rgba(0,0,0,0.2)]"
+              : isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:bg-white/10 border border-[var(--border-color)]" : "bg-[var(--bg-primary)] text-slate-500 hover:bg-white border border-[var(--border-color)]"
           }`}
         >
           {isMuted ? <MicOff size={22} /> : <Mic size={22} />}
         </motion.button>
         <motion.button
+          type="button"
           whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}
           onClick={onToggleSpeaker}
           title={isSpeaker ? t('chat.disableSpeaker') : t('chat.enableSpeaker')}
+          aria-label={isSpeaker ? t('chat.disableSpeaker') : t('chat.enableSpeaker')}
           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-md ${
             isSpeaker
-              ? isDark ? "bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)]" : "bg-orange-500 text-white shadow-[0_4px_10px_rgba(249,115,22,0.3)]"
-              : isDark ? "bg-[#13151b] text-gray-400 hover:bg-white/10 border border-white/5" : "bg-[#f8fafc] text-slate-500 hover:bg-white border border-black/5"
+              ? isDark ? "bg-orange-500 text-[var(--text-primary)] shadow-[0_0_20px_rgba(249,115,22,0.4)]" : "bg-orange-500 text-[var(--text-primary)] shadow-[0_4px_10px_rgba(249,115,22,0.3)]"
+              : isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:bg-white/10 border border-[var(--border-color)]" : "bg-[var(--bg-primary)] text-slate-500 hover:bg-white border border-[var(--border-color)]"
           }`}
         >
           {isSpeaker ? <Volume2 size={22} /> : <Volume1 size={22} />}
         </motion.button>
         <motion.button
+          type="button"
           whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}
           onClick={onToggleVideo}
+          title={isVideoCall ? t('call.turnOffVideo') : t('call.turnOnVideo')}
+          aria-label={isVideoCall ? t('call.turnOffVideo') : t('call.turnOnVideo')}
           className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 shadow-md ${
             isVideoCall
-              ? isDark ? "bg-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)]" : "bg-orange-500 text-white shadow-[0_4px_10px_rgba(249,115,22,0.3)]"
-              : isDark ? "bg-[#13151b] text-gray-400 hover:bg-white/10 border border-white/5" : "bg-[#f8fafc] text-slate-500 hover:bg-white border border-black/5"
+              ? isDark ? "bg-orange-500 text-[var(--text-primary)] shadow-[0_0_20px_rgba(249,115,22,0.4)]" : "bg-orange-500 text-[var(--text-primary)] shadow-[0_4px_10px_rgba(249,115,22,0.3)]"
+              : isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:bg-white/10 border border-[var(--border-color)]" : "bg-[var(--bg-primary)] text-slate-500 hover:bg-white border border-[var(--border-color)]"
           }`}
         >
           <Video size={22} />
         </motion.button>
       </div>
       <motion.button
+        type="button"
         whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}
         onClick={onEndCall}
-        className="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center cursor-pointer shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:bg-red-400 transition-colors"
+        className="w-16 h-16 rounded-full bg-red-500 text-[var(--text-primary)] flex items-center justify-center cursor-pointer shadow-[0_0_30px_rgba(239,68,68,0.4)] hover:bg-red-400 transition-colors"
         title={t('chat.endCall')}
+        aria-label={t('chat.endCall')}
       >
         <Phone size={24} className="rotate-[135deg]" />
       </motion.button>
     </motion.div>
   );
 }
+
+
+
+

@@ -44,10 +44,10 @@ export const SafetyNumberModal = ({ open, contactId, contactName, myPeerId, them
             initial={{ opacity: 0, scale: 0.92, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'}`}
+            className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[var(--bg-tertiary)] border-[var(--border-color)]' : 'bg-white border-[var(--border-color)]'}`}
             onClick={(event) => event.stopPropagation()}
           >
-            <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{t('contacts.safetyNumbersTitle')}</h3>
+            <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>{t('contacts.safetyNumbersTitle')}</h3>
             <p className={`text-xs mb-4 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
               {t('contacts.safetyNumbersDesc', { name: contactName })}
             </p>
@@ -69,7 +69,7 @@ export const SafetyNumberModal = ({ open, contactId, contactName, myPeerId, them
                 {t('contacts.theirId')} {contactId.slice(0, 16)}...
               </div>
             )}
-            <button onClick={onClose} className={`w-full h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
+            <button onClick={onClose} className={`w-full h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
               {t('contacts.close')}
             </button>
           </motion.div>
@@ -78,3 +78,7 @@ export const SafetyNumberModal = ({ open, contactId, contactName, myPeerId, them
     </AnimatePresence>
   );
 };
+
+
+
+

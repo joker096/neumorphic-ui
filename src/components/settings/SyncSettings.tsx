@@ -39,7 +39,7 @@ export const SyncSettings = ({ isDark, onBack, t }: SyncSettingsProps) => {
             <span className="text-sm">{t('settings.syncStatus')}: <span className={`font-medium ${statusColor[syncStatus]}`}>{syncStatus}</span></span>
           </div>
           <button onClick={handleSync} disabled={syncing}
-            className="px-3 py-1 text-xs rounded-lg bg-blue-500 text-white disabled:opacity-40">
+            className="px-3 py-1 text-xs rounded-lg bg-blue-500 text-[var(--text-primary)] disabled:opacity-40">
             {syncing ? t('settings.syncing') : t('settings.syncNow')}
           </button>
         </div>
@@ -71,3 +71,4 @@ export const SyncSettings = ({ isDark, onBack, t }: SyncSettingsProps) => {
     </SubView>
   )
 }
+

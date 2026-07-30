@@ -64,13 +64,13 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           className="flex flex-col items-center text-center max-w-3xl"
         >
           <div className={`mb-6 px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border ${
-            isDark ? "border-white/10 text-gray-400" : "border-black/10 text-gray-500"
+            isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
           }`}>
             v1.0 &mdash; June 2026
           </div>
 
           <h1 className={`text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 ${
-            isDark ? "text-white" : "text-slate-900"
+            isDark ? "text-[var(--text-primary)]" : "text-slate-900"
           }`}>
             Communication
             <br />
@@ -89,12 +89,12 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <div className="flex items-center gap-4">
             <button
               onClick={onGetStarted}
-              className="group relative overflow-hidden rounded-full px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-full px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
             >
               <span className="relative z-10 flex items-center gap-3">
                 Open App
                 <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5">
-                  <ArrowRight size={14} className="text-white" />
+                  <ArrowRight size={14} className="text-[var(--text-primary)]" />
                 </span>
               </span>
             </button>
@@ -105,8 +105,8 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
               rel="noopener noreferrer"
               className={`rounded-full px-7 py-3.5 text-sm font-bold border transition-all duration-300 ${
                 isDark
-                  ? "border-white/10 text-gray-300 hover:bg-white/5"
-                  : "border-black/10 text-slate-600 hover:bg-black/5"
+                  ? "border-[var(--border-color)] text-gray-300 hover:bg-white/5"
+                  : "border-[var(--border-color)] text-slate-600 hover:bg-black/5"
               }`}
             >
               Source Code
@@ -120,7 +120,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           transition={{ delay: 0.8, duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
-          <div className={`w-5 h-8 rounded-full border-2 ${isDark ? "border-white/20" : "border-black/20"} flex justify-center pt-2`}>
+          <div className={`w-5 h-8 rounded-full border-2 ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"} flex justify-center pt-2`}>
             <div className={`w-1 h-2 rounded-full animate-bounce ${isDark ? "bg-gray-400" : "bg-slate-500"}`} />
           </div>
         </motion.div>
@@ -129,12 +129,12 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
       <section className="relative z-10 px-6 py-32">
         <motion.div {...fadeUp} className="max-w-6xl mx-auto">
           <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border ${
-            isDark ? "border-white/10 text-gray-400" : "border-black/10 text-gray-500"
+            isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
           }`}>
             Features
           </div>
           <h2 className={`text-[clamp(1.8rem,4vw,3rem)] font-bold text-center tracking-[-0.02em] mb-16 ${
-            isDark ? "text-white" : "text-slate-900"
+            isDark ? "text-[var(--text-primary)]" : "text-slate-900"
           }`}>
             Everything you need for<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">private communication</span>
@@ -150,7 +150,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                   transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1], delay: i * 0.08 }}
                   className={`group rounded-[1.75rem] border p-[1px] transition-all duration-500 ${
                     isDark
-                      ? "border-white/[0.06] hover:border-white/[0.12]"
+                      ? "border-[var(--border-color)]/[0.06] hover:border-[var(--border-color)]/[0.12]"
                       : "border-black/[0.06] hover:border-black/[0.12]"
                   }`}
                 >
@@ -162,7 +162,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                     }`}>
                       <Icon size={20} className={isDark ? "text-orange-400" : "text-orange-600"} />
                     </div>
-                    <h3 className={`text-base font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>
+                    <h3 className={`text-base font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
                       {feat.title}
                     </h3>
                     <p className={`text-sm leading-relaxed ${isDark ? "text-gray-500" : "text-slate-500"}`}>
@@ -179,7 +179,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
       <section className="relative z-10 px-6 py-32">
         <motion.div {...fadeUp} className="max-w-5xl mx-auto">
           <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border ${
-            isDark ? "border-white/10 text-gray-400" : "border-black/10 text-gray-500"
+            isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
           }`}>
             Security
           </div>
@@ -214,7 +214,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                   }`}>
                     <Icon size={24} className={isDark ? "text-orange-400" : "text-orange-600"} />
                   </div>
-                  <h3 className={`text-base font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>
+                  <h3 className={`text-base font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
                     {item.title}
                   </h3>
                   <p className={`text-sm leading-relaxed max-w-xs mx-auto ${isDark ? "text-gray-500" : "text-slate-500"}`}>
@@ -230,7 +230,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
       <section className="relative z-10 px-6 py-32">
         <motion.div {...fadeUp} className="max-w-3xl mx-auto text-center">
           <h2 className={`text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 ${
-            isDark ? "text-white" : "text-slate-900"
+            isDark ? "text-[var(--text-primary)]" : "text-slate-900"
           }`}>
             Ready to take control?
           </h2>
@@ -239,12 +239,12 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           </p>
           <button
             onClick={onGetStarted}
-            className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
+            className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
           >
             <span className="relative z-10 flex items-center gap-3">
               Get Started
               <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5">
-                <ArrowRight size={14} className="text-white" />
+                <ArrowRight size={14} className="text-[var(--text-primary)]" />
               </span>
             </span>
           </button>
@@ -252,7 +252,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
       </section>
 
       <footer className={`relative z-10 border-t px-6 py-8 ${
-        isDark ? "border-white/5" : "border-black/5"
+        isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"
       }`}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -273,3 +273,5 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
     </div>
   );
 };
+
+

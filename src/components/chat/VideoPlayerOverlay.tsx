@@ -22,19 +22,19 @@ export const VideoPlayerOverlay = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className={`fixed inset-0 m-auto w-[90vw] max-w-[600px] h-[400px] overflow-hidden flex flex-col z-[110] shadow-[0_40px_80px_rgba(0,0,0,0.6)] ${
+          className={`fixed inset-0 m-auto w-[90vw] sm:w-[600px] max-w-[600px] max-h-[80vh] h-[400px] overflow-hidden flex flex-col z-[110] shadow-[0_40px_80px_rgba(0,0,0,0.6)] ${
             isDark
-              ? "bg-[#13151b] border border-white/10"
-              : "bg-[#e2e8f0] border border-white"
+              ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]"
+              : "bg-[var(--bg-secondary)] border border-[var(--border-color)]"
           }`}
         >
           <div className="absolute top-0 w-full p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/60 to-transparent">
-            <span className="text-white font-bold tracking-widest text-[11px] uppercase drop-shadow">
+            <span className="text-[var(--text-primary)] font-bold tracking-widest text-[11px] uppercase drop-shadow">
               Media Player
             </span>
             <div
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur flex items-center justify-center cursor-pointer text-white"
+              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur flex items-center justify-center cursor-pointer text-[var(--text-primary)]"
               aria-label="Close video"
               role="button"
               tabIndex={0}
@@ -51,7 +51,7 @@ export const VideoPlayerOverlay = ({
               alt="Video frame"
               loading="lazy" decoding="async"
             />
-            <div className="absolute w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-2xl border border-white/20">
+            <div className="absolute w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-2xl border border-[var(--border-color)]">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="5,3 19,12 5,21" fill="currentColor" />
               </svg>
@@ -60,7 +60,7 @@ export const VideoPlayerOverlay = ({
 
           <div
             className={`p-4 flex flex-col gap-3 relative z-10 ${
-              isDark ? "bg-[#1a1d24]/90 backdrop-blur" : "bg-[#f4f7f9]/90 backdrop-blur"
+              isDark ? "bg-[var(--bg-tertiary)]/90 backdrop-blur" : "bg-[var(--bg-primary)]/90 backdrop-blur"
             }`}
           >
             <div className="flex items-center justify-between text-[11px] font-bold">
@@ -77,7 +77,7 @@ export const VideoPlayerOverlay = ({
               }`}
             >
               <div className="absolute top-0 left-0 h-full w-[35%] rounded-full bg-orange-500" />
-              <div className="absolute top-1/2 left-[35%] -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md border border-black/10" />
+              <div className="absolute top-1/2 left-[35%] -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md border border-[var(--border-color)]" />
             </div>
             <div className="flex justify-end items-center mt-2">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={isDark ? "text-gray-400" : "text-slate-500"}>
@@ -90,3 +90,6 @@ export const VideoPlayerOverlay = ({
     </AnimatePresence>
   );
 };
+
+
+

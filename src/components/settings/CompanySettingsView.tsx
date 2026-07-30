@@ -22,7 +22,7 @@ export const CompanySettingsView = ({ isDark, onBack }: CompanySettingsViewProps
           className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-200 ${
             isDark
               ? 'bg-[var(--bg-tertiary)] hover:bg-[#20242e] text-[var(--text-secondary)]'
-              : 'bg-[#f4f7f9] hover:bg-white text-[var(--text-secondary)] shadow-sm'
+              : 'bg-[var(--bg-primary)] hover:bg-white text-[var(--text-secondary)] shadow-sm'
           }`}
         >
           <ChevronLeft size={16} strokeWidth={2} />
@@ -56,3 +56,5 @@ export const CompanySettingsView = ({ isDark, onBack }: CompanySettingsViewProps
     </div>
   )
 }
+
+

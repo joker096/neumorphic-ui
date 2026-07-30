@@ -309,7 +309,7 @@ describe('SettingsView', () => {
     </ThemeContext.Provider>
   );
 
-    const container = screen.getByPlaceholderText('Search settings...').closest('div[class*="bg-[#11141c]"]');
+    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="bg-[var(--bg-primary)]"]');
     expect(container).toBeInTheDocument();
   });
 
@@ -320,7 +320,7 @@ describe('SettingsView', () => {
       </ThemeContext.Provider>
     );
 
-    const container = screen.getByPlaceholderText('Search settings...').closest('div[class*="bg-[#eaeff4]"]');
+    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="bg-[var(--bg-secondary)]"]');
     expect(container).toBeInTheDocument();
   });
 });

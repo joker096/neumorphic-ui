@@ -61,10 +61,10 @@ export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme = 
                animate={{ x: 0, opacity: 1 }}
                exit={{ x: "100%", opacity: 0 }}
                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-               className={`absolute inset-0 z-50 flex flex-col ${isDark ? "bg-[#11141c]" : "bg-[#eaeff4]"}`}
+               className={`absolute inset-0 z-50 flex flex-col ${isDark ? "bg-[var(--bg-primary)]" : "bg-[var(--bg-secondary)]"}`}
             >
                {/* Header */}
-               <div className={`h-[72px] flex items-center px-4 border-b ${isDark ? "border-white/5 bg-[var(--bg-tertiary)]" : "border-black/5 bg-white"}`}>
+               <div className={`h-[72px] flex items-center px-4 border-b ${isDark ? "border-[var(--border-color)] bg-[var(--bg-tertiary)]" : "border-[var(--border-color)] bg-white"}`}>
                   <div 
                      onClick={onClose}
                      className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors mr-3 ${isDark ? "hover:bg-[var(--bg-tertiary)]/20 text-[var(--text-secondary)]" : "hover:bg-black/5 text-[var(--text-secondary)]"}`}
@@ -102,8 +102,8 @@ export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme = 
                </div>
 
                {/* Input */}
-               <div className={`p-4 border-t ${isDark ? "border-white/5 bg-[var(--bg-tertiary)]/90 backdrop-blur-md" : "border-black/5 bg-[#f4f7f9]/90 backdrop-blur-md"}`}>
-                  <div className={`flex items-center w-full h-12 rounded-full px-4 relative ${isDark ? "bg-[#13151b] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-[inset_1px_1px_3px_rgba(165,175,190,0.1)]"}`}>
+               <div className={`p-4 border-t ${isDark ? "border-[var(--border-color)] bg-[var(--bg-tertiary)]/90 backdrop-blur-md" : "border-[var(--border-color)] bg-[var(--bg-primary)]/90 backdrop-blur-md"}`}>
+                  <div className={`flex items-center w-full h-12 rounded-full px-4 relative ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-[inset_1px_1px_3px_rgba(165,175,190,0.1)]"}`}>
                      <input 
                         type="text"
                         value={comment}
@@ -125,3 +125,7 @@ export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme = 
       </AnimatePresence>
    );
 };
+
+
+
+

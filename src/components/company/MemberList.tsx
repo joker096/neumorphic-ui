@@ -18,7 +18,7 @@ export const MemberList = ({ isDark = false, members, onCall, onVideoCall, onMem
   
   return (
     <div className="w-full mb-4">
-      <div className={`flex items-center gap-2 px-2 mb-3 font-bold text-xs uppercase tracking-widest ${isDark ? "text-purple-400" : "text-purple-600"}`}>
+      <div className={`flex items-center gap-2 px-2 mb-3 font-bold text-xs uppercase tracking-widest text-[var(--accent)]`}>
         <Users size={14} />
         <span className="truncate">{teamMembersLabel} ({members.length})</span>
       </div>
@@ -43,3 +43,4 @@ export const MemberList = ({ isDark = false, members, onCall, onVideoCall, onMem
     </div>
   );
 };
+

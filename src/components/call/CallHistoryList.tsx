@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Phone, PhoneIncoming, PhoneMissed, PhoneOutgoing, UserPlus } from "lucide-react";
-import type { ContactProfile } from "../ContactProfileModal";
 
 interface CallEntry {
   id: string | number;
@@ -19,6 +18,8 @@ interface CallHistoryListProps {
 }
 
 export const CallHistoryList = ({ calls, isDark, t, onCallClick, onQuickAddContact }: CallHistoryListProps) => {
+  const unknownCaller = t('call.unknownCaller');
+
   if (calls.length === 0) {
     return (
       <div className={`flex flex-col items-center justify-center h-full py-8 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
@@ -58,7 +59,7 @@ export const CallHistoryList = ({ calls, isDark, t, onCallClick, onQuickAddConta
             <span className={`text-[14px] font-bold truncate leading-snug ${
               call.type === "missed"
                 ? (isDark ? "text-red-400" : "text-red-600")
-                : isDark ? "text-white" : "text-slate-800"
+                : isDark ? "text-[var(--text-primary)]" : "text-slate-800"
             }`}>
               {call.name}
             </span>
@@ -73,12 +74,12 @@ export const CallHistoryList = ({ calls, isDark, t, onCallClick, onQuickAddConta
               )}
             </div>
           </div>
-          {(call.name.startsWith("+") || call.name === "Unknown") && (
+          {(call.name.startsWith("+") || call.name === unknownCaller) && (
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={(e) => { e.stopPropagation(); onQuickAddContact(call.name); }}
               className={`min-w-[44px] min-h-[44px] rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all ${
-                isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-700"
+                isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-black/5 hover:bg-black/10 text-slate-700"
               }`}
               title={t('contacts.addContact')}
             >
@@ -90,3 +91,4 @@ export const CallHistoryList = ({ calls, isDark, t, onCallClick, onQuickAddConta
     </AnimatePresence>
   );
 };
+

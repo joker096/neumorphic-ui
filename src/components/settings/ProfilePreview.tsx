@@ -20,7 +20,7 @@ export function ProfilePreview({ userProfile, t, onEdit }: ProfilePreviewProps) 
             <img src={userProfile.avatar} alt="avatar" className="w-full h-full object-cover" loading="lazy" decoding="async" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
-              <span className="text-white text-2xl font-bold">{(userProfile.name || 'U').charAt(0).toUpperCase()}</span>
+              <span className="text-[var(--text-primary)] text-2xl font-bold">{(userProfile.name || 'U').charAt(0).toUpperCase()}</span>
             </div>
           )}
         </div>
@@ -62,3 +62,4 @@ export function ProfilePreview({ userProfile, t, onEdit }: ProfilePreviewProps) 
     </div>
   );
 }
+

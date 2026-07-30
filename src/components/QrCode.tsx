@@ -16,7 +16,7 @@ function generateQrCanvas(data: string, size: number): string {
   canvas.width = canvas.height = Math.round(px * scale)
   const ctx = canvas.getContext('2d')
   if (!ctx) return 'data:image/png;base64,placeholder'
-  ctx.fillStyle = '#ffffff'
+  ctx.fillStyle = '[var(--bg-elevated)]'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   ctx.fillStyle = '#000000'
 
@@ -93,7 +93,7 @@ export const QrCode = ({ data, size = 200 }: QrCodeProps) => {
           // @ts-ignore - browser-compatible options
           color: '#000000',
           // @ts-ignore - browser-compatible options
-          background: '#ffffff',
+          background: '[var(--bg-elevated)]',
         },
       } as unknown as Parameters<typeof qrcodeModule.toDataURL>[1]).then((qrcodeUrl: string) => {
         if (!mountedRef.current) return
@@ -122,3 +122,4 @@ export const QrCode = ({ data, size = 200 }: QrCodeProps) => {
   if (error || !src) return null
   return <img src={src} alt="QR code" className="rounded-lg" />
 }
+

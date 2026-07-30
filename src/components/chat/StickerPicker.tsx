@@ -45,7 +45,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
             onClick={() => setActiveTab(tab.id)}
             className={`px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors shrink-0 ${
               activeTab === tab.id
-                ? (isDark ? 'bg-orange-500 text-white' : 'bg-orange-500 text-white')
+                ? (isDark ? 'bg-orange-500 text-[var(--text-primary)]' : 'bg-orange-500 text-[var(--text-primary)]')
                 : (isDark ? 'bg-white/5 text-gray-400' : 'bg-black/5 text-slate-500')
             }`}
           >

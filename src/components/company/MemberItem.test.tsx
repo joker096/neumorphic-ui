@@ -76,9 +76,10 @@ describe('MemberItem', () => {
   });
 
   it('calls onVideoCall with correct name when video button is clicked', () => {
+    const onCall = vi.fn();
     const onVideoCall = vi.fn();
     render(
-      <MemberItem member={mockMember} index={0} color="from-indigo-400 to-purple-500" onVideoCall={onVideoCall} onClick={() => {}} t={(k: string) => k} />
+      <MemberItem member={mockMember} index={0} color="from-indigo-400 to-purple-500" onCall={onCall} onVideoCall={onVideoCall} onClick={() => {}} t={(k: string) => k} />
     );
     const allButtons = document.querySelectorAll('button svg');
     expect(allButtons.length).toBeGreaterThanOrEqual(2);

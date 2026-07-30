@@ -19,7 +19,7 @@ export const ChannelList = ({ isDark = false, channels, channelsLabel, onChannel
 
   return (
     <div className="w-full">
-      <div className={`flex items-center gap-2 px-2 mb-3 font-bold text-xs uppercase tracking-widest ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+      <div className={`flex items-center gap-2 px-2 mb-3 font-bold text-xs uppercase tracking-widest text-[var(--accent)]`}>
         <Briefcase size={14} />
         <span className="truncate">{channelsLabel}</span>
       </div>
@@ -42,3 +42,4 @@ export const ChannelList = ({ isDark = false, channels, channelsLabel, onChannel
     </div>
   );
 };
+

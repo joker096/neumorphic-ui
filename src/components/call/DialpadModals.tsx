@@ -36,7 +36,7 @@ export const DialpadAddContactModal = ({
 }: Pick<DialpadModalsProps, 'theme' | 'showAddContact' | 'onCloseAddContact' | 'addName' | 'onAddNameChange' | 'addId' | 'onAddIdChange' | 'onSaveContact' | 'canSaveContact'>) => {
   const { t } = useI18n();
   return (
-    <FormModal isOpen={showAddContact} onClose={onCloseAddContact} title={t('contacts.addContact')} subtitle="Enter name and network ID to add to contacts" icon={UserPlus} theme={theme}>
+    <FormModal isOpen={showAddContact} onClose={onCloseAddContact} title={t('contacts.addContact')} subtitle={t('contacts.addContactSubtitle')} icon={UserPlus} theme={theme}>
       <div className="flex flex-col gap-3 mt-2">
         <FormField theme={theme} autoFocus placeholder={t('contacts.contactName')} value={addName} onChange={onAddNameChange} />
         <FormField theme={theme} placeholder={t('contacts.networkId')} value={addId} onChange={onAddIdChange} monospace />
@@ -54,19 +54,21 @@ export const DialpadContactPicker = ({
   return (
     <FormModal isOpen={showContactPicker} onClose={onCloseContactPicker} title={t('chat.selectContact')} subtitle={t('chat.chooseContact')} icon={Users} theme={theme}>
       <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto mt-2">
-        {contacts.map((c) => (
-          <div
+            {contacts.map((c) => (
+          <button
             key={c.id}
+            type="button"
             onClick={() => onSelectContact(c.name)}
-            className={`flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-colors ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+            className={`w-full flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-colors text-left ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+            aria-label={c.name}
           >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br ${c.color} text-white font-bold text-lg shadow-md shrink-0`}>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br ${c.color} text-[var(--text-primary)] font-bold text-lg shadow-md shrink-0`}>
               {c.name.charAt(0)}
             </div>
             <div className={`flex-1 flex flex-col min-w-0`}>
               <span className={`font-bold truncate ${theme === 'dark' ? 'text-gray-100' : 'text-slate-800'}`}>{c.name}</span>
             </div>
-          </div>
+          </button>
         ))}
         {contacts.length === 0 && (
           <div className={`text-center py-8 ${theme === 'dark' ? 'text-gray-500' : 'text-slate-500'}`}>
@@ -100,7 +102,7 @@ export const DialpadCreateFolderModal = ({
               <div key={folder.id} className={`flex items-center gap-3 p-2.5 rounded-md ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
                 <Folder size={14} className={isDark ? 'text-gray-400' : 'text-slate-500'} />
                 <span className={`flex-1 text-sm font-medium ${isDark ? 'text-gray-200' : 'text-slate-700'}`}>{folder.name}</span>
-                 <button onClick={() => onDeleteFolder(folder.id)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDark ? 'text-red-400 hover:bg-white/10' : 'text-red-500 hover:bg-black/10'}`}>
+                 <button type="button" onClick={() => onDeleteFolder(folder.id)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDark ? 'text-red-400 hover:bg-white/10' : 'text-red-500 hover:bg-black/10'}`} aria-label={t('chat.delete')}>
                   <X size={12} />
                 </button>
               </div>
@@ -111,3 +113,4 @@ export const DialpadCreateFolderModal = ({
     </FormModal>
   );
 };
+

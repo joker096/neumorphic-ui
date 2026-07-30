@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Phone, PhoneOff, Video, Mic } from 'lucide-react';
 import { useAnimationsEnabled } from '../../contexts/AnimationContext';
+import { useI18n } from '../../lib/i18n';
 
 interface IncomingCallSheetProps {
   callerName: string;
@@ -16,11 +17,13 @@ function ActionButton({
   color,
   onClick,
   enabled,
+  label,
 }: {
   icon: React.ElementType;
   color: 'red' | 'green' | 'blue';
   onClick: () => void;
   enabled?: boolean;
+  label: string;
 }) {
   const colorMap = {
     red: 'from-red-500 to-red-700 shadow-red-500/30',
@@ -33,7 +36,9 @@ function ActionButton({
       onClick={onClick}
       whileTap={enabled ? { scale: 0.9 } : undefined}
       whileHover={enabled ? { scale: 1.1 } : undefined}
-      className={`w-20 h-20 rounded-full bg-gradient-to-br ${colorMap[color]} text-white flex items-center justify-center shadow-2xl transition-shadow hover:shadow-2xl`}
+      className={`w-20 h-20 rounded-full bg-gradient-to-br ${colorMap[color]} text-[var(--text-primary)] flex items-center justify-center shadow-2xl transition-shadow hover:shadow-2xl`}
+      title={label}
+      aria-label={label}
     >
       <Icon size={32} strokeWidth={2.5} />
     </motion.button>
@@ -48,6 +53,8 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
   onAcceptVideo,
 }) => {
   const enabled = useAnimationsEnabled();
+  const { t } = useI18n();
+  const callerInitial = callerName.charAt(0).toUpperCase() || t('call.unknownCaller').charAt(0).toUpperCase();
 
   return (
     <motion.div
@@ -67,8 +74,8 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
           className="relative mb-8"
         >
           <div className="w-36 h-36 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-2xl shadow-orange-500/20">
-            <span className="text-6xl font-bold text-white drop-shadow-lg">
-              {callerName.charAt(0).toUpperCase()}
+            <span className="text-6xl font-bold text-[var(--text-primary)] drop-shadow-lg">
+              {callerInitial}
             </span>
           </div>
           {enabled && (
@@ -85,7 +92,7 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
           transition={enabled ? { duration: 0.4, delay: 0.25 } : undefined}
           className="text-center"
         >
-          <h2 className="text-4xl font-bold text-white mb-3 drop-shadow-lg tracking-tight">
+          <h2 className="text-4xl font-bold text-[var(--text-primary)] mb-3 drop-shadow-lg tracking-tight">
             {callerName}
           </h2>
           <div className="flex items-center justify-center gap-2">
@@ -96,7 +103,7 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
                 <Mic size={16} className="text-orange-400" />
               )}
               <span className="text-white/70 text-sm font-medium">
-                {callType === 'video' ? 'Video call' : 'Voice call'}
+                {callType === 'video' ? t('call.videoCall') : t('call.voiceCall')}
               </span>
             </div>
           </div>
@@ -105,7 +112,7 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
             transition={enabled ? { duration: 2, repeat: Infinity } : undefined}
             className="text-white/40 text-sm mt-4 font-medium tracking-wide"
           >
-            Incoming call...
+            {t('call.incomingCall')}
           </motion.p>
         </motion.div>
       </div>
@@ -116,15 +123,16 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
         transition={enabled ? { duration: 0.4, delay: 0.35 } : undefined}
         className="h-44 flex items-center justify-center gap-12 px-6 relative z-10"
       >
-        <ActionButton icon={PhoneOff} color="red" onClick={onReject} enabled={enabled} />
+        <ActionButton icon={PhoneOff} color="red" onClick={onReject} enabled={enabled} label={t('call.rejectCall')} />
 
         <div className="flex flex-col gap-3">
-          <ActionButton icon={Phone} color="green" onClick={onAccept} enabled={enabled} />
+          <ActionButton icon={Phone} color="green" onClick={onAccept} enabled={enabled} label={t('call.acceptCall')} />
           {onAcceptVideo && (
-            <ActionButton icon={Video} color="blue" onClick={onAcceptVideo} enabled={enabled} />
+            <ActionButton icon={Video} color="blue" onClick={onAcceptVideo} enabled={enabled} label={t('call.acceptVideoCall')} />
           )}
         </div>
       </motion.div>
     </motion.div>
   );
 };
+

@@ -27,15 +27,15 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
       exit={{ y: 20, opacity: 0, scale: 0.95 }}
       onClick={(event) => event.stopPropagation()}
       className={`w-full max-w-[320px] p-6 shadow-2xl ${
-        isDark ? "bg-[#11141c] border border-white/10" : "bg-white border border-black/10"
+        isDark ? "bg-[var(--bg-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"
       }`}
     >
       <div className="flex items-center justify-between mb-6">
-        <h3 className={`font-bold font-sans text-lg ${isDark ? "text-white" : "text-black"}`}>{t("chat.filters.title")}</h3>
+        <h3 className={`font-bold font-sans text-lg ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>{t("chat.filters.title")}</h3>
         <div
           onClick={onClose}
           className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
-            isDark ? "bg-[#1a1d24] text-gray-400 hover:text-white" : "bg-black/5 text-slate-500 hover:text-slate-800"
+            isDark ? "bg-[var(--bg-tertiary)] text-gray-400 hover:text-[var(--text-primary)]" : "bg-black/5 text-slate-500 hover:text-slate-800"
           }`}
           aria-label="Close"
           role="button"
@@ -58,9 +58,9 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${
                 filters[filter.id as keyof typeof filters]
-                  ? "bg-orange-500 text-white"
+                  ? "bg-orange-500 text-[var(--text-primary)]"
                   : isDark
-                    ? "bg-[#1a1d24] text-gray-400 group-hover:text-gray-200"
+                    ? "bg-[var(--bg-tertiary)] text-gray-400 group-hover:text-gray-200"
                     : "bg-slate-50 text-slate-500 group-hover:text-slate-700"
               }`}
             >
@@ -69,7 +69,7 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
             <span className={`text-sm font-bold flex-1 ${isDark ? "text-gray-300" : "text-slate-700"}`}>{filter.label}</span>
             <div
               className={`w-[44px] h-[24px] rounded-full p-1 transition-colors flex items-center ${
-                filters[filter.id as keyof typeof filters] ? "bg-orange-500" : isDark ? "bg-[#1a1d24]" : "bg-slate-100"
+                filters[filter.id as keyof typeof filters] ? "bg-orange-500" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-100"
               }`}
             >
               <div
@@ -94,14 +94,14 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
         <button
           onClick={() => setFilters({ hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false })}
           className={`flex-1 py-3 text-xs font-bold rounded-2xl transition-colors ${
-            isDark ? "bg-[#1a1d24] text-gray-400 hover:bg-white/5" : "bg-slate-50 text-slate-500 hover:bg-black/5"
+            isDark ? "bg-[var(--bg-tertiary)] text-gray-400 hover:bg-white/5" : "bg-slate-50 text-slate-500 hover:bg-black/5"
           }`}
         >
           {t("chat.filters.reset")}
         </button>
         <button
           onClick={onClose}
-          className="flex-1 py-3 text-xs font-bold rounded-2xl bg-orange-500 text-white transition-opacity hover:opacity-90 shadow-md"
+          className="flex-1 py-3 text-xs font-bold rounded-2xl bg-orange-500 text-[var(--text-primary)] transition-opacity hover:opacity-90 shadow-md"
         >
           {t("chat.filters.apply")}
         </button>
@@ -109,3 +109,7 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
     </motion.div>
   </motion.div>
 );
+
+
+
+

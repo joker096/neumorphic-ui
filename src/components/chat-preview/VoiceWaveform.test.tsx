@@ -90,24 +90,24 @@ describe('VoiceWaveform', () => {
     // The Play button appears once isReady=true, which happens when decodeAudioData resolves
     // With fake timers removed, this should resolve naturally
     await waitFor(() => {
-      expect(screen.getByTitle('Play')).toBeInTheDocument();
+      expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
     });
   });
 
   it('does not render play button for live stream mode', () => {
     render(<VoiceWaveform isDark={true} stream={mockStream as any} />);
 
-    expect(screen.queryByTitle('Play')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('systemPlayer.play')).not.toBeInTheDocument();
   });
 
   it('toggles playback when play button clicked', async () => {
     render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
-      expect(screen.getByTitle('Play')).toBeInTheDocument();
+      expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTitle('Play'));
+    fireEvent.click(screen.getByTitle('systemPlayer.play'));
     expect(mockAudioContext.createBufferSource).toHaveBeenCalled();
   });
 
@@ -115,10 +115,10 @@ describe('VoiceWaveform', () => {
     render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
-      expect(screen.getByTitle('Play')).toBeInTheDocument();
+      expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTitle('Play'));
+    fireEvent.click(screen.getByTitle('systemPlayer.play'));
     await waitFor(() => {
       expect(mockAudioContext.createBufferSource).toHaveBeenCalled();
     });
@@ -172,10 +172,10 @@ describe('VoiceWaveform', () => {
     render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
-      expect(screen.getByTitle('Play')).toBeInTheDocument();
+      expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTitle('Play'));
+    fireEvent.click(screen.getByTitle('systemPlayer.play'));
     await waitFor(() => {
       expect(mockAudioContext.resume).toHaveBeenCalled();
     });
@@ -193,10 +193,10 @@ describe('VoiceWaveform', () => {
     render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
-      expect(screen.getByTitle('Play')).toBeInTheDocument();
+      expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTitle('Play'));
+    fireEvent.click(screen.getByTitle('systemPlayer.play'));
     
     // Wait for the slider to appear
     await waitFor(() => {

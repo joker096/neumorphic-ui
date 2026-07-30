@@ -33,7 +33,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
             </div>
             <div>
-              <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{t('settings.darkTheme')}</div>
+              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.darkTheme')}</div>
               <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.darkThemeSubtitle')}</div>
             </div>
           </div>

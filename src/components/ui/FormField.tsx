@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import type { LucideIcon } from 'lucide-react'
 
 interface FormFieldProps {
@@ -7,7 +7,7 @@ interface FormFieldProps {
   value: string
   onChange: (value: string) => void
   type?: string
-  inputMode?: 'text' | 'email' | 'tel' | 'url' | 'numeric' | 'search'
+  inputMode?: 'text' | 'email' | 'tel' | 'url' | 'numeric' | 'search' | 'none'
   autoComplete?: string
   autoFocus?: boolean
   error?: string
@@ -21,20 +21,21 @@ interface FormFieldProps {
   maxLength?: number
   required?: boolean
   onKeyDown?: (e: React.KeyboardEvent) => void
+  suffix?: React.ReactNode
 }
 
 const inputBase = (isDark: boolean, hasError?: boolean) =>
   `w-full h-12 px-4 rounded-xl text-sm outline-none border-2 transition-all ${
     isDark
-      ? `bg-[#13151b] text-white placeholder:text-gray-500 ${
+      ? `bg-[var(--input-bg)] text-[var(--text-primary)] placeholder:[var(--input-placeholder)] ${
           hasError
-            ? 'border-red-500 focus:border-red-500'
-            : 'border-white/10 focus:border-orange-500'
+            ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)]'
+            : 'border-[var(--border-color)] focus:border-[var(--accent)]'
         }`
-      : `bg-slate-50 text-slate-800 placeholder:text-slate-400 ${
+      : `bg-[var(--input-bg)] text-[var(--text-primary)] placeholder:[var(--input-placeholder)] ${
           hasError
-            ? 'border-red-500 focus:border-red-500'
-            : 'border-black/5 focus:border-orange-500'
+            ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)]'
+            : 'border-[var(--border-color)] focus:border-[var(--accent)]'
         }`
   }`
 
@@ -58,20 +59,23 @@ export const FormField = ({
   maxLength,
   required,
   onKeyDown,
+  suffix,
 }: FormFieldProps) => {
   const isDark = theme === 'dark'
+  const inputRef = useRef<HTMLInputElement>(null)
 
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && (
         <label className={`text-[11px] font-bold uppercase tracking-widest ${
-          isDark ? 'text-gray-400' : 'text-slate-500'
+          isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'
         }`}>
           {label}
         </label>
       )}
       <div className="relative">
         <input
+          ref={inputRef}
           type={type}
           autoFocus={autoFocus}
           autoComplete={autoComplete}
@@ -94,19 +98,26 @@ export const FormField = ({
             disabled={disabled}
             className={`absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center transition-colors ${
               isDark
-                ? 'bg-white/10 hover:bg-white/20 text-white'
+                ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]'
                 : 'bg-black/5 hover:bg-black/10 text-slate-800'
             } ${disabled ? 'opacity-50' : ''}`}
           >
             <Icon size={16} />
           </button>
         )}
+        {suffix && (
+          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+            {suffix}
+          </div>
+        )}
       </div>
       {error && (
-        <span className="text-[11px] font-medium text-red-500 ml-1">
+        <span className="text-[11px] font-medium text-[var(--color-danger)] ml-1">
           {error}
         </span>
       )}
     </div>
   )
 }
+
+

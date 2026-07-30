@@ -57,6 +57,6 @@ describe('BatteryStatus', () => {
   it('applies background styles', () => {
     const { container } = render(<BatteryStatus />);
     const outer = container.firstElementChild;
-    expect(outer?.className).toMatch(/bg-\[#[a-f0-9]+\]/);
+    expect(outer?.className).toContain('bg-[var(--bg-secondary)]');
   });
 });

@@ -16,7 +16,7 @@ export const FeaturesSection = ({ features }: FeaturesSectionProps) => (
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1], delay: i * 0.08 }}
-          className="group rounded-[1.75rem] border p-[1px] transition-all duration-500 border-white/[0.06] hover:border-white/[0.12]"
+          className="group rounded-[1.75rem] border p-[1px] transition-all duration-500 border-[var(--border-color)]/[0.06] hover:border-[var(--border-color)]/[0.12]"
         >
           <div className="rounded-[calc(1.75rem-1px)] p-6 bg-[var(--bg-secondary)]">
             <div className="w-10 h-10 rounded-md flex items-center justify-center mb-4 bg-orange-500/10">
@@ -34,3 +34,4 @@ export const FeaturesSection = ({ features }: FeaturesSectionProps) => (
     })}
   </div>
 );
+

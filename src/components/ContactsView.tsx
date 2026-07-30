@@ -101,10 +101,10 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
   ];
 
   return (
-    <div data-testid="contacts-container" className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[#11141c]/50" : "bg-[#eaeff4]/50"}`}>
+    <div data-testid="contacts-container" className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
       
       <div className="w-full flex items-center justify-between mb-4 px-2">
-        <h2 className={`font-sans text-2xl font-bold tracking-wide ${isDark ? "text-white" : "text-slate-800"}`}>
+        <h2 className={`font-sans text-2xl font-bold tracking-wide ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
           {t('contacts.title')}
         </h2>
         <div className={`flex gap-2 ${isDark ? "text-orange-400" : "text-orange-600"}`}>
@@ -141,7 +141,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab.key
-                  ? (isDark ? 'bg-white/10 text-white shadow-sm' : 'bg-white shadow-sm text-slate-800')
+                  ? (isDark ? 'bg-white/10 text-[var(--text-primary)] shadow-sm' : 'bg-white shadow-sm text-slate-800')
                   : (isDark ? 'text-gray-400 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')
               }`}>
               {tab.icon}
@@ -245,10 +245,10 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           <div className={`w-[220px] h-[220px] flex items-center justify-center p-4 shadow-xl ${
             isDark ? "bg-white" : "bg-white border-2 border-gray-100"
           }`}>
-            <QrCode size="100%" strokeWidth={1} className="text-black" />
+            <QrCode size="100%" strokeWidth={1} className="text-[var(--text-secondary)]" />
           </div>
           <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${
-            isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"
+            isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"
           }`}>
             <div className={`font-mono text-xs tracking-widest break-all text-center ${isDark ? "text-orange-400" : "text-orange-600"}`}>
               nexus://id/fingerprint
@@ -256,14 +256,14 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
             <div className="flex gap-2 w-full">
               <motion.button whileTap={{ scale: 0.95 }} onClick={copyId}
                 className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${
-                  copied ? "bg-green-500 text-white" : (isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800")
+                  copied ? "bg-green-500 text-[var(--text-primary)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")
                 }`}>
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied ? t('header.copied') : t('header.copyLink')}
               </motion.button>
               <motion.button whileTap={{ scale: 0.95 }}
                 className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${
-                  isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800"
+                  isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"
                 }`}>
                 <Share size={14} />
               </motion.button>
@@ -274,3 +274,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
     </div>
   );
 };
+
+
+
+

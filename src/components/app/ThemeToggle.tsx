@@ -22,8 +22,8 @@ export const ThemeToggle = ({ isDark = false, theme = 'dark', setTheme = () => {
       title={isDark ? t("common.switchToLight") : t("common.switchToDark")}
       className={`w-[72px] h-10 rounded-full flex items-center p-1 cursor-pointer backdrop-blur-md transition-colors duration-300 ${
         isDark
-          ? "bg-[#11141c]/80 border border-white/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] hover:bg-[#11141c]"
-          : "bg-[#e2e8f0]/80 border border-black/5 shadow-[inset_0_2px_10px_rgba(165,175,190,0.3)] hover:bg-[#e2e8f0]"
+          ? "bg-[var(--bg-primary)]/80 border border-[var(--border-color)] shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] hover:bg-[var(--bg-primary)]"
+          : "bg-[var(--bg-secondary)]/80 border border-[var(--border-color)] shadow-[inset_0_2px_10px_rgba(165,175,190,0.3)] hover:bg-[var(--bg-secondary)]"
       }`}
     >
       <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
@@ -33,8 +33,8 @@ export const ThemeToggle = ({ isDark = false, theme = 'dark', setTheme = () => {
       <motion.div
         className={`w-10 h-10 rounded-full flex items-center justify-center relative z-10 ${
           isDark
-            ? "bg-gradient-to-br from-[#2a2d36] to-[#1f222a] text-orange-400 border border-white/5 shadow-[0_4px_12px_rgba(0,0,0,0.8),_inset_0_2px_2px_rgba(255,255,255,0.1)]"
-            : "bg-gradient-to-br from-white to-[#f8fafc] text-orange-500 border border-black/5 shadow-[0_4px_12px_rgba(165,175,190,0.4),_inset_0_2px_2px_rgba(255,255,255,1)]"
+            ? "bg-gradient-to-br from-[#2a2d36] to-[#1f222a] text-orange-400 border border-[var(--border-color)] shadow-[0_4px_12px_rgba(0,0,0,0.8),_inset_0_2px_2px_rgba(255,255,255,0.1)]"
+            : "bg-gradient-to-br from-white to-[--bg-primary] text-orange-500 border border-[var(--border-color)] shadow-[0_4px_12px_rgba(165,175,190,0.4),_inset_0_2px_2px_rgba(255,255,255,1)]"
         }`}
         initial={false}
         animate={{ x: isDark ? 32 : 0, rotate: isDark ? 360 : 0 }}
@@ -49,3 +49,6 @@ export const ThemeToggle = ({ isDark = false, theme = 'dark', setTheme = () => {
     </div>
   );
 };
+
+
+

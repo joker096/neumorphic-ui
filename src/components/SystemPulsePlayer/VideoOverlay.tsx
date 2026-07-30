@@ -30,7 +30,7 @@ export const VideoOverlay = ({
         </div>
         <button
           onClick={closeVideo}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
+          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] transition-all"
         >
           <X size={20} />
         </button>
@@ -38,3 +38,4 @@ export const VideoOverlay = ({
     </div>
   );
 };
+

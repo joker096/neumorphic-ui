@@ -18,14 +18,14 @@ export const StoryViewerOverlay = ({ activeStory, onClose, isStealthMode }: Stor
       >
         <div className="absolute top-0 left-0 w-full p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/80 to-transparent">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${activeStory.color} flex items-center justify-center text-white font-bold`}>
+            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${activeStory.color} flex items-center justify-center text-[var(--text-primary)] font-bold`}>
               {activeStory.name.charAt(0)}
             </div>
-            <span className="text-white font-semibold text-sm">{activeStory.name}</span>
+            <span className="text-[var(--text-primary)] font-semibold text-sm">{activeStory.name}</span>
           </div>
           <div
             onClick={onClose}
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white cursor-pointer transition-colors"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-[var(--text-primary)] cursor-pointer transition-colors"
           >
             <X size={20} />
           </div>
@@ -42,3 +42,4 @@ export const StoryViewerOverlay = ({ activeStory, onClose, isStealthMode }: Stor
     )}
   </AnimatePresence>
 );
+

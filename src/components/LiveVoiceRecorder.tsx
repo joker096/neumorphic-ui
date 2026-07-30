@@ -150,7 +150,7 @@ return (
           // Preview mode after recording
           <div className={`w-full flex flex-col gap-3 bg-[var(--bg-primary)] rounded-md px-2 py-3`}>
              <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-[--text-secondary]">{label('voiceRecorder.preview', 'PREVIEW')}</span>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-secondary)]">{label('voiceRecorder.preview', 'PREVIEW')}</span>
              </div>
              <div className="flex items-center gap-2">
                 <VoiceWaveform audioUrl={previewUrl} isMe={true} />
@@ -171,7 +171,7 @@ return (
                       const url = previewUrl;
                       onSend(url, `${m}:${s.toString().padStart(2, '0')}`);
                    }}
-                   className="px-4 py-1.5 rounded-full text-[11px] font-bold bg-orange-500 text-white shadow-md"
+                   className="px-4 py-1.5 rounded-full text-[11px] font-bold bg-orange-500 text-[var(--text-primary)] shadow-md"
                   >
                      {label('voiceRecorder.send', 'Send')}
                    </button>
@@ -193,7 +193,7 @@ return (
              >
               <div 
                   onClick={handleCancel}
-                  className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 text-[--text-secondary] hover:text-red-400"
+                  className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 text-[var(--text-secondary)] hover:text-red-400"
                     title={label('voiceRecorder.discard', 'Discard')}
                 >
                   <Trash2 size={18} />
@@ -201,7 +201,7 @@ return (
               
               <div className="flex-1 flex items-center gap-3 overflow-hidden">
                  <div className={`w-2 h-2 rounded-full ${isPaused ? "bg-yellow-500" : "bg-red-500"} ${!isPaused && isRecording ? "animate-pulse" : ""}`} />
-                 <span className={`text-[13px] font-bold tracking-wide font-mono min-w-[36px] text-white`}>
+                 <span className={`text-[13px] font-bold tracking-wide font-mono min-w-[36px] text-[var(--text-primary)]`}>
                     {formatTime(duration)}
                  </span>
                  <div className="flex-1 h-8 px-2 flex items-center">
@@ -222,7 +222,7 @@ return (
                   )}
                  <button 
                      onClick={handleStopRecording}
-                     className="w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                     className="w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[0_0_10px_rgba(249,115,22,0.5)]"
                      title={label('voiceRecorder.stopAndSend', 'Stop and Send')}
                   >
                      <Send size={18} className="-ml-0.5" />
@@ -233,3 +233,5 @@ return (
         )
     );
 };
+
+

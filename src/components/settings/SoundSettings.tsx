@@ -41,10 +41,11 @@ export const SoundSettings: React.FC<SoundSettingsProps> = ({}) => {
         />
       </div>
       <div className="flex flex-wrap gap-2 p-3 rounded-md bg-[var(--bg-secondary)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.6),_0_4px_8px_rgba(0,0,0,0.3)]">
-        <button onClick={() => playTestSound('incoming-call')} className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:scale-105 active:scale-95 bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-[0_4px_12px_rgba(234,88,12,0.3)]">{t('soundSettings.testCall')}</button>
-        <button onClick={() => playTestSound('incoming-chat')} className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:scale-105 active:scale-95 bg-gradient-to-r from-sky-600 to-sky-500 text-white shadow-[0_4px_12px_rgba(2,132,199,0.3)]">{t('soundSettings.testChat')}</button>
-        <button onClick={() => playTestSound('error')} className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:scale-105 active:scale-95 bg-gradient-to-r from-rose-600 to-rose-500 text-white shadow-[0_4px_12px_rgba(225,29,72,0.3)]">{t('soundSettings.testError')}</button>
+        <button onClick={() => playTestSound('incoming-call')} className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:scale-105 active:scale-95 bg-gradient-to-r from-orange-600 to-orange-500 text-[var(--text-primary)] shadow-[0_4px_12px_rgba(234,88,12,0.3)]">{t('soundSettings.testCall')}</button>
+        <button onClick={() => playTestSound('incoming-chat')} className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:scale-105 active:scale-95 bg-gradient-to-r from-sky-600 to-sky-500 text-[var(--text-primary)] shadow-[0_4px_12px_rgba(2,132,199,0.3)]">{t('soundSettings.testChat')}</button>
+        <button onClick={() => playTestSound('error')} className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:scale-105 active:scale-95 bg-gradient-to-r from-rose-600 to-rose-500 text-[var(--text-primary)] shadow-[0_4px_12px_rgba(225,29,72,0.3)]">{t('soundSettings.testError')}</button>
       </div>
     </div>
   );
 };
+

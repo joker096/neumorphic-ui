@@ -48,9 +48,9 @@ export const ScheduledMessages: React.FC<ScheduledMessagesProps> = ({
               <div className="flex items-center justify-end gap-1 mt-1 text-[10px] font-bold tracking-wide opacity-50">
                 <Clock size={10} className="inline mr-1" />
                 {new Date(msg.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                <span className="cursor-pointer ml-2 hover:text-red-500" onClick={() => scheduledQueue.removeMessage(msg.id)}>
-                  X
-                </span>
+                <button onClick={() => scheduledQueue.removeMessage(msg.id)} className="cursor-pointer ml-2 hover:text-red-500 text-xs" aria-label="Remove scheduled message">
+                  ✕
+                </button>
               </div>
             </div>
           </motion.div>

@@ -3,6 +3,22 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { CallHistorySheet } from './CallHistorySheet';
 
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => ({
+      'call.callHistory': 'Call History',
+      'call.clearAll': 'Clear all',
+      'call.searchCalls': 'Search calls',
+      'call.noCallsYet': 'No calls yet',
+      'call.missed': 'Missed',
+      'call.incoming': 'Incoming',
+      'call.outgoing': 'Outgoing',
+      'call.callBack': 'Call back',
+      'common.close': 'Close',
+    }[key] ?? key),
+  }),
+}));
+
 // Default mock data
 const mockCallHistory = [
   { id: '1', name: 'John', type: 'incoming', time: '10:00 AM', duration: '5:30' },
@@ -102,9 +118,9 @@ describe('CallHistorySheet - additional tests', () => {
 
   it('renders call type text', () => {
     render(<CallHistorySheet open={true} onClose={vi.fn()} onCall={() => {}} theme="dark" />);
-    expect(screen.getByText('incoming')).toBeInTheDocument();
-    expect(screen.getByText('missed')).toBeInTheDocument();
-    expect(screen.getByText('outgoing')).toBeInTheDocument();
+    expect(screen.getByText('Incoming')).toBeInTheDocument();
+    expect(screen.getByText('Missed')).toBeInTheDocument();
+    expect(screen.getByText('Outgoing')).toBeInTheDocument();
   });
 
   it('renders call durations when present', () => {

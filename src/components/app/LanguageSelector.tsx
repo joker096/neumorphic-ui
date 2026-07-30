@@ -36,8 +36,8 @@ export const LanguageSelector = ({
       onClick={() => setShowLangMenu(!showLangMenu)}
       className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all ${
         isDark
-          ? "bg-[#11141c]/80 border border-white/10 hover:bg-white/10"
-          : "bg-[#e2e8f0]/80 border border-black/5 hover:bg-white shadow-md"
+          ? "bg-[var(--bg-primary)]/80 border border-[var(--border-color)] hover:bg-white/10"
+          : "bg-[var(--bg-secondary)]/80 border border-[var(--border-color)] hover:bg-white shadow-md"
       }`}
       title={t("common.selectLanguage")}
       aria-label={t("common.selectLanguage")}
@@ -53,7 +53,7 @@ export const LanguageSelector = ({
           transition={{ duration: 0.2 }}
           className="absolute top-full right-0 mt-2 w-40 rounded-xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.4)] z-50"
         >
-          <div className={isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/5"}>
+          <div className={isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}>
             {LANGUAGES.map((lang) => (
               <button
                 key={lang.code}
@@ -63,7 +63,7 @@ export const LanguageSelector = ({
                 }`}
               >
                 <span className="text-2xl">{lang.flag}</span>
-                <span className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{lang.name}</span>
+                <span className={`font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{lang.name}</span>
                 {language === lang.code && <Check size={16} className="ml-auto text-orange-500" />}
               </button>
             ))}
@@ -73,3 +73,7 @@ export const LanguageSelector = ({
     </AnimatePresence>
   </div>
 );
+
+
+
+

@@ -57,17 +57,17 @@ export function ConfirmDialog({
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
             className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 border ${
-              isDark ? 'bg-[#1a1d24] border-white/10' : 'bg-white border-black/10'
+              isDark ? 'bg-[var(--bg-tertiary)] border-[var(--border-color)]' : 'bg-white border-[var(--border-color)]'
             }`}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{title}</h3>
+            <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>{title}</h3>
             <p className={`text-sm mb-6 leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{message}</p>
             <div className="flex gap-3">
               <button
                 onClick={onCancel}
                 className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${
-                  isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                  isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
                 }`}
               >
                 {cancelLabel}
@@ -76,8 +76,8 @@ export function ConfirmDialog({
                 onClick={onConfirm}
                 className={`flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${
                   variant === 'danger'
-                    ? 'bg-red-500 hover:bg-red-600 text-white'
-                    : 'bg-orange-500 hover:bg-orange-600 text-white'
+                    ? 'bg-red-500 hover:bg-red-600 text-[var(--text-primary)]'
+                    : 'bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)]'
                 }`}
               >
                 {confirmLabel}
@@ -89,3 +89,7 @@ export function ConfirmDialog({
     </AnimatePresence>
   );
 }
+
+
+
+

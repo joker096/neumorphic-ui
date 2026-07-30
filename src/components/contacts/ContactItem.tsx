@@ -14,6 +14,17 @@ interface ContactItemProps {
   t: (key: string, options?: any) => string;
 }
 
+const swipeBtn = (color: string, icon: React.ReactNode, label: string, onClick: () => void, isDark: boolean) => (
+  <button
+    onClick={onClick}
+    className={`h-full flex flex-col items-center justify-center gap-1 px-3 text-[11px] font-bold text-[var(--text-primary)] cursor-pointer border-none shrink-0`}
+    style={{ minWidth: "76px", backgroundColor: color }}
+  >
+    {icon}
+    <span className="text-[9px] md:text-[11px]">{label}</span>
+  </button>
+);
+
 export const ContactItem: React.FC<ContactItemProps> = ({
   contact,
   theme = 'dark',
@@ -48,14 +59,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
               transition: "opacity 0.2s ease",
             }}
           >
-            <button
-              onClick={() => handleSwipeAction("call")}
-              className={`h-full flex flex-col items-center justify-center gap-1 px-3 text-[11px] font-bold text-white cursor-pointer border-none ${isDark ? "bg-[#2b2f42]" : "bg-slate-600"}`}
-              style={{ width: "76px" }}
-            >
-              <Phone size={18} fill="white" stroke="white" />
-              <span className="text-[9px] md:text-[11px]">{t('contacts.call')}</span>
-            </button>
+            {swipeBtn(isDark ? "#2b2f42" : "#47557a", <Phone size={18} fill="white" stroke="white" />, t('contacts.call') || 'Call', () => handleSwipeAction("call"), isDark)}
           </div>
 
           {/* Right swipe (video) - only visible when swiped right */}
@@ -67,14 +71,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
               transition: "opacity 0.2s ease",
             }}
           >
-            <button
-              onClick={() => handleSwipeAction("video")}
-              className="h-full flex flex-col items-center justify-center gap-1 px-3 text-[11px] font-bold text-white cursor-pointer border-none bg-blue-500"
-              style={{ width: "76px" }}
-            >
-              <Video size={18} fill="white" stroke="white" />
-              <span className="text-[9px] md:text-[11px]">{t('contacts.videoCall')}</span>
-            </button>
+            {swipeBtn("#2563de", <Video size={18} fill="white" stroke="white" />, t('contacts.videoCall') || 'Video', () => handleSwipeAction("video"), isDark)}
           </div>
         </>
       )}
@@ -120,9 +117,9 @@ export const ContactItem: React.FC<ContactItemProps> = ({
         }}
         animate={{ x: targetX }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`flex items-center gap-3 md:gap-4 p-3 cursor-pointer transition-all rounded-2xl active:scale-95 min-h-[56px] ${isDark ? "hover:bg-[#1a1d24]" : "hover:bg-white shadow-sm"}`}
+        className={`flex items-center gap-3 md:gap-4 p-3 cursor-pointer transition-all rounded-2xl active:scale-95 min-h-[56px] ${isDark ? "hover:bg-[var(--bg-tertiary)]" : "hover:bg-white shadow-sm"}`}
       >
-        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color} text-white font-bold text-lg shadow-md shrink-0`}>
+        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color} text-[var(--text-primary)] font-bold text-lg shadow-md shrink-0`}>
           {contact.name.charAt(0)}
         </div>
         <div className="flex-1 flex flex-col min-w-0">
@@ -135,7 +132,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
             <span className={`text-[9px] md:text-[10px] font-bold shrink-0 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
               &bull; {(() => {
                 const delta = Date.now() - contact.lastSeen;
-                if (delta < 0 || isNaN(delta) || !contact.lastSeen) return "—";
+                if (delta < 0 || isNaN(delta) || !contact.lastSeen) return '—';
                 const MAX_DAYS = 365;
                 if (delta < 3600000)
                   return t("chat.minutesAgo", { count: Math.floor(delta / 60000) || 1 });
@@ -162,3 +159,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
     </div>
   );
 };
+
+
+
+

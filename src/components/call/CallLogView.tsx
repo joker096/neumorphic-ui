@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   Phone, PhoneMissed, PhoneIncoming, PhoneOutgoing,
-  Users, Plus, UserPlus, Trash2,
+  Plus, UserPlus, Trash2,
 } from 'lucide-react'
 import { useAppStore } from '../../store'
 import { useI18n } from '../../lib/i18n'
@@ -64,7 +64,6 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
   const [showAddContact, setShowAddContact] = useState(false)
   const [addName, setAddName] = useState('')
   const [addId, setAddId] = useState('')
-  const [pendingNumber, setPendingNumber] = useState('')
 
   const filtered = useMemo(() => {
     let list = callHistory
@@ -96,14 +95,13 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
   }
 
   const openAddContact = (name: string) => {
-    setPendingNumber(name)
     setAddName(name)
     setAddId('')
     setShowAddContact(true)
   }
 
   return (
-    <div className={`w-full h-full flex flex-col ${isDark ? 'bg-[#1a1d24]' : 'bg-white'} ${className}`}>
+    <div className={`w-full h-full flex flex-col ${isDark ? 'bg-[var(--bg-tertiary)]' : 'bg-white'} ${className}`}>
       <div className="shrink-0 mx-3 md:mx-4 mt-3 md:mt-4 mb-1">
         <SearchInput
           value={search}
@@ -136,14 +134,17 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
         {callHistory.length > 0 && (
           <div className="ml-auto flex items-center gap-1 shrink-0">
             <motion.button
+              type="button"
               onClick={clearCallHistory}
               whileTap={{ scale: 0.95 }}
               className={`text-[10px] md:text-[11px] font-medium transition-colors px-2 py-1.5 rounded-lg ${
                 isDark ? 'text-gray-500 hover:text-red-400 hover:bg-white/5' : 'text-slate-400 hover:text-red-500 hover:bg-black/5'
               }`}
+              aria-label={t('call.clearAll')}
+              title={t('call.clearAll')}
             >
               <Trash2 size={14} className="inline mr-1" />
-              Clear
+              {t('call.clearAll')}
             </motion.button>
           </div>
         )}
@@ -151,8 +152,10 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
 
       <div className="flex shrink-0 px-3 md:px-4 pb-1">
         <motion.button
-          onClick={() => { setPendingNumber(''); setAddName(''); setAddId(''); setShowAddContact(true) }}
+          type="button"
+          onClick={() => { setAddName(''); setAddId(''); setShowAddContact(true) }}
           whileTap={{ scale: 0.95 }}
+          aria-label={t('contacts.addContact')}
           className={`flex items-center gap-1.5 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] transition-colors px-2 py-1.5 rounded-lg ${
             isDark ? 'text-gray-500 hover:text-gray-300 hover:bg-white/5' : 'text-slate-400 hover:text-slate-600 hover:bg-black/5'
           }`}
@@ -173,13 +176,13 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
               <Phone className="w-7 h-7 opacity-40" />
             </div>
             <p className="text-sm font-medium">{t('chat.folders.noCalls')}</p>
-            <p className="text-xs mt-1 opacity-50">{t('chat.folders.noCallsSubtitle') || 'Your call history will appear here'}</p>
+            <p className="text-xs mt-1 opacity-50">{t('call.noCallsSubtitle')}</p>
           </motion.div>
         ) : (
           <AnimatePresence mode="popLayout">
             {filtered.map((entry) => {
               const Icon = typeIcon[entry.type] || Phone
-              const isUnknown = entry.name.startsWith('+') || entry.name === 'Unknown'
+              const isUnknown = entry.name.startsWith('+') || entry.name === t('call.unknownCaller')
               return (
                 <motion.div
                   key={entry.id}
@@ -215,9 +218,10 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
                       whileTap={{ scale: 0.9 }}
                       onClick={(e) => { e.stopPropagation(); openAddContact(entry.name) }}
                       className={`min-w-[44px] min-h-[44px] rounded-full shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all active:scale-90 ${
-                        isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-black/5 hover:bg-black/10 text-slate-700'
+                        isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-black/5 hover:bg-black/10 text-slate-700'
                       }`}
                       title={t('contacts.addContact')}
+                      aria-label={t('contacts.addContact')}
                     >
                       <UserPlus size={14} />
                     </motion.button>
@@ -233,7 +237,7 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
         isOpen={showAddContact}
         onClose={() => setShowAddContact(false)}
         title={t('contacts.addContact')}
-        subtitle={t('contacts.addContactSubtitle') || 'Enter name and network ID'}
+        subtitle={t('contacts.addContactSubtitle')}
         icon={UserPlus}
         theme={theme}
       >
@@ -265,3 +269,7 @@ export const CallLogView = ({ onCall, theme = 'dark', className = '' }: CallLogV
     </div>
   )
 }
+
+
+
+

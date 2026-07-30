@@ -9,6 +9,18 @@ type CompanyHeaderProps = {
   onSettings?: () => void;
 };
 
+const iconBtn = (icon: React.ReactNode, label: string, onClick?: () => void, isDark?: boolean) => (
+  <button
+    onClick={onClick}
+    className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all shrink-0 ${
+      isDark ? "hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]" : "hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+    }`}
+    aria-label={label}
+  >
+    {icon}
+  </button>
+);
+
 export const CompanyHeader = ({ isDark = false, onScanQR, onInvite, onSettings }: CompanyHeaderProps) => {
   const { t } = useI18n();
   const companyName = useAppStore(state => state.companySettings?.name);
@@ -18,34 +30,14 @@ export const CompanyHeader = ({ isDark = false, onScanQR, onInvite, onSettings }
       <h2 className={`font-sans text-2xl font-bold tracking-wide ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>
         {companyName || 'Company'}
       </h2>
-      <div className={`flex gap-3 ${isDark ? "text-orange-400" : "text-orange-600"}`}>
-        <button
-          onClick={onScanQR}
-          className="cursor-pointer hover:opacity-80 transition-all active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="QR Code"
-          title={t('company.scanQR') || 'Scan QR to join'}
-        >
-          <QrCode size={24} />
-        </button>
-        <button
-          onClick={onInvite}
-          className="cursor-pointer hover:opacity-80 transition-all active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="Invite"
-          title={t('company.invite') || 'Invite members'}
-        >
-          <UserPlus size={24} />
-        </button>
-        <button
-          onClick={onSettings}
-          className="cursor-pointer hover:opacity-80 transition-all active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="Edit company"
-          title={t('company.edit') || 'Edit company'}
-        >
-          <Settings size={24} />
-        </button>
+      <div className="flex gap-3">
+        {iconBtn(<QrCode size={20} />, 'QR Code', onScanQR, isDark)}
+        {iconBtn(<UserPlus size={20} />, 'Invite', onInvite, isDark)}
+        {iconBtn(<Settings size={20} />, 'Settings', onSettings, isDark)}
       </div>
     </div>
   );
 };
 
 export const CompanyHeaderUI = CompanyHeader;
+

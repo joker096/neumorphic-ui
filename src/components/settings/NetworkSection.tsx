@@ -79,7 +79,7 @@ export const NetworkSection = ({
               placeholder={t('settings.proxyUrlExample')}
               value={proxyUrl}
               onChange={(e) => setProxyUrl(e.target.value)}
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors border ${isDark ? "bg-[#11141c] border-white/10 text-white focus:border-blue-500/50" : "bg-[#f4f7f9] border-black/10 text-slate-800 focus:border-blue-500/50"}`}
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)] focus:border-blue-500/50" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800 focus:border-blue-500/50"}`}
             />
           </div>
         )}
@@ -148,9 +148,12 @@ export const NetworkSection = ({
           placeholder={t('settings.turnServerExample')}
           value={turnServerUrl}
           onChange={(e) => onUpdateSettings({ turnServerUrl: e.target.value })}
-          className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors border ${isDark ? "bg-[#11141c] border-white/10 text-white focus:border-blue-500/50" : "bg-[#f4f7f9] border-black/10 text-slate-800 focus:border-blue-500/50"}`}
+          className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)] focus:border-blue-500/50" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800 focus:border-blue-500/50"}`}
         />
       </SettingsGroup>
     </SubView>
   );
 };
+
+
+

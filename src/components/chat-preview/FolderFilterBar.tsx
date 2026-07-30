@@ -14,13 +14,17 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
     <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-none pb-1" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
       {["all", "personal", "unread", "work", "archived"].map(folder => (
         <div key={folder} onClick={() => setActiveFolder(folder)}
-          className={`px-2 sm:px-4 py-1 rounded-sm sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold whitespace-nowrap cursor-pointer transition-colors shrink-0 ${activeFolder === folder ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "bg-[#1a1d24] text-gray-400 hover:text-gray-200 border border-white/5" : "bg-white text-slate-500 hover:text-slate-800 border border-black/5 shadow-sm")}`}>
+          className={`px-2 sm:px-4 py-1 rounded-sm sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold whitespace-nowrap cursor-pointer transition-colors shrink-0 ${activeFolder === folder ? (isDark ? "bg-orange-500 text-[var(--text-primary)]" : "bg-orange-500 text-[var(--text-primary)] shadow-md") : (isDark ? "bg-[var(--bg-tertiary)] text-gray-400 hover:text-gray-200 border border-[var(--border-color)]" : "bg-white text-slate-500 hover:text-slate-800 border border-[var(--border-color)] shadow-sm")}`}>
           {t("chat.folders." + folder as any)}
         </div>
       ))}
     </div>
-    <div onClick={() => setShowAdvancedFilterModal(true)} className={`p-1.5 rounded-full cursor-pointer shrink-0 transition-colors flex items-center justify-center ${advancedFilters.hasMedia || advancedFilters.hasAudio || advancedFilters.hasReplies || advancedFilters.fromBots || advancedFilters.priority ? (isDark ? "bg-orange-500 text-white" : "bg-orange-500 text-white shadow-md") : (isDark ? "bg-[#1a1d24] text-gray-400 hover:text-white border border-white/5" : "bg-white text-slate-500 hover:text-slate-800 border border-black/5 shadow-sm")}`}>
+    <div onClick={() => setShowAdvancedFilterModal(true)} className={`p-1.5 rounded-full cursor-pointer shrink-0 transition-colors flex items-center justify-center ${advancedFilters.hasMedia || advancedFilters.hasAudio || advancedFilters.hasReplies || advancedFilters.fromBots || advancedFilters.priority ? (isDark ? "bg-orange-500 text-[var(--text-primary)]" : "bg-orange-500 text-[var(--text-primary)] shadow-md") : (isDark ? "bg-[var(--bg-tertiary)] text-gray-400 hover:text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-500 hover:text-slate-800 border border-[var(--border-color)] shadow-sm")}`}>
       <ListFilter size={18} />
     </div>
   </div>
 );
+
+
+
+

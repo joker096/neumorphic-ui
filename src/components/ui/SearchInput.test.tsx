@@ -76,7 +76,7 @@ describe('SearchInput', () => {
   it('renders in dark mode', () => {
     const { container } = render(<SearchInput value="" onChange={() => {}} isDark={true} />);
     const input = container.querySelector('input');
-    expect(input?.className).toContain('bg-[#1a1d24]');
+    expect(input?.className).toContain('bg-[var(--bg-tertiary)]');
   });
 
   it('renders in light mode', () => {

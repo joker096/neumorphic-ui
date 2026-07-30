@@ -24,6 +24,8 @@ const baseProps = {
     const map: Record<string, any> = {
       'chat.savedMessages': 'Saved Messages',
       'chat.savedItems': options ? `${options.n} items from ${options.chatName}` : '',
+      'chat.unsave': 'Unsave',
+      'chat.noSavedMessages': 'No saved messages yet',
     };
     return map[key] || key;
   },

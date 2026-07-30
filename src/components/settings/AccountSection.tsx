@@ -67,7 +67,7 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
           <Share2 size={18} />
         </button>
       </div>
-      <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[#1a1d24] border border-white/5" : "bg-white shadow-sm border border-black/5"}`}>
+      <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
         <div className="p-4">
           <div className={`text-[10px] uppercase tracking-widest font-bold mb-3 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
             {t('settings.accounts')}
@@ -79,11 +79,11 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
                 onClick={() => setActiveId(acc.id)}
                 className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors ${isDark ? "hover:bg-[#20242e]" : "hover:bg-slate-100"}`}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold bg-gradient-to-br ${acc.color} flex-shrink-0`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] font-bold bg-gradient-to-br ${acc.color} flex-shrink-0`}>
                   {acc.name.charAt(0)}
                 </div>
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  <span className={`text-sm font-bold truncate ${isDark ? "text-white" : "text-slate-800"}`}>{acc.name}</span>
+                  <span className={`text-sm font-bold truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{acc.name}</span>
                 </div>
                 {activeId === acc.id && (
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isDark ? "bg-orange-500/20 text-orange-500" : "bg-orange-100 text-orange-600"}`}>
@@ -101,9 +101,9 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder={t('settings.newAccountPlaceholder')}
-                  className={`flex-1 min-w-0 bg-transparent outline-none text-sm transition-colors ${isDark ? "text-white placeholder:text-gray-500" : "text-slate-800 placeholder:text-slate-400"}`}
+                  className={`flex-1 min-w-0 bg-transparent outline-none text-sm transition-colors ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-800 placeholder:text-slate-400"}`}
                 />
-                <button type="submit" disabled={!newName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 ${newName.trim() ? "bg-orange-500 text-white" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
+                <button type="submit" disabled={!newName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 ${newName.trim() ? "bg-orange-500 text-[var(--text-primary)]" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
                   <Check size={16} />
                 </button>
               </form>
@@ -134,10 +134,10 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className={`w-full max-w-[340px] p-6 shadow-2xl relative ${isDark ? "bg-[#1a1d24] border border-white/10" : "bg-white border border-black/10"}`}
+            className={`w-full max-w-[340px] p-6 shadow-2xl relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
           >
             <div 
-              className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+              className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
               onClick={() => setShowShareId(false)}
               title={t('contacts.close')}
             >
@@ -145,23 +145,23 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
             </div>
 
             <div className="flex flex-col items-center mt-4">
-              <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-800"}`}>{t('settings.shareIdentity') || 'Share Identity'}</h3>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('settings.shareIdentity') || 'Share Identity'}</h3>
               <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.shareDescription') || 'Share your identity so others can find and connect with you.'}</p>
               
-              <div className={`w-[220px] h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
-                  <QrCode size="100%" strokeWidth={1} className="text-black" />
+              <div className={`w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
+                  <QrCode size="100%" strokeWidth={1} className="text-[var(--text-secondary)]" />
               </div>
               
-              <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${isDark ? "bg-[#13151b] border border-white/5" : "bg-slate-50 border border-black/5"}`}>
+              <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`}>
                   <div className={`font-mono text-xs tracking-widest break-all text-center ${isDark ? "text-orange-400" : "text-orange-600"}`}>
                     nexus://id/fingerprint
                   </div>
                   <div className="flex gap-2 w-full">
-                     <button onClick={handleCopyId} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-white" : (isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
+                     <button onClick={handleCopyId} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--text-primary)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
                         {copied ? <Check size={14} /> : <Copy size={14} />}
                         {copied ? t('header.copied') : t('settings.copyLink')}
                      </button>
-                     <button className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
+                     <button className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
                         <Share2 size={14} />
                      </button>
                   </div>
@@ -173,3 +173,6 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
     </SubView>
   );
 };
+
+
+

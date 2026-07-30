@@ -33,6 +33,26 @@ vi.mock('motion/react', () => ({
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
 
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => ({
+      'call.unknownCaller': 'Unknown',
+      'call.connecting': 'Connecting...',
+      'call.recording': 'REC',
+      'call.unmute': 'Unmute',
+      'call.mute': 'Mute',
+      'call.turnOffVideo': 'Turn off video',
+      'call.turnOnVideo': 'Turn on video',
+      'call.shareScreen': 'Share screen',
+      'call.stopRecording': 'Stop recording',
+      'call.record': 'Record',
+      'call.switchToVideo': 'Switch to Video',
+      'call.switchToAudio': 'Switch to Audio',
+      'call.endCall': 'End call',
+    }[key] ?? key),
+  }),
+}));
+
 describe('CallScreen - additional tests', () => {
   const mockAudioCall: MockCall = {
     id: 'audio-1',

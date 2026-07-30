@@ -33,7 +33,7 @@ export function ConnectionSettings({ t, isDark = false, onBack }: ConnectionSett
         <select
           value={transportMode}
           onChange={(e) => setTransportMode(e.target.value)}
-          className="w-full mt-1 p-2 rounded-lg bg-white/5 border border-white/10 text-sm font-medium"
+          className="w-full mt-1 p-2 rounded-lg bg-white/5 border border-[var(--border-color)] text-sm font-medium"
         >
           {TRANSPORT_MODES.map((m) => (
             <option key={m.value} value={m.value}>{t(m.key)}</option>
@@ -46,7 +46,7 @@ export function ConnectionSettings({ t, isDark = false, onBack }: ConnectionSett
         <select
           value={relayPref}
           onChange={(e) => setRelayPref(e.target.value)}
-          className="w-full mt-1 p-2 rounded-lg bg-white/5 border border-white/10 text-sm font-medium"
+          className="w-full mt-1 p-2 rounded-lg bg-white/5 border border-[var(--border-color)] text-sm font-medium"
         >
           {RELAY_PREFERENCES.map((r) => (
             <option key={r.value} value={r.value}>{t(r.key)}</option>
@@ -54,7 +54,7 @@ export function ConnectionSettings({ t, isDark = false, onBack }: ConnectionSett
         </select>
       </div>
 
-      <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+      <div className="p-3 rounded-lg bg-white/5 border border-[var(--border-color)]">
         <p className="text-sm font-medium">{t('settings.status')}: <span className="font-mono">{t('settings.disconnected')}</span></p>
         <p className="text-sm font-medium">{t('settings.backend')}: <span className="font-mono">direct</span></p>
         <p className="text-sm font-medium">{t('settings.latency')}: <span className="font-mono">0ms</span></p>
@@ -65,10 +65,11 @@ export function ConnectionSettings({ t, isDark = false, onBack }: ConnectionSett
           localStorage.removeItem('mess_blocked_backends');
           window.location.reload();
         }}
-        className="w-full p-2 rounded-lg bg-orange-600 text-white text-sm font-semibold"
+        className="w-full p-2 rounded-lg bg-orange-600 text-[var(--text-primary)] text-sm font-semibold"
       >
         {t('settings.resetTransportCache')}
       </button>
     </div>
   );
 }
+

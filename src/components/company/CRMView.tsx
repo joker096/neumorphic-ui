@@ -41,11 +41,11 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
 
   const getTagColor = (tag: string) => {
     switch (tag as ContactTag) {
-      case 'client': return 'text-green-600 bg-green-500/10';
-      case 'lead': return 'text-blue-600 bg-blue-500/10';
-      case 'partner': return 'text-purple-600 bg-purple-500/10';
-      case 'vendor': return 'text-orange-600 bg-orange-500/10';
-      case 'vip': return 'text-amber-600 bg-amber-500/10';
+      case 'client': return 'text-[#22c372] bg-[#22c372]/10';
+      case 'lead': return 'text-[#3b82ff] bg-[#3b82ff]/10';
+      case 'partner': return 'text-[#8b5cff] bg-[#8b5cff]/10';
+      case 'vendor': return 'text-[var(--accent)] bg-[var(--accent)]/10';
+      case 'vip': return 'text-[#f59f19] bg-[#f59f19]/10';
       default: return 'text-[var(--text-secondary)] bg-[var(--bg-secondary)]';
     }
   };
@@ -53,12 +53,12 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
   return (
     <div className="w-full flex flex-col">
       {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-md mb-3 bg-black/5">
+      <div className="flex gap-1 p-1 rounded-md mb-3 bg-black/5 sm:mb-4">
         {(['all', 'company', 'tag'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => { setActiveTab(tab); setSelectedTag(null); }}
-            className={`flex-1 py-2 text-[10px] font-bold rounded-lg uppercase tracking-wide ${activeTab === tab ? "bg-orange-100 text-orange-600" : "text-slate-400 hover:text-slate-800"}`}
+            className={`flex-1 py-2 text-[9px] sm:text-[10px] font-bold rounded-lg uppercase tracking-wide ${activeTab === tab ? "bg-[var(--button-primary-bg)] text-[var(--button-primary-text)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"}`}
           >
             {tab === 'all' ? t('crm.all') : tab === 'company' ? t('crm.byCompany') : t('crm.byTag')}
           </button>
@@ -66,21 +66,21 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
       </div>
 
       {/* Search */}
-      <div className="w-full h-10 rounded-full px-3 flex items-center gap-2 mb-3 bg-slate-50 border border-black/5">
+      <div className="w-full h-10 rounded-full px-3 flex items-center gap-2 mb-3 sm:mb-4 bg-[var(--bg-secondary)] border border-[var(--border-color)]">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M18 18l3 3" /></svg>
         <input
           type="text"
           placeholder={t('crm.searchContacts') || 'Search contacts...'}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="flex-1 bg-transparent outline-none text-[13px] text-[--text-primary] placeholder:text-[--text-tertiary]"
+          className="flex-1 bg-transparent outline-none text-[13px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
         />
       </div>
 
       {/* Company View */}
       {activeTab === 'company' && Object.entries(groupedByCompany).map(([company, companyContacts]) => (
         <div key={company} className="mb-4">
-          <div className="text-xs font-bold uppercase tracking-widest mb-2 text-[--accent]">
+          <div className="text-xs font-bold uppercase tracking-widest mb-2 text-[var(--accent)]">
             {company} ({companyContacts.length})
           </div>
           {companyContacts.map(contact => (
@@ -89,12 +89,12 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
               onClick={() => setSelectedContact(contact)}
               className="mb-2 p-3 rounded-md flex items-center gap-3 neu-card-inset transition-colors cursor-pointer"
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${contact.color || "bg-orange-500"}`}>{(contact.name || 'U').charAt(0)}</div>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-primary)] text-[10px] font-bold ${contact.color || "bg-[var(--accent)]"}`}>{(contact.name || 'U').charAt(0)}</div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate text-[--text-primary]">{contact.name}</div>
-                <div className="text-[10px] truncate text-[--text-secondary]">{contact.position || contact.email || contact.company}</div>
+                <div className="text-sm font-medium truncate text-[var(--text-primary)]">{contact.name}</div>
+                <div className="text-[10px] truncate text-[var(--text-secondary)]">{contact.position || contact.email || contact.company}</div>
               </div>
-              {contact.isFavorite && <span className="text-[10px] text-amber-400">★</span>}
+              {contact.isFavorite && <span className="text-[10px] text-[var(--color-warning)]">★</span>}
             </div>
           ))}
         </div>
@@ -107,8 +107,8 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
             onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
             className="w-full text-left mb-2 p-3 rounded-md flex items-center justify-between neu-card-inset transition-colors"
           >
-            <span className="text-sm font-medium text-[--text-primary]">{tag}</span>
-            <span className={`text-[10px] px-2 py-1 rounded-full ${getTagColor(tag)}`}>
+            <span className="text-sm font-medium text-[var(--text-primary)]">{tag}</span>
+            <span className={`text-[9px] sm:text-[10px] px-2 py-1 rounded-full ${getTagColor(tag)}`}>
               {contacts.filter(c => c.tags?.includes(tag as ContactTag)).length}
             </span>
           </button>
@@ -118,8 +118,8 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
               onClick={() => setSelectedContact(contact)}
               className="ml-4 mb-2 p-2 rounded-md flex items-center gap-2 bg-black/5 cursor-pointer"
             >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[8px] font-bold ${contact.color || "bg-orange-500"}`}>{(contact.name || 'U').charAt(0)}</div>
-              <div className="text-xs text-[--text-primary]">{contact.name}</div>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[var(--text-primary)] text-[8px] font-bold ${contact.color || "bg-[var(--accent)]"}`}>{(contact.name || 'U').charAt(0)}</div>
+              <div className="text-xs text-[var(--text-primary)]">{contact.name}</div>
             </div>
           ))}
         </div>
@@ -134,12 +134,12 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
               onClick={() => setSelectedContact(contact)}
               className="p-3 rounded-md flex items-center gap-3 cursor-pointer neu-card-inset"
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${contact.color || "bg-orange-500"}`}>{(contact.name || 'U').charAt(0)}</div>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-primary)] text-[10px] font-bold ${contact.color || "bg-[var(--accent)]"}`}>{(contact.name || 'U').charAt(0)}</div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-[--text-primary]">{contact.name}</div>
-                <div className="text-[10px] text-[--text-secondary]">{contact.email || contact.telegram || 'No details'}</div>
+                <div className="text-sm font-medium text-[var(--text-primary)]">{contact.name}</div>
+                <div className="text-[10px] text-[var(--text-secondary)]">{contact.email || contact.telegram || 'No details'}</div>
               </div>
-              {contact.isFavorite && <span className="text-[10px] text-amber-400">★</span>}
+              {contact.isFavorite && <span className="text-[10px] text-[var(--color-warning)]">★</span>}
             </div>
           ))}
           {filteredContacts.filter(c => c.company).map(contact => (
@@ -148,12 +148,12 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
               onClick={() => setSelectedContact(contact)}
               className="p-3 rounded-md flex items-center gap-3 cursor-pointer neu-card-inset"
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${contact.color || "bg-orange-500"}`}>{(contact.name || 'U').charAt(0)}</div>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-primary)] text-[10px] font-bold ${contact.color || "bg-[var(--accent)]"}`}>{(contact.name || 'U').charAt(0)}</div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-[--text-primary]">{contact.name}</div>
-                <div className="text-[10px] text-[--text-secondary]">{contact.company}{contact.position ? ` · ${contact.position}` : ''}</div>
+                <div className="text-sm font-medium text-[var(--text-primary)]">{contact.name}</div>
+                <div className="text-[10px] text-[var(--text-secondary)]">{contact.company}{contact.position ? ` · ${contact.position}` : ''}</div>
               </div>
-              {contact.isFavorite && <span className="text-[10px] text-amber-400">★</span>}
+              {contact.isFavorite && <span className="text-[10px] text-[var(--color-warning)]">★</span>}
             </div>
           ))}
         </div>
@@ -161,7 +161,7 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
 
       {/* Empty state */}
       {filteredContacts.length === 0 && (
-        <div className="text-center py-8 text-[--text-tertiary]">
+        <div className="text-center py-8 text-[var(--text-tertiary)]">
           <p className="text-sm">No contacts found</p>
           <p className="text-[10px] mt-1">Add contacts to start managing CRM</p>
         </div>
@@ -178,3 +178,6 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
     </div>
   );
 };
+
+
+

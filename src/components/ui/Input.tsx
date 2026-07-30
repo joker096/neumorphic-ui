@@ -41,7 +41,7 @@ export function Input({
         inputMode={resolvedInputMode}
         required={required}
         className={
-          "rounded-lg px-3 py-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2" +
+          "rounded-lg px-3 py-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]" +
           " " +
           (error ? "border border-red-500" : "border-none") +
           " " +

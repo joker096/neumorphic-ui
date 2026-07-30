@@ -91,3 +91,4 @@ export const CompanyInfoCard = ({ isDark = false, orgId = 'N/A', connected }: Co
     </div>
   );
 };
+

@@ -54,19 +54,19 @@ export const PhotoViewerOverlay = ({ url, open, onClose, theme }: PhotoViewerPro
              <div className="flex gap-2">
                  <button 
                     onClick={handleZoomOut}
-                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white flex-shrink-0"
+                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] flex-shrink-0"
                  >
                      <ZoomOut size={20} />
                  </button>
                  <button 
                     onClick={handleZoomIn}
-                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white flex-shrink-0"
+                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] flex-shrink-0"
                  >
                      <ZoomIn size={20} />
                  </button>
                  <button 
                     onClick={handleDownload}
-                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white flex-shrink-0"
+                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] flex-shrink-0"
                  >
                      <Download size={20} />
                  </button>
@@ -111,3 +111,4 @@ export const PhotoViewerOverlay = ({ url, open, onClose, theme }: PhotoViewerPro
     </AnimatePresence>
   );
 };
+

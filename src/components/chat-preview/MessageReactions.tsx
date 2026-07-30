@@ -32,7 +32,7 @@ export const MessageReactions: React.FC<MessageReactionsProps> = ({
   if (!msg.reactions || Object.keys(msg.reactions).length === 0) {
     return (
       <div
-        className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[--border-color]/5 bg-[--bg-secondary] text-[--text-tertiary] hover:text-[--text-primary] hover:bg-[--bg-tertiary]"
+        className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]/5 bg-[var(--bg-secondary)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
         onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
         aria-label="Add reaction"
       >
@@ -44,7 +44,7 @@ export const MessageReactions: React.FC<MessageReactionsProps> = ({
   return (
     <>
       <div
-        className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[--border-color]/5 bg-[--bg-secondary] text-[--text-tertiary] hover:text-[--text-primary] hover:bg-[--bg-tertiary]"
+        className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]/5 bg-[var(--bg-secondary)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
         onClick={() => setActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
         aria-label="Add reaction"
       >
@@ -62,7 +62,7 @@ export const MessageReactions: React.FC<MessageReactionsProps> = ({
             {availableEmojis.map((emoji) => (
               <div
                 key={emoji}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer hover:bg-[--bg-secondary]/20 rounded-full transition-colors text-lg"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer hover:bg-[var(--bg-secondary)]/20 rounded-full transition-colors text-lg"
                 onClick={() => handleReaction(msg.id, emoji)}
                 role="button"
                 aria-label={`React with ${emoji}`}
@@ -82,9 +82,10 @@ export const MessageReactions: React.FC<MessageReactionsProps> = ({
               <Tooltip
                 content={`${count === 1 ? "You" : count + " users"} reacted with ${emoji}`}
                 position="top"
+                // Note: In a real implementation, this should use i18n: t('chat.you'), t('chat.users')
               >
                 <div
-                  className="rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center cursor-help group select-none border bg-[--bg-secondary] text-[--text-primary] border-[--border-color]/5 hover:bg-[--bg-tertiary] hover:border-[--border-color]/10 transition-colors min-w-[44px]"
+                  className="rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center cursor-help group select-none border bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border-color)]/5 hover:bg-[var(--bg-tertiary)] hover:border-[var(--border-color)]/10 transition-colors min-w-[44px]"
                   onClick={() => handleReaction(msg.id, emoji)}
                   role="button"
                   aria-label={`${emoji} - ${count} reactions`}
@@ -101,3 +102,4 @@ export const MessageReactions: React.FC<MessageReactionsProps> = ({
     </>
   );
 };
+

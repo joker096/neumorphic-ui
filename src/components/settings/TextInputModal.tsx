@@ -55,16 +55,16 @@ export const TextInputModal = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
-            className="relative w-full max-w-[340px] shadow-2xl p-6 border border-white/10 bg-[#1a1d24]"
+            className="relative w-full max-w-[340px] shadow-2xl p-6 border border-[var(--border-color)] bg-[var(--bg-tertiary)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold mb-4 text-white">{title}</h3>
+            <h3 className="text-lg font-bold mb-4 text-[var(--text-primary)]">{title}</h3>
             <div className="relative mb-4">
               <div
                 className={`w-full h-12 rounded-full px-4 flex items-center border transition-all duration-300 ${
                   focused
                     ? 'border-orange-500/30'
-                    : 'border-white/10'
+                    : 'border-[var(--border-color)]'
                 }`}
               >
                 <input
@@ -76,20 +76,20 @@ export const TextInputModal = ({
                   onBlur={() => setFocused(false)}
                   placeholder={placeholder}
                   onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                  className={`w-full bg-transparent border-none outline-none text-[14px] text-white placeholder:text-gray-500`}
+                  className={`w-full bg-transparent border-none outline-none text-[14px] text-[var(--text-primary)] placeholder:text-gray-500`}
                 />
               </div>
             </div>
 <div className="flex gap-3">
                <button
                  onClick={onCancel}
-                 className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-white/10 hover:bg-white/20 text-white"
+                 className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-white/10 hover:bg-white/20 text-[var(--text-primary)]"
                >
                  {cancelLabel}
                </button>
                <button
                  onClick={handleSubmit}
-                 className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-orange-500 hover:bg-orange-600 text-white"
+                 className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)]"
                >
                  {confirmLabel}
                </button>
@@ -100,3 +100,7 @@ export const TextInputModal = ({
     </AnimatePresence>
   );
 };
+
+
+
+

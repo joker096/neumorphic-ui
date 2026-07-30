@@ -36,7 +36,7 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
             animate={reduce ? undefined : { opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
-            className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-[var(--system-background)] shadow-2xl border border-[var(--separator)] p-6"
+            className="relative w-full max-w-[28rem] w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-2xl bg-[var(--system-background)] shadow-2xl border border-[var(--separator)] p-4 sm:p-6"
             onClick={(e) => e.stopPropagation()}
           >
             {children}

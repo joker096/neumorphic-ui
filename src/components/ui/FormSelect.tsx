@@ -30,8 +30,8 @@ export const FormSelect = ({
       onChange={(e) => onChange(e.target.value)}
       className={`w-full h-8 rounded-lg text-xs outline-none px-2 ${
         isDark
-          ? 'bg-[#13151b] text-white border border-white/10'
-          : 'bg-slate-50 text-slate-800 border border-black/10'
+          ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)]'
+          : 'bg-slate-50 text-slate-800 border border-[var(--border-color)]'
       } ${className}`}
     >
       {placeholder && (
@@ -47,3 +47,7 @@ export const FormSelect = ({
     </select>
   )
 }
+
+
+
+

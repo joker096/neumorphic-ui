@@ -94,7 +94,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white p-6">
+        <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-[var(--text-primary)] p-6">
           <div className="max-w-[500px] w-full rounded-2xl bg-white/10 p-6 backdrop-blur-sm">
             <h1 className="text-xl font-bold mb-2">{fallbackT("error.somethingWentWrong")}</h1>
             <p className="text-sm opacity-80 mb-3">
@@ -122,10 +122,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 }
 
 const SuspenseFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">
+  <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-[var(--text-primary)]">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-8 h-8 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+      <div className="w-8 h-8 border-2 border-[var(--border-color)] border-t-white rounded-full animate-spin" />
       <p className="text-sm opacity-60">Loading...</p>
     </div>
   </div>
 );
+

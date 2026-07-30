@@ -266,7 +266,7 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
   const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('common.loading')}</div>;
 
   return (
-    <div className={`w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 ${isDark ? "bg-[#11141c]/50 border border-[var(--border-color)]" : "bg-[#eaeff4]/50 border border-[var(--border-color)] shadow-inner"}`}>
+    <div className={`w-full max-w-full sm:max-w-[340px] md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 ${isDark ? "bg-[var(--bg-primary)]/50 border border-[var(--border-color)]" : "bg-[var(--bg-secondary)]/50 border border-[var(--border-color)] shadow-inner"}`}>
       <AnimatePresence mode="wait">
         {activeSection === 'main' && renderMainSettings()}
         {activeSection === 'appearance' && renderAppearanceSettings()}
@@ -284,3 +284,5 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
     </div>
   );
 };
+
+

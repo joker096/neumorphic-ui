@@ -75,6 +75,6 @@ describe('NavItem - additional tests', () => {
 
   it('renders with hover style when inactive', () => {
     const { container } = render(<NavItem label="Inactive" active={false} />);
-    expect(container.querySelector('button').classList.contains('hover:text-white')).toBeTruthy();
+    expect(container.querySelector('button').classList.contains('hover:text-[var(--text-primary)]')).toBeTruthy();
   });
 });

@@ -3,7 +3,7 @@ import React from 'react'
 interface FormActionsProps {
   submitLabel: string
   cancelLabel?: string
-  onSubmit: () => void
+  onSubmit?: () => void
   onCancel?: () => void
   disabled?: boolean
   loading?: boolean
@@ -47,11 +47,11 @@ export const FormActions = ({
       )}
       <button
         type="button"
-        onClick={() => { if (!disabled && !loading) onSubmit() }}
+        onClick={() => { if (!disabled && !loading) onSubmit?.() }}
         className={`flex-1 h-12 rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 ${
           disabled || loading
             ? 'opacity-50 cursor-not-allowed text-white/50 bg-gray-500'
-            : `${submitBg} text-white`
+            : `${submitBg} text-[var(--text-primary)]`
         }`}
       >
         {loading && (
@@ -65,3 +65,4 @@ export const FormActions = ({
     </div>
   )
 }
+

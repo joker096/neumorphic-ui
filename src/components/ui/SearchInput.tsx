@@ -71,12 +71,12 @@ export function SearchInput({
     const radius = 'rounded-full'
     const wrapperBase = `w-full flex items-center gap-2 border transition-all duration-300 cursor-text ${radius} ${large ? 'h-12 px-6' : 'h-11 px-4'}`
     const wrapperVariant = isDark
-      ? `bg-[#13151b] border-white/10 focus-within:border-orange-500/50 ${large ? '' : ''}`
-      : `bg-[#f4f7f9] border-black/10 focus-within:border-orange-500/50`
+      ? `bg-[var(--bg-secondary)] border-[var(--border-color)] focus-within:border-orange-500/50 ${large ? '' : ''}`
+      : `bg-[var(--bg-primary)] border-[var(--border-color)] focus-within:border-orange-500/50`
 
     const inputSize = large ? 'text-[20px] font-bold tracking-[0.1em]' : 'text-sm font-medium'
     const inputColor = isDark
-      ? 'text-white placeholder:text-gray-500'
+      ? 'text-[var(--text-primary)] placeholder:text-gray-500'
       : 'text-slate-800 placeholder:text-slate-400'
 
     const iconColor = isDark
@@ -84,7 +84,7 @@ export function SearchInput({
       : focused ? 'text-orange-500' : 'text-slate-400'
 
     const actionBtn = isDark
-      ? 'text-gray-500 hover:text-white hover:bg-white/10'
+      ? 'text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10'
       : 'text-slate-400 hover:text-slate-800 hover:bg-black/10'
 
     const btnClass = `shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
@@ -135,13 +135,13 @@ export function SearchInput({
 
   const inputSize = large ? 'text-[20px] font-bold tracking-[0.1em]' : 'text-sm font-medium'
   const inputColor = isDark
-    ? 'text-white placeholder:text-gray-500'
+    ? 'text-[var(--text-primary)] placeholder:text-gray-500'
     : 'text-slate-800 placeholder:text-slate-400'
   const iconColor = isDark
     ? focused ? 'text-orange-400' : 'text-gray-500'
     : focused ? 'text-orange-500' : 'text-slate-400'
   const actionBtn = isDark
-    ? 'text-gray-500 hover:text-white hover:bg-white/10'
+    ? 'text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10'
     : 'text-slate-400 hover:text-slate-800 hover:bg-black/10'
   const btnClass = `shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
   const borderFocus = 'focus-within:border-orange-500/50'
@@ -175,8 +175,8 @@ export function SearchInput({
           placeholder={placeholder}
           className={`w-full rounded-xl border text-sm focus:outline-none transition-colors ${
             isDark
-              ? 'bg-[#1a1d24] border-white/10 text-white placeholder:text-gray-500'
-              : 'bg-white border-black/10 text-slate-800 placeholder:text-slate-400'
+              ? 'bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-gray-500'
+              : 'bg-white border-[var(--border-color)] text-slate-800 placeholder:text-slate-400'
           } ${borderFocus} ${showSearchIcon ? 'pl-9' : 'pl-4'} ${hasValue || rightElement ? 'pr-12' : 'pr-4'} py-2.5`}
           aria-label={placeholder}
         />
@@ -199,3 +199,7 @@ export function SearchInput({
     </div>
   )
 }
+
+
+
+

@@ -102,12 +102,12 @@ return (
                    <img src={editAvatar} alt="avatar" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                  ) : (
                    <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
-                    <span className="text-white text-3xl font-bold">{(editName || 'U').charAt(0).toUpperCase() || 'U'}</span>
+                    <span className="text-[var(--text-primary)] text-3xl font-bold">{(editName || 'U').charAt(0).toUpperCase() || 'U'}</span>
                   </div>
                 )}
               </div>
               <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center bg-orange-500">
-                <Camera size={14} className="text-white" />
+                <Camera size={14} className="text-[var(--text-primary)]" />
               </div>
               <input
                 type="file"
@@ -161,7 +161,7 @@ return (
                     onClick={() => setEditColor(color)}
                     className={`w-10 h-10 rounded-full bg-gradient-to-br ${color} flex items-center justify-center ${editColor === color ? 'ring-2 ring-orange-500' : ''}`}
                   >
-                    {editColor === color && <Check size={14} className="text-white" />}
+                    {editColor === color && <Check size={14} className="text-[var(--text-primary)]" />}
                   </button>
                 ))}
               </div>
@@ -175,7 +175,7 @@ return (
               <button
                 type="button"
                 onClick={addField}
-                className="text-[10px] font-bold px-2 py-1 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-orange-600 hover:text-white"
+                className="text-[10px] font-bold px-2 py-1 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-orange-600 hover:text-[var(--text-primary)]"
               >
                 {t('settings.addField', 'Add Field')}
               </button>
@@ -278,7 +278,7 @@ return (
             </button>
             <button
               type="submit"
-              className="flex-1 h-12 rounded-md font-bold flex items-center justify-center gap-2 bg-orange-500 text-white hover:bg-orange-600 active:scale-95 shadow-lg shadow-orange-500/20"
+              className="flex-1 h-12 rounded-md font-bold flex items-center justify-center gap-2 bg-orange-500 text-[var(--text-primary)] hover:bg-orange-600 active:scale-95 shadow-lg shadow-orange-500/20"
             >
               <Check size={18} />
               {t('settings.saveProfile', 'Save Profile')}
@@ -289,3 +289,4 @@ return (
     </SettingsSection>
   );
 };
+

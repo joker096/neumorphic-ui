@@ -47,10 +47,14 @@ export const Tooltip = ({ children, content, position = 'top', theme = 'dark' }:
     <div ref={ref} data-tooltip={content} onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onFocus={showTooltip} onBlur={hideTooltip} tabIndex={0} style={containerStyle}>
       {children}
       {visible && (
-        <div style={tooltipStyle} className={`px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-opacity shadow-lg ${isDark ? "bg-[#1a1d24] text-white" : "bg-white text-slate-800 border border-black/10"}`}>
+        <div style={tooltipStyle} className={`px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-opacity shadow-lg ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}>
           {content}
         </div>
       )}
     </div>
   );
 };
+
+
+
+

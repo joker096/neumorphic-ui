@@ -152,7 +152,7 @@ export const Dialpad = ({
 
   return (
     <div className={`p-4 md:p-6 flex flex-col shadow-2xl relative overflow-y-auto w-full h-full ${
-      isDark ? "bg-[#1a1d24]" : "bg-[#eaeff4]"
+      isDark ? "bg-[var(--bg-tertiary)]" : "bg-[var(--bg-secondary)]"
     }`}>
       <div className={`absolute top-0 right-0 w-[300px] h-[300px] rounded-full blur-[120px] pointer-events-none transition-colors duration-500 ${
         isDark ? "bg-orange-500/8" : "bg-orange-400/15"
@@ -195,7 +195,7 @@ export const Dialpad = ({
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setShowContactPicker(true); }}
                     className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
-                      isDark ? "text-gray-400 hover:text-white hover:bg-white/10" : "text-slate-400 hover:text-slate-700 hover:bg-black/10"
+                      isDark ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/10" : "text-slate-400 hover:text-slate-700 hover:bg-black/10"
                     }`}
                     title={t('contacts.selectFromContacts')}
                   >
@@ -294,3 +294,7 @@ export const Dialpad = ({
     </div>
   );
 };
+
+
+
+
