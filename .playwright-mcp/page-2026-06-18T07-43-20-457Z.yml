@@ -1,0 +1,126 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic "Switch to Light Mode" [ref=e5] [cursor=pointer]:
+        - generic:
+          - img
+          - img
+        - img [ref=e8]
+      - button "Select Language" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+    - generic [ref=e99]:
+      - generic [ref=e100]:
+        - button "Go Back" [ref=e101] [cursor=pointer]:
+          - img [ref=e102]
+        - heading "Alice Freeman" [level=2] [ref=e212]
+      - generic [ref=e213]:
+        - generic [ref=e214]:
+          - generic [ref=e215]:
+            - img [ref=e217] [cursor=pointer]
+            - generic [ref=e219] [cursor=pointer]:
+              - text: A
+              - generic "Self-destruct active (1h)" [ref=e221]:
+                - generic [ref=e222]: 1h
+            - generic:
+              - generic:
+                - text: Alice Freeman
+                - generic "E2E Encrypted" [ref=e223]:
+                  - img [ref=e224]
+              - generic: Online
+            - generic [ref=e226]:
+              - generic "chat.filters.searchMessages" [ref=e227] [cursor=pointer]:
+                - img [ref=e228]
+              - generic "Start Audio Call" [ref=e231] [cursor=pointer]:
+                - img [ref=e232]
+              - generic "Saved" [ref=e234] [cursor=pointer]:
+                - img [ref=e235]
+              - generic "Clear Chat History" [ref=e237] [cursor=pointer]:
+                - img [ref=e238]
+              - generic "Start Video Call" [ref=e241] [cursor=pointer]:
+                - img [ref=e242]
+              - generic "Filters" [ref=e245] [cursor=pointer]:
+                - img [ref=e246]
+          - generic [ref=e247]:
+            - generic [ref=e249]:
+              - generic [ref=e250]:
+                - text: Hey! Look at this new design concept 🎨
+                - generic [ref=e251]: 10:35
+                - generic [ref=e252]:
+                  - button "Reply" [ref=e253]
+                  - button "Save" [ref=e254]:
+                    - img [ref=e255]
+                    - text: Save
+              - img [ref=e258] [cursor=pointer]
+            - generic [ref=e260]:
+              - generic [ref=e261]:
+                - img "Shared" [ref=e263] [cursor=pointer]
+                - generic [ref=e265]: Photo
+                - generic [ref=e266]: 10:36
+                - generic [ref=e267]:
+                  - button "Reply" [ref=e268]
+                  - button "Save" [ref=e269]:
+                    - img [ref=e270]
+                    - text: Save
+              - img [ref=e273] [cursor=pointer]
+            - generic [ref=e275]:
+              - generic [ref=e276]:
+                - text: Wow, the colors are amazing! Is this for the new dashboard?
+                - generic [ref=e277]:
+                  - text: 10:38
+                  - img [ref=e278]
+                - generic [ref=e281]:
+                  - button "Reply" [ref=e282]
+                  - button "Save" [ref=e283]:
+                    - img [ref=e284]
+                    - text: Save
+              - img [ref=e287] [cursor=pointer]
+            - generic [ref=e289]:
+              - generic [ref=e290]:
+                - generic [ref=e291]:
+                  - generic "Play" [ref=e292] [cursor=pointer]:
+                    - img [ref=e293]
+                  - generic [ref=e295]:
+                    - generic [ref=e297]: 0:24
+                    - slider "Seek voice note" [ref=e298] [cursor=pointer]: "0"
+                - generic [ref=e299]: 10:40
+                - generic [ref=e300]:
+                  - button "Reply" [ref=e301]
+                  - button "Save" [ref=e302]:
+                    - img [ref=e303]
+                    - text: Save
+              - img [ref=e306] [cursor=pointer]
+            - generic [ref=e308]:
+              - generic [ref=e309]:
+                - text: Let me know!
+                - generic [ref=e310]: 10:42
+                - generic [ref=e311]:
+                  - button "Reply" [ref=e312]
+                  - button "Save" [ref=e313]:
+                    - img [ref=e314]
+                    - text: Save
+              - img [ref=e317] [cursor=pointer]
+          - generic [ref=e318]:
+            - img [ref=e320] [cursor=pointer]
+            - textbox "Message..." [ref=e322]
+            - img [ref=e324] [cursor=pointer]
+        - generic [ref=e328]:
+          - generic "Attach file" [ref=e329]:
+            - button "Choose File" [ref=e330] [cursor=pointer]
+            - img [ref=e332]
+          - generic "Schedule Message" [ref=e333] [cursor=pointer]:
+            - img [ref=e334]
+          - generic "Stickers" [ref=e337] [cursor=pointer]:
+            - img [ref=e338]
+          - generic [ref=e341]:
+            - textbox "Message..." [ref=e342]
+            - generic [ref=e343]:
+              - generic "Silent Message" [ref=e344] [cursor=pointer]:
+                - img [ref=e345]
+              - generic "Toggle Morse Encoder" [ref=e350] [cursor=pointer]: ●●● ─
+          - generic "Hold to record voice note" [ref=e351] [cursor=pointer]:
+            - img [ref=e352]
+      - generic [ref=e205]:
+        - generic "Return to Hub" [ref=e206] [cursor=pointer]:
+          - img [ref=e207]
+        - generic [ref=e211]: Hub

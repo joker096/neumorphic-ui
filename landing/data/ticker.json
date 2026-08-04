@@ -1,0 +1,98 @@
+{
+  "ru": [
+    "P2P Архитектура",
+    "Post-Quantum Шифрование",
+    "Mesh Routing",
+    "Store-and-Forward",
+    "Forward Secrecy",
+    "Open Source",
+    "Без Серверов",
+    "Без Телефона",
+    "Анти-Цензура",
+    "Mesh Radar"
+  ],
+  "en": [
+    "P2P Architecture",
+    "Post-Quantum Encryption",
+    "Mesh Routing",
+    "Store-and-Forward",
+    "Forward Secrecy",
+    "Open Source",
+    "No Servers",
+    "No Phone Number",
+    "Anti-Censorship",
+    "Mesh Radar"
+  ],
+  "de": [
+    "P2P-Architektur",
+    "Post-Quantum-Encryption",
+    "Mesh-Routing",
+    "Store-and-Forward",
+    "Forward Secrecy",
+    "Open Source",
+    "Kein Server",
+    "Keine Telefonnummer",
+    "Anti-Zensur",
+    "Mesh-Radar"
+  ],
+  "fr": [
+    "Architecture P2P",
+    "Cryptographie Post-Quantum",
+    "Mesh-Routing",
+    "Store-and-Forward",
+    "Sécretaire",
+    "Open Source",
+    "Pas de serveur",
+    "Pas de numéro de téléphone",
+    "Anti-censure",
+    "Radar Mesh"
+  ],
+  "es": [
+    "Arquitectura P2P",
+    "Cifrado Post-Cuántico",
+    "Ruteo Mesh",
+    "Store-and-Forward",
+    "Secrecia Adiante",
+    "Open Source",
+    "Sin Servidores",
+    "Sin Número de Teléfono",
+    "Anti-Censura",
+    "Radar Mesh"
+  ],
+  "zh": [
+    "P2P架构",
+    "后量子加密",
+    "Mesh路由",
+    "存储转发",
+    "前保密",
+    "开源",
+    "无服务器",
+    "无电话号码",
+    "反审查",
+    "Mesh雷达"
+  ],
+  "ja": [
+    "P2P架構",
+    "後量子加密",
+    "Mesh路由",
+    "儲存轉發",
+    "前保密",
+    "開源",
+    "無伺服器",
+    "無電話號碼",
+    "反審查",
+    "Mesh雷雷"
+  ],
+  "ko": [
+    "P2P架構",
+    "後量子加密",
+    "Mesh路由",
+    "儲存轉發",
+    "前保密",
+    "開源",
+    "無伺服器",
+    "無電話號碼",
+    "反審查",
+    "Mesh雷雷"
+  ]
+}

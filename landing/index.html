@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mess&Anger — Mesh-Powered Decentralized Messenger</title>
+  <meta name="description" content="Mesh-capable, fully-decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay. No servers. No phone number. Open Source.">
+  <meta name="keywords" content="мессенджер, p2p, mesh, шифрование, приватность, децентрализованный, post-quantum, ml-kem, e2e, forward-secrecy, store-and-forward, reticulum">
+  <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#070707" id="themeColor">
+
+ <!-- OpenGraph -->
+   <meta property="og:type" content="website">
+   <meta property="og:url" content="https://mess.cvr.name/">
+   <meta property="og:title" content="Mess&Anger — Mesh-Powered Decentralized Messenger">
+   <meta property="og:description" content="Mesh-capable, fully-decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay. No servers. No phone number. No compromises.">
+   <meta property="og:image" content="https://mess.cvr.name/og-image.png">
+   <meta property="og:image:width" content="1200">
+   <meta property="og:image:height" content="630">
+   <meta property="og:locale" content="ru_RU">
+   <meta property="og:site_name" content="Mess&Anger">
+
+   <!-- Twitter Card -->
+   <meta name="twitter:card" content="summary_large_image">
+   <meta name="twitter:title" content="Mess&Anger — P2P Мессенджер">
+   <meta name="twitter:description" content="Без серверов. Без телефона. Пост-квантовое шифрование.">
+   <meta name="twitter:image" content="https://mess.cvr.name/og-image.png">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mess&Anger">
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="/fonts/Roboto-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/JetBrainsMono-400.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Fallback: fonts render immediately with system stack while loading -->
+   <style>
+     :root {
+       --black:#070707; --surf:#0d0d0d; --surf2:#131313;
+       --bd:rgba(255,255,255,0.07); --bd2:rgba(255,255,255,0.13);
+       --gold:#c9a96e; --gold-d:rgba(201,169,110,0.14); --gold-g:rgba(201,169,110,0.07);
+       --cream:#f0ece4; --muted:rgba(240,236,228,0.38);
+       --mono:'DM Mono','Courier New',monospace; --serif:'Cormorant Garamond','Georgia',serif; --sans:'Outfit',sans-serif;
+     }
+     [data-theme=light] {
+       --black:#f2f2ec; --surf:#e6e6e3; --surf2:#dbdbd8;
+       --bd:rgba(0,0,0,0.1); --bd2:rgba(0,0,0,0.18);
+       --gold-d:rgba(201,169,110,0.22); --gold-g:rgba(201,169,110,0.15);
+       --cream:#1a1d22; --muted:rgba(26,29,34,0.6);
+     }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{background:var(--black);color:var(--cream);font-family:var(--sans);font-weight:300;overflow:hidden}
+    body::before{
+      content:'';position:fixed;inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      pointer-events:none;z-index:999;opacity:.38
+    }
+
+    /* ── NAV ── */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:200;
+      padding:28px 64px;
+      display:flex;align-items:center;justify-content:space-between;gap:24px;
+      border-bottom:1px solid transparent;
+      transition:padding .35s,background .35s,border-color .35s,border-top .35s,border-bottom .35s;
+    }
+    nav.s{padding:14px 64px;background:rgba(7,7,7,0.92);backdrop-filter:blur(24px);border-color:var(--bd)}
+    .nav-logo{font-family:var(--serif);font-size:21px;font-weight:400;letter-spacing:.04em;color:var(--cream);text-decoration:none;white-space:nowrap}
+    .nav-logo b{color:var(--gold);font-weight:400}
+    .nav-links{display:flex;gap:32px;list-style:none}
+    .nav-links a{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+    .nav-links a:hover{color:var(--cream)}
+    .nav-right{display:flex;align-items:center;gap:16px}
+
+    /* ── LANG SWITCHER ── */
+    .lang-switcher{position:relative}
+    .lang-btn{
+      display:flex;align-items:center;gap:8px;
+      font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--muted);background:transparent;border:1px solid var(--bd);
+      padding:8px 14px;cursor:pointer;transition:color .2s,border-color .2s;
+      white-space:nowrap;
+    }
+    .lang-btn:hover{color:var(--cream);border-color:var(--bd2)}
+    .lang-btn svg{opacity:.5;transition:transform .25s,opacity .2s}
+    .lang-btn:hover svg{opacity:1}
+    .lang-switcher.open .lang-btn svg{transform:rotate(180deg);opacity:1}
+    .lang-dropdown{
+      position:absolute;top:calc(100% + 8px);right:0;
+      background:var(--surf2);border:1px solid var(--bd2);
+      min-width:180px;
+      opacity:0;visibility:hidden;transform:translateY(-6px);
+      transition:opacity .2s,transform .2s,visibility .2s;
+      z-index:300;
+    }
+    .lang-switcher.open .lang-dropdown{opacity:1;visibility:visible;transform:none}
+    .lang-opt{
+      display:flex;align-items:center;gap:12px;
+      padding:12px 16px;cursor:pointer;
+      font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--muted);transition:background .15s,color .15s;
+      border-bottom: 1px solid var(--bd);
+    }
+    .lang-opt:last-child{border-bottom:none}
+    .lang-opt:hover{background:var(--gold-g);color:var(--cream)}
+    .lang-opt.active{color:var(--gold)}
+    .lang-flag{font-size:16px;line-height:1}
+
+    .nav-cta{
+      font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--gold);text-decoration:none;border:1px solid rgba(201,169,110,.5);
+      padding:9px 20px;transition:background .2s,color .2s,border-color .2s;white-space:nowrap;
+    }
+    .nav-cta:hover{background:var(--gold);color:var(--black);border-color:var(--gold)}
+
+    /* ── HERO ── */
+    .hero{
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+      padding-top:120px;padding-bottom:60px;position:relative;
+    }
+    .hero h1{font-family:var(--serif);font-size:clamp(40px,5vw,64px);font-weight:300;line-height:1.1;margin-bottom:16px}
+    .hero h1 b{color:var(--gold);font-weight:400}
+    .hero .tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:32px}
+    .hero .sub{max-width:600px;font-size:14px;line-height:1.8;color:var(--muted);margin-bottom:48px}
+    .hero .btn{
+      font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+      color:var(--gold);text-decoration:none;border:1px solid rgba(201,169,110,.5);
+      padding:9px 20px;transition:background .2s,color .2s,border-color .2s;white-space:nowrap;
+      display:inline-block;cursor:pointer;
+    }
+    .hero .btn:hover{background:var(--gold);color:var(--black);border-color:var(--gold)}
+
+    /* ── TICKER ── */
+    .ticker{overflow:hidden;position:relative;border-top:1px solid var(--bd);border-bottom: 1px solid var(--bd);padding:12px 0;background:var(--surf);position:relative;z-index:10}
+    .ticker::before,.ticker::after{content:'';position:absolute;top:0;bottom:0;width:100px;z-index:1;pointer-events:none}
+    .ticker::before{left:0;background:linear-gradient(to right,var(--surf),transparent)}
+    .ticker::after{right:0;background:linear-gradient(to left,var(--surf),transparent)}
+    #tk{display:flex;gap:48px;animation:tkScroll 30s linear infinite}
+    .ti{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-d);white-space:nowrap}
+    @keyframes tkScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+    /* ── STATS ── */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;padding:80px 64px;text-align:center}
+    .stats h2{font-family:var(--serif);font-size:24px;font-weight:300;margin-bottom:32px}
+    .stat{text-align:center}
+    .stat .n{font-family:var(--mono);font-size:36px;color:var(--gold)}
+    .stat .l{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px}
+
+    /* ── SECTIONS ── */
+    .sec{padding:80px 64px;position:relative}
+    .sec-label{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+    .sec h2{font-family:var(--serif);font-size:clamp(28px,3.5vw,48px);font-weight:300;line-height:1.2;margin-bottom:16px}
+    .sec h2 b{color:var(--gold);font-weight:400}
+    .sec .desc{max-width:560px;font-size:13px;line-height:1.8;color:var(--muted);margin-bottom:48px}
+    .sec .full{margin-top:32px}
+    .sec .full .fp{width:48px;height:48px;border:1px solid var(--gold-d);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--gold);margin-bottom:16px}
+
+    /* ── BENTO GRID ── */
+    .bento{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+    .bento .card{background:var(--surf);border:1px solid var(--bd);border-radius:12px;padding:32px;position:relative;overflow:hidden}
+    .bento .card.mid{border-color:var(--gold);border-top:1px solid var(--gold)}
+    .bento .card .gl{position:absolute;inset:0;opacity:0;pointer-events:none;z-index:1}
+    .bento .card .n{font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--gold);margin-bottom:16px}
+    .bento .card h3{font-family:var(--serif);font-size:18px;font-weight:300;margin-bottom:12px}
+    .bento .card p{font-size:12px;color:var(--muted);line-height:1.6}
+
+    /* ── COMPARISON TABLE ── */
+    .cmp{overflow:auto;margin:48px 0;padding:48px;background:var(--surf);border:1px solid var(--bd);border-radius:12px}
+    .cmp table{width:100%;border-collapse:collapse;font-size:12px}
+    .cmp th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);text-align:left;padding:12px}
+    .cmp td{padding:12px;color:var(--muted);text-align:center}
+    .cmp td:first-child{text-align:left;color:var(--cream)}
+    .cmp .y{color:var(--gold)}
+
+    /* ── FEATURES ── */
+    .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:48px}
+    .feat .c{background:var(--surf);border:1px solid var(--bd);border-radius:12px;padding:32px}
+    .feat .c .n{font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--gold);margin-bottom:16px}
+    .feat .c h3{font-family:var(--serif);font-size:18px;font-weight:300;margin-bottom:12px}
+    .feat .c p{font-size:12px;color:var(--muted);line-height:1.6}
+
+    /* ── LIST ── */
+    .list-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:48px;margin-top:48px}
+    .list-col h3{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);margin-bottom:24px}
+    .list-col li{padding:8px 0;font-size:12px;color:var(--muted);line-height:1.8;border-bottom: 1px solid var(--bd)}
+    .list-col li b{color:var(--cream);font-weight:400}
+
+    /* ── SECURITY ── */
+    .sec-arr{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:48px}
+    .sec-arr .item{padding:24px;background:var(--surf);border:1px solid var(--bd);border-radius:8px}
+    .sec-arr .item b{color:var(--gold);font-weight:400}
+
+    /* ── STARS ── */
+    .stars{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:48px}
+    .stars .col h3{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);margin-bottom:24px}
+    .stars .col li{padding:8px 0;font-size:12px;color:var(--muted);line-height:1.8;border-bottom: 1px solid var(--bd)}
+
+    /* ── ANTI-CENSORSHIP ── */
+    .ac-l{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+    .ac-l .l{padding:24px;background:var(--surf);border:1px solid var(--bd);border-radius:8px}
+    .ac-l .l h3{font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--gold);margin-bottom:8px}
+    .ac-l .l p{font-size:12px;color:var(--muted);line-height:1.6}
+
+    /* ── MANIFESTO ── */
+    .man{text-align:center;padding:80px 64px;background:var(--surf);border-top:1px solid var(--bd);border-bottom: 1px solid var(--bd);margin:64px 0}
+    .man blockquote{font-family:var(--serif);font-size:24px;font-style:italic;color:var(--cream);max-width:600px;margin:0 auto;line-height:1.5}
+
+    /* ── FAQ ── */
+    .faq{max-width:720px;margin:48px auto}
+    .faq dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--cream);padding:16px 0;border-bottom: 1px solid var(--bd);cursor:pointer}
+    .faq dd{padding:0 0 0 0;font-size:12px;color:var(--muted);line-height:1.6}
+
+    /* ── DOWNLOAD ── */
+    .dl{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+    .dl .card{background:var(--surf);border:1px solid var(--bd);border-radius:12px;padding:32px;text-align:center}
+    .dl .card.mid{border-color:var(--gold)}
+    .dl .card h3{font-family:var(--serif);font-size:18px;font-weight:300;margin-bottom:8px}
+    .dl .card p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+    .dl .card .btn{color:var(--gold);text-decoration:none;border:1px solid rgba(201,169,110,.5);padding:8px 16px;transition:background .2s,color .2s,border-color .2s;cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase}
+    .dl .card .btn:hover{background:var(--gold);color:var(--black);border-color:var(--gold)}
+
+    /* ── MESH RADAR ── */
+    .mesh{padding:64px;text-align:center}
+    .mesh h2{font-family:var(--serif);font-size:clamp(28px,3.5vw,48px);font-weight:300;margin-bottom:16px}
+    .mesh .mesh-desc{max-width:560px;font-size:13px;line-height:1.8;color:var(--muted);margin:0 auto 48px auto}
+    .mesh canvas{background:var(--surf);border:1px solid var(--bd);border-radius:12px;display:block;margin:32px auto}
+
+    /* ── REVEAL ── */
+    .r{opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s}
+    .r.v{opacity:1;transform:none}
+    .lang-fade,body{transition:opacity .3s}
+
+    /* ── FOOTER ── */
+    footer{padding:64px;display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;font-size:11px;color:var(--muted)}
+    footer ul{display:flex;gap:32px;list-style:none}
+    footer ul a{color:var(--muted);text-decoration:none}
+    footer ul a:hover{color:var(--cream)}
+
+    @media(max-width:900px){
+      .stats,.bento,.feat,.list-grid,.stars,.ac-l,.dl{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:600px){
+      .stats,.bento,.feat,.list-grid,.stars,.ac-l,.dl{grid-template-columns:1fr}
+      .sec{padding:48px 24px}
+      .nav-links{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav id="nav">
+  <a href="#" class="nav-logo"><b>Mess</b>&Anger</a>
+  <ul class="nav-links">
+    <li><a href="#features" data-i18n="nav.features">Features</a></li>
+    <li><a href="#comparison" data-i18n="nav.comparison">Comparison</a></li>
+    <li><a href="#security" data-i18n="nav.security">Security</a></li>
+    <li><a href="#download" data-i18n="nav.download">Download</a></li>
+  </ul>
+  <div class="nav-right">
+    <button id="themeToggle" class="lang-btn" style="margin-right:8px" title="Toggle theme">
+      <span id="themeIcon">☀️</span>
+    </button>
+    <div class="lang-switcher" id="langSwitcher">
+      <button class="lang-btn" id="langBtn">
+        <span id="langCurrent">🇷🇺 RU</span>
+        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 10 2 4 10 4" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>
+      </button>
+      <div class="lang-dropdown">
+        <div class="lang-opt" data-lang="ru">🇷🇺 RU</div>
+        <div class="lang-opt" data-lang="en">🇬🇧 EN</div>
+        <div class="lang-opt" data-lang="de">🇩🇪 DE</div>
+        <div class="lang-opt" data-lang="fr">🇫🇷 FR</div>
+        <div class="lang-opt" data-lang="es">🇪🇸 ES</div>
+        <div class="lang-opt" data-lang="zh">🇨🇳 ZH</div>
+        <div class="lang-opt" data-lang="ja">🇯🇵 JA</div>
+        <div class="lang-opt" data-lang="ko">🇰🇷 KO</div>
+      </div>
+    </div>
+    <a href="#download" class="nav-cta" data-i18n="nav.download">Download</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="hero r">
+  <p class="tag" data-i18n="hero.tag">v1.0 · July 2026 · RETIMCULUM_MESH_PLAN Complete</p>
+  <h1 data-i18n="hero.title">Meet <b>Mess&Anger</b></h1>
+  <p class="sub" data-i18n="hero.sub">Mesh-capable, fully-decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay.<br>No servers. No phone number. No compromises.</p>
+  <a href="#download" class="btn" data-i18n="hero.win">Download for Windows</a>
+</section>
+
+<!-- ═══════════════════ TICKER ═══════════════════ -->
+<section class="ticker" id="tk"></section>
+
+<!-- ═══════════════════ STATS ═══════════════════ -->
+<section class="stats r">
+  <h2 data-i18n="stats.label">By the numbers</h2>
+  <div class="stat"><span class="n" data-count="0">0</span><span class="l" data-i18n="stats.servers">Central servers</span></div>
+  <div class="stat"><span class="n" data-count="6">0</span><span class="l" data-i18n="stats.phases">Architecture phases (Reticulum-inspired)</span></div>
+  <div class="stat"><span class="n" data-count="3696">0</span><span class="l" data-i18n="stats.tests">Tests passed</span></div>
+  <div class="stat"><span class="n" data-count="8">0</span><span class="l" data-i18n="stats.langs">Interface languages</span></div>
+</section>
+
+<!-- ═══════════════════ FEATURES ═══════════════════ -->
+<section class="sec r" id="features">
+  <p class="sec-label" data-i18n="feat.label">Capabilities</p>
+  <h2 data-i18n="feat.title">Everything you need.<br><em>Nothing you don't.</em></h2>
+  <p class="desc" data-i18n="feat.desc">Every feature ships with privacy and security baked in. No toggle to turn off — because you shouldn't have to choose between usability and anonymity.</p>
+  <div class="bento">
+    <div class="card" data-tilt data-i18n-key="feat.n1"><div class="gl"></div><p class="n">01 · Mesh Network</p><h3 data-i18n="feat.h1">DHT-based node discovery & multi-hop relay</h3><p data-i18n="feat.p1">Reticulum-inspired mesh architecture. DHT node discovery, TTL-based routing tables, and multi-hop relay for anonymous, resilient communication even behind NATs and firewalls.</p></div>
+    <div class="card mid" data-tilt data-i18n-key="feat.n2"><div class="gl"></div><p class="n">02 · Store-and-Forward</p><h3 data-i18n="feat.h2">LXMF-style message queue with forward secrecy</h3><p data-i18n="feat.p2">Message envelopes with TTL expiration, acknowledgment tracking, and forward secrecy — derived message keys are never stored after use. Works offline and in mesh scenarios.</p></div>
+    <div class="card" data-tilt data-i18n-key="feat.n3"><div class="gl"></div><p class="n">03 · Forward Secrecy</p><h3 data-i18n="feat.h3">Compromised key doesn't reveal past messages</p><p data-i18n="feat.p3">Signal Protocol double ratchet with skipped message key decryption. Each message key is derived but never stored after use — even if your device is seized, past messages stay safe.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COMPARISON ═══════════════════ -->
+<section class="sec r" id="comparison">
+  <p class="sec-label" data-i18n="cmp.label">Comparison</p>
+  <h2 data-i18n="cmp.title">Why not <em>Telegram</em><br>or Signal?</h2>
+  <p class="desc" data-i18n="cmp.desc">All popular messengers store your data on their servers. Mess&Anger is the only one where data lives exclusively on your device.</p>
+  <div class="cmp">
+    <table>
+      <tr><th data-i18n="cmp.param">Feature</th><th data-i18n="cmp.has">Has</th><th data-i18n="cmp.no">No</th><th data-i18n="cmp.param">Feature</th></tr>
+      <tr data-i18n-key="cmp.r1"><td>Mesh routing (DHT + multi-hop)</td><td class="y">Yes</td><td data-i18n-key="cmp.r2">No mesh</td><td>Signal</td></tr>
+      <tr data-i18n-key="cmp.r3"><td>Store-and-forward</td><td class="y">Yes (LXMF-style)</td><td data-i18n-key="cmp.r4">No store-and-forward</td><td>Telegram</td></tr>
+      <tr data-i18n-key="cmp.r5"><td>Forward secrecy</td><td class="y">Yes (double ratchet)</td><td data-i18n-key="cmp.r6">Limited forward secrecy</td><td>Signal</td></tr>
+      <tr data-i18n-key="cmp.r7"><td>Post-quantum</td><td class="y">Yes (ML-KEM-768)</td><td data-i18n-key="cmp.r8">No post-quantum</td><td>Telegram</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════ SECURITY ═══════════════════ -->
+<section class="sec r" id="security">
+  <p class="sec-label" data-i18n="sec.label">Security architecture</p>
+  <h2 data-i18n="sec.title">10 layers<br><em>of protection</em></h2>
+  <p class="desc">Security score 9.5/10. Reticulum-inspired architecture with 6 phased implementations. From HKDF + forward secrecy to DHT-based mesh routing. Each layer is independent — if one is compromised, the rest hold.</p>
+  <div class="sec-arr">
+    <div class="item"><b>01</b> <span data-i18n="sec.l1">Signal Protocol double ratchet with forward secrecy</span></div>
+    <div class="item"><b>02</b> <span data-i18n="sec.l2">Post-quantum protection (ML-KEM-768), NIST 2024</span></div>
+    <div class="item"><b>03</b> <span data-i18n="sec.l3">DHT-based node discovery, TTL-based routing tables</span></div>
+    <div class="item"><b>04</b> <span data-i18n="sec.l4">LXMF-style message envelopes with TTL expiration</span></div>
+    <div class="item"><b>05</b> <span data-i18n="sec.l5">Multi-hop relay with path-based routing</span></div>
+    <div class="item"><b>06</b> <span data-i18n="sec.l6">AES-256-GCM + PBKDF2 for at-rest storage. 600k iterations.</span></div>
+    <div class="item"><b>07</b> <span data-i18n="sec.l7">Transparent proxy bridges + Tor/SOCKS5 support</span></div>
+    <div class="item"><b>08</b> <span data-i18n="sec.l8">Metadata killswitches, path fuzzing, traffic obfuscation</span></div>
+    <div class="item"><b>09</b> <span data-i18n="sec.l9">Secure key storage, encrypted at-rest, secure wipe</span></div>
+    <div class="item"><b data-i18n="sec.l10t">3696 tests · 0 errors · 0 lint</b> <span data-i18n="sec.l10">Build passes · Fully tested mesh architecture</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ STARS ═══════════════════ -->
+<section class="sec r">
+  <p class="sec-label" data-i18n="stars.label">Stars Economy</p>
+  <h2 data-i18n="stars.title">Earn by<br>supporting the <em>network</em></h2>
+  <p class="desc" data-i18n="stars.desc">Stars is a local reward system. Not crypto, not blockchain. Just motivation for those who keep the network alive.</p>
+  <div class="stars">
+    <div class="col"><h3 data-i18n="stars.earn">How to earn</h3>
+      <ul><li data-i18n="stars.e1">Send a message</li><li data-i18n="stars.e2">React to a message</li><li data-i18n="stars.e3">Your message was forwarded</li><li data-i18n="stars.e4">Relay data for network</li></ul>
+    </div>
+    <div class="col"><h3 data-i18n="stars.spend">How to spend</h3>
+      <ul><li data-i18n="stars.s1">Premium (month)</li><li data-i18n="stars.s2">Extra folders</li><li data-i18n="stars.s3">Custom themes</li><li data-i18n="stars.s4">Priority support</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ANTI-CENSORSHIP ═══════════════════ -->
+<section class="sec r">
+  <p class="sec-label" data-i18n="ac.label">Anti-censorship</p>
+  <h2 data-i18n="ac.title">Impossible<br><em>to block</em></h2>
+  <p class="desc" data-i18n="ac.desc">5 resistance levels. If one is unavailable — automatic switch. Traffic is indistinguishable from regular HTTPS for any DPI.</p>
+  <div class="ac-l">
+    <div class="l"><h3 data-i18n="ac.l1t">Mesh Routing (DHT)</h3><p data-i18n="ac.l1d">Decentralized node discovery with latency-based sorting. TTL-based routing tables with automatic cleanup.</p></div>
+    <div class="l"><h3 data-i18n="ac.l2t">Multi-hop Relay</h3><p data-i18n="ac.l2d">Messages traverse multiple relay nodes. Each hop strips routing info — sender and recipient are hidden.</p></div>
+    <div class="l"><h3 data-i18n="ac.l3t">Store-and-Forward</h3><p data-i18n="ac.l3d">LXMF-style message queue with TTL expiration. Works offline. Messages forward automatically when a path becomes available.</p></div>
+    <div class="l"><h3 data-i18n="ac.l4t">Forward Secrecy</h3><p data-i18n="ac.l4d">Even if your device is compromised, past messages stay safe. Derived message keys are never stored after use.</p></div>
+    <div class="l"><h3 data-i18n="ac.l5t">Transport Agnostic</h3><p data-i18n="ac.l5d">Automatic switching between WebRTC, WebSocket, Mesh, Tor. Traffic obfuscation with fake TLS headers and padding.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MANIFESTO ═══════════════════ -->
+<section class="man r">
+  <blockquote data-i18n="manifesto.quote">«Your conversations are yours alone.<br>Even <em>we</em> cannot read them.»</blockquote>
+</section>
+
+<!-- ═══════════════════ FAQ ═══════════════════ -->
+<section class="sec r">
+  <p class="sec-label" data-i18n="faq.label">FAQ</p>
+  <h2 data-i18n="faq.title">Frequently<br><em>asked questions</em></h2>
+  <dl class="faq">
+    <dt data-i18n="faq.q1">What happens if I lose my phone?</dt>
+    <dd data-i18n="faq.a1">If you created a backup (.mess file) — restore your account on a new device. Without backup, data is lost forever.</dd>
+    <dt data-i18n="faq.q2">Can the government block Mess&Anger?</dt>
+    <dd data-i18n="faq.a2">Practically impossible. Traffic is obfuscated and indistinguishable from regular HTTPS. If WebRTC is blocked — WebSocket tunnel is used automatically.</dd>
+    <dt data-i18n="faq.q3">Can someone read my messages?</dt>
+    <dd data-i18n="faq.a3">Only you and the recipient. Messages are encrypted on your device and decrypted only on the recipient's device.</dd>
+    <dt data-i18n="faq.q4">What is post-quantum protection?</dt>
+    <dd data-i18n="faq.a4">Encryption resistant to quantum computers. ML-KEM-768 approved by NIST in 2024.</dd>
+    <dt data-i18n="faq.q5">How do I add a contact?</dt>
+    <dd data-i18n="faq.a5">Scan a QR code, search by username, or receive a nexus:// link. There is no central address book.</dd>
+    <dt data-i18n="faq.q6">Is Stars a cryptocurrency?</dt>
+    <dd data-i18n="faq.a6">No. Stars is a local reward system for activity. No blockchain, no market value.</dd>
+  </dl>
+</section>
+
+<!-- ═══════════════════ DOWNLOAD ═══════════════════ -->
+<section class="sec r" id="download">
+  <p class="sec-label" data-i18n="dl.label">Installation</p>
+  <h2 data-i18n="dl.title">Download<br><em>Mess&Anger</em></h2>
+  <p class="desc">Version 1.0 · July 2026 · RETIMCULUM_MESH_PLAN Complete · 3696 tests · 0 errors · 0 lint</p>
+  <div class="dl">
+    <div class="card mid">
+      <h3 data-i18n="dl.winplat">Desktop · Windows</h3>
+      <p data-i18n="dl.windesc">Full version on Electron + React 18. Native notifications, App Lock.</p>
+      <a class="btn" data-i18n="dl.winbtn">Download .exe</a>
+    </div>
+    <div class="card">
+      <h3 data-i18n="dl.aplat">Mobile · Android</h3>
+      <p data-i18n="dl.adesc">Install the APK directly. Enable "Unknown sources" in settings.</p>
+      <a class="btn" data-i18n="dl.abtn">Download APK</a>
+    </div>
+    <div class="card">
+      <h3 data-i18n="dl.iplat">iOS / Web · PWA</h3>
+      <p data-i18n="dl.idesc">Open in Safari and add to Home Screen. Service Worker works offline.</p>
+      <a class="btn" data-i18n="dl.ibtn">Open in Safari</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MESH RADAR ═══════════════════ -->
+<section class="mesh r">
+  <h2 data-i18n="mesh.title">Mesh Radar</h2>
+  <p class="mesh-desc" data-i18n="mesh.desc">DHT-based node discovery in real-time. Nodes are discovered via decentralized hash table and connected through multi-hop relay paths.</p>
+  <canvas id="meshCanvas" width="240" height="240"></canvas>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <ul>
+    <li><a href="https://t.me/cvrname/4243" data-i18n="foot.contact">Contact</a></li>
+  </ul>
+  <div class="foot-v">v1.0 · July 2026 · RETIMCULUM_MESH_PLAN Complete · 3696 tests · 0 errors</div>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════
+// TRANSLATIONS (external - fetched from /lang/*.json)
+// ════════════════════════════════════════════════════
+const T = {}; // will be populated by fetch
+
+const LANGS = {
+  ru:{ label:'🇷🇺 RU', htmlLang:'ru' },
+  en:{ label:'🇬🇧 EN', htmlLang:'en' },
+  de:{ label:'🇩🇪 DE', htmlLang:'de' },
+  fr:{ label:'🇫🇷 FR', htmlLang:'fr' },
+  es:{ label:'🇪🇸 ES', htmlLang:'es' },
+  zh:{ label:'🇨🇳 ZH', htmlLang:'zh' },
+  ja:{ label:'🇯🇵 JA', htmlLang:'ja' },
+  ko:{ label:'🇰🇷 KO', htmlLang:'ko' }
+};
+const SUPPORTED = ['ru','en','de','fr','es','zh','ja','ko'];
+
+// Load translations for a language
+async function loadLang(lang) {
+  if (T[lang]) return T[lang];
+  try {
+    const resp = await fetch('/lang/' + lang + '.json');
+    const data = await resp.json();
+    T[lang] = data;
+  } catch(e) {
+    console.warn('Failed to load translations:', lang);
+  }
+  return T[lang];
+}
+
+// Auto-detect language
+function detectLang() {
+  const saved = localStorage.getItem('ma_lang');
+  if (saved && SUPPORTED.includes(saved)) return saved;
+  const prefs = Array.from(navigator.languages || [navigator.language || 'en']);
+  for (const l of prefs) {
+    const code = l.slice(0,2).toLowerCase();
+    if (SUPPORTED.includes(code)) return code;
+  }
+  return (navigator.language || '').startsWith('ru') ? 'ru' : 'en';
+}
+
+// Apply translation to all elements
+function applyLang(lang) {
+  if (!LANGS[lang]) return;
+  curLang = lang;
+  localStorage.setItem('ma_lang', lang);
+  document.documentElement.lang = LANGS[lang].htmlLang;
+  document.getElementById('langCurrent').textContent = LANGS[lang].label;
+
+  // Update active state
+  document.querySelectorAll('.lang-opt').forEach(el => {
+    el.classList.toggle('active', el.dataset.lang === lang);
+  });
+
+  loadLang(lang).then(dict => {
+    if (!dict) return;
+document.querySelectorAll('[data-i18n], [data-i18n-key]').forEach(el => {
+       const key = el.dataset.i18n || el.dataset.i18nKey;
+       if (!dict[key]) return;
+       const val = dict[key];
+       if (val.includes('<') || val.includes('\n')) {
+         el.innerHTML = val.replace(/\n/g, '<br>');
+       } else {
+         el.textContent = val;
+       }
+     });
+
+    // Also update ticker/marquee
+    buildTicker(lang);
+    buildMarquee(lang);
+
+    // Fade animation
+    document.body.classList.remove('lang-fade');
+    void document.body.offsetWidth;
+    document.body.classList.add('lang-fade');
+  });
+}
+
+// Clear any stale lang
+(function(){
+  const saved = localStorage.getItem('ma_lang');
+  if (saved && !SUPPORTED.includes(saved)) localStorage.removeItem('ma_lang');
+})();
+
+let curLang = detectLang();
+
+// Initialize: fetch current language then apply
+loadLang(curLang).then(() => applyLang(curLang));
+
+// ════════════════════════════════════════════════════
+// LANGUAGE SWITCHER LOGIC
+// ════════════════════════════════════════════════════
+
+// Toggle dropdown
+const switcher = document.getElementById('langSwitcher');
+const langBtn  = document.getElementById('langBtn');
+langBtn.addEventListener('click', e => { e.stopPropagation(); switcher.classList.toggle('open'); });
+document.addEventListener('click', () => switcher.classList.remove('open'));
+document.querySelectorAll('.lang-opt').forEach(el => {
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    applyLang(el.dataset.lang);
+    switcher.classList.remove('open');
+  });
+});
+
+// ════════════════════════════════════════════════════
+// NAV SCROLL
+// ════════════════════════════════════════════════════
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('s', scrollY > 60), {passive:true});
+
+// ════════════════════════════════════════════════════
+// TICKER (fetched from /data/ticker.json)
+// ════════════════════════════════════════════════════
+let _tickCache = {};
+function buildTicker(lang) {
+  if (!_tickCache[lang]) {
+    fetch('/data/ticker.json')
+      .then(r => r.json())
+      .then(data => {
+        _tickCache[lang] = data[lang] || data.ru;
+        document.getElementById('tk').innerHTML =
+          [..._tickCache[lang],..._tickCache[lang],..._tickCache[lang]].map(t => '<div class="ti">'+t+'</div>').join('');
+      });
+  } else {
+    document.getElementById('tk').innerHTML =
+      [..._tickCache[lang],..._tickCache[lang],..._tickCache[lang]].map(t => '<div class="ti">'+t+'</div>').join('');
+  }
+}
+
+// ════════════════════════════════════════════════════
+// MARQUEE (fetched from /data/marquee.json)
+// ════════════════════════════════════════════════════
+let _mq1Cache = {};
+let _mq2Cache = {};
+function buildMarquee(lang) {
+  const mq1 = document.getElementById('mq1');
+  const mq2 = document.getElementById('mq2');
+  if (!mq1 && !mq2) return;
+  if (!_mq1Cache[lang]) {
+    fetch('/data/marquee.json')
+      .then(r => r.json())
+      .then(data => {
+        _mq1Cache[lang] = data[lang] || data.ru;
+        _mq2Cache[lang] = (data[lang] || data.ru)[1] || [];
+        if(mq1) mq1.innerHTML =
+          [..._mq1Cache[lang],..._mq1Cache[lang],..._mq1Cache[lang]].map(t => '<div class="mq-i">'+t+'</div>').join('');
+        if(mq2) mq2.innerHTML =
+          [..._mq2Cache[lang],..._mq2Cache[lang],..._mq2Cache[lang],..._mq2Cache[lang]].map(t => '<div class="mq-i">'+t+'</div>').join('');
+      });
+  } else {
+    if(mq1) mq1.innerHTML =
+      [..._mq1Cache[lang],..._mq1Cache[lang],..._mq1Cache[lang]].map(t => '<div class="mq-i">'+t+'</div>').join('');
+    if(mq2) mq2.innerHTML =
+      [..._mq2Cache[lang],..._mq2Cache[lang],..._mq2Cache[lang],..._mq2Cache[lang]].map(t => '<div class="mq-i">'+t+'</div>').join('');
+  }
+}
+
+// ════════════════════════════════════════════════════
+// THEME TOGGLE
+// ════════════════════════════════════════════════════
+(function(){
+  const root = document.documentElement;
+  const icon = document.getElementById('themeIcon');
+  const btn = document.getElementById('themeToggle');
+  const tc = document.getElementById('themeColor');
+  const saved = localStorage.getItem('ma_theme');
+  if(saved) root.setAttribute('data-theme', saved);
+  btn.addEventListener('click', () => {
+    const cur = root.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('ma_theme', next);
+    icon.textContent = next === 'dark' ? '☀️' : '🌙';
+    if(tc) tc.setAttribute('content', next === 'dark' ? '#070707' : '#f2f2ec');
+  });
+  if(root.getAttribute('data-theme') === 'light') icon.textContent = '🌙';
+})();
+const ease = t => 1 - Math.pow(1 - t, 3);
+document.querySelectorAll('[data-count]').forEach(el => {
+  if (el.dataset.display) return;
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const target = +el.dataset.count, suf = el.dataset.suffix || '';
+      if (target === 0) { el.textContent = '0' + suf; return; }
+      const dur = 1400, t0 = performance.now();
+      const tick = now => {
+        const p = Math.min((now - t0) / dur, 1);
+        el.textContent = Math.round(ease(p) * target) + suf;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }, {threshold:.5}).observe(el);
+});
+
+// ════════════════════════════════════════════════════
+// STAGGER REVEAL (merged)
+// ════════════════════════════════════════════════════
+document.querySelectorAll('.r').forEach(el => {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('v'); });
+  }, {threshold:0.08});
+  observer.observe(el);
+});
+
+// ════════════════════════════════════════════════════
+// SMOOTH ANCHOR SCROLL
+// ════════════════════════════════════════════════════
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) { e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+  });
+});
+
+// ════════════════════════════════════════════════════
+// SCROLL PROGRESS
+// ════════════════════════════════════════════════════
+const progressBar = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = total > 0 ? (window.scrollY / total * 100) : 0;
+  if (progressBar) progressBar.style.width = pct + '%';
+}, {passive:true});
+
+// ════════════════════════════════════════════════════
+// 3D PARALLAX (cards tilt on hover)
+// ════════════════════════════════════════════════════
+(function(){
+  const MAX = 12, SCALE_H = 1.02, SCALE_M = 1.02, SCALE_N = 0.97;
+  const cards = document.querySelectorAll('[data-tilt]');
+  let raf = null;
+  let pending = new Map();
+  function commit() { raf = null; pending.forEach((fn, card) => fn(card)); pending.clear(); }
+  function schedule(card, fn) { pending.set(card, fn); if (!raf) raf = requestAnimationFrame(commit); }
+  function applyTilt(card, x, y) {
+    schedule(card, () => {
+      const rect = card.getBoundingClientRect();
+      if (!rect.width) return;
+      const dx = (x - rect.left - rect.width / 2) / (rect.width / 2);
+      const dy = (y - rect.top - rect.height / 2) / (rect.height / 2);
+      const rotY = dx * MAX, rotX = -dy * MAX, sc = SCALE_H;
+      const gx = Math.round((x - rect.left) / rect.width * 100);
+      const gy = Math.round((y - rect.top) / rect.height * 100);
+      card.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(${sc})`;
+      card.style.boxShadow = `${-rotY*2.5}px ${rotX*2.5}px 50px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.07),inset 0 1px 0 rgba(255,255,255,0.1),0 0 40px rgba(201,169,110,${Math.abs(rotY)*0.008 + Math.abs(rotX)*0.005})`;
+      const g = card.querySelector('.gl');
+      if(g){ g.style.background = `radial-gradient(ellipse at ${gx}% ${gy}%, rgba(255,255,255,0.15), transparent 60%)`; g.style.opacity = '1'; }
+    });
+  }
+  function resetTilt(card) {
+    schedule(card, () => {
+      const isMid = card.classList.contains('mid');
+      const sc = isMid ? SCALE_M : SCALE_N;
+      card.style.transform = `perspective(900px) rotateX(2deg) rotateY(0deg) scale(${sc})`;
+      card.style.boxShadow = '';
+      const g = card.querySelector('.gl');
+      if(g){ g.style.opacity='0'; g.style.background=''; }
+    });
+  }
+  cards.forEach(card => {
+    card.addEventListener('mousemove', e => applyTilt(card, e.clientX, e.clientY), {passive:true});
+    card.addEventListener('mouseleave', () => resetTilt(card));
+    card.addEventListener('touchmove', e => { const t = e.touches[0]; applyTilt(card, t.clientX, t.clientY); }, {passive:true});
+    card.addEventListener('touchend', () => resetTilt(card));
+  });
+  const scene = document.getElementById('cardsScene');
+  if(scene){
+    let ambientRaf = null, ax = 0, ay = 0;
+    scene.addEventListener('mousemove', e => {
+      const r = scene.getBoundingClientRect();
+      ax = (e.clientX - r.left) / r.width - 0.5;
+      ay = (e.clientY - r.top) / r.height - 0.5;
+      if(!ambientRaf) ambientRaf = requestAnimationFrame(() => {
+        ambientRaf = null;
+        cards.forEach(card => {
+          if(card.matches(':hover')) return;
+          card.style.transform = `perspective(900px) rotateX(${(-ay*3)+2}deg) rotateY(${ax*3}deg) scale(${card.classList.contains('mid') ? SCALE_M : SCALE_N})`;
+        });
+      });
+    },{passive:true});
+    scene.addEventListener('mouseleave', () => {
+      if(ambientRaf){ cancelAnimationFrame(ambientRaf); ambientRaf=null; }
+      cards.forEach(c => resetTilt(c));
+    });
+  }
+})();
+
+// ════════════════════════════════════════════════════
+// SCORE BARS ANIMATION
+// ════════════════════════════════════════════════════
+(function(){
+  const fills = document.querySelectorAll('.score-bar-fill[data-width]');
+  if(!fills.length) return;
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        const w = parseFloat(e.target.dataset.width);
+        e.target.style.transform = 'scaleX(' + w + ')';
+        e.target.classList.add('active');
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold: 0.3});
+  fills.forEach(f => io.observe(f));
+})();
+
+// ════════════════════════════════════════════════════
+// MESH RADAR CANVAS
+// ════════════════════════════════════════════════════
+(function(){
+  const canvas = document.getElementById('meshCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 240, H = 240, CX = W/2, CY = H/2, R = 110;
+  const GREEN = '#2bca74';
+  const nodes = [
+    { a: -0.8,  d: 0.35, c: GREEN,    pulse: true,  label: 'DHT-node-1' },
+    { a:  0.6,  d: 0.62, c: '#5b9bd5', pulse: true, label: 'DHT-node-2' },
+    { a:  1.8,  d: 0.82, c: '#c9a96e', pulse: false, label: 'DHT-node-3' },
+    { a:  2.7,  d: 0.45, c: '#e87b3d', pulse: false, label: 'relay-1' },
+    { a:  4.1,  d: 0.70, c: '#d94a4a', pulse: false, label: 'relay-2' },
+  ];
+  let sweep = 0, t = 0;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    t += 0.016; sweep += 0.018;
+    if(sweep > Math.PI*2) sweep -= Math.PI*2;
+    ctx.fillStyle = '#090b0a';
+    ctx.beginPath(); ctx.arc(CX,CY,R+4,0,Math.PI*2); ctx.fill();
+    [0.25,0.5,0.75,1].forEach(f => {
+      ctx.beginPath(); ctx.arc(CX,CY,R*f,0,Math.PI*2);
+      ctx.strokeStyle = `rgba(43,202,116,${f===1?0.25:0.1})`;
+      ctx.lineWidth = f===1 ? 1.5 : 0.7; ctx.stroke();
+    });
+    ctx.strokeStyle = 'rgba(43,202,116,0.12)'; ctx.lineWidth = 0.7;
+    [-Math.PI/2, 0, Math.PI/2, Math.PI].forEach(a => {
+      ctx.beginPath(); ctx.moveTo(CX, CY);
+      ctx.lineTo(CX + Math.cos(a)*R, CY + Math.sin(a)*R); ctx.stroke();
+    });
+    ctx.save(); ctx.translate(CX, CY);
+    for(let i=0; i<30; i++){
+      const angle = sweep - i * 0.05;
+      const alpha = (1 - i/30) * 0.25;
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.arc(0,0,R,angle,angle+0.05); ctx.lineTo(0,0);
+      ctx.fillStyle = `rgba(43,202,116,${alpha})`; ctx.fill();
+    }
+    ctx.beginPath(); ctx.moveTo(0,0);
+    ctx.lineTo(Math.cos(sweep)*R, Math.sin(sweep)*R);
+    ctx.strokeStyle = 'rgba(43,202,116,0.8)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(CX,CY,4,0,Math.PI*2); ctx.fillStyle = GREEN; ctx.fill();
+    ctx.beginPath(); ctx.arc(CX,CY,8+(Math.sin(t*2)*2),0,Math.PI*2);
+    ctx.strokeStyle='rgba(43,202,116,0.3)'; ctx.lineWidth=1; ctx.stroke();
+    nodes.forEach(node => {
+      const x = CX + Math.cos(node.a) * node.d * R;
+      const y = CY + Math.sin(node.a) * node.d * R;
+      ctx.beginPath(); ctx.moveTo(CX,CY); ctx.lineTo(x,y);
+      ctx.strokeStyle='rgba(43,202,116,0.06)'; ctx.lineWidth=0.5; ctx.stroke();
+      if(node.pulse){
+        const pr = 10 + Math.abs(Math.sin(t*2))*8;
+        ctx.beginPath(); ctx.arc(x,y,pr,0,Math.PI*2);
+        ctx.strokeStyle=`rgba(43,202,116,${0.4*(1-pr/18)})`; ctx.lineWidth=1; ctx.stroke();
+      }
+      ctx.beginPath(); ctx.arc(x,y,4.5,0,Math.PI*2); ctx.fillStyle=node.c; ctx.fill();
+      ctx.fillStyle='rgba(43,202,116,0.6)';
+      ctx.font='9px DM Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText(node.label, x, y-11);
+    });
+    requestAnimationFrame(draw);
+  }
+  const io = new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting){ draw(); io.disconnect(); }
+  }, {threshold:0.3});
+  io.observe(canvas);
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<h2>Секция 4: Login + 2FA</h2>
+<p class="subtitle">Два шага: пароль → TOTP-код</p>
+
+<div class="mockup">
+  <div class="mockup-header">Экран входа</div>
+  <div class="mockup-body" style="padding:1.5rem;display:flex;gap:1.5rem;justify-content:center;">
+    <!-- Step 1: Login -->
+    <div style="flex:1;max-width:280px;background:var(--surface);border-radius:12px;padding:1.5rem;">
+      <div style="font-weight:700;font-size:1.1rem;margin-bottom:1rem;text-align:center;">🔐 Step 1</div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        <div>
+          <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.25rem;">Username</div>
+          <input class="mock-input" placeholder="admin" value="admin" style="width:100%;" readonly>
+        </div>
+        <div>
+          <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.25rem;">Password</div>
+          <input class="mock-input" placeholder="••••••••" value="••••••••" style="width:100%;" readonly>
+        </div>
+        <button class="mock-button" style="width:100%;margin-top:0.5rem;">Login →</button>
+        <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:0.5rem;">
+          First time? Server generates TOTP secret<br>on first admin creation (CLI)
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div style="display:flex;align-items:center;font-size:2rem;color:var(--muted);">→</div>
+
+    <!-- Step 2: TOTP -->
+    <div style="flex:1;max-width:280px;background:var(--surface);border-radius:12px;padding:1.5rem;">
+      <div style="font-weight:700;font-size:1.1rem;margin-bottom:1rem;text-align:center;">🔑 Step 2</div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;align-items:center;">
+        <div style="font-size:0.8rem;color:var(--muted);text-align:center;">
+          Enter code from authenticator app
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <input class="mock-input" placeholder="•" style="width:40px;text-align:center;font-size:1.2rem;" readonly>
+          <input class="mock-input" placeholder="•" style="width:40px;text-align:center;font-size:1.2rem;" readonly>
+          <input class="mock-input" placeholder="•" style="width:40px;text-align:center;font-size:1.2rem;" readonly>
+          <input class="mock-input" placeholder="•" style="width:40px;text-align:center;font-size:1.2rem;" readonly>
+          <input class="mock-input" placeholder="•" style="width:40px;text-align:center;font-size:1.2rem;" readonly>
+          <input class="mock-input" placeholder="•" style="width:40px;text-align:center;font-size:1.2rem;" readonly>
+        </div>
+        <div style="font-size:0.75rem;color:var(--accent);">Verify & Login →</div>
+        <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:0.5rem;">
+          ⏱ 30s timeout<br>
+          JWT token returned → stored in sessionStorage
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:1rem;">
+  <h3>Backend: создание админа</h3>
+  <p class="subtitle">Отдельная CLI-команда: <code>npm run admin:create --username admin</code><br>
+  → генерирует password_hash (bcrypt) + totp_secret<br>
+  → выводит QR-код (ссылку) для Google Authenticator<br>
+  → сохраняет в БД</p>
+</div>
+
+<div class="options" style="margin-top:1rem;">
+  <div class="option" data-choice="yes" onclick="toggleSelect(this)">
+    <div class="letter">✅</div>
+    <div class="content"><h3>Хорошо</h3></div>
+  </div>
+  <div class="option" data-choice="change" onclick="toggleSelect(this)">
+    <div class="letter">✏️</div>
+    <div class="content"><h3>Правки</h3></div>
+  </div>
+</div>
