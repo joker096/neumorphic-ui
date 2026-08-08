@@ -10,6 +10,7 @@ import type { ContactTag } from '../types/contact';
 import { ContactCreateEditModal } from './ContactCreateEditModal';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { ContactItem } from './contacts/ContactItem';
+import { ContactAddForm } from './contacts/ContactAddForm';
 import type { Contact, ContactField } from '../types/contact';
 import { FormModal } from './ui/FormModal';
 import { FormField } from './ui/FormField';
@@ -218,22 +219,19 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
         onCancel={() => setConfirmDeleteId(null)}
       />
 
-      <FormModal isOpen={showAddForm}
+      <ContactAddForm
+        isDark={isDark}
+        theme={theme}
+        show={showAddForm}
+        name={newContactName}
+        setName={setNewContactName}
+        id={newContactId}
+        setId={setNewContactId}
         onClose={() => { setShowAddForm(false); setNewContactName(''); setNewContactId(''); }}
-        title={t('contacts.addContact')} subtitle={t('contacts.addContactSubtitle')}
-        icon={UserPlus} theme={theme} closeTitle={t('contacts.close')}>
-        <div className="flex flex-col gap-3 mt-2">
-          <FormField theme={theme} autoFocus placeholder={t('contacts.contactName')}
-            value={newContactName} onChange={setNewContactName} />
-          <FormField theme={theme} placeholder={t('contacts.networkId')}
-            value={newContactId} onChange={setNewContactId} monospace
-            icon={Scan} iconAction={() => { setShowAddForm(false); setIsScanning(true); }} iconTooltip={t('header.scanQR')} />
-          <FormActions theme={theme} submitLabel={t('contacts.saveContact')} cancelLabel={t('contacts.close')}
-            onSubmit={() => handleAddContact({ preventDefault: () => {} } as any)}
-            onCancel={() => { setShowAddForm(false); setNewContactName(''); setNewContactId(''); }}
-            disabled={!newContactName.trim() || !newContactId.trim()} />
-        </div>
-      </FormModal>
+        onSubmit={handleAddContact}
+        onScan={() => { setShowAddForm(false); setIsScanning(true); }}
+        t={t}
+      />
 
       {showEditForm && editingContact && (
         <ContactCreateEditModal contact={editingContact} isDark={isDark}
