@@ -15,7 +15,6 @@ import { MyProfileSection } from './settings/MyProfileSection';
 
 const NetworkSection = React.lazy(() => import('./settings/NetworkSection').then(m => ({ default: m.NetworkSection })));
 const SecuritySection = React.lazy(() => import('./settings/SecuritySection').then(m => ({ default: m.SecuritySection })));
-const StorageSection = React.lazy(() => import('./settings/StorageSection').then(m => ({ default: m.StorageSection })));
 const BotsSection = React.lazy(() => import('./settings/BotsSection').then(m => ({ default: m.BotsSection })));
 const SpamSection = React.lazy(() => import('./settings/SpamSection').then(m => ({ default: m.SpamSection })));
 const SystemStatusSection = React.lazy(() => import('./settings/SystemStatusSection').then(m => ({ default: m.SystemStatusSection })));
@@ -247,14 +246,6 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
     />
   );
 
-  const renderStorageSettings = () => (
-    <StorageSection
-      isDark={isDark}
-      onBack={() => setActiveSection('main')}
-      t={t}
-    />
-  );
-
   const renderBotsSettings = () => (
     <BotsSection
       isDark={isDark}
@@ -308,7 +299,6 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
         {activeSection === 'security' && <Suspense fallback={fallback}>{renderSecuritySettings()}</Suspense>}
         {activeSection === 'privacy' && renderPrivacySettings()}
         {activeSection === 'network' && <Suspense fallback={fallback}>{renderNetworkSettings()}</Suspense>}
-        {activeSection === 'storage' && <Suspense fallback={fallback}>{renderStorageSettings()}</Suspense>}
         {activeSection === 'bots' && <Suspense fallback={fallback}>{renderBotsSettings()}</Suspense>}
         {activeSection === 'spam' && <Suspense fallback={fallback}>{renderSpamSettings()}</Suspense>}
         {activeSection === 'systemStatus' && <Suspense fallback={fallback}>{renderSystemStatusSettings()}</Suspense>}

@@ -26,7 +26,6 @@ export { secureSetItem, secureGetItem, secureRemoveItem } from './secureStorage'
 export { b64encode, b64decode } from './cryptoCore';
 
 // Subdirectories with their own index.ts
-export * from './backup';
 export * from './crypto';
 export * from './gestures';
 export * from './identity';
