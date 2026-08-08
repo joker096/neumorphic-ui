@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useCallback } from "react";
 import { motion } from "motion/react";
 import { Archive, Phone, Video } from "lucide-react";
 import { FormattedText } from "./FormattedText";
@@ -22,6 +22,8 @@ interface ChatListItemProps {
   onToggleSelect?: () => void;
   onLongPress?: () => void;
 }
+
+const PRESS_DURATION = 500;
 
 export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   chat,
@@ -48,21 +50,42 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   const dragDistance = useRef(0);
   const [swipedOpen, setSwipedOpen] = React.useState<"closed" | "left" | "right">("closed");
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isPressing, setIsPressing] = React.useState(false);
 
-  const handlePointerDown = () => {
-    if (!selectMode) {
-      pressTimer.current = setTimeout(() => {
-        onLongPress?.();
-      }, 500);
-    }
-  };
-
-  const handlePointerUp = () => {
+  const clearPressTimer = useCallback(() => {
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
       pressTimer.current = null;
     }
-  };
+    setIsPressing(false);
+  }, []);
+
+  const handlePointerDown = useCallback(() => {
+    if (!selectMode && onLongPress) {
+      setIsPressing(true);
+      pressTimer.current = setTimeout(() => {
+        setIsPressing(false);
+        onLongPress();
+        navigator.vibrate?.(50);
+      }, PRESS_DURATION);
+    }
+  }, [selectMode, onLongPress]);
+
+  const handlePointerUp = useCallback(() => {
+    clearPressTimer();
+  }, [clearPressTimer]);
+
+  const handlePointerLeave = useCallback(() => {
+    clearPressTimer();
+  }, [clearPressTimer]);
+
+  React.useEffect(() => {
+    return () => {
+      if (pressTimer.current) {
+        clearTimeout(pressTimer.current);
+      }
+    };
+  }, []);
 
   const isGroup = type === "channel";
   const roundedClass = isGroup ? "rounded-xl" : "rounded-full";
@@ -163,14 +186,14 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         }}
         animate={{ x: targetX }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`relative w-full p-3 flex items-center gap-4 cursor-pointer transition-all duration-300 select-none group ${
+        className={`relative w-full p-3 flex items-center gap-4 cursor-pointer transition-all duration-200 select-none group ${
           isDark
             ? active
               ? "bg-[#101216] shadow-[inset_0_12px_24px_rgba(0,0,0,0.9),_inset_0_3px_6px_rgba(0,0,0,0.9)] border border-orange-500/20"
-              : "bg-[var(--bg-secondary)] shadow-[0_8px_16px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border border-[var(--border-color)]/[0.02] hover:scale-[1.02]"
+              : "bg-[var(--bg-secondary)] shadow-[0_8px_16px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border border-[var(--border-color)]/[0.02] hover:bg-white/5"
             : active
               ? "bg-[var(--bg-secondary)] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border border-[var(--border-color)]"
-              : "bg-[var(--bg-secondary)] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)] hover:scale-[1.02]"
+              : "bg-[var(--bg-secondary)] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)] hover:bg-black/5"
         }`}
       >
         <div
@@ -243,7 +266,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             <span
               className={`text-xs md:text-[13px] truncate pr-4 ${isDark ? (active ? "text-orange-300" : "text-[#7a8190]") : active ? "text-orange-600" : "text-slate-500"} ${chat.unread ? "font-medium" : ""}`}
             >
-              {typingIndicators && chat.id === 1 && type === "chat" ? (
+               {typingIndicators && chat.isTyping && type === "chat" ? (
                 <span className={`font-bold tracking-wide italic ${isDark ? "text-orange-500" : "text-orange-600"}`}>
                   {t("chat.typing")}
                 </span>

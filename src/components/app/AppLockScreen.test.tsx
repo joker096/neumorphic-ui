@@ -3,7 +3,24 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 vi.mock('lucide-react', () => ({ Lock: 'div' }));
-vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t: (k: string) => k }) }));
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string, fallback?: string) => {
+      const map: Record<string, string> = {
+        'lock.title': 'App Locked',
+        'lock.description': 'Recovery is impossible, please enter your PIN',
+        'lock.enterPin': 'Enter PIN',
+        'lock.unlock': 'Unlock',
+        'lock.tooManyAttempts': 'Too many attempts',
+        'lock.permanentlyLocked': 'App is permanently locked. Recovery required.',
+        'lock.locked': 'Locked',
+        'lock.tryAgainIn': 'Try again in {seconds} seconds',
+        'lock.wrongPin': 'Wrong PIN. {remaining} attempt(s) remaining',
+      };
+      return map[key] || fallback || key;
+    }
+  })
+}));
 
 import { AppLockScreen } from './AppLockScreen';
 
@@ -20,8 +37,8 @@ const defaultProps = {
 describe('AppLockScreen', () => {
   it('renders lock icon and title', () => {
     render(<AppLockScreen {...defaultProps} />);
-    expect(screen.getByText('lock.title')).toBeInTheDocument();
-    expect(screen.getByText('lock.description')).toBeInTheDocument();
+    expect(screen.getByText('App Locked')).toBeInTheDocument();
+    expect(screen.getByText('Recovery is impossible, please enter your PIN')).toBeInTheDocument();
   });
 
   it('renders PIN input', () => {
@@ -32,7 +49,7 @@ describe('AppLockScreen', () => {
 
   it('renders unlock button', () => {
     render(<AppLockScreen {...defaultProps} />);
-    expect(screen.getByText('lock.unlock')).toBeInTheDocument();
+    expect(screen.getByText('Unlock')).toBeInTheDocument();
   });
 
   it('shows permanently blocked state', () => {

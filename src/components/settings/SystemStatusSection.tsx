@@ -1,6 +1,7 @@
 import { Activity, Wifi, Zap, Clock, Smartphone } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
+import { APP_INFO } from '../../config/settingsDefaults';
 
 interface SystemStatusSectionProps {
   isDark?: boolean;
@@ -100,7 +101,7 @@ export const SystemStatusSection = ({
       <SettingsRow
        icon={<Smartphone size={16} />}
           title={t('settings.about')}
-          subtitle={`Build: 31.05.2026`}
+          subtitle={`Build: ${APP_INFO.BUILD_DATE}`}
         isDark={isDark}
       />
     </SettingsGroup>

@@ -265,7 +265,7 @@ export const MessageInputArea: React.FC<MessageInputAreaProps> = ({
           </div>
           <button
             onClick={() => setReplyTargetFn2(null)}
-            className="mt-0.5 w-11 h-11 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]/10"
+             className="mt-0.5 w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]/10"
             aria-label="Remove reply"
           >
             <X size={16} strokeWidth={2} />

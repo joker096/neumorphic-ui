@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
-import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, UserCheck, UserX, Check, X, MessageSquare, Wifi, WifiOff, Share, FileText } from 'lucide-react';
+import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, UserCheck, UserX, Check, X, MessageSquare, Wifi, WifiOff, Share, FileText, Download, Clock } from 'lucide-react';
 import { TextInputModal } from '../settings/TextInputModal';
 
 interface PrivacySectionProps {
@@ -35,6 +35,10 @@ interface PrivacySectionProps {
   onUpdateSettings: (settings: Record<string, unknown>) => void;
   onBack: () => void;
   t: (key: string) => string;
+  mediaAutoLoad?: string;
+  setMediaAutoLoad?: (v: string) => void;
+  selfDestructDefault?: string;
+  setSelfDestructDefault?: (v: string) => void;
 }
 
 export const PrivacySection = ({
@@ -44,7 +48,7 @@ export const PrivacySection = ({
   stealthMode, anonymousMode, deliveryReceipts, readReceipts, typingIndicators,
   ghostViewMode, forwardAnonymization, onlineStatus, allowForwarding, setAllowForwarding,
   allowMetadata, setAllowMetadata, forwardCountLimit, setForwardCountLimit,
-  onUpdateSettings, onBack, t
+  onUpdateSettings, onBack, t, mediaAutoLoad, setMediaAutoLoad, selfDestructDefault, setSelfDestructDefault
 }: PrivacySectionProps) => {
   const [showPriorityModal, setShowPriorityModal] = useState(false);
   const handlePrioritySave = (name: string) => {
@@ -52,6 +56,20 @@ export const PrivacySection = ({
       setPriorityContacts(name.trim());
     }
     setShowPriorityModal(false);
+  };
+
+  const cycleMediaAutoLoad = () => {
+    const options = ['Off', 'Wi-Fi', 'Always'];
+    const idx = options.indexOf(mediaAutoLoad as string);
+    const next = options[(idx + 1) % options.length];
+    if (setMediaAutoLoad) setMediaAutoLoad(next);
+  };
+
+  const cycleSelfDestructDefault = () => {
+    const options = ['Off', '1 min', '5 min', '1 hour', '1 day'];
+    const idx = options.indexOf(selfDestructDefault as string);
+    const next = options[(idx + 1) % options.length];
+    if (setSelfDestructDefault) setSelfDestructDefault(next);
   };
 
   return (
@@ -114,6 +132,34 @@ export const PrivacySection = ({
         )}
       </SettingsGroup>
 
+      <SettingsSectionTitle title={t('settings.mediaAndMessages')} isDark={isDark} />
+      <SettingsGroup isDark={isDark} className="mb-6">
+        {mediaAutoLoad !== undefined && setMediaAutoLoad && (
+          <SettingsRow
+            icon={<Download size={16} />}
+            iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
+            iconColor={isDark ? "text-cyan-400" : "text-cyan-600"}
+            title={t('settings.mediaAutoLoad')}
+            subtitle={t('settings.mediaAutoLoadSubtitle')}
+            value={mediaAutoLoad as string}
+            isDark={isDark}
+            onClick={cycleMediaAutoLoad}
+          />
+        )}
+        {selfDestructDefault !== undefined && setSelfDestructDefault && (
+          <SettingsRow
+            icon={<Clock size={16} />}
+            iconBg={isDark ? "bg-orange-500/10" : "bg-orange-100"}
+            iconColor={isDark ? "text-orange-400" : "text-orange-600"}
+            title={t('settings.selfDestructDefault')}
+            subtitle={t('settings.selfDestructDefaultSubtitle')}
+            value={selfDestructDefault as string}
+            isDark={isDark}
+            onClick={cycleSelfDestructDefault}
+          />
+        )}
+      </SettingsGroup>
+
       <SettingsSectionTitle title={t('settings.advancedPrivacy')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         <SettingsRow
@@ -157,7 +203,7 @@ export const PrivacySection = ({
         {onlineStatus !== undefined && (
           <SettingsRow
             title={t('settings.onlineStatus')}
-            subtitle={t('settings.onlineStatusSubtitle') || 'Show when you are online'}
+            subtitle={t('settings.onlineStatusSubtitle')}
             isDark={isDark}
             rightElement={<ToggleSwitch isOn={onlineStatus} onToggle={() => onUpdateSettings({ onlineStatus: !onlineStatus })} isDark={isDark} onIcon={<Wifi size={14} />} offIcon={<WifiOff size={14} />} />}
             onClick={() => onUpdateSettings({ onlineStatus: !onlineStatus })}
@@ -192,17 +238,17 @@ export const PrivacySection = ({
       </SettingsGroup>
 
 <TextInputModal
-         isOpen={showPriorityModal}
-         title={t('settings.priorityContacts')}
-         placeholder={t('settings.enterPriorityContacts')}
-         onConfirm={(name) => {
-           if (setPriorityContacts && name.trim()) setPriorityContacts(name.trim());
-           setShowPriorityModal(false);
-         }}
-         onCancel={() => setShowPriorityModal(false)}
-         confirmLabel={t('common.confirm')}
-         cancelLabel={t('common.cancel')}
-       />
+          isOpen={showPriorityModal}
+          title={t('settings.priorityContacts')}
+          placeholder={t('settings.enterPriorityContacts')}
+          onConfirm={(name) => {
+            if (setPriorityContacts && name.trim()) setPriorityContacts(name.trim());
+            setShowPriorityModal(false);
+          }}
+          onCancel={() => setShowPriorityModal(false)}
+          confirmLabel={t('common.confirm')}
+          cancelLabel={t('common.cancel')}
+        />
     </SubView>
   );
 };

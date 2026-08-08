@@ -52,20 +52,26 @@ export const PhotoViewerOverlay = ({ url, open, onClose, theme }: PhotoViewerPro
           {/* Top toolbar */}
           <div className="absolute top-0 w-full p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/60 to-transparent">
              <div className="flex gap-2">
-                 <button 
+                 <button
+                    type="button"
                     onClick={handleZoomOut}
+                    aria-label={t('photoViewer.zoomOut')}
                     className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] flex-shrink-0"
                  >
                      <ZoomOut size={20} />
                  </button>
-                 <button 
+                 <button
+                    type="button"
                     onClick={handleZoomIn}
+                    aria-label={t('photoViewer.zoomIn')}
                     className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] flex-shrink-0"
                  >
                      <ZoomIn size={20} />
                  </button>
-                 <button 
+                 <button
+                    type="button"
                     onClick={handleDownload}
+                    aria-label={t('photoViewer.download')}
                     className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] flex-shrink-0"
                  >
                      <Download size={20} />
@@ -73,8 +79,10 @@ export const PhotoViewerOverlay = ({ url, open, onClose, theme }: PhotoViewerPro
              </div>
              
              <div className="flex gap-2">
-                 <button 
+                 <button
+                    type="button"
                     onClick={onClose}
+                    aria-label={t('common.close')}
                     className="w-10 h-10 rounded-full bg-red-500/20 hover:bg-red-500/40 border border-red-500/50 flex items-center justify-center text-red-100 flex-shrink-0 transition-colors"
                  >
                      <X size={20} />

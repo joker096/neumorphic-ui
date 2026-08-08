@@ -1,11 +1,14 @@
 import { motion } from "motion/react";
+import { useEffect } from "react";
 import { SearchInput } from "../ui/SearchInput";
 import { SettingsSectionTitle, ToggleSwitch } from "../ui/SettingsRow";
 import {
-  Activity, Bell, BellOff, Bot, Building2, ChevronRight, Cloud,
+  Activity, Bell, BellOff, Bot, Building2, Cloud,
   Globe, HardDrive, Lock, Mic, Network, Palette, Radar, Shield,
-  ShieldAlert, Smartphone, UserPlus,
+  ShieldAlert, Smartphone, UserPlus, User,
 } from "lucide-react";
+import { SettingsCard, SettingsDivider, SettingsNavItem } from "./SettingsMenuPrimitives";
+import { APP_INFO } from "../../config/settingsDefaults";
 
 interface SettingsMainMenuProps {
   isDark: boolean;
@@ -30,6 +33,12 @@ export function SettingsMainMenu({
   notificationsEnabled, setNotificationsEnabled, soundEnabled, setSoundEnabled,
   cloudSyncEnabled, setCloudSyncEnabled, language, proxyEnabled, spamFilterEnabled,
 }: SettingsMainMenuProps) {
+  useEffect(() => {
+    if (notificationsEnabled && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+  }, [notificationsEnabled]);
+
   return (
     <motion.div
       key="main-settings"
@@ -42,46 +51,57 @@ export function SettingsMainMenu({
         <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder={t('settings.searchPlaceholder')} isDark={isDark} />
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1 pb-4 flex flex-col gap-5">
-        <button onClick={() => setActiveSection('account')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-emerald-500/10 to-transparent border border-[var(--border-color)] hover:bg-white/5" : "bg-gradient-to-br from-emerald-50 to-transparent border border-emerald-100 hover:bg-emerald-50/50"}`}>
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
-              <UserPlus size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button onClick={() => setActiveSection('myProfile')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-orange-500/10 to-transparent border border-[var(--border-color)] hover:bg-white/5" : "bg-gradient-to-br from-orange-50 to-transparent border border-orange-100 hover:bg-orange-50/50"}`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-orange-500/20" : "bg-orange-100"}`}>
+                <User size={18} className={isDark ? "text-orange-400" : "text-orange-600"} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.myProfile', 'My Profile')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.myProfileSubtitle', 'Personal information')}</div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.account')}</div>
-              <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.accountSubtitle')}</div>
+          </button>
+          <button onClick={() => setActiveSection('account')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-emerald-500/10 to-transparent border border-[var(--border-color)] hover:bg-white/5" : "bg-gradient-to-br from-emerald-50 to-transparent border border-emerald-100 hover:bg-emerald-50/50"}`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
+                <UserPlus size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.account')}</div>
+                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.accountSubtitle')}</div>
+              </div>
             </div>
-          </div>
-        </button>
+          </button>
+        </div>
+
         <div className="w-full">
           <SettingsSectionTitle title={t('settings.appearanceSection')} isDark={isDark} />
-          <div className={`rounded-xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"} overflow-hidden`}>
-            <div className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:opacity-80" onClick={() => setActiveSection('appearance')}>
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
-                <Palette size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.theme')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.appearanceTheme')}</div>
-              </div>
-              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
-            </div>
-            <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />
-            <div className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:opacity-80" onClick={() => setActiveSection('language')}>
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
-                <Globe size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.language')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{language}</div>
-              </div>
-              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
-            </div>
-          </div>
+          <SettingsCard isDark={isDark}>
+            <SettingsNavItem
+              icon={<Palette size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />}
+              iconBg={isDark ? "bg-emerald-500/20" : "bg-emerald-100"}
+              title={t('settings.theme')}
+              subtitle={t('settings.appearanceTheme')}
+              isDark={isDark}
+              onClick={() => setActiveSection('appearance')}
+            />
+            <SettingsDivider isDark={isDark} />
+            <SettingsNavItem
+              icon={<Globe size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />}
+              iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
+              title={t('settings.language')}
+              subtitle={language}
+              isDark={isDark}
+              onClick={() => setActiveSection('language')}
+            />
+          </SettingsCard>
         </div>
+
         <div className="w-full">
           <SettingsSectionTitle title={t('settings.notificationsSection')} isDark={isDark} />
-          <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
+          <SettingsCard isDark={isDark}>
             <div className={`flex items-center justify-between px-4 py-3 ${notificationsEnabled ? (isDark ? "bg-emerald-500/5" : "bg-emerald-50/50") : ""}`}>
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-red-500/10" : "bg-red-100"}`}>
@@ -94,7 +114,7 @@ export function SettingsMainMenu({
               </div>
               <ToggleSwitch isOn={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} isDark={isDark} />
             </div>
-            <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />
+            <SettingsDivider isDark={isDark} />
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-orange-500/10" : "bg-orange-100"}`}>
@@ -106,7 +126,7 @@ export function SettingsMainMenu({
               </div>
               <ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} />
             </div>
-            <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />
+            <SettingsDivider isDark={isDark} />
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
@@ -118,8 +138,9 @@ export function SettingsMainMenu({
               </div>
               <ToggleSwitch isOn={cloudSyncEnabled} onToggle={() => setCloudSyncEnabled(!cloudSyncEnabled)} isDark={isDark} />
             </div>
-          </div>
+          </SettingsCard>
         </div>
+
         <div className="w-full">
           <div className="mb-2 flex items-center justify-between">
             <SettingsSectionTitle title={t('settings.privacySecuritySection')} isDark={isDark} />
@@ -141,6 +162,7 @@ export function SettingsMainMenu({
             </button>
           </div>
         </div>
+
         <div className="w-full">
           <SettingsSectionTitle title={t('settings.dataStorageSection')} isDark={isDark} />
           <button onClick={() => setActiveSection('storage')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-amber-500/10 to-transparent border border-[var(--border-color)] hover:bg-white/5" : "bg-gradient-to-br from-amber-50 to-transparent border border-amber-100 hover:bg-amber-50/50"}`}>
@@ -155,6 +177,7 @@ export function SettingsMainMenu({
             </div>
           </button>
         </div>
+
         <div className="w-full mb-6">
           <SettingsSectionTitle title={t('settings.companySection')} isDark={isDark} />
           <button onClick={() => setActiveSection('company')} className={`w-full rounded-xl p-4 text-left transition-colors ${isDark ? "bg-gradient-to-br from-purple-500/10 to-transparent border border-[var(--border-color)] hover:bg-white/5" : "bg-gradient-to-br from-purple-50 to-transparent border border-purple-100 hover:bg-purple-50/50"}`}>
@@ -169,90 +192,78 @@ export function SettingsMainMenu({
             </div>
           </button>
         </div>
+
         <div className="w-full mb-6">
           <SettingsSectionTitle title={t('settings.servicesSection')} isDark={isDark} />
-          <div className="rounded-xl overflow-hidden">
-            <button onClick={() => setActiveSection('bots')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-fuchsia-500/10" : "bg-fuchsia-100"}`}>
-                <Bot size={16} className={isDark ? "text-fuchsia-400" : "text-fuchsia-600"} />
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.bots')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.botsSubtitle')}</div>
-              </div>
-              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
-            </button>
-            <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />
-            <button onClick={() => setSubView?.("recordings")} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-amber-500/10" : "bg-amber-100"}`}>
-                <Mic size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('nav.recordings')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('hub.recordingsSubtitle')}</div>
-              </div>
-              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
-            </button>
-            <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />
-            <button onClick={() => setSubView?.("radar")} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-cyan-500/10" : "bg-cyan-100"}`}>
-                <Radar size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('nav.radar')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('hub.radarSubtitle')}</div>
-              </div>
-              <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
-            </button>
-          </div>
+          <SettingsCard isDark={isDark}>
+            <SettingsNavItem
+              icon={<Bot size={16} className={isDark ? "text-fuchsia-400" : "text-fuchsia-600"} />}
+              iconBg={isDark ? "bg-fuchsia-500/10" : "bg-fuchsia-100"}
+              title={t('settings.bots')}
+              subtitle={t('settings.botsSubtitle')}
+              isDark={isDark}
+              onClick={() => setActiveSection('bots')}
+            />
+            <SettingsDivider isDark={isDark} />
+            <SettingsNavItem
+              icon={<Mic size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />}
+              iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
+              title={t('nav.recordings')}
+              subtitle={t('hub.recordingsSubtitle')}
+              isDark={isDark}
+              onClick={() => setSubView?.("recordings")}
+            />
+            <SettingsDivider isDark={isDark} />
+            <SettingsNavItem
+              icon={<Radar size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />}
+              iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
+              title={t('nav.radar')}
+              subtitle={t('hub.radarSubtitle')}
+              isDark={isDark}
+              onClick={() => setSubView?.("radar")}
+            />
+          </SettingsCard>
         </div>
+
         <div className="w-full mb-6">
           <SettingsSectionTitle title={t('settings.advancedSection')} isDark={isDark} />
-          <div className="rounded-xl overflow-hidden">
-            <div className={`rounded-xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
-              <button onClick={() => setActiveSection('network')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
-                  <Network size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />
-                </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.network')}</div>
-                  <div className={`text-[11px] ${isDark ? "text-gray-500" : "text-slate-500"}`}>{proxyEnabled ? t('settings.networkEnabled') : t('settings.disabled')}</div>
-                </div>
-              </button>
-              <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />
-              <button onClick={() => setActiveSection('spam')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-red-500/10" : "bg-red-100"}`}>
-                  <ShieldAlert size={16} className={isDark ? "text-red-400" : "text-red-600"} />
-                </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.spamProtection')}</div>
-                  <div className={`text-[11px] ${isDark ? "text-gray-500" : "text-slate-500"}`}>{spamFilterEnabled ? t('settings.spamActive') : t('settings.spamDisabled')}</div>
-                </div>
-              </button>
-              <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />
-              <button onClick={() => setActiveSection('systemStatus')} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-emerald-500/10" : "bg-emerald-100"}`}>
-                  <Activity size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
-                </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.systemStatus')}</div>
-                  <div className={`text-[11px] ${isDark ? "text-gray-500" : "text-slate-500"}`}>{t('settings.systemStatusSubtitle')}</div>
-                </div>
-              </button>
-            </div>
-          </div>
+          <SettingsCard isDark={isDark}>
+            <SettingsNavItem
+              icon={<Network size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />}
+              iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
+              title={t('settings.network')}
+              subtitle={proxyEnabled ? t('settings.networkEnabled') : t('settings.disabled')}
+              isDark={isDark}
+              onClick={() => setActiveSection('network')}
+            />
+            <SettingsDivider isDark={isDark} />
+            <SettingsNavItem
+              icon={<ShieldAlert size={16} className={isDark ? "text-red-400" : "text-red-600"} />}
+              iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
+              title={t('settings.spamProtection')}
+              subtitle={spamFilterEnabled ? t('settings.spamActive') : t('settings.spamDisabled')}
+              isDark={isDark}
+              onClick={() => setActiveSection('spam')}
+            />
+            <SettingsDivider isDark={isDark} />
+            <SettingsNavItem
+              icon={<Activity size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />}
+              iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
+              title={t('settings.systemStatus')}
+              subtitle={t('settings.systemStatusSubtitle')}
+              isDark={isDark}
+              onClick={() => setActiveSection('systemStatus')}
+            />
+          </SettingsCard>
         </div>
-        <div className="w-full flex justify-center pb-8 pt-4 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
+
+        <div className="w-full flex justify-center pb-8 pt-4 border-t border-[var(--border-color)]">
           <div className={`text-[10px] font-mono tracking-widest opacity-40 uppercase ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"} flex items-center gap-1`}>
             <Smartphone size={12} />
-            {t('settings.lastBuild')}: 31.05.2026, 11:43
+            {t('settings.lastBuild')}: {APP_INFO.BUILD_DATE}
           </div>
         </div>
       </div>
     </motion.div>
   );
 }
-
-
-
-

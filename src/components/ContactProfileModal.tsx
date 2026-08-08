@@ -90,6 +90,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]`}
               onClick={onClose}
               title={t('contacts.close')}
+              aria-label={t('contacts.close') || t('common.close')}
             >
               <X size={18} />
             </button>
@@ -156,7 +157,9 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               <button
                 onClick={() => handleToggleFavorite(contact.id, contact.isFavorite || false)}
                 className={`p-1.5 rounded-full transition-all active:scale-90 ${contact.isFavorite ? (isDark ? "text-yellow-400 bg-white/10" : "text-yellow-500 bg-black/5") : (isDark ? "text-gray-500 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800")}`}
-                title={contact.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                title={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
+                aria-label={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
+                aria-pressed={contact.isFavorite}
               >
                 {contact.isFavorite ? <Star size={18} fill="currentColor" /> : <StarOff size={18} />}
               </button>

@@ -30,7 +30,7 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryCli
       <div className={`px-4 mb-2 font-mono text-[9px] uppercase tracking-widest font-bold ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{t('header.stories')}</div>
       <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         <div className="flex flex-col items-center gap-2 group cursor-pointer shrink-0">
-          <div className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${
+          <div className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-95 ${
             isDark ? 'bg-[#1f222a] border border-[var(--border-color)] border-dashed' : 'bg-[var(--bg-primary)] border border-[var(--border-color)] border-dashed'
           }`}>
             <Plus size={24} className={isDark ? 'text-gray-400 group-hover:text-[var(--text-primary)]' : 'text-slate-500 group-hover:text-[var(--text-secondary)]'} />
@@ -47,7 +47,7 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryCli
             className="flex flex-col items-center gap-2 group cursor-pointer shrink-0"
           >
             <div
-              className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110 active:scale-95 ${
+              className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-95 ${
                 isDark
                   ? 'bg-[var(--bg-secondary)] shadow-[0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border-[2px] border-orange-500/50'
                   : 'bg-[var(--bg-secondary)] shadow-[4px_4px_8px_rgba(165,175,190,0.3),_-4px_-4px_8px_rgba(255,255,255,0.8),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border-[2px] border-orange-400'

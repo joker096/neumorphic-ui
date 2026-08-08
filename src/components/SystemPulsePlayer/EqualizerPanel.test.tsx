@@ -5,6 +5,20 @@ import '@testing-library/jest-dom/vitest';
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 vi.mock('lucide-react', () => ({ Volume2: 'div', VolumeX: 'div', ArrowLeft: 'div' }));
 
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'systemPlayer.audioSettings': 'Audio Settings',
+        'systemPlayer.masterVolume': 'Master Volume',
+        'systemPlayer.eq5Band': '5-Band Equalizer',
+        'systemPlayer.resetEq': 'Reset EQ',
+      };
+      return map[key] ?? key;
+    },
+  }),
+}));
+
 import { EqualizerPanel } from './EqualizerPanel';
 
 const defaultProps = {

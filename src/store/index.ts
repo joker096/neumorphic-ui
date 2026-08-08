@@ -5,6 +5,8 @@ import type { ActiveCall } from '../lib/call/types';
 import type { CompanyChannel, CompanyMessage, CompanyMember } from '../constants';
 import type { InviteQRPayload } from '../lib/company/types';
 import type { Contact, UserProfile } from '../types/contact';
+import { generateCompanyId, createCompanyUser, saveMembers } from '../lib/company/companyUser';
+import * as idb from '../lib/idb';
 import { DEFAULT_BOT_PERMISSIONS } from './defaults';
 import type {
   BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage,
@@ -24,7 +26,22 @@ const savedPrivacy = (() => {
   return {};
 })();
 
+function persistSetting(key: string, value: unknown) {
+  try {
+    const prev = JSON.parse(localStorage.getItem('mess_privacy_settings_v2') || '{}');
+    localStorage.setItem('mess_privacy_settings_v2', JSON.stringify({ ...prev, [key]: value }));
+  } catch {}
+}
+
 const savedCompanyHide = localStorage.getItem('app_hide_when_office_only') === 'true';
+
+const savedUserProfile = (() => {
+  try {
+    const raw = localStorage.getItem('mess_user_profile');
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+})();
 
 // --- Session master key ---
 let sessionMasterKey: CryptoKey | null = null;
@@ -74,6 +91,28 @@ export interface AppState {
   forwardCountLimit: number;
   contactReadReceipts: Record<string, boolean>;
   toggleContactReadReceipt: (chatId: string | number, enabled: boolean) => void;
+  notifications: boolean;
+  twoFactor: boolean;
+  proxyEnabled: boolean;
+  spamFilter: boolean;
+  pwaBanner: boolean;
+  deadMansSwitch: string;
+  mediaAutoLoad: string;
+  selfDestructDefault: string;
+  obfuscationMode: string;
+  obfuscationEnabled: boolean;
+  proxyUrl: string;
+  torBridge: string;
+  relayBackend: string;
+  autoReconnect: boolean;
+  p2pMesh: boolean;
+  visNumber: string;
+  visActivity: string;
+  uiAnimations: boolean;
+  dndEnabled: boolean;
+  dndFrom: string;
+  dndTo: string;
+  priorityContacts: string;
   devices: DeviceInfo[];
   currentSession: SessionData;
   addDevice: (device: DeviceInfo) => void;
@@ -99,6 +138,28 @@ export interface AppState {
   setRadialEnergy: (energy: boolean) => void;
   setAppLock: (hash: string, salt: string) => void;
   updateSettings: (settings: Partial<AppState>) => void;
+  setNotifications: (v: boolean) => void;
+  setTwoFactor: (v: boolean) => void;
+  setProxyEnabled: (v: boolean) => void;
+  setSpamFilter: (v: boolean) => void;
+  setPwaBanner: (v: boolean) => void;
+  setDeadMansSwitch: (v: string) => void;
+  setMediaAutoLoad: (v: string) => void;
+  setSelfDestructDefault: (v: string) => void;
+  setObfuscationMode: (v: string) => void;
+  setObfuscationEnabled: (v: boolean) => void;
+  setProxyUrl: (v: string) => void;
+  setTorBridge: (v: string) => void;
+  setRelayBackend: (v: string) => void;
+  setAutoReconnect: (v: boolean) => void;
+  setP2pMesh: (v: boolean) => void;
+  setVisNumber: (v: string) => void;
+  setVisActivity: (v: string) => void;
+  setUiAnimations: (v: boolean) => void;
+  setDndEnabled: (v: boolean) => void;
+  setDndFrom: (v: string) => void;
+  setDndTo: (v: string) => void;
+  setPriorityContacts: (v: string) => void;
   chats: any[];
   setChats: (updater: any[] | ((prev: any[]) => any[])) => void;
   forwardMessage: (message: any, targetChatId: string) => void;
@@ -171,6 +232,7 @@ export interface AppState {
   updateCompanyField: (field: string, value: any) => void;
   loadCompanySettings: () => Promise<void>;
   saveCompanySettings: () => Promise<void>;
+  createCompany: (name: string, displayName: string) => Promise<void>;
   hideWhenOfficeOnly: boolean;
   pendingInvite: InviteQRPayload | null;
   setCompanyId: (id: string | null) => void;
@@ -205,6 +267,28 @@ export const useAppStore = create<AppState>((set) => ({
   allowForwarding: savedPrivacy.allowForwarding ?? true,
   allowMetadata: savedPrivacy.allowMetadata ?? true,
   forwardCountLimit: savedPrivacy.forwardCountLimit ?? 3,
+  notifications: savedPrivacy.notifications ?? true,
+  twoFactor: savedPrivacy.twoFactor ?? false,
+  proxyEnabled: savedPrivacy.proxy ?? false,
+  spamFilter: savedPrivacy.spamFilter ?? true,
+  pwaBanner: savedPrivacy.pwaBanner ?? true,
+  deadMansSwitch: savedPrivacy.deadMansSwitch ?? '6 months',
+  mediaAutoLoad: savedPrivacy.mediaAutoLoad ?? 'Wi-Fi',
+  selfDestructDefault: savedPrivacy.selfDestructDefault ?? 'Off',
+  obfuscationMode: savedPrivacy.obfuscationMode ?? 'aesgcm',
+  obfuscationEnabled: savedPrivacy.obfuscationEnabled ?? true,
+  proxyUrl: savedPrivacy.proxyUrl ?? '',
+  torBridge: savedPrivacy.torBridge ?? 'None',
+  relayBackend: savedPrivacy.relayBackend ?? 'direct',
+  autoReconnect: savedPrivacy.autoReconnect ?? true,
+  p2pMesh: savedPrivacy.p2pMesh ?? true,
+  visNumber: savedPrivacy.visNumber ?? 'Nobody',
+  visActivity: savedPrivacy.visActivity ?? 'My contacts',
+  uiAnimations: savedPrivacy.uiAnimations ?? true,
+  dndEnabled: savedPrivacy.dndEnabled ?? false,
+  dndFrom: savedPrivacy.dndFrom ?? '22:00',
+  dndTo: savedPrivacy.dndTo ?? '08:00',
+  priorityContacts: savedPrivacy.priorityContacts ?? '',
   contactReadReceipts: {},
   toggleContactReadReceipt: (chatId, enabled) => set((state) => ({
     contactReadReceipts: { ...state.contactReadReceipts, [String(chatId)]: enabled }
@@ -281,17 +365,99 @@ export const useAppStore = create<AppState>((set) => ({
   })),
   setSoundEnabled: (enabled) => {
     set({ soundEnabled: enabled });
-    try {
-      const prev = JSON.parse(localStorage.getItem('mess_privacy_settings_v2') || '{}');
-      localStorage.setItem('mess_privacy_settings_v2', JSON.stringify({ ...prev, soundEnabled: enabled }));
-    } catch {}
+    persistSetting('soundEnabled', enabled);
   },
   setSoundVolume: (volume) => {
     set({ soundVolume: volume });
-    try {
-      const prev = JSON.parse(localStorage.getItem('mess_privacy_settings_v2') || '{}');
-      localStorage.setItem('mess_privacy_settings_v2', JSON.stringify({ ...prev, soundVolume: volume }));
-    } catch {}
+    persistSetting('soundVolume', volume);
+  },
+  setNotifications: (v) => {
+    set({ notifications: v });
+    persistSetting('notifications', v);
+  },
+  setTwoFactor: (v) => {
+    set({ twoFactor: v });
+    persistSetting('twoFactor', v);
+  },
+  setProxyEnabled: (v) => {
+    set({ proxyEnabled: v });
+    persistSetting('proxyEnabled', v);
+  },
+  setSpamFilter: (v) => {
+    set({ spamFilter: v });
+    persistSetting('spamFilter', v);
+  },
+  setPwaBanner: (v) => {
+    set({ pwaBanner: v });
+    persistSetting('pwaBanner', v);
+  },
+  setDeadMansSwitch: (v) => {
+    set({ deadMansSwitch: v });
+    persistSetting('deadMansSwitch', v);
+  },
+  setMediaAutoLoad: (v) => {
+    set({ mediaAutoLoad: v });
+    persistSetting('mediaAutoLoad', v);
+  },
+  setSelfDestructDefault: (v) => {
+    set({ selfDestructDefault: v });
+    persistSetting('selfDestructDefault', v);
+  },
+  setObfuscationMode: (v) => {
+    set({ obfuscationMode: v });
+    persistSetting('obfuscationMode', v);
+  },
+  setObfuscationEnabled: (v) => {
+    set({ obfuscationEnabled: v });
+    persistSetting('obfuscationEnabled', v);
+  },
+  setProxyUrl: (v) => {
+    set({ proxyUrl: v });
+    persistSetting('proxyUrl', v);
+  },
+  setTorBridge: (v) => {
+    set({ torBridge: v });
+    persistSetting('torBridge', v);
+  },
+  setRelayBackend: (v) => {
+    set({ relayBackend: v });
+    persistSetting('relayBackend', v);
+  },
+  setAutoReconnect: (v) => {
+    set({ autoReconnect: v });
+    persistSetting('autoReconnect', v);
+  },
+  setP2pMesh: (v) => {
+    set({ p2pMesh: v });
+    persistSetting('p2pMesh', v);
+  },
+  setVisNumber: (v) => {
+    set({ visNumber: v });
+    persistSetting('visNumber', v);
+  },
+  setVisActivity: (v) => {
+    set({ visActivity: v });
+    persistSetting('visActivity', v);
+  },
+  setUiAnimations: (v) => {
+    set({ uiAnimations: v });
+    persistSetting('uiAnimations', v);
+  },
+  setDndEnabled: (v) => {
+    set({ dndEnabled: v });
+    persistSetting('dndEnabled', v);
+  },
+  setDndFrom: (v) => {
+    set({ dndFrom: v });
+    persistSetting('dndFrom', v);
+  },
+  setDndTo: (v) => {
+    set({ dndTo: v });
+    persistSetting('dndTo', v);
+  },
+  setPriorityContacts: (v) => {
+    set({ priorityContacts: v });
+    persistSetting('priorityContacts', v);
   },
   setRadialDnd: (dnd) => set({ radialDnd: dnd }),
   setRadialProxy: (proxy) => set({ radialProxy: proxy }),
@@ -416,10 +582,16 @@ export const useAppStore = create<AppState>((set) => ({
   setSyncLastTimestamp: (ts) => set({ syncLastTimestamp: ts }),
   setTotpSecret: (secret) => set({ totpSecret: secret }),
   setPairingQrData: (data) => set({ pairingQrData: data }),
-  userProfile: { name: 'User', bio: '', avatar: '', fields: [] },
-  setUserProfile: (profile) => set((s: any) => ({
-    userProfile: { ...s.userProfile, ...profile }
-  })),
+  userProfile: savedUserProfile ? { ...savedUserProfile, status: savedUserProfile.status ?? '' } : { name: 'User', bio: '', avatar: '', fields: [], status: '' },
+  setUserProfile: (profile) => {
+    set((s: any) => ({
+      userProfile: { ...s.userProfile, ...profile }
+    }));
+    try {
+      const current = useAppStore.getState().userProfile;
+      localStorage.setItem('mess_user_profile', JSON.stringify(current));
+    } catch {}
+  },
   companyId: null,
   companyChannels: [],
   companyMessages: [],
@@ -454,6 +626,27 @@ export const useAppStore = create<AppState>((set) => ({
     if (current) {
       await persistSettings(current as unknown as Record<string, string>);
     }
+  },
+  createCompany: async (name, displayName) => {
+    const companyId = generateCompanyId();
+    const user = await createCompanyUser(displayName, companyId, 'admin');
+    const members: CompanyMember[] = [{
+      userId: user.userId,
+      displayName: user.displayName,
+      role: 'admin',
+      publicKey: btoa(String.fromCharCode(...user.publicKey)),
+      joinedAt: Date.now(),
+      lastActive: Date.now(),
+      online: true,
+    }];
+    const settings = { name, phone: '', email: '', address: '', website: '', taxId: '' };
+    set({
+      companyId,
+      companySettings: settings,
+      companyMembers: members,
+    });
+    await idb.saveCompanySettings(settings as unknown as Record<string, string>);
+    await saveMembers(members);
   },
   setOnlineStatus: (status) => set({ onlineStatus: status, isOnline: status }),
   setHideWhenOfficeOnly: (hide) => {

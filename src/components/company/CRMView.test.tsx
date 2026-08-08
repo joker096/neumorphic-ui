@@ -2,7 +2,16 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
-vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t: (k: string) => k }) }));
+vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t: (key: string, fallback?: string) => {
+  const map: Record<string, string> = {
+    'crm.all': 'All',
+    'crm.byCompany': 'By Company',
+    'crm.byTag': 'By Tag',
+    'crm.searchContacts': 'Search contacts...',
+    'crm.noContactsFound': 'No contacts found',
+  };
+  return map[key] || fallback || key;
+}})}));
 
 vi.mock('../../store', () => ({ useAppStore: vi.fn(() => ({})) }));
 
@@ -28,14 +37,14 @@ const defaultProps = {
 describe('CRMView', () => {
   it('renders tabs', () => {
     render(<CRMView {...defaultProps} />);
-    expect(screen.getByText('crm.all')).toBeInTheDocument();
-    expect(screen.getByText('crm.byCompany')).toBeInTheDocument();
-    expect(screen.getByText('crm.byTag')).toBeInTheDocument();
+    expect(screen.getByText('All')).toBeInTheDocument();
+    expect(screen.getByText('By Company')).toBeInTheDocument();
+    expect(screen.getByText('By Tag')).toBeInTheDocument();
   });
 
   it('renders search input', () => {
     render(<CRMView {...defaultProps} />);
-    expect(screen.getByPlaceholderText('crm.searchContacts')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search contacts...')).toBeInTheDocument();
   });
 
   it('renders all contacts by default', () => {

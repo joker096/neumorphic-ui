@@ -9,7 +9,8 @@ import { ChannelList } from './company/ChannelList';
 import { CompanySettingsView } from './company/CompanySettingsView';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, QrCode } from 'lucide-react';
+import { X } from 'lucide-react';
+import { QrCode } from './QrCode';
 
 const closeBtn = (onClick: () => void) => (
   <button
@@ -163,8 +164,8 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
               {closeBtn(() => setShowInvite(false))}
               <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">{t('company.invite') || 'Invite Members'}</h3>
               <p className="text-sm text-center mb-4 text-[var(--text-secondary)]">{t('company.inviteDescription') || 'Share this QR code with team members'}</p>
-              <div className={`w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-white"}`}>
-                  <QrCode size="100%" strokeWidth={1} className={isDark ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"} />
+              <div className={`w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
+                  <QrCode data={companyId || MOCK_COMPANY_ID} size={180} />
               </div>
               <div className="w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset">
                 <div className="font-mono text-xs tracking-widest break-all text-center text-[var(--accent)]">

@@ -1,5 +1,5 @@
 import React from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { VideoPlayerOverlay } from "./chat/VideoPlayerOverlay";
 import { PhotoViewerOverlay } from "./PhotoViewer";
 
@@ -9,7 +9,7 @@ import { StickerPicker } from "./chat/StickerPicker";
 import { FormattedText } from "./chat-preview/FormattedText";
 import { Tooltip } from "./Tooltip";
 import { useI18n } from "../lib/i18n";
-import { VirtualizedMessageList } from "./chat/VirtualizedMessageList";
+import { ChatMessageList } from "./ChatMessageList";
 import { ContactProfileModal } from "./ContactProfileModal";
 import type { ContactProfile } from "./ContactProfileModal";
 import { ChatHeader } from "./chat-preview/ChatHeader";
@@ -20,7 +20,6 @@ import { InputFooter } from "./chat-preview/InputFooter";
 import { SavedMessagesPanel } from "./chat-preview/SavedMessagesPanel";
 import { ChatMediaPanel } from "./chat-preview/ChatMediaPanel";
 import { ChatInputArea } from "./chat-preview/ChatInputArea";
-import { ChatMessage } from "./chat-preview/ChatMessage";
 import { ScheduledMessages } from "./chat-preview/ScheduledMessages";
 import { JumpToBottomButton } from "./chat-preview/JumpToBottomButton";
 import { useChatPreviewState } from "../hooks/useChatPreviewState";
@@ -219,48 +218,34 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         t={t}
       />
 
-      <VirtualizedMessageList
-        ref={msgListRef}
-        items={flatItems}
-        estimateSize={72}
-        overscan={3}
+      <ChatMessageList
+        msgListRef={msgListRef}
+        flatItems={flatItems}
+        isNearBottom={isNearBottom}
         isDark={isDark}
-        className="p-4 sm:p-6"
-        stickToBottom={isNearBottom}
-        onScrollPosition={(nearBottom) => {
-          setIsNearBottom(nearBottom)
-        }}
-      >
-        {(msg: any) => (
-          <ChatMessage
-            msg={msg}
-            isMe={msg.sender === "me"}
-            isDark={isDark}
-            isChannel={chat.isChannel}
-            chat={chat}
-            stealthMode={stealthMode}
-            deliveryReceipts={deliveryReceipts}
-            readReceipts={readReceipts}
-            chatSavedMessages={chatSavedMessages}
-            searchQuery={searchQuery}
-            swipeReplyId={swipeReplyId}
-            activeReactionPicker={activeReactionPicker}
-            theme={theme}
-            onReply={(m) => onReply?.(m)}
-            onToggleSavedMessage={(c, m) => onToggleSavedMessage?.(c, m)}
-            onSetActivePhotoUrl={setActivePhotoUrl}
-            onSetPhotoOpen={setPhotoOpen}
-            onSetActiveReactionPicker={setActiveReactionPicker}
-            onSwipeReplyId={setSwipeReplyId}
-            onSetVideoOpen={setVideoOpen}
-            onSetShowComments={setShowComments}
-            onSetActivePostId={setActivePostId}
-            onSetBounceMsgId={setBounceMsgId}
-            onReactionMessage={handleReactionMessage}
-            onAction={onAction}
-          />
-        )}
-      </VirtualizedMessageList>
+        chat={chat}
+        stealthMode={stealthMode}
+        deliveryReceipts={deliveryReceipts}
+        readReceipts={readReceipts}
+        chatSavedMessages={chatSavedMessages}
+        searchQuery={searchQuery}
+        swipeReplyId={swipeReplyId}
+        activeReactionPicker={activeReactionPicker}
+        theme={theme}
+        onReply={(m) => onReply?.(m)}
+        onToggleSavedMessage={(c, m) => onToggleSavedMessage?.(c, m)}
+        onSetActivePhotoUrl={setActivePhotoUrl}
+        onSetPhotoOpen={setPhotoOpen}
+        onSetActiveReactionPicker={setActiveReactionPicker}
+        onSwipeReplyId={setSwipeReplyId}
+        onSetVideoOpen={setVideoOpen}
+        onSetShowComments={setShowComments}
+        onSetActivePostId={setActivePostId}
+        onSetBounceMsgId={setBounceMsgId}
+        onReactionMessage={handleReactionMessage}
+        onAction={onAction}
+        onScrollPosition={(nearBottom) => { setIsNearBottom(nearBottom); }}
+      />
 
       <JumpToBottomButton
         isNearBottom={isNearBottom}
@@ -310,7 +295,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
 
       <VideoPlayerOverlay open={videoOpen} onClose={() => setVideoOpen(false)} theme={theme} />
       <PhotoViewerOverlay open={photoOpen} url={activePhotoUrl} onClose={() => setPhotoOpen(false)} theme={theme} />
-      <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} postKey="" channelChatId={"test_channel"} />
+      <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} postKey="" channelChatId={chat?.id ? String(chat.id) : ""} />
       <SavedMessagesPanel show={showSavedPanel} isDark={isDark} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(chat, msg) => onToggleSavedMessage?.(chat, msg)} t={t} />
       <ContactProfileModal
         contact={selectedContact}
@@ -322,7 +307,10 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onDelete={() => setSelectedContact(null)}
         onEdit={() => { if (selectedContact) setEditingContact(selectedContact); setSelectedContact(null); }}
         onBlock={() => setSelectedContact(null)}
-        onToggleFavorite={(id, isFavorite) => {}}
+        onToggleFavorite={(id, isFavorite) => {
+          setSelectedContact(prev => prev && prev.id === id ? { ...prev, isFavorite } : prev);
+          if (chat) onUpdateChat?.({ ...chat, isFavorite });
+        }}
       />
     </motion.div>
   );

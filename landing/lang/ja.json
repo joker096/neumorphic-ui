@@ -404,5 +404,14 @@
   "dl.isteps": "1. Safari でサイトを開く\\n2. 「共有」をタップ (□↑)\\n3. 「ホーム画面に追加」",
   "foot.docs": "ドキュメント",
   "foot.privacy": "プライバシー",
-  "foot.contact": "お問い合わせ"
+  "foot.contact": "お問い合わせ",
+  "nav.comparison": "比較",
+  "hero.title": "<b>Mess&Anger</b> のご紹介",
+  "stats.label": "数字で見る",
+  "stats.phases": "アーキテクチャフェーズ（Reticulum 由来）",
+  "stats.tests": "合格したテスト",
+  "feat.desc": "すべての機能にプライバシーとセキュリティが組み込まれています。無効化する切替はありません。使いやすさと匿名性の二者択一は不要です。",
+  "cmp.r8": "ポスト量子保護なし",
+  "skip.main": "コンテンツへスキップ",
+  "offline.banner": "オフラインです。一部の機能が利用できない場合があります。"
 }

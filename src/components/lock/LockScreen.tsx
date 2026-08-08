@@ -106,38 +106,42 @@ export function LockScreen({
         </p>
         {lockBlockedUntil === Infinity ? (
           <div className="text-center mb-4">
-            <p className="text-red-500 font-bold text-sm">Too many attempts</p>
-            <p className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>App is permanently locked. Recovery required.</p>
+            <p className="text-red-500 font-bold text-sm">{t('lock.tooManyAttempts')}</p>
+            <p className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('lock.permanentlyLocked')}</p>
           </div>
         ) : lockBlockTimer > 0 ? (
           <div className="text-center mb-4">
-            <p className="text-red-500 font-bold text-sm">Locked</p>
-            <p className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>Try again in {lockBlockTimer} seconds</p>
+            <p className="text-red-500 font-bold text-sm">{t('lock.locked')}</p>
+            <p className={`text-xs mt-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('lock.tryAgainIn', { seconds: lockBlockTimer })}</p>
           </div>
         ) : (
           <form onSubmit={handleUnlock} className="w-full">
+            <label htmlFor="lock-pin-input" className="sr-only">{t("lock.enterPin") || "PIN"}</label>
             <input
+              id="lock-pin-input"
               type="password"
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value)}
               autoFocus
-              autoComplete="off"
+              autoComplete="current-password"
               inputMode="numeric"
-              className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 focus:outline-none transition-colors ${
+              aria-invalid={pinError}
+              aria-describedby={pinError ? "lock-pin-error" : undefined}
+              className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors ${
                 isDark
-                  ? "bg-[var(--bg-secondary)] border-[var(--border-color)] focus:border-orange-500/50"
-                  : "bg-[var(--bg-primary)] border-[var(--border-color)] focus:border-orange-500/50"
+                  ? "bg-[var(--bg-secondary)] border-[var(--border-color)]"
+                  : "bg-[var(--bg-primary)] border-[var(--border-color)]"
               } ${pinError ? "border-red-500 text-red-500" : ""}`}
               placeholder="****"
             />
             {pinError && (
-              <p className={`text-xs text-center mb-3 ${isDark ? "text-red-400" : "text-red-500"}`}>
-                Wrong PIN. {lockAttempts >= 2 ? `${3 - Math.min(lockAttempts, 3)} attempt(s) remaining` : `${3 - lockAttempts} attempt(s) remaining`}
+              <p id="lock-pin-error" role="alert" className={`text-xs text-center mb-3 ${isDark ? "text-red-400" : "text-red-500"}`}>
+                {t('lock.wrongPin', { remaining: lockAttempts >= 2 ? 3 - Math.min(lockAttempts, 3) : 3 - lockAttempts })}
               </p>
             )}
             <button
               type="submit"
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] active:scale-95 ${
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 ${
                 isDark
                   ? "bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--text-primary)] shadow-lg"
                   : "bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] shadow-lg"

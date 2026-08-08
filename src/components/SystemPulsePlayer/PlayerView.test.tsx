@@ -9,6 +9,21 @@ vi.mock('motion/react', () => ({
 
 vi.mock('lucide-react', () => ({ SkipBack: 'div', SkipForward: 'div', Play: 'div', Pause: 'div', List: 'div', Radio: 'div' }));
 
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => {
+      const map: Record<string, string> = {
+        'systemPlayer.noTracks': 'No Tracks',
+        'systemPlayer.radioLink': 'RADIO LINK',
+        'systemPlayer.localTrack': 'LOCAL TRACK',
+        'systemPlayer.previousTrack': 'Previous Track',
+        'systemPlayer.nextTrack': 'Next Track',
+      };
+      return map[key] ?? key;
+    },
+  }),
+}));
+
 import { PlayerView } from './PlayerView';
 
 const mockTrack = { id: '1', name: 'Test Track', url: '', time: '3:42', file: null };

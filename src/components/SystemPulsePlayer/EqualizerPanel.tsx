@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Volume2, VolumeX, ArrowLeft } from "lucide-react";
+import { useI18n } from "../../lib/i18n";
 import type { EQPreset } from "./utils";
 
 type EqualizerPanelProps = {
@@ -27,6 +28,7 @@ export const EqualizerPanel = ({
   showEq, setShowEq, currentPreset, setCurrentPreset, savedPresets, setSavedPresets,
   applyPreset, savePreset, deletePreset
 }: EqualizerPanelProps) => {
+  const { t } = useI18n();
   const resetEq = () => setEqGains([0, 0, 0, 0, 0]);
 
   return (
@@ -43,19 +45,19 @@ export const EqualizerPanel = ({
           tabIndex={0}
           onClick={() => setShowEq(false)}
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowEq(false); }}
-          className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[#e6d6b8] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[var(--text-warm-dark)] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </div>
-        <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>Audio Settings</span>
+        <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{t('systemPlayer.audioSettings')}</span>
         <div className="w-10" />
       </div>
 
       <div className="flex-1 flex flex-col gap-6 px-2 overflow-y-auto">
         <div>
-          <div className={`text-[11px] font-bold tracking-widest uppercase mb-3 ${textColor} opacity-70`}>Master Volume</div>
+          <div className={`text-[11px] font-bold tracking-widest uppercase mb-3 ${textColor} opacity-70`}>{t('systemPlayer.masterVolume')}</div>
           <div className="flex items-center gap-4">
-            <div className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title="Volume Min" onClick={() => setVolume(0)}>
+            <div className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title="Volume Min" onClick={() => setVolume(0)}>
               <VolumeX size={16} className={textColor} />
             </div>
             <input
@@ -68,14 +70,14 @@ export const EqualizerPanel = ({
                 background: `linear-gradient(to right, ${isRadioMode ? (isDark ? '#5cc25c' : '#2cab50') : (isDark ? '#e2845c' : '#ab502c')} ${volume}%, ${isDark ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)'} ${volume}%)`
               }}
             />
-            <div className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title="Volume Max" onClick={() => setVolume(100)}>
+            <div className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title="Volume Max" onClick={() => setVolume(100)}>
               <Volume2 size={16} className={textColor} />
             </div>
           </div>
         </div>
 
         <div className="mt-4">
-          <div className={`text-[11px] font-bold tracking-widest uppercase mb-6 ${textColor} opacity-70`}>5-Band Equalizer</div>
+          <div className={`text-[11px] font-bold tracking-widest uppercase mb-6 ${textColor} opacity-70`}>{t('systemPlayer.eq5Band')}</div>
           <div className="flex items-end justify-between h-[150px] px-2 gap-2">
             {[60, 230, 910, "3.6k", "14k"].map((freq, i) => (
               <div key={i} className="flex flex-col items-center gap-2 h-full justify-end">

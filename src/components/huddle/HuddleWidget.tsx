@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Mic, MicOff, PhoneOff } from 'lucide-react';
 import { callManager } from '../../lib/call/CallManager';
+import { useI18n } from '../../lib/i18n';
 import type { CallEventType } from '../../lib/call/types';
 
 interface HuddleWidgetProps {
@@ -10,6 +11,7 @@ interface HuddleWidgetProps {
 }
 
 export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) => {
+  const { t } = useI18n();
   const [isInHuddle, setIsInHuddle] = React.useState(false);
   const [isMuted, setIsMuted] = React.useState(false);
   const [participants, setParticipants] = React.useState<string[]>([]);
@@ -67,15 +69,15 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
               <Mic size={18} className="text-[var(--text-primary)]" />
             </div>
             <div>
-              <p className="text-[var(--text-primary)] font-medium text-sm">Huddle</p>
-              <p className="text-white/50 text-xs">Voice chat</p>
+              <p className="text-[var(--text-primary)] font-medium text-sm">{t('huddle.title')}</p>
+              <p className="text-white/50 text-xs">{t('huddle.voiceChat')}</p>
             </div>
           </div>
           <button
             onClick={handleJoin}
             className="px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-[var(--text-primary)] text-sm font-medium"
           >
-            Join
+            {t('huddle.join')}
           </button>
         </div>
       </div>
@@ -90,8 +92,8 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
             <Mic size={18} className="text-[var(--text-primary)]" />
           </div>
           <div>
-            <p className="text-[var(--text-primary)] font-medium text-sm">Huddle Active</p>
-            <p className="text-white/50 text-xs">{participants.length + 1} participants</p>
+            <p className="text-[var(--text-primary)] font-medium text-sm">{t('huddle.active')}</p>
+            <p className="text-white/50 text-xs">{t('huddle.participants', { count: participants.length + 1 })}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

@@ -3,6 +3,7 @@ import { Bot, Search } from "lucide-react";
 import { useAppStore } from "../store";
 import { SearchInput } from "./ui/SearchInput";
 import { OnboardingPanel } from "./ui/OnboardingPanel";
+import { InviteQRModal } from "./ui/InviteQRModal";
 import { ChatListItem, AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader } from "./chat-preview";
 
 type Translate = (key: string, options?: any) => string;
@@ -63,6 +64,7 @@ export const ChatListView = ({
   const { pinChat, setChats } = useAppStore();
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   const pinnedChats = useMemo(() => filteredChats.filter((c: any) => c.pinned), [filteredChats]);
   const regularChats = useMemo(() => filteredChats.filter((c: any) => !c.pinned), [filteredChats]);
@@ -115,7 +117,7 @@ export const ChatListView = ({
         setShowCreateChannel={setShowCreateChannel}
         setShowCreateBot={setShowCreateBot}
       />
-      <ViewTabs view={view} isDark={isDark} onSelect={(id) => setView(id as any)} t={t} />
+      <ViewTabs view={view} isDark={isDark} onSelect={setView} t={t} />
  
       {view === "stories" && <AvatarRow theme={theme} onStoryClick={setActiveStory} t={t} />}
 
@@ -250,7 +252,7 @@ export const ChatListView = ({
                    </div>
                    <div className="flex-1">
                       <h4 className="font-bold text-sm tracking-wide">{b.name}</h4>
-                      <p className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>Token: {b.token.substring(0, 15)}...</p>
+                       <p className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.botTokenMask')}</p>
                    </div>
                 </div>
              </div>
@@ -270,14 +272,23 @@ export const ChatListView = ({
            <Search size={24} className="mb-2" />
            <span className="text-[13px]">{t("chat.noResults")}</span>
          </div>
-       ) : view === "chats" ? (
-         <OnboardingPanel
-           isDark={isDark}
-           t={t}
-           onStartChat={() => setView("contacts")}
-           onInvite={() => {}}
-         />
-       ) : view === "channels" ? (
+        ) : view === "chats" ? (
+          <>
+            <OnboardingPanel
+              isDark={isDark}
+              t={t}
+              onStartChat={() => setView("contacts")}
+              onInvite={() => setShowInviteModal(true)}
+            />
+            <InviteQRModal
+              isOpen={showInviteModal}
+              onClose={() => setShowInviteModal(false)}
+              inviteText={t("onboarding.inviteText")}
+              isDark={isDark}
+              t={t}
+            />
+          </>
+        ) : view === "channels" ? (
          <OnboardingPanel
            isDark={isDark}
            t={t}

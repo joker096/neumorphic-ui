@@ -1,13 +1,7 @@
 import { lazy, Suspense, type ComponentType } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 
-const LandingPage = lazy(() => import("../landing/LandingPage").then(m => ({ default: m.LandingPage })));
-const SystemPulsePlayer = lazy(() => import("../SystemPulsePlayer/SystemPulsePlayer").then(m => ({ default: m.SystemPulsePlayer })));
-const MeshRadar = lazy(() => import("../MeshRadar").then(m => ({ default: m.MeshRadar })));
-const CallLogView = lazy(() => import("../call/CallLogView").then(m => ({ default: m.CallLogView })));
-const Dialpad = lazy(() => import("../Dialpad").then(m => ({ default: m.Dialpad })));
 const SettingsView = lazy(() => import("../SettingsView").then(m => ({ default: m.SettingsView })));
-const RecordingsScreen = lazy(() => import("../RecordingsScreen").then(m => ({ default: m.RecordingsScreen })));
 const ContactsView = lazy(() => import("../ContactsView").then(m => ({ default: m.ContactsView })));
 const CompanyContactsView = lazy(() => import("../CompanyContactsView").then(m => ({ default: m.CompanyContactsView })));
 
@@ -65,73 +59,10 @@ export const FeatureViews = ({
   const { theme, setTheme } = useTheme();
 
   switch (view) {
-    case "hub":
-      return (
-        <Suspense fallback={<Loader />}>
-          <LandingPage isDark={theme === 'dark'} onGetStarted={() => setView('chats')} />
-        </Suspense>
-      );
-    case "pulse":
-      return (
-        <Suspense fallback={<Loader />}>
-          <SystemPulsePlayer theme={theme} />
-        </Suspense>
-      );
-    case "radar":
-      return (
-        <Suspense fallback={<Loader />}>
-          <MeshRadar theme={theme} />
-        </Suspense>
-      );
-    case "calls":
-      return (
-        <Suspense fallback={<Loader />}>
-          <div className="w-full flex-1 flex flex-col md:flex-row gap-0 md:gap-4 overflow-hidden">
-            <div className="flex-1 flex flex-col overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] min-h-0">
-              <CallLogView theme={theme} onCall={(name) => onCall(name)} />
-            </div>
-            <div className="shrink-0 md:w-[320px] lg:w-[360px] border-t md:border-t-0 md:border-l border-[var(--border-color)] bg-[var(--bg-tertiary)] rounded-2xl overflow-hidden h-full">
-              <Dialpad
-                theme={theme}
-                contacts={contacts}
-                showContactPicker={showContactPicker}
-                setShowContactPicker={setShowContactPicker}
-                setEditingContact={setEditingContact}
-                onCall={onCall}
-                onVideoCall={onVideoCall}
-                onMessage={(name, color) => {
-                  onMessage(name, color);
-                  onNavigate?.("chats");
-                }}
-              />
-            </div>
-          </div>
-        </Suspense>
-      );
     case "settings":
-      if (subView === "recordings") {
-        return (
-          <Suspense fallback={<Loader />}>
-            <RecordingsScreen theme={theme} onBack={() => setSubView?.(null)} />
-          </Suspense>
-        );
-      }
-      if (subView === "radar") {
-        return (
-          <Suspense fallback={<Loader />}>
-            <MeshRadar theme={theme} />
-          </Suspense>
-        );
-      }
       return (
         <Suspense fallback={<Loader />}>
           <SettingsView theme={theme} setTheme={setTheme} setSubView={setSubView} fontSize={fontSize} setFontSize={setFontSize} />
-        </Suspense>
-      );
-    case "recordings":
-      return (
-        <Suspense fallback={<Loader />}>
-          <RecordingsScreen theme={theme} onBack={() => goBack?.()} />
         </Suspense>
       );
     case "contacts":

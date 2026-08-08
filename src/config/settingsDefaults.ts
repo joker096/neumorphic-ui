@@ -11,7 +11,7 @@ export const DEFAULTS = {
   deadMansSwitch: '6 months',
   mediaAutoLoad: 'Wi-Fi',
   selfDestructDefault: 'Off',
-  obfuscationMode: 'xorshroud',
+  obfuscationMode: 'aesgcm',
   obfuscationEnabled: true,
   proxyUrl: '',
   torBridge: 'None',
@@ -54,4 +54,9 @@ export const KEYS = {
   DND_FROM: 'app_dnd_from',
   DND_TO: 'app_dnd_to',
   PRIORITY_CONTACTS: 'app_priority_contacts',
+};
+
+export const APP_INFO = {
+  BUILD_DATE: '31.05.2026, 11:43',
+  VERSION: '1.0',
 };

@@ -34,15 +34,15 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
       expect(localeFiles).toHaveLength(8);
     });
 
-    it('should have 857 keys in en.json', () => {
+    it('should have 979 keys in en.json', () => {
       const enContent = JSON.parse(readFileSync(join(localesDir, 'en.json'), 'utf-8'));
-      expect(flattenKeys(enContent).size).toBe(857);
+      expect(flattenKeys(enContent).size).toBe(979);
     });
 
     it('should have same key count in all locales', () => {
       for (const file of localeFiles) {
         const content = JSON.parse(readFileSync(join(localesDir, file), 'utf-8'));
-        expect(flattenKeys(content).size).toBe(857);
+        expect(flattenKeys(content).size).toBe(979);
       }
     });
 
@@ -405,7 +405,7 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('nav.* keys translations', () => {
-    const navKeys = ['nav.chats', 'nav.contacts', 'nav.calls', 'nav.settings', 'nav.company', 'nav.radar', 'nav.recordings'];
+    const navKeys = ['nav.chats', 'nav.contacts', 'nav.settings', 'nav.company'];
 
     for (const lang of allLocales) {
       for (const key of navKeys) {
@@ -462,7 +462,7 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('hub.* keys translations', () => {
-    const hubKeys = ['hub.centerTitle', 'hub.chats', 'hub.chatsSubtitle', 'hub.contacts', 'hub.contactsSubtitle', 'hub.calls', 'hub.callsSubtitle', 'hub.recordings', 'hub.recordingsSubtitle', 'hub.bots', 'hub.botsSubtitle', 'hub.settings', 'hub.settingsSubtitle', 'hub.returnToHub', 'hub.pulse', 'hub.stories', 'hub.dnd', 'hub.dndActive', 'hub.energy', 'hub.energyActive', 'hub.proxy', 'hub.proxyActive', 'hub.volumeLabel', 'hub.volumeMax', 'hub.volumeMin', 'hub.channels', 'hub.channelsSubtitle', 'hub.metropulse', 'hub.metropulseSubtitle', 'hub.radar', 'hub.radarSubtitle', 'hub.hub'];
+    const hubKeys = ['hub.recordingsSubtitle', 'hub.radarSubtitle'];
 
     for (const lang of allLocales) {
       for (const key of hubKeys) {

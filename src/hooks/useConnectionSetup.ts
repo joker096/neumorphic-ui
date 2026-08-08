@@ -8,19 +8,26 @@ export function useConnectionSetup() {
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error'>('disconnected');
   const [regionBlocked, setRegionBlocked] = useState(false);
   const managerRef = useRef<SignallingManager | null>(null);
+  const relayBackend = useAppStore(state => state.relayBackend);
+  const setConnectionStatusStore = useAppStore(state => state.setConnectionStatus);
+  const setTransportBackendStore = useAppStore(state => state.setTransportBackend);
+  const setLatencyStore = useAppStore(state => state.setLatency);
+  const setBlockedBackendsStore = useAppStore(state => state.setBlockedBackends);
+  const setRegionBlockedStore = useAppStore(state => state.setRegionBlocked);
+  const autoReconnect = useAppStore(state => state.autoReconnect);
 
   const syncToStore = (mgr: SignallingManager, status: string) => {
-    useAppStore.getState().setConnectionStatus(status as any);
-    useAppStore.getState().setTransportBackend(mgr.getBackend());
-    useAppStore.getState().setLatency(mgr.getLatency());
+    setConnectionStatusStore(status as any);
+    setTransportBackendStore(mgr.getBackend());
+    setLatencyStore(mgr.getLatency());
     if (status === 'blocked' || status === 'error') {
-      useAppStore.getState().setBlockedBackends(['all']);
+      setBlockedBackendsStore(['all']);
     }
   };
 
   useEffect(() => {
-    const savedBackend = (localStorage.getItem('app_relay_backend') || 'direct') as TunnelBackend;
-    const mgr = new SignallingManager(SIGNALING_SEED_URLS, savedBackend);
+    const savedBackend = (relayBackend as TunnelBackend) || 'direct';
+    const mgr = new SignallingManager(SIGNALING_SEED_URLS, savedBackend, autoReconnect);
     managerRef.current = mgr;
 
     setConnectionStatus('connecting');
@@ -37,7 +44,7 @@ export function useConnectionSetup() {
 
     const unsub2 = mgr.onBlockedRegion((event) => {
       setRegionBlocked(true);
-      useAppStore.getState().setRegionBlocked(true);
+      setRegionBlockedStore(true);
     });
 
     return () => {
@@ -45,7 +52,7 @@ export function useConnectionSetup() {
       unsub1();
       unsub2();
     };
-  }, []);
+  }, [relayBackend]);
 
   return { connectionStatus, regionBlocked, managerRef };
 }

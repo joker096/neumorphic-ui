@@ -19,8 +19,8 @@ const baseProps: any = {
   msg: { id: 1, reactions: {} },
   isMe: false,
   activeReactionPicker: null,
-  setActiveReactionPicker: vi.fn(),
-  handleReaction: vi.fn(),
+  onSetActiveReactionPicker: vi.fn(),
+  onReactionMessage: vi.fn(),
 };
 
 describe('MessageReactions', () => {
@@ -51,35 +51,35 @@ describe('MessageReactions', () => {
         msg={{ id: 1, reactions: { '👍': 1 } }}
       />,
     );
-    const emojiButtons = document.querySelectorAll('[role="button"]');
+    const emojiButtons = document.querySelectorAll('button');
     expect(emojiButtons.length).toBeGreaterThanOrEqual(6);
   });
 
   it('calls handleReaction when reaction emoji is clicked', () => {
-    const handleReaction = vi.fn();
+    const onReactionMessage = vi.fn();
     render(
       <MessageReactions
         {...baseProps}
-        handleReaction={handleReaction}
+        onReactionMessage={onReactionMessage}
         msg={{ id: 1, reactions: { '👍': 1 } }}
       />,
     );
     fireEvent.click(screen.getByText('👍'));
-    expect(handleReaction).toHaveBeenCalledWith(1, '👍');
+    expect(onReactionMessage).toHaveBeenCalledWith(1, '👍');
   });
 
   it('toggles reaction picker when add button is clicked', () => {
-    const setActiveReactionPicker = vi.fn();
+    const onSetActiveReactionPicker = vi.fn();
     const { container } = render(
       <MessageReactions
         {...baseProps}
-        setActiveReactionPicker={setActiveReactionPicker}
+        onSetActiveReactionPicker={onSetActiveReactionPicker}
       />,
     );
     const plusBtn = container.querySelector('.lucide-plus')?.closest('div[cursor-pointer]') ||
       container.querySelector('[class*="cursor-pointer"]');
     fireEvent.click(plusBtn!);
-    expect(setActiveReactionPicker).toHaveBeenCalledWith(1);
+    expect(onSetActiveReactionPicker).toHaveBeenCalledWith(1);
   });
 
   it('renders tooltip for each reaction', () => {

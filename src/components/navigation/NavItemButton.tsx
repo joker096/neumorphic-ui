@@ -20,7 +20,7 @@ export const NavItemButton = React.memo(
     const isBottom = variant === "bottom";
 
     const buttonClassName = isBottom
-      ? `relative flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-0.5
+      ? `relative flex h-full min-w-0 flex-1 flex-col items-center justify-center
          transition-all duration-200 active:scale-[0.98] focus-visible:outline-none
          focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-0
          ${active
@@ -30,7 +30,7 @@ export const NavItemButton = React.memo(
            : isDark
              ? "text-gray-500 hover:text-gray-300"
              : "text-slate-400 hover:text-slate-600"}`
-      : `flex min-h-11 items-center gap-4 rounded-xl px-4 py-3 text-sm font-bold
+      : `flex min-h-11 items-center justify-center rounded-xl px-3 py-2.5
          transition-all duration-200 active:scale-[0.99] focus-visible:outline-none
          focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-0
          ${active
@@ -60,28 +60,34 @@ export const NavItemButton = React.memo(
         className={buttonClassName}
       >
         <div className="relative">
-          <Icon size={isBottom ? 22 : 20} strokeWidth={active ? 2.5 : 1.75} />
-          {showBadge && (
-            <div className={badgeClassName}>
-              <span className={isBottom ? "text-[9px]" : "text-[8px]"} aria-hidden="true">
-                {badgeCount > 99 ? "99+" : badgeCount}
-              </span>
-            </div>
+            <Icon size={isBottom ? 22 : 20} strokeWidth={active ? 2.5 : 1.75} />
+            {showBadge && (
+              <div className={badgeClassName}>
+                <span className={isBottom ? "text-[9px]" : "text-[8px]"} aria-hidden="true">
+                  {badgeCount > 99 ? "99+" : badgeCount}
+                </span>
+              </div>
+            )}
+          </div>
+          {isBottom && label && (
+            <span className={`mt-0.5 text-[10px] font-medium ${
+              active
+                ? isDark ? "text-orange-400" : "text-orange-600"
+                : isDark ? "text-gray-500" : "text-slate-500"
+            }`}>
+              {label}
+            </span>
           )}
-        </div>
-        <span className={isBottom ? `text-[11px] font-bold uppercase tracking-wider ${active ? "opacity-100" : "opacity-60"}` : ""}>
-          {label}
-        </span>
-        {isBottom && active && (
-          <motion.div
-            layoutId="bottomNavActive"
-            className={`absolute -top-0.5 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full ${
-              isDark ? "bg-orange-500" : "bg-orange-600"
-            }`}
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          />
-        )}
-      </button>
+          {isBottom && active && (
+           <motion.div
+             layoutId="bottomNavActive"
+             className={`absolute -top-0.5 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full ${
+               isDark ? "bg-orange-500" : "bg-orange-600"
+             }`}
+             transition={{ type: "spring", stiffness: 500, damping: 30 }}
+           />
+          )}
+       </button>
     );
   },
 );

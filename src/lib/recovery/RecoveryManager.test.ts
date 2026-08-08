@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
+vi.mock('idb-keyval', () => ({
+  get: vi.fn(),
+  set: vi.fn(),
+  del: vi.fn(),
+  clear: vi.fn(),
+  keys: vi.fn(),
+}))
+
 vi.mock('../deviceSecurity', () => ({
   deviceSecurity: {
     storeMasterKeyHex: vi.fn(),
@@ -8,6 +16,20 @@ vi.mock('../deviceSecurity', () => ({
 
 vi.mock('../../store', () => ({
   setSessionMasterKey: vi.fn(),
+}))
+
+vi.mock('../identity/masterKey', () => ({
+  generateMasterSeed: vi.fn(() => new Uint8Array(32)),
+  deriveKeysFromSeed: vi.fn(() => ({
+    seed: new Uint8Array(32),
+    aesKey: {},
+    aesKeyHex: 'mock-aes-key',
+    x25519Secret: new Uint8Array(32),
+    x25519Public: new Uint8Array(32),
+    ed25519Secret: new Uint8Array(32),
+    ed25519Public: new Uint8Array(32),
+  })),
+  storeMasterSeed: vi.fn(),
 }))
 
 describe('RecoveryManager security', () => {

@@ -115,3 +115,58 @@ Plus 9 route-level chunks (lazy `React.lazy()` imports) and 6 settings sub-chunk
 - `window.onerror` + `unhandledrejection` — global fallback, triggers fatal page after 10 in 5s
 - `installRuntimeGuards()` — called at bootstrap
 - Service Worker (`/sw.js`) — cache-first for static assets, network-first for API, offline.html fallback
+- IndexedDB (`idb-keyval`) — local persistence for chats, contacts, channels, bots
+- Background sync — re-queues offline messages when connectivity restored
+
+## Auth & Identity Flow
+
+```
+First Launch
+  → useIdentityAuth checks IndexedDB for master seed
+    → No seed → RegistrationScreen
+      → Generate master seed (HKDF-SHA256)
+      → Derive X25519 + Ed25519 + AES-256-GCM keys
+      → Generate BIP39 24-word recovery phrase
+      → Confirm phrase (PBKDF2 600k verification)
+      → Set optional PIN lock (PBKDF2 100k)
+      → Store seed in IndexedDB (encrypted with device-bound key)
+    → Seed exists → LoginScreen
+      → Enter recovery phrase
+      → Verify against stored PBKDF2 hash
+      → Restore keys from phrase entropy
+      → Set optional PIN lock
+```
+
+## Encryption Pipeline
+
+```
+Outbound Message
+  → Double Ratchet encrypt (AES-256-GCM)
+    → HKDF-SHA256 chain key derivation (proper HKDF, not PBKDF2)
+    → X25519 DH ratchet on each message
+  → HMAC-SHA256 authentication
+  → WebRTC DataChannel transport
+  → Optional traffic obfuscation
+
+Inbound Message
+  → WebRTC DataChannel receive
+  → HMAC-SHA256 verification
+  → Double Ratchet decrypt
+    → Skipped message key cache (LRU, max 1000 entries)
+    → Forward secrecy: new DH ratchet per message
+```
+
+## Network Topology
+
+```
+User A ←→ Relay Node ←→ User B
+         (WebRTC / WebSocket)
+          ↑ TURN: turn.neumorphic.local:3478
+          ↑ Signaling: wss://signaling1.messanger.app
+```
+
+## Known Limitations
+
+- Video player overlay uses placeholder image (Unsplash)
+- Push notifications require VAPID key configuration
+- Device-bound key may invalidate if screen resolution changes

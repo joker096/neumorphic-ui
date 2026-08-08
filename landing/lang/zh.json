@@ -404,5 +404,14 @@
   "dl.isteps": "1. 在 Safari 中打开网站\\n2. 点击「分享」(□↑)\\n3. 「添加到主屏幕」",
   "foot.docs": "文档",
   "foot.privacy": "隐私",
-  "foot.contact": "联系"
+  "foot.contact": "联系",
+  "nav.comparison": "对比",
+  "hero.title": "认识 <b>Mess&Anger</b>",
+  "stats.label": "数据一览",
+  "stats.phases": "架构阶段（受 Reticulum 启发）",
+  "stats.tests": "通过的测试",
+  "feat.desc": "每项功能都内置隐私与安全。没有可以关闭的开关——因为您不应在易用性与匿名性之间做选择。",
+  "cmp.r8": "无后量子保护",
+  "skip.main": "跳转到正文",
+  "offline.banner": "您已离线。部分功能可能无法使用。"
 }

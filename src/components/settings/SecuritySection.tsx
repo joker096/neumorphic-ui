@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Shield, Key, Lock, Unlock } from 'lucide-react';
-import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
+import { Shield, Key, Lock, Unlock, Timer, ShieldCheck } from 'lucide-react';
+import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from 'sonner';
 import { ConfirmModal } from './ConfirmModal';
@@ -21,6 +21,10 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
   const setAppLock = useAppStore(s => s.setAppLock);
   const appLockHashedPIN = useAppStore(s => s.appLockHashedPIN);
   const hasPin = appLockHashedPIN !== null;
+  const twoFactor = useAppStore(s => s.twoFactor);
+  const setTwoFactor = useAppStore(s => s.setTwoFactor);
+  const deadMansSwitch = useAppStore(s => s.deadMansSwitch);
+  const setDeadMansSwitch = useAppStore(s => s.setDeadMansSwitch);
 
   const handlePinSet = async () => {
     if (pinValue.length < 4) {
@@ -73,6 +77,13 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
     }
   };
 
+  const cycleDeadMansSwitch = () => {
+    const options = ['Off', '1 week', '1 month', '3 months', '6 months', '1 year'];
+    const idx = options.indexOf(deadMansSwitch as string);
+    const next = options[(idx + 1) % options.length];
+    setDeadMansSwitch(next);
+  };
+
   return (
     <SubView title={t('settings.security')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('settings.appLock')} isDark={isDark} />
@@ -103,14 +114,18 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
         />
         {showPinInput && (
           <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
+            <label htmlFor="security-pin-input" className="sr-only">{t('settings.enterPin')}</label>
             <input
+              id="security-pin-input"
               type="password"
               maxLength={10}
               placeholder={t('settings.enterPin')}
               value={pinValue}
               onChange={e => setPinValue(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && confirmPinAction()}
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)] focus:border-emerald-500/50" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800 focus:border-emerald-500/50"}`}
+              autoComplete={pinMode === 'set' ? 'new-password' : 'current-password'}
+              inputMode="numeric"
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
               autoFocus
             />
             <button
@@ -119,8 +134,38 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
             >
               {pinMode === 'set' ? t('settings.confirmPin') : t('settings.removePin')}
             </button>
+            <div aria-live="polite" role="status" className="sr-only">
+              {pinValue.length > 0 && pinValue.length < 4 ? t('settings.pinTooShort') : ''}
+            </div>
           </div>
         )}
+      </SettingsGroup>
+
+      <SettingsSectionTitle title={t('settings.twoFactor')} isDark={isDark} />
+      <SettingsGroup isDark={isDark} className="mb-6">
+        <SettingsToggleRow
+          title={t('settings.twoFactorAuth')}
+          subtitle={t('settings.twoFactorSubtitle')}
+          isOn={twoFactor}
+          onToggle={() => setTwoFactor(!twoFactor)}
+          isDark={isDark}
+          toggleOnIcon={<ShieldCheck size={14} />}
+          toggleOffIcon={<ShieldCheck size={14} />}
+        />
+      </SettingsGroup>
+
+      <SettingsSectionTitle title={t('settings.autoWipe')} isDark={isDark} />
+      <SettingsGroup isDark={isDark} className="mb-6">
+        <SettingsRow
+          icon={<Timer size={16} />}
+          iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
+          iconColor={isDark ? "text-red-400" : "text-red-600"}
+          title={t('settings.deadMansSwitch')}
+          subtitle={t('settings.deadMansSwitchSubtitle')}
+          value={deadMansSwitch as string}
+          isDark={isDark}
+          onClick={cycleDeadMansSwitch}
+        />
       </SettingsGroup>
 
       <SettingsSectionTitle title={t('settings.dangerZone')} isDark={isDark} />

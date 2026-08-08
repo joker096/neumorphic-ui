@@ -42,7 +42,7 @@ export function getTranslationWithFallback(key: string, lang: string): string {
 interface I18nContextValue {
   lang: string;
   setLang: (lang: string) => void;
-  t: (key: string, args?: Record<string, string | number>) => string;
+  t: (key: string, fallback?: string | Record<string, string | number>) => string;
 }
 
 export const I18nContext = createContext<I18nContextValue>({
@@ -73,11 +73,14 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('app_language', newLang);
   }, []);
   
-  const t = useCallback((key: string, args?: Record<string, string | number>) => {
+   const t = useCallback((key: string, fallback?: string | Record<string, string | number>) => {
     let text = getTranslationWithFallback(key, lang);
-    if (args && Object.keys(args).length > 0) {
+    if (text === key && typeof fallback === 'string') {
+      text = fallback;
+    }
+    if (fallback && typeof fallback === 'object' && Object.keys(fallback).length > 0) {
       text = text.replace(/\{\{(\w+)\}\}/g, '{$1}');
-      for (const [k, v] of Object.entries(args)) {
+      for (const [k, v] of Object.entries(fallback)) {
         text = text.replace(`{${k}}`, () => String(v));
       }
     }

@@ -52,9 +52,46 @@ export const Colors = {
     successSoft: 'rgba(34,195,114,0.15)',
     warning: '#f59f19',
     danger: '#ef4424',
+    /**
+     * Warm brand highlight (amber/gold) — favorites, stars, warnings.
+     * Distinct from `accent` (brand orange) so amber UI pieces can be re-keyed.
+     */
+    accentWarmHighlight: '#fbbf24',
+    /** Semantic info (blue) */
+    info: '#3b82f6',
+    infoSoft: 'rgba(59,130,246,0.15)',
+    /** Danger background tint (red @ 10% alpha) */
+    dangerSoft: 'rgba(239,68,36,0.1)',
+    /** Success text/foreground variant */
+    successText: '#4ade80',
+    /** Warning text/foreground variant */
+    warningText: '#fbbf24',
+    /** Muted / tertiary foreground helper */
+    muted: '#9ca3af',
     listHoverBg: 'rgba(255,255,255,0.04)',
     neuRaised: '3px 3px 6px #0a0c10, -3px -3px 6px #14171e',
     neuInset: 'inset 3px 3px 6px #0a0c10, inset -3px -3px 6px #14171e',
+    /** Neumorphic base shadow colors — used across multiple components */
+    neuBaseDark: '#0a0c10',
+    neuBaseDarkLight: '#14171e',
+    neuBaseLight: '#c2c8d4',
+    neuBaseLightDark: '#ffffff',
+    /** Radio mode accent colors */
+    radioActive: '#5cc25c',
+    radioActiveDark: '#45a045',
+    radioInactive: '#c25c34',
+    radioInactiveDark: '#e2845c',
+    radioInactiveDarker: '#d27546',
+    radioInactiveLightest: '#64d064',
+    radioThumbDark: '#3a1a0d',
+    radioTrackDark: '#183a18',
+    radioTrackLight: '#3a1a0d',
+    /** Common hover/active backgrounds */
+    hoverBgDark: '#20242e',
+    hoverBgLight: 'rgba(0,0,0,0.05)',
+    /** Warm text colors */
+    textWarmDark: '#e6d6b8',
+    textWarmLight: '#e6d6b8',
   } as const,
   light: {
     bg: {
@@ -97,9 +134,38 @@ export const Colors = {
     successSoft: 'rgba(22,160,74,0.12)',
     warning: '#d97c0f',
     danger: '#dc2023',
+    /** see dark variant note */
+    accentWarmHighlight: '#d97706',
+    info: '#2563de',
+    infoSoft: 'rgba(37,99,222,0.12)',
+    dangerSoft: 'rgba(220,32,35,0.1)',
+    successText: '#16a04a',
+    warningText: '#d97706',
+    muted: '#475569',
     listHoverBg: 'rgba(0,0,0,0.03)',
     neuRaised: '3px 3px 6px #c2c8d4, -3px -3px 6px #ffffff',
     neuInset: 'inset 3px 3px 6px #c2c8d4, inset -3px -3px 6px #ffffff',
+    /** Neumorphic base shadow colors — used across multiple components */
+    neuBaseDark: '#0a0c10',
+    neuBaseDarkLight: '#14171e',
+    neuBaseLight: '#c2c8d4',
+    neuBaseLightDark: '#ffffff',
+    /** Radio mode accent colors */
+    radioActive: '#5cc25c',
+    radioActiveDark: '#45a045',
+    radioInactive: '#c25c34',
+    radioInactiveDark: '#e2845c',
+    radioInactiveDarker: '#d27546',
+    radioInactiveLightest: '#64d064',
+    radioThumbDark: '#3a1a0d',
+    radioTrackDark: '#183a18',
+    radioTrackLight: '#3a1a0d',
+    /** Common hover/active backgrounds */
+    hoverBgDark: '#20242e',
+    hoverBgLight: 'rgba(0,0,0,0.05)',
+    /** Warm text colors */
+    textWarmDark: '#e6d6b8',
+    textWarmLight: '#e6d6b8',
   } as const,
 } as const;
 
@@ -187,6 +253,18 @@ export const Animation = {
     inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
     easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
   } as const,
+} as const;
+
+// ── Gradients ────────────────────────────────────────────────
+
+export const Gradients = {
+  brand: 'from-orange-500 to-amber-500',
+  brandDark: 'from-orange-600 to-amber-600',
+  brandLight: 'from-orange-400 to-orange-300',
+  brandToOrange: 'from-orange-500 to-orange-400',
+  brandToOrangeDark: 'from-orange-600 to-orange-400',
+  call: 'from-orange-500 to-orange-700',
+  callDark: 'from-orange-500/80 to-orange-700/80',
 } as const;
 
 // ── Helpers ────────────────────────────────────────────────

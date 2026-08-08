@@ -1,5 +1,11 @@
+const PBKDF2_ITERATIONS = 100000;
+const VERSION_BYTE_V1 = 0x01;
+const VERSION_BYTE_V2 = 0x02;
+const IV_LENGTH = 12;
+const SALT_LENGTH = 16;
+
 interface ObfuscatorConfig {
-  mode: 'xorshroud' | 'httpmask' | 'mediadummy';
+  mode: 'aesgcm' | 'httpmask' | 'mediadummy';
   userAgentPool?: string[];
 }
 
@@ -19,7 +25,7 @@ export class TrafficObfuscator {
   private key: string;
   private config: ObfuscatorConfig;
 
-  constructor(key: string = crypto.randomUUID(), mode: ObfuscatorConfig['mode'] = 'xorshroud') {
+  constructor(key: string = crypto.randomUUID(), mode: ObfuscatorConfig['mode'] = 'aesgcm') {
     this.key = key;
     this.config = { mode, userAgentPool: DEFAULT_USER_AGENTS };
   }
@@ -28,21 +34,102 @@ export class TrafficObfuscator {
     this.config.mode = mode;
   }
 
-  obfuscate(data: string): string {
+  async obfuscate(data: string): Promise<string> {
     if (!data) return '';
     switch (this.config.mode) {
       case 'httpmask': return this.httpWrap(data);
       case 'mediadummy': return this.mediaDummyWrap(data);
-      default: return this.xorShroud(data);
+      default: return this.aesGcmWrap(data);
     }
   }
 
-  deobfuscate(data: string): string {
+  async deobfuscate(data: string): Promise<string> {
     if (!data) return '';
+    const firstByte = data.charCodeAt(0);
+    if (firstByte === VERSION_BYTE_V2) {
+      return this.aesGcmUnwrap(data.slice(1));
+    }
+    if (firstByte === VERSION_BYTE_V1) {
+      return this.xorUnshroud(data.slice(1));
+    }
     switch (this.config.mode) {
       case 'httpmask': return this.httpUnwrap(data);
       case 'mediadummy': return this.mediaDummyUnwrap(data);
-      default: return this.xorUnshroud(data);
+      default: return this.aesGcmUnwrap(data);
+    }
+  }
+
+  private async aesGcmWrap(data: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+    const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(this.key),
+      'PBKDF2',
+      false,
+      ['deriveKey'],
+    );
+    const aesKey = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt,
+        iterations: PBKDF2_ITERATIONS,
+        hash: 'SHA-256',
+      },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt'],
+    );
+    const encoded = encoder.encode(data);
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      aesKey,
+      encoded,
+    );
+    const result = new Uint8Array(1 + SALT_LENGTH + IV_LENGTH + ciphertext.byteLength);
+    result[0] = VERSION_BYTE_V2;
+    result.set(salt, 1);
+    result.set(iv, 1 + SALT_LENGTH);
+    result.set(new Uint8Array(ciphertext), 1 + SALT_LENGTH + IV_LENGTH);
+    return btoa(String.fromCharCode(...result));
+  }
+
+  private async aesGcmUnwrap(b64Data: string): Promise<string> {
+    try {
+      const raw = Uint8Array.from(atob(b64Data), (c) => c.charCodeAt(0));
+      const salt = raw.slice(1, 1 + SALT_LENGTH);
+      const iv = raw.slice(1 + SALT_LENGTH, 1 + SALT_LENGTH + IV_LENGTH);
+      const ciphertext = raw.slice(1 + SALT_LENGTH + IV_LENGTH);
+      const encoder = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(this.key),
+        'PBKDF2',
+        false,
+        ['deriveKey'],
+      );
+      const aesKey = await crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt,
+          iterations: PBKDF2_ITERATIONS,
+          hash: 'SHA-256',
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['decrypt'],
+      );
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        aesKey,
+        ciphertext,
+      );
+      return new TextDecoder().decode(decrypted);
+    } catch {
+      return '';
     }
   }
 
@@ -76,7 +163,7 @@ export class TrafficObfuscator {
     const body = encoded + 'x'.repeat(padding);
     return [
       'HTTP/1.1 200 OK',
-      `Content-Type: text/plain; charset=utf-8`,
+      'Content-Type: text/plain; charset=utf-8',
       `Content-Length: ${body.length}`,
       `User-Agent: ${ua}`,
       `Accept: ${accept}`,

@@ -1,6 +1,7 @@
 export const STORAGE_KEYS = {
   THEME: 'app_theme',
   LANGUAGE: 'app_language',
+  FONT_SIZE: 'app_font_size',
   LOCK_ATTEMPTS: 'app_lock_attempts',
   LOCK_BLOCKED_UNTIL: 'app_lock_blocked_until',
   LOCK_PIN_HASH: 'app_lock_pin_hash',

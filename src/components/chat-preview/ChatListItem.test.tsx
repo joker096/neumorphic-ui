@@ -69,9 +69,9 @@ describe('ChatListItem', () => {
     expect(screen.getByText('14:30')).toBeInTheDocument();
   });
 
-  it('shows typing indicator when typingIndicators is true and chat.id is 1', () => {
+  it('shows typing indicator when typingIndicators is true and chat.isTyping is true', () => {
     mockStore.typingIndicators = true;
-    render(<ChatListItem {...defaultProps} />);
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, isTyping: true }} />);
     expect(screen.getByText('typing...')).toBeInTheDocument();
     mockStore.typingIndicators = false;
   });

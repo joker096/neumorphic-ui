@@ -404,5 +404,14 @@
   "dl.isteps": "1. Ouvrir le site dans Safari\\n2. Appuyer «Partager» (□↑)\\n3. «Sur l'écran d'accueil»",
   "foot.docs": "Documentation",
   "foot.privacy": "Confidentialité",
-  "foot.contact": "Contact"
+  "foot.contact": "Contact",
+  "nav.comparison": "Comparaison",
+  "hero.title": "Découvrez <b>Mess&Anger</b>",
+  "stats.label": "En chiffres",
+  "stats.phases": "Phases d'architecture (inspirées de Reticulum)",
+  "stats.tests": "Tests réussis",
+  "feat.desc": "Chaque fonctionnalité intègre la confidentialité et la sécurité par défaut. Rien à désactiver — vous n'avez pas à choisir entre convivialité et anonymat.",
+  "cmp.r8": "Pas de protection post-quantique",
+  "skip.main": "Aller au contenu",
+  "offline.banner": "Vous êtes hors ligne. Certaines fonctionnalités peuvent être indisponibles."
 }

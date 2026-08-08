@@ -54,6 +54,7 @@ export interface UserProfile {
   company?: string;
   position?: string;
   notes?: string;
+  status?: string;
   profileShare?: {
     state?: string;
     updatedAt?: number;

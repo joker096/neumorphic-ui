@@ -30,7 +30,7 @@ interface NetworkSectionProps {
   t: (key: string) => string;
 }
 
-const OBFUSCATION_MODES = ['xorshroud', 'httpmask', 'mediadummy'];
+const OBFUSCATION_MODES = ['aesgcm', 'httpmask', 'mediadummy'];
 const TOR_BRIDGES = ['None', 'obfs4', 'meek', 'Snowflake'];
 const RELAY_BACKENDS: TunnelBackend[] = ['direct', 'cfworker', 'domainfront', 'peertunnel'];
 
@@ -45,7 +45,7 @@ export const NetworkSection = ({
     const idx = OBFUSCATION_MODES.indexOf(obfuscationMode);
     const next = OBFUSCATION_MODES[(idx + 1) % OBFUSCATION_MODES.length];
     setObfuscationMode(next);
-    trafficObfuscator.setMode(next as 'xorshroud' | 'httpmask' | 'mediadummy');
+    trafficObfuscator.setMode(next as 'aesgcm' | 'httpmask' | 'mediadummy');
   };
 
   const cycleTorBridge = () => {

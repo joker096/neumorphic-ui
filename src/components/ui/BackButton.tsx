@@ -1,28 +1,54 @@
-import { ChevronLeft } from 'lucide-react';
+import React, { type ButtonHTMLAttributes } from "react";
+import { ChevronLeft } from "lucide-react";
+import { useI18n } from "../../lib/i18n";
+import { useTheme } from "../../contexts/ThemeContext";
 
-type BackButtonProps = {
+export type BackButtonSize = "sm" | "md" | "lg";
+
+export interface BackButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "size"> {
   onClick?: () => void;
-  className?: string;
+  size?: BackButtonSize;
   label?: string;
-  size?: 'sm' | 'md' | 'lg';
+  isDark?: boolean;
+}
+
+const ICON_SIZE: Record<BackButtonSize, number> = { sm: 16, md: 18, lg: 20 };
+const BOX: Record<BackButtonSize, string> = {
+  sm: "w-10 h-10 min-w-[44px] min-h-[44px]",
+  md: "w-10 h-10 min-w-[44px] min-h-[44px]",
+  lg: "w-12 h-12 min-w-[48px] min-h-[48px]",
 };
 
-const SIZE_MAP = {
-  sm: { icon: 16, wrapper: 'min-w-[44px] min-h-[44px]' },
-  md: { icon: 18, wrapper: 'min-w-[44px] min-h-[44px]' },
-  lg: { icon: 22, wrapper: 'min-w-[44px] min-h-[44px]' },
-} as const;
+export const BackButton = ({
+  onClick,
+  className = "",
+  label,
+  size = "md",
+  isDark: isDarkProp,
+  ...rest
+}: BackButtonProps) => {
+  const { t } = useI18n();
+  const { isDark: ctxDark } = useTheme();
+  const isDark = isDarkProp ?? ctxDark;
+  const dims = BOX[size];
+  const iconSz = ICON_SIZE[size];
+  const circleTheme = isDark
+    ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)]"
+    : "bg-[var(--bg-elevated)] hover:bg-white";
+  const iconTheme = isDark
+    ? "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+    : "text-slate-500 hover:text-slate-800";
 
-export const BackButton = ({ onClick, className = '', label, size = 'md' }: BackButtonProps) => {
-  const dims = SIZE_MAP[size];
   return (
     <button
       type="button"
       onClick={onClick}
+      aria-label={label ? undefined : t("common.back")}
       className={`flex items-center gap-1.5 text-sm font-medium cursor-pointer transition-colors hover:opacity-80 active:opacity-60 ${className}`}
+      {...rest}
     >
-      <span className={`${dims.wrapper} rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 active:bg-white/30`}>
-        <ChevronLeft size={dims.icon} />
+      <span className={`${dims} rounded-full flex items-center justify-center transition-colors ${circleTheme}`}>
+        <ChevronLeft size={iconSz} className={iconTheme} />
       </span>
       {label && <span>{label}</span>}
     </button>

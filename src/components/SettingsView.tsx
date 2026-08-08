@@ -1,10 +1,8 @@
 import React, { useState, Suspense } from 'react';
 import { useAppStore } from '../store';
-import { useI18n, detectBrowserLanguage } from '../lib/i18n';
+import { useI18n } from '../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow, ToggleSwitch } from './ui/SettingsRow';
 import { SubView } from './ui/SubView';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { DEFAULTS, KEYS } from '../config/settingsDefaults';
 import { ChevronRight, Smartphone, Palette, Shield, Lock, Bot, ShieldAlert, ChevronLeft, Building2 } from 'lucide-react';
 import { CompanySettingsView } from './settings/CompanySettingsView';
 import { motion, AnimatePresence } from 'motion/react';
@@ -13,6 +11,7 @@ import { LanguageSection } from './settings/LanguageSection';
 import { PrivacySection } from './settings/PrivacySection';
 import { AccountSection } from './settings/AccountSection';
 import { SettingsMainMenu } from './settings/SettingsMainMenu';
+import { MyProfileSection } from './settings/MyProfileSection';
 
 const NetworkSection = React.lazy(() => import('./settings/NetworkSection').then(m => ({ default: m.NetworkSection })));
 const SecuritySection = React.lazy(() => import('./settings/SecuritySection').then(m => ({ default: m.SecuritySection })));
@@ -21,45 +20,67 @@ const BotsSection = React.lazy(() => import('./settings/BotsSection').then(m => 
 const SpamSection = React.lazy(() => import('./settings/SpamSection').then(m => ({ default: m.SpamSection })));
 const SystemStatusSection = React.lazy(() => import('./settings/SystemStatusSection').then(m => ({ default: m.SystemStatusSection })));
 
-export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizeProp, setFontSize: setFontSizeProp }: { theme: 'light' | 'dark', setTheme?: (t: 'light' | 'dark') => void, setSubView?: (view: string | null) => void; fontSize?: string; setFontSize?: (s: string) => void }) => {
+export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizeProp, setFontSize: setFontSizeProp, language: languageProp, setLanguage: setLanguageProp }: { theme: 'light' | 'dark', setTheme?: (t: 'light' | 'dark') => void, setSubView?: (view: string | null) => void; fontSize?: string; setFontSize?: (s: string) => void; language?: string; setLanguage?: (l: string) => void }) => {
   const isDark = theme === 'dark';
-  const { t, setLang } = useI18n();
+  const { t, setLang, lang } = useI18n();
+  const language = languageProp ?? lang;
+  const setLanguage = setLanguageProp ?? setLang;
+  const fontSize = fontSizeProp ?? 'Medium';
+  const setFontSize = setFontSizeProp ?? (() => {});
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState<string>('main');
-  
-  const [language, setLanguage] = useLocalStorage<string>(KEYS.LANGUAGE, detectBrowserLanguage());
-  const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage(KEYS.NOTIFICATIONS, DEFAULTS.notifications);
+
+  const notificationsEnabled = useAppStore(state => state.notifications);
+  const setNotificationsEnabled = useAppStore(state => state.setNotifications);
   const soundEnabled = useAppStore(state => state.soundEnabled);
   const setSoundEnabled = useAppStore(state => state.setSoundEnabled);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useLocalStorage(KEYS.TWO_FACTOR, DEFAULTS.twoFactor);
-  const [proxyEnabled, setProxyEnabled] = useLocalStorage(KEYS.PROXY, DEFAULTS.proxy);
-  const [spamFilterEnabled, setSpamFilterEnabled] = useLocalStorage(KEYS.SPAM_FILTER, DEFAULTS.spamFilter);
-  const [showPwaBanner, setShowPwaBanner] = useLocalStorage(KEYS.PWA_BANNER, DEFAULTS.pwaBanner);
-  const [deadMansSwitch, setDeadMansSwitch] = useLocalStorage(KEYS.DEAD_MANS_SWITCH, DEFAULTS.deadMansSwitch);
-  const [mediaAutoLoad, setMediaAutoLoad] = useLocalStorage(KEYS.MEDIA_AUTO_LOAD, DEFAULTS.mediaAutoLoad);
-  const [selfDestructDefault, setSelfDestructDefault] = useLocalStorage(KEYS.SELF_DESTRUCT, DEFAULTS.selfDestructDefault);
-  const [obfuscationMode, setObfuscationMode] = useLocalStorage(KEYS.OBFUSCATION_MODE, DEFAULTS.obfuscationMode);
-  const [obfuscationEnabled, setObfuscationEnabled] = useLocalStorage(KEYS.OBFUSCATION_ENABLED, DEFAULTS.obfuscationEnabled);
-  const [proxyUrl, setProxyUrl] = useLocalStorage(KEYS.PROXY_URL, DEFAULTS.proxyUrl);
-  const [torBridge, setTorBridge] = useLocalStorage(KEYS.TOR_BRIDGE, DEFAULTS.torBridge);
-  const [relayBackend, setRelayBackend] = useLocalStorage(KEYS.RELAY_BACKEND, DEFAULTS.relayBackend);
-  const [autoReconnectEnabled, setAutoReconnectEnabled] = useLocalStorage(KEYS.AUTO_RECONNECT, DEFAULTS.autoReconnect);
-  const [p2pMeshEnabled, setP2pMeshEnabled] = useLocalStorage(KEYS.P2P_MESH, DEFAULTS.p2pMesh);
-  const [visNumber, setVisNumber] = useLocalStorage(KEYS.VIS_NUMBER, DEFAULTS.visNumber);
-  const [visActivity, setVisActivity] = useLocalStorage(KEYS.VIS_ACTIVITY, DEFAULTS.visActivity);
-  const [uiAnimations, setUiAnimations] = useLocalStorage(KEYS.UI_ANIMATIONS, DEFAULTS.uiAnimations);
-  const [localFontSize, setLocalFontSize] = useLocalStorage(KEYS.FONT_SIZE, DEFAULTS.fontSize);
-  const fontSize = fontSizeProp ?? localFontSize;
-  const setFontSize = setFontSizeProp ?? setLocalFontSize;
-  const [dndEnabled, setDndEnabled] = useLocalStorage(KEYS.DND_ENABLED, DEFAULTS.dndEnabled);
-  const [dndFrom, setDndFrom] = useLocalStorage(KEYS.DND_FROM, DEFAULTS.dndFrom);
-  const [dndTo, setDndTo] = useLocalStorage(KEYS.DND_TO, DEFAULTS.dndTo);
-  const [priorityContacts, setPriorityContacts] = useLocalStorage(KEYS.PRIORITY_CONTACTS, DEFAULTS.priorityContacts);
+  const twoFactorEnabled = useAppStore(state => state.twoFactor);
+  const setTwoFactorEnabled = useAppStore(state => state.setTwoFactor);
+  const proxyEnabled = useAppStore(state => state.proxyEnabled);
+  const setProxyEnabled = useAppStore(state => state.setProxyEnabled);
+  const spamFilterEnabled = useAppStore(state => state.spamFilter);
+  const setSpamFilterEnabled = useAppStore(state => state.setSpamFilter);
+  const showPwaBanner = useAppStore(state => state.pwaBanner);
+  const setShowPwaBanner = useAppStore(state => state.setPwaBanner);
+  const deadMansSwitch = useAppStore(state => state.deadMansSwitch);
+  const setDeadMansSwitch = useAppStore(state => state.setDeadMansSwitch);
+  const mediaAutoLoad = useAppStore(state => state.mediaAutoLoad);
+  const setMediaAutoLoad = useAppStore(state => state.setMediaAutoLoad);
+  const selfDestructDefault = useAppStore(state => state.selfDestructDefault);
+  const setSelfDestructDefault = useAppStore(state => state.setSelfDestructDefault);
+  const obfuscationMode = useAppStore(state => state.obfuscationMode);
+  const setObfuscationMode = useAppStore(state => state.setObfuscationMode);
+  const obfuscationEnabled = useAppStore(state => state.obfuscationEnabled);
+  const setObfuscationEnabled = useAppStore(state => state.setObfuscationEnabled);
+  const proxyUrl = useAppStore(state => state.proxyUrl);
+  const setProxyUrl = useAppStore(state => state.setProxyUrl);
+  const torBridge = useAppStore(state => state.torBridge);
+  const setTorBridge = useAppStore(state => state.setTorBridge);
+  const relayBackend = useAppStore(state => state.relayBackend);
+  const setRelayBackend = useAppStore(state => state.setRelayBackend);
+  const autoReconnectEnabled = useAppStore(state => state.autoReconnect);
+  const setAutoReconnectEnabled = useAppStore(state => state.setAutoReconnect);
+  const p2pMeshEnabled = useAppStore(state => state.p2pMesh);
+  const setP2pMeshEnabled = useAppStore(state => state.setP2pMesh);
+  const visNumber = useAppStore(state => state.visNumber);
+  const setVisNumber = useAppStore(state => state.setVisNumber);
+  const visActivity = useAppStore(state => state.visActivity);
+  const setVisActivity = useAppStore(state => state.setVisActivity);
+  const uiAnimations = useAppStore(state => state.uiAnimations);
+  const setUiAnimations = useAppStore(state => state.setUiAnimations);
+  const dndEnabled = useAppStore(state => state.dndEnabled);
+  const setDndEnabled = useAppStore(state => state.setDndEnabled);
+  const dndFrom = useAppStore(state => state.dndFrom);
+  const setDndFrom = useAppStore(state => state.setDndFrom);
+  const dndTo = useAppStore(state => state.dndTo);
+  const setDndTo = useAppStore(state => state.setDndTo);
+  const priorityContacts = useAppStore(state => state.priorityContacts);
+  const setPriorityContacts = useAppStore(state => state.setPriorityContacts);
 
-  const { 
-    stealthMode, 
-    anonymousMode, 
+  const {
+    stealthMode,
+    anonymousMode,
     readReceipts,
     deliveryReceipts,
     typingIndicators,
@@ -146,6 +167,13 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
     />
   );
 
+  const renderMyProfileSettings = () => (
+    <MyProfileSection
+      onBack={() => setActiveSection('main')}
+      t={t}
+    />
+  );
+
   const renderSecuritySettings = () => (
     <SecuritySection
       isDark={isDark}
@@ -177,12 +205,16 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
       ghostViewMode={ghostViewMode}
       forwardAnonymization={forwardAnonymization}
       onlineStatus={onlineStatus}
-      allowMetadata={allowMetadata}
       allowForwarding={allowForwarding}
       setAllowForwarding={(v) => updateSettings({ allowForwarding: v })}
+      allowMetadata={allowMetadata}
       setAllowMetadata={(v) => updateSettings({ allowMetadata: v })}
       forwardCountLimit={forwardCountLimit}
       setForwardCountLimit={(v) => updateSettings({ forwardCountLimit: v })}
+      mediaAutoLoad={mediaAutoLoad}
+      setMediaAutoLoad={setMediaAutoLoad}
+      selfDestructDefault={selfDestructDefault}
+      setSelfDestructDefault={setSelfDestructDefault}
       onUpdateSettings={updateSettings}
       onBack={() => setActiveSection('main')}
       t={t}
@@ -266,9 +298,10 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
   const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('common.loading')}</div>;
 
   return (
-    <div className={`w-full max-w-full sm:max-w-[340px] md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 ${isDark ? "bg-[var(--bg-primary)]/50 border border-[var(--border-color)]" : "bg-[var(--bg-secondary)]/50 border border-[var(--border-color)] shadow-inner"}`}>
+    <div className={`w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 ${isDark ? "bg-[var(--bg-primary)]/50 border border-[var(--border-color)]" : "bg-[var(--bg-secondary)]/50 border border-[var(--border-color)] shadow-inner"}`}>
       <AnimatePresence mode="wait">
         {activeSection === 'main' && renderMainSettings()}
+        {activeSection === 'myProfile' && renderMyProfileSettings()}
         {activeSection === 'appearance' && renderAppearanceSettings()}
         {activeSection === 'language' && renderLanguageSettings()}
         {activeSection === 'account' && renderAccountSettings()}
@@ -284,5 +317,3 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
     </div>
   );
 };
-
-

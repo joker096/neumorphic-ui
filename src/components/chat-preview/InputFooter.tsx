@@ -21,7 +21,7 @@ const InputFooterImpl = ({ isDark = false, isChannel, isMuted, placeholder, t, o
           onClick={onMuteToggle}
           className={`w-full py-3 md:py-3.5 rounded-2xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide min-h-[44px] ${
             isDark
-              ? "bg-[var(--bg-secondary)] hover:bg-[#20242e] text-orange-400 border border-[var(--border-color)]"
+              ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-orange-400 border border-[var(--border-color)]"
               : "bg-white hover:bg-slate-50 text-orange-600 border border-[var(--border-color)] shadow-sm"
           }`}
         >
@@ -32,7 +32,7 @@ const InputFooterImpl = ({ isDark = false, isChannel, isMuted, placeholder, t, o
           <button
             className={`w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 min-w-[44px] min-h-[44px] ${
               isDark
-                ? "bg-[var(--bg-secondary)] hover:bg-[#20242e] text-gray-400 shadow-[0_4px_8px_rgba(0,0,0,0.4),_inset_0_1px_1px_rgba(255,255,255,0.05)] border border-[var(--border-color)]/[0.02]"
+                ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-gray-400 shadow-[0_4px_8px_rgba(0,0,0,0.4),_inset_0_1px_1px_rgba(255,255,255,0.05)] border border-[var(--border-color)]/[0.02]"
                 : "bg-[var(--bg-secondary)] hover:bg-white text-slate-500 shadow-[-2px_-2px_6px_rgba(255,255,255,0.9),_4px_4px_8px_rgba(165,175,190,0.4),_inset_1px_1px_2px_rgba(255,255,255,1)]"
             }`}
           >

@@ -172,7 +172,7 @@ export const MediaGallery: React.FC<MediaGalleryProps> = ({
                 }}
               >
                 {msg.type === "image" ? (
-                  <img src={msg.attachment || msg.url} alt="media" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                   <img src={msg.attachment || msg.url} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 ) : msg.type === "audio" ? (
                   <div className="w-full h-full flex flex-col items-start justify-between p-3 bg-[var(--bg-secondary)]">
                     <Mic size={18} className="text-[var(--accent)]" />

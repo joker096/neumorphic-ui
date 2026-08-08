@@ -125,7 +125,7 @@ export const ChatInputOverlay = ({
       </AnimatePresence>
 
       {activeChat.isChannel ? (
-        <div className={`w-full py-2.5 rounded-xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${isDark ? "bg-[var(--bg-secondary)] hover:bg-[#20242e] text-orange-400 border border-[var(--border-color)]" : "bg-white hover:bg-slate-50 text-orange-600 border border-[var(--border-color)] shadow-sm"}`} onClick={() => {
+        <div className={`w-full py-2.5 rounded-xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${isDark ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-orange-400 border border-[var(--border-color)]" : "bg-white hover:bg-slate-50 text-orange-600 border border-[var(--border-color)] shadow-sm"}`} onClick={() => {
           setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted });
           setChannels(prev => prev.map(c => c.id === activeChat.id ? { ...c, isMuted: !activeChat.isMuted } : c) as any);
         }}>
@@ -207,7 +207,7 @@ export const ChatInputOverlay = ({
                 </div>
                 <div className="text-[12px] truncate mt-0.5">{replyTarget.text || (replyTarget.type === "audio" ? `${t('chat.voiceNote')} ${replyTarget.duration || ""}` : replyTarget.type === "image" ? t('chat.photoAttachment') : t('chat.attachment'))}</div>
               </div>
-              <button onClick={() => setReplyTarget(null)} className={`mt-0.5 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 ${isDark ? "text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"}`}>
+              <button onClick={() => setReplyTarget(null)} className={`mt-0.5 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all active:scale-90 ${isDark ? "text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"}`}>
                 <X size={14} strokeWidth={2} />
               </button>
             </div>

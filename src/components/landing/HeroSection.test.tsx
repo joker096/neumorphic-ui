@@ -13,7 +13,7 @@ import { HeroSection } from './HeroSection';
 describe('HeroSection', () => {
   it('renders version badge', () => {
     render(<HeroSection onGetStarted={vi.fn()} />);
-    expect(screen.getByText(/v1.0/)).toBeInTheDocument();
+    expect(screen.getByText(/1\.0/)).toBeInTheDocument();
   });
 
   it('renders headline', () => {

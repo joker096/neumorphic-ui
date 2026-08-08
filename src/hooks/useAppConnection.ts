@@ -10,10 +10,12 @@ export const useAppConnection = () => {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionState>('disconnected');
   const [regionBlocked, setRegionBlocked] = useState(false);
   const managerRef = useRef<SignallingManager | null>(null);
+  const relayBackend = useAppStore(state => state.relayBackend);
+  const autoReconnect = useAppStore(state => state.autoReconnect);
 
   useEffect(() => {
-    const savedBackend = (localStorage.getItem('app_relay_backend') || 'direct') as TunnelBackend;
-    const mgr = new SignallingManager(SIGNALING_SEED_URLS, savedBackend);
+    const savedBackend = (relayBackend as TunnelBackend) || 'direct';
+    const mgr = new SignallingManager(SIGNALING_SEED_URLS, savedBackend, autoReconnect);
     managerRef.current = mgr;
 
     setConnectionStatus('connecting');
@@ -43,12 +45,25 @@ export const useAppConnection = () => {
       useAppStore.getState().setRegionBlocked(true);
     });
 
+    const handleOnline = () => {
+      setConnectionStatus('connecting');
+      useAppStore.getState().setConnectionStatus('connecting');
+      useAppStore.getState().setRegionBlocked(false);
+      mgr.connect().catch(() => {
+        setConnectionStatus('error');
+        useAppStore.getState().setConnectionStatus('error');
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+
     return () => {
+      window.removeEventListener('online', handleOnline);
       mgr.disconnect();
       unsub1();
       unsub2();
     };
-  }, []);
+  }, [relayBackend]);
 
   return { connectionStatus, regionBlocked, managerRef };
 };

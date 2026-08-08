@@ -25,7 +25,6 @@ export function useAppNavigation(
     const existingCall = useAppStore.getState().activeCall;
     if (existingCall && existingCall.callType === callType && existingCall.status !== 'ended') {
       setActiveCall(existingCall);
-      setView("calls");
       return;
     }
     const mockCall = {
@@ -45,8 +44,7 @@ export function useAppNavigation(
       participants: [],
     };
     useAppStore.getState().setActiveCall(mockCall);
-    setView("calls");
-  }, [setActiveCall, setView]);
+  }, [setActiveCall]);
 
   const handlePreviewMessage = useCallback((name: string, color?: string) => {
     setView("chats");

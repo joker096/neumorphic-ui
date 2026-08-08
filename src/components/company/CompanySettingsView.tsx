@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Phone, Mail, MapPin, Globe, FileText, Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
+import { useI18n } from '../../lib/i18n';
 import { getCompanySettings, saveCompanySettings } from '../../lib/idb';
 import { MOCK_COMPANY_SETTINGS } from '../../constants/companyMockData';
 import { FormField } from '../ui/FormField';
@@ -13,15 +14,16 @@ type CompanySettingsViewProps = {
 };
 
 const FIELDS: { key: string; icon: React.ElementType | null; label: string; type: string; placeholder: string }[] = [
-  { key: 'name', icon: null, label: 'Company Name', type: 'text', placeholder: 'Enter company name' },
-  { key: 'phone', icon: Phone, label: 'Phone', type: 'tel', placeholder: '+7 (495) 123-45-67' },
-  { key: 'email', icon: Mail, label: 'Email', type: 'email', placeholder: 'info@company.com' },
-  { key: 'address', icon: MapPin, label: 'Address', type: 'text', placeholder: '123 Main St, City' },
-  { key: 'website', icon: Globe, label: 'Website', type: 'url', placeholder: 'https://company.com' },
-  { key: 'taxId', icon: FileText, label: 'Tax ID (INN)', type: 'text', placeholder: '7701234567' },
+  { key: 'name', icon: null, label: 'company.name', type: 'text', placeholder: 'company.namePlaceholder' },
+  { key: 'phone', icon: Phone, label: 'company.phone', type: 'tel', placeholder: 'company.phonePlaceholder' },
+  { key: 'email', icon: Mail, label: 'company.email', type: 'email', placeholder: 'company.emailPlaceholder' },
+  { key: 'address', icon: MapPin, label: 'company.address', type: 'text', placeholder: 'company.addressPlaceholder' },
+  { key: 'website', icon: Globe, label: 'company.website', type: 'url', placeholder: 'company.websitePlaceholder' },
+  { key: 'taxId', icon: FileText, label: 'company.taxId', type: 'text', placeholder: 'company.taxIdPlaceholder' },
 ];
 
 export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClose }) => {
+  const { t } = useI18n();
   const storeSettings = useAppStore(s => s.companySettings);
   const setCompanySettings = useAppStore(s => s.setCompanySettings);
 
@@ -48,10 +50,10 @@ export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClos
       const settings = { ...form };
       await saveCompanySettings(settings);
       setCompanySettings(settings as any);
-      toast.success('Company settings saved');
+      toast.success(t('company.settingsSaved', 'Company settings saved'));
       onClose();
     } catch {
-      toast.error('Failed to save company settings');
+      toast.error(t('company.settingsSaveFailed', 'Failed to save company settings'));
     } finally {
       setSaving(false);
     }
@@ -61,7 +63,7 @@ export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClos
     return (
       <div className="absolute inset-0 z-[100] flex flex-col bg-[var(--bg-primary)]/95">
         <div className="flex items-center justify-between px-4 py-3 md:px-20 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
-          <h2 className="text-lg font-bold text-[var(--text-primary)]">Company Settings</h2>
+          <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
           <button onClick={onClose} className={closeBtnStyle}>
             <X size={16} />
           </button>
@@ -76,7 +78,7 @@ export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClos
   return (
     <div className="absolute inset-0 z-[100] flex flex-col bg-[var(--bg-primary)]/95">
       <div className="flex items-center justify-between px-4 py-3 md:px-20 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
-        <h2 className="text-lg font-bold text-[var(--text-primary)]">Company Settings</h2>
+        <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
         <button onClick={onClose} className={closeBtnStyle}>
           <X size={16} />
         </button>
@@ -86,7 +88,7 @@ export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClos
         {FIELDS.map(f => (
           <div key={f.key} className="p-4 rounded-md neu-card-inset">
             <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
-              {f.label}
+              {t(f.label)}
             </label>
             <div className="flex items-center gap-3">
               {f.icon && (
@@ -99,7 +101,7 @@ export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClos
                 onChange={(value) => handleChange(f.key, value)}
                 type={f.type}
                 inputMode={f.type as any}
-                placeholder={f.placeholder}
+                placeholder={t(f.placeholder)}
                 theme="dark"
                 className="flex-1"
               />
@@ -119,7 +121,7 @@ export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClos
           ) : (
             <Save size={16} />
           )}
-          {saving ? 'Saving...' : 'Save Settings'}
+          {saving ? t('company.saving', 'Saving...') : t('company.saveSettings', 'Save Settings')}
         </button>
       </div>
     </div>

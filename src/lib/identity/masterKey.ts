@@ -3,7 +3,7 @@ import { buf2hex, hex2buf } from '../crypto/cryptoCore'
 import * as idb from 'idb-keyval'
 
 const SEED_LENGTH = 32
-const SEED_STORAGE_KEY = 'mess_master_seed'
+export const SEED_STORAGE_KEY = 'mess_master_seed'
 const STATIC_SALT = 'mess-anger-master-derivation-v1'
 
 export interface MasterKeySet {
@@ -53,6 +53,11 @@ export async function deriveKeysFromSeed(seed: Uint8Array): Promise<MasterKeySet
 
 export async function storeMasterSeed(seed: Uint8Array): Promise<void> {
   await idb.set(SEED_STORAGE_KEY, buf2hex(seed))
+}
+
+export async function hasMasterIdentity(): Promise<boolean> {
+  const stored = await idb.get<string>(SEED_STORAGE_KEY)
+  return !!stored
 }
 
 export async function getMasterKeySet(): Promise<MasterKeySet> {

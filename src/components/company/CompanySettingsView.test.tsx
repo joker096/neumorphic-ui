@@ -43,6 +43,31 @@ vi.mock('../../constants/companyMockData', () => ({
 
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string, fallback?: string) => {
+      const map: Record<string, string> = {
+        'company.settingsTitle': 'Company Settings',
+        'company.name': 'Company Name',
+        'company.phone': 'Phone',
+        'company.email': 'Email',
+        'company.address': 'Address',
+        'company.website': 'Website',
+        'company.taxId': 'Tax ID (INN)',
+        'company.namePlaceholder': 'Acme Inc.',
+        'company.phonePlaceholder': '+7 (495) 123-45-67',
+        'company.emailPlaceholder': 'info@company.com',
+        'company.addressPlaceholder': '123 Main St, City',
+        'company.websitePlaceholder': 'https://company.com',
+        'company.taxIdPlaceholder': '7701234567',
+        'company.saving': 'Saving...',
+        'company.saveSettings': 'Save Settings',
+      };
+      return map[key] || fallback || key;
+    }
+  })
+}));
+
 import { CompanySettingsView } from './CompanySettingsView';
 
 describe('CompanySettingsView', () => {
@@ -58,7 +83,7 @@ describe('CompanySettingsView', () => {
 
   it('renders all 6 form fields with correct placeholders', async () => {
     render(<CompanySettingsView onClose={vi.fn()} />);
-    expect(await screen.findByPlaceholderText('Enter company name')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('Acme Inc.')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('+7 (495) 123-45-67')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('info@company.com')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('123 Main St, City')).toBeInTheDocument();
@@ -78,7 +103,7 @@ describe('CompanySettingsView', () => {
 
   it('pre-fills inputs from mock data when no stored data', async () => {
     render(<CompanySettingsView onClose={vi.fn()} />);
-    const nameInput = await screen.findByPlaceholderText('Enter company name') as HTMLInputElement;
+    const nameInput = await screen.findByPlaceholderText('Acme Inc.') as HTMLInputElement;
     expect(nameInput.value).toBe('Acme Inc');
     const phoneInput = screen.getByPlaceholderText('+7 (495) 123-45-67') as HTMLInputElement;
     expect(phoneInput.value).toBe('+7 495 123-45-67');
@@ -94,7 +119,7 @@ describe('CompanySettingsView', () => {
       taxId: '1112223334',
     });
     render(<CompanySettingsView onClose={vi.fn()} />);
-    const nameInput = await screen.findByPlaceholderText('Enter company name') as HTMLInputElement;
+    const nameInput = await screen.findByPlaceholderText('Acme Inc.') as HTMLInputElement;
     expect(nameInput.value).toBe('Stored Corp');
     const phoneInput = screen.getByPlaceholderText('+7 (495) 123-45-67') as HTMLInputElement;
     expect(phoneInput.value).toBe('+7 999 888-77-66');
@@ -110,7 +135,7 @@ describe('CompanySettingsView', () => {
 
   it('updates local state on input change (no store call on change)', async () => {
     render(<CompanySettingsView onClose={vi.fn()} />);
-    const input = await screen.findByPlaceholderText('Enter company name');
+    const input = await screen.findByPlaceholderText('Acme Inc.');
     fireEvent.change(input, { target: { value: 'New Corp' } });
     expect((input as HTMLInputElement).value).toBe('New Corp');
     expect(setCompanySettings).not.toHaveBeenCalled();
@@ -118,7 +143,7 @@ describe('CompanySettingsView', () => {
 
   it('saves settings on save button click', async () => {
     render(<CompanySettingsView onClose={vi.fn()} />);
-    const nameInput = await screen.findByPlaceholderText('Enter company name');
+    const nameInput = await screen.findByPlaceholderText('Acme Inc.');
     fireEvent.change(nameInput, { target: { value: 'Updated Corp' } });
 
     const saveButton = screen.getByText('Save Settings');

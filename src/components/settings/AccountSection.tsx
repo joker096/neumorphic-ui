@@ -54,15 +54,32 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
     });
   };
 
+  const handleRestoreIdentity = () => {
+    window.dispatchEvent(new CustomEvent('show-login'));
+    setShowShareId(false);
+  };
+
   const activeAcc = accounts.find(a => a.id === activeId) || accounts[0];
 
   return (
     <SubView title={t('settings.account')} isDark={isDark} onBack={onBack}>
       <div className="absolute right-4 top-4 flex gap-2">
         <button
+          onClick={handleRestoreIdentity}
+          className={`p-2 rounded-full transition-colors ${isDark ? "hover:bg-white/10 text-gray-400" : "hover:bg-black/5 text-slate-500"}`}
+          title={t('settings.restoreIdentity', 'Restore Identity')}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+            <path d="M16 16h5v5"/>
+          </svg>
+        </button>
+        <button
           onClick={() => setShowShareId(true)}
           className={`p-2 rounded-full transition-colors ${isDark ? "hover:bg-white/10 text-gray-400" : "hover:bg-black/5 text-slate-500"}`}
-          title={t('settings.shareIdentity') || 'Share Identity'}
+          title={t('settings.shareIdentity')}
         >
           <Share2 size={18} />
         </button>
@@ -77,7 +94,7 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
               <div
                 key={acc.id}
                 onClick={() => setActiveId(acc.id)}
-                className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors ${isDark ? "hover:bg-[#20242e]" : "hover:bg-slate-100"}`}
+                className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors ${isDark ? "hover:bg-[var(--hover-bg-dark)]" : "hover:bg-slate-100"}`}
               >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] font-bold bg-gradient-to-br ${acc.color} flex-shrink-0`}>
                   {acc.name.charAt(0)}
@@ -110,7 +127,7 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
             ) : (
               <div
                 onClick={() => setShowAddInput(true)}
-                className={`flex items-center gap-3 p-3 shrink-0 rounded-2xl cursor-pointer transition-colors ${isDark ? "hover:bg-[#20242e] text-orange-400" : "hover:bg-slate-100 text-orange-600"}`}
+                className={`flex items-center gap-3 p-3 shrink-0 rounded-2xl cursor-pointer transition-colors ${isDark ? "hover:bg-[var(--hover-bg-dark)] text-orange-400" : "hover:bg-slate-100 text-orange-600"}`}
               >
                 <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${isDark ? "bg-orange-500/10" : "bg-orange-500/10"}`}>
                   <Plus size={20} />
@@ -119,6 +136,26 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      <div className={`rounded-xl overflow-hidden mt-4 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
+        <div className="p-4">
+          <button
+            onClick={handleRestoreIdentity}
+            className={`w-full flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors ${isDark ? "hover:bg-[var(--hover-bg-dark)] text-orange-400" : "hover:bg-slate-100 text-orange-600"}`}
+          >
+            <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${isDark ? "bg-orange-500/10" : "bg-orange-500/10"}`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                <path d="M16 16h5v5"/>
+              </svg>
+            </div>
+            <span className="text-sm font-bold">{t('settings.restoreIdentity')}</span>
+          </button>
+          <p className={`text-xs mt-2 px-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('settings.restoreIdentityDescription')}</p>
         </div>
       </div>
 
@@ -136,17 +173,19 @@ export const AccountSection = ({ isDark = false, onBack, t }: AccountSectionProp
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             className={`w-full max-w-[340px] p-6 shadow-2xl relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
           >
-            <div 
+            <button
+              type="button"
               className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
               onClick={() => setShowShareId(false)}
               title={t('contacts.close')}
+              aria-label={t('contacts.close')}
             >
               <X size={18} />
-            </div>
+            </button>
 
             <div className="flex flex-col items-center mt-4">
-              <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('settings.shareIdentity') || 'Share Identity'}</h3>
-              <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.shareDescription') || 'Share your identity so others can find and connect with you.'}</p>
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('settings.shareIdentity')}</h3>
+              <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.shareDescription')}</p>
               
               <div className={`w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
                   <QrCode size="100%" strokeWidth={1} className="text-[var(--text-secondary)]" />

@@ -237,7 +237,7 @@ This roadmap is based on the current codebase, not the legacy `app/docs` reports
 - **4 missing section components created**: StorageSection (backup/export/import), BotsSection (list/manage bots), SpamSection (filter toggle), SystemStatusSection (connection status, transport info, region blocked)
 - **Broken navigation fixed**: `storage`, `bots`, `spam`, `systemStatus` entries in main settings now navigate to their sections (previously `setActiveSection` had no render cases → silent no-op)
 - **SecuritySection rewritten**: Added PIN lock set/remove (SHA-256 salt + hash), secure wipe, removed mock `onClick={() => {}}`
-- **NetworkSection obfuscation wired**: obfuscation mode now cycles through real `TrafficObfuscator` modes (`xorshroud`/`httpmask`/`mediadummy`) and calls `trafficObfuscator.setMode()` on the singleton
+- **NetworkSection obfuscation wired**: obfuscation mode now cycles through real `TrafficObfuscator` modes (`aesgcm`/`httpmask`/`mediadummy`) and calls `trafficObfuscator.setMode()` on the singleton
 - **Unused variables removed**: `importStatus`, stale store destructuring cleaned up
 - **React.lazy added**: 6 section components (Security, Network, Storage, Bots, Spam, SystemStatus) loaded lazily with Suspense fallback
 

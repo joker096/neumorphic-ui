@@ -1,20 +1,25 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-const storeActions = {
+const storeState = {
   setConnectionStatus: vi.fn(),
   setTransportBackend: vi.fn(),
   setLatency: vi.fn(),
   setBlockedBackends: vi.fn(),
   setRegionBlocked: vi.fn(),
+  relayBackend: 'direct' as const,
+  autoReconnect: true,
 };
 
+const mockUseAppStore = vi.fn((selector?: (state: typeof storeState) => any) => {
+  if (typeof selector === 'function') {
+    return selector(storeState);
+  }
+  return storeState;
+});
+
 vi.mock('../store', () => ({
-  useAppStore: {
-    getState: () => storeActions,
-    setState: vi.fn(),
-    subscribe: vi.fn(),
-  },
+  useAppStore: mockUseAppStore,
 }));
 
 vi.mock('../config/signalling', () => ({
@@ -57,7 +62,7 @@ describe('useConnectionSetup', () => {
     const { result } = renderHook(() => useConnectionSetup());
 
     expect(result.current.connectionStatus).toBe('connecting');
-    expect(storeActions.setConnectionStatus).toHaveBeenCalledWith('connecting');
+    expect(storeState.setConnectionStatus).toHaveBeenCalledWith('connecting');
   });
 
   it('should create SignallingManager and connect', async () => {
@@ -88,13 +93,13 @@ describe('useConnectionSetup', () => {
     const blockedCb = (mockOnBlockedRegion.mock.calls as any[][])[0][0];
     act(() => { blockedCb({ region: 'XX' }); });
 
-    expect(storeActions.setRegionBlocked).toHaveBeenCalledWith(true);
+    expect(storeState.setRegionBlocked).toHaveBeenCalledWith(true);
   });
 
-  it('should read saved backend from localStorage', async () => {
-    localStorage.setItem('app_relay_backend', 'relay');
+  it('should read saved backend from store', async () => {
+    storeState.relayBackend = 'relay' as any;
     const { useConnectionSetup } = await import('./useConnectionSetup');
     renderHook(() => useConnectionSetup());
-    expect(localStorage.getItem('app_relay_backend')).toBe('relay');
+    expect(storeState.relayBackend).toBe('relay');
   });
 });

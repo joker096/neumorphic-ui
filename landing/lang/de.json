@@ -404,5 +404,14 @@
   "dl.isteps": "1. Website in Safari öffnen\\n2. «Teilen» antippen (□↑)\\n3. «Zum Home-Bildschirm»",
   "foot.docs": "Dokumentation",
   "foot.privacy": "Datenschutz",
-  "foot.contact": "Kontakt"
+  "foot.contact": "Kontakt",
+  "nav.comparison": "Vergleich",
+  "hero.title": "Lernen Sie <b>Mess&Anger</b> kennen",
+  "stats.label": "In Zahlen",
+  "stats.phases": "Architektur-Phasen (Reticulum-inspiriert)",
+  "stats.tests": "Tests bestanden",
+  "feat.desc": "Jede Funktion wird mit eingebauter Privatsphäre und Sicherheit geliefert. Nichts zum Abschalten — Sie müssen nicht zwischen Bedienbarkeit und Anonymität wählen.",
+  "cmp.r8": "Kein Post-Quanten-Schutz",
+  "skip.main": "Zum Inhalt springen",
+  "offline.banner": "Sie sind offline. Einige Funktionen sind möglicherweise nicht verfügbar."
 }

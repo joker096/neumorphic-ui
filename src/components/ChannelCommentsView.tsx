@@ -39,7 +39,7 @@ export const ChannelCommentsView = ({ isOpen, onClose, postId, postKey, theme = 
       }));
 
       // Broadcast through P2P pipeline
-      p2pNetwork.broadcast(JSON.stringify({
+      await p2pNetwork.broadcast(JSON.stringify({
          ...encryptedComment,
          chatId: channelChatId,
          postId,

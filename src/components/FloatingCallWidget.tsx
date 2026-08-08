@@ -86,7 +86,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
             <button 
               onClick={() => setActiveCall(null)}
               title={t('chat.endCall')}
-              className="w-12 h-12 rounded-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-[var(--text-primary)] shadow-lg transition-transform hover:scale-105 active:scale-95"
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-red-500 hover:bg-red-600 text-[var(--text-primary)] shadow-lg transition-transform active:scale-95"
             >
                <Phone size={20} className="rotate-[135deg] fill-white/20" strokeWidth={2.5} />
             </button>

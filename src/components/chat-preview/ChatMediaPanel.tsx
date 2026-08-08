@@ -92,7 +92,7 @@ export const ChatMediaPanel = ({
                 onClick={() => { if (msg.type === 'image') setActivePhotoUrl(msg.attachment || msg.url); setPhotoOpen(true); }}
               >
                 {msg.type === 'image' ? (
-                  <img src={msg.attachment || msg.url} alt="media" className="w-full h-full object-cover" />
+                   <img src={msg.attachment || msg.url} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-full object-cover" />
                 ) : msg.type === 'audio' ? (
                   <div className={`w-full h-full flex flex-col items-start justify-between p-3 ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-50"}`}>
                     <Mic size={18} className={isDark ? "text-orange-400" : "text-orange-600"} />

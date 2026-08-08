@@ -151,7 +151,7 @@ describe('P2PTransport', () => {
       expect((transport as any).onConnected).toBe(onConnected);
       expect((transport as any).onDisconnected).toBe(onDisconnected);
       expect((transport as any).iceServers).toEqual([
-        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:turn.neumorphic.local:3478' },
       ]);
       expect((transport as any).obfuscator).toBeNull();
       expect((transport as any).isRelayOnly).toBe(false);
@@ -288,24 +288,24 @@ describe('P2PTransport', () => {
   });
 
   describe('send()', () => {
-    it('sends data via data channel when hmacKey is not set', () => {
-      const transport = makeTransport();
-      const dc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
-      (transport as any).dataChannel = dc;
-      (transport as any).hmacKey = null;
+it('sends data via data channel when hmacKey is not set', async () => {
+       const transport = makeTransport();
+       const dc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
+       (transport as any).dataChannel = dc;
+       (transport as any).hmacKey = null;
 
-      transport.send('hello-world');
+       await transport.send('hello-world');
 
-      expect(dc.send).toHaveBeenCalledWith('hello-world');
-    });
+       expect(dc.send).toHaveBeenCalledWith('hello-world');
+     });
 
-    it('uses HMAC signature when hmacKey is set', async () => {
-      const transport = makeTransport();
-      const dc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
-      (transport as any).dataChannel = dc;
-      (transport as any).hmacKey = 'some-key';
+     it('uses HMAC signature when hmacKey is set', async () => {
+       const transport = makeTransport();
+       const dc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
+       (transport as any).dataChannel = dc;
+       (transport as any).hmacKey = 'some-key';
 
-      transport.send('hello');
+       await transport.send('hello');
 
       await vi.waitFor(() => {
         expect(HMACAuth.sign).toHaveBeenCalledWith('some-key', 'hello');
@@ -313,29 +313,29 @@ describe('P2PTransport', () => {
       });
     });
 
-    it('obfuscates data before sending when obfuscator is set', () => {
-      const obfuscator = { obfuscate: vi.fn().mockReturnValue('obfuscated-payload') };
-      const transport = makeTransport({ obfuscator });
-      const dc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
-      (transport as any).dataChannel = dc;
-      (transport as any).hmacKey = null;
+it('obfuscates data before sending when obfuscator is set', async () => {
+       const obfuscator = { obfuscate: vi.fn().mockResolvedValue('obfuscated-payload') };
+       const transport = makeTransport({ obfuscator });
+       const dc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
+       (transport as any).dataChannel = dc;
+       (transport as any).hmacKey = null;
 
-      transport.send('secret-data');
+       await transport.send('secret-data');
 
-      expect(obfuscator.obfuscate).toHaveBeenCalledWith('secret-data');
-      expect(dc.send).toHaveBeenCalledWith('obfuscated-payload');
-    });
+       expect(obfuscator.obfuscate).toHaveBeenCalledWith('secret-data');
+       expect(dc.send).toHaveBeenCalledWith('obfuscated-payload');
+     });
 
-    it('warns and does not send when data channel is not open', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const transport = makeTransport();
-      (transport as any).dataChannel = null;
+     it('warns and does not send when data channel is not open', async () => {
+       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+       const transport = makeTransport();
+       (transport as any).dataChannel = null;
 
-      transport.send('data');
+       await transport.send('data');
 
-      expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Data channel not open');
-      warnSpy.mockRestore();
-    });
+       expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Data channel not open');
+       warnSpy.mockRestore();
+     });
   });
 
   describe('sendCallControl()', () => {

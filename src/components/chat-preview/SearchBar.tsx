@@ -1,5 +1,6 @@
 import React from 'react'
 import { SearchInput } from '../ui/SearchInput'
+import { useI18n } from '../../lib/i18n'
 
 interface SearchBarProps {
   showSearch: boolean
@@ -10,6 +11,7 @@ interface SearchBarProps {
 }
 
 export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchChange = () => {}, placeholder }: SearchBarProps) => {
+  const { t } = useI18n();
   if (!showSearch) return null
 
   return (
@@ -18,7 +20,7 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
         <SearchInput
           value={searchQuery}
           onChange={onSearchChange}
-          placeholder={placeholder || 'Search'}
+          placeholder={placeholder || t('search.chatsOrMessages', 'Search')}
           isDark={isDark}
           shape="pill"
           role="searchbox"

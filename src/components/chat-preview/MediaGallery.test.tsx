@@ -42,7 +42,7 @@ describe('MediaGallery', () => {
 
   it('renders media grid with items', () => {
     render(<MediaGallery {...baseProps} />);
-    const imgs = document.querySelectorAll('img[alt="media"]');
+    const imgs = document.querySelectorAll('img[alt="Shared image"]');
     expect(imgs.length).toBe(2);
   });
 
@@ -77,7 +77,7 @@ describe('MediaGallery', () => {
         setPhotoOpen={setPhotoOpen}
       />,
     );
-    const imageDivs = document.querySelectorAll('img[alt="media"]');
+    const imageDivs = document.querySelectorAll('img[alt="Shared image"]');
     fireEvent.click(imageDivs[0].closest('div[cursor-pointer]') || imageDivs[0]);
     expect(setActivePhotoUrl).toHaveBeenCalledWith('photo1.jpg');
     expect(setPhotoOpen).toHaveBeenCalledWith(true);

@@ -195,6 +195,11 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Skip non-HTTP(S) requests (chrome-extension://, chrome://, about://, file://, etc.)
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return;
+  }
+
   function shouldCache(method) {
     return method === 'GET';
   }
@@ -354,29 +359,28 @@ self.addEventListener('notificationclose', () => {
 // --- Sync: Background sync for queued messages ---
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-messages') {
-    event.waitUntil(handleMessageSync());
+    event.waitUntil(notifyClientsToSync());
   }
 });
 
-async function handleMessageSync() {
-  const queued = await getQueuedMessages();
-  const promises = queued.map(async (message) => {
-    try {
-      await fetch('/api/messages/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(message.data),
-      });
-      await markMessageSent(message.id);
-    } catch (error) {
-      console.error('Failed to send message:', error);
-    }
-  });
-  await Promise.all(promises);
+async function notifyClientsToSync() {
+  try {
+    const allClients = await self.clients.matchAll();
+    allClients.forEach((client: any) => {
+      client.postMessage({ type: 'connectivity-change', online: true });
+    });
+  } catch {
+    // noop
+  }
 }
 
 // --- Message: Forward messages to service worker ---
 self.addEventListener('message', (event) => {
+  if (event.source) {
+    let sourceUrl = '';
+    try { sourceUrl = (event.source.url || '').toString(); } catch { sourceUrl = ''; }
+    if (sourceUrl && !sourceUrl.startsWith(self.location.origin)) return;
+  }
   if (event.data?.type === 'queueMessage') {
     addToQueue(event.data.message);
   } else if (event.data?.type === 'markSent') {

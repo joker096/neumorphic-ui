@@ -404,5 +404,14 @@
   "dl.isteps": "1. Abrir en Safari\\n2. Tocar «Compartir» (□↑)\\n3. «Añadir a inicio»",
   "foot.docs": "Documentación",
   "foot.privacy": "Privacidad",
-  "foot.contact": "Contacto"
+  "foot.contact": "Contacto",
+  "nav.comparison": "Comparación",
+  "hero.title": "Conoce <b>Mess&Anger</b>",
+  "stats.label": "En cifras",
+  "stats.phases": "Fases de arquitectura (inspiradas en Reticulum)",
+  "stats.tests": "Pruebas superadas",
+  "feat.desc": "Cada función incluye privacidad y seguridad integradas. Sin opción de desactivar — porque no deberías tener que elegir entre usabilidad y anonimato.",
+  "cmp.r8": "Sin protección post-cuántica",
+  "skip.main": "Saltar al contenido",
+  "offline.banner": "Estás sin conexión. Algunas funciones pueden no estar disponibles."
 }

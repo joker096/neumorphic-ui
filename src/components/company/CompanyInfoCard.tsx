@@ -1,4 +1,5 @@
 import { useAppStore } from '../../store';
+import { useI18n } from '../../lib/i18n';
 
 type CompanyInfoCardProps = {
   isDark?: boolean;
@@ -7,6 +8,7 @@ type CompanyInfoCardProps = {
 };
 
 export const CompanyInfoCard = ({ isDark = false, orgId = 'N/A', connected }: CompanyInfoCardProps) => {
+  const { t } = useI18n();
   const companySettings = useAppStore(state => state.companySettings);
 
   const hasContactInfo = companySettings && (
@@ -30,7 +32,7 @@ export const CompanyInfoCard = ({ isDark = false, orgId = 'N/A', connected }: Co
         </div>
         <div className="flex-1 min-w-0">
           <div className={`font-bold text-lg truncate ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>
-            {companySettings?.name || 'Company'}
+            {companySettings?.name || t('company.orgName')}
           </div>
           <div className={`text-xs font-mono truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-secondary)]"}`}>{orgId}</div>
         </div>

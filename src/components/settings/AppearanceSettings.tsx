@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Download, Palette, Sparkles } from 'lucide-react';
+import { Download, Palette, Sparkles, Monitor } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
@@ -22,7 +22,7 @@ export const AppearanceSettings = ({
   isDark = false, theme, setTheme, fontSize, setFontSize, uiAnimations, setUiAnimations, showPwaBanner, setShowPwaBanner, onBack
 }: AppearanceSettingsProps) => {
   const { t } = useI18n();
-  
+
   return (
     <SubView title={t('settings.appearance')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('settings.appearanceDescription')} isDark={isDark} />
@@ -74,6 +74,20 @@ export const AppearanceSettings = ({
           toggleOffIcon={<Download size={14} />}
         />
       </SettingsGroup>
+
+      {showPwaBanner && (
+        <div className={`mt-4 p-4 rounded-xl border ${isDark ? "bg-emerald-500/10 border-emerald-500/20" : "bg-emerald-50 border-emerald-200"}`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
+              <Monitor size={20} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+            </div>
+            <div className="flex-1">
+              <div className={`text-sm font-semibold ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>{t('settings.installApp', 'Install App')}</div>
+              <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.pwaWorksOffline', 'Works offline')} • {t('settings.pwaFasterLoading', 'Faster loading')} • {t('settings.pwaAddToHomeScreen', 'Add to home screen')}</div>
+            </div>
+          </div>
+        </div>
+      )}
     </SubView>
   );
 };

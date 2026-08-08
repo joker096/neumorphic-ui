@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } from "lucide-react";
+import { APP_INFO } from "../../config/settingsDefaults";
 
 export type LandingPageProps = {
   isDark?: boolean;
@@ -66,7 +67,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <div className={`mb-6 px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border ${
             isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
           }`}>
-            v1.0 &mdash; June 2026
+            {APP_INFO.VERSION} &mdash; June 2026
           </div>
 
           <h1 className={`text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 ${
@@ -89,7 +90,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <div className="flex items-center gap-4">
             <button
               onClick={onGetStarted}
-              className="group relative overflow-hidden rounded-full px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-full px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
             >
               <span className="relative z-10 flex items-center gap-3">
                 Open App
@@ -239,7 +240,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           </p>
           <button
             onClick={onGetStarted}
-            className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
+            className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
           >
             <span className="relative z-10 flex items-center gap-3">
               Get Started

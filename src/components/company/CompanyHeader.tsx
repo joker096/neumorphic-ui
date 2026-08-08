@@ -28,7 +28,7 @@ export const CompanyHeader = ({ isDark = false, onScanQR, onInvite, onSettings }
   return (
     <div className="w-full flex items-center justify-between mb-6 px-2">
       <h2 className={`font-sans text-2xl font-bold tracking-wide ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>
-        {companyName || 'Company'}
+        {companyName || t('company.orgName')}
       </h2>
       <div className="flex gap-3">
         {iconBtn(<QrCode size={20} />, 'QR Code', onScanQR, isDark)}

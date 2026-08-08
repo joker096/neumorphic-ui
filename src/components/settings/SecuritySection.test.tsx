@@ -25,20 +25,40 @@ vi.mock('../../lib/i18n', () => ({
 }));
 
 beforeEach(() => {
-  mockUseAppStore.mockImplementation(() => ({
-    setAppLock: vi.fn(),
-    appLockHashedPIN: null,
-    appLockSalt: '',
-  }));
+  mockUseAppStore.mockImplementation((selector?: any) => {
+    const state = {
+      setAppLock: vi.fn(),
+      appLockHashedPIN: null,
+      appLockSalt: '',
+      twoFactor: false,
+      setTwoFactor: vi.fn(),
+      deadMansSwitch: '6 months',
+      setDeadMansSwitch: vi.fn(),
+    };
+    if (typeof selector === 'function') {
+      return selector(state);
+    }
+    return state;
+  });
 });
 
 describe('SecuritySection - additional tests', () => {
   it('renders lock icon when pin exists', () => {
-    mockUseAppStore.mockImplementation(() => ({
-      setAppLock: vi.fn(),
-      appLockHashedPIN: 'hashed',
-      appLockSalt: 'salt',
-    }));
+    mockUseAppStore.mockImplementation((selector?: any) => {
+      const state = {
+        setAppLock: vi.fn(),
+        appLockHashedPIN: 'hashed',
+        appLockSalt: 'salt',
+        twoFactor: false,
+        setTwoFactor: vi.fn(),
+        deadMansSwitch: '6 months',
+        setDeadMansSwitch: vi.fn(),
+      };
+      if (typeof selector === 'function') {
+        return selector(state);
+      }
+      return state;
+    });
 
     render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
     expect(document.querySelector('[class*="lucide"]') || document.querySelector('svg')).toBeInTheDocument();

@@ -5,6 +5,8 @@
 import { P2PTransport } from './P2PTransport';
 import { MeshDHT, DHTBootstrapPeer } from './MeshDHT';
 import { MeshRouterCore, MeshRouterSingleton } from './MeshRouter';
+import { useAppStore } from '../../store';
+import { trafficObfuscator } from '../transport/obfuscator';
 
 export interface PeerConnection {
   peerId: string;
@@ -162,9 +164,12 @@ export class P2PNetwork {
     });
 
     // Create transport (this would use WebRTC in production)
+    const obfuscationEnabled = useAppStore.getState().obfuscationEnabled;
     const transport = new P2PTransport({
       signalingUrl: '', // No signaling URL needed in Kadabra
       localPublicKey: this.peerPublicKey,
+      obfuscator: obfuscationEnabled ? trafficObfuscator : undefined,
+      obfuscationEnabled,
       onMessage: (data: string) => {
         const msg: BroadcastMessage = {
           senderId: peerId,
@@ -214,7 +219,7 @@ export class P2PNetwork {
     this.disconnectionCallbacks.forEach((cb) => cb(peerId));
   }
 
-  broadcast(data: any): void {
+  async broadcast(data: any): Promise<void> {
     if (!this.isInitialized) {
       throw new Error('Network not initialized. Call init() first.');
     }
@@ -226,13 +231,14 @@ export class P2PNetwork {
       messageId: crypto.randomUUID(),
     };
 
-    for (const [peerId, transport] of this.transports) {
+    const promises = Array.from(this.transports.entries()).map(([peerId, transport]) => {
       try {
-        transport.send(JSON.stringify(msg));
+        return transport.send(JSON.stringify(msg));
       } catch (err) {
         console.error(`[P2PNetwork] Failed to send to ${peerId}:`, err);
       }
-    }
+    });
+    await Promise.allSettled(promises);
   }
 
   onMessage(handler: (msg: BroadcastMessage) => void): void {

@@ -1,16 +1,15 @@
 import React, { useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  BellOff, Bookmark, Check, CheckCheck, Play, Plus,
+  BellOff, Bookmark, Check, CheckCheck, Play,
 } from "lucide-react";
 import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
 import { Tooltip } from "../Tooltip";
 import { VoiceWaveform } from "./VoiceWaveform";
+import { MessageReactions } from "./MessageReactions";
 import { useI18n } from "../../lib/i18n";
 import { fuzzTime, getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
-
-const AVAILABLE_EMOJIS = ["👍", "❤️", "😂", "🔥", "😢", "🎉"];
 
 interface ChatMessageProps {
   msg: any;
@@ -127,7 +126,7 @@ function ChatMessageImpl({
               className="rounded-xl overflow-hidden mb-1 relative border border-[var(--border-color)] cursor-pointer"
               onClick={() => { onSetActivePhotoUrl(msg.attachment || msg.url); onSetPhotoOpen(true); }}
             >
-              <img src={msg.attachment || msg.url} alt="Shared" className="w-full h-auto object-cover max-h-[240px] sm:max-h-[280px] md:max-h-[320px]" />
+              <img src={msg.attachment || msg.url} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-auto object-cover max-h-[240px] sm:max-h-[280px] md:max-h-[320px]" />
             </div>
           )}
           {msg.type === "video" && (
@@ -137,7 +136,7 @@ function ChatMessageImpl({
             >
               <img src={msg.thumb} alt="Video thumbnail" className="w-full h-auto sm:w-[180px] sm:h-[100px] md:w-[200px] md:h-[120px] object-cover opacity-80" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform">
                   <Play size={20} className="text-[var(--text-primary)] fill-white ml-1" />
                 </div>
               </div>
@@ -260,56 +259,15 @@ function ChatMessageImpl({
             </div>
           )}
         </div>
-        <div
-          className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-[var(--text-primary)]" : "bg-white text-slate-400 hover:text-slate-800"} w-10 h-10 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]`}
-          onClick={() => onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
-          aria-label="Reactions"
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id); }}
-        >
-          <Plus size={16} />
-        </div>
-        <AnimatePresence>
-          {activeReactionPicker === msg.id && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, x: isMe ? 10 : -10 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.9, x: isMe ? 10 : -10 }}
-              className={`absolute top-1/2 -translate-y-1/2 ${isMe ? "right-[calc(100%+8px)] mr-0" : "left-[calc(100%+8px)] ml-0"} z-20 flex bg-black/80 backdrop-blur-md rounded-full shadow-xl px-1 py-1`}
-            >
-              {AVAILABLE_EMOJIS.map(emoji => (
-                <button
-                  key={emoji}
-                  type="button"
-                  className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
-                  onClick={() => onReactionMessage(msg.id, emoji)}
-                  aria-label={emoji}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <MessageReactions
+          msg={msg}
+          isMe={isMe}
+          isDark={isDark}
+          activeReactionPicker={activeReactionPicker}
+          onSetActiveReactionPicker={onSetActiveReactionPicker}
+          onReactionMessage={onReactionMessage}
+        />
       </div>
-      {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-        <div className="flex gap-1.5 mt-1 z-10 relative">
-          {Object.entries(msg.reactions).map(([emoji, count]) => (
-            <React.Fragment key={emoji}>
-              <Tooltip content={`${count === 1 ? 'You' : count + ' users'} reacted with ${emoji}`} position="top" theme={isDark ? 'dark' : 'light'}>
-                <div
-                  className={`rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center cursor-help group select-none border transition-colors ${isDark ? "bg-[var(--bg-tertiary)] text-gray-300 border-[var(--border-color)] hover:border-[var(--border-color)] hover:bg-[#20242e]" : "bg-white text-slate-700 border-[var(--border-color)] hover:bg-slate-50 hover:border-[var(--border-color)]"}`}
-                  onClick={() => onReactionMessage(msg.id, emoji)}
-                >
-                  {emoji}
-                  <span className={`ml-1.5 text-[11px] font-bold ${isDark ? "opacity-60" : "opacity-80"}`}>{String(count)}</span>
-                </div>
-              </Tooltip>
-            </React.Fragment>
-          ))}
-        </div>
-      )}
     </motion.div>
   );
 }

@@ -8,7 +8,7 @@ export const TopBar = ({
   isDark, isRadioMode, showEq, showPlaylist, setShowEq, setShowPlaylist, handleFileSelect, handleFolderSelect, handleVideoFileSelect,
   setIsRadioMode, setShowAddStationModal, setStationName, setStationUrl, setStationAddError, setRadioStations
 }: TopBarProps) => {
-  const textColor = isDark ? "text-[#e6d6b8]" : "text-slate-700";
+  const textColor = isDark ? "text-[var(--text-warm-dark)]" : "text-slate-700";
 
   return (
     <div className="w-full flex items-center justify-end px-2 mb-8 relative z-10">

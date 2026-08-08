@@ -16,21 +16,23 @@ export interface DoubleRatchetState {
 
 async function hkdfDerive(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, length = 32): Promise<Uint8Array> {
   try {
-    const key = await crypto.subtle.importKey('raw', ikm, { name: 'PBKDF2' }, false, ['deriveKey'])
-    const combinedSalt = new Uint8Array(salt.length + info.length)
-    combinedSalt.set(salt, 0)
-    combinedSalt.set(info, salt.length)
-    const keyDerive = await crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
-      key,
+    const baseKey = await crypto.subtle.importKey(
+      'raw',
+      ikm,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign'],
+    )
+    const derivedKey = await crypto.subtle.deriveKey(
+      { name: 'HKDF', salt, info, hash: 'SHA-256' },
+      baseKey,
       { name: 'AES-GCM', length },
       false,
-      ['encrypt', 'decrypt']
+      ['encrypt', 'decrypt'],
     )
-    const rawKey = await crypto.subtle.exportKey('raw', keyDerive)
+    const rawKey = await crypto.subtle.exportKey('raw', derivedKey)
     return new Uint8Array(rawKey)
   } catch {
-    // Fallback: use SHA-256 based derivation if PBKDF2 is not available
     const hash = await crypto.subtle.digest('SHA-256', new Uint8Array([...salt, ...ikm, ...info]))
     const result = new Uint8Array(length)
     result.set(new Uint8Array(hash), 0)
@@ -47,11 +49,8 @@ async function hkdfDerive(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, l
 async function deriveChainKeys(rootKey: CryptoKey, role: 'send' | 'recv'): Promise<CryptoKey> {
   const salt = crypto.getRandomValues(new Uint8Array(32))
   const info = new TextEncoder().encode(role)
-  const combinedSalt = new Uint8Array(salt.length + info.length)
-  combinedSalt.set(salt, 0)
-  combinedSalt.set(info, salt.length)
   return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
+    { name: 'HKDF', salt, info, hash: 'SHA-256' },
     rootKey,
     { name: 'AES-GCM', length: 256 },
     false,
@@ -189,11 +188,8 @@ export class DoubleRatchet {
     }
     const salt = crypto.getRandomValues(new Uint8Array(32))
     const info = new TextEncoder().encode(`forward-secrecy-${this.state.sendCounter}`)
-    const combinedSalt = new Uint8Array(salt.length + info.length)
-    combinedSalt.set(salt, 0)
-    combinedSalt.set(info, salt.length)
     return crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt: combinedSalt, iterations: 1 },
+      { name: 'HKDF', salt, info, hash: 'SHA-256' },
       this.state.rootKey,
       { name: 'AES-GCM', length: 256 },
       false,
@@ -205,6 +201,13 @@ export class DoubleRatchet {
    * Add a skipped message key for out-of-order delivery
    */
   addSkippedMessageKey(keyId: string, key: CryptoKey, counter: number): void {
+    const MAX_SKIPPED_KEYS = 1000
+    if (this.state.skippedMessageKeys.size >= MAX_SKIPPED_KEYS) {
+      const firstKey = this.state.skippedMessageKeys.keys().next().value
+      if (firstKey !== undefined) {
+        this.state.skippedMessageKeys.delete(firstKey)
+      }
+    }
     this.state.skippedMessageKeys.set(keyId, { key, counter })
   }
 

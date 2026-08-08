@@ -1,9 +1,12 @@
 import React from "react";
-import { X, BellOff, Clock, ChevronRight, Mic, Smile, Plus } from "lucide-react";
+import { BellOff, ChevronRight, Clock, Mic, Smile, Plus } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { LiveVoiceRecorder } from "../LiveVoiceRecorder";
 import { StickerPicker } from "../chat/StickerPicker";
-import { encodeMorse } from "../MorseDecoder";
+import { ChatInputSchedulePopup } from "./ChatInputSchedulePopup";
+import { ChatInputReplyBar } from "./ChatInputReplyBar";
+import { ChatInputVoiceError } from "./ChatInputVoiceError";
+import { MorsePreview } from "./MorsePreview";
 
 interface ChatInputAreaProps {
   isDark: boolean;
@@ -87,7 +90,7 @@ function ChatInputAreaImpl({
           }}
           className={`w-full py-3 rounded-xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${
             isDark
-              ? "bg-[var(--bg-secondary)] hover:bg-[#20242e] text-orange-400 border border-[var(--border-color)]"
+              ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-orange-400 border border-[var(--border-color)]"
               : "bg-white hover:bg-slate-50 text-orange-600 border border-[var(--border-color)] shadow-sm"
           }`}
         >
@@ -99,57 +102,14 @@ function ChatInputAreaImpl({
 
   return (
     <>
-      {eShowSchedulePopup && (
-        <div className={`mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-xl flex flex-col gap-2 ${
-          isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"
-        }`}>
-          <div className="flex justify-between items-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-orange-500">{t("chat.scheduleSend")}</span>
-            <button
-              type="button"
-              className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer ${
-                isDark ? "text-gray-400 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800"
-              }`}
-              onClick={() => setShowSchedulePopupFn2(false)}
-              aria-label={translate("common.close")}
-            >
-              <X size={16} />
-            </button>
-          </div>
-          <input
-            type="datetime-local"
-            value={eScheduleDateTime}
-            onChange={(e) => setScheduleDtFn2(e.target.value)}
-            className={`w-full outline-none text-sm p-2 rounded-lg ${
-              isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]" : "bg-slate-50 text-slate-800"
-            }`}
-          />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setScheduleDtFn2("");
-                setShowSchedulePopupFn2(false);
-              }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg ${
-                isDark ? "bg-white/5 text-gray-400 hover:bg-white/10" : "bg-black/5 text-slate-500 hover:bg-black/10"
-              }`}
-            >
-              {t("common.cancel")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowSchedulePopupFn2(false)}
-              disabled={!eScheduleDateTime}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${
-                !eScheduleDateTime ? "opacity-50 cursor-not-allowed" : ""
-              } ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}
-            >
-              {t("chat.setTime")}
-            </button>
-          </div>
-        </div>
-      )}
+      <ChatInputSchedulePopup
+        scheduleDateTime={eScheduleDateTime}
+        setScheduleDateTime={setScheduleDtFn2}
+        showSchedulePopup={eShowSchedulePopup}
+        setShowSchedulePopup={setShowSchedulePopupFn2}
+        isDark={isDark}
+        t={t}
+      />
 
       {eIsRecordingVoice ? (
         <div className="px-3 pb-2">
@@ -251,17 +211,18 @@ function ChatInputAreaImpl({
               type="button"
               title={t("chat.silentMessage")}
               aria-label={t("chat.silentMessage")}
+              aria-pressed={eSilentMode}
               onClick={() => {
                 setSilentModeFn2(!eSilentMode);
               }}
-              className={`px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+              className={`min-w-[40px] min-h-[40px] px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
                 eSilentMode
                   ? isDark
                     ? "text-blue-400"
-                    : "text-blue-500"
+                    : "text-blue-600"
                   : isDark
-                    ? "text-gray-600 hover:text-gray-400"
-                    : "text-slate-400 hover:text-slate-600"
+                    ? "text-gray-400 hover:text-gray-300"
+                    : "text-slate-500 hover:text-slate-700"
               }`}
             >
               <BellOff size={12} />
@@ -270,15 +231,16 @@ function ChatInputAreaImpl({
               type="button"
               title={t("chat.toggleMorseEncoder")}
               aria-label={t("chat.toggleMorseEncoder")}
+              aria-pressed={eMorseMode}
               onClick={() => {
                 setMorseModeFn2(!eMorseMode);
               }}
-              className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-mono font-bold cursor-pointer transition-colors ${
+              className={`min-w-[40px] min-h-[40px] px-1.5 py-1 rounded-full text-[10px] font-mono font-bold cursor-pointer transition-colors ${
                 eMorseMode
                   ? "bg-amber-500 text-[var(--text-primary)]"
                   : isDark
                     ? "hover:bg-white/10 text-gray-400"
-                    : "hover:bg-black/5 text-slate-400"
+                    : "hover:bg-black/5 text-slate-500"
               }`}
             >
               M
@@ -322,49 +284,9 @@ function ChatInputAreaImpl({
         </button>
       </div>
 
-      {eReplyTarget && (
-        <div className={`mx-2 sm:mx-3 mb-1 px-2 sm:px-3 py-2 rounded-xl border-l-2 flex items-start justify-between gap-1.5 sm:gap-2 ${
-          isDark ? "bg-[var(--bg-tertiary)]/80 border-orange-400/60 text-gray-300" : "bg-white/80 border-orange-500 text-slate-700"
-        }`}>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold opacity-70">
-              <ChevronRight size={10} className="rotate-180" />
-              {t("chat.replyingTo")} {eReplyTarget.sender === "me" ? t("chat.yourMessage") : eReplyTarget.sender}
-            </div>
-            <div className="text-[12px] truncate mt-0.5">
-              {eReplyTarget.text ||
-                (eReplyTarget.type === "audio"
-                  ? `${t("chat.voiceNote")}${eReplyTarget.duration || ""}`
-                  : eReplyTarget.type === "image"
-                    ? t("chat.photoAttachment")
-                    : t("chat.attachment"))}
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setLocalReplyTarget(null)}
-            className={`mt-0.5 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-90 ${
-              isDark ? "text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"
-            }`}
-          >
-            <X size={14} strokeWidth={2} />
-          </button>
-        </div>
-      )}
-
-      {eVoiceNoteError && (
-        <div className={`mx-1 sm:mx-2 md:mx-3 text-[11px] px-2 sm:px-3 py-2 rounded-xl ${
-          isDark ? "bg-red-500/10 text-red-300 border border-red-500/20" : "bg-red-50 text-red-600 border border-red-200"
-        }`}>
-          {eVoiceNoteError}
-        </div>
-      )}
-
-      {eMorseMode && eMsgText && (
-        <div className="mx-2 sm:mx-3 px-3 sm:px-5 pt-1 pb-1 font-mono text-[9.5px] sm:text-[10.5px] text-amber-500/80 tracking-widest break-all">
-          {encodeMorse(eMsgText)}
-        </div>
-      )}
+      <ChatInputReplyBar replyTarget={eReplyTarget} setReplyTarget={setLocalReplyTarget} isDark={isDark} t={t} />
+      <ChatInputVoiceError voiceNoteError={eVoiceNoteError} isDark={isDark} />
+      <MorsePreview msgText={eMsgText} isDark={isDark} />
 
       {eShowStickerPicker && (
         <div className="animate-fade-in">
@@ -383,7 +305,3 @@ function ChatInputAreaImpl({
 }
 
 export const ChatInputArea = React.memo(ChatInputAreaImpl);
-
-
-
-

@@ -33,14 +33,17 @@ export const parseMentions = (text: string): { text: string; mentions: { name: s
   return { text, mentions };
 };
 
+import { useAppStore } from '../store';
+
 /**
- * Check if DND mode is active based on localStorage settings
+ * Check if DND mode is active based on store settings
  */
 export const isDNDEnabled = (): boolean => {
   try {
-    const dndEnabled = localStorage.getItem('app_dnd_enabled') === 'true';
-    const dndFrom = localStorage.getItem('app_dnd_from') || '22:00';
-    const dndTo = localStorage.getItem('app_dnd_to') || '08:00';
+    const store = useAppStore.getState();
+    const dndEnabled = store.dndEnabled;
+    const dndFrom = store.dndFrom || '22:00';
+    const dndTo = store.dndTo || '08:00';
     if (!dndEnabled) return false;
     const now = new Date();
     const hours = now.getHours();
@@ -65,7 +68,8 @@ export const isDNDEnabled = (): boolean => {
  */
 export const isPriorityContact = (contactName: string): boolean => {
   try {
-    const priorityStr = localStorage.getItem('app_priority_contacts');
+    const store = useAppStore.getState();
+    const priorityStr = store.priorityContacts;
     if (!priorityStr) return false;
     const names = JSON.parse(priorityStr);
     return names.some((n: string) =>

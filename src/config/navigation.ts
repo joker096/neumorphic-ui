@@ -9,7 +9,6 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { id: "chats", label: "nav.chats", icon: MessageCircle },
-  { id: "calls", label: "nav.calls", icon: Phone },
   { id: "contacts", label: "nav.contacts", icon: Users },
   { id: "company", label: "settings.company", icon: Building2 },
   { id: "settings", label: "nav.settings", icon: Settings },

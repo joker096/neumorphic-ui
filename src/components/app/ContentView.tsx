@@ -41,7 +41,7 @@ export const ContentView = ({
       animate={enabled ? "center" : undefined}
       exit={enabled ? "exit" : undefined}
       transition={{ duration, ease: [0.25, 0.1, 0.25, 1] }}
-      className="flex-1 w-full max-w-[500px] md:max-w-[640px] lg:max-w-[800px] mx-auto flex flex-col relative z-20 pt-0 md:pt-2 pb-0 md:pb-4 h-full min-h-0"
+      className="flex-1 w-full max-w-none md:max-w-[640px] lg:max-w-[800px] mx-auto flex flex-col relative z-20 pt-0 md:pt-2 pb-0 md:pb-4 h-full min-h-0"
     >
       <div className="flex-1 w-full overflow-hidden relative flex flex-col items-center min-h-0">
         {children}

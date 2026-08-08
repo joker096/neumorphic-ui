@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
+import { useAppStore } from '../store';
 
 interface AnimationContextValue {
   enabled: boolean;
@@ -14,26 +15,17 @@ const AnimationContext = createContext<AnimationContextValue>({
 
 export function AnimationProvider({ children }: { children: ReactNode }) {
   const [reducedMotion, setReducedMotion] = useState(true);
-  const [enabled, setEnabled] = useState(true);
-  const mqlRef = useRef<MediaQueryList | null>(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('app_ui_animations');
-      setEnabled(stored === null ? true : stored === 'true');
-    } catch {
-      setEnabled(true);
-    }
-  }, []);
+  const uiAnimations = useAppStore(state => state.uiAnimations);
 
   useEffect(() => {
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-    mqlRef.current = mql;
     setReducedMotion(mql.matches);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
   }, []);
+
+  const enabled = uiAnimations;
 
   const value: AnimationContextValue = {
     enabled,

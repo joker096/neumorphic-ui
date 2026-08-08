@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { X, TrendingUp, WifiOff } from 'lucide-react'
+import { TrendingUp, WifiOff } from 'lucide-react'
 import { SearchInput } from './SearchInput'
+import { CloseButton } from './CloseButton'
 import { useI18n } from '../../lib/i18n'
 
 interface Props {
@@ -104,9 +105,7 @@ export const GifSearch = ({ open, onClose, onSelect }: Props) => {
                 autoFocus
               />
             </div>
-            <button onClick={onClose} className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${'text-[var(--text-primary)] hover:bg-white/10'}`}>
-              <X size={16} />
-            </button>
+            <CloseButton onClick={onClose} aria-label={t('common.close')} size="sm" />
           </div>
 
           <div className="overflow-y-auto max-h-60 p-2">

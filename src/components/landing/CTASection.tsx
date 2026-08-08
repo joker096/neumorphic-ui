@@ -18,7 +18,7 @@ export const CTASection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarte
     </p>
     <button
       onClick={onGetStarted}
-      className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] active:scale-[0.98]"
+      className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
     >
       <span className="relative z-10 flex items-center gap-3">
         Get Started

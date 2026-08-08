@@ -153,12 +153,6 @@ describe('OnboardingPanel', () => {
     expect(btn?.className).toContain('shadow-md');
   });
 
-  it('renders start chat button with hover scale', () => {
-    const { container } = render(<OnboardingPanel isDark={false} t={mockT} onStartChat={vi.fn()} />);
-    const btn = container.querySelector('button');
-    expect(btn?.className).toContain('hover:scale-[1.02]');
-  });
-
   it('renders start chat button with active scale', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} onStartChat={vi.fn()} />);
     const btn = container.querySelector('button');

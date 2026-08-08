@@ -1,3 +1,5 @@
+import { useAppStore } from '../../store';
+
 export interface ProxyConfig {
   enabled: boolean
   url: string
@@ -6,11 +8,12 @@ export interface ProxyConfig {
 }
 
 export function getProxyConfig(): ProxyConfig {
+  const store = useAppStore.getState();
   return {
-    enabled: localStorage.getItem("app_proxy") === "true",
-    url: localStorage.getItem("app_proxy_url") || "",
-    torBridge: localStorage.getItem("app_tor_bridge") || "None",
-    obfuscationMode: localStorage.getItem("app_obfuscation") || "Auto",
+    enabled: store.proxyEnabled,
+    url: store.proxyUrl,
+    torBridge: store.torBridge,
+    obfuscationMode: store.obfuscationMode,
   }
 }
 

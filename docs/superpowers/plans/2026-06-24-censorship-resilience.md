@@ -102,7 +102,7 @@ Expected: FAIL
 
 ```typescript
 interface ObfuscatorConfig {
-  mode: 'xorshroud' | 'httpmask' | 'mediadummy';
+  mode: 'aesgcm' | 'httpmask' | 'mediadummy';
   userAgentPool?: string[];
 }
 
@@ -122,7 +122,7 @@ export class TrafficObfuscator {
   private key: string;
   private config: ObfuscatorConfig;
 
-  constructor(key: string = crypto.randomUUID(), mode: ObfuscatorConfig['mode'] = 'xorshroud') {
+  constructor(key: string = crypto.randomUUID(), mode: ObfuscatorConfig['mode'] = 'aesgcm') {
     this.key = key;
     this.config = { mode, userAgentPool: DEFAULT_USER_AGENTS };
   }
@@ -1506,7 +1506,7 @@ import { useState } from 'react';
 import { useAppStore } from '../../store';
 
 const TRANSPORT_MODES = [
-  { value: 'xorshroud', label: 'XOR Shroud (basic)' },
+  { value: 'aesgcm', label: 'AES-GCM (secure)' },
   { value: 'httpmask', label: 'HTTP Mask (recommended)' },
   { value: 'mediadummy', label: 'Media Dummy (stealth)' },
 ];

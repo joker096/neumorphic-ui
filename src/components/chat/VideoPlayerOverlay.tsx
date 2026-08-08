@@ -51,7 +51,7 @@ export const VideoPlayerOverlay = ({
               alt="Video frame"
               loading="lazy" decoding="async"
             />
-            <div className="absolute w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-2xl border border-[var(--border-color)]">
+            <div className="absolute w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center cursor-pointer transition-transform active:scale-95 shadow-2xl border border-[var(--border-color)]">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="5,3 19,12 5,21" fill="currentColor" />
               </svg>

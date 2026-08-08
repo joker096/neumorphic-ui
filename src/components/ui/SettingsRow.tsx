@@ -21,7 +21,7 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      if (!hasRightAction) onClick?.();
+      onClick?.();
     }
   };
 

@@ -1,5 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { useI18n } from '../../lib/i18n';
 
 interface PageHeaderProps {
   title: string;
@@ -11,11 +12,14 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, onBack, right, className = '', subtitle, avatar }: PageHeaderProps) {
+  const { t } = useI18n();
   return (
     <div className={`flex items-center gap-3 mb-4 shrink-0 ${className}`}>
       {onBack && (
         <button
+          type="button"
           onClick={onBack}
+          aria-label={t('common.back')}
           className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all bg-white/10 hover:bg-white/20 active:bg-white/30"
         >
           <ChevronLeft size={20} className="text-[var(--text-primary)]" />

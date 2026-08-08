@@ -41,6 +41,7 @@ const defaultProps = {
   onProfileCall: vi.fn(), onProfileVideoCall: vi.fn(),
   onProfileMessage: vi.fn(), onProfileDelete: vi.fn(),
   onProfileEdit: vi.fn(), onProfileBlock: vi.fn(),
+  onProfileToggleFavorite: vi.fn(),
 };
 
 describe('AppOverlays', () => {

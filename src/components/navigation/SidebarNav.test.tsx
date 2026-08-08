@@ -12,30 +12,29 @@ const defaultProps = {
 describe('SidebarNav', () => {
   it('renders sidebar with nav items', () => {
     render(<SidebarNav {...defaultProps} />);
-    expect(screen.getByText('nav.chats')).toBeInTheDocument();
-    expect(screen.getByText('nav.calls')).toBeInTheDocument();
-    expect(screen.getByText('nav.contacts')).toBeInTheDocument();
-    expect(screen.getByText('settings.company')).toBeInTheDocument();
-    expect(screen.getByText('nav.settings')).toBeInTheDocument();
+    expect(screen.getByLabelText('nav.chats')).toBeInTheDocument();
+    expect(screen.getByLabelText('nav.contacts')).toBeInTheDocument();
+    expect(screen.getByLabelText('settings.company')).toBeInTheDocument();
+    expect(screen.getByLabelText('nav.settings')).toBeInTheDocument();
   });
 
   it('highlights the current section', () => {
     render(<SidebarNav {...defaultProps} activeView="contacts" isDark={true} />);
-    const contactsBtn = screen.getByText('nav.contacts').closest('button');
+    const contactsBtn = screen.getByLabelText('nav.contacts').closest('button');
     expect(contactsBtn).toHaveClass('bg-orange-500/15');
     expect(contactsBtn).toHaveClass('text-orange-400');
   });
 
-  it('shows icons and labels for nav items', () => {
+  it('shows icons for nav items', () => {
     const { container } = render(<SidebarNav {...defaultProps} />);
     const svgs = container.querySelectorAll('svg');
-    expect(svgs.length).toBeGreaterThanOrEqual(5);
+    expect(svgs.length).toBeGreaterThanOrEqual(4);
   });
 
   it('fires onNavigate when item clicked', () => {
     const onNavigate = vi.fn();
     render(<SidebarNav {...defaultProps} onNavigate={onNavigate} />);
-    fireEvent.click(screen.getByText('nav.settings'));
+    fireEvent.click(screen.getByLabelText('nav.settings'));
     expect(onNavigate).toHaveBeenCalledWith('settings');
   });
 
@@ -46,6 +45,6 @@ describe('SidebarNav', () => {
 
   it('renders company item', () => {
     render(<SidebarNav {...defaultProps} />);
-    expect(screen.getByText('settings.company')).toBeInTheDocument();
+    expect(screen.getByLabelText('settings.company')).toBeInTheDocument();
   });
 });

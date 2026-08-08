@@ -22,7 +22,7 @@ describe('NetworkSection - additional tests', () => {
   setProxyEnabled: vi.fn(),
   proxyUrl: '',
   setProxyUrl: vi.fn(),
-  obfuscationMode: 'xorshroud',
+  obfuscationMode: 'aesgcm',
   setObfuscationMode: vi.fn(),
   obfuscationEnabled: false,
   setObfuscationEnabled: vi.fn(),
@@ -94,7 +94,7 @@ it('renders TURN server inputs', () => {
 
  it('renders obfuscation mode value', () => {
   render(<NetworkSection {...defaultProps} obfuscationEnabled={true} />);
-  expect(screen.getByText('xorshroud')).toBeInTheDocument();
+  expect(screen.getByText('aesgcm')).toBeInTheDocument();
  });
 
   it('renders all groups', () => {

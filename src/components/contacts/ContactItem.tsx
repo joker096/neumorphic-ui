@@ -9,7 +9,7 @@ interface ContactItemProps {
   isDark?: boolean;
   onCall?: (name: string, color: string) => void;
   onVideoCall?: (name: string, color: string) => void;
-  onToggleFavorite: (id: string, currentStatus: boolean) => void;
+  onToggleFavorite: (id: string, isFavorite: boolean) => void;
   onClick: () => void;
   t: (key: string, options?: any) => string;
 }
@@ -149,7 +149,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onToggleFavorite(contact.id, contact.isFavorite);
+            onToggleFavorite(contact.id, !contact.isFavorite);
           }}
           className={`shrink-0 transition-transform active:scale-90 min-w-[44px] min-h-[44px] flex items-center justify-center ${contact.isFavorite ? (isDark ? "text-yellow-400" : "text-yellow-500") : (isDark ? "text-gray-600" : "text-slate-300")}`}
         >

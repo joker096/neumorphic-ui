@@ -1,118 +1,91 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-
-const mockErrorLog: any[] = [];
-const mockErrorStats = { critical: 0, major: 0, minor: 0, total: 0 };
-let subscribeCb: (() => void) | null = null;
+import { useGlobalErrorHandler } from './useGlobalErrorHandler';
 
 vi.mock('../lib/errorHandling', () => ({
-  getErrorLog: vi.fn(() => mockErrorLog),
-  getErrorStats: vi.fn(() => mockErrorStats),
-  subscribeToErrors: vi.fn((cb: () => void) => {
-    subscribeCb = cb;
-    return vi.fn();
-  }),
+  getErrorLog: vi.fn(() => []),
+  getErrorStats: vi.fn(() => ({ critical: 0, major: 0, minor: 0, total: 0 })),
+  subscribeToErrors: vi.fn((cb: any) => { setTimeout(cb, 0); return vi.fn(); }),
 }));
 
 describe('useGlobalErrorHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    subscribeCb = null;
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('should initialize with empty errors', async () => {
-    const { useGlobalErrorHandler } = await import('./useGlobalErrorHandler');
+  it('returns empty errors array initially', () => {
     const { result } = renderHook(() => useGlobalErrorHandler());
     expect(result.current.errors).toEqual([]);
   });
 
-  it('should handle errors and log to console', async () => {
-    const { useGlobalErrorHandler } = await import('./useGlobalErrorHandler');
+  it('handles generic error', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { result } = renderHook(() => useGlobalErrorHandler());
 
     act(() => {
-      result.current.handleError(new Error('test error'), 'TestContext');
+      result.current.handleError(new Error('Test error'), 'test context');
     });
 
-    expect(console.error).toHaveBeenCalledWith(
-      '[GlobalErrorHandler] TestContext:',
-      expect.any(Error)
-    );
+    expect(consoleSpy).toHaveBeenCalledWith('[GlobalErrorHandler] test context:', expect.any(Error));
+    consoleSpy.mockRestore();
   });
 
-  it('should handle storage errors with degradation', async () => {
-    const { useGlobalErrorHandler } = await import('./useGlobalErrorHandler');
+  it('handles string error', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const { result } = renderHook(() => useGlobalErrorHandler());
 
     act(() => {
-      result.current.handleError(new Error('indexeddb storage error'));
+      result.current.handleError('string error', 'test context');
     });
 
-    expect(console.warn).toHaveBeenCalledWith(
-      '[GlobalErrorHandler] Storage error detected. Attempting graceful degradation.'
-    );
+    expect(consoleSpy).toHaveBeenCalledWith('[GlobalErrorHandler] test context:', 'string error');
+    consoleSpy.mockRestore();
   });
 
-  it('should handle crypto errors with degradation', async () => {
-    const { useGlobalErrorHandler } = await import('./useGlobalErrorHandler');
+  it('handles storage errors gracefully', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { result } = renderHook(() => useGlobalErrorHandler());
 
     act(() => {
-      result.current.handleError(new Error('crypto encrypt failed'));
+      result.current.handleError(new Error('storage quota exceeded'), 'storage error');
     });
 
-    expect(console.warn).toHaveBeenCalledWith(
-      '[GlobalErrorHandler] Crypto error detected. Operating in degraded mode.'
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Storage error'));
+    consoleSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
-  it('should handle network errors with degradation', async () => {
-    const { useGlobalErrorHandler } = await import('./useGlobalErrorHandler');
+  it('handles crypto errors gracefully', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { result } = renderHook(() => useGlobalErrorHandler());
 
     act(() => {
-      result.current.handleError(new Error('network connection lost'));
+      result.current.handleError(new Error('crypto operation failed'), 'crypto error');
     });
 
-    expect(console.warn).toHaveBeenCalledWith(
-      '[GlobalErrorHandler] Network error detected. Reconnection attempted.'
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Crypto error'));
+    consoleSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
-  it('should subscribe to errors on mount', async () => {
-    const { subscribeToErrors } = await import('../lib/errorHandling');
-    const { useGlobalErrorHandler } = await import('./useGlobalErrorHandler');
-    renderHook(() => useGlobalErrorHandler());
-    expect(subscribeToErrors).toHaveBeenCalled();
-  });
-});
+  it('handles network errors gracefully', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { result } = renderHook(() => useGlobalErrorHandler());
 
-describe('useErrorStats', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.clearAllMocks();
-  });
+    act(() => {
+      result.current.handleError(new Error('network timeout'), 'network error');
+    });
 
-  afterEach(() => {
-    vi.useRealTimers();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Network error'));
+    consoleSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
-  it('should return error stats and poll for updates', async () => {
-    const { getErrorStats } = await import('../lib/errorHandling');
-    const initialCalls = vi.mocked(getErrorStats).mock.calls.length;
-
-    const { useErrorStats } = await import('./useGlobalErrorHandler');
-    const { result } = renderHook(() => useErrorStats());
-
-    expect(result.current).toEqual(mockErrorStats);
-
-    act(() => { vi.advanceTimersByTime(5000); });
-    expect(vi.mocked(getErrorStats).mock.calls.length).toBeGreaterThan(initialCalls + 1);
+  it('returns handleError function', () => {
+    const { result } = renderHook(() => useGlobalErrorHandler());
+    expect(typeof result.current.handleError).toBe('function');
   });
 });

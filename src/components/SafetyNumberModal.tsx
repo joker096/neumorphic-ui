@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useI18n } from '../lib/i18n';
 import { computeSafetyNumber, computeVerificationLevel, getVerificationColor } from '../lib/crypto/safetyNumber';
 import { useEffect, useState } from 'react';
+import { AppModal } from './ui/AppModal';
 
 interface SafetyNumberModalProps {
   open: boolean;
@@ -31,51 +32,32 @@ export const SafetyNumberModal = ({ open, contactId, contactName, myPeerId, them
   }, [safetyNumber]);
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4"
-        >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            className={`relative w-full max-w-sm rounded-xl shadow-2xl p-6 border ${isDark ? 'bg-[var(--bg-tertiary)] border-[var(--border-color)]' : 'bg-white border-[var(--border-color)]'}`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>{t('contacts.safetyNumbersTitle')}</h3>
-            <p className={`text-xs mb-4 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-              {t('contacts.safetyNumbersDesc', { name: contactName })}
-            </p>
-            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mb-4">
-              {safetyNumber.split(' ').map((g, i) => (
-                <span key={i} className={`font-mono text-sm tracking-wider px-2 py-0.5 rounded ${isDark ? 'bg-white/5 text-gray-200' : 'bg-black/5 text-slate-700'}`}>{g}</span>
-              ))}
-            </div>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getVerificationColor(verifyLevel) }} />
-              <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                {t('contacts.verificationLevel', { level: verifyLevel })}
-              </span>
-            </div>
-            {myPeerId && (
-              <div className={`text-[10px] font-mono mb-4 p-2 rounded-lg ${isDark ? 'bg-white/5 text-gray-500' : 'bg-black/5 text-slate-400'}`}>
-                {t('contacts.yourId')} {myPeerId.slice(0, 16)}...
-                <br />
-                {t('contacts.theirId')} {contactId.slice(0, 16)}...
-              </div>
-            )}
-            <button onClick={onClose} className={`w-full h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
-              {t('contacts.close')}
-            </button>
-          </motion.div>
-        </motion.div>
+    <AppModal isOpen={open} onClose={onClose} isDark={isDark} title={t('contacts.safetyNumbersTitle')} maxWidth="max-w-sm">
+      <p className={`text-xs mb-4 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+        {t('contacts.safetyNumbersDesc', { name: contactName })}
+      </p>
+      <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mb-4">
+        {safetyNumber.split(' ').map((g, i) => (
+          <span key={i} className={`font-mono text-sm tracking-wider px-2 py-0.5 rounded ${isDark ? 'bg-white/5 text-gray-200' : 'bg-black/5 text-slate-700'}`}>{g}</span>
+        ))}
+      </div>
+      <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getVerificationColor(verifyLevel) }} />
+        <span className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+          {t('contacts.verificationLevel', { level: verifyLevel })}
+        </span>
+      </div>
+      {myPeerId && (
+        <div className={`text-[10px] font-mono mb-4 p-2 rounded-lg ${isDark ? 'bg-white/5 text-gray-500' : 'bg-black/5 text-slate-400'}`}>
+          {t('contacts.yourId')} {myPeerId.slice(0, 16)}...
+          <br />
+          {t('contacts.theirId')} {contactId.slice(0, 16)}...
+        </div>
       )}
-    </AnimatePresence>
+      <button onClick={onClose} className={`w-full h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 ${isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'}`}>
+        {t('contacts.close')}
+      </button>
+    </AppModal>
   );
 };
 

@@ -36,10 +36,10 @@ export const Tooltip = ({ children, content, position = 'top', theme = 'dark' }:
       tooltipStyle = { ...tooltipStyle, bottom: '100%', left: '50%', transform: 'translate(-50%, 8px)' };
       break;
     case 'left':
-      tooltipStyle = { ...tooltipStyle, left: '100%', top: '50%', transform: 'translate(-8px, -50%)' };
+      tooltipStyle = { ...tooltipStyle, right: '100%', top: '50%', transform: 'translate(8px, -50%)' };
       break;
     case 'right':
-      tooltipStyle = { ...tooltipStyle, right: '100%', top: '50%', transform: 'translate(8px, -50%)' };
+      tooltipStyle = { ...tooltipStyle, left: '100%', top: '50%', transform: 'translate(-8px, -50%)' };
       break;
   }
 

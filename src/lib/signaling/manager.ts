@@ -16,10 +16,12 @@ export class SignallingManager {
   private maxReconnectAttempts = 10;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private disposed = false;
+  private autoReconnect = true;
 
-  constructor(seedUrls: string[], backend?: TunnelBackend) {
+  constructor(seedUrls: string[], backend?: TunnelBackend, autoReconnect = true) {
     this.pool = new SignallingPool(seedUrls);
     if (backend) this.backend = backend;
+    this.autoReconnect = autoReconnect;
   }
 
   getState(): MgrState { return this.state; }
@@ -29,6 +31,10 @@ export class SignallingManager {
 
   setBackend(backend: TunnelBackend): void {
     this.backend = backend;
+  }
+
+  setAutoReconnect(enabled: boolean): void {
+    this.autoReconnect = enabled;
   }
 
   setState(s: MgrState): void {
@@ -75,6 +81,10 @@ export class SignallingManager {
 
   private scheduleReconnect(): void {
     if (this.disposed) return;
+    if (!this.autoReconnect) {
+      this.setState('error');
+      return;
+    }
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       this.setState('error');
       return;

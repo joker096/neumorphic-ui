@@ -35,6 +35,7 @@ type AppOverlaysProps = {
   onProfileDelete: () => void;
   onProfileEdit: () => void;
   onProfileBlock: () => void;
+  onProfileToggleFavorite: (id: string, isFavorite: boolean) => void;
 };
 
 export const AppOverlays = ({
@@ -64,7 +65,8 @@ export const AppOverlays = ({
   onProfileMessage,
   onProfileDelete,
   onProfileEdit,
-  onProfileBlock,
+   onProfileBlock,
+   onProfileToggleFavorite,
 }: AppOverlaysProps) => {
   const { theme } = useTheme();
   return (
@@ -93,6 +95,7 @@ export const AppOverlays = ({
         onDelete={onProfileDelete}
         onEdit={onProfileEdit}
         onBlock={onProfileBlock}
+        onToggleFavorite={onProfileToggleFavorite}
       />
 
       <AnimatePresence>
@@ -116,7 +119,7 @@ export const AppOverlays = ({
         )}
       </AnimatePresence>
 
-      {view !== "calls" && <FloatingCallWidget theme={theme} />}
+      <FloatingCallWidget theme={theme} />
     </>
   );
 };

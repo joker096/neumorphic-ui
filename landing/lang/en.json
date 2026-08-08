@@ -404,5 +404,14 @@
   "dl.isteps": "1. Open site in Safari\\n2. Tap «Share» (□↑)\\n3. «Add to Home Screen»",
   "foot.docs": "Docs",
   "foot.privacy": "Privacy",
-  "foot.contact": "Contact"
+  "foot.contact": "Contact",
+  "nav.comparison": "Comparison",
+  "hero.title": "Meet <b>Mess&Anger</b>",
+  "stats.label": "By the numbers",
+  "stats.phases": "Architecture phases (Reticulum-inspired)",
+  "stats.tests": "Tests passed",
+  "feat.desc": "Every feature ships with privacy and security baked in. No toggle to turn off — because you shouldn't have to choose between usability and anonymity.",
+  "cmp.r8": "No post-quantum",
+  "skip.main": "Skip to content",
+  "offline.banner": "You are offline. Some features may be unavailable."
 }

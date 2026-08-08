@@ -21,6 +21,7 @@ interface P2PTransportConfig {
   onConnected: P2PConnectionHandler
   onDisconnected: P2PConnectionHandler
   obfuscator?: TrafficObfuscator;
+  obfuscationEnabled?: boolean;
 }
 
 export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'online-status' | 'read-receipt'
@@ -48,6 +49,7 @@ export class P2PTransport {
   private pendingOutgoingTracks: MediaStreamTrack[] = []
   private localHandlesTracks = false
   private obfuscator: TrafficObfuscator | null = null
+  private obfuscationEnabled = true
 
   constructor(config: P2PTransportConfig) {
     this.signalingUrl = config.signalingUrl
@@ -56,9 +58,10 @@ export class P2PTransport {
     this.onConnected = config.onConnected
     this.onDisconnected = config.onDisconnected
     this.iceServers = config.iceServers ?? [
-      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:turn.neumorphic.local:3478' },
     ]
     this.obfuscator = config.obfuscator ?? null
+    this.obfuscationEnabled = config.obfuscationEnabled ?? true
   }
 
   attachMediaHandlers(handlers: CallMediaHandlers): void {
@@ -178,10 +181,10 @@ export class P2PTransport {
     }
   }
 
-  send(data: string): void {
+  async send(data: string): Promise<void> {
     let payload = data;
-    if (this.obfuscator) {
-      payload = this.obfuscator.obfuscate(data);
+    if (this.obfuscationEnabled && this.obfuscator) {
+      payload = await this.obfuscator.obfuscate(data);
     }
     if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
       console.warn('[P2PTransport] Data channel not open')

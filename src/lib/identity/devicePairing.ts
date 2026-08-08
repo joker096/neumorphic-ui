@@ -41,7 +41,16 @@ export function parsePairingQrData(
   encoded: string,
 ): { request: PairingRequest; ephemeralPublicKey: Uint8Array } {
   const json = new TextDecoder().decode(b64decode(encoded))
-  const request: PairingRequest = JSON.parse(json)
+  let request: PairingRequest
+  try {
+    request = JSON.parse(json)
+  } catch {
+    throw new Error('Invalid pairing QR data: malformed JSON')
+  }
+  if (typeof request !== 'object' || request === null) throw new Error('Invalid pairing QR data')
+  if (typeof request.challenge !== 'string' || typeof request.serverUrl !== 'string' || typeof request.masterPublicKey !== 'string' || typeof request.ephemeralPublicKey !== 'string' || typeof request.expiresAt !== 'number') {
+    throw new Error('Invalid pairing QR data: missing or malformed fields')
+  }
   if (Date.now() > request.expiresAt) throw new Error('Pairing QR code expired')
   return {
     request,

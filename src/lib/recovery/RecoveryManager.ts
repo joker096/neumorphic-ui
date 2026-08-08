@@ -1,7 +1,7 @@
 import { buf2hex, hex2buf } from '../crypto/cryptoCore'
 import { generateMnemonic as genMnemonic, validateMnemonic as validateMnemonicFn, mnemonicToEntropy, entropyToHex } from './MnemonicGenerator'
 import { deviceSecurity } from '../deviceSecurity'
-import { deriveKeysFromSeed, generateMasterSeed } from '../identity/masterKey'
+import { deriveKeysFromSeed, generateMasterSeed, storeMasterSeed } from '../identity/masterKey'
 import type { MasterKeySet } from '../identity/masterKey'
 import { setSessionMasterKey } from '../../store'
 
@@ -23,6 +23,7 @@ export const RecoveryManager = {
     const hashHex = buf2hex(derivedBits)
     localStorage.setItem(RECOVERY_HASH_KEY, `${buf2hex(salt)}:${hashHex}`)
 
+    await storeMasterSeed(seed)
     await deviceSecurity.storeMasterKeyHex(masterKeySet.aesKeyHex)
     setSessionMasterKey(masterKeySet.aesKey)
 
@@ -47,6 +48,7 @@ export const RecoveryManager = {
     if (buf2hex(derivedBits) !== expectedHash) return false
 
     const masterKeySet = await deriveKeysFromSeed(entropy)
+    await storeMasterSeed(entropy)
     await deviceSecurity.storeMasterKeyHex(masterKeySet.aesKeyHex)
     setSessionMasterKey(masterKeySet.aesKey)
 

@@ -11,6 +11,7 @@ export function useProfileActions(
   setView: Dispatch<SetStateAction<any>>,
   setActiveChat: Dispatch<SetStateAction<any>>,
   setChats: Dispatch<SetStateAction<any>>,
+  setContacts: Dispatch<SetStateAction<any>>,
   setGlobalSelectedContact: Dispatch<SetStateAction<any>>,
   setEditingContact: Dispatch<SetStateAction<any>>,
   handlePreviewCall: (name: string, color?: string, callType?: 'audio' | 'video') => void,
@@ -75,6 +76,11 @@ export function useProfileActions(
     setGlobalSelectedContact(null);
   }, [globalSelectedContact, activeChat, setActiveChat, setChats, setGlobalSelectedContact]);
 
+  const handleProfileToggleFavorite = useCallback((id: string, isFavorite: boolean) => {
+    setContacts((prev: any[]) => prev.map((c: any) => c.id === id ? { ...c, isFavorite } : c));
+    setGlobalSelectedContact((prev: any) => prev && prev.id === id ? { ...prev, isFavorite } : prev);
+  }, [setContacts, setGlobalSelectedContact]);
+
   return {
     handleProfileCall,
     handleProfileVideoCall,
@@ -82,5 +88,6 @@ export function useProfileActions(
     handleProfileDelete,
     handleProfileEdit,
     handleProfileBlock,
+    handleProfileToggleFavorite,
   };
 }

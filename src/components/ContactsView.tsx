@@ -43,8 +43,8 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
   const [activeTab, setActiveTab] = useState<TabOption>('all');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const toggleFavorite = (id: string, currentStatus: boolean) => {
-    setContacts(contacts.map(c => c.id === id ? { ...c, isFavorite: !currentStatus } : c));
+  const toggleFavorite = (id: string, isFavorite: boolean) => {
+    setContacts(prev => prev.map(c => c.id === id ? { ...c, isFavorite } : c));
   };
 
   const handleAddContact = (e: React.FormEvent) => {
@@ -167,7 +167,18 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
                 <Users className="w-7 h-7 opacity-40" />
               </div>
               <p className="text-sm font-medium">{t('contacts.noContacts')}</p>
-              <p className="text-xs mt-1 opacity-60">{t('contacts.noContactsSubtitle')}</p>
+              <p className="text-xs mt-1 opacity-60 mb-6">{t('contacts.noContactsSubtitle')}</p>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className={`px-6 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
+                  isDark
+                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] shadow-lg"
+                    : "bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] shadow-md"
+                }`}
+              >
+                <UserPlus size={14} />
+                {t('contacts.addContact')}
+              </button>
             </motion.div>
           ) : (
             <motion.div initial="hidden" animate="show" className="flex flex-col gap-2">
@@ -190,7 +201,12 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
         onRequestDelete={() => { if (selectedContact) setConfirmDeleteId(selectedContact.id); }}
         onBlock={() => { if (selectedContact) setContacts(contacts.map(c => c.id === selectedContact.id ? { ...c, isBlocked: true } : c)); setSelectedContact(null); }}
         onEdit={() => { if (selectedContact) { setEditingContact(selectedContact); setShowEditForm(true); } setSelectedContact(null); }}
-        onToggleFavorite={(id) => toggleFavorite(id, selectedContact?.isFavorite ?? false)}
+        onToggleFavorite={(id, isFavorite) => {
+          toggleFavorite(id, isFavorite);
+          if (selectedContact?.id === id) {
+            setSelectedContact({ ...selectedContact, isFavorite });
+          }
+        }}
       />
 
       <ConfirmDialog isOpen={confirmDeleteId !== null}
@@ -204,7 +220,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
 
       <FormModal isOpen={showAddForm}
         onClose={() => { setShowAddForm(false); setNewContactName(''); setNewContactId(''); }}
-        title={t('contacts.addContact')} subtitle="Enter their name and unique network ID to establish a connection."
+        title={t('contacts.addContact')} subtitle={t('contacts.addContactSubtitle')}
         icon={UserPlus} theme={theme} closeTitle={t('contacts.close')}>
         <div className="flex flex-col gap-3 mt-2">
           <FormField theme={theme} autoFocus placeholder={t('contacts.contactName')}

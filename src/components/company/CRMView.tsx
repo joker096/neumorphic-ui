@@ -33,7 +33,7 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
     : contacts;
 
   const groupedByCompany = companyContacts.reduce((acc, contact) => {
-    const company = contact.company || 'No Company';
+    const company = contact.company || t('company.noCompany', 'No Company');
     if (!acc[company]) acc[company] = [];
     acc[company].push(contact);
     return acc;
@@ -137,7 +137,7 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-primary)] text-[10px] font-bold ${contact.color || "bg-[var(--accent)]"}`}>{(contact.name || 'U').charAt(0)}</div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-[var(--text-primary)]">{contact.name}</div>
-                <div className="text-[10px] text-[var(--text-secondary)]">{contact.email || contact.telegram || 'No details'}</div>
+                <div className="text-[10px] text-[var(--text-secondary)]">{contact.email || contact.telegram || t('contacts.noDetails', 'No details')}</div>
               </div>
               {contact.isFavorite && <span className="text-[10px] text-[var(--color-warning)]">★</span>}
             </div>
@@ -162,8 +162,8 @@ export const CRMView: React.FC<CRMViewProps> = ({ onClose, onMessage, onCall, on
       {/* Empty state */}
       {filteredContacts.length === 0 && (
         <div className="text-center py-8 text-[var(--text-tertiary)]">
-          <p className="text-sm">No contacts found</p>
-          <p className="text-[10px] mt-1">Add contacts to start managing CRM</p>
+          <p className="text-sm">{t('crm.noContactsFound', 'No contacts found')}</p>
+          <p className="text-[10px] mt-1">{t('crm.addContactsHint', 'Add contacts to start managing CRM')}</p>
         </div>
       )}
 

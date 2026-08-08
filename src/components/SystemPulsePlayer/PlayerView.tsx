@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { SkipBack, SkipForward, Play, Pause, List, Radio } from "lucide-react";
+import { useI18n } from "../../lib/i18n";
 
 type Track = {
   id: string;
@@ -34,6 +35,7 @@ export const PlayerView = ({
   isRadioMode, isPlaying, setIsPlaying, setIsRadioMode, volume, setVolume,
   activeList, activeIndex, currentTrack, nextTrack, prevTrack, createRipple, initWebAudio,
 }: PlayerViewProps) => {
+  const { t } = useI18n();
   return (
     <motion.div
       key="player-view"
@@ -51,7 +53,7 @@ export const PlayerView = ({
         <span className="text-[18px] font-medium tracking-wider text-[var(--text-primary)]">{activeIndex + 1}/{activeList.length}</span>
       </div>
 
-      <div className="relative mb-6 z-10 flex justify-center w-full" title={isRadioMode ? "Switch to Local Playlist" : "Switch to Radio Player"}>
+      <div className="relative mb-6 z-10 flex justify-center w-full" title={isRadioMode ? t('systemPlayer.switchToPlaylist') : t('systemPlayer.switchToRadio')}>
         <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-40 h-24 rounded-full bg-gradient-to-b from-transparent to-black/20 -z-10 blur-[1px] pointer-events-none transition-opacity duration-300`} />
         <motion.div
           onClick={() => setIsRadioMode(!isRadioMode)}
@@ -66,18 +68,18 @@ export const PlayerView = ({
       <div className="w-full flex items-center justify-between px-8 mb-8 relative z-10 gap-4">
         <div
           onClick={prevTrack}
-          title="Previous Track"
+          title={t('systemPlayer.previousTrack')}
           className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform"
         >
           <SkipBack size={18} fill="currentColor" />
         </div>
         <div className="flex flex-col items-center justify-center w-full min-w-0 px-2 overflow-hidden">
-          <span className="text-[20px] sm:text-[24px] font-medium leading-none text-[var(--text-primary)] truncate w-full text-center transition-colors" title={currentTrack?.name}>{currentTrack?.name || "No Tracks"}</span>
-          <span className="text-[12px] font-bold tracking-widest uppercase opacity-70 text-[var(--text-primary)] mt-1.5 transition-colors">{isRadioMode ? "RADIO LINK" : "LOCAL TRACK"}</span>
+          <span className="text-[20px] sm:text-[24px] font-medium leading-none text-[var(--text-primary)] truncate w-full text-center transition-colors" title={currentTrack?.name}>{currentTrack?.name || t('systemPlayer.noTracks')}</span>
+          <span className="text-[12px] font-bold tracking-widest uppercase opacity-70 text-[var(--text-primary)] mt-1.5 transition-colors">{isRadioMode ? t('systemPlayer.radioLink') : t('systemPlayer.localTrack')}</span>
         </div>
         <div
           onClick={nextTrack}
-          title="Next Track"
+          title={t('systemPlayer.nextTrack')}
           className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform"
         >
           <SkipForward size={18} fill="currentColor" />

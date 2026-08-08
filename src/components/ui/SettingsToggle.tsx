@@ -26,10 +26,10 @@ export const SettingsToggle: React.FC<SettingsToggleProps> = ({
   return (
     <div
       onClick={toggle}
-      className={`w-full h-[64px] px-6 flex items-center justify-between cursor-pointer select-none mb-4 ${
+      className={`w-full h-[56px] px-4 sm:px-6 flex items-center justify-between cursor-pointer select-none mb-3 rounded-2xl transition-colors duration-200 ${
         isDark
-          ? 'bg-[var(--bg-secondary)] shadow-[0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.04),_inset_0_-2px_4px_rgba(0,0,0,0.5)] border border-[var(--border-color)]/[0.02] hover:scale-[1.02] active:shadow-[inset_0_4px_8px_rgba(0,0,0,0.8)]'
-          : 'bg-[var(--bg-secondary)] shadow-[-4px_-4px_10px_rgba(255,255,255,0.9),_6px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border border-[var(--border-color)] hover:scale-[1.02] active:shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3)]'
+          ? 'bg-[var(--bg-secondary)] shadow-[0_2px_8px_rgba(0,0,0,0.3),_inset_0_1px_2px_rgba(255,255,255,0.04),_inset_0_-1px_2px_rgba(0,0,0,0.4)] border border-[var(--border-color)] hover:bg-white/5 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]'
+          : 'bg-[var(--bg-secondary)] shadow-[-2px_-2px_6px_rgba(255,255,255,0.9),_4px_4px_8px_rgba(165,175,190,0.4),_inset_1px_1px_2px_rgba(255,255,255,1)] border border-[var(--border-color)] hover:bg-black/5 active:shadow-[inset_2px_2px_4px_rgba(165,175,190,0.3)]'
       }`}
     >
       <span

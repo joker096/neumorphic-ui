@@ -64,7 +64,10 @@
     <h1>No Connection</h1>
     <p>You're offline. Your encrypted messages are safely stored locally and will sync automatically when connection is restored.</p>
     <p class="note"><span class="status-dot"></span>All data is encrypted at rest and protected</p>
-    <button class="retry-btn" onclick="location.reload()">Try Again</button>
+    <button class="retry-btn" id="retry-btn" type="button">Try Again</button>
   </div>
+  <script>
+    document.getElementById('retry-btn').addEventListener('click', function(){ location.reload(); });
+  </script>
 </body>
 </html>

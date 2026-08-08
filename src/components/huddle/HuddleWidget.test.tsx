@@ -4,6 +4,20 @@ import '@testing-library/jest-dom/vitest';
 
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 vi.mock('lucide-react', () => ({ Mic: 'div', MicOff: 'div', PhoneOff: 'div' }));
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string, fallback?: string) => {
+      const map: Record<string, string> = {
+        'huddle.title': 'Huddle',
+        'huddle.join': 'Join',
+        'huddle.voiceChat': 'Voice chat',
+        'huddle.active': 'Huddle Active',
+        'huddle.participants': '{count} participants',
+      };
+      return map[key] || fallback || key;
+    }
+  })
+}));
 
 import { HuddleWidget } from './HuddleWidget';
 

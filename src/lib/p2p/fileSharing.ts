@@ -40,7 +40,7 @@ export const fileSharing = {
     }, 1000);
 
     // Notify P2P network
-    p2pNetwork.broadcast({
+    await p2pNetwork.broadcast({
       type: 'file-transfer',
       fileId,
       peerId,

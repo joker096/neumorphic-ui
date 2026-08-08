@@ -1,5 +1,6 @@
 import type { Contact } from '../types/contact';
 import type { P2PChannel } from '../store/types';
+import { MOCK_CHANNELS, MOCK_CHATS, MOCK_CONTACTS } from '../constants';
 
 /**
  * Seed mock data into the store (called once on app init)
@@ -12,7 +13,6 @@ export function seedMockData(
   contacts: Contact[],
   channels: P2PChannel[],
 ) {
-  const { MOCK_CHATS, MOCK_CONTACTS, MOCK_CHANNELS } = require('../constants');
   if (chats.length === 0) {
     setChats(MOCK_CHATS as any);
   }
@@ -23,6 +23,7 @@ export function seedMockData(
     setChannels(
       MOCK_CHANNELS.map((c: any) => ({
         id: c.id.toString(),
+        channelId: c.id.toString(),
         name: c.name,
         ownerPublicKey: 'MOCK_OWNER',
         ownerId: 'mock1',
