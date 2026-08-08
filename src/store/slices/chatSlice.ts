@@ -1,5 +1,3 @@
-import type { StateCreator } from 'zustand';
-import type { AppState } from '../index';
 import type { Contact } from '../../types/contact';
 import type { P2PChannel, BotConfig, ScheduledMessage } from '../types';
 
@@ -25,9 +23,9 @@ export interface ChatSlice {
   removePinnedMessage: (id: number) => void;
 }
 
-export const createChatSlice: StateCreator<AppState, [], [], ChatSlice> = (set) => ({
+export const createChatSlice = (set: any, get: any): ChatSlice => ({
   chats: [],
-  setChats: (updater) => set((state) => ({
+  setChats: (updater) => set((state: any) => ({
     chats: typeof updater === 'function' ? updater(state.chats) : updater
   })),
   forwardMessage: (message: any, targetChatId: string) => {
@@ -45,34 +43,34 @@ export const createChatSlice: StateCreator<AppState, [], [], ChatSlice> = (set) 
     });
   },
   contacts: [],
-  setContacts: (updater) => set((state) => ({
+  setContacts: (updater) => set((state: any) => ({
     contacts: typeof updater === 'function' ? updater(state.contacts) : updater
   })),
   favoriteContacts: [],
-  addFavorite: (id) => set((state) => ({
+  addFavorite: (id) => set((state: any) => ({
     favoriteContacts: state.favoriteContacts.includes(id) ? state.favoriteContacts : [...state.favoriteContacts, id]
   })),
-  removeFavorite: (id) => set((state) => ({
-    favoriteContacts: state.favoriteContacts.filter(i => i !== id)
+  removeFavorite: (id) => set((state: any) => ({
+    favoriteContacts: state.favoriteContacts.filter((i: string) => i !== id)
   })),
   channels: [],
-  setChannels: (updater) => set((state) => ({
+  setChannels: (updater) => set((state: any) => ({
     channels: typeof updater === 'function' ? updater(state.channels) : updater
   })),
   bots: [],
-  setBots: (updater) => set((state) => ({
+  setBots: (updater) => set((state: any) => ({
     bots: typeof updater === 'function' ? updater(state.bots) : updater
   })),
   scheduledQueue: {
     messages: [],
-    addMessage: (msg) => set((state) => ({ scheduledQueue: { ...state.scheduledQueue, messages: [...state.scheduledQueue.messages, msg] } })),
-    removeMessage: (id) => set((state) => ({ scheduledQueue: { ...state.scheduledQueue, messages: state.scheduledQueue.messages.filter(m => m.id !== id) } }))
+    addMessage: (msg) => set((state: any) => ({ scheduledQueue: { ...state.scheduledQueue, messages: [...state.scheduledQueue.messages, msg] } })),
+    removeMessage: (id) => set((state: any) => ({ scheduledQueue: { ...state.scheduledQueue, messages: state.scheduledQueue.messages.filter((m: any) => m.id !== id) } }))
   },
   archivedChats: [],
-  toggleArchive: (id) => set((state) => ({
-    archivedChats: state.archivedChats.includes(id) ? state.archivedChats.filter(i => i !== id) : [...state.archivedChats, id]
+  toggleArchive: (id) => set((state: any) => ({
+    archivedChats: state.archivedChats.includes(id) ? state.archivedChats.filter((i: string | number) => i !== id) : [...state.archivedChats, id]
   })),
-  pinChat: (chatId) => set((state) => {
+  pinChat: (chatId) => set((state: any) => {
     const pinnedCount = state.chats.filter((c: any) => c.pinned).length;
     const chat = state.chats.find((c: any) => c.id === chatId);
     if (!chat) return state;
@@ -81,6 +79,6 @@ export const createChatSlice: StateCreator<AppState, [], [], ChatSlice> = (set) 
     return { chats: state.chats.map((c: any) => c.id === chatId ? { ...c, pinned: true } : c) };
   }),
   pinnedMessageList: [],
-  addPinnedMessage: (pin) => set((state) => ({ pinnedMessageList: [...state.pinnedMessageList, { ...pin, pinnedAt: state.pinnedMessageList.length }] })),
-  removePinnedMessage: (id) => set((state) => ({ pinnedMessageList: state.pinnedMessageList.filter(p => p.id !== id) })),
+  addPinnedMessage: (pin) => set((state: any) => ({ pinnedMessageList: [...state.pinnedMessageList, { ...pin, pinnedAt: state.pinnedMessageList.length }] })),
+  removePinnedMessage: (id) => set((state: any) => ({ pinnedMessageList: state.pinnedMessageList.filter((p: any) => p.id !== id) })),
 });

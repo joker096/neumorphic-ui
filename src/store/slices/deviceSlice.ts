@@ -1,5 +1,3 @@
-import type { StateCreator } from 'zustand';
-import type { AppState } from '../index';
 import type { DeviceInfo, SessionData } from '../types';
 
 export interface DeviceSlice {
@@ -9,11 +7,11 @@ export interface DeviceSlice {
   removeDevice: (id: string) => void;
 }
 
-export const createDeviceSlice: StateCreator<AppState, [], [], DeviceSlice> = (set) => ({
+export const createDeviceSlice = (set: any, get: any): DeviceSlice => ({
   devices: [{ id: 'current-device', name: 'This Device', platform: 'web', lastActive: Date.now(), isCurrent: true }],
   currentSession: { deviceId: 'current-device', startTime: Date.now(), isActive: true },
-  addDevice: (device) => set((state) => ({ devices: [...state.devices, device] })),
-  removeDevice: (id) => set((state) => ({
-    devices: state.devices.filter(d => d.id !== id)
+  addDevice: (device) => set((state: any) => ({ devices: [...state.devices, device] })),
+  removeDevice: (id) => set((state: any) => ({
+    devices: state.devices.filter((d: any) => d.id !== id)
   })),
 });
