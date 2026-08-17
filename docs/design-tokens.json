@@ -1,0 +1,89 @@
+{
+  "_comment": "Артефакт §18.1 (design-tokens.json). Источник: бриф §7. Реальная имплементация в src/styles/tokens.css и docs/DESIGN-TOKENS.json. Значения — дефолтные brand-токены брифа (заменить на бренд-токены системы, если переданы).",
+  "color": {
+    "light": {
+      "bg.canvas": "#F7F9FB",
+      "bg.surface": "#FFFFFF",
+      "bg.elevated": "#FFFFFF",
+      "bg.subtle": "#EEF2F6",
+      "text.primary": "#111418",
+      "text.secondary": "#6C7883",
+      "text.tertiary": "#98A4B3",
+      "accent.primary": "#2F80ED",
+      "accent.hover": "#2468C7",
+      "accent.press": "#1D57A8",
+      "bubble.in": "#FFFFFF",
+      "bubble.out": "#D8EBFF",
+      "bubble.text.out": "#111418",
+      "badge.unread": "#2F80ED",
+      "border.subtle": "#E4E9EF",
+      "success": "#2FA36B",
+      "warning": "#E5A23C",
+      "danger": "#E5484D",
+      "overlay.scrim": "rgba(15, 20, 25, 0.45)"
+    },
+    "dark": {
+      "bg.canvas": "#0E1114",
+      "bg.surface": "#151A20",
+      "bg.elevated": "#1B222B",
+      "bg.subtle": "#10151B",
+      "text.primary": "#F2F5F8",
+      "text.secondary": "#98A4B3",
+      "text.tertiary": "#6C7883",
+      "accent.primary": "#5AA7FF",
+      "accent.hover": "#79B8FF",
+      "accent.press": "#8EC4FF",
+      "bubble.in": "#1D2530",
+      "bubble.out": "#274A6D",
+      "bubble.text.out": "#F2F5F8",
+      "badge.unread": "#5AA7FF",
+      "border.subtle": "#232B36",
+      "success": "#46C98A",
+      "warning": "#F0B45A",
+      "danger": "#FF6369",
+      "overlay.scrim": "rgba(0, 0, 0, 0.55)"
+    }
+  },
+  "typography": {
+    "font_family": "Inter, Manrope, Roboto Flex, system-ui, sans-serif",
+    "scale": {
+      "display.xl": { "size": 28, "line": 34, "weight": 700 },
+      "title.lg": { "size": 22, "line": 28, "weight": 700 },
+      "title.md": { "size": 18, "line": 24, "weight": 650 },
+      "body.lg": { "size": 17, "line": 24, "weight": 400 },
+      "body.md": { "size": 15, "line": 22, "weight": 400 },
+      "body.sm": { "size": 14, "line": 20, "weight": 400 },
+      "caption.md": { "size": 13, "line": 18, "weight": 500 },
+      "caption.sm": { "size": 12, "line": 16, "weight": 500 },
+      "mono.md": { "size": 14, "line": 20, "weight": 450 }
+    }
+  },
+  "spacing": [2, 4, 8, 12, 16, 20, 24, 32, 40, 56],
+  "radius": {
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 20,
+    "full": 999
+  },
+  "elevation": {
+    "0": "flat lists",
+    "1": "cards, FAB",
+    "2": "sheets, dropdowns",
+    "3": "modals, context menus",
+    "4": "call overlay, media viewer"
+  },
+  "motion": {
+    "fast": 120,
+    "normal": 200,
+    "slow": 300,
+    "easing": {
+      "standard": "cubic-bezier(0.2, 0.0, 0.0, 1.0)",
+      "emphasized": "cubic-bezier(0.2, 0.0, 0.0, 1.2)",
+      "exit": "cubic-bezier(0.4, 0.0, 1.0, 1.0)"
+    }
+  },
+  "hit_targets": {
+    "min": "44x44 dp"
+  }
+}

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UIUX Messenger — Commercial UI Kit</title>
+<style>
+:root{
+ --bg:#070a0f;--s1:#0d1219;--s2:#111821;--s3:#171f2a;--s4:#202a37;
+ --line:rgba(255,255,255,.075);--line2:rgba(255,255,255,.13);
+ --text:#f5f7fb;--muted:#7c889a;--muted2:#aab4c3;
+ --a:#6f7fff;--a2:#965dff;--cyan:#51d7ff;--green:#38d69a;--red:#ff607d;--amber:#ffc85b;
+ --shadow:0 30px 100px rgba(0,0,0,.42);--r:18px;
+}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:
+radial-gradient(900px 600px at 50% -20%,rgba(111,127,255,.14),transparent 60%),var(--bg);color:var(--text);overflow:hidden}
+button,input,textarea,select{font:inherit}button{border:0;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.app{height:100vh;display:grid;grid-template-columns:76px 320px minmax(500px,1fr);background:rgba(8,11,16,.55)}
+.rail{background:rgba(10,14,20,.9);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:15px 10px;z-index:5}
+.logo{width:47px;height:47px;border-radius:16px;display:grid;place-items:center;font-weight:900;background:linear-gradient(145deg,var(--a),var(--a2));box-shadow:0 14px 38px rgba(111,127,255,.3);position:relative}.logo:after{content:"";width:7px;height:7px;border-radius:50%;background:#fff;position:absolute;right:6px;bottom:6px}
+.nav{display:grid;gap:7px;margin-top:24px}.nav button{width:48px;height:48px;border-radius:15px;background:transparent;color:#697587;font-size:19px;transition:.16s}.nav button:hover{background:#151c26;color:white}.nav button.active{background:#1c2840;color:white;box-shadow:inset 0 0 0 1px rgba(111,127,255,.2)}.nav button.active:before{content:"";position:absolute;left:0;width:3px;height:20px;background:var(--a);border-radius:3px}
+.railbottom{margin-top:auto;display:grid;gap:11px}.me{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#ff9566,#ff4c85);font-size:10px;font-weight:800}
+.side{background:rgba(13,18,25,.9);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0}.sidehead{padding:20px 17px 12px}.sidehead h1{font-size:21px;margin:0;letter-spacing:-.6px}.sub{color:#697587;font-size:9px;margin-top:4px}.search{height:43px;margin-top:16px;border:1px solid var(--line);background:#151c25;border-radius:13px;display:flex;align-items:center;padding:0 11px;gap:8px;color:#687589}.search input{width:100%;border:0;background:none;outline:0;color:white;font-size:12px}.tabs{display:flex;gap:5px;margin-top:10px;overflow:auto}.tab{padding:7px 10px;background:transparent;color:#748094;border-radius:9px;font-size:10px;white-space:nowrap}.tab.active{background:#222d45;color:#dce4ff}.list{overflow:auto;padding:6px 9px}.item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;cursor:pointer}.item:hover{background:#151c25}.item.active{background:linear-gradient(100deg,#1b2840,#151d27)}.ico{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:#1b2430;color:#a9b6c8;flex:none}.item b{font-size:12px}.item small{display:block;color:#6e7b8e;font-size:9px;margin-top:3px}.badge{margin-left:auto;background:var(--a);border-radius:9px;padding:3px 6px;font-size:8px}.section{padding:13px 9px 6px;color:#596678;font-size:8px;letter-spacing:1.3px;text-transform:uppercase;font-weight:700}
+.main{min-width:0;display:flex;flex-direction:column;background:
+radial-gradient(700px 450px at 55% 10%,rgba(111,127,255,.07),transparent 65%),#0a0f15}
+.top{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 19px;gap:10px;background:rgba(10,15,21,.76);backdrop-filter:blur(22px);z-index:2}.top h2{font-size:14px;margin:0}.top p{font-size:9px;color:var(--green);margin:3px 0 0}.top .spacer{flex:1}.actions{display:flex;gap:2px}.btn{width:36px;height:36px;border-radius:11px;background:transparent;color:#7b8798}.btn:hover{background:#171f29;color:white}.content{flex:1;overflow:auto;padding:28px}
+.screen{display:none;max-width:1100px;margin:0 auto}.screen.active{display:block}
+.hero{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px}.hero h1{font-size:27px;letter-spacing:-1px;margin:0}.hero p{font-size:11px;color:var(--muted);margin:6px 0 0}.primary{padding:10px 14px;border-radius:12px;background:linear-gradient(145deg,var(--a),var(--a2));font-size:11px;box-shadow:0 10px 25px rgba(111,127,255,.2)}.secondary{padding:10px 14px;border-radius:12px;background:#18212c;border:1px solid var(--line);font-size:11px}
+.grid{display:grid;gap:12px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:rgba(17,24,33,.86);border:1px solid var(--line);border-radius:var(--r);padding:17px;box-shadow:0 12px 35px rgba(0,0,0,.12)}.card h3{font-size:13px;margin:0 0 12px}.muted{color:var(--muted)}.tiny{font-size:9px}.metric{font-size:25px;font-weight:800}.label{font-size:9px;color:var(--muted);margin-top:4px}
+.profileCard{display:flex;align-items:center;gap:15px}.avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:15px}.purple{background:linear-gradient(145deg,#777dff,#9c55ff)}.green{background:linear-gradient(145deg,#3bd69a,#139f9a)}.blue{background:linear-gradient(145deg,#59a8ff,#5d5cff)}.orange{background:linear-gradient(145deg,#ffd16b,#ff6954)}
+.rowline{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:11px}.rowline:last-child{border:0}.switch{width:37px;height:21px;border-radius:12px;background:#293341;padding:3px}.switch i{display:block;width:15px;height:15px;border-radius:50%;background:#748092}.switch.on{background:#3e57bc}.switch.on i{margin-left:16px;background:white}
+.contacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.contact{background:#111821;border:1px solid var(--line);border-radius:17px;padding:15px;display:flex;align-items:center;gap:11px}.contact .avatar{width:46px;height:46px;font-size:11px}.contact b{font-size:11px}.contact small{display:block;color:#6f7c8e;font-size:9px;margin-top:3px}
+.channels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.channel{padding:17px;background:#111821;border:1px solid var(--line);border-radius:18px}.channeltop{display:flex;align-items:center;gap:11px}.channelicon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(145deg,#4c62d4,#8e57f4);font-size:19px}.channel h3{margin:0;font-size:12px}.channel p{margin:4px 0 0;font-size:9px;color:#748094}.channelfoot{margin-top:14px;display:flex;justify-content:space-between;color:#687589;font-size:9px}
+.calls{display:grid;grid-template-columns:1fr 1fr;gap:12px}.callcard{min-height:180px;background:#111821;border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;justify-content:space-between}.callhead{display:flex;align-items:center;gap:11px}.callstatus{color:var(--green);font-size:9px}.callcontrols{display:flex;justify-content:center;gap:8px}.roundbtn{width:42px;height:42px;border-radius:50%;background:#1c2632;color:#aab5c4}.roundbtn.end{background:var(--red);color:white}
+.settings{display:grid;grid-template-columns:220px 1fr;gap:13px}.settingsnav{background:#111821;border:1px solid var(--line);border-radius:17px;padding:8px}.settingnav{padding:10px;border-radius:11px;color:#7c889a;font-size:10px;cursor:pointer}.settingnav.active,.settingnav:hover{background:#1a2534;color:white}.settingbody{background:#111821;border:1px solid var(--line);border-radius:17px;padding:19px}.settingbody h3{margin:0;font-size:15px}.field{margin-top:15px}.field label{display:block;color:#6e7b8e;font-size:9px;margin-bottom:6px}.input{height:41px;background:#0d141c;border:1px solid var(--line);border-radius:11px;padding:0 11px;color:#fff;width:100%}
+.notifications{display:grid;gap:8px}.notice{display:flex;gap:11px;align-items:flex-start;padding:13px;background:#111821;border:1px solid var(--line);border-radius:15px}.notice .ico{width:36px;height:36px}.notice b{font-size:10px}.notice p{margin:4px 0 0;color:#778396;font-size:9px;line-height:1.45}.notice time{margin-left:auto;color:#596679;font-size:8px}
+.mediaViewer{height:500px;border-radius:22px;border:1px solid var(--line);background:radial-gradient(circle at 50% 45%,#273b62,#101822 58%,#080d13);display:grid;place-items:center;position:relative;overflow:hidden}.mediaViewer:before{content:"";width:360px;height:250px;background:linear-gradient(145deg,#415b8e,#1a2637);border-radius:15px;transform:rotate(-4deg);box-shadow:0 35px 70px rgba(0,0,0,.5)}.viewerbar{position:absolute;top:13px;left:13px;right:13px;display:flex;justify-content:space-between}.viewerbar .btn{background:rgba(10,15,21,.55);backdrop-filter:blur(12px)}.viewerbottom{position:absolute;bottom:13px;left:13px;right:13px;display:flex;justify-content:center;gap:6px}.thumb{width:52px;height:42px;border-radius:8px;background:#273653;border:1px solid transparent}.thumb.active{border-color:white}
+.picker{display:grid;grid-template-columns:1fr 270px;gap:12px}.emojiBox,.stickerBox{background:#111821;border:1px solid var(--line);border-radius:18px;padding:15px}.emojiGrid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;font-size:22px}.emojiGrid button{height:40px;border-radius:9px;background:transparent}.emojiGrid button:hover{background:#1d2733}.sticker{height:88px;border-radius:12px;background:linear-gradient(145deg,#263653,#18222f);display:grid;place-items:center;font-size:34px}
+.ui{display:grid;gap:13px}.component{background:#111821;border:1px solid var(--line);border-radius:18px;padding:17px}.component h3{font-size:12px;margin:0 0 14px}.buttons{display:flex;gap:7px;flex-wrap:wrap}.demoInput{height:40px;border-radius:11px;background:#0d141c;border:1px solid var(--line);padding:0 10px;color:#fff}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{padding:6px 9px;border-radius:9px;background:#1b2430;color:#9ca8b9;font-size:9px}.chip.active{background:#30477d;color:#dfe7ff}.modalDemo{max-width:440px;margin:auto;background:#121923;border:1px solid var(--line2);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+/* modal */
+.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.64);backdrop-filter:blur(10px);z-index:50;place-items:center}.modal{width:min(480px,92vw);background:#121923;border:1px solid var(--line2);border-radius:22px;padding:20px;box-shadow:var(--shadow)}.modalhead{display:flex;justify-content:space-between;align-items:center}.modalhead h3{font-size:15px;margin:0}.close{width:34px;height:34px;border-radius:10px;background:#1b2430;color:#aab5c4}.toast{position:fixed;left:50%;bottom:25px;transform:translate(-50%,15px);opacity:0;background:#202b38;border:1px solid var(--line2);padding:10px 14px;border-radius:11px;box-shadow:var(--shadow);font-size:10px;z-index:70;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1050px){.app{grid-template-columns:70px 285px minmax(0,1fr)}.contacts{grid-template-columns:1fr 1fr}.settings{grid-template-columns:180px 1fr}}
+@media(max-width:720px){body{overflow:auto}.app{display:block;min-height:100vh}.rail{display:none}.side{display:none}.main{min-height:100vh}.content{padding:18px}.g2,.g3,.contacts,.channels,.calls,.picker,.settings{grid-template-columns:1fr}.hero{align-items:flex-start;gap:10px;flex-direction:column}.mediaViewer{height:360px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="rail">
+ <div class="logo">U</div>
+ <nav class="nav">
+  <button class="active" data-screen="dashboard">◉</button>
+  <button data-screen="contacts">♙</button>
+  <button data-screen="groups">▦</button>
+  <button data-screen="channels">◈</button>
+  <button data-screen="calls">◔</button>
+  <button data-screen="notifications">♢</button>
+ </nav>
+ <div class="railbottom"><button class="nav" style="display:block" data-screen="settings">⚙</button><div class="me">IV</div></div>
+</aside>
+
+<aside class="side">
+ <div class="sidehead"><h1 id="sideTitle">Пространство</h1><div class="sub" id="sideSub">Коммуникации в одном месте</div><label class="search">⌕<input id="search" placeholder="Поиск…"></label><div class="tabs"><button class="tab active">Все</button><button class="tab">Недавние</button><button class="tab">Избранное</button></div></div>
+ <div class="list" id="sideList">
+  <div class="section">Быстрый доступ</div>
+  <div class="item active" data-screen="dashboard"><div class="ico">⌂</div><div><b>Обзор</b><small>Рабочее пространство</small></div></div>
+  <div class="item" data-screen="contacts"><div class="ico">♙</div><div><b>Контакты</b><small>Люди и приглашения</small></div><span class="badge">24</span></div>
+  <div class="item" data-screen="groups"><div class="ico">▦</div><div><b>Группы</b><small>Команды и сообщества</small></div></div>
+  <div class="item" data-screen="channels"><div class="ico">◈</div><div><b>Каналы</b><small>Новости и публикации</small></div></div>
+  <div class="item" data-screen="calls"><div class="ico">◔</div><div><b>Звонки</b><small>Аудио и видео</small></div></div>
+  <div class="section">Управление</div>
+  <div class="item" data-screen="notifications"><div class="ico">♢</div><div><b>Уведомления</b><small>Центр активности</small></div><span class="badge">5</span></div>
+  <div class="item" data-screen="media"><div class="ico">▧</div><div><b>Медиа</b><small>Фото, видео, файлы</small></div></div>
+  <div class="item" data-screen="picker"><div class="ico">☺</div><div><b>Emoji & Stickers</b><small>Панель реакций</small></div></div>
+  <div class="item" data-screen="ui"><div class="ico">✦</div><div><b>UI Kit</b><small>Компоненты системы</small></div></div>
+  <div class="item" data-screen="settings"><div class="ico">⚙</div><div><b>Настройки</b><small>Персонализация</small></div></div>
+ </div>
+</aside>
+
+<main class="main">
+<header class="top"><button class="btn" onclick="toast('Навигация')">☰</button><div><h2 id="topTitle">Обзор</h2><p id="topStatus">Всё под контролем</p></div><div class="spacer"></div><div class="actions"><button class="btn" onclick="toast('Глобальный поиск')">⌕</button><button class="btn" onclick="openModal()">＋</button><button class="btn">⋯</button></div></header>
+<div class="content">
+
+<section class="screen active" id="dashboard">
+ <div class="hero"><div><h1>Добрый вечер, Иван</h1><p>Единое пространство для общения, команд и контента.</p></div><button class="primary" onclick="openModal()">＋ Новый диалог</button></div>
+ <div class="grid g3"><div class="card"><div class="metric">24</div><div class="label">контакта онлайн</div></div><div class="card"><div class="metric">8</div><div class="label">активных групп</div></div><div class="card"><div class="metric">5</div><div class="label">новых уведомлений</div></div></div>
+ <div class="grid g2" style="margin-top:13px"><div class="card"><h3>Последние диалоги</h3><div class="item"><div class="avatar purple">AP</div><div><b>Анна Петрова</b><small>Давай завтра обсудим макет · 19:42</small></div><span class="badge">2</span></div><div class="item"><div class="avatar blue">DT</div><div><b>Design Team</b><small>Новая версия готова · 18:10</small></div></div><div class="item"><div class="avatar green">M</div><div><b>Мария</b><small>Фото · 4 изображения · 16:25</small></div></div></div>
+ <div class="card"><h3>Ваш профиль</h3><div class="profileCard"><div class="avatar orange">IV</div><div><b>Ivan</b><div class="muted tiny">@ivan · доступен</div></div><button class="secondary" style="margin-left:auto" onclick="show('settings')">Изменить</button></div><div class="rowline"><span>Приватность</span><span class="muted">Настроена</span></div><div class="rowline"><span>Устройства</span><span class="muted">2 активных</span></div></div></div>
+</section>
+
+<section class="screen" id="contacts">
+ <div class="hero"><div><h1>Контакты</h1><p>Люди, с которыми вы общаетесь.</p></div><button class="primary" onclick="openModal()">＋ Пригласить</button></div>
+ <div class="contacts">
+  <div class="contact"><div class="avatar purple">AP</div><div><b>Анна Петрова</b><small>в сети · @anna.pet</small></div></div><div class="contact"><div class="avatar green">M</div><div><b>Мария</b><small>в сети · @maria</small></div></div><div class="contact"><div class="avatar blue">AV</div><div><b>Алексей Волков</b><small>был недавно</small></div></div><div class="contact"><div class="avatar orange">NK</div><div><b>Николай</b><small>в сети · @nick</small></div></div><div class="contact"><div class="avatar purple">EL</div><div><b>Елена</b><small>в сети · @elena</small></div></div><div class="contact"><div class="avatar green">DS</div><div><b>Дмитрий</b><small>не беспокоить</small></div></div>
+ </div>
+</section>
+
+<section class="screen" id="groups">
+ <div class="hero"><div><h1>Группы</h1><p>Команды, проекты и сообщества.</p></div><button class="primary" onclick="toast('Создание группы')">＋ Создать группу</button></div>
+ <div class="grid g2"><div class="card"><div class="profileCard"><div class="avatar blue">DT</div><div><h3>Design Team</h3><span class="muted tiny">18 участников · 4 онлайн</span></div></div><div class="rowline"><span>Последняя активность</span><span class="muted">18:10</span></div><button class="secondary" onclick="toast('Открыть группу')">Открыть</button></div><div class="card"><div class="profileCard"><div class="avatar orange">PL</div><div><h3>Product Lab</h3><span class="muted tiny">8 участников · 2 онлайн</span></div></div><div class="rowline"><span>Последняя активность</span><span class="muted">14:03</span></div><button class="secondary">Открыть</button></div></div>
+</section>
+
+<section class="screen" id="channels">
+ <div class="hero"><div><h1>Каналы</h1><p>Публичные и приватные публикации.</p></div><button class="primary">＋ Создать канал</button></div>
+ <div class="channels"><div class="channel"><div class="channeltop"><div class="channelicon">✦</div><div><h3>Product Design</h3><p>UI/UX · 12.4K подписчиков</p></div></div><div class="channelfoot"><span>Новая публикация 18:32</span><b>Открыть →</b></div></div><div class="channel"><div class="channeltop"><div class="channelicon" style="background:linear-gradient(145deg,#2b9a91,#4261d9)">◈</div><div><h3>Tech Daily</h3><p>Технологии · 8.7K подписчиков</p></div></div><div class="channelfoot"><span>Новая публикация 16:20</span><b>Открыть →</b></div></div></div>
+</section>
+
+<section class="screen" id="calls">
+ <div class="hero"><div><h1>Звонки</h1><p>Аудио, видео и история вызовов.</p></div><button class="primary" onclick="toast('Новый звонок')">＋ Новый звонок</button></div>
+ <div class="calls"><div class="callcard"><div class="callhead"><div class="avatar purple">AP</div><div><b>Анна Петрова</b><div class="callstatus">Входящий · 12:42</div></div></div><div class="callcontrols"><button class="roundbtn" onclick="toast('Перезвонить')">◔</button><button class="roundbtn" onclick="toast('Открыть чат')">▣</button></div></div><div class="callcard"><div class="callhead"><div class="avatar blue">AV</div><div><b>Алексей Волков</b><div class="muted tiny">Исходящий · 08:21</div></div></div><div class="callcontrols"><button class="roundbtn" onclick="toast('Перезвонить')">◔</button><button class="roundbtn end" onclick="toast('Удалить запись')">×</button></div></div></div>
+</section>
+
+<section class="screen" id="notifications">
+ <div class="hero"><div><h1>Уведомления</h1><p>Единый центр активности.</p></div><button class="secondary" onclick="toast('Все уведомления отмечены прочитанными')">Отметить всё</button></div>
+ <div class="notifications"><div class="notice"><div class="ico">♥</div><div><b>Анна Петрова поставила реакцию</b><p>❤️ на ваше сообщение «Спасибо! Я как раз сегодня закончу…»</p></div><time>2 мин</time></div><div class="notice"><div class="ico">▦</div><div><b>Вас добавили в Design Team</b><p>Теперь вам доступны сообщения и файлы команды.</p></div><time>18 мин</time></div><div class="notice"><div class="ico">◈</div><div><b>Новая публикация Product Design</b><p>«Как проектировать сложные интерфейсы без визуального шума»</p></div><time>1 ч</time></div></div>
+</section>
+
+<section class="screen" id="media">
+ <div class="hero"><div><h1>Media Viewer</h1><p>Полноэкранный просмотр фото, видео и документов.</p></div><button class="secondary">Скачать</button></div>
+ <div class="mediaViewer"><div class="viewerbar"><button class="btn">‹</button><div><button class="btn">↗</button><button class="btn">⋯</button></div></div><div class="viewerbottom"><div class="thumb active"></div><div class="thumb"></div><div class="thumb"></div><div class="thumb"></div></div></div>
+</section>
+
+<section class="screen" id="picker">
+ <div class="hero"><div><h1>Emoji & Stickers</h1><p>Единая панель реакций для composer.</p></div></div>
+ <div class="picker"><div class="emojiBox"><h3>Emoji</h3><div class="chips"><span class="chip active">Недавние</span><span class="chip">Лица</span><span class="chip">Жесты</span><span class="chip">Еда</span></div><div class="emojiGrid" style="margin-top:13px"><button>😀</button><button>😂</button><button>😍</button><button>🥹</button><button>😎</button><button>🤩</button><button>😴</button><button>🤔</button><button>👍</button><button>❤️</button><button>🔥</button><button>👏</button><button>🎉</button><button>🚀</button><button>💡</button><button>✨</button></div></div><div class="stickerBox"><h3>Stickers</h3><div class="grid g2"><div class="sticker">🦊</div><div class="sticker">😼</div><div class="sticker">🐸</div><div class="sticker">🤖</div></div></div></div>
+</section>
+
+<section class="screen" id="settings">
+ <div class="hero"><div><h1>Настройки</h1><p>Персонализация, приватность и управление аккаунтом.</p></div></div>
+ <div class="settings"><div class="settingsnav"><div class="settingnav active">Профиль</div><div class="settingnav">Приватность</div><div class="settingnav">Уведомления</div><div class="settingnav">Внешний вид</div><div class="settingnav">Чаты</div><div class="settingnav">Медиа</div><div class="settingnav">Устройства</div><div class="settingnav">Безопасность</div><div class="settingnav">Язык</div></div><div class="settingbody"><h3>Профиль</h3><div class="profileCard" style="margin-top:18px"><div class="avatar orange">IV</div><div><b>Ivan</b><div class="muted tiny">@ivan</div></div><button class="secondary" style="margin-left:auto">Изменить фото</button></div><div class="field"><label>Имя</label><input class="input" value="Ivan"></div><div class="field"><label>Username</label><input class="input" value="@ivan"></div><div class="field"><label>О себе</label><input class="input" value="Создаю цифровые продукты"></div><div style="margin-top:18px"><button class="primary">Сохранить изменения</button></div></div></div>
+</section>
+
+<section class="screen" id="ui">
+ <div class="hero"><div><h1>UI Kit</h1><p>Базовые компоненты и состояния коммерческого продукта.</p></div></div>
+ <div class="ui">
+  <div class="component"><h3>Buttons</h3><div class="buttons"><button class="primary">Primary action</button><button class="secondary">Secondary</button><button class="btn" style="background:#18212c">Ghost</button><button class="btn" style="background:#45202b;color:#ff91a4">Danger</button></div></div>
+  <div class="component"><h3>Inputs & Search</h3><div class="grid g2"><input class="demoInput" placeholder="Введите текст…"><label class="search" style="margin:0"><span>⌕</span><input placeholder="Поиск…"></label></div></div>
+  <div class="component"><h3>Chips, badges & states</h3><div class="chips"><span class="chip active">Active</span><span class="chip">Default</span><span class="chip">Muted</span><span class="badge">12</span><span style="color:var(--green);font-size:9px">● Online</span><span style="color:var(--red);font-size:9px">● Offline</span></div></div>
+  <div class="component"><h3>Message preview</h3><div class="card" style="background:#18212c"><div class="reply">Анна · ответ на сообщение</div><div style="font-size:11px">Особенно нравится новый список чатов. Он стал намного чище. <span class="muted tiny">19:38</span></div><div class="reaction">❤️ 3</div></div></div>
+  <div class="component"><h3>Modal / Dialog</h3><div class="modalDemo"><div class="modalhead"><h3>Удалить сообщение?</h3><button class="close">×</button></div><p class="muted tiny" style="line-height:1.6">Сообщение будет удалено для всех участников. Это действие нельзя отменить.</p><div class="buttons" style="justify-content:flex-end"><button class="secondary">Отмена</button><button class="primary" style="background:linear-gradient(145deg,#ff607d,#d94263)">Удалить</button></div></div></div>
+ </div>
+</section>
+
+</div></main></div>
+
+<div class="toast" id="toast"></div>
+<div class="backdrop" id="backdrop"><div class="modal"><div class="modalhead"><h3>Новый диалог</h3><button class="close" onclick="closeModal()">×</button></div><div class="search" style="margin-top:16px"><span>⌕</span><input placeholder="Имя, username или номер"></div><div class="item" style="margin-top:9px"><div class="avatar green" style="width:40px;height:40px">M</div><div><b>Мария</b><small>в сети · @maria</small></div></div><div class="item"><div class="avatar blue" style="width:40px;height:40px">AV</div><div><b>Алексей Волков</b><small>был недавно</small></div></div><div class="item"><div class="avatar orange" style="width:40px;height:40px">PL</div><div><b>Product Lab</b><small>группа · 8 участников</small></div></div></div></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const titles={dashboard:['Обзор','Всё под контролем'],contacts:['Контакты','Люди и приглашения'],groups:['Группы','Команды и сообщества'],channels:['Каналы','Новости и публикации'],calls:['Звонки','Аудио и видео'],notifications:['Уведомления','Центр активности'],media:['Media Viewer','Фото, видео и файлы'],picker:['Emoji & Stickers','Панель реакций'],settings:['Настройки','Персонализация и безопасность'],ui:['UI Kit','Система компонентов']};
+function show(id){
+ $$('.screen').forEach(x=>x.classList.toggle('active',x.id===id));
+ $$('.nav button,.item').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));
+ $('#topTitle').textContent=titles[id][0];$('#topStatus').textContent=titles[id][1];
+ $('#sideTitle').textContent=id==='dashboard'?'Пространство':titles[id][0];
+}
+$$('[data-screen]').forEach(el=>el.addEventListener('click',()=>show(el.dataset.screen)));
+function toast(t){let e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(window.t);window.t=setTimeout(()=>e.classList.remove('show'),1500)}
+function openModal(){$('#backdrop').style.display='grid'}function closeModal(){$('#backdrop').style.display='none'}
+$('#backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop')closeModal()});
+$('#search').addEventListener('input',e=>{let q=e.target.value.toLowerCase();$$('#sideList .item').forEach(x=>x.style.display=x.innerText.toLowerCase().includes(q)?'flex':'none')});
+</script>
+</body>
+</html>

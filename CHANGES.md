@@ -1,5 +1,160 @@
 # CHANGELOG — FIXES APPLIED DURING TESTING CYCLE
 
+> **Date:** 2026-08-17
+> **Scope:** Full security/optimization/unification audit (see `docs/AUDIT_2026-08-17.md`)
+> **Status:** Fixed (batch 1)
+
+---
+
+## AUDIT/001: REST server crash on directory request to `/admin`
+
+**File:** `server/signaling-server.ts`
+**Issue:** `serveAdminFile` called `readFileSync` on a directory (e.g. `GET /admin` or `GET /admin/`) → unhandled `EISDIR` exception crashed the entire REST server (port 8766). DoS via a single request. Also no try/catch around the whole request handler.
+**Fix:** Directory requests now serve `index.html` or return 404; extracted `writeAdminFile` helper; whole REST handler wrapped in try/catch returning 500 instead of crashing.
+
+## AUDIT/002: Service worker intercepted cross-origin requests and cached API responses
+
+**File:** `public/sw.js`
+**Issue:** Fetch handler had no same-origin guard (could intercept other origins' requests), and cached authenticated `GET /api/*` responses (credential-leak risk in cache storage). Bumped cache version.
+**Fix:** Early-return for cross-origin requests; API/ws paths are now network-only (no caching).
+
+## AUDIT/003: Tracked SQLite WAL/SHM artifacts committed to git
+
+**File:** `.gitignore`
+**Issue:** `server/data/admin.db-wal` and `admin.db-shm` were git-tracked (admin.db itself was ignored via `*.db`, but `-wal`/`-shm` were not).
+**Fix:** Added `*.db-wal`/`*.db-shm` to `.gitignore`; `git rm --cached` both files.
+
+## AUDIT/004: Dead & insecure crypto code in CryptoCore
+
+**File:** `src/lib/crypto/cryptoCore.ts`, `src/lib/crypto/types.ts`
+**Issue:** `deriveHKDF` was misnamed (actually PBKDF2 with 1 iteration — OWASP M05 weak crypto); `performHandshake`/`encryptMessage`/`decryptMessage` used raw X25519 DH output directly as an AES-GCM key with no KDF/domain separation; `generateIdentityKeys`, `rotateKeys`, `create/delete/getForwardSecrecyKey`, `generate/verify/importHMAC`, and the `identityKeys`/`keyRotationCount`/`forwardSecrecyKeys` fields were unused dead code.
+**Fix:** Removed all dead/insecure methods + fields + `HandshakeResult`/`EncryptResult` types. Kept `KyberKEM` (PQ roadmap, K2). Updated `tests/crypto-core.test.ts` to use native WebCrypto HMAC.
+
+## AUDIT/005: Dead hooks duplicated connection logic with hardcoded URL
+
+**File:** `src/hooks/useConnection.ts`, `src/hooks/useConnectionSetup.ts`, `src/hooks/index.ts`, `src/App.test.tsx`
+**Issue:** Both hooks were only referenced by their own tests (`App.tsx` uses `useAppConnection`); `useConnection.ts` hardcoded `wss://mess.cvr.name/ws`, bypassing `SIGNALING_SEED_URLS` config.
+**Fix:** Deleted both hooks + their tests, removed re-exports, removed the now-dead `vi.mock` blocks in `App.test.tsx`.
+
+## AUDIT/006: Duplicate `landing/` directory (byte-identical to `public/landing/`)
+
+**File:** `landing/` (root)
+**Issue:** Root `landing/` was a full duplicate of `public/landing/`; no script or CI referenced it.
+**Fix:** Deleted the dead duplicate via `git rm -r`.
+
+## AUDIT/007: Broken security CI workflow + missing lint in CI
+
+**File:** `.github/workflows/security.yml`, `.github/workflows/ci.yml`
+**Issue:** `security.yml` used non-existent `eslint --no-config --no-eslintrc` and a broken `github/codeql-action-typescript@v1` step (silent `continue-on-error`); `ci.yml` never ran `npm run lint`.
+**Fix:** Removed broken flags + CodeQL step (replaced by a working eslint security rule run); `ci.yml` now runs `npm run lint` before tests.
+
+**Verified:** `npm run lint` (eslint --quiet + tsc --noEmit) → 0 errors; `npm test` → 3892/3892 passed.
+
+## AUDIT/008: WebSocket handshake lacked origin validation (CSWSH)
+
+**File:** `server/signaling-server.ts`
+**Issue:** The WS `connection` handler validated only the JWT (from query string) but never checked `Origin`, unlike the HTTP route CORS policy. A malicious cross-origin page could open a WebSocket to the signaling server (cross-site WebSocket hijacking) when an origin allowlist was configured.
+**Fix:** Added `isWsOriginAllowed()` mirroring the HTTP `isOriginAllowed()` policy: strict when `ALLOWED_ORIGINS` is set, permissive when unset, and requests without an `Origin` header (native mobile/test clients) are always permitted. Rejected handshakes close with `1008 Origin not allowed`. No token logging was present on the connection path.
+
+## AUDIT/009: ICQ sticker skins loaded eagerly
+
+**File:** `src/components/chat/StickerPicker.tsx`
+**Issue:** ICQ sticker `<img>` elements used `loading="eager"` while other packs used `"lazy"`, inverting the intended lazy-load behaviour and adding avoidable network/decoding cost on the sticker panel.
+**Fix:** All sticker images now use `loading="lazy"` (with `decoding="async"`).
+
+## AUDIT/010: SettingsMainMenu exceeded 300 lines (atomic-component split)
+
+**File:** `src/components/settings/SettingsMainMenu.tsx`, `src/components/settings/SettingsMenuParts.tsx`
+**Issue:** `SettingsMainMenu` was 313 lines with heavy JSX duplication (3 near-identical "big menu buttons" and 6 repeated nav-card groups).
+**Fix:** Extracted reusable `BigMenuButton` + `NavGroup` presentational components and the `NavItemDef` type into `SettingsMenuParts.tsx`. `SettingsMainMenu` is now data-driven (nav items declared as config arrays) and reduced to 286 lines; `SettingsMenuParts` is 79 lines. Behavior and props unchanged.
+
+## AUDIT/011: ChatListView exceeded 300 lines (logic + bots extraction)
+
+**File:** `src/components/ChatListView.tsx`, `src/hooks/useChatListActions.ts`, `src/components/chat-preview/ChatListBots.tsx`
+**Issue:** `ChatListView` was 406 lines: selection/bulk/context-menu state+handlers and an inline Bots section.
+**Fix:** Extracted selection/bulk/context-menu logic into `useChatListActions` hook (mirrors `useChatMessageActions`); extracted the Bots list into atomic `ChatListBots` component. `ChatListView` reduced to 295 lines. `ChatListItem` row component was already atomic (no change).
+
+## AUDIT/012: ChatMessage context-menu actions inline (atomic extraction)
+
+**File:** `src/components/chat-preview/ChatMessage.tsx`, `src/components/chat-preview/messageMenuActions.tsx`, `src/components/chat-preview/MessageContextMenu.tsx`
+**Issue:** `ChatMessage` (441 lines) embedded a ~90-line inline `actions` array for `MessageContextMenu`, mixing menu-building with the render body.
+**Fix:** Extracted the menu builder into `buildMessageMenuActions()` in `messageMenuActions.tsx`; exported `MessageContextAction` type from `MessageContextMenu.tsx`. `ChatMessage` reduced to 380 lines; menu logic is now a reusable, testable unit.
+
+## AUDIT/013: CallScreen exceeded 300 lines (3 atomic splits)
+
+**File:** `src/components/call/CallScreen.tsx`, `src/components/call/CallMediaStage.tsx`, `src/components/call/CallControlBar.tsx`, `src/components/call/CallTopBar.tsx`
+**Issue:** `CallScreen` was 460 lines with the media stage, control bar, and top info overlay inlined.
+**Fix:** Extracted `CallMediaStage` (video/audio stage; video refs passed through so `srcObject` effects keep working), `CallControlBar` (mute/video/speaker/screen/record/switch/end controls), and `CallTopBar` (name/status/duration/recording/fullscreen/minimize overlay) into dedicated components. `CallScreen` reduced to 248 lines; all call tests pass (39/39).
+
+---
+
+> **Date:** 2026-08-12
+> **Scope:** Sidebar user button navigation → dedicated Profile view
+> **Status:** Fixed
+
+---
+
+## NAV/001: Clicking the user avatar opened Contacts instead of a profile page
+
+**File:** `src/components/ecochat/EcoSidebarNav.tsx`, `src/hooks/useAppNavigation.ts`, `src/hooks/useAppView.ts`, `src/App.tsx`, `src/components/features/FeatureViews.tsx`, `src/components/ProfileView.tsx`
+**Issue:** `handleProfileClick` was hard-bound to `onNavigate("contacts")`, so the user-button in the sidebar rail opened the Contacts screen. Additionally no `"profile"` view existed in the navigation type union or `FeatureViews` switch, so a profile destination could not be rendered even if requested.
+**Fix:**
+- Added `"profile"` to the `View`/`AppView` type unions (`useAppNavigation.ts`, `useAppView.ts`) and the inline view state union in `App.tsx`.
+- Added `case "profile"` to `FeatureViews.tsx` rendering the new `ProfileView`.
+- Created `src/components/ProfileView.tsx` — a standalone profile page that reuses the existing `ProfileSection` editor (avatar/name/bio/status/contact fields/accounts/identity) inside the standard card container, with back navigation falling back to `chats`.
+- Changed `handleProfileClick` in `EcoSidebarNav.tsx` to call `onNavigate?.("profile")`.
+
+**Verified:** `tsc --noEmit` (0 errors), `eslint . --quiet` (0 errors), `vitest run` (3918/3918 passed), `vite build` (0 errors/warnings).
+
+---
+
+## NAV/002: Navigation lost the open chat and hid the chat list (not Telegram-like)
+
+**File:** `src/hooks/useAppNavigation.ts`, `src/components/app/AppShell.tsx`, `src/components/features/FeatureViews.tsx`, `src/components/ecochat/EcoSidebarNav.tsx`, `src/App.tsx`
+**Issue:** Switching any rail/bottom-nav tab called `setActiveChat(null)`, so the active conversation was discarded and the middle column (chat list) vanished outside chat routes — unlike Telegram Desktop, which keeps the open chat in the right column and the list in the middle column across section switches. Contacts also carried a misleading unread badge, and there was no browser/hardware Back step-back.
+**Fix:**
+- `useAppNavigation.handleNavigate` no longer resets `activeChat`.
+- `AppShell` desktop: the middle column is now persistent — it renders `ChatListView` for chat routes and `ContactsView`/`CompanyContactsView`/`CallLogView` for those sections, while the right column keeps the open chat. Full-panel features (`settings`/`profile`/`recordings`/`radar`) override the right column.
+- `AppShell` mobile: a feature view now hides the open chat (single-column) instead of stacking both (pre-existing double-render bug fixed as a side effect).
+- Exported the lazy feature components from `FeatureViews.tsx` so the middle column can reuse them.
+- `EcoSidebarNav`: removed the unread badge from `contacts` (only `chats`/`company` are badged now).
+- `App.tsx`: added History API integration (`pushState`/`popstate`) so browser/mobile Back steps chat → list → chats.
+
+**Verified:** `tsc --noEmit` (0 errors), `eslint` (0 errors on touched files), `vitest run src/App.test.tsx src/components/navigation src/components/features` (24/24 passed), `vite build` (succeeds; pre-existing unrelated idb dynamic/static import warning remains).
+
+---
+
+## SW/001: Service Worker crashed on `cache.put` of partial (206) responses
+
+**File:** `public/sw.js`
+**Issue:** The fetch handler cached every GET response via `cache.put(request, response.clone())` without checking the status. Range requests (media, fonts, ICQ stickers) return HTTP `206 Partial Content`, which the Cache API refuses to store, throwing `Failed to execute 'put' on 'Cache': Partial response (status code 206) is unsupported` on every such request (and the unhandled promise rejection repeated in console).
+**Fix:**
+- Added `safeCachePut(cache, request, response)` that only stores responses with `status === 200` and swallows any `cache.put` rejection (`.catch`), so partial/opaque/error responses are returned to the client normally but never written to the cache.
+- Replaced all 10 `cache.put(...)` call sites (app shell, data cache, ICQ stickers, static assets) with `safeCachePut`.
+- The original 206 response is still returned to the page; only caching is skipped.
+
+**Verified:** `node --check public/sw.js` passes (valid syntax).
+
+---
+
+## NAV/003: Telegram-like chat interactions — context menu, global search, demo-call clarity, avatar→Settings
+
+**Files:** `src/components/ecochat/EcoSidebarNav.tsx`, `src/hooks/useAppNavigation.ts`, `src/components/call/CallScreen.tsx`, `src/components/chat-preview/ChatListItem.tsx`, `src/components/chat-preview/ChatContextMenu.tsx` (new), `src/components/ChatListView.tsx`, `src/components/chat-preview/ChatListSearchHeader.tsx`, `src/components/GlobalSearch.tsx` (new), `src/locales/en.json`, `src/locales/ru.json`
+**Issues (from UX audit vs Telegram):** no right-click/long-press context menu on chats; no global search across chats/messages/contacts; preview calls sat in "connecting" forever with no cancel hint; avatar opened a standalone Profile view instead of Settings.
+**Fixes:**
+- `EcoSidebarNav`: avatar button now navigates to `settings` (Telegram opens Settings, where the profile editor lives).
+- `useAppNavigation.handlePreviewCall`: preview calls are tagged `isPreview` and auto-dismiss after 30s if they never connect; `CallScreen` shows a "Demo" badge so the simulated call is clearly distinguishable from a real one (it remains cancellable via the End button).
+- `ChatListItem`: added `onMenuRequest`; right-click (desktop) opens a context menu at the cursor, long-press (mobile) opens it as a bottom sheet.
+- `ChatContextMenu` (new): popover/bottom-sheet with Pin/Unpin, Mute/Unmute, Mark as Read, Archive/Unarchive, Select, Delete.
+- `ChatListView`: wires the menu to store actions (`pinned`/`isMuted` toggle, mark read, archive, delete, enter select mode) and renders `ChatContextMenu`.
+- `GlobalSearch` (new) + `ChatListSearchHeader` globe button: searches chats (name + message history), channels and contacts, grouped with snippets; selecting a chat opens it, a contact opens its profile.
+
+**Verified:** `tsc --noEmit` (0 errors), `eslint` (0 errors on touched files), `vitest run` chat/navigation suites (22/22 passed), `vite build` (succeeds; pre-existing unrelated idb warning remains).
+
+---
+
+# CHANGELOG — FIXES APPLIED DURING TESTING CYCLE
+
 > **Date:** 2026-08-03
 > **Scope:** Android build reliability on Windows (EBUSY race condition)
 > **Status:** Fixed

@@ -1,0 +1,197 @@
+{
+  "system_context": {
+    "product_name": "MessAndanger",
+    "reference_class": "telegram_like_messenger",
+    "generated_from": "src code analysis (useAppView.ts, components/*, store/*)",
+    "note": "Бриф §2 требует брать existing_features из system_context. Реального system_context не передано — ниже mapping по фактически реализованным фичам кода. Фичи, помеченные status=stub/missing, выдумывать не следует (бриф §2.0, §13.2, §20)."
+  },
+  "existing_features": [
+    {
+      "id": "ai_assistant",
+      "title": "Nexus Assistant",
+      "enabled": true,
+      "status": "stub",
+      "placements": ["side_menu.item", "chat.input.toolbar"],
+      "ui_type": "sheet",
+      "evidence": ["src/constants/mockData.ts:134 (name: \"Nexus Assistant\")"],
+      "gap": "Полноценный UI-контейнер ассистента и in-chat sheet не обнаружены."
+    },
+    {
+      "id": "payments",
+      "title": "Payments & Billing",
+      "enabled": true,
+      "status": "stub",
+      "placements": ["settings.section"],
+      "ui_type": "modal",
+      "evidence": [
+        "src/components/SettingsView.tsx:25 (PaymentsSection)",
+        "src/components/settings/PaymentsSection.tsx"
+      ],
+      "gap": "Нет: payment_card в чате, кнопки в attach_menu, отправки/получения денег, invoice (бриф §2.2, §5.4)."
+    },
+    {
+      "id": "crm",
+      "title": "CRM fields",
+      "enabled": true,
+      "status": "partial",
+      "placements": ["profile.section", "contacts.action"],
+      "ui_type": "card",
+      "evidence": [
+        "src/components/contacts/ContactFormFields.tsx (ContactCRMFields)",
+        "src/components/ContactCreateEditModal.tsx:106"
+      ],
+      "gap": "Только поля контакта (company/position/tags). Нет CRM-карточек в чате, задач, воронок."
+    },
+    {
+      "id": "calls",
+      "title": "Audio/Video Calls",
+      "enabled": true,
+      "status": "implemented",
+      "placements": ["side_menu.item", "chat.header_menu", "contacts.action"],
+      "ui_type": "tab",
+      "evidence": [
+        "src/components/call/*",
+        "src/hooks/useCall.ts",
+        "src/components/FloatingCallWidget.tsx",
+        "docs/2026-06-19-video-calls.md"
+      ]
+    },
+    {
+      "id": "stories",
+      "title": "Stories / Updates",
+      "enabled": true,
+      "status": "implemented",
+      "placements": ["chat_list.top_action", "side_menu.item"],
+      "ui_type": "tab",
+      "evidence": [
+        "src/components/stories/*",
+        "src/App.tsx (activeStory, showStoryComposer)"
+      ]
+    },
+    {
+      "id": "bots",
+      "title": "Bots (create/manage)",
+      "enabled": true,
+      "status": "partial",
+      "placements": ["chat_list.top_action", "side_menu.item"],
+      "ui_type": "modal",
+      "evidence": [
+        "src/components/CreateBotModal.tsx",
+        "src/components/ChatListView.tsx (view=bots)"
+      ],
+      "gap": "Нет профиля бота, команд бота, mini-app runtime (бриф §4.1, §5.5)."
+    },
+    {
+      "id": "polls",
+      "title": "Polls",
+      "enabled": true,
+      "status": "partial",
+      "placements": ["chat.attach_menu", "message.context_menu"],
+      "ui_type": "inline_message",
+      "evidence": ["src/store/types.ts:85 (PollMessage, PollOption)"]
+    },
+    {
+      "id": "location",
+      "title": "Location share",
+      "enabled": true,
+      "status": "partial",
+      "placements": ["chat.attach_menu"],
+      "ui_type": "inline_message",
+      "evidence": ["src/store/types.ts:113 (LocationShare)"]
+    },
+    {
+      "id": "scheduled_messages",
+      "title": "Scheduled messages",
+      "enabled": true,
+      "status": "implemented",
+      "placements": ["chat.input.toolbar"],
+      "ui_type": "inline_message",
+      "evidence": [
+        "src/hooks/useScheduledMessages.ts",
+        "src/store/types.ts:133 (ScheduledMessage)"
+      ]
+    },
+    {
+      "id": "reactions",
+      "title": "Message reactions",
+      "enabled": true,
+      "status": "implemented",
+      "placements": ["message.context_menu"],
+      "ui_type": "inline_message",
+      "evidence": ["src/types/constants.ts:98 (reactions)"]
+    },
+    {
+      "id": "in_chat_search",
+      "title": "In-chat message search",
+      "enabled": true,
+      "status": "implemented",
+      "placements": ["chat.header_menu"],
+      "ui_type": "inline_message",
+      "evidence": [
+        "src/hooks/useChatPreviewState.ts:199 (filteredHistory по searchQuery)",
+        "src/components/chat-preview/SearchBar.tsx",
+        "src/components/chat-preview/FormattedText.tsx (searchTerm highlight)",
+        "src/components/chat-preview/ChatMediaPanel.tsx (media/files/links + date filters)"
+      ],
+      "note": "Реализовано: фильтрация + подсветка + типы (all/media/files/links) + фильтры по дате/отправителю. Нет только next/prev навигации по совпадениям (см. enhancement ниже)."
+    },
+    {
+      "id": "adaptive_layout",
+      "title": "Adaptive layout (tablet/desktop)",
+      "enabled": true,
+      "status": "implemented",
+      "placements": ["app.shell"],
+      "ui_type": "tab",
+      "evidence": ["src/components/app/AppShell.tsx:126 (md:grid-cols-[76px_320px_1fr] — 3-pane desktop)"]
+    },
+    {
+      "id": "bots",
+      "title": "Bots (create/manage/commands)",
+      "enabled": true,
+      "status": "partial",
+      "placements": ["chat_list.top_action", "side_menu.item", "settings.section"],
+      "ui_type": "modal",
+      "evidence": [
+        "src/components/CreateBotModal.tsx",
+        "src/components/settings/BotsSection.tsx",
+        "src/store/types.ts:64 (commands: any[])"
+      ],
+      "gap": "Нет профиля бота, mini-app runtime, inline keyboard рендера (бриф §4.1, §5.5)."
+    }
+  ],
+  "missing_context_features": [
+    {
+      "id": "tasks",
+      "brief_ref": "§4.1, §13.3",
+      "status": "implemented",
+      "ui_type": "view",
+      "evidence": ["src/components/features/workplace/WorkplaceView.tsx (TasksTab)"],
+      "note": "UI + сервисный контракт TasksService. Бэкенд-адаптер подключается через ServicesProvider.services (configureServices). Пока не сконфигурирован → честное состояние «интеграция не подключена»."
+    },
+    {"id": "automation", "brief_ref": "§4.1, §13.3", "status": "implemented", "ui_type": "view", "evidence": ["src/components/features/workplace/WorkplaceView.tsx (AutomationTab)"], "note": "UI + AutomationService. Требуется бэкенд-адаптер."},
+    {"id": "analytics", "brief_ref": "§4.1, §13.3", "status": "implemented", "ui_type": "view", "evidence": ["src/components/features/workplace/WorkplaceView.tsx (AnalyticsTab)"], "note": "UI (бары метрик) + AnalyticsService. Требуется бэкенд-адаптер."},
+    {"id": "moderation", "brief_ref": "§4.1, §13.3", "status": "implemented", "ui_type": "view", "evidence": ["src/components/features/workplace/WorkplaceView.tsx (ModerationTab)"], "note": "UI + ModerationService. Требуется бэкенд-адаптер."},
+    {"id": "knowledge_base", "brief_ref": "§13.3", "status": "implemented", "ui_type": "view", "evidence": ["src/components/features/workplace/WorkplaceView.tsx (KbTab)"], "note": "UI (поиск/статьи) + KnowledgeBaseService. Требуется бэкенд-адаптер."},
+    {
+      "id": "message_translate",
+      "brief_ref": "§5.4, §13.3",
+      "status": "implemented",
+      "ui_type": "message_action",
+      "evidence": ["src/components/chat-preview/ChatMessage.tsx (контекстное меню «Перевести» + инлайн-перевод)"],
+      "note": "UI-действие готово; перевод вызывает TranslateService. Без адаптера — toast «Перевод не подключён»."
+    },
+    {
+      "id": "payments_in_chat",
+      "brief_ref": "§2.2, §5.4",
+      "status": "implemented",
+      "ui_type": "card + view",
+      "evidence": ["src/components/features/workplace/WorkplaceView.tsx (PaymentCard, PaymentsTab)"],
+      "note": "Карточка счёта/инвойса (PaymentCard) + экран счетов. PaymentsService требует платёжный бэкенд-адаптер."
+    }
+  ],
+  "genuine_code_gaps": [
+    {"id": "search_match_nav", "brief_ref": "§5.4", "desc": "Навигация next/prev по совпадениям + счётчик в in-chat search (не критично, фильтрация уже работает)"},
+    {"id": "data_states", "brief_ref": "§16.2", "desc": "Централизованные loading/empty/error/offline/partial/unauthorized/restricted/deleted состояния на ВСЕХ экранах (частично есть)"},
+    {"id": "bot_profile_mini_app", "brief_ref": "§5.5", "desc": "Профиль бота + inline keyboard + mini-app runtime", "status": "implemented", "evidence": ["src/components/features/bot/BotProfileView.tsx (BotProfileView, InlineKeyboard, MiniApp)", "src/components/ChatListView.tsx (открытие профиля бота)", "src/components/chat-preview/ChatMessage.tsx (рендер inline-клавиатуры из msg.inlineKeyboard)"]}
+  ]
+}
