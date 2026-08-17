@@ -24,6 +24,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 vi.mock('motion/react', () => ({
   motion: { div: ({ children, ...rest }: any) => <div {...rest}>{children}</div> },
   AnimatePresence: ({ children }: any) => children,
+  useReducedMotion: () => false,
 }));
 
 // Mock Web Audio API

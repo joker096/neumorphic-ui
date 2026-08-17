@@ -1,4 +1,4 @@
-import { MessageCircle, Phone, Settings, Users, Building2 } from "lucide-react";
+import { MessageCircle, Phone, Users, Building2, LayoutGrid } from "lucide-react";
 import type { ComponentType } from "react";
 
 export interface NavItem {
@@ -11,7 +11,8 @@ export const NAV_ITEMS: NavItem[] = [
   { id: "chats", label: "nav.chats", icon: MessageCircle },
   { id: "contacts", label: "nav.contacts", icon: Users },
   { id: "company", label: "settings.company", icon: Building2 },
-  { id: "settings", label: "nav.settings", icon: Settings },
+  { id: "calls", label: "nav.calls", icon: Phone },
+  { id: "workplace", label: "nav.workplace", icon: LayoutGrid },
 ];
 
 export const NAV_IDS = NAV_ITEMS.map(i => i.id);

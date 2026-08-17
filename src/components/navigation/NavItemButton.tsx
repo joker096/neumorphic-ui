@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import type { ComponentType } from "react";
 
-type NavIcon = ComponentType<{ size?: number; strokeWidth?: number }>;
+type NavIcon = ComponentType<{ className?: string; size?: number; strokeWidth?: number }>;
 
 type NavItemButtonProps = {
   active: boolean;
@@ -11,7 +11,7 @@ type NavItemButtonProps = {
   label: string;
   icon: NavIcon;
   onClick: () => void;
-  variant: "bottom" | "sidebar";
+  variant: "bottom" | "sidebar" | "eco";
 };
 
 export const NavItemButton = React.memo(
@@ -20,36 +20,44 @@ export const NavItemButton = React.memo(
     const isBottom = variant === "bottom";
 
     const buttonClassName = isBottom
-      ? `relative flex h-full min-w-0 flex-1 flex-col items-center justify-center
+      ? `relative flex h-full min-w-[56px] min-h-[48px] flex-1 flex-col items-center justify-center cursor-pointer
          transition-all duration-200 active:scale-[0.98] focus-visible:outline-none
-         focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-0
+         focus-visible:ring-2 focus-visible:ring-[#6f7fff]/40
          ${active
            ? isDark
-             ? "text-orange-400"
-             : "text-orange-600"
+             ? "text-[#6f7fff]"
+             : "text-[#6f7fff]"
            : isDark
-             ? "text-gray-500 hover:text-gray-300"
+             ? "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
              : "text-slate-400 hover:text-slate-600"}`
-      : `flex min-h-11 items-center justify-center rounded-xl px-3 py-2.5
-         transition-all duration-200 active:scale-[0.99] focus-visible:outline-none
-         focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-0
-         ${active
-           ? isDark
-             ? "bg-orange-500/15 text-orange-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-             : "bg-orange-500/10 text-orange-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
-           : isDark
-             ? "text-gray-400 hover:text-gray-200 hover:bg-white/[0.04]"
-             : "text-slate-500 hover:text-slate-800 hover:bg-black/[0.03]"}`;
+      : variant === "eco"
+        ? `flex min-h-[44px] items-center gap-3 rounded-2xl px-3 py-3
+           transition-all duration-300 cursor-pointer relative
+           ${active
+             ? "bg-white text-emerald-800 shadow-[0_4px_15px_rgba(0,0,0,0.15)]"
+             : "text-white/90 hover:bg-white/10"}`
+         : `flex min-h-[44px] items-center justify-center rounded-xl px-3 py-2.5 cursor-pointer
+            transition-all duration-200 active:scale-[0.97] focus-visible:outline-none
+            focus-visible:ring-2 focus-visible:ring-[#6f7fff]/40
+           ${active
+             ? isDark
+               ? "bg-gradient-to-br from-[#6f7fff]/20 to-[#965dff]/15 text-[#6f7fff] shadow-[0_4px_16px_rgba(111,127,255,0.25),inset_0_1px_0_rgba(255,255,255,0.1)]"
+               : "bg-gradient-to-br from-[#6f7fff]/12 to-[#965dff]/8 text-[#6f7fff] shadow-[0_2px_10px_rgba(111,127,255,0.15),inset_0_1px_0_rgba(255,255,255,0.9)]"
+             : isDark
+               ? "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-white/[0.05] active:bg-white/[0.08]"
+               : "text-slate-500 hover:text-slate-800 hover:bg-black/[0.04] active:bg-black/[0.07]"}`;
 
     const badgeClassName = isBottom
       ? `absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center
          ${isDark
-           ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"
-           : "bg-orange-500 shadow-[0_2px_4px_rgba(249,115,22,0.4)]"}`
-      : `absolute -top-1.5 -right-2 min-w-[14px] h-3.5 px-1 rounded-full flex items-center justify-center
-         ${isDark
-           ? "bg-orange-500 shadow-[0_0_6px_rgba(249,115,22,0.5)]"
-           : "bg-orange-500 shadow-[0_1px_3px_rgba(249,115,22,0.3)]"}`;
+           ? "bg-[#6f7fff] shadow-[0_0_8px_rgba(111,127,255,0.6)]"
+           : "bg-[#6f7fff] shadow-[0_2px_4px_rgba(111,127,255,0.4)]"}`
+      : variant === "eco"
+        ? `absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center bg-emerald-500`
+         : `absolute top-[6px] right-[6px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center
+            ${isDark
+              ? "bg-gradient-to-br from-[#6f7fff] to-[#965dff] shadow-[0_2px_8px_rgba(111,127,255,0.45)]"
+              : "bg-gradient-to-br from-[#6f7fff] to-[#965dff] shadow-[0_1px_5px_rgba(111,127,255,0.35)]"}`;
 
     return (
       <button
@@ -59,35 +67,18 @@ export const NavItemButton = React.memo(
         onClick={onClick}
         className={buttonClassName}
       >
-        <div className="relative">
-            <Icon size={isBottom ? 22 : 20} strokeWidth={active ? 2.5 : 1.75} />
-            {showBadge && (
-              <div className={badgeClassName}>
-                <span className={isBottom ? "text-[9px]" : "text-[8px]"} aria-hidden="true">
-                  {badgeCount > 99 ? "99+" : badgeCount}
-                </span>
-              </div>
-            )}
-          </div>
-          {isBottom && label && (
-            <span className={`mt-0.5 text-[10px] font-medium ${
-              active
-                ? isDark ? "text-orange-400" : "text-orange-600"
-                : isDark ? "text-gray-500" : "text-slate-500"
-            }`}>
-              {label}
+        <Icon className="w-[1.25rem] h-[1.25rem] flex-shrink-0" strokeWidth={active ? 2.5 : 1.75} />
+        {variant === "eco" && (
+          <span className="font-medium whitespace-nowrap">{label}</span>
+        )}
+        {showBadge && (
+          <div className={badgeClassName}>
+            <span className={variant === "eco" ? "text-[9px]" : "text-[8px]"} aria-hidden="true">
+              {badgeCount > 99 ? "99+" : badgeCount}
             </span>
-          )}
-          {isBottom && active && (
-           <motion.div
-             layoutId="bottomNavActive"
-             className={`absolute -top-0.5 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full ${
-               isDark ? "bg-orange-500" : "bg-orange-600"
-             }`}
-             transition={{ type: "spring", stiffness: 500, damping: 30 }}
-           />
-          )}
-       </button>
+          </div>
+        )}
+      </button>
     );
   },
 );

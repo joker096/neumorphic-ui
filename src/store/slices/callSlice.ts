@@ -4,7 +4,10 @@ import type { CallFolder } from '../types';
 export interface CallSlice {
   activeCall: ActiveCall | null;
   setActiveCall: (call: ActiveCall | null) => void;
+  callMinimized: boolean;
+  setCallMinimized: (minimized: boolean) => void;
   callHistory: Array<{ id: string; name: string; time: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }>;
+  setCallHistory: (updater: Array<{ id: string; name: string; time: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }> | ((prev: Array<{ id: string; name: string; time: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }>) => Array<{ id: string; name: string; time: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }>)) => void;
   addCallToHistory: (entry: { name: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }) => void;
   clearCallHistory: () => void;
   callFolders: CallFolder[];
@@ -22,8 +25,13 @@ export interface CallSlice {
 
 export const createCallSlice = (set: any, get: any): CallSlice => ({
   activeCall: null,
-  setActiveCall: (call) => set({ activeCall: call }),
+  setActiveCall: (call) => set({ activeCall: call, callMinimized: false }),
+  callMinimized: false,
+  setCallMinimized: (minimized) => set({ callMinimized: minimized }),
   callHistory: [],
+  setCallHistory: (updater) => set((state: any) => ({
+    callHistory: typeof updater === 'function' ? updater(state.callHistory) : updater
+  })),
   addCallToHistory: (entry) => set((state: any) => ({
     callHistory: [{ id: String(Date.now()), time: new Date().toLocaleTimeString(), ...entry }, ...state.callHistory]
   })),

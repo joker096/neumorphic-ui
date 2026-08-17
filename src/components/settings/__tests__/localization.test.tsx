@@ -20,6 +20,12 @@ function flattenKeys(obj: Record<string, any>, prefix = ''): string[] {
   return keys;
 }
 
+// A key may be a plural object (e.g. { one, few, many, other }); treat its
+// parent key as present when any plural sub-key exists.
+function hasKey(keys: string[], key: string): boolean {
+  return keys.includes(key) || keys.some((k) => k === `${key}.other` || k.startsWith(`${key}.`));
+}
+
 const enKeys = flattenKeys(enContent);
 const allLocaleFiles = ['en', 'ru', 'de', 'es', 'fr', 'zh', 'ja', 'ko'];
 
@@ -36,7 +42,7 @@ describe('Localization completeness', () => {
 
     for (const key of companyKeys) {
       it(`has key "${key}" in en.json`, () => {
-        expect(enKeys).toContain(key);
+        expect(hasKey(enKeys, key)).toBe(true);
       });
     }
 
@@ -46,7 +52,7 @@ describe('Localization completeness', () => {
         const content = JSON.parse(readFileSync(path, 'utf-8'));
         const localeKeys = flattenKeys(content);
         for (const key of companyKeys) {
-          expect(localeKeys).toContain(key);
+          expect(hasKey(localeKeys, key)).toBe(true);
         }
       });
     }

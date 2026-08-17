@@ -2,6 +2,7 @@ import { Briefcase } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ChannelItem } from './ChannelItem';
 import type { CompanyChannel } from '../../lib/company/types';
+import { CHANNEL_GRADIENTS, DEFAULT_CHANNEL_GRADIENT } from '../../constants/companyConstants';
 
 type ChannelListProps = {
   isDark?: boolean;
@@ -12,18 +13,13 @@ type ChannelListProps = {
 };
 
 export const ChannelList = ({ isDark = false, channels, channelsLabel, onChannelClick, t }: ChannelListProps) => {
-  const gradients: Record<string, string> = {
-    'company-all': 'from-blue-400 to-indigo-500',
-    'company-dev': 'from-purple-400 to-purple-600',
-  };
-
   return (
     <div className="w-full">
-      <div className={`flex items-center gap-2 px-2 mb-3 font-bold text-xs uppercase tracking-widest text-[var(--accent)]`}>
+      <div className="flex items-center gap-2 px-2 mb-3 font-bold text-xs uppercase tracking-widest text-[var(--accent)]">
         <Briefcase size={14} />
         <span className="truncate">{channelsLabel}</span>
       </div>
-      
+
       <div className="flex flex-col gap-2">
         <AnimatePresence>
           {channels.map((channel, i) => (
@@ -32,7 +28,7 @@ export const ChannelList = ({ isDark = false, channels, channelsLabel, onChannel
               channel={channel}
               isDark={isDark}
               index={i}
-              gradient={gradients[channel.id] || "from-teal-400 to-cyan-500"}
+              gradient={CHANNEL_GRADIENTS[channel.id] || DEFAULT_CHANNEL_GRADIENT}
               onClick={() => onChannelClick?.(channel)}
               t={t}
             />

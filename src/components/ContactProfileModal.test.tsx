@@ -133,10 +133,8 @@ describe('ContactProfileModal', () => {
     fireEvent.click(trashBtn!);
     await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 
-    const confirmDialog = document.querySelector('[class*="z-[200]"]') as HTMLElement;
-    const confirmBtn = within(confirmDialog).getByText((content, el) =>
-      content === 'contacts.deleteContact' && el?.tagName === 'BUTTON'
-    );
+    const confirmDialog = document.querySelector('[role="dialog"]') as HTMLElement;
+    const confirmBtn = within(confirmDialog).getByRole('button', { name: 'contacts.deleteContact' });
     fireEvent.click(confirmBtn);
 
     expect(defaultProps.onDelete).toHaveBeenCalled();
@@ -155,7 +153,7 @@ describe('ContactProfileModal', () => {
     fireEvent.click(trashBtn!);
     await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 
-    const confirmDialog = document.querySelector('[class*="z-[200]"]') as HTMLElement;
+    const confirmDialog = document.querySelector('[role="dialog"]') as HTMLElement;
     const cancelBtn = within(confirmDialog).getByRole('button', { name: 'contacts.close' });
     fireEvent.click(cancelBtn);
 
@@ -175,7 +173,7 @@ describe('ContactProfileModal', () => {
     fireEvent.click(banBtn!);
     await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 
-    const confirmDialog = document.querySelector('[class*="z-[200]"]') as HTMLElement;
+    const confirmDialog = document.querySelector('[role="dialog"]') as HTMLElement;
     const confirmBtn = within(confirmDialog).getByRole('button', { name: 'contacts.blockSpammer' });
     fireEvent.click(confirmBtn);
 
@@ -195,7 +193,7 @@ describe('ContactProfileModal', () => {
     fireEvent.click(banBtn!);
     await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 
-    const confirmDialog = document.querySelector('[class*="z-[200]"]') as HTMLElement;
+    const confirmDialog = document.querySelector('[role="dialog"]') as HTMLElement;
     const cancelBtn = within(confirmDialog).getByRole('button', { name: 'contacts.close' });
     fireEvent.click(cancelBtn);
 

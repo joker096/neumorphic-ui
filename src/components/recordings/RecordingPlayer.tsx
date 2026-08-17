@@ -136,5 +136,3 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
 }
 
 
-
-

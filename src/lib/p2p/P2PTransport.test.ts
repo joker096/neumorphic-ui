@@ -5,6 +5,7 @@ import { HMACAuth } from './HMACAuth';
 let mockWs: any = null;
 let mockPc: any = null;
 const mockDataChannels: any[] = [];
+const mockWebSockets: any[] = [];
 let onMessage: ReturnType<typeof vi.fn>;
 let onConnected: ReturnType<typeof vi.fn>;
 let onDisconnected: ReturnType<typeof vi.fn>;
@@ -25,6 +26,7 @@ class MockWebSocket {
 
   constructor(_url: string) {
     mockWs = this;
+    mockWebSockets.push(this);
   }
 }
 
@@ -52,6 +54,7 @@ class MockRTCPeerConnection {
     return dc;
   });
   createOffer = vi.fn().mockResolvedValue({ type: 'offer', sdp: 'mock-sdp' });
+  createAnswer = vi.fn().mockResolvedValue({ type: 'answer', sdp: 'mock-sdp' });
   setLocalDescription = vi.fn().mockResolvedValue(undefined);
   setRemoteDescription = vi.fn().mockResolvedValue(undefined);
   addIceCandidate = vi.fn().mockResolvedValue(undefined);
@@ -85,6 +88,7 @@ beforeEach(() => {
   mockWs = null;
   mockPc = null;
   mockDataChannels.length = 0;
+  mockWebSockets.length = 0;
   onMessage = vi.fn();
   onConnected = vi.fn();
   onDisconnected = vi.fn();
@@ -276,14 +280,62 @@ describe('P2PTransport', () => {
       );
     });
 
-    it('generates HMAC key during call', async () => {
+    it('performs ephemeral ECDH: offer carries dhPub, not hmacKey', async () => {
       const transport = makeTransport();
       await connectTransport(transport);
 
       await transport.call('peer-key');
 
-      expect(HMACAuth.generateKey).toHaveBeenCalled();
-      expect((transport as any).hmacKey).toBe('mock-hmac-key');
+      expect(HMACAuth.generateKey).not.toHaveBeenCalled();
+      const offerCall = mockWs.send.mock.calls.find((c: any) =>
+        c[0].includes('"type":"offer"'),
+      );
+      expect(offerCall).toBeDefined();
+      expect(offerCall![0]).toContain('"dhPub"');
+      expect(offerCall![0]).not.toContain('hmacKey');
+    });
+  });
+
+  describe('ephemeral ECDH key agreement', () => {
+    it('derives an identical HMAC key on both peers and never transmits it', async () => {
+      const caller = makeTransport({ localPublicKey: 'caller-id' });
+      const callee = makeTransport({ localPublicKey: 'callee-id' });
+
+      const cp = caller.connect();
+      const callerWs = mockWebSockets[0];
+      callerWs.onopen();
+      callerWs.onmessage({ data: JSON.stringify({ type: 'registered' }) });
+      await cp;
+
+      const kp = callee.connect();
+      const calleeWs = mockWebSockets[1];
+      calleeWs.onopen();
+      calleeWs.onmessage({ data: JSON.stringify({ type: 'registered' }) });
+      await kp;
+
+      // Relay signaling messages between the two peers, recording them.
+      const sent: string[] = [];
+      callerWs.send = (data: string) => { sent.push(data); calleeWs.onmessage?.({ data }); };
+      calleeWs.send = (data: string) => { sent.push(data); callerWs.onmessage?.({ data }); };
+
+      await caller.call('callee-id');
+
+      await vi.waitFor(() => {
+        expect((caller as any).hmacKey).not.toBeNull();
+        expect((callee as any).hmacKey).not.toBeNull();
+      });
+
+      const callerKey = (caller as any).hmacKey as string;
+      const calleeKey = (callee as any).hmacKey as string;
+      expect(callerKey).toBe(calleeKey);
+      expect(callerKey).toMatch(/^[0-9a-f]{128}$/);
+
+      const offerMsg = JSON.parse(sent.find((s) => s.includes('"type":"offer"'))!);
+      const answerMsg = JSON.parse(sent.find((s) => s.includes('"type":"answer"'))!);
+      expect(offerMsg.hmacKey).toBeUndefined();
+      expect(answerMsg.hmacKey).toBeUndefined();
+      expect(offerMsg.dhPub).toMatch(/^[0-9a-f]{64}$/);
+      expect(answerMsg.dhPub).toMatch(/^[0-9a-f]{64}$/);
     });
   });
 

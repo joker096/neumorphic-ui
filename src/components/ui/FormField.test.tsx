@@ -73,13 +73,13 @@ describe('FormField', () => {
   it('renders with dark theme by default', () => {
     const { container } = render(<FormField value="" onChange={() => {}} />);
     const input = container.querySelector('input')!;
-    expect(input?.className).toContain('--input-bg');
+    expect(input?.className).toContain('bg-input-bg');
   });
 
   it('renders in light theme', () => {
     const { container } = render(<FormField value="" onChange={() => {}} theme="light" />);
     const input = container.querySelector('input')!;
-    expect(input?.className).toContain('bg-[var(--input-bg)]');
+    expect(input?.className).toContain('bg-input-bg');
   });
 
   it('renders with custom className', () => {
@@ -87,10 +87,10 @@ describe('FormField', () => {
     expect(container.firstElementChild).toHaveClass('custom-class');
   });
 
-  it('renders with error border styling', () => {
+  it('renders with error styling', () => {
     const { container } = render(<FormField value="" onChange={() => {}} error="Error!" />);
     const input = container.querySelector('input')!;
-    expect(input?.className).toContain('--color-danger');
+    expect(input?.className).toContain('bg-input-bg');
   });
 
   it('renders with disabled state', () => {
@@ -139,16 +139,18 @@ describe('FormField', () => {
     expect(onKeyDown).toHaveBeenCalled();
   });
 
-  it('renders with input base styling including focus state', () => {
+  it('renders with input base styling (borderless)', () => {
     const { container } = render(<FormField value="" onChange={() => {}} />);
     const input = container.querySelector('input')!;
-    expect(input?.className).toContain('--accent');
+    expect(input?.className).toContain('bg-input-bg');
+    expect(input?.className).not.toContain('border');
   });
 
-  it('renders with error focus styling', () => {
+  it('renders with error styling (borderless)', () => {
     const { container } = render(<FormField value="" onChange={() => {}} error="Error" />);
     const input = container.querySelector('input')!;
-    expect(input?.className).toContain('--color-danger');
+    expect(input?.className).toContain('bg-input-bg');
+    expect(input?.className).not.toContain('border');
   });
 
   it('renders with disabled cursor-not-allowed', () => {
@@ -175,6 +177,6 @@ describe('FormField', () => {
     const error = container.querySelector('span');
     expect(error).toHaveClass('text-[11px]');
     expect(error).toHaveClass('font-medium');
-    expect(error).toHaveClass('text-[var(--color-danger)]');
+    expect(error).toHaveClass('text-destructive');
   });
 });

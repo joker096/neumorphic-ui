@@ -28,6 +28,12 @@ interface ChatMessageListProps {
   onSetBounceMsgId: (id: string | number | null) => void;
   onReactionMessage: (msgId: string | number, emoji: string) => void;
   onAction?: (action: string) => void;
+  onForward?: (msg: any) => void;
+  onDelete?: (msg: any) => void;
+  selectionMode?: boolean;
+  selectedIds?: Set<string | number>;
+  onToggleSelect?: (id: string | number) => void;
+  onSelect?: (msg: any) => void;
   onScrollPosition: (nearBottom: boolean) => void;
 }
 
@@ -37,7 +43,8 @@ export function ChatMessageList({
   swipeReplyId, activeReactionPicker, theme,
   onReply, onToggleSavedMessage, onSetActivePhotoUrl, onSetPhotoOpen,
   onSetActiveReactionPicker, onSwipeReplyId, onSetVideoOpen, onSetShowComments,
-  onSetActivePostId, onSetBounceMsgId, onReactionMessage, onAction,
+  onSetActivePostId,   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
+  selectionMode, selectedIds, onToggleSelect, onSelect,
   onScrollPosition,
 }: ChatMessageListProps) {
   return (
@@ -78,6 +85,12 @@ export function ChatMessageList({
           onSetBounceMsgId={onSetBounceMsgId}
           onReactionMessage={onReactionMessage}
           onAction={onAction}
+          onForward={onForward}
+          onDelete={onDelete}
+          selectionMode={selectionMode}
+          selected={selectedIds ? selectedIds.has(msg.id) : false}
+          onToggleSelect={onToggleSelect}
+          onSelect={onSelect}
         />
       )}
     </VirtualizedMessageList>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building, User, Tag, Trash2 } from 'lucide-react';
+import { Building, User, Tag, Trash2, Plus } from 'lucide-react';
 import type { ContactField, FieldType, PhoneSubtype, ContactTag } from '../../types/contact';
 
 interface ContactCRMFieldsProps {
@@ -15,17 +15,23 @@ interface ContactCRMFieldsProps {
   t: (key: string, fallback?: string) => string;
 }
 
-export const ContactCRMFields = ({ isDark, company, setCompany, position, setPosition, tags, setTags, showTags, setShowTags, t }: ContactCRMFieldsProps) => {
+const fieldBoxClass =
+  'w-full h-10 rounded-xl px-3 flex items-center gap-2 bg-input-bg transition-colors';
+const fieldInputClass =
+  'flex-1 bg-transparent outline-none text-[13px] text-input-text placeholder:text-input-placeholder';
+const fieldIconClass = 'shrink-0 text-muted-foreground';
+
+export const ContactCRMFields = ({ company, setCompany, position, setPosition, tags, setTags, showTags, setShowTags, t }: ContactCRMFieldsProps) => {
   const allTags: ContactTag[] = ['client', 'lead', 'partner', 'vendor', 'internal', 'vip'];
 
   const getTagColor = (tag: string) => {
     switch (tag as ContactTag) {
-      case 'client': return 'text-green-400 bg-green-500/20';
-      case 'lead': return 'text-blue-400 bg-blue-500/20';
-      case 'partner': return 'text-purple-400 bg-purple-500/20';
-      case 'vendor': return 'text-orange-400 bg-orange-500/20';
-      case 'vip': return 'text-amber-400 bg-amber-500/20';
-      default: return isDark ? 'text-gray-400 bg-white/10' : 'text-slate-400 bg-black/5';
+      case 'client': return 'text-green-600 bg-green-500/15 dark:text-green-400';
+      case 'lead': return 'text-blue-600 bg-blue-500/15 dark:text-blue-400';
+      case 'partner': return 'text-purple-600 bg-purple-500/15 dark:text-purple-400';
+      case 'vendor': return 'text-orange-600 bg-orange-500/15 dark:text-orange-400';
+      case 'vip': return 'text-amber-600 bg-amber-500/15 dark:text-amber-400';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
@@ -37,49 +43,54 @@ export const ContactCRMFields = ({ isDark, company, setCompany, position, setPos
   };
 
   return (
-    <div className="flex flex-col gap-3 mt-2">
-      <div className="flex items-center gap-2">
-        <div className={`flex-1 h-10 rounded-xl px-3 flex items-center gap-2 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`}>
-          <Building size={14} className={isDark ? "text-gray-500" : "text-slate-400"} />
-          <input
-            type="text"
-            placeholder={t('contacts.companyPlaceholder', 'Company')}
-            value={company}
-            onChange={e => setCompany(e.target.value)}
-            className={`flex-1 bg-transparent outline-none text-[13px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
-          />
-        </div>
+    <div className="flex flex-col gap-3 mt-1">
+      <div className={fieldBoxClass}>
+        <Building size={14} className={fieldIconClass} />
+        <input
+          type="text"
+          placeholder={t('contacts.companyPlaceholder', 'Company')}
+          value={company}
+          onChange={e => setCompany(e.target.value)}
+          className={fieldInputClass}
+        />
       </div>
 
-      <div className={`flex-1 h-10 rounded-xl px-3 flex items-center gap-2 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`}>
-        <User size={14} className={isDark ? "text-gray-500" : "text-slate-400"} />
+      <div className={fieldBoxClass}>
+        <User size={14} className={fieldIconClass} />
         <input
           type="text"
           placeholder={t('contacts.positionPlaceholder', 'Position (e.g. CEO, Manager)')}
           value={position}
           onChange={e => setPosition(e.target.value)}
-          className={`flex-1 bg-transparent outline-none text-[13px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
+          className={fieldInputClass}
         />
       </div>
 
       <div className="relative">
-        <div className={`h-10 rounded-xl px-3 flex items-center gap-2 cursor-pointer ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`} onClick={() => setShowTags(!showTags)}>
-          <Tag size={14} className={isDark ? "text-gray-500" : "text-slate-400"} />
-          <span className={`text-[13px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}>
-            {tags.length > 0 ? tags.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ') : t('contacts.addTags', 'Add tags...')}
+        <button
+          type="button"
+          onClick={() => setShowTags(!showTags)}
+          className={`${fieldBoxClass} cursor-pointer text-left`}
+          aria-expanded={showTags}
+        >
+          <Tag size={14} className={fieldIconClass} />
+          <span className={`flex-1 truncate text-[13px] ${tags.length > 0 ? 'text-input-text' : 'text-input-placeholder'}`}>
+            {tags.length > 0 ? tags.map(tg => t(`contacts.crmTag${capitalize(tg)}`)).join(', ') : t('contacts.addTags', 'Add tags...')}
           </span>
-        </div>
+        </button>
         {showTags && (
-          <div className={`absolute top-full left-0 right-0 z-20 mt-1 p-2 rounded-2xl ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-lg"}`}>
+          <div className="absolute top-full left-0 right-0 z-20 mt-1 p-2 rounded-2xl bg-popover border border-border shadow-2xl">
             <div className="grid grid-cols-2 gap-2">
               {allTags.map(tag => (
                 <button
                   key={tag}
                   type="button"
                   onClick={() => toggleTag(tag)}
-                  className={`text-[10px] font-medium px-2 py-1 rounded-lg ${tags.includes(tag as ContactTag) ? getTagColor(tag) : (isDark ? "text-gray-500 hover:bg-white/5" : "text-slate-500 hover:bg-black/5")}`}
+                  className={`text-[10px] font-medium px-2 py-1.5 rounded-lg transition-colors ${
+                    tags.includes(tag as ContactTag) ? getTagColor(tag) : 'text-muted-foreground hover:bg-muted'
+                  }`}
                 >
-                  {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                  {t(`contacts.crmTag${capitalize(tag)}`)}
                 </button>
               ))}
             </div>
@@ -90,6 +101,10 @@ export const ContactCRMFields = ({ isDark, company, setCompany, position, setPos
   );
 };
 
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 interface ContactCustomFieldProps {
   isDark: boolean;
   field: ContactField;
@@ -98,19 +113,27 @@ interface ContactCustomFieldProps {
   t: (key: string, fallback?: string) => string;
 }
 
-export const ContactCustomField = ({ isDark, field, updateField, removeField, t }: ContactCustomFieldProps) => {
-  const defaults: Record<string, string> = { phone: t('contacts.fieldTypePhone'), email: t('contacts.fieldTypeEmail'), telegram: t('contacts.fieldTypeTelegram'), custom: field.label || '' };
+const fieldControlClass =
+  'w-full h-8 rounded-xl text-xs outline-none px-2 bg-input-bg text-input-text transition-colors';
+
+export const ContactCustomField = ({ field, updateField, removeField, t }: ContactCustomFieldProps) => {
+  const typeDefaults: Record<string, string> = {
+    phone: t('contacts.fieldTypePhone'),
+    email: t('contacts.fieldTypeEmail'),
+    telegram: t('contacts.fieldTypeTelegram'),
+    custom: field.label || '',
+  };
 
   return (
-    <div className={`p-3 rounded-xl flex flex-col gap-2 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`}>
+    <div className="p-3 rounded-xl flex flex-col gap-2 bg-input-bg border border-border">
       <div className="flex items-center gap-2">
         <select
           value={field.type}
           onChange={(e) => {
             const newType = e.target.value as FieldType;
-            updateField(field.id, { type: newType, label: defaults[newType] || '' });
+            updateField(field.id, { type: newType, label: typeDefaults[newType] || '' });
           }}
-          className={`flex-1 h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}
+          className={fieldControlClass}
         >
           <option value="phone">{t('contacts.fieldTypePhone')}</option>
           <option value="email">{t('contacts.fieldTypeEmail')}</option>
@@ -120,7 +143,9 @@ export const ContactCustomField = ({ isDark, field, updateField, removeField, t 
         <button
           type="button"
           onClick={() => removeField(field.id)}
-          className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all hover:bg-red-500/10 text-red-500`}
+          className="min-w-[36px] min-h-[36px] shrink-0 rounded-full flex items-center justify-center cursor-pointer transition-colors hover:bg-destructive/10 text-destructive"
+          title={t('contacts.removeField', 'Remove field')}
+          aria-label={t('contacts.removeField', 'Remove field')}
         >
           <Trash2 size={14} />
         </button>
@@ -129,7 +154,7 @@ export const ContactCustomField = ({ isDark, field, updateField, removeField, t 
         <select
           value={field.phoneSubtype || 'mobile'}
           onChange={(e) => updateField(field.id, { phoneSubtype: e.target.value as PhoneSubtype })}
-          className={`h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}
+          className={fieldControlClass}
         >
           <option value="mobile">{t('contacts.fieldSubtypeMobile')}</option>
           <option value="work">{t('contacts.fieldSubtypeWork')}</option>
@@ -138,20 +163,23 @@ export const ContactCustomField = ({ isDark, field, updateField, removeField, t 
         </select>
       )}
       {field.type === 'custom' && (
-        <input
-          type="text"
-          placeholder="Label"
-          value={field.label}
-          onChange={(e) => updateField(field.id, { label: e.target.value })}
-          className={`w-full h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}
-        />
+        <div className="relative">
+          <Plus size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder={t('contacts.fieldLabelPlaceholder', 'Label')}
+            value={field.label}
+            onChange={(e) => updateField(field.id, { label: e.target.value })}
+            className={`${fieldControlClass} pl-8`}
+          />
+        </div>
       )}
       <input
         type="text"
         placeholder={field.type === 'phone' ? '+7 999 123-45-67' : field.type === 'email' ? 'user@example.com' : field.type === 'telegram' ? '@username' : 'Value'}
         value={field.value}
         onChange={(e) => updateField(field.id, { value: e.target.value })}
-        className={`w-full h-8 rounded-xl text-xs outline-none px-2 ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-800 border border-[var(--border-color)]"}`}
+        className={fieldControlClass}
       />
     </div>
   );

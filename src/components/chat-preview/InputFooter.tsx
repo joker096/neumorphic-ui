@@ -40,8 +40,8 @@ const InputFooterImpl = ({ isDark = false, isChannel, isMuted, placeholder, t, o
           </button>
           <div className={`flex-1 min-w-0 h-12 rounded-full px-4 md:px-5 flex items-center transition-all duration-300 focus-within:scale-[1.01] ${
             isDark
-              ? "bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_2px_4px_rgba(255,255,255,0.02)] focus-within:border-orange-500/30 focus-within:shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_0_12px_rgba(249,115,22,0.15)]"
-              : "bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1)] focus-within:border-orange-400/40 focus-within:shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1),_0_0_12px_rgba(249,115,22,0.1)]"
+              ? "bg-[var(--bg-secondary)] shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_2px_4px_rgba(255,255,255,0.02)] focus-within:shadow-[inset_0_4px_8px_rgba(0,0,0,0.8),_0_0_12px_rgba(249,115,22,0.15)]"
+              : "bg-[var(--bg-secondary)] shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1)] focus-within:shadow-[inset_3px_3px_6px_rgba(165,175,190,0.3),_inset_-2px_-2px_4px_rgba(255,255,255,1),_0_0_12px_rgba(249,115,22,0.1)]"
           }`}>
             <input
               type="text"

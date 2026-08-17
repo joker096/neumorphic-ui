@@ -67,27 +67,18 @@ export function SearchInput({
 
   const isPill = shape === 'pill'
 
+  const inputSize = large ? 'text-[20px] font-bold tracking-[0.1em]' : 'text-sm font-medium'
+  const inputColor = 'text-foreground placeholder:text-muted-foreground'
+  const iconColor = focused ? 'text-primary' : 'text-muted-foreground'
+  const actionBtn = 'text-muted-foreground hover:text-foreground hover:bg-muted'
+  const btnClass = `shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
+  // Inputs are borderless: the cursor/placeholder is enough affordance.
+  // Do NOT add a border or focus border here (see message composer style).
   if (isPill) {
-    const radius = 'rounded-full'
-    const wrapperBase = `w-full flex items-center gap-2 border transition-all duration-300 cursor-text ${radius} ${large ? 'h-12 px-6' : 'h-11 px-4'}`
     const wrapperVariant = isDark
-      ? `bg-[var(--bg-secondary)] border-[var(--border-color)] focus-within:border-orange-500/50 ${large ? '' : ''}`
-      : `bg-[var(--bg-primary)] border-[var(--border-color)] focus-within:border-orange-500/50`
-
-    const inputSize = large ? 'text-[20px] font-bold tracking-[0.1em]' : 'text-sm font-medium'
-    const inputColor = isDark
-      ? 'text-[var(--text-primary)] placeholder:text-gray-500'
-      : 'text-slate-800 placeholder:text-slate-400'
-
-    const iconColor = isDark
-      ? focused ? 'text-orange-400' : 'text-gray-500'
-      : focused ? 'text-orange-500' : 'text-slate-400'
-
-    const actionBtn = isDark
-      ? 'text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10'
-      : 'text-slate-400 hover:text-slate-800 hover:bg-black/10'
-
-    const btnClass = `shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
+      ? `bg-card`
+      : `bg-background`
+    const wrapperBase = `w-full flex items-center gap-2 transition-all duration-300 cursor-text rounded-full ${large ? 'h-12 px-6' : 'h-11 px-4'}`
 
     return (
       <div
@@ -133,19 +124,6 @@ export function SearchInput({
     )
   }
 
-  const inputSize = large ? 'text-[20px] font-bold tracking-[0.1em]' : 'text-sm font-medium'
-  const inputColor = isDark
-    ? 'text-[var(--text-primary)] placeholder:text-gray-500'
-    : 'text-slate-800 placeholder:text-slate-400'
-  const iconColor = isDark
-    ? focused ? 'text-orange-400' : 'text-gray-500'
-    : focused ? 'text-orange-500' : 'text-slate-400'
-  const actionBtn = isDark
-    ? 'text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10'
-    : 'text-slate-400 hover:text-slate-800 hover:bg-black/10'
-  const btnClass = `shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
-  const borderFocus = 'focus-within:border-orange-500/50'
-
   return (
     <div className={`w-full shrink-0 ${className}`}>
       <div
@@ -173,11 +151,11 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className={`w-full rounded-xl border text-sm focus:outline-none transition-colors ${
+          className={`w-full rounded-xl text-sm focus:outline-none transition-colors ${
             isDark
-              ? 'bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-gray-500'
-              : 'bg-white border-[var(--border-color)] text-slate-800 placeholder:text-slate-400'
-          } ${borderFocus} ${showSearchIcon ? 'pl-9' : 'pl-4'} ${hasValue || rightElement ? 'pr-12' : 'pr-4'} py-2.5`}
+              ? 'bg-muted text-foreground placeholder:text-muted-foreground'
+              : 'bg-background text-foreground placeholder:text-muted-foreground'
+          } ${showSearchIcon ? 'pl-9' : 'pl-4'} ${hasValue || rightElement ? 'pr-12' : 'pr-4'} py-2.5`}
           aria-label={placeholder}
         />
         {(hasValue || rightElement) && (
@@ -199,7 +177,3 @@ export function SearchInput({
     </div>
   )
 }
-
-
-
-

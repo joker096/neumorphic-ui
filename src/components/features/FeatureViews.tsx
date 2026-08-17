@@ -1,9 +1,16 @@
 import { lazy, Suspense, type ComponentType } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { ProfileView } from "../ProfileView";
+import { BotProfileView } from "./bot/BotProfileView";
+import { MiniApp } from "./bot/MiniAppView";
+import { WorkplaceView } from "./workplace/WorkplaceView";
 
-const SettingsView = lazy(() => import("../SettingsView").then(m => ({ default: m.SettingsView })));
-const ContactsView = lazy(() => import("../ContactsView").then(m => ({ default: m.ContactsView })));
-const CompanyContactsView = lazy(() => import("../CompanyContactsView").then(m => ({ default: m.CompanyContactsView })));
+export const LazySettingsView = lazy(() => import("../SettingsView").then(m => ({ default: m.SettingsView })));
+export const LazyContactsView = lazy(() => import("../ContactsView").then(m => ({ default: m.ContactsView })));
+export const LazyCompanyContactsView = lazy(() => import("../CompanyContactsView").then(m => ({ default: m.CompanyContactsView })));
+export const LazyRecordingsScreen = lazy(() => import("../RecordingsScreen").then(m => ({ default: m.RecordingsScreen })));
+export const LazyMeshRadar = lazy(() => import("../MeshRadar").then(m => ({ default: m.MeshRadar })));
+export const LazyCallLogView = lazy(() => import("../call/CallLogView").then(m => ({ default: m.CallLogView })));
 
 type FeatureViewsProps = {
   view: string;
@@ -25,6 +32,10 @@ type FeatureViewsProps = {
   onMessage: (name: string, color?: string) => void;
   fontSize?: string;
   setFontSize?: (s: string) => void;
+  activeBotId?: string | null;
+  setActiveBotId?: (id: string | null) => void;
+  miniAppBotId?: string | null;
+  setMiniAppBotId?: (id: string | null) => void;
 };
 
 function Loader() {
@@ -55,20 +66,44 @@ export const FeatureViews = ({
   onMessage,
   fontSize,
   setFontSize,
+  activeBotId,
+  setActiveBotId,
+  miniAppBotId,
+  setMiniAppBotId,
 }: FeatureViewsProps) => {
   const { theme, setTheme } = useTheme();
 
   switch (view) {
-    case "settings":
+    case "profile":
       return (
         <Suspense fallback={<Loader />}>
-          <SettingsView theme={theme} setTheme={setTheme} setSubView={setSubView} fontSize={fontSize} setFontSize={setFontSize} />
+          <ProfileView setView={setView} />
+        </Suspense>
+      );
+    case "settings":
+      if (subView === 'recordings') {
+        return (
+          <Suspense fallback={<Loader />}>
+            <LazyRecordingsScreen isDark={theme === 'dark'} onBack={() => setSubView?.(null)} />
+          </Suspense>
+        );
+      }
+      if (subView === 'radar') {
+        return (
+          <Suspense fallback={<Loader />}>
+            <LazyMeshRadar isDark={theme === 'dark'} onBack={() => setSubView?.(null)} />
+          </Suspense>
+        );
+      }
+      return (
+        <Suspense fallback={<Loader />}>
+            <LazySettingsView theme={theme} setTheme={setTheme} setSubView={setSubView} fontSize={fontSize} setFontSize={setFontSize} />
         </Suspense>
       );
     case "contacts":
       return (
         <Suspense fallback={<Loader />}>
-          <ContactsView
+          <LazyContactsView
             theme={theme}
             contacts={contacts}
             setContacts={setContacts}
@@ -81,10 +116,16 @@ export const FeatureViews = ({
           />
         </Suspense>
       );
+    case "calls":
+      return (
+        <Suspense fallback={<Loader />}>
+          <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} />
+        </Suspense>
+      );
     case "company":
       return (
         <Suspense fallback={<Loader />}>
-          <CompanyContactsView
+          <LazyCompanyContactsView
             theme={theme}
             onCall={onCall}
             onVideoCall={onVideoCall}
@@ -92,6 +133,31 @@ export const FeatureViews = ({
           />
         </Suspense>
       );
+    case "bot":
+      return (
+        <BotProfileView
+          botId={activeBotId ?? ""}
+          isDark={theme === "dark"}
+          onBack={() => {
+            setActiveBotId?.(null);
+            setView("bots");
+          }}
+          onOpenMiniApp={(id) => {
+            setMiniAppBotId?.(id);
+            setView("miniApp");
+          }}
+        />
+      );
+    case "miniApp":
+      return (
+        <MiniApp
+          botId={miniAppBotId ?? ""}
+          isDark={theme === "dark"}
+          onClose={() => setView("bot")}
+        />
+      );
+    case "workplace":
+      return <WorkplaceView isDark={theme === "dark"} />;
     default:
       return null;
   }

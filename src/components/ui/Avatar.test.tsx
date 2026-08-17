@@ -37,7 +37,7 @@ describe('Avatar', () => {
   it('shows offline status dot when online=false', () => {
     const { container } = render(<Avatar name="Test" online={false} />);
     const dot = container.querySelector('.rounded-full');
-    expect(dot?.className).toContain('bg-gray-500');
+    expect(dot?.className).toContain('bg-[var(--text-tertiary)]');
   });
 
   it('does not render status dot when online prop is not provided', () => {

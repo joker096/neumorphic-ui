@@ -100,19 +100,19 @@ describe('ContactsView', () => {
     fireEvent.click(screen.getByTitle('contacts.shareIdentity'));
 
     expect(screen.getByRole('heading', { name: /contacts.shareIdentity/ })).toBeInTheDocument();
-    expect(screen.getByText('nexus://id/fingerprint')).toBeInTheDocument();
-    expect(screen.getByText('header.copyLink')).toBeInTheDocument();
+    expect(screen.getByText(/nexus:\/\/id\//)).toBeInTheDocument();
+    expect(screen.getByText('contacts.copyId')).toBeInTheDocument();
   });
 
   it('copies ID to clipboard', () => {
     render(<ContactsView {...defaultProps} />);
 
     fireEvent.click(screen.getByTitle('contacts.shareIdentity'));
-    expect(screen.getByText(/header.copyLink/)).toBeInTheDocument();
+    expect(screen.getByText(/contacts.copyId/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText('header.copyLink'));
+    fireEvent.click(screen.getByText('contacts.copyId'));
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('nexus://id/fingerprint');
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringMatching(/^nexus:\/\/id\//));
   });
 
   it('sorts contacts alphabetically by default', () => {

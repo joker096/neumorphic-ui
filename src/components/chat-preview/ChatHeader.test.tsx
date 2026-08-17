@@ -33,8 +33,8 @@ describe('ChatHeader', () => {
   it('shows online status indicator', () => {
     render(<ChatHeader {...defaultProps} />);
     expect(screen.getByText('Online')).toBeInTheDocument();
-    const onlineDot = document.querySelector('.bg-emerald-400');
-    expect(onlineDot).toBeInTheDocument();
+    const avatar = screen.getByText('A').closest('div');
+    expect(avatar?.querySelector('[class*="absolute"]')).toBeInTheDocument();
   });
 
   it('shows offline status when not online', () => {
@@ -75,5 +75,26 @@ describe('ChatHeader', () => {
   it('renders chat initial avatar letter', () => {
     render(<ChatHeader {...defaultProps} />);
     expect(screen.getByText('A')).toBeInTheDocument();
+  });
+
+  it('renders call and video-call buttons for a 1:1 chat', () => {
+    const onCall = vi.fn();
+    const onVideoCall = vi.fn();
+    render(<ChatHeader {...defaultProps} onCall={onCall} onVideoCall={onVideoCall} />);
+    expect(screen.getByLabelText('chat.startCall')).toBeInTheDocument();
+    expect(screen.getByLabelText('chat.startVideoCall')).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('chat.startCall'));
+    expect(onCall).toHaveBeenCalledWith('Alice Johnson', 'from-purple-400 to-pink-600');
+    fireEvent.click(screen.getByLabelText('chat.startVideoCall'));
+    expect(onVideoCall).toHaveBeenCalledWith('Alice Johnson', 'from-purple-400 to-pink-600');
+  });
+
+  it('hides call buttons for groups, channels and bots', () => {
+    const { rerender } = render(<ChatHeader {...defaultProps} onCall={vi.fn()} onVideoCall={vi.fn()} chat={{ ...defaultProps.chat, type: 'group' }} />);
+    expect(screen.queryByLabelText('chat.startCall')).not.toBeInTheDocument();
+    rerender(<ChatHeader {...defaultProps} onCall={vi.fn()} onVideoCall={vi.fn()} chat={{ ...defaultProps.chat, type: 'channel' }} />);
+    expect(screen.queryByLabelText('chat.startCall')).not.toBeInTheDocument();
+    rerender(<ChatHeader {...defaultProps} onCall={vi.fn()} onVideoCall={vi.fn()} chat={{ ...defaultProps.chat, type: 'bot' }} />);
+    expect(screen.queryByLabelText('chat.startCall')).not.toBeInTheDocument();
   });
 });

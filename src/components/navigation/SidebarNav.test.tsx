@@ -15,14 +15,14 @@ describe('SidebarNav', () => {
     expect(screen.getByLabelText('nav.chats')).toBeInTheDocument();
     expect(screen.getByLabelText('nav.contacts')).toBeInTheDocument();
     expect(screen.getByLabelText('settings.company')).toBeInTheDocument();
-    expect(screen.getByLabelText('nav.settings')).toBeInTheDocument();
+    expect(screen.getByLabelText('nav.calls')).toBeInTheDocument();
   });
 
   it('highlights the current section', () => {
     render(<SidebarNav {...defaultProps} activeView="contacts" isDark={true} />);
     const contactsBtn = screen.getByLabelText('nav.contacts').closest('button');
-    expect(contactsBtn).toHaveClass('bg-orange-500/15');
-    expect(contactsBtn).toHaveClass('text-orange-400');
+    expect(contactsBtn).toHaveClass('text-[#6f7fff]');
+    expect(contactsBtn?.className).toContain('from-[#6f7fff]/20');
   });
 
   it('shows icons for nav items', () => {
@@ -34,8 +34,8 @@ describe('SidebarNav', () => {
   it('fires onNavigate when item clicked', () => {
     const onNavigate = vi.fn();
     render(<SidebarNav {...defaultProps} onNavigate={onNavigate} />);
-    fireEvent.click(screen.getByLabelText('nav.settings'));
-    expect(onNavigate).toHaveBeenCalledWith('settings');
+    fireEvent.click(screen.getByLabelText('nav.calls'));
+    expect(onNavigate).toHaveBeenCalledWith('calls');
   });
 
   it('shows unread badge on chats when unreadCount > 0', () => {

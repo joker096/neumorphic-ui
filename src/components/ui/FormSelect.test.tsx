@@ -80,9 +80,9 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('bg-[var(--bg-secondary)]');
-    expect(select?.className).toContain('text-[var(--text-primary)]');
-    expect(select?.className).toContain('border-[var(--border-color)]');
+    expect(select?.className).toContain('bg-card');
+    expect(select?.className).toContain('text-foreground');
+    expect(select?.className).not.toContain('border');
   });
 
   it('renders in light theme', () => {
@@ -95,8 +95,8 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('bg-slate-50');
-    expect(select?.className).toContain('border-[var(--border-color)]');
+    expect(select?.className).toContain('bg-muted');
+    expect(select?.className).not.toContain('border');
   });
 
   it('renders with custom className', () => {
@@ -136,7 +136,7 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('text-[var(--text-primary)]');
+    expect(select?.className).toContain('text-foreground');
   });
 
   it('renders with border in dark theme', () => {
@@ -148,7 +148,7 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('border-[var(--border-color)]');
+    expect(select?.className).not.toContain('border');
   });
 
   it('renders with border in light theme', () => {
@@ -161,7 +161,7 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('border-[var(--border-color)]');
+    expect(select?.className).not.toContain('border');
   });
 
   it('renders with rounded-lg', () => {

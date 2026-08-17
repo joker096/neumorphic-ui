@@ -35,7 +35,10 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
         setIsPlaying(true);
       } else if (audioUrl) {
         try {
-          const resp = await fetch(audioUrl);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 15000);
+          const resp = await fetch(audioUrl, { signal: controller.signal });
+          clearTimeout(timeout);
           if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
           const arrayBuffer = await resp.arrayBuffer();
           if (!active) return;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
+import { sheetSurface, modalCloseClass } from "../ui/modalShared";
 
 interface SavedMessagesPanelProps {
   show: boolean;
@@ -28,7 +29,7 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 40, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className={`w-full max-w-[760px] max-h-[78%] overflow-hidden border-t border-x ${isDark ? "bg-[var(--bg-secondary)] border-[var(--border-color)]" : "bg-[var(--bg-primary)] border-[var(--border-color)]"} shadow-2xl`}
+              className={`${sheetSurface(isDark, "max-w-[760px] max-h-[78%] overflow-hidden border-x")}`}
             >
             <div className={`p-4 flex items-center justify-between ${isDark ? "border-b border-[var(--border-color)]" : "border-b border-[var(--border-color)]"}`}>
               <div>
@@ -37,7 +38,7 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
               </div>
               <button
                 onClick={onClose}
-                className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center ${isDark ? "bg-white/5 text-gray-300" : "bg-white text-slate-500 border border-[var(--border-color)]"}`}
+                className={modalCloseClass(isDark)}
               >
                 <X size={16} />
               </button>

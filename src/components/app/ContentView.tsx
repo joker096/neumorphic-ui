@@ -1,10 +1,10 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
-import { StoryViewerOverlay } from "../AppChrome";
+import { StoryViewer, StoryComposer } from "../AppChrome";
 import { useAnimationsEnabled, useAnimationDuration } from "../../contexts/AnimationContext";
 
 type Story = {
-  id: number;
+  id: number | string;
   name: string;
   color: string;
 };
@@ -15,6 +15,8 @@ type ContentViewProps = {
   onCloseStory: () => void;
   activeStory: Story | null;
   isStealthMode: boolean;
+  showStoryComposer?: boolean;
+  onCloseComposer?: () => void;
 };
 
 const contentVariants = {
@@ -29,6 +31,8 @@ export const ContentView = ({
   onCloseStory,
   activeStory,
   isStealthMode,
+  showStoryComposer = false,
+  onCloseComposer,
 }: ContentViewProps) => {
   const enabled = useAnimationsEnabled();
   const duration = useAnimationDuration();
@@ -41,12 +45,13 @@ export const ContentView = ({
       animate={enabled ? "center" : undefined}
       exit={enabled ? "exit" : undefined}
       transition={{ duration, ease: [0.25, 0.1, 0.25, 1] }}
-      className="flex-1 w-full max-w-none md:max-w-[640px] lg:max-w-[800px] mx-auto flex flex-col relative z-20 pt-0 md:pt-2 pb-0 md:pb-4 h-full min-h-0"
+      className="flex-1 w-full max-w-none mx-auto flex flex-col relative z-20 pt-0 md:pt-2 pb-0 md:pb-4 h-full min-h-0"
     >
       <div className="flex-1 w-full overflow-hidden relative flex flex-col items-center min-h-0">
         {children}
       </div>
-      <StoryViewerOverlay activeStory={activeStory} onClose={onCloseStory} isStealthMode={isStealthMode} />
+      <StoryViewer activeUser={activeStory} onClose={onCloseStory} isDark={isDark} isStealthMode={isStealthMode} />
+      <StoryComposer open={showStoryComposer} onClose={onCloseComposer ?? (() => {})} isDark={isDark} />
     </motion.div>
   );
 };

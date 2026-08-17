@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
-import type { ProfileField, FieldVisibility } from './MyProfileSection';
+import type { ProfileField, FieldVisibility } from './ProfileSection';
+import { PROFILE_FIELD_TYPES, VISIBILITY_OPTIONS } from '../../constants/settingsConstants';
 
 interface ProfileFieldEditorProps {
   fields: ProfileField[];
@@ -31,8 +32,9 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
         onChange={(e) => onVisibilityChange(e.target.value as FieldVisibility)}
         className="w-full h-9 rounded-lg text-xs outline-none px-3 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)]"
       >
-        <option value="everyone">{t('settings.visibility.everyone', 'Visible to everyone')}</option>
-        <option value="contactsOnly">{t('settings.visibility.contacts', 'Contacts only')}</option>
+        {VISIBILITY_OPTIONS.map((opt) => (
+          <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.fallback)}</option>
+        ))}
       </select>
 
       {fields.map((field) => (
@@ -40,30 +42,28 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
           <div className="flex items-center gap-2">
             <select
               value={field.type}
-              onChange={(e) => onUpdate(field.id, { type: e.target.value as any })}
+              onChange={(e) => onUpdate(field.id, { type: e.target.value as ProfileField['type'] })}
               className="h-9 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
             >
-              <option value="phone">{t('settings.fieldTypePhone', 'Phone')}</option>
-              <option value="email">{t('settings.fieldTypeEmail', 'Email')}</option>
-              <option value="telegram">{t('settings.fieldTypeTelegram', 'Telegram')}</option>
-              <option value="whatsapp">{t('settings.fieldTypeWhatsApp', 'WhatsApp')}</option>
-              <option value="signal">{t('settings.fieldTypeSignal', 'Signal')}</option>
-              <option value="signalv2v">{t('settings.fieldTypeSignalV2V', 'Signal V2V')}</option>
-              <option value="username">{t('settings.fieldTypeUsername', 'Username')}</option>
-              <option value="custom">{t('settings.fieldTypeCustom', 'Custom')}</option>
+              {PROFILE_FIELD_TYPES.map((opt) => (
+                <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.label)}</option>
+              ))}
             </select>
             <select
               value={field.visibility}
               onChange={(e) => onUpdate(field.id, { visibility: e.target.value as FieldVisibility })}
               className="h-9 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
             >
-              <option value="everyone">{t('settings.visibility.everyone', 'Visible to everyone')}</option>
-              <option value="contactsOnly">{t('settings.visibility.contacts', 'Contacts only')}</option>
+              {VISIBILITY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.fallback)}</option>
+              ))}
             </select>
             <button
               type="button"
               onClick={() => onRemove(field.id)}
-              className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-red-600 hover:bg-red-100 text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
+              className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
+              aria-label={t('settings.removeField', 'Remove field')}
+              title={t('settings.removeField', 'Remove field')}
             >
               <Trash2 size={16} />
             </button>

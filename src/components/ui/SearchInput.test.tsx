@@ -76,13 +76,13 @@ describe('SearchInput', () => {
   it('renders in dark mode', () => {
     const { container } = render(<SearchInput value="" onChange={() => {}} isDark={true} />);
     const input = container.querySelector('input');
-    expect(input?.className).toContain('bg-[var(--bg-tertiary)]');
+    expect(input?.className).toContain('bg-muted');
   });
 
   it('renders in light mode', () => {
     const { container } = render(<SearchInput value="" onChange={() => {}} isDark={false} />);
     const input = container.querySelector('input');
-    expect(input?.className).toContain('bg-white');
+    expect(input?.className).toContain('bg-background');
   });
 
   it('renders with rightElement', () => {

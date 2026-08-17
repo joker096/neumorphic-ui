@@ -34,10 +34,11 @@ describe('SettingsSection - additional tests', () => {
   expect(container.querySelector('[class*="flex"]')?.classList.contains('flex-col')).toBeTruthy();
  });
 
- it('renders with scrollable area', () => {
-  const { container } = render(<SettingsSection title="Test" onBack={vi.fn()}><p>Content</p></SettingsSection>);
-  expect(container.querySelector('[class*="overflow-y-auto"]') || container.querySelector('[class*="flex-1"]')?.closest('[class*="overflow-y-auto"]')).toBeInTheDocument();
- });
+  it('renders with a content area (scrolling is delegated to SettingsView root)', () => {
+   const { container } = render(<SettingsSection title="Test" onBack={vi.fn()}><p>Content</p></SettingsSection>);
+   expect(container.querySelector('.flex-col')).toBeInTheDocument();
+   expect(container.querySelector('[class*="gap-6"]')).toBeInTheDocument();
+  });
 
  it('renders with pt-2 padding', () => {
   const { container } = render(<SettingsSection title="Test" onBack={vi.fn()}><p>Content</p></SettingsSection>);

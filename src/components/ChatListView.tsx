@@ -1,10 +1,13 @@
 import React, { useState, useMemo } from "react";
-import { Bot, Search } from "lucide-react";
-import { useAppStore } from "../store";
+import { Search } from "lucide-react";
 import { SearchInput } from "./ui/SearchInput";
 import { OnboardingPanel } from "./ui/OnboardingPanel";
 import { InviteQRModal } from "./ui/InviteQRModal";
-import { ChatListItem, AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader } from "./chat-preview";
+import { ChatListItem, AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots } from "./chat-preview";
+import { ChatContextMenu } from "./chat-preview/ChatContextMenu";
+import { GlobalSearch } from "./GlobalSearch";
+import { DataState } from "./ui/DataState";
+import { useChatListActions } from "../hooks/useChatListActions";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -23,8 +26,10 @@ interface ChatListViewProps {
   contacts: any[];
   setGlobalSelectedContact: (contact: any) => void;
   setActiveChat: (chat: any) => void;
+  activeChatId?: string | number | null;
   setView: (view: string) => void;
   setActiveStory: (story: any) => void;
+  onComposeStory?: () => void;
   setShowCreateChannel: (show: boolean) => void;
   setShowCreateBot: (show: boolean) => void;
   setShowAdvancedFilterModal: (show: boolean) => void;
@@ -33,6 +38,10 @@ interface ChatListViewProps {
   isDark?: boolean;
   onCall: (name: string, color?: string) => void;
   onVideoCall: (name: string, color?: string) => void;
+  onOpenBot?: (botId: string) => void;
+  showAddContactFromChat?: boolean;
+  setShowAddContactFromChat?: (show: boolean) => void;
+  onAddContactFromChat?: (name: string, id: string, color?: string, localFields?: any[]) => void;
 }
 
 export const ChatListView = ({
@@ -50,8 +59,10 @@ export const ChatListView = ({
   contacts,
   setGlobalSelectedContact,
   setActiveChat,
+  activeChatId,
   setView,
   setActiveStory,
+  onComposeStory,
   setShowCreateChannel,
   setShowCreateBot,
   setShowAdvancedFilterModal,
@@ -60,66 +71,51 @@ export const ChatListView = ({
   isDark = false,
   onCall,
   onVideoCall,
+  onOpenBot,
+  showAddContactFromChat,
+  setShowAddContactFromChat,
+  onAddContactFromChat,
 }: ChatListViewProps) => {
-  const { pinChat, setChats } = useAppStore();
-  const [selectMode, setSelectMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+
+  const {
+    selectMode,
+    selectedIds,
+    handleToggleSelect,
+    handleCancelSelect,
+    handleBulkArchive,
+    handleBulkDelete,
+    handleBulkMarkRead,
+    menu,
+    openMenu,
+    closeMenu,
+    menuItems,
+  } = useChatListActions({ t, activeFolder, toggleArchive, setActiveChat, activeChatId });
 
   const pinnedChats = useMemo(() => filteredChats.filter((c: any) => c.pinned), [filteredChats]);
   const regularChats = useMemo(() => filteredChats.filter((c: any) => !c.pinned), [filteredChats]);
 
-  const handleToggleSelect = (chatId: string | number) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(chatId)) next.delete(chatId);
-      else next.add(chatId);
-      return next;
-    });
-  };
-
-  const handleLongPress = (chatId: string | number) => {
-    setSelectMode(true);
-    setSelectedIds(new Set([chatId]));
-  };
-
-  const handleCancelSelect = () => {
-    setSelectMode(false);
-    setSelectedIds(new Set());
-  };
-
-  const handleBulkArchive = () => {
-    selectedIds.forEach(id => toggleArchive(id));
-    handleCancelSelect();
-  };
-
-  const handleBulkDelete = () => {
-    setChats(prev => prev.filter((c: any) => !selectedIds.has(c.id)));
-    handleCancelSelect();
-  };
-
-  const handleBulkMarkRead = () => {
-    setChats(prev => prev.map((c: any) => selectedIds.has(c.id) ? { ...c, unread: 0 } : c));
-    handleCancelSelect();
-  };
-
   return (
-    <div className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
-      <ChatListSearchHeader
-        isDark={isDark}
-        view={view}
-        chatSearchQuery={chatSearchQuery}
-        setChatSearchQuery={setChatSearchQuery}
-        archivedUnreadCount={archivedUnreadCount}
-        t={t}
-        setView={setView}
-        setActiveFolder={setActiveFolder}
-        setShowCreateChannel={setShowCreateChannel}
-        setShowCreateBot={setShowCreateBot}
-      />
+    <div className={`w-full flex-1 flex flex-col overflow-y-auto overflow-x-hidden px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
+        <ChatListSearchHeader
+          isDark={isDark}
+          view={view}
+          chatSearchQuery={chatSearchQuery}
+          setChatSearchQuery={setChatSearchQuery}
+          archivedUnreadCount={archivedUnreadCount}
+          t={t}
+          setView={setView}
+          setActiveFolder={setActiveFolder}
+          setShowCreateChannel={setShowCreateChannel}
+          setShowCreateBot={setShowCreateBot}
+          onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
+        />
       <ViewTabs view={view} isDark={isDark} onSelect={setView} t={t} />
  
-      {view === "stories" && <AvatarRow theme={theme} onStoryClick={setActiveStory} t={t} />}
+      {view === "stories" && <AvatarRow theme={theme} onStoryClick={setActiveStory} onComposeStory={onComposeStory} t={t} />}
+
+      {view === "chats" && <AvatarRow theme={theme} onStoryClick={setActiveStory} onComposeStory={onComposeStory} t={t} />}
 
        {view === "chats" && (
         <FolderFilterBar
@@ -147,7 +143,7 @@ export const ChatListView = ({
          )}
          {pinnedChats.length > 0 && (
            <>
-             <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-orange-500" : "text-orange-600"}`}>{t("chat.sectionPinned")}</div>
+              <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>{t("chat.sectionPinned")}</div>
              {pinnedChats.map(c => (
                <ChatListItem
                  key={c.id}
@@ -165,7 +161,7 @@ export const ChatListView = ({
                  selectMode={selectMode}
                  selected={selectedIds.has(c.id)}
                  onToggleSelect={() => handleToggleSelect(c.id)}
-                 onLongPress={() => handleLongPress(c.id)}
+                 onMenuRequest={openMenu}
                  onAvatarClick={() => {
                    const profileContact = contacts.find(ct => ct.name === c.name);
                    setGlobalSelectedContact({
@@ -183,7 +179,7 @@ export const ChatListView = ({
              <div className={`h-px my-4 ${isDark ? "bg-white/5" : "bg-black/5"}`} />
            </>
          )}
-         <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-orange-500" : "text-orange-600"}`}>{t("chat.sectionConversations")}</div>
+          <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>{t("chat.sectionConversations")}</div>
          {regularChats.map(c => (
             <ChatListItem
                key={c.id}
@@ -200,9 +196,8 @@ export const ChatListView = ({
                pinned={c.pinned}
                selectMode={selectMode}
                selected={selectedIds.has(c.id)}
-               onToggleSelect={() => handleToggleSelect(c.id)}
-               onLongPress={() => handleLongPress(c.id)}
-               onAvatarClick={() => {
+                onToggleSelect={() => handleToggleSelect(c.id)}
+                onAvatarClick={() => {
                 const profileContact = contacts.find(ct => ct.name === c.name);
                 setGlobalSelectedContact({
                   id: `hash_${c.id}`,
@@ -221,7 +216,7 @@ export const ChatListView = ({
 
      {view === "channels" && filteredChannels.length > 0 && (
        <>
-          <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-purple-500" : "text-purple-600"}`}>{t("chat.sectionChannels")}</div>
+           <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--accent2)]" : "text-purple-600"}`}>{t("chat.sectionChannels")}</div>
          {filteredChannels.map(c => (
             <ChatListItem
                key={c.id}
@@ -240,44 +235,19 @@ export const ChatListView = ({
        </>
      )}
 
-     {view === "bots" && (
-       bots.length > 0 ? (
-         <>
-            <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-blue-500" : "text-blue-600"}`}>{t("chat.sectionBots")}</div>
-           {bots.map(b => (
-             <div key={b.id} className={`w-full p-4 rounded-xl mb-4 flex flex-col gap-2 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-                <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center">
-                     <Bot size={20} />
-                   </div>
-                   <div className="flex-1">
-                      <h4 className="font-bold text-sm tracking-wide">{b.name}</h4>
-                       <p className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.botTokenMask')}</p>
-                   </div>
-                </div>
-             </div>
-           ))}
-         </>
-       ) : (
-         <div className={`flex flex-col items-center justify-center py-10 opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>
-           <Bot size={32} className={`mb-4 opacity-50 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
-           <span className="text-[13px] text-center px-4">{t("chat.noBots")}</span>
-         </div>
-       )
-     )}
+      {view === "bots" && (
+        <ChatListBots bots={bots} onOpenBot={onOpenBot} isDark={isDark} t={t} />
+      )}
 
      {view !== "bots" && filteredChats.length === 0 && filteredChannels.length === 0 && (
        chatSearchQuery.trim() ? (
-         <div className={`flex flex-col items-center justify-center py-10 opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>
-           <Search size={24} className="mb-2" />
-           <span className="text-[13px]">{t("chat.noResults")}</span>
-         </div>
+          <DataState status="empty" isDark={isDark} title={t("chat.noResults")} description={t("chat.noResultsHint", "Попробуйте изменить запрос")} />
         ) : view === "chats" ? (
           <>
             <OnboardingPanel
               isDark={isDark}
               t={t}
-              onStartChat={() => setView("contacts")}
+              onStartChat={() => setShowAddContactFromChat?.(true)}
               onInvite={() => setShowInviteModal(true)}
             />
             <InviteQRModal
@@ -289,12 +259,34 @@ export const ChatListView = ({
             />
           </>
         ) : view === "channels" ? (
-         <OnboardingPanel
-           isDark={isDark}
-           t={t}
-           onStartChat={() => setShowCreateChannel(true)}
-         />
-       ) : null
+          <OnboardingPanel
+            isDark={isDark}
+            variant="channels"
+            t={t}
+            onStartChat={() => setShowCreateChannel(true)}
+          />
+        ) : null
+       )}
+
+      {menu && (
+        <ChatContextMenu
+          anchor={menu.anchor}
+          items={menuItems}
+          onClose={closeMenu}
+        />
+      )}
+
+      {globalSearchOpen && (
+        <GlobalSearch
+          isDark={isDark}
+          chats={filteredChats}
+          channels={filteredChannels}
+          contacts={contacts}
+          onClose={() => setGlobalSearchOpen(false)}
+          onOpenChat={(c) => { setActiveChat(c); setView("chats"); }}
+          onOpenContact={(c) => setGlobalSelectedContact(c)}
+          t={t}
+        />
       )}
     </div>
   );

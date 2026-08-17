@@ -29,26 +29,26 @@ const BOX_SIZE: Record<IconButtonSize, string> = {
 };
 
 const BASE =
-  "inline-flex items-center justify-center rounded-full cursor-pointer select-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)] active:scale-95";
+  "inline-flex items-center justify-center rounded-full cursor-pointer select-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 active:scale-95";
 
 const TOUCH_TARGET = "min-w-[44px] min-h-[44px]";
 
 const VARIANTS: Record<IconButtonVariant, { dark: string; light: string }> = {
   ghost: {
-    dark: "bg-white/10 hover:bg-white/20 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]",
-    light: "bg-black/5 hover:bg-black/10 text-slate-500 hover:text-slate-800",
+    dark: "bg-muted hover:bg-muted text-muted-foreground hover:text-foreground",
+    light: "bg-muted hover:bg-muted text-muted-foreground hover:text-foreground",
   },
   subtle: {
-    dark: "bg-transparent text-[var(--text-tertiary)] hover:bg-[var(--hover-bg-dark)] hover:text-[var(--text-primary)]",
-    light: "bg-transparent text-slate-500 hover:bg-black/5 hover:text-slate-800",
+    dark: "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+    light: "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
   },
   filled: {
-    dark: "bg-[var(--accent)] text-white hover:brightness-110 shadow-lg shadow-orange-500/20",
-    light: "bg-[var(--accent)] text-white hover:brightness-110 shadow-lg shadow-orange-500/20",
+    dark: "bg-primary text-primary-foreground hover:brightness-110 shadow-lg shadow-primary/20",
+    light: "bg-primary text-primary-foreground hover:brightness-110 shadow-lg shadow-primary/20",
   },
   danger: {
-    dark: "bg-red-500/90 hover:bg-red-500 text-white hover:brightness-110",
-    light: "bg-red-500 hover:bg-red-600 text-white hover:brightness-110",
+    dark: "bg-destructive/90 hover:bg-destructive text-destructive-foreground hover:brightness-110",
+    light: "bg-destructive hover:bg-destructive text-destructive-foreground hover:brightness-110",
   },
 };
 

@@ -11,11 +11,12 @@ import { Scanner } from '@yudiel/react-qr-scanner';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 import { QrCode } from './QrCode';
+import { CHANNEL_CLICK_GRADIENT, COMPANY_MODAL_MAX_WIDTH } from '../constants/companyConstants';
 
 const closeBtn = (onClick: () => void) => (
   <button
     onClick={onClick}
-    className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+    className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
   >
     <X size={18} />
   </button>
@@ -90,9 +91,10 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
 
   return (
     <div className="w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5">
-      <CompanyHeader isDark={isDark} onScanQR={handleScanQR} onInvite={handleInvite} onSettings={handleSettings} />
+      <CompanyHeader onScanQR={handleScanQR} onInvite={handleInvite} onSettings={handleSettings} />
       <CompanyInfoCard
         isDark={isDark}
+        orgId={companyId || MOCK_COMPANY_ID}
         connected={t('company.connected') || 'Connected'}
       />
       <MemberList
@@ -109,7 +111,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
         channels={displayChannels}
         channelsLabel={t('company.channels') || 'Company Channels'}
         t={t}
-        onChannelClick={(channel) => onMessage?.(channel.name, 'from-blue-400 to-indigo-500')}
+        onChannelClick={(channel) => onMessage?.(channel.name, CHANNEL_CLICK_GRADIENT)}
       />
 
       <AnimatePresence>
@@ -126,7 +128,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 shadow-2xl relative modal-surface"
+              className={`w-full ${COMPANY_MODAL_MAX_WIDTH} p-6 shadow-2xl relative rounded-2xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
             >
               {closeBtn(() => setShowScanQR(false))}
               <h3 className="text-xl font-bold mb-6 text-[var(--text-primary)]">{t('company.scanQR') || 'Scan QR to Join'}</h3>
@@ -139,7 +141,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
                   }}
                   styles={{ container: { width: '100%', height: '100%' } }}
                 />
-                <div className="absolute inset-0 border-4 border-orange-500/50 pointer-events-none mix-blend-overlay"></div>
+                <div className="absolute inset-0 border-4 border-[var(--accent)]/50 pointer-events-none mix-blend-overlay"></div>
               </div>
               <p className="text-xs text-center mt-6 text-[var(--text-secondary)]">{t('company.scanDescription') || 'Point camera at company QR code'}</p>
             </motion.div>
@@ -159,7 +161,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative flex flex-col items-center modal-surface"
+              className={`w-full ${COMPANY_MODAL_MAX_WIDTH} p-6 shadow-2xl relative flex flex-col items-center rounded-2xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
             >
               {closeBtn(() => setShowInvite(false))}
               <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">{t('company.invite') || 'Invite Members'}</h3>
@@ -184,7 +186,9 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowSettings(false)}
           >
-            <CompanySettingsView onClose={() => setShowSettings(false)} />
+            <div className="absolute inset-0 z-[100]" onClick={(e) => e.stopPropagation()}>
+              <CompanySettingsView onClose={() => setShowSettings(false)} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

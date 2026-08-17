@@ -52,6 +52,7 @@ class CallManager {
             startTime: call.startTime,
             participants: call.participants,
             recordingId: call.recordingId,
+            isPreview: call.isPreview,
           }
         : null,
     );
@@ -86,6 +87,41 @@ class CallManager {
       startTime: Date.now(),
       participants: [this.localPeer(peerId, displayName), ...participants],
     };
+    this.updateStore(call);
+    this.emit('call:accepted', { call });
+    return call;
+  }
+
+  /**
+   * Starts a preview/demo call without requesting camera/microphone access.
+   * Routes through the same state pipeline as a real call so the full CallScreen
+   * (driven by `useCall`) renders, and in-call toggles mutate this active call.
+   */
+  async startPreviewCall(
+    peerId: string,
+    displayName: string,
+    callType: CallType = 'audio',
+    participants: CallPeer[] = [],
+  ): Promise<ActiveCall> {
+    if (this.activeCall) await this.endCall();
+    const call: ActiveCall = {
+      callId: `preview_${nanoid()}`,
+      direction: 'outgoing',
+      status: 'connecting',
+      callType,
+      remotePeer: { peerId, displayName },
+      localStream: null,
+      screenStream: null,
+      isMuted: false,
+      isSpeaker: false,
+      isVideoEnabled: callType !== 'audio',
+      isVideo: callType === 'video' || callType === 'screen',
+      isRecording: false,
+      startTime: Date.now(),
+      participants: [this.localPeer(peerId, displayName), ...participants],
+      isPreview: true,
+    };
+    this.activeCall = call;
     this.updateStore(call);
     this.emit('call:accepted', { call });
     return call;
@@ -211,6 +247,41 @@ class CallManager {
     this.updateStore(this.activeCall);
     this.emit('call:accepted', { call: this.activeCall });
     return true;
+  }
+
+  async toggleSpeaker(): Promise<boolean> {
+    if (!this.activeCall) return false;
+    const next = !this.activeCall.isSpeaker;
+    this.activeCall = { ...this.activeCall, isSpeaker: next };
+    this.updateStore(this.activeCall);
+    this.emit('call:accepted', { call: this.activeCall });
+    return next;
+  }
+
+  /** Swaps between front/user and environment cameras for a video call. */
+  async flipCamera(): Promise<boolean> {
+    if (!this.localStream || !this.activeCall) return false;
+    const videoTrack = this.localStream.getVideoTracks()[0];
+    if (!videoTrack) return false;
+    try {
+      const current = videoTrack.getSettings().facingMode ?? 'user';
+      const nextFacing = current === 'user' ? 'environment' : 'user';
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: nextFacing },
+        audio: false,
+      });
+      const newTrack = newStream.getVideoTracks()[0];
+      videoTrack.stop();
+      const tracks = this.localStream.getTracks().filter((t) => t.kind !== 'video');
+      tracks.push(newTrack);
+      this.localStream = new MediaStream(tracks);
+      this.activeCall = { ...this.activeCall, localStream: this.localStream };
+      this.updateStore(this.activeCall);
+      this.emit('call:video-toggled', { enabled: true });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   async toggleRecording(): Promise<boolean> {

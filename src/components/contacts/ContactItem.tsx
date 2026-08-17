@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { motion } from "motion/react";
 import { Star, StarOff, Phone, Video } from "lucide-react";
 import type { Contact } from "../../types/contact";
+import { SWIPE_ACTION_COLORS, CONTACT_MAX_DAYS } from "../../constants/contactConstants";
 
 interface ContactItemProps {
   contact: Contact;
@@ -52,26 +53,24 @@ export const ContactItem: React.FC<ContactItemProps> = ({
         <>
           {/* Left swipe (call) - only visible when swiped left */}
           <div
-            className="absolute left-0 top-0 flex items-center h-[64px] z-10"
+            className="absolute left-0 top-0 flex items-center h-[64px] z-10 pointer-events-none"
             style={{
               opacity: swipedOpen === "left" ? 1 : 0,
-              pointerEvents: "none",
               transition: "opacity 0.2s ease",
             }}
           >
-            {swipeBtn(isDark ? "#2b2f42" : "#47557a", <Phone size={18} fill="white" stroke="white" />, t('contacts.call') || 'Call', () => handleSwipeAction("call"), isDark)}
+              {swipeBtn(isDark ? SWIPE_ACTION_COLORS.callDark : SWIPE_ACTION_COLORS.callLight, <Phone size={18} fill="white" stroke="white" />, t('contacts.call') || 'Call', () => handleSwipeAction("call"), isDark)}
           </div>
 
           {/* Right swipe (video) - only visible when swiped right */}
           <div
-            className="absolute right-0 top-0 flex items-center justify-end h-[64px] z-10"
+            className="absolute right-0 top-0 flex items-center justify-end h-[64px] z-10 pointer-events-none"
             style={{
               opacity: swipedOpen === "right" ? 1 : 0,
-              pointerEvents: "none",
               transition: "opacity 0.2s ease",
             }}
           >
-            {swipeBtn("#2563de", <Video size={18} fill="white" stroke="white" />, t('contacts.videoCall') || 'Video', () => handleSwipeAction("video"), isDark)}
+              {swipeBtn(SWIPE_ACTION_COLORS.video, <Video size={18} fill="white" stroke="white" />, t('contacts.videoCall') || 'Video', () => handleSwipeAction("video"), isDark)}
           </div>
         </>
       )}
@@ -133,13 +132,12 @@ export const ContactItem: React.FC<ContactItemProps> = ({
               &bull; {(() => {
                 const delta = Date.now() - contact.lastSeen;
                 if (delta < 0 || isNaN(delta) || !contact.lastSeen) return '—';
-                const MAX_DAYS = 365;
                 if (delta < 3600000)
                   return t("chat.minutesAgo", { count: Math.floor(delta / 60000) || 1 });
                 if (delta < 86400000)
                   return t("chat.hoursAgo", { count: Math.floor(delta / 3600000) });
                 const days = Math.floor(delta / 86400000);
-                if (days > MAX_DAYS)
+                if (days > CONTACT_MAX_DAYS)
                   return t("chat.yearsAgo", { count: Math.floor(days / 365) });
                 return t("chat.daysAgo", { count: days });
               })()}

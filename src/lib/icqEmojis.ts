@@ -1,4 +1,5 @@
 import { ICQ_EMOJI_MAP as ICQ_EMOJI_DATA } from '../data/emojis/icq';
+import { preloadICQTheme, getCachedEmoji } from './emojiCache';
 
 export interface ICQEmoji {
   id: string;
@@ -25,3 +26,5 @@ export function getICQEmojiUrl(emoji: ICQEmoji, theme: 'light' | 'dark'): string
 }
 
 export { ICQ_EMOJI_DATA as ICQ_EMOJI_MAP };
+
+export { preloadICQTheme, getCachedEmoji };

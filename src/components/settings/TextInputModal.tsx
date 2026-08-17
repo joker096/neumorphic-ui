@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { AppModal } from '../ui/AppModal';
+import { Button } from '../ui/Button';
 
 interface TextInputModalProps {
   isOpen: boolean;
@@ -64,18 +65,12 @@ export const TextInputModal = ({
         </div>
       </div>
       <div className="flex gap-3">
-         <button
-           onClick={onCancel}
-           className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-white/10 hover:bg-white/20 text-[var(--text-primary)]"
-         >
+         <Button variant="secondary" size="md" className="flex-1" onClick={onCancel}>
            {cancelLabel}
-         </button>
-         <button
-           onClick={handleSubmit}
-           className="flex-1 h-11 rounded-2xl text-sm font-bold transition-colors active:scale-95 bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)]"
-         >
+         </Button>
+         <Button variant="primary" size="md" className="flex-1" onClick={handleSubmit}>
            {confirmLabel}
-         </button>
+         </Button>
        </div>
     </AppModal>
   );

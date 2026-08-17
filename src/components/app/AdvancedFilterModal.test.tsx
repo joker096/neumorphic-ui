@@ -33,13 +33,13 @@ describe('AdvancedFilterModal - additional tests', () => {
   });
 
   it('renders dark theme', () => {
-    const { container } = render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
-    expect(container.querySelector('[class*="modal-surface"]') || container.querySelector('[class*="bg-black/60"]')).toBeInTheDocument();
+    render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
+    expect(document.querySelector('[class*="modal-surface"]') || document.querySelector('[class*="bg-black/60"]')).toBeInTheDocument();
   });
 
   it('renders light theme', () => {
-    const { container } = render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
-    expect(container.querySelector('[class*="bg-"]') || container.querySelector('[class*="rounded"]')).toBeInTheDocument();
+    render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
+    expect(document.querySelector('[class*="bg-"]') || document.querySelector('[class*="rounded"]')).toBeInTheDocument();
   });
 
   it('renders filter checkboxes', () => {
@@ -59,8 +59,8 @@ describe('AdvancedFilterModal - additional tests', () => {
   });
 
   it('renders backdrop', () => {
-    const { container } = render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
-    expect(container.querySelector('[class*="bg-black/60"]') || container.querySelector('[class*="z-\\[200\\]")') || container.querySelector('[class*="z-[200]")')).toBeInTheDocument();
+    render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
+    expect(document.querySelector('[class*="bg-black/60"]') || document.querySelector('[class*="z-\\[200\\]")') || document.querySelector('[class*="z-[200]")')).toBeInTheDocument();
   });
 
   it('renders title', () => {

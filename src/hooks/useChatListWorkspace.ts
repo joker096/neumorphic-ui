@@ -27,6 +27,7 @@ export interface ChatListWorkspaceArgs {
   isDark: boolean;
   onCall: (name?: string, color?: string, type?: string) => void;
   onVideoCall: (name: string, color?: string) => void;
+  onOpenBot?: (botId: string) => void;
 }
 
 export function useChatListWorkspace(args: ChatListWorkspaceArgs) {
@@ -35,7 +36,7 @@ export function useChatListWorkspace(args: ChatListWorkspaceArgs) {
     filteredChats, filteredChannels, bots, archivedChats, chats, channels, toggleArchive,
     contacts, setGlobalSelectedContact, setActiveChat, setView, setActiveStory,
     setShowCreateChannel, setShowCreateBot, setShowAdvancedFilterModal, advancedFilters,
-    t, isDark, onCall, onVideoCall,
+    t, isDark, onCall, onVideoCall, onOpenBot,
   } = args;
 
   const archivedUnreadCount = useMemo(() => {
@@ -50,12 +51,12 @@ export function useChatListWorkspace(args: ChatListWorkspaceArgs) {
     filteredChats, filteredChannels, bots, archivedUnreadCount, toggleArchive,
     contacts, setGlobalSelectedContact, setActiveChat, setView, setActiveStory,
     setShowCreateChannel, setShowCreateBot, setShowAdvancedFilterModal, advancedFilters,
-    t, isDark, onCall, onVideoCall,
+    t, isDark, onCall, onVideoCall, onOpenBot,
   }), [
     view, activeFolder, setActiveFolder, chatSearchQuery, setChatSearchQuery,
     filteredChats, filteredChannels, bots, archivedUnreadCount, toggleArchive,
     contacts, setGlobalSelectedContact, setActiveChat, setView, setActiveStory,
     setShowCreateChannel, setShowCreateBot, setShowAdvancedFilterModal, advancedFilters,
-    t, isDark, onCall, onVideoCall,
+    t, isDark, onCall, onVideoCall, onOpenBot,
   ]);
 }

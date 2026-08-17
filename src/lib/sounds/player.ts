@@ -1,5 +1,6 @@
 import { soundConfig } from './config';
 import type { SoundEventType } from './config';
+import { getCachedSound } from '../soundCache';
 
 const soundMap = new Map<string, string>();
 Object.entries(soundConfig).forEach(([key, url]) => soundMap.set(key, url));
@@ -22,6 +23,18 @@ export class SoundPlayer {
     this.cooldowns.set(event, Date.now());
     const url = soundMap.get(event);
     if (!url) return;
+
+    const cached = getCachedSound(event);
+    if (cached) {
+      const audio = cached.cloneNode(true) as HTMLAudioElement;
+      audio.volume = this._volume;
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {});
+      }
+      return;
+    }
+
     const audio = new Audio(url);
     audio.volume = this._volume;
     const playPromise = audio.play();

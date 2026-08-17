@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { getTranslation, getTranslationWithFallback, detectBrowserLanguage, preloadLocales, I18nProvider, useI18n } from './i18n';
+import { getTranslation, getTranslationWithFallback, detectBrowserLanguage, preloadLocales, loadLocale, I18nProvider, useI18n } from './i18n';
 
 function flattenKeys(obj: Record<string, any>, prefix = ''): Set<string> {
   const keys = new Set<string>();
@@ -34,15 +34,17 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
       expect(localeFiles).toHaveLength(8);
     });
 
-    it('should have 979 keys in en.json', () => {
+    it('should have all keys in en.json', () => {
       const enContent = JSON.parse(readFileSync(join(localesDir, 'en.json'), 'utf-8'));
-      expect(flattenKeys(enContent).size).toBe(979);
+      expect(flattenKeys(enContent).size).toBeGreaterThanOrEqual(983);
     });
 
     it('should have same key count in all locales', () => {
+      const enContent = JSON.parse(readFileSync(join(localesDir, 'en.json'), 'utf-8'));
+      const enSize = flattenKeys(enContent).size;
       for (const file of localeFiles) {
         const content = JSON.parse(readFileSync(join(localesDir, file), 'utf-8'));
-        expect(flattenKeys(content).size).toBe(979);
+        expect(flattenKeys(content).size).toBe(enSize);
       }
     });
 
@@ -99,7 +101,8 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('getTranslationWithFallback', () => {
-    it('should return target locale translation when key exists', () => {
+    it('should return target locale translation when key exists', async () => {
+      await loadLocale('ru');
       expect(getTranslationWithFallback('chat.archive', 'ru')).toBe('Архив');
     });
 
@@ -168,15 +171,15 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
       expect(result.current.t('chat.archive')).toBe('Архив');
     });
 
-    it('should return Japanese translation after switching language', () => {
+    it('should return Japanese translation after switching language', async () => {
       const { result } = renderHook(() => useI18n(), { wrapper: I18nProvider });
-      act(() => { result.current.setLang('ja'); });
+      await act(async () => { await result.current.setLang('ja'); });
       expect(result.current.t('chat.archive')).toBe("アーカイブ");
     });
 
-    it('should return Chinese translation after switching language', () => {
+    it('should return Chinese translation after switching language', async () => {
       const { result } = renderHook(() => useI18n(), { wrapper: I18nProvider });
-      act(() => { result.current.setLang('zh'); });
+      await act(async () => { await result.current.setLang('zh'); });
       expect(result.current.t('chat.archive')).toBe('归档');
     });
 

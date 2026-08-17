@@ -19,7 +19,7 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
       isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"
     }`}>
       <div className="flex justify-between items-center">
-        <span className="text-xs font-bold uppercase tracking-widest text-orange-500">{t("chat.scheduleSend")}</span>
+        <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">{t("chat.scheduleSend")}</span>
         <button
           type="button"
           className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer ${
@@ -55,7 +55,7 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
           disabled={!scheduleDateTime}
           className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${
             !scheduleDateTime ? "opacity-50 cursor-not-allowed" : ""
-          } ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}
+          } ${isDark ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "bg-[var(--accent)]/10 text-[var(--accent)]"}`}
         >
           {t("chat.setTime")}
         </button>

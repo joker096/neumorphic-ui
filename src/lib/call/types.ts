@@ -26,6 +26,7 @@ export interface ActiveCall {
   number?: string;
   participants: CallPeer[];
   recordingId?: string;
+  isPreview?: boolean;
 }
 
 export type CallEventType =

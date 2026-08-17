@@ -1,6 +1,7 @@
 import React from 'react';
 import { MicOff, Mic } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import { CALL_GROUP_AVATAR_GRADIENT } from '../../constants/callConstants';
 
 interface GroupCallParticipantsProps {
   participants: Array<{
@@ -22,7 +23,7 @@ export const GroupCallParticipants: React.FC<GroupCallParticipantsProps> = ({
       {participants.map((participant) => (
         <div
           key={participant.peerId}
-          className="relative aspect-video bg-gray-800 rounded-xl overflow-hidden"
+          className="relative aspect-video neo-raised rounded-2xl overflow-hidden"
         >
           {participant.stream ? (
             <video
@@ -36,22 +37,22 @@ export const GroupCallParticipants: React.FC<GroupCallParticipantsProps> = ({
               }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <span className="text-2xl font-bold text-[var(--text-primary)]">
+            <div className="w-full h-full flex items-center justify-center bg-[var(--bg-primary)]">
+              <div className={`w-16 h-16 rounded-full ${CALL_GROUP_AVATAR_GRADIENT} flex items-center justify-center`}>
+                <span className="text-2xl font-bold text-white">
                   {(participant.displayName || '?').charAt(0).toUpperCase()}
                 </span>
               </div>
             </div>
           )}
 
-          <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
-            <div className="flex items-center justify-between">
-              <span className="text-[var(--text-primary)] text-xs font-medium truncate">
+          <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-white text-xs font-medium truncate drop-shadow">
                 {participant.displayName || t('call.unknownCaller')}
               </span>
               {participant.isMuted && (
-                <div className="flex items-center gap-1 text-red-400">
+                <div className="flex items-center gap-1 text-[var(--danger)]">
                   <MicOff size={12} />
                 </div>
               )}
@@ -62,7 +63,7 @@ export const GroupCallParticipants: React.FC<GroupCallParticipantsProps> = ({
             <button
               type="button"
               onClick={() => onMuteToggle(participant.peerId)}
-              className="absolute top-2 right-2 min-w-[44px] min-h-[44px] rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-[var(--text-primary)]"
+              className="neo-circle absolute top-2 right-2 w-11 h-11 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               aria-label={participant.isMuted ? t('chat.unmuteMicrophone') : t('chat.muteMicrophone')}
               title={participant.isMuted ? t('chat.unmuteMicrophone') : t('chat.muteMicrophone')}
             >

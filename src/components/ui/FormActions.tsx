@@ -38,8 +38,8 @@ export const FormActions = ({
           onClick={onCancel}
           className={`flex-1 h-12 rounded-xl font-bold transition-all active:scale-95 ${
             isDark
-              ? 'bg-white/10 hover:bg-white/20 text-gray-300'
-              : 'bg-black/5 hover:bg-black/10 text-slate-700'
+              ? 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+              : 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
           }`}
         >
           {cancelLabel || 'Cancel'}
@@ -50,7 +50,7 @@ export const FormActions = ({
         onClick={() => { if (!disabled && !loading) onSubmit?.() }}
         className={`flex-1 h-12 rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 ${
           disabled || loading
-            ? 'opacity-50 cursor-not-allowed text-white/50 bg-gray-500'
+            ? 'opacity-50 cursor-not-allowed text-[var(--text-tertiary)] bg-[var(--bg-tertiary)]'
             : `${submitBg} text-[var(--text-primary)]`
         }`}
       >

@@ -4,6 +4,7 @@ import { Mic, MicOff, PhoneOff } from 'lucide-react';
 import { callManager } from '../../lib/call/CallManager';
 import { useI18n } from '../../lib/i18n';
 import type { CallEventType } from '../../lib/call/types';
+import { CALL_HUDDLE_DEFAULT_NAME, CALL_HUDDLE_IDLE_GRADIENT, CALL_HUDDLE_ACTIVE_GRADIENT } from '../../constants/callConstants';
 
 interface HuddleWidgetProps {
   chatId: string;
@@ -40,11 +41,12 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
   const handleJoin = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      await callManager.startCall(chatId, chatName || 'Huddle', 'audio');
+      await callManager.startCall(chatId, chatName || CALL_HUDDLE_DEFAULT_NAME, 'audio');
       setIsInHuddle(true);
       setIsActive(true);
-    } catch (err) {
-      console.error('Failed to join huddle:', err);
+    } catch {
+      // Microphone permission denied or call start failed — the join button
+      // remains available so the user can retry.
     }
   };
 
@@ -62,7 +64,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
 
   if (!isActive) {
     return (
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-[var(--border-color)]">
+      <div className={`p-4 rounded-2xl ${CALL_HUDDLE_IDLE_GRADIENT} border border-[var(--border-color)]`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
@@ -85,7 +87,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
   }
 
   return (
-    <div className="p-4 rounded-2xl bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-green-500/30">
+    <div className={`p-4 rounded-2xl ${CALL_HUDDLE_ACTIVE_GRADIENT} border border-green-500/30`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center animate-pulse">
@@ -111,7 +113,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
             onClick={handleLeave}
             className="px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-[var(--text-primary)] text-sm font-medium"
           >
-            Leave
+            {t('huddle.leave')}
           </button>
         </div>
       </div>

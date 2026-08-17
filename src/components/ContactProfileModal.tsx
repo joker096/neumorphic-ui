@@ -6,6 +6,7 @@ import { useI18n } from '../lib/i18n';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { SafetyNumberModal } from './SafetyNumberModal';
 import type { ContactField } from '../types/contact';
+import { CONTACT_FALLBACK_GRADIENT, CONTACT_MAX_DAYS } from '../constants/contactConstants';
 
 export type ContactProfile = {
   id: string;
@@ -87,7 +88,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
  className={`w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 shadow-2xl relative flex flex-col items-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
           >
             <button
-              className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]`}
+              className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-black/5 hover:bg-black/10 text-slate-800'}`}
               onClick={onClose}
               title={t('contacts.close')}
               aria-label={t('contacts.close') || t('common.close')}
@@ -138,7 +139,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </div>
             )}
 
-            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || 'from-gray-500 to-gray-600'} text-[var(--text-primary)] font-bold text-4xl shadow-lg relative group`}>
+            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-4xl shadow-lg relative group`}>
               {contact.name.charAt(0)}
               {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
                 <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < 60000) ? "bg-green-500" : "bg-gray-400"}`} />
@@ -189,7 +190,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                   if (delta < 3600000) return t('chat.minutesAgo', { count: Math.floor(delta / 60000) });
                   if (delta < 86400000) return t('chat.hoursAgo', { count: Math.floor(delta / 3600000) });
                   const days = Math.floor(delta / 86400000);
-                  if (days > 365) return t('chat.yearsAgo', { count: Math.floor(days / 365) });
+                  if (days > CONTACT_MAX_DAYS) return t('chat.yearsAgo', { count: Math.floor(days / 365) });
                   return t('chat.daysAgo', { count: days });
                 })()}
               </div>

@@ -16,7 +16,9 @@ export interface UIState {
   showAdvancedFilterModal: boolean;
   setShowAdvancedFilterModal: (show: boolean) => void;
   advancedFilters: { hasMedia: boolean; hasAudio: boolean; hasReplies: boolean; fromBots: boolean; priority: boolean };
-  setAdvancedFilters: (filters: { hasMedia: boolean; hasAudio: boolean; hasReplies: boolean; fromBots: boolean; priority: boolean }) => void;
+  setAdvancedFilters: (filters: { hasMedia: boolean; hasAudio: boolean; hasReplies: boolean; fromBots: boolean; priority: boolean } | ((prev: { hasMedia: boolean; hasAudio: boolean; hasReplies: boolean; fromBots: boolean; priority: boolean }) => { hasMedia: boolean; hasAudio: boolean; hasReplies: boolean; fromBots: boolean; priority: boolean })) => void;
+  showAddContactFromChat: boolean;
+  setShowAddContactFromChat: (show: boolean) => void;
 }
 
 export const useUiStore = create<UIState>()(
@@ -35,7 +37,12 @@ export const useUiStore = create<UIState>()(
       showAdvancedFilterModal: false,
       setShowAdvancedFilterModal: (show) => set({ showAdvancedFilterModal: show }),
       advancedFilters: { hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false },
-      setAdvancedFilters: (filters) => set({ advancedFilters: filters }),
+      setAdvancedFilters: (filters) =>
+        set((state) => ({
+          advancedFilters: typeof filters === "function" ? filters(state.advancedFilters) : filters,
+        })),
+      showAddContactFromChat: false,
+      setShowAddContactFromChat: (show) => set({ showAddContactFromChat: show }),
     }),
     {
       name: 'ui-storage',

@@ -44,7 +44,7 @@ describe('SettingsRow - additional tests', () => {
 
   it('renders with neutral styling', () => {
     const { container } = render(<SettingsRow title="Test" />);
-    expect(container.querySelector('[class*="text-white"]') || container.querySelector('[class*="text-slate-900"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="text-white"]') || container.querySelector('[class*="text-foreground"]')).toBeInTheDocument();
   });
 
   it('renders title', () => {

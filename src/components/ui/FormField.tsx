@@ -24,19 +24,13 @@ interface FormFieldProps {
   suffix?: React.ReactNode
 }
 
-const inputBase = (isDark: boolean, hasError?: boolean) =>
-  `w-full h-12 px-4 rounded-xl text-sm outline-none border-2 transition-all ${
-    isDark
-      ? `bg-[var(--input-bg)] text-[var(--text-primary)] placeholder:[var(--input-placeholder)] ${
-          hasError
-            ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)]'
-            : 'border-[var(--border-color)] focus:border-[var(--accent)]'
-        }`
-      : `bg-[var(--input-bg)] text-[var(--text-primary)] placeholder:[var(--input-placeholder)] ${
-          hasError
-            ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)]'
-            : 'border-[var(--border-color)] focus:border-[var(--accent)]'
-        }`
+// Inputs are borderless: the cursor/placeholder is enough affordance.
+// No border or focus border (see message composer style).
+const inputBase = (_isDark: boolean, hasError?: boolean) =>
+  `w-full h-12 px-4 rounded-xl text-sm outline-none transition-all ${
+    hasError
+      ? 'bg-input-bg text-input-text placeholder:text-input-placeholder'
+      : 'bg-input-bg text-input-text placeholder:text-input-placeholder'
   }`
 
 export const FormField = ({
@@ -67,9 +61,7 @@ export const FormField = ({
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && (
-        <label className={`text-[11px] font-bold uppercase tracking-widest ${
-          isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'
-        }`}>
+        <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
           {label}
         </label>
       )}
@@ -96,11 +88,7 @@ export const FormField = ({
             onClick={iconAction}
             title={iconTooltip}
             disabled={disabled}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center transition-colors ${
-              isDark
-                ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]'
-                : 'bg-black/5 hover:bg-black/10 text-slate-800'
-            } ${disabled ? 'opacity-50' : ''}`}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center transition-colors bg-muted hover:bg-muted text-foreground ${disabled ? 'opacity-50' : ''}`}
           >
             <Icon size={16} />
           </button>
@@ -112,7 +100,7 @@ export const FormField = ({
         )}
       </div>
       {error && (
-        <span className="text-[11px] font-medium text-[var(--color-danger)] ml-1">
+        <span className="text-[11px] font-medium text-destructive ml-1">
           {error}
         </span>
       )}

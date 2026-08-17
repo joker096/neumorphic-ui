@@ -44,11 +44,14 @@ export const useDataSeeding = () => {
     const chats = useAppStore.getState().chats;
     const contacts = useAppStore.getState().contacts;
     const channels = useAppStore.getState().channels;
+    const callHistory = useAppStore.getState().callHistory;
     if (chats.length === 0) {
       seedMockData(
         useAppStore.getState().setChats,
         useAppStore.getState().setContacts,
         useAppStore.getState().setChannels,
+        useAppStore.getState().setCallHistory,
+        callHistory,
         chats, contacts, channels
       );
     }

@@ -41,11 +41,11 @@ export const ToggleSwitch = ({
       onKeyDown={handleKeyDown}
       className={`relative inline-flex items-center rounded-full transition-all cursor-pointer border ${className || 'w-12 h-6'} ${
         isOn
-          ? 'bg-[var(--toggle-active-bg)] border-transparent'
-          : 'bg-[var(--toggle-inactive-bg)] border-[var(--toggle-inactive-border)]'
-      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${disabled ? '' : 'active:scale-95'}`}
+          ? 'bg-primary border-transparent'
+          : 'bg-muted border-border'
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${disabled ? '' : 'active:scale-95}'}`}
     >
-      <span className={`absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-all bg-[var(--toggle-thumb-bg)] ${isOn ? 'right-0.5' : 'left-0.5'}`} />
+      <span className={`absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-all bg-background ${isOn ? 'right-0.5' : 'left-0.5'}`} />
     </div>
   );
 };

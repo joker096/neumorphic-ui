@@ -84,10 +84,11 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
               rightElement={
                 <button
                   onClick={(e) => { e.stopPropagation(); handleRemoveBot(bot.id, bot.name); }}
-                  className="p-1 hover:text-red-400 transition-colors"
+                  className="flex items-center justify-center w-11 h-11 -mr-2 rounded-lg hover:text-red-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                   title={t('settings.removeBot')}
+                  aria-label={t('settings.removeBot')}
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={18} />
                 </button>
               }
               onClick={() => handleToggleBot(bot.id)}

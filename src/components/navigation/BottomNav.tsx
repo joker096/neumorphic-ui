@@ -21,7 +21,7 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
     <nav
       className={`fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom,0px)] pt-2 md:hidden ${
         isDark
-          ? "bg-[var(--bg-primary)]/90 backdrop-blur-xl border-t border-[var(--border-color)]/[0.06]"
+          ? "bg-[var(--bg-primary)]/90 backdrop-blur-xl border-t border-[var(--border-color)]"
           : "bg-[var(--bg-secondary)]/90 backdrop-blur-xl border-t border-black/[0.06]"
       }`}
       style={{ height: "calc(56px + env(safe-area-inset-bottom, 0px))" }}

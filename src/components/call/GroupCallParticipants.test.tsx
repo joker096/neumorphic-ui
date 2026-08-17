@@ -46,7 +46,7 @@ describe('GroupCallParticipants - additional tests', () => {
 
   it('renders avatar with gradient', () => {
     const { container } = render(<GroupCallParticipants participants={[{ peerId: '1', displayName: 'John', isMuted: false }]} />);
-    expect(container.querySelector('[class*="from-blue-500"]') || container.querySelector('[class*="from-gray-800"]') || container.querySelector('[class*="bg-gray-800"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="from-[var(--accent)]"]') || container.querySelector('[class*="neo-raised"]')).toBeInTheDocument();
   });
 
   it('renders video when stream provided', () => {
@@ -67,12 +67,12 @@ describe('GroupCallParticipants - additional tests', () => {
       { peerId: '3', displayName: 'Charlie', isMuted: true },
     ];
     const { container } = render(<GroupCallParticipants participants={participants} />);
-    expect(container.querySelectorAll('[class*="bg-gray-800"]').length).toBe(3);
+    expect(container.querySelectorAll('[class*="neo-raised"]').length).toBe(3);
   });
 
   it('renders each participant with unique key', () => {
     const participants = [{ peerId: '1', displayName: 'John', isMuted: false }];
     const { container } = render(<GroupCallParticipants participants={participants} />);
-    expect(container.querySelector('[class*="relative.aspect-video"]') || container.querySelector('[class*="bg-gray-800"]')?.closest('[class*="bg-gray-800"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="aspect-video"]')).toBeInTheDocument();
   });
 });

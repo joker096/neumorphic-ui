@@ -15,12 +15,12 @@ interface ViewTabsProps {
 }
 
 export const ViewTabs = ({ view, isDark, onSelect, t }: ViewTabsProps) => (
-  <div className={`flex items-center gap-3 sm:gap-5 mb-4 sm:mb-6 px-1 border-b pb-3 overflow-x-auto scrollbar-none shrink-0 ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+  <div className={`flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6 px-1 border-b pb-3 overflow-x-auto scrollbar-none shrink-0 ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
     {TABS.map((tab) => (
       <div
         key={tab.id}
         onClick={() => onSelect(tab.id)}
-        className={`text-xs font-bold uppercase tracking-widest cursor-pointer transition-colors relative shrink-0 ${view === tab.id ? (isDark ? "text-orange-500" : "text-orange-600") : (isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-400 hover:text-slate-600")}`}
+        className={`text-[11px] sm:text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors relative shrink-0 ${view === tab.id ? (isDark ? "text-orange-500" : "text-orange-600") : (isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-400 hover:text-slate-600")}`}
       >
         {t(tab.labelKey)}
         {view === tab.id && (

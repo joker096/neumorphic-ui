@@ -117,7 +117,7 @@ describe('CallScreen - additional tests', () => {
 
   it('renders initial avatar when no stream', () => {
     const { container } = render(<CallScreen call={mockAudioCall} incomingCall={null} onEnd={() => {}} acceptCall={async () => {}} toggleMute={() => {}} toggleVideo={() => {}} toggleScreenShare={() => {}} toggleRecording={() => {}} setActiveCall={() => {}} />);
-    expect(container.querySelector('[class*="w-36.h-36"]') || container.querySelector('[class*="from-orange-500"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="neo-raised"]')).toBeInTheDocument();
   });
 
   it('renders status text', () => {
@@ -130,8 +130,8 @@ describe('CallScreen - additional tests', () => {
     expect(screen.getByText('REC')).toBeInTheDocument();
   });
 
-  it('renders gradient background for audio', () => {
+  it('renders neumorphic background for audio', () => {
     const { container } = render(<CallScreen call={mockAudioCall} incomingCall={null} onEnd={() => {}} acceptCall={async () => {}} toggleMute={() => {}} toggleVideo={() => {}} toggleScreenShare={() => {}} toggleRecording={() => {}} setActiveCall={() => {}} />);
-    expect(container.querySelector('[class*="from-zinc-900"]') || container.querySelector('[class*="to-black"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="radial-gradient"]')).toBeInTheDocument();
   });
 });

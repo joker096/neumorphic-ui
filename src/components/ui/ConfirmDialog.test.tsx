@@ -18,18 +18,18 @@ describe('ConfirmDialog - additional tests', () => {
   });
 
   it('does not render when closed', () => {
-    const { container } = render(<ConfirmDialog isOpen={false} title="Test" onConfirm={() => {}} onCancel={() => {}} />);
-    expect(container.querySelector('[class*="fixed"]')).toBeNull();
+    render(<ConfirmDialog isOpen={false} title="Test" onConfirm={() => {}} onCancel={() => {}} />);
+    expect(document.querySelector('[class*="fixed"]')).toBeNull();
   });
 
   it('renders backdrop', () => {
-    const { container } = render(<ConfirmDialog isOpen={true} title="Test" onConfirm={() => {}} onCancel={() => {}} />);
-    expect(container.querySelector('[class*="bg-black"]') || container.querySelector('[class*="fixed"]')).toBeInTheDocument();
+    render(<ConfirmDialog isOpen={true} title="Test" onConfirm={() => {}} onCancel={() => {}} />);
+    expect(document.querySelector('[class*="bg-black"]') || document.querySelector('[class*="fixed"]')).toBeInTheDocument();
   });
 
   it('renders dialog box', () => {
-    const { container } = render(<ConfirmDialog isOpen={true} title="Test" onConfirm={() => {}} onCancel={() => {}} />);
-    expect(container.querySelector('[class*="shadow-2xl"]') || container.querySelector('[class*="max-w-sm"]') || container.querySelector('[class*="p-6"]')).toBeInTheDocument();
+    render(<ConfirmDialog isOpen={true} title="Test" onConfirm={() => {}} onCancel={() => {}} />);
+    expect(document.querySelector('[class*="shadow-2xl"]') || document.querySelector('[class*="max-w-sm"]') || document.querySelector('[class*="p-6"]')).toBeInTheDocument();
   });
 
   it('renders confirm button', () => {
@@ -43,8 +43,8 @@ describe('ConfirmDialog - additional tests', () => {
   });
 
   it('renders danger variant', () => {
-    const { container } = render(<ConfirmDialog isOpen={true} title="Test" onConfirm={() => {}} onCancel={() => {}} variant="danger" />);
-    expect(container.querySelector('[class*="bg-red-500"]') || container.querySelector('[class*="flex-1"]')?.closest('[class*="bg-red-500"]')).toBeInTheDocument();
+    render(<ConfirmDialog isOpen={true} title="Test" onConfirm={() => {}} onCancel={() => {}} variant="danger" />);
+    expect(document.querySelector('[class*="bg-destructive"]') || document.querySelector('[class*="flex-1"]')?.closest('[class*="bg-destructive"]')).toBeInTheDocument();
   });
 
   it('renders message when provided', () => {
@@ -53,8 +53,8 @@ describe('ConfirmDialog - additional tests', () => {
   });
 
   it('renders message as undefined when not provided', () => {
-    const { container } = render(<ConfirmDialog isOpen={true} title="Test" message={undefined} onConfirm={() => {}} onCancel={() => {}} />);
-    const msgEl = container.querySelector('[class*="text-sm"]')?.closest('[class*="mb-6"]');
+    render(<ConfirmDialog isOpen={true} title="Test" message={undefined} onConfirm={() => {}} onCancel={() => {}} />);
+    const msgEl = document.querySelector('[class*="text-sm"]')?.closest('[class*="mb-6"]');
     expect(msgEl?.textContent).toBe('');
   });
 

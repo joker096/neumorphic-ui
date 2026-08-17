@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useAppStore } from "../store";
 import { groupMessages, formatDateLabel } from "../utils/chatUtils";
 import { useDebounce } from "./useDebounce";
@@ -71,6 +71,7 @@ export function useChatPreviewState(
   const [filterEndDate, setFilterEndDate] = useState("");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showDateFilter, setShowDateFilter] = useState(false);
+  const [searchTypeFilter, setSearchTypeFilter] = useState<'all' | 'media' | 'files' | 'links'>('all');
   const [showComments, setShowComments] = useState(false);
   const [activePostId, setActivePostId] = useState<number | null>(null);
   const [activeReactionPicker, setActiveReactionPicker] = useState<number | string | null>(null);
@@ -110,7 +111,7 @@ export function useChatPreviewState(
 
   const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
   const [swipeReplyId, setSwipeReplyId] = useState<string | number | null>(null);
-  const msgListRef = useRef<{ scrollToBottom: () => void }>(null);
+  const msgListRef = useRef<{ scrollToBottom: () => void; scrollToIndex?: (index: number, align?: 'start' | 'center' | 'end') => void }>(null);
   const prevHistoryLen = useRef(chat.history?.length || 0);
 
   useEffect(() => {
@@ -204,9 +205,16 @@ export function useChatPreviewState(
         if (filterStartDate && msgDate < new Date(filterStartDate)) return false;
         if (filterEndDate && msgDate > new Date(filterEndDate)) return false;
       }
+      const matchesType =
+        searchTypeFilter === 'all' ? true :
+        searchTypeFilter === 'media' ? (msg.type === 'image' || msg.type === 'video') :
+        searchTypeFilter === 'files' ? msg.type === 'file' :
+        searchTypeFilter === 'links' ? (typeof msg.text === 'string' && /https?:\/\//i.test(msg.text)) :
+        true;
+      if (!matchesType) return false;
       return debouncedSearch ? msg.text?.toLowerCase().includes(debouncedSearch.toLowerCase()) || !msg.text : true;
     }) || [],
-    [chat.history, filterBySender, filterStartDate, filterEndDate, debouncedSearch]
+    [chat.history, filterBySender, filterStartDate, filterEndDate, debouncedSearch, searchTypeFilter]
   );
 
   const mediaItems = useMemo(() =>
@@ -250,6 +258,36 @@ export function useChatPreviewState(
     return items;
   }, [filteredHistory]);
 
+  // In-chat search: match navigation (бриф §5.4 "переход к сообщению")
+  const matchIndices = useMemo(() => {
+    const q = (debouncedSearch || '').toLowerCase().trim();
+    if (!q) return [] as number[];
+    const out: number[] = [];
+    flatItems.forEach((item: any, idx: number) => {
+      if (!item._isDateSeparator && typeof item.text === 'string' && item.text.toLowerCase().includes(q)) {
+        out.push(idx);
+      }
+    });
+    return out;
+  }, [flatItems, debouncedSearch]);
+
+  const [activeMatch, setActiveMatch] = useState(0);
+  useEffect(() => {
+    if (matchIndices.length === 0) {
+      setActiveMatch(0);
+      return;
+    }
+    setActiveMatch(0);
+    msgListRef.current?.scrollToIndex?.(matchIndices[0], 'center');
+  }, [matchIndices]);
+
+  const goToMatch = useCallback((dir: 1 | -1) => {
+    if (matchIndices.length === 0) return;
+    const next = (activeMatch + dir + matchIndices.length) % matchIndices.length;
+    setActiveMatch(next);
+    msgListRef.current?.scrollToIndex?.(matchIndices[next], 'center');
+  }, [activeMatch, matchIndices, msgListRef]);
+
   return {
     videoOpen, setVideoOpen,
     photoOpen, setPhotoOpen,
@@ -264,6 +302,7 @@ export function useChatPreviewState(
     filterEndDate, setFilterEndDate,
     showFilterMenu, setShowFilterMenu,
     showDateFilter, setShowDateFilter,
+    searchTypeFilter, setSearchTypeFilter,
     showComments, setShowComments,
     activePostId, setActivePostId,
     activeReactionPicker, setActiveReactionPicker,
@@ -291,6 +330,10 @@ export function useChatPreviewState(
     chatSavedMessages,
     chatScheduledMessages,
     flatItems,
+    matchCount: matchIndices.length,
+    activeMatch,
+    goToNextMatch: () => goToMatch(1),
+    goToPrevMatch: () => goToMatch(-1),
     scheduledQueue,
     stealthMode,
     setChatsStore,

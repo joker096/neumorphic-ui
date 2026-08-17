@@ -69,6 +69,16 @@ export const useCall = () => {
     setCall(callManager.getActiveCall());
   }, []);
 
+  const toggleSpeaker = useCallback(async () => {
+    await callManager.toggleSpeaker();
+    setCall(callManager.getActiveCall());
+  }, []);
+
+  const flipCamera = useCallback(async () => {
+    await callManager.flipCamera();
+    setCall(callManager.getActiveCall());
+  }, []);
+
   const changeCallType = useCallback(async (newType: CallType) => {
     const ok = await callManager.changeCallType(newType);
     if (ok) setCall(callManager.getActiveCall());
@@ -84,6 +94,8 @@ export const useCall = () => {
     toggleVideo,
     toggleScreenShare,
     toggleRecording,
-    changeCallType,
-  };
+  toggleSpeaker,
+  flipCamera,
+  changeCallType,
+};
 };

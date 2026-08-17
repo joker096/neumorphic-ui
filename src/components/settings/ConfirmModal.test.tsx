@@ -6,10 +6,10 @@ import { ConfirmModal } from './ConfirmModal';
 
 describe('ConfirmModal', () => {
   it('renders nothing when isOpen is false', () => {
-    const { container } = render(
+    render(
       <ConfirmModal isOpen={false} title="Test" onConfirm={vi.fn()} onCancel={vi.fn()} />
     );
-    expect(container.innerHTML).toBe('');
+    expect(screen.queryByText('Test')).not.toBeInTheDocument();
   });
 
   it('renders title and buttons when open', () => {

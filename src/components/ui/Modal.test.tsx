@@ -37,17 +37,17 @@ describe('Modal - additional tests', () => {
   });
 
   it('renders with correct z-index', () => {
-    const { container } = render(<Modal isOpen={true} onClose={vi.fn()}>{/* @ts-ignore */}<p>Content</p></Modal>);
-    expect(container.querySelector('[class*="z-"]') || container.querySelector('[class*="z-"]')?.closest('.fixed')).toBeInTheDocument();
+    render(<Modal isOpen={true} onClose={vi.fn()}>{/* @ts-ignore */}<p>Content</p></Modal>);
+    expect(document.querySelector('[class*="z-"]')).toBeInTheDocument();
   });
 
   it('renders with overflow-y-auto', () => {
-    const { container } = render(<Modal isOpen={true} onClose={vi.fn()}>{/* @ts-ignore */}<p>Content</p></Modal>);
-    expect(container.querySelector('[class*="overflow-y-auto"]') || container.querySelector('[class*="max-h-"]')).toBeInTheDocument();
+    render(<Modal isOpen={true} onClose={vi.fn()}>{/* @ts-ignore */}<p>Content</p></Modal>);
+    expect(document.querySelector('[class*="overflow-y-auto"]') || document.querySelector('[class*="max-h-"]')).toBeInTheDocument();
   });
 
   it('renders with animation', () => {
-    const { container } = render(<Modal isOpen={true} onClose={vi.fn()}>{/* @ts-ignore */}<p>Content</p></Modal>);
-    expect(container.querySelector('[class*="rounded-lg"]') || container.querySelector('[class*="shadow-2xl"]') || container.querySelector('[class*="border"]')).toBeInTheDocument();
+    render(<Modal isOpen={true} onClose={vi.fn()}>{/* @ts-ignore */}<p>Content</p></Modal>);
+    expect(document.querySelector('[class*="rounded-lg"]') || document.querySelector('[class*="shadow-2xl"]') || document.querySelector('[class*="border"]')).toBeInTheDocument();
   });
 });

@@ -46,32 +46,40 @@ export class WsTunnel {
   connect(url?: string): Promise<void> {
     this.url = url || this.url;
     this.status = 'connecting';
+    const timeoutMs = 10000;
     return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        try { this.ws?.close(); } catch {}
+        this.status = 'error';
+        reject(new Error(`WebSocket connect timeout after ${timeoutMs}ms`));
+      }, timeoutMs);
       try {
         this.ws = new WebSocket(this.url);
       } catch (err) {
+        clearTimeout(timer);
         this.status = 'error';
         reject(err);
         return;
       }
-      this.ws.onopen = () => {
+      const done = (fn: () => void) => () => { clearTimeout(timer); fn(); };
+      this.ws.onopen = done(() => {
         this.status = 'connected';
         if (this.onOpenCallback) this.onOpenCallback();
         resolve();
-      };
+      });
       this.ws.onmessage = (event) => {
         if (this.onMessageCallback) this.onMessageCallback(event.data);
       };
-      this.ws.onclose = () => {
+      this.ws.onclose = done(() => {
         this.status = 'disconnected';
         if (this.onCloseCallback) this.onCloseCallback();
-      };
-      this.ws.onerror = () => {
+      });
+      this.ws.onerror = done(() => {
         this.status = 'error';
         const err = new Error(`WebSocket connection failed for backend: ${this.backend}`);
         if (this.onErrorCallback) this.onErrorCallback(err);
         reject(err);
-      };
+      });
     });
   }
 

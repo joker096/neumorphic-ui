@@ -74,7 +74,7 @@ describe("IconButton", () => {
       <IconButton icon={<X />} aria-label="Close" isDark={false} variant="ghost" />,
     );
     const btn = screen.getByRole("button");
-    expect(btn.className).toContain("text-slate-500");
+    expect(btn.className).toContain("text-muted-foreground");
   });
 
   it("forwards title attribute", () => {

@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Bot, Hash, ListFilter, MessageCircle, Mic } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { AppModal } from "../ui/AppModal";
+import { modalPrimaryBtnClass, modalSecondaryBtnClass } from "../ui/modalShared";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -27,7 +28,7 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
           <div
             className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${
               filters[filter.id as keyof typeof filters]
-                ? "bg-orange-500 text-[var(--text-primary)]"
+                ? "bg-[var(--accent)] text-[var(--text-primary)]"
                 : isDark
                   ? "bg-[var(--bg-tertiary)] text-gray-400 group-hover:text-gray-200"
                   : "bg-slate-50 text-slate-500 group-hover:text-slate-700"
@@ -38,7 +39,7 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
           <span className={`text-sm font-bold flex-1 ${isDark ? "text-gray-300" : "text-slate-700"}`}>{filter.label}</span>
           <div
             className={`w-[44px] h-[24px] rounded-full p-1 transition-colors flex items-center ${
-              filters[filter.id as keyof typeof filters] ? "bg-orange-500" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-100"
+              filters[filter.id as keyof typeof filters] ? "bg-[var(--accent)]" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-100"
             }`}
           >
             <div
@@ -62,13 +63,13 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
     <div className="mt-8 flex gap-3">
       <button
         onClick={() => setFilters({ hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false })}
-        className={`flex-1 py-3 text-xs font-bold rounded-2xl transition-colors ${isDark ? "bg-[var(--bg-tertiary)] text-gray-400 hover:bg-white/5" : "bg-slate-50 text-slate-500 hover:bg-black/5"}`}
+        className={modalSecondaryBtnClass}
       >
         {t("chat.filters.reset")}
       </button>
       <button
         onClick={onClose}
-        className="flex-1 py-3 text-xs font-bold rounded-2xl bg-orange-500 text-[var(--text-primary)] transition-opacity hover:opacity-90 shadow-md"
+        className={modalPrimaryBtnClass}
       >
         {t("chat.filters.apply")}
       </button>

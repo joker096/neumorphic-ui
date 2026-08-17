@@ -1,5 +1,11 @@
 import { HMACAuth } from './HMACAuth'
 import { TrafficObfuscator } from '../transport/obfuscator'
+import {
+  generateX25519KeyPair,
+  buf2hex,
+  hex2buf,
+  deriveSharedHmacKey,
+} from '../crypto/cryptoCore'
 
 export interface CallMediaHandlers {
   onRemoteTrack: (peerId: string, stream: MediaStream) => void;
@@ -39,6 +45,7 @@ export class P2PTransport {
   private onDisconnected: P2PConnectionHandler
   private iceServers: RTCIceServer[]
   private hmacKey: string | null = null
+  private localDhPrivateKey: Uint8Array | null = null
   private isRelayOnly = false
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
@@ -131,7 +138,13 @@ export class P2PTransport {
 
   async call(peerPublicKey: string): Promise<void> {
     this.peerPublicKey = peerPublicKey
-    this.hmacKey = await HMACAuth.generateKey()
+
+    // Ephemeral ECDH key agreement: generate a one-time keypair and exchange the
+    // public key over signaling. The HMAC key is derived locally from the peer's
+    // public key + our private key, so the HMAC key itself is never transmitted.
+    const kp = generateX25519KeyPair()
+    this.localDhPrivateKey = kp.secretKey
+    const dhPub = buf2hex(kp.publicKey)
 
     this.createPeerConnection()
 
@@ -152,8 +165,19 @@ export class P2PTransport {
       type: 'offer',
       target: peerPublicKey,
       sdp: offer,
-      hmacKey: this.hmacKey,
+      dhPub,
     })
+  }
+
+  private async deriveHmacFromPeerDh(peerDhPubHex: string): Promise<string | null> {
+    if (!this.localDhPrivateKey) return null
+    try {
+      const peerKey = hex2buf(peerDhPubHex)
+      if (peerKey.length !== 32) return null
+      return await deriveSharedHmacKey(this.localDhPrivateKey, peerKey)
+    } catch {
+      return null
+    }
   }
 
   private setupCallControlChannel(): void {
@@ -216,6 +240,7 @@ export class P2PTransport {
     this.signalingWs = null
     this.peerPublicKey = null
     this.hmacKey = null
+    this.localDhPrivateKey = null
     this.pendingCandidates = []
     this.reconnectAttempts = 0
     this.outgoingStreams = [];
@@ -363,7 +388,6 @@ export class P2PTransport {
 
   private async handleOffer(msg: any): Promise<void> {
     this.peerPublicKey = msg.from
-    this.hmacKey = msg.hmacKey || null
 
     this.createPeerConnection()
 
@@ -372,12 +396,27 @@ export class P2PTransport {
     const answer = await this.peerConnection!.createAnswer()
     await this.peerConnection!.setLocalDescription(answer)
 
-    this.sendSignaling({
-      type: 'answer',
-      target: msg.from,
-      sdp: answer,
-      hmacKey: this.hmacKey,
-    })
+    // Derive the shared HMAC key from the caller's ephemeral DH public key.
+    // Fall back to the legacy transmitted key only if no DH public key present.
+    if (msg.dhPub) {
+      const ownKp = generateX25519KeyPair()
+      this.localDhPrivateKey = ownKp.secretKey
+      const myDhPub = buf2hex(ownKp.publicKey)
+      this.hmacKey = await this.deriveHmacFromPeerDh(msg.dhPub)
+      this.sendSignaling({
+        type: 'answer',
+        target: msg.from,
+        sdp: answer,
+        dhPub: myDhPub,
+      })
+    } else {
+      this.hmacKey = msg.hmacKey || null
+      this.sendSignaling({
+        type: 'answer',
+        target: msg.from,
+        sdp: answer,
+      })
+    }
 
     for (const c of this.pendingCandidates) {
       await this.peerConnection!.addIceCandidate(new RTCIceCandidate(c))
@@ -386,7 +425,9 @@ export class P2PTransport {
   }
 
   private async handleAnswer(msg: any): Promise<void> {
-    if (msg.hmacKey) {
+    if (msg.dhPub && this.localDhPrivateKey) {
+      this.hmacKey = await this.deriveHmacFromPeerDh(msg.dhPub)
+    } else if (msg.hmacKey) {
       this.hmacKey = msg.hmacKey
     }
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
-import { VideoPlayerOverlay } from "./chat/VideoPlayerOverlay";
-import { PhotoViewerOverlay } from "./PhotoViewer";
+import type { MediaItem } from "./MediaViewer";
+const LazyMediaViewer = React.lazy(() => import("./MediaViewer").then((m) => ({ default: m.MediaViewer })));
 
 import { ChannelCommentsView } from "./ChannelCommentsView";
 import { LiveVoiceRecorder } from "./LiveVoiceRecorder";
@@ -10,8 +10,11 @@ import { FormattedText } from "./chat-preview/FormattedText";
 import { Tooltip } from "./Tooltip";
 import { useI18n } from "../lib/i18n";
 import { ChatMessageList } from "./ChatMessageList";
+import { PinnedMessagesBar } from "./chat-preview/PinnedMessagesBar";
+import { MessageSelectionBar } from "./chat-preview/MessageSelectionBar";
 import { ContactProfileModal } from "./ContactProfileModal";
 import type { ContactProfile } from "./ContactProfileModal";
+const LazyChatProfileView = React.lazy(() => import("./ChatProfileView").then((m) => ({ default: m.ChatProfileView })));
 import { ChatHeader } from "./chat-preview/ChatHeader";
 import { SearchBar } from "./chat-preview/SearchBar";
 import { ReactionPicker } from "./chat-preview/ReactionPicker";
@@ -24,7 +27,9 @@ import { ScheduledMessages } from "./chat-preview/ScheduledMessages";
 import { JumpToBottomButton } from "./chat-preview/JumpToBottomButton";
 import { useChatPreviewState } from "../hooks/useChatPreviewState";
 import { useChatPreviewTyping } from "../hooks/useChatPreviewTyping";
+import { useChatMessageActions } from "../hooks/useChatMessageActions";
 import { useAppStore } from "../store";
+import { toast } from "./ui/Toast";
 
 interface ChatPreviewLayerProps {
   chat: any;
@@ -76,12 +81,37 @@ interface ChatPreviewLayerProps {
   onPermissionDenied?: (message: string) => void;
   onSendVoice?: (url: string, duration: string) => void;
   onToggleStickerPicker?: () => void;
+  onForward?: (msg: any) => void;
+  onDelete?: (msg: any) => void;
 }
 
-export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onHoldRecord, onReRecord, onPermissionDenied, onSendVoice, onToggleStickerPicker, }: ChatPreviewLayerProps) => {
+export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onHoldRecord, onReRecord, onPermissionDenied,   onSendVoice, onToggleStickerPicker, onForward, onDelete }: ChatPreviewLayerProps) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const isTyping = useChatPreviewTyping(chat.id, chat.online, chat.type);
+  const [profileOpen, setProfileOpen] = React.useState(false);
+  const pinnedMessageList = useAppStore((s) => s.pinnedMessageList);
+
+  const {
+    selectionMode,
+    selectedIds,
+    handleForwardMessage,
+    handleDeleteMessage,
+    handleEnterSelection,
+    handleToggleSelect,
+    handleSelectAll,
+    handleCancelSelection,
+    handleForwardSelected,
+    handleDeleteSelected,
+  } = useChatMessageActions({ chatId: chat.id, onForward, onDelete });
+
+  const handleJumpToPinned = (id: number) => {
+    const messages = (chat.messages || []) as any[];
+    const idx = messages.findIndex((m) => m.id === id);
+    if (idx >= 0 && msgListRef.current) {
+      (msgListRef.current as any).scrollToIndex?.(idx);
+    }
+  };
 
   const {
     videoOpen, setVideoOpen,
@@ -96,6 +126,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     filterStartDate, setFilterStartDate,
     filterEndDate, setFilterEndDate,
     showFilterMenu, setShowFilterMenu,
+    searchTypeFilter, setSearchTypeFilter,
     showComments, setShowComments,
     activePostId, setActivePostId,
     activeReactionPicker, setActiveReactionPicker,
@@ -121,6 +152,10 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     chatSavedMessages,
     chatScheduledMessages,
     flatItems,
+    matchCount,
+    activeMatch,
+    goToNextMatch,
+    goToPrevMatch,
     scheduledQueue,
     stealthMode,
   } = useChatPreviewState(
@@ -139,6 +174,11 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const setChannels = useAppStore(s => s.setChannels);
 
   const handleProfileClick = () => {
+    const groupish = chat.type === 'group' || chat.type === 'channel' || chat.type === 'bot' || chat.isChannel;
+    if (groupish) {
+      setProfileOpen(true);
+      return;
+    }
     const allContacts = useAppStore.getState().contacts;
     const profileContact = allContacts.find((ct: any) => ct.name === chat.name);
     setSelectedContact({
@@ -177,7 +217,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 ${
         isDark
-          ? "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] border border-orange-500/10"
+          ? "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] border border-[var(--accent)]/10"
           : "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)]"
       }`}
     >
@@ -188,6 +228,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onProfileClick={handleProfileClick}
         t={t}
         typing={isTyping}
+        onCall={onCall}
+        onVideoCall={onVideoCall}
         onSearchToggle={() => setShowSearch(prev => !prev)}
       />
 
@@ -197,6 +239,12 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         placeholder={t('chat.filters.searchPlaceholder')}
+        searchTypeFilter={searchTypeFilter}
+        onSearchTypeChange={setSearchTypeFilter}
+        matchCount={matchCount}
+        activeMatch={activeMatch}
+        onPrevMatch={goToPrevMatch}
+        onNextMatch={goToNextMatch}
       />
 
       <ChatMediaPanel
@@ -216,6 +264,26 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         setActivePhotoUrl={setActivePhotoUrl}
         setPhotoOpen={setPhotoOpen}
         t={t}
+      />
+
+      {selectionMode && (
+        <MessageSelectionBar
+          isDark={isDark}
+          count={selectedIds.size}
+          onCancel={handleCancelSelection}
+          onSelectAll={() => handleSelectAll(chat.messages || [])}
+          onForward={() => handleForwardSelected(chat.messages || [])}
+          onDelete={() => handleDeleteSelected(chat.messages || [])}
+        />
+      )}
+
+      <PinnedMessagesBar
+        chatId={chat.id}
+        messages={chat.messages || []}
+        pinnedMessages={pinnedMessageList}
+        isDark={isDark}
+        onUnpin={(id) => useAppStore.getState().removePinnedMessage(id)}
+        onJump={handleJumpToPinned}
       />
 
       <ChatMessageList
@@ -244,8 +312,14 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onSetBounceMsgId={setBounceMsgId}
         onReactionMessage={handleReactionMessage}
         onAction={onAction}
-        onScrollPosition={(nearBottom) => { setIsNearBottom(nearBottom); }}
-      />
+          onForward={handleForwardMessage}
+          onDelete={handleDeleteMessage}
+          selectionMode={selectionMode}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onSelect={handleEnterSelection}
+          onScrollPosition={(nearBottom) => { setIsNearBottom(nearBottom); }}
+        />
 
       <JumpToBottomButton
         isNearBottom={isNearBottom}
@@ -293,8 +367,19 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         t={t}
       />
 
-      <VideoPlayerOverlay open={videoOpen} onClose={() => setVideoOpen(false)} theme={theme} />
-      <PhotoViewerOverlay open={photoOpen} url={activePhotoUrl} onClose={() => setPhotoOpen(false)} theme={theme} />
+      {(photoOpen || videoOpen) && (
+        <React.Suspense fallback={null}>
+          <LazyMediaViewer
+            media={
+              photoOpen
+                ? { type: 'photo', url: activePhotoUrl ?? undefined, caption: chat.name }
+                : { type: 'video', caption: chat.name }
+            }
+            onClose={() => { setPhotoOpen(false); setVideoOpen(false); }}
+            isDark={isDark}
+          />
+        </React.Suspense>
+      )}
       <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} postKey="" channelChatId={chat?.id ? String(chat.id) : ""} />
       <SavedMessagesPanel show={showSavedPanel} isDark={isDark} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(chat, msg) => onToggleSavedMessage?.(chat, msg)} t={t} />
       <ContactProfileModal
@@ -312,6 +397,20 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
           if (chat) onUpdateChat?.({ ...chat, isFavorite });
         }}
       />
+
+      {profileOpen && (
+        <React.Suspense fallback={null}>
+          <LazyChatProfileView
+            open={profileOpen}
+            chat={chat}
+            isDark={isDark}
+            onClose={() => setProfileOpen(false)}
+            onMessage={() => setProfileOpen(false)}
+            onCall={onCall ? () => { onCall(chat.name, chat.color); setProfileOpen(false); } : undefined}
+            onVideoCall={onVideoCall ? () => { onVideoCall(chat.name, chat.color); setProfileOpen(false); } : undefined}
+          />
+        </React.Suspense>
+      )}
     </motion.div>
   );
 };

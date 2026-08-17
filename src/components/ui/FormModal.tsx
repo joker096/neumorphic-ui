@@ -1,7 +1,9 @@
 import React from 'react'
+import type { ComponentType, ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { X } from 'lucide-react'
-import type { ComponentType, ReactNode } from 'react'
+import { modalOverlay, modalBackdrop, modalSurface, modalCloseClass, type ModalTheme } from './modalShared'
 
 interface FormModalProps {
   isOpen: boolean
@@ -33,15 +35,17 @@ export const FormModal = ({
   closeTitle,
 }: FormModalProps) => {
   const isDark = theme === 'dark'
+  const resolvedTheme: ModalTheme = theme === 'light' ? 'light' : 'dark'
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          data-theme={resolvedTheme}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className={`fixed inset-0 ${zIndex} flex items-center justify-center bg-black/60 backdrop-blur-sm p-4`}
+          className={modalOverlay.replace('z-50', zIndex)}
           onClick={onClose}
         >
           <motion.div
@@ -49,21 +53,13 @@ export const FormModal = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className={`w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl relative ${
-              isDark
-                ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]'
-                : 'bg-white border border-[var(--border-color)]'
-            }`}
+            className={`${modalSurface(isDark, maxWidth)} relative`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={onClose}
               title={closeTitle}
-               className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${
-                 isDark
-                   ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]'
-                   : 'bg-black/5 hover:bg-black/10 text-slate-800'
-               }`}
+              className={`absolute top-4 right-4 z-10 ${modalCloseClass(isDark)}`}
             >
               <X size={18} />
             </button>
@@ -87,9 +83,7 @@ export const FormModal = ({
                   </h3>
                 )}
                 {subtitle && (
-                  <p className={`text-xs text-center mt-2 max-w-[260px] ${
-                    isDark ? 'text-gray-400' : 'text-slate-500'
-                  }`}>
+                  <p className={`text-xs text-center mt-2 max-w-[260px] text-[var(--text-secondary)]`}>
                     {subtitle}
                   </p>
                 )}
@@ -100,10 +94,7 @@ export const FormModal = ({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }
-
-
-
-

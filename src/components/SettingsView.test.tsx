@@ -107,6 +107,8 @@ vi.mock('../store', () => ({
 vi.mock('../lib/i18n', () => {
   const translations: Record<string, string> = {
     'settings.searchPlaceholder': 'Search settings...',
+    'settings.profile': 'Profile & Accounts',
+    'settings.profileSubtitle': 'Your identity and accounts',
     'settings.accountSection': 'Account',
     'settings.account': 'Account',
     'settings.accountSubtitle': 'Manage your accounts',
@@ -284,15 +286,15 @@ describe('SettingsView', () => {
     expect(screen.getByPlaceholderText('Search settings...')).toBeInTheDocument();
   });
 
-  it('shows Account section button in main settings', () => {
+  it('shows Profile & Accounts section button in main settings', () => {
     render(
     <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
       <SettingsView theme="dark" />
     </ThemeContext.Provider>
   );
 
-    expect(screen.getByText('Account')).toBeInTheDocument();
-    expect(screen.getByText('Manage your accounts')).toBeInTheDocument();
+    expect(screen.getByText('Profile & Accounts')).toBeInTheDocument();
+    expect(screen.getByText('Your identity and accounts')).toBeInTheDocument();
   });
 
   it('shows Appearance section', () => {
@@ -358,8 +360,9 @@ describe('SettingsView', () => {
     </ThemeContext.Provider>
   );
 
-    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="bg-[var(--bg-primary)]"]');
+    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="rounded-2xl"]');
     expect(container).toBeInTheDocument();
+    expect(container?.className).toContain('bg-[var(--bg-secondary)]');
   });
 
   it('applies light theme styles', () => {
@@ -369,7 +372,8 @@ describe('SettingsView', () => {
       </ThemeContext.Provider>
     );
 
-    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="bg-[var(--bg-secondary)]"]');
+    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="rounded-2xl"]');
     expect(container).toBeInTheDocument();
+    expect(container?.className).toContain('bg-white');
   });
 });

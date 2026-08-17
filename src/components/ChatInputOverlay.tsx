@@ -3,7 +3,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { BellOff, ChevronRight, Clock, Mic, Plus, Smile, X } from "lucide-react";
 import { LiveVoiceRecorder } from "./LiveVoiceRecorder";
 import { useI18n } from "../lib/i18n";
-import { encodeMorse } from "./MorseDecoder";
+import { CHAT_SEND_GRADIENT } from "../constants/chatConstants";
+import { encodeMorse, decodeIfMorse } from "./MorseDecoder";
 import { StickerPicker } from "./chat/StickerPicker";
 
 interface ChatInputOverlayProps {
@@ -106,10 +107,10 @@ export const ChatInputOverlay = ({
             exit={{ opacity: 0, y: 10 }}
             className={`w-full p-4 rounded-xl flex flex-col gap-3 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}
           >
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-bold uppercase tracking-widest text-orange-500">{t('chat.scheduleSend')}</span>
-              <X size={16} className={`cursor-pointer ${isDark ? "text-gray-400 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800"}`} onClick={() => { setShowSchedulePopup(false); setScheduleDateTime(""); }} />
-            </div>
+             <div className="flex justify-between items-center">
+               <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">{t('chat.scheduleSend')}</span>
+               <X size={16} className={`cursor-pointer ${isDark ? "text-gray-400 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800"}`} onClick={() => { setShowSchedulePopup(false); setScheduleDateTime(""); }} />
+             </div>
             <input
               type="datetime-local"
               value={scheduleDateTime}
@@ -118,20 +119,20 @@ export const ChatInputOverlay = ({
             />
             <div className="flex gap-2">
               <button onClick={() => { setScheduleDateTime(''); setShowSchedulePopup(false); }} className={`flex-1 py-2 text-xs font-bold rounded-lg ${isDark ? "bg-white/5 text-gray-400 hover:bg-white/10" : "bg-black/5 text-slate-500 hover:bg-black/10"}`}>{t('common.cancel')}</button>
-              <button onClick={() => setShowSchedulePopup(false)} disabled={!scheduleDateTime} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${!scheduleDateTime ? "opacity-50 cursor-not-allowed" : ""} ${isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600"}`}>{t('chat.setTime')}</button>
+               <button onClick={() => setShowSchedulePopup(false)} disabled={!scheduleDateTime} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${!scheduleDateTime ? "opacity-50 cursor-not-allowed" : ""} ${isDark ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "bg-[var(--accent)]/10 text-[var(--accent)]"}`}>{t('chat.setTime')}</button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {activeChat.isChannel ? (
-        <div className={`w-full py-2.5 rounded-xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${isDark ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-orange-400 border border-[var(--border-color)]" : "bg-white hover:bg-slate-50 text-orange-600 border border-[var(--border-color)] shadow-sm"}`} onClick={() => {
-          setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted });
-          setChannels(prev => prev.map(c => c.id === activeChat.id ? { ...c, isMuted: !activeChat.isMuted } : c) as any);
-        }}>
-          {activeChat.isMuted ? t('chat.filters.unmuteChannel') : t('chat.filters.muteChannel')}
-        </div>
-      ) : isRecordingVoice ? (
+         <div className={`w-full py-2.5 rounded-xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${isDark ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-[var(--accent)] border border-[var(--border-color)]" : "bg-white hover:bg-slate-50 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"}`} onClick={() => {
+           setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted });
+           setChannels(prev => prev.map(c => c.id === activeChat.id ? { ...c, isMuted: !activeChat.isMuted } : c) as any);
+         }}>
+           {activeChat.isMuted ? t('chat.filters.unmuteChannel') : t('chat.filters.muteChannel')}
+         </div>
+       ) : isRecordingVoice ? (
         <LiveVoiceRecorder
           isDark={isDark}
           onCancel={() => setIsRecordingVoice(false)}
@@ -167,11 +168,11 @@ export const ChatInputOverlay = ({
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all flex-shrink-0 relative z-0 ${isDark ? "bg-[var(--bg-secondary)] text-gray-400 group-hover:text-[var(--text-primary)] group-hover:bg-white/5" : "bg-[var(--bg-primary)] text-slate-500 group-hover:text-slate-800 group-hover:bg-slate-200"}`}><Plus size={18} /></div>
           </div>
 
-          <div title={t('chat.scheduleMessage')} onClick={() => setShowSchedulePopup(!showSchedulePopup)} className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${scheduleDateTime ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800 hover:bg-slate-200")} active:scale-95`}>
-            <Clock size={18} />
-          </div>
+           <div title={t('chat.scheduleMessage')} onClick={() => setShowSchedulePopup(!showSchedulePopup)} className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${scheduleDateTime ? (isDark ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "bg-[var(--accent)]/10 text-[var(--accent)]") : (isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800 hover:bg-slate-200")} active:scale-95`}>
+             <Clock size={18} />
+           </div>
 
-           <div title={t('stickers.title')} onClick={() => setShowStickerPicker(!showStickerPicker)} className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${showStickerPicker ? (isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-600") : (isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800 hover:bg-slate-200")} active:scale-95`}>
+            <div title={t('stickers.title')} onClick={() => setShowStickerPicker(!showStickerPicker)} className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${showStickerPicker ? (isDark ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "bg-[var(--accent)]/10 text-[var(--accent)]") : (isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800 hover:bg-slate-200")} active:scale-95`}>
               <Smile size={16} />
           </div>
 
@@ -195,7 +196,7 @@ export const ChatInputOverlay = ({
               }
             }}
             onContextMenu={(e) => e.preventDefault()}
-            className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${scheduleDateTime && messageText ? (isDark ? "bg-blue-600 text-[var(--text-primary)] shadow-md" : "bg-blue-500 text-[var(--text-primary)] shadow-md") : (messageText ? (isDark ? "bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[0_0_10px_rgba(249,115,22,0.5)]" : "bg-gradient-to-tr from-orange-400 to-orange-300 text-orange-950 shadow-md") : (isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20"))}`}>
+             className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${scheduleDateTime && messageText ? (isDark ? "bg-[var(--cyan)] text-[var(--bg-primary)] shadow-md" : "bg-[var(--cyan)] text-[var(--bg-primary)] shadow-md") : (messageText ? (isDark ? `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-[0_0_10px_rgba(111,127,255,0.5)]` : `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-md`) : (isDark ? "bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30" : "bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20"))}`}>
             {messageText ? (scheduleDateTime ? <Clock size={18} /> : <ChevronRight size={20} />) : <Mic size={20} />}
           </div>
           {replyTarget && (
@@ -205,7 +206,7 @@ export const ChatInputOverlay = ({
                   <ChevronRight size={10} className="rotate-180" />
                   {t('chat.replyingTo')} {replyTarget.sender === "me" ? t('chat.yourMessage') : replyTarget.sender}
                 </div>
-                <div className="text-[12px] truncate mt-0.5">{replyTarget.text || (replyTarget.type === "audio" ? `${t('chat.voiceNote')} ${replyTarget.duration || ""}` : replyTarget.type === "image" ? t('chat.photoAttachment') : t('chat.attachment'))}</div>
+                <div className="text-[12px] truncate mt-0.5">{replyTarget.text ? decodeIfMorse(replyTarget.text) : (replyTarget.type === "audio" ? `${t('chat.voiceNote')} ${replyTarget.duration || ""}` : replyTarget.type === "image" ? t('chat.photoAttachment') : t('chat.attachment'))}</div>
               </div>
               <button onClick={() => setReplyTarget(null)} className={`mt-0.5 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all active:scale-90 ${isDark ? "text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"}`}>
                 <X size={14} strokeWidth={2} />

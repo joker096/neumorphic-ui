@@ -1,5 +1,6 @@
 export { AdvancedFilterModal } from "./app/AdvancedFilterModal";
 
 export { LanguageSelector } from "./app/LanguageSelector";
-export { StoryViewerOverlay } from "./app/StoryViewerOverlay";
+export { StoryViewer } from "./stories/StoryViewer";
+export { StoryComposer } from "./stories/StoryComposer";
 export { ThemeToggle } from "./app/ThemeToggle";

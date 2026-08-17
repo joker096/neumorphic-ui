@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Phone, PhoneOff, Video, Mic } from 'lucide-react';
 import { useAnimationsEnabled } from '../../contexts/AnimationContext';
 import { useI18n } from '../../lib/i18n';
+import { CALL_AVATAR_GRADIENT } from '../../constants/callConstants';
 
 interface IncomingCallSheetProps {
   callerName: string;
@@ -14,29 +15,29 @@ interface IncomingCallSheetProps {
 
 function ActionButton({
   icon: Icon,
-  color,
+  tone,
   onClick,
   enabled,
   label,
 }: {
   icon: React.ElementType;
-  color: 'red' | 'green' | 'blue';
+  tone: 'reject' | 'accept' | 'video';
   onClick: () => void;
   enabled?: boolean;
   label: string;
 }) {
-  const colorMap = {
-    red: 'from-red-500 to-red-700 shadow-red-500/30',
-    green: 'from-green-500 to-green-700 shadow-green-500/30',
-    blue: 'from-blue-500 to-blue-700 shadow-blue-500/30',
+  const toneMap = {
+    reject: 'text-[var(--danger)]',
+    accept: 'text-[var(--success)]',
+    video: 'text-[var(--accent)]',
   };
 
   return (
     <motion.button
       onClick={onClick}
       whileTap={enabled ? { scale: 0.9 } : undefined}
-      whileHover={enabled ? { scale: 1.1 } : undefined}
-      className={`w-20 h-20 rounded-full bg-gradient-to-br ${colorMap[color]} text-[var(--text-primary)] flex items-center justify-center shadow-2xl transition-shadow hover:shadow-2xl`}
+      whileHover={enabled ? { scale: 1.08 } : undefined}
+      className={`w-20 h-20 rounded-full neo-circle ${toneMap[tone]} flex items-center justify-center`}
       title={label}
       aria-label={label}
     >
@@ -55,6 +56,18 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
   const enabled = useAnimationsEnabled();
   const { t } = useI18n();
   const callerInitial = callerName.charAt(0).toUpperCase() || t('call.unknownCaller').charAt(0).toUpperCase();
+  const [ringing, setRinging] = React.useState(0);
+
+  React.useEffect(() => {
+    const id = window.setInterval(() => setRinging((r) => r + 1), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const formatRinging = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
 
   return (
     <motion.div
@@ -62,9 +75,9 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
       animate={enabled ? { opacity: 1 } : undefined}
       exit={enabled ? { opacity: 0 } : undefined}
       transition={enabled ? { duration: 0.3, ease: [0.16, 1, 0.3, 1] } : undefined}
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-gradient-to-b from-zinc-900 via-black to-black"
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[var(--bg-primary)]"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(249,115,22,0.08)_0%,_transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--accent-soft)_0%,_transparent_65%)] pointer-events-none" />
 
       <div className="flex-1 flex flex-col items-center justify-center relative z-10">
         <motion.div
@@ -73,17 +86,15 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
           transition={enabled ? { duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] } : undefined}
           className="relative mb-8"
         >
-          <div className="w-36 h-36 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-2xl shadow-orange-500/20">
-            <span className="text-6xl font-bold text-[var(--text-primary)] drop-shadow-lg">
-              {callerInitial}
-            </span>
+          <div className="absolute -inset-4 rounded-full bg-[var(--accent)]/15 animate-pulse" />
+          <div className="absolute -inset-8 rounded-full bg-[var(--accent)]/10 animate-pulse" style={{ animationDelay: '0.4s' }} />
+          <div className="neo-raised w-40 h-40 rounded-full flex items-center justify-center">
+            <div className={`w-32 h-32 rounded-full ${CALL_AVATAR_GRADIENT} flex items-center justify-center`}>
+              <span className="text-6xl font-bold text-white drop-shadow-lg">
+                {callerInitial}
+              </span>
+            </div>
           </div>
-          {enabled && (
-            <>
-              <div className="absolute -inset-3 rounded-full bg-orange-500/10 animate-pulse" />
-              <div className="absolute -inset-6 rounded-full bg-orange-500/5 animate-pulse" style={{ animationDelay: '0.4s' }} />
-            </>
-          )}
         </motion.div>
 
         <motion.div
@@ -92,17 +103,17 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
           transition={enabled ? { duration: 0.4, delay: 0.25 } : undefined}
           className="text-center"
         >
-          <h2 className="text-4xl font-bold text-[var(--text-primary)] mb-3 drop-shadow-lg tracking-tight">
+          <h2 className="text-4xl font-bold text-[var(--text-primary)] mb-3 tracking-tight">
             {callerName}
           </h2>
           <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full neo-raised-sm">
               {callType === 'video' ? (
-                <Video size={16} className="text-blue-400" />
+                <Video size={16} className="text-[var(--accent)]" />
               ) : (
-                <Mic size={16} className="text-orange-400" />
+                <Mic size={16} className="text-[var(--accent)]" />
               )}
-              <span className="text-white/70 text-sm font-medium">
+              <span className="text-[var(--text-secondary)] text-sm font-medium">
                 {callType === 'video' ? t('call.videoCall') : t('call.voiceCall')}
               </span>
             </div>
@@ -110,9 +121,9 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
           <motion.p
             animate={enabled ? { opacity: [0.4, 0.8, 0.4] } : undefined}
             transition={enabled ? { duration: 2, repeat: Infinity } : undefined}
-            className="text-white/40 text-sm mt-4 font-medium tracking-wide"
+            className="text-[var(--text-tertiary)] text-sm mt-4 font-medium tracking-wide"
           >
-            {t('call.incomingCall')}
+            {t('call.incomingCall')} · {formatRinging(ringing)}
           </motion.p>
         </motion.div>
       </div>
@@ -123,12 +134,12 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
         transition={enabled ? { duration: 0.4, delay: 0.35 } : undefined}
         className="h-44 flex items-center justify-center gap-12 px-6 relative z-10"
       >
-        <ActionButton icon={PhoneOff} color="red" onClick={onReject} enabled={enabled} label={t('call.rejectCall')} />
+        <ActionButton icon={PhoneOff} tone="reject" onClick={onReject} enabled={enabled} label={t('call.rejectCall')} />
 
         <div className="flex flex-col gap-3">
-          <ActionButton icon={Phone} color="green" onClick={onAccept} enabled={enabled} label={t('call.acceptCall')} />
+          <ActionButton icon={Phone} tone="accept" onClick={onAccept} enabled={enabled} label={t('call.acceptCall')} />
           {onAcceptVideo && (
-            <ActionButton icon={Video} color="blue" onClick={onAcceptVideo} enabled={enabled} label={t('call.acceptVideoCall')} />
+            <ActionButton icon={Video} tone="video" onClick={onAcceptVideo} enabled={enabled} label={t('call.acceptVideoCall')} />
           )}
         </div>
       </motion.div>

@@ -1,5 +1,5 @@
 import * as nacl from 'tweetnacl'
-import type { X25519KeyPair, EncryptedPayload, HandshakeResult, EncryptResult } from './types'
+import type { X25519KeyPair, EncryptedPayload } from './types'
 
 export function b64encode(data: Uint8Array): string {
   const chunks: string[] = []
@@ -66,6 +66,18 @@ export function x25519DH(privateKey: Uint8Array, publicKey: Uint8Array): Uint8Ar
   return nacl.scalarMult(privateKey, publicKey)
 }
 
+/**
+ * Derive a shared HMAC key from an X25519 ECDH exchange.
+ * The raw ECDH shared secret is run through a KDF (SHA-512 via tweetnacl) so the
+ * resulting key has no residual algebraic structure. Both peers derive the same
+ * key from their own private key + the peer's public key, so the key is never
+ * transmitted over the wire.
+ */
+export function deriveSharedHmacKey(privateKey: Uint8Array, publicKey: Uint8Array): string {
+  const shared = x25519DH(privateKey, publicKey)
+  return buf2hex(nacl.hash(shared))
+}
+
 export class KyberKEM {
   static async generateKeyPair(): Promise<{ publicKey: Uint8Array; secretKey: Uint8Array }> {
     const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js')
@@ -115,105 +127,6 @@ export class KyberKEM {
 }
 
 export class CryptoCore {
-  private identityKeys: X25519KeyPair | null = null
-  private keyRotationCount = 0
-  private forwardSecrecyKeys: Map<string, CryptoKey> = new Map()
-
-  async initialize(): Promise<void> {
-    this.identityKeys = generateX25519KeyPair()
-    this.keyRotationCount = 0
-  }
-
-  async generateIdentityKeys(): Promise<{ publicKey: string; privateKey: string; timestamp: number }> {
-    this.identityKeys = generateX25519KeyPair()
-    return {
-      publicKey: b64encode(this.identityKeys.publicKey),
-      privateKey: b64encode(this.identityKeys.secretKey),
-      timestamp: Date.now(),
-    }
-  }
-
-  async performHandshake(remotePublicKey: string): Promise<HandshakeResult> {
-    if (!this.identityKeys) throw new Error('Identity keys not generated')
-    const remoteKey = b64decode(remotePublicKey)
-    const sharedSecret = x25519DH(this.identityKeys.secretKey, remoteKey)
-    return {
-      sharedSecret: b64encode(sharedSecret),
-      handshakeId: crypto.randomUUID(),
-    }
-  }
-
-  async encryptMessage(message: string, sharedSecret: Uint8Array): Promise<EncryptResult> {
-    const key = await crypto.subtle.importKey('raw', sharedSecret, 'AES-GCM', false, ['encrypt'])
-    const iv = crypto.getRandomValues(new Uint8Array(12))
-    const messageBuffer = new TextEncoder().encode(message)
-    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, messageBuffer)
-    return {
-      ciphertext: buf2hex(ciphertext),
-      iv: buf2hex(iv),
-      tag: '',
-      publicKey: '',
-    }
-  }
-
-  async decryptMessage(ciphertext: string, iv: string, sharedSecret: Uint8Array): Promise<string> {
-    const key = await crypto.subtle.importKey('raw', sharedSecret, 'AES-GCM', false, ['decrypt'])
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: hex2buf(iv) }, key, hex2buf(ciphertext))
-    return new TextDecoder().decode(decrypted)
-  }
-
-  async rotateKeys(): Promise<{ newPublicKey: string; newPrivateKey: string; rotationCount: number }> {
-    this.identityKeys = generateX25519KeyPair()
-    this.keyRotationCount++
-    return {
-      newPublicKey: b64encode(this.identityKeys.publicKey),
-      newPrivateKey: b64encode(this.identityKeys.secretKey),
-      rotationCount: this.keyRotationCount,
-    }
-  }
-
-  /**
-   * Create a forward secrecy key for message encryption
-   */
-  async createForwardSecrecyKey(): Promise<{ keyId: string; key: CryptoKey }> {
-    const keyId = crypto.randomUUID()
-    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
-    this.forwardSecrecyKeys.set(keyId, key)
-    return { keyId, key }
-  }
-
-  /**
-   * Delete forward secrecy key (forward secrecy)
-   */
-  async deleteForwardSecrecyKey(keyId: string): Promise<void> {
-    this.forwardSecrecyKeys.delete(keyId)
-  }
-
-  /**
-   * Get forward secrecy key by ID
-   */
-  getForwardSecrecyKey(keyId: string): CryptoKey | null {
-    return this.forwardSecrecyKeys.get(keyId) || null
-  }
-
-  /**
-   * Derive HKDF key from master key
-   */
-  async deriveHKDF(
-    ikm: ArrayBuffer,
-    info: ArrayBuffer = new Uint8Array(0).buffer,
-    salt: ArrayBuffer = new Uint8Array(32).buffer,
-    length = 32,
-  ): Promise<ArrayBuffer> {
-    const keyMaterial = await crypto.subtle.importKey('raw', ikm, { name: 'PBKDF2' }, false, ['deriveBits'])
-    const infoArr = new Uint8Array(info)
-    const saltArr = new Uint8Array(salt)
-    const combinedSalt = new Uint8Array(saltArr.length + infoArr.length)
-    combinedSalt.set(saltArr, 0)
-    combinedSalt.set(infoArr, saltArr.length)
-    return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: combinedSalt, iterations: 1 }, keyMaterial, length * 8)
-  }
-
   async deriveAESKeyFromPassword(
     password: string, saltHex?: string, iterations = 100000,
   ): Promise<{ key: CryptoKey; saltHex: string }> {
@@ -263,19 +176,6 @@ export class CryptoCore {
     return { hash: buf2hex(hash), saltHex: saltHex || buf2hex(salt) }
   }
 
-  async generateHMAC(key: CryptoKey, data: string): Promise<string> {
-    const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data))
-    return buf2hex(signature)
-  }
-
-  async verifyHMAC(key: CryptoKey, data: string, signatureHex: string): Promise<boolean> {
-    return crypto.subtle.verify('HMAC', key, hex2buf(signatureHex), new TextEncoder().encode(data))
-  }
-
-  async importHMACKey(rawKeyHex: string): Promise<CryptoKey> {
-    return crypto.subtle.importKey('raw', hex2buf(rawKeyHex), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify'])
-  }
-
   signEd25519(privateKey: Uint8Array, message: string): Uint8Array {
     const msgBuf = new TextEncoder().encode(message)
     return nacl.sign.detached(msgBuf, privateKey)
@@ -294,23 +194,6 @@ export class CryptoCore {
 
   async secureWipe(): Promise<void> {
     try {
-      // Zero out identity key material before dropping the reference
-      if (this.identityKeys) {
-        const len = this.identityKeys.publicKey.length
-        const zeroed = new Uint8Array(len)
-        // Write zero bytes over the key bytes before nulling the reference
-        for (let i = 0; i < len; i++) {
-          this.identityKeys.publicKey[i] = 0
-          this.identityKeys.secretKey[i] = 0
-          zeroed[i] = 0
-        }
-        this.identityKeys = null
-      }
-      this.keyRotationCount = 0
-      this.forwardSecrecyKeys.clear()
-    } catch { /* noop */ }
-
-    try {
       // Delete all IndexedDB databases
       let dbs: IDBDatabaseInfo[] = []
       if (window.indexedDB.databases) {
@@ -318,7 +201,6 @@ export class CryptoCore {
           dbs = await window.indexedDB.databases()
         } catch { /* noop */ }
       }
-      // Delete each database
       for (const db of dbs) {
         if (db.name) {
           await new Promise<void>((resolve) => {
@@ -346,7 +228,6 @@ export class CryptoCore {
       } catch { /* noop */ }
     }
 
-    // Properly clear localStorage and sessionStorage
     try {
       localStorage.clear()
     } catch { /* noop */ }
@@ -354,7 +235,6 @@ export class CryptoCore {
       sessionStorage.clear()
     } catch { /* noop */ }
 
-    // Reload to clear any in-memory state
     window.location.reload()
   }
 }

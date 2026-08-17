@@ -7,6 +7,7 @@ import {
   getTranslationWithFallback,
   detectBrowserLanguage,
   preloadLocales,
+  loadLocale,
   I18nProvider,
   useI18n,
 } from './i18n';
@@ -63,7 +64,8 @@ describe('getTranslation', () => {
 });
 
 describe('getTranslationWithFallback', () => {
-  it('should return target locale translation when key exists', () => {
+  it('should return target locale translation when key exists', async () => {
+    await loadLocale('ru');
     expect(getTranslationWithFallback('chat.archive', 'ru')).toBe('Архив');
   });
 
@@ -82,7 +84,8 @@ describe('getTranslationWithFallback', () => {
     expect(result).toBe('Archive');
   });
 
-  it('should fall back to English for nested objects', () => {
+  it('should fall back to English for nested objects', async () => {
+    await loadLocale('de');
     const result = getTranslationWithFallback('settings.visibility.none', 'de');
     expect(result).toBe('Niemand');
   });
@@ -121,21 +124,21 @@ describe('t function (interpolation)', () => {
 });
 
 describe('t function (language switching)', () => {
-  it('should return Russian translation after switching language', () => {
+  it('should return Russian translation after switching language', async () => {
     const { result } = renderHook(() => useI18n(), { wrapper: I18nProvider });
-    act(() => { result.current.setLang('ru'); });
+    await act(async () => { await result.current.setLang('ru'); });
     expect(result.current.t('chat.archive')).toBe('Архив');
   });
 
-  it('should return Japanese translation after switching language', () => {
+  it('should return Japanese translation after switching language', async () => {
     const { result } = renderHook(() => useI18n(), { wrapper: I18nProvider });
-    act(() => { result.current.setLang('ja'); });
+    await act(async () => { await result.current.setLang('ja'); });
     expect(result.current.t('chat.archive')).toBe('アーカイブ');
   });
 
-  it('should return Chinese translation after switching language', () => {
+  it('should return Chinese translation after switching language', async () => {
     const { result } = renderHook(() => useI18n(), { wrapper: I18nProvider });
-    act(() => { result.current.setLang('zh'); });
+    await act(async () => { await result.current.setLang('zh'); });
     expect(result.current.t('chat.archive')).toBe('归档');
   });
 
@@ -195,12 +198,19 @@ describe('detectBrowserLanguage', () => {
 });
 
 describe('preloadLocales', () => {
-  it('should load all 8 locales without errors', async () => {
-    await expect(preloadLocales()).resolves.toBeUndefined();
+  it('should load the active language and English without errors', async () => {
+    await expect(preloadLocales('ru')).resolves.toBeUndefined();
   });
 
-  it('should make translations available for all 8 locales', () => {
+  it('should make translations available for the preloaded locales', async () => {
+    await preloadLocales('ru');
+    expect(getTranslation('chat.archive', 'ru')).toBe('Архив');
+    expect(getTranslation('chat.archive', 'en')).toBe('Archive');
+  });
+
+  it('should make every supported locale available once loaded', async () => {
     const locales = ['en', 'ru', 'de', 'es', 'fr', 'zh', 'ja', 'ko'];
+    await Promise.all(locales.map((l) => loadLocale(l)));
     for (const lang of locales) {
       const result = getTranslation('chat.archive', lang);
       expect(result).not.toBe('chat.archive');
@@ -208,8 +218,8 @@ describe('preloadLocales', () => {
   });
 
   it('should handle duplicate preloadLocales calls', async () => {
-    await preloadLocales();
-    await expect(preloadLocales()).resolves.toBeUndefined();
+    await preloadLocales('ru');
+    await expect(preloadLocales('ru')).resolves.toBeUndefined();
   });
 });
 
@@ -231,10 +241,10 @@ describe('I18nProvider', () => {
     expect(localStorage.getItem('app_language')).toBe('es');
   });
 
-  it('should re-render with new translations after language change', () => {
+  it('should re-render with new translations after language change', async () => {
     const { result } = renderHook(() => useI18n(), { wrapper: I18nProvider });
     expect(result.current.t('common.delete')).toBe('Delete');
-    act(() => { result.current.setLang('ru'); });
+    await act(async () => { await result.current.setLang('ru'); });
     expect(result.current.t('common.delete')).toBe('Удалить');
   });
 

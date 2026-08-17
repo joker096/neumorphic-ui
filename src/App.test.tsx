@@ -39,13 +39,6 @@ vi.mock('../../hooks/useAppLock', () => ({
   })),
 }));
 
-vi.mock('../../hooks/useConnectionSetup', () => ({
-  useConnectionSetup: vi.fn(() => ({
-    connectionStatus: 'connected',
-    regionBlocked: false,
-  })),
-}));
-
 vi.mock('../../hooks/useChatInteraction', () => ({
   useChatInteraction: vi.fn(() => ({
     messageText: '',
@@ -166,26 +159,6 @@ vi.mock('../../hooks/useCall', () => ({
     toggleScreenShare: vi.fn(),
     toggleRecording: vi.fn(),
     changeCallType: vi.fn(),
-  })),
-}));
-
-vi.mock('../../hooks/useConnection', () => ({
-  useConnection: vi.fn(() => ({
-    connected: true,
-    connect: vi.fn(),
-    disconnect: vi.fn(),
-    reconnect: vi.fn(),
-  })),
-}));
-
-vi.mock('../../hooks/useConnectionSetup', () => ({
-  useConnectionSetup: vi.fn(() => ({
-    connectionStatus: 'connected',
-    regionBlocked: false,
-    signalServer: '',
-    setSignalServer: vi.fn(),
-    setConnectionStatus: vi.fn(),
-    setRegionBlocked: vi.fn(),
   })),
 }));
 

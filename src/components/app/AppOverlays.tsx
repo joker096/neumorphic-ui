@@ -24,18 +24,21 @@ type AppOverlaysProps = {
   setActiveChat: (chat: any | null) => void;
   editingContact: any | null;
   setEditingContact: (contact: any | null) => void;
+  showAddContactFromChat: boolean;
+  setShowAddContactFromChat: (show: boolean) => void;
+  onAddContactFromChat: (name: string, id: string, color?: string, localFields?: any[]) => void;
   contacts: any[];
   setContacts: (contacts: any[]) => void;
   chats: any[];
   setChats: (chats: any[]) => void;
-  t: (key: string, options?: any) => string;
+  t: (key: string, options?: string) => string;
   onProfileCall: () => void;
   onProfileVideoCall: () => void;
   onProfileMessage: () => void;
   onProfileDelete: () => void;
   onProfileEdit: () => void;
-  onProfileBlock: () => void;
-  onProfileToggleFavorite: (id: string, isFavorite: boolean) => void;
+   onProfileBlock: () => void;
+   onProfileToggleFavorite: (id: string, isFavorite: boolean) => void;
 };
 
 export const AppOverlays = ({
@@ -55,6 +58,9 @@ export const AppOverlays = ({
   setActiveChat,
   editingContact,
   setEditingContact,
+  showAddContactFromChat,
+  setShowAddContactFromChat,
+  onAddContactFromChat,
   contacts,
   setContacts,
   chats,
@@ -114,6 +120,16 @@ export const AppOverlays = ({
                 setContacts([...contacts, { name, id, color: color || 'from-blue-400 to-indigo-500', lastSeen: Date.now(), localFields } as any]);
               }
               setEditingContact(null);
+            }}
+          />
+        )}
+        {showAddContactFromChat && !editingContact && (
+          <ContactCreateEditModal
+            contact={null}
+            isDark={isDark}
+            onClose={() => setShowAddContactFromChat(false)}
+            onSave={(name: string, id: string, color?: string, localFields?: any[]) => {
+              onAddContactFromChat?.(name, id, color, localFields);
             }}
           />
         )}

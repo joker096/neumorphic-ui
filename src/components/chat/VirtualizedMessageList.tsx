@@ -23,7 +23,7 @@ export function VirtualizedMessageListInner<T>(
     onScrollPosition,
     stickToBottom = false,
   }: VirtualizedMessageListProps<T>,
-  ref: React.Ref<{ scrollToBottom: () => void }>
+  ref: React.Ref<{ scrollToBottom: () => void; scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') => void }>
 ) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -38,6 +38,11 @@ export function VirtualizedMessageListInner<T>(
     scrollToBottom: () => {
       if (items.length > 0) {
         virtualizer.scrollToIndex(items.length - 1, { align: 'end' });
+      }
+    },
+    scrollToIndex: (index: number, align: 'start' | 'center' | 'end' = 'center') => {
+      if (index >= 0 && index < items.length) {
+        virtualizer.scrollToIndex(index, { align });
       }
     },
   }), [virtualizer, items.length]);
@@ -101,5 +106,5 @@ export function VirtualizedMessageListInner<T>(
 }
 
 export const VirtualizedMessageList = React.forwardRef(VirtualizedMessageListInner) as <T>(
-  props: VirtualizedMessageListProps<T> & { ref?: React.Ref<{ scrollToBottom: () => void }> }
+  props: VirtualizedMessageListProps<T> & { ref?: React.Ref<{ scrollToBottom: () => void; scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') => void }> }
 ) => React.ReactElement;

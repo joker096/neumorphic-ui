@@ -17,7 +17,7 @@ describe('SafeRender', () => {
 
   it('catches errors and shows default fallback', () => {
     render(<SafeRender><BadChild /></SafeRender>);
-    expect(screen.getByText('error.somethingWentWrong')).toBeInTheDocument();
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
   });
 
   it('uses custom fallback when provided', () => {

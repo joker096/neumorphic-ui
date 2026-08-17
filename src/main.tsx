@@ -2,11 +2,12 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { useAppStore } from "./store";
-import { I18nProvider, preloadLocales } from "./lib/i18n";
+import { I18nProvider } from "./lib/i18n";
 import { ErrorBoundary } from "./components/resilience";
 import { initPerformanceMonitoring } from "./lib/performance";
 import { AnimationProvider } from "./contexts/AnimationContext";
+import { preloadICQTheme } from "./lib/emojiCache";
+import { preloadICQSounds } from "./lib/soundCache";
 
 type ErrorHandler = {
   lastError: Error | null;
@@ -50,19 +51,19 @@ const installRuntimeGuards = () => {
   });
 };
 
-const bootstrap = async () => {
+const getInitialTheme = (): 'light' | 'dark' => {
   try {
-    await preloadLocales();
-  } catch (e) {
-    console.error("[Bootstrap] Failed to initialize storage keys", e);
-    // Continue anyway — app should still work with in-memory state
-  }
+    const saved = localStorage.getItem('app_theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+  } catch {}
+  return document.documentElement.classList.contains('dark') ? 'dark' : 'dark';
+};
 
+const bootstrap = async () => {
   installRuntimeGuards();
 
   initPerformanceMonitoring();
 
-  // Register service worker for offline support
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker
@@ -84,6 +85,18 @@ const bootstrap = async () => {
       </ErrorBoundary>
     </StrictMode>,
   );
+
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(() => Promise.all([
+      preloadICQTheme(getInitialTheme()),
+      preloadICQSounds(),
+    ]), { timeout: 4000 });
+  } else {
+    setTimeout(() => Promise.all([
+      preloadICQTheme(getInitialTheme()),
+      preloadICQSounds(),
+    ]), 0);
+  }
 };
 
 bootstrap();

@@ -39,6 +39,7 @@ export interface UserProfile {
   name: string;
   bio?: string;
   avatar?: string;
+  avatarColor?: string;
   fields?: Array<{
     type: string;
     value: string;

@@ -5,6 +5,7 @@ import { useI18n } from '../../lib/i18n';
 interface AvatarRowProps {
   theme?: 'light' | 'dark';
   onStoryClick?: (story: any) => void;
+  onComposeStory?: () => void;
 }
 
 interface ContactData {
@@ -13,7 +14,7 @@ interface ContactData {
   color: string;
 }
 
-export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryClick }) => {
+export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryClick, onComposeStory }) => {
   const { t } = useI18n();
   const isDark = theme === 'dark';
   
@@ -27,15 +28,18 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryCli
 
   return (
     <div className="flex flex-col w-full overflow-visible mb-2 pt-2 pb-1 bg-transparent shrink-0">
-      <div className={`px-4 mb-2 font-mono text-[9px] uppercase tracking-widest font-bold ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{t('header.stories')}</div>
+      <div className={`px-4 mb-2 font-mono text-[9px] uppercase tracking-widest font-bold text-[var(--text-tertiary)]`}>{t('header.stories')}</div>
       <div className="flex items-center gap-4 px-3 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
-        <div className="flex flex-col items-center gap-2 group cursor-pointer shrink-0">
-          <div className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-95 ${
-            isDark ? 'bg-[#1f222a] border border-[var(--border-color)] border-dashed' : 'bg-[var(--bg-primary)] border border-[var(--border-color)] border-dashed'
+        <div
+          onClick={() => onComposeStory && onComposeStory()}
+          className="flex flex-col items-center gap-2 group cursor-pointer shrink-0"
+        >
+          <div           className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-95 ${
+            isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)] border-dashed' : 'bg-[var(--bg-primary)] border border-[var(--border-color)] border-dashed'
           }`}>
-            <Plus size={24} className={isDark ? 'text-gray-400 group-hover:text-[var(--text-primary)]' : 'text-slate-500 group-hover:text-[var(--text-secondary)]'} />
+            <Plus size={24} className="text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" />
           </div>
-          <span className={`text-[10px] font-semibold tracking-wide transition-colors ${isDark ? 'text-gray-400 group-hover:text-gray-200' : 'text-slate-500 group-hover:text-slate-800'}`}>
+          <span className={`text-[10px] font-semibold tracking-wide transition-colors text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]`}>
             {t('header.myStory')}
           </span>
         </div>
@@ -49,9 +53,9 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryCli
             <div
               className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-95 ${
                 isDark
-                  ? 'bg-[var(--bg-secondary)] shadow-[0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border-[2px] border-orange-500/50'
-                  : 'bg-[var(--bg-secondary)] shadow-[4px_4px_8px_rgba(165,175,190,0.3),_-4px_-4px_8px_rgba(255,255,255,0.8),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border-[2px] border-orange-400'
-              }`}
+                  ? 'bg-[var(--bg-secondary)] shadow-[0_6px_12px_rgba(0,0,0,0.3),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.6)] border-[2px] border-[var(--accent)]/50'
+                  : 'bg-[var(--bg-secondary)] shadow-[4px_4px_8px_rgba(165,175,190,0.3),_-4px_-4px_8px_rgba(255,255,255,0.8),_inset_1.5px_1.5px_2px_rgba(255,255,255,1)] border-[2px] border-[var(--accent)]'
+                }`}
             >
               <div className="w-[85%] h-[85%] rounded-full shadow-inner overflow-hidden p-[2px]">
                 <div
@@ -62,7 +66,7 @@ export const AvatarRow: React.FC<AvatarRowProps> = ({ theme = 'dark', onStoryCli
               </div>
             </div>
             <span
-              className={`text-[10px] font-semibold tracking-wide transition-colors ${isDark ? 'text-gray-400 group-hover:text-gray-200' : 'text-slate-500 group-hover:text-slate-800'}`}
+              className={`text-[10px] font-semibold tracking-wide transition-colors text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]`}
             >
               {c.name}
             </span>

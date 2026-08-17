@@ -6,10 +6,17 @@ interface SettingsCardProps {
   children: ReactNode;
   isDark: boolean;
   className?: string;
+  onClick?: () => void;
 }
 
-export const SettingsCard = ({ children, isDark, className = '' }: SettingsCardProps) => (
-  <div className={`rounded-xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"} overflow-hidden ${className}`}>
+export const SettingsCard = ({ children, isDark, className = '', onClick }: SettingsCardProps) => (
+  <div
+    onClick={onClick}
+    role={onClick ? 'button' : undefined}
+    tabIndex={onClick ? 0 : undefined}
+    onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+    className={`rounded-xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"} overflow-hidden ${onClick ? "cursor-pointer active:scale-[0.99]" : ""} ${className}`}
+  >
     {children}
   </div>
 );
@@ -28,7 +35,7 @@ interface SettingsNavItemProps {
 export const SettingsNavItem = ({ icon, iconBg, title, subtitle, isDark, onClick, rightElement, className = '' }: SettingsNavItemProps) => (
   <div
     onClick={onClick}
-    className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors hover:opacity-80 ${className}`}
+    className={`flex items-center gap-3 px-4 py-3 min-h-[44px] cursor-pointer transition-colors hover:opacity-80 ${className}`}
   >
     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg || ''}`}>
       {icon}

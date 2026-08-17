@@ -65,25 +65,25 @@ describe('OnboardingPanel', () => {
   it('renders icon with orange background in dark theme', () => {
     const { container } = render(<OnboardingPanel isDark={true} t={mockT} />);
     const iconContainer = container.querySelector('.w-20.h-20');
-    expect(iconContainer?.className).toContain('bg-orange-500/10');
+    expect(iconContainer?.className).toContain('bg-[var(--accent-soft)]');
   });
 
   it('renders icon with orange background in light theme', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
     const iconContainer = container.querySelector('.w-20.h-20');
-    expect(iconContainer?.className).toContain('bg-orange-500/8');
+    expect(iconContainer?.className).toContain('bg-[var(--accent-soft)]');
   });
 
-  it('renders with orange icon color in dark theme', () => {
+  it('renders with accent icon color in dark theme', () => {
     const { container } = render(<OnboardingPanel isDark={true} t={mockT} />);
     const svg = container.querySelector('svg');
-    expect(svg?.getAttribute('class')).toContain('text-orange-400');
+    expect(svg?.getAttribute('class')).toContain('text-[var(--accent)]');
   });
 
-  it('renders with orange icon color in light theme', () => {
+  it('renders with accent icon color in light theme', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
     const svg = container.querySelector('svg');
-    expect(svg?.getAttribute('class')).toContain('text-orange-600');
+    expect(svg?.getAttribute('class')).toContain('text-[var(--accent)]');
   });
 
   it('renders with heading size text-xl', () => {
@@ -117,15 +117,15 @@ describe('OnboardingPanel', () => {
     expect(description).toBeInTheDocument();
   });
 
-  it('renders description with gray text in dark theme', () => {
+  it('renders description with secondary text token', () => {
     const { container } = render(<OnboardingPanel isDark={true} t={mockT} />);
-    const description = container.querySelector('[class*="text-gray-400"]');
+    const description = container.querySelector('[class*="text-[var(--text-secondary)]"]');
     expect(description).toBeInTheDocument();
   });
 
-  it('renders description with slate-500 text in light theme', () => {
+  it('renders description with secondary text token in light theme', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
-    const description = container.querySelector('[class*="text-slate-500"]');
+    const description = container.querySelector('[class*="text-[var(--text-secondary)]"]');
     expect(description).toBeInTheDocument();
   });
 
@@ -302,5 +302,20 @@ describe('OnboardingPanel', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
     const description = container.querySelector('[class*="max-w-xs"]');
     expect(description).toBeInTheDocument();
+  });
+
+  it('renders channel variant with channel description and create channel button', () => {
+    const onStartChat = vi.fn();
+    render(<OnboardingPanel isDark={false} variant="channels" t={mockT} onStartChat={onStartChat} />);
+    expect(screen.getByText('onboarding.channelDescription')).toBeInTheDocument();
+    expect(screen.queryByText('onboarding.description')).not.toBeInTheDocument();
+    const btn = screen.getByText('createChannel.title');
+    fireEvent.click(btn);
+    expect(onStartChat).toHaveBeenCalled();
+  });
+
+  it('renders contact variant by default', () => {
+    render(<OnboardingPanel isDark={false} t={mockT} onStartChat={vi.fn()} />);
+    expect(screen.queryByText('createChannel.title')).not.toBeInTheDocument();
   });
 });

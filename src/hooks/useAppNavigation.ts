@@ -1,8 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { useAppStore } from "../store";
 import type { Dispatch, SetStateAction } from "react";
+import { callManager } from "../lib/call/CallManager";
 
-type View = 'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'contacts' | 'stories' | 'recordings' | 'company';
+type View = 'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'profile' | 'contacts' | 'stories' | 'recordings' | 'company' | 'workplace' | 'bot' | 'miniApp';
+
+// Auto-dismiss preview (demo) calls that never connect to a real peer.
+let previewCallTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function useAppNavigation(
   view: View,
@@ -16,10 +20,9 @@ export function useAppNavigation(
 ) {
 
   const handleNavigate = useCallback((target: string) => {
-    setActiveChat(null);
     setView(target as View);
     setSubView(null);
-  }, [setActiveChat, setView, setSubView]);
+  }, [setView, setSubView]);
 
   const handlePreviewCall = useCallback((name: string, color?: string, callType: 'audio' | 'video' = 'audio') => {
     const existingCall = useAppStore.getState().activeCall;
@@ -27,23 +30,15 @@ export function useAppNavigation(
       setActiveCall(existingCall);
       return;
     }
-    const mockCall = {
-      callId: `preview_${Date.now()}`,
-      direction: 'outgoing' as const,
-      status: 'connecting' as const,
-      callType: callType as 'audio' | 'video',
-      remotePeer: { peerId: 'preview', displayName: name },
-      localStream: null,
-      screenStream: null,
-      isMuted: false,
-      isSpeaker: false,
-      isVideoEnabled: callType === 'video',
-      isVideo: callType === 'video',
-      isRecording: false,
-      startTime: Date.now(),
-      participants: [],
-    };
-    useAppStore.getState().setActiveCall(mockCall);
+    // Route through CallManager so the full CallScreen (driven by `useCall`) renders.
+    callManager.startPreviewCall('preview', name, callType).catch(() => {});
+    if (previewCallTimer) clearTimeout(previewCallTimer);
+    previewCallTimer = setTimeout(() => {
+      const cur = useAppStore.getState().activeCall as any;
+      if (cur && cur.isPreview && cur.status === 'connecting') {
+        callManager.endCall().catch(() => {});
+      }
+    }, 30000);
   }, [setActiveCall]);
 
   const handlePreviewMessage = useCallback((name: string, color?: string) => {

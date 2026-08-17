@@ -7,15 +7,3 @@ export interface EncryptedPayload {
   cipher: string
   iv: string
 }
-
-export interface HandshakeResult {
-  sharedSecret: string
-  handshakeId: string
-}
-
-export interface EncryptResult {
-  ciphertext: string
-  iv: string
-  tag: string
-  publicKey: string
-}

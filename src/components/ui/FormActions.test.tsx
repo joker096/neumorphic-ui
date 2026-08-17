@@ -89,13 +89,13 @@ describe('FormActions', () => {
   it('renders cancel button with dark theme styles', () => {
     const { container } = render(<FormActions submitLabel="Submit" onCancel={() => {}} />);
     const cancelBtn = container.querySelector('button:first-of-type')!;
-    expect(cancelBtn?.className).toContain('bg-white/10');
+    expect(cancelBtn?.className).toContain('bg-[var(--bg-tertiary)]');
   });
 
   it('renders cancel button with light theme styles', () => {
     const { container } = render(<FormActions submitLabel="Submit" theme="light" onCancel={() => {}} />);
     const cancelBtn = container.querySelector('button:first-of-type')!;
-    expect(cancelBtn?.className).toContain('bg-black/5');
+    expect(cancelBtn?.className).toContain('bg-[var(--bg-tertiary)]');
   });
 
   it('applies custom className', () => {

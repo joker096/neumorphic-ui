@@ -5,6 +5,7 @@ import '@testing-library/jest-dom/vitest';
 vi.mock('motion/react', () => ({
   motion: { div: 'div' },
   AnimatePresence: ({ children }: any) => children,
+  useReducedMotion: () => false,
 }));
 
 import { TextInputModal } from './TextInputModal';

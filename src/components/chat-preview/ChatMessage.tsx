@@ -8,7 +8,13 @@ import { FormattedText } from "./FormattedText";
 import { Tooltip } from "../Tooltip";
 import { VoiceWaveform } from "./VoiceWaveform";
 import { MessageReactions } from "./MessageReactions";
+import { MessageContextMenu } from "./MessageContextMenu";
+import { buildMessageMenuActions } from "./messageMenuActions";
 import { useI18n } from "../../lib/i18n";
+import { useServices } from "../../services";
+import { InlineKeyboard } from "../features/bot/InlineKeyboard";
+import { toast } from "../ui/Toast";
+import { decodeIfMorse } from "../MorseDecoder";
 import { fuzzTime, getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
 
 interface ChatMessageProps {
@@ -37,6 +43,12 @@ interface ChatMessageProps {
   onSetBounceMsgId: (id: string | number | null) => void;
   onReactionMessage: (msgId: string | number, emoji: string) => void;
   onAction?: (action: string) => void;
+  onForward?: (msg: any) => void;
+  onDelete?: (msg: any) => void;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string | number) => void;
+  onSelect?: (msg: any) => void;
 }
 
 function ChatMessageImpl({
@@ -47,10 +59,17 @@ function ChatMessageImpl({
   onSetActivePhotoUrl, onSetPhotoOpen,
   onSetActiveReactionPicker, onSwipeReplyId,
   onSetVideoOpen, onSetShowComments, onSetActivePostId,
-  onSetBounceMsgId, onReactionMessage, onAction,
+  onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
+  selectionMode = false, selected = false, onToggleSelect, onSelect,
 }: ChatMessageProps) {
   const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
+  const longPressTimer = useRef<number | null>(null);
+  const longPressed = useRef(false);
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const { t } = useI18n();
+  const { translate } = useServices();
+  const [translation, setTranslation] = React.useState<string | null>(null);
+  const [translating, setTranslating] = React.useState(false);
   const stickerSrc = React.useMemo(
     () => (msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null),
     [msg.text, msg.type, theme],
@@ -62,9 +81,21 @@ function ChatMessageImpl({
   }, [msg.text]);
   const bubbleCornerClass = getBubbleCornerClass(msg._groupPosition as GroupPosition, isMe);
 
+  const handleTranslate = async () => {
+    setTranslating(true);
+    try {
+      const from = await translate.detectLang(msg.text);
+      setTranslation(await translate.translate(msg.text, from, "ru"));
+    } catch {
+      toast(t("chat.translateNotConfigured", "Перевод не подключён"));
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   if (msg._isDateSeparator) {
     return (
-      <div className="sticky top-0 z-10 flex items-center gap-3 py-2" key={msg.id}>
+      <div className="sticky top-0 z-10 flex items-center gap-3 py-2">
         <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
         <span className={`text-[11px] font-bold uppercase tracking-widest shrink-0 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
           {msg._dateLabel}
@@ -77,7 +108,6 @@ function ChatMessageImpl({
   return (
     <motion.div
       layout
-      key={msg.id}
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
       animate={{
         opacity: 1, y: 0, scale: 1,
@@ -101,6 +131,14 @@ function ChatMessageImpl({
       <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
         <div
           onClick={() => {
+            if (selectionMode) {
+              onToggleSelect?.(msg.id);
+              return;
+            }
+            if (longPressed.current) {
+              longPressed.current = false;
+              return;
+            }
             const now = Date.now();
             if (now - lastTapRef.current.time < 300 && lastTapRef.current.msgId === msg.id) {
               onReactionMessage(msg.id, '👍');
@@ -111,7 +149,30 @@ function ChatMessageImpl({
               lastTapRef.current = { time: now, msgId: msg.id };
             }
           }}
-          className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${
+          onContextMenu={(e) => {
+            if (selectionMode) return;
+            e.preventDefault();
+            setMenuOpen(true);
+          }}
+          onPointerDown={() => {
+            if (selectionMode) return;
+            longPressed.current = false;
+            if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
+            longPressTimer.current = window.setTimeout(() => {
+              longPressed.current = true;
+              setMenuOpen(true);
+            }, 480);
+          }}
+          onPointerUp={() => {
+            if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
+          }}
+          onPointerLeave={() => {
+            if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
+          }}
+          onPointerCancel={() => {
+            if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
+          }}
+          className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-orange-500" : ""} ${
             isMe
               ? isDark
                 ? "bg-orange-600/20 text-orange-50 border border-orange-500/30 shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
@@ -149,7 +210,7 @@ function ChatMessageImpl({
           {msg.type === "sticker" && (
             <div className="flex items-center justify-center">
               {stickerSrc ? (
-                <img src={stickerSrc} alt="Sticker" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
+                <img src={stickerSrc} alt="Sticker" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" loading="eager" decoding="async" />
               ) : (
                 <span className="text-4xl">{msg.text}</span>
               )}
@@ -166,13 +227,15 @@ function ChatMessageImpl({
               <div className="font-bold text-[10px] uppercase tracking-widest opacity-70 mb-1">
                 {t('chat.replyingTo')} {msg.replyTo.sender === "me" ? t('chat.yourMessage') : msg.replyTo.sender}
               </div>
-              <div className="line-clamp-2">
-                {msg.replyTo.text || (
-                  msg.replyTo.type === "audio"
-                    ? `${t('chat.voiceNote')}${msg.replyTo.duration || ""}`
-                    : t('chat.attachment')
-                )}
-              </div>
+               <div className="line-clamp-2">
+                 {msg.replyTo.text ? (
+                   decodeIfMorse(msg.replyTo.text)
+                 ) : msg.replyTo.type === "audio" ? (
+                   `${t('chat.voiceNote')}${msg.replyTo.duration || ""}`
+                 ) : (
+                   t('chat.attachment')
+                 )}
+               </div>
             </div>
           )}
           {msg.text && msg.type !== "sticker" && (
@@ -267,7 +330,45 @@ function ChatMessageImpl({
           onSetActiveReactionPicker={onSetActiveReactionPicker}
           onReactionMessage={onReactionMessage}
         />
+        {translating && (
+          <div className={`mt-1 text-xs italic ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            {t("chat.translating", "Перевод…")}
+          </div>
+        )}
+        {translation && !translating && (
+          <div className={`mt-1 text-xs italic ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            {translation}
+          </div>
+        )}
+        {Array.isArray(msg.inlineKeyboard) && msg.inlineKeyboard.length > 0 && (
+          <InlineKeyboard
+            botId={chat.botId ?? String(chat.id)}
+            messageId={String(msg.id)}
+            isDark={isDark}
+            rows={msg.inlineKeyboard}
+          />
+        )}
       </div>
+      <MessageContextMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        title={typeof msg.text === "string" ? msg.text.slice(0, 48) : t("chat.message")}
+        isDark={isDark}
+        actions={buildMessageMenuActions({
+          msg,
+          isMe,
+          t,
+          isChannel: !!isChannel,
+          chat,
+          chatSavedMessages,
+          onSelect,
+          onReply,
+          onToggleSavedMessage,
+          onForward,
+          onDelete,
+          onTranslate: handleTranslate,
+        })}
+      />
     </motion.div>
   );
 }

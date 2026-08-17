@@ -8,7 +8,8 @@ vi.mock('motion/react', () => ({
 }));
 
 vi.mock('../AppChrome', () => ({
-  StoryViewerOverlay: () => <div>StoryViewerOverlay</div>,
+  StoryViewer: () => <div>StoryViewer</div>,
+  StoryComposer: () => <div>StoryComposer</div>,
 }));
 
 import { ContentView } from './ContentView';
@@ -23,12 +24,12 @@ describe('ContentView', () => {
     expect(screen.getByText('Content')).toBeInTheDocument();
   });
 
-  it('renders StoryViewerOverlay', () => {
+  it('renders StoryViewer', () => {
     render(
       <ContentView onCloseStory={vi.fn()} activeStory={null} isStealthMode={false}>
         <div>Content</div>
       </ContentView>
     );
-    expect(screen.getByText('StoryViewerOverlay')).toBeInTheDocument();
+    expect(screen.getByText('StoryViewer')).toBeInTheDocument();
   });
 });

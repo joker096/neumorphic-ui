@@ -45,8 +45,8 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
             onClick={() => setActiveTab(tab.id)}
             className={`px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors shrink-0 ${
               activeTab === tab.id
-                ? (isDark ? 'bg-orange-500 text-[var(--text-primary)]' : 'bg-orange-500 text-[var(--text-primary)]')
-                : (isDark ? 'bg-white/5 text-gray-400' : 'bg-black/5 text-slate-500')
+                ? 'bg-[var(--accent)] text-[var(--text-primary)]'
+                : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'
             }`}
           >
             {tab.label}
@@ -64,7 +64,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
       <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
         {visiblePacks.map(pack => (
           <div key={pack.id} className="flex flex-col gap-1">
-            <div className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{pack.name}</div>
+            <div className={`text-[9px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]`}>{pack.name}</div>
             <div className="flex gap-1 flex-wrap">
               {pack.stickers.map((st, idx) => {
                 const stickerSrc = pack.id === 'icq' ? getICQEmojiPath(st, theme) : getICQStickerSrc(st, theme);
@@ -72,7 +72,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
                   <button
                     key={`${pack.id}-${idx}`}
                     onClick={() => { onSelect(pack.id === 'icq' ? `icq:${st}` : st); onClose(); }}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-transform active:scale-95 ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-transform active:scale-95 hover:bg-[var(--bg-elevated)]`}
                   >
                     {stickerSrc ? (
                       <img src={stickerSrc} alt={st} className="w-7 h-7 object-contain" loading="lazy" decoding="async" />

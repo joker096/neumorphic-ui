@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-export type AppView = 'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'contacts' | 'stories' | 'recordings' | 'company';
+export type AppView = 'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'profile' | 'contacts' | 'stories' | 'recordings' | 'company';
 
 export function useAppView() {
   const [view, setView] = useState<AppView>('chats');

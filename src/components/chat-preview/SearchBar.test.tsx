@@ -1,46 +1,41 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { SearchBar } from './SearchBar';
 
 describe('SearchBar', () => {
-  it('renders the input field', () => {
-    render(<SearchBar searchQuery="" showSearch={true} />);
+  const base = {
+    showSearch: true,
+    searchQuery: '',
+    onSearchChange: vi.fn(),
+    searchTypeFilter: 'all' as const,
+    onSearchTypeChange: vi.fn(),
+  };
+
+  it('renders nothing when search is hidden', () => {
+    const { container } = render(<SearchBar {...base} showSearch={false} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders the type filter chips', () => {
+    render(<SearchBar {...base} />);
+    expect(screen.getByText('chat.filters.all')).toBeInTheDocument();
+    expect(screen.getByText('chat.filters.media')).toBeInTheDocument();
+    expect(screen.getByText('chat.filters.files')).toBeInTheDocument();
+    expect(screen.getByText('chat.filters.links')).toBeInTheDocument();
+  });
+
+  it('fires onSearchTypeChange when a chip is clicked', () => {
+    render(<SearchBar {...base} />);
+    fireEvent.click(screen.getByText('chat.filters.media'));
+    expect(base.onSearchTypeChange).toHaveBeenCalledWith('media');
+    fireEvent.click(screen.getByText('chat.filters.links'));
+    expect(base.onSearchTypeChange).toHaveBeenCalledWith('links');
+  });
+
+  it('renders the search input', () => {
+    render(<SearchBar {...base} />);
     expect(screen.getByRole('searchbox')).toBeInTheDocument();
-  });
-
-  it('renders with default searchQuery', () => {
-    const { container } = render(<SearchBar searchQuery="default" showSearch={true} />);
-    const input = container.querySelector('input');
-    expect(input?.value).toBe('default');
-  });
-
-  it('renders with custom placeholder', () => {
-    render(<SearchBar searchQuery="" placeholder="Test placeholder" showSearch={true} />);
-    const input = screen.getByPlaceholderText('Test placeholder');
-    expect(input).toBeInTheDocument();
-  });
-
-  it('does not render when showSearch is false', () => {
-    const { container } = render(<SearchBar searchQuery="" showSearch={false} />);
-    expect(container.querySelector('input')).not.toBeInTheDocument();
-  });
-
-  it('renders when showSearch is true', () => {
-    render(<SearchBar searchQuery="" showSearch={true} />);
-    const input = document.querySelector('input');
-    expect(input).toBeInTheDocument();
-  });
-
-  it('renders when isDark is true', () => {
-    render(<SearchBar searchQuery="" isDark={true} showSearch={true} />);
-    const input = document.querySelector('input');
-    expect(input).toBeInTheDocument();
-  });
-
-  it('renders when isDark is false', () => {
-    render(<SearchBar searchQuery="" isDark={false} showSearch={true} />);
-    const input = document.querySelector('input');
-    expect(input).toBeInTheDocument();
   });
 });

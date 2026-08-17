@@ -9,15 +9,20 @@ import { motion, AnimatePresence } from 'motion/react';
 import { AppearanceSettings } from './settings/AppearanceSettings';
 import { LanguageSection } from './settings/LanguageSection';
 import { PrivacySection } from './settings/PrivacySection';
-import { AccountSection } from './settings/AccountSection';
+import { ProfileSection } from './settings/ProfileSection';
 import { SettingsMainMenu } from './settings/SettingsMainMenu';
-import { MyProfileSection } from './settings/MyProfileSection';
 
 const NetworkSection = React.lazy(() => import('./settings/NetworkSection').then(m => ({ default: m.NetworkSection })));
 const SecuritySection = React.lazy(() => import('./settings/SecuritySection').then(m => ({ default: m.SecuritySection })));
 const BotsSection = React.lazy(() => import('./settings/BotsSection').then(m => ({ default: m.BotsSection })));
 const SpamSection = React.lazy(() => import('./settings/SpamSection').then(m => ({ default: m.SpamSection })));
 const SystemStatusSection = React.lazy(() => import('./settings/SystemStatusSection').then(m => ({ default: m.SystemStatusSection })));
+const StorageSection = React.lazy(() => import('./settings/StorageSection').then(m => ({ default: m.StorageSection })));
+const NotificationsSection = React.lazy(() => import('./settings/NotificationsSection').then(m => ({ default: m.NotificationsSection })));
+const FoldersSection = React.lazy(() => import('./settings/FoldersSection').then(m => ({ default: m.FoldersSection })));
+const BackupExportSection = React.lazy(() => import('./settings/BackupExportSection').then(m => ({ default: m.BackupExportSection })));
+const HelpSupportSection = React.lazy(() => import('./settings/HelpSupportSection').then(m => ({ default: m.HelpSupportSection })));
+const PaymentsSection = React.lazy(() => import('./settings/PaymentsSection').then(m => ({ default: m.PaymentsSection })));
 
 export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizeProp, setFontSize: setFontSizeProp, language: languageProp, setLanguage: setLanguageProp }: { theme: 'light' | 'dark', setTheme?: (t: 'light' | 'dark') => void, setSubView?: (view: string | null) => void; fontSize?: string; setFontSize?: (s: string) => void; language?: string; setLanguage?: (l: string) => void }) => {
   const isDark = theme === 'dark';
@@ -158,16 +163,9 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
     />
   );
 
-  const renderAccountSettings = () => (
-    <AccountSection
+  const renderProfileSettings = () => (
+    <ProfileSection
       isDark={isDark}
-      onBack={() => setActiveSection('main')}
-      t={t}
-    />
-  );
-
-  const renderMyProfileSettings = () => (
-    <MyProfileSection
       onBack={() => setActiveSection('main')}
       t={t}
     />
@@ -279,6 +277,30 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
     />
   );
 
+  const renderStorageSettings = () => (
+    <StorageSection isDark={isDark} onBack={() => setActiveSection('main')} />
+  );
+
+  const renderNotificationsSettings = () => (
+    <NotificationsSection isDark={isDark} onBack={() => setActiveSection('main')} />
+  );
+
+  const renderFoldersSettings = () => (
+    <FoldersSection isDark={isDark} onBack={() => setActiveSection('main')} />
+  );
+
+  const renderBackupExportSettings = () => (
+    <BackupExportSection isDark={isDark} onBack={() => setActiveSection('main')} />
+  );
+
+  const renderHelpSupportSettings = () => (
+    <HelpSupportSection isDark={isDark} onBack={() => setActiveSection('main')} />
+  );
+
+  const renderPaymentsSettings = () => (
+    <PaymentsSection isDark={isDark} onBack={() => setActiveSection('main')} />
+  );
+
   const renderCompanySettings = () => (
     <CompanySettingsView
       isDark={isDark}
@@ -288,14 +310,17 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
 
   const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('common.loading')}</div>;
 
+  // NOTE: The settings panel must NOT create its own scroll region. It is rendered
+  // inside the app's main-content container (AppShell), which already scrolls.
+  // Do NOT add overflow-y-auto / h-full / min-h-0 here — let the content flow and
+  // the surrounding layout scroll naturally (so the user just scrolls the page down).
   return (
-    <div className={`w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 ${isDark ? "bg-[var(--bg-primary)]/50 border border-[var(--border-color)]" : "bg-[var(--bg-secondary)]/50 border border-[var(--border-color)] shadow-inner"}`}>
+    <div className={`w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 pb-28 sm:pb-8 rounded-2xl overflow-y-auto overflow-x-hidden ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-[0_8px_24px_rgba(0,0,0,0.25)]" : "bg-white border border-[var(--border-color)] shadow-[0_8px_24px_rgba(15,23,42,0.05)]"}`}>
       <AnimatePresence mode="wait">
         {activeSection === 'main' && renderMainSettings()}
-        {activeSection === 'myProfile' && renderMyProfileSettings()}
+        {activeSection === 'profile' && renderProfileSettings()}
         {activeSection === 'appearance' && renderAppearanceSettings()}
         {activeSection === 'language' && renderLanguageSettings()}
-        {activeSection === 'account' && renderAccountSettings()}
         {activeSection === 'security' && <Suspense fallback={fallback}>{renderSecuritySettings()}</Suspense>}
         {activeSection === 'privacy' && renderPrivacySettings()}
         {activeSection === 'network' && <Suspense fallback={fallback}>{renderNetworkSettings()}</Suspense>}
@@ -303,6 +328,12 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
         {activeSection === 'spam' && <Suspense fallback={fallback}>{renderSpamSettings()}</Suspense>}
         {activeSection === 'systemStatus' && <Suspense fallback={fallback}>{renderSystemStatusSettings()}</Suspense>}
         {activeSection === 'company' && <Suspense fallback={fallback}>{renderCompanySettings()}</Suspense>}
+        {activeSection === 'storage' && <Suspense fallback={fallback}>{renderStorageSettings()}</Suspense>}
+        {activeSection === 'notifications' && <Suspense fallback={fallback}>{renderNotificationsSettings()}</Suspense>}
+        {activeSection === 'folders' && <Suspense fallback={fallback}>{renderFoldersSettings()}</Suspense>}
+        {activeSection === 'backup' && <Suspense fallback={fallback}>{renderBackupExportSettings()}</Suspense>}
+        {activeSection === 'help' && <Suspense fallback={fallback}>{renderHelpSupportSettings()}</Suspense>}
+        {activeSection === 'payments' && <Suspense fallback={fallback}>{renderPaymentsSettings()}</Suspense>}
       </AnimatePresence>
     </div>
   );

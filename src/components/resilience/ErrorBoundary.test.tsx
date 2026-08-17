@@ -19,7 +19,7 @@ describe('ErrorBoundary', () => {
 
   it('renders fallback UI on error', () => {
     render(<ErrorBoundary><BadChild /></ErrorBoundary>);
-    expect(screen.getByText('error.somethingWentWrong')).toBeInTheDocument();
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
   });
 
   it('renders custom fallback on error', () => {
@@ -33,11 +33,11 @@ describe('ErrorBoundary', () => {
 
   it('renders retry button in default fallback', () => {
     render(<ErrorBoundary><BadChild /></ErrorBoundary>);
-    expect(screen.getByText('error.tryAgain')).toBeInTheDocument();
+    expect(screen.getByText('Try again')).toBeInTheDocument();
   });
 
   it('shows error message in details', () => {
     render(<ErrorBoundary><BadChild /></ErrorBoundary>);
-    expect(screen.getByText('error.errorDetails')).toBeInTheDocument();
+    expect(screen.getByText('Error details')).toBeInTheDocument();
   });
 });

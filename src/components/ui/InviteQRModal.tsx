@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Copy, Check } from 'lucide-react';
 import { QrCode } from '../QrCode';
+import { modalOverlay, modalSurface, modalCloseClass, type ModalTheme } from './modalShared';
 
 type InviteQRModalProps = {
   isOpen: boolean;
@@ -30,14 +32,16 @@ export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }
     }).catch(() => {});
   };
 
-  return (
+  const resolvedTheme: ModalTheme = isDark ? 'dark' : 'light';
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          data-theme={resolvedTheme}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className={modalOverlay}
           onClick={onClose}
         >
           <motion.div
@@ -45,39 +49,29 @@ export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className={`w-full max-w-[340px] p-6 shadow-2xl relative flex flex-col items-center modal-surface rounded-2xl ${
-              isDark
-                ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]'
-                : 'bg-white border border-[var(--border-color)]'
-            }`}
+            className={`${modalSurface(isDark, 'max-w-[340px]')} relative flex flex-col items-center`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={onClose}
-              className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${
-                isDark
-                  ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]'
-                  : 'bg-black/5 hover:bg-black/10 text-slate-800'
-              }`}
+              className={`absolute top-4 right-4 z-10 ${modalCloseClass(isDark)}`}
             >
               <X size={18} />
             </button>
 
-            <h3 className={`text-xl font-bold mb-2 text-center ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
+            <h3 className="text-xl font-bold mb-2 text-center text-foreground">
               {t('onboarding.invite') || 'Invite friends'}
             </h3>
-            <p className={`text-sm text-center mb-4 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+            <p className="text-sm text-center mb-4 text-muted-foreground">
               {t('onboarding.inviteDescription') || 'Scan this QR code or copy the link to invite friends'}
             </p>
 
-            <div className={`w-[200px] h-[200px] flex items-center justify-center p-4 shadow-xl mb-4 rounded-xl ${
-              isDark ? 'bg-white' : 'bg-white border-2 border-gray-100'
-            }`}>
+            <div className="w-[200px] h-[200px] flex items-center justify-center p-4 shadow-xl mb-4 rounded-xl bg-white">
               <QrCode data={inviteText} size={180} />
             </div>
 
-            <div className={`w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset`}>
-              <div className={`font-mono text-xs tracking-widest break-all text-center ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>
+            <div className="w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset">
+              <div className="font-mono text-xs tracking-widest break-all text-center text-orange-500">
                 {inviteText}
               </div>
               <motion.button
@@ -86,9 +80,7 @@ export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }
                 className={`flex items-center justify-center gap-2 h-10 px-4 rounded-xl font-bold text-xs transition-colors ${
                   copied
                     ? 'bg-green-500 text-white'
-                    : isDark
-                      ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]'
-                      : 'bg-white shadow hover:bg-gray-50 text-slate-800 border border-[var(--border-color)]'
+                    : 'bg-background border border-border text-foreground hover:bg-muted'
                 }`}
               >
                 {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -98,6 +90,7 @@ export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

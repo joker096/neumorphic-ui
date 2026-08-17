@@ -35,7 +35,7 @@ export const ChatMediaPanel = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowFilterMenu(!showFilterMenu)}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] font-bold whitespace-nowrap transition-colors ${showFilterMenu ? "bg-orange-500 text-[var(--text-primary)]" : isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] font-bold whitespace-nowrap transition-colors ${showFilterMenu ? "bg-[var(--accent)] text-[var(--text-primary)]" : isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}
           >
             <ListFilter size={14} />
           </button>
@@ -75,7 +75,7 @@ export const ChatMediaPanel = ({
         <div className="flex items-center gap-2">
           {['all', 'photos', 'audio', 'links'].map((tab) => (
             <button key={tab} onClick={() => setMediaTab(tab)}
-              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-orange-500 text-[var(--text-primary)] shadow-md" : isDark ? "bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "bg-black/5 text-slate-500 hover:text-slate-800"}`}
+              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--text-primary)] shadow-md" : isDark ? "bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "bg-black/5 text-slate-500 hover:text-slate-800"}`}
             >
               {tab === 'all' ? t('chat.filters.mediaTabs.all') : tab === 'photos' ? t('chat.filters.mediaTabs.photos') : tab === 'audio' ? t('chat.filters.mediaTabs.audio') : t('chat.filters.mediaTabs.links')}
             </button>
@@ -95,7 +95,7 @@ export const ChatMediaPanel = ({
                    <img src={msg.attachment || msg.url} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-full object-cover" />
                 ) : msg.type === 'audio' ? (
                   <div className={`w-full h-full flex flex-col items-start justify-between p-3 ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-50"}`}>
-                    <Mic size={18} className={isDark ? "text-orange-400" : "text-orange-600"} />
+                     <Mic size={18} className={isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"} />
                     <div className={`text-[11px] font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('chat.filters.voiceNote')}</div>
                     <div className={`text-[10px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{msg.duration || '0:00'}</div>
                   </div>

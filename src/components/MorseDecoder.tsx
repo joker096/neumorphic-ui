@@ -111,6 +111,11 @@ export const isMorseCode = (text: string) => {
   return /^[.\- /]{1,}$/.test(text.trim());
 };
 
+export const decodeIfMorse = (text: string) => {
+  if (typeof text === "string" && isMorseCode(text)) return decodeMorse(text);
+  return text;
+};
+
 export const MorseDecoder = ({
   encodedText,
 }: {

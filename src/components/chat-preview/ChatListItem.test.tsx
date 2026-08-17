@@ -61,7 +61,7 @@ describe('ChatListItem', () => {
 
   it('does not show unread badge when unread is 0', () => {
     render(<ChatListItem {...defaultProps} chat={{ ...mockChat, unread: 0 }} />);
-    expect(document.querySelector('.bg-emerald-500')).not.toBeInTheDocument();
+    expect(screen.queryByText('3')).not.toBeInTheDocument();
   });
 
   it('shows timestamp', () => {
@@ -90,12 +90,13 @@ describe('ChatListItem', () => {
 
   it('shows online status indicator', () => {
     render(<ChatListItem {...defaultProps} />);
-    const onlineDot = document.querySelector('.bg-green-400') || document.querySelector('.bg-emerald-500');
-    expect(onlineDot).toBeInTheDocument();
+    const avatar = document.querySelector('[class*="rounded-[12px]"]');
+    expect(avatar?.querySelector('[class*="rounded-full"]')).toBeInTheDocument();
   });
 
   it('does not show online indicator when chat.online is false', () => {
     render(<ChatListItem {...defaultProps} chat={{ ...mockChat, online: false }} />);
-    expect(document.querySelector('.bg-emerald-500')).not.toBeInTheDocument();
+    const avatar = document.querySelector('[class*="rounded-[12px]"]');
+    expect(avatar?.querySelector('[class*="rounded-full"]')).not.toBeInTheDocument();
   });
 });

@@ -1,17 +1,14 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { AppOverlays, AppLockScreen } from "./components/app";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { AppOverlays } from "./components/app";
 import { SafeRender } from "./components/resilience";
 import { MOCK_DATA_ENABLED } from "./lib/mockDataFlag";
 import { useCall } from "./hooks/useCall";
 import { useMessageActions } from "./hooks/useMessageActions";
 import { useProfileActions } from "./hooks/useProfileActions";
-import { useAppLock } from "./hooks/useAppLock";
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
 import { AnimatePresence } from "motion/react";
 import { useAppStore } from "./store";
 import { useUiStore } from "./store/uiStore";
-import type { Contact } from "./types/contact";
-import type { ContactProfile } from "./components/ContactProfileModal";
 import { seedMockData } from './utils/mockSeeding';
 import { useAppConnection } from './hooks/useAppConnection';
 import { useAppNavigation } from './hooks/useAppNavigation';
@@ -28,8 +25,9 @@ import { AppShell } from './components/app/AppShell';
 import { AppChrome } from './components/app/AppChrome';
 import { STORAGE_KEYS } from './constants/storage';
 import { ThemeContext } from './contexts/ThemeContext';
-import { useIdentityAuth } from './hooks/useIdentityAuth';
-import { RegistrationScreen, LoginScreen } from './components/auth';
+import { AppAuthGate } from './components/app/AppAuthGate';
+import { ToastViewport } from './components/ui/Toast';
+import { ServicesProvider } from './services';
 
 export default function App() {
   const { theme, setTheme, isDark, fontSize, setFontSize, t } = useAppSettings();
@@ -38,6 +36,8 @@ export default function App() {
   const setChats = useAppStore(s => s.setChats);
   const channels = useAppStore(s => s.channels);
   const setChannels = useAppStore(s => s.setChannels);
+  const callHistory = useAppStore(s => s.callHistory);
+  const setCallHistory = useAppStore(s => s.setCallHistory);
   const bots = useAppStore(s => s.bots);
   const scheduledQueue = useAppStore(s => s.scheduledQueue);
   const archivedChats = useAppStore(s => s.archivedChats);
@@ -45,29 +45,10 @@ export default function App() {
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
   const setActiveCall = useAppStore(s => s.setActiveCall);
+  const callMinimized = useAppStore(s => s.callMinimized);
+  const setCallMinimized = useAppStore(s => s.setCallMinimized);
   const stealthMode = useAppStore(state => state.stealthMode);
   const hideWhenOfficeOnly = useAppStore(state => state.hideWhenOfficeOnly);
-  const {
-    pinInput, setPinInput, pinError, lockAttempts,
-    lockBlockedUntil, lockBlockTimer, handleUnlock, isLocked,
-  } = useAppLock();
-  const { status: identityStatus } = useIdentityAuth();
-  const [showLogin, setShowLogin] = useState(false);
-
-  const handleRegistrationComplete = useCallback(() => {
-    setShowLogin(false);
-  }, []);
-
-  useEffect(() => {
-    const handler = () => setShowLogin(true);
-    window.addEventListener('show-login', handler);
-    return () => window.removeEventListener('show-login', handler);
-  }, []);
-  const [activeStory, setActiveStory] = useState<{ id: number, name: string, color: string } | null>(null);
-  const [replyTarget, setReplyTarget] = useState<any>(null);
-  const [savedMessages, setSavedMessages] = useLocalStorage<any[]>(STORAGE_KEYS.SAVED_MESSAGES, []);
-  useScreenshotProtection(stealthMode);
-
   const {
     showCreateChannel, setShowCreateChannel,
     showCreateBot, setShowCreateBot,
@@ -76,23 +57,32 @@ export default function App() {
     editingContact, setEditingContact,
     showAdvancedFilterModal, setShowAdvancedFilterModal,
     advancedFilters, setAdvancedFilters,
+    showAddContactFromChat, setShowAddContactFromChat,
   } = useUiStore();
 
+  const [activeStory, setActiveStory] = useState<{ id: number, name: string, color: string } | null>(null);
+  const [showStoryComposer, setShowStoryComposer] = useState(false);
+  const [activeBotId, setActiveBotId] = useState<string | null>(null);
+  const [miniAppBotId, setMiniAppBotId] = useState<string | null>(null);
+  const [replyTarget, setReplyTarget] = useState<any>(null);
+  const [savedMessages, setSavedMessages] = useLocalStorage<any[]>(STORAGE_KEYS.SAVED_MESSAGES, []);
+  useScreenshotProtection(stealthMode);
+
   const [draftTextByChat, setDraftTextByChat] = useLocalStorage<Record<string, string>>(STORAGE_KEYS.DRAFTS, {});
+  const didSeedMockData = useRef(false);
 
   const { connectionStatus } = useAppConnection();
 
   useEffect(() => {
     if (!MOCK_DATA_ENABLED) return;
-    seedMockData(setChats, setContacts, setChannels, chats, contacts, channels);
-  }, [setChats, setContacts, setChannels, chats, contacts, channels]);
+    if (didSeedMockData.current) return;
+    seedMockData(setChats, setContacts, setChannels, setCallHistory, callHistory, chats, contacts, channels);
+    didSeedMockData.current = true;
+  }, [setChats, setContacts, setChannels, setCallHistory, callHistory, chats, contacts, channels]);
 
-  // Check scheduled messages periodically
   useScheduledMessages();
 
-
-
-  const [view, setView] = useState<'chats' | 'channels' | 'bots' | 'settings' | 'contacts' | 'stories' | 'company'>('chats');
+  const [view, setView] = useState<'chats' | 'channels' | 'bots' | 'settings' | 'profile' | 'contacts' | 'stories' | 'company' | 'calls' | 'workplace' | 'bot' | 'miniApp'>('chats');
   const [subView, setSubView] = useState<string | null>(null);
   const [activeFolder, setActiveFolder] = useState<string>('all');
   const [activeChat, setActiveChat] = useState<any>(null);
@@ -105,6 +95,16 @@ export default function App() {
   const [silentMode, setSilentMode] = useState(false);
   const [showStickerPicker, setShowStickerPicker] = useState(false);
   const [chatSearchQuery, setChatSearchQuery] = useState("");
+
+  // Clear any pending reply when switching to a different contact/chat
+  const activeChatIdRef = useRef(activeChat?.id ?? null);
+  useEffect(() => {
+    const id = activeChat?.id ?? null;
+    if (activeChatIdRef.current !== id) {
+      activeChatIdRef.current = id;
+      setReplyTarget(null);
+    }
+  }, [activeChat?.id, setReplyTarget]);
   const { filteredChats, filteredChannels } = useFilteredChats(
     chats,
     chatSearchQuery,
@@ -113,6 +113,45 @@ export default function App() {
     advancedFilters,
     channels,
   );
+
+  // Browser/hardware Back support (Telegram-like step-back: chat → list → chats)
+  const chatsRef = useRef(chats);
+  chatsRef.current = chats;
+  const channelsRef = useRef(channels);
+  channelsRef.current = channels;
+  const lastPushed = useRef("");
+  const skipNextPush = useRef(false);
+  useEffect(() => {
+    window.history.replaceState(
+      { view, activeChatId: activeChat?.id ?? null, subView },
+      "",
+    );
+    const onPop = (e: PopStateEvent) => {
+      const s = e.state as { view?: string; activeChatId?: string | number; subView?: string | null } | null;
+      if (!s) return;
+      skipNextPush.current = true;
+      setView((s.view as any) ?? "chats");
+      setSubView(s.subView ?? null);
+      const id = s.activeChatId;
+      const found = id != null
+        ? [...chatsRef.current, ...channelsRef.current].find((c: any) => c.id === id)
+        : null;
+      setActiveChat(found ?? null);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  useEffect(() => {
+    if (skipNextPush.current) {
+      skipNextPush.current = false;
+      return;
+    }
+    const id = activeChat?.id ?? null;
+    const key = `${view}|${id}|${subView}`;
+    if (key === lastPushed.current) return;
+    lastPushed.current = key;
+    window.history.pushState({ view, activeChatId: id, subView }, "");
+  }, [view, activeChat?.id, subView]);
 
   const {
     sendVoiceMessage, sendStickerMessage, handleSendMessage, toggleSavedMessage,
@@ -155,7 +194,13 @@ export default function App() {
     handlePreviewCall, handlePreviewMessage,
   );
 
-  const { call, acceptCall, endCall, toggleMute, toggleVideo, toggleScreenShare, toggleRecording } = useCall();
+  const handleAddContactFromChat = useCallback((name: string, id: string, color?: string, localFields?: any[]) => {
+    const newContact = { name, id, color: color || 'from-teal-400 to-emerald-500', lastSeen: Date.now(), localFields };
+    setContacts(prev => [newContact, ...prev]);
+    setShowAddContactFromChat(false);
+  }, [setContacts, setShowAddContactFromChat]);
+
+  const { call, acceptCall, endCall, toggleMute, toggleVideo, toggleScreenShare, toggleRecording, toggleSpeaker, flipCamera, changeCallType } = useCall();
   const [incomingCall, setIncomingCall] = useState<{ peerId: string; displayName: string; callType: 'audio' | 'video' } | null>(null);
   const refActions = useRefMessageActions({
     handleSendMessage,
@@ -228,134 +273,126 @@ export default function App() {
     isDark,
     onCall: refActions.handlePreviewCallRef,
     onVideoCall: (name: string, color?: string) => refActions.handlePreviewCallRef(name, color, 'video'),
+    onOpenBot: (id: string) => { setActiveBotId(id); setView("bot"); },
   });
 
-  if (identityStatus === 'loading') {
-    return (
-      <div className="w-full h-[100dvh] flex items-center justify-center bg-[var(--bg-primary)]">
-        <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (identityStatus === 'new-user') {
-    return <RegistrationScreen onComplete={handleRegistrationComplete} />;
-  }
-
-  if (showLogin) {
-    return <LoginScreen onComplete={handleRegistrationComplete} />;
-  }
-
-  if (isLocked) {
-    return (
-      <AppLockScreen
-        pinInput={pinInput}
-        setPinInput={setPinInput}
-        pinError={pinError}
-        lockAttempts={lockAttempts}
-        lockBlockTimer={lockBlockTimer}
-        lockBlockedUntil={lockBlockedUntil}
-        isDark={isDark}
-        handleUnlock={handleUnlock}
-      />
-    );
-  }
-
-  // Design read: messenger/product UI with premium consumer aesthetic, dark mode primary, orange accent.
-  // Layout: sidebar navigation, central content, bottom nav for mobile.
   return (
-    <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
-      <AppChrome isDark={isDark} connectionStatus={connectionStatus} />
-      <AppShell
-        theme={theme}
-        isDark={isDark}
-        fontSize={fontSize}
-        view={view}
-        subView={subView}
-        setSubView={setSubView}
-        activeStory={activeStory}
-        setActiveStory={setActiveStory}
-        stealthMode={stealthMode}
-        hideWhenOfficeOnly={hideWhenOfficeOnly}
-        chatsUnread={chatsUnread}
-        companyUnread={companyUnread}
-        handleNavigate={handleNavigate}
-        isChatListRoute={isChatListRoute}
-        activeChat={activeChat}
-        setActiveChat={setActiveChat}
-        chatListWorkspaceProps={chatListWorkspaceProps}
-        activeChatWorkspaceProps={activeChatWorkspaceProps}
-        activeFolder={activeFolder}
-        setActiveFolder={setActiveFolder}
-        chatSearchQuery={chatSearchQuery}
-        setChatSearchQuery={setChatSearchQuery}
-        filteredChats={filteredChats}
-        filteredChannels={filteredChannels}
-        bots={bots}
-        archivedUnreadCount={archivedUnreadCount}
-        toggleArchive={toggleArchive}
-        contacts={contacts}
-        setContacts={setContacts}
-        showContactPicker={showContactPicker}
-        setShowContactPicker={setShowContactPicker}
-        setEditingContact={setEditingContact}
-        chats={chats}
-        setChats={setChats}
-        setView={setView}
-        setGlobalSelectedContact={setGlobalSelectedContact}
-        setShowCreateChannel={setShowCreateChannel}
-        setShowCreateBot={setShowCreateBot}
-        setShowAdvancedFilterModal={setShowAdvancedFilterModal}
-        advancedFilters={advancedFilters}
-        handlePreviewCall={handlePreviewCall}
-        handlePreviewMessage={handlePreviewMessage}
-        setFontSize={setFontSize}
-        t={t}
-      />
-      <AppOverlays
-        isDark={isDark}
-        view={view}
-        showCreateChannel={showCreateChannel}
-        setShowCreateChannel={setShowCreateChannel}
-        showCreateBot={showCreateBot}
-        setShowCreateBot={setShowCreateBot}
-        showAdvancedFilterModal={showAdvancedFilterModal}
-        setShowAdvancedFilterModal={setShowAdvancedFilterModal}
-        advancedFilters={advancedFilters}
-        setAdvancedFilters={setAdvancedFilters as any}
-        globalSelectedContact={globalSelectedContact}
-        setGlobalSelectedContact={setGlobalSelectedContact}
-        activeChat={activeChat}
-        setActiveChat={setActiveChat}
-        editingContact={editingContact}
-        setEditingContact={setEditingContact}
-        contacts={contacts}
-        setContacts={setContacts as any}
-        chats={chats}
-        setChats={setChats as any}
-        t={t}
-        onProfileCall={handleProfileCall}
-        onProfileVideoCall={handleProfileVideoCall}
-        onProfileMessage={handleProfileMessage}
-        onProfileDelete={handleProfileDelete}
-         onProfileEdit={handleProfileEdit}
-         onProfileBlock={handleProfileBlock}
-         onProfileToggleFavorite={handleProfileToggleFavorite}
-       />
-
-      <AnimatePresence>
-        <CallScreen
-          call={call}
-          incomingCall={incomingCall}
-          onEnd={endCall}
-          acceptCall={acceptCall}
-          toggleMute={toggleMute}
-          toggleVideo={toggleVideo}
-          toggleScreenShare={toggleScreenShare}
-          toggleRecording={toggleRecording}
-          setActiveCall={setActiveCall}
+    <ServicesProvider>
+    <AppAuthGate onRegistrationComplete={() => {}}>
+      <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
+        <AppChrome isDark={isDark} connectionStatus={connectionStatus} />
+        <AppShell
+          theme={theme}
+          isDark={isDark}
+          fontSize={fontSize}
+          view={view}
+          subView={subView}
+          setSubView={setSubView}
+          activeStory={activeStory}
+          setActiveStory={setActiveStory}
+          onComposeStory={() => setShowStoryComposer(true)}
+          showStoryComposer={showStoryComposer}
+          onCloseComposer={() => setShowStoryComposer(false)}
+          stealthMode={stealthMode}
+          hideWhenOfficeOnly={hideWhenOfficeOnly}
+          chatsUnread={chatsUnread}
+          companyUnread={companyUnread}
+          handleNavigate={handleNavigate}
+          isChatListRoute={isChatListRoute}
+          activeChat={activeChat}
+          setActiveChat={setActiveChat}
+          chatListWorkspaceProps={chatListWorkspaceProps}
+          activeChatWorkspaceProps={activeChatWorkspaceProps}
+          activeFolder={activeFolder}
+          setActiveFolder={setActiveFolder}
+          chatSearchQuery={chatSearchQuery}
+          setChatSearchQuery={setChatSearchQuery}
+          filteredChats={filteredChats}
+          filteredChannels={filteredChannels}
+          bots={bots}
+          archivedUnreadCount={archivedUnreadCount}
+          toggleArchive={toggleArchive}
+          contacts={contacts}
+          setContacts={setContacts}
+          showContactPicker={showContactPicker}
+          setShowContactPicker={setShowContactPicker}
+          setEditingContact={setEditingContact}
+          chats={chats}
+          setChats={setChats}
+          setView={setView}
+          setGlobalSelectedContact={setGlobalSelectedContact}
+          setShowCreateChannel={setShowCreateChannel}
+          setShowCreateBot={setShowCreateBot}
+          setShowAdvancedFilterModal={setShowAdvancedFilterModal}
+          advancedFilters={advancedFilters}
+          handlePreviewCall={handlePreviewCall}
+          handlePreviewMessage={handlePreviewMessage}
+          setFontSize={setFontSize}
+          t={t}
+          showAddContactFromChat={showAddContactFromChat}
+          setShowAddContactFromChat={setShowAddContactFromChat}
+           onAddContactFromChat={handleAddContactFromChat}
+           activeBotId={activeBotId}
+           setActiveBotId={setActiveBotId}
+           miniAppBotId={miniAppBotId}
+           setMiniAppBotId={setMiniAppBotId}
+         />
+        <AppOverlays
+          isDark={isDark}
+          view={view}
+          showCreateChannel={showCreateChannel}
+          setShowCreateChannel={setShowCreateChannel}
+          showCreateBot={showCreateBot}
+          setShowCreateBot={setShowCreateBot}
+          showAdvancedFilterModal={showAdvancedFilterModal}
+          setShowAdvancedFilterModal={setShowAdvancedFilterModal}
+          advancedFilters={advancedFilters}
+          setAdvancedFilters={setAdvancedFilters as any}
+          globalSelectedContact={globalSelectedContact}
+          setGlobalSelectedContact={setGlobalSelectedContact}
+          activeChat={activeChat}
+          setActiveChat={setActiveChat}
+          editingContact={editingContact}
+          setEditingContact={setEditingContact}
+          showAddContactFromChat={showAddContactFromChat}
+          setShowAddContactFromChat={setShowAddContactFromChat}
+          onAddContactFromChat={handleAddContactFromChat}
+          contacts={contacts}
+          setContacts={setContacts as any}
+          chats={chats}
+          setChats={setChats as any}
+          t={t}
+          onProfileCall={handleProfileCall}
+          onProfileVideoCall={handleProfileVideoCall}
+          onProfileMessage={handleProfileMessage}
+          onProfileDelete={handleProfileDelete}
+           onProfileEdit={handleProfileEdit}
+           onProfileBlock={handleProfileBlock}
+           onProfileToggleFavorite={handleProfileToggleFavorite}
         />
-      </AnimatePresence>
-    </ThemeContext.Provider>
+
+        <AnimatePresence>
+          {call && !callMinimized && (
+            <CallScreen
+              call={call}
+              incomingCall={incomingCall}
+              onEnd={endCall}
+              acceptCall={acceptCall}
+              toggleMute={toggleMute}
+              toggleVideo={toggleVideo}
+              toggleScreenShare={toggleScreenShare}
+            toggleRecording={toggleRecording}
+            toggleSpeaker={toggleSpeaker}
+            flipCamera={flipCamera}
+            changeCallType={changeCallType}
+            setActiveCall={setActiveCall}
+              onMinimize={() => setCallMinimized(true)}
+            />
+          )}
+        </AnimatePresence>
+        <ToastViewport isDark={isDark} />
+      </ThemeContext.Provider>
+    </AppAuthGate>
+    </ServicesProvider>
   );
 }

@@ -17,7 +17,7 @@ export const SubView = ({ title, onBack, children, isDark = false }: SubViewProp
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="w-full flex-1 flex flex-col min-h-0"
+      className="w-full flex flex-col"
     >
       <div className="flex items-center gap-3 mb-6 shrink-0 pt-2">
         <button
@@ -31,7 +31,8 @@ export const SubView = ({ title, onBack, children, isDark = false }: SubViewProp
           {title}
         </h2>
       </div>
-      <div className="w-full flex-1 overflow-y-auto pr-1 pb-4 flex flex-col gap-6">
+      {/* Scrolling is handled by the parent SettingsView root (overflow-y-auto). */}
+      <div className="w-full pr-1 pb-4 flex flex-col gap-6">
         {children}
       </div>
     </motion.div>

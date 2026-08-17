@@ -1,5 +1,7 @@
 import { Component, Suspense } from "react";
 import type { ErrorInfo, ReactNode } from "react";
+import { detectBrowserLanguage } from "../../lib/i18n";
+import { getErrorBoundaryString } from "../../constants/errorBoundaryStrings";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -82,7 +84,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render() {
     if (this.state.hasError) {
       const { t } = this.props;
-      const fallbackT = t || ((key: string) => key);
+      const lang = detectBrowserLanguage();
+      const fallbackT =
+        t || ((key: string) => getErrorBoundaryString(lang, key as never));
+
+      const errorMessage = this.state.error?.message || String(this.state.error);
+      const isChunkLoadError =
+        /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|chunk load/i.test(
+          errorMessage,
+        );
 
       if (typeof this.props.fallback === "function") {
         return (this.props.fallback as (error: Error) => ReactNode)(this.state.error!);
@@ -95,37 +105,42 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       return (
         <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-[var(--text-primary)] p-6">
-          <div className="max-w-[500px] w-full rounded-2xl bg-white/10 p-6 backdrop-blur-sm">
+          <div className="max-w-[500px] w-full rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
             <h1 className="text-xl font-bold mb-2">{fallbackT("error.somethingWentWrong")}</h1>
             <p className="text-sm opacity-80 mb-3">
-              {fallbackT("error.appStillRunning")}
+              {isChunkLoadError
+                ? fallbackT("error.chunkLoadHint")
+                : fallbackT("error.appStillRunning")}
             </p>
-            <details className="text-xs opacity-60">
-              <summary>{fallbackT("error.errorDetails")}</summary>
-              <pre className="mt-2 whitespace-pre-wrap font-mono text-[10px]">
-                {this.state.error?.message}
+            <pre className="mt-3 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed bg-black/25 rounded-lg p-3 border border-[var(--border-color)] text-red-300 select-text">
+              {errorMessage}
+            </pre>
+            <details className="mt-3 text-xs opacity-60">
+              <summary className="cursor-pointer select-none">{fallbackT("error.errorDetails")}</summary>
+              <pre className="mt-2 whitespace-pre-wrap font-mono text-[10px] bg-black/20 rounded-lg p-2 border border-[var(--border-color)]">
+                {this.state.error?.stack}
               </pre>
             </details>
             <button
-              onClick={this.handleRetry}
-              className="mt-4 px-4 py-2 bg-white/20 rounded-lg text-sm hover:bg-white/30 transition-colors"
+              onClick={isChunkLoadError ? () => window.location.reload() : this.handleRetry}
+              className="mt-4 px-4 py-2 bg-[var(--accent)]/20 border border-[var(--accent)]/40 rounded-lg text-sm hover:bg-[var(--accent)]/30 transition-colors"
             >
-              {fallbackT("error.tryAgain")}
+              {isChunkLoadError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}
             </button>
           </div>
         </div>
       );
 
     }
-    return <Suspense fallback={<SuspenseFallback />}>{this.props.children}</Suspense>;
+    return <Suspense fallback={<SuspenseFallback lang={detectBrowserLanguage()} />}>{this.props.children}</Suspense>;
   }
 }
 
-const SuspenseFallback = () => (
+const SuspenseFallback = ({ lang }: { lang: string }) => (
   <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-[var(--text-primary)]">
     <div className="flex flex-col items-center gap-4">
       <div className="w-8 h-8 border-2 border-[var(--border-color)] border-t-white rounded-full animate-spin" />
-      <p className="text-sm opacity-60">Loading...</p>
+      <p className="text-sm opacity-60">{getErrorBoundaryString(lang, "loading")}</p>
     </div>
   </div>
 );

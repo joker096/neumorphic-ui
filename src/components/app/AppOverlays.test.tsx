@@ -35,6 +35,8 @@ const defaultProps = {
   globalSelectedContact: null, setGlobalSelectedContact: vi.fn(),
   activeChat: null, setActiveChat: vi.fn(),
   editingContact: null, setEditingContact: vi.fn(),
+  showAddContactFromChat: false, setShowAddContactFromChat: vi.fn(),
+  onAddContactFromChat: vi.fn(),
   contacts: [], setContacts: vi.fn(),
   chats: [], setChats: vi.fn(),
   t: (k: string) => k,

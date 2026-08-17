@@ -35,35 +35,32 @@ describe('IncomingCallSheet - additional tests', () => {
 
   it('renders reject button', () => {
     render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    const rejectBtn = document.querySelector('[class*="from-red-500"]')?.closest('button') || document.querySelector('[class*="from-red-500"]');
-    expect(rejectBtn).toBeInTheDocument();
+    expect(screen.getByTitle('Reject call')).toBeInTheDocument();
   });
 
   it('renders accept button', () => {
     render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    const acceptBtn = document.querySelector('[class*="from-green-500"]')?.closest('button') || document.querySelector('[class*="from-green-500"]');
-    expect(acceptBtn).toBeInTheDocument();
+    expect(screen.getByTitle('Accept call')).toBeInTheDocument();
   });
 
   it('renders video accept button', () => {
     render(<IncomingCallSheet callerName="John" callType="video" onAccept={() => {}} onReject={() => {}} onAcceptVideo={() => {}} />);
-    const videoBtn = document.querySelector('[class*="from-blue-500"]')?.closest('button') || document.querySelector('[class*="from-blue-500"]');
-    expect(videoBtn).toBeInTheDocument();
+    expect(screen.getByTitle('Accept as video')).toBeInTheDocument();
   });
 
   it('renders avatar circle', () => {
     const { container } = render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    expect(container.querySelector('[class*="w-36.h-36"]') || container.querySelector('[class*="from-orange-500"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="neo-raised"]')).toBeInTheDocument();
   });
 
-  it('renders gradient background', () => {
+  it('renders neumorphic background', () => {
     const { container } = render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    expect(container.querySelector('[class*="from-zinc-900"]') || container.querySelector('[class*="to-black"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="radial-gradient"]')).toBeInTheDocument();
   });
 
   it('renders Incoming call text', () => {
     render(<IncomingCallSheet callerName="John" callType="audio" onAccept={() => {}} onReject={() => {}} />);
-    expect(screen.getByText('Incoming call...')).toBeInTheDocument();
+    expect(screen.getByText(/Incoming call/)).toBeInTheDocument();
   });
 
   it('renders Voice call text', () => {
