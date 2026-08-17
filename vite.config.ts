@@ -92,7 +92,6 @@ export default defineConfig({
           animation: ['motion'],
           icons: ['lucide-react'],
           ui: ['@tanstack/react-virtual', '@yudiel/react-qr-scanner', 'qrcode', 'sonner'],
-          locales: ['./src/locales'],
         },
       },
     },

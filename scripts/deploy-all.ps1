@@ -71,10 +71,8 @@ if (-not $SkipBuild) {
   try {
     if (-not $SkipTests) {
       Write-Host "  Lint + typecheck..." -ForegroundColor Yellow
-      npx eslint . --quiet
-      if ($LASTEXITCODE -ne 0) { throw "Lint failed" }
-      npx tsc --noEmit
-      if ($LASTEXITCODE -ne 0) { throw "TypeScript check failed" }
+      npm run lint
+      if ($LASTEXITCODE -ne 0) { throw "Lint + TypeScript check failed" }
       Write-Host "  Running tests..." -ForegroundColor Yellow
       npx vitest run
       if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
@@ -93,20 +91,24 @@ if (-not $SkipBuild) {
    } finally { Pop-Location }
 
   Write-Host "`n━━━ [2/5] Build Admin Panel ━━━" -ForegroundColor Cyan
-  Push-Location $AdminDir
-  try {
-    npm install --ignore-scripts
-    if ($LASTEXITCODE -ne 0) { throw "Admin npm install failed" }
-    Write-Host "  Building admin SPA..." -ForegroundColor Yellow
-    npm run build
-    if ($LASTEXITCODE -ne 0) { throw "Admin build failed" }
-    $AdminDistTarget = "$RootDir/dist/admin"
-    if (Test-Path "$AdminDir/dist") {
-      if (Test-Path $AdminDistTarget) { Remove-Item -Recurse -Force $AdminDistTarget }
-      Copy-Item -Recurse "$AdminDir/dist" $AdminDistTarget
-      Write-Host "  ✓ Admin panel built + copied to dist/admin" -ForegroundColor Green
-    }
-  } finally { Pop-Location }
+  if (Test-Path $AdminDir) {
+    Push-Location $AdminDir
+    try {
+      npm install --ignore-scripts
+      if ($LASTEXITCODE -ne 0) { throw "Admin npm install failed" }
+      Write-Host "  Building admin SPA..." -ForegroundColor Yellow
+      npm run build
+      if ($LASTEXITCODE -ne 0) { throw "Admin build failed" }
+      $AdminDistTarget = "$RootDir/dist/admin"
+      if (Test-Path "$AdminDir/dist") {
+        if (Test-Path $AdminDistTarget) { Remove-Item -Recurse -Force $AdminDistTarget }
+        Copy-Item -Recurse "$AdminDir/dist" $AdminDistTarget
+        Write-Host "  ✓ Admin panel built + copied to dist/admin" -ForegroundColor Green
+      }
+    } finally { Pop-Location }
+  } else {
+    Write-Host "  ⚠ Admin directory not found, skipping admin build" -ForegroundColor Yellow
+  }
 
   Write-Host "`n━━━ [3/5] Prepare Signaling Server Files ━━━" -ForegroundColor Cyan
   $ServerDist = "$RootDir/dist/server"

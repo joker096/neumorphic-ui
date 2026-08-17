@@ -1,0 +1,63 @@
+{
+  "name": "Mess&Anger",
+  "tagline": "Mesh-Powered Decentralized Messenger",
+  "version": "1.0",
+  "year": "2026",
+  "urls": {
+    "root": "https://mess.cvr.name/",
+    "ogImage": "https://mess.cvr.name/og-image.png",
+    "contact": "https://t.me/cvrname/4243"
+  },
+  "og": {
+    "type": "website",
+    "title": "Mess&Anger — Mesh-Powered Decentralized Messenger",
+    "description": "Mesh-capable, fully-decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay. No servers. No phone number. No compromises.",
+    "locale": "ru_RU"
+  },
+  "twitter": {
+    "card": "summary_large_image",
+    "title": "Mess&Anger — P2P Мессенджер",
+    "description": "Без серверов. Без телефона. Пост-квантовое шифрование.",
+    "image": "https://mess.cvr.name/og-image.png"
+  },
+  "pwa": {
+    "manifest": "/manifest.json",
+    "appleTouchIcon": "/icon-192.png",
+    "appleMobileWebAppCapable": "yes",
+    "appleMobileWebAppStatusBarStyle": "black-translucent",
+    "appleMobileWebAppTitle": "Mess&Anger"
+  },
+  "fonts": {
+    "preload": [
+      {
+        "href": "/fonts/Roboto-latin.woff2",
+        "as": "font",
+        "type": "font/woff2",
+        "crossorigin": true
+      },
+      {
+        "href": "/fonts/JetBrainsMono-400.woff2",
+        "as": "font",
+        "type": "font/woff2",
+        "crossorigin": true
+      }
+    ],
+    "fallback": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+  },
+  "animations": {
+    "tickerSpeed": 30,
+    "revealDuration": 600,
+    "parallaxMax": 12,
+    "counterDuration": 1400
+  },
+  "data": {
+    "ticker": "/data/ticker.json",
+    "marquee": "/data/marquee.json",
+    "lang": "/lang"
+  },
+  "features": {
+    "mesh": "01 · Mesh Network",
+    "store": "02 · Store-and-Forward",
+    "forward": "03 · Forward Secrecy"
+  }
+}

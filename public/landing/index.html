@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mess&Anger — Mesh-Powered Decentralized Messenger</title>
+  <meta name="description" content="Mesh-capable, fully-decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay. No servers. No phone number. Open Source.">
+  <meta name="keywords" content="мессенджер, p2p, mesh, шифрование, приватность, децентрализованный, post-quantum, ml-kem, e2e, forward-secrecy, store-and-forward, reticulum">
+  <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#070707" id="themeColor">
+
+ <!-- OpenGraph -->
+   <meta property="og:type" content="website">
+   <meta property="og:url" content="https://mess.cvr.name/">
+   <meta property="og:title" content="Mess&Anger — Mesh-Powered Decentralized Messenger">
+   <meta property="og:description" content="Mesh-capable, fully-decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay. No servers. No phone number. No compromises.">
+   <meta property="og:image" content="https://mess.cvr.name/og-image.png">
+   <meta property="og:image:width" content="1200">
+   <meta property="og:image:height" content="630">
+   <meta property="og:locale" content="ru_RU">
+   <meta property="og:site_name" content="Mess&Anger">
+
+   <!-- Twitter Card -->
+   <meta name="twitter:card" content="summary_large_image">
+   <meta name="twitter:title" content="Mess&Anger — P2P Мессенджер">
+   <meta name="twitter:description" content="Без серверов. Без телефона. Пост-квантовое шифрование.">
+   <meta name="twitter:image" content="https://mess.cvr.name/og-image.png">
+
+    <!-- PWA -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mess&Anger">
+    <link rel="stylesheet" href="./styles/landing.css">
+</head>
+<body>
+<a href="#main" class="skip-link" data-i18n="skip.main">Skip to content</a>
+<a href="#top" class="skip-link" style="left:auto;right:24px;transform:none" data-i18n="skip.back">Back to top</a>
+<div id="offline-banner" class="offline-banner" role="status" aria-live="polite" data-i18n="offline.banner">You are offline. Some features may be unavailable.</div>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav id="nav">
+  <a href="#top" class="nav-logo" aria-label="Mess&Anger home"><b>Mess</b>&Anger</a>
+  <ul class="nav-links" aria-label="Main navigation">
+    <li><a href="#features" data-i18n="nav.features">Features</a></li>
+    <li><a href="#comparison" data-i18n="nav.comparison">Comparison</a></li>
+    <li><a href="#security" data-i18n="nav.security">Security</a></li>
+    <li><a href="#download" data-i18n="nav.download">Download</a></li>
+  </ul>
+  <div class="nav-right">
+    <button id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <button id="themeToggle" class="lang-btn theme-toggle" title="Toggle theme">
+      <span id="themeIcon">☀️</span>
+    </button>
+    <div class="lang-switcher" id="langSwitcher">
+      <button class="lang-btn" id="langBtn">
+        <span id="langCurrent">🇷🇺 RU</span>
+        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 10 2 4 10 4" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>
+      </button>
+      <div class="lang-dropdown">
+        <div class="lang-opt" data-lang="ru">🇷🇺 RU</div>
+        <div class="lang-opt" data-lang="en">🇬🇧 EN</div>
+        <div class="lang-opt" data-lang="de">🇩🇪 DE</div>
+        <div class="lang-opt" data-lang="fr">🇫🇷 FR</div>
+        <div class="lang-opt" data-lang="es">🇪🇸 ES</div>
+        <div class="lang-opt" data-lang="zh">🇨🇳 ZH</div>
+        <div class="lang-opt" data-lang="ja">🇯🇵 JA</div>
+        <div class="lang-opt" data-lang="ko">🇰🇷 KO</div>
+      </div>
+    </div>
+    <a href="#download" class="nav-cta" data-i18n="nav.download">Download</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="hero r" id="top">
+  <p class="tag" data-i18n="hero.tag">v1.0 · July 2026 · RETIMCULUM_MESH_PLAN Complete</p>
+  <h1 data-i18n="hero.title">Meet <b>Mess&Anger</b></h1>
+  <p class="sub" data-i18n="hero.sub">Mesh-capable, fully-decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay.<br>No servers. No phone number. No compromises.</p>
+  <a href="#download" class="btn" data-i18n="hero.win">Download for Windows</a>
+</section>
+
+<!-- ═══════════════════ TICKER ═══════════════════ -->
+<section class="ticker" id="tk"></section>
+
+<!-- ═══════════════════ STATS ═══════════════════ -->
+<section class="stats r">
+  <h2 data-i18n="stats.label">By the numbers</h2>
+  <div class="stat"><span class="n" data-count="0">0</span><span class="l" data-i18n="stats.servers">Central servers</span></div>
+  <div class="stat"><span class="n" data-count="6">0</span><span class="l" data-i18n="stats.phases">Architecture phases (Reticulum-inspired)</span></div>
+  <div class="stat"><span class="n" data-count="3696">0</span><span class="l" data-i18n="stats.tests">Tests passed</span></div>
+  <div class="stat"><span class="n" data-count="8">0</span><span class="l" data-i18n="stats.langs">Interface languages</span></div>
+</section>
+
+<!-- ═══════════════════ FEATURES ═══════════════════ -->
+<section class="sec r" id="features">
+  <p class="sec-label" data-i18n="feat.label">Capabilities</p>
+  <h2 data-i18n="feat.title">Everything you need.<br><em>Nothing you don't.</em></h2>
+  <p class="desc" data-i18n="feat.desc">Every feature ships with privacy and security baked in. No toggle to turn off — because you shouldn't have to choose between usability and anonymity.</p>
+  <div class="bento">
+    <div class="card" data-tilt><div class="gl"></div><p class="n" data-i18n="feat.n1">01 · Mesh Network</p><h3 data-i18n="feat.h1">DHT-based node discovery & multi-hop relay</h3><p data-i18n="feat.p1">Reticulum-inspired mesh architecture. DHT node discovery, TTL-based routing tables, and multi-hop relay for anonymous, resilient communication even behind NATs and firewalls.</p></div>
+    <div class="card mid" data-tilt><div class="gl"></div><p class="n" data-i18n="feat.n2">02 · Store-and-Forward</p><h3 data-i18n="feat.h2">LXMF-style message queue with forward secrecy</h3><p data-i18n="feat.p2">Message envelopes with TTL expiration, acknowledgment tracking, and forward secrecy — derived message keys are never stored after use. Works offline and in mesh scenarios.</p></div>
+    <div class="card" data-tilt><div class="gl"></div><p class="n" data-i18n="feat.n3">03 · Forward Secrecy</p><h3 data-i18n="feat.h3">Compromised key doesn't reveal past messages</h3><p data-i18n="feat.p3">Signal Protocol double ratchet with skipped message key decryption. Each message key is derived but never stored after use — even if your device is seized, past messages stay safe.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COMPARISON ═══════════════════ -->
+<section class="sec r" id="comparison">
+  <p class="sec-label" data-i18n="cmp.label">Comparison</p>
+  <h2 data-i18n="cmp.title">Why not <em>Telegram</em><br>or Signal?</h2>
+  <p class="desc" data-i18n="cmp.desc">All popular messengers store your data on their servers. Mess&Anger is the only one where data lives exclusively on your device.</p>
+   <div class="cmp">
+     <table>
+       <tr><th data-i18n="cmp.param">Feature</th><th>Mess&Anger</th><th>Telegram</th><th>Signal</th><th>WhatsApp</th></tr>
+       <tr><td data-i18n="cmp.r1">Central servers</td><td class="y" data-i18n="cmp.r1a">None (P2P)</td><td data-i18n="cmp.has">Yes</td><td data-i18n="cmp.has">Yes</td><td data-i18n="cmp.has">Yes</td></tr>
+       <tr><td data-i18n="cmp.r2">E2E by default</td><td class="y" data-i18n="cmp.always">Always</td><td data-i18n="cmp.r2t">Secret chats only</td><td class="y" data-i18n="cmp.always">Always</td><td class="y" data-i18n="cmp.always">Always</td></tr>
+       <tr><td data-i18n="cmp.r3">Post-quantum protection</td><td class="y" data-i18n="cmp.has">Yes</td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td></tr>
+       <tr><td data-i18n="cmp.r4">Phone number</td><td class="y" data-i18n="cmp.r4a">Not required</td><td data-i18n="cmp.req">Required</td><td data-i18n="cmp.req">Required</td><td data-i18n="cmp.req">Required</td></tr>
+       <tr><td data-i18n="cmp.r5">Data storage</td><td class="y" data-i18n="cmp.r5a">Device only</td><td data-i18n="cmp.r5t">Telegram cloud</td><td data-i18n="cmp.r5s">Signal servers</td><td data-i18n="cmp.r5w">Meta servers</td></tr>
+       <tr><td data-i18n="cmp.r6">Censorship resistance</td><td class="y"><b>5</b> <span data-i18n="cmp.r6a">levels</span></td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td></tr>
+       <tr><td data-i18n="cmp.r7">Forward Secrecy</td><td class="y" data-i18n="cmp.r7a">Every message</td><td data-i18n="cmp.partial">Partial</td><td class="y" data-i18n="cmp.r7a">Every message</td><td data-i18n="cmp.partial">Partial</td></tr>
+     </table>
+   </div>
+</section>
+
+<!-- ═══════════════════ SECURITY ═══════════════════ -->
+<section class="sec r" id="security">
+  <p class="sec-label" data-i18n="sec.label">Security architecture</p>
+  <h2 data-i18n="sec.title">10 layers<br><em>of protection</em></h2>
+  <p class="desc">Security score 9.5/10. Reticulum-inspired architecture with 6 phased implementations. From HKDF + forward secrecy to DHT-based mesh routing. Each layer is independent — if one is compromised, the rest hold.</p>
+  <div class="sec-arr">
+    <div class="item"><b>01</b> <span data-i18n="sec.l1">Signal Protocol double ratchet with forward secrecy</span></div>
+    <div class="item"><b>02</b> <span data-i18n="sec.l2">Post-quantum protection (ML-KEM-768), NIST 2024</span></div>
+    <div class="item"><b>03</b> <span data-i18n="sec.l3">DHT-based node discovery, TTL-based routing tables</span></div>
+    <div class="item"><b>04</b> <span data-i18n="sec.l4">LXMF-style message envelopes with TTL expiration</span></div>
+    <div class="item"><b>05</b> <span data-i18n="sec.l5">Multi-hop relay with path-based routing</span></div>
+    <div class="item"><b>06</b> <span data-i18n="sec.l6">AES-256-GCM + PBKDF2 for at-rest storage. 600k iterations.</span></div>
+    <div class="item"><b>07</b> <span data-i18n="sec.l7">Transparent proxy bridges + Tor/SOCKS5 support</span></div>
+    <div class="item"><b>08</b> <span data-i18n="sec.l8">Metadata killswitches, path fuzzing, traffic obfuscation</span></div>
+    <div class="item"><b>09</b> <span data-i18n="sec.l9">Secure key storage, encrypted at-rest, secure wipe</span></div>
+    <div class="item"><b data-i18n="sec.l10t">3696 tests · 0 errors · 0 lint</b> <span data-i18n="sec.l10">Build passes · Fully tested mesh architecture</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ STARS ═══════════════════ -->
+<section class="sec r">
+  <p class="sec-label" data-i18n="stars.label">Stars Economy</p>
+  <h2 data-i18n="stars.title">Earn by<br>supporting the <em>network</em></h2>
+  <p class="desc" data-i18n="stars.desc">Stars is a local reward system. Not crypto, not blockchain. Just motivation for those who keep the network alive.</p>
+  <div class="stars">
+    <div class="col"><h3 data-i18n="stars.earn">How to earn</h3>
+      <ul><li data-i18n="stars.e1">Send a message</li><li data-i18n="stars.e2">React to a message</li><li data-i18n="stars.e3">Your message was forwarded</li><li data-i18n="stars.e4">Relay data for network</li></ul>
+    </div>
+    <div class="col"><h3 data-i18n="stars.spend">How to spend</h3>
+      <ul><li data-i18n="stars.s1">Premium (month)</li><li data-i18n="stars.s2">Extra folders</li><li data-i18n="stars.s3">Custom themes</li><li data-i18n="stars.s4">Priority support</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ANTI-CENSORSHIP ═══════════════════ -->
+<section class="sec r">
+  <p class="sec-label" data-i18n="ac.label">Anti-censorship</p>
+  <h2 data-i18n="ac.title">Impossible<br><em>to block</em></h2>
+  <p class="desc" data-i18n="ac.desc">5 resistance levels. If one is unavailable — automatic switch. Traffic is indistinguishable from regular HTTPS for any DPI.</p>
+  <div class="ac-l">
+    <div class="l"><h3 data-i18n="ac.l1t">Mesh Routing (DHT)</h3><p data-i18n="ac.l1d">Decentralized node discovery with latency-based sorting. TTL-based routing tables with automatic cleanup.</p></div>
+    <div class="l"><h3 data-i18n="ac.l2t">Multi-hop Relay</h3><p data-i18n="ac.l2d">Messages traverse multiple relay nodes. Each hop strips routing info — sender and recipient are hidden.</p></div>
+    <div class="l"><h3 data-i18n="ac.l3t">Store-and-Forward</h3><p data-i18n="ac.l3d">LXMF-style message queue with TTL expiration. Works offline. Messages forward automatically when a path becomes available.</p></div>
+    <div class="l"><h3 data-i18n="ac.l4t">Forward Secrecy</h3><p data-i18n="ac.l4d">Even if your device is compromised, past messages stay safe. Derived message keys are never stored after use.</p></div>
+    <div class="l"><h3 data-i18n="ac.l5t">Transport Agnostic</h3><p data-i18n="ac.l5d">Automatic switching between WebRTC, WebSocket, Mesh, Tor. Traffic obfuscation with fake TLS headers and padding.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MANIFESTO ═══════════════════ -->
+<section class="man r">
+  <blockquote data-i18n="manifesto.quote">«Your conversations are yours alone.<br>Even <em>we</em> cannot read them.»</blockquote>
+</section>
+
+<!-- ═══════════════════ FAQ ═══════════════════ -->
+<section class="sec r">
+  <p class="sec-label" data-i18n="faq.label">FAQ</p>
+  <h2 data-i18n="faq.title">Frequently<br><em>asked questions</em></h2>
+  <dl class="faq">
+    <dt role="button" tabindex="0" aria-expanded="false" data-i18n="faq.q1">What happens if I lose my phone?</dt>
+    <dd data-i18n="faq.a1">If you created a backup (.mess file) — restore your account on a new device. Without backup, data is lost forever.</dd>
+    <dt role="button" tabindex="0" aria-expanded="false" data-i18n="faq.q2">Can the government block Mess&Anger?</dt>
+    <dd data-i18n="faq.a2">Practically impossible. Traffic is obfuscated and indistinguishable from regular HTTPS. If WebRTC is blocked — WebSocket tunnel is used automatically.</dd>
+    <dt role="button" tabindex="0" aria-expanded="false" data-i18n="faq.q3">Can someone read my messages?</dt>
+    <dd data-i18n="faq.a3">Only you and the recipient. Messages are encrypted on your device and decrypted only on the recipient's device.</dd>
+    <dt role="button" tabindex="0" aria-expanded="false" data-i18n="faq.q4">What is post-quantum protection?</dt>
+    <dd data-i18n="faq.a4">Encryption resistant to quantum computers. ML-KEM-768 approved by NIST in 2024.</dd>
+    <dt role="button" tabindex="0" aria-expanded="false" data-i18n="faq.q5">How do I add a contact?</dt>
+    <dd data-i18n="faq.a5">Scan a QR code, search by username, or receive a nexus:// link. There is no central address book.</dd>
+    <dt role="button" tabindex="0" aria-expanded="false" data-i18n="faq.q6">Is Stars a cryptocurrency?</dt>
+    <dd data-i18n="faq.a6">No. Stars is a local reward system for activity. No blockchain, no market value.</dd>
+  </dl>
+</section>
+
+<!-- ═══════════════════ DOWNLOAD ═══════════════════ -->
+<section class="sec r" id="download">
+  <p class="sec-label" data-i18n="dl.label">Installation</p>
+  <h2 data-i18n="dl.title">Download<br><em>Mess&Anger</em></h2>
+  <p class="desc">Version 1.0 · July 2026 · RETIMCULUM_MESH_PLAN Complete · 3696 tests · 0 errors · 0 lint</p>
+   <div class="dl">
+     <div class="card mid">
+       <h3 data-i18n="dl.winplat">Desktop · Windows</h3>
+       <p data-i18n="dl.windesc">Full version on Electron + React 18. Native notifications, App Lock.</p>
+       <a class="btn" href="https://t.me/cvrname/4243" target="_blank" rel="noopener" data-i18n="dl.winbtn">Download .exe</a>
+     </div>
+     <div class="card">
+       <h3 data-i18n="dl.aplat">Mobile · Android</h3>
+       <p data-i18n="dl.adesc">Install the APK directly. Enable "Unknown sources" in settings.</p>
+        <a class="btn" href="./app-release-signed.apk" download data-i18n="dl.abtn">Download APK</a>
+     </div>
+     <div class="card">
+       <h3 data-i18n="dl.iplat">iOS / Web · PWA</h3>
+       <p data-i18n="dl.idesc">Open in Safari and add to Home Screen. Service Worker works offline.</p>
+       <a class="btn" href="https://t.me/cvrname/4243" target="_blank" rel="noopener" data-i18n="dl.ibtn">Open in Safari</a>
+     </div>
+   </div>
+</section>
+
+<!-- ═══════════════════ MESH RADAR ═══════════════════ -->
+<section class="mesh r">
+  <h2 data-i18n="mesh.title">Mesh Radar</h2>
+  <p class="mesh-desc" data-i18n="mesh.desc">DHT-based node discovery in real-time. Nodes are discovered via decentralized hash table and connected through multi-hop relay paths.</p>
+  <canvas id="meshCanvas" width="240" height="240"></canvas>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <ul>
+    <li><a href="https://t.me/cvrname/4243" data-i18n="foot.contact">Contact</a></li>
+  </ul>
+  <div class="foot-v">v1.0 · July 2026 · RETIMCULUM_MESH_PLAN Complete · 3696 tests · 0 errors</div>
+</footer>
+
+<script src="./scripts/main.js" defer></script>
+
+<!-- ═══════════════════ MOBILE NAV ═══════════════════ -->
+<div id="mobileNav" class="mobile-nav" aria-hidden="true">
+  <div class="mobile-nav-backdrop"></div>
+  <div class="mobile-nav-panel">
+    <button id="mobileNavClose" class="lang-btn mobile-nav-close" aria-label="Close menu" aria-controls="mobileNav">
+      <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2 L14 14 M14 2 L2 14" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>
+    </button>
+    <a href="#features" class="mobile-nav-link" data-i18n="nav.features">Features</a>
+    <a href="#comparison" class="mobile-nav-link" data-i18n="nav.comparison">Comparison</a>
+    <a href="#security" class="mobile-nav-link" data-i18n="nav.security">Security</a>
+    <a href="#download" class="mobile-nav-link" data-i18n="nav.download">Download</a>
+  </div>
+</div>
+
+</body>
+</html>
