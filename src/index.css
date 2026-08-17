@@ -1,10 +1,71 @@
 @import "./styles/tokens.css";
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
-  --font-display: ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
+  --font-sans: "Segoe UI Variable", "Avenir Next", ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
+  --font-display: "Segoe UI Variable", "Avenir Next", ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom transition utilities */
+  --transition-property-all: all;
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 200ms;
+  --transition-duration-slow: 300ms;
+  --transition-ease-default: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Custom backdrop-blur sizes */
+  --blur-md: 8px;
+  --blur-xl: 12px;
+
+  /* Custom drop shadow */
+  --shadow-drop-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-drop-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-drop-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+
+  /* Custom ring offset */
+  --ring-offset-sm: 2px;
+  --ring-offset-md: 4px;
+
+  /* Custom tracking sizes */
+  --tracking-wide: -0.01em;
+  --tracking-wider: -0.02em;
+  --tracking-widest: -0.03em;
+
+  /* Custom material thin shadow */
+  --shadow-material-thin: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.06);
+}
+
+/* shadcn/ui semantic token layer — maps existing palette to Tailwind utilities
+   (bg-background, text-foreground, border-border, bg-primary, rounded-lg, …) */
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-secondary);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--bg-elevated);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--accent);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--bg-tertiary);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--bg-tertiary);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-accent-foreground: #ffffff;
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--border-color);
+  --color-input: var(--border-color);
+  --color-input-bg: var(--input-bg);
+  --color-input-text: var(--input-text);
+  --color-input-placeholder: var(--input-placeholder);
+  --color-ring: var(--accent);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
 }
 
 html {
@@ -14,7 +75,7 @@ html {
 }
 
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--font-size-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -23,10 +84,10 @@ body {
   padding: 0;
   min-height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(249,115,22,0.08), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(255,255,255,0.04), transparent 28%),
-    var(--bg-primary, #0d1017);
-  color: var(--text-primary, #f0f2f5);
+    radial-gradient(ellipse at 15% 10%, rgba(111,127,255,0.07), transparent 45%),
+    radial-gradient(ellipse at 85% 90%, rgba(150,93,255,0.05), transparent 45%),
+    var(--bg-primary, #070a0f);
+  color: var(--text-primary, #f5f7fb);
   text-rendering: optimizeLegibility;
 }
 
@@ -41,27 +102,75 @@ textarea {
   font: inherit;
 }
 
+/* WCAG / UX: all interactive controls must show pointer cursor */
+@layer utilities {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  label:has(> input[type="checkbox"]),
+  label:has(> input[type="radio"]),
+  select,
+  summary {
+    cursor: pointer !important;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed !important;
+  }
+}
+
+/* Ensure keyboard focus is always visible (WCAG 2.4.7) */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid rgba(111, 127, 255, 0.65);
+  outline-offset: 2px;
+}
+
 ::selection {
-  background: rgba(249, 115, 22, 0.28);
+  background: rgba(111, 127, 255, 0.28);
   color: inherit;
 }
 
 /* Thin styled scrollbars */
 *::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
 }
 *::-webkit-scrollbar-track {
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  background: rgba(128,128,128,0.25);
-  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(128,128,128,0.4);
+  background: rgba(255,255,255,0.2);
 }
-* { -ms-overflow-style: auto; scrollbar-width: thin; }
+* { -ms-overflow-style: thin; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+
+/* Theme-aware scrollbars: light thumb on dark, dark thumb on light */
+[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+}
+[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.22);
+}
+[data-theme="dark"] {
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
+}
+[data-theme="light"] *::-webkit-scrollbar-thumb {
+  background: rgba(15,23,42,0.18);
+}
+[data-theme="light"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(15,23,42,0.3);
+}
+[data-theme="light"] {
+  scrollbar-color: rgba(15,23,42,0.18) transparent;
+}
 
 
 
@@ -84,29 +193,26 @@ textarea {
 .t-accent { color: var(--accent); }
 .t-accent-bg { background: var(--accent-soft); }
 
-/* Neumorphic utilities */
+/* Flat surface utilities (shadcn-style: solid bg + hairline border + subtle shadow) */
 .neu-raised {
-  box-shadow: var(--neu-raised-dark);
-  background: var(--bg-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 .neu-inset {
-  box-shadow: var(--neu-inset-dark);
-}
-[data-theme="light"] .neu-raised {
-  box-shadow: var(--neu-raised-light);
-}
-[data-theme="light"] .neu-inset {
-  box-shadow: var(--neu-inset-light);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
 }
 
 /* Neu card inset utility */
 .neu-card-inset {
   background: var(--bg-secondary);
-  box-shadow: var(--neu-inset-dark);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 [data-theme="light"] .neu-card-inset {
   background: var(--bg-secondary);
-  box-shadow: var(--neu-inset-light);
+  border: 1px solid var(--border-color);
 }
 
 /* Neu input utility */
@@ -143,11 +249,162 @@ textarea {
 /* Ensure dark theme overrides any light colors on the root */
 [data-theme="dark"] {
   background: var(--bg-primary) !important;
+  color-scheme: dark;
 }
+
+[data-theme="light"] { color-scheme: light; }
 
 [data-theme] {
   color-scheme: dark light;
 }
+
+/* Custom transition-all utility */
+.transition-all {
+  transition: all 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Custom transition-colors utility */
+.transition-colors {
+  transition: color 200ms cubic-bezier(0.32, 0.72, 0, 1), background-color 200ms cubic-bezier(0.32, 0.72, 0, 1), border-color 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Custom transition-opacity utility */
+.transition-opacity {
+  transition: opacity 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Custom transition-transform utility */
+.transition-transform {
+  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Custom backdrop-blur-md utility */
+.backdrop-blur-md {
+  backdrop-filter: blur(var(--blur-md));
+}
+
+/* Custom drop-shadow utilities */
+.drop-shadow {
+  text-shadow: var(--shadow-drop-sm);
+}
+.drop-shadow-lg {
+  text-shadow: var(--shadow-drop-md);
+}
+.drop-shadow-sm {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom material-thin shadow */
+.material-thin {
+  box-shadow: var(--shadow-material-thin);
+}
+
+/* Custom neumorphic-card-inset utility (flat) */
+.neumorphic-card-inset {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+[data-theme="light"] .neumorphic-card-inset {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* Neumorphic surface utilities — theme-aware raised / pressed states.
+   Used by the call & video-call screens to match the app's neumorphic language. */
+.neo-raised {
+  background: var(--neo-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--neo-shadow-out), var(--neo-shadow-in);
+}
+.neo-raised-sm {
+  background: var(--neo-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--neo-shadow-out-sm), var(--neo-shadow-in-sm);
+}
+.neo-pressed {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--neo-shadow-inset);
+}
+.neo-pressed-sm {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--neo-shadow-inset-sm);
+}
+/* Circular variant for call control buttons */
+.neo-circle {
+  background: var(--neo-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--neo-shadow-out-sm), var(--neo-shadow-in-sm);
+  transition: box-shadow 0.2s ease, transform 0.12s ease, background 0.2s ease;
+}
+.neo-circle:active {
+  box-shadow: var(--neo-shadow-inset-sm);
+  transform: scale(0.94);
+}
+.neo-circle-pressed {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--neo-shadow-inset-sm);
+}
+
+/* Custom ring-offset utilities */
+.ring-offset-sm {
+  outline-offset: var(--ring-offset-sm);
+}
+.ring-offset-md {
+  outline-offset: var(--ring-offset-md);
+}
+
+/* Custom tracking utilities for wide/wider/widest */
+.tracking-wide {
+  letter-spacing: var(--tracking-wide);
+}
+.tracking-wider {
+  letter-spacing: var(--tracking-wider);
+}
+.tracking-widest {
+  letter-spacing: var(--tracking-widest);
+}
+
+/* Custom scrollbar-none utility */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom overflow-x-auto utility */
+.overflow-x-auto {
+  overflow-inline: auto;
+}
+
+/* Custom border-x utility (top/bottom border) */
+.border-x {
+  border-top-style: solid;
+  border-bottom-style: solid;
+}
+
+/* Custom space-y utilities (include bottom margin, differs from Tailwind default) */
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Custom tracking-tight utility (tighter than Tailwind default) */
+.tracking-tight {
+  letter-spacing: -0.015em;
+}
+
+/* Custom max-w utility (intentional 17rem, differs from Tailwind 20rem) */
+.max-w-xs { max-width: 17rem; }
 
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {

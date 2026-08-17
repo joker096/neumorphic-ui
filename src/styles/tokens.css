@@ -16,117 +16,121 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
+  /* Typography ramp — tighter, proportional scale so control sizing
+     matches the text inside it instead of dwarfing it. */
+  --text-2xs: 0.6875rem;   /* 11px — badges, micro labels */
+  --text-xs: 0.75rem;      /* 12px — chips, captions */
+  --text-sm: 0.875rem;     /* 14px — body, buttons */
+  --text-base: 1rem;       /* 16px — default */
   --text-lg: 1.125rem;
   --text-xl: 1.25rem;
   --text-2xl: 1.5rem;
+
+  /* Control heights — kept proportionate to the text they contain.
+     - sm: filter chips / compact segmented controls
+     - md: icon buttons inside toolbars (still ≥40px tappable)
+     - lg: primary action buttons (44px = AA touch target) */
+  --control-height-sm: 2.125rem;  /* 34px */
+  --control-height-md: 2.5rem;    /* 40px */
+  --control-height-lg: 2.75rem;   /* 44px */
 
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -4px rgba(0,0,0,0.3);
   --shadow-inset: inset 0 2px 4px 0 rgba(0,0,0,0.5);
 
-  --neu-raised-dark: 3px 3px 6px #0a0c10, -3px -3px 6px #14171e;
-  --neu-inset-dark: inset 3px 3px 6px #0a0c10, inset -3px -3px 6px #14171e;
-  --neu-raised-light: 3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff;
-  --neu-inset-light: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
+  --gold: #c9a96e;
+  --gold-soft: rgba(201,169,110,0.14);
+  --gold-soft-hover: rgba(201,169,110,0.07);
+  --cream: #f0ece4;
 }
 
 [data-theme="dark"] {
   --bg-primary: #0d1017;
   --bg-secondary: #13151b;
   --bg-tertiary: #1a1d24;
-  --bg-elevated: #1e2128;
+  --bg-elevated: #22262e;
   --text-primary: #f0f2f5;
-  --text-secondary: #9ca3af;
-  --text-tertiary: #6b7280;
-  --border-color: rgba(255,255,255,0.06);
-  --accent: #f97316;
-  --accent-soft: rgba(249,115,22,0.12);
+  --text-secondary: #a6adba;
+  --text-tertiary: #8b94a6;
+  --border-color: rgba(255,255,255,0.08);
+  --accent: #6f7fff;
+  --accent-soft: rgba(111,127,255,0.12);
+  --accent2: #965dff;
+  --success: #38d69a;
+  --success-soft: rgba(56,214,154,0.12);
+  --danger: #ff607d;
+  --danger-soft: rgba(255,96,125,0.12);
+  --cyan: #51d7ff;
+  --amber: #ffc85b;
 
-  /* Button tokens */
-  --button-primary-bg: #f97316;
+  --button-primary-bg: #6f7fff;
   --button-primary-text: #ffffff;
   --button-secondary-bg: transparent;
-  --button-secondary-text: #f97316;
-  --button-secondary-hover-bg: rgba(249,115,22,0.15);
-  --button-secondary-border: rgba(249,115,22,0.4);
+  --button-secondary-text: #9ca3af;
+  --button-secondary-hover-bg: rgba(111,127,255,0.15);
+  --button-secondary-border: rgba(111,127,255,0.3);
 
-  /* Card tokens */
-  --card-raised-bg: #1a1d24;
-  --card-flat-bg: #13151b;
+  --card-raised-bg: #22262e;
+  --card-flat-bg: #1a1d24;
   --card-inset-bg: #13151b;
 
-  /* Input tokens */
-  --input-bg: #1a1d24;
+  /* Neumorphic surface shadows (dark): subtle top-left highlight + deep bottom-right shadow */
+  --neo-shadow-out: -7px -7px 16px rgba(255,255,255,0.035);
+  --neo-shadow-in: 7px 7px 16px rgba(0,0,0,0.55);
+  --neo-shadow-out-sm: -3px -3px 7px rgba(255,255,255,0.03);
+  --neo-shadow-in-sm: 3px 3px 7px rgba(0,0,0,0.5);
+  --neo-shadow-inset: inset 4px 4px 10px rgba(0,0,0,0.6), inset -4px -4px 10px rgba(255,255,255,0.025);
+  --neo-shadow-inset-sm: inset 2px 2px 5px rgba(0,0,0,0.55), inset -2px -2px 5px rgba(255,255,255,0.02);
+  --neo-surface: #1a1d24;
+
+  --input-bg: #13151b;
   --input-text: #f0f2f5;
-  --input-placeholder: #6b7280;
+  --input-placeholder: #8b94a6;
   --inset-field-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.4);
 
-  /* Glass / backdrop tokens */
-  --glass-bg: rgba(19,21,27,0.6);
+  --glass-bg: rgba(13,16,23,0.75);
   --glass-border: rgba(255,255,255,0.08);
-  --glass-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.5);
   --glass-blur: 12px;
 
-  /* Doppelrand / double-bezel tokens */
-  --doppelrand-outer-bg: #1e2128;
-  --doppelrand-padding: 6px;
-  --doppelrand-radius-outer: 1rem;
-  --doppelrand-outer-border: rgba(255,255,255,0.08);
-  --doppelrand-radius-inner: 0.875rem;
-  --doppelrand-inner-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-
-  /* Shadow tokens */
-  --shadow-neu-raised: 3px 3px 6px #0a0c10, -3px -3px 6px #14171e;
-  --shadow-neu-inset: inset 3px 3px 6px #0a0c10, inset -3px -3px 6px #14171e;
-  --neu-base-dark: #0a0c10;
-  --neu-base-dark-light: #14171e;
-  --neu-base-light: #c2c8d4;
-  --neu-base-light-dark: #ffffff;
-
-  /* Radio mode tokens */
-  --radio-active: #5cc25c;
-  --radio-active-dark: #45a045;
+  --radio-active: #38d69a;
+  --radio-active-dark: #2ab87a;
   --radio-inactive: #c25c34;
   --radio-inactive-dark: #e2845c;
   --radio-inactive-darker: #d27546;
   --radio-inactive-lightest: #64d064;
-  --radio-thumb-dark: #3a1a0d;
+  --radio-thumb-dark: #1a2e22;
   --radio-track-dark: #183a18;
   --radio-track-light: #3a1a0d;
 
-  /* Hover / active tokens */
-  --hover-bg-dark: #20242e;
+  --hover-bg-dark: #1a222d;
   --hover-bg-light: rgba(0,0,0,0.05);
 
-  /* Warm text tokens */
   --text-warm-dark: #e6d6b8;
   --text-warm-light: #e6d6b8;
 
-  /* System tokens */
   --system-background: #0d1017;
-  --separator: rgba(255,255,255,0.06);
+  --separator: rgba(255,255,255,0.08);
 
-  /* List / toggle tokens */
   --list-item-hover-bg: rgba(255,255,255,0.04);
-  --toggle-active-bg: #f97316;
+  --toggle-active-bg: #6f7fff;
   --toggle-inactive-bg: rgba(255,255,255,0.1);
   --toggle-inactive-border: rgba(255,255,255,0.2);
   --toggle-thumb-bg: #ffffff;
 
-  /* Player / progress tokens */
-  --player-progress-orange: #f97316;
+  --player-progress-orange: #6f7fff;
 
-  /* Color utility tokens */
-  --color-success: #16a04a;
-  --color-success-soft: rgba(22,160,74,0.12);
-  --color-warning: #d97c0f;
-  --color-danger: #dc2023;
+  --color-success: #38d69a;
+  --color-success-soft: rgba(56,214,154,0.12);
+  --color-warning: #ffc85b;
+  --color-danger: #ff607d;
+
+  --gold: #c9a96e;
+  --gold-soft: rgba(201,169,110,0.14);
+  --gold-soft-hover: rgba(201,169,110,0.07);
+  --cream: #f0ece4;
 }
-
 
 [data-theme="light"] {
   --bg-primary: #f8fafc;
@@ -135,20 +139,14 @@
   --bg-elevated: #ffffff;
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
+  --text-tertiary: #64748b;
   --border-color: rgba(0,0,0,0.08);
   --accent: #ea580c;
+  --accent2: #d97706;
   --accent-soft: rgba(234,88,12,0.1);
-  /* Color utility tokens */
-  --color-success: #16a04a;
-  --color-success-soft: rgba(22,160,74,0.12);
-  --color-warning: #d97c0f;
-  --color-danger: #dc2023;
-
-  /* Semantic extension tokens (Phase-1 refactor) */
   --accent-warm: #ea580c;
   --accent-warm-soft: rgba(234,88,12,0.15);
-  --accent-warm-highlight: #d97706; /* amber/gold for favorites, stars, warnings */
+  --accent-warm-highlight: #d97706;
   --info: #2563de;
   --info-soft: rgba(37,99,222,0.12);
   --danger-soft: rgba(220,32,35,0.1);
@@ -159,7 +157,6 @@
   --waveform-played-self: #0f172a;
   --waveform-played-other: #ea580c;
 
-  /* Button tokens */
   --button-primary-bg: #ea580c;
   --button-primary-text: #ffffff;
   --button-secondary-bg: transparent;
@@ -167,40 +164,29 @@
   --button-secondary-hover-bg: rgba(234,88,12,0.1);
   --button-secondary-border: rgba(234,88,12,0.3);
 
-  /* Card tokens */
   --card-raised-bg: #ffffff;
   --card-flat-bg: #f1f5f9;
   --card-inset-bg: #f1f5f9;
 
-  /* Input tokens */
+  /* Neumorphic surface shadows (light): white highlight + soft slate shadow */
+  --neo-shadow-out: -7px -7px 16px rgba(255,255,255,0.9);
+  --neo-shadow-in: 7px 7px 16px rgba(148,163,184,0.45);
+  --neo-shadow-out-sm: -3px -3px 7px rgba(255,255,255,0.9);
+  --neo-shadow-in-sm: 3px 3px 7px rgba(148,163,184,0.4);
+  --neo-shadow-inset: inset 4px 4px 10px rgba(148,163,184,0.5), inset -4px -4px 10px rgba(255,255,255,0.9);
+  --neo-shadow-inset-sm: inset 2px 2px 5px rgba(148,163,184,0.45), inset -2px -2px 5px rgba(255,255,255,0.9);
+  --neo-surface: #f1f5f9;
+
   --input-bg: #ffffff;
   --input-text: #0f172a;
-  --input-placeholder: #94a3b8;
+  --input-placeholder: #64748b;
   --inset-field-shadow: inset 0 1px 2px 0 rgba(0,0,0,0.15);
 
-  /* Glass / backdrop tokens */
   --glass-bg: rgba(255,255,255,0.7);
   --glass-border: rgba(0,0,0,0.08);
   --glass-shadow: 0 8px 32px rgba(0,0,0,0.08);
   --glass-blur: 12px;
 
-  /* Doppelrand / double-bezel tokens */
-  --doppelrand-outer-bg: #ffffff;
-  --doppelrand-padding: 6px;
-  --doppelrand-radius-outer: 1rem;
-  --doppelrand-outer-border: rgba(0,0,0,0.08);
-  --doppelrand-radius-inner: 0.875rem;
-  --doppelrand-inner-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-
-  /* Shadow tokens */
-  --shadow-neu-raised: 3px 3px 6px #c2c8d4, -3px -3px 6px #ffffff;
-  --shadow-neu-inset: inset 3px 3px 6px #c2c8d4, inset -3px -3px 6px #ffffff;
-  --neu-base-dark: #0a0c10;
-  --neu-base-dark-light: #14171e;
-  --neu-base-light: #c2c8d4;
-  --neu-base-light-dark: #ffffff;
-
-  /* Radio mode tokens */
   --radio-active: #5cc25c;
   --radio-active-dark: #45a045;
   --radio-inactive: #c25c34;
@@ -211,33 +197,32 @@
   --radio-track-dark: #183a18;
   --radio-track-light: #3a1a0d;
 
-  /* Hover / active tokens */
   --hover-bg-dark: #20242e;
   --hover-bg-light: rgba(0,0,0,0.05);
 
-  /* Warm text tokens */
   --text-warm-dark: #e6d6b8;
   --text-warm-light: #e6d6b8;
 
-  /* System tokens */
   --system-background: #f8fafc;
   --separator: rgba(0,0,0,0.08);
 
-  /* List / toggle tokens */
   --list-item-hover-bg: rgba(0,0,0,0.03);
   --toggle-active-bg: #ea580c;
   --toggle-inactive-bg: rgba(0,0,0,0.12);
   --toggle-inactive-border: rgba(0,0,0,0.2);
   --toggle-thumb-bg: #ffffff;
 
-  /* Player / progress tokens */
   --player-progress-orange: #ea580c;
 
-  /* Color utility tokens */
   --color-success: #16a04a;
   --color-success-soft: rgba(22,160,74,0.12);
   --color-warning: #d97c0f;
   --color-danger: #dc2023;
+
+  --gold: #c9a96e;
+  --gold-soft: rgba(201,169,110,0.22);
+  --gold-soft-hover: rgba(201,169,110,0.15);
+  --cream: #1a1d22;
 }
 
 [data-font-size="Small"] {
@@ -253,4 +238,18 @@
 [data-font-size="Large"] {
   --font-size-base: 18px;
   --font-size-scale: 1.125;
+}
+
+[data-theme="landing"] {
+  --bg-primary: #070707;
+  --bg-secondary: #0d0d0d;
+  --bg-tertiary: #131313;
+  --text-primary: #f0ece4;
+  --text-secondary: rgba(240,236,228,0.72);
+  --accent: #c9a96e;
+  --accent-soft: rgba(201,169,110,0.14);
+  --gold: #c9a96e;
+  --gold-soft: rgba(201,169,110,0.14);
+  --gold-soft-hover: rgba(201,169,110,0.07);
+  --cream: #f0ece4;
 }

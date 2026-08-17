@@ -8,26 +8,24 @@ This directory contains the application's design tokens — centralized design v
 
 | File | Purpose |
 |---|---|
-| `tokens.ts` | TypeScript design tokens (importable in components) |
-| `tokens.css` | CSS custom properties (consumed by Tailwind) |
-| `app.css` | Global CSS imports and base styles |
+| `tokens.css` | CSS custom properties (consumed by Tailwind + `@theme inline` in `src/index.css`) |
 
 ### Usage
 
-**In React components (inline styles):**
+**Preferred: semantic Tailwind tokens** (auto-adapt to light/dark via the `@theme inline` layer in `src/index.css`):
 ```tsx
-const colors = getThemeColors('dark');
-<div style={{ color: colors.text.primary }} />
+<div className="bg-background text-foreground border-border" />
+<button className="bg-primary text-primary-foreground hover:bg-primary/90" />
 ```
 
-**In React components (Tailwind classes):**
+**Legacy: raw CSS variables** (still valid, resolved from `tokens.css`):
 ```tsx
 <div className="bg-[var(--bg-primary)] text-[var(--text-primary)]" />
 ```
 
 ### Token Structure
 
-- `Colors.dark` / `Colors.light` — color values per theme
-- `Spacing` — spacing scale (`xs`, `sm`, `md`, `lg`, `xl`, `2xl`)
-- `Typography` — font families and sizes
-- `getThemeColors(mode)` — helper to get all colors for a theme
+Semantic tokens (Tailwind utilities) mapped in `src/index.css` `@theme inline`:
+`background`, `foreground`, `card`, `popover`, `primary` / `primary-foreground`,
+`secondary`, `muted` / `muted-foreground`, `accent` / `accent-foreground`,
+`destructive` / `destructive-foreground`, `border`, `input`, `ring`, and `radius-*`.
