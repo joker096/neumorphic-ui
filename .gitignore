@@ -8,9 +8,13 @@ coverage/
 *.aab
 *.idsig
 *.keystore
+*.jks
+*.p12
 .env*
 !.env.example
 *.db
+*.db-wal
+*.db-shm
 android/.gradle/
 test-results/
 screen/

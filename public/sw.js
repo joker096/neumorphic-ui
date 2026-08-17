@@ -12,7 +12,7 @@
  * - Online/Offline status tracking
  */
 
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v8';
 const APP_CACHE = `messanger-app-${CACHE_VERSION}`;
 const DATA_CACHE = `messanger-data-${CACHE_VERSION}`;
 const QUEUE_IDB = 'messanger-queue-v2';
@@ -200,8 +200,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // NEVER intercept cross-origin requests. A service worker can otherwise see
+  // any HTTP request the page makes (other origins too) and intercept it,
+  // which is what we want to avoid.
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   function shouldCache(method) {
     return method === 'GET';
+  }
+
+  // Cache API rejects partial (206) and other non-2xx responses. Only cache
+  // full, successful responses, and never let a failed put reject the promise.
+  function safeCachePut(cache, request, response) {
+    try {
+      if (!response || response.status !== 200) return;
+      const putPromise = cache.put(request, response.clone());
+      if (putPromise && typeof putPromise.catch === 'function') {
+        putPromise.catch(() => {});
+      }
+    } catch (e) {
+      /* ignore cache write failures */
+    }
   }
 
   // App shell: cache-first with offline fallback
@@ -214,7 +235,7 @@ self.addEventListener('fetch', (event) => {
             fetch(request, { cache: 'no-cache' })
               .then((networkResponse) => {
                 if (networkResponse) {
-                  cache.put(request, networkResponse.clone());
+                  safeCachePut(cache, request, networkResponse);
                 }
               })
               .catch(() => {});
@@ -224,7 +245,7 @@ self.addEventListener('fetch', (event) => {
         try {
           const response = await fetch(request);
           if (shouldCache(request.method)) {
-            cache.put(request, response.clone());
+            safeCachePut(cache, request, response);
           }
           return response;
         } catch {
@@ -250,29 +271,38 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // API calls: stale-while-new (serve cached if available, fetch in background)
+  // API calls: network-only. NEVER cache authenticated responses —
+  // stale auth tokens, contact lists, or chat history in cache storage
+  // is a credential-leak risk if the device is shared or compromised.
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/ws/')) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        // No offline fallback for API: the app handles its own offline UX
+        // via IndexedDB message queue.
+        return new Response(JSON.stringify({ offline: true }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      })
+    );
+    return;
+  }
+
+  // ICQ stickers: cache-first with long TTL
+  if (url.pathname.startsWith('/ICQ/')) {
     event.respondWith(
       caches.open(DATA_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
-        if (cached) {
+        if (cached) return cached;
+        try {
+          const response = await fetch(request);
           if (shouldCache(request.method)) {
-            fetch(request, { cache: 'no-cache' })
-              .then((freshResponse) => {
-                if (freshResponse) {
-                  cache.put(request, freshResponse.clone());
-                }
-              })
-              .catch(() => {});
-          }
-          return cached;
-        }
-        return fetch(request).then((response) => {
-          if (shouldCache(request.method)) {
-            cache.put(request, response.clone());
+            safeCachePut(cache, request, response);
           }
           return response;
-        });
+        } catch {
+          return new Response('', { status: 404 });
+        }
       })
     );
     return;
@@ -288,7 +318,7 @@ self.addEventListener('fetch', (event) => {
             fetch(request, { cache: 'no-cache' })
               .then((networkResponse) => {
                 if (networkResponse) {
-                  cache.put(request, networkResponse.clone());
+                  safeCachePut(cache, request, networkResponse);
                 }
               })
               .catch(() => {});
@@ -298,7 +328,7 @@ self.addEventListener('fetch', (event) => {
         try {
           const response = await fetch(request);
           if (shouldCache(request.method)) {
-            cache.put(request, response.clone());
+            safeCachePut(cache, request, response);
           }
           return response;
         } catch {
@@ -366,7 +396,7 @@ self.addEventListener('sync', (event) => {
 async function notifyClientsToSync() {
   try {
     const allClients = await self.clients.matchAll();
-    allClients.forEach((client: any) => {
+    allClients.forEach((client) => {
       client.postMessage({ type: 'connectivity-change', online: true });
     });
   } catch {

@@ -6,9 +6,7 @@ const app = express();
 const PORT = parseInt(process.env.SEED_REGISTRY_PORT || '3001', 10);
 
 const SEEDS = [
-  { url: 'wss://signaling1.messanger.app/ws', region: 'eu-west', latency: 12 },
-  { url: 'wss://signaling2.messanger.app/ws', region: 'us-east', latency: 45 },
-  { url: 'wss://signaling3.messanger.app/ws', region: 'asia-east', latency: 120 },
+  { url: 'wss://mess.cvr.name/ws', region: 'eu-west', latency: 12 },
 ];
 
 function secureShuffle<T>(arr: T[]): T[] {

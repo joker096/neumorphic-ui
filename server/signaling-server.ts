@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws'
 import { createServer, RequestListener } from 'node:http'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import jwt from 'jsonwebtoken'
 import { logConnection, logDisconnection, closeDb } from './db.js'
@@ -69,6 +69,19 @@ function isOriginAllowed(origin: string): boolean {
   return ALLOWED_ORIGINS.some((allowed) => origin === allowed)
 }
 
+// WebSocket handshake origin check (CSWSH defense-in-depth).
+// Browsers cannot set custom WS headers, so auth rides the query string;
+// validating Origin prevents cross-site WebSocket hijacking when an
+// allowlist is configured. When ALLOWED_ORIGINS is unset the server stays
+// permissive (dev/self-host); requests without an Origin header (native
+// mobile clients, test harness) are always permitted.
+function isWsOriginAllowed(req: any): boolean {
+  if (ALLOWED_ORIGINS.length === 0) return true
+  const origin = (req.headers && (req.headers['origin'] || req.headers['Origin'])) || ''
+  if (!origin) return true
+  return isOriginAllowed(origin.toString())
+}
+
 const server = createServer()
 const wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 })
 
@@ -76,6 +89,12 @@ wss.on('connection', (ws, req) => {
   const ip = getClientIp(ws)
   if (!checkConnectionRateLimit(ip)) {
     ws.close(1008, 'Too many connections')
+    return
+  }
+
+  // Reject cross-origin WebSocket handshakes when an origin allowlist is set
+  if (!isWsOriginAllowed(req)) {
+    ws.close(1008, 'Origin not allowed')
     return
   }
 
@@ -236,8 +255,10 @@ function serveAdminFile(res: any, req: any, path: string): boolean {
 
   // Path traversal prevention: decode and normalize
   const decodedPath = decodeURIComponent(path)
-  const fileRelPath = decodedPath.replace(/^\/admin(\/|$)/, '/').replace(/\.\.\//g, '').replace(/\.\.\\/g, '')
-  const normalizedPath = join(ADMIN_DIST, fileRelPath)
+  const fileRelPath = decodedPath.replace(/^\/admin(\/|$)/, '').replace(/\.\.\//g, '').replace(/\.\.\\/g, '')
+  const normalizedPath = fileRelPath
+    ? join(ADMIN_DIST, fileRelPath)
+    : join(ADMIN_DIST, 'index.html')
   if (!normalizedPath.startsWith(ADMIN_DIST)) {
     res.writeHead(403, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ error: 'Access denied' }))
@@ -250,89 +271,124 @@ function serveAdminFile(res: any, req: any, path: string): boolean {
     return true
   }
 
-  if (existsSync(normalizedPath)) {
-    let contentType = 'text/plain'
-    if (normalizedPath.endsWith('.html')) contentType = 'text/html'
-    else if (normalizedPath.endsWith('.css')) contentType = 'text/css'
-    else if (normalizedPath.endsWith('.js')) contentType = 'application/javascript'
-    else if (normalizedPath.endsWith('.json')) contentType = 'application/json'
-    else if (normalizedPath.endsWith('.png')) contentType = 'image/png'
-    else if (normalizedPath.endsWith('.webp')) contentType = 'image/webp'
-    else if (normalizedPath.endsWith('.ico')) contentType = 'image/x-icon'
-    else if (normalizedPath.endsWith('.svg')) contentType = 'image/svg+xml'
-
-    const headers: Record<string, string> = { 'Content-Type': contentType }
-    if (normalizedPath.endsWith('.js') || normalizedPath.endsWith('.css') || normalizedPath.endsWith('.html')) {
-      headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-    } else if (normalizedPath.match(/\.(png|jpg|jpeg|gif|ico|svg|webp|woff2|woff|ttf|eot)$/)) {
-      headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-    } else {
-      headers['Cache-Control'] = 'public, max-age=3600'
-    }
-
-    const acceptEncoding = (req.headers['accept-encoding'] || '') as string
-    const supportsBrotli = acceptEncoding.includes('br')
-    const supportsGzip = acceptEncoding.includes('gzip')
-
-    if (supportsBrotli && existsSync(normalizedPath + '.br')) {
-      headers['Content-Encoding'] = 'br'
-      headers['Content-Type'] = contentType
-      res.writeHead(200, headers)
-      res.end(readFileSync(normalizedPath + '.br'))
+  // Directory guard: serve index.html for directory requests, 404 otherwise.
+  // An unhandled exception here (e.g. readFileSync on a directory) would crash the REST server.
+  try {
+    if (existsSync(normalizedPath) && statSync(normalizedPath).isDirectory()) {
+      const indexPath = join(normalizedPath, 'index.html')
+      if (existsSync(indexPath)) {
+        return writeAdminFile(res, req, indexPath)
+      }
+      res.writeHead(404, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: 'Not found' }))
       return true
     }
-
-    if (supportsGzip && existsSync(normalizedPath + '.gz')) {
-      headers['Content-Encoding'] = 'gzip'
-      headers['Content-Type'] = contentType
-      res.writeHead(200, headers)
-      res.end(readFileSync(normalizedPath + '.gz'))
-      return true
-    }
-
-    res.writeHead(200, headers)
-    res.end(readFileSync(normalizedPath))
+  } catch {
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Not found' }))
     return true
+  }
+
+  if (existsSync(normalizedPath)) {
+    return writeAdminFile(res, req, normalizedPath)
   }
 
   return false
 }
 
+function writeAdminFile(res: any, req: any, filePath: string): boolean {
+  let contentType = 'text/plain'
+  if (filePath.endsWith('.html')) contentType = 'text/html'
+  else if (filePath.endsWith('.css')) contentType = 'text/css'
+  else if (filePath.endsWith('.js')) contentType = 'application/javascript'
+  else if (filePath.endsWith('.json')) contentType = 'application/json'
+  else if (filePath.endsWith('.png')) contentType = 'image/png'
+  else if (filePath.endsWith('.webp')) contentType = 'image/webp'
+  else if (filePath.endsWith('.ico')) contentType = 'image/x-icon'
+  else if (filePath.endsWith('.svg')) contentType = 'image/svg+xml'
+
+  const headers: Record<string, string> = { 'Content-Type': contentType }
+  if (filePath.endsWith('.js') || filePath.endsWith('.css') || filePath.endsWith('.html')) {
+    headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+  } else if (filePath.match(/\.(png|jpg|jpeg|gif|ico|svg|webp|woff2|woff|ttf|eot)$/)) {
+    headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+  } else {
+    headers['Cache-Control'] = 'public, max-age=3600'
+  }
+
+  const acceptEncoding = (req.headers['accept-encoding'] || '') as string
+  const supportsBrotli = acceptEncoding.includes('br')
+  const supportsGzip = acceptEncoding.includes('gzip')
+
+  if (supportsBrotli && existsSync(filePath + '.br')) {
+    headers['Content-Encoding'] = 'br'
+    headers['Content-Type'] = contentType
+    res.writeHead(200, headers)
+    res.end(readFileSync(filePath + '.br'))
+    return true
+  }
+
+  if (supportsGzip && existsSync(filePath + '.gz')) {
+    headers['Content-Encoding'] = 'gzip'
+    headers['Content-Type'] = contentType
+    res.writeHead(200, headers)
+    res.end(readFileSync(filePath + '.gz'))
+    return true
+  }
+
+  res.writeHead(200, headers)
+  res.end(readFileSync(filePath))
+  return true
+}
+
 const restServer = createServer((req, res) => {
-  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
-  const path = url.pathname
+  try {
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
+    const path = url.pathname
 
-  // Apply security headers (CSP, X-Content-Type-Options, etc.)
-  applyCSP(res)
+    // Apply security headers (CSP, X-Content-Type-Options, etc.)
+    applyCSP(res)
 
-  // CORS headers - restricted to allowed origins
-  const origin = (req.headers['origin'] || '').toString()
-  if (ALLOWED_ORIGINS.length > 0 && isOriginAllowed(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin)
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    // CORS headers - restricted to allowed origins
+    const origin = (req.headers['origin'] || '').toString()
+    if (ALLOWED_ORIGINS.length > 0 && isOriginAllowed(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin)
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204)
-    res.end()
-    return
-  }
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204)
+      res.end()
+      return
+    }
 
-  res.setHeader('Content-Type', 'application/json')
+    res.setHeader('Content-Type', 'application/json')
 
-  // Try serving admin static files first
-  if (serveAdminFile(res, req, path)) return
+    // Try serving admin static files first
+    if (serveAdminFile(res, req, path)) return
 
-  // Handle API routes
-  const handled =
-    handleAuthRoute(req, res, path) ||
-    handleStatsRoute(req, res, path) ||
-    handleAdsRoute(req, res, path)
+    // Handle API routes
+    const handled =
+      handleAuthRoute(req, res, path) ||
+      handleStatsRoute(req, res, path) ||
+      handleAdsRoute(req, res, path)
 
-  if (!handled) {
-    res.writeHead(404)
-    res.end(JSON.stringify({ error: 'Not found' }))
+    if (!handled) {
+      res.writeHead(404)
+      res.end(JSON.stringify({ error: 'Not found' }))
+    }
+  } catch (err) {
+    // Never let a single bad request crash the REST server.
+    console.error('[REST] Unhandled error:', err)
+    try {
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Internal server error' }))
+      }
+    } catch {
+      // socket already destroyed
+    }
   }
 })
 
