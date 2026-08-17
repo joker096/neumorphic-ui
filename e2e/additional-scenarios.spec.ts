@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { ensureAppReady } from './test-utils';
 
 test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   test('chat search filters messages', async ({ page }) => {
-    await page.goto('/');
+    await ensureAppReady(page);
     await page.getByRole('button', { name: /chats/i }).click();
     const searchInput = page.getByPlaceholder(/search/i);
     await searchInput.fill('test');
@@ -10,7 +11,7 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   });
 
   test('theme toggle switches theme', async ({ page }) => {
-    await page.goto('/');
+    await ensureAppReady(page);
     await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
     await page.getByRole('button', { name: /settings/i }).click();
     const toggle = page.getByRole('switch');
@@ -23,7 +24,7 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   });
 
   test('contact profile modal opens', async ({ page }) => {
-    await page.goto('/');
+    await ensureAppReady(page);
     await page.getByRole('button', { name: /contacts/i }).first().click();
     const contactItems = page.getByRole('listitem');
     const count = await contactItems.count();
@@ -34,7 +35,7 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   });
 
   test('call initiation from chat', async ({ page }) => {
-    await page.goto('/');
+    await ensureAppReady(page);
     await page.getByRole('button', { name: /chats/i }).click();
     const callButtons = page.getByRole('button', { name: /call|voice|video/i });
     const count = await callButtons.count();
@@ -45,43 +46,43 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   });
 
   test('settings page persists changes', async ({ page }) => {
-    await page.goto('/');
+    await ensureAppReady(page);
     await page.getByRole('button', { name: /settings/i }).click();
     await expect(page.getByText(/security|privacy|network|storage/i).first()).toBeVisible();
   });
 
   test('company workspace loads', async ({ page }) => {
-    await page.goto('/');
+    await ensureAppReady(page);
     await page.getByRole('button', { name: /company/i }).first().click();
     await page.waitForTimeout(500);
     await expect(page.locator('body')).toBeVisible();
   });
 
   test('radar view loads', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: /radar/i }).first().click();
-    await page.waitForTimeout(500);
-    await expect(page.locator('body')).toBeVisible();
+    await ensureAppReady(page);
+    await page.getByRole('button', { name: /settings/i }).first().click();
+    await page.getByText('Mesh Radar').first().click();
+    await expect(page.getByText(/mesh radar/i).first()).toBeVisible();
   });
 
   test('pulse view loads', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: /pulse/i }).first().click();
-    await page.waitForTimeout(500);
-    await expect(page.locator('body')).toBeVisible();
+    await ensureAppReady(page);
+    await page.getByRole('button', { name: /settings/i }).first().click();
+    await page.getByText('Call Log').first().click();
+    await expect(page.getByPlaceholder('Search recordings...').first()).toBeVisible();
   });
 
   test('stories view loads', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: /stories/i }).first().click();
-    await page.waitForTimeout(500);
-    await expect(page.locator('body')).toBeVisible();
+    await ensureAppReady(page);
+    await page.getByRole('button', { name: /chats/i }).click();
+    await page.getByText('Stories', { exact: true }).first().click();
+    await expect(page.getByText('Stories').first()).toBeVisible();
   });
 
   test('recordings view loads', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: /recordings/i }).first().click();
-    await page.waitForTimeout(500);
-    await expect(page.locator('body')).toBeVisible();
+    await ensureAppReady(page);
+    await page.getByRole('button', { name: /settings/i }).first().click();
+    await page.getByText('Call Log').first().click();
+    await expect(page.getByText('Recordings').first()).toBeVisible();
   });
 });

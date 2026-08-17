@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { ensureAppReady } from './test-utils';
 
 /**
  * Navigation & global chrome tests.
@@ -7,11 +8,7 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 async function gotoApp(page: Page) {
-  await page.goto('/');
-  // App shell must mount with a theme attribute
-  await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
-  // Error boundary must never appear
-  await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
+  await ensureAppReady(page);
 }
 
 test.describe('Navigation & chrome', () => {
@@ -41,7 +38,7 @@ test.describe('Navigation & chrome', () => {
   test('nav: Calls shows dialpad and call history search', async ({ page }) => {
     await gotoApp(page);
     await page.getByRole('button', { name: 'Calls' }).first().click();
-    await expect(page.getByPlaceholder('Search or dial...').first()).toBeVisible();
+    await expect(page.getByPlaceholder('Search calls').first()).toBeVisible();
   });
 
   test('nav: Contacts shows identity screen', async ({ page }) => {

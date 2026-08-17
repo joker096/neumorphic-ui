@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { ensureAppReady } from './test-utils';
 
 /**
  * Visual regression snapshots of the main screens.
@@ -9,8 +10,7 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 async function gotoApp(page: Page) {
-  await page.goto('/');
-  await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+  await ensureAppReady(page);
   // Let entry animations settle
   await page.waitForTimeout(1200);
 }
@@ -53,7 +53,7 @@ test.describe('Visual snapshots', () => {
   test('calls screen', async ({ page }) => {
     await gotoApp(page);
     await page.getByRole('button', { name: 'Calls' }).first().click();
-    await expect(page.getByPlaceholder('Search or dial...').first()).toBeVisible();
+    await expect(page.getByPlaceholder('Search calls').first()).toBeVisible();
     await page.waitForTimeout(600);
     await expect(page).toHaveScreenshot('calls.png', SHOT);
   });

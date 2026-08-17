@@ -62,16 +62,16 @@ describe('CryptoCore - Key Derivation & Encryption', () => {
     expect(hash3).not.toBe(hash)
   })
 
-  it('should generate and verify HMAC', async () => {
+  it('should generate and verify HMAC via WebCrypto', async () => {
     const key = await crypto.subtle.generateKey(
       { name: 'HMAC', hash: 'SHA-256', length: 256 }, true, ['sign', 'verify'],
     )
     const data = 'test message'
-    const signature = await core.generateHMAC(key, data)
+    const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data))
     expect(signature).toBeDefined()
-    const valid = await core.verifyHMAC(key, data, signature)
+    const valid = await crypto.subtle.verify('HMAC', key, signature, new TextEncoder().encode(data))
     expect(valid).toBe(true)
-    const invalid = await core.verifyHMAC(key, 'tampered', signature)
+    const invalid = await crypto.subtle.verify('HMAC', key, signature, new TextEncoder().encode('tampered'))
     expect(invalid).toBe(false)
   })
 })

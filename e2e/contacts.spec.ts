@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { ensureAppReady } from './test-utils';
 
 /**
  * Contacts / Identity screen: search, tabs, add-contact modal,
@@ -6,8 +7,7 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 async function gotoContacts(page: Page) {
-  await page.goto('/');
-  await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+  await ensureAppReady(page);
   await page.getByRole('button', { name: 'Contacts' }).first().click();
   await expect(page.getByTestId('contacts-container')).toBeVisible();
 }

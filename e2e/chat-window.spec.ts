@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { ensureAppReady } from './test-utils';
 
 /**
  * Open conversation: message history rendering, composer controls
@@ -7,8 +8,7 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 async function openAliceChat(page: Page) {
-  await page.goto('/');
-  await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+  await ensureAppReady(page);
   await page.getByText('Alice Freeman').first().click();
   await expect(page.getByPlaceholder('Message...').first()).toBeVisible();
 }

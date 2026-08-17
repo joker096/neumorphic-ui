@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { ensureAppReady } from './test-utils';
 
 /**
  * Chat list screen: search, tabs, folder filters, advanced filter modal,
@@ -6,8 +7,7 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 async function gotoChats(page: Page) {
-  await page.goto('/');
-  await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+  await ensureAppReady(page);
   await expect(
     page.getByPlaceholder('Search chats or messages...').first()
   ).toBeVisible();
