@@ -1,6 +1,17 @@
 # State Compressed - Security Fixes Progress
 
-## Status: IN PROGRESS - Security Hardening (audit batch 1 complete 2026-08-17)
+## Status: IN PROGRESS - Security Hardening (audit batch 2 in progress, 2026-08-17)
+
+### Audit batch 2 (2026-08-17) — DONE:
+- **P0 keystore rotation**: old `messandanger-keystore.jks` deleted + ROTATED (new RSA-4096 PKCS12, alias `messandanger`, 10000d, CN=MessAnger). Password (24-char alnum) stored in User env `BUBBLEWRAP_KEYSTORE_PASSWORD` + `BUBBLEWRAP_KEY_PASSWORD` (NOT committed anywhere). `scripts/build-android.mjs` reads those env vars. NOTE: rotation breaks TWA update path for existing users (reinstall required).
+- **P0 git-history purge**: `git filter-branch --index-filter "git rm -r --cached --ignore-unmatch messandanger-keystore.jks server/data/admin.db server/data/admin.db-shm server/data/admin.db-wal" --prune-empty d2c5efb..master` + reflog expire + `gc --prune=now`. Old objects confirmed unrecoverable (`git cat-file` on pre-rewrite SHAs fails). Local-only — remote (origin/master=d2c5efb) never contained the secrets; no force-push needed.
+- **P0 .gitignore**: added `*.jks`, `*.p12` (keystore stays on disk, untracked).
+- **Dead code removed**: `src/components/commercial/` (43 files), `public/ecochat/`, `src/components/ecochat/{EcoChatList,EcoActiveChat,EcoNavItems,index}.tsx` (EcoSidebarNav.tsx is LIVE — imported by AppShell.tsx, keep). Root artifacts: playwright screenshots/logs, debug-*.mjs, check-css.mjs removed.
+- **i18n parity**: added `onboarding.channelDescription`, `onboarding.channelStep1/2` to de/es/fr/ja/ko/zh (3 failing i18n tests → 45/45 pass).
+- **WIP restructure**: 10 flat WIP commits → 6 logical commits (security / chore-android / style / feat / test / docs) + dead-code commit. Working tree clean.
+- Verified: `npm run lint` (eslint+tsc) 0 errors; `npm run build` OK; i18n suite 45/45.
+
+### Completed Security Fixes:
 
 ### Completed Security Fixes:
 1. P2PTransport.ts - LRU replay protection (60s TTL), HMAC cleanup, STUN detection
@@ -40,10 +51,12 @@
 F:\AISTUDIO\neumorphic-ui
 
 ### Next Actions:
-1. Continue structural splits (ChatMessage/CallScreen/P2PTransport/ChatListView/App/SettingsView/SettingsMainMenu)
-2. K1: authenticated key exchange in P2P
-3. K3: move WS token out of URL
-4. Re-run lint/test, compress context when reaching 120k tokens
+1. K1: legacy `msg.hmacKey` fallback (P2PTransport ~413/431) — keep for old clients, bind dhPub to Ed25519 identity
+2. K2: wire ML-KEM768 hybrid into MessageEncryptionService.initSession
+3. K7: PUSH_VAPID_KEY hardcoded in public/sw.js:22
+4. K9: add Permissions-Policy header; K10: npm audit in CI
+5. Structural splits: P2PTransport 428, ChatPreviewLayer 396, App 377, ChatMessage 370, AppShell 353, useChatPreviewState 325, SettingsView 316, ChatListItem 312, CallManager 309
+6. Full verify (lint/tsc/build/vitest), update ARCHITECTURE.md (stale), final builds (APK with rotated keystore) + deploy
 
 ### Instructions:
 - Compress context periodically

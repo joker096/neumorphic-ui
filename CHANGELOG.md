@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Security
+- **Android signing keystore rotated** (P0): old `messandanger-keystore.jks` deleted and replaced with a fresh RSA-4096 PKCS12 keypair (alias `messandanger`, 10-year validity). The keystore is no longer tracked in git (`*.jks`/`*.p12` in `.gitignore`); its password lives in `BUBBLEWRAP_KEYSTORE_PASSWORD` / `BUBBLEWRAP_KEY_PASSWORD` environment variables (never committed). `scripts/build-android.mjs` consumes these vars. Local git history was purged of the old keystore and `server/data/admin.db*` artifacts (`filter-branch --prune-empty` + reflog expire + `gc --prune=now`); remote refs were never affected. Existing Android installs must be reinstalled after the rotation.
+- **Hardening batch**: WS handshake now validates Origin (CSWSH defense-in-depth); CI `security.yml` repaired (eslint/codeql actually run) + lint added to `ci.yml`; `public/sw.js` same-origin guard, no `/api` caching; unused/insecure crypto paths removed from `cryptoCore.ts`; dead hooks (`useConnection*`) and duplicate `landing/` dir removed.
+
 ### Added
 - **Call / video windows**: live call-duration timer in the active call header; speaker (audio-output) toggle wired through `CallManager.toggleSpeaker` → `useCall.toggleSpeaker` → `CallScreen`; fullscreen toggle for video calls; optional minimize callback (`onMinimize`); group-call participant grid (`GroupCallParticipants`) and audio participant chips for multi-peer calls; remote `<audio>` playback so peer audio is actually heard. Incoming-call sheet now shows a live ringing timer.
 - **i18n**: added `call.speaker`, `call.speakerOn`, `call.speakerOff`, `call.fullscreen`, `call.minimize` (en, ru).
