@@ -21,9 +21,6 @@ export function b64decode(s: string): Uint8Array {
   return Uint8Array.from(atob(s), (c) => c.charCodeAt(0))
 }
 
-export { DoubleRatchet } from './doubleRatchet'
-export type { DoubleRatchetState } from './doubleRatchet'
-
 const HEX_TABLE = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'))
 
 export function buf2hex(buffer: ArrayBuffer): string {
@@ -76,54 +73,6 @@ export function x25519DH(privateKey: Uint8Array, publicKey: Uint8Array): Uint8Ar
 export function deriveSharedHmacKey(privateKey: Uint8Array, publicKey: Uint8Array): string {
   const shared = x25519DH(privateKey, publicKey)
   return buf2hex(nacl.hash(shared))
-}
-
-export class KyberKEM {
-  static async generateKeyPair(): Promise<{ publicKey: Uint8Array; secretKey: Uint8Array }> {
-    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js')
-    return ml_kem768.keygen()
-  }
-
-  static async encapsulate(publicKey: Uint8Array): Promise<{ cipherText: Uint8Array; sharedSecret: Uint8Array }> {
-    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js')
-    return ml_kem768.encapsulate(publicKey)
-  }
-
-  static async decapsulate(cipherText: Uint8Array, secretKey: Uint8Array): Promise<Uint8Array> {
-    const { ml_kem768 } = await import('@noble/post-quantum/ml-kem.js')
-    return ml_kem768.decapsulate(cipherText, secretKey)
-  }
-
-  static async hybridHandshake(remotePublicKey: Uint8Array): Promise<{
-    sharedSecret: Uint8Array
-    kemCipherText: Uint8Array
-    kemPublicKey: Uint8Array
-  }> {
-    const kp = await KyberKEM.generateKeyPair()
-    const enc = await KyberKEM.encapsulate(remotePublicKey)
-    const dh = x25519DH(kp.secretKey, remotePublicKey)
-    const combined = new Uint8Array(64)
-    combined.set(enc.sharedSecret, 0)
-    combined.set(dh, 32)
-    const hash = await crypto.subtle.digest('SHA-256', combined)
-    return {
-      sharedSecret: new Uint8Array(hash),
-      kemCipherText: enc.cipherText,
-      kemPublicKey: kp.publicKey,
-    }
-  }
-
-  static async kem(
-    publicKey: CryptoKey,
-    _privateKey?: CryptoKey,
-  ): Promise<{ ciphertext: ArrayBuffer; sharedSecret: ArrayBuffer }> {
-    const pkBytes = new Uint8Array(await crypto.subtle.exportKey('raw', publicKey))
-    const enc = await KyberKEM.encapsulate(pkBytes)
-    return {
-      ciphertext: enc.cipherText.buffer,
-      sharedSecret: enc.sharedSecret.buffer,
-    }
-  }
 }
 
 export class CryptoCore {

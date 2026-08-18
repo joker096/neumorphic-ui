@@ -2,8 +2,6 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Send, MessageSquare } from 'lucide-react';
 import { FormattedText } from './chat-preview/FormattedText';
-import { messageEncryption } from '../lib/crypto/MessageEncryptionService';
-import { p2pNetwork } from '../lib/p2p/network';
 import { useI18n } from '../lib/i18n';
 import {
   CURRENT_USER_SENDER,
@@ -26,9 +24,7 @@ interface ChannelCommentsProps {
   isOpen: boolean;
   onClose: () => void;
   postId: number;
-  postKey: string;
   theme?: 'dark' | 'light';
-  channelChatId: string;
 }
 
 const formatCurrentTime = (): string =>
@@ -92,9 +88,7 @@ export const ChannelCommentsView = ({
   isOpen,
   onClose,
   postId,
-  postKey,
   theme = 'dark',
-  channelChatId,
 }: ChannelCommentsProps) => {
   const isDark = theme === 'dark';
   const { t } = useI18n();
@@ -102,30 +96,11 @@ export const ChannelCommentsView = ({
   const [comments, setComments] = useState<ChannelComment[]>(SEED_CHANNEL_COMMENTS);
   const commentIdRef = useRef(0);
 
-  const handleSend = async () => {
+  const handleSend = () => {
     const text = comment.trim();
     if (!text) return;
 
     const newId = Date.now() + commentIdRef.current++;
-
-    try {
-      const encryptedComment = await messageEncryption.encrypt(
-        channelChatId,
-        JSON.stringify({
-          id: newId,
-          sender: CURRENT_USER_SENDER,
-          text,
-          postId,
-          type: 'comment',
-        }),
-      );
-
-      await p2pNetwork.broadcast(
-        JSON.stringify({ ...encryptedComment, chatId: channelChatId, postId }),
-      );
-    } catch {
-      // Offline / encryption failure: still surface locally for feedback.
-    }
 
     setComments((prev) => [
       ...prev,

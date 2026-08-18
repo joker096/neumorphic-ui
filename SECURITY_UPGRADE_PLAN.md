@@ -4,9 +4,13 @@
 
 ## Статус по фазам — ✅ ВСЕ ВЫПОЛНЕНО
 
+> **STATUS (2026-08-18):** The P0 "ML-KEM-768" item below was later **removed as dead code** (K2) —
+> `KyberKEM` / `@noble/post-quantum` had no live callers and were deleted. Shipping crypto is
+> X25519 ECDH + Ed25519 + HMAC-SHA256. Post-quantum is roadmap-only.
+
 ### P0 — Critical Security ✅
-- [x] ML-KEM-768: заменена заглушка на `@noble/post-quantum` (реальный пост-квантум KEM)
 - [x] CSP: перенесён из `<meta>` в HTTP-заголовки (vite dev server + server/csp.ts)
+- [x] ML-KEM-768: был добавлен как `@noble/post-quantum`, затем **удалён как dead code** (K2)
 
 ### P1 — Security Hardening ✅
 - [x] Safety Numbers UI: компонент верификации ключей в ContactProfileModal

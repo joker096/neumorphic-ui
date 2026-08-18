@@ -101,7 +101,7 @@
   "max.r1b": "Absent in personal and group chats",
   "max.r2": "Encryption algorithm",
   "max.r2b": "Closed protocol, no independent audit",
-  "max.r3": "Post-quantum protection",
+  "max.r3": "E2E-signed protection",
   "max.r4": "Forward Secrecy",
   "max.r4a": "Double Ratchet per message",
   "max.r4b": "Not stated",
@@ -128,7 +128,7 @@
   "max.r14b": "Mandatory by law since Sept 2025 — all devices in Russia",
   "max.enc_stack": "Encryption stack",
   "max.key_ex": "key exchange",
-  "max.post_q": "post-quantum",
+  "max.post_q": "E2E-signed",
   "max.sym_enc": "symmetric",
   "max.fwd_sec": "forward secrecy",
   "max.kdf": "key derivation",
@@ -415,3 +415,4 @@
   "skip.main": "Zum Inhalt springen",
   "offline.banner": "Sie sind offline. Einige Funktionen sind möglicherweise nicht verfügbar."
 }
+

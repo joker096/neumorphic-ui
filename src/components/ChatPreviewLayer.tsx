@@ -380,7 +380,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
           />
         </React.Suspense>
       )}
-      <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} postKey="" channelChatId={chat?.id ? String(chat.id) : ""} />
+      <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} />
       <SavedMessagesPanel show={showSavedPanel} isDark={isDark} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(chat, msg) => onToggleSavedMessage?.(chat, msg)} t={t} />
       <ContactProfileModal
         contact={selectedContact}

@@ -9,7 +9,7 @@ UI Layer (React) -> Message Pipeline -> Crypto Core -> P2P Transport -> Local St
 
 ### Security Layers
 1. **UI Layer** - Message pipeline intercepts send/recv, encrypts/decrypts
-2. **Crypto Layer** - Double Ratchet + AES-GCM for per-message encryption
+2. **Crypto Layer** - X25519 ECDH + Ed25519 signatures + HMAC-SHA256 for per-message authentication (no Double Ratchet; PQ removed)
 3. **Transport Layer** - WebRTC + HMAC-SHA256 for message authentication
 4. **Storage Layer** - IndexedDB with AES-GCM encryption at rest
 
@@ -21,7 +21,7 @@ UI Layer (React) -> Message Pipeline -> Crypto Core -> P2P Transport -> Local St
 
 ### Data Flow
 ```
-[Alice Device] --encrypt(DoubleRatchet)--> [WebRTC DataChannel] --> [P2P Link] --> [Bob Device]
+[Alice Device] --X25519 ECDH + HMAC + Ed25519 sign--> [WebRTC DataChannel] --> [P2P Link] --> [Bob Device]
 ```
 
 ## Messenger UI Schema
@@ -29,9 +29,8 @@ UI Layer (React) -> Message Pipeline -> Crypto Core -> P2P Transport -> Local St
 The messenger client UI map is documented in [`architecture-messenger-schema.md`](./architecture-messenger-schema.md). It defines the responsibilities of `App.tsx`, top-level layout components, chat components, feature screens, UI primitives, and runtime resilience wrappers.
 
 ## Key Components
-- `src/lib/crypto/cryptoCore.ts` - Core crypto operations
-- `src/lib/crypto/doubleRatchet.ts` - Double Ratchet implementation
-- `src/lib/crypto/MessageEncryptionService.ts` - Per-session encryption wrapper
+- `src/lib/crypto/cryptoCore.ts` - Core crypto operations (X25519, AES-GCM, HMAC, PBKDF2)
+- `src/lib/crypto/postKeyManager.ts` - Channel post-key generation
 - `src/lib/messaging/MessagePipeline.ts` - Central message sending pipeline
 - `src/lib/p2p/P2PTransport.ts` - WebRTC data channel transport
 - `src/lib/p2p/network.ts` - P2P network management

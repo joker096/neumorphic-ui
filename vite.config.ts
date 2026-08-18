@@ -88,7 +88,7 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-dom/client'],
           state: ['zustand'],
-          crypto: ['@noble/post-quantum', 'tweetnacl'],
+          crypto: ['tweetnacl'],
           animation: ['motion'],
           icons: ['lucide-react'],
           ui: ['@tanstack/react-virtual', '@yudiel/react-qr-scanner', 'qrcode', 'sonner'],

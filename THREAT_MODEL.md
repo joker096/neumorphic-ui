@@ -9,7 +9,9 @@
 
 ## 1. Overview
 
-This document describes the threat model for Mess&Anger, a P2P end-to-end encrypted messenger built on the Signal Protocol Double Ratchet, WebRTC data channels, and post-quantum cryptography primitives. The model follows the STRIDE methodology (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege) adapted for a web-based messenger architecture.
+This document describes the threat model for Mess&Anger, a P2P end-to-end encrypted messenger built on X25519 ECDH, Ed25519 signatures, HMAC-SHA256 message authentication, and WebRTC data channels. The model follows the STRIDE methodology (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege) adapted for a web-based messenger architecture.
+
+> **NOTE:** The previously-documented Signal Protocol Double Ratchet and post-quantum (ML-KEM-768) primitives were **removed as dead code** — they had no callers in the shipping app. Live transport cryptography is X25519 ECDH + HMAC-SHA256 + Ed25519. Post-quantum is a roadmap item, not implemented.
 
 ## 2. Architecture Trust Boundaries
 
@@ -23,8 +25,8 @@ This document describes the threat model for Mess&Anger, a P2P end-to-end encryp
 │ └──────┼───────┘ └──────┼────────┘ └────────┼────────┘ │
 │        │                  │                     │        │
 │ ┌──────┼─────────────────┼───────────────────┼──────┐ │
-│ │ Secure Message Pipeline                        │ │
-│ │  DoubleRatchet per-conversation sessions        │ │
+│ │  Secure Message Pipeline                        │ │
+│ │  X25519 ECDH + HMAC + Ed25519 sessions           │ │
 │ └──────┼─────────────────┼───────────────────┼──────┘ │
 │        │                  │                     │        │
 │ ┌──────┼─────────────────┼───────────────────┼──────┐ │
@@ -73,7 +75,7 @@ This document describes the threat model for Mess&Anger, a P2P end-to-end encryp
 | Attack | Likelihood | Impact | Mitigation | Mitigation Status |
 |--------|-----------|--------|-----------|-------------------|
 | Tamper with IndexedDB data | Low | High | AES-256-GCM authenticated encryption; tampered messages fail GCM verification | Implemented |
-| Tamper with ratchet state | Low | High | Ratchet state stored as encrypted blob; HMAC verification on read | Implemented |
+| Tamper with crypto state | Low | High | Crypto state stored as encrypted blob; HMAC verification on read | Implemented |
 | Tamper with P2P messages | Low | High | HMAC-SHA256 on every data channel message; rejected if tampered | Implemented |
 | Tamper with settings/config | Low | Low | Settings stored in IndexedDB with integrity check | Implemented |
 
@@ -81,8 +83,8 @@ This document describes the threat model for Mess&Anger, a P2P end-to-end encryp
 
 | Attack | Likelihood | Impact | Mitigation | Status |
 |--------|-----------|--------|-----------|--------|
-| Sender denies sending message | Low | Medium | Double Ratchet provides message authentication via ratchet step; cryptographically binding chain | Implemented |
-| Replay attacks | Medium | Medium | Double Ratchet's chain key + message counter prevents replay; each message increments key | Implemented |
+| Sender denies sending message | Low | Medium | Ed25519 signature provides message authentication; cryptographically binding sender identity | Implemented |
+| Replay attacks | Medium | Medium | HMAC-SHA256 over (payload + nonce + peer key) prevents replay; each message carries a fresh nonce | Implemented |
 
 ### 3.4 Information Disclosure
 
@@ -103,7 +105,7 @@ This document describes the threat model for Mess&Anger, a P2P end-to-end encryp
 | TURN server DoS | Medium | Medium | Graceful degradation: falls back to direct peer connection | Implemented |
 | Flood messages (rate limiting) | Medium | Low | Rate limiter in security module; configurable max messages per window | Implemented |
 | Spam detection | Low | Low | Spam detector with configurable thresholds | Implemented |
-| Crypto exhaustion | Low | High | Double Ratchet auto-rotates keys; session state limited | Implemented |
+| Crypto exhaustion | Low | High | X25519 ECDH shared secrets are per-peer and bounded; session state limited | Implemented |
 
 ### 3.6 Elevation of Privilege
 
@@ -178,7 +180,7 @@ Network Analysis
 │   ├── Attacker performs man-in-the-middle on signaling
 │   │   └── Mitigated: WSS required; peer verification
 │   └── Attacker performs Tor exit node sniffing
-│       └── Mitigated: End-to-end encryption (Double Ratchet); Tor exit only sees encrypted payload
+│       └── Mitigated: End-to-end encryption (X25519 + HMAC + Ed25519); Tor exit only sees encrypted payload
 └── IP address exposure
     ├── Direct peer-to-peer
     │   └── Mitigated: Relay-only ICE mode when anonymity enabled
@@ -210,7 +212,7 @@ Social Engineering
 - **Algorithm:** X25519 (Curve25519) via tweetnacl
 - **Key length:** 256-bit
 - **Security level:** ~128 bits (pre-quantum)
-- **Recommendation:** Monitor for post-quantum migration (ML-KEM-768 hybrid already configured)
+- **Recommendation:** Track NIST PQ standards for future migration (post-quantum not currently implemented)
 
 ### 5.2 Symmetric Encryption (AES-256-GCM)
 
@@ -218,7 +220,7 @@ Social Engineering
 - **Key length:** 256-bit
 - **Security level:** ~128 bits
 - **IV handling:** Per-message random IV (12 bytes); GCM degrades after 2^32 messages per key
-- **Mitigation:** Double Ratchet auto-rotates message keys; each key used for ~1 message
+- **Mitigation:** Per-message random IV; X25519 ECDH shared secret rotated per peer session
 - **Status:** Strong; no known practical attacks
 
 ### 5.3 Key Derivation (PBKDF2-SHA256)
@@ -251,7 +253,7 @@ Social Engineering
 | Browser vulnerability (zero-day) | Low | High | Keep browser updated; sandbox isolation |
 | Web Crypto API regression | Low | Medium | Monitor browser updates; fallback to tweetnacl |
 | tweetnacl vulnerability | Low | High | tweetnacl is well-audited; monitor for CVEs |
-| Quantum computing (future) | Low (2026) | High (2030+) | ML-KEM-768 hybrid handshake configured; ready for migration |
+| Quantum computing (future) | Low (2026) | High (2030+) | Roadmap: migrate to ML-KEM hybrid when standardized for this transport |
 | Social engineering | Medium | High | Education; never share recovery phrase; out-of-band key verification |
 
 ## 7. Recommendations
@@ -271,7 +273,7 @@ Social Engineering
 
 ### Low Priority
 
-8. **Post-quantum migration plan** — Monitor NIST PQ standards; plan migration when practical.
+8. **Post-quantum migration plan** — Monitor NIST PQ standards; design hybrid X25519+ML-KEM handshake when practical (not currently implemented).
 9. **Third-party security audit** — Engage external auditor for comprehensive review.
 
 ## 8. Changelog

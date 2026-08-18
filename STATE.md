@@ -44,19 +44,19 @@
 - K1: P2PTransport — derive HMAC/AES keys from authenticated ECDH instead of sending hmacKey in plaintext over signaling
   - REASSESSMENT: `peerPublicKey` in P2PNetwork (network.ts:54) is an opaque routing id (`options.peerPublicKey || peerId`), NOT a real X25519 public key; no private key exists in the P2P stack. Proper ECDH-derived keys require a new X25519 identity-key subsystem (design task) — DEFERRED. hmacKey-in-signaling remains a minor (defense-in-depth) weakness until then.
 - favicon.png 1.4MB → resize (deferred: needs image tooling not in repo); APK already untracked; ICQ skins now lazy-load (AUDIT/009)
-- KyberKEM (ML-KEM768) is dead — wire into handshake (K2) or remove + drop @noble/post-quantum
+- KyberKEM (ML-KEM768) — **REMOVED as dead code (K2, 2026-08-18)**. `MessageEncryptionService`, `DoubleRatchet`, `KyberKEM` deleted; `@noble/post-quantum` dropped from package.json. Live crypto = X25519 ECDH + Ed25519 + HMAC-SHA256 (P2PTransport). All docs updated to reflect this.
 - Dev-dep vulns (tar/file-type/uuid/googleapis via @bubblewrap/core) — low priority
 
 ### Working Directory:
 F:\AISTUDIO\neumorphic-ui
 
 ### Next Actions:
-1. K1: legacy `msg.hmacKey` fallback (P2PTransport ~413/431) — keep for old clients, bind dhPub to Ed25519 identity
-2. K2: wire ML-KEM768 hybrid into MessageEncryptionService.initSession
-3. K7: PUSH_VAPID_KEY hardcoded in public/sw.js:22
-4. K9: add Permissions-Policy header; K10: npm audit in CI
-5. Structural splits: P2PTransport 428, ChatPreviewLayer 396, App 377, ChatMessage 370, AppShell 353, useChatPreviewState 325, SettingsView 316, ChatListItem 312, CallManager 309
-6. Full verify (lint/tsc/build/vitest), update ARCHITECTURE.md (stale), final builds (APK with rotated keystore) + deploy
+1. K1: legacy `msg.hmacKey` fallback (P2PTransport ~413/431) — keep for old clients, bind dhPub to Ed25519 identity (design task; needs X25519 identity-key subsystem)
+2. K9: Permissions-Policy header — DONE (committed 2e1a290: camera/microphone/geolocation=self)
+3. Structural splits: P2PTransport 428, ChatPreviewLayer 396, App 377, ChatMessage 370, AppShell 353, useChatPreviewState 325, SettingsView 316, ChatListItem 312, CallManager 309
+4. Final builds (APK with rotated keystore) + deploy
+
+Done: K7 (dead push branch removed from sw.js), K9 (Permissions-Policy), K10 (npm audit in CI), K2 (removed dead PQ/ratchet stack + dropped @noble/post-quantum; docs corrected).
 
 ### Instructions:
 - Compress context periodically

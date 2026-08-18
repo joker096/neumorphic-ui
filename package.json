@@ -2,7 +2,7 @@
   "name": "mess-andanger",
   "private": true,
   "version": "1.0.0",
-  "description": "Mesh-powered decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay. Neumorphic UI.",
+  "description": "Mesh-powered P2P messenger with E2E encryption (X25519 ECDH + Ed25519 signatures + HMAC), store-and-forward, and multi-hop relay. Neumorphic UI.",
   "homepage": "https://mess.cvr.name",
   "type": "module",
   "scripts": {
@@ -28,7 +28,6 @@
     "build:admin": "pwsh -NoProfile -File scripts/build-admin.ps1"
   },
   "dependencies": {
-    "@noble/post-quantum": "^0.6.1",
     "@tailwindcss/vite": "^4.1.14",
     "@tanstack/react-virtual": "^3.14.3",
     "@vitejs/plugin-react": "^5.0.4",

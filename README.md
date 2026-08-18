@@ -25,7 +25,7 @@ npm run dev
 
 ## Key Features
 
-- **E2E encryption** — Double Ratchet, X3DH, post-quantum Kyber
+- **E2E encryption** — X25519 ECDH key agreement, Ed25519 message signatures, HMAC-SHA256 per-message authentication (no server in the trust path)
 - **P2P mesh** — Multi-hop relay, NAT traversal
 - **Signaling** — WebSocket with JWT auth, TOTP 2FA, rate limiting
 - **UI** — Neumorphic design, dark/light themes, fully responsive

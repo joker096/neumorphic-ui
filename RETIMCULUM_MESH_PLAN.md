@@ -4,6 +4,10 @@
 
 > **Principle:** *Don't import Reticulum — reimplement its core ideas in native TypeScript/Python where needed.*
 
+> **STATUS (2026-08-18):** References here to "ML-KEM-768", "Double Ratchet", and "post-quantum"
+> describe roadmap. The current app **does not ship** post-quantum or a Double Ratchet — those
+> modules were removed as dead code (K2). Live crypto is X25519 ECDH + Ed25519 + HMAC-SHA256.
+
 ---
 
 ## 1. Architecture Analysis: Current vs Target

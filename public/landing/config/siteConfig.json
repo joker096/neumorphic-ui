@@ -11,13 +11,13 @@
   "og": {
     "type": "website",
     "title": "Mess&Anger — Mesh-Powered Decentralized Messenger",
-    "description": "Mesh-capable, fully-decentralized messenger with post-quantum encryption, forward secrecy, store-and-forward, and multi-hop relay. No servers. No phone number. No compromises.",
+    "description": "Mesh-capable, fully-decentralized messenger with X25519 + Ed25519 end-to-end encryption, forward secrecy, store-and-forward, and multi-hop relay. No servers. No phone number. No compromises.",
     "locale": "ru_RU"
   },
   "twitter": {
     "card": "summary_large_image",
     "title": "Mess&Anger — P2P Мессенджер",
-    "description": "Без серверов. Без телефона. Пост-квантовое шифрование.",
+    "description": "Без серверов. Без телефона. Сквозное шифрование X25519 + Ed25519.",
     "image": "https://mess.cvr.name/og-image.png"
   },
   "pwa": {

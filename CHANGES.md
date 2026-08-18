@@ -4,6 +4,11 @@
 > **Scope:** Full security/optimization/unification audit (see `docs/AUDIT_2026-08-17.md`)
 > **Status:** Fixed (batch 1)
 
+> **CORRECTION (2026-08-18):** The 2026-08-17 batch noted `KyberKEM` was *kept* as PQ roadmap
+> (K2). It was subsequently **removed as dead code** along with `DoubleRatchet` and
+> `MessageEncryptionService`, and `@noble/post-quantum` was dropped. Shipping crypto is
+> X25519 ECDH + Ed25519 + HMAC-SHA256. See `docs/AUDIT_2026-08-17.md` K2 resolution.
+
 ---
 
 ## AUDIT/001: REST server crash on directory request to `/admin`

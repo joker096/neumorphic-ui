@@ -43,8 +43,8 @@
 │  ┌──────┤─────────────────────────────────────────────────┐       │
 │  │  │  │         CRYPTO LAYER                              │       │
 │  │  │  │  ┌────────────────┐ ┌───────────────┐            │       │
-│  │  │  │  │  CryptoCore    │ │ DoubleRatchet  │            │       │
-│  │  │  │  │  AES-GCM       │ │ E2E encryption │            │       │
+│  │  │  │  │  CryptoCore    │ │ HMAC/Ed25519   │            │       │
+│  │  │  │  │  AES-GCM       │ │ E2E auth/sign  │            │       │
 │  │  │  │  └────────────────┘ └───────────────┘            │       │
 │  └──────┘─────────────────────────────────────────────────┘       │
 │         │                                                          │
@@ -144,13 +144,11 @@ src/lib/
 ├── backup/        — Backup & recovery (encrypted, cloud, P2P)
 ├── call/          — CallManager, call types
 ├── company/       — Company/group channel management
-├── crypto/        — E2E encryption, Double Ratchet, worker crypto
-│   ├── cryptoCore.ts            — AES-GCM operations
-│   ├── doubleRatchet.ts         — Signal protocol double ratchet
-│   ├── MessageEncryptionService — per-session encryption wrapper
+├── crypto/        — E2E encryption, X25519 ECDH, HMAC, Ed25519, worker crypto
+│   ├── cryptoCore.ts            — AES-GCM, X25519, HMAC, PBKDF2 operations
 │   ├── crypto.worker.ts         — Web Worker crypto
 │   ├── ed25519.ts               — Ed25519 key operations
-│   ├── postKeyManager.ts        — Post-quantum key management
+│   ├── postKeyManager.ts        — Channel post-key generation
 │   └── safetyNumber.ts          — Safety number verification
 ├── identity/      — Device identity & pairing
 │   ├── deviceKeys.ts            — Key generation
@@ -224,7 +222,7 @@ User types message in chat
     → useAppStore.addMessage()     — Add to store
     → SignallingManager.send()     — Signal to peer
     → P2PTransport.sendMessage()   — Send via WebRTC DataChannel
-    → doubleRatchet.encrypt()      — Encrypt with double ratchet
+    → P2PTransport encrypt         — X25519 ECDH + HMAC-SHA256 + Ed25519 sign
     → Message stored in IndexedDB  — Persisted via Zustand
 ```
 
@@ -233,7 +231,7 @@ User types message in chat
 ```
 WebRTC DataChannel receives data
   → P2PTransport.onMessage()
-    → doubleRatchet.decrypt()      — Decrypt with double ratchet
+    → P2PTransport decrypt         — verify HMAC + Ed25519, derive shared secret
     → HMAC-SHA256 verify           — Message integrity check
     → useAppStore.addMessage()     — Store encrypted message
     → UI updates via Zustand       — React re-renders
@@ -346,7 +344,7 @@ The application has a basic error handling system:
 - Store rehydration on every app start
 
 #### 6.3.2 Crypto Resilience
-- Double Ratchet auto-recovery on key mismatch
+- HMAC/Ed25519 auto-recovery on key mismatch
 - HMAC verification with fallback to unverified mode
 - Worker-based crypto with main-thread fallback
 
@@ -408,9 +406,9 @@ server/signaling-server.ts
 ### 8.2 Cryptographic Layers
 
 1. **At rest**: IndexedDB encrypted with AES-GCM (session master key)
-2. **In transit**: WebRTC DTLS + Double Ratchet + HMAC-SHA256
-3. **Messages**: Double Ratchet per-message encryption
-4. **Keys**: Ed25519 + post-quantum key exchange
+2. **In transit**: WebRTC DTLS + HMAC-SHA256 + Ed25519 signatures
+3. **Messages**: X25519 ECDH shared secret + per-message HMAC authentication
+4. **Keys**: Ed25519 identity + X25519 ECDH (post-quantum is roadmap, not shipped)
 5. **Device**: PBKDF2-derived device keys, attestation via signed nonces
 
 ### 8.3 Security Features
@@ -449,7 +447,7 @@ server/signaling-server.ts
 
 ### Modifying Crypto Operations
 1. Edit files in `src/lib/crypto/`
-2. Ensure Double Ratchet compatibility
+2. Ensure HMAC-SHA256 / Ed25519 compatibility
 3. Test with `vitest run` (crypto tests)
 4. Verify HMAC-SHA256 signatures match
 

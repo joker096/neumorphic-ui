@@ -1,5 +1,11 @@
 # Mess&Anger vs Telegram: Security, Anonymity & UX Roadmap
 
+> **STATUS (2026-08-18):** This roadmap was written when post-quantum (ML-KEM-768) and a
+> Signal-style Double Ratchet were assumed shipped. They were **removed as dead code** (K2) —
+> no callers in the live app. The shipping crypto is **X25519 ECDH + Ed25519 + HMAC-SHA256**.
+> References below to "post-quantum hybrid", "Double Ratchet", and "ML-KEM" describe aspirational
+> roadmap, not current implementation.
+
 F:\AISTUDIO\mess.cvr.name\neumorphic-ui\ - НУЖНО ЭТО ПРИЛОЖЕНИЕ!
 
 > **Date:** 2026-07-03  

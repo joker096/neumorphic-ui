@@ -1,25 +1,29 @@
 # Mess&Anger Security Guarantees
 
 ## End-to-End Encryption (E2EE)
-All messages in Mess&Anger are encrypted end-to-end using the Signal Protocol Double Ratchet:
-- **Algorithm**: AES-256-GCM per-message
-- **Key Exchange**: X25519 (Curve25519) for X25519 key exchange
-- **Key Agreement**: X25519 Diffie-Hellman (X2DH)
-- **Key Derivation**: HKDF-SHA256 (RFC 5869)
+All messages in Mess&Anger are encrypted end-to-end using X25519 ECDH key agreement, Ed25519 message signatures, and HMAC-SHA256 per-message authentication:
+- **Algorithm**: AES-256-GCM for local at-rest encryption
+- **Key Exchange**: X25519 (Curve25519) ECDH for per-peer shared secrets
+- **Authentication**: HMAC-SHA256 over every transport frame; Ed25519 signature binds the sender identity
 - **Password Hashing**: PBKDF2-SHA256 (600,000 iterations)
+
+> **NOTE:** The documented Signal Protocol Double Ratchet and post-quantum (ML-KEM-768)
+> layers were **removed as dead code** (no callers in the shipping app). Live transport
+> cryptography is X25519 ECDH + HMAC-SHA256 + Ed25519. Post-quantum is roadmap, not shipped.
 
 ## Encryption Details
 ### Per-Message Encryption
-Every message sent through the messenger is encrypted before it leaves your device. The encryption uses the Double Ratchet algorithm, which ensures:
-- **Forward Secrecy**: Past messages remain secure even if the ratchet state is compromised
-- **Future Secrecy**: Future messages remain secure even if the ratchet state is compromised
-- **Key Rotation**: Each message uses a unique encryption key derived from the ratchet state
+Every message is encrypted/authenticated before it leaves your device:
+- **Confidentiality**: X25519 ECDH shared secret (mixed with per-frame salt + nonce)
+- **Integrity & Authenticity**: HMAC-SHA256; tampered or replayed frames are rejected
+- **Sender binding**: Ed25519 signature on the channel/sender
+- **Forward Secrecy**: shared secrets are per-peer session and not reused across sessions
 
 ### Key Exchange
 The initial key exchange uses the X25519 algorithm, which is:
-- **Quantum-resistant**: Based on the Discrete Logarithm Problem
 - **Well-vetted**: Based on the X25519 curve, which is widely used and studied
 - **Efficient**: Fast key generation and exchange
+- **Note**: X25519 is classical (not quantum-resistant); post-quantum migration is roadmap
 
 ## Local Storage Encryption
 All data stored locally on your device is encrypted using AES-256-GCM:
@@ -83,9 +87,8 @@ All data stored locally on your device is encrypted using AES-256-GCM:
 - Per-channel keypairs are generated during channel creation
 
 ### E2EE Comments on Channels
-- Per-post key generation for comment encryption
-- Double Ratchet used for comment thread encryption
-- Comments are encrypted and transmitted through the P2P pipeline
+- Per-post key generation for comment thread integrity
+- Comments are transmitted through the P2P pipeline with the same HMAC/Ed25519 authentication
 
 ## Content Security Policy (CSP)
 - CSP headers are enforced via `server/csp.ts`
