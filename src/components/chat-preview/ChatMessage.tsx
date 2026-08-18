@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   BellOff, Bookmark, Check, CheckCheck, Play,
@@ -16,6 +16,7 @@ import { InlineKeyboard } from "../features/bot/InlineKeyboard";
 import { toast } from "../ui/Toast";
 import { decodeIfMorse } from "../MorseDecoder";
 import { fuzzTime, getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
+import { useMessageGestures } from "./useMessageGestures";
 
 interface ChatMessageProps {
   msg: any;
@@ -62,12 +63,26 @@ function ChatMessageImpl({
   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
   selectionMode = false, selected = false, onToggleSelect, onSelect,
 }: ChatMessageProps) {
-  const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
-  const longPressTimer = useRef<number | null>(null);
-  const longPressed = useRef(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const { t } = useI18n();
   const { translate } = useServices();
+
+  const {
+    handleBubbleClick,
+    handleContextMenu,
+    handlePointerDown,
+    handlePointerUp,
+    handlePointerLeave,
+    handlePointerCancel,
+  } = useMessageGestures({
+    msgId: msg.id,
+    selectionMode,
+    onToggleSelect,
+    onReply,
+    onReactionMessage,
+    onSetBounceMsgId,
+    onOpenMenu: () => setMenuOpen(true),
+  });
   const [translation, setTranslation] = React.useState<string | null>(null);
   const [translating, setTranslating] = React.useState(false);
   const stickerSrc = React.useMemo(
@@ -130,48 +145,12 @@ function ChatMessageImpl({
       )}
       <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
         <div
-          onClick={() => {
-            if (selectionMode) {
-              onToggleSelect?.(msg.id);
-              return;
-            }
-            if (longPressed.current) {
-              longPressed.current = false;
-              return;
-            }
-            const now = Date.now();
-            if (now - lastTapRef.current.time < 300 && lastTapRef.current.msgId === msg.id) {
-              onReactionMessage(msg.id, '👍');
-              onSetBounceMsgId(msg.id);
-              setTimeout(() => onSetBounceMsgId(null), 300);
-              lastTapRef.current = { time: 0, msgId: 0 };
-            } else {
-              lastTapRef.current = { time: now, msgId: msg.id };
-            }
-          }}
-          onContextMenu={(e) => {
-            if (selectionMode) return;
-            e.preventDefault();
-            setMenuOpen(true);
-          }}
-          onPointerDown={() => {
-            if (selectionMode) return;
-            longPressed.current = false;
-            if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
-            longPressTimer.current = window.setTimeout(() => {
-              longPressed.current = true;
-              setMenuOpen(true);
-            }, 480);
-          }}
-          onPointerUp={() => {
-            if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
-          }}
-          onPointerLeave={() => {
-            if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
-          }}
-          onPointerCancel={() => {
-            if (longPressTimer.current) window.clearTimeout(longPressTimer.current);
-          }}
+          onClick={handleBubbleClick}
+          onContextMenu={handleContextMenu}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerLeave}
+          onPointerCancel={handlePointerCancel}
           className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-orange-500" : ""} ${
             isMe
               ? isDark
