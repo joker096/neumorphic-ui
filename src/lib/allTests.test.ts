@@ -248,7 +248,8 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
       await expect(preloadLocales()).resolves.toBeUndefined();
     });
 
-    it('should make translations available for all 8 locales', () => {
+    it('should make translations available for all 8 locales', async () => {
+      await Promise.all(allLocales.map((lang) => loadLocale(lang)));
       for (const lang of allLocales) {
         const result = getTranslation('chat.archive', lang);
         expect(result).not.toBe('chat.archive');
@@ -366,7 +367,8 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('Cross-locale key consistency', () => {
-    it('should have all locales return non-key strings for chat.archive', () => {
+    it('should have all locales return non-key strings for chat.archive', async () => {
+      await Promise.all(allLocales.map((lang) => loadLocale(lang)));
       for (const lang of allLocales) {
         const val = getTranslation('chat.archive', lang);
         expect(val).not.toBe('chat.archive');
