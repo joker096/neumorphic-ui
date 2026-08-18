@@ -46,6 +46,13 @@
 - favicon.png 1.4MB → resize (deferred: needs image tooling not in repo); APK already untracked; ICQ skins now lazy-load (AUDIT/009)
 - KyberKEM (ML-KEM768) — **REMOVED as dead code (K2, 2026-08-18)**. `MessageEncryptionService`, `DoubleRatchet`, `KyberKEM` deleted; `@noble/post-quantum` dropped from package.json. Live crypto = X25519 ECDH + Ed25519 + HMAC-SHA256 (P2PTransport). All docs updated to reflect this.
 - Dev-dep vulns (tar/file-type/uuid/googleapis via @bubblewrap/core) — low priority
+- K3 (token in WS URL): server/signaling-server.ts already validates `Origin` (CSWSH, AUDIT/008) and
+  never logs the token; browsers cannot set handshake headers so the JWT rides the query string
+  (standard, unavoidable for WS). Clients do not currently leak the token. Marked addressed.
+- K1 (authenticated ECDH): P2PTransport already derives HMAC from ephemeral X25519 ECDH (no plaintext
+  hmacKey in transit). Binding dhPub to the Ed25519 identity key requires a real identity-key +
+  working signaling subsystem — both absent in the shipping mesh path (signalingUrl is empty in
+  network.ts). DEFERRED as a design task; current state is an improvement over the prior plaintext key.
 
 ### Working Directory:
 F:\AISTUDIO\neumorphic-ui
