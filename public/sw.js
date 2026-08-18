@@ -7,7 +7,6 @@
  * - Network-first with cache fallback for chat data
  * - Offline page fallback
  * - IndexedDB offline message queue
- * - Push notifications
  * - Background sync
  * - Online/Offline status tracking
  */
@@ -17,9 +16,6 @@ const APP_CACHE = `messanger-app-${CACHE_VERSION}`;
 const DATA_CACHE = `messanger-data-${CACHE_VERSION}`;
 const QUEUE_IDB = 'messanger-queue-v2';
 const QUEUE_STORE = 'pendingMessages';
-
-// Push subscription VAPID key
-const PUSH_VAPID_KEY = '';
 
 // App shell assets to precache on install
 const APP_ASSETS = [
@@ -338,52 +334,6 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-});
-
-// --- Push notifications ---
-self.addEventListener('push', (event) => {
-  let data = {};
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch {
-      data = { body: event.data.text() };
-    }
-  }
-
-  const title = data.title || 'New message';
-  const body = data.body || 'You have a new message';
-  const icon = data.icon || '/icon-192.png';
-
-  const clickAction = data.clickAction || '/';
-
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon,
-      tag: data.tag || 'message',
-      actions: data.actions || [],
-      data: { url: clickAction },
-    })
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  const url = event.notification.data?.url || '/';
-  event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clients) => {
-      const matchingClient = clients.find((c) => c.url === url);
-      if (matchingClient) {
-        return matchingClient.focus();
-      }
-      return self.clients.openWindow(url);
-    })
-  );
-});
-
-self.addEventListener('notificationclose', () => {
-  // Handle notification dismissed
 });
 
 // --- Sync: Background sync for queued messages ---

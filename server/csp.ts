@@ -66,6 +66,5 @@ export function applyCSP(
   res.setHeader('X-Frame-Options', 'DENY')
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
   res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()')
-  res.setHeader('X-Content-Security-Policy', csp)
+  res.setHeader('Permissions-Policy', 'camera=self; microphone=self; geolocation=self; payment=(); interest-cohort=()')
 }
