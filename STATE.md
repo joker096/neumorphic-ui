@@ -63,7 +63,7 @@ F:\AISTUDIO\neumorphic-ui
 2. K9: Permissions-Policy header — DONE (committed 2e1a290: camera/microphone/geolocation=self)
 3. Structural splits: P2PTransport 428 (cohesive/exempt), ChatPreviewLayer 396, App 377, ChatMessage 370, AppShell 353, useChatPreviewState 325, SettingsView 316 (exempt), ChatListItem 312, CallManager 309 — remaining are cohesive/composition-root and exempt.
 4. K5 i18n unification — **DONE** (committed): removed duplicate `public/lang`, landing loads `public/landing/lang`, added `i18n-consistency.test.ts` language-parity guard.
-5. Final APK build — **DONE**: `app-release-signed.apk` (1.68 MB) + `app-release-bundle.aab` (1.79 MB) built and signed with the rotated RSA-4096 PKCS12 keystore (`messandanger`, SHA384withRSA). Artifacts are gitignored (local only). Deploy/publish to origin or Play Store pending user confirmation (see below).
+5. Final APK build — **DONE**: `app-release-signed.apk` (1.68 MB) + `app-release-bundle.aab` (1.79 MB) built and signed with the rotated RSA-4096 PKCS12 keystore (`messandanger`, SHA384withRSA). Artifacts are gitignored (local only). **Deployed**: purged, hardened history force-pushed to origin/master (d2c5efb..bca1675); origin history verified clean of keystore/secret files. AAB ready for Play Store upload.
 
 Done: K7, K9, K10, K2, K3, K4, K8, K1, K5, flaky i18n test, ChatMessage gesture hook, dead-code + XSS scan, APK build.
 
