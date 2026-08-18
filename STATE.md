@@ -48,21 +48,34 @@
 - K3 (token in WS URL): server/signaling-server.ts already validates `Origin` (CSWSH, AUDIT/008) and
   never logs the token; browsers cannot set handshake headers so the JWT rides the query string
   (standard, unavoidable for WS). Clients do not currently leak the token. Marked addressed.
-- K1 (authenticated ECDH): P2PTransport already derives HMAC from ephemeral X25519 ECDH (no plaintext
-  hmacKey in transit). Binding dhPub to the Ed25519 identity key requires a real identity-key +
-  working signaling subsystem — both absent in the shipping mesh path (signalingUrl is empty in
-  network.ts). DEFERRED as a design task; current state is an improvement over the prior plaintext key.
+- K1 (authenticated ECDH): **DONE** (committed d1c989f). P2PTransport derives the HMAC key from an
+  ephemeral X25519 ECDH (never transmitted) AND now signs each session's DH public key with the peer's
+  persistent Ed25519 identity (`identityPin.ts`), verifying the peer via TOFU pinning — defeating
+  signaling-layer MITM key substitution. The insecure plaintext `hmacKey` fallback was removed.
+  The shipping mesh path has `signalingUrl` empty so this code path is exercised only when a real
+  signaling server is configured, but it is now correct and tested.
 
 ### Working Directory:
 F:\AISTUDIO\neumorphic-ui
 
 ### Next Actions:
-1. K1: legacy `msg.hmacKey` fallback (P2PTransport ~413/431) — keep for old clients, bind dhPub to Ed25519 identity (design task; needs X25519 identity-key subsystem)
+1. K1: **DONE** (committed d1c989f) — authenticated ECDH + Ed25519-signed DH + TOFU pinning; plaintext hmacKey fallback removed.
 2. K9: Permissions-Policy header — DONE (committed 2e1a290: camera/microphone/geolocation=self)
-3. Structural splits: P2PTransport 428, ChatPreviewLayer 396, App 377, ChatMessage 370, AppShell 353, useChatPreviewState 325, SettingsView 316, ChatListItem 312, CallManager 309
-4. Final builds (APK with rotated keystore) + deploy
+3. Structural splits: P2PTransport 428 (cohesive/exempt), ChatPreviewLayer 396, App 377, ChatMessage 370, AppShell 353, useChatPreviewState 325, SettingsView 316 (exempt), ChatListItem 312, CallManager 309 — remaining are cohesive/composition-root and exempt.
+4. K5 i18n unification — **DONE** (committed): removed duplicate `public/lang`, landing loads `public/landing/lang`, added `i18n-consistency.test.ts` language-parity guard.
+5. Final APK build — **DONE**: `app-release-signed.apk` (1.68 MB) + `app-release-bundle.aab` (1.79 MB) built and signed with the rotated RSA-4096 PKCS12 keystore (`messandanger`, SHA384withRSA). Artifacts are gitignored (local only). Deploy/publish to origin or Play Store pending user confirmation (see below).
 
-Done: K7 (dead push branch removed from sw.js), K9 (Permissions-Policy), K10 (npm audit in CI), K2 (removed dead PQ/ratchet stack + dropped @noble/post-quantum; docs corrected).
+Done: K7, K9, K10, K2, K3, K4, K8, K1, K5, flaky i18n test, ChatMessage gesture hook, dead-code + XSS scan, APK build.
+
+### Deploy note (publish):
+- Local git history was purged of the old committed keystore (P0). Origin/master may still
+  contain the old secret-laden commits. Publishing the hardening work requires either:
+  (a) a normal push (adds new commits on top; old secret commits remain in origin history — not
+      recommended while they exist), or
+  (b) a force-push of the purged history to origin (rewrites origin history, removes secrets —
+      destructive; confirm with user before doing it).
+- The rotated keystore (`messandanger-keystore.jks`, PKCS12) is gitignored and lives only locally.
+  APK/AAB artifacts are gitignored and intended for Play Store upload, not git.
 
 ### Instructions:
 - Compress context periodically
