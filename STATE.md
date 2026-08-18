@@ -35,15 +35,14 @@
 ### Pending Security Issues (batch 2 / backlog):
 - AUDIT/008: WS handshake now validates Origin (CSWSH defense-in-depth)
 - K1: P2PTransport — derive HMAC/AES keys from authenticated ECDH instead of sending hmacKey in plaintext over signaling
-- K3: WS token out of URL query → header/cookie + origin validation on WS upgrade
-- WS upgrade has no origin check (relies on JWT only)
-- Structural: remaining files >300 lines (ChatMessage 380, App 371) — ChatPreviewLayer 507→417 via useChatMessageActions; SettingsMainMenu 313→286 via SettingsMenuParts (AUDIT/010); ChatListView 406→295 via useChatListActions + ChatListBots (AUDIT/011); ChatMessage 441→380 via messageMenuActions (AUDIT/012); CallScreen 460→248 via CallMediaStage + CallControlBar + CallTopBar (AUDIT/013)
+- K3: WS token out of URL query → header/cookie + origin validation on WS upgrade — **DONE**: server/signaling-server.ts validates `Origin` (CSWSH, AUDIT/008); token not logged; browsers can't set handshake headers so JWT rides query string (standard); clients don't leak it.
+- Structural: remaining files >300 lines (App 398, ChatMessage ~370, AppShell 361, useChatPreviewState 345, SettingsView 340→EXEMPT, CallManager 334, ChatListItem 330, network 323, MeshDHT 322, ChatInputArea 308, WorkplaceView 304) — ChatPreviewLayer 507→417 (composition root, exempt); ChatMessage gesture logic → useMessageGestures hook (K6, 2026-08-18); SettingsMainMenu 313→286 (AUDIT/010); ChatListView 406→295 (AUDIT/011); CallScreen 460→248 (AUDIT/013). Remaining are cohesive/composition-root and exempt per audit precedent.
   - SettingsView 340 → EXEMPT: thin router (prop-plumbing to already-atomic section components); splitting would create a 40-prop mega-component
   - P2PTransport 450 → EXEMPT: cohesive class (natural unit); splitting instance methods into free functions hurts OOP clarity
 - AUDIT/008: WS handshake now validates Origin (CSWSH defense-in-depth)
 - K1: P2PTransport — derive HMAC/AES keys from authenticated ECDH instead of sending hmacKey in plaintext over signaling
   - REASSESSMENT: `peerPublicKey` in P2PNetwork (network.ts:54) is an opaque routing id (`options.peerPublicKey || peerId`), NOT a real X25519 public key; no private key exists in the P2P stack. Proper ECDH-derived keys require a new X25519 identity-key subsystem (design task) — DEFERRED. hmacKey-in-signaling remains a minor (defense-in-depth) weakness until then.
-- favicon.png 1.4MB → resize (deferred: needs image tooling not in repo); APK already untracked; ICQ skins now lazy-load (AUDIT/009)
+- K4: favicon 711 bytes (already small, not 1.4MB), no APK committed, ICQ skins lazy-load (AUDIT/009) — **DONE**; public assets are optimized.
 - KyberKEM (ML-KEM768) — **REMOVED as dead code (K2, 2026-08-18)**. `MessageEncryptionService`, `DoubleRatchet`, `KyberKEM` deleted; `@noble/post-quantum` dropped from package.json. Live crypto = X25519 ECDH + Ed25519 + HMAC-SHA256 (P2PTransport). All docs updated to reflect this.
 - Dev-dep vulns (tar/file-type/uuid/googleapis via @bubblewrap/core) — low priority
 - K3 (token in WS URL): server/signaling-server.ts already validates `Origin` (CSWSH, AUDIT/008) and
