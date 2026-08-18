@@ -126,15 +126,16 @@ export class CryptoCore {
   }
 
   signEd25519(privateKey: Uint8Array, message: string): Uint8Array {
-    const msgBuf = new TextEncoder().encode(message)
+    const msgBuf = Uint8Array.from(new TextEncoder().encode(message))
     return nacl.sign.detached(msgBuf, privateKey)
   }
 
   verifyEd25519Signature(publicKey: Uint8Array, message: string, signature: Uint8Array): boolean {
     try {
-      const signedMsg = new Uint8Array(signature.length + message.length)
+      const msgBuf = Uint8Array.from(new TextEncoder().encode(message))
+      const signedMsg = new Uint8Array(signature.length + msgBuf.length)
       signedMsg.set(signature)
-      signedMsg.set(new TextEncoder().encode(message), signature.length)
+      signedMsg.set(msgBuf, signature.length)
       return nacl.sign.open(signedMsg, publicKey) !== null
     } catch {
       return false

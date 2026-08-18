@@ -7,6 +7,7 @@ import { MeshDHT, DHTBootstrapPeer } from './MeshDHT';
 import { MeshRouterCore, MeshRouterSingleton } from './MeshRouter';
 import { useAppStore } from '../../store';
 import { trafficObfuscator } from '../transport/obfuscator';
+import { getMasterKeySet } from '../identity/masterKey';
 
 export interface PeerConnection {
   peerId: string;
@@ -165,11 +166,14 @@ export class P2PNetwork {
 
     // Create transport (this would use WebRTC in production)
     const obfuscationEnabled = useAppStore.getState().obfuscationEnabled;
+    const identity = await getMasterKeySet().catch(() => null);
     const transport = new P2PTransport({
       signalingUrl: '', // No signaling URL needed in Kadabra
       localPublicKey: this.peerPublicKey,
       obfuscator: obfuscationEnabled ? trafficObfuscator : undefined,
       obfuscationEnabled,
+      identitySecretKey: identity?.ed25519Secret,
+      identityPublicKey: identity?.ed25519Public,
       onMessage: (data: string) => {
         const msg: BroadcastMessage = {
           senderId: peerId,

@@ -6,6 +6,7 @@ import {
   hex2buf,
   deriveSharedHmacKey,
 } from '../crypto/cryptoCore'
+import { signDh, verifyOrPinPeer } from './identityPin'
 
 export interface CallMediaHandlers {
   onRemoteTrack: (peerId: string, stream: MediaStream) => void;
@@ -28,6 +29,8 @@ interface P2PTransportConfig {
   onDisconnected: P2PConnectionHandler
   obfuscator?: TrafficObfuscator;
   obfuscationEnabled?: boolean;
+  identitySecretKey?: Uint8Array
+  identityPublicKey?: Uint8Array
 }
 
 export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'online-status' | 'read-receipt'
@@ -57,6 +60,8 @@ export class P2PTransport {
   private localHandlesTracks = false
   private obfuscator: TrafficObfuscator | null = null
   private obfuscationEnabled = true
+  private identitySecretKey: Uint8Array | null = null
+  private identityPublicKey: Uint8Array | null = null
 
   constructor(config: P2PTransportConfig) {
     this.signalingUrl = config.signalingUrl
@@ -69,6 +74,8 @@ export class P2PTransport {
     ]
     this.obfuscator = config.obfuscator ?? null
     this.obfuscationEnabled = config.obfuscationEnabled ?? true
+    this.identitySecretKey = config.identitySecretKey ?? null
+    this.identityPublicKey = config.identityPublicKey ?? null
   }
 
   attachMediaHandlers(handlers: CallMediaHandlers): void {
@@ -146,6 +153,15 @@ export class P2PTransport {
     this.localDhPrivateKey = kp.secretKey
     const dhPub = buf2hex(kp.publicKey)
 
+    // Authenticate this session's DH public key with our persistent Ed25519
+    // identity so a signaling-layer MITM cannot substitute keys.
+    let identityPub: string | undefined
+    let dhSig: string | undefined
+    if (this.identitySecretKey && this.identityPublicKey) {
+      identityPub = buf2hex(this.identityPublicKey)
+      dhSig = signDh(this.identitySecretKey, dhPub)
+    }
+
     this.createPeerConnection()
 
     this.dataChannel = this.peerConnection!.createDataChannel('messenger', {
@@ -166,6 +182,8 @@ export class P2PTransport {
       target: peerPublicKey,
       sdp: offer,
       dhPub,
+      identityPub,
+      dhSig,
     })
   }
 
@@ -397,20 +415,39 @@ export class P2PTransport {
     await this.peerConnection!.setLocalDescription(answer)
 
     // Derive the shared HMAC key from the caller's ephemeral DH public key.
-    // Fall back to the legacy transmitted key only if no DH public key present.
+    // The HMAC key is derived locally and never transmitted.
     if (msg.dhPub) {
+      // Authenticate the caller's DH key against its pinned identity (TOFU).
+      if (msg.identityPub && msg.dhSig) {
+        const peerId = this.peerPublicKey ?? msg.from ?? ''
+        const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
+        if (!ok) {
+          console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting offer')
+          return
+        }
+      }
       const ownKp = generateX25519KeyPair()
       this.localDhPrivateKey = ownKp.secretKey
       const myDhPub = buf2hex(ownKp.publicKey)
       this.hmacKey = await this.deriveHmacFromPeerDh(msg.dhPub)
+      let myIdentityPub: string | undefined
+      let myDhSig: string | undefined
+      if (this.identitySecretKey && this.identityPublicKey) {
+        myIdentityPub = buf2hex(this.identityPublicKey)
+        myDhSig = signDh(this.identitySecretKey, myDhPub)
+      }
       this.sendSignaling({
         type: 'answer',
         target: msg.from,
         sdp: answer,
         dhPub: myDhPub,
+        identityPub: myIdentityPub,
+        dhSig: myDhSig,
       })
     } else {
-      this.hmacKey = msg.hmacKey || null
+      // Insecure plaintext HMAC fallback removed: the HMAC key must be derived
+      // from ECDH and is never transmitted. Proceed without message authentication.
+      this.hmacKey = null
       this.sendSignaling({
         type: 'answer',
         target: msg.from,
@@ -426,9 +463,20 @@ export class P2PTransport {
 
   private async handleAnswer(msg: any): Promise<void> {
     if (msg.dhPub && this.localDhPrivateKey) {
+      // Authenticate the callee's DH key against its pinned identity (TOFU).
+      if (msg.identityPub && msg.dhSig) {
+        const peerId = this.peerPublicKey ?? ''
+        const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
+        if (!ok) {
+          console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting answer')
+          this.hmacKey = null
+          return
+        }
+      }
       this.hmacKey = await this.deriveHmacFromPeerDh(msg.dhPub)
-    } else if (msg.hmacKey) {
-      this.hmacKey = msg.hmacKey
+    } else {
+      // Insecure plaintext HMAC fallback removed.
+      this.hmacKey = null
     }
 
     await this.peerConnection!.setRemoteDescription(
