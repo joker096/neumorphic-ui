@@ -53,7 +53,7 @@
   "data": {
     "ticker": "/data/ticker.json",
     "marquee": "/data/marquee.json",
-    "lang": "/lang"
+    "lang": "/landing/lang"
   },
   "features": {
     "mesh": "01 · Mesh Network",
