@@ -94,7 +94,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
               placeholder={t('contacts.contactName')}
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl text-sm outline-none transition-colors bg-input-bg text-input-text placeholder:text-input-placeholder"
+              className="w-full h-[var(--control-height-lg)] px-4 rounded-xl text-sm outline-none transition-colors bg-input-bg text-input-text placeholder:text-input-placeholder"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -107,7 +107,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
               placeholder={t('contacts.networkId')}
               value={id}
               onChange={e => setId(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl text-sm font-mono outline-none transition-colors bg-input-bg text-input-text placeholder:text-input-placeholder"
+              className="w-full h-[var(--control-height-lg)] px-4 rounded-xl text-sm font-mono outline-none transition-colors bg-input-bg text-input-text placeholder:text-input-placeholder"
             />
           </div>
         </div>
@@ -157,7 +157,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
         <button
           type="submit"
           disabled={!name.trim() || !id.trim() || hasFieldErrors || isLoading}
-          className="w-full h-12 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-accent text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]"
+          className="w-full h-[var(--control-height-lg)] rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-accent text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]"
         >
           {isLoading && <Loader2 size={18} className="animate-spin" />}
           <Check size={18} />

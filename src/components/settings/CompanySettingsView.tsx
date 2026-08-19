@@ -42,8 +42,8 @@ export const CompanySettingsView = ({ isDark, onBack }: CompanySettingsViewProps
              <div className={`rounded-xl overflow-hidden ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white shadow-sm border border-[var(--border-color)]'}`}>
                <SettingsToggleRow
                  icon={<Building2 size={16} />}
-                 iconColor={isDark ? 'text-orange-400' : 'text-orange-600'}
-                 iconBg={isDark ? 'bg-[var(--color-warning)]/10' : 'bg-orange-100'}
+                  iconColor="t-accent"
+                  iconBg="t-accent-bg"
 title={t('settings.hideWhenOfficeOnly')}
                   subtitle={t('settings.hideWhenOfficeOnlySubtitle')}
                  isOn={hideWhenOfficeOnly}

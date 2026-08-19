@@ -36,10 +36,14 @@ export interface CompanySlice {
   setCompanyChannels: (channels: CompanyChannel[]) => void;
   addCompanyMessage: (msg: CompanyMessage) => void;
   setCompanyMembers: (members: CompanyMember[]) => void;
+  updateMemberRole: (userId: string, role: 'admin' | 'member') => void;
+  renameMember: (userId: string, displayName: string) => void;
+  removeMember: (userId: string) => void;
   setHideWhenOfficeOnly: (hide: boolean) => void;
   initCompanyFromInvite: (payload: InviteQRPayload) => Promise<void>;
   loadCompanySettings: () => Promise<void>;
   saveCompanySettings: () => Promise<void>;
+  loadCompanyMessages: () => Promise<void>;
   createCompany: (name: string, displayName: string) => Promise<void>;
   isOnline: boolean;
   setOnlineStatus: (online: boolean) => void;
@@ -62,8 +66,34 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
   pendingInvite: null,
   setCompanyId: (id) => set({ companyId: id }),
   setCompanyChannels: (channels) => set({ companyChannels: channels }),
-  addCompanyMessage: (msg) => set((state: any) => ({ companyMessages: [...state.companyMessages, msg] })),
+  addCompanyMessage: (msg) => {
+    set((state: any) => ({ companyMessages: [...state.companyMessages, msg] }));
+    idb.addCompanyMessage(msg).catch(() => {});
+  },
+  loadCompanyMessages: async () => {
+    try {
+      const msgs = await idb.getAllCompanyMessages();
+      if (msgs.length > 0) {
+        set({ companyMessages: msgs });
+      }
+    } catch {
+      /* ignore */
+    }
+  },
   setCompanyMembers: (members) => set({ companyMembers: members }),
+  updateMemberRole: (userId, role) => set((state: any) => ({
+    companyMembers: state.companyMembers.map((m: CompanyMember) =>
+      m.userId === userId ? { ...m, role } : m,
+    ),
+  })),
+  renameMember: (userId, displayName) => set((state: any) => ({
+    companyMembers: state.companyMembers.map((m: CompanyMember) =>
+      m.userId === userId ? { ...m, displayName } : m,
+    ),
+  })),
+  removeMember: (userId) => set((state: any) => ({
+    companyMembers: state.companyMembers.filter((m: CompanyMember) => m.userId !== userId),
+  })),
   setHideWhenOfficeOnly: (hide) => {
     set({ hideWhenOfficeOnly: hide });
     localStorage.setItem('app_hide_when_office_only', String(hide));

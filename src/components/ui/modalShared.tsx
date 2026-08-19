@@ -33,7 +33,7 @@ export const modalTitleClass = (_isDark: boolean) => `text-lg font-bold text-for
 export const modalSubtitleClass = (_isDark: boolean) => `text-xs mt-0.5 text-muted-foreground`;
 
 export const modalIconWrapClass = (_isDark: boolean, size = 'w-12 h-12') =>
-  `${size} rounded-full flex items-center justify-center shrink-0 bg-orange-500/15 text-orange-500`;
+  `${size} rounded-full flex items-center justify-center shrink-0 bg-[var(--accent-soft)] text-[var(--accent)]`;
 
 export function ModalCloseButton({
   isDark,
@@ -119,18 +119,19 @@ export const sheetCancelClass = (_isDark: boolean) =>
 export const modalLabelClass =
   'text-[11px] uppercase tracking-widest font-bold mb-2 opacity-50 text-[var(--text-primary)]';
 
-/** Consistent text input / textarea field. */
-// Inputs are borderless: the cursor/placeholder is enough affordance.
+/** Consistent text input / textarea field.
+ *  Uses the design token control height (44px) with an explicit text size so
+ *  the field never inherits an unexpectedly large font. */
 export const modalFieldClass =
-  'w-full h-12 rounded-xl px-4 outline-none transition-colors bg-[var(--bg-tertiary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]';
+  'w-full h-[var(--control-height-lg)] rounded-xl px-4 outline-none transition-colors bg-[var(--bg-tertiary)] text-base text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]';
 
 /** Full-width primary action button (accent). */
 export const modalPrimaryBtnClass =
-  'w-full h-12 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]';
+  'w-full h-[var(--control-height-lg)] rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]';
 
 /** Secondary / ghost button. */
 export const modalSecondaryBtnClass =
-  'flex-1 py-3 text-sm font-bold rounded-xl transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]';
+  'flex-1 h-[var(--control-height-lg)] text-sm font-bold rounded-xl transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]';
 
 /** Informational callout box. */
 export const modalInfoClass =
@@ -138,7 +139,7 @@ export const modalInfoClass =
 
 /** Segmented / option card (e.g. public vs private). */
 export const modalOptionClass = (active: boolean) =>
-  `flex-1 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all border ${
+  `flex-1 rounded-xl p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all border ${
     active
       ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]'
       : 'border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'

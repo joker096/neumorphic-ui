@@ -7,11 +7,13 @@ import { CompanyInfoCard } from './company/CompanyInfoCard';
 import { MemberList } from './company/MemberList';
 import { ChannelList } from './company/ChannelList';
 import { CompanySettingsView } from './company/CompanySettingsView';
+import { MemberDetailModal } from './company/MemberDetailModal';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
 import { QrCode } from './QrCode';
 import { CHANNEL_CLICK_GRADIENT, COMPANY_MODAL_MAX_WIDTH } from '../constants/companyConstants';
+import type { CompanyMember } from '../lib/company/types';
 
 const closeBtn = (onClick: () => void) => (
   <button
@@ -42,15 +44,35 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
   const hideWhenOfficeOnly = useAppStore(state => state.hideWhenOfficeOnly);
   const connectionStatus = useAppStore(state => state.connectionStatus);
   const companySettings = useAppStore(state => state.companySettings);
+  const userProfile = useAppStore(state => state.userProfile);
+  const updateMemberRole = useAppStore(state => state.updateMemberRole);
+  const renameMember = useAppStore(state => state.renameMember);
+  const removeMember = useAppStore(state => state.removeMember);
   const [showScanQR, setShowScanQR] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<CompanyMember | null>(null);
 
   useEffect(() => {
     if (!companySettings) {
       loadCompanySettings();
     }
   }, []);
+
+  useEffect(() => {
+    if (companyMembers.length === 0) {
+      const currentUserMember: CompanyMember = {
+        userId: userProfile.id,
+        displayName: userProfile.name || 'You',
+        role: 'admin',
+        publicKey: '',
+        joinedAt: Date.now(),
+        lastActive: Date.now(),
+        online: true,
+      };
+      setCompanyMembers([currentUserMember, ...MOCK_COMPANY_MEMBERS]);
+    }
+  }, [companyMembers.length]);
 
   const isInOffice = connectionStatus === 'connected';
   const shouldHideCompany = hideWhenOfficeOnly && !isInOffice;
@@ -59,8 +81,13 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
     return null;
   }
 
-  const displayMembers = companyMembers.length > 0 ? companyMembers : MOCK_COMPANY_MEMBERS;
+  const displayMembers = companyMembers;
   const displayChannels = companyChannels.length > 0 ? companyChannels : MOCK_COMPANY_CHANNELS;
+
+  const isCurrentUserAdmin = displayMembers.some(
+    m => m.userId === userProfile.id && m.role === 'admin',
+  );
+  const canManage = isCurrentUserAdmin;
 
   const handleScanQR = () => {
     setShowScanQR(true);
@@ -84,6 +111,18 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
     setShowScanQR(false);
   };
 
+  const handleSaveMemberName = (userId: string, displayName: string) => {
+    renameMember(userId, displayName);
+  };
+
+  const handleChangeRole = (userId: string, role: 'admin' | 'member') => {
+    updateMemberRole(userId, role);
+  };
+
+  const handleRemoveMember = (userId: string) => {
+    removeMember(userId);
+  };
+
   const totalUnread = useMemo(() =>
     displayChannels.reduce((sum, c) => sum + (c.unread || 0), 0),
     [displayChannels],
@@ -91,7 +130,7 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
 
   return (
     <div className="w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5">
-      <CompanyHeader onScanQR={handleScanQR} onInvite={handleInvite} onSettings={handleSettings} />
+      <CompanyHeader onScanQR={handleScanQR} onInvite={handleInvite} onSettings={handleSettings} canManage={canManage} />
       <CompanyInfoCard
         isDark={isDark}
         orgId={companyId || MOCK_COMPANY_ID}
@@ -100,9 +139,12 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
       <MemberList
         isDark={isDark}
         members={displayMembers}
+        canManage={canManage}
+        currentUserId={userProfile.id}
         onCall={onCall}
         onVideoCall={onVideoCall}
         onMemberClick={(member, color) => onMessage?.(member.displayName, color)}
+        onMemberEdit={(member) => setSelectedMember(member)}
         teamMembersLabel={t('company.teamMembers') || 'Team Members'}
         t={t}
       />
@@ -190,6 +232,19 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
               <CompanySettingsView onClose={() => setShowSettings(false)} />
             </div>
           </motion.div>
+        )}
+
+        {selectedMember && (
+          <MemberDetailModal
+            member={selectedMember}
+            isDark={isDark}
+            canManage={canManage}
+            isCurrentUser={selectedMember.userId === userProfile.id}
+            onClose={() => setSelectedMember(null)}
+            onSave={(displayName) => handleSaveMemberName(selectedMember.userId, displayName)}
+            onChangeRole={(role) => handleChangeRole(selectedMember.userId, role)}
+            onRemove={() => handleRemoveMember(selectedMember.userId)}
+          />
         )}
       </AnimatePresence>
     </div>

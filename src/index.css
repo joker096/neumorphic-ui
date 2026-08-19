@@ -119,12 +119,13 @@ textarea {
   }
 }
 
-/* Ensure keyboard focus is always visible (WCAG 2.4.7) */
+/* Ensure keyboard focus is always visible (WCAG 2.4.7).
+   Text-entry fields (input/textarea) rely on the text caret as their focus
+   indicator, so they are intentionally excluded from the outline to avoid a
+   distracting surrounding line while typing. */
 button:focus-visible,
 a:focus-visible,
-input:focus-visible,
 select:focus-visible,
-textarea:focus-visible,
 [role="button"]:focus-visible {
   outline: 2px solid rgba(111, 127, 255, 0.65);
   outline-offset: 2px;
@@ -414,4 +415,25 @@ textarea:focus-visible,
     transition-duration: 0.01ms !important;
     transition-delay: 0.01ms !important;
   }
+}
+
+/* Premium micro-grain overlay — adds tactile depth to the neumorphic surfaces
+   without washing out contrast. Sits above content but never intercepts input. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* Typographic refinement: tabular figures for numeric/monospace data and a
+   slightly tighter, more even default tracking across the app. */
+body {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
 }

@@ -149,8 +149,8 @@ export const PrivacySection = ({
         {selfDestructDefault !== undefined && setSelfDestructDefault && (
           <SettingsRow
             icon={<Clock size={16} />}
-            iconBg={isDark ? "bg-orange-500/10" : "bg-orange-100"}
-            iconColor={isDark ? "text-orange-400" : "text-orange-600"}
+            iconBg="t-accent-bg"
+            iconColor="t-accent"
             title={t('settings.selfDestructDefault')}
             subtitle={t('settings.selfDestructDefaultSubtitle')}
             value={selfDestructDefault as string}

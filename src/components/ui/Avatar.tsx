@@ -24,7 +24,7 @@ const dotSizeMap = {
 
 export function Avatar({ name, color, size = 'md', online, className = '' }: AvatarProps) {
   const initials = name.charAt(0).toUpperCase();
-  const gradient = color || 'from-[#6f7fff] to-[#965dff]';
+  const gradient = color || 'from-[var(--accent)] to-[var(--accent2)]';
 
   return (
     <div className={`relative shrink-0 ${className}`}>

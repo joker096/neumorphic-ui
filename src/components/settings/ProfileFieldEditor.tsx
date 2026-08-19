@@ -21,7 +21,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
         <button
           type="button"
           onClick={onAdd}
-          className="text-[10px] font-bold px-3 py-1.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-orange-600 hover:text-[var(--text-primary)] transition-colors"
+          className="text-[10px] font-bold px-3 py-1.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
         >
           {t('settings.addField', 'Add Field')}
         </button>

@@ -107,8 +107,8 @@ export const NetworkSection = ({
           subtitle={relayBackend}
           value={relayBackend}
           icon={<Radio size={16} />}
-          iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-          iconColor={isDark ? "text-blue-400" : "text-blue-600"}
+          iconBg="t-accent-bg"
+          iconColor="t-accent"
           isDark={isDark}
           onClick={cycleRelayBackend}
         />

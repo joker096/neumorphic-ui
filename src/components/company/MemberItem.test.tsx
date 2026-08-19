@@ -93,7 +93,7 @@ describe('MemberItem', () => {
     render(
       <MemberItem member={{ ...mockMember, role: 'admin' }} index={0} color="from-indigo-400 to-purple-500" onClick={() => {}} t={(k: string) => k} />
     );
-    expect(screen.getByText(/company\.roleAdmin/)).toBeInTheDocument();
+    expect(screen.getAllByText(/company\.roleAdmin/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders member role label', () => {

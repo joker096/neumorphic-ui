@@ -22,11 +22,11 @@ export const NavItemButton = React.memo(
     const buttonClassName = isBottom
       ? `relative flex h-full min-w-[56px] min-h-[48px] flex-1 flex-col items-center justify-center cursor-pointer
          transition-all duration-200 active:scale-[0.98] focus-visible:outline-none
-         focus-visible:ring-2 focus-visible:ring-[#6f7fff]/40
+         focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40
          ${active
            ? isDark
-             ? "text-[#6f7fff]"
-             : "text-[#6f7fff]"
+             ? "text-[var(--accent)]"
+             : "text-[var(--accent)]"
            : isDark
              ? "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
              : "text-slate-400 hover:text-slate-600"}`
@@ -38,26 +38,26 @@ export const NavItemButton = React.memo(
              : "text-white/90 hover:bg-white/10"}`
          : `flex min-h-[44px] items-center justify-center rounded-xl px-3 py-2.5 cursor-pointer
             transition-all duration-200 active:scale-[0.97] focus-visible:outline-none
-            focus-visible:ring-2 focus-visible:ring-[#6f7fff]/40
+            focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40
            ${active
              ? isDark
-               ? "bg-gradient-to-br from-[#6f7fff]/20 to-[#965dff]/15 text-[#6f7fff] shadow-[0_4px_16px_rgba(111,127,255,0.25),inset_0_1px_0_rgba(255,255,255,0.1)]"
-               : "bg-gradient-to-br from-[#6f7fff]/12 to-[#965dff]/8 text-[#6f7fff] shadow-[0_2px_10px_rgba(111,127,255,0.15),inset_0_1px_0_rgba(255,255,255,0.9)]"
+               ? "bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent2)]/15 text-[var(--accent)] shadow-[0_4px_16px_rgba(var(--accent-rgb),0.25),inset_0_1px_0_rgba(255,255,255,0.1)]"
+               : "bg-gradient-to-br from-[var(--accent)]/12 to-[var(--accent2)]/8 text-[var(--accent)] shadow-[0_2px_10px_rgba(var(--accent-rgb),0.15),inset_0_1px_0_rgba(255,255,255,0.9)]"
              : isDark
                ? "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-white/[0.05] active:bg-white/[0.08]"
                : "text-slate-500 hover:text-slate-800 hover:bg-black/[0.04] active:bg-black/[0.07]"}`;
 
     const badgeClassName = isBottom
-      ? `absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center
+           ? `absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center
          ${isDark
-           ? "bg-[#6f7fff] shadow-[0_0_8px_rgba(111,127,255,0.6)]"
-           : "bg-[#6f7fff] shadow-[0_2px_4px_rgba(111,127,255,0.4)]"}`
-      : variant === "eco"
-        ? `absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center bg-emerald-500`
+           ? "bg-[var(--accent)] shadow-[0_0_8px_rgba(var(--accent-rgb),0.6)]"
+           : "bg-[var(--accent)] shadow-[0_2px_4px_rgba(var(--accent-rgb),0.4)]"}`
+       : variant === "eco"
+         ? `absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center bg-emerald-500`
          : `absolute top-[6px] right-[6px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center
             ${isDark
-              ? "bg-gradient-to-br from-[#6f7fff] to-[#965dff] shadow-[0_2px_8px_rgba(111,127,255,0.45)]"
-              : "bg-gradient-to-br from-[#6f7fff] to-[#965dff] shadow-[0_1px_5px_rgba(111,127,255,0.35)]"}`;
+              ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] shadow-[0_2px_8px_rgba(var(--accent-rgb),0.45)]"
+              : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] shadow-[0_1px_5px_rgba(var(--accent-rgb),0.35)]"}`;
 
     return (
       <button

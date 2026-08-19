@@ -7,7 +7,7 @@
  */
 
 /** Brand gradient used for the primary "send" action across chat inputs. */
-export const CHAT_SEND_GRADIENT = "bg-gradient-to-tr from-[#6f7fff] to-[#965dff]";
+export const CHAT_SEND_GRADIENT = "bg-gradient-to-tr from-[var(--accent)] to-[var(--accent2)]";
 
 /** Decorative gradient classes used for mock media previews in the profile view. */
 export const CHAT_PROFILE_MEDIA_GRADIENTS: readonly string[] = [

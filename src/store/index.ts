@@ -24,6 +24,7 @@ import type { CompanySlice } from './slices/companySlice';
 import type { ConnectionSlice } from './slices/connectionSlice';
 import type { SyncSlice } from './slices/syncSlice';
 import type { ProfileSlice } from './slices/profileSlice';
+import type { CrmSlice } from './slices/crmSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
 import { createChatSlice } from './slices/chatSlice';
 import { createCallSlice } from './slices/callSlice';
@@ -35,6 +36,7 @@ import { createCompanySlice } from './slices/companySlice';
 import { createConnectionSlice } from './slices/connectionSlice';
 import { createSyncSlice } from './slices/syncSlice';
 import { createProfileSlice } from './slices/profileSlice';
+import { createCrmSlice, saveCrmPersisted } from './slices/crmSlice';
 
 // Re-export types for consumers
 export type {
@@ -63,7 +65,7 @@ export const initAppStorage = async () => {
 export { DEFAULT_BOT_PERMISSIONS };
 
 // --- Store interface ---
-export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice {}
+export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice {}
 
 export const useAppStore = create<AppState>()((set, get) => ({
   ...createSettingsSlice(set, get),
@@ -77,4 +79,50 @@ export const useAppStore = create<AppState>()((set, get) => ({
   ...createConnectionSlice(set, get),
   ...createSyncSlice(set, get),
   ...createProfileSlice(set, get),
+  ...createCrmSlice(set, get),
 }));
+
+// --- Data hydration gate ---
+// Set to true after IDB hydration completes so the persist subscription
+// doesn't overwrite stored data with empty initial state.
+let dataHydrated = false;
+export const markDataHydrated = (): void => { dataHydrated = true; };
+
+// Persist CRM data so user-created contacts/departments survive reloads
+// (demo seed is only used until the first change is saved).
+let crmPersistRef: { c: unknown; d: unknown; r: unknown; dl: unknown; t: unknown } | null = null;
+useAppStore.subscribe((s) => {
+  if (!s.crmLoaded) return;
+  const cur = { c: s.crmContacts, d: s.crmDepartments, r: s.crmCustomRoles, dl: s.crmDeals, t: s.crmTasks };
+  if (
+    !crmPersistRef
+    || cur.c !== crmPersistRef.c
+    || cur.d !== crmPersistRef.d
+    || cur.r !== crmPersistRef.r
+    || cur.dl !== crmPersistRef.dl
+    || cur.t !== crmPersistRef.t
+  ) {
+    crmPersistRef = cur;
+    saveCrmPersisted(s);
+  }
+});
+
+// Persist chats / contacts / channels / call history to IndexedDB
+let dataPersistRef: { chats: unknown; contacts: unknown; channels: unknown; calls: unknown } | null = null;
+useAppStore.subscribe((s) => {
+  if (!dataHydrated) return;
+  const cur = { chats: s.chats, contacts: s.contacts, channels: s.channels, calls: s.callHistory };
+  if (
+    !dataPersistRef
+    || cur.chats !== dataPersistRef.chats
+    || cur.contacts !== dataPersistRef.contacts
+    || cur.channels !== dataPersistRef.channels
+    || cur.calls !== dataPersistRef.calls
+  ) {
+    dataPersistRef = cur;
+    idb.set('chats_all', s.chats).catch(() => {});
+    idb.set('contacts_all', s.contacts).catch(() => {});
+    idb.set('channels_all', s.channels).catch(() => {});
+    idb.set('call_history_all', s.callHistory).catch(() => {});
+  }
+});

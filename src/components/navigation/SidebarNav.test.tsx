@@ -21,8 +21,8 @@ describe('SidebarNav', () => {
   it('highlights the current section', () => {
     render(<SidebarNav {...defaultProps} activeView="contacts" isDark={true} />);
     const contactsBtn = screen.getByLabelText('nav.contacts').closest('button');
-    expect(contactsBtn).toHaveClass('text-[#6f7fff]');
-    expect(contactsBtn?.className).toContain('from-[#6f7fff]/20');
+    expect(contactsBtn).toHaveClass('text-[var(--accent)]');
+    expect(contactsBtn?.className).toContain('from-[var(--accent)]/20');
   });
 
   it('shows icons for nav items', () => {

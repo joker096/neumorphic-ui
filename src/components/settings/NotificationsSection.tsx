@@ -62,8 +62,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         />
         <SettingsRow
           icon={<Users size={16} />}
-          iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-          iconColor={isDark ? "text-blue-400" : "text-blue-600"}
+          iconBg="t-accent-bg"
+          iconColor="t-accent"
           title={t('settings.groups', 'Groups')}
           subtitle={t('settings.groupsSub', 'Group conversations')}
           isDark={isDark}

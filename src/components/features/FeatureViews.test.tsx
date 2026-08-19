@@ -17,7 +17,7 @@ vi.mock('../SettingsView', () => ({ SettingsView: ({ theme }: any) => <div data-
 vi.mock('../SystemPulsePlayer/SystemPulsePlayer', () => ({ SystemPulsePlayer: ({ theme }: any) => <div data-testid="system-pulse-player">SystemPulsePlayer</div> }));
 vi.mock('../RecordingsScreen', () => ({ RecordingsScreen: ({ theme }: any) => <div data-testid="recordings-screen">RecordingsScreen</div> }));
 vi.mock('../MeshRadar', () => ({ MeshRadar: ({ theme }: any) => <div data-testid="mesh-radar">MeshRadar</div> }));
-vi.mock('../CompanyContactsView', () => ({ CompanyContactsView: ({ theme }: any) => <div data-testid="company-contacts-view">CompanyContactsView</div> }));
+vi.mock('../crm/CrmView', () => ({ CrmView: ({ theme }: any) => <div data-testid="crm-view">CrmView</div> }));
 
 import { FeatureViews } from './FeatureViews';
 
@@ -35,9 +35,9 @@ describe('FeatureViews', () => {
     expect(await screen.findByText('ContactsView')).toBeInTheDocument();
   });
 
-  it('renders company view with CompanyContactsView', async () => {
+  it('renders company view with CrmView', async () => {
     render(<FeatureViews {...defaultProps} view="company" />);
-    expect(await screen.findByText('CompanyContactsView')).toBeInTheDocument();
+    expect(await screen.findByText('CrmView')).toBeInTheDocument();
   });
 
   it('returns null for unknown view', () => {

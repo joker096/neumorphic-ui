@@ -69,14 +69,14 @@ export const FormModal = ({
                 {Icon && (
                   <div
                     className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
-                      iconBg || (isDark ? 'bg-orange-500/20' : 'bg-orange-100')
-                    } ${iconColor || (isDark ? 'text-orange-400' : 'text-orange-600')}`}
+                      iconBg || 't-accent-bg'
+                    } ${iconColor || 't-accent'}`}
                   >
                     <Icon size={32} />
                   </div>
                 )}
                 {title && (
-                  <h3 className={`text-xl font-bold text-center ${
+                  <h3 className={`text-lg font-bold text-center ${
                     isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'
                   }`}>
                     {title}

@@ -38,8 +38,8 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
         />
         <SettingsToggleRow
           icon={<ShieldCheck size={16} />}
-          iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-          iconColor={isDark ? "text-blue-400" : "text-blue-600"}
+          iconBg="t-accent-bg"
+          iconColor="t-accent"
           title={t('settings.wifiOnly', 'Back up over Wi-Fi only')}
           subtitle={t('settings.wifiOnlySub', 'Avoid mobile data')}
           isOn={wifiOnly}

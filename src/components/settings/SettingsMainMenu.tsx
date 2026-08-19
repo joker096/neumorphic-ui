@@ -50,8 +50,8 @@ export function SettingsMainMenu({
       onClick: () => setActiveSection('appearance'),
     },
     {
-      icon: <Globe size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />,
-      iconBg: isDark ? "bg-blue-500/10" : "bg-blue-100",
+      icon: <Globe size={16} className="t-accent" />,
+      iconBg: "t-accent-bg",
       title: t('settings.language'),
       subtitle: language,
       onClick: () => setActiveSection('language'),
@@ -128,8 +128,8 @@ export function SettingsMainMenu({
 
   const advancedItems: NavItemDef[] = [
     {
-      icon: <Network size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />,
-      iconBg: isDark ? "bg-blue-500/10" : "bg-blue-100",
+      icon: <Network size={16} className="t-accent" />,
+      iconBg: "t-accent-bg",
       title: t('settings.network'),
       subtitle: proxyEnabled ? t('settings.networkEnabled') : t('settings.disabled'),
       onClick: () => setActiveSection('network'),
@@ -212,8 +212,8 @@ export function SettingsMainMenu({
             <SettingsDivider isDark={isDark} />
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-blue-500/10" : "bg-blue-100"}`}>
-                  <Cloud size={16} className={isDark ? "text-blue-400" : "text-blue-600"} />
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--accent-soft)]`}>
+                  <Cloud size={16} className="t-accent" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.cloudSyncOption')}</div>
@@ -224,11 +224,12 @@ export function SettingsMainMenu({
             <SettingsDivider isDark={isDark} />
             <div className="flex items-center gap-3 px-4 py-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-[var(--accent-soft)" : "bg-[var(--accent)]/10"}`}>
-                <ChevronRight size={16} className="text-[var(--accent)]" />
+                <Bell size={16} className="text-[var(--accent)]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className={`text-xs font-medium ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>{t('settings.manageNotifications', 'Manage notifications')}</div>
               </div>
+              <ChevronRight size={14} className={isDark ? "text-gray-500" : "text-slate-400"} />
             </div>
           </SettingsCard>
         </div>

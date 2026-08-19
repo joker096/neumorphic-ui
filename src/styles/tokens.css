@@ -55,8 +55,10 @@
   --text-tertiary: #8b94a6;
   --border-color: rgba(255,255,255,0.08);
   --accent: #6f7fff;
+  --accent-rgb: 111,127,255;
   --accent-soft: rgba(111,127,255,0.12);
   --accent2: #965dff;
+  --accent2-rgb: 150,93,255;
   --success: #38d69a;
   --success-soft: rgba(56,214,154,0.12);
   --danger: #ff607d;
@@ -142,7 +144,9 @@
   --text-tertiary: #64748b;
   --border-color: rgba(0,0,0,0.08);
   --accent: #ea580c;
+  --accent-rgb: 234,88,12;
   --accent2: #d97706;
+  --accent2-rgb: 217,119,6;
   --accent-soft: rgba(234,88,12,0.1);
   --accent-warm: #ea580c;
   --accent-warm-soft: rgba(234,88,12,0.15);

@@ -31,7 +31,7 @@ describe('BottomNav', () => {
     const chatBtn = screen.getByLabelText('nav.chats').closest('button');
     const contactsBtn = screen.getByLabelText('nav.contacts').closest('button');
     expect(chatBtn).toHaveClass('text-[var(--text-tertiary)]');
-    expect(contactsBtn).toHaveClass('text-[#6f7fff]');
+    expect(contactsBtn).toHaveClass('text-[var(--accent)]');
   });
 
   it('fires onNavigate when an item is clicked', () => {

@@ -59,7 +59,7 @@ export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }
               <X size={18} />
             </button>
 
-            <h3 className="text-xl font-bold mb-2 text-center text-foreground">
+            <h3 className="text-lg font-bold mb-2 text-center text-foreground">
               {t('onboarding.invite') || 'Invite friends'}
             </h3>
             <p className="text-sm text-center mb-4 text-muted-foreground">

@@ -16,7 +16,7 @@ const buttonVariants = cva(
         ghost: "text-foreground hover:bg-secondary",
         icon: "hover:bg-secondary",
         premium:
-          "bg-gradient-to-r from-orange-500 to-amber-500 text-foreground hover:brightness-110",
+          "bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] text-foreground hover:brightness-110",
       },
     },
     defaultVariants: { variant: "primary" },

@@ -8,7 +8,7 @@ import { FeatureViews } from "../../lib/lazyViews";
 import { ActiveChatWorkspace } from "../chat/ActiveChatWorkspace";
 import type { Contact } from "../../types/contact";
 import { EcoSidebarNav } from "../ecochat/EcoSidebarNav";
-import { LazyContactsView, LazyCompanyContactsView, LazyCallLogView } from "../features/FeatureViews";
+import { LazyContactsView, LazyCrmView, LazyCallLogView } from "../features/FeatureViews";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 
 export interface AppShellProps {
@@ -146,7 +146,7 @@ function AppShellImpl({
         </aside>
 
         {/* Side List — persistent across views (Telegram Desktop keeps the list visible) */}
-        <aside aria-label="Side list" className="z-30 border-r border-[var(--border-color)] min-w-0">
+        <aside aria-label="Side list" className="z-30 border-r border-[var(--border-color)] min-w-0 min-h-0 flex flex-col">
           {isChatListRoute ? (
             <SafeRender>
               <ChatListView
@@ -194,12 +194,7 @@ function AppShellImpl({
             </SafeRender>
           ) : view === "company" ? (
             <SafeRender>
-              <LazyCompanyContactsView
-                theme={theme}
-                onCall={handlePreviewCall}
-                onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
-                onMessage={handlePreviewMessage}
-              />
+              <LazyCrmView theme={theme} />
             </SafeRender>
           ) : view === "calls" ? (
             <SafeRender>

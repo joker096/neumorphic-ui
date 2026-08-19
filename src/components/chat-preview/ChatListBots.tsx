@@ -22,7 +22,7 @@ export function ChatListBots({ bots, onOpenBot, isDark, t }: ChatListBotsProps) 
 
   return (
     <>
-      <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--cyan)]" : "text-blue-600"}`}>
+      <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--cyan)]" : "text-[var(--accent)]"}`}>
         {t("chat.sectionBots")}
       </div>
       {bots.map(b => (
@@ -35,7 +35,7 @@ export function ChatListBots({ bots, onOpenBot, isDark, t }: ChatListBotsProps) 
           className={`w-full p-4 rounded-xl mb-4 flex flex-col gap-2 cursor-pointer transition-colors ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-[var(--bg-elevated)]" : "bg-white border border-[var(--border-color)] shadow-sm hover:bg-slate-50"}`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center">
               <Bot size={20} />
             </div>
             <div className="flex-1">

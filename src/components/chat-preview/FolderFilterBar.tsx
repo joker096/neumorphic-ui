@@ -27,7 +27,7 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
             onClick={() => setActiveFolder(folder)}
             className={`min-h-[var(--control-height-sm)] px-3 py-1 rounded-full text-[11px] sm:text-[12px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 active:scale-95 ${
               isActive
-                ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
+                ? "bg-[var(--accent)] text-[var(--text-primary)] shadow-md"
                 : isDark
                   ? "bg-white/[0.05] text-gray-300 hover:text-white hover:bg-white/10 border border-[var(--border-color)]"
                   : "bg-white text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-slate-200 shadow-sm"
@@ -44,7 +44,7 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
       onClick={() => setShowAdvancedFilterModal(true)}
       className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] p-2 rounded-full cursor-pointer shrink-0 transition-all active:scale-95 flex items-center justify-center ${
         advancedFilters.hasMedia || advancedFilters.hasAudio || advancedFilters.hasReplies || advancedFilters.fromBots || advancedFilters.priority
-          ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
+          ? "bg-[var(--accent)] text-[var(--text-primary)] shadow-md"
           : isDark
             ? "bg-white/[0.05] text-gray-300 hover:text-white hover:bg-white/10 border border-[var(--border-color)]"
             : "bg-white text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-slate-200 shadow-sm"

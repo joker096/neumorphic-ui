@@ -20,7 +20,7 @@ export const CallLogView = ({ isDark = false, onBack }: { isDark?: boolean; onBa
   const getIcon = (type: string) => {
     if (type === 'missed') return <PhoneMissed size={18} className="text-red-400" />;
     if (type === 'incoming') return <PhoneIncoming size={18} className="text-emerald-400" />;
-    return <PhoneOutgoing size={18} className="text-blue-400" />;
+    return <PhoneOutgoing size={18} className="text-[var(--accent)]" />;
   };
 
   return (

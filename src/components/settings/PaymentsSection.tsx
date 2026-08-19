@@ -52,8 +52,8 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
         />
         <SettingsToggleRow
           icon={<Smartphone size={16} />}
-          iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-          iconColor={isDark ? "text-blue-400" : "text-blue-600"}
+          iconBg="t-accent-bg"
+          iconColor="t-accent"
           title={t('settings.biometricPay', 'Biometric confirmation')}
           subtitle={t('settings.biometricPaySub', 'Require Face ID / fingerprint')}
           isOn={biometric}

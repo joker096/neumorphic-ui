@@ -136,7 +136,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
              </button>
             <button
                 onClick={() => handleSwipeAction("video")}
-                className={`h-full flex flex-col items-center justify-center gap-1 px-2 text-[10px] font-bold text-white cursor-pointer border-none w-[60px] min-h-[44px] shrink-0 transition-colors ${isDark ? "bg-blue-600 hover:bg-blue-500" : "bg-blue-500 hover:bg-blue-600"}`}
+                className={`h-full flex flex-col items-center justify-center gap-1 px-2 text-[10px] font-bold text-white cursor-pointer border-none w-[60px] min-h-[44px] shrink-0 transition-colors "bg-[var(--accent)] hover:brightness-110"`}
                 aria-label={t('chat.startVideoCall')}
               >
                <Video size={16} fill="currentColor" stroke="currentColor" />
@@ -238,9 +238,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             <div
               className={`w-full h-full ${roundedClass} flex items-center justify-center shadow-sm ${
                 selected
-                  ? isDark
-                    ? "bg-[#6f7fff]"
-                    : "bg-[#6f7fff]"
+                  ? "bg-[var(--accent)]"
                   : isDark
                     ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]"
                     : "bg-white border border-[var(--border-color)]"
@@ -288,10 +286,10 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           </div>
           <div className="flex justify-between items-center">
             <span
-              className={`text-[11px] md:text-xs truncate pr-4 ${isDark ? (active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]") : active ? "text-orange-600" : "text-slate-500"} ${chat.unread ? "font-medium" : ""}`}
+              className={`text-[11px] md:text-xs truncate pr-4 ${isDark ? (active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]") : active ? "text-[var(--accent)]" : "text-slate-500"} ${chat.unread ? "font-medium" : ""}`}
             >
                {typingIndicators && chat.isTyping && type === "chat" ? (
-                <span className={`font-bold tracking-wide italic ${isDark ? "text-[var(--accent)]" : "text-orange-600"}`}>
+                <span className={`font-bold tracking-wide italic "text-[var(--accent)]"`}>
                   {t("chat.typing")}
                 </span>
               ) : (

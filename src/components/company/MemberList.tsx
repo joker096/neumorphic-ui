@@ -7,9 +7,12 @@ import { memberColorAt, COMPANY_UI_FALLBACKS } from '../../constants/companyCons
 type MemberListProps = {
   isDark?: boolean;
   members: CompanyMember[];
+  canManage?: boolean;
+  currentUserId?: string;
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
   onMemberClick?: (member: CompanyMember, color: string) => void;
+  onMemberEdit?: (member: CompanyMember) => void;
   teamMembersLabel: string;
   t: (key: string, args?: Record<string, string | number> | string) => string;
   loading?: boolean;
@@ -20,9 +23,12 @@ type MemberListProps = {
 export const MemberList = ({
   isDark = false,
   members,
+  canManage = false,
+  currentUserId,
   onCall,
   onVideoCall,
   onMemberClick,
+  onMemberEdit,
   teamMembersLabel,
   t,
   loading = false,
@@ -68,9 +74,12 @@ export const MemberList = ({
                 isDark={isDark}
                 index={i}
                 color={memberColorAt(i)}
+                isCurrentUser={member.userId === currentUserId}
+                canManage={canManage}
                 onCall={onCall}
                 onVideoCall={onVideoCall}
                 onClick={() => onMemberClick?.(member, memberColorAt(i))}
+                onEdit={onMemberEdit ? () => onMemberEdit(member) : undefined}
                 t={t}
               />
             ))}

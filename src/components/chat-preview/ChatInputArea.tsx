@@ -190,7 +190,7 @@ function ChatInputAreaImpl({
         )}
 
         <div className={`flex-1 min-w-0 h-11 sm:h-12 rounded-full px-2 sm:px-3 md:px-4 flex items-center relative ${
-          isDark ? "bg-[var(--bg-secondary)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]" : "bg-[var(--bg-primary)] shadow-[inset_2px_2px_4px_rgba(165,175,190,0.2)]"
+          isDark ? "bg-transparent" : "bg-transparent"
         }`}>
           <input
             type="text"
@@ -219,8 +219,8 @@ function ChatInputAreaImpl({
               className={`min-w-[40px] min-h-[40px] px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
                 eSilentMode
                   ? isDark
-                    ? "text-blue-400"
-                    : "text-blue-600"
+                    ? "text-[var(--accent)]"
+                    : "text-[var(--accent)]"
                   : isDark
                     ? "text-gray-400 hover:text-gray-300"
                     : "text-slate-500 hover:text-slate-700"
@@ -274,7 +274,7 @@ function ChatInputAreaImpl({
                 : "bg-[var(--cyan)] text-[var(--bg-primary)]"
               : eMsgText
                 ? isDark
-                  ? `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-[0_0_10px_rgba(111,127,255,0.5)]`
+                  ? `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]`
                   : `${CHAT_SEND_GRADIENT} text-[var(--text-primary)]`
                 : isDark
                   ? "bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30"

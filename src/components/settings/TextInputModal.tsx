@@ -44,13 +44,13 @@ export const TextInputModal = ({
   return (
     <AppModal isOpen={isOpen} onClose={onCancel} isDark={true} title={title} maxWidth="max-w-[340px]">
       <div className="relative mb-4">
-        <div
-          className={`w-full h-12 rounded-full px-4 flex items-center border transition-all duration-300 ${
-            focused
-              ? 'border-orange-500/30'
-              : 'border-[var(--border-color)]'
-          }`}
-        >
+          <div
+            className={`w-full h-[var(--control-height-lg)] rounded-full px-4 flex items-center border transition-all duration-300 ${
+              focused
+                ? 'border-orange-500/30'
+                : 'border-[var(--border-color)]'
+            }`}
+          >
           <input
             ref={inputRef as any}
             type={type}

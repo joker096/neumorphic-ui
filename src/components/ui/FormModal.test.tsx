@@ -231,7 +231,7 @@ describe('FormModal', () => {
 
   it('renders title with proper styling', () => {
     render(<FormModal isOpen={true} onClose={() => {}} title="Title">Content</FormModal>);
-    const title = document.querySelector('[class*="text-xl"]');
+    const title = document.querySelector('[class*="text-lg"]');
     expect(title).toHaveClass('font-bold');
     expect(title).toHaveClass('text-center');
   });

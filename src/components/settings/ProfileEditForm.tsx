@@ -54,7 +54,7 @@ export const ProfileEditForm = ({
               </div>
             )}
           </div>
-          <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full flex items-center justify-center bg-orange-500 shadow-md">
+            <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full flex items-center justify-center bg-[var(--accent)] shadow-md">
             <Camera size={16} className="text-[var(--text-primary)]" />
           </div>
         </div>
@@ -69,7 +69,7 @@ export const ProfileEditForm = ({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold min-h-[var(--control-height-sm)] bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-orange-600 hover:text-[var(--text-primary)] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold min-h-[var(--control-height-sm)] bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
           >
             <Upload size={14} />
             {editAvatar ? t('settings.changePhoto', 'Change Photo') : t('settings.uploadPhoto', 'Upload Photo')}
@@ -165,7 +165,7 @@ export const ProfileEditForm = ({
         </button>
         <button
           type="submit"
-          className="flex-1 h-12 rounded-lg font-bold flex items-center justify-center gap-2 bg-orange-500 text-[var(--text-primary)] hover:bg-orange-600 active:scale-[0.98] shadow-lg shadow-orange-500/20 transition-all"
+          className="flex-1 h-12 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110 active:scale-[0.98] shadow-lg transition-all"
         >
           <Check size={18} />
           {t('settings.saveProfile', 'Save Profile')}

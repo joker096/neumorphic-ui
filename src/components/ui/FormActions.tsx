@@ -28,7 +28,7 @@ export const FormActions = ({
   const submitBg =
     variant === 'danger'
        ? 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20'
-       : 'bg-gradient-to-r from-orange-500 to-orange-600 shadow-lg shadow-orange-500/20'
+       : 'bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-lg'
 
   return (
     <div className={`flex gap-3 mt-4 ${className}`}>

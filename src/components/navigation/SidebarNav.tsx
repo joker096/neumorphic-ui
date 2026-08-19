@@ -29,8 +29,8 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
         <div
           className={`w-9 h-9 rounded-2xl flex items-center justify-center font-black text-sm select-none ${
             isDark
-              ? "bg-gradient-to-br from-[#6f7fff] to-[#965dff] text-white shadow-[0_4px_14px_rgba(111,127,255,0.35)]"
-              : "bg-gradient-to-br from-[#6f7fff] to-[#965dff] text-white shadow-[0_3px_10px_rgba(111,127,255,0.3)]"
+              ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white shadow-[0_4px_14px_rgba(var(--accent-rgb),0.35)]"
+              : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white shadow-[0_3px_10px_rgba(var(--accent-rgb),0.3)]"
           }`}
           style={{ fontSize: 13, letterSpacing: "-0.02em" }}
           aria-hidden="true"
@@ -58,8 +58,8 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
                 <span
                   className={`absolute left-0 inset-y-1.5 w-[3px] rounded-full ${
                     isDark
-                      ? "bg-gradient-to-b from-[#6f7fff] to-[#965dff]"
-                      : "bg-gradient-to-b from-[#6f7fff] to-[#965dff]"
+                      ? "bg-gradient-to-b from-[var(--accent)] to-[var(--accent2)]"
+                      : "bg-gradient-to-b from-[var(--accent)] to-[var(--accent2)]"
                   }`}
                   aria-hidden="true"
                 />

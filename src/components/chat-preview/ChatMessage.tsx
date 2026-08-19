@@ -1,7 +1,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  BellOff, Bookmark, Check, CheckCheck, Play,
+  BellOff, Bookmark, Check, CheckCheck, Play, Reply,
 } from "lucide-react";
 import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
@@ -138,10 +138,10 @@ function ChatMessageImpl({
       onDrag={!isMe ? (_: any, info: any) => {
         onSwipeReplyId(info.offset.x > 10 ? msg.id : null);
       } : undefined}
-      className={`flex flex-col w-full group relative ${isMe ? "items-end" : "items-start"} ${msg._isLastInGroup !== false ? "mb-4" : "mb-1"}`}
+      className={`flex flex-col w-full group relative ${isMe ? "items-end" : "items-start"} ${msg._isLastInGroup !== false ? "mb-2" : "mb-0.5"}`}
     >
       {!isMe && swipeReplyId === msg.id && (
-        <div className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r-full bg-blue-500 z-10" />
+        <div className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r-full bg-[var(--accent)] z-10" />
       )}
       <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
         <div
@@ -151,11 +151,11 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-2" : "p-3.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-orange-500" : ""} ${
+          className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-orange-500" : ""} ${
             isMe
-              ? isDark
-                ? "bg-orange-600/20 text-orange-50 border border-orange-500/30 shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
-                : "bg-gradient-to-br from-orange-400 to-orange-500 text-[var(--text-primary)] shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
+                ? isDark
+                  ? "bg-[var(--accent-soft)] text-[var(--text-primary)] border border-[var(--accent-soft)] shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
+                  : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
               : isDark
                 ? "bg-[var(--bg-tertiary)] text-gray-300 border border-[var(--border-color)] shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
                 : "bg-white text-slate-700 border border-[var(--border-color)] shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
@@ -218,7 +218,7 @@ function ChatMessageImpl({
             </div>
           )}
           {msg.text && msg.type !== "sticker" && (
-            <span className={`px-2 pb-1 block ${msg.type ? "font-medium" : ""}`}>
+            <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={msg.text} searchTerm={searchQuery} />
             </span>
           )}
@@ -264,7 +264,7 @@ function ChatMessageImpl({
                     )}
                     {deliveryReceipts && readReceipts && msg.status === 'read' && (
                       <motion.span key="read" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                        <CheckCheck size={12} strokeWidth={2.5} className={isDark ? 'text-blue-400' : 'text-blue-500'} />
+                        <CheckCheck size={12} strokeWidth={2.5} className="text-[var(--accent)]" />
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -272,19 +272,30 @@ function ChatMessageImpl({
               )}
             </div>
           )}
-          {msg._isLastInGroup && (
-            <div className={`mt-1.5 flex items-center gap-1.5 sm:gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
-              {!isChannel && (
-                <button onClick={() => onReply(msg)} className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors ${isDark ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-black/5"}`}>
-                  {t('chat.reply')}
-                </button>
-              )}
-              {!isChannel && (
-                <button onClick={() => onToggleSavedMessage(chat, msg)} className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full transition-colors flex items-center gap-1 ${isDark ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-black/5"}`}>
-                  <Bookmark size={10} />
-                  {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? t('chat.saved') : t('chat.save')}
-                </button>
-              )}
+          {!isChannel && (
+            <div className={`absolute top-1 ${isMe ? "left-1" : "right-1"} z-20 flex items-center gap-0.5 rounded-full px-1 py-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 ${isDark ? "bg-black/55" : "bg-white/85"} backdrop-blur-sm`}>
+              <button
+                type="button"
+                aria-label={t('chat.reply')}
+                onClick={(e) => { e.stopPropagation(); onReply(msg); }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className={`p-1 rounded-full transition-colors ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
+              >
+                <Reply size={13} />
+              </button>
+              <button
+                type="button"
+                aria-label={t('chat.save')}
+                onClick={(e) => { e.stopPropagation(); onToggleSavedMessage(chat, msg); }}
+                onPointerDown={(e) => e.stopPropagation()}
+                className={`p-1 rounded-full transition-colors ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
+              >
+                {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? (
+                  <Bookmark size={13} className="fill-current" />
+                ) : (
+                  <Bookmark size={13} />
+                )}
+              </button>
             </div>
           )}
           {isChannel && (

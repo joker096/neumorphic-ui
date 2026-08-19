@@ -1,4 +1,4 @@
-import { Phone, Video } from 'lucide-react';
+import { Phone, Video, Pencil } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { CompanyMember } from '../../lib/company/types';
 import { COMPANY_MEMBER_FALLBACKS } from '../../constants/companyConstants';
@@ -8,9 +8,12 @@ type MemberItemProps = {
   isDark?: boolean;
   index: number;
   color: string;
+  isCurrentUser?: boolean;
+  canManage?: boolean;
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
   onClick?: () => void;
+  onEdit?: () => void;
   t: (key: string, args?: Record<string, string | number> | string) => string;
 };
 
@@ -26,7 +29,7 @@ const actionBtn = (icon: React.ReactNode, label: string, onClick: (e: React.Mous
   </button>
 );
 
-export const MemberItem = ({ member, isDark = false, index, color, onCall, onVideoCall, onClick, t }: MemberItemProps) => {
+export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser = false, canManage = false, onCall, onVideoCall, onClick, onEdit, t }: MemberItemProps) => {
   const roleLabel =
     member.role === 'admin'
       ? t('company.roleAdmin', COMPANY_MEMBER_FALLBACKS.roleAdmin)
@@ -57,12 +60,37 @@ export const MemberItem = ({ member, isDark = false, index, color, onCall, onVid
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="font-bold truncate text-sm text-[var(--text-primary)]">{member.displayName}</div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="font-bold text-sm text-[var(--text-primary)] break-words leading-snug">
+            {member.displayName}
+          </span>
+          {member.role === 'admin' && (
+            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
+              {roleLabel}
+            </span>
+          )}
+          {isCurrentUser && (
+            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--color-success)]/15 text-[var(--color-success)]">
+              {t('company.you', COMPANY_MEMBER_FALLBACKS.you)}
+            </span>
+          )}
+        </div>
         <div className="text-[10px] truncate text-[var(--text-secondary)]">
           {subtitle}
         </div>
       </div>
       <div className="flex gap-2 shrink-0">
+        {onEdit && (
+          actionBtn(
+            <Pencil size={15} />,
+            t('company.editMember', COMPANY_MEMBER_FALLBACKS.editMember),
+            (e) => {
+              e.stopPropagation();
+              onEdit();
+            },
+            isDark,
+          )
+        )}
         {onCall && (
           actionBtn(
             <Phone size={16} />,

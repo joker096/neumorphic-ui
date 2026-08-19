@@ -8,6 +8,7 @@ import { WorkplaceView } from "./workplace/WorkplaceView";
 export const LazySettingsView = lazy(() => import("../SettingsView").then(m => ({ default: m.SettingsView })));
 export const LazyContactsView = lazy(() => import("../ContactsView").then(m => ({ default: m.ContactsView })));
 export const LazyCompanyContactsView = lazy(() => import("../CompanyContactsView").then(m => ({ default: m.CompanyContactsView })));
+export const LazyCrmView = lazy(() => import("../crm/CrmView").then(m => ({ default: m.CrmView })));
 export const LazyRecordingsScreen = lazy(() => import("../RecordingsScreen").then(m => ({ default: m.RecordingsScreen })));
 export const LazyMeshRadar = lazy(() => import("../MeshRadar").then(m => ({ default: m.MeshRadar })));
 export const LazyCallLogView = lazy(() => import("../call/CallLogView").then(m => ({ default: m.CallLogView })));
@@ -125,12 +126,7 @@ export const FeatureViews = ({
     case "company":
       return (
         <Suspense fallback={<Loader />}>
-          <LazyCompanyContactsView
-            theme={theme}
-            onCall={onCall}
-            onVideoCall={onVideoCall}
-            onMessage={onMessage}
-          />
+          <LazyCrmView theme={theme === 'dark' ? 'dark' : 'light'} />
         </Suspense>
       );
     case "bot":

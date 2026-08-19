@@ -57,6 +57,9 @@ export const KEYS = {
 };
 
 export const APP_INFO = {
-  BUILD_DATE: '31.05.2026, 11:43',
+  NAME: 'Mess&Anger',
+  BUILD_DATE: (typeof __APP_BUILD_DATE__ === 'string' && __APP_BUILD_DATE__) || 'dev',
   VERSION: '1.0',
 };
+
+export const APK_URL = '/app-release-signed.apk';

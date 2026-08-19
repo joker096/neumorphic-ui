@@ -54,6 +54,22 @@ export const COMPANY_MEMBER_FALLBACKS = {
   officeLondon: 'London',
   call: 'Call',
   videoCall: 'Video call',
+  you: 'You',
+  editMember: 'Edit',
+} as const;
+
+export const COMPANY_EDIT_FALLBACKS = {
+  onlyAdmins: 'Only company admins can edit',
+  manageMembers: 'Manage members',
+  renamePlaceholder: 'Full name',
+  save: 'Save',
+  makeAdmin: 'Make admin',
+  makeMember: 'Make member',
+  removeMember: 'Remove from company',
+  removeConfirm: 'Remove this member?',
+  cancel: 'Cancel',
+  role: 'Role',
+  youCantRemoveSelf: 'You cannot remove yourself',
 } as const;
 
 /**

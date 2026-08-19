@@ -1,6 +1,22 @@
 # State Compressed - Security Fixes Progress
 
-## Status: IN PROGRESS - Security Hardening (audit batch 2 in progress, 2026-08-17)
+## Status: IN PROGRESS - Settings UI fixes verified (2026-08-18); CRM feature complete but UNCOMMITTED
+
+### Settings UI fixes (2026-08-18) — DONE (uncommitted):
+- Fix 1: `SettingsMainMenu.tsx` "Manage notifications" row — `Bell` left icon (accent) + right-side muted `ChevronRight`. NOTE: file is CRLF → use single-line edits.
+- Fix 2: Dynamic build date — `vite.config.ts` + `vitest.config.ts` (separate, takes precedence in tests) compute `buildDate` (dd.mm.yyyy, HH:MM) and expose `define: { __APP_BUILD_DATE__ }`; declared in new `src/vite-env.d.ts`; `settingsDefaults.ts` → `APP_INFO.BUILD_DATE = (typeof __APP_BUILD_DATE__ === 'string' && __APP_BUILD_DATE__) || 'dev'`, `NAME: 'Mess&Anger'`, `APK_URL = '/app-release-signed.apk'`.
+- Fix 3: `AppearanceSettings.tsx` install card rebuilt — Android `<a download href={APK_URL}>` (Smartphone + Download), iOS (Apple + PWA "Safari → Share → Add to Home Screen" steps), Desktop (Monitor + steps).
+- Fix 4: 6 new i18n keys (`platformAndroid`, `downloadApk`, `platformIos`, `installIosSteps`, `platformDesktop`, `installDesktopSteps`) added to all 8 locales after `installDismiss` (manual — `sync-locale-keys.mjs` is one-off hardcoded).
+- Verified: tsc clean, eslint 0, 138 files / 3891 tests pass, `npm run build` OK, date baked into `SettingsView-*.js` chunk (18.08.2026, 21:01). NOTE: `vite-plugin-compression` logs `dist/F:/...` paths but files land correctly in `dist/assets|landing/...`.
+
+### Security headers (2026-08-18) — DONE (uncommitted):
+- AGENTS.md 3.4: added `Permissions-Policy: camera=(self), microphone=(self), geolocation=(self), interest-cohort=()` to BOTH `server.headers` and `preview.headers` in `vite.config.ts` (K9 had it on the signaling server only; dev/preview lacked it).
+- Verified: tsc clean, eslint 0, build OK.
+
+### CRM feature (2026-08-18) — complete, UNCOMMITTED:
+- New: `src/components/crm/`, `src/lib/crm/`, `src/store/slices/crmSlice.ts`, `crmConstants.ts`, `crmMockData.ts`, `MemberDetailModal.tsx`, CRM locale keys; wired `AppShell.tsx` → `FeatureViews.tsx` → `LazyCrmView`.
+- Verified pre-settings-edits: `crmSlice.test.ts` 19/19, full suite green.
+
 
 ### Audit batch 2 (2026-08-17) — DONE:
 - **P0 keystore rotation**: old `messandanger-keystore.jks` deleted + ROTATED (new RSA-4096 PKCS12, alias `messandanger`, 10000d, CN=MessAnger). Password (24-char alnum) stored in User env `BUBBLEWRAP_KEYSTORE_PASSWORD` + `BUBBLEWRAP_KEY_PASSWORD` (NOT committed anywhere). `scripts/build-android.mjs` reads those env vars. NOTE: rotation breaks TWA update path for existing users (reinstall required).
@@ -59,6 +75,7 @@
 F:\AISTUDIO\neumorphic-ui
 
 ### Next Actions:
+0. Decide/commit: working tree holds the CRM feature + settings UI fixes (both verified green). Suggested split: `feat(crm)` then `fix(settings)` commits.
 1. K1: **DONE** (committed d1c989f) — authenticated ECDH + Ed25519-signed DH + TOFU pinning; plaintext hmacKey fallback removed.
 2. K9: Permissions-Policy header — DONE (committed 2e1a290: camera/microphone/geolocation=self)
 3. Structural splits: P2PTransport 428 (cohesive/exempt), ChatPreviewLayer 396, App 377, ChatMessage 370, AppShell 353, useChatPreviewState 325, SettingsView 316 (exempt), ChatListItem 312, CallManager 309 — remaining are cohesive/composition-root and exempt.

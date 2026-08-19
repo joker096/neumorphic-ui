@@ -75,7 +75,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                   </button>
                 )}
                 {activeId === acc.id && (
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${isDark ? "bg-orange-500/20 text-orange-500" : "bg-orange-100 text-orange-600"}`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 "bg-[var(--accent-soft)] text-[var(--accent)]"`}>
                     <Check size={14} strokeWidth={3} />
                   </div>
                 )}
@@ -93,16 +93,16 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                 placeholder={t('settings.newAccountPlaceholder', 'Account name...')}
                 className={`flex-1 min-w-0 bg-transparent outline-none text-sm transition-colors ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-800 placeholder:text-slate-400"}`}
               />
-              <button type="submit" disabled={!newAccountName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 min-w-[44px] min-h-[44px] ${newAccountName.trim() ? "bg-orange-500 text-[var(--text-primary)]" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
+              <button type="submit" disabled={!newAccountName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 min-w-[44px] min-h-[44px] ${newAccountName.trim() ? "bg-[var(--accent)] text-[var(--text-primary)]" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
                 <Check size={16} />
               </button>
             </form>
           ) : (
             <div
               onClick={() => setShowAddInput(true)}
-              className={`flex items-center gap-3 p-3 shrink-0 rounded-2xl cursor-pointer transition-colors min-h-[44px] ${isDark ? "hover:bg-[var(--hover-bg-dark)] text-orange-400" : "hover:bg-slate-100 text-orange-600"}`}
+              className={`flex items-center gap-3 p-3 shrink-0 rounded-2xl cursor-pointer transition-colors min-h-[44px] "hover:bg-[var(--hover-bg-dark)] text-[var(--accent)]"`}
             >
-              <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${isDark ? "bg-orange-500/10" : "bg-orange-500/10"}`}>
+              <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center "bg-[var(--accent-soft)]"`}>
                 <Plus size={20} />
               </div>
               <span className="text-sm font-bold">{t('settings.addAccount', 'Add Account')}</span>

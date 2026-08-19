@@ -4,7 +4,14 @@ import path from 'path';
 import {defineConfig} from 'vite';
 import compression from 'vite-plugin-compression';
 
+const now = new Date();
+const pad = (n: number) => String(n).padStart(2, '0');
+const buildDate = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}, ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
 export default defineConfig({
+  define: {
+    __APP_BUILD_DATE__: JSON.stringify(buildDate),
+  },
   esbuild: {
     drop: ['console', 'debugger'],
   },
@@ -50,6 +57,7 @@ export default defineConfig({
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Expect-CT': 'max-age=86400, enforce',
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      'Permissions-Policy': 'camera=(self), microphone=(self), geolocation=(self), interest-cohort=()',
     },
   },
   preview: {
@@ -74,6 +82,7 @@ export default defineConfig({
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Expect-CT': 'max-age=86400, enforce',
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      'Permissions-Policy': 'camera=(self), microphone=(self), geolocation=(self), interest-cohort=()',
     },
   },
   build: {

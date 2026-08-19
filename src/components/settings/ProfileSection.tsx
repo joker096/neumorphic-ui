@@ -204,9 +204,9 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
               <div className="p-4">
                 <button
                   onClick={handleRestoreIdentity}
-                  className={`w-full flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-[44px] ${isDark ? "hover:bg-[var(--hover-bg-dark)] text-orange-400" : "hover:bg-slate-100 text-orange-600"}`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-[44px] "hover:bg-[var(--hover-bg-dark)] text-[var(--accent)]"`}
                 >
-                  <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center ${isDark ? "bg-orange-500/10" : "bg-orange-500/10"}`}>
+                  <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center "bg-[var(--accent-soft)]"`}>
                     <RotateCcw size={20} />
                   </div>
                   <span className="text-sm font-bold">{t('settings.restoreIdentity', 'Restore Identity')}</span>

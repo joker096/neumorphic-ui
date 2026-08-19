@@ -56,7 +56,7 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
         </button>
 
         <div className="flex flex-col items-center mt-4">
-          <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('settings.shareIdentity', 'Share Identity')}</h3>
+          <h3 className={`text-lg font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('settings.shareIdentity', 'Share Identity')}</h3>
           <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.shareDescription', 'Share your identity so others can find and connect with you.')}</p>
 
           <div className={`w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>

@@ -179,7 +179,7 @@ export const ChatInputOverlay = ({
           <div className={`flex-1 min-w-0 h-12 rounded-full px-4 flex items-center relative ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]" : "bg-[var(--bg-primary)] border border-[var(--border-color)] shadow-[inset_2px_2px_4px_rgba(165,175,190,0.2)]"}`}>
             <input type="text" value={messageText} onChange={e => { setMessageText(e.target.value); if (activeChat) setDraftTextByChat(prev => ({ ...prev, [String(activeChat.id)]: e.target.value })); }} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder={morseMode ? t('chat.morsePlaceholder') : t('chat.messagePlaceholder')} className={`w-full bg-transparent border-none outline-none text-[14px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"} ${morseMode ? "font-mono text-amber-500" : ""}`} />
             <div className="absolute right-2 flex items-center gap-1">
-              <div title={t('chat.silentMessage')} onClick={() => setSilentMode(!silentMode)} className={`px-2 py-1.5 rounded-full flex items-center justify-center cursor-pointer transition-colors ${silentMode ? (isDark ? "text-blue-400" : "text-blue-500") : (isDark ? "text-gray-600 hover:text-gray-400" : "text-slate-400 hover:text-slate-600")}`}>
+              <div title={t('chat.silentMessage')} onClick={() => setSilentMode(!silentMode)} className={`px-2 py-1.5 rounded-full flex items-center justify-center cursor-pointer transition-colors ${silentMode ? "text-[var(--accent)]" : (isDark ? "text-gray-600 hover:text-gray-400" : "text-slate-400 hover:text-slate-600")}`}>
                 <BellOff size={14} />
               </div>
               <div title={t('chat.toggleMorseEncoder')} onClick={() => setMorseMode(!morseMode)} className={`px-2 py-1 rounded-full text-[10px] font-mono font-bold cursor-pointer transition-colors ${morseMode ? (isDark ? "bg-amber-500 text-[var(--text-primary)]" : "bg-amber-500 text-[var(--text-primary)]") : (isDark ? "hover:bg-white/10 text-gray-400" : "hover:bg-black/5 text-slate-400")}`}>M</div>
@@ -196,11 +196,11 @@ export const ChatInputOverlay = ({
               }
             }}
             onContextMenu={(e) => e.preventDefault()}
-             className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${scheduleDateTime && messageText ? (isDark ? "bg-[var(--cyan)] text-[var(--bg-primary)] shadow-md" : "bg-[var(--cyan)] text-[var(--bg-primary)] shadow-md") : (messageText ? (isDark ? `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-[0_0_10px_rgba(111,127,255,0.5)]` : `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-md`) : (isDark ? "bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30" : "bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20"))}`}>
+             className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${scheduleDateTime && messageText ? (isDark ? "bg-[var(--cyan)] text-[var(--bg-primary)] shadow-md" : "bg-[var(--cyan)] text-[var(--bg-primary)] shadow-md") : (messageText ? (isDark ? `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]` : `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-md`) : (isDark ? "bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30" : "bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20"))}`}>
             {messageText ? (scheduleDateTime ? <Clock size={18} /> : <ChevronRight size={20} />) : <Mic size={20} />}
           </div>
           {replyTarget && (
-            <div className={`mt-1 px-3 py-2 rounded-xl border-l-2 flex items-start justify-between gap-2 ${isDark ? "bg-[var(--bg-tertiary)]/80 border-orange-400/60 text-gray-300" : "bg-white/80 border-orange-500 text-slate-700"}`}>
+            <div className={`mt-1 px-3 py-2 rounded-xl border-l-2 flex items-start justify-between gap-2 ${isDark ? "bg-[var(--bg-tertiary)]/80 border-[var(--accent-soft)] text-gray-300" : "bg-white/80 border-[var(--accent-soft)] text-slate-700"}`}>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold opacity-70">
                   <ChevronRight size={10} className="rotate-180" />

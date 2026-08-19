@@ -74,8 +74,8 @@ export const EcoSidebarNav = ({
                 isActive
                   ? {
                       background:
-                        "linear-gradient(135deg, rgba(111,127,255,0.15) 0%, rgba(150,93,255,0.08) 100%)",
-                      boxShadow: "0 0 12px rgba(111,127,255,0.15)",
+                        "linear-gradient(135deg, rgba(var(--accent-rgb),0.15) 0%, rgba(var(--accent2-rgb),0.08) 100%)",
+                      boxShadow: "0 0 12px rgba(var(--accent-rgb),0.15)",
                     }
                   : undefined
               }
@@ -84,13 +84,13 @@ export const EcoSidebarNav = ({
                 <span
                   aria-hidden="true"
                   className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-[var(--accent)]"
-                  style={{ boxShadow: "0 0 6px rgba(111,127,255,0.5)" }}
+                  style={{ boxShadow: "0 0 6px rgba(var(--accent-rgb),0.5)" }}
                 />
               )}
               <span className="relative">
                 <Icon className="w-5 h-5" strokeWidth={isActive ? 2.25 : 1.75} />
                 {badgeCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-br from-[#6f7fff] to-[#965dff] text-white text-[9px] font-semibold flex items-center justify-center shadow-md" style={{ boxShadow: "0 0 8px rgba(111,127,255,0.4)" }}>
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white text-[9px] font-semibold flex items-center justify-center shadow-md" style={{ boxShadow: "0 0 8px rgba(var(--accent-rgb),0.4)" }}>
                     {badgeCount > 99 ? "99+" : badgeCount}
                   </span>
                 )}
@@ -117,12 +117,12 @@ export const EcoSidebarNav = ({
                 src={userProfile.avatar}
                 alt={userProfile.name ? `${userProfile.name} profile picture` : "Profile picture"}
                 className="w-8 h-8 rounded-full object-cover shadow-lg"
-                style={{ boxShadow: "0 0 10px rgba(111,127,255,0.25)" }}
+                style={{ boxShadow: "0 0 10px rgba(var(--accent-rgb),0.25)" }}
                 loading="lazy"
                 decoding="async"
               />
             ) : (
-              <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6f7fff] to-[#965dff] flex items-center justify-center text-white text-xs font-bold shadow-lg" style={{ boxShadow: "0 0 10px rgba(111,127,255,0.25)" }}>
+              <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white text-xs font-bold shadow-lg" style={{ boxShadow: "0 0 10px rgba(var(--accent-rgb),0.25)" }}>
                 {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}
               </span>
             )}

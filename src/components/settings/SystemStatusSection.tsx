@@ -53,8 +53,8 @@ export const SystemStatusSection = ({
       />
       <SettingsRow
         icon={<Zap size={16} />}
-        iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-        iconColor={isDark ? "text-blue-400" : "text-blue-600"}
+          iconBg="t-accent-bg"
+          iconColor="t-accent"
         title={t('settings.transportBackend')}
         subtitle={transportBackend}
         isDark={isDark}

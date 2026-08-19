@@ -21,8 +21,8 @@ const InputFooterImpl = ({ isDark = false, isChannel, isMuted, placeholder, t, o
           onClick={onMuteToggle}
           className={`w-full py-3 md:py-3.5 rounded-2xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide min-h-[44px] ${
             isDark
-              ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-orange-400 border border-[var(--border-color)]"
-              : "bg-white hover:bg-slate-50 text-orange-600 border border-[var(--border-color)] shadow-sm"
+              ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-[var(--accent)] border border-[var(--border-color)]"
+              : "bg-white hover:bg-slate-50 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"
           }`}
         >
           {isMuted ? t('chat.filters.unmuteChannel') : t('chat.filters.muteChannel')}
@@ -51,9 +51,7 @@ const InputFooterImpl = ({ isDark = false, isChannel, isMuted, placeholder, t, o
           </div>
           <button
             className={`w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 min-w-[44px] min-h-[44px] ${
-              isDark
-                ? "bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/20 shadow-[0_4px_8px_rgba(249,115,22,0.15)]"
-                : "bg-orange-500/10 hover:bg-orange-500/20 text-orange-600 border border-orange-500/20 shadow-[0_2px_6px_rgba(249,115,22,0.15)]"
+              "bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             }`}
           >
             <Mic size={20} />

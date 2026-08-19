@@ -7,7 +7,9 @@ import { useMessageActions } from "./hooks/useMessageActions";
 import { useProfileActions } from "./hooks/useProfileActions";
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
 import { AnimatePresence } from "motion/react";
-import { useAppStore } from "./store";
+import { useAppStore, markDataHydrated } from "./store";
+import * as idb from "./lib/idb";
+import { logError } from "./lib/errorHandling";
 import { useUiStore } from "./store/uiStore";
 import { seedMockData } from './utils/mockSeeding';
 import { useAppConnection } from './hooks/useAppConnection';
@@ -49,6 +51,7 @@ export default function App() {
   const setCallMinimized = useAppStore(s => s.setCallMinimized);
   const stealthMode = useAppStore(state => state.stealthMode);
   const hideWhenOfficeOnly = useAppStore(state => state.hideWhenOfficeOnly);
+  const loadCompanyMessages = useAppStore(s => s.loadCompanyMessages);
   const {
     showCreateChannel, setShowCreateChannel,
     showCreateBot, setShowCreateBot,
@@ -70,15 +73,47 @@ export default function App() {
 
   const [draftTextByChat, setDraftTextByChat] = useLocalStorage<Record<string, string>>(STORAGE_KEYS.DRAFTS, {});
   const didSeedMockData = useRef(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Hydrate chats / contacts / channels / call history / company messages
+  // from IndexedDB before mock seeding so user data is not overwritten.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [storedChats, storedContacts, storedChannels, storedCalls] = await Promise.all([
+          idb.get<any[]>('chats_all'),
+          idb.get<any[]>('contacts_all'),
+          idb.get<any[]>('channels_all'),
+          idb.get<any[]>('call_history_all'),
+        ]);
+        if (cancelled) return;
+        if (storedChats?.length) setChats(storedChats);
+        if (storedContacts?.length) setContacts(storedContacts);
+        if (storedChannels?.length) setChannels(storedChannels);
+        if (storedCalls?.length) setCallHistory(storedCalls);
+        loadCompanyMessages();
+      } catch (e) {
+        logError(e, 'hydrateFromIdb');
+      } finally {
+        if (!cancelled) {
+          markDataHydrated();
+          setHydrated(true);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [setChats, setContacts, setChannels, setCallHistory, loadCompanyMessages]);
 
   const { connectionStatus } = useAppConnection();
 
   useEffect(() => {
+    if (!hydrated) return;
     if (!MOCK_DATA_ENABLED) return;
     if (didSeedMockData.current) return;
     seedMockData(setChats, setContacts, setChannels, setCallHistory, callHistory, chats, contacts, channels);
     didSeedMockData.current = true;
-  }, [setChats, setContacts, setChannels, setCallHistory, callHistory, chats, contacts, channels]);
+  }, [hydrated, setChats, setContacts, setChannels, setCallHistory, callHistory, chats, contacts, channels]);
 
   useScheduledMessages();
 

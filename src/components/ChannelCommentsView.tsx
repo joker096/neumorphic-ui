@@ -137,7 +137,7 @@ export const ChannelCommentsView = ({
                 {t('channelComments.title')}
               </h3>
               <p
-                className={`text-[11px] uppercase tracking-wider font-semibold ${isDark ? 'text-orange-500' : 'text-orange-600'}`}
+                className={`text-[11px] uppercase tracking-wider font-semibold "text-[var(--accent)]"`}
               >
                 {t('channelComments.replies', { count: comments.length })}
               </p>
@@ -173,8 +173,8 @@ export const ChannelCommentsView = ({
                 className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full ml-2 cursor-pointer transition-transform active:scale-95 ${
                   comment.trim()
                     ? isDark
-                      ? 'bg-[var(--color-warning)] text-[var(--text-primary)]'
-                      : 'bg-orange-400 text-[var(--text-primary)] shadow-md'
+                      ? 'bg-[var(--accent)] text-[var(--text-primary)]'
+                      : 'bg-[var(--accent)] text-[var(--text-primary)]'
                     : isDark
                       ? 'bg-[var(--bg-tertiary)]/10 text-gray-500'
                       : 'bg-black/5 text-slate-400'

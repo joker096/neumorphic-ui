@@ -48,7 +48,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
   };
 
   return (
-    <div className="relative mb-4 last:mb-0 overflow-hidden rounded-3xl">
+    <div className="relative overflow-hidden rounded-3xl">
       {onCall && onVideoCall && (
         <>
           {/* Left swipe (call) - only visible when swiped left */}
@@ -116,7 +116,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
         }}
         animate={{ x: targetX }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`flex items-center gap-3 md:gap-4 p-3 cursor-pointer transition-all rounded-2xl active:scale-95 min-h-[56px] ${isDark ? "hover:bg-[var(--bg-tertiary)]" : "hover:bg-white shadow-sm"}`}
+        className={`flex items-center gap-3 md:gap-4 p-3 cursor-pointer transition-all rounded-2xl active:scale-95 min-h-[56px] hover:bg-[var(--list-item-hover-bg)]`}
       >
         <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color} text-[var(--text-primary)] font-bold text-lg shadow-md shrink-0`}>
           {contact.name.charAt(0)}
