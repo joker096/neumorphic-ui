@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
-vi.mock('lucide-react', () => ({ Lock: 'div' }));
+vi.mock('lucide-react', () => ({ Lock: 'div', Fingerprint: 'div' }));
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({
     t: (key: string, fallback?: string) => {
@@ -28,10 +28,15 @@ const defaultProps = {
   pinInput: '',
   setPinInput: vi.fn(),
   pinError: false,
+  biometricError: false,
+  biometricBusy: false,
+  biometricEnabled: false,
+  biometricAvailable: false,
   lockAttempts: 0,
   lockBlockTimer: 0,
   lockBlockedUntil: undefined,
   handleUnlock: vi.fn(),
+  handleUnlockBiometric: vi.fn(),
 };
 
 describe('AppLockScreen', () => {

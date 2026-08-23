@@ -87,10 +87,101 @@ function initSchema(): void {
       timestamp TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS merchant_config (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      api_key TEXT UNIQUE NOT NULL,
+      secret_enc TEXT NOT NULL,
+      ipn_url TEXT NOT NULL DEFAULT '',
+      return_url TEXT NOT NULL DEFAULT '',
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS payments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      token TEXT NOT NULL,
+      payment_id INTEGER,
+      order_id TEXT UNIQUE NOT NULL,
+      api_key TEXT NOT NULL,
+      amount TEXT NOT NULL DEFAULT '',
+      currency TEXT NOT NULL DEFAULT '',
+      status INTEGER NOT NULL DEFAULT 0,
+      additional_data TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_connections_pk ON connections(public_key);
     CREATE INDEX IF NOT EXISTS idx_connections_country ON connections(country);
     CREATE INDEX IF NOT EXISTS idx_ad_events_ad ON ad_events(ad_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_token ON payments(token);
   `)
+}
+
+export function upsertMerchantConfig(apiKey: string, secretEnc: string, ipnUrl: string, returnUrl: string): void {
+  getDb()
+    .prepare(
+      `INSERT INTO merchant_config (api_key, secret_enc, ipn_url, return_url, updated_at)
+       VALUES (?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(api_key) DO UPDATE SET
+         secret_enc = excluded.secret_enc,
+         ipn_url = excluded.ipn_url,
+         return_url = excluded.return_url,
+         updated_at = datetime('now')`,
+    )
+    .run(apiKey, secretEnc, ipnUrl || '', returnUrl || '')
+}
+
+export function getMerchantSecretEnc(apiKey: string): string | null {
+  const row = getDb().prepare('SELECT secret_enc FROM merchant_config WHERE api_key = ?').get(apiKey) as
+    | { secret_enc: string }
+    | undefined
+  return row?.secret_enc ?? null
+}
+
+export function insertPayment(p: {
+  token: string
+  paymentId: number | null
+  orderId: string
+  apiKey: string
+  amount: string
+  currency: string
+  status: number
+  additionalData: string
+}): void {
+  getDb()
+    .prepare(
+      `INSERT INTO payments (token, payment_id, order_id, api_key, amount, currency, status, additional_data, updated_at)
+       VALUES (@token, @paymentId, @orderId, @apiKey, @amount, @currency, @status, @additionalData, datetime('now'))
+       ON CONFLICT(order_id) DO UPDATE SET
+         token = excluded.token,
+         payment_id = excluded.payment_id,
+         status = excluded.status,
+         updated_at = datetime('now')`,
+    )
+    .run(p)
+}
+
+export function updatePaymentStatus(orderId: string, status: number, paymentId: number | null): void {
+  getDb()
+    .prepare(
+      "UPDATE payments SET status = ?, payment_id = COALESCE(?, payment_id), updated_at = datetime('now') WHERE order_id = ?",
+    )
+    .run(status, paymentId, orderId)
+}
+
+export function getPaymentByOrderId(orderId: string): any {
+  return getDb().prepare('SELECT * FROM payments WHERE order_id = ?').get(orderId)
+}
+
+export function getPaymentByToken(token: string): any {
+  return getDb().prepare('SELECT * FROM payments WHERE token = ?').get(token)
+}
+
+export function listPayments(limit = 50): any[] {
+  return getDb()
+    .prepare('SELECT order_id, token, payment_id, amount, currency, status, created_at, updated_at FROM payments ORDER BY updated_at DESC LIMIT ?')
+    .all(limit)
 }
 
 export function logConnection(pk: string, ip: string, ua: string, country?: string): void {

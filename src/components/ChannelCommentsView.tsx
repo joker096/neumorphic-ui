@@ -47,7 +47,7 @@ const CommentBubble = ({
       className={`flex flex-col gap-1 p-3 rounded-2xl max-w-[85%] ${getCommentBubbleClass(isDark, own)}`}
     >
       {!own && (
-        <span className={`text-[11px] font-bold mb-1 ${isDark ? COMMENT_SENDER_NAME_CLASS_DARK : COMMENT_SENDER_NAME_CLASS_LIGHT}`}>
+        <span className={`text-xs font-bold mb-1 ${isDark ? COMMENT_SENDER_NAME_CLASS_DARK : COMMENT_SENDER_NAME_CLASS_LIGHT}`}>
           {comment.sender}
         </span>
       )}
@@ -55,7 +55,7 @@ const CommentBubble = ({
         <FormattedText text={comment.text} />
       </p>
       <span
-        className={`text-[10px] self-end mt-1 ${
+        className={`text-xs self-end mt-1 ${
           own
             ? isDark
               ? COMMENT_TIME_OWN_DARK
@@ -137,7 +137,7 @@ export const ChannelCommentsView = ({
                 {t('channelComments.title')}
               </h3>
               <p
-                className={`text-[11px] uppercase tracking-wider font-semibold "text-[var(--accent)]"`}
+                className={`text-xs uppercase tracking-wider font-semibold "text-[var(--accent)]"`}
               >
                 {t('channelComments.replies', { count: comments.length })}
               </p>

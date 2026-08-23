@@ -1,6 +1,33 @@
 # State Compressed - Security Fixes Progress
 
-## Status: IN PROGRESS - Settings UI fixes verified (2026-08-18); CRM feature complete but UNCOMMITTED
+## Status: UI BATCH (chat swipe / profile / company) DONE (uncommitted, 2026-08-22). tsc 0, eslint 0, 40 targeted tests green.
+
+### Batch details (2026-08-22)
+- Chat swipe: `ChatListView.tsx` — regular chats now get `onMute` / `onDelete` / `onMenuRequest` (match pinned). Archive was already working.
+- Profile: name wired end-to-end (ProfileEditForm -> profileSlice -> localStorage -> ProfileHeaderCard). "User" = default only. Buttons already icon+label, h-12.
+- Company: `companyMockData.ts` deleted; no demo seed. `CompanyCreatePrompt.tsx` CTA renders when `companyId === null`.
+- Verified: `tsc --noEmit` 0 errors, eslint 0, vitest 3 files / 40 tests pass (ChatListItem, ProfileSection, CompanyContactsView).
+
+## Status (prev): UI CYCLE + E2E FULL GREEN (2026-08-21) — 3992 unit tests, 141/141 e2e, lint/build clean. CRM + settings + UI cycle still UNCOMMITTED.
+
+### npm audit (2026-08-21) — ACCEPTED RISK (dev-only):
+- 9 vulns (7 moderate, 2 high), ALL "no fix available", ALL transitive via `@bubblewrap/core@1.25.0` (devDependency, Android TWA build tooling only — never shipped to users): extract-zip (symlink traversal), googleapis→googleapis-common→uuid, jimp→@jimp/core→file-type. No upstream fix exists (archived dep chain). Accepted: build-time tooling only, prod bundle unaffected (`npm run build` verified clean 2026-08-21).
+
+### UI audit cycle (UI_CYCLE.md) — DONE (uncommitted, 2026-08-21):
+- `e2e/ui-audit.spec.ts`: 14 tests = 9 no-horizontal-overflow layout checks (320→1920, chats view) + 5 full audits (mobile 375, desktop 1440, tablet 768, zoom 200% @375/@1440); rules: touch-target ≥44×44 (innermost interactive), overlap <30% of smaller area, font ≥12px, contrast WCAG AA.
+- Fixes:
+  - Dedup: `ChatInputOverlay.tsx` + test DELETED; import/render removed from `ActiveChatWorkspace.tsx`; `setChannels` dropped from its props.
+  - `ChatInputArea.tsx`: silent button 40→44px; input `flex-1 min-w-0 h-full`; button container absolute→static `flex items-center gap-1 flex-shrink-0`; mobile 2-row layout: container `flex flex-wrap sm:flex-nowrap`, pill `order-first w-full flex-shrink-0` (own row, input never squeezed), sm+ single row `sm:flex-1`; send button `order-last ml-auto sm:ml-0`.
+  - `VoiceWaveform.tsx` + `index.css`: range seek → `.voice-seek` (44px touch height, 6px track, orange thumb, fill via `--seek-progress`).
+- Verified: 3 consecutive clean full-audit runs (14/14 pass each), `npm test` 3992/3992 (154 files), `npm run lint` (eslint+tsc) clean.
+
+### E2E full suite (2026-08-21) — GREEN 141/141 (uncommitted):
+- Stale tests fixed (Workplace is now `adminOnly` via `src/config/navigation.ts` + `isCompanyAdmin`; mock user has no company → hidden by design):
+  - `basic.spec.ts`: hub items = 4 (chats/calls/contacts/company) + asserts Workplace count 0.
+  - `navigation.spec.ts`: "all nav destinations render (workplace is admin-only)" — 4 visible + Workplace count 0; round-trip uses "Company Chat".
+  - `usability.spec.ts`: round-trip + rapid-nav use "Company Chat" instead of "Workplace".
+- Visual snapshots re-baselined (`--update-snapshots`); 5 PNGs in `e2e/visual.spec.ts-snapshots/` stale vs current render; verified stable (baseline + re-run both 8/8).
+- Verified: `npx playwright test` 141/141 in 6.7m (workers=1).
 
 ### Settings UI fixes (2026-08-18) — DONE (uncommitted):
 - Fix 1: `SettingsMainMenu.tsx` "Manage notifications" row — `Bell` left icon (accent) + right-side muted `ChevronRight`. NOTE: file is CRLF → use single-line edits.

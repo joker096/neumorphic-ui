@@ -5,6 +5,24 @@ import '@testing-library/jest-dom/vitest';
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 vi.mock('lucide-react', () => ({ Trash2: 'div', Music: 'div', Radio: 'div', Plus: 'div' }));
 
+vi.mock('../../lib/i18n', () => {
+  const translations: Record<string, string> = {
+    'systemPlayer.backToPlayer': 'Back to Player',
+    'systemPlayer.radioStations': 'Radio Stations',
+    'systemPlayer.systemPlaylist': 'System Playlist',
+    'systemPlayer.addTrack': 'Add Track',
+    'systemPlayer.addStation': 'Add Station',
+    'systemPlayer.remove': 'Remove',
+  };
+  return {
+    useI18n: () => ({
+      lang: 'en',
+      setLang: () => {},
+      t: (key: string) => translations[key] ?? key,
+    }),
+  };
+});
+
 import { PlaylistView } from './PlaylistView';
 
 const mockTracks = [

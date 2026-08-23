@@ -26,7 +26,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
     <SubView title={t('settings.payments', 'Payments & Billing')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('settings.wallet', 'Wallet')} isDark={isDark} />
       <div className={`rounded-2xl p-5 mb-2 ${isDark ? "bg-gradient-to-br from-[var(--accent)]/20 to-transparent border border-[var(--border-color)]" : "bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20"}`}>
-        <div className={`text-[11px] uppercase tracking-widest font-bold opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`}>{t('settings.balance', 'Balance')}</div>
+        <div className={`text-xs uppercase tracking-widest font-bold opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`}>{t('settings.balance', 'Balance')}</div>
         <div className={`text-3xl font-bold mt-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>${balance.toFixed(2)}</div>
         <div className="flex gap-2 mt-4">
           <button onClick={() => toast(t('settings.topUp', 'Top up started'), 'success')} className="flex-1 flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg min-h-[40px] bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
@@ -81,7 +81,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
               </div>
               <div className="flex-1 min-w-0">
                 <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{tx.title}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-500" : "text-slate-400"}`}>{tx.date}</div>
+                <div className={`text-xs ${isDark ? "text-gray-500" : "text-slate-400"}`}>{tx.date}</div>
               </div>
               <span className={`text-sm font-semibold ${tx.amount >= 0 ? "text-emerald-400" : (isDark ? "text-[var(--text-primary)]" : "text-slate-800")}`}>
                 {tx.amount >= 0 ? '+' : ''}{tx.amount.toFixed(2)}

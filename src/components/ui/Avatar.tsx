@@ -29,7 +29,7 @@ export function Avatar({ name, color, size = 'md', online, className = '' }: Ava
   return (
     <div className={`relative shrink-0 ${className}`}>
       <div
-        className={`${sizeMap[size]} rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center font-bold text-[var(--text-primary)] shadow-sm`}
+        className={`${sizeMap[size]} rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center font-bold text-[var(--text-primary)] shadow-sm`}
       >
         {initials}
       </div>

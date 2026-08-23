@@ -95,11 +95,19 @@ body {
   min-height: 100dvh;
 }
 
-button,
-input,
+button {
+  font: inherit;
+}
+
+/* Form controls (text entry) default to a compact 12px so filter bars,
+   search fields and inputs never inherit the large base body font.
+   Intentionally large inputs (PIN pad, dialer) set their own utility class,
+   which wins over this rule. */
+input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),
 select,
 textarea {
   font: inherit;
+  font-size: var(--control-font-size, 0.75rem);
 }
 
 /* WCAG / UX: all interactive controls must show pointer cursor */
@@ -436,4 +444,49 @@ body::after {
 body {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.005em;
+}
+
+/* Voice-note seek slider: full 44px touch target with a thin 6px custom track */
+.voice-seek {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 44px;
+  background: transparent;
+  cursor: pointer;
+  accent-color: #f97316;
+}
+.voice-seek:disabled {
+  cursor: default;
+}
+.voice-seek::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #f97316 var(--seek-progress, 0%), var(--bg-secondary) var(--seek-progress, 0%));
+}
+.voice-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 9999px;
+  background: #f97316;
+  margin-top: -5px;
+}
+.voice-seek::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--bg-secondary);
+}
+.voice-seek::-moz-range-progress {
+  height: 6px;
+  border-radius: 9999px;
+  background: #f97316;
+}
+.voice-seek::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 9999px;
+  background: #f97316;
 }

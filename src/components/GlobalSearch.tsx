@@ -101,7 +101,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("search.placeholder", "Search chats, messages, contacts…")}
-            className={`flex-1 bg-transparent outline-none text-[15px] py-1 ${
+            className={`flex-1 bg-transparent outline-none text-xs py-1 ${
               isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]" : "text-slate-800 placeholder:text-slate-400"
             }`}
           />
@@ -188,7 +188,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
 function Section({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) {
   return (
     <div className="mb-2">
-      <div className="flex items-center gap-1.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--accent)]">
+      <div className="flex items-center gap-1.5 px-2 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-[var(--accent)]">
         <Icon size={12} />
         {title}
       </div>
@@ -221,11 +221,11 @@ function Row({
       <div className="flex-1 min-w-0">
         <div className="font-semibold text-[13px] truncate">{title}</div>
         {subtitle && (
-          <div className="text-[11px] truncate opacity-70">{subtitle}</div>
+          <div className="text-xs truncate opacity-70">{subtitle}</div>
         )}
       </div>
       {badge ? (
-        <div className="shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full bg-gradient-to-tr from-[var(--accent)] to-[var(--accent2)] text-white text-[9px] font-bold flex items-center justify-center">
+        <div className="shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full bg-gradient-to-tr from-[var(--accent)] to-[var(--accent2)] text-white text-xs font-bold flex items-center justify-center">
           {badge}
         </div>
       ) : (

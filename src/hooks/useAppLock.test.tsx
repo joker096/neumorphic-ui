@@ -15,7 +15,15 @@ vi.mock('../constants', () => ({
 }));
 
 vi.mock('../store', () => ({
-  useAppStore: vi.fn((selector: any) => selector({ appLockHashedPIN: null, appLockSalt: null })),
+  useAppStore: vi.fn((selector: any) => selector({
+    appLockHashedPIN: 'test-hash',
+    appLockSalt: 'test-salt',
+    appLocked: true,
+    appLockBiometricEnabled: false,
+    appLockBiometricCredentialId: null,
+    appLockAutoLockOnBackground: false,
+    appLockIdleSeconds: 0,
+  })),
 }));
 
 describe('useAppLock', () => {

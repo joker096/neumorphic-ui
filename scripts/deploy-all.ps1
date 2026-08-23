@@ -10,9 +10,11 @@ param(
   [switch]$SkipSignaling,
   [switch]$SkipAdminCreate,
   [switch]$SkipIOS,
-  [string]$AdminUser = "admin",
-  [string]$AdminPass = "fuckoff190",
-  [switch]$Help
+  [string]$AdminUser = "",
+  [string]$AdminPass = "",
+  [switch]$Help,
+  [switch]$SkipVerify,
+  [switch]$SkipDesktop
 )
 
 $ErrorActionPreference = "Stop"
@@ -40,17 +42,25 @@ OPTIONS:
   -SkipSignaling Skip signaling server update
    -SkipAdminCreate Skip admin creation after deploy
    -SkipIOS       Skip iOS PWA validation
-   -AdminUser     Admin username (default: admin)
-   -AdminPass     Admin password (default: fuckoff190)
+   -SkipVerify    Skip release version/integrity verification
+   -SkipDesktop   Skip Windows desktop (Tauri) build in pipeline
+    -AdminUser     Admin username (or ADMIN_USER env)
+    -AdminPass     Admin password (or ADMIN_PASS env, never logged)
    -Help          Show this help
 
 EXAMPLES:
   .\scripts\deploy-all.ps1                                    # full pipeline
   .\scripts\deploy-all.ps1 -SkipAndroid -SkipTests            # quick web deploy
   .\scripts\deploy-all.ps1 -SkipBuild -SkipAndroid            # re-deploy from existing dist
-  .\scripts\deploy-all.ps1 -AdminUser=myadmin -AdminPass=pass123  # custom admin creds
+  $env:ADMIN_PASS='pass123'; .\scripts\deploy-all.ps1 -AdminUser=myadmin
 "@
   exit 0
+}
+
+if ([string]::IsNullOrWhiteSpace($AdminUser)) { $AdminUser = $env:ADMIN_USER }
+if ([string]::IsNullOrWhiteSpace($AdminPass)) { $AdminPass = $env:ADMIN_PASS }
+if (-not $SkipAdminCreate -and ([string]::IsNullOrWhiteSpace($AdminUser) -or [string]::IsNullOrWhiteSpace($AdminPass))) {
+  throw "Set -AdminUser/-AdminPass or ADMIN_USER/ADMIN_PASS, or use -SkipAdminCreate"
 }
 
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -141,6 +151,58 @@ if (-not $SkipBuild) {
   }
 
 # ────────────────────────────────────────────────────────────
+# Phase 1.5: Android APK + Release Manifest + Version Verify
+# (runs BEFORE web deploy so dist/releases ships to the server)
+# ────────────────────────────────────────────────────────────
+$ApkBuildSuccess = $false
+if (-not $SkipAndroid) {
+  Write-Host "`n━━━ [1.5] Build Android APK/AAB ━━━" -ForegroundColor Cyan
+  & "$PSScriptRoot/build-android.ps1" -SkipWebBuild
+  if ($LASTEXITCODE -ne 0) { throw "Android build failed" }
+  $ApkBuildSuccess = $true
+}
+if ($ApkBuildSuccess) {
+  $DistDir = "$RootDir/dist"
+  if (Test-Path $DistDir) {
+    $ApkSrc = "$RootDir/app-release-signed.apk"
+    if (Test-Path $ApkSrc) {
+      Copy-Item -Path $ApkSrc -Destination "$DistDir/app-release-signed.apk" -Force
+      Write-Host "  ✓ APK copied to dist/app-release-signed.apk" -ForegroundColor Green
+    }
+  }
+}
+
+# Build Windows desktop (Tauri) so the Windows artifact is produced in-pipeline.
+if (-not $SkipDesktop -and $IsWindows) {
+  Write-Host "`n━━━ [1.5c] Build Desktop (Windows) ━━━" -ForegroundColor Cyan
+  $vcvars = "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat"
+  if (Test-Path $vcvars) {
+    & cmd /c "call `"$vcvars`" x64 && cd /d `"$RootDir`" && npm run build:desktop:windows"
+    if ($LASTEXITCODE -ne 0) { throw "Windows desktop build failed" }
+    Write-Host "  ✓ Windows desktop build done" -ForegroundColor Green
+  } else {
+    Write-Host "  ⚠ VS2022 BuildTools not found — skipping desktop build (Windows exe must already exist in src-tauri target)" -ForegroundColor Yellow
+  }
+}
+
+# Generate release manifest (SHA-256 + GPG) and VERIFY that every shipped
+# artifact is the LATEST messenger version and integrity-intact BEFORE upload.
+if (-not $SkipVerify) {
+  Write-Host "`n━━━ [1.5b] Release manifest + version verification ━━━" -ForegroundColor Cyan
+  Push-Location $RootDir
+  try {
+    node scripts/release.mjs 2>&1 | ForEach-Object { Write-Host $_ }
+    if ($LASTEXITCODE -ne 0) { throw "Release manifest generation failed" }
+    node scripts/verify-release.mjs 2>&1 | ForEach-Object { Write-Host $_ }
+    if ($LASTEXITCODE -ne 0) { throw "Release verification FAILED — artifacts are not the latest version or integrity is broken. Aborting deploy." }
+    $pkgVersion = (Get-Content package.json | ConvertFrom-Json).version
+    Write-Host "  ✓ All shipped artifacts are version $pkgVersion and integrity-verified" -ForegroundColor Green
+  } finally { Pop-Location }
+} else {
+  Write-Host "`n━━━ Version verification skipped (-SkipVerify) ━━━" -ForegroundColor Yellow
+}
+
+# ────────────────────────────────────────────────────────────
 # Phase 2: Deploy Web
 # ────────────────────────────────────────────────────────────
 if (-not $SkipWebDeploy) {
@@ -163,11 +225,17 @@ if (-not $SkipWebDeploy) {
       Write-Host "  ✓ Web files uploaded to $WebRoot" -ForegroundColor Green
     } finally { Pop-Location }
 
-# Post-deploy: inject nginx cache-busting headers to prevent stale index.html
+# Post-deploy: ensure index.html is not cached (idempotent, guarded by marker)
     Write-Host "  Applying nginx cache-busting..." -ForegroundColor Yellow
     ssh $Server '
-      sed -i "/location \//a\        add_header Cache-Control \"no-cache\";" /etc/nginx/conf.d/mess.conf
-      nginx -t 2>/dev/null && nginx -s reload 2>/dev/null
+      conf=/etc/nginx/conf.d/mess.cvr.name.conf
+      if ! grep -q "cache-bust-index" "$conf"; then
+        cp "$conf" /tmp/mess.conf.new
+        sed -i "s|^    location / {\$|    # cache-bust-index\n    location / {\n        add_header Cache-Control \"no-cache\" always;|" /tmp/mess.conf.new
+        sudo cp /tmp/mess.conf.new "$conf"
+        rm -f /tmp/mess.conf.new
+        sudo nginx -t 2>/dev/null && sudo nginx -s reload 2>/dev/null
+      fi
     ' 2>&1 | Out-Null
     
     $status = ssh $Server "curl -s -o /dev/null -w '%{http_code}' https://mess.cvr.name/ --connect-timeout 10" 2>&1
@@ -186,7 +254,24 @@ if (-not $SkipWebDeploy) {
 if (-not $SkipSignaling) {
   Write-Host "`n━━━ [5/5] Deploy Signaling Server to $Server ━━━" -ForegroundColor Cyan
 
+  # ── (Re)prepare signaling server dist ──
+  # Phase 1 may have created this, but the Android/Desktop builds re-run
+  # `npm run build`, whose emptyOutDir wipes dist/ — so recreate it here,
+  # just before deploy, to guarantee the artifacts are present.
   $ServerDist = "$RootDir/dist/server"
+  if (-not $SkipBuild) {
+    if (Test-Path $ServerDist) { Remove-Item -Recurse -Force $ServerDist }
+    New-Item -ItemType Directory -Path $ServerDist -Force | Out-Null
+    Copy-Item "$RootDir/server/signaling-server.ts" "$ServerDist/signaling-server.ts"
+    Copy-Item "$RootDir/server/auth.ts" "$ServerDist/auth.ts"
+    Copy-Item "$RootDir/server/db.ts" "$ServerDist/db.ts"
+    Copy-Item "$RootDir/server/cli.ts" "$ServerDist/cli.ts"
+    Copy-Item "$RootDir/server/csp.ts" "$ServerDist/csp.ts"
+    Copy-Item -Recurse "$RootDir/server/routes" "$ServerDist/routes"
+    Copy-Item -Recurse "$RootDir/server/middleware" "$ServerDist/middleware"
+    Copy-Item "$RootDir/package.json" "$ServerDist/package.json"
+    Write-Host "  ✓ Signaling files prepared (dist/server)" -ForegroundColor Green
+  }
   if (-not (Test-Path $ServerDist)) { throw "dist/server/ not found. Run without -SkipBuild first." }
 
   Write-Host "  Uploading server files..." -ForegroundColor Yellow
@@ -196,10 +281,12 @@ if (-not $SkipSignaling) {
   scp "$ServerDist/db.ts" "${Server}:$AppRoot/server/db.ts" 2>&1 | Out-Null
   scp "$ServerDist/cli.ts" "${Server}:$AppRoot/server/cli.ts" 2>&1 | Out-Null
   scp "$ServerDist/csp.ts" "${Server}:$AppRoot/server/csp.ts" 2>&1 | Out-Null
-  scp "$ServerDist/routes/ads.ts" "${Server}:$AppRoot/server/routes/ads.ts" 2>&1 | Out-Null
-  scp "$ServerDist/routes/auth.ts" "${Server}:$AppRoot/server/routes/auth.ts" 2>&1 | Out-Null
-  scp "$ServerDist/routes/stats.ts" "${Server}:$AppRoot/server/routes/stats.ts" 2>&1 | Out-Null
-  scp "$ServerDist/middleware/auth.ts" "${Server}:$AppRoot/server/middleware/auth.ts" 2>&1 | Out-Null
+  Get-ChildItem "$ServerDist/routes" -File | ForEach-Object {
+    scp $_.FullName "${Server}:$AppRoot/server/routes/$($_.Name)" 2>&1 | Out-Null
+  }
+  Get-ChildItem "$ServerDist/middleware" -File | ForEach-Object {
+    scp $_.FullName "${Server}:$AppRoot/server/middleware/$($_.Name)" 2>&1 | Out-Null
+  }
   scp "$ServerDist/package.json" "${Server}:$AppRoot/package.json" 2>&1 | Out-Null
 
  Write-Host "  Installing deps on server..." -ForegroundColor Yellow
@@ -218,19 +305,19 @@ if (-not $SkipSignaling) {
   Write-Host "  Restarting signaling server via PM2..." -ForegroundColor Yellow
   $pm2Status = ssh $Server "pm2 list 2>&1 | grep $Pm2Name" 2>&1
   if ($pm2Status) {
-    ssh $Server "cd $AppRoot && pm2 restart $Pm2Name --update-env 2>&1" 2>&1 | Out-Null
+    ssh $Server "set -a; [ -f '$AppRoot/.env' ] && source '$AppRoot/.env'; set +a; cd '$AppRoot' && pm2 restart $Pm2Name --update-env 2>&1" 2>&1 | Out-Null
     Write-Host "  ✓ PM2 process '$Pm2Name' restarted" -ForegroundColor Green
   } else {
     Write-Host "  Starting new PM2 process '$Pm2Name'..." -ForegroundColor Yellow
-    ssh $Server "cd $AppRoot && pm2 start server/signaling-server.ts --name $Pm2Name --interpreter npx --interpreter-args tsx 2>&1" 2>&1 | Out-Null
+    ssh $Server "set -a; [ -f '$AppRoot/.env' ] && source '$AppRoot/.env'; set +a; cd '$AppRoot' && pm2 start server/signaling-server.ts --name $Pm2Name --interpreter npx --interpreter-args tsx 2>&1" 2>&1 | Out-Null
     Write-Host "  ✓ PM2 process '$Pm2Name' started" -ForegroundColor Green
   }
   ssh $Server "pm2 save" 2>&1 | Out-Null
 
-   # ── Inject JWT_SECRET if not already set ──
-   Write-Host "  Ensuring JWT_SECRET is configured..." -ForegroundColor Yellow
-   $existingJwt = ssh $Server "grep -q 'JWT_SECRET=' '$AppRoot/.env' 2>&1" 2>&1
-   if ($existingJwt -ne 0) {
+    # ── Inject JWT_SECRET if not already set ──
+    Write-Host "  Ensuring JWT_SECRET is configured..." -ForegroundColor Yellow
+    ssh $Server "grep -q 'JWT_SECRET=' '$AppRoot/.env' 2>/dev/null"
+    if ($LASTEXITCODE -ne 0) {
      $jwtSecret = (node -e "console.log(require('crypto').randomBytes(32).toString('hex'))").Trim()
      Write-Host "  Generating new JWT_SECRET..." -ForegroundColor Yellow
      ssh $Server "echo 'JWT_SECRET=$jwtSecret' >> '$AppRoot/.env'" 2>&1 | Out-Null
@@ -243,15 +330,15 @@ if (-not $SkipSignaling) {
      if (-not $SkipAdminCreate) {
        Write-Host "`n━━━ [6/6] Create Admin User ━━━" -ForegroundColor Cyan
        Write-Host "  Creating admin '$AdminUser' on server..." -ForegroundColor Yellow
-       $jwtSecret = ssh $Server "grep 'JWT_SECRET=' '$AppRoot/.env' | cut -d= -f2" 2>&1
+        $jwtSecret = (ssh $Server "grep -m1 'JWT_SECRET=' '$AppRoot/.env' | cut -d= -f2 -s" 2>&1).Trim()
        if (-not $jwtSecret) {
          Write-Host "  ⚠ JWT_SECRET not found in .env, generating..." -ForegroundColor Yellow
          $jwtSecret = node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
          ssh $Server "echo 'JWT_SECRET=$jwtSecret' >> '$AppRoot/.env'" 2>&1 | Out-Null
        }
        $cliResult = ssh $Server "cd '$AppRoot' && JWT_SECRET='$jwtSecret' npx tsx server/cli.ts '$AdminUser' '$AdminPass'" 2>&1
-       if ($LASTEXITCODE -eq 0 -or $cliResult -match "created successfully") {
-         Write-Host "  ✓ Admin '$AdminUser' created (password: $AdminPass)" -ForegroundColor Green
+        if ($LASTEXITCODE -eq 0 -or $cliResult -match "created successfully") {
+          Write-Host "  ✓ Admin '$AdminUser' created" -ForegroundColor Green
        } else {
          Write-Host "  ⚠ Admin creation may have failed: $cliResult" -ForegroundColor Yellow
        }
@@ -268,32 +355,9 @@ if (-not $SkipSignaling) {
 }
 
 # ────────────────────────────────────────────────────────────
-# Phase 4: Android APK
+# Android build + APK copy + release manifest + verify were moved to
+# Phase 1.5 (above) so dist/releases uploads together with the web deploy.
 # ────────────────────────────────────────────────────────────
-$ApkBuildSuccess = $false
-if (-not $SkipAndroid) {
-  Write-Host "`n━━━ [extra] Build Android APK/AAB ━━━" -ForegroundColor Cyan
-  & "$PSScriptRoot/build-android.ps1" -SkipWebBuild
-  if ($LASTEXITCODE -ne 0) { throw "Android build failed" }
-  $ApkBuildSuccess = $true
-}
-
-# ────────────────────────────────────────────────────────────
-# Phase 5: Copy APK to dist/ for web download
-# ────────────────────────────────────────────────────────────
-if ($ApkBuildSuccess) {
-   Write-Host "`n━━━ [extra] Copy APK to dist/ for web download ━━━" -ForegroundColor Cyan
-   $DistDir = "$RootDir/dist"
-   if (Test-Path $DistDir) {
-     $ApkSrc = "$RootDir/app-release-signed.apk"
-     if (Test-Path $ApkSrc) {
-       $ApkDest = "$DistDir/app-release-signed.apk"
-       Copy-Item -Path $ApkSrc -Destination $ApkDest -Force
-       $ApkSize = (Get-Item $ApkSrc).Length / 1MB
-       Write-Host "  ✓ APK copied to dist/app-release-signed.apk ($([math]::Round($ApkSize, 2)) MB)" -ForegroundColor Green
-     }
-   }
- }
 
 # ────────────────────────────────────────────────────────────
 # Phase 6: iOS PWA Validation

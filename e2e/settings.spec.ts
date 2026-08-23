@@ -1,16 +1,10 @@
-import { test, expect, Page } from '@playwright/test';
-import { ensureAppReady } from './test-utils';
+import { test, expect, type Page } from '@playwright/test';
+import { gotoSettings } from './test-utils';
 
 /**
  * Settings: main menu, appearance (theme/font), language switching,
  * security (PIN + wipe dialog), privacy, network, storage sections.
  */
-
-async function gotoSettings(page: Page) {
-  await ensureAppReady(page);
-  await page.getByRole('button', { name: 'Settings' }).first().click();
-  await expect(page.getByPlaceholder('Search settings')).toBeVisible();
-}
 
 async function openSettingsItem(page: Page, title: string) {
   await page.getByText(title, { exact: true }).first().click();

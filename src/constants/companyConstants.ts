@@ -49,6 +49,7 @@ export const COMPANY_MODAL_MAX_WIDTH = 'max-w-[340px] md:max-w-[400px] lg:max-w-
  */
 export const COMPANY_MEMBER_FALLBACKS = {
   roleAdmin: 'Admin',
+  roleManager: 'Manager',
   roleMember: 'Member',
   officeMoscow: 'Moscow',
   officeLondon: 'London',
@@ -64,6 +65,7 @@ export const COMPANY_EDIT_FALLBACKS = {
   renamePlaceholder: 'Full name',
   save: 'Save',
   makeAdmin: 'Make admin',
+  makeManager: 'Make manager',
   makeMember: 'Make member',
   removeMember: 'Remove from company',
   removeConfirm: 'Remove this member?',
@@ -77,3 +79,17 @@ export const COMPANY_EDIT_FALLBACKS = {
  */
 export const memberColorAt = (index: number): string =>
   MEMBER_AVATAR_GRADIENTS[index % MEMBER_AVATAR_GRADIENTS.length];
+
+export const DEPARTMENT_COLORS = [
+  'from-indigo-400 to-purple-500',
+  'from-pink-400 to-rose-500',
+  'from-yellow-400 to-orange-500',
+  'from-teal-400 to-cyan-500',
+  'from-sky-400 to-blue-500',
+  'from-emerald-400 to-green-500',
+  'from-violet-400 to-fuchsia-500',
+  'from-red-400 to-orange-500',
+] as const;
+
+export const departmentColorAt = (index: number): string =>
+  DEPARTMENT_COLORS[index % DEPARTMENT_COLORS.length];

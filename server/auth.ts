@@ -26,6 +26,19 @@ export function signToken(payload: JwtPayload): string {
   return _signToken(payload)
 }
 
+/**
+ * Mint a short-lived relay connection token for app clients. The signaling
+ * server only validates the signature (the payload `id` is informational), so
+ * this is a self-contained, serverless auth source — no external IdP, no DB.
+ * The relay's WebSocket handshake requires `?token=<jwt>`; this endpoint lets
+ * any client obtain one, which is acceptable for this E2E-encrypted app where
+ * message confidentiality is enforced client-side by recipient public keys.
+ */
+export function signRelayToken(id: string, expiresIn: string | number = '1h'): string {
+  if (!JWT_SECRET) throw new Error('JWT_SECRET not configured. Cannot sign relay token.')
+  return jwt.sign({ id, scope: 'relay' }, JWT_SECRET, { expiresIn } as jwt.SignOptions)
+}
+
 export function verifyToken(token: string): JwtPayload {
   if (!_verifyToken) throw new Error('JWT_SECRET not configured. Cannot verify token.')
   return _verifyToken(token) as JwtPayload

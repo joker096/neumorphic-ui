@@ -8,6 +8,24 @@ vi.mock('lucide-react', () => ({
   Folder: 'div', X: 'div', Video: 'div', ListMusic: 'div', List: 'div', Radio: 'div',
 }));
 
+vi.mock('../../lib/i18n', () => {
+  const translations: Record<string, string> = {
+    'systemPlayer.equalizerSettings': 'Equalizer & Settings',
+    'systemPlayer.addTrack': 'Add Track',
+    'systemPlayer.addFolder': 'Add Folder',
+    'systemPlayer.addVideo': 'Add Video',
+    'systemPlayer.addStation': 'Add Station',
+    'systemPlayer.viewPlaylist': 'View Playlist',
+  };
+  return {
+    useI18n: () => ({
+      lang: 'en',
+      setLang: () => {},
+      t: (key: string) => translations[key] ?? key,
+    }),
+  };
+});
+
 import { TopBar } from './TopBar';
 
 const defaultProps = {

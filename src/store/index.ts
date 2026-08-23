@@ -25,6 +25,7 @@ import type { ConnectionSlice } from './slices/connectionSlice';
 import type { SyncSlice } from './slices/syncSlice';
 import type { ProfileSlice } from './slices/profileSlice';
 import type { CrmSlice } from './slices/crmSlice';
+import type { ContactAvatarSlice } from './slices/contactAvatarSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
 import { createChatSlice } from './slices/chatSlice';
 import { createCallSlice } from './slices/callSlice';
@@ -37,6 +38,7 @@ import { createConnectionSlice } from './slices/connectionSlice';
 import { createSyncSlice } from './slices/syncSlice';
 import { createProfileSlice } from './slices/profileSlice';
 import { createCrmSlice, saveCrmPersisted } from './slices/crmSlice';
+import { createContactAvatarSlice } from './slices/contactAvatarSlice';
 
 // Re-export types for consumers
 export type {
@@ -65,7 +67,7 @@ export const initAppStorage = async () => {
 export { DEFAULT_BOT_PERMISSIONS };
 
 // --- Store interface ---
-export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice {}
+export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice, ContactAvatarSlice {}
 
 export const useAppStore = create<AppState>()((set, get) => ({
   ...createSettingsSlice(set, get),
@@ -80,6 +82,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   ...createSyncSlice(set, get),
   ...createProfileSlice(set, get),
   ...createCrmSlice(set, get),
+  ...createContactAvatarSlice(set, get),
 }));
 
 // --- Data hydration gate ---
@@ -124,5 +127,6 @@ useAppStore.subscribe((s) => {
     idb.set('contacts_all', s.contacts).catch(() => {});
     idb.set('channels_all', s.channels).catch(() => {});
     idb.set('call_history_all', s.callHistory).catch(() => {});
+    if (s.cloudSync.enabled) useAppStore.getState().markCloudSyncPendingChange();
   }
 });

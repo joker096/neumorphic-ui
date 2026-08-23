@@ -2,7 +2,7 @@ import { spawn, execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
-const ROOT = process.argv[2] || process.cwd();
+const ROOT = (process.argv[2] && !process.argv[2].startsWith('--')) ? process.argv[2] : process.cwd();
 const DIST_DIR = path.join(ROOT, 'dist');
 
 function banner(msg) {

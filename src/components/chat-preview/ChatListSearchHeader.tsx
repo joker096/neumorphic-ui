@@ -19,8 +19,8 @@ export const ChatListSearchHeader = ({
   isDark, view, chatSearchQuery, setChatSearchQuery, archivedUnreadCount,
   t, setView, setActiveFolder, setShowCreateChannel, setShowCreateBot, onOpenGlobalSearch,
 }: ChatListSearchHeaderProps) => (
-  <div className="mb-4 sm:mb-6 relative z-30 flex items-center gap-2 sm:gap-3 shrink-0">
-    <div className="flex-1 min-w-0">
+  <div className="mb-4 sm:mb-6 relative z-30 flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
+    <div className="flex-1 min-w-[120px]">
       <SearchInput
         value={chatSearchQuery}
         onChange={setChatSearchQuery}
@@ -49,7 +49,7 @@ export const ChatListSearchHeader = ({
       >
         <Archive size={16} />
         {archivedUnreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md border-[2px] border-[var(--bg-secondary)] dark:border-[var(--bg-primary)] px-1">
+          <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-md border-[2px] border-[var(--bg-secondary)] dark:border-[var(--bg-primary)] px-1">
             {archivedUnreadCount}
           </div>
         )}

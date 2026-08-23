@@ -74,7 +74,7 @@ export const ProfileHeaderCard = ({ isDark, userProfile, t, onEdit, onShare }: P
                     <span className="text-xs text-[var(--text-primary)] truncate">{field.value}</span>
                   )}
                   {isContactsOnly && (
-                    <span className="text-[9px] px-1 rounded bg-[var(--accent-soft)] text-[var(--accent)]">{t('settings.visibility.contacts', 'Contacts only')}</span>
+                    <span className="text-xs px-1 rounded bg-[var(--accent-soft)] text-[var(--accent)]">{t('settings.visibility.contacts', 'Contacts only')}</span>
                   )}
                 </div>
               );

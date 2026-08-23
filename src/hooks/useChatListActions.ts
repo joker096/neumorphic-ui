@@ -125,5 +125,7 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     openMenu,
     closeMenu,
     menuItems,
+    handleMenuMute,
+    handleMenuDelete,
   };
 }

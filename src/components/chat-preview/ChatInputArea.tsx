@@ -132,7 +132,7 @@ function ChatInputAreaImpl({
         </div>
       ) : null}
 
-      <div className="flex items-center gap-2 px-2 sm:px-3 pb-3 pt-1">
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 px-2 sm:px-3 pb-3 pt-1">
         {!eIsRecordingVoice && (
           <>
             <div className="relative group">
@@ -189,25 +189,24 @@ function ChatInputAreaImpl({
           </>
         )}
 
-        <div className={`flex-1 min-w-0 h-11 sm:h-12 rounded-full px-2 sm:px-3 md:px-4 flex items-center relative ${
-          isDark ? "bg-transparent" : "bg-transparent"
-        }`}>
+        <div className="order-first sm:order-none w-full sm:w-auto flex-shrink-0 sm:flex-1 min-w-0 h-11 sm:h-12 rounded-full px-2 sm:px-3 md:px-4 flex items-center gap-1">
           <input
             type="text"
             value={eMsgText}
             onChange={(e) => setMsgTextFn(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             placeholder={messagePlaceholder}
+            aria-label={messagePlaceholder}
             autoComplete="off"
             inputMode="text"
             enterKeyHint="send"
             spellCheck={!eMorseMode}
-            className={`w-full bg-transparent border-none outline-none text-[12px] sm:text-[13px] md:text-[14px] ${
+            className={`flex-1 min-w-0 h-full bg-transparent border-none outline-none text-[12px] sm:text-[13px] md:text-[14px] ${
               isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"
             }`}
             style={inputStyle}
           />
-          <div className="absolute right-1 sm:right-2 flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               type="button"
               title={t("chat.silentMessage")}
@@ -216,7 +215,7 @@ function ChatInputAreaImpl({
               onClick={() => {
                 setSilentModeFn2(!eSilentMode);
               }}
-              className={`min-w-[40px] min-h-[40px] px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+              className={`min-w-[44px] min-h-[44px] px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
                 eSilentMode
                   ? isDark
                     ? "text-[var(--accent)]"
@@ -236,9 +235,9 @@ function ChatInputAreaImpl({
               onClick={() => {
                 setMorseModeFn2(!eMorseMode);
               }}
-              className={`min-w-[40px] min-h-[40px] px-1.5 py-1 rounded-full text-[10px] font-mono font-bold cursor-pointer transition-colors ${
+              className={`min-w-[44px] min-h-[44px] px-1.5 py-1 rounded-full text-xs font-mono font-bold cursor-pointer transition-colors ${
                 eMorseMode
-                  ? "bg-amber-500 text-[var(--text-primary)]"
+                  ? "bg-amber-500 text-[var(--ink-on-saturate)]"
                   : isDark
                     ? "hover:bg-white/10 text-gray-400"
                     : "hover:bg-black/5 text-slate-500"
@@ -267,7 +266,7 @@ function ChatInputAreaImpl({
             }
           }}
           onContextMenu={(e) => e.preventDefault()}
-          className={`min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${
+          className={`order-last sm:order-none ml-auto sm:ml-0 min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${
             eScheduleDateTime && eMsgText
               ? isDark
                 ? "bg-[var(--cyan)] text-[var(--bg-primary)]"

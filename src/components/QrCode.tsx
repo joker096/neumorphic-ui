@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../lib/i18n'
 
 interface QrCodeProps {
   data: string
@@ -66,6 +67,7 @@ function generateQrCanvas(data: string, size: number): string {
 }
 
 export const QrCode = ({ data, size = 200 }: QrCodeProps) => {
+  const { t } = useI18n();
   const [src, setSrc] = useState<string | null>(null)
   const [error, setError] = useState(false)
   const mountedRef = useRef(true)
@@ -120,6 +122,6 @@ export const QrCode = ({ data, size = 200 }: QrCodeProps) => {
   }, [data, size])
 
   if (error || !src) return null
-  return <img src={src} alt="QR code" className="rounded-lg" />
+  return <img src={src} alt={t('ui.qrCode')} className="rounded-lg" />
 }
 

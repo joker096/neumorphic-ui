@@ -153,7 +153,11 @@ export const CallScreen: React.FC<CallScreenProps> = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.96 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-0 z-[200] bg-[var(--bg-primary)] flex flex-col"
+          className="fixed inset-0 z-[200] flex flex-col overflow-hidden"
+          style={{
+            background:
+              'linear-gradient(165deg, color-mix(in srgb, var(--bg-primary) 82%, var(--accent)) 0%, var(--bg-primary, #0d1017) 55%, #0c0e15 100%)',
+          }}
         >
           <audio ref={remoteAudioRef} autoPlay playsInline />
 
@@ -189,7 +193,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
                   className="w-full h-full object-cover -scale-x-100"
                 />
                 <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-gradient-to-t from-black/70 to-transparent flex items-center gap-1">
-                  <span className="text-[11px] font-medium text-white/90 truncate">{t('call.you')}</span>
+                  <span className="text-xs font-medium text-white/90 truncate">{t('call.you')}</span>
                   {call.isMuted && <MicOff size={11} className="text-[var(--danger)] shrink-0" />}
                 </div>
               </motion.div>

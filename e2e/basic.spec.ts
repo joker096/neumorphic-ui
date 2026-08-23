@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ensureAppReady } from './test-utils';
+import { ensureAppReady, gotoSettings } from './test-utils';
 
 test.describe('Mess&Anger basic smoke tests', () => {
   test('app loads with dark theme by default', async ({ page }) => {
@@ -8,8 +8,7 @@ test.describe('Mess&Anger basic smoke tests', () => {
   });
 
   test('settings navigation works', async ({ page }) => {
-    await ensureAppReady(page);
-    await page.getByRole('button', { name: /settings/i }).click();
+    await gotoSettings(page);
     await expect(page.getByText(/network/i).first()).toBeVisible();
   });
 
@@ -20,14 +19,13 @@ test.describe('Mess&Anger basic smoke tests', () => {
   });
 
   test('theme toggle switches between dark and light', async ({ page }) => {
-    await ensureAppReady(page);
+    await gotoSettings(page);
     await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
-    await page.getByRole('button', { name: /settings/i }).click();
-    const toggle = page.getByRole('switch');
-    if (await toggle.isVisible()) {
-      await toggle.click();
-      await expect(page.locator('[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
-    }
+    await page.getByText('Theme', { exact: true }).first().click();
+    await page.locator('[role="switch"][title="Switch to Light Mode"]').click();
+    await expect(page.locator('[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
+    await page.locator('[role="switch"][title="Switch to Dark Mode"]').click();
+    await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
   });
 
   test('contacts page loads from hub', async ({ page }) => {
@@ -37,16 +35,19 @@ test.describe('Mess&Anger basic smoke tests', () => {
   });
 
   test('settings tabs are accessible', async ({ page }) => {
-    await ensureAppReady(page);
-    await page.getByRole('button', { name: /settings/i }).click();
+    await gotoSettings(page);
     await expect(page.getByText(/security|privacy|network|storage/i).first()).toBeVisible();
   });
 
   test('hub navigation renders all items', async ({ page }) => {
     await ensureAppReady(page);
-    const hubItems = [/chats/i, /calls/i, /contacts/i, /company/i, /settings/i];
+    const hubItems = [/chats/i, /calls/i, /contacts/i, /company/i];
     for (const label of hubItems) {
       await expect(page.getByRole('button', { name: label }).first()).toBeVisible();
     }
+    // Workplace is admin-only: hidden when the user has no company
+    await expect(page.getByRole('button', { name: /workplace/i })).toHaveCount(0);
+    // Settings is reached through the profile button
+    await expect(page.getByRole('button', { name: 'User', exact: true }).first()).toBeVisible();
   });
 });

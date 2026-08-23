@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, AlertTriangle, XCircle, Info, X } from 'lucide-react';
+import { useI18n } from '../../lib/i18n';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -36,6 +37,7 @@ const TONE: Record<ToastType, string> = {
 };
 
 export function ToastViewport(_props: { isDark?: boolean }) {
+  const { t } = useI18n();
   const [items, setItems] = useState<ToastItem[]>([]);
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export function ToastViewport(_props: { isDark?: boolean }) {
             )}
             <button
               onClick={() => dismiss(item.id)}
-              aria-label="Dismiss"
+              aria-label={t('ui.dismiss')}
               className="shrink-0 p-1 rounded-lg min-h-[32px] min-w-[32px] transition-colors text-muted-foreground hover:bg-muted"
             >
               <X size={16} />

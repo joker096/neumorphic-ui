@@ -25,7 +25,7 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
     }
   };
 
-  const baseClasses = `w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b last:border-b-0 border-border hover:bg-muted`;
+  const baseClasses = `w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b last:border-b-0 border-border ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`;
   const rowClasses = hasRightAction
     ? `${baseClasses} ${className}`
     : `${baseClasses} cursor-pointer active:scale-[0.99] ${className}`;
@@ -74,13 +74,13 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
 };
 
 export const SettingsSectionTitle = ({ title, isDark = false }: { title: string; isDark?: boolean }) => (
-  <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-2 text-foreground`}>
+  <div className={`font-mono text-xs uppercase tracking-widest font-bold mb-2 opacity-50 px-2 text-foreground`}>
     {title}
   </div>
 );
 
 export const SettingsGroup = ({ children, isDark = false, className = "" }: { children: React.ReactNode; isDark?: boolean; className?: string }) => (
-  <div className={`rounded-xl overflow-hidden ${isDark ? "bg-card border border-border" : "bg-background border border-border"} ${className}`}>
+  <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"} ${className}`}>
     {children}
   </div>
 );

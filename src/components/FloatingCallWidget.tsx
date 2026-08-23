@@ -51,7 +51,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
               </span>
-              <span className="text-[10px] font-bold text-red-400 tracking-wider">REC</span>
+              <span className="text-xs font-bold text-red-400 tracking-wider">REC</span>
             </div>
           )}
           <div className="flex flex-col">

@@ -116,7 +116,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
     <div data-testid="contacts-container" className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
       
       <div className="w-full flex items-center justify-between gap-2 mb-4 px-2">
-        <h2 className={`font-sans text-lg sm:text-xl font-bold tracking-wide truncate min-w-0 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
+        <h2 className={`font-sans text-base sm:text-lg font-bold tracking-wide truncate min-w-0 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
           {t('contacts.title')}
         </h2>
         <div className="flex gap-1.5 sm:gap-2 text-[var(--accent)] shrink-0">
@@ -151,7 +151,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           {tabs.map(tab => (
             <motion.button key={tab.key} whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 min-h-[var(--control-height-sm)] rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 min-h-[var(--control-height-sm)] rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab.key
                   ? (isDark ? 'bg-white/10 text-[var(--text-primary)] shadow-sm' : 'bg-white shadow-sm text-slate-800')
                   : (isDark ? 'text-gray-400 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')
@@ -275,12 +275,13 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
             <div className="flex gap-2 w-full">
               <motion.button whileTap={{ scale: 0.95 }} onClick={copyId}
                 className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${
-                  copied ? "bg-green-500 text-[var(--text-primary)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")
+                  copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")
                 }`}>
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied ? t('header.copied') : t('contacts.copyId', 'Copy ID')}
               </motion.button>
               <motion.button whileTap={{ scale: 0.95 }}
+                aria-label={t('contacts.share', 'Share contact')}
                 className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${
                   isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"
                 }`}>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Phone, Video, MessageSquare, Edit, Trash2, Ban, Mail, Send, Star, StarOff, MoreVertical, ShieldCheck } from 'lucide-react';
+import { X, Phone, Video, MessageSquare, Edit, Trash2, Ban, Mail, Send, Star, StarOff, MoreVertical, ShieldCheck, Camera } from 'lucide-react';
 import { useAppStore } from '../store';
 import { useI18n } from '../lib/i18n';
 import { ConfirmDialog } from './ui/ConfirmDialog';
@@ -42,9 +42,25 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const ghostViewMode = useAppStore(state => state.ghostViewMode);
   const isDark = theme === 'dark';
   const { t } = useI18n();
+  const contactAvatars = useAppStore(state => state.contactAvatars);
+  const setContactAvatar = useAppStore(state => state.setContactAvatar);
+  const removeContactAvatar = useAppStore(state => state.removeContactAvatar);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [confirmAction, setConfirmAction] = useState<'delete' | 'block' | null>(null);
   const [showActions, setShowActions] = useState(false);
   const [showSafetyNumber, setShowSafetyNumber] = useState(false);
+
+  const overrideAvatar = contact ? contactAvatars[contact.name] : undefined;
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && contact) {
+      const reader = new FileReader();
+      reader.onload = () => setContactAvatar(contact.name, reader.result as string);
+      reader.readAsDataURL(file);
+    }
+    if (e.target.value) e.target.value = '';
+  };
 
   const handleDelete = () => { onDelete?.(); onClose(); setConfirmAction(null); };
   const handleBlock = () => { onBlock?.(); onClose(); setConfirmAction(null); };
@@ -139,10 +155,32 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </div>
             )}
 
-            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-4xl shadow-lg relative group`}>
-              {contact.name.charAt(0)}
+            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-4xl shadow-lg relative group overflow-hidden`}>
+              {overrideAvatar ? (
+                <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+              ) : (
+                contact.name.charAt(0)
+              )}
               {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
                 <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < 60000) ? "bg-green-500" : "bg-gray-400"}`} />
+              )}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className={`absolute -bottom-1 -left-1 w-8 h-8 rounded-full flex items-center justify-center shadow-lg bg-[var(--accent)] hover:brightness-110 text-[var(--text-primary)]`}
+                aria-label={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
+                title={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
+              >
+                <Camera size={15} />
+              </button>
+              {overrideAvatar && (
+                <button
+                  onClick={() => removeContactAvatar(contact.name)}
+                  className={`absolute -top-1 -left-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg bg-red-500 hover:bg-red-600 text-white`}
+                  aria-label={t('contacts.removePhoto')}
+                  title={t('contacts.removePhoto')}
+                >
+                  <Trash2 size={13} />
+                </button>
               )}
               <button
                 onClick={() => { onEdit?.(); onClose(); }}
@@ -152,6 +190,16 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 <Edit size={14} />
               </button>
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarFileChange}
+            />
+            <p className="text-xs text-[var(--text-tertiary)] text-center mt-2 max-w-[220px]">
+              {t('contacts.profilePhotoNote')}
+            </p>
 
             <h2 className={`text-2xl font-bold mt-4 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
               {contact.name}
@@ -166,7 +214,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </button>
             </h2>
 
-            <div className={`mt-1 font-mono text-[10px] tracking-wider px-3 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}>
+            <div className={`mt-1 font-mono text-xs tracking-wider px-3 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}>
               {contact.id}
             </div>
 
@@ -198,7 +246,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
             {contact.localFields && contact.localFields.length > 0 && (
               <div className={`w-full mt-4 p-4 rounded-2xl flex flex-col gap-2 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                <div className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
                   {t('contacts.localInfo')}
                 </div>
                 {contact.localFields.map(field => (
@@ -212,7 +260,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                     </span>
                   </div>
                 ))}
-                <div className={`text-[9px] mt-1 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
+                <div className={`text-xs mt-1 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
                   {t('contacts.localFieldsNotShared')}
                 </div>
               </div>
@@ -222,16 +270,16 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               <div className="grid grid-cols-2 gap-3">
                 <button onClick={() => { onCall?.(); onClose(); }} className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/20' : 'bg-green-50 hover:bg-green-100 text-green-600 border border-green-500/10'}`}>
                   <Phone size={20} fill="currentColor" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">{t('contacts.call')}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.call')}</span>
                 </button>
                 <button onClick={() => { onVideoCall?.(); onClose(); }} className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 border border-teal-500/20' : 'bg-teal-50 hover:bg-teal-100 text-teal-600 border border-teal-500/10'}`}>
                   <Video size={20} fill="currentColor" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">{t('contacts.videoCall')}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.videoCall')}</span>
                 </button>
               </div>
               <button onClick={() => { onMessage?.(); onClose(); }} className={`w-full h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] text-[var(--accent)] border border-[var(--accent-soft)]' : 'bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] text-[var(--accent)] border border-[var(--accent-soft)]'}`}>
                 <MessageSquare size={20} fill="currentColor" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">{t('contacts.message')}</span>
+                <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.message')}</span>
               </button>
               <button onClick={() => setShowSafetyNumber(true)} title={t('contacts.verifySecurityDesc')} className={`w-full h-10 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-black/5 hover:bg-black/10 text-slate-600'}`}>
                 <ShieldCheck size={16} />

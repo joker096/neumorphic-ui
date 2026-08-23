@@ -29,7 +29,7 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
                   onClick={() => onReactionMessage(msg.id, emoji)}
                 >
                   {emoji}
-                  <span className={`ml-1.5 text-[11px] font-bold ${isDark ? "opacity-60" : "opacity-80"}`}>{String(count)}</span>
+                  <span className={`ml-1.5 text-xs font-bold ${isDark ? "opacity-60" : "opacity-80"}`}>{String(count)}</span>
                 </div>
               </Tooltip>
             </React.Fragment>
@@ -37,7 +37,7 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
         </div>
       )}
       <div
-        className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-[var(--text-primary)]" : "bg-white text-slate-400 hover:text-slate-800"} w-10 h-10 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]`}
+        className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-[var(--text-primary)]" : "bg-white text-slate-400 hover:text-slate-800"} w-11 h-11 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]`}
         onClick={() => onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
         aria-label={t("chat.reactions")}
         role="button"

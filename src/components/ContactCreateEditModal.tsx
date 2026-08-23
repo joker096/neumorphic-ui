@@ -84,7 +84,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
               {t('contacts.contactName')}
             </label>
             <input
@@ -94,11 +94,11 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
               placeholder={t('contacts.contactName')}
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full h-[var(--control-height-lg)] px-4 rounded-xl text-sm outline-none transition-colors bg-input-bg text-input-text placeholder:text-input-placeholder"
+              className="w-full h-[var(--control-height-lg)] px-4 rounded-xl text-xs outline-none transition-colors border border-border shadow-[var(--inset-field-shadow)] bg-input-bg text-input-text placeholder:text-input-placeholder"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
               {t('contacts.networkId')}
             </label>
             <input
@@ -107,7 +107,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
               placeholder={t('contacts.networkId')}
               value={id}
               onChange={e => setId(e.target.value)}
-              className="w-full h-[var(--control-height-lg)] px-4 rounded-xl text-sm font-mono outline-none transition-colors bg-input-bg text-input-text placeholder:text-input-placeholder"
+              className="w-full h-[var(--control-height-lg)] px-4 rounded-xl text-xs font-mono outline-none transition-colors border border-border shadow-[var(--inset-field-shadow)] bg-input-bg text-input-text placeholder:text-input-placeholder"
             />
           </div>
         </div>
@@ -127,17 +127,17 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
 
         <div className="flex flex-col gap-3 mt-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{t('contacts.localInfo')}</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('contacts.localInfo')}</span>
             <button
               type="button"
               onClick={addField}
-              className="text-[10px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer transition-colors bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground"
+              className="text-xs font-bold px-2.5 py-1.5 rounded-full cursor-pointer transition-colors bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground"
             >
               {t('contacts.addField')}
             </button>
           </div>
           {localFields.length === 0 ? (
-            <div className="text-[10px] text-center py-2 text-muted-foreground">
+            <div className="text-xs text-center py-2 text-muted-foreground">
               {t('contacts.noLocalFields')}
             </div>
           ) : (

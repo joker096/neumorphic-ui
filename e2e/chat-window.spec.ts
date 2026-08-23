@@ -160,7 +160,7 @@ test.describe('Chat window', () => {
     await openAliceChat(page);
     await page.getByRole('button', { name: /alice freeman .*profile/i }).first().click();
     await expect(page.getByText('Call', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('Video Call', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('Video call', { exact: true }).first()).toBeVisible();
     await expect(page.getByText('Verify Security').first()).toBeVisible();
     await page.getByLabel('Close').first().click();
   });

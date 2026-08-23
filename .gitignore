@@ -16,5 +16,6 @@ coverage/
 *.db-wal
 *.db-shm
 android/.gradle/
+src-tauri/target/
 test-results/
 screen/

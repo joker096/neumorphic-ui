@@ -36,7 +36,7 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
           >
             <filter.icon size={18} />
           </div>
-          <span className={`text-sm font-bold flex-1 ${isDark ? "text-gray-300" : "text-slate-700"}`}>{filter.label}</span>
+          <span className={`text-xs font-bold flex-1 ${isDark ? "text-gray-300" : "text-slate-700"}`}>{filter.label}</span>
           <div
             className={`w-[44px] h-[24px] rounded-full p-1 transition-colors flex items-center ${
               filters[filter.id as keyof typeof filters] ? "bg-[var(--accent)]" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-100"

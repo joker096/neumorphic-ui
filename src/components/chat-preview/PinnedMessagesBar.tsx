@@ -56,7 +56,7 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
         <Pin size={15} className={isDark ? "text-orange-400" : "text-orange-500"} />
         <span className="flex-1 min-w-0">
           <span className="block text-[13px] font-semibold truncate">{previewOf(messages, top.id)}</span>
-          <span className="block text-[11px] opacity-70">
+          <span className="block text-xs opacity-70">
             {items.length > 1 ? t("chat.pinnedCount", `${items.length} pinned messages`) : t("chat.pinnedOne", "1 pinned message")}
           </span>
         </span>

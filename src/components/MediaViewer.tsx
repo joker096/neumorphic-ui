@@ -100,7 +100,7 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
               {media.url ? (
                 <video src={media.url} className="w-full h-full object-contain" controls={false} onClick={() => setPlaying(v => !v)} />
               ) : (
-                <div className="text-white/40 text-sm">Video preview</div>
+                <div className="text-white/40 text-sm">{t('ui.videoPreview')}</div>
               )}
               <button
                 onClick={() => setPlaying(v => !v)}
@@ -173,6 +173,6 @@ const ActionButton = ({ icon, label, onClick, danger }: { icon: React.ReactNode;
     className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-white/80 hover:bg-white/10 transition-colors active:scale-95 min-h-[44px] min-w-[56px] ${danger ? 'hover:text-rose-300' : ''}`}
   >
     {icon}
-    <span className="text-[10px]">{label}</span>
+    <span className="text-xs">{label}</span>
   </button>
 );

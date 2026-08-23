@@ -1,15 +1,22 @@
+const KEK_STORAGE_KEY = 'mess_anger_kek_v1'
 let _cachedKey: CryptoKey | null = null
 
 async function getStorageKey(): Promise<CryptoKey> {
   if (_cachedKey) return _cachedKey
-  const pwKey = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode('mess-anger-storage-v1'),
-    'PBKDF2', false, ['deriveKey'],
-  )
-  const salt = new Uint8Array([0x6d, 0x65, 0x73, 0x73, 0x2d, 0x73, 0x61, 0x6c, 0x74])
-  _cachedKey = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: 600000, hash: 'SHA-256' },
-    pwKey,
+  // Per-install random key (not a shipped constant) so client-side blobs are
+  // not decryptable by anyone possessing the build. Stored in localStorage;
+  // a same-device attacker with JS execution can still read it, but the global
+  // hardcoded key is gone.
+  let rawHex = localStorage.getItem(KEK_STORAGE_KEY)
+  if (!rawHex) {
+    const bytes = crypto.getRandomValues(new Uint8Array(32))
+    rawHex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+    localStorage.setItem(KEK_STORAGE_KEY, rawHex)
+  }
+  const keyBytes = new Uint8Array(rawHex.match(/../g)!.map((h) => parseInt(h, 16)))
+  _cachedKey = await crypto.subtle.importKey(
+    'raw',
+    keyBytes,
     { name: 'AES-GCM', length: 256 },
     false,
     ['encrypt', 'decrypt'],

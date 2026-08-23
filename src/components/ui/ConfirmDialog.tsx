@@ -11,6 +11,7 @@ interface ConfirmDialogProps {
   cancelLabel?: string;
   variant?: 'default' | 'danger';
   theme?: 'light' | 'dark';
+  zIndex?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -23,6 +24,7 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   variant = 'default',
   theme = 'dark',
+  zIndex = 'z-50',
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -46,6 +48,7 @@ export function ConfirmDialog({
       title={title}
       isDark={isDark}
       maxWidth="max-w-sm"
+      zIndex={zIndex}
       footer={
         <>
           <Button variant="secondary" size="md" className="flex-1" onClick={onCancel}>

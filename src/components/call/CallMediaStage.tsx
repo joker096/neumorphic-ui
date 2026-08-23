@@ -39,7 +39,7 @@ export const CallMediaStage: React.FC<CallMediaStageProps> = ({
     }
     const showAvatarFallback = !call.isVideoEnabled || call.callType === 'screen' || !call.remotePeer?.stream;
     return (
-      <>
+      <div className="absolute inset-0 bg-[var(--bg-primary,#0d1017)]">
         <video
           ref={remoteVideoRef}
           autoPlay
@@ -61,7 +61,7 @@ export const CallMediaStage: React.FC<CallMediaStageProps> = ({
             <span className="text-white/70 text-sm font-medium">{statusLabel}</span>
           </div>
         )}
-      </>
+      </div>
     );
   }
 

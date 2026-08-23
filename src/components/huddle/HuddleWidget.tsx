@@ -77,7 +77,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
           </div>
           <button
             onClick={handleJoin}
-            className="px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-[var(--text-primary)] text-sm font-medium"
+            className="px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-[var(--ink-on-saturate)] text-sm font-medium"
           >
             {t('huddle.join')}
           </button>
@@ -91,7 +91,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center animate-pulse">
-            <Mic size={18} className="text-[var(--text-primary)]" />
+            <Mic size={18} className="text-[var(--ink-on-saturate)]" />
           </div>
           <div>
             <p className="text-[var(--text-primary)] font-medium text-sm">{t('huddle.active')}</p>
@@ -103,7 +103,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
             onClick={handleToggleMute}
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
               isMuted
-                ? 'bg-red-500 text-[var(--text-primary)]'
+                ? 'bg-red-500 text-[var(--ink-on-saturate)]'
                 : 'bg-white/20 text-[var(--text-primary)] hover:bg-white/30'
             }`}
           >
@@ -111,7 +111,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
           </button>
           <button
             onClick={handleLeave}
-            className="px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-[var(--text-primary)] text-sm font-medium"
+            className="px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-[var(--ink-on-saturate)] text-sm font-medium"
           >
             {t('huddle.leave')}
           </button>

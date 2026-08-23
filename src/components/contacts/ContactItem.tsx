@@ -18,11 +18,11 @@ interface ContactItemProps {
 const swipeBtn = (color: string, icon: React.ReactNode, label: string, onClick: () => void, isDark: boolean) => (
   <button
     onClick={onClick}
-    className={`h-full flex flex-col items-center justify-center gap-1 px-3 text-[11px] font-bold text-[var(--text-primary)] cursor-pointer border-none shrink-0`}
+    className={`h-full flex flex-col items-center justify-center gap-1 px-3 text-xs font-bold text-[var(--text-primary)] cursor-pointer border-none shrink-0`}
     style={{ minWidth: "76px", backgroundColor: color }}
   >
     {icon}
-    <span className="text-[9px] md:text-[11px]">{label}</span>
+    <span className="text-xs md:text-xs">{label}</span>
   </button>
 );
 
@@ -53,6 +53,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
         <>
           {/* Left swipe (call) - only visible when swiped left */}
           <div
+            aria-hidden={swipedOpen === "left" ? undefined : true}
             className="absolute left-0 top-0 flex items-center h-[64px] z-10 pointer-events-none"
             style={{
               opacity: swipedOpen === "left" ? 1 : 0,
@@ -64,6 +65,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
 
           {/* Right swipe (video) - only visible when swiped right */}
           <div
+            aria-hidden={swipedOpen === "right" ? undefined : true}
             className="absolute right-0 top-0 flex items-center justify-end h-[64px] z-10 pointer-events-none"
             style={{
               opacity: swipedOpen === "right" ? 1 : 0,
@@ -127,8 +129,8 @@ export const ContactItem: React.FC<ContactItemProps> = ({
             {contact.isFavorite && <Star size={12} className="text-yellow-400 shrink-0" />}
           </div>
           <div className="flex items-center gap-2">
-            <span className={`font-mono text-[9px] md:text-[10px] tracking-wider truncate ${isDark ? "text-gray-500" : "text-slate-400"}`}>{contact.id}</span>
-            <span className={`text-[9px] md:text-[10px] font-bold shrink-0 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
+            <span className={`font-mono text-xs md:text-xs tracking-wider truncate ${isDark ? "text-gray-500" : "text-slate-400"}`}>{contact.id}</span>
+            <span className={`text-xs md:text-xs font-bold shrink-0 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
               &bull; {(() => {
                 const delta = Date.now() - contact.lastSeen;
                 if (delta < 0 || isNaN(delta) || !contact.lastSeen) return '—';
@@ -149,6 +151,8 @@ export const ContactItem: React.FC<ContactItemProps> = ({
             e.stopPropagation();
             onToggleFavorite(contact.id, !contact.isFavorite);
           }}
+          aria-label={contact.isFavorite ? t('contacts.unfavorite', 'Remove from favorites') : t('contacts.favorite', 'Add to favorites')}
+          aria-pressed={contact.isFavorite}
           className={`shrink-0 transition-transform active:scale-90 min-w-[44px] min-h-[44px] flex items-center justify-center ${contact.isFavorite ? (isDark ? "text-yellow-400" : "text-yellow-500") : (isDark ? "text-gray-600" : "text-slate-300")}`}
         >
           {contact.isFavorite ? <Star size={16} fill="currentColor" /> : <StarOff size={16} />}

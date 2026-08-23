@@ -34,13 +34,14 @@ export const CallLogView = ({ isDark = false, onBack }: { isDark?: boolean; onBa
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('call.searchCalls')}
-              className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400'}`}
+              aria-label={t('call.searchCalls')}
+              className={`w-full h-11 pl-9 pr-3 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400'}`}
             />
           </div>
           {callHistory.length > 0 && (
             <button
               onClick={clearCallHistory}
-              className={`p-2.5 rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-red-500/10 hover:text-red-400' : 'bg-gray-100 text-slate-600 hover:bg-red-50 hover:text-red-500'}`}
+              className={`p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-red-500/10 hover:text-red-400' : 'bg-gray-100 text-slate-600 hover:bg-red-50 hover:text-red-500'}`}
               title={t('call.clearAll')}
             >
               <Trash2 size={18} />

@@ -72,7 +72,7 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
               {shareId}
             </div>
             <div className="flex gap-2 w-full">
-              <button onClick={handleCopyId} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--text-primary)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
+              <button onClick={handleCopyId} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')}
               </button>

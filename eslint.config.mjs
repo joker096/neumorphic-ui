@@ -14,6 +14,7 @@ export default [
       "*.cjs",
       "*.mjs",
       "server/",
+      "src-tauri/target/",
     ],
   },
   {

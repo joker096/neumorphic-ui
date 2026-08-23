@@ -18,13 +18,17 @@ test.describe('Navigation & chrome', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });
 
-  test('all five nav destinations render', async ({ page }) => {
+  test('all nav destinations render (workplace is admin-only)', async ({ page }) => {
     await gotoApp(page);
-    for (const label of ['Chats', 'Calls', 'Contacts', /company chat/i, 'Settings']) {
+    for (const label of ['Chats', 'Calls', 'Contacts', 'Company Chat']) {
       await expect(
-        page.getByRole('button', { name: label as string | RegExp }).first()
+        page.getByRole('button', { name: label }).first()
       ).toBeVisible();
     }
+    // Workplace is admin-only: hidden when the user has no company
+    await expect(page.getByRole('button', { name: 'Workplace' })).toHaveCount(0);
+    // Settings is opened through the profile button
+    await expect(page.getByRole('button', { name: 'User', exact: true }).first()).toBeVisible();
   });
 
   test('nav: Chats shows the chat list with search', async ({ page }) => {
@@ -50,7 +54,7 @@ test.describe('Navigation & chrome', () => {
 
   test('nav: Settings shows main settings menu', async ({ page }) => {
     await gotoApp(page);
-    await page.getByRole('button', { name: 'Settings' }).first().click();
+    await page.getByRole('button', { name: 'User', exact: true }).first().click();
     await expect(page.getByPlaceholder('Search settings')).toBeVisible();
     // Section cards present
     await expect(page.getByRole('button', { name: /account/i }).first()).toBeVisible();
@@ -77,7 +81,7 @@ test.describe('Navigation & chrome', () => {
 
   test('round-trip navigation does not break the app', async ({ page }) => {
     await gotoApp(page);
-    for (const label of ['Calls', 'Contacts', 'Settings', 'Chats']) {
+    for (const label of ['Calls', 'Contacts', 'Company Chat', 'Chats']) {
       await page.getByRole('button', { name: label }).first().click();
       await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
     }

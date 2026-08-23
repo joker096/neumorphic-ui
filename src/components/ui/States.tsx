@@ -1,5 +1,6 @@
 import React from 'react';
 import { Inbox, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useI18n } from '../../lib/i18n';
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -9,7 +10,9 @@ interface EmptyStateProps {
   isDark?: boolean;
 }
 
-export const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => (
+export const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => {
+  const { t } = useI18n();
+  return (
   <div className="flex flex-col items-center justify-center text-center px-6 py-12">
     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-muted text-muted-foreground">
       {icon ?? <Inbox size={28} />}
@@ -25,7 +28,8 @@ export const EmptyState = ({ icon, title, description, action }: EmptyStateProps
       </button>
     )}
   </div>
-);
+  );
+};
 
 interface ErrorStateProps {
   message: string;
@@ -35,20 +39,22 @@ interface ErrorStateProps {
   isDark?: boolean;
 }
 
-export const ErrorState = ({ message, code, retryAction, supportAction }: ErrorStateProps) => (
+export const ErrorState = ({ message, code, retryAction, supportAction }: ErrorStateProps) => {
+  const { t } = useI18n();
+  return (
   <div className="flex flex-col items-center justify-center text-center px-6 py-12">
     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-destructive/10 text-destructive">
       <AlertTriangle size={28} />
     </div>
     <div className="text-sm font-semibold text-foreground">{message}</div>
-    {code && <div className="text-[11px] font-mono mt-1 text-muted-foreground">{code}</div>}
+    {code && <div className="text-xs font-mono mt-1 text-muted-foreground">{code}</div>}
     <div className="flex items-center gap-2 mt-4">
       {retryAction && (
         <button
           onClick={retryAction}
           className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-lg min-h-[40px] bg-primary text-primary-foreground active:scale-95 transition-transform"
         >
-          <RefreshCw size={15} /> Retry
+          <RefreshCw size={15} /> {t('ui.retry')}
         </button>
       )}
       {supportAction && (
@@ -56,9 +62,10 @@ export const ErrorState = ({ message, code, retryAction, supportAction }: ErrorS
           onClick={supportAction}
           className="text-sm font-medium px-4 py-2 rounded-lg min-h-[40px] transition-colors active:scale-95 text-muted-foreground hover:bg-muted"
         >
-          Contact support
+          {t('ui.contactSupport')}
         </button>
       )}
     </div>
   </div>
-);
+  );
+};

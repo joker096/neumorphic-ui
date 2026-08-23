@@ -160,24 +160,25 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
            className="w-full h-8 block"
          />
          {!stream && (
-           <div className={`text-[10px] font-bold mt-1 tracking-wider ${isMe ? "text-orange-200" : "text-gray-500"}`}>
+           <div className={`text-xs font-bold mt-1 tracking-wider ${isMe ? "text-orange-200" : "text-gray-500"}`}>
              {duration}
            </div>
          )}
          {!stream && audioUrl && (
-           <input
-              data-testid="seek-slider"
-              aria-label="Seek voice note"
-              type="range"
-              min={0}
-              max={100}
-              value={Math.round((progress || 0) * 100)}
-              disabled={!isReady}
-              onChange={(e) => {
-                void handleSeek(Number(e.target.value) / 100);
-              }}
-              className="mt-2 w-full h-1.5 rounded-full appearance-none cursor-pointer accent-orange-500 disabled:opacity-40 bg-[var(--bg-secondary)]"
-           />
+            <input
+               data-testid="seek-slider"
+               aria-label="Seek voice note"
+               type="range"
+               min={0}
+               max={100}
+               value={Math.round((progress || 0) * 100)}
+               disabled={!isReady}
+               onChange={(e) => {
+                 void handleSeek(Number(e.target.value) / 100);
+               }}
+               className="voice-seek mt-2 w-full disabled:opacity-40"
+               style={{ "--seek-progress": `${Math.round((progress || 0) * 100)}%` } as React.CSSProperties}
+            />
           )}
       </div>
     </div>

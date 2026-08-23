@@ -16,9 +16,9 @@ interface ContactCRMFieldsProps {
 }
 
 const fieldBoxClass =
-  'w-full h-10 rounded-xl px-3 flex items-center gap-2 bg-input-bg transition-colors';
+  'w-full h-10 rounded-xl px-3 flex items-center gap-2 border border-border shadow-[var(--inset-field-shadow)] bg-input-bg transition-colors';
 const fieldInputClass =
-  'flex-1 bg-transparent outline-none text-[13px] text-input-text placeholder:text-input-placeholder';
+  'flex-1 bg-transparent outline-none text-xs text-input-text placeholder:text-input-placeholder';
 const fieldIconClass = 'shrink-0 text-muted-foreground';
 
 export const ContactCRMFields = ({ company, setCompany, position, setPosition, tags, setTags, showTags, setShowTags, t }: ContactCRMFieldsProps) => {
@@ -86,7 +86,7 @@ export const ContactCRMFields = ({ company, setCompany, position, setPosition, t
                   key={tag}
                   type="button"
                   onClick={() => toggleTag(tag)}
-                  className={`text-[10px] font-medium px-2 py-1.5 rounded-lg transition-colors ${
+                  className={`text-xs font-medium px-2 py-1.5 rounded-lg transition-colors ${
                     tags.includes(tag as ContactTag) ? getTagColor(tag) : 'text-muted-foreground hover:bg-muted'
                   }`}
                 >
@@ -114,7 +114,7 @@ interface ContactCustomFieldProps {
 }
 
 const fieldControlClass =
-  'w-full h-8 rounded-xl text-xs outline-none px-2 bg-input-bg text-input-text transition-colors';
+  'w-full h-8 rounded-xl text-xs outline-none px-2 border border-border bg-input-bg text-input-text transition-colors';
 
 export const ContactCustomField = ({ field, updateField, removeField, t }: ContactCustomFieldProps) => {
   const typeDefaults: Record<string, string> = {
@@ -175,7 +175,9 @@ export const ContactCustomField = ({ field, updateField, removeField, t }: Conta
         </div>
       )}
       <input
-        type="text"
+        type={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'}
+        inputMode={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : undefined}
+        autoComplete={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : undefined}
         placeholder={field.type === 'phone' ? '+7 999 123-45-67' : field.type === 'email' ? 'user@example.com' : field.type === 'telegram' ? '@username' : 'Value'}
         value={field.value}
         onChange={(e) => updateField(field.id, { value: e.target.value })}

@@ -42,7 +42,7 @@ export const SettingsNavItem = ({ icon, iconBg, title, subtitle, isDark, onClick
     </div>
     <div className="flex-1 min-w-0">
       <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{title}</div>
-      {subtitle && <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>}
+      {subtitle && <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>}
     </div>
     {rightElement}
     {onClick && !rightElement && <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-gray-400" : "text-slate-500"}`} />}

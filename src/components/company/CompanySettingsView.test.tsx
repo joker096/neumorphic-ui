@@ -30,17 +30,6 @@ vi.mock('../../lib/idb', () => ({
   saveCompanySettings: (...args: any[]) => mockSaveCompanySettings(...args),
 }));
 
-vi.mock('../../constants/companyMockData', () => ({
-  MOCK_COMPANY_SETTINGS: {
-    name: 'Acme Inc',
-    phone: '+7 495 123-45-67',
-    email: 'info@acme.com',
-    address: '123 Main St',
-    website: 'https://acme.com',
-    taxId: '7701234567',
-  },
-}));
-
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 vi.mock('../../lib/i18n', () => ({
@@ -101,12 +90,12 @@ describe('CompanySettingsView', () => {
     expect(screen.getByText('Tax ID (INN)')).toBeInTheDocument();
   });
 
-  it('pre-fills inputs from mock data when no stored data', async () => {
+  it('renders empty inputs when no stored data and no mock fallback', async () => {
     render(<CompanySettingsView onClose={vi.fn()} />);
     const nameInput = await screen.findByPlaceholderText('Acme Inc.') as HTMLInputElement;
-    expect(nameInput.value).toBe('Acme Inc');
+    expect(nameInput.value).toBe('');
     const phoneInput = screen.getByPlaceholderText('+7 (495) 123-45-67') as HTMLInputElement;
-    expect(phoneInput.value).toBe('+7 495 123-45-67');
+    expect(phoneInput.value).toBe('');
   });
 
   it('pre-fills inputs from stored data when available', async () => {

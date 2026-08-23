@@ -43,7 +43,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors shrink-0 ${
+            className={`px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-colors shrink-0 ${
               activeTab === tab.id
                 ? 'bg-[var(--accent)] text-[var(--text-primary)]'
                 : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'
@@ -64,7 +64,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
       <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
         {visiblePacks.map(pack => (
           <div key={pack.id} className="flex flex-col gap-1">
-            <div className={`text-[9px] font-bold uppercase tracking-widest text-[var(--text-tertiary)]`}>{pack.name}</div>
+            <div className={`text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]`}>{pack.name}</div>
             <div className="flex gap-1 flex-wrap">
               {pack.stickers.map((st, idx) => {
                 const stickerSrc = pack.id === 'icq' ? getICQEmojiPath(st, theme) : getICQStickerSrc(st, theme);

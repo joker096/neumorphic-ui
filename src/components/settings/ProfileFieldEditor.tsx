@@ -17,11 +17,11 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-[var(--text-secondary)]">{t('settings.contactFields', 'Contact Fields')}</span>
+        <span className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.contactFields', 'Contact Fields')}</span>
         <button
           type="button"
           onClick={onAdd}
-          className="text-[10px] font-bold px-3 py-1.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
+          className="text-xs font-bold px-3 py-1.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
         >
           {t('settings.addField', 'Add Field')}
         </button>
@@ -95,7 +95,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
         </div>
       ))}
       {fields.length === 0 && (
-        <div className="text-[10px] text-center py-3 text-[var(--text-tertiary)]">
+        <div className="text-xs text-center py-3 text-[var(--text-tertiary)]">
           {t('settings.noFields', 'No fields yet. Add phone, email, etc.')}
         </div>
       )}

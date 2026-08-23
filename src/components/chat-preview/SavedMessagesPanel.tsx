@@ -33,7 +33,7 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
             >
             <div className={`p-4 flex items-center justify-between ${isDark ? "border-b border-[var(--border-color)]" : "border-b border-[var(--border-color)]"}`}>
               <div>
-                <div className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isDark ? "text-orange-400" : "text-orange-600"}`}>{t('chat.savedMessages')}</div>
+                <div className={`text-xs font-bold uppercase tracking-[0.2em] ${isDark ? "text-orange-400" : "text-orange-600"}`}>{t('chat.savedMessages')}</div>
                 <div className={`text-sm mt-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{t('chat.savedItems', { n: chatSavedMessages.length, chatName })}</div>
               </div>
               <button
@@ -49,12 +49,12 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
                   {chatSavedMessages.slice().reverse().map((saved: any) => (
                     <div key={saved.key} className={`p-4 border ${isDark ? "bg-[var(--bg-tertiary)] border-[var(--border-color)]" : "bg-white border-[var(--border-color)]"}`}>
                       <div className="flex items-center justify-between gap-3 mb-2">
-                        <div className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                        <div className={`text-xs font-bold uppercase tracking-widest ${isDark ? "text-gray-400" : "text-slate-500"}`}>
                           {saved.sourceLabel || chatName}
                         </div>
                         <button
                           onClick={() => onToggleSavedMessage?.({ id: chatName }, { id: saved.messageId })}
-                          className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600"}`}
+                          className={`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600"}`}
                         >
                           {t('chat.unsave')}
                         </button>
@@ -62,7 +62,7 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
                       <div className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
                         {saved.preview}
                       </div>
-                      <div className={`mt-2 text-[10px] font-semibold ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+                      <div className={`mt-2 text-xs font-semibold ${isDark ? "text-gray-500" : "text-slate-400"}`}>
                         {saved.time}
                       </div>
                     </div>

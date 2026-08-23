@@ -233,6 +233,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
                   <input
                     type="password"
                     inputMode="numeric"
+                    autoComplete="off"
                     maxLength={6}
                     value={pin}
                     onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
@@ -243,6 +244,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
                   <input
                     type="password"
                     inputMode="numeric"
+                    autoComplete="off"
                     maxLength={6}
                     value={pinConfirm}
                     onChange={(e) => setPinConfirm(e.target.value.replace(/\D/g, ''))}

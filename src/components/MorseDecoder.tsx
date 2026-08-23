@@ -142,7 +142,7 @@ export const MorseDecoder = ({
       >
         <div className="flex items-center gap-2 mb-2">
           <div
-            className={`text-[8px] font-mono tracking-widest px-2 py-0.5 rounded ${
+            className={`text-xs font-mono tracking-widest px-2 py-0.5 rounded ${
               'bg-orange-500/20 text-orange-400'
             }`}
           >
@@ -155,7 +155,7 @@ export const MorseDecoder = ({
         {!decoded ? (
           <button
             onClick={handleDecode}
-            className={`mt-3 px-3 py-1.5 rounded flex items-center gap-2 font-mono text-[10px] tracking-widest transition-colors ${
+            className={`mt-3 px-3 py-1.5 rounded flex items-center gap-2 font-mono text-xs tracking-widest transition-colors ${
               'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30'
             }`}
           >
@@ -179,7 +179,7 @@ export const MorseDecoder = ({
             }`}
           >
             <div
-              className={`text-[9px] font-mono tracking-wider mb-1 ${
+              className={`text-xs font-mono tracking-wider mb-1 ${
                 'text-amber-500/70'
               }`}
             >

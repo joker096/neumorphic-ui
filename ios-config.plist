@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key>
+  <string>Mess&amp;Anger</string>
+  <key>CFBundleIdentifier</key>
+  <string>app.messandanger.messenger</string>
+  <key>UIRequiresFullScreen</key>
+  <true/>
+  <key>NSCameraUsageDescription</key>
+  <string>Mess&amp;Anger needs camera access to take photos for messages</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>Mess&amp;Anger needs photo library access to send photos</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Mess&amp;Anger needs microphone access for voice messages</string>
+</dict>
+</plist>

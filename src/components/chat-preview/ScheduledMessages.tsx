@@ -45,7 +45,7 @@ export const ScheduledMessages: React.FC<ScheduledMessagesProps> = ({
               className="max-w-[80%] sm:max-w-[70%] p-3 rounded-md sm:rounded-[16px] text-[13px] sm:text-[14px] shadow-sm border border-dashed relative leading-relaxed overflow-hidden break-words neu-card-inset"
             >
               <FormattedText text={msg.type === "morse" && msg.originalText ? msg.originalText : msg.text} searchTerm="" />
-              <div className="flex items-center justify-end gap-1 mt-1 text-[10px] font-bold tracking-wide opacity-50">
+              <div className="flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide opacity-50">
                 <Clock size={10} className="inline mr-1" />
                 {new Date(msg.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 <button onClick={() => scheduledQueue.removeMessage(msg.id)} className="cursor-pointer ml-2 hover:text-red-500 text-xs" aria-label="Remove scheduled message">

@@ -1,6 +1,7 @@
 import React from "react";
 import { ChevronRight, Search, Phone, Video } from "lucide-react";
 import { IconButton } from "../ui/IconButton";
+import { useAppStore } from "../../store";
 
 interface ChatHeaderProps {
   chat: {
@@ -24,6 +25,7 @@ interface ChatHeaderProps {
 
 export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSearchToggle, onCall, onVideoCall, t, typing }: ChatHeaderProps) => {
   const canCall = !(chat.type === "group" || chat.type === "channel" || chat.type === "bot" || chat.isChannel);
+  const overrideAvatar = useAppStore((state) => state.contactAvatars)[chat.name];
   return (
     <div
       className={`px-2 sm:px-3 py-2 flex items-center gap-2 sm:gap-3 relative z-10 ${
@@ -53,9 +55,13 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
           }
         }}
         aria-label={`${chat.name} ${t("contacts.profile")}`}
-        className={`w-10 h-10 rounded-full bg-gradient-to-br shrink-0 ${chat.color} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm shadow-sm relative cursor-pointer`}
+        className={`w-11 h-11 rounded-full bg-gradient-to-br shrink-0 ${chat.color} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm shadow-sm relative cursor-pointer overflow-hidden`}
       >
-        {chat.name.charAt(0)}
+        {overrideAvatar ? (
+          <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          chat.name.charAt(0)
+        )}
         {chat.online && (
           <div
             className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-[2px] ${
@@ -77,7 +83,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
               className={`w-1.5 h-1.5 rounded-full shrink-0 ${chat.online ? "bg-[var(--success)]" : "bg-gray-500"}`}
             />
             <span
-              className={`text-[8px] sm:text-[9px] font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+              className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
             >
               {chat.online ? t("chat.filters.online") : t("chat.filters.offline")}
             </span>
@@ -85,7 +91,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
           {typing && (
             <div className="flex items-center gap-1 mt-0.5">
               <span
-                className={`text-[11px] italic animate-pulse ${isDark ? "text-[var(--success)]" : "text-[var(--success)]"}`}
+                className={`text-xs italic animate-pulse ${isDark ? "text-[var(--success)]" : "text-[var(--success)]"}`}
               >
                 {t("chat.typing")}
               </span>

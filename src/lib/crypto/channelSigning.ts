@@ -1,9 +1,9 @@
 /**
  * Channel Signing Module
- * 
- * Provides per-channel message signing using X25519 signatures.
+ *
+ * Provides per-channel message signing using Ed25519 signatures.
  * Channel messages are not E2EE but are authenticated via channel private key.
- * 
+ *
  * Usage:
  * - Generate channel keypair when creating a channel
  * - Sign messages before publishing to channel
@@ -26,10 +26,10 @@ export interface SignedMessage {
 }
 
 /**
- * Generate a channel keypair (X25519)
+ * Generate a channel keypair (Ed25519)
  */
 export function generateChannelKeypair(): ChannelKeypair {
-  const kp = nacl.box.keyPair();
+  const kp = nacl.sign.keyPair()
   return {
     publicKey: buf2hex(kp.publicKey),
     privateKey: buf2hex(kp.secretKey),

@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { ensureAppReady } from './test-utils';
+import { ensureAppReady, openSettingsViaProfile } from './test-utils';
 
 /**
  * Visual regression snapshots of the main screens.
@@ -25,7 +25,7 @@ test.describe('Visual snapshots', () => {
 
   test('chat list — light theme', async ({ page }) => {
     await gotoApp(page);
-    await page.getByRole('button', { name: 'Settings' }).first().click();
+    await openSettingsViaProfile(page);
     await page.getByText('Theme').first().click();
     await page.locator('[title="Switch to Light Mode"]').first().click();
     await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'light');
@@ -60,8 +60,7 @@ test.describe('Visual snapshots', () => {
 
   test('settings main menu', async ({ page }) => {
     await gotoApp(page);
-    await page.getByRole('button', { name: 'Settings' }).first().click();
-    await expect(page.getByPlaceholder('Search settings')).toBeVisible();
+    await openSettingsViaProfile(page);
     await page.waitForTimeout(600);
     await expect(page).toHaveScreenshot('settings-main.png', SHOT);
   });

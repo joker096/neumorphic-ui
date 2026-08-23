@@ -88,17 +88,17 @@ export const CreateChannelModal = ({ theme = 'dark', onClose }: { theme?: 'dark'
 
       <div className="flex gap-3 mt-2">
           <div onClick={() => setIsPublic(true)} className={modalOptionClass(isPublic)}>
-            <Globe size={24} />
+            <Globe size={20} />
              <span className="text-sm font-bold">{t('createChannel.public')}</span>
           </div>
           <div onClick={() => setIsPublic(false)} className={modalOptionClass(!isPublic)}>
-             <Lock size={24} />
+             <Lock size={20} />
              <span className="text-sm font-bold">{t('createChannel.private')}</span>
           </div>
       </div>
 
       <button onClick={handleCreate} disabled={!name.trim()} className={modalPrimaryBtnClass}>
-          <Check size={20} /> {t('createChannel.create')}
+          <Check size={18} /> {t('createChannel.create')}
       </button>
     </AppModal>
   );

@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { Shield, Key, Lock, Unlock, Timer, ShieldCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Shield, Key, Lock, Unlock, Timer, ShieldCheck, Fingerprint, LockKeyhole } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from 'sonner';
 import { ConfirmModal } from './ConfirmModal';
 import { cryptoCore } from '../../lib/crypto/cryptoCore';
 import { useAppStore } from '../../store';
+import { isBiometricAvailable, registerBiometric } from '../../lib/biometric';
 
 interface SecuritySectionProps {
   isDark?: boolean;
@@ -18,13 +19,52 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
   const [pinValue, setPinValue] = useState('');
   const [pinMode, setPinMode] = useState<'set' | 'remove'>('set');
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
+  const [biometricSupported, setBiometricSupported] = useState(false);
+  const [biometricBusy, setBiometricBusy] = useState(false);
   const setAppLock = useAppStore(s => s.setAppLock);
   const appLockHashedPIN = useAppStore(s => s.appLockHashedPIN);
   const hasPin = appLockHashedPIN !== null;
+  const biometricEnabled = useAppStore(s => s.appLockBiometricEnabled);
+  const setAppLockBiometric = useAppStore(s => s.setAppLockBiometric);
+  const autoLockOnBackground = useAppStore(s => s.appLockAutoLockOnBackground);
+  const idleSeconds = useAppStore(s => s.appLockIdleSeconds);
+  const setAppLockAutoLock = useAppStore(s => s.setAppLockAutoLock);
+  const lockApp = useAppStore(s => s.lockApp);
+  const hasMethod = hasPin || biometricEnabled;
   const twoFactor = useAppStore(s => s.twoFactor);
   const setTwoFactor = useAppStore(s => s.setTwoFactor);
   const deadMansSwitch = useAppStore(s => s.deadMansSwitch);
   const setDeadMansSwitch = useAppStore(s => s.setDeadMansSwitch);
+
+  useEffect(() => {
+    let mounted = true;
+    isBiometricAvailable().then((ok) => { if (mounted) setBiometricSupported(ok); }).catch(() => {});
+    return () => { mounted = false; };
+  }, []);
+
+  const handleToggleBiometric = async () => {
+    if (biometricBusy) return;
+    if (!biometricSupported) {
+      toast.error(t('settings.biometricUnavailable'));
+      return;
+    }
+    if (!biometricEnabled) {
+      setBiometricBusy(true);
+      try {
+        const userName = useAppStore.getState().userProfile?.name || 'user';
+        const credentialId = await registerBiometric(userName);
+        setAppLockBiometric(true, credentialId);
+        toast.success(t('settings.biometricEnrolled'));
+      } catch {
+        toast.error(t('settings.biometricEnrollFailed'));
+      } finally {
+        setBiometricBusy(false);
+      }
+    } else {
+      setAppLockBiometric(false, null);
+      toast.success(t('settings.biometricDisabled'));
+    }
+  };
 
   const handlePinSet = async () => {
     if (pinValue.length < 4) {
@@ -139,6 +179,75 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
             </div>
           </div>
         )}
+
+        <SettingsRow
+          icon={<Fingerprint size={16} />}
+          iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
+          iconColor={isDark ? "text-cyan-400" : "text-cyan-600"}
+          title={t('settings.biometricUnlock')}
+          subtitle={biometricSupported
+            ? (biometricEnabled ? t('settings.biometricEnabled') : t('settings.biometricDisabledSetting'))
+            : t('settings.biometricUnavailable')}
+          isDark={isDark}
+          rightElement={
+            <ToggleSwitch
+              isOn={biometricEnabled}
+              onToggle={handleToggleBiometric}
+              isDark={isDark}
+               onIcon={<Fingerprint size={14} />}
+               offIcon={<Fingerprint size={14} />}
+             />
+          }
+        />
+
+        <SettingsRow
+          icon={<LockKeyhole size={16} />}
+          iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
+          iconColor={isDark ? "text-amber-400" : "text-amber-600"}
+          title={t('settings.lockNow')}
+          subtitle={t('settings.lockNowSubtitle')}
+          isDark={isDark}
+          onClick={() => {
+            if (!hasMethod) {
+              toast.error(t('settings.lockNowNeedsMethod'));
+              return;
+            }
+            lockApp();
+            toast.success(t('settings.appLockedNow'));
+          }}
+        />
+
+        <SettingsToggleRow
+          title={t('settings.autoLockBackground')}
+          subtitle={t('settings.autoLockBackgroundSubtitle')}
+          isOn={autoLockOnBackground}
+          onToggle={() => setAppLockAutoLock(!autoLockOnBackground, idleSeconds)}
+          isDark={isDark}
+        />
+
+        <SettingsRow
+          icon={<Timer size={16} />}
+          iconBg={isDark ? "bg-violet-500/10" : "bg-violet-100"}
+          iconColor={isDark ? "text-violet-400" : "text-violet-600"}
+          title={t('settings.idleLock')}
+          subtitle={t('settings.idleLockSubtitle')}
+          isDark={isDark}
+          rightElement={
+            <select
+              value={String(idleSeconds)}
+              onChange={(e) => setAppLockAutoLock(autoLockOnBackground, parseInt(e.target.value, 10))}
+              aria-label={t('settings.idleLock')}
+              className={`px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-white border-slate-200 text-slate-800"}`}
+            >
+              <option value="0">{t('settings.idleOff')}</option>
+              <option value="30">30s</option>
+              <option value="60">1m</option>
+              <option value="300">5m</option>
+              <option value="900">15m</option>
+              <option value="1800">30m</option>
+            </select>
+          }
+        />
       </SettingsGroup>
 
       <SettingsSectionTitle title={t('settings.twoFactor')} isDark={isDark} />

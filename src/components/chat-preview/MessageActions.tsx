@@ -18,7 +18,7 @@ export const MessageActions = ({ isMe, isDark = false, isSaved, onReply, onToggl
       {onReply && (
         <button
           onClick={onReply}
-          className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full transition-colors ${
+          className={`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full transition-colors ${
             isDark
               ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5"
               : "text-slate-500 hover:text-slate-800 hover:bg-black/5"
@@ -30,7 +30,7 @@ export const MessageActions = ({ isMe, isDark = false, isSaved, onReply, onToggl
       {onToggleSaved && (
         <button
           onClick={onToggleSaved}
-          className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full transition-colors flex items-center gap-1 ${
+          className={`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full transition-colors flex items-center gap-1 ${
             isDark
               ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5"
               : "text-slate-500 hover:text-slate-800 hover:bg-black/5"

@@ -9,18 +9,28 @@ import {
   Plus,
   Search,
 } from "lucide-react";
+import { useI18n } from "../../../lib/i18n";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
 
 type TabId = "tasks" | "automation" | "analytics" | "moderation" | "kb" | "payments";
 
-const TABS: { id: TabId; label: string; icon: typeof CheckSquare }[] = [
-  { id: "tasks", label: "Задачи", icon: CheckSquare },
-  { id: "automation", label: "Автоматизация", icon: Workflow },
-  { id: "analytics", label: "Аналитика", icon: BarChart3 },
-  { id: "moderation", label: "Модерация", icon: ShieldAlert },
-  { id: "kb", label: "База знаний", icon: BookOpen },
-  { id: "payments", label: "Платежи", icon: CreditCard },
+const TAB_LABEL: Record<TabId, string> = {
+  tasks: "workplace.tabTasks",
+  automation: "workplace.tabAutomation",
+  analytics: "workplace.tabAnalytics",
+  moderation: "workplace.tabModeration",
+  kb: "workplace.tabKb",
+  payments: "workplace.tabPayments",
+};
+
+const TABS: { id: TabId; icon: typeof CheckSquare }[] = [
+  { id: "tasks", icon: CheckSquare },
+  { id: "automation", icon: Workflow },
+  { id: "analytics", icon: BarChart3 },
+  { id: "moderation", icon: ShieldAlert },
+  { id: "kb", icon: BookOpen },
+  { id: "payments", icon: CreditCard },
 ];
 
 export interface WorkplaceViewProps {
@@ -29,23 +39,24 @@ export interface WorkplaceViewProps {
 }
 
 export function WorkplaceView({ isDark, channelId = "demo" }: WorkplaceViewProps) {
+  const { t } = useI18n();
   const [tab, setTab] = useState<TabId>("tasks");
 
   return (
     <div className={`flex-1 flex flex-col h-full min-h-0 ${isDark ? "text-gray-100" : "text-slate-800"}`}>
       <div className="flex items-center gap-2 p-3 border-b border-[var(--border-color)] overflow-x-auto">
-        {TABS.map((t) => {
-          const Icon = t.icon;
-          const active = tab === t.id;
+        {TABS.map((tabItem) => {
+          const Icon = tabItem.icon;
+          const active = tab === tabItem.id;
           return (
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
+              key={tabItem.id}
+              onClick={() => setTab(tabItem.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
                 active ? "bg-[var(--accent)] text-white" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-white border border-[var(--border-color)]"
               }`}
             >
-              <Icon size={16} /> {t.label}
+              <Icon size={16} /> {t(TAB_LABEL[tabItem.id])}
             </button>
           );
         })}
@@ -67,6 +78,7 @@ function Panel({ children }: { children: React.ReactNode }) {
 }
 
 function TasksTab({ isDark }: { isDark?: boolean }) {
+  const { t } = useI18n();
   const { tasks } = useServices();
   const state = useServiceData(() => tasks.listTasks(), []);
   const [title, setTitle] = useState("");
@@ -75,7 +87,7 @@ function TasksTab({ isDark }: { isDark?: boolean }) {
     return <NotConfiguredState isDark={isDark} feature="tasks" />;
   }
   if (state.status === "error") {
-    return <DataState status="error" isDark={isDark} title="Ошибка задач" description={state.error} />;
+    return <DataState status="error" isDark={isDark} title={t('workplace.tasksError')} description={state.error} />;
   }
 
   return (
@@ -92,17 +104,17 @@ function TasksTab({ isDark }: { isDark?: boolean }) {
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Новая задача…"
+          placeholder={t('workplace.newTask')}
           className="flex-1 px-3 py-2 rounded-xl border border-[var(--border-color)] bg-transparent"
         />
-        <button className="px-3 py-2 rounded-xl bg-[var(--accent)] text-white" aria-label="Добавить">
+        <button className="px-3 py-2 rounded-xl bg-[var(--accent)] text-white" aria-label={t('workplace.add')}>
           <Plus size={18} />
         </button>
       </form>
       {state.status === "loading" ? (
         <DataState status="loading" isDark={isDark} />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title="Нет задач" description="Создайте первую задачу." />
+        <DataState status="empty" isDark={isDark} title={t('workplace.noTasks')} description={t('workplace.createFirstTask')} />
       ) : (
         state.data.map((t) => (
           <label key={t.id} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-color)]">
@@ -117,18 +129,19 @@ function TasksTab({ isDark }: { isDark?: boolean }) {
 }
 
 function AutomationTab({ isDark }: { isDark?: boolean }) {
+  const { t } = useI18n();
   const { automation } = useServices();
   const state = useServiceData(() => automation.listRules(), []);
 
   if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="automation" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title="Ошибка автоматизации" description={state.error} />;
+  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.automationError')} description={state.error} />;
 
   return (
     <Panel>
       {state.status === "loading" ? (
         <DataState status="loading" isDark={isDark} />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title="Нет правил" description="Добавьте правила автоматизации." />
+        <DataState status="empty" isDark={isDark} title={t('workplace.noRules')} description={t('workplace.addRules')} />
       ) : (
         state.data.map((r) => (
           <div key={r.id} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-color)]">
@@ -136,7 +149,7 @@ function AutomationTab({ isDark }: { isDark?: boolean }) {
               <div className="font-semibold text-sm">{r.name}</div>
               <div className="text-xs opacity-60">{r.trigger} → {r.action}</div>
             </div>
-            <input type="checkbox" checked={r.enabled} onChange={() => automation.toggleRule(r.id, !r.enabled)} aria-label="Вкл" />
+            <input type="checkbox" checked={r.enabled} onChange={() => automation.toggleRule(r.id, !r.enabled)} aria-label={t('workplace.on')} />
           </div>
         ))
       )}
@@ -145,11 +158,12 @@ function AutomationTab({ isDark }: { isDark?: boolean }) {
 }
 
 function AnalyticsTab({ isDark, channelId }: { isDark?: boolean; channelId: string }) {
+  const { t } = useI18n();
   const { analytics } = useServices();
   const state = useServiceData(() => analytics.getChannelMetrics(channelId), [channelId]);
 
   if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="analytics" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title="Ошибка аналитики" description={state.error} />;
+  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.analyticsError')} description={state.error} />;
 
   const max = state.status === "loaded" ? Math.max(1, ...state.data.map((m) => m.value)) : 1;
   return (
@@ -157,7 +171,7 @@ function AnalyticsTab({ isDark, channelId }: { isDark?: boolean; channelId: stri
       {state.status === "loading" ? (
         <DataState status="loading" isDark={isDark} />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title="Нет данных" description="Метрики появятся после подключения аналитики." />
+        <DataState status="empty" isDark={isDark} title={t('workplace.noData')} description={t('workplace.metricsAppear')} />
       ) : (
         state.data.map((m) => (
           <div key={m.label} className="px-3 py-2 rounded-xl border border-[var(--border-color)]">
@@ -176,18 +190,19 @@ function AnalyticsTab({ isDark, channelId }: { isDark?: boolean; channelId: stri
 }
 
 function ModerationTab({ isDark }: { isDark?: boolean }) {
+  const { t } = useI18n();
   const { moderation } = useServices();
   const state = useServiceData(() => moderation.listQueue(), []);
 
   if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="moderation" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title="Ошибка модерации" description={state.error} />;
+  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.moderationError')} description={state.error} />;
 
   return (
     <Panel>
       {state.status === "loading" ? (
         <DataState status="loading" isDark={isDark} />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title="Очередь пуста" description="Жалобы и репорты будут здесь." />
+        <DataState status="empty" isDark={isDark} title={t('workplace.queueEmpty')} description={t('workplace.complaintsHere')} />
       ) : (
         state.data.map((item) => (
           <div key={item.id} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-color)]">
@@ -197,7 +212,7 @@ function ModerationTab({ isDark }: { isDark?: boolean }) {
               onClick={() => moderation.resolve(item.id)}
               className="px-3 py-1 rounded-lg bg-[var(--accent)] text-white text-xs"
             >
-              Решить
+              {t('workplace.resolve')}
             </button>
           </div>
         ))
@@ -207,12 +222,13 @@ function ModerationTab({ isDark }: { isDark?: boolean }) {
 }
 
 function KbTab({ isDark }: { isDark?: boolean }) {
+  const { t } = useI18n();
   const { kb } = useServices();
   const [q, setQ] = useState("");
   const state = useServiceData(() => (q.trim() ? kb.search(q) : Promise.resolve([])), [q]);
 
   if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="knowledge_base" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title="Ошибка БЗ" description={state.error} />;
+  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.kbError')} description={state.error} />;
 
   return (
     <Panel>
@@ -221,16 +237,16 @@ function KbTab({ isDark }: { isDark?: boolean }) {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Поиск по базе знаний…"
+          placeholder={t('workplace.searchKb')}
           className="flex-1 bg-transparent py-2 outline-none"
         />
       </div>
       {q.trim() === "" ? (
-        <DataState status="empty" isDark={isDark} title="Введите запрос" description="Поиск статей базы знаний." />
+        <DataState status="empty" isDark={isDark} title={t('workplace.enterQuery')} description={t('workplace.searchKbArticles')} />
       ) : state.status === "loading" ? (
         <DataState status="loading" isDark={isDark} />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title="Ничего не найдено" />
+        <DataState status="empty" isDark={isDark} title={t('workplace.nothingFound')} />
       ) : (
         state.data.map((a) => (
           <article key={a.id} className="px-3 py-2 rounded-xl border border-[var(--border-color)]">
@@ -250,6 +266,7 @@ export interface PaymentCardProps {
 }
 
 export function PaymentCard({ invoice, isDark, onPay }: PaymentCardProps) {
+  const { t } = useI18n();
   return (
     <div className={`p-4 rounded-2xl border border-[var(--border-color)] ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-white"}`}>
       <div className="flex items-center gap-2 mb-1">
@@ -262,13 +279,13 @@ export function PaymentCard({ invoice, isDark, onPay }: PaymentCardProps) {
           {invoice.amount} {invoice.currency}
         </span>
         {invoice.status === "paid" ? (
-          <span className="text-green-500 text-sm font-semibold">Оплачено</span>
+          <span className="text-green-500 text-sm font-semibold">{t('workplace.paid')}</span>
         ) : (
           <button
             onClick={() => onPay?.(invoice.id)}
             className="px-4 py-1.5 rounded-xl bg-[var(--accent)] text-white text-sm font-semibold"
           >
-            Оплатить
+            {t('workplace.pay')}
           </button>
         )}
       </div>
@@ -277,18 +294,19 @@ export function PaymentCard({ invoice, isDark, onPay }: PaymentCardProps) {
 }
 
 function PaymentsTab({ isDark }: { isDark?: boolean }) {
+  const { t } = useI18n();
   const { payments } = useServices();
   const state = useServiceData(() => payments.getInvoices(), []);
 
   if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="payments" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title="Ошибка платежей" description={state.error} />;
+  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.paymentsError')} description={state.error} />;
 
   return (
     <Panel>
       {state.status === "loading" ? (
         <DataState status="loading" isDark={isDark} />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title="Нет счетов" description="Счета и инвойсы появятся здесь и в чате." />
+        <DataState status="empty" isDark={isDark} title={t('workplace.noInvoices')} description={t('workplace.invoicesAppear')} />
       ) : (
         state.data.map((inv) => (
           <PaymentCard

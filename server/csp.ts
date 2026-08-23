@@ -30,7 +30,7 @@ export function buildCSP(options: CSPOptions = {}): string {
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
     "connect-src 'self' wss:",
-    "media-src 'self' blob:",
+    "media-src 'self' blob: data:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

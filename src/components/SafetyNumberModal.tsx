@@ -48,7 +48,7 @@ export const SafetyNumberModal = ({ open, contactId, contactName, myPeerId, them
         </span>
       </div>
       {myPeerId && (
-        <div className={`text-[10px] font-mono mb-4 p-2 rounded-lg ${isDark ? 'bg-white/5 text-gray-500' : 'bg-black/5 text-slate-400'}`}>
+        <div className={`text-xs font-mono mb-4 p-2 rounded-lg ${isDark ? 'bg-white/5 text-gray-500' : 'bg-black/5 text-slate-400'}`}>
           {t('contacts.yourId')} {myPeerId.slice(0, 16)}...
           <br />
           {t('contacts.theirId')} {contactId.slice(0, 16)}...

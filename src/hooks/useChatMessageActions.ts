@@ -7,13 +7,14 @@ interface UseChatMessageActionsArgs {
   chatId: string | number
   onForward?: (msg: any) => void
   onDelete?: (msg: any) => void
+  onUpdateChat?: (chat: any) => void
 }
 
 /**
  * Encapsulates message forward / delete / multi-select logic for the chat
  * preview layer. Extracted from ChatPreviewLayer to keep that component lean.
  */
-export function useChatMessageActions({ chatId, onForward, onDelete }: UseChatMessageActionsArgs) {
+export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateChat }: UseChatMessageActionsArgs) {
   const { t } = useI18n()
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set())
@@ -53,20 +54,25 @@ export function useChatMessageActions({ chatId, onForward, onDelete }: UseChatMe
   const handleDeleteMessage = useCallback(
     (msg: any) => {
       if (onDelete) {
-        onDelete(msg)
-        return
+        onDelete(msg);
+        return;
       }
       const chats = useAppStore.getState().chats as any[]
-      useAppStore.setState({
-        chats: chats.map((c) =>
-          c.id === chatId
-            ? { ...c, messages: (c.messages || []).filter((m: any) => m.id !== msg.id) }
-            : c,
-        ),
-      })
+      const nextChats = chats.map((c) =>
+        c.id === chatId
+          ? {
+              ...c,
+              history: (c.history || []).filter((m: any) => m.id !== msg.id),
+              messages: (c.messages || []).filter((m: any) => m.id !== msg.id),
+            }
+          : c,
+      )
+      useAppStore.setState({ chats: nextChats })
+      const updatedChat = nextChats.find((c) => c.id === chatId)
+      if (updatedChat && onUpdateChat) onUpdateChat(updatedChat)
       toast(t('chat.deleted', 'Deleted'))
     },
-    [chatId, onDelete, t],
+    [chatId, onDelete, t, onUpdateChat],
   )
 
   const handleEnterSelection = useCallback((msg: any) => {
@@ -134,17 +140,22 @@ export function useChatMessageActions({ chatId, onForward, onDelete }: UseChatMe
   const handleDeleteSelected = useCallback(
     (messages: any[]) => {
       const chats = useAppStore.getState().chats as any[]
-      useAppStore.setState({
-        chats: chats.map((c) =>
-          c.id === chatId
-            ? { ...c, messages: (c.messages || []).filter((m: any) => !selectedIds.has(m.id)) }
-            : c,
-        ),
-      })
+      const nextChats = chats.map((c) =>
+        c.id === chatId
+          ? {
+              ...c,
+              history: (c.history || []).filter((m: any) => !selectedIds.has(m.id)),
+              messages: (c.messages || []).filter((m: any) => !selectedIds.has(m.id)),
+            }
+          : c,
+      )
+      useAppStore.setState({ chats: nextChats })
+      const updatedChat = nextChats.find((c) => c.id === chatId)
+      if (updatedChat && onUpdateChat) onUpdateChat(updatedChat)
       toast(t('chat.deleted', 'Deleted'))
       handleCancelSelection()
     },
-    [chatId, selectedIds, t, handleCancelSelection],
+    [chatId, selectedIds, t, handleCancelSelection, onUpdateChat],
   )
 
   return {

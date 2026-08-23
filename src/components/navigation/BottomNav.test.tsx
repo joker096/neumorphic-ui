@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BottomNav } from './BottomNav';
+import { useAppStore } from '../../store';
 
 const defaultProps = {
   activeView: 'chats',
@@ -10,6 +11,20 @@ const defaultProps = {
 };
 
 describe('BottomNav', () => {
+  beforeEach(() => {
+    useAppStore.setState({
+      userProfile: {
+        id: 'u1',
+        name: 'User',
+        bio: '',
+        avatar: '',
+        fields: [],
+        status: ''
+      },
+      companyMembers: [{ userId: 'u1', displayName: 'User', role: 'admin', publicKey: 'k', joinedAt: 0, lastActive: 0, online: false }],
+    });
+  });
+
   it('renders all nav items with accessible labels', () => {
     render(<BottomNav {...defaultProps} />);
     expect(screen.getByLabelText('nav.chats')).toBeInTheDocument();
@@ -55,5 +70,27 @@ describe('BottomNav', () => {
   it('shows badge when unreadCount > 0 for chats', () => {
     render(<BottomNav {...defaultProps} unreadCount={3} />);
     expect(screen.getByText('3')).toBeInTheDocument();
+  });
+
+  it('renders profile button with the current user name', () => {
+    useAppStore.setState({
+      userProfile: {
+        id: 'u1',
+        name: 'Ada Lovelace',
+        bio: '',
+        avatar: '',
+        fields: [],
+        status: ''
+      }
+    });
+    render(<BottomNav {...defaultProps} />);
+    expect(screen.getByLabelText('Ada Lovelace')).toBeInTheDocument();
+  });
+
+  it('navigates to settings when profile is clicked', () => {
+    const onNavigate = vi.fn();
+    render(<BottomNav {...defaultProps} onNavigate={onNavigate} />);
+    fireEvent.click(screen.getByLabelText('User'));
+    expect(onNavigate).toHaveBeenCalledWith('settings');
   });
 });

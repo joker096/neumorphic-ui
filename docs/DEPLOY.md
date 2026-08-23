@@ -3,8 +3,31 @@
 ## Одна команда — всё сразу
 
 ```powershell
-npm run deploy
+Option A — provide creds inline:
+
+npm run deploy -- -AdminUser myadmin -AdminPass yourpass
+
+Option B — env vars:
+
+$env:ADMIN_USER='myadmin'; $env:ADMIN_PASS='yourpass'; npm run deploy
+
+Option C — skip admin creation:
+
+npm run deploy -- -SkipAdminCreate
+
+pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipAdminCreate
 ```
+Script requires admin credentials. Two options:
+
+Option 1 — set env vars:
+$env:ADMIN_USER = "admin"
+$env:ADMIN_PASS = "fuckoff190"
+npm run deploy
+
+Option 2 — skip admin creation (if admin already exists):
+npm run deploy -- -SkipAdminCreate
+Also useful flags: -SkipAndroid -SkipTests for quick web-only deploy.
+
 
 Запускает полный пайплайн и деплоит на сервер:
 
@@ -34,7 +57,7 @@ npm run deploy:server
 ## Создание администратора вручную
 
 ```powershell
-npm run admin:create admin fuckoff190
+npm run admin:create myadmin "ChangeMe_Strong123!"
 ```
 
 ## Запуск сервера локально
@@ -48,7 +71,7 @@ JWT_SECRET=your-secret npx tsx server/signaling-server.ts
 ```bash
 curl -X POST http://localhost:8766/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"fuckoff190"}'
+  -d '{"username":"myadmin","password":"ChangeMe_Strong123!"}'
 ```
 
 ## Что и куда деплоится

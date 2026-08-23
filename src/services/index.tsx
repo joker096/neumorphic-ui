@@ -12,6 +12,7 @@ import {
   type TasksService,
   type TranslateService,
 } from "./types";
+import { useI18n } from "../lib/i18n";
 import { DataState } from "../components/ui/DataState";
 
 function notConfigured(service: string): Promise<never> {
@@ -125,14 +126,15 @@ export function NotConfiguredState({
   feature: string;
   hint?: string;
 }) {
+  const { t } = useI18n();
   return (
     <DataState
       status="empty"
       isDark={isDark}
-      title="Интеграция не подключена"
+      title={t('integrations.notConnected')}
       description={
         hint ??
-        `Сервис «${feature}» требует бэкенд-адаптера. Подключите его через configureServices() в точке входа приложения.`
+        t('integrations.notConnectedDesc', { feature })
       }
     />
   );

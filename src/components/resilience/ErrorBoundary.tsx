@@ -1,6 +1,7 @@
 import { Component, Suspense } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import { detectBrowserLanguage } from "../../lib/i18n";
+import { forceFreshReload, isChunkLoadError } from "../../lib/chunk-reload";
 import { getErrorBoundaryString } from "../../constants/errorBoundaryStrings";
 
 type Translate = (key: string, options?: any) => string;
@@ -56,6 +57,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
     }
 
+    // Stale chunk after a deploy: reload once with a cache-busted URL.
+    if (isChunkLoadError(error)) {
+      if (forceFreshReload(false)) {
+        console.warn("[ErrorBoundary] Chunk load error — forcing fresh reload");
+      } else {
+        console.warn("[ErrorBoundary] Chunk load error — auto-reload already attempted recently");
+      }
+      return;
+    }
+
     // Auto-reset if not too many errors
     if (newCount >= MAX_ERROR_COUNT) {
       console.warn("[ErrorBoundary] Max error count reached. Manual intervention may be needed.");
@@ -89,10 +100,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         t || ((key: string) => getErrorBoundaryString(lang, key as never));
 
       const errorMessage = this.state.error?.message || String(this.state.error);
-      const isChunkLoadError =
-        /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|chunk load/i.test(
-          errorMessage,
-        );
+      const chunkError = isChunkLoadError(this.state.error);
 
       if (typeof this.props.fallback === "function") {
         return (this.props.fallback as (error: Error) => ReactNode)(this.state.error!);
@@ -108,24 +116,24 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <div className="max-w-[500px] w-full rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
             <h1 className="text-xl font-bold mb-2">{fallbackT("error.somethingWentWrong")}</h1>
             <p className="text-sm opacity-80 mb-3">
-              {isChunkLoadError
+              {chunkError
                 ? fallbackT("error.chunkLoadHint")
                 : fallbackT("error.appStillRunning")}
             </p>
-            <pre className="mt-3 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed bg-black/25 rounded-lg p-3 border border-[var(--border-color)] text-red-300 select-text">
+            <pre className="mt-3 whitespace-pre-wrap break-words font-mono text-xs leading-relaxed bg-black/25 rounded-lg p-3 border border-[var(--border-color)] text-red-300 select-text">
               {errorMessage}
             </pre>
             <details className="mt-3 text-xs opacity-60">
               <summary className="cursor-pointer select-none">{fallbackT("error.errorDetails")}</summary>
-              <pre className="mt-2 whitespace-pre-wrap font-mono text-[10px] bg-black/20 rounded-lg p-2 border border-[var(--border-color)]">
+              <pre className="mt-2 whitespace-pre-wrap font-mono text-xs bg-black/20 rounded-lg p-2 border border-[var(--border-color)]">
                 {this.state.error?.stack}
               </pre>
             </details>
             <button
-              onClick={isChunkLoadError ? () => window.location.reload() : this.handleRetry}
+              onClick={chunkError ? () => forceFreshReload(true) : this.handleRetry}
               className="mt-4 px-4 py-2 bg-[var(--accent)]/20 border border-[var(--accent)]/40 rounded-lg text-sm hover:bg-[var(--accent)]/30 transition-colors"
             >
-              {isChunkLoadError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}
+              {chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}
             </button>
           </div>
         </div>

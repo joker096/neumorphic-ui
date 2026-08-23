@@ -85,13 +85,13 @@ export const ProfileEditForm = ({
             </button>
           )}
         </div>
-        <p className="text-[10px] text-[var(--text-tertiary)] text-center">
+        <p className="text-xs text-[var(--text-tertiary)] text-center">
           {t('settings.profilePhotoSubtitle', 'Tap to upload or change your photo')}
         </p>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-[11px] font-semibold text-[var(--text-secondary)]">{t('settings.displayName', 'Display Name')}</label>
+        <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.displayName', 'Display Name')}</label>
         <input
           type="text"
           value={editName}
@@ -102,7 +102,7 @@ export const ProfileEditForm = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-[11px] font-semibold text-[var(--text-secondary)]">{t('settings.status', 'Status')}</label>
+        <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.status', 'Status')}</label>
         <input
           type="text"
           value={editStatus}
@@ -110,13 +110,13 @@ export const ProfileEditForm = ({
           placeholder={t('settings.statusPlaceholder', "What's on your mind?")}
           className="w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors"
         />
-        <p className="text-[10px] text-[var(--text-tertiary)]">
+        <p className="text-xs text-[var(--text-tertiary)]">
           {t('settings.statusSubtitle', "Let others know what you're up to")}
         </p>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-[11px] font-semibold text-[var(--text-secondary)]">{t('settings.bio', 'Bio')}</label>
+        <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.bio', 'Bio')}</label>
         <textarea
           value={editBio}
           onChange={(e) => setEditBio(e.target.value)}
@@ -128,7 +128,7 @@ export const ProfileEditForm = ({
 
       {!editAvatar && (
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-semibold text-[var(--text-secondary)]">{t('settings.avatarColor', 'Avatar Color')}</label>
+          <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.avatarColor', 'Avatar Color')}</label>
           <div className="flex gap-2 flex-wrap">
             {AVATAR_COLORS.map((color) => (
               <button

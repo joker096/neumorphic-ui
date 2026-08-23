@@ -352,7 +352,7 @@ server {
     server_tokens off;
 
     # ── Security headers ─────────────────────────────────────────────
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss:; img-src 'self' https: data:; font-src 'self' data:; frame-ancestors 'none'; form-action 'self'; base-uri 'self';" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss:; img-src 'self' https: data:; font-src 'self' data:; media-src 'self' blob: data: https:; frame-ancestors 'none'; form-action 'self'; base-uri 'self';" always;
     add_header X-Frame-Options DENY always;
     add_header X-Content-Type-Options nosniff always;
     add_header Referrer-Policy strict-origin-when-cross-origin always;

@@ -1,4 +1,5 @@
 import { recordingStorage } from './recordingStorage';
+import { useAppStore } from '../store';
 
 export interface CallRecording {
   id: string;
@@ -106,8 +107,24 @@ class CallRecorderService {
     const isVideo = this.mediaRecorder?.mimeType.startsWith('video/') ?? false;
     const blob = new Blob(this.chunks, { type: isVideo ? 'video/webm' : 'audio/webm' });
 
+    const { saveAudioRecordings, saveVideoRecordings } = useAppStore.getState();
+    const keep = isVideo ? saveVideoRecordings : saveAudioRecordings;
+    if (!keep) {
+      this.discardRecording();
+      return;
+    }
+
     try {
-      await recordingStorage.saveBlob(id, blob);
+      await recordingStorage.saveRecording(
+        {
+          id,
+          callType: isVideo ? 'video' : 'audio',
+          createdAt: Date.now(),
+          fileSize: blob.size,
+          blobId: id,
+        },
+        blob,
+      );
     } catch (err) {
       console.error('call-recorder: Failed to save blob:', err);
     }

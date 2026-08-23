@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { ChevronLeft } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { RecoveryManager } from "../../lib/recovery/RecoveryManager";
 import { cryptoCore, buf2hex } from "../../lib/crypto/cryptoCore";
@@ -10,9 +11,10 @@ type Step = "enter-phrase" | "restoring" | "set-pin" | "complete";
 
 interface LoginScreenProps {
   onComplete: () => void;
+  onBack?: () => void;
 }
 
-export function LoginScreen({ onComplete }: LoginScreenProps) {
+export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
   const { t } = useI18n();
   const setAppLock = useAppStore(s => s.setAppLock);
   const [step, setStep] = useState<Step>("enter-phrase");
@@ -106,7 +108,17 @@ export function LoginScreen({ onComplete }: LoginScreenProps) {
   const isLocked = lockBlockedUntil > Date.now();
 
   return (
-    <div className="w-full h-[100dvh] flex flex-col items-center justify-center font-sans bg-[var(--bg-primary)] text-[var(--text-primary)] p-4">
+    <div className="relative w-full h-[100dvh] flex flex-col items-center justify-center font-sans bg-[var(--bg-primary)] text-[var(--text-primary)] p-4">
+      {onBack && step !== "restoring" && (
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label={t("common.back", "Back")}
+          className="absolute top-4 left-4 w-11 h-11 rounded-full flex items-center justify-center bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+      )}
       <div className="w-full max-w-md mx-auto">
         {step === "enter-phrase" && (
           <div className="flex flex-col">
@@ -166,6 +178,7 @@ export function LoginScreen({ onComplete }: LoginScreenProps) {
                   <input
                     type="password"
                     inputMode="numeric"
+                    autoComplete="off"
                     maxLength={6}
                     value={pin}
                     onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
@@ -176,6 +189,7 @@ export function LoginScreen({ onComplete }: LoginScreenProps) {
                   <input
                     type="password"
                     inputMode="numeric"
+                    autoComplete="off"
                     maxLength={6}
                     value={pinConfirm}
                     onChange={(e) => setPinConfirm(e.target.value.replace(/\D/g, ''))}

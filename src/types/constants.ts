@@ -68,7 +68,7 @@ export interface OnlineContact {
 export interface CompanyMember {
   userId: string;
   displayName: string;
-  role: 'admin' | 'member';
+  role: 'admin' | 'manager' | 'member';
   publicKey: string;
   joinedAt: number;
   lastActive: number;
@@ -97,4 +97,24 @@ export interface CompanyMessage {
   status: 'sent' | 'delivered' | 'read';
   reactions?: Record<string, string[]>;
   replyTo?: { id: string; senderName: string; text: string };
+}
+
+export interface CompanyDepartment {
+  id: string;
+  name: string;
+  description?: string;
+  color?: string;
+  memberIds: string[];
+  createdAt: number;
+}
+
+export interface CompanyContact {
+  id: string;
+  name: string;
+  title?: string;
+  phone?: string;
+  email?: string;
+  departmentId?: string | null;
+  notes?: string;
+  createdAt: number;
 }

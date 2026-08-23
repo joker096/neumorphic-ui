@@ -2,9 +2,10 @@ import { STORY_GRADIENTS, STORY_DEFAULT_GRADIENT } from '../../constants/storyCo
 
 export interface StoryItem {
   id: number;
-  type: 'gradient' | 'photo';
+  type: 'gradient' | 'photo' | 'video';
   bg?: string;
   image?: string;
+  video?: string;
   caption?: string;
   time: number;
   views: number;
@@ -89,6 +90,53 @@ export const MY_STORY_USER: StoryUser = {
   ],
 };
 
+const STORAGE_KEY = 'nm_stories_v1';
+
+function isPersistable(story: StoryItem): boolean {
+  if (story.image && story.image.startsWith('blob:')) return false;
+  if (story.video && story.video.startsWith('blob:')) return false;
+  return true;
+}
+
+function loadMyStories(): StoryItem[] | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    return parsed
+      .filter((s): s is StoryItem => typeof s === 'object' && s !== null && 'id' in s)
+      .filter(isPersistable)
+      .map((s) => ({ ...s, image: undefined, video: undefined }));
+  } catch {
+    return null;
+  }
+}
+
+function saveMyStories() {
+  if (typeof window === 'undefined') return;
+  try {
+    const serializable = MY_STORY_USER.stories.filter(isPersistable).map((s) => ({
+      ...s,
+      image: undefined,
+      video: undefined,
+    }));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(serializable));
+  } catch {
+    /* ignore quota / serialization errors */
+  }
+}
+
+const hydrated = loadMyStories();
+if (hydrated && hydrated.length > 0) {
+  MY_STORY_USER.stories = hydrated;
+}
+
+/**
+ * Resolve a story owner by id. `0` / `'me'` returns the local `MY_STORY_USER`;
+ * unknown ids fall back to a synthetic single-gradient user.
+ */
 export function findStoryUser(id: number | string): StoryUser {
   if (id === 0 || id === 'me') return MY_STORY_USER;
   return STORY_USERS.find((u) => u.id === Number(id)) ?? {
@@ -101,11 +149,26 @@ export function findStoryUser(id: number | string): StoryUser {
 }
 
 let myStorySeq = 1000;
-export function publishMyStory(bg: string, caption: string, audience: string, expiration?: string) {
+/**
+ * Publish a story to the local `MY_STORY_USER`.
+ * `type` is derived from the provided media (`video` > `photo` > `gradient`).
+ * Persists the (media-stripped) story to localStorage via {@link saveMyStories}.
+ */
+export function publishMyStory(
+  bg: string,
+  caption: string,
+  audience: string,
+  expiration?: string,
+  image?: string,
+  video?: string,
+) {
+  const type: StoryItem['type'] = video ? 'video' : image ? 'photo' : 'gradient';
   MY_STORY_USER.stories.unshift({
     id: myStorySeq++,
-    type: 'gradient',
+    type,
     bg,
+    image,
+    video,
     caption,
     time: Date.now(),
     views: 0,
@@ -113,7 +176,45 @@ export function publishMyStory(bg: string, caption: string, audience: string, ex
     audience,
     expiration,
   });
+  saveMyStories();
   return MY_STORY_USER;
+}
+
+/**
+ * Remove a story owned by `MY_STORY_USER` by id and persist the change.
+ * No-op when the id is not found.
+ */
+export function deleteMyStory(storyId: number) {
+  const idx = MY_STORY_USER.stories.findIndex((s) => s.id === storyId);
+  if (idx >= 0) {
+    MY_STORY_USER.stories.splice(idx, 1);
+    saveMyStories();
+  }
+}
+
+const EXPIRATION_MS: Record<string, number> = {
+  '6h': 6 * 60 * 60_000,
+  '12h': 12 * 60 * 60_000,
+  '24h': 24 * 60 * 60_000,
+  '48h': 48 * 60 * 60_000,
+};
+
+/** Convert an expiration key (`'6h'`…`'48h'`) to milliseconds, or `null` if unset/unknown. */
+export function getExpirationMs(expiration?: string): number | null {
+  if (!expiration) return null;
+  return EXPIRATION_MS[expiration] ?? null;
+}
+
+/** True when a story has exceeded its expiration window (stories without expiration never expire). */
+export function isStoryExpired(story: StoryItem, now: number = Date.now()): boolean {
+  const ms = getExpirationMs(story.expiration);
+  if (ms === null) return false;
+  return now - story.time >= ms;
+}
+
+/** Return only the non-expired stories for a user (drives tray + viewer lists). */
+export function getVisibleStories(user: StoryUser): StoryItem[] {
+  return user.stories.filter((s) => !isStoryExpired(s));
 }
 
 export { STORY_DEFAULT_GRADIENT };

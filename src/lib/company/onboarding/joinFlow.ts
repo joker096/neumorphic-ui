@@ -3,6 +3,19 @@ import { generateEd25519KeyPair, ed25519_sign, ed25519_verify } from '../../../l
 import { generateX25519KeyPair, x25519DH, buf2hex, b64encode, b64decode } from '../../../lib/crypto/cryptoCore'
 import * as idb from 'idb-keyval'
 
+// Ephemeral join keys held in memory only (never persisted to sessionStorage,
+// which is readable by any injected script). Survives the request→ack round
+// trip within a page session; a reload simply forces a fresh join attempt.
+interface PendingJoinKeys {
+  x25519Public: Uint8Array
+  x25519Secret: Uint8Array
+  ed25519Public: Uint8Array
+  ed25519Secret: Uint8Array
+  companyId: string
+  displayName: string
+}
+let pendingJoinKeys: PendingJoinKeys | null = null
+
 export async function initializeJoinFlow(
   invitePayload: InviteQRPayload,
   displayName: string
@@ -23,24 +36,23 @@ export async function initializeJoinFlow(
     displayName,
   }
 
-  sessionStorage.setItem('join_flow_keys', JSON.stringify({
-    x25519Public: buf2hex(x25519KeyPair.publicKey),
-    x25519Secret: buf2hex(x25519KeyPair.secretKey),
-    ed25519Public: buf2hex(ed25519KeyPair.publicKey),
-    ed25519Secret: buf2hex(ed25519KeyPair.secretKey),
+  pendingJoinKeys = {
+    x25519Public: x25519KeyPair.publicKey,
+    x25519Secret: x25519KeyPair.secretKey,
+    ed25519Public: ed25519KeyPair.publicKey,
+    ed25519Secret: ed25519KeyPair.secretKey,
     companyId: invitePayload.org,
     displayName,
-  }))
+  }
 
   return joinRequest
 }
 
 export async function handleJoinAck(ack: JoinAck): Promise<{ user: CompanyUser; groupKey: CryptoKey } | null> {
-  const keysStr = sessionStorage.getItem('join_flow_keys')
-  if (!keysStr) return null
+  const keys = pendingJoinKeys
+  if (!keys) return null
 
-  const keys = JSON.parse(keysStr)
-  const myPrivKey = b64decode(keys.x25519Secret)
+  const myPrivKey = keys.x25519Secret
 
   const wrappedByPub = b64decode(ack.wrappedBy)
   const sharedSecret = x25519DH(myPrivKey, wrappedByPub)
@@ -74,19 +86,19 @@ export async function handleJoinAck(ack: JoinAck): Promise<{ user: CompanyUser; 
     userId: generateUserId(),
     companyId: keys.companyId,
     displayName: keys.displayName,
-    publicKey: b64decode(keys.x25519Public),
-    signatureKey: b64decode(keys.ed25519Public),
+    publicKey: keys.x25519Public,
+    signatureKey: keys.ed25519Public,
     devices: [],
     joinedAt: Date.now(),
     role: 'member',
   }
 
   await saveUserKeys(user.userId, {
-    x25519Secret: b64decode(keys.x25519Secret),
-    ed25519Secret: b64decode(keys.ed25519Secret),
+    x25519Secret: keys.x25519Secret,
+    ed25519Secret: keys.ed25519Secret,
   })
 
-  sessionStorage.removeItem('join_flow_keys')
+  pendingJoinKeys = null
 
   return { user, groupKey }
 }

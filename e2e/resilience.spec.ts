@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ensureAppReady } from './test-utils';
+import { ensureAppReady, gotoSettings } from './test-utils';
 
 test.describe('Mess&Anger E2E - Error and Resilience', () => {
   test('app handles offline state gracefully', async ({ page }) => {
@@ -55,8 +55,7 @@ test.describe('Mess&Anger E2E - Error and Resilience', () => {
   });
 
   test('settings page is accessible after error recovery', async ({ page }) => {
-    await ensureAppReady(page);
-    await page.getByRole('button', { name: /settings/i }).click();
+    await gotoSettings(page);
     await expect(page.getByText(/security|privacy|network|storage/i).first()).toBeVisible();
   });
 });

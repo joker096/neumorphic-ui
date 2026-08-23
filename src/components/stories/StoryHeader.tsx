@@ -25,10 +25,10 @@ export const StoryHeader: React.FC<StoryHeaderProps> = ({ user, timeLabel, onClo
           <span className="truncate">{user.name}</span>
           {user.verified && <span className="text-[var(--accent)]" aria-label={t('story.verified', 'Verified')}>✓</span>}
         </div>
-        <div className="text-white/60 text-[11px] truncate">{timeLabel}</div>
+        <div className="text-white/60 text-xs truncate">{timeLabel}</div>
       </div>
       {user.isMe && (
-        <div className="flex items-center gap-1 text-white/60 text-[11px] bg-white/10 px-2 py-1 rounded-full shrink-0">
+        <div className="flex items-center gap-1 text-white/60 text-xs bg-white/10 px-2 py-1 rounded-full shrink-0">
           <Lock size={11} aria-hidden="true" /> {t('story.private', 'Private')}
         </div>
       )}

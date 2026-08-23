@@ -113,7 +113,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
                 it.onClick();
                 onClose();
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[15px] font-medium text-left transition-colors min-h-[48px] cursor-pointer ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left transition-colors min-h-[48px] cursor-pointer ${
                 it.disabled
                   ? "opacity-40 cursor-not-allowed"
                   : it.danger
@@ -121,7 +121,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
                   : "text-[var(--text-primary)] hover:bg-white/[0.05]"
               }`}
             >
-              <Icon size={18} className="shrink-0" />
+              <Icon size={16} className="shrink-0" />
               <span className="truncate">{it.label}</span>
             </button>
           );

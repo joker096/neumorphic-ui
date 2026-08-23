@@ -22,7 +22,7 @@ export function ChatListBots({ bots, onOpenBot, isDark, t }: ChatListBotsProps) 
 
   return (
     <>
-      <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--cyan)]" : "text-[var(--accent)]"}`}>
+      <div className={`text-xs sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--cyan)]" : "text-[var(--accent)]"}`}>
         {t("chat.sectionBots")}
       </div>
       {bots.map(b => (

@@ -16,39 +16,45 @@ describe('Avatar', () => {
 
   it('applies size class prop', () => {
     const { container } = render(<Avatar name="Test" size="lg" />);
-    const inner = container.querySelector('.rounded-xl');
+    const inner = container.querySelector('.bg-gradient-to-br');
     expect(inner?.className).toContain('w-12');
     expect(inner?.className).toContain('h-12');
   });
 
   it('applies sm size correctly', () => {
     const { container } = render(<Avatar name="Test" size="sm" />);
-    const inner = container.querySelector('.rounded-xl');
+    const inner = container.querySelector('.bg-gradient-to-br');
     expect(inner?.className).toContain('w-8');
     expect(inner?.className).toContain('h-8');
   });
 
+  it('renders circular avatar', () => {
+    const { container } = render(<Avatar name="Test" />);
+    const inner = container.querySelector('.bg-gradient-to-br');
+    expect(inner?.className).toContain('rounded-full');
+  });
+
   it('shows online status dot when online=true', () => {
     const { container } = render(<Avatar name="Test" online />);
-    const dot = container.querySelector('.rounded-full');
+    const dot = container.querySelector('[class*="bg-green-400"]');
     expect(dot?.className).toContain('bg-green-400');
   });
 
   it('shows offline status dot when online=false', () => {
     const { container } = render(<Avatar name="Test" online={false} />);
-    const dot = container.querySelector('.rounded-full');
+    const dot = container.querySelector('[class*="bg-[var(--text-tertiary)]"]');
     expect(dot?.className).toContain('bg-[var(--text-tertiary)]');
   });
 
   it('does not render status dot when online prop is not provided', () => {
     const { container } = render(<Avatar name="Test" />);
-    const dots = container.querySelectorAll('.rounded-full');
+    const dots = container.querySelectorAll('[class*="border-2"]');
     expect(dots.length).toBe(0);
   });
 
   it('applies custom color gradient', () => {
     const { container } = render(<Avatar name="Test" color="from-purple-500 to-pink-500" />);
-    const inner = container.querySelector('.rounded-xl');
+    const inner = container.querySelector('.bg-gradient-to-br');
     expect(inner?.className).toContain('from-purple-500');
     expect(inner?.className).toContain('to-pink-500');
   });

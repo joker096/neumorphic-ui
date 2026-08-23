@@ -2,11 +2,13 @@ import { WebSocketServer, WebSocket } from 'ws'
 import { createServer, RequestListener } from 'node:http'
 import { readFileSync, existsSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import jwt from 'jsonwebtoken'
 import { logConnection, logDisconnection, closeDb } from './db.js'
 import { handleAuthRoute } from './routes/auth.js'
 import { handleStatsRoute } from './routes/stats.js'
 import { handleAdsRoute } from './routes/ads.js'
+import { handlePaymentoRoute } from './routes/paymento.js'
 import { applyCSP } from './csp.js'
 
 const PORT = parseInt(process.env.PORT || '8765', 10)
@@ -18,6 +20,13 @@ if (!JWT_SECRET) {
 }
 
 const clients = new Map<string, WebSocket>()
+
+// Topic/room registry for group broadcast (company roster, presence, notifications).
+// A "room" is a topic string (e.g. `company:<id>`); members are subscribed WebSocket
+// connections. This is the only server-side state needed for serverless group sync —
+// no database, no per-company storage.
+const rooms = new Map<string, Set<WebSocket>>()
+const wsTopics = new Map<WebSocket, Set<string>>()
 
 // Rate limit per IP: track connection attempts
 const connectionAttempts = new Map<string, { count: number; resetAt: number }>()
@@ -71,15 +80,25 @@ function isOriginAllowed(origin: string): boolean {
 
 // WebSocket handshake origin check (CSWSH defense-in-depth).
 // Browsers cannot set custom WS headers, so auth rides the query string;
-// validating Origin prevents cross-site WebSocket hijacking when an
-// allowlist is configured. When ALLOWED_ORIGINS is unset the server stays
-// permissive (dev/self-host); requests without an Origin header (native
-// mobile clients, test harness) are always permitted.
+// validating Origin prevents cross-site WebSocket hijacking. Requests
+// without an Origin header (native mobile clients, test harness) are always
+// permitted. When ALLOWED_ORIGINS is configured it is the authoritative
+// allowlist. When it is unset we permit only same-origin connections
+// (Origin host === request Host) so self-host keeps working while any
+// cross-site browser origin is rejected.
 function isWsOriginAllowed(req: any): boolean {
-  if (ALLOWED_ORIGINS.length === 0) return true
   const origin = (req.headers && (req.headers['origin'] || req.headers['Origin'])) || ''
   if (!origin) return true
-  return isOriginAllowed(origin.toString())
+  if (ALLOWED_ORIGINS.length > 0) return isOriginAllowed(origin.toString())
+  const host = (req.headers && (req.headers['host'] || req.headers['Host'])) || ''
+  try {
+    const originHost = new URL(origin).host
+    if (originHost && host && originHost === host) return true
+  } catch {
+    /* fall through to deny */
+  }
+  console.warn('[CORS] Rejecting WebSocket from origin "%s": cross-site and ALLOWED_ORIGINS is not set.', origin)
+  return false
 }
 
 const server = createServer()
@@ -223,6 +242,70 @@ wss.on('connection', (ws, req) => {
         break
       }
 
+      // --- Group topic pub/sub (serverless company roster / presence / notifications) ---
+      case 'subscribe': {
+        if (!registeredKey) {
+          send({ type: 'error', message: 'Not registered' })
+          return
+        }
+        const topic = msg.topic
+        if (typeof topic !== 'string' || !topic) {
+          send({ type: 'error', message: 'Invalid topic' })
+          return
+        }
+        if (!rooms.has(topic)) rooms.set(topic, new Set())
+        rooms.get(topic)!.add(ws)
+        if (!wsTopics.has(ws)) wsTopics.set(ws, new Set())
+        wsTopics.get(ws)!.add(topic)
+        send({ type: 'subscribed', topic })
+        break
+      }
+
+      case 'unsubscribe': {
+        const topic = msg.topic
+        if (typeof topic === 'string' && rooms.has(topic)) {
+          rooms.get(topic)!.delete(ws)
+          if (rooms.get(topic)!.size === 0) rooms.delete(topic)
+        }
+        if (wsTopics.has(ws)) wsTopics.get(ws)!.delete(topic)
+        send({ type: 'unsubscribed', topic })
+        break
+      }
+
+      case 'publish':
+      case 'presence':
+      case 'notify': {
+        if (!registeredKey) {
+          send({ type: 'error', message: 'Not registered' })
+          return
+        }
+        const topic = msg.topic
+        if (typeof topic !== 'string' || !topic) {
+          send({ type: 'error', message: 'Invalid topic' })
+          return
+        }
+        const subscribers = rooms.get(topic)
+        if (!subscribers) {
+          send({ type: 'published', topic, delivered: 0 })
+          return
+        }
+        let delivered = 0
+        const envelope = JSON.stringify({
+          type: msg.type,
+          topic,
+          from: registeredKey,
+          data: msg.data,
+        })
+        for (const peer of subscribers) {
+          if (peer !== ws && peer.readyState === WebSocket.OPEN) {
+            peer.send(envelope)
+            delivered++
+          }
+        }
+        send({ type: 'published', topic, delivered })
+        break
+      }
+
       default:
         send({ type: 'error', message: `Unknown message type: ${msg.type}` })
     }
@@ -235,6 +318,14 @@ wss.on('connection', (ws, req) => {
         clients.delete(registeredKey)
       }
     }
+    const topics = wsTopics.get(ws)
+    if (topics) {
+      for (const topic of topics) {
+        rooms.get(topic)?.delete(ws)
+        if (rooms.get(topic)?.size === 0) rooms.delete(topic)
+      }
+      wsTopics.delete(ws)
+    }
   })
 
   ws.on('error', () => {
@@ -244,11 +335,20 @@ wss.on('connection', (ws, req) => {
         clients.delete(registeredKey)
       }
     }
+    const topics = wsTopics.get(ws)
+    if (topics) {
+      for (const topic of topics) {
+        rooms.get(topic)?.delete(ws)
+        if (rooms.get(topic)?.size === 0) rooms.delete(topic)
+      }
+      wsTopics.delete(ws)
+    }
   })
 })
 
 // --- REST API Server (port 8766) ---
-const ADMIN_DIST = join(__dirname, '..', 'dist', 'admin')
+const SERVER_DIR = dirname(fileURLToPath(import.meta.url))
+const ADMIN_DIST = join(SERVER_DIR, '..', 'dist', 'admin')
 
 function serveAdminFile(res: any, req: any, path: string): boolean {
   if (!path.startsWith('/admin')) return false
@@ -363,6 +463,12 @@ const restServer = createServer((req, res) => {
       return
     }
 
+    if (path === '/health' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'ok', nodes: clients.size, uptime: process.uptime() }))
+      return
+    }
+
     res.setHeader('Content-Type', 'application/json')
 
     // Try serving admin static files first
@@ -372,7 +478,8 @@ const restServer = createServer((req, res) => {
     const handled =
       handleAuthRoute(req, res, path) ||
       handleStatsRoute(req, res, path) ||
-      handleAdsRoute(req, res, path)
+      handleAdsRoute(req, res, path) ||
+      handlePaymentoRoute(req, res, path)
 
     if (!handled) {
       res.writeHead(404)

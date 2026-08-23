@@ -37,33 +37,37 @@ if (-not $SkipTests) {
   } finally { Pop-Location }
 }
 
-Write-Host "`n[3/4] Building main SPA..." -ForegroundColor Yellow
+Write-Host "`n[3/4] Building hardened main SPA (minify + obfuscate)..." -ForegroundColor Yellow
 Push-Location $RootDir
 try {
-  npm run build 2>&1 | ForEach-Object { Write-Host $_ }
+  npm run build:hardened 2>&1 | ForEach-Object { Write-Host $_ }
   if ($LASTEXITCODE -ne 0) { throw "Build failed" }
-  Write-Host "  ✓ Main SPA built: $RootDir/dist" -ForegroundColor Green
+  Write-Host "  ✓ Hardened main SPA built: $RootDir/dist" -ForegroundColor Green
 } finally { Pop-Location }
 
 if (-not $SkipAdmin) {
-  Write-Host "`n[4/4] Building admin panel..." -ForegroundColor Yellow
-  Push-Location $AdminDir
-  try {
-    npm install 2>&1 | Out-Null
-    npm run build 2>&1 | ForEach-Object { Write-Host $_ }
-    if ($LASTEXITCODE -ne 0) {
-      Write-Host "  ⚠ Admin build had issues (non-blocking)" -ForegroundColor Yellow
-    } else {
-      $AdminDist = "$RootDir/dist/admin"
-      if (Test-Path "$AdminDir/dist") {
-        if (Test-Path $AdminDist) { Remove-Item -Recurse -Force $AdminDist }
-        Copy-Item -Recurse "$AdminDir/dist" $AdminDist
-        Write-Host "  ✓ Admin panel built and copied to $AdminDist" -ForegroundColor Green
+  if (Test-Path $AdminDir) {
+    Write-Host "`n[4/4] Building admin panel..." -ForegroundColor Yellow
+    Push-Location $AdminDir
+    try {
+      npm install 2>&1 | Out-Null
+      npm run build 2>&1 | ForEach-Object { Write-Host $_ }
+      if ($LASTEXITCODE -ne 0) {
+        Write-Host "  ⚠ Admin build had issues (non-blocking)" -ForegroundColor Yellow
       } else {
-        Write-Host "  ✓ Admin panel built: $AdminDir/dist" -ForegroundColor Green
+        $AdminDist = "$RootDir/dist/admin"
+        if (Test-Path "$AdminDir/dist") {
+          if (Test-Path $AdminDist) { Remove-Item -Recurse -Force $AdminDist }
+          Copy-Item -Recurse "$AdminDir/dist" $AdminDist
+          Write-Host "  ✓ Admin panel built and copied to $AdminDist" -ForegroundColor Green
+        } else {
+          Write-Host "  ✓ Admin panel built: $AdminDir/dist" -ForegroundColor Green
+        }
       }
-    }
-  } finally { Pop-Location }
+    } finally { Pop-Location }
+  } else {
+    Write-Host "`n[4/4] Admin directory not found, skipping admin build" -ForegroundColor Yellow
+  }
 }
 
 $DistSize = (Get-ChildItem -Recurse "$RootDir/dist" | Measure-Object -Property Length -Sum).Sum / 1MB

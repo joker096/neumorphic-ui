@@ -6,9 +6,10 @@ interface SettingsSectionProps {
   onBack: () => void;
   children: React.ReactNode;
   icon?: React.ElementType;
+  ariaLabel?: string;
 }
 
-export const SettingsSection = ({ title, onBack, children, icon: Icon }: SettingsSectionProps) => (
+export const SettingsSection = ({ title, onBack, children, icon: Icon, ariaLabel }: SettingsSectionProps) => (
   <motion.div
     initial={{ opacity: 0, x: 20 }}
     animate={{ opacity: 1, x: 0 }}
@@ -20,6 +21,7 @@ export const SettingsSection = ({ title, onBack, children, icon: Icon }: Setting
       <div className="flex items-center gap-3 shrink-0 pt-2">
         <button
           onClick={onBack}
+          aria-label={ariaLabel}
           className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] active:bg-[var(--bg-tertiary)]"
           style={{ touchAction: 'none' }}
         >

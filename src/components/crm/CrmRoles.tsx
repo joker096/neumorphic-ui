@@ -5,14 +5,17 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS, PERMISSION_META } from '../../constants/crmConstants';
 import type { CrmPermission } from '../../lib/crm/types';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 
 const inputCls =
-  'w-full min-h-[40px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-sm';
+  'w-full min-h-[40px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 const DEP_COLORS = ['from-sky-400 to-blue-500', 'from-emerald-400 to-green-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-rose-400 to-pink-500'];
 
 export const CrmRoles: React.FC = () => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const departments = useAppStore((s) => s.crmDepartments);
   const contacts = useAppStore((s) => s.crmContacts);
   const customRoles = useAppStore((s) => s.crmCustomRoles);
@@ -30,6 +33,7 @@ export const CrmRoles: React.FC = () => {
 
   const [depName, setDepName] = useState('');
   const [roleName, setRoleName] = useState('');
+  const [confirm, setConfirm] = useState<{ type: 'department' | 'role' | 'reset'; id?: string } | null>(null);
 
   const internalContacts = contacts.filter((c) => c.status === 'internal');
 
@@ -68,7 +72,7 @@ export const CrmRoles: React.FC = () => {
                 </select>
               )}
               {can('manageDepartments') && (
-                <button onClick={() => removeDepartment(d.id)} className="text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0">
+                <button onClick={() => setConfirm({ type: 'department', id: d.id })} className="text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0">
                   <Trash2 size={16} />
                 </button>
               )}
@@ -100,7 +104,7 @@ export const CrmRoles: React.FC = () => {
                   <span className="flex-1 font-bold text-sm text-[var(--text-primary)]">{r.name}</span>
                 )}
                 {can('manageRoles') && (
-                  <button onClick={() => removeCustomRole(r.id)} className="text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0">
+                  <button onClick={() => setConfirm({ type: 'role', id: r.id })} className="text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0">
                     <Trash2 size={16} />
                   </button>
                 )}
@@ -121,7 +125,7 @@ export const CrmRoles: React.FC = () => {
                         {t(p.labelKey, (CRM_FALLBACKS as any)[p.labelKey.replace('crm.', '')])}
                         {active && <span className="ml-1 text-[var(--accent)]">✓</span>}
                       </div>
-                      <div className="text-[10px] text-[var(--text-secondary)]">{t(p.descriptionKey, (CRM_FALLBACKS as any)[p.descriptionKey.replace('crm.', '')])}</div>
+                      <div className="text-xs text-[var(--text-secondary)]">{t(p.descriptionKey, (CRM_FALLBACKS as any)[p.descriptionKey.replace('crm.', '')])}</div>
                     </button>
                   );
                 })}
@@ -138,10 +142,7 @@ export const CrmRoles: React.FC = () => {
           </div>
           <div className="px-2">
             <button
-              onClick={() => {
-                resetCrmDemo(userId, userName);
-                toast.success(t('crm.demoReset', 'Demo data restored'));
-              }}
+              onClick={() => setConfirm({ type: 'reset' })}
               className="min-h-[44px] px-4 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] inline-flex items-center gap-1.5"
             >
               <RefreshCw size={14} /> {t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}
@@ -149,6 +150,33 @@ export const CrmRoles: React.FC = () => {
           </div>
         </section>
       )}
+
+      <ConfirmDialog
+        isOpen={confirm !== null}
+        title={
+          confirm?.type === 'department'
+            ? t('crm.confirmDeleteDepartment', 'Delete department?')
+            : confirm?.type === 'role'
+              ? t('crm.confirmDeleteRole', 'Delete role?')
+              : t('crm.confirmResetDemo', 'Reset to demo data?')
+        }
+        message={confirm?.type === 'reset' ? t('crm.resetDemoWarning', 'This will replace your current CRM data.') : ''}
+        confirmLabel={t('common.confirm', 'Confirm')}
+        cancelLabel={t('common.cancel', 'Cancel')}
+        variant="danger"
+        theme={isDark ? 'dark' : 'light'}
+        zIndex="z-[130]"
+        onConfirm={() => {
+          if (confirm?.type === 'department' && confirm.id) removeDepartment(confirm.id);
+          else if (confirm?.type === 'role' && confirm.id) removeCustomRole(confirm.id);
+          else if (confirm?.type === 'reset') {
+            resetCrmDemo(userId, userName);
+            toast.success(t('crm.demoReset', 'Demo data restored'));
+          }
+          setConfirm(null);
+        }}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 };

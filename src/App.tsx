@@ -1,28 +1,22 @@
-import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { AppOverlays } from "./components/app";
-import { SafeRender } from "./components/resilience";
-import { MOCK_DATA_ENABLED } from "./lib/mockDataFlag";
-import { useCall } from "./hooks/useCall";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { AppOverlays, CallOverlay } from "./components/app";
 import { useMessageActions } from "./hooks/useMessageActions";
 import { useProfileActions } from "./hooks/useProfileActions";
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
-import { AnimatePresence } from "motion/react";
-import { useAppStore, markDataHydrated } from "./store";
-import * as idb from "./lib/idb";
-import { logError } from "./lib/errorHandling";
+import { useAppStore } from "./store";
 import { useUiStore } from "./store/uiStore";
-import { seedMockData } from './utils/mockSeeding';
 import { useAppConnection } from './hooks/useAppConnection';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { useAppSettings } from './hooks/useAppSettings';
 import { useScheduledMessages } from './hooks/useScheduledMessages';
 import { useRefMessageActions } from './hooks/useRefMessageActions';
 import { useActiveChatWorkspace } from './hooks/useActiveChatWorkspace';
-import { useChatListWorkspace } from './hooks/useChatListWorkspace';
 import { useFilteredChats } from './hooks/useFilteredChats';
 import { useUnreadCount } from './hooks/useUnreadCount';
+import { useDataHydration } from './hooks/useDataHydration';
+import { useBrowserBackNavigation } from './hooks/useBrowserBackNavigation';
 import { useLocalStorage } from "./hooks/useLocalStorage";
-import { CallScreen } from './components/call/CallScreen';
+import { startRecordingRetention } from "./lib/recordingRetention";
 import { AppShell } from './components/app/AppShell';
 import { AppChrome } from './components/app/AppChrome';
 import { STORAGE_KEYS } from './constants/storage';
@@ -47,8 +41,6 @@ export default function App() {
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
   const setActiveCall = useAppStore(s => s.setActiveCall);
-  const callMinimized = useAppStore(s => s.callMinimized);
-  const setCallMinimized = useAppStore(s => s.setCallMinimized);
   const stealthMode = useAppStore(state => state.stealthMode);
   const hideWhenOfficeOnly = useAppStore(state => state.hideWhenOfficeOnly);
   const loadCompanyMessages = useAppStore(s => s.loadCompanyMessages);
@@ -72,50 +64,20 @@ export default function App() {
   useScreenshotProtection(stealthMode);
 
   const [draftTextByChat, setDraftTextByChat] = useLocalStorage<Record<string, string>>(STORAGE_KEYS.DRAFTS, {});
-  const didSeedMockData = useRef(false);
-  const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate chats / contacts / channels / call history / company messages
-  // from IndexedDB before mock seeding so user data is not overwritten.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [storedChats, storedContacts, storedChannels, storedCalls] = await Promise.all([
-          idb.get<any[]>('chats_all'),
-          idb.get<any[]>('contacts_all'),
-          idb.get<any[]>('channels_all'),
-          idb.get<any[]>('call_history_all'),
-        ]);
-        if (cancelled) return;
-        if (storedChats?.length) setChats(storedChats);
-        if (storedContacts?.length) setContacts(storedContacts);
-        if (storedChannels?.length) setChannels(storedChannels);
-        if (storedCalls?.length) setCallHistory(storedCalls);
-        loadCompanyMessages();
-      } catch (e) {
-        logError(e, 'hydrateFromIdb');
-      } finally {
-        if (!cancelled) {
-          markDataHydrated();
-          setHydrated(true);
-        }
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [setChats, setContacts, setChannels, setCallHistory, loadCompanyMessages]);
+  useDataHydration({
+    setChats, setContacts, setChannels, setCallHistory, loadCompanyMessages,
+    callHistory, chats, contacts, channels,
+  });
 
   const { connectionStatus } = useAppConnection();
 
-  useEffect(() => {
-    if (!hydrated) return;
-    if (!MOCK_DATA_ENABLED) return;
-    if (didSeedMockData.current) return;
-    seedMockData(setChats, setContacts, setChannels, setCallHistory, callHistory, chats, contacts, channels);
-    didSeedMockData.current = true;
-  }, [hydrated, setChats, setContacts, setChannels, setCallHistory, callHistory, chats, contacts, channels]);
-
   useScheduledMessages();
+
+  useEffect(() => {
+    const stop = startRecordingRetention();
+    return stop;
+  }, []);
 
   const [view, setView] = useState<'chats' | 'channels' | 'bots' | 'settings' | 'profile' | 'contacts' | 'stories' | 'company' | 'calls' | 'workplace' | 'bot' | 'miniApp'>('chats');
   const [subView, setSubView] = useState<string | null>(null);
@@ -149,44 +111,10 @@ export default function App() {
     channels,
   );
 
-  // Browser/hardware Back support (Telegram-like step-back: chat → list → chats)
-  const chatsRef = useRef(chats);
-  chatsRef.current = chats;
-  const channelsRef = useRef(channels);
-  channelsRef.current = channels;
-  const lastPushed = useRef("");
-  const skipNextPush = useRef(false);
-  useEffect(() => {
-    window.history.replaceState(
-      { view, activeChatId: activeChat?.id ?? null, subView },
-      "",
-    );
-    const onPop = (e: PopStateEvent) => {
-      const s = e.state as { view?: string; activeChatId?: string | number; subView?: string | null } | null;
-      if (!s) return;
-      skipNextPush.current = true;
-      setView((s.view as any) ?? "chats");
-      setSubView(s.subView ?? null);
-      const id = s.activeChatId;
-      const found = id != null
-        ? [...chatsRef.current, ...channelsRef.current].find((c: any) => c.id === id)
-        : null;
-      setActiveChat(found ?? null);
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, []);
-  useEffect(() => {
-    if (skipNextPush.current) {
-      skipNextPush.current = false;
-      return;
-    }
-    const id = activeChat?.id ?? null;
-    const key = `${view}|${id}|${subView}`;
-    if (key === lastPushed.current) return;
-    lastPushed.current = key;
-    window.history.pushState({ view, activeChatId: id, subView }, "");
-  }, [view, activeChat?.id, subView]);
+  useBrowserBackNavigation({
+    view, subView, activeChatId: activeChat?.id ?? null,
+    chats, channels, setView, setSubView, setActiveChat,
+  });
 
   const {
     sendVoiceMessage, sendStickerMessage, handleSendMessage, toggleSavedMessage,
@@ -235,8 +163,6 @@ export default function App() {
     setShowAddContactFromChat(false);
   }, [setContacts, setShowAddContactFromChat]);
 
-  const { call, acceptCall, endCall, toggleMute, toggleVideo, toggleScreenShare, toggleRecording, toggleSpeaker, flipCamera, changeCallType } = useCall();
-  const [incomingCall, setIncomingCall] = useState<{ peerId: string; displayName: string; callType: 'audio' | 'video' } | null>(null);
   const refActions = useRefMessageActions({
     handleSendMessage,
     sendVoiceMessage,
@@ -281,36 +207,6 @@ export default function App() {
     setEditingContact,
   });
 
-  const chatListWorkspaceProps = useChatListWorkspace({
-    theme,
-    view,
-    activeFolder,
-    setActiveFolder,
-    chatSearchQuery,
-    setChatSearchQuery,
-    filteredChats,
-    filteredChannels,
-    bots,
-    archivedChats,
-    chats,
-    channels,
-    toggleArchive,
-    contacts,
-    setGlobalSelectedContact,
-    setActiveChat,
-    setView,
-    setActiveStory,
-    setShowCreateChannel,
-    setShowCreateBot,
-    setShowAdvancedFilterModal,
-    advancedFilters,
-    t,
-    isDark,
-    onCall: refActions.handlePreviewCallRef,
-    onVideoCall: (name: string, color?: string) => refActions.handlePreviewCallRef(name, color, 'video'),
-    onOpenBot: (id: string) => { setActiveBotId(id); setView("bot"); },
-  });
-
   return (
     <ServicesProvider>
     <AppAuthGate onRegistrationComplete={() => {}}>
@@ -336,7 +232,6 @@ export default function App() {
           isChatListRoute={isChatListRoute}
           activeChat={activeChat}
           setActiveChat={setActiveChat}
-          chatListWorkspaceProps={chatListWorkspaceProps}
           activeChatWorkspaceProps={activeChatWorkspaceProps}
           activeFolder={activeFolder}
           setActiveFolder={setActiveFolder}
@@ -406,25 +301,7 @@ export default function App() {
            onProfileToggleFavorite={handleProfileToggleFavorite}
         />
 
-        <AnimatePresence>
-          {call && !callMinimized && (
-            <CallScreen
-              call={call}
-              incomingCall={incomingCall}
-              onEnd={endCall}
-              acceptCall={acceptCall}
-              toggleMute={toggleMute}
-              toggleVideo={toggleVideo}
-              toggleScreenShare={toggleScreenShare}
-            toggleRecording={toggleRecording}
-            toggleSpeaker={toggleSpeaker}
-            flipCamera={flipCamera}
-            changeCallType={changeCallType}
-            setActiveCall={setActiveCall}
-              onMinimize={() => setCallMinimized(true)}
-            />
-          )}
-        </AnimatePresence>
+        <CallOverlay />
         <ToastViewport isDark={isDark} />
       </ThemeContext.Provider>
     </AppAuthGate>

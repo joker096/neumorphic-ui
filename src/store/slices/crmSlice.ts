@@ -12,6 +12,20 @@ const uid = (prefix: string) =>
   `${prefix}_${typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10)}`;
 
 export const CRM_STORAGE_KEY = 'neumorphic.crm.v1';
+export const CRM_INVITE_KEY = 'neumorphic.crm.invite';
+
+function generateInviteCode(): string {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  const out: string[] = [];
+  try {
+    const bytes = new Uint8Array(8);
+    crypto.getRandomValues(bytes);
+    bytes.forEach((b) => out.push(chars[b % chars.length]));
+  } catch {
+    for (let i = 0; i < 8; i += 1) out.push(chars[Math.floor(Math.random() * chars.length)]);
+  }
+  return `INV-${out.join('')}`;
+}
 
 interface PersistedCrm {
   contacts: CrmContact[];
@@ -78,10 +92,13 @@ export interface CrmSlice {
   crmTasks: CrmTask[];
   crmFilters: CrmFilters;
   crmLoaded: boolean;
+  crmCollapsedGroups: string[];
+  crmInviteCode: string;
 
   // lifecycle
   ensureCrmSeed: (currentUserId: string, currentUserName: string) => void;
   resetCrmDemo: (currentUserId: string, currentUserName: string) => void;
+  ensureCrmInviteCode: () => string;
 
   // contacts
   addContact: (contact: Omit<CrmContact, 'userId' | 'tags' | 'status'> & Partial<Pick<CrmContact, 'tags' | 'status'>>) => void;
@@ -119,6 +136,9 @@ export interface CrmSlice {
   // filters
   setCrmFilter: <K extends keyof CrmFilters>(key: K, value: CrmFilters[K]) => void;
   resetCrmFilters: () => void;
+
+  // people groups
+  toggleCrmGroup: (key: string) => void;
 }
 
 export const createCrmSlice = (set: any, get: any): CrmSlice => ({
@@ -129,6 +149,8 @@ export const createCrmSlice = (set: any, get: any): CrmSlice => ({
   crmTasks: [],
   crmFilters: { ...DEFAULT_CRM_FILTERS },
   crmLoaded: false,
+  crmCollapsedGroups: [],
+  crmInviteCode: '',
 
   ensureCrmSeed: (currentUserId, currentUserName) => {
     const state = get();
@@ -189,6 +211,27 @@ export const createCrmSlice = (set: any, get: any): CrmSlice => ({
       crmDeals: MOCK_DEALS,
       crmTasks: MOCK_TASKS,
     });
+  },
+
+  ensureCrmInviteCode: () => {
+    const existing = get().crmInviteCode;
+    if (existing) return existing;
+    let code = '';
+    try {
+      code = (localStorage.getItem(CRM_INVITE_KEY) || '').trim();
+    } catch {
+      code = '';
+    }
+    if (!code) {
+      code = generateInviteCode();
+      try {
+        localStorage.setItem(CRM_INVITE_KEY, code);
+      } catch {
+        /* storage unavailable — in-memory only */
+      }
+    }
+    set({ crmInviteCode: code });
+    return code;
   },
 
   addContact: (contact) => set((s: any) => ({
@@ -282,4 +325,10 @@ export const createCrmSlice = (set: any, get: any): CrmSlice => ({
     crmFilters: { ...s.crmFilters, [key]: value },
   })),
   resetCrmFilters: () => set({ crmFilters: { ...DEFAULT_CRM_FILTERS } }),
+
+  toggleCrmGroup: (key) => set((s: any) => ({
+    crmCollapsedGroups: s.crmCollapsedGroups.includes(key)
+      ? s.crmCollapsedGroups.filter((k: string) => k !== key)
+      : [...s.crmCollapsedGroups, key],
+  })),
 });

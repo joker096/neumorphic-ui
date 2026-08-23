@@ -7,6 +7,7 @@ import {
   sheetActionClass,
   sheetCancelClass,
 } from "../ui/modalShared";
+import { useI18n } from "../../lib/i18n";
 
 export interface MessageContextAction {
   key: string;
@@ -25,6 +26,7 @@ interface MessageContextMenuProps {
 }
 
 export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, onClose, title, actions, isDark = false }) => {
+  const { t } = useI18n();
   React.useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -41,7 +43,7 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
       className={sheetOverlay}
       role="dialog"
       aria-modal="true"
-      aria-label={title || "Message actions"}
+      aria-label={title || t("chat.messageActions", "Message actions")}
     >
       <div className={sheetBackdrop} onClick={onClose} aria-hidden="true" />
       <div className={sheetSurface(isDark)}>
@@ -63,7 +65,7 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
           ))}
         </div>
         <button type="button" onClick={onClose} className={sheetCancelClass(isDark)}>
-          Cancel
+          {t("common.cancel", "Cancel")}
         </button>
       </div>
     </div>

@@ -1,28 +1,19 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { useI18n } from '../lib/i18n';
-import { useAppStore } from '../store';
-import { MOCK_COMPANY_MEMBERS, MOCK_COMPANY_CHANNELS, MOCK_COMPANY_ID } from '../constants';
 import { CompanyHeader } from './company/CompanyHeader';
 import { CompanyInfoCard } from './company/CompanyInfoCard';
-import { MemberList } from './company/MemberList';
-import { ChannelList } from './company/ChannelList';
-import { CompanySettingsView } from './company/CompanySettingsView';
+import { CreateCompanyModal } from './company/CreateCompanyModal';
 import { MemberDetailModal } from './company/MemberDetailModal';
-import { Scanner } from '@yudiel/react-qr-scanner';
-import { motion, AnimatePresence } from 'motion/react';
-import { X } from 'lucide-react';
-import { QrCode } from './QrCode';
-import { CHANNEL_CLICK_GRADIENT, COMPANY_MODAL_MAX_WIDTH } from '../constants/companyConstants';
-import type { CompanyMember } from '../lib/company/types';
-
-const closeBtn = (onClick: () => void) => (
-  <button
-    onClick={onClick}
-    className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-  >
-    <X size={18} />
-  </button>
-);
+import { DepartmentList } from './company/DepartmentList';
+import { DepartmentModal } from './company/DepartmentModal';
+import { ContactList } from './company/ContactList';
+import { ContactModal } from './company/ContactModal';
+import { CompanyCreatePrompt } from './company/CompanyCreatePrompt';
+import { CompanyTabs } from './company/CompanyTabs';
+import { CompanyMembersPanel } from './company/CompanyMembersPanel';
+import { CompanyScanQrModal } from './company/CompanyScanQrModal';
+import { CompanyInviteModal } from './company/CompanyInviteModal';
+import { CompanySettingsModal } from './company/CompanySettingsModal';
+import { useCompanyContacts } from './company/useCompanyContacts';
+import { AnimatePresence } from 'motion/react';
 
 type CompanyContactsViewProps = {
   onCall?: (name: string, color?: string) => void;
@@ -32,225 +23,153 @@ type CompanyContactsViewProps = {
 };
 
 export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: CompanyContactsViewProps) => {
+  const company = useCompanyContacts();
   const isDark = theme === 'dark';
-  const { t } = useI18n();
-  const companyMembers = useAppStore(state => state.companyMembers);
-  const companyChannels = useAppStore(state => state.companyChannels);
-  const companyId = useAppStore(state => state.companyId);
-  const setCompanyMembers = useAppStore(state => state.setCompanyMembers);
-  const setCompanyChannels = useAppStore(state => state.setCompanyChannels);
-  const setCompanyId = useAppStore(state => state.setCompanyId);
-  const loadCompanySettings = useAppStore(state => state.loadCompanySettings);
-  const hideWhenOfficeOnly = useAppStore(state => state.hideWhenOfficeOnly);
-  const connectionStatus = useAppStore(state => state.connectionStatus);
-  const companySettings = useAppStore(state => state.companySettings);
-  const userProfile = useAppStore(state => state.userProfile);
-  const updateMemberRole = useAppStore(state => state.updateMemberRole);
-  const renameMember = useAppStore(state => state.renameMember);
-  const removeMember = useAppStore(state => state.removeMember);
-  const [showScanQR, setShowScanQR] = useState(false);
-  const [showInvite, setShowInvite] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<CompanyMember | null>(null);
 
-  useEffect(() => {
-    if (!companySettings) {
-      loadCompanySettings();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (companyMembers.length === 0) {
-      const currentUserMember: CompanyMember = {
-        userId: userProfile.id,
-        displayName: userProfile.name || 'You',
-        role: 'admin',
-        publicKey: '',
-        joinedAt: Date.now(),
-        lastActive: Date.now(),
-        online: true,
-      };
-      setCompanyMembers([currentUserMember, ...MOCK_COMPANY_MEMBERS]);
-    }
-  }, [companyMembers.length]);
-
-  const isInOffice = connectionStatus === 'connected';
-  const shouldHideCompany = hideWhenOfficeOnly && !isInOffice;
-
-  if (shouldHideCompany) {
+  if (company.shouldHideCompany) {
     return null;
   }
 
-  const displayMembers = companyMembers;
-  const displayChannels = companyChannels.length > 0 ? companyChannels : MOCK_COMPANY_CHANNELS;
-
-  const isCurrentUserAdmin = displayMembers.some(
-    m => m.userId === userProfile.id && m.role === 'admin',
-  );
-  const canManage = isCurrentUserAdmin;
-
-  const handleScanQR = () => {
-    setShowScanQR(true);
-  };
-
-  const handleInvite = () => {
-    setShowInvite(true);
-  };
-
-  const handleSettings = () => {
-    setShowSettings(true);
-  };
-
-  const handleJoinCompanyFromQR = (scannedData: string) => {
-    if (!companyId) {
-      setCompanyId(MOCK_COMPANY_ID);
-      setCompanyMembers(MOCK_COMPANY_MEMBERS);
-      setCompanyChannels(MOCK_COMPANY_CHANNELS);
-      loadCompanySettings();
-    }
-    setShowScanQR(false);
-  };
-
-  const handleSaveMemberName = (userId: string, displayName: string) => {
-    renameMember(userId, displayName);
-  };
-
-  const handleChangeRole = (userId: string, role: 'admin' | 'member') => {
-    updateMemberRole(userId, role);
-  };
-
-  const handleRemoveMember = (userId: string) => {
-    removeMember(userId);
-  };
-
-  const totalUnread = useMemo(() =>
-    displayChannels.reduce((sum, c) => sum + (c.unread || 0), 0),
-    [displayChannels],
-  );
-
   return (
     <div className="w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5">
-      <CompanyHeader onScanQR={handleScanQR} onInvite={handleInvite} onSettings={handleSettings} canManage={canManage} />
+      <CompanyHeader onScanQR={company.handleScanQR} onInvite={company.handleInvite} onSettings={company.handleSettings} canManage={company.canManage} />
       <CompanyInfoCard
         isDark={isDark}
-        orgId={companyId || MOCK_COMPANY_ID}
-        connected={t('company.connected') || 'Connected'}
+        orgId={company.companyId || ''}
+        connected={company.t('company.connected') || 'Connected'}
       />
-      <MemberList
-        isDark={isDark}
-        members={displayMembers}
-        canManage={canManage}
-        currentUserId={userProfile.id}
-        onCall={onCall}
-        onVideoCall={onVideoCall}
-        onMemberClick={(member, color) => onMessage?.(member.displayName, color)}
-        onMemberEdit={(member) => setSelectedMember(member)}
-        teamMembersLabel={t('company.teamMembers') || 'Team Members'}
-        t={t}
-      />
-      <ChannelList
-        isDark={isDark}
-        channels={displayChannels}
-        channelsLabel={t('company.channels') || 'Company Channels'}
-        t={t}
-        onChannelClick={(channel) => onMessage?.(channel.name, CHANNEL_CLICK_GRADIENT)}
-      />
+
+      {company.showCreatePrompt ? (
+        <CompanyCreatePrompt t={company.t} onCreate={() => company.setShowCreate(true)} />
+      ) : (
+        <>
+          <CompanyTabs activeTab={company.activeTab} onSelect={company.setActiveTab} t={company.t} />
+
+          {company.activeTab === 'members' && (
+            <CompanyMembersPanel
+              isDark={isDark}
+              members={company.companyMembers}
+              channels={company.companyChannels}
+              canManage={company.canManage}
+              currentUserId={company.userProfile.id}
+              groupMode={company.groupMode}
+              selectedIds={company.selectedIds}
+              t={company.t}
+              onCall={onCall}
+              onVideoCall={onVideoCall}
+              onMessage={onMessage}
+              onToggleSelect={company.toggleSelectMember}
+              onMemberEdit={company.setSelectedMember}
+              onEnterGroupMode={() => company.setGroupMode(true)}
+              onExitGroupMode={company.exitGroupMode}
+              onStartGroupCall={company.startGroupVideoCall}
+            />
+          )}
+
+          {company.activeTab === 'departments' && (
+            <DepartmentList
+              isDark={isDark}
+              departments={company.companyDepartments}
+              members={company.companyMembers}
+              canManage={company.canManage}
+              onAdd={() => {
+                company.setSelectedDepartment(null);
+                company.setDepartmentModalOpen(true);
+              }}
+              onDepartmentClick={company.setSelectedDepartment}
+              departmentsLabel={company.t('company.departments') || 'Departments'}
+              addLabel={company.t('company.addDepartment') || 'Add department'}
+              t={company.t}
+            />
+          )}
+
+          {company.activeTab === 'contacts' && (
+            <ContactList
+              isDark={isDark}
+              contacts={company.companyContacts}
+              departments={company.companyDepartments}
+              canManage={company.canManage}
+              onAdd={() => {
+                company.setSelectedContact(null);
+                company.setContactModalOpen(true);
+              }}
+              onContactClick={company.setSelectedContact}
+              contactsLabel={company.t('company.contacts') || 'Contacts'}
+              addLabel={company.t('company.addContact') || 'Add contact'}
+              t={company.t}
+            />
+          )}
+        </>
+      )}
 
       <AnimatePresence>
-        {showScanQR && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            onClick={() => setShowScanQR(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              className={`w-full ${COMPANY_MODAL_MAX_WIDTH} p-6 shadow-2xl relative rounded-2xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
-            >
-              {closeBtn(() => setShowScanQR(false))}
-              <h3 className="text-xl font-bold mb-6 text-[var(--text-primary)]">{t('company.scanQR') || 'Scan QR to Join'}</h3>
-              <div className="w-full aspect-square overflow-hidden relative shadow-inner bg-gray-100">
-                <Scanner
-                  onScan={(result) => {
-                    if (result && result.length > 0) {
-                      handleJoinCompanyFromQR(result[0].rawValue);
-                    }
-                  }}
-                  styles={{ container: { width: '100%', height: '100%' } }}
-                />
-                <div className="absolute inset-0 border-4 border-[var(--accent)]/50 pointer-events-none mix-blend-overlay"></div>
-              </div>
-              <p className="text-xs text-center mt-6 text-[var(--text-secondary)]">{t('company.scanDescription') || 'Point camera at company QR code'}</p>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {showInvite && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            onClick={() => setShowInvite(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              className={`w-full ${COMPANY_MODAL_MAX_WIDTH} p-6 shadow-2xl relative flex flex-col items-center rounded-2xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
-            >
-              {closeBtn(() => setShowInvite(false))}
-              <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">{t('company.invite') || 'Invite Members'}</h3>
-              <p className="text-sm text-center mb-4 text-[var(--text-secondary)]">{t('company.inviteDescription') || 'Share this QR code with team members'}</p>
-              <div className={`w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
-                  <QrCode data={companyId || MOCK_COMPANY_ID} size={180} />
-              </div>
-              <div className="w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset">
-                <div className="font-mono text-xs tracking-widest break-all text-center text-[var(--accent)]">
-                  {MOCK_COMPANY_ID}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {showSettings && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-            onClick={() => setShowSettings(false)}
-          >
-            <div className="absolute inset-0 z-[100]" onClick={(e) => e.stopPropagation()}>
-              <CompanySettingsView onClose={() => setShowSettings(false)} />
-            </div>
-          </motion.div>
-        )}
-
-        {selectedMember && (
-          <MemberDetailModal
-            member={selectedMember}
+        {company.showScanQR && (
+          <CompanyScanQrModal
             isDark={isDark}
-            canManage={canManage}
-            isCurrentUser={selectedMember.userId === userProfile.id}
-            onClose={() => setSelectedMember(null)}
-            onSave={(displayName) => handleSaveMemberName(selectedMember.userId, displayName)}
-            onChangeRole={(role) => handleChangeRole(selectedMember.userId, role)}
-            onRemove={() => handleRemoveMember(selectedMember.userId)}
+            title={company.t('company.scanQR') || 'Scan QR to Join'}
+            description={company.t('company.scanDescription') || 'Point camera at company QR code'}
+            onClose={() => company.setShowScanQR(false)}
+            onScanResult={company.handleJoinCompanyFromQR}
+          />
+        )}
+
+        {company.showInvite && (
+          <CompanyInviteModal
+            isDark={isDark}
+            title={company.t('company.invite') || 'Invite Members'}
+            description={company.t('company.inviteDescription') || 'Share this QR code with team members'}
+            invitePayload={company.invitePayload}
+            companyId={company.companyId}
+            onClose={() => company.setShowInvite(false)}
+          />
+        )}
+
+        {company.showSettings && <CompanySettingsModal onClose={() => company.setShowSettings(false)} />}
+
+        {company.showCreate && (
+          <CreateCompanyModal
+            onClose={() => company.setShowCreate(false)}
+            onCreated={company.handleCreated}
+          />
+        )}
+
+        {company.selectedMember && (
+          <MemberDetailModal
+            member={company.selectedMember}
+            isDark={isDark}
+            canManage={company.canManage}
+            isCurrentUser={company.selectedMember.userId === company.userProfile.id}
+            onClose={() => company.setSelectedMember(null)}
+            onSave={(displayName) => company.handleSaveMemberName(company.selectedMember?.userId ?? '', displayName)}
+            onChangeRole={(role) => company.handleChangeRole(company.selectedMember?.userId ?? '', role)}
+            onRemove={() => company.handleRemoveMember(company.selectedMember?.userId ?? '')}
+          />
+        )}
+
+        {company.departmentModalOpen && (
+          <DepartmentModal
+            department={company.selectedDepartment}
+            members={company.companyMembers}
+            isDark={isDark}
+            canManage={company.canManage}
+            onClose={() => company.setDepartmentModalOpen(false)}
+            onSave={company.handleSaveDepartment}
+            onRemove={company.canManage ? company.handleRemoveDepartment : undefined}
+          />
+        )}
+
+        {company.contactModalOpen && (
+          <ContactModal
+            contact={company.selectedContact}
+            departments={company.companyDepartments}
+            isDark={isDark}
+            canManage={company.canManage}
+            onClose={() => company.setContactModalOpen(false)}
+            onSave={company.handleSaveContact}
+            onRemove={company.canManage ? company.handleRemoveContact : undefined}
           />
         )}
       </AnimatePresence>
     </div>
   );
 };
-
-
-
-

@@ -7,9 +7,19 @@ vi.mock('motion/react', () => ({
   AnimatePresence: ({ children }: any) => children,
   useReducedMotion: () => false,
 }));
-vi.mock('../../store', () => ({
-  useAppStore: vi.fn(() => ({ activeCall: null, setActiveCall: vi.fn(), setContacts: vi.fn(), callFolders: [], addCallFolder: vi.fn(), removeCallFolder: vi.fn() })),
-}));
+vi.mock('../../store', () => {
+  const state = {
+    userProfile: { id: 'u1', name: 'User' },
+    companyMembers: [],
+    activeCall: null,
+    setActiveCall: vi.fn(),
+    setContacts: vi.fn(),
+    callFolders: [],
+    addCallFolder: vi.fn(),
+    removeCallFolder: vi.fn(),
+  };
+  return { useAppStore: vi.fn((selector?: (s: typeof state) => any) => (selector ? selector(state) : state)) };
+});
 vi.mock('../../contexts/ThemeContext', () => ({ useTheme: () => ({ theme: 'dark', setTheme: vi.fn() }) }));
 
 vi.mock('../ContactsView', () => ({ ContactsView: () => <div>ContactsView</div> }));

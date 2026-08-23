@@ -1,4 +1,5 @@
 export type TunnelBackend = 'direct' | 'cfworker' | 'domainfront' | 'peertunnel';
+import { getRelayToken, withToken } from '../network/relayToken';
 type TunnelStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
 interface TunnelConfig {
@@ -53,33 +54,37 @@ export class WsTunnel {
         this.status = 'error';
         reject(new Error(`WebSocket connect timeout after ${timeoutMs}ms`));
       }, timeoutMs);
-      try {
-        this.ws = new WebSocket(this.url);
-      } catch (err) {
-        clearTimeout(timer);
-        this.status = 'error';
-        reject(err);
-        return;
-      }
-      const done = (fn: () => void) => () => { clearTimeout(timer); fn(); };
-      this.ws.onopen = done(() => {
-        this.status = 'connected';
-        if (this.onOpenCallback) this.onOpenCallback();
-        resolve();
-      });
-      this.ws.onmessage = (event) => {
-        if (this.onMessageCallback) this.onMessageCallback(event.data);
+      const open = (finalUrl: string) => {
+        try {
+          this.ws = new WebSocket(finalUrl);
+        } catch (err) {
+          clearTimeout(timer);
+          this.status = 'error';
+          reject(err);
+          return;
+        }
+        const done = (fn: () => void) => () => { clearTimeout(timer); fn(); };
+        this.ws.onopen = done(() => {
+          this.status = 'connected';
+          if (this.onOpenCallback) this.onOpenCallback();
+          resolve();
+        });
+        this.ws.onmessage = (event) => {
+          if (this.onMessageCallback) this.onMessageCallback(event.data);
+        };
+        this.ws.onclose = done(() => {
+          this.status = 'disconnected';
+          if (this.onCloseCallback) this.onCloseCallback();
+        });
+        this.ws.onerror = done(() => {
+          this.status = 'error';
+          const err = new Error(`WebSocket connection failed for backend: ${this.backend}`);
+          if (this.onErrorCallback) this.onErrorCallback(err);
+          reject(err);
+        });
       };
-      this.ws.onclose = done(() => {
-        this.status = 'disconnected';
-        if (this.onCloseCallback) this.onCloseCallback();
-      });
-      this.ws.onerror = done(() => {
-        this.status = 'error';
-        const err = new Error(`WebSocket connection failed for backend: ${this.backend}`);
-        if (this.onErrorCallback) this.onErrorCallback(err);
-        reject(err);
-      });
+      // The relay requires a JWT in ?token=; fetch one (cached) and append it.
+      getRelayToken().then((t) => open(withToken(this.url, t))).catch(() => open(this.url));
     });
   }
 

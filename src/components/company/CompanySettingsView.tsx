@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { getCompanySettings, saveCompanySettings } from '../../lib/idb';
-import { MOCK_COMPANY_SETTINGS } from '../../constants/companyMockData';
 import { FormField } from '../ui/FormField';
 
 const closeBtnStyle = 'w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]';
@@ -34,7 +33,7 @@ export const CompanySettingsView: React.FC<CompanySettingsViewProps> = ({ onClos
   useEffect(() => {
     (async () => {
       const stored = await getCompanySettings();
-      const data = stored || storeSettings || MOCK_COMPANY_SETTINGS;
+      const data = stored || storeSettings || { name: '', phone: '', email: '', address: '', website: '', taxId: '' };
       setForm(Object.fromEntries(FIELDS.map(f => [f.key, (data as any)?.[f.key] || ''])));
       setLoading(false);
     })();

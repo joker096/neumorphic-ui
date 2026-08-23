@@ -7,7 +7,7 @@ vi.mock('lucide-react', () => ({
   Plus: 'div', Share2: 'div', Copy: 'div', QrCode: 'div', Edit: 'div',
   Mail: 'div', MessageSquare: 'div', Phone: 'div', Send: 'div',
   Shield: 'div', AtSign: 'div', ChevronLeft: 'div', ChevronRight: 'div',
-  RotateCcw: 'div',
+  RotateCcw: 'div', Pencil: 'div',
 }));
 
 vi.mock('motion/react', () => ({

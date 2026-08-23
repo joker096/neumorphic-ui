@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Trash2, Music, Radio, Plus } from "lucide-react";
+import { useI18n } from "../../lib/i18n";
 
 type Track = {
   id: string;
@@ -52,6 +53,7 @@ export const PlaylistView = ({
   playlist, setPlaylist, radioStations, setRadioStations, videoUrl, setVideoUrl, setShowVideo, setIsVideoPlaying,
   textColor, setShowAddStationModal, stationName, setStationName, stationUrl, setStationUrl, stationAddError, setStationAddError
 }: PlaylistViewProps) => {
+  const { t } = useI18n();
   const handleTrackClick = (track: Track, i: number) => {
     if (isRadioMode) {
       setRadioStationIndex(i);
@@ -83,18 +85,18 @@ export const PlaylistView = ({
           onClick={() => setShowPlaylist(false)}
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowPlaylist(false); }}
           className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[var(--text-warm-dark)] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
-          title="Back to Player"
+           title={t('systemPlayer.backToPlayer')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </div>
-        <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{isRadioMode ? "Radio Stations" : "System Playlist"}</span>
+        <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{isRadioMode ? t('systemPlayer.radioStations') : t('systemPlayer.systemPlaylist')}</span>
         {!isRadioMode ? (
-          <label className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`} title="Add Track">
+          <label className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`}             title={t('systemPlayer.addTrack')}>
             <Plus size={18} />
             <input type="file" accept="audio/*" className="hidden" />
           </label>
         ) : (
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title="Add Station"
+           <div className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('systemPlayer.addStation')}
             onClick={() => {
               setStationName("");
               setStationUrl("");
@@ -142,9 +144,9 @@ export const PlaylistView = ({
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className={`text-[14px] font-bold truncate ${isActive && isDark ? "text-[var(--text-primary)]" : textColor}`}>{track.name}</span>
-                  <span className={`text-[11px] font-mono opacity-60 ${textColor}`}>M-NODE {track.id}</span>
+                  <span className={`text-xs font-mono opacity-60 ${textColor}`}>M-NODE {track.id}</span>
                 </div>
-                <span className={`text-[11px] font-mono opacity-50 ${textColor} mr-2`}>{track.time}</span>
+                <span className={`text-xs font-mono opacity-50 ${textColor} mr-2`}>{track.time}</span>
               </div>
 
               <div
@@ -154,7 +156,7 @@ export const PlaylistView = ({
                   setConfirmDeleteIndex(i);
                 }}
                 className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
-                title="Remove"
+                title={t('systemPlayer.remove')}
               >
                 <Trash2 size={14} />
               </div>

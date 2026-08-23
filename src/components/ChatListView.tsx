@@ -91,6 +91,8 @@ export const ChatListView = ({
     openMenu,
     closeMenu,
     menuItems,
+    handleMenuMute,
+    handleMenuDelete,
   } = useChatListActions({ t, activeFolder, toggleArchive, setActiveChat, activeChatId });
 
   const pinnedChats = useMemo(() => filteredChats.filter((c: any) => c.pinned), [filteredChats]);
@@ -112,10 +114,6 @@ export const ChatListView = ({
           onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
         />
       <ViewTabs view={view} isDark={isDark} onSelect={setView} t={t} />
- 
-      {view === "stories" && <AvatarRow theme={theme} onStoryClick={setActiveStory} onComposeStory={onComposeStory} t={t} />}
-
-      {view === "chats" && <AvatarRow theme={theme} onStoryClick={setActiveStory} onComposeStory={onComposeStory} t={t} />}
 
        {view === "chats" && (
         <FolderFilterBar
@@ -127,6 +125,8 @@ export const ChatListView = ({
           t={t}
         />
       )}
+
+      {view === "chats" && <AvatarRow theme={theme} onStoryClick={setActiveStory} onComposeStory={onComposeStory} t={t} />}
 
       {view === "chats" && filteredChats.length > 0 && (
        <>
@@ -143,7 +143,7 @@ export const ChatListView = ({
          )}
          {pinnedChats.length > 0 && (
            <>
-              <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>{t("chat.sectionPinned")}</div>
+              <div className={`text-xs sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>{t("chat.sectionPinned")}</div>
              {pinnedChats.map(c => (
                <ChatListItem
                  key={c.id}
@@ -152,7 +152,9 @@ export const ChatListView = ({
                  type="chat"
                  active={false}
                  onClick={() => setActiveChat(c)}
-                 onArchive={() => toggleArchive(c.id)}
+                  onArchive={() => toggleArchive(c.id)}
+                  onMute={() => handleMenuMute({ id: c.id })}
+                  onDelete={() => handleMenuDelete({ id: c.id })}
                  archiveLabel={activeFolder === "archived" ? t("chat.unarchive") : t("chat.archive")}
                  onCall={() => onCall(c.name, c.color)}
                  onVideoCall={() => onVideoCall(c.name, c.color)}
@@ -179,7 +181,7 @@ export const ChatListView = ({
              <div className={`h-px my-4 ${isDark ? "bg-white/5" : "bg-black/5"}`} />
            </>
          )}
-          <div className={`text-[11px] font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>{t("chat.sectionConversations")}</div>
+          <div className={`text-xs font-bold uppercase tracking-[0.2em] mb-4 shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>{t("chat.sectionConversations")}</div>
          {regularChats.map(c => (
             <ChatListItem
                key={c.id}
@@ -188,16 +190,19 @@ export const ChatListView = ({
                type="chat"
                active={false}
                onClick={() => setActiveChat(c)}
-               onArchive={() => toggleArchive(c.id)}
-               archiveLabel={activeFolder === "archived" ? t("chat.unarchive") : t("chat.archive")}
-               onCall={() => onCall(c.name, c.color)}
-               onVideoCall={() => onVideoCall(c.name, c.color)}
-               t={t}
-               pinned={c.pinned}
-               selectMode={selectMode}
-               selected={selectedIds.has(c.id)}
-                onToggleSelect={() => handleToggleSelect(c.id)}
-                onAvatarClick={() => {
+                onArchive={() => toggleArchive(c.id)}
+                onMute={() => handleMenuMute({ id: c.id })}
+                onDelete={() => handleMenuDelete({ id: c.id })}
+                archiveLabel={activeFolder === "archived" ? t("chat.unarchive") : t("chat.archive")}
+                onCall={() => onCall(c.name, c.color)}
+                onVideoCall={() => onVideoCall(c.name, c.color)}
+                t={t}
+                pinned={c.pinned}
+                selectMode={selectMode}
+                selected={selectedIds.has(c.id)}
+                 onToggleSelect={() => handleToggleSelect(c.id)}
+                 onMenuRequest={openMenu}
+                 onAvatarClick={() => {
                 const profileContact = contacts.find(ct => ct.name === c.name);
                 setGlobalSelectedContact({
                   id: `hash_${c.id}`,
@@ -216,7 +221,7 @@ export const ChatListView = ({
 
      {view === "channels" && filteredChannels.length > 0 && (
        <>
-           <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--accent2)]" : "text-purple-600"}`}>{t("chat.sectionChannels")}</div>
+           <div className={`text-xs sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 sm:mb-4 shrink-0 ${isDark ? "text-[var(--accent2)]" : "text-purple-600"}`}>{t("chat.sectionChannels")}</div>
          {filteredChannels.map(c => (
             <ChatListItem
                key={c.id}

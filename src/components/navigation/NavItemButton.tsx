@@ -20,7 +20,7 @@ export const NavItemButton = React.memo(
     const isBottom = variant === "bottom";
 
     const buttonClassName = isBottom
-      ? `relative flex h-full min-w-[56px] min-h-[48px] flex-1 flex-col items-center justify-center cursor-pointer
+      ? `relative flex h-full min-w-[44px] min-h-[48px] flex-1 flex-col items-center justify-center cursor-pointer
          transition-all duration-200 active:scale-[0.98] focus-visible:outline-none
          focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40
          ${active
@@ -73,7 +73,7 @@ export const NavItemButton = React.memo(
         )}
         {showBadge && (
           <div className={badgeClassName}>
-            <span className={variant === "eco" ? "text-[9px]" : "text-[8px]"} aria-hidden="true">
+            <span className={variant === "eco" ? "text-xs" : "text-xs"} aria-hidden="true">
               {badgeCount > 99 ? "99+" : badgeCount}
             </span>
           </div>

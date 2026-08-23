@@ -18,7 +18,7 @@ export function ChatInputReplyBar({ replyTarget, setReplyTarget, isDark, t }: Ch
       isDark ? "bg-[var(--bg-tertiary)]/80 border-[var(--accent)]/60 text-gray-300" : "bg-white/80 border-[var(--accent)] text-slate-700"
     }`}>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold opacity-70">
+        <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-bold opacity-70">
           <ChevronRight size={10} className="rotate-180" />
           {t("chat.replyingTo")} {replyTarget.sender === "me" ? t("chat.yourMessage") : replyTarget.sender}
         </div>

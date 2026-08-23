@@ -50,12 +50,12 @@ describe('ContactItem - additional tests', () => {
 
   it('renders with last seen time', () => {
     const { container } = render(<ContactItem contact={mockContact} theme="dark" isDark={true} onClick={() => {}} onToggleFavorite={vi.fn()} t={(k: string) => k} />);
-    expect(container.querySelector('[class*="text-gray-600"]') || container.querySelector('[class*="text-slate-400"]') || container.querySelector('[class*="text-[9px]"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="text-gray-600"]') || container.querySelector('[class*="text-slate-400"]') || container.querySelector('[class*="text-xs"]')).toBeInTheDocument();
   });
 
   it('renders with ID', () => {
     const { container } = render(<ContactItem contact={{ ...mockContact, id: 'hash_abc' }} theme="dark" isDark={true} onClick={() => {}} onToggleFavorite={vi.fn()} t={(k: string) => k} />);
-    expect(container.querySelector('[class*="font-mono"]') || container.querySelector('[class*="tracking-wider"]') || container.querySelector('[class*="text-[9px]"]')?.closest('[class*="text-[9px]"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="font-mono"]') || container.querySelector('[class*="tracking-wider"]') || container.querySelector('[class*="text-xs"]')?.closest('[class*="text-xs"]')).toBeInTheDocument();
   });
 
   it('renders with avatar gradient', () => {

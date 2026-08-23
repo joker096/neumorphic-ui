@@ -18,6 +18,11 @@ function persistSetting(key: string, value: unknown) {
 export interface SettingsSlice {
   appLockHashedPIN: string | null;
   appLockSalt: string | null;
+  appLockBiometricEnabled: boolean;
+  appLockBiometricCredentialId: string | null;
+  appLockAutoLockOnBackground: boolean;
+  appLockIdleSeconds: number;
+  appLocked: boolean;
   turnServerUrl: string;
   turnServerUser: string;
   turnServerPass: string;
@@ -70,6 +75,11 @@ export interface SettingsSlice {
   setRadialProxy: (proxy: boolean) => void;
   setRadialEnergy: (energy: boolean) => void;
   setAppLock: (hash: string, salt: string) => void;
+  setAppLockBiometric: (enabled: boolean, credentialId: string | null) => void;
+  setAppLockAutoLock: (onBackground: boolean, idleSeconds: number) => void;
+  setAppLocked: (locked: boolean) => void;
+  lockApp: () => void;
+  unlockApp: () => void;
   updateSettings: (settings: Record<string, any>) => void;
   setNotifications: (v: boolean) => void;
   setTwoFactor: (v: boolean) => void;
@@ -97,6 +107,12 @@ export interface SettingsSlice {
   setRiskShellActive: (active: boolean) => void;
   shareRecording: boolean;
   setShareRecording: (enabled: boolean) => void;
+  saveAudioRecordings: boolean;
+  saveVideoRecordings: boolean;
+  recordingsRetentionDays: number;
+  setSaveAudioRecordings: (enabled: boolean) => void;
+  setSaveVideoRecordings: (enabled: boolean) => void;
+  setRecordingsRetentionDays: (days: number) => void;
   adminPausedAt: number | null;
   setAdminPausedAt: (ts: number | null) => void;
 }
@@ -104,6 +120,11 @@ export interface SettingsSlice {
 export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   appLockHashedPIN: null,
   appLockSalt: null,
+  appLockBiometricEnabled: savedPrivacySettings.appLockBiometricEnabled ?? false,
+  appLockBiometricCredentialId: savedPrivacySettings.appLockBiometricCredentialId ?? null,
+  appLockAutoLockOnBackground: savedPrivacySettings.appLockAutoLockOnBackground ?? true,
+  appLockIdleSeconds: savedPrivacySettings.appLockIdleSeconds ?? 0,
+  appLocked: !!(savedPrivacySettings.appLockHashedPIN || savedPrivacySettings.appLockBiometricEnabled),
   turnServerUrl: '',
   turnServerUser: '',
   turnServerPass: '',
@@ -250,7 +271,26 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setRadialDnd: (dnd) => set({ radialDnd: dnd }),
   setRadialProxy: (proxy) => set({ radialProxy: proxy }),
   setRadialEnergy: (energy) => set({ radialEnergy: energy }),
-  setAppLock: (hash, salt) => set({ appLockHashedPIN: hash, appLockSalt: salt }),
+  setAppLock: (hash, salt) => {
+    set({ appLockHashedPIN: hash, appLockSalt: salt });
+    persistSetting('appLockHashedPIN', hash);
+    persistSetting('appLockSalt', salt);
+    if (!hash && !get().appLockBiometricEnabled) set({ appLocked: false });
+  },
+  setAppLockBiometric: (enabled, credentialId) => {
+    set({ appLockBiometricEnabled: enabled, appLockBiometricCredentialId: credentialId });
+    persistSetting('appLockBiometricEnabled', enabled);
+    persistSetting('appLockBiometricCredentialId', credentialId);
+    if (!enabled && !get().appLockHashedPIN) set({ appLocked: false });
+  },
+  setAppLockAutoLock: (onBackground, idleSeconds) => {
+    set({ appLockAutoLockOnBackground: onBackground, appLockIdleSeconds: idleSeconds });
+    persistSetting('appLockAutoLockOnBackground', onBackground);
+    persistSetting('appLockIdleSeconds', idleSeconds);
+  },
+  setAppLocked: (locked) => set({ appLocked: locked }),
+  lockApp: () => set({ appLocked: true }),
+  unlockApp: () => set({ appLocked: false }),
   updateSettings: (settings) => {
     set((state: any) => ({ ...state, ...settings }));
     try {
@@ -263,6 +303,21 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setRiskShellActive: (active) => set({ riskShellActive: active }),
   shareRecording: false,
   setShareRecording: (enabled) => set({ shareRecording: enabled }),
+  saveAudioRecordings: savedPrivacySettings.saveAudioRecordings ?? true,
+  saveVideoRecordings: savedPrivacySettings.saveVideoRecordings ?? false,
+  recordingsRetentionDays: savedPrivacySettings.recordingsRetentionDays ?? 0,
+  setSaveAudioRecordings: (enabled) => {
+    set({ saveAudioRecordings: enabled });
+    persistSetting('saveAudioRecordings', enabled);
+  },
+  setSaveVideoRecordings: (enabled) => {
+    set({ saveVideoRecordings: enabled });
+    persistSetting('saveVideoRecordings', enabled);
+  },
+  setRecordingsRetentionDays: (days) => {
+    set({ recordingsRetentionDays: days });
+    persistSetting('recordingsRetentionDays', days);
+  },
   adminPausedAt: null,
   setAdminPausedAt: (ts) => set({ adminPausedAt: ts }),
 });

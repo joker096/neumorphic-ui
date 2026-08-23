@@ -3,6 +3,7 @@ import { X, Trash2, ChevronDown, UserCog } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CompanyMember } from '../../lib/company/types';
 import { useI18n } from '../../lib/i18n';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { COMPANY_EDIT_FALLBACKS, COMPANY_MEMBER_FALLBACKS } from '../../constants/companyConstants';
 
 const closeBtn = (onClick: () => void) => (
@@ -21,7 +22,7 @@ type MemberDetailModalProps = {
   isCurrentUser: boolean;
   onClose: () => void;
   onSave: (displayName: string) => void;
-  onChangeRole: (role: 'admin' | 'member') => void;
+  onChangeRole: (role: 'admin' | 'manager' | 'member') => void;
   onRemove: () => void;
 };
 
@@ -38,6 +39,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   const { t } = useI18n();
   const [name, setName] = useState(member.displayName);
   const [saving, setSaving] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   const handleSave = () => {
     const trimmed = name.trim();
@@ -60,8 +62,13 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
       toast.error(t('company.youCantRemoveSelf', COMPANY_EDIT_FALLBACKS.youCantRemoveSelf));
       return;
     }
+    setConfirmRemove(true);
+  };
+
+  const handleConfirmRemove = () => {
     onRemove();
     toast.success(t('company.memberRemoved', 'Member removed'));
+    setConfirmRemove(false);
     onClose();
   };
 
@@ -75,7 +82,9 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
         <div className="text-xs text-[var(--text-secondary)] mb-5">
           {member.role === 'admin'
             ? t('company.roleAdmin', COMPANY_MEMBER_FALLBACKS.roleAdmin)
-            : t('company.roleMember', COMPANY_MEMBER_FALLBACKS.roleMember)}
+            : member.role === 'manager'
+              ? t('company.roleManager', COMPANY_MEMBER_FALLBACKS.roleManager)
+              : t('company.roleMember', COMPANY_MEMBER_FALLBACKS.roleMember)}
           {isCurrentUser ? ` • ${t('company.you', COMPANY_MEMBER_FALLBACKS.you)}` : ''}
         </div>
 
@@ -108,6 +117,17 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                   }`}
                 >
                   {t('company.makeAdmin', COMPANY_EDIT_FALLBACKS.makeAdmin)}
+                </button>
+                <button
+                  onClick={() => onChangeRole('manager')}
+                  disabled={member.role === 'manager'}
+                  className={`flex-1 min-h-[44px] rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
+                    member.role === 'manager'
+                      ? "bg-[var(--color-warning)] text-white"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110"
+                  }`}
+                >
+                  {t('company.makeManager', COMPANY_EDIT_FALLBACKS.makeManager)}
                 </button>
                 <button
                   onClick={() => onChangeRole('member')}
@@ -146,6 +166,19 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmRemove}
+        title={t('company.removeConfirm', 'Remove this member?')}
+        message={member.displayName}
+        confirmLabel={t('common.confirm', 'Confirm')}
+        cancelLabel={t('common.cancel', 'Cancel')}
+        variant="danger"
+        theme={isDark ? 'dark' : 'light'}
+        zIndex="z-[130]"
+        onConfirm={handleConfirmRemove}
+        onCancel={() => setConfirmRemove(false)}
+      />
     </div>
   );
 };

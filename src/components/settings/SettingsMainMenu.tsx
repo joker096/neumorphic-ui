@@ -6,11 +6,12 @@ import {
   Activity, Bell, BellOff, Bot, Building2, ChevronRight, Cloud,
   Globe, HardDrive, Lock, Mic, Network, Palette, Radar, Shield,
   ShieldAlert, Smartphone, User, FolderTree, Download, HelpCircle,
-  CreditCard,
+  CreditCard, Video, Webhook, Receipt,
 } from "lucide-react";
 import { SettingsCard, SettingsDivider, SettingsNavItem } from "./SettingsMenuPrimitives";
 import { BigMenuButton, NavGroup, NavItemDef } from "./SettingsMenuParts";
 import { APP_INFO } from "../../config/settingsDefaults";
+import type { CloudSyncState } from "../../store/types";
 
 interface SettingsMainMenuProps {
   isDark: boolean;
@@ -23,7 +24,7 @@ interface SettingsMainMenuProps {
   setNotificationsEnabled: (v: boolean) => void;
   soundEnabled: boolean;
   setSoundEnabled: (v: boolean) => void;
-  cloudSyncEnabled: boolean;
+  cloudSync: CloudSyncState;
   setCloudSyncEnabled: (v: boolean) => void;
   language: string;
   proxyEnabled: boolean;
@@ -33,7 +34,7 @@ interface SettingsMainMenuProps {
 export function SettingsMainMenu({
   isDark, searchQuery, setSearchQuery, t, setActiveSection, setSubView,
   notificationsEnabled, setNotificationsEnabled, soundEnabled, setSoundEnabled,
-  cloudSyncEnabled, setCloudSyncEnabled, language, proxyEnabled, spamFilterEnabled,
+  cloudSync, setCloudSyncEnabled, language, proxyEnabled, spamFilterEnabled,
 }: SettingsMainMenuProps) {
   useEffect(() => {
     if (notificationsEnabled && 'Notification' in window && Notification.permission === 'default') {
@@ -124,6 +125,27 @@ export function SettingsMainMenu({
       subtitle: t('settings.paymentsSubtitle', 'Wallet, transfers and receipts'),
       onClick: () => setActiveSection('payments'),
     },
+    {
+      icon: <Webhook size={16} className={isDark ? "text-sky-400" : "text-sky-600"} />,
+      iconBg: isDark ? "bg-sky-500/10" : "bg-sky-100",
+      title: t('storeSettings.menuTitle', 'Store Settings'),
+      subtitle: t('storeSettings.menuSubtitle', 'Paymento integration · IPN URL'),
+      onClick: () => setActiveSection('store'),
+    },
+    {
+      icon: <Receipt size={16} className={isDark ? "text-violet-400" : "text-violet-600"} />,
+      iconBg: isDark ? "bg-violet-500/10" : "bg-violet-100",
+      title: t('payRequests.menuTitle', 'Payment Requests'),
+      subtitle: t('payRequests.menuSubtitle', 'Create & track crypto payments'),
+      onClick: () => setActiveSection('paymentRequests'),
+    },
+    {
+      icon: <Video size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />,
+      iconBg: isDark ? "bg-amber-500/10" : "bg-amber-100",
+      title: t('settings.callRecordings'),
+      subtitle: t('settings.callRecordingsSubtitle', 'Save calls and video calls, auto-cleanup'),
+      onClick: () => setActiveSection('callRecordings'),
+    },
   ];
 
   const advancedItems: NavItemDef[] = [
@@ -192,7 +214,7 @@ export function SettingsMainMenu({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.notifications')}</div>
-                  {t('settings.notificationsSubtitle') && <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.notificationsSubtitle')}</div>}
+                  {t('settings.notificationsSubtitle') && <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.notificationsSubtitle')}</div>}
                 </div>
               </div>
               <ToggleSwitch isOn={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} isDark={isDark} ariaLabel={t('settings.notifications')} />
@@ -217,19 +239,22 @@ export function SettingsMainMenu({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.cloudSyncOption')}</div>
+                  {cloudSync.enabled && (
+                    <div className={`text-xs truncate ${cloudSync.status === "error" ? (isDark ? "text-red-400" : "text-red-600") : (isDark ? "text-gray-400" : "text-slate-500")}`}>
+                      {cloudSync.status === "error"
+                        ? t('settings.cloudSyncError', 'Sync failed')
+                        : cloudSync.status === "syncing"
+                          ? t('settings.cloudSyncSyncing', 'Syncing…')
+                          : cloudSync.pendingChanges > 0
+                            ? t('settings.cloudSyncPending', { count: cloudSync.pendingChanges })
+                            : cloudSync.lastSync
+                              ? t('settings.cloudSyncLastSync', { time: new Date(cloudSync.lastSync).toLocaleTimeString() })
+                              : t('settings.cloudSyncSubtitle')}
+                    </div>
+                  )}
                 </div>
               </div>
-              <ToggleSwitch isOn={cloudSyncEnabled} onToggle={() => setCloudSyncEnabled(!cloudSyncEnabled)} isDark={isDark} ariaLabel={t('settings.cloudSyncOption')} />
-            </div>
-            <SettingsDivider isDark={isDark} />
-            <div className="flex items-center gap-3 px-4 py-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-[var(--accent-soft)" : "bg-[var(--accent)]/10"}`}>
-                <Bell size={16} className="text-[var(--accent)]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={`text-xs font-medium ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>{t('settings.manageNotifications', 'Manage notifications')}</div>
-              </div>
-              <ChevronRight size={14} className={isDark ? "text-gray-500" : "text-slate-400"} />
+              <ToggleSwitch isOn={cloudSync.enabled} onToggle={() => setCloudSyncEnabled(!cloudSync.enabled)} isDark={isDark} ariaLabel={t('settings.cloudSyncOption')} />
             </div>
           </SettingsCard>
         </div>
@@ -276,7 +301,7 @@ export function SettingsMainMenu({
         <NavGroup isDark={isDark} title={t('settings.advancedSection')} items={advancedItems} />
 
         <div className="w-full flex justify-center pb-8 pt-4 border-t border-[var(--border-color)]">
-          <div className={`text-[10px] font-mono tracking-widest opacity-40 uppercase ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"} flex items-center gap-1`}>
+          <div className={`text-xs font-mono tracking-widest uppercase ${isDark ? "text-[var(--text-secondary)]" : "text-slate-600"} flex items-center gap-1`}>
             <Smartphone size={12} />
             {t('settings.lastBuild')}: {APP_INFO.BUILD_DATE}
           </div>

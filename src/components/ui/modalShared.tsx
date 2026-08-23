@@ -117,13 +117,13 @@ export const sheetCancelClass = (_isDark: boolean) =>
 
 /** Small uppercase section label used above inputs / groups. */
 export const modalLabelClass =
-  'text-[11px] uppercase tracking-widest font-bold mb-2 opacity-50 text-[var(--text-primary)]';
+  'text-xs uppercase tracking-widest font-bold mb-2 opacity-50 text-[var(--text-primary)]';
 
 /** Consistent text input / textarea field.
  *  Uses the design token control height (44px) with an explicit text size so
  *  the field never inherits an unexpectedly large font. */
 export const modalFieldClass =
-  'w-full h-[var(--control-height-lg)] rounded-xl px-4 outline-none transition-colors bg-[var(--bg-tertiary)] text-base text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]';
+  'w-full h-[var(--control-height-lg)] rounded-xl px-4 outline-none transition-colors bg-[var(--bg-tertiary)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]';
 
 /** Full-width primary action button (accent). */
 export const modalPrimaryBtnClass =

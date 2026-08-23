@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } from "lucide-react";
 import { APP_INFO } from "../../config/settingsDefaults";
+import { useI18n } from "../../lib/i18n";
 
 export type LandingPageProps = {
   isDark?: boolean;
@@ -26,27 +27,28 @@ const stagger = {
 const features = [
   {
     icon: MessageCircle,
-    title: "Encrypted Messaging",
-    desc: "End-to-end encrypted conversations with perfect forward secrecy. No metadata, no tracking.",
+    titleKey: "landing.featureEncryptedTitle",
+    descKey: "landing.featureEncryptedDesc",
   },
   {
     icon: Radio,
-    title: "P2P Mesh Network",
-    desc: "Direct peer-to-peer connections and relay fallback. Your data never touches centralized servers.",
+    titleKey: "landing.featureMeshTitle",
+    descKey: "landing.featureMeshDesc",
   },
   {
     icon: Shield,
-    title: "Zero-Knowledge Architecture",
-    desc: "We cannot read your messages. We cannot recover your keys. Your privacy is by design, not policy.",
+    titleKey: "landing.featureZeroTitle",
+    descKey: "landing.featureZeroDesc",
   },
   {
     icon: Globe,
-    title: "Decentralized Identity",
-    desc: "Self-sovereign identity with no phone number, no email, no central authority required.",
+    titleKey: "landing.featureDecentralizedTitle",
+    descKey: "landing.featureDecentralizedDesc",
   },
 ];
 
 export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) => {
+  const { t } = useI18n();
   return (
     <div className={`w-full min-h-[100dvh] overflow-x-hidden ${isDark ? "bg-[#050505]" : "bg-[#faf8f5]"}`}>
       {isDark && (
@@ -64,7 +66,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           transition={{ duration: 1, ease: [0.32, 0.72, 0, 1] }}
           className="flex flex-col items-center text-center max-w-3xl"
         >
-          <div className={`mb-6 px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border ${
+          <div className={`mb-6 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border ${
             isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
           }`}>
             {APP_INFO.VERSION} &mdash; June 2026
@@ -73,18 +75,17 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <h1 className={`text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 ${
             isDark ? "text-[var(--text-primary)]" : "text-slate-900"
           }`}>
-            Communication
+            {t("landing.communication")}
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
-              Without Compromise
+              {t("landing.withoutCompromise")}
             </span>
           </h1>
 
           <p className={`text-lg max-w-xl leading-relaxed mb-10 ${
             isDark ? "text-gray-400" : "text-slate-500"
           }`}>
-            Peer-to-peer encrypted messaging, decentralized identity, and mesh networking.
-            Built for privacy, designed for freedom.
+            {t("landing.heroSubtitle")}
           </p>
 
           <div className="flex items-center gap-4">
@@ -93,7 +94,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
               className="group relative overflow-hidden rounded-full px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
             >
               <span className="relative z-10 flex items-center gap-3">
-                Open App
+                {t("landing.openApp")}
                 <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5">
                   <ArrowRight size={14} className="text-[var(--text-primary)]" />
                 </span>
@@ -110,7 +111,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                   : "border-[var(--border-color)] text-slate-600 hover:bg-black/5"
               }`}
             >
-              Source Code
+              {t("landing.sourceCode")}
             </a>
           </div>
         </motion.div>
@@ -129,16 +130,16 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
 
       <section className="relative z-10 px-6 py-32">
         <motion.div {...fadeUp} className="max-w-6xl mx-auto">
-          <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border ${
+          <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border ${
             isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
           }`}>
-            Features
+            {t("landing.featuresBadge")}
           </div>
           <h2 className={`text-[clamp(1.8rem,4vw,3rem)] font-bold text-center tracking-[-0.02em] mb-16 ${
             isDark ? "text-[var(--text-primary)]" : "text-slate-900"
           }`}>
-            Everything you need for<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">private communication</span>
+            {t("landing.featuresTitle")}<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">{t("landing.featuresTitleAccent")}</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -146,7 +147,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
               const Icon = feat.icon;
               return (
                 <motion.div
-                  key={feat.title}
+                  key={feat.titleKey}
                   {...stagger}
                   transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1], delay: i * 0.08 }}
                   className={`group rounded-[1.75rem] border p-[1px] transition-all duration-500 ${
@@ -164,10 +165,10 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                       <Icon size={20} className={isDark ? "text-orange-400" : "text-orange-600"} />
                     </div>
                     <h3 className={`text-base font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
-                      {feat.title}
+                      {t(feat.titleKey)}
                     </h3>
                     <p className={`text-sm leading-relaxed ${isDark ? "text-gray-500" : "text-slate-500"}`}>
-                      {feat.desc}
+                      {t(feat.descKey)}
                     </p>
                   </div>
                 </motion.div>
@@ -179,33 +180,33 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
 
       <section className="relative z-10 px-6 py-32">
         <motion.div {...fadeUp} className="max-w-5xl mx-auto">
-          <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border ${
+          <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border ${
             isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
           }`}>
-            Security
+            {t("landing.securityBadge")}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 icon: Lock,
-                title: "End-to-End Encrypted",
-                desc: "X25519 + AEAD-256. Perfect forward secrecy. Your keys never leave your device.",
+                titleKey: "landing.securityE2eeTitle",
+                descKey: "landing.securityE2eeDesc",
               },
               {
                 icon: Users,
-                title: "Zero Metadata",
-                desc: "No message timestamps, no IP logging, no contact graph harvesting. Nothing to leak.",
+                titleKey: "landing.securityMetadataTitle",
+                descKey: "landing.securityMetadataDesc",
               },
               {
                 icon: Shield,
-                title: "Open Source",
-                desc: "Full source transparency. Independent audits. No backdoors, no compromises.",
+                titleKey: "landing.securityOpenTitle",
+                descKey: "landing.securityOpenDesc",
               },
             ].map((item, i) => {
               const Icon = item.icon;
               return (
                 <motion.div
-                  key={item.title}
+                  key={item.titleKey}
                   {...stagger}
                   transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1], delay: i * 0.1 }}
                   className="text-center"
@@ -216,10 +217,10 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                     <Icon size={24} className={isDark ? "text-orange-400" : "text-orange-600"} />
                   </div>
                   <h3 className={`text-base font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
-                    {item.title}
+                    {t(item.titleKey)}
                   </h3>
                   <p className={`text-sm leading-relaxed max-w-xs mx-auto ${isDark ? "text-gray-500" : "text-slate-500"}`}>
-                    {item.desc}
+                    {t(item.descKey)}
                   </p>
                 </motion.div>
               );
@@ -233,17 +234,17 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <h2 className={`text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 ${
             isDark ? "text-[var(--text-primary)]" : "text-slate-900"
           }`}>
-            Ready to take control?
+            {t("landing.ctaTitle")}
           </h2>
           <p className={`text-lg mb-10 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-            No signup required. No data collection. Just download and connect.
+            {t("landing.ctaSubtitle")}
           </p>
           <button
             onClick={onGetStarted}
             className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
           >
             <span className="relative z-10 flex items-center gap-3">
-              Get Started
+              {t("landing.getStarted")}
               <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5">
                 <ArrowRight size={14} className="text-[var(--text-primary)]" />
               </span>
@@ -263,11 +264,11 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
               <Zap size={12} className={isDark ? "text-orange-400" : "text-orange-600"} />
             </div>
             <span className={`text-xs font-bold tracking-tight ${isDark ? "text-gray-500" : "text-slate-500"}`}>
-              Mess&Anger
+              {t("landing.brand")}
             </span>
           </div>
-          <p className={`text-[11px] ${isDark ? "text-gray-600" : "text-slate-400"}`}>
-            &copy; 2026 Mess&Anger. Open source. No data collection. No tracking.
+          <p className={`text-xs ${isDark ? "text-gray-600" : "text-slate-400"}`}>
+            {t("landing.copyright")}
           </p>
         </div>
       </footer>

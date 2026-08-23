@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 import bcrypt from 'bcrypt'
 import { getDb } from '../db.js'
-import { signToken, verifyToken, verifyTotp, createAdminSession, invalidateSession } from '../auth.js'
+import { signToken, verifyToken, verifyTotp, createAdminSession, invalidateSession, signRelayToken } from '../auth.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 
 interface RateLimitEntry {
@@ -45,7 +45,36 @@ export function handleAuthRoute(req: IncomingMessage, res: ServerResponse, path:
   if (path === '/api/auth/login' && req.method === 'POST') { handleLogin(req, res); return true }
   if (path === '/api/auth/verify-2fa' && req.method === 'POST') { handleVerify2FA(req, res); return true }
   if (path === '/api/auth/logout' && req.method === 'POST') { handleLogout(req as AuthenticatedRequest, res); return true }
+  if (path === '/api/auth/token' && req.method === 'POST') { handleToken(req, res); return true }
   return false
+}
+
+/**
+ * Public, self-service relay token issuance. The signaling WebSocket requires a
+ * valid JWT in `?token=`; this endpoint lets any client mint one. Rate-limited
+ * to curb abuse. Message secrecy is E2E (recipient public-key encrypted), so a
+ * public token endpoint only gates connection, not content.
+ */
+async function handleToken(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  const ip = getRemoteAddress(req)
+  if (!checkRateLimit(ip, 30, 60000)) {
+    res.writeHead(429, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Too many requests. Try again later.' }))
+    return
+  }
+  try {
+    const body = (await readBody(req).catch(() => ({}))) || {}
+    const id =
+      body && typeof body.id === 'string' && body.id
+        ? body.id.slice(0, 256)
+        : crypto.randomUUID()
+    const token = signRelayToken(id)
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ token }))
+  } catch {
+    res.writeHead(500, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Token issuance failed' }))
+  }
 }
 
 const MAX_BODY_SIZE = 1024 * 100 // 100KB limit

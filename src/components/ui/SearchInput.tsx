@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { Search, X } from 'lucide-react'
+import { useI18n } from '../../lib/i18n'
 
 export interface SearchInputProps {
   value: string
@@ -47,6 +48,7 @@ export function SearchInput({
   onFocus,
   onBlur,
 }: SearchInputProps) {
+  const { t } = useI18n()
   const inputRef = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
   const hasValue = value.length > 0
@@ -67,7 +69,7 @@ export function SearchInput({
 
   const isPill = shape === 'pill'
 
-  const inputSize = large ? 'text-[20px] font-bold tracking-[0.1em]' : 'text-sm font-medium'
+  const inputSize = large ? 'text-[20px] font-bold tracking-[0.1em]' : 'text-xs font-medium'
   const inputColor = 'text-foreground placeholder:text-muted-foreground'
   const iconColor = focused ? 'text-primary' : 'text-muted-foreground'
   const actionBtn = 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -106,7 +108,7 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className={`flex-1 min-w-0 bg-transparent border-none outline-none ${centered ? 'text-center' : ''} ${inputSize} ${inputColor}`}
+          className={`flex-1 h-full min-w-0 bg-transparent border-none outline-none ${centered ? 'text-center' : ''} ${inputSize} ${inputColor}`}
           aria-label={placeholder}
         />
         {hasValue && (
@@ -114,7 +116,7 @@ export function SearchInput({
             type="button"
             onClick={(e) => { e.stopPropagation(); onChange('') }}
             className={btnClass}
-            aria-label="Clear"
+            aria-label={t('search.clear')}
           >
             <X size={14} strokeWidth={2.5} />
           </button>
@@ -151,11 +153,11 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className={`w-full rounded-xl text-sm focus:outline-none transition-colors ${
+          className={`w-full h-11 leading-11 rounded-xl text-xs focus:outline-none transition-colors ${
             isDark
               ? 'bg-muted text-foreground placeholder:text-muted-foreground'
               : 'bg-background text-foreground placeholder:text-muted-foreground'
-          } ${showSearchIcon ? 'pl-9' : 'pl-4'} ${hasValue || rightElement ? 'pr-12' : 'pr-4'} py-2.5`}
+          } ${showSearchIcon ? 'pl-9' : 'pl-4'} ${hasValue || rightElement ? 'pr-12' : 'pr-4'}`}
           aria-label={placeholder}
         />
         {(hasValue || rightElement) && (
@@ -165,12 +167,12 @@ export function SearchInput({
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onChange('') }}
                 className={btnClass}
-                aria-label="Clear"
-              >
-                <X size={14} strokeWidth={2.5} />
-              </button>
-            )}
-            {rightElement}
+            aria-label={t('search.clear')}
+          >
+            <X size={14} strokeWidth={2.5} />
+          </button>
+        )}
+        {rightElement}
           </div>
         )}
       </div>

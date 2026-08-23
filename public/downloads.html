@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Mess&amp;Anger — Downloads</title>
+    <meta
+      name="description"
+      content="Download Mess&Anger — a mesh-powered P2E-encrypted messenger. Verified builds for Windows, Linux, macOS, Android, iOS and Web."
+    />
+    <style>
+      :root {
+        --bg: #e0e5ec;
+        --bg-dark: #1b1f27;
+        --txt: #2d3240;
+        --txt-dark: #d7dce6;
+        --accent: #4b7bec;
+        --radius: 18px;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+        min-height: 100vh;
+        padding: 32px 16px 64px;
+      }
+      body.dark { background: var(--bg-dark); color: var(--txt-dark); }
+      .wrap { max-width: 980px; margin: 0 auto; }
+      header { text-align: center; margin-bottom: 28px; }
+      h1 { font-size: clamp(26px, 5vw, 40px); margin: 0 0 6px; }
+      .sub { opacity: 0.7; font-size: 15px; }
+      .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+      button.toggle {
+        border: none; cursor: pointer; padding: 10px 16px; border-radius: var(--radius);
+        background: var(--bg); color: var(--txt);
+        box-shadow: 6px 6px 12px #b8bcc4, -6px -6px 12px #ffffff;
+      }
+      body.dark button.toggle { background: var(--bg-dark); color: var(--txt-dark); box-shadow: 6px 6px 12px #11141a, -6px -6px 12px #232833; }
+      button.toggle:active { box-shadow: inset 4px 4px 8px #b8bcc4, inset -4px -4px 8px #ffffff; }
+      body.dark button.toggle:active { box-shadow: inset 4px 4px 8px #11141a, inset -4px -4px 8px #232833; }
+      .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+      .card {
+        background: var(--bg); border-radius: var(--radius); padding: 22px;
+        box-shadow: 8px 8px 18px #b8bcc4, -8px -8px 18px #ffffff;
+      }
+      body.dark .card { background: var(--bg-dark); box-shadow: 8px 8px 18px #11141a, -8px -8px 18px #232833; }
+      .card h2 { margin: 0 0 4px; font-size: 19px; display: flex; align-items: center; gap: 10px; }
+      .card .plat { font-size: 13px; opacity: 0.6; margin-bottom: 14px; }
+      .meta { font-size: 12.5px; opacity: 0.8; line-height: 1.6; word-break: break-all; }
+      .meta code { background: rgba(127,127,127,0.18); padding: 2px 6px; border-radius: 6px; font-size: 11.5px; }
+      .btn {
+        display: inline-block; margin-top: 14px; text-decoration: none; text-align: center;
+        padding: 11px 18px; border-radius: var(--radius); font-weight: 600; font-size: 14px;
+        background: var(--accent); color: #fff; border: none; cursor: pointer; width: 100%;
+        box-shadow: 4px 4px 10px rgba(75,123,236,0.4);
+      }
+      .btn.disabled { background: #9aa3b2; box-shadow: none; cursor: not-allowed; pointer-events: none; }
+      .btn.ghost { background: var(--bg); color: var(--accent); box-shadow: 4px 4px 10px #b8bcc4, -4px -4px 10px #ffffff; }
+      body.dark .btn.ghost { background: var(--bg-dark); box-shadow: 4px 4px 10px #11141a, -4px -4px 10px #232833; }
+      .pending { font-size: 12.5px; opacity: 0.75; margin-top: 10px; }
+      .sec {
+        margin-top: 34px; background: var(--bg); border-radius: var(--radius); padding: 24px 26px;
+        box-shadow: 8px 8px 18px #b8bcc4, -8px -8px 18px #ffffff;
+      }
+      body.dark .sec { background: var(--bg-dark); box-shadow: 8px 8px 18px #11141a, -8px -8px 18px #232833; }
+      .sec h3 { margin: 0 0 12px; }
+      .sec ul { margin: 0; padding-left: 18px; line-height: 1.8; font-size: 14px; }
+      .sec code { background: rgba(127,127,127,0.18); padding: 2px 6px; border-radius: 6px; }
+      footer { text-align: center; opacity: 0.55; font-size: 12px; margin-top: 30px; }
+      .err { color: #c0392b; text-align: center; padding: 20px; }
+      .icon { width: 26px; height: 26px; flex: none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <a class="btn ghost" style="width:auto" href="./">← Back to app</a>
+        <button class="toggle" id="theme">Dark / Light</button>
+      </div>
+      <header>
+        <h1>Mess&amp;Anger Downloads</h1>
+        <div class="sub" id="ver">Verified, signed builds — end-to-end encrypted.</div>
+      </header>
+      <div id="grid" class="grid"><div class="err">Loading release manifest…</div></div>
+
+      <div class="sec">
+        <h3>Security &amp; Integrity</h3>
+        <ul>
+          <li><b>Source not disclosed.</b> Only compiled, minified + obfuscated binaries are distributed. No debug symbols or source maps ship in production.</li>
+          <li><b>Signed binaries.</b> Desktop builds are code-signed (Windows Authenticode, macOS notarization). Android APK/AAB are signed with the project keystore.</li>
+          <li><b>Verify before you run.</b> Every file carries a SHA-256 checksum in <code>CHECKSUMS.txt</code>. Confirm it:</li>
+        </ul>
+        <p class="meta" style="margin-top:10px">
+          <code>sha256sum -c CHECKSUMS.txt</code> &nbsp;·&nbsp;
+          <code>gpg --verify releases.json.asc releases.json</code>
+        </p>
+        <ul style="margin-top:10px">
+          <li><b>E2E encryption.</b> X25519 ECDH + Ed25519 signatures + HMAC-SHA256. The server is never in the trust path.</li>
+          <li><b>No external tampering.</b> CSP, HSTS, and strict CSP on desktop webviews block injection from outside.</li>
+        </ul>
+      </div>
+
+      <footer>Mess&amp;Anger — mesh P2P messenger · build manifest generated by <code>scripts/release.mjs</code></footer>
+    </div>
+
+    <script>
+      const PLAT_LABEL = {
+        windows: 'Windows', linux: 'Linux', macos: 'macOS',
+        android: 'Android', ios: 'iOS', web: 'Web / PWA',
+      };
+      const PLAT_ICON = {
+        windows: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5l8-1v8H3V5zm0 10h8v8l-8-1v-7zm10-10l8-1v8h-8V5zm0 10h8v8l-8-1v-7z"/></svg>',
+        linux: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2 0-3 2-3 4 0 1 .5 2 1 2 0 2-1 3-2 5-1 2-2 4-2 6h12c0-2-1-4-2-6-1-2-2-3-2-5 .5 0 1-1 1-2 0-2-1-4-3-4z"/></svg>',
+        macos: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M16 4c0 2-1 3-2 3s-1-1-1-3 1-3 2-3 1 1 1 3zm5 9c-1 2-2 3-2 5 0 2-1 3-2 3s-1-2-1-4c0-2 1-4 2-6 2-2 3-3 3-5 0-1 0-2 1-2 1 1 1 3 0 6z"/></svg>',
+        android: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 11h12v6a2 2 0 01-2 2H8a2 2 0 01-2-2v-6zm3-7l1-1 2 2 2-2 1 1-1 2h-4L9 4zM6 13a1 1 0 100 2 1 1 0 000-2zm12 0a1 1 0 100 2 1 1 0 000-2z"/></svg>',
+        ios: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15 2c1 1 1 2 1 3s-1 2-2 2c-1-1-1-2-1-3s1-2 2-2zM18 9c-2 0-3 1-5 1S8 9 6 9c-2 2-3 5-3 9 0 2 1 3 2 3s1-1 2-3c1-2 1-4 2-4s1 2 2 4c1 2 1 3 2 3s2-1 2-3c0-4-1-7-3-9z"/></svg>',
+        web: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2c2 2 3 4 3 8s-1 6-3 8c-2-2-3-4-3-8s1-6 3-8zm0 1v14a8 8 0 010-14z"/></svg>',
+      };
+
+      function copy(text) {
+        navigator.clipboard?.writeText(text);
+      }
+
+      async function load() {
+        let manifest;
+        try {
+          const res = await fetch('./releases/releases.json', { cache: 'no-store' });
+          manifest = await res.json();
+        } catch (e) {
+          document.getElementById('grid').innerHTML =
+            '<div class="err">Could not load release manifest. Run <code>npm run release</code> after building targets.</div>';
+          return;
+        }
+        document.getElementById('ver').textContent =
+          `Version ${manifest.version} · generated ${new Date(manifest.generatedAt).toLocaleString()}`;
+        const order = ['windows', 'linux', 'macos', 'android', 'ios', 'web'];
+        const files = manifest.files.slice().sort((a, b) => order.indexOf(a.platform) - order.indexOf(b.platform));
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        for (const f of files) {
+          const label = PLAT_LABEL[f.platform] || f.platform;
+          const icon = PLAT_ICON[f.platform] || '';
+          const card = document.createElement('div');
+          card.className = 'card';
+          let body = `<h2>${icon}${label}</h2><div class="plat">${f.kind.toUpperCase()}</div>`;
+          if (f.present) {
+            body += `<div class="meta">Size: ${(f.size / 1048576).toFixed(2)} MB<br/>SHA-256:<br/><code>${f.sha256}</code></div>`;
+            body += `<a class="btn" href="${f.url}" download="${f.file}">Download ${f.kind.toUpperCase()}</a>`;
+            body += `<button class="btn ghost" style="margin-top:8px" onclick="copy('${f.sha256}')">Copy checksum</button>`;
+          } else {
+            const link = f.url ? `<a class="btn" href="${f.url}" target="_blank" rel="noopener">Open</a>` : `<span class="btn disabled">Pending</span>`;
+            body += `<div class="pending">${f.note || 'Not built yet.'}</div>`;
+            body += link;
+          }
+          card.innerHTML = body;
+          grid.appendChild(card);
+        }
+      }
+
+      document.getElementById('theme').addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+      });
+      load();
+    </script>
+  </body>
+</html>

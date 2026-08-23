@@ -1,27 +1,37 @@
 import React from 'react';
-import { Lock } from 'lucide-react';
+import { Lock, Fingerprint } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 
 type AppLockScreenProps = {
   pinInput: string;
   setPinInput: (v: string) => void;
   pinError: boolean;
+  biometricError: boolean;
+  biometricBusy: boolean;
+  biometricEnabled: boolean;
+  biometricAvailable: boolean;
   lockAttempts: number;
   lockBlockTimer: number;
   lockBlockedUntil: number | undefined;
   isDark?: boolean;
   handleUnlock: (e?: React.FormEvent) => Promise<void>;
+  handleUnlockBiometric: () => Promise<void>;
 };
 
 export const AppLockScreen: React.FC<AppLockScreenProps> = ({
   pinInput,
   setPinInput,
   pinError,
+  biometricError,
+  biometricBusy,
+  biometricEnabled,
+  biometricAvailable,
   lockAttempts,
   lockBlockTimer,
   lockBlockedUntil,
   isDark = true,
   handleUnlock,
+  handleUnlockBiometric,
 }) => {
   const { t } = useI18n();
   const isBlockedPermanently = lockBlockedUntil === Infinity;
@@ -85,6 +95,29 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
             >
               {t('lock.unlock')}
             </button>
+            {biometricEnabled && biometricAvailable && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleUnlockBiometric}
+                  disabled={biometricBusy}
+                  aria-label={t('lock.biometric')}
+                  className={`mt-3 w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 border transition-transform active:scale-95 disabled:opacity-60 ${
+                    isDark
+                      ? "border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+                      : "border-slate-200 text-slate-800 hover:bg-slate-50"
+                  }`}
+                >
+                  <Fingerprint size={20} />
+                  <span>{biometricBusy ? '…' : t('lock.biometric')}</span>
+                </button>
+                {biometricError && (
+                  <p role="alert" className={`mt-2 text-xs text-center ${isDark ? 'text-red-400' : 'text-red-500'}`}>
+                    {t('lock.biometricFailed')}
+                  </p>
+                )}
+              </>
+            )}
           </form>
         )}
       </div>

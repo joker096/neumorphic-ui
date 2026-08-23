@@ -14,8 +14,9 @@ interface StoryContentProps {
 
 export const StoryContent: React.FC<StoryContentProps> = ({ story, isStealthMode, onTap, onPauseStart, onPauseEnd }) => {
   const { t } = useI18n();
-  const [imageFailed, setImageFailed] = useState(false);
-  const showImage = story.type === 'photo' && !!story.image && !imageFailed;
+  const [mediaFailed, setMediaFailed] = useState(false);
+  const showImage = story.type === 'photo' && !!story.image && !mediaFailed;
+  const showVideo = story.type === 'video' && !!story.video && !mediaFailed;
 
   return (
     <div
@@ -33,10 +34,21 @@ export const StoryContent: React.FC<StoryContentProps> = ({ story, isStealthMode
           src={story.image}
           alt={story.caption ?? ''}
           className="absolute inset-0 w-full h-full object-cover"
-          onError={() => setImageFailed(true)}
+          onError={() => setMediaFailed(true)}
         />
       )}
-      {story.type === 'photo' && imageFailed && (
+      {showVideo && (
+        <video
+          src={story.video}
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          onError={() => setMediaFailed(true)}
+        />
+      )}
+      {(story.type === 'photo' || story.type === 'video') && mediaFailed && (
         <div className="absolute inset-0 flex items-center justify-center text-white/70" aria-hidden="true">
           <ImageOff size={48} />
         </div>

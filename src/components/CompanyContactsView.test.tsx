@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 const mockT = vi.fn((key: string) => {
@@ -34,6 +34,9 @@ const mockStore = {
   setCompanyChannels: vi.fn(),
   setCompanyId: vi.fn(),
   loadCompanySettings: vi.fn(),
+  loadCompanyData: vi.fn().mockResolvedValue(undefined),
+  createCompanyInvite: vi.fn().mockResolvedValue({ org: 'org_test', code: 'code', name: 'Test', adminKey: '' }),
+  joinCompanyFromInvite: vi.fn().mockResolvedValue(undefined),
 };
 
 vi.mock('../store', () => ({
@@ -173,10 +176,10 @@ describe('CompanyContactsView', () => {
     expect(screen.getByText('Invite Members')).toBeInTheDocument();
   });
 
-  it('shows company ID in invite modal', () => {
+  it('shows company ID in invite modal', async () => {
     render(<CompanyContactsView />);
     fireEvent.click(screen.getByTestId('btn-invite'));
-    expect(screen.getByText('org_b64test123')).toBeInTheDocument();
+    expect(await screen.findByText('org_test')).toBeInTheDocument();
   });
 
   it('shows settings modal when settings button is clicked', () => {
@@ -194,14 +197,11 @@ describe('CompanyContactsView', () => {
     expect(screen.queryByTestId('company-settings-view')).not.toBeInTheDocument();
   });
 
-  it('calls setCompanyMembers and setCompanyId on QR scan when no companyId', () => {
+  it('joins company via invite on QR scan when no companyId', async () => {
     render(<CompanyContactsView />);
     fireEvent.click(screen.getByTestId('btn-scan-qr'));
     fireEvent.click(screen.getByTestId('btn-simulate-scan'));
-    expect(mockStore.setCompanyId).toHaveBeenCalled();
-    expect(mockStore.setCompanyMembers).toHaveBeenCalled();
-    expect(mockStore.setCompanyChannels).toHaveBeenCalled();
-    expect(mockStore.loadCompanySettings).toHaveBeenCalled();
+    await waitFor(() => expect(mockStore.joinCompanyFromInvite).toHaveBeenCalled());
   });
 
   it('does not call setCompanyMembers on QR scan when companyId already exists', () => {

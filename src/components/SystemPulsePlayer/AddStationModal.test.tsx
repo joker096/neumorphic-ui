@@ -4,6 +4,28 @@ import '@testing-library/jest-dom/vitest';
 
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 
+vi.mock('../../lib/i18n', () => {
+  const translations: Record<string, string> = {
+    'systemPlayer.addRadioStation': 'Add Radio Station',
+    'systemPlayer.stationName': 'Station Name',
+    'systemPlayer.stationNamePlaceholder': 'e.g. MetroPulse FM',
+    'systemPlayer.streamUrl': 'Stream URL',
+    'systemPlayer.streamUrlPlaceholder': 'https://stream.example.com/live',
+    'systemPlayer.addStation': 'Add Station',
+    'systemPlayer.cancel': 'Cancel',
+    'systemPlayer.nameRequired': 'Name is required',
+    'systemPlayer.urlRequired': 'URL is required',
+    'systemPlayer.urlInvalid': 'URL must start with http:// or https://',
+  };
+  return {
+    useI18n: () => ({
+      lang: 'en',
+      setLang: () => {},
+      t: (key: string) => translations[key] ?? key,
+    }),
+  };
+});
+
 import { AddStationModal } from './AddStationModal';
 
 const defaultProps = {

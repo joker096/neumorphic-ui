@@ -1,24 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, Tag as TagIcon, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Trash2, Tag as TagIcon, X, Phone, Video, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS, SYSTEM_ROLES, CONTACT_STATUSES } from '../../constants/crmConstants';
 import type { CrmContact, CrmContactStatus, SystemRole } from '../../lib/crm/types';
 import { CrmModal } from './CrmModal';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 
 const inputCls =
-  'w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-sm';
+  'w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 const labelCls = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block';
 const selectCls = inputCls;
 
-type Props = { contact?: CrmContact; onClose: () => void };
+type Props = {
+  contact?: CrmContact;
+  onClose: () => void;
+  onCall?: (name: string, color?: string) => void;
+  onVideoCall?: (name: string, color?: string) => void;
+  onMessage?: (name: string, color?: string) => void;
+};
 
-export const ContactCard: React.FC<Props> = ({ contact, onClose }) => {
+export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideoCall, onMessage }) => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const contacts = useAppStore((s) => s.crmContacts);
   const departments = useAppStore((s) => s.crmDepartments);
+  const contactAvatars = useAppStore((s) => s.contactAvatars);
+  const overrideAvatar = contact ? contactAvatars[contact.displayName] : undefined;
   const customRoles = useAppStore((s) => s.crmCustomRoles);
   const userId = useAppStore((s) => s.userProfile.id);
   const updateContact = useAppStore((s) => s.updateContact);
@@ -44,6 +55,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose }) => {
     tags: [...(contact?.tags ?? [])],
   });
   const [tagInput, setTagInput] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   const set = <K extends keyof typeof form>(k: K, v: typeof form[K]) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -82,12 +94,19 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose }) => {
   const handleRemove = () => {
     if (!contact) return;
     if (isSelf) { toast.error(t('crm.youCantRemoveSelf', CRM_FALLBACKS.youCantRemoveSelf)); return; }
+    setConfirmRemove(true);
+  };
+
+  const handleConfirmRemove = () => {
+    if (!contact) return;
     removeContact(contact.userId);
     toast.success(t('crm.contactRemoved', 'Contact removed'));
+    setConfirmRemove(false);
     onClose();
   };
 
   return (
+    <>
     <CrmModal
       onClose={onClose}
       title={isNew ? t('crm.newContact', CRM_FALLBACKS.newContact) : t('crm.editContact', CRM_FALLBACKS.editContact)}
@@ -110,9 +129,57 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose }) => {
     >
       <div className="flex flex-col gap-4">
         {isNew && (
-          <p className="text-[11px] leading-relaxed text-[var(--text-secondary)]">
+          <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
             {t('crm.demoNote', CRM_FALLBACKS.demoNote)}
           </p>
+        )}
+        {contact && (
+          <>
+            <div className="flex items-center gap-3">
+              <div className={`w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-xl shrink-0 ${contact.avatarColor ? `bg-gradient-to-br ${contact.avatarColor}` : 'bg-[var(--accent)]'}`}>
+                {overrideAvatar ? (
+                  <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                ) : (
+                  contact.displayName.charAt(0)
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="text-base font-bold truncate text-[var(--text-primary)]">{contact.displayName}</div>
+                <div className="flex items-center gap-1.5 text-xs mt-0.5">
+                  <span className={`w-2 h-2 rounded-full ${contact.online ? 'bg-green-500' : 'bg-gray-400'}`} aria-hidden="true" />
+                  <span className={isDark ? 'text-gray-400' : 'text-[var(--text-secondary)]'}>{contact.online ? t('crm.online', 'Online') : t('crm.offline', 'Offline')}</span>
+                </div>
+                {contact.title && <div className="text-xs text-[var(--text-secondary)] truncate mt-0.5">{contact.title}</div>}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 mt-1">
+              <button
+                type="button"
+                onClick={() => { onCall?.(contact.displayName, contact.avatarColor); onClose(); }}
+                className="min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl border border-green-500/20 bg-green-500/15 text-green-500 text-xs font-bold cursor-pointer transition-all hover:bg-green-500/25"
+              >
+                <Phone size={18} />
+                {t('crm.call', CRM_FALLBACKS.call)}
+              </button>
+              <button
+                type="button"
+                onClick={() => { onVideoCall?.(contact.displayName, contact.avatarColor); onClose(); }}
+                className="min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl border border-teal-500/20 bg-teal-500/15 text-teal-500 text-xs font-bold cursor-pointer transition-all hover:bg-teal-500/25"
+              >
+                <Video size={18} />
+                {t('crm.videoCall', CRM_FALLBACKS.videoCall)}
+              </button>
+              <button
+                type="button"
+                onClick={() => { onMessage?.(contact.displayName, contact.avatarColor); onClose(); }}
+                className="min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl border border-[var(--accent-soft)] bg-[var(--accent-soft)] text-[var(--accent)] text-xs font-bold cursor-pointer transition-all hover:brightness-110"
+              >
+                <MessageSquare size={18} />
+                {t('crm.message', CRM_FALLBACKS.message)}
+              </button>
+            </div>
+          </>
         )}
         <div>
           <label className={labelCls}>{t('crm.fullName', CRM_FALLBACKS.fullName)}</label>
@@ -190,7 +257,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose }) => {
           </div>
           <div className="flex flex-wrap gap-1.5 mt-2">
             {form.tags.map((tag) => (
-              <span key={tag} className="inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+              <span key={tag} className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
                 <TagIcon size={10} />{tag}
                 {editable && <button onClick={() => set('tags', form.tags.filter((x) => x !== tag))} className="ml-0.5"><X size={10} /></button>}
               </span>
@@ -203,5 +270,19 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose }) => {
         </div>
       </div>
     </CrmModal>
+
+      <ConfirmDialog
+        isOpen={confirmRemove}
+        title={t('crm.confirmDeleteContact', 'Delete contact?')}
+        message={contact?.displayName ?? ''}
+        confirmLabel={t('common.confirm', 'Confirm')}
+        cancelLabel={t('common.cancel', 'Cancel')}
+        variant="danger"
+        theme={isDark ? 'dark' : 'light'}
+        zIndex="z-[130]"
+        onConfirm={handleConfirmRemove}
+        onCancel={() => setConfirmRemove(false)}
+      />
+    </>
   );
 };

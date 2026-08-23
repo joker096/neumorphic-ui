@@ -250,7 +250,7 @@ server {
     ssl_certificate_key /etc/ssl/private/example.key;
 
     # Security headers
-    add_header Content-Security-Policy "default-src 'none'; connect-src 'self' wss://app.example.com; style-src 'self' 'unsafe-inline'; frame-src 'none'; media-src 'self'";
+    add_header Content-Security-Policy "default-src 'none'; connect-src 'self' wss://app.example.com; style-src 'self' 'unsafe-inline'; frame-src 'none'; media-src 'self' blob: data: https:";
     add_header X-Frame-Options DENY;
     add_header X-Content-Type-Options nosniff;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;

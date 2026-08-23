@@ -59,7 +59,7 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
       {parts.map((part, i) => {
          // Headers
          if (part.startsWith('### ')) {
-            return <span key={i} className="text-[11px] font-bold uppercase tracking-widest opacity-60">{renderHighlight(part.slice(4))}</span>;
+            return <span key={i} className="text-xs font-bold uppercase tracking-widest opacity-60">{renderHighlight(part.slice(4))}</span>;
          }
          if (part.startsWith('## ')) {
             return <span key={i} className="text-[12px] font-bold uppercase tracking-widest opacity-70">{renderHighlight(part.slice(3))}</span>;

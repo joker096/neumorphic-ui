@@ -1,5 +1,5 @@
 import type { NavItem } from "../../config/navigation";
-import { NAV_ITEMS } from "../../config/navigation";
+import { NAV_ITEMS, isCompanyAdmin } from "../../config/navigation";
 import { useAppStore } from "../../store";
 
 const BADGE_ITEM_IDS = new Set(["chats", "company"]);
@@ -26,7 +26,11 @@ export const EcoSidebarNav = ({
 }) => {
   const effectiveT = t || ((key: string, fallback?: string) => key);
   const userProfile = useAppStore((s) => s.userProfile);
-  const items = NAV_ITEMS.filter((item) => !(item.id === "company" && hideCompany));
+  const companyMembers = useAppStore((s) => s.companyMembers);
+  const admin = isCompanyAdmin(companyMembers, userProfile.id);
+  const items = NAV_ITEMS.filter(
+    (item) => !(item.id === "company" && hideCompany) && (!item.adminOnly || admin),
+  );
 
   const surfaceBg = isDark
     ? "linear-gradient(180deg, rgba(7,10,15,0.98) 0%, rgba(13,18,25,0.98) 100%)"
@@ -90,12 +94,12 @@ export const EcoSidebarNav = ({
               <span className="relative">
                 <Icon className="w-5 h-5" strokeWidth={isActive ? 2.25 : 1.75} />
                 {badgeCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white text-[9px] font-semibold flex items-center justify-center shadow-md" style={{ boxShadow: "0 0 8px rgba(var(--accent-rgb),0.4)" }}>
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white text-xs font-semibold flex items-center justify-center shadow-md" style={{ boxShadow: "0 0 8px rgba(var(--accent-rgb),0.4)" }}>
                     {badgeCount > 99 ? "99+" : badgeCount}
                   </span>
                 )}
               </span>
-              <span className="text-[10px] font-medium leading-none truncate max-w-full px-0.5">
+              <span className="text-xs font-medium leading-none truncate max-w-full px-0.5">
                 {label}
               </span>
             </button>

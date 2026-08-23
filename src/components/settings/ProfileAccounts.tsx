@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Plus, Trash2 } from 'lucide-react';
+import { Check, Plus, Trash2, Pencil } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 
 interface Account {
@@ -10,18 +10,21 @@ interface Account {
 
 interface ProfileAccountsProps {
   isDark: boolean;
-  t: (key: string, fallback?: string) => string;
+  t: (key: string, fallback?: string | Record<string, string | number>) => string;
   accounts: Account[];
   activeId: number;
   onSelect: (id: number) => void;
   onAddAccount: (name: string) => void;
+  onRename: (id: number, name: string) => void;
   onDelete: (id: number) => void;
 }
 
-export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAddAccount, onDelete }: ProfileAccountsProps) => {
+export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAddAccount, onRename, onDelete }: ProfileAccountsProps) => {
   const [showAddInput, setShowAddInput] = useState(false);
   const [newAccountName, setNewAccountName] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
 
   const pendingDelete = accounts.find((acc) => acc.id === pendingDeleteId) ?? null;
 
@@ -31,6 +34,22 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
     }
     setPendingDeleteId(null);
   };
+
+  const startEdit = (e: React.MouseEvent, acc: Account) => {
+    e.stopPropagation();
+    setEditingId(acc.id);
+    setEditName(acc.name);
+  };
+
+  const commitEdit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (editingId !== null && editName.trim()) {
+      onRename(editingId, editName.trim());
+    }
+    setEditingId(null);
+  };
+
+  const cancelEdit = () => setEditingId(null);
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -44,24 +63,55 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
   return (
     <div className={`rounded-xl overflow-hidden mt-4 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
       <div className="p-4">
-        <div className={`text-[10px] uppercase tracking-widest font-bold mb-3 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+        <div className={`text-xs uppercase tracking-widest font-bold mb-3 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
           {t('settings.accounts', 'Accounts')}
         </div>
         <div className="flex flex-col gap-2">
           {accounts.map((acc) => (
             <div
               key={acc.id}
-              onClick={() => onSelect(acc.id)}
+              onClick={() => editingId !== acc.id && onSelect(acc.id)}
               className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-[44px] ${isDark ? "hover:bg-[var(--hover-bg-dark)]" : "hover:bg-slate-100"}`}
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] font-bold bg-gradient-to-br ${acc.color} flex-shrink-0`}>
                 {acc.name.charAt(0)}
               </div>
               <div className="flex-1 flex flex-col overflow-hidden">
-                <span className={`text-sm font-bold truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{acc.name}</span>
+                {editingId === acc.id ? (
+                  <form onSubmit={commitEdit} className="flex items-center gap-1">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onBlur={commitEdit}
+                      className={`flex-1 min-w-0 bg-transparent outline-none text-sm font-bold border-b border-[var(--accent)] ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}
+                    />
+                    <button
+                      type="submit"
+                      aria-label={t('settings.save', 'Save')}
+                      className="p-1 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center bg-[var(--accent)] text-[var(--text-primary)]"
+                    >
+                      <Check size={14} />
+                    </button>
+                  </form>
+                ) : (
+                  <span className={`text-sm font-bold truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{acc.name}</span>
+                )}
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
-                {accounts.length > 1 && (
+                {editingId !== acc.id && (
+                  <button
+                    type="button"
+                    aria-label={t('settings.editAccount', 'Edit account')}
+                    onClick={(e) => startEdit(e, acc)}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-gray-500 hover:text-[var(--accent)] hover:bg-white/5" : "text-slate-400 hover:text-[var(--accent)] hover:bg-slate-200"}`}
+                  >
+                    <Pencil size={13} />
+                  </button>
+                )}
+                {accounts.length > 1 && editingId !== acc.id && (
                   <button
                     type="button"
                     aria-label={t('settings.deleteAccount', 'Delete account')}
@@ -74,7 +124,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                     <Trash2 size={14} />
                   </button>
                 )}
-                {activeId === acc.id && (
+                {activeId === acc.id && editingId !== acc.id && (
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 "bg-[var(--accent-soft)] text-[var(--accent)]"`}>
                     <Check size={14} strokeWidth={3} />
                   </div>
@@ -113,7 +163,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
       <ConfirmModal
         isOpen={pendingDelete !== null}
         title={t('settings.deleteAccountTitle', 'Delete account')}
-        message={t('settings.deleteAccountConfirm', `Are you sure you want to delete "${pendingDelete?.name ?? ''}"? This cannot be undone.`)}
+        message={t('settings.deleteAccountConfirm', { name: pendingDelete?.name ?? '' })}
         confirmLabel={t('settings.delete', 'Delete')}
         cancelLabel={t('settings.cancel', 'Cancel')}
         variant="danger"

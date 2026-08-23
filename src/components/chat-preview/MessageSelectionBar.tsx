@@ -21,7 +21,7 @@ export const MessageSelectionBar: React.FC<MessageSelectionBarProps> = ({
 }) => {
   const { t } = useI18n();
   const btn = (extra: string) =>
-    `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-colors cursor-pointer ${extra}`;
+    `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-xs font-bold transition-colors cursor-pointer ${extra}`;
 
   return (
     <div className={`flex items-center gap-1.5 sm:gap-2 px-2 py-2 rounded-2xl shrink-0 mb-2 ${isDark ? "bg-white/5" : "bg-black/5"}`}>

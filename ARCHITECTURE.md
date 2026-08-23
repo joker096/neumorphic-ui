@@ -169,6 +169,34 @@ User A ←→ Relay Node ←→ User B
           ↑ Signaling: wss://signaling1.messanger.app
 ```
 
+## Stories Feature
+
+Ephemeral status posts (Telegram-style): gradient / photo / video. Single-user **mock** — no backend, no P2P distribution.
+
+```
+StoryComposer (modal)
+  ├─ file input (accept="image/*,video/*") → object URL preview + remove
+  └─ publishMyStory(bg, caption, audience, expiration, image?, video?)
+        → unshift into MY_STORY_USER.stories (type derived: video > photo > gradient)
+        → saveMyStories()                     ← localStorage 'nm_stories_v1'
+
+StoryViewer / StoryContent
+  ├─ renders: gradient │ <img> │ <video> (muted, loop, playsInline)
+  ├─ expiry: isStoryExpired() hides expired stories
+  └─ deleteMyStory(id) → splice + saveMyStories()
+
+chat-preview/AvatarRow (tray)
+  ├─ getVisibleStories(user) → only non-expired
+  ├─ lists STORY_USERS + MY_STORY_USER (when it has visible stories)
+  └─ onStoryClick → opens StoryViewer with the matching user id
+```
+
+State: in-memory `STORY_USERS` (seed) + `MY_STORY_USER`; my stories are hydrated from / persisted to `localStorage` (`nm_stories_v1`). Media (`blob:` URLs) is session-only — stripped on persist and degrades to gradient/text after reload.
+
+Key files: `src/components/stories/storiesData.ts` (model + persistence), `StoryComposer.tsx`, `StoryContent.tsx`, `StoryViewer.tsx`, `src/components/chat-preview/AvatarRow.tsx`.
+
+> Flagged: `audience` is stored but **not enforced** (single-user mock, no viewer identity). Reactions/views, story replies, and P2P sync are backend-dependent and out of scope.
+
 ## Known Limitations
 
 - Video player overlay uses placeholder image (Unsplash)

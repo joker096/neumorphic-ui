@@ -72,11 +72,11 @@ test.describe('Contacts & identity', () => {
     await expect(page.getByPlaceholder('Contact Name')).toHaveCount(0);
   });
 
-  test('share identity modal shows QR and Copy Link button', async ({ page }) => {
+  test('share identity modal shows QR and Copy ID button', async ({ page }) => {
     await gotoContacts(page);
     await page.locator('[title="Share My Identity"]').click();
     await expect(
-      page.getByRole('button', { name: /copy link/i })
+      page.getByRole('button', { name: /copy id/i })
     ).toBeVisible();
     // ID text rendered (nexus:// scheme)
     await expect(page.getByText(/nexus:\/\//).first()).toBeVisible({
@@ -97,7 +97,7 @@ test.describe('Contacts & identity', () => {
   test('contact row opens profile modal with call/message actions', async ({ page }) => {
     await gotoContacts(page);
     await page.getByText('Alice Freeman').first().click();
-    await expect(page.getByText('Video Call').first()).toBeVisible();
+    await expect(page.getByText('Video call').first()).toBeVisible();
     await expect(page.getByText('Verify Security').first()).toBeVisible();
     // More actions menu
     const more = page.getByLabel('More actions').first();

@@ -152,7 +152,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                         </div>
                         <div className="flex-1">
                           <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{name}</div>
-                          {i === 0 && <div className={`text-[11px] flex items-center gap-1 ${isDark ? "text-amber-400" : "text-amber-600"}`}><Crown size={11} /> {t('profile.owner', 'Owner')}</div>}
+                          {i === 0 && <div className={`text-xs flex items-center gap-1 ${isDark ? "text-amber-400" : "text-amber-600"}`}><Crown size={11} /> {t('profile.owner', 'Owner')}</div>}
                         </div>
                         {i === 0 && <Shield size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />}
                       </div>
@@ -205,7 +205,7 @@ const Row = ({ icon, title, right, isDark }: { icon: React.ReactNode; title: str
 );
 
 const SectionTitle = ({ icon, title, isDark }: { icon: React.ReactNode; title: string; isDark: boolean }) => (
-  <div className={`font-mono text-[10px] uppercase tracking-widest font-bold mb-2 opacity-50 px-1 flex items-center gap-1.5 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{icon} {title}</div>
+  <div className={`font-mono text-xs uppercase tracking-widest font-bold mb-2 opacity-50 px-1 flex items-center gap-1.5 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{icon} {title}</div>
 );
 
 const Placeholder = ({ icon, text, isDark }: { icon: React.ReactNode; text: string; isDark: boolean }) => (

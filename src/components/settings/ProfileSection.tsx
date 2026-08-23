@@ -144,13 +144,17 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
     }
   };
 
+  const handleRenameAccount = (id: number, name: string) => {
+    setAccounts(accounts.map((acc) => (acc.id === id ? { ...acc, name } : acc)));
+  };
+
   const handleRestoreIdentity = () => {
     window.dispatchEvent(new CustomEvent('show-login'));
     setShowShareId(false);
   };
 
   return (
-    <SettingsSection title={t('settings.profile', 'Profile & Accounts')} onBack={onBack}>
+    <SettingsSection title={t('settings.profile', 'Profile & Accounts')} onBack={onBack} ariaLabel={t('common.back')}>
       <div ref={profileCardRef} className="w-full">
         {!editing ? (
           <ProfileHeaderCard
@@ -197,6 +201,7 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
               activeId={activeId}
               onSelect={setActiveId}
               onAddAccount={handleAddAccount}
+              onRename={handleRenameAccount}
               onDelete={handleDeleteAccount}
             />
 

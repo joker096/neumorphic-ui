@@ -20,18 +20,17 @@
      matches the text inside it instead of dwarfing it. */
   --text-2xs: 0.6875rem;   /* 11px — badges, micro labels */
   --text-xs: 0.75rem;      /* 12px — chips, captions */
+  --control-font-size: 0.75rem; /* 12px — default for filter/search/inputs */
   --text-sm: 0.875rem;     /* 14px — body, buttons */
   --text-base: 1rem;       /* 16px — default */
   --text-lg: 1.125rem;
   --text-xl: 1.25rem;
   --text-2xl: 1.5rem;
 
-  /* Control heights — kept proportionate to the text they contain.
-     - sm: filter chips / compact segmented controls
-     - md: icon buttons inside toolbars (still ≥40px tappable)
-     - lg: primary action buttons (44px = AA touch target) */
-  --control-height-sm: 2.125rem;  /* 34px */
-  --control-height-md: 2.5rem;    /* 40px */
+  /* Control heights. All interactive controls meet the 44px minimum touch
+     target (WCAG / mobile guidance). sm/md/lg kept at 44px for consistency. */
+  --control-height-sm: 2.75rem;   /* 44px */
+  --control-height-md: 2.75rem;   /* 44px */
   --control-height-lg: 2.75rem;   /* 44px */
 
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
@@ -47,6 +46,8 @@
 
 [data-theme="dark"] {
   --bg-primary: #0d1017;
+  /* Dark ink for text on saturated fills (accent/green/amber) — WCAG AA */
+  --ink-on-saturate: #0d1017;
   --bg-secondary: #13151b;
   --bg-tertiary: #1a1d24;
   --bg-elevated: #22262e;
@@ -86,7 +87,8 @@
   --neo-shadow-inset-sm: inset 2px 2px 5px rgba(0,0,0,0.55), inset -2px -2px 5px rgba(255,255,255,0.02);
   --neo-surface: #1a1d24;
 
-  --input-bg: #13151b;
+  /* Must differ from --bg-secondary (modal/card surface) or inputs vanish in modals */
+  --input-bg: #1a1d24;
   --input-text: #f0f2f5;
   --input-placeholder: #8b94a6;
   --inset-field-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.4);
@@ -136,6 +138,7 @@
 
 [data-theme="light"] {
   --bg-primary: #f8fafc;
+  --ink-on-saturate: #0f172a;
   --bg-secondary: #f1f5f9;
   --bg-tertiary: #e2e8f0;
   --bg-elevated: #ffffff;

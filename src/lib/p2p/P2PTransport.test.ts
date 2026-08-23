@@ -101,6 +101,8 @@ beforeEach(() => {
   vi.stubGlobal('RTCPeerConnection', MockRTCPeerConnection);
   vi.stubGlobal('RTCSessionDescription', MockRTCSessionDescription);
   vi.stubGlobal('RTCIceCandidate', MockRTCIceCandidate);
+  // Avoid real network during token fetch; getRelayToken() rejects fast -> ''
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline in tests')));
 });
 
 afterEach(() => {
@@ -125,8 +127,11 @@ function makeTransport(opts: Partial<{
   } as any);
 }
 
+const flush = () => new Promise<void>((r) => setTimeout(r, 0));
+
 async function connectTransport(transport: P2PTransport): Promise<void> {
   const p = transport.connect();
+  await flush();
   mockWs.onopen();
   mockWs.onmessage({ data: JSON.stringify({ type: 'registered' }) });
   await p;
@@ -182,6 +187,7 @@ describe('P2PTransport', () => {
       const transport = makeTransport();
 
       const p = transport.connect();
+      await flush();
       expect(mockWs).not.toBeNull();
       expect(mockWs.onopen).toBeInstanceOf(Function);
       expect(mockWs.onmessage).toBeInstanceOf(Function);
@@ -200,6 +206,7 @@ describe('P2PTransport', () => {
     it('rejects on WebSocket error', async () => {
       const transport = makeTransport();
       const p = transport.connect();
+      await flush();
 
       mockWs.onerror();
       await expect(p).rejects.toThrow('WebSocket connection failed');
@@ -208,6 +215,7 @@ describe('P2PTransport', () => {
     it('rejects on error message from server', async () => {
       const transport = makeTransport();
       const p = transport.connect();
+      await flush();
 
       mockWs.onopen();
       mockWs.onmessage({
@@ -302,12 +310,14 @@ describe('P2PTransport', () => {
       const callee = makeTransport({ localPublicKey: 'callee-id' });
 
       const cp = caller.connect();
+      await flush();
       const callerWs = mockWebSockets[0];
       callerWs.onopen();
       callerWs.onmessage({ data: JSON.stringify({ type: 'registered' }) });
       await cp;
 
       const kp = callee.connect();
+      await flush();
       const calleeWs = mockWebSockets[1];
       calleeWs.onopen();
       calleeWs.onmessage({ data: JSON.stringify({ type: 'registered' }) });

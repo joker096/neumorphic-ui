@@ -40,7 +40,7 @@ export const CallTopBar: React.FC<CallTopBarProps> = ({
                 {remoteName}
               </h2>
               {isGroup && (
-                <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
+                <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
                   <Users size={11} /> {participantCount}
                 </span>
               )}
@@ -56,7 +56,7 @@ export const CallTopBar: React.FC<CallTopBarProps> = ({
               )}
               {status === 'connecting' && <StatusDots />}
               {isPreview && (
-                <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
+                <span className="text-xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
                   {CALL_DEMO_BADGE_LABEL}
                 </span>
               )}

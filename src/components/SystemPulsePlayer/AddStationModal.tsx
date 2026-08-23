@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
+import { useI18n } from "../../lib/i18n";
 
 type AddStationModalProps = {
   isDark?: boolean;
@@ -24,19 +25,20 @@ export const AddStationModal = ({
   stationName, setStationName, stationUrl, setStationUrl, stationAddError, setStationAddError,
   setRadioStations, radioStations, setRadioStationIndex, setIsPlaying, setIsRadioMode
 }: AddStationModalProps) => {
+  const { t } = useI18n();
   if (!showAddStationModal) return null;
 
   const handleSubmit = () => {
     if (!stationName.trim()) {
-      setStationAddError("Name is required");
+      setStationAddError(t('systemPlayer.nameRequired'));
       return;
     }
     if (!stationUrl.trim()) {
-      setStationAddError("URL is required");
+      setStationAddError(t('systemPlayer.urlRequired'));
       return;
     }
     if (!stationUrl.startsWith("http://") && !stationUrl.startsWith("https://")) {
-      setStationAddError("URL must start with http:// or https://");
+      setStationAddError(t('systemPlayer.urlInvalid'));
       return;
     }
     const newStation = { id: Math.random().toString(36).substr(2, 9), name: stationName.trim(), url: stationUrl.trim(), time: "LIVE", file: null };
@@ -54,25 +56,25 @@ export const AddStationModal = ({
         animate={{ opacity: 1, scale: 1 }}
         className={`w-[90%] max-w-[320px] rounded-2xl p-6 ${isDark ? "bg-[#2a3036]" : "bg-[#e8ecf4]"}`}
       >
-        <h3 className={`text-lg font-bold mb-4 ${textColor}`}>Add Radio Station</h3>
+        <h3 className={`text-lg font-bold mb-4 ${textColor}`}>{t('systemPlayer.addRadioStation')}</h3>
         <div className="mb-3">
-          <label className={`text-xs font-medium ${textColor} opacity-70`}>Station Name</label>
+          <label className={`text-xs font-medium ${textColor} opacity-70`}>{t('systemPlayer.stationName')}</label>
           <input
             type="text"
             value={stationName}
             onChange={(e) => setStationName(e.target.value)}
-            placeholder="e.g. MetroPulse FM"
+            placeholder={t('systemPlayer.stationNamePlaceholder')}
             className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
             autoFocus
           />
         </div>
         <div className="mb-3">
-          <label className={`text-xs font-medium ${textColor} opacity-70`}>Stream URL</label>
+          <label className={`text-xs font-medium ${textColor} opacity-70`}>{t('systemPlayer.streamUrl')}</label>
           <input
             type="text"
             value={stationUrl}
             onChange={(e) => setStationUrl(e.target.value)}
-            placeholder="https://stream.example.com/live"
+            placeholder={t('systemPlayer.streamUrlPlaceholder')}
             className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
           />
           {stationAddError && <p className="text-xs text-red-400 mt-1">{stationAddError}</p>}
@@ -82,13 +84,13 @@ export const AddStationModal = ({
             onClick={handleSubmit}
             className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-[#5cc25c] text-[var(--text-primary)]" : "bg-green-600 text-[var(--text-primary)]"}`}
           >
-            Add Station
+            {t('systemPlayer.addStation')}
           </button>
           <button
             onClick={() => setShowAddStationModal(false)}
             className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/10 text-slate-600 hover:bg-black/20"}`}
           >
-            Cancel
+            {t('systemPlayer.cancel')}
           </button>
         </div>
       </motion.div>

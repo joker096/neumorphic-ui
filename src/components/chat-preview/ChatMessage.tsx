@@ -1,12 +1,7 @@
 import React from "react";
-import { AnimatePresence, motion } from "motion/react";
-import {
-  BellOff, Bookmark, Check, CheckCheck, Play, Reply,
-} from "lucide-react";
+import { motion } from "motion/react";
 import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
-import { Tooltip } from "../Tooltip";
-import { VoiceWaveform } from "./VoiceWaveform";
 import { MessageReactions } from "./MessageReactions";
 import { MessageContextMenu } from "./MessageContextMenu";
 import { buildMessageMenuActions } from "./messageMenuActions";
@@ -14,9 +9,14 @@ import { useI18n } from "../../lib/i18n";
 import { useServices } from "../../services";
 import { InlineKeyboard } from "../features/bot/InlineKeyboard";
 import { toast } from "../ui/Toast";
-import { decodeIfMorse } from "../MorseDecoder";
-import { fuzzTime, getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
+import { getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
 import { useMessageGestures } from "./useMessageGestures";
+import { AttachmentMedia } from "./AttachmentMedia";
+import { MessageTimestamp } from "./MessageTimestamp";
+import { BubbleActions } from "./BubbleActions";
+import { ChannelCommentsRow } from "./ChannelCommentsRow";
+import { ReplyQuote } from "./ReplyQuote";
+import { PaymentChatBubble } from "../payments/PaymentChatBubble";
 
 interface ChatMessageProps {
   msg: any;
@@ -112,7 +112,7 @@ function ChatMessageImpl({
     return (
       <div className="sticky top-0 z-10 flex items-center gap-3 py-2">
         <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
-        <span className={`text-[11px] font-bold uppercase tracking-widest shrink-0 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+        <span className={`text-xs font-bold uppercase tracking-widest shrink-0 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
           {msg._dateLabel}
         </span>
         <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
@@ -124,9 +124,7 @@ function ChatMessageImpl({
     <motion.div
       layout
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
-      animate={{
-        opacity: 1, y: 0, scale: 1,
-      }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       drag={!isMe ? "x" : false}
       dragConstraints={!isMe ? { left: 0, right: 80 } : undefined}
@@ -153,78 +151,33 @@ function ChatMessageImpl({
           onPointerCancel={handlePointerCancel}
           className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-orange-500" : ""} ${
             isMe
-                ? isDark
-                  ? "bg-[var(--accent-soft)] text-[var(--text-primary)] border border-[var(--accent-soft)] shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
-                  : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
+              ? isDark
+                ? "bg-[var(--accent-soft)] text-[var(--text-primary)] border border-[var(--accent-soft)] shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
+                : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
               : isDark
                 ? "bg-[var(--bg-tertiary)] text-gray-300 border border-[var(--border-color)] shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
                 : "bg-white text-slate-700 border border-[var(--border-color)] shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
           }`}
         >
-          {msg.type === "image" && (
-            <div
-              className="rounded-xl overflow-hidden mb-1 relative border border-[var(--border-color)] cursor-pointer"
-              onClick={() => { onSetActivePhotoUrl(msg.attachment || msg.url); onSetPhotoOpen(true); }}
-            >
-              <img src={msg.attachment || msg.url} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-auto object-cover max-h-[240px] sm:max-h-[280px] md:max-h-[320px]" />
-            </div>
-          )}
-          {msg.type === "video" && (
-            <div
-              className="rounded-[14px] overflow-hidden mb-1 relative border border-[var(--border-color)] group cursor-pointer"
-              onClick={() => onSetVideoOpen(true)}
-            >
-              <img src={msg.thumb} alt="Video thumbnail" className="w-full h-auto sm:w-[180px] sm:h-[100px] md:w-[200px] md:h-[120px] object-cover opacity-80" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform">
-                  <Play size={20} className="text-[var(--text-primary)] fill-white ml-1" />
-                </div>
-              </div>
-              <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded text-[10px] font-bold text-[var(--text-primary)] tracking-wider">{msg.duration}</div>
-            </div>
-          )}
-          {msg.type === "audio" && (
-            <VoiceWaveform duration={msg.duration} isMe={isMe} isDark={isDark} audioUrl={msg.audioUrl} />
-          )}
-          {msg.type === "sticker" && (
-            <div className="flex items-center justify-center">
-              {stickerSrc ? (
-                <img src={stickerSrc} alt="Sticker" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" loading="eager" decoding="async" />
-              ) : (
-                <span className="text-4xl">{msg.text}</span>
-              )}
-            </div>
-          )}
-          {msg.type === "image" && (
-            <div className={`mb-2 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}>
-              <span>{t('chat.filters.photo')}</span>
-              {msg.attachment && <span className="opacity-70">{t('chat.filters.ready')}</span>}
-            </div>
-          )}
-          {msg.replyTo && (
-            <div className={`mb-2 px-3 py-2 rounded-xl border-l-2 text-[12px] ${isDark ? "bg-white/5 border-orange-400 text-gray-300" : "bg-black/5 border-orange-500 text-slate-600"}`}>
-              <div className="font-bold text-[10px] uppercase tracking-widest opacity-70 mb-1">
-                {t('chat.replyingTo')} {msg.replyTo.sender === "me" ? t('chat.yourMessage') : msg.replyTo.sender}
-              </div>
-               <div className="line-clamp-2">
-                 {msg.replyTo.text ? (
-                   decodeIfMorse(msg.replyTo.text)
-                 ) : msg.replyTo.type === "audio" ? (
-                   `${t('chat.voiceNote')}${msg.replyTo.duration || ""}`
-                 ) : (
-                   t('chat.attachment')
-                 )}
-               </div>
-            </div>
-          )}
-          {msg.text && msg.type !== "sticker" && (
+          <AttachmentMedia
+            msg={msg}
+            isMe={isMe}
+            isDark={isDark}
+            stickerSrc={stickerSrc}
+            onSetActivePhotoUrl={onSetActivePhotoUrl}
+            onSetPhotoOpen={onSetPhotoOpen}
+            onSetVideoOpen={onSetVideoOpen}
+          />
+          {msg.type === "payment" && <PaymentChatBubble msg={msg} isDark={isDark} />}
+          {msg.replyTo && <ReplyQuote replyTo={msg.replyTo} isDark={isDark} />}
+          {msg.text && msg.type !== "sticker" && msg.type !== "payment" && (
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={msg.text} searchTerm={searchQuery} />
             </span>
           )}
           {linkPreview && (
-            <div className={`mt-2 p-2 rounded-xl border text-[11px] ${isDark ? "bg-white/5 border-[var(--border-color)] text-gray-300" : "bg-slate-50 border-[var(--border-color)] text-slate-600"}`}>
-              <div className="font-bold uppercase tracking-widest text-[9px] opacity-70 mb-1">{t('chat.linkPreview')}</div>
+            <div className={`mt-2 p-2 rounded-xl border text-xs ${isDark ? "bg-white/5 border-[var(--border-color)] text-gray-300" : "bg-slate-50 border-[var(--border-color)] text-slate-600"}`}>
+              <div className="font-bold uppercase tracking-widest text-xs opacity-70 mb-1">{t('chat.linkPreview')}</div>
               <div className="break-all line-clamp-2">{linkPreview}</div>
             </div>
           )}
@@ -246,70 +199,33 @@ function ChatMessageImpl({
             </div>
           )}
           {msg._isLastInGroup && (
-            <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] font-bold tracking-wide opacity-70 ${isMe && !isDark ? "text-orange-100" : ""} ${msg.type ? "px-2" : ""}`}>
-              {msg.silent && <BellOff size={10} className="mr-0.5 opacity-60" />}
-              {stealthMode ? fuzzTime(msg.time, msg.id) : msg.time}
-              {isMe && (
-                <span className="inline-flex items-center">
-                  <AnimatePresence mode="wait">
-                    {(!deliveryReceipts || msg.status === 'sent') && (
-                      <motion.span key="sent" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.15 }}>
-                        <Check size={12} strokeWidth={2.5} />
-                      </motion.span>
-                    )}
-                    {deliveryReceipts && msg.status === 'delivered' && (
-                      <motion.span key="delivered" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.15 }}>
-                        <CheckCheck size={12} strokeWidth={2.5} />
-                      </motion.span>
-                    )}
-                    {deliveryReceipts && readReceipts && msg.status === 'read' && (
-                      <motion.span key="read" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                        <CheckCheck size={12} strokeWidth={2.5} className="text-[var(--accent)]" />
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </span>
-              )}
-            </div>
+            <MessageTimestamp
+              msg={msg}
+              isMe={isMe}
+              isDark={isDark}
+              stealthMode={stealthMode}
+              deliveryReceipts={deliveryReceipts}
+              readReceipts={readReceipts}
+            />
           )}
           {!isChannel && (
-            <div className={`absolute top-1 ${isMe ? "left-1" : "right-1"} z-20 flex items-center gap-0.5 rounded-full px-1 py-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 ${isDark ? "bg-black/55" : "bg-white/85"} backdrop-blur-sm`}>
-              <button
-                type="button"
-                aria-label={t('chat.reply')}
-                onClick={(e) => { e.stopPropagation(); onReply(msg); }}
-                onPointerDown={(e) => e.stopPropagation()}
-                className={`p-1 rounded-full transition-colors ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
-              >
-                <Reply size={13} />
-              </button>
-              <button
-                type="button"
-                aria-label={t('chat.save')}
-                onClick={(e) => { e.stopPropagation(); onToggleSavedMessage(chat, msg); }}
-                onPointerDown={(e) => e.stopPropagation()}
-                className={`p-1 rounded-full transition-colors ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
-              >
-                {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? (
-                  <Bookmark size={13} className="fill-current" />
-                ) : (
-                  <Bookmark size={13} />
-                )}
-              </button>
-            </div>
+            <BubbleActions
+              msg={msg}
+              isMe={isMe}
+              isDark={isDark}
+              chat={chat}
+              chatSavedMessages={chatSavedMessages}
+              onReply={onReply}
+              onToggleSavedMessage={onToggleSavedMessage}
+            />
           )}
           {isChannel && (
-            <div
-              className={`flex items-center gap-1 mt-2 -mb-1 px-1 py-1 rounded-lg cursor-pointer ${isDark ? "hover:bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "hover:bg-black/5 text-slate-500 hover:text-slate-800"} transition-colors max-w-full`}
-              onClick={() => { onSetActivePostId(msg.id); onSetShowComments(true); }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-              </svg>
-              <span className="text-[11px] font-medium tracking-wide">
-                {msg.id === 402 ? t('channelComments.replies', { count: 45 }) : t('channelComments.leaveAComment')}
-              </span>
-            </div>
+            <ChannelCommentsRow
+              msg={msg}
+              isDark={isDark}
+              onSetActivePostId={onSetActivePostId}
+              onSetShowComments={onSetShowComments}
+            />
           )}
         </div>
         <MessageReactions
@@ -364,7 +280,3 @@ function ChatMessageImpl({
 }
 
 export const ChatMessage = React.memo(ChatMessageImpl);
-
-
-
-

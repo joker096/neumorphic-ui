@@ -13,6 +13,9 @@ type MemberListProps = {
   onVideoCall?: (name: string, color?: string) => void;
   onMemberClick?: (member: CompanyMember, color: string) => void;
   onMemberEdit?: (member: CompanyMember) => void;
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (userId: string) => void;
   teamMembersLabel: string;
   t: (key: string, args?: Record<string, string | number> | string) => string;
   loading?: boolean;
@@ -29,6 +32,9 @@ export const MemberList = ({
   onVideoCall,
   onMemberClick,
   onMemberEdit,
+  selectable = false,
+  selectedIds,
+  onToggleSelect,
   teamMembersLabel,
   t,
   loading = false,
@@ -80,6 +86,9 @@ export const MemberList = ({
                 onVideoCall={onVideoCall}
                 onClick={() => onMemberClick?.(member, memberColorAt(i))}
                 onEdit={onMemberEdit ? () => onMemberEdit(member) : undefined}
+                selectable={selectable}
+                selected={selectedIds?.has(member.userId) ?? false}
+                onToggleSelect={onToggleSelect ? () => onToggleSelect(member.userId) : undefined}
                 t={t}
               />
             ))}

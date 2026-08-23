@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from "react";
-import { ChatInputOverlay } from "../ChatInputOverlay";
 import { ChatPreviewLayer } from "../ChatPreviewLayer";
 
 type ActiveChatWorkspaceProps = {
@@ -24,7 +23,6 @@ type ActiveChatWorkspaceProps = {
   draftTextByChat: Record<string, string>;
   setDraftTextByChat: Dispatch<SetStateAction<Record<string, string>>>;
   setChats: Dispatch<SetStateAction<any[]>>;
-  setChannels: Dispatch<SetStateAction<any[]>>;
   setVoiceNoteError: (message: string) => void;
   setSilentMode: (enabled: boolean) => void;
   setMorseMode: (enabled: boolean) => void;
@@ -70,7 +68,6 @@ export const ActiveChatWorkspace = ({
   draftTextByChat,
   setDraftTextByChat,
   setChats,
-  setChannels,
   setVoiceNoteError,
   setSilentMode,
   setMorseMode,
@@ -144,50 +141,7 @@ export const ActiveChatWorkspace = ({
       onReRecord={onReRecord}
       onPermissionDenied={onPermissionDenied}
       onSendVoice={onSendVoice}
-      onToggleStickerPicker={() => setShowStickerPicker(!showStickerPicker)}
-    />
-    <ChatInputOverlay
-      theme={theme}
-      activeChat={activeChat}
-      messageText={messageText}
-      setMessageText={setMessageText}
-      scheduleDateTime={scheduleDateTime}
-      showSchedulePopup={showSchedulePopup}
-      setShowSchedulePopup={setShowSchedulePopup}
-      setScheduleDateTime={setScheduleDateTime}
-      isRecordingVoice={isRecordingVoice}
-      setIsRecordingVoice={setIsRecordingVoice}
-      voiceNoteError={voiceNoteError}
-      showStickerPicker={showStickerPicker}
-      setShowStickerPicker={setShowStickerPicker}
-      morseMode={morseMode}
-      silentMode={silentMode}
-      replyTarget={replyTarget}
-      setReplyTarget={setReplyTarget}
-      draftTextByChat={draftTextByChat}
-      setDraftTextByChat={setDraftTextByChat}
-      setChats={setChats}
-      setChannels={setChannels}
-      setActiveChat={setActiveChat}
-      setVoiceNoteError={setVoiceNoteError}
-      setSilentMode={setSilentMode}
-      setMorseMode={setMorseMode}
-      handleSendMessage={handleSendMessage}
-      sendVoiceMessage={sendVoiceMessage}
-      sendStickerMessage={sendStickerMessage}
-      onScheduleChange={setScheduleDateTime}
-      onToggleMute={onToggleMute}
-      onAttachImage={onAttachImage}
-      onToggleSchedulePopup={onToggleSchedulePopup}
-      onToggleSilent={onToggleSilent}
-      onToggleMorse={onToggleMorse}
-      onHoldRecord={onHoldRecord}
-      onReRecord={onReRecord}
-      onPermissionDenied={onPermissionDenied}
-      onSendVoice={onSendVoice}
-      onToggleStickerPicker={() => setShowStickerPicker(!showStickerPicker)}
-      onSendSticker={sendStickerMessage}
-      isDark={theme === "dark"}
-    />
+       onToggleStickerPicker={() => setShowStickerPicker(!showStickerPicker)}
+     />
   </div>
 );

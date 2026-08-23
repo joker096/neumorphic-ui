@@ -1,35 +1,21 @@
 import React from "react";
 import { motion } from "motion/react";
-import type { MediaItem } from "./MediaViewer";
-const LazyMediaViewer = React.lazy(() => import("./MediaViewer").then((m) => ({ default: m.MediaViewer })));
-
-import { ChannelCommentsView } from "./ChannelCommentsView";
-import { LiveVoiceRecorder } from "./LiveVoiceRecorder";
-import { StickerPicker } from "./chat/StickerPicker";
-import { FormattedText } from "./chat-preview/FormattedText";
-import { Tooltip } from "./Tooltip";
 import { useI18n } from "../lib/i18n";
 import { ChatMessageList } from "./ChatMessageList";
 import { PinnedMessagesBar } from "./chat-preview/PinnedMessagesBar";
 import { MessageSelectionBar } from "./chat-preview/MessageSelectionBar";
-import { ContactProfileModal } from "./ContactProfileModal";
-import type { ContactProfile } from "./ContactProfileModal";
-const LazyChatProfileView = React.lazy(() => import("./ChatProfileView").then((m) => ({ default: m.ChatProfileView })));
 import { ChatHeader } from "./chat-preview/ChatHeader";
 import { SearchBar } from "./chat-preview/SearchBar";
-import { ReactionPicker } from "./chat-preview/ReactionPicker";
-import { MessageActions } from "./chat-preview/MessageActions";
-import { InputFooter } from "./chat-preview/InputFooter";
-import { SavedMessagesPanel } from "./chat-preview/SavedMessagesPanel";
 import { ChatMediaPanel } from "./chat-preview/ChatMediaPanel";
 import { ChatInputArea } from "./chat-preview/ChatInputArea";
 import { ScheduledMessages } from "./chat-preview/ScheduledMessages";
 import { JumpToBottomButton } from "./chat-preview/JumpToBottomButton";
+import { ChatPreviewOverlays } from "./ChatPreviewOverlays";
+import type { ContactProfile } from "./ContactProfileModal";
 import { useChatPreviewState } from "../hooks/useChatPreviewState";
 import { useChatPreviewTyping } from "../hooks/useChatPreviewTyping";
 import { useChatMessageActions } from "../hooks/useChatMessageActions";
 import { useAppStore } from "../store";
-import { toast } from "./ui/Toast";
 
 interface ChatPreviewLayerProps {
   chat: any;
@@ -103,7 +89,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     handleCancelSelection,
     handleForwardSelected,
     handleDeleteSelected,
-  } = useChatMessageActions({ chatId: chat.id, onForward, onDelete });
+  } = useChatMessageActions({ chatId: chat.id, onForward, onDelete, onUpdateChat });
 
   const handleJumpToPinned = (id: number) => {
     const messages = (chat.messages || []) as any[];
@@ -194,19 +180,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
 
   const handleScrollToBottom = () => {
     msgListRef.current?.scrollToBottom();
-  };
-
-  const handleCall = () => {
-    if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
-    setSelectedContact(null);
-  };
-  const handleVideoCall = () => {
-    if (onVideoCall && selectedContact) onVideoCall(selectedContact.name, selectedContact.color);
-    setSelectedContact(null);
-  };
-  const handleMessage = () => {
-    if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
-    setSelectedContact(null);
   };
 
   return (
@@ -367,51 +340,33 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         t={t}
       />
 
-      {(photoOpen || videoOpen) && (
-        <React.Suspense fallback={null}>
-          <LazyMediaViewer
-            media={
-              photoOpen
-                ? { type: 'photo', url: activePhotoUrl ?? undefined, caption: chat.name }
-                : { type: 'video', caption: chat.name }
-            }
-            onClose={() => { setPhotoOpen(false); setVideoOpen(false); }}
-            isDark={isDark}
-          />
-        </React.Suspense>
-      )}
-      <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} />
-      <SavedMessagesPanel show={showSavedPanel} isDark={isDark} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(chat, msg) => onToggleSavedMessage?.(chat, msg)} t={t} />
-      <ContactProfileModal
-        contact={selectedContact}
+      <ChatPreviewOverlays
+        chat={chat}
+        isDark={isDark}
         theme={theme}
-        onClose={() => setSelectedContact(null)}
-        onCall={handleCall}
-        onVideoCall={handleVideoCall}
-        onMessage={handleMessage}
-        onDelete={() => setSelectedContact(null)}
-        onEdit={() => { if (selectedContact) setEditingContact(selectedContact); setSelectedContact(null); }}
-        onBlock={() => setSelectedContact(null)}
-        onToggleFavorite={(id, isFavorite) => {
-          setSelectedContact(prev => prev && prev.id === id ? { ...prev, isFavorite } : prev);
-          if (chat) onUpdateChat?.({ ...chat, isFavorite });
-        }}
+        photoOpen={photoOpen}
+        videoOpen={videoOpen}
+        activePhotoUrl={activePhotoUrl}
+        setPhotoOpen={setPhotoOpen}
+        setVideoOpen={setVideoOpen}
+        showComments={showComments}
+        activePostId={activePostId}
+        setShowComments={setShowComments}
+        showSavedPanel={showSavedPanel}
+        setShowSavedPanel={setShowSavedPanel}
+        chatSavedMessages={chatSavedMessages}
+        onToggleSavedMessage={onToggleSavedMessage}
+        t={t}
+        selectedContact={selectedContact}
+        setSelectedContact={setSelectedContact as React.Dispatch<React.SetStateAction<ContactProfile | null>>}
+        setEditingContact={setEditingContact}
+        onUpdateChat={onUpdateChat}
+        onCall={onCall}
+        onVideoCall={onVideoCall}
+        onMessage={onMessage}
+        profileOpen={profileOpen}
+        setProfileOpen={setProfileOpen}
       />
-
-      {profileOpen && (
-        <React.Suspense fallback={null}>
-          <LazyChatProfileView
-            open={profileOpen}
-            chat={chat}
-            isDark={isDark}
-            onClose={() => setProfileOpen(false)}
-            onMessage={() => setProfileOpen(false)}
-            onCall={onCall ? () => { onCall(chat.name, chat.color); setProfileOpen(false); } : undefined}
-            onVideoCall={onVideoCall ? () => { onVideoCall(chat.name, chat.color); setProfileOpen(false); } : undefined}
-          />
-        </React.Suspense>
-      )}
     </motion.div>
   );
 };
-

@@ -10,7 +10,7 @@
          on the nginx deployment those are ignored, so CSP + Referrer-Policy are also
          declared here via <meta>. Server-level headers (HSTS, X-Frame-Options,
          X-Content-Type-Options, Permissions-Policy) must be set in the nginx config. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' wss: https:; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' wss: https:; media-src 'self' blob: data: https:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     
     <!-- PWA Meta Tags -->
@@ -39,7 +39,7 @@
  
   </head>
   <body>
-    <a href="#main-content" class="skip-to-content" style="position:absolute;left:-9999px;top:0;z-index:9999;padding:12px 24px;background:#f97316;color:#fff;font-size:14px;font-weight:700;border-radius:0 0 8px 0;text-decoration:none;transform:translateY(-100%);transition:transform 0.2s">Skip to main content</a>
+    <a href="#main-content" class="skip-to-content" style="position:absolute;left:-9999px;top:0;z-index:9999;padding:12px 24px;background:#c2410c;color:#fff;font-size:14px;font-weight:700;border-radius:0 0 8px 0;text-decoration:none;transform:translateY(-100%);transition:transform 0.2s">Skip to main content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script src="/skip-to-content.js" defer></script>

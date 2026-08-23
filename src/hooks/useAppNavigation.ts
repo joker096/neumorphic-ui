@@ -62,7 +62,7 @@ export function useAppNavigation(
   }, [chats, setView, setActiveChat, setChats]);
 
   const isChatListRoute = useMemo(() =>
-    ["chats", "channels", "bots", "stories"].includes(view),
+    ["chats", "channels", "bots"].includes(view),
     [view],
   );
 

@@ -23,7 +23,7 @@ export const JumpToBottomButton = ({ isNearBottom, unreadSinceScroll, isDark, on
           <path d="M6 9l6 6 6-6"/>
         </svg>
         {unreadSinceScroll > 0 && (
-          <span className="text-[11px] font-bold">{unreadSinceScroll}</span>
+          <span className="text-xs font-bold">{unreadSinceScroll}</span>
         )}
       </motion.button>
     )}

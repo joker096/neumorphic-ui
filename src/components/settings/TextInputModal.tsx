@@ -60,7 +60,7 @@ export const TextInputModal = ({
             onBlur={() => setFocused(false)}
             placeholder={placeholder}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            className={`w-full bg-transparent border-none outline-none text-[14px] text-[var(--text-primary)] placeholder:text-gray-500`}
+            className={`w-full bg-transparent border-none outline-none text-xs text-[var(--text-primary)] placeholder:text-gray-500`}
           />
         </div>
       </div>

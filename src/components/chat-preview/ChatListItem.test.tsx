@@ -13,7 +13,7 @@ vi.mock('./FormattedText', () => ({
   FormattedText: ({ text }: any) => <span>{text}</span>,
 }));
 
-const mockStore: any = { stealthMode: false, typingIndicators: false };
+const mockStore: any = { stealthMode: false, typingIndicators: false, contactAvatars: {} };
 vi.mock('../../store', () => ({
   useAppStore: (selector: any) => (typeof selector === 'function' ? selector(mockStore) : mockStore),
 }));
@@ -90,13 +90,37 @@ describe('ChatListItem', () => {
 
   it('shows online status indicator', () => {
     render(<ChatListItem {...defaultProps} />);
-    const avatar = document.querySelector('[class*="rounded-[12px]"]');
-    expect(avatar?.querySelector('[class*="rounded-full"]')).toBeInTheDocument();
+    const avatar = document.querySelector('[class*="w-[39px]"]');
+    expect(avatar?.className).toContain('rounded-full');
+    expect(avatar?.querySelector('[class*="w-[10px]"]')).toBeInTheDocument();
   });
 
   it('does not show online indicator when chat.online is false', () => {
     render(<ChatListItem {...defaultProps} chat={{ ...mockChat, online: false }} />);
-    const avatar = document.querySelector('[class*="rounded-[12px]"]');
-    expect(avatar?.querySelector('[class*="rounded-full"]')).not.toBeInTheDocument();
+    const avatar = document.querySelector('[class*="w-[39px]"]');
+    expect(avatar?.querySelector('[class*="w-[10px]"]')).not.toBeInTheDocument();
+  });
+
+  it('calls onArchive when archive action is triggered', () => {
+    const onArchive = vi.fn();
+    render(<ChatListItem {...defaultProps} onArchive={onArchive} archiveLabel="chat.archive" />);
+    fireEvent.click(screen.getAllByLabelText('chat.archive')[0]);
+    expect(onArchive).toHaveBeenCalledWith(1);
+  });
+
+  it('calls onMute when mute action is triggered', () => {
+    const onMute = vi.fn();
+    render(<ChatListItem {...defaultProps} onMute={onMute} />);
+    fireEvent.click(screen.getAllByLabelText('chat.mute')[0]);
+    expect(onMute).toHaveBeenCalledWith(1);
+  });
+
+  it('opens delete confirmation when delete action is triggered', () => {
+    const onDelete = vi.fn();
+    render(<ChatListItem {...defaultProps} onDelete={onDelete} />);
+    fireEvent.click(screen.getAllByLabelText('chat.delete')[0]);
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('chat.delete'));
+    expect(onDelete).toHaveBeenCalledWith(1);
   });
 });

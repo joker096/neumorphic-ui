@@ -3,6 +3,7 @@ import { RegistrationScreen, LoginScreen } from "../auth";
 import { AppLockScreen } from "./AppLockScreen";
 import { useAppLock } from "../../hooks/useAppLock";
 import { useIdentityAuth } from "../../hooks/useIdentityAuth";
+import { useAppStore } from "../../store";
 
 type AppAuthGateProps = {
   children: React.ReactNode;
@@ -12,9 +13,11 @@ type AppAuthGateProps = {
 export const AppAuthGate = ({ children, onRegistrationComplete }: AppAuthGateProps) => {
   const { status: identityStatus } = useIdentityAuth();
   const {
-    pinInput, setPinInput, pinError, lockAttempts,
-    lockBlockedUntil, lockBlockTimer, handleUnlock, isLocked,
+    pinInput, setPinInput, pinError, biometricError, biometricBusy,
+    biometricAvailable, lockAttempts, lockBlockedUntil, lockBlockTimer,
+    handleUnlock, handleUnlockBiometric, isLocked,
   } = useAppLock();
+  const biometricEnabled = useAppStore(s => s.appLockBiometricEnabled);
   const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
@@ -36,7 +39,15 @@ export const AppAuthGate = ({ children, onRegistrationComplete }: AppAuthGatePro
   }
 
   if (showLogin) {
-    return <LoginScreen onComplete={onRegistrationComplete} />;
+    return (
+      <LoginScreen
+        onComplete={() => {
+          setShowLogin(false);
+          onRegistrationComplete();
+        }}
+        onBack={() => setShowLogin(false)}
+      />
+    );
   }
 
   if (isLocked) {
@@ -45,10 +56,15 @@ export const AppAuthGate = ({ children, onRegistrationComplete }: AppAuthGatePro
         pinInput={pinInput}
         setPinInput={setPinInput}
         pinError={pinError}
+        biometricError={biometricError}
+        biometricBusy={biometricBusy}
+        biometricEnabled={biometricEnabled}
+        biometricAvailable={biometricAvailable}
         lockAttempts={lockAttempts}
         lockBlockTimer={lockBlockTimer}
         lockBlockedUntil={lockBlockedUntil}
         handleUnlock={handleUnlock}
+        handleUnlockBiometric={handleUnlockBiometric}
       />
     );
   }

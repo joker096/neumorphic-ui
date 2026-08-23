@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Plus, CheckCircle2, Circle, Trash2, Flag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
@@ -6,6 +6,8 @@ import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
 import type { CrmTask, TaskPriority } from '../../lib/crm/types';
 import { CrmModal } from './CrmModal';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 
 const priorityColor: Record<TaskPriority, string> = {
@@ -15,7 +17,7 @@ const priorityColor: Record<TaskPriority, string> = {
 };
 
 const inputCls =
-  'w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-sm';
+  'w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 const labelCls = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block';
 
 type Props = { task?: CrmTask; onClose: () => void };
@@ -103,8 +105,14 @@ const TaskModal: React.FC<Props> = ({ task, onClose }) => {
   );
 };
 
-export const CrmTasks: React.FC = () => {
+type CrmTasksProps = {
+  focusTaskId?: string | null;
+  onFocusHandled?: () => void;
+};
+
+export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled }) => {
   const { t } = useI18n();
+  const { isDark } = useTheme();
   const tasks = useAppStore((s) => s.crmTasks);
   const contacts = useAppStore((s) => s.crmContacts);
   const toggleTask = useAppStore((s) => s.toggleTask);
@@ -112,7 +120,26 @@ export const CrmTasks: React.FC = () => {
   const { can } = useCrmPermissions();
 
   const [showAdd, setShowAdd] = useState(false);
+  const [editTaskId, setEditTaskId] = useState<string | null>(null);
+  const [confirmTaskId, setConfirmTaskId] = useState<string | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const lastFocus = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!focusTaskId || lastFocus.current === focusTaskId) return undefined;
+    lastFocus.current = focusTaskId;
+    setHighlightId(focusTaskId);
+    const timer = window.setTimeout(() => {
+      document.getElementById(`crm-task-${focusTaskId}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      setHighlightId(null);
+      onFocusHandled?.();
+    }, 60);
+    return () => window.clearTimeout(timer);
+  }, [focusTaskId, onFocusHandled]);
+
   const name = (id?: string | null) => (id ? contacts.find((c) => c.userId === id)?.displayName : null);
+
+  const editTask = tasks.find((x) => x.id === editTaskId) ?? null;
 
   const sorted = [...tasks].sort((a, b) => Number(a.done) - Number(b.done) || (a.dueAt ?? 0) - (b.dueAt ?? 0));
 
@@ -133,13 +160,25 @@ export const CrmTasks: React.FC = () => {
 
       <div className="flex flex-col gap-2">
         {sorted.map((task) => (
-          <div key={task.id} className={`flex items-center gap-3 p-3 rounded-2xl border border-[var(--border-color)] ${task.done ? 'opacity-60' : ''}`}>
-            <button onClick={() => can('manageTasks') && toggleTask(task.id)} className="shrink-0 cursor-pointer" disabled={!can('manageTasks')}>
+          <div
+            key={task.id}
+            id={`crm-task-${task.id}`}
+            onClick={() => setEditTaskId(task.id)}
+            className={`flex items-center gap-3 p-3 rounded-2xl border border-[var(--border-color)] cursor-pointer ${task.done ? 'opacity-60' : ''} ${highlightId === task.id ? 'ring-2 ring-[var(--accent)]' : ''}`}
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                can('manageTasks') && toggleTask(task.id);
+              }}
+              className="shrink-0 cursor-pointer"
+              disabled={!can('manageTasks')}
+            >
               {task.done ? <CheckCircle2 size={20} className="text-[var(--color-success)]" /> : <Circle size={20} className="text-[var(--text-secondary)]" />}
             </button>
             <div className="flex-1 min-w-0">
               <div className={`text-sm font-medium break-words ${task.done ? 'line-through text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}`}>{task.title}</div>
-              <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[10px] text-[var(--text-secondary)]">
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-[var(--text-secondary)]">
                 <span className={`px-1.5 py-0.5 rounded-full ${priorityColor[task.priority]}`}><Flag size={9} className="inline mr-0.5" />{task.priority}</span>
                 {name(task.assigneeId) && <span>👤 {name(task.assigneeId)}</span>}
                 {task.dueAt && <span>⏰ {new Date(task.dueAt).toLocaleDateString()}</span>}
@@ -147,7 +186,13 @@ export const CrmTasks: React.FC = () => {
               </div>
             </div>
             {can('manageTasks') && (
-              <button onClick={() => removeTask(task.id)} className="shrink-0 text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer">
+               <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmTaskId(task.id);
+                }}
+                className="shrink-0 text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer"
+              >
                 <Trash2 size={16} />
               </button>
             )}
@@ -156,6 +201,24 @@ export const CrmTasks: React.FC = () => {
       </div>
 
       {showAdd && <TaskModal onClose={() => setShowAdd(false)} />}
+
+      {editTask && <TaskModal task={editTask} onClose={() => setEditTaskId(null)} />}
+
+      <ConfirmDialog
+        isOpen={confirmTaskId !== null}
+        title={t('crm.confirmDeleteTask', 'Delete task?')}
+        message={tasks.find((x) => x.id === confirmTaskId)?.title ?? ''}
+        confirmLabel={t('common.confirm', 'Confirm')}
+        cancelLabel={t('common.cancel', 'Cancel')}
+        variant="danger"
+        theme={isDark ? 'dark' : 'light'}
+        zIndex="z-[130]"
+        onConfirm={() => {
+          if (confirmTaskId) removeTask(confirmTaskId);
+          setConfirmTaskId(null);
+        }}
+        onCancel={() => setConfirmTaskId(null)}
+      />
     </div>
   );
 };

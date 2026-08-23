@@ -24,10 +24,10 @@ interface FormFieldProps {
   suffix?: React.ReactNode
 }
 
-// Inputs are borderless: the cursor/placeholder is enough affordance.
-// No border or focus border (see message composer style).
+// Hairline border + inset shadow keep fields visible on card surfaces
+// (in dark theme the modal background equals the page background otherwise).
 const inputBase = (_isDark: boolean, hasError?: boolean) =>
-  `w-full h-12 px-4 rounded-xl text-sm outline-none transition-all ${
+  `w-full h-12 px-4 rounded-xl text-xs outline-none transition-all border border-border shadow-[var(--inset-field-shadow)] ${
     hasError
       ? 'bg-input-bg text-input-text placeholder:text-input-placeholder'
       : 'bg-input-bg text-input-text placeholder:text-input-placeholder'
@@ -61,7 +61,7 @@ export const FormField = ({
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && (
-        <label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
           {label}
         </label>
       )}
@@ -100,7 +100,7 @@ export const FormField = ({
         )}
       </div>
       {error && (
-        <span className="text-[11px] font-medium text-destructive ml-1">
+        <span className="text-xs font-medium text-destructive ml-1">
           {error}
         </span>
       )}

@@ -1,6 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
+vi.mock('../../lib/i18n', () => {
+  const translations: Record<string, string> = {
+    'search.clear': 'Clear',
+  };
+  return {
+    useI18n: () => ({
+      lang: 'en',
+      setLang: () => {},
+      t: (key: string) => translations[key] ?? key,
+    }),
+  };
+});
+
 import { SearchInput } from './SearchInput';
 
 describe('SearchInput', () => {

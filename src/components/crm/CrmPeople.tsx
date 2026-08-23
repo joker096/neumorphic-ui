@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Plus, Building2, Users, Phone, Mail, Tag } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Plus, Building2, Users, Phone, Mail, Tag, ChevronDown, ListChecks, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
@@ -9,6 +9,7 @@ import type { CrmContact, CrmContactStatus } from '../../lib/crm/types';
 import { RoleBadge } from './RoleBadge';
 import { ContactCard } from './ContactCard';
 import { CrmFilterBar } from './CrmFilterBar';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 
 const statusColor: Record<CrmContactStatus, string> = {
@@ -23,17 +24,63 @@ const statusColor: Record<CrmContactStatus, string> = {
 const statusLabel = (s: CrmContactStatus, t: (k: string, f?: string) => string) =>
   t(CONTACT_STATUSES.find((x) => x.id === s)!.labelKey, (CRM_FALLBACKS as any)[s]);
 
-export const CrmPeople: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRoles }) => {
+type Props = {
+  onOpenRoles?: () => void;
+  onCall?: (name: string, color?: string) => void;
+  onVideoCall?: (name: string, color?: string) => void;
+  onMessage?: (name: string, color?: string) => void;
+  focusContactId?: string | null;
+  onFocusHandled?: () => void;
+};
+
+export const CrmPeople: React.FC<Props> = ({
+  onOpenRoles, onCall, onVideoCall, onMessage, focusContactId, onFocusHandled,
+}) => {
   const { t } = useI18n();
   const contacts = useAppStore((s) => s.crmContacts);
   const departments = useAppStore((s) => s.crmDepartments);
+  const tasks = useAppStore((s) => s.crmTasks);
+  const deals = useAppStore((s) => s.crmDeals);
   const filters = useAppStore((s) => s.crmFilters);
+  const collapsedGroups = useAppStore((s) => s.crmCollapsedGroups);
+  const toggleCrmGroup = useAppStore((s) => s.toggleCrmGroup);
   const userId = useAppStore((s) => s.userProfile.id);
-  const addContact = useAppStore((s) => s.addContact);
+  const assignManager = useAppStore((s) => s.assignManager);
+  const addContactTag = useAppStore((s) => s.addContactTag);
+  const removeContact = useAppStore((s) => s.removeContact);
   const { can } = useCrmPermissions();
 
   const [selected, setSelected] = useState<CrmContact | null>(null);
   const [showAdd, setShowAdd] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkManager, setBulkManager] = useState('');
+  const [bulkTag, setBulkTag] = useState('');
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const lastFocus = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!focusContactId || lastFocus.current === focusContactId) return undefined;
+    lastFocus.current = focusContactId;
+    const target = contacts.find((c) => c.userId === focusContactId);
+    const groupKey = target
+      ? (target.status === 'internal' ? (target.departmentId ?? 'none') : 'clients')
+      : null;
+    if (groupKey && collapsedGroups.includes(groupKey)) toggleCrmGroup(groupKey);
+    setHighlightId(focusContactId);
+    const scrollT = window.setTimeout(() => {
+      document.getElementById(`crm-contact-${focusContactId}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 50);
+    const clearT = window.setTimeout(() => {
+      setHighlightId(null);
+      onFocusHandled?.();
+    }, 2500);
+    return () => {
+      window.clearTimeout(scrollT);
+      window.clearTimeout(clearT);
+    };
+  }, [focusContactId, contacts, collapsedGroups, toggleCrmGroup, onFocusHandled]);
 
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
@@ -66,20 +113,82 @@ export const CrmPeople: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRoles 
   const managerName = (id?: string | null) =>
     id ? contacts.find((c) => c.userId === id)?.displayName : null;
 
+  const managers = contacts.filter((c) => c.role === 'admin' || c.role === 'manager');
+
+  const deptStats = (key: string) => {
+    if (key === 'clients' || key === 'none') return null;
+    const memberIds = new Set(
+      contacts.filter((c) => c.status === 'internal' && c.departmentId === key).map((c) => c.userId),
+    );
+    const openTasks = tasks.filter((x) => !x.done && x.assigneeId && memberIds.has(x.assigneeId)).length;
+    const openDeals = deals.filter(
+      (d) => d.stage !== 'won' && d.stage !== 'lost' && d.ownerId && memberIds.has(d.ownerId),
+    ).length;
+    const leadId = departments.find((d) => d.id === key)?.leadId;
+    const lead = leadId ? contacts.find((c) => c.userId === leadId)?.displayName ?? null : null;
+    return { openTasks, openDeals, lead };
+  };
+
+  const toggleSelect = (id: string) =>
+    setSelectedIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
+
+  const exitSelect = () => {
+    setSelectMode(false);
+    setSelectedIds([]);
+    setBulkManager('');
+    setBulkTag('');
+  };
+
+  const applyManager = () => {
+    if (!bulkManager) return;
+    selectedIds.forEach((id) => assignManager(id, bulkManager));
+    toast.success(t('crm.managersAssigned', CRM_FALLBACKS.managersAssigned));
+    exitSelect();
+  };
+
+  const applyTag = () => {
+    const tag = bulkTag.trim();
+    if (!tag) return;
+    selectedIds.forEach((id) => addContactTag(id, tag));
+    toast.success(t('crm.tagApplied', CRM_FALLBACKS.tagApplied));
+    setBulkTag('');
+  };
+
+  const confirmBulkDelete = () => {
+    selectedIds.forEach((id) => removeContact(id));
+    toast.success(t('crm.bulkDeleted', CRM_FALLBACKS.bulkDeleted));
+    setBulkDeleteOpen(false);
+    exitSelect();
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-y-auto px-3 py-3">
       <div className="flex items-center justify-between px-2 mb-2">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
           <Users size={14} /> {filtered.length}
         </div>
-        {can('manageMembers') && (
-          <button
-            onClick={() => setShowAdd(true)}
-            className="flex items-center gap-1.5 min-h-[40px] px-3 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
-          >
-            <Plus size={15} /> {t('crm.addContact', CRM_FALLBACKS.addContact)}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {can('manageMembers') && (
+            <button
+              onClick={() => (selectMode ? exitSelect() : (setSelectMode(true), setSelectedIds([])))}
+              className={`flex items-center gap-1.5 min-h-[var(--control-height-sm)] px-2.5 rounded-xl font-bold text-[13px] cursor-pointer transition-all ${
+                selectMode
+                  ? 'bg-[var(--accent)] text-[var(--ink-on-saturate)]'
+                  : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              <ListChecks size={15} /> {t('crm.bulkSelect', CRM_FALLBACKS.bulkSelect)}
+            </button>
+          )}
+          {can('manageMembers') && (
+            <button
+              onClick={() => setShowAdd(true)}
+              className="flex items-center gap-1.5 min-h-[var(--control-height-sm)] px-2.5 rounded-xl font-bold text-[13px] cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--ink-on-saturate)] hover:brightness-110"
+            >
+              <Plus size={15} /> {t('crm.addContact', CRM_FALLBACKS.addContact)}
+            </button>
+          )}
+        </div>
       </div>
 
       <CrmFilterBar onOpenRoles={onOpenRoles} />
@@ -88,22 +197,52 @@ export const CrmPeople: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRoles 
         <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noContacts', CRM_FALLBACKS.noContacts)}</div>
       )}
 
-      {grouped.map((group) => (
+      {grouped.map((group) => {
+        const isCollapsed = collapsedGroups.includes(group.key);
+        const stats = deptStats(group.key);
+        return (
         <div key={group.key} className="mb-4">
-          <div className="flex items-center gap-2 px-2 mb-2 text-[11px] font-bold uppercase tracking-widest text-[var(--text-secondary)]">
+          <button
+            type="button"
+            aria-expanded={!isCollapsed}
+            onClick={() => toggleCrmGroup(group.key)}
+            className="w-full flex items-center gap-2 px-2 py-1 mb-1 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            <ChevronDown size={14} className={`transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
             {group.key === 'clients' ? <Building2 size={13} /> : <Users size={13} />}
-            {group.label} ({group.items.length})
-          </div>
-          <div className="flex flex-col gap-2">
+            <span className="truncate">{group.label} ({group.items.length})</span>
+            {stats && (
+              <span className="normal-case tracking-normal font-medium text-[var(--text-secondary)] flex items-center gap-2 truncate">
+                {stats.lead && <span>{t('crm.lead', CRM_FALLBACKS.lead)}: {stats.lead}</span>}
+                <span>{stats.openTasks} {t('crm.tabTasks', CRM_FALLBACKS.tabTasks)}</span>
+                <span>{stats.openDeals} {t('crm.tabDeals', CRM_FALLBACKS.tabDeals)}</span>
+              </span>
+            )}
+          </button>
+          {!isCollapsed && <div className="flex flex-col gap-2">
             {group.items.map((c, i) => (
               <motion.button
                 key={c.userId}
+                id={`crm-contact-${c.userId}`}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
-                onClick={() => setSelected(c)}
-                className="w-full flex items-center gap-3 p-3 rounded-2xl text-left cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)] min-h-[60px]"
+                onClick={() => (selectMode ? toggleSelect(c.userId) : setSelected(c))}
+                className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)] min-h-[60px] ${
+                  highlightId === c.userId ? 'ring-2 ring-[var(--accent)]' : ''
+                }`}
               >
+                {selectMode && (
+                  <span
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
+                      selectedIds.includes(c.userId)
+                        ? 'bg-[var(--accent)] border-[var(--accent)] text-[var(--ink-on-saturate)]'
+                        : 'border-[var(--border-color)]'
+                    }`}
+                  >
+                    {selectedIds.includes(c.userId) && <Check size={13} />}
+                  </span>
+                )}
                 <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${crmAvatarAt(i)} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm shrink-0`}>
                   {c.displayName.charAt(0)}
                 </div>
@@ -111,17 +250,17 @@ export const CrmPeople: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRoles 
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="font-bold text-sm text-[var(--text-primary)] break-words leading-snug">{c.displayName}</span>
                     {c.userId === userId && (
-                      <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-[var(--color-success)]/15 text-[var(--color-success)]">{t('crm.you', 'You')}</span>
+                      <span className="text-xs font-bold uppercase px-1.5 py-0.5 rounded-full bg-[var(--color-success)]/15 text-[var(--color-success)]">{t('crm.you', 'You')}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 flex-wrap mt-0.5">
                     <RoleBadge contact={c} />
-                    <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full ${statusColor[c.status]}`}>
+                    <span className={`text-xs font-bold uppercase px-1.5 py-0.5 rounded-full ${statusColor[c.status]}`}>
                       {statusLabel(c.status, t)}
                     </span>
                   </div>
-                  {c.title && <div className="text-[11px] text-[var(--text-secondary)] truncate">{c.title}</div>}
-                  <div className="flex items-center gap-3 mt-0.5 text-[10px] text-[var(--text-secondary)] flex-wrap">
+                  {c.title && <div className="text-xs text-[var(--text-secondary)] truncate">{c.title}</div>}
+                  <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--text-secondary)] flex-wrap">
                     {c.assignedManagerId && c.assignedManagerId !== c.userId && (
                       <span>👤 {managerName(c.assignedManagerId)}</span>
                     )}
@@ -131,7 +270,7 @@ export const CrmPeople: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRoles 
                   {c.tags.length > 0 && (
                     <div className="flex items-center gap-1 mt-1 flex-wrap">
                       {c.tags.filter((x) => x !== 'me').map((tag) => (
-                        <span key={tag} className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+                        <span key={tag} className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
                           <Tag size={9} />{tag}
                         </span>
                       ))}
@@ -140,16 +279,84 @@ export const CrmPeople: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRoles 
                 </div>
               </motion.button>
             ))}
-          </div>
+          </div>}
         </div>
-      ))}
+        );
+      })}
+
+      {selectMode && (
+        <div className="sticky bottom-2 mt-2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-[var(--text-primary)]">
+            {t('crm.selectedCount', { count: selectedIds.length })}
+          </span>
+          {can('assignManagers') && (
+            <select
+              value={bulkManager}
+              onChange={(e) => setBulkManager(e.target.value)}
+              className="min-h-[36px] px-2 rounded-xl bg-[var(--bg-primary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs"
+            >
+              <option value="">{t('crm.bulkAssign', CRM_FALLBACKS.bulkAssign)}</option>
+              {managers.map((m) => (
+                <option key={m.userId} value={m.userId}>{m.displayName}</option>
+              ))}
+            </select>
+          )}
+          {can('assignManagers') && bulkManager && (
+            <button
+              onClick={applyManager}
+              className="min-h-[36px] px-2.5 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-bold"
+            >
+              {t('crm.apply', CRM_FALLBACKS.apply)}
+            </button>
+          )}
+          {can('manageMembers') && (
+            <div className="flex items-center gap-1.5">
+              <input
+                value={bulkTag}
+                onChange={(e) => setBulkTag(e.target.value)}
+                placeholder={t('crm.bulkTagPlaceholder', CRM_FALLBACKS.bulkTagPlaceholder)}
+                className="min-h-[36px] px-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:border-[var(--accent)] outline-none text-xs text-[var(--text-primary)]"
+              />
+              <button
+                onClick={applyTag}
+                className="min-h-[36px] px-2.5 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-bold"
+              >
+                {t('crm.apply', CRM_FALLBACKS.apply)}
+              </button>
+            </div>
+          )}
+          {can('manageMembers') && selectedIds.length > 0 && (
+            <button
+              onClick={() => setBulkDeleteOpen(true)}
+              className="min-h-[36px] px-2.5 rounded-xl bg-rose-500/15 text-rose-500 text-xs font-bold"
+            >
+              {t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
+            </button>
+          )}
+        </div>
+      )}
 
       {selected && (
-        <ContactCard contact={selected} onClose={() => setSelected(null)} />
+        <ContactCard
+          contact={selected}
+          onClose={() => setSelected(null)}
+          onCall={onCall}
+          onVideoCall={onVideoCall}
+          onMessage={onMessage}
+        />
       )}
       {showAdd && (
         <ContactCard onClose={() => setShowAdd(false)} />
       )}
+      <ConfirmDialog
+        isOpen={bulkDeleteOpen}
+        title={t('crm.bulkDeleteConfirm', { count: selectedIds.length })}
+        variant="danger"
+        confirmLabel={t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
+        cancelLabel={t('crm.cancel', 'Cancel')}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setBulkDeleteOpen(false)}
+      />
     </div>
   );
 };

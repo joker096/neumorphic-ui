@@ -6,6 +6,7 @@ export function generateEd25519KeyPair(): { publicKey: Uint8Array; secretKey: Ui
 }
 
 export function ed25519_sign(message: string | Uint8Array, secretKey: Uint8Array): Uint8Array
+export function ed25519_sign(message: string | Uint8Array): Uint8Array
 export function ed25519_sign(message: string | Uint8Array, secretKey?: Uint8Array): Uint8Array {
   const msgBytes = typeof message === 'string' ? new TextEncoder().encode(message) : message
   if (!secretKey) {

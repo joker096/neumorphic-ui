@@ -46,7 +46,7 @@ export async function deriveKeysFromSeed(seed: Uint8Array): Promise<MasterKeySet
     aesKeyHex: buf2hex(aesRawKey),
     x25519Secret,
     x25519Public: x25519Kp.publicKey,
-    ed25519Secret,
+    ed25519Secret: signKp.secretKey,
     ed25519Public: signKp.publicKey,
   }
 }

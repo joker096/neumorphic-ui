@@ -71,7 +71,7 @@ export function InlineKeyboard({ botId, messageId, isDark, rows }: InlineKeyboar
           ))}
         </div>
       ))}
-      {feedback && <div className="text-[11px] opacity-60 mt-0.5">{feedback}</div>}
+      {feedback && <div className="text-xs opacity-60 mt-0.5">{feedback}</div>}
     </div>
   );
 }

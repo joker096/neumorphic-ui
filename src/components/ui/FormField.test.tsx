@@ -139,18 +139,20 @@ describe('FormField', () => {
     expect(onKeyDown).toHaveBeenCalled();
   });
 
-  it('renders with input base styling (borderless)', () => {
+  it('renders with input base styling (visible border + inset shadow)', () => {
     const { container } = render(<FormField value="" onChange={() => {}} />);
     const input = container.querySelector('input')!;
     expect(input?.className).toContain('bg-input-bg');
-    expect(input?.className).not.toContain('border');
+    expect(input?.className).toContain('border');
+    expect(input?.className).toContain('shadow-[var(--inset-field-shadow)]');
   });
 
-  it('renders with error styling (borderless)', () => {
+  it('renders with error styling (visible border + inset shadow)', () => {
     const { container } = render(<FormField value="" onChange={() => {}} error="Error" />);
     const input = container.querySelector('input')!;
     expect(input?.className).toContain('bg-input-bg');
-    expect(input?.className).not.toContain('border');
+    expect(input?.className).toContain('border');
+    expect(input?.className).toContain('shadow-[var(--inset-field-shadow)]');
   });
 
   it('renders with disabled cursor-not-allowed', () => {
@@ -162,7 +164,7 @@ describe('FormField', () => {
   it('renders label with correct styling', () => {
     const { container } = render(<FormField label="Label" value="" onChange={() => {}} />);
     const label = container.querySelector('label');
-    expect(label).toHaveClass('text-[11px]');
+    expect(label).toHaveClass('text-xs');
     expect(label).toHaveClass('font-bold');
   });
 
@@ -175,7 +177,7 @@ describe('FormField', () => {
   it('renders error with ml-1 margin', () => {
     const { container } = render(<FormField value="" onChange={() => {}} error="Error" />);
     const error = container.querySelector('span');
-    expect(error).toHaveClass('text-[11px]');
+    expect(error).toHaveClass('text-xs');
     expect(error).toHaveClass('font-medium');
     expect(error).toHaveClass('text-destructive');
   });

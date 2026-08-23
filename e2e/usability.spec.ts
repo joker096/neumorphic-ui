@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { openSettingsViaProfile } from './test-utils';
 
 const MOCK_SEED = 'a'.repeat(64);
 
@@ -87,6 +88,18 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
     });
   });
 
+  test.describe('Mobile navigation', () => {
+    test('mobile profile button opens settings', async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 667 });
+      await gotoApp(page);
+      await page
+        .locator('footer[aria-label="Mobile navigation"]')
+        .getByRole('button', { name: 'User' })
+        .click();
+      await expect(page.getByPlaceholder('Search settings')).toBeVisible();
+    });
+  });
+
   test.describe('Touch targets', () => {
     test('all nav buttons are at least 44x44px', async ({ page }) => {
         await gotoApp(page);
@@ -119,7 +132,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
 
     test('settings items are tappable', async ({ page }) => {
       await gotoApp(page);
-      await page.getByRole('button', { name: 'Settings' }).first().click();
+      await openSettingsViaProfile(page);
       await page.waitForTimeout(600);
       const securityItem = page.locator('div').filter({ hasText: 'Security' }).first();
       if (await securityItem.count() > 0) {
@@ -140,7 +153,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
 
     test('theme toggle switches mode', async ({ page }) => {
       await gotoApp(page);
-      await page.getByRole('button', { name: 'Settings' }).first().click();
+      await openSettingsViaProfile(page);
       await page.getByText('Theme').first().click();
       const toggle = page.locator('[role="switch"]').first();
       await expect(toggle).toBeVisible();
@@ -152,7 +165,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
 
     test('theme can be restored', async ({ page }) => {
       await gotoApp(page);
-      await page.getByRole('button', { name: 'Settings' }).first().click();
+      await openSettingsViaProfile(page);
       await page.getByText('Theme').first().click();
       const toggle = page.locator('[role="switch"]').first();
       await toggle.click();
@@ -166,7 +179,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
   test.describe('Input types & keyboard', () => {
     test('security PIN inputs use numeric keyboard', async ({ page }) => {
       await gotoApp(page);
-      await page.getByRole('button', { name: 'Settings' }).first().click();
+      await openSettingsViaProfile(page);
       await page.getByText('Security').first().click();
       await page.waitForTimeout(600);
       const pinToggle = page.getByText('PIN Lock').first();
@@ -197,7 +210,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
 
     test('round-trip navigation preserves app stability', async ({ page }) => {
       await gotoApp(page);
-      for (const label of ['Contacts', 'Settings', 'Chats']) {
+      for (const label of ['Contacts', 'Company Chat', 'Chats']) {
         await page.getByRole('button', { name: label }).first().click();
         await page.waitForTimeout(300);
         await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
@@ -208,7 +221,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
   test.describe('Forms & validation', () => {
     test('settings search is functional', async ({ page }) => {
       await gotoApp(page);
-      await page.getByRole('button', { name: 'Settings' }).first().click();
+      await openSettingsViaProfile(page);
       const searchInput = page.getByPlaceholder('Search settings').first();
       await expect(searchInput).toBeVisible();
       await searchInput.fill('security');
@@ -218,7 +231,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
 
     test('security section has PIN input', async ({ page }) => {
       await gotoApp(page);
-      await page.getByRole('button', { name: 'Settings' }).first().click();
+      await openSettingsViaProfile(page);
       await page.getByText('Security').first().click();
       await page.waitForTimeout(600);
       const pinSection = page.getByText('PIN Lock').first();
@@ -240,7 +253,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
 
     test('rapid nav clicks do not crash app', async ({ page }) => {
       await gotoApp(page);
-      const navItems = ['Chats', 'Contacts', 'Settings'];
+      const navItems = ['Chats', 'Contacts', 'Company Chat'];
       for (let i = 0; i < 3; i++) {
         for (const item of navItems) {
           await page.getByRole('button', { name: item }).first().click();

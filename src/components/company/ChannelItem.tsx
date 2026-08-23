@@ -24,7 +24,7 @@ export const ChannelItem = ({ channel, isDark = false, index, gradient, onClick,
     </div>
     <div className="flex-1 min-w-0">
       <div className={`font-bold truncate text-sm ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{channel.name}</div>
-      <div className={`text-[10px] truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-secondary)]"}`}>
+      <div className={`text-xs truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-secondary)]"}`}>
         {channel.description || t('company.memberCount', { count: channel.memberCount })}
       </div>
     </div>

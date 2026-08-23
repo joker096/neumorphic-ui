@@ -35,7 +35,7 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.darkTheme')}</div>
-              <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.darkThemeSubtitle')}</div>
+              <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.darkThemeSubtitle')}</div>
             </div>
           </div>
           <ThemeToggle isDark={isDark} theme={theme} setTheme={setTheme} t={t} />
@@ -84,7 +84,7 @@ export const AppearanceSettings = ({
             </div>
             <div className="flex-1">
               <div className={`text-sm font-semibold ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>{t('settings.installApp', { app: APP_INFO.NAME })}</div>
-              <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.pwaWorksOffline', 'Works offline')} • {t('settings.pwaFasterLoading', 'Faster loading')} • {t('settings.pwaAddToHomeScreen', 'Add to home screen')}</div>
+              <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.pwaWorksOffline', 'Works offline')} • {t('settings.pwaFasterLoading', 'Faster loading')} • {t('settings.pwaAddToHomeScreen', 'Add to home screen')}</div>
             </div>
           </div>
           <div className="px-4 pb-4">
@@ -111,7 +111,7 @@ export const AppearanceSettings = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.platformIos')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.installIosSteps')}</div>
+                <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.installIosSteps')}</div>
               </div>
             </div>
             <div className={`my-1 border-t ${isDark ? "border-emerald-500/10" : "border-emerald-200"}`} />
@@ -121,7 +121,7 @@ export const AppearanceSettings = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.platformDesktop')}</div>
-                <div className={`text-[11px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.installDesktopSteps')}</div>
+                <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.installDesktopSteps')}</div>
               </div>
             </div>
           </div>

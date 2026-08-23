@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
@@ -7,44 +7,48 @@ vi.mock('motion/react', () => ({
   AnimatePresence: ({ children }: any) => children,
 }));
 
-vi.mock('../../data/landingData', () => ({
-  LANDING_FEATURES: [
-    { title: 'E2EE', desc: 'End-to-end encrypted', icon: () => null },
-    { title: 'Mesh', desc: 'Mesh networking', icon: () => null },
-  ],
-  SECURITY_ITEMS: [
-    { title: 'Zero Trust', desc: 'Zero trust architecture', icon: () => null },
-    { title: 'Onion Routing', desc: 'Onion routing', icon: () => null },
-  ],
-  easeOut: [0.32, 0.72, 0, 1],
-}));
+import { I18nProvider } from '../../lib/i18n';
+import enCatalog from '../../locales/en.json';
+
+beforeEach(() => {
+  localStorage.setItem('app_language', 'en');
+  const cache = (globalThis as any).__i18nCache ?? ((globalThis as any).__i18nCache = new Map());
+  cache.set('en', enCatalog);
+});
 
 import { LandingPage } from './LandingPage';
 
+const renderLanding = (props: { onGetStarted: () => void }) =>
+  render(
+    <I18nProvider>
+      <LandingPage {...props} />
+    </I18nProvider>,
+  );
+
 describe('LandingPage', () => {
   it('renders HeroSection CTA button', () => {
-    render(<LandingPage onGetStarted={vi.fn()} />);
+    renderLanding({ onGetStarted: vi.fn() });
     expect(screen.getByText('Open App')).toBeInTheDocument();
   });
 
   it('renders Features section title', () => {
-    render(<LandingPage onGetStarted={vi.fn()} />);
+    renderLanding({ onGetStarted: vi.fn() });
     expect(screen.getByText(/private communication/)).toBeInTheDocument();
   });
 
   it('renders Security section', () => {
-    render(<LandingPage onGetStarted={vi.fn()} />);
+    renderLanding({ onGetStarted: vi.fn() });
     expect(screen.getByText('Security')).toBeInTheDocument();
   });
 
   it('renders CTA section', () => {
-    render(<LandingPage onGetStarted={vi.fn()} />);
+    renderLanding({ onGetStarted: vi.fn() });
     expect(screen.getByText('Get Started')).toBeInTheDocument();
   });
 
   it('calls onGetStarted when Open App clicked', () => {
     const onGetStarted = vi.fn();
-    render(<LandingPage onGetStarted={onGetStarted} />);
+    renderLanding({ onGetStarted });
     fireEvent.click(screen.getByText('Open App'));
     expect(onGetStarted).toHaveBeenCalled();
   });

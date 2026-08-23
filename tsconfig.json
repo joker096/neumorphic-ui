@@ -35,6 +35,7 @@
     "tmp_*.tsx",
     "*.tmp",
     ".tmp",
-    "test-server.mjs"
+    "test-server.mjs",
+    "src-tauri/target"
   ]
 }

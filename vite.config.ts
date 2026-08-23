@@ -16,6 +16,17 @@ export default defineConfig({
     drop: ['console', 'debugger'],
   },
   plugins: [
+    {
+      name: 'html-no-cache',
+      configurePreviewServer(server) {
+        server.middlewares.use((req, res) => {
+          const url = (req.url || '').split('?')[0];
+          if (url === '/' || url.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
+          }
+        });
+      },
+    },
     react(),
     tailwindcss(),
     compression({
@@ -45,7 +56,7 @@ export default defineConfig({
         "img-src 'self' data: blob:",
         "font-src 'self' data:",
         "connect-src 'self' wss: https:",
-        "media-src 'self' blob: https:",
+        "media-src 'self' blob: data: https:",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
@@ -59,6 +70,12 @@ export default defineConfig({
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
       'Permissions-Policy': 'camera=(self), microphone=(self), geolocation=(self), interest-cohort=()',
     },
+    proxy: {
+      '/api': {
+        target: process.env.VITE_PROXY_TARGET || 'http://localhost:8766',
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     headers: {
@@ -70,7 +87,7 @@ export default defineConfig({
         "img-src 'self' data: blob:",
         "font-src 'self' data:",
         "connect-src 'self' wss: https:",
-        "media-src 'self' blob: https:",
+        "media-src 'self' blob: data: https:",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",

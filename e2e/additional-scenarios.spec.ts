@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ensureAppReady } from './test-utils';
+import { ensureAppReady, gotoSettings } from './test-utils';
 
 test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   test('chat search filters messages', async ({ page }) => {
@@ -11,16 +11,14 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   });
 
   test('theme toggle switches theme', async ({ page }) => {
-    await ensureAppReady(page);
+    await gotoSettings(page);
     await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
-    await page.getByRole('button', { name: /settings/i }).click();
-    const toggle = page.getByRole('switch');
-    if (await toggle.isVisible()) {
-      await toggle.click();
-      await expect(page.locator('[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
-      await toggle.click();
-      await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
-    }
+    await page.getByText('Theme', { exact: true }).first().click();
+    const toggle = page.locator('[role="switch"][title="Switch to Light Mode"]');
+    await toggle.click();
+    await expect(page.locator('[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
+    await page.locator('[role="switch"][title="Switch to Dark Mode"]').click();
+    await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
   });
 
   test('contact profile modal opens', async ({ page }) => {
@@ -46,8 +44,7 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   });
 
   test('settings page persists changes', async ({ page }) => {
-    await ensureAppReady(page);
-    await page.getByRole('button', { name: /settings/i }).click();
+    await gotoSettings(page);
     await expect(page.getByText(/security|privacy|network|storage/i).first()).toBeVisible();
   });
 
@@ -59,15 +56,13 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   });
 
   test('radar view loads', async ({ page }) => {
-    await ensureAppReady(page);
-    await page.getByRole('button', { name: /settings/i }).first().click();
+    await gotoSettings(page);
     await page.getByText('Mesh Radar').first().click();
     await expect(page.getByText(/mesh radar/i).first()).toBeVisible();
   });
 
   test('pulse view loads', async ({ page }) => {
-    await ensureAppReady(page);
-    await page.getByRole('button', { name: /settings/i }).first().click();
+    await gotoSettings(page);
     await page.getByText('Call Log').first().click();
     await expect(page.getByPlaceholder('Search recordings...').first()).toBeVisible();
   });
@@ -80,8 +75,7 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   });
 
   test('recordings view loads', async ({ page }) => {
-    await ensureAppReady(page);
-    await page.getByRole('button', { name: /settings/i }).first().click();
+    await gotoSettings(page);
     await page.getByText('Call Log').first().click();
     await expect(page.getByText('Recordings').first()).toBeVisible();
   });

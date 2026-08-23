@@ -4,7 +4,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { toast } from '../ui/Toast';
 import { STORY_DURATION_MS, STORY_PROGRESS_TICK_MS, STORY_SHARE_PATH, STORY_MINUTES_DIVISOR } from '../../constants/storyConstants';
-import { STORY_USERS, MY_STORY_USER, type StoryUser } from './storiesData';
+import { STORY_USERS, MY_STORY_USER, getVisibleStories, deleteMyStory, type StoryUser } from './storiesData';
 import { StoryProgressBar } from './StoryProgressBar';
 import { StoryHeader } from './StoryHeader';
 import { StoryContent } from './StoryContent';
@@ -35,7 +35,8 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
   const timerRef = useRef<number | null>(null);
 
   const user = allUsers[userIndex] ?? MY_STORY_USER;
-  const story = user.stories[storyIndex] ?? user.stories[0];
+  const stories = getVisibleStories(user);
+  const story = stories[storyIndex] ?? stories[0];
 
   const shareUrl = story ? STORY_SHARE_PATH(user.id, story.id) : '';
 
@@ -68,11 +69,11 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
   };
 
   const handleDelete = () => {
+    if (!story) return;
+    deleteMyStory(story.id);
     const target = allUsers[userIndex];
-    if (!target) return;
-    const idx = target.stories.findIndex((s) => s.id === story?.id);
-    if (idx >= 0) target.stories.splice(idx, 1);
-    if (target.stories.length === 0) {
+    const remaining = target ? getVisibleStories(target) : [];
+    if (remaining.length === 0) {
       if (allUsers.length > 1) {
         const next = userIndex < allUsers.length - 1 ? userIndex : userIndex - 1;
         resetStory(next, 0);
@@ -81,7 +82,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
         return;
       }
     } else {
-      resetStory(userIndex, Math.min(storyIndex, target.stories.length - 1));
+      resetStory(userIndex, Math.min(storyIndex, remaining.length - 1));
     }
     toast(t('story.storyDeleted', 'Story deleted'), 'success');
   };
@@ -95,21 +96,21 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
   }, []);
 
   const goNext = useCallback(() => {
-    if (storyIndex < user.stories.length - 1) {
+    if (storyIndex < stories.length - 1) {
       resetStory(userIndex, storyIndex + 1);
     } else if (userIndex < allUsers.length - 1) {
       resetStory(userIndex + 1, 0);
     } else {
       onClose();
     }
-  }, [storyIndex, userIndex, user.stories.length, allUsers.length, resetStory, onClose]);
+  }, [storyIndex, userIndex, stories.length, allUsers.length, resetStory, onClose]);
 
   const goPrev = useCallback(() => {
     if (storyIndex > 0) {
       resetStory(userIndex, storyIndex - 1);
     } else if (userIndex > 0) {
       const prev = allUsers[userIndex - 1];
-      resetStory(userIndex - 1, prev.stories.length - 1);
+      resetStory(userIndex - 1, getVisibleStories(prev).length - 1);
     } else {
       setProgress(0);
     }
@@ -192,7 +193,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
         aria-label={user.name}
       >
         <div className="relative w-full max-w-md h-full max-h-[90vh] flex flex-col">
-          <StoryProgressBar count={user.stories.length} currentIndex={storyIndex} progress={progress} />
+          <StoryProgressBar count={stories.length} currentIndex={storyIndex} progress={progress} />
 
           <StoryHeader user={user} timeLabel={timeLabel} onClose={onClose} />
 

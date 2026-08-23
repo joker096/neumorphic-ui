@@ -1,9 +1,13 @@
 import { lazy, Suspense, type ComponentType } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useI18n } from "../../lib/i18n";
+import { useAppStore } from "../../store";
+import { isCompanyAdmin } from "../../config/navigation";
 import { ProfileView } from "../ProfileView";
 import { BotProfileView } from "./bot/BotProfileView";
 import { MiniApp } from "./bot/MiniAppView";
 import { WorkplaceView } from "./workplace/WorkplaceView";
+import { DataState } from "../ui/DataState";
 
 export const LazySettingsView = lazy(() => import("../SettingsView").then(m => ({ default: m.SettingsView })));
 export const LazyContactsView = lazy(() => import("../ContactsView").then(m => ({ default: m.ContactsView })));
@@ -73,6 +77,10 @@ export const FeatureViews = ({
   setMiniAppBotId,
 }: FeatureViewsProps) => {
   const { theme, setTheme } = useTheme();
+  const { t } = useI18n();
+  const userProfile = useAppStore((s) => s.userProfile);
+  const companyMembers = useAppStore((s) => s.companyMembers);
+  const adminOnlyAccessible = isCompanyAdmin(companyMembers, userProfile.id);
 
   switch (view) {
     case "profile":
@@ -126,7 +134,15 @@ export const FeatureViews = ({
     case "company":
       return (
         <Suspense fallback={<Loader />}>
-          <LazyCrmView theme={theme === 'dark' ? 'dark' : 'light'} />
+          <LazyCrmView
+            theme={theme === 'dark' ? 'dark' : 'light'}
+            onCall={onCall}
+            onVideoCall={(name, color) => onVideoCall(name, color)}
+            onMessage={(name, color) => {
+              onMessage(name, color);
+              onNavigate?.("chats");
+            }}
+          />
         </Suspense>
       );
     case "bot":
@@ -153,6 +169,16 @@ export const FeatureViews = ({
         />
       );
     case "workplace":
+      if (!adminOnlyAccessible) {
+        return (
+          <DataState
+            status="error"
+            isDark={theme === "dark"}
+            title={t("workplace.adminOnlyTitle", "Admin access required")}
+            description={t("workplace.adminOnlyBody", "The workspace is restricted to company administrators.")}
+          />
+        );
+      }
       return <WorkplaceView isDark={theme === "dark"} />;
     default:
       return null;

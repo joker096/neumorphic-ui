@@ -30,14 +30,14 @@ export const OnboardingPanel = ({ isDark = false, variant = "contacts", t, onSta
       </p>
 
       <div className={`flex items-center gap-2 mb-8 text-[var(--text-tertiary)]`}>
-        <div className="flex items-center gap-1.5 text-[11px]">
+        <div className="flex items-center gap-1.5 text-xs">
           {isChannels ? <Megaphone size={13} /> : <UserPlus size={13} />}
           <span>{isChannels
             ? (t("onboarding.channelStep1") || "Create a channel")
             : (t("onboarding.step1") || "Add a contact")}</span>
         </div>
         <div className={`w-8 h-px bg-[var(--border-color)]`} />
-        <div className="flex items-center gap-1.5 text-[11px]">
+        <div className="flex items-center gap-1.5 text-xs">
           {isChannels ? <Users size={13} /> : <MessageSquarePlus size={13} />}
           <span>{isChannels
             ? (t("onboarding.channelStep2") || "Add subscribers")

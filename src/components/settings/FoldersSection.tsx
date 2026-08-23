@@ -117,8 +117,8 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
                     onChange={e => setDraftName(e.target.value)}
                     className={`flex-1 rounded-lg px-3 py-2 text-sm bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--border-color)]`}
                   />
-                  <button onClick={saveEdit} aria-label="Save" className="p-2 rounded-lg min-h-[40px] min-w-[40px] bg-emerald-500 text-white active:scale-95 transition-transform"><Check size={16} /></button>
-                  <button onClick={() => setEditingId(null)} aria-label="Cancel" className={`p-2 rounded-lg min-h-[40px] min-w-[40px] ${isDark ? "text-gray-400 hover:bg-white/10" : "text-slate-500 hover:bg-black/5"}`}><X size={16} /></button>
+                  <button onClick={saveEdit} aria-label={t('common.save')} className="p-2 rounded-lg min-h-[40px] min-w-[40px] bg-emerald-500 text-white active:scale-95 transition-transform"><Check size={16} /></button>
+                  <button onClick={() => setEditingId(null)} aria-label={t('common.cancel')} className={`p-2 rounded-lg min-h-[40px] min-w-[40px] ${isDark ? "text-gray-400 hover:bg-white/10" : "text-slate-500 hover:bg-black/5"}`}><X size={16} /></button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {INCLUDE_OPTIONS.map(opt => (
@@ -140,20 +140,20 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{f.name}</div>
-                  <button onClick={() => cycleBadge(f.id)} className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400 hover:text-[var(--accent)]" : "text-slate-500 hover:text-[var(--accent)]"}`}>
+                  <button onClick={() => cycleBadge(f.id)} className={`text-xs mt-0.5 ${isDark ? "text-gray-400 hover:text-[var(--accent)]" : "text-slate-500 hover:text-[var(--accent)]"}`}>
                     {t('settings.badge', 'Badge')}: {badgeLabel(f.badge)}
                   </button>
                 </div>
                 <button
                   onClick={() => startEdit(f)}
-                  aria-label="Edit"
+                  aria-label={t('common.edit')}
                   className={`p-2 rounded-lg min-h-[40px] min-w-[40px] transition-colors ${isDark ? "text-gray-400 hover:bg-white/10" : "text-slate-500 hover:bg-black/5"}`}
                 >
                   <Pencil size={16} />
                 </button>
                 <button
                   onClick={() => deleteFolder(f.id)}
-                  aria-label="Delete"
+                  aria-label={t('common.delete')}
                   className="p-2 rounded-lg min-h-[40px] min-w-[40px] text-rose-400 hover:bg-rose-500/10 transition-colors"
                 >
                   <Trash2 size={16} />

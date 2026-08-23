@@ -102,6 +102,8 @@ export interface CrmFilters {
   assignedToMe: boolean;
 }
 
+export type CrmFocusKind = 'people' | 'deals' | 'tasks';
+
 export const DEFAULT_CRM_FILTERS: CrmFilters = {
   search: '',
   role: 'all',

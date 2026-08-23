@@ -11,6 +11,7 @@ import {
   keys as kvKeys,
 } from 'idb-keyval';
 import { STORAGE_KEYS } from '../constants/storage';
+import type { CompanyMember } from '../lib/company/types';
 
 const hasIdb = typeof indexedDB !== 'undefined';
 
@@ -236,6 +237,42 @@ export async function saveCompanySettings(settings: Record<string, string>): Pro
 export async function getCompanySettings(): Promise<Record<string, string> | null> {
   const data = await get(STORAGE_KEYS.COMPANY_SETTINGS);
   return data || null;
+}
+
+export async function saveCompanyId(id: string): Promise<void> {
+  await set(STORAGE_KEYS.COMPANY_ID, id);
+}
+
+export async function getCompanyId(): Promise<string | null> {
+  const data = await get(STORAGE_KEYS.COMPANY_ID);
+  return data || null;
+}
+
+export async function getCompanyMembers(): Promise<CompanyMember[] | null> {
+  const data = await get(STORAGE_KEYS.COMPANY_MEMBERS);
+  return Array.isArray(data) ? data : null;
+}
+
+// --- Company departments ---
+
+export async function saveCompanyDepartments(departments: any[]): Promise<void> {
+  await set(STORAGE_KEYS.COMPANY_DEPARTMENTS, departments);
+}
+
+export async function getCompanyDepartments(): Promise<any[] | null> {
+  const data = await get(STORAGE_KEYS.COMPANY_DEPARTMENTS);
+  return Array.isArray(data) ? data : null;
+}
+
+// --- Company contacts ---
+
+export async function saveCompanyContacts(contacts: any[]): Promise<void> {
+  await set(STORAGE_KEYS.COMPANY_CONTACTS, contacts);
+}
+
+export async function getCompanyContacts(): Promise<any[] | null> {
+  const data = await get(STORAGE_KEYS.COMPANY_CONTACTS);
+  return Array.isArray(data) ? data : null;
 }
 
 // --- Bulk reset ---

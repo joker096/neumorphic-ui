@@ -1,5 +1,6 @@
 import { HMACAuth } from './HMACAuth'
 import { TrafficObfuscator } from '../transport/obfuscator'
+import { getRelayToken, withToken } from '../network/relayToken'
 import {
   generateX25519KeyPair,
   buf2hex,
@@ -105,9 +106,12 @@ export class P2PTransport {
   async connect(): Promise<void> {
     if (this.signalingWs?.readyState === WebSocket.OPEN) return
 
+    const token = await getRelayToken().catch(() => '')
+    const url = withToken(this.signalingUrl, token)
+
     return new Promise((resolve, reject) => {
       try {
-        this.signalingWs = new WebSocket(this.signalingUrl)
+        this.signalingWs = new WebSocket(url)
       } catch (err) {
         reject(err)
         return

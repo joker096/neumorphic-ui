@@ -14,6 +14,9 @@ type MemberItemProps = {
   onVideoCall?: (name: string, color?: string) => void;
   onClick?: () => void;
   onEdit?: () => void;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
   t: (key: string, args?: Record<string, string | number> | string) => string;
 };
 
@@ -29,11 +32,13 @@ const actionBtn = (icon: React.ReactNode, label: string, onClick: (e: React.Mous
   </button>
 );
 
-export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser = false, canManage = false, onCall, onVideoCall, onClick, onEdit, t }: MemberItemProps) => {
+export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser = false, canManage = false, onCall, onVideoCall, onClick, onEdit, selectable = false, selected = false, onToggleSelect, t }: MemberItemProps) => {
   const roleLabel =
     member.role === 'admin'
       ? t('company.roleAdmin', COMPANY_MEMBER_FALLBACKS.roleAdmin)
-      : t('company.roleMember', COMPANY_MEMBER_FALLBACKS.roleMember);
+      : member.role === 'manager'
+        ? t('company.roleManager', COMPANY_MEMBER_FALLBACKS.roleManager)
+        : t('company.roleMember', COMPANY_MEMBER_FALLBACKS.roleMember);
   const officeLabel = member.office
     ? member.office === 'moscow'
       ? t('company.officeMoscow', COMPANY_MEMBER_FALLBACKS.officeMoscow)
@@ -48,14 +53,19 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      onClick={onClick}
+      onClick={selectable ? onToggleSelect : onClick}
       className={`w-full flex items-center gap-3 p-3 md:p-3 rounded-2xl cursor-pointer transition-all active:scale-95 min-h-[56px] ${isDark ? "hover:bg-[var(--list-item-hover-bg)]" : "hover:bg-[var(--list-item-hover-bg)]"}`}
     >
       <div className="relative shrink-0">
         <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm`}>
           {member.displayName.charAt(0)}
         </div>
-        {member.online && (
+        {selectable && (
+          <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? "bg-[var(--accent)] border-[var(--accent)]" : isDark ? "bg-[var(--bg-tertiary)] border-[var(--border-color)]" : "bg-white border-[var(--border-color)]"}`}>
+            {selected && <span className="text-xs text-white leading-none">✓</span>}
+          </div>
+        )}
+        {!selectable && member.online && (
           <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 ${isDark ? "bg-[var(--color-success)] border-[var(--bg-tertiary)]" : "bg-[var(--color-success)] border-[var(--border-color)]"}`} />
         )}
       </div>
@@ -65,22 +75,27 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
             {member.displayName}
           </span>
           {member.role === 'admin' && (
-            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
+            <span className="shrink-0 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
+              {roleLabel}
+            </span>
+          )}
+          {member.role === 'manager' && (
+            <span className="shrink-0 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--color-warning)]/15 text-[var(--color-warning)]">
               {roleLabel}
             </span>
           )}
           {isCurrentUser && (
-            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--color-success)]/15 text-[var(--color-success)]">
+            <span className="shrink-0 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--color-success)]/15 text-[var(--color-success)]">
               {t('company.you', COMPANY_MEMBER_FALLBACKS.you)}
             </span>
           )}
         </div>
-        <div className="text-[10px] truncate text-[var(--text-secondary)]">
+        <div className="text-xs truncate text-[var(--text-secondary)]">
           {subtitle}
         </div>
       </div>
       <div className="flex gap-2 shrink-0">
-        {onEdit && (
+        {!selectable && onEdit && (
           actionBtn(
             <Pencil size={15} />,
             t('company.editMember', COMPANY_MEMBER_FALLBACKS.editMember),
@@ -91,7 +106,7 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
             isDark,
           )
         )}
-        {onCall && (
+        {!selectable && onCall && (
           actionBtn(
             <Phone size={16} />,
             t('company.call', COMPANY_MEMBER_FALLBACKS.call),
@@ -102,7 +117,7 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
             isDark,
           )
         )}
-        {onVideoCall && (
+        {!selectable && onVideoCall && (
           actionBtn(
             <Video size={16} />,
             t('company.videoCall', COMPANY_MEMBER_FALLBACKS.videoCall),

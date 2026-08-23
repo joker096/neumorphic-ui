@@ -150,17 +150,17 @@ return (
           // Preview mode after recording
           <div className={`w-full flex flex-col gap-3 bg-[var(--bg-primary)] rounded-md px-2 py-3`}>
              <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--text-secondary)]">{label('voiceRecorder.preview', 'PREVIEW')}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)]">{label('voiceRecorder.preview', 'PREVIEW')}</span>
              </div>
              <div className="flex items-center gap-2">
                 <VoiceWaveform audioUrl={previewUrl} isMe={true} />
              </div>
              <div className="flex items-center justify-between">
                 <div className="flex gap-2">
-                   <button onClick={onReRecord} className={`px-3 py-1.5 rounded-full text-[11px] font-bold bg-red-500/20 text-red-400 hover:bg-red-500/30`} title={label('voiceRecorder.rerecord', 'Re-record')}>
+                   <button onClick={onReRecord} className={`px-3 py-1.5 rounded-full text-xs font-bold bg-red-500/20 text-red-400 hover:bg-red-500/30`} title={label('voiceRecorder.rerecord', 'Re-record')}>
                         {label('voiceRecorder.rerecord', 'Re-record')}
                     </button>
-                    <button onClick={onCancel} className={`px-3 py-1.5 rounded-full text-[11px] font-bold neu-button`} title={label('voiceRecorder.discard', 'Discard')}>
+                    <button onClick={onCancel} className={`px-3 py-1.5 rounded-full text-xs font-bold neu-button`} title={label('voiceRecorder.discard', 'Discard')}>
                        {label('voiceRecorder.discard', 'Discard')}
                     </button>
                 </div>
@@ -171,7 +171,7 @@ return (
                       const url = previewUrl;
                       onSend(url, `${m}:${s.toString().padStart(2, '0')}`);
                    }}
-                   className="px-4 py-1.5 rounded-full text-[11px] font-bold bg-orange-500 text-[var(--text-primary)] shadow-md"
+                   className="px-4 py-1.5 rounded-full text-xs font-bold bg-orange-500 text-[var(--text-primary)] shadow-md"
                   >
                      {label('voiceRecorder.send', 'Send')}
                    </button>

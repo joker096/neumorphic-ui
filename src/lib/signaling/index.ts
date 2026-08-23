@@ -1,5 +1,7 @@
 // Signaling - WebSocket signaling for P2P connections
 
+import { getRelayToken, withToken } from '../network/relayToken'
+
 export interface SignalingMessage {
   type: string;
   payload: any;
@@ -19,21 +21,23 @@ export class SignalingClient {
     this.url = url || this.url;
 
     return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(this.url);
-
-      this.ws.onopen = () => {
-        resolve();
-      };
-
-      this.ws.onmessage = (event) => {
-        if (this.onMessageCallback) {
-          this.onMessageCallback(JSON.parse(event.data));
-        }
-      };
-
-      this.ws.onerror = () => {
-        reject(new Error('Signaling connection failed'));
-      };
+      getRelayToken()
+        .then((token) => {
+          this.ws = new WebSocket(withToken(this.url, token));
+          this.ws.onopen = () => resolve();
+          this.ws.onmessage = (event) => {
+            if (this.onMessageCallback) this.onMessageCallback(JSON.parse(event.data));
+          };
+          this.ws.onerror = () => reject(new Error('Signaling connection failed'));
+        })
+        .catch(() => {
+          this.ws = new WebSocket(this.url);
+          this.ws.onopen = () => resolve();
+          this.ws.onmessage = (event) => {
+            if (this.onMessageCallback) this.onMessageCallback(JSON.parse(event.data));
+          };
+          this.ws.onerror = () => reject(new Error('Signaling connection failed'));
+        });
     });
   }
 
