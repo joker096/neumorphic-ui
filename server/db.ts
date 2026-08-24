@@ -87,15 +87,6 @@ function initSchema(): void {
       timestamp TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
-    CREATE TABLE IF NOT EXISTS merchant_config (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      api_key TEXT UNIQUE NOT NULL,
-      secret_enc TEXT NOT NULL,
-      ipn_url TEXT NOT NULL DEFAULT '',
-      return_url TEXT NOT NULL DEFAULT '',
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
     CREATE TABLE IF NOT EXISTS payments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       token TEXT NOT NULL,
@@ -110,6 +101,21 @@ function initSchema(): void {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS entitlements (
+      public_key TEXT PRIMARY KEY,
+      plan TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS subscription_grants (
+      order_id TEXT PRIMARY KEY,
+      public_key TEXT NOT NULL,
+      plan TEXT NOT NULL,
+      granted_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_connections_pk ON connections(public_key);
     CREATE INDEX IF NOT EXISTS idx_connections_country ON connections(country);
     CREATE INDEX IF NOT EXISTS idx_ad_events_ad ON ad_events(ad_id);
@@ -118,25 +124,41 @@ function initSchema(): void {
   `)
 }
 
-export function upsertMerchantConfig(apiKey: string, secretEnc: string, ipnUrl: string, returnUrl: string): void {
-  getDb()
-    .prepare(
-      `INSERT INTO merchant_config (api_key, secret_enc, ipn_url, return_url, updated_at)
-       VALUES (?, ?, ?, ?, datetime('now'))
-       ON CONFLICT(api_key) DO UPDATE SET
-         secret_enc = excluded.secret_enc,
-         ipn_url = excluded.ipn_url,
-         return_url = excluded.return_url,
-         updated_at = datetime('now')`,
-    )
-    .run(apiKey, secretEnc, ipnUrl || '', returnUrl || '')
+export interface Entitlement {
+  plan: string
+  expiresAt: number
 }
 
-export function getMerchantSecretEnc(apiKey: string): string | null {
-  const row = getDb().prepare('SELECT secret_enc FROM merchant_config WHERE api_key = ?').get(apiKey) as
-    | { secret_enc: string }
-    | undefined
-  return row?.secret_enc ?? null
+export function grantEntitlement(pk: string, plan: string, days: number): number {
+  const d = getDb()
+  const row = d
+    .prepare('SELECT expires_at FROM entitlements WHERE public_key = ?')
+    .get(pk) as { expires_at: number } | undefined
+  const now = Date.now()
+  const base = row && row.expires_at > now ? row.expires_at : now
+  const expiresAt = base + days * 86400000
+  d.prepare(
+    `INSERT INTO entitlements (public_key, plan, expires_at, updated_at)
+     VALUES (?, ?, ?, datetime('now'))
+     ON CONFLICT(public_key) DO UPDATE SET plan = ?, expires_at = ?, updated_at = datetime('now')`,
+  ).run(pk, plan, expiresAt, plan, expiresAt)
+  return expiresAt
+}
+
+export function getActiveEntitlement(pk: string): Entitlement | null {
+  const row = getDb()
+    .prepare('SELECT plan, expires_at FROM entitlements WHERE public_key = ? AND expires_at > ?')
+    .get(pk, Date.now()) as { plan: string; expires_at: number } | undefined
+  return row ? { plan: row.plan, expiresAt: row.expires_at } : null
+}
+
+// Idempotent grant ledger: a paid order_id can only grant once, even if the
+// IPN is delivered multiple times.
+export function recordSubscriptionGrant(orderId: string, pk: string, plan: string): boolean {
+  const r = getDb()
+    .prepare('INSERT OR IGNORE INTO subscription_grants (order_id, public_key, plan) VALUES (?, ?, ?)')
+    .run(orderId, pk, plan)
+  return r.changes > 0
 }
 
 export function insertPayment(p: {

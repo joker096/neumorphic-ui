@@ -3,6 +3,9 @@ import { useAppStore } from "../store";
 import { groupMessages, formatDateLabel } from "../utils/chatUtils";
 import { useDebounce } from "./useDebounce";
 import { encodeMorse } from "../components/MorseDecoder";
+import { useI18n } from "../lib/i18n";
+import { getAttachmentLimit } from "../config/premium";
+import { toast } from "../components/ui/Toast";
 
 export function useChatPreviewState(
   chat: any,
@@ -57,6 +60,8 @@ export function useChatPreviewState(
   const setChannels = useAppStore(s => s.setChannels);
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
+  const premium = useAppStore(s => s.premiumEntitlement.premium);
+  const { t } = useI18n();
 
   const [videoOpen, setVideoOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
@@ -156,6 +161,11 @@ export function useChatPreviewState(
   const handleImageAttach = (e: React.ChangeEvent<HTMLInputElement>, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const limit = getAttachmentLimit(premium);
+    if (file.size > limit) {
+      toast(t("premium.fileTooLarge", { limit: `${Math.round(limit / (1024 * 1024))} MB` }), "error");
+      return;
+    }
     const url = URL.createObjectURL(file);
     const newMsg = { id: Date.now(), sender: "me", text: "", type: "image", attachment: url, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: "sent", silent };
     const updated = { ...chatData, history: [...(chatData.history || []), newMsg] };

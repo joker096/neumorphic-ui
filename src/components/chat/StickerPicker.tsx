@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { Crown } from "lucide-react";
+import { toast } from "../ui/Toast";
 import { useI18n } from "../../lib/i18n";
+import { useAppStore } from "../../store";
 import { SearchInput } from "../ui/SearchInput";
 import {
   getICQEmojiPath,
   getICQStickerSrc,
-  ICQ_EMOJI_MAP,
+  getIcqStickerIds,
 } from "../../lib/icqEmojis";
 
 const STICKER_PACKS = [
@@ -23,12 +26,15 @@ interface StickerPickerProps {
 
 export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) => {
   const { t } = useI18n();
+  const premium = useAppStore(s => s.premiumEntitlement.premium);
   const isDark = theme === 'dark';
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
 
+  const icqStickers = useMemo(() => getIcqStickerIds(premium), [premium]);
+
   const allPacks = [
-    { id: 'icq', name: t('stickers.icq'), stickers: ICQ_EMOJI_MAP.map(e => e.id) },
+    { id: 'icq', name: t('stickers.icq'), stickers: icqStickers },
     ...STICKER_PACKS,
     { id: 'emoji', name: t('stickers.emoji'), stickers: STICKER_EMOJI },
   ];
@@ -82,6 +88,15 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
                   </button>
                 );
               })}
+              {pack.id === 'icq' && !premium && (
+                <button
+                  onClick={() => toast(t('premium.stickerLocked', 'The full ICQ sticker pack is available with Premium'))}
+                  aria-label={t('premium.stickerLocked', 'The full ICQ sticker pack is available with Premium')}
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
+                >
+                  <Crown size={16} />
+                </button>
+              )}
             </div>
           </div>
         ))}

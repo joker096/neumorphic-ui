@@ -60,6 +60,7 @@ export const useSettingsSectionData = () => {
   const setSaveVideoRecordings = useAppStore(state => state.setSaveVideoRecordings);
   const recordingsRetentionDays = useAppStore(state => state.recordingsRetentionDays);
   const setRecordingsRetentionDays = useAppStore(state => state.setRecordingsRetentionDays);
+  const premiumEntitlement = useAppStore(state => state.premiumEntitlement);
 
   const {
     stealthMode,
@@ -156,6 +157,7 @@ export const useSettingsSectionData = () => {
     setSaveVideoRecordings,
     recordingsRetentionDays,
     setRecordingsRetentionDays,
+    premiumEntitlement,
     stealthMode,
     anonymousMode,
     readReceipts,

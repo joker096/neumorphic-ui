@@ -3,6 +3,7 @@ import { AppOverlays, CallOverlay } from "./components/app";
 import { useMessageActions } from "./hooks/useMessageActions";
 import { useProfileActions } from "./hooks/useProfileActions";
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
+import { usePremiumEntitlementRefresh } from "./hooks/usePremiumEntitlementRefresh";
 import { useAppStore } from "./store";
 import { useUiStore } from "./store/uiStore";
 import { useAppConnection } from './hooks/useAppConnection';
@@ -62,6 +63,7 @@ export default function App() {
   const [replyTarget, setReplyTarget] = useState<any>(null);
   const [savedMessages, setSavedMessages] = useLocalStorage<any[]>(STORAGE_KEYS.SAVED_MESSAGES, []);
   useScreenshotProtection(stealthMode);
+  usePremiumEntitlementRefresh();
 
   const [draftTextByChat, setDraftTextByChat] = useLocalStorage<Record<string, string>>(STORAGE_KEYS.DRAFTS, {});
 

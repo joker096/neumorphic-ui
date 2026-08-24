@@ -20,9 +20,9 @@ const BackupExportSection = React.lazy(() => import('./BackupExportSection').the
 const HelpSupportSection = React.lazy(() => import('./HelpSupportSection').then(m => ({ default: m.HelpSupportSection })));
 const CompanyGuideSection = React.lazy(() => import('./CompanyGuideSection').then(m => ({ default: m.CompanyGuideSection })));
 const PaymentsSection = React.lazy(() => import('./PaymentsSection').then(m => ({ default: m.PaymentsSection })));
-const StoreSettingsSection = React.lazy(() => import('./StoreSettingsSection').then(m => ({ default: m.StoreSettingsSection })));
 const PaymentRequestsSection = React.lazy(() => import('./PaymentRequestsSection').then(m => ({ default: m.PaymentRequestsSection })));
 const CallRecordingsSection = React.lazy(() => import('./CallRecordingsSection').then(m => ({ default: m.CallRecordingsSection })));
+const PremiumSection = React.lazy(() => import('./PremiumSection').then(m => ({ default: m.PremiumSection })));
 
 export type SettingsSectionContentProps = {
   theme: 'light' | 'dark';
@@ -107,6 +107,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     latencyMs,
     blockedBackends,
     regionBlocked,
+    premiumEntitlement,
   } = useSettingsSectionData();
 
   const isDark = theme === 'dark';
@@ -178,8 +179,9 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
   );
 
   const renderPrivacySettings = () => (
-    <PrivacySection
-      isDark={isDark}
+      <PrivacySection
+        isDark={isDark}
+        premium={premiumEntitlement.premium}
       visNumber={visNumber}
       setVisNumber={setVisNumber}
       visActivity={visActivity}
@@ -313,9 +315,9 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'backup' && <Suspense fallback={fallback}><BackupExportSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
       {activeSection === 'help' && <Suspense fallback={fallback}><HelpSupportSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
       {activeSection === 'payments' && <Suspense fallback={fallback}><PaymentsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'store' && <Suspense fallback={fallback}><StoreSettingsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
       {activeSection === 'paymentRequests' && <Suspense fallback={fallback}><PaymentRequestsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
       {activeSection === 'callRecordings' && <Suspense fallback={fallback}><CallRecordingsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'premium' && <Suspense fallback={fallback}><PremiumSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
     </AnimatePresence>
   );
 };

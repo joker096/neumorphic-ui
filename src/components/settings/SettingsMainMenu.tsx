@@ -6,11 +6,12 @@ import {
   Activity, Bell, BellOff, Bot, Building2, ChevronRight, Cloud,
   Globe, HardDrive, Lock, Mic, Network, Palette, Radar, Shield,
   ShieldAlert, Smartphone, User, FolderTree, Download, HelpCircle,
-  CreditCard, Video, Webhook, Receipt,
+  CreditCard, Video, Receipt, Crown,
 } from "lucide-react";
 import { SettingsCard, SettingsDivider, SettingsNavItem } from "./SettingsMenuPrimitives";
 import { BigMenuButton, NavGroup, NavItemDef } from "./SettingsMenuParts";
 import { APP_INFO } from "../../config/settingsDefaults";
+import { useAppStore } from "../../store";
 import type { CloudSyncState } from "../../store/types";
 
 interface SettingsMainMenuProps {
@@ -96,7 +97,16 @@ export function SettingsMainMenu({
     },
   ];
 
+  const premiumActive = useAppStore((s) => s.premiumEntitlement.premium);
+
   const servicesItems: NavItemDef[] = [
+    {
+      icon: <Crown size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />,
+      iconBg: isDark ? "bg-amber-500/10" : "bg-amber-100",
+      title: t('premium.title', 'Premium'),
+      subtitle: premiumActive ? t('premium.active', 'Active') : t('premium.menuSubtitle', 'Unlock premium features'),
+      onClick: () => setActiveSection('premium'),
+    },
     {
       icon: <Bot size={16} className={isDark ? "text-fuchsia-400" : "text-fuchsia-600"} />,
       iconBg: isDark ? "bg-fuchsia-500/10" : "bg-fuchsia-100",
@@ -124,13 +134,6 @@ export function SettingsMainMenu({
       title: t('settings.payments'),
       subtitle: t('settings.paymentsSubtitle', 'Wallet, transfers and receipts'),
       onClick: () => setActiveSection('payments'),
-    },
-    {
-      icon: <Webhook size={16} className={isDark ? "text-sky-400" : "text-sky-600"} />,
-      iconBg: isDark ? "bg-sky-500/10" : "bg-sky-100",
-      title: t('storeSettings.menuTitle', 'Store Settings'),
-      subtitle: t('storeSettings.menuSubtitle', 'Paymento integration · IPN URL'),
-      onClick: () => setActiveSection('store'),
     },
     {
       icon: <Receipt size={16} className={isDark ? "text-violet-400" : "text-violet-600"} />,

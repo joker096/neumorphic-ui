@@ -107,22 +107,6 @@ const base = () => `http://127.0.0.1:${harnessPort}`
 const authHeader = () => ({ Authorization: `Bearer ${(globalThis as any).__adminToken}` })
 
 describe('Paymento integration', () => {
-  it('config: saves merchant config (encrypts secret)', async () => {
-    const res = await fetch(`${base()}/api/paymento/config`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeader() },
-      body: JSON.stringify({
-        apiKey: OP_API_KEY,
-        secretKey: OP_SECRET,
-        ipnUrl: 'https://merchant.example.com/ipn',
-        returnUrl: 'https://merchant.example.com/return',
-      }),
-    })
-    expect(res.status).toBe(200)
-    const data = (await res.json()) as any
-    expect(data.ok).toBe(true)
-  })
-
   it('create: proxies to Paymento and writes payment to DB', async () => {
     const res = await fetch(`${base()}/api/paymento/create`, {
       method: 'POST',
@@ -203,5 +187,100 @@ describe('Paymento integration', () => {
     expect(data.orderId).toBe(ORDER_ID)
     expect(data.amount).toBe(10)
     expect(data.currency).toBe('USD')
+  })
+})
+
+describe('Paymento pay-per-key entitlements', () => {
+  const SUB_PK = Buffer.alloc(32, 7).toString('base64')
+  const SUB_PK_FAIL = Buffer.alloc(32, 9).toString('base64')
+  const SUB_ORDER = `sub:${SUB_PK}:premium`
+  const SUB_ORDER_FAIL = `sub:${SUB_PK_FAIL}:premium90`
+
+  const ipn = async (orderId: string, orderStatus: number) => {
+    const body = JSON.stringify({
+      Token: MOCK_TOKEN,
+      PaymentId: 9100,
+      OrderId: orderId,
+      OrderStatus: orderStatus,
+      AdditionalData: [],
+    })
+    const sig = crypto.createHmac('sha256', OP_SECRET).update(body, 'utf8').digest('hex').toUpperCase()
+    return fetch(`${base()}/api/paymento/ipn`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-HMAC-SHA256-SIGNATURE': sig },
+      body,
+    })
+  }
+
+  const entitlement = (pk: string) => fetch(`${base()}/api/paymento/entitlement?pk=${encodeURIComponent(pk)}`)
+
+  it('create: sub order with amount below plan price rejected with 400', async () => {
+    const res = await fetch(`${base()}/api/paymento/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: '0.01', currency: 'USD', orderId: SUB_ORDER }),
+    })
+    expect(res.status).toBe(400)
+    const data = (await res.json()) as any
+    expect(data.error).toMatch(/at least 5/i)
+  })
+
+  it('create: sub order with valid amount accepted', async () => {
+    const res = await fetch(`${base()}/api/paymento/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: '5', currency: 'USD', orderId: SUB_ORDER }),
+    })
+    expect(res.status).toBe(200)
+    const data = (await res.json()) as any
+    expect(data.orderId).toBe(SUB_ORDER)
+  })
+
+  it('entitlement: inactive before paid IPN', async () => {
+    const res = await entitlement(SUB_PK)
+    expect(res.status).toBe(200)
+    expect((await res.json()) as any).toEqual({ premium: false })
+  })
+
+  it('ipn: paid sub order grants entitlement', async () => {
+    const res = await ipn(SUB_ORDER, 7)
+    expect(res.status).toBe(200)
+    const ent = (await (await entitlement(SUB_PK)).json()) as any
+    expect(ent.premium).toBe(true)
+    expect(ent.plan).toBe('premium')
+    expect(typeof ent.expiresAt).toBe('number')
+    expect(ent.expiresAt).toBeGreaterThan(Date.now())
+  })
+
+  it('ipn: duplicate paid sub order does not double-grant or fail', async () => {
+    const res = await ipn(SUB_ORDER, 7)
+    expect(res.status).toBe(200)
+    const ent = (await (await entitlement(SUB_PK)).json()) as any
+    expect(ent.premium).toBe(true)
+    expect(ent.plan).toBe('premium')
+  })
+
+  it('ipn: failed sub order does not grant entitlement', async () => {
+    const res = await fetch(`${base()}/api/paymento/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: '12', currency: 'USD', orderId: SUB_ORDER_FAIL }),
+    })
+    expect(res.status).toBe(200)
+    await ipn(SUB_ORDER_FAIL, 9)
+    const ent = (await (await entitlement(SUB_PK_FAIL)).json()) as any
+    expect(ent).toEqual({ premium: false })
+  })
+
+  it('entitlement: unknown pk returns premium false', async () => {
+    const pk = Buffer.alloc(32, 5).toString('base64')
+    const res = await entitlement(pk)
+    expect(res.status).toBe(200)
+    expect((await res.json()) as any).toEqual({ premium: false })
+  })
+
+  it('entitlement: missing pk rejected with 400', async () => {
+    const res = await fetch(`${base()}/api/paymento/entitlement`)
+    expect(res.status).toBe(400)
   })
 })

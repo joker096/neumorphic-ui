@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react'
-import { Plus, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react'
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
 import { SubView } from '../ui/SubView'
-import { SettingsSectionTitle, SettingsRow } from '../ui/SettingsRow'
+import { SettingsSectionTitle } from '../ui/SettingsRow'
 import { toast } from '../ui/Toast'
 import { PaymentRequestCard } from '../payments/PaymentRequestCard'
 import { ChatPickerModal } from '../payments/ChatPickerModal'
-import { createPaymentRequest, listPayments, buildPaymentMessage, type PaymentListItem } from '../../services/paymento'
-import { getPaymentoConfig } from '../../lib/paymentoConfig'
+import { createPaymentRequest, buildPaymentMessage } from '../../services/paymento'
 import { generateOrderId, buildGatewayUrl } from '../../config/paymento'
-import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed } from '../../types/paymento'
 import { useAppStore } from '../../store'
 
 interface PaymentRequestsSectionProps {
@@ -32,9 +30,6 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
   const [description, setDescription] = useState('')
   const [creating, setCreating] = useState(false)
   const [active, setActive] = useState<{ token: string; paymentUrl: string; amount: string; currency: string; description: string } | null>(null)
-  const [list, setList] = useState<PaymentListItem[]>([])
-  const [loading, setLoading] = useState(false)
-  const [noCreds, setNoCreds] = useState(false)
   const [picker, setPicker] = useState<PaymentPayload | null>(null)
 
   const handleSendToChat = (payload: PaymentPayload) => {
@@ -49,21 +44,6 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
     setPicker(null)
   }
 
-  const refresh = async () => {
-    setLoading(true)
-    try {
-      setList(await listPayments(30))
-    } catch {
-      /* ignore */
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    refresh()
-  }, [])
-
   const handleCreate = async () => {
     const amt = parseFloat(amount)
     if (!amt || amt <= 0) {
@@ -72,24 +52,16 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
     }
     setCreating(true)
     try {
-      const cfg = await getPaymentoConfig()
-      if (!cfg.apiKey || !cfg.secretKey) {
-        setNoCreds(true)
-        toast(t('payRequests.noCreds', 'Configure Paymento API credentials in Store Settings first'), 'error')
-        return
-      }
       const res = await createPaymentRequest({
         amount: amt,
         currency,
         orderId: generateOrderId(),
         description: description || undefined,
-        returnUrl: cfg.returnUrl || undefined,
       })
       setActive({ token: res.token, paymentUrl: res.paymentUrl || buildGatewayUrl(res.token), amount: String(amt), currency, description })
       toast(t('payRequests.created', 'Payment request created'), 'success')
       setAmount('')
       setDescription('')
-      refresh()
     } catch (e: any) {
       toast(e?.message || 'Failed', 'error')
     } finally {
@@ -99,19 +71,6 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
 
   return (
     <SubView title={t('payRequests.title', 'Payment Requests')} isDark={isDark} onBack={onBack}>
-      {noCreds && (
-        <div
-          className={`rounded-2xl p-4 mb-2 border flex items-start gap-3 ${
-            isDark ? 'bg-amber-500/10 border-amber-500/30' : 'bg-amber-50 border-amber-200'
-          }`}
-        >
-          <AlertTriangle size={18} className="text-amber-500 mt-0.5 shrink-0" />
-          <p className={`text-xs leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
-            {t('payRequests.noCredsHint', 'Open Store Settings to add your Paymento API Key and Secret.')}
-          </p>
-        </div>
-      )}
-
       <SettingsSectionTitle title={t('payRequests.new', 'New payment request')} isDark={isDark} />
       <div
         className={`rounded-2xl p-4 mb-2 border ${
@@ -182,52 +141,6 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
         onPick={handlePickChat}
         title={t('payRequests.sendToChat', 'Send payment to chat')}
       />
-
-      <div className="flex items-center justify-between px-1 mt-2">
-        <SettingsSectionTitle title={t('payRequests.recent', 'Recent payments')} isDark={isDark} />
-        <button
-          onClick={refresh}
-          className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg active:scale-95 ${
-            isDark ? 'text-[var(--accent)] hover:bg-white/5' : 'text-[var(--accent)] hover:bg-black/5'
-          }`}
-        >
-          <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> {t('common.refresh', 'Refresh')}
-        </button>
-      </div>
-
-      <div className="space-y-2">
-        {list.length === 0 && !loading && (
-          <p className={`text-center text-sm py-6 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
-            {t('payRequests.empty', 'No payments yet')}
-          </p>
-        )}
-        {list.map((p) => (
-          <div
-            key={p.order_id}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${
-              isDark ? 'bg-white/5 border-[var(--border-color)]' : 'bg-white border-slate-200'
-            }`}
-          >
-            <div className="flex-1 min-w-0">
-              <div className={`text-sm font-medium truncate ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>
-                {p.amount} {p.currency}
-              </div>
-              <div className={`text-xs truncate ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{p.order_id}</div>
-            </div>
-            <span
-              className={`text-xs font-semibold ${
-                isPaymentSuccessful(p.status)
-                  ? 'text-emerald-500'
-                  : isPaymentFailed(p.status)
-                    ? 'text-red-500'
-                    : 'text-amber-500'
-              }`}
-            >
-              {paymentStatusLabel(p.status)}
-            </span>
-          </div>
-        ))}
-      </div>
     </SubView>
   )
 }

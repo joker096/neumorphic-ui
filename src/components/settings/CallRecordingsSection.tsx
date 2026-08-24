@@ -11,11 +11,11 @@ interface CallRecordingsSectionProps {
   onBack: () => void;
 }
 
-const RETENTION_OPTIONS = [0, 7, 30, 90] as const;
-type RetentionOption = typeof RETENTION_OPTIONS[number];
+type RetentionOption = 0 | 7 | 30 | 90;
 
 export const CallRecordingsSection = ({ isDark = false, onBack }: CallRecordingsSectionProps) => {
   const { t } = useI18n();
+  const premium = useAppStore((s) => s.premiumEntitlement.premium);
   const saveAudioRecordings = useAppStore((s) => s.saveAudioRecordings);
   const setSaveAudioRecordings = useAppStore((s) => s.setSaveAudioRecordings);
   const saveVideoRecordings = useAppStore((s) => s.saveVideoRecordings);
@@ -28,9 +28,11 @@ export const CallRecordingsSection = ({ isDark = false, onBack }: CallRecordings
       ? t('settings.retention.forever', 'Forever')
       : t('settings.retention.days', '{days} days').replace('{days}', String(recordingsRetentionDays));
 
+  const retentionOptions: RetentionOption[] = premium ? [0, 7, 30, 90] : [7, 30, 90];
+
   const cycleRetention = () => {
-    const idx = RETENTION_OPTIONS.indexOf(recordingsRetentionDays as RetentionOption);
-    const next = RETENTION_OPTIONS[(idx + 1) % RETENTION_OPTIONS.length];
+    const idx = retentionOptions.indexOf(recordingsRetentionDays as RetentionOption);
+    const next = retentionOptions[(idx + 1) % retentionOptions.length];
     setRecordingsRetentionDays(next);
   };
 
@@ -76,7 +78,7 @@ export const CallRecordingsSection = ({ isDark = false, onBack }: CallRecordings
           iconBg={isDark ? 'bg-purple-500/10' : 'bg-purple-100'}
           iconColor={isDark ? 'text-purple-400' : 'text-purple-600'}
           title={t('settings.recordingsRetention', 'Delete recordings older than')}
-          subtitle={t('settings.recordingsRetentionSubtitle', 'Periodically remove old calls and video calls')}
+          subtitle={premium ? t('settings.recordingsRetentionSubtitle', 'Periodically remove old calls and video calls') : t('premium.gatingRetention', 'Longer retention is available with Premium')}
           isDark={isDark}
           value={retentionLabel}
           onClick={cycleRetention}

@@ -3,8 +3,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { Plus } from "lucide-react";
 import { Tooltip } from "../Tooltip";
 import { useI18n } from "../../lib/i18n";
-
-const AVAILABLE_EMOJIS = ["👍", "❤️", "😂", "🔥", "😢", "🎉"];
+import { useAppStore } from "../../store";
+import { getAvailableReactionEmojis } from "../../config/reactions";
 
 interface MessageReactionsProps {
   msg: any;
@@ -17,6 +17,8 @@ interface MessageReactionsProps {
 
 export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSetActiveReactionPicker, onReactionMessage }: MessageReactionsProps) {
   const { t } = useI18n();
+  const premium = useAppStore(s => s.premiumEntitlement.premium);
+  const availableEmojis = getAvailableReactionEmojis(premium);
   return (
     <>
       {msg.reactions && Object.keys(msg.reactions).length > 0 && (
@@ -54,7 +56,7 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
             exit={{ opacity: 0, scale: 0.9, x: isMe ? 10 : -10 }}
             className={`absolute top-1/2 -translate-y-1/2 ${isMe ? "right-[calc(100%+8px)] mr-0" : "left-[calc(100%+8px)] ml-0"} z-20 flex bg-black/80 backdrop-blur-md rounded-full shadow-xl px-1 py-1`}
           >
-            {AVAILABLE_EMOJIS.map(emoji => (
+            {availableEmojis.map(emoji => (
               <button
                 key={emoji}
                 type="button"

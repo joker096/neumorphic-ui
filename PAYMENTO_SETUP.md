@@ -1,8 +1,9 @@
 # Paymento Integration — Setup & Usage
 
 Crypto payment gateway (Paymento) integrated into **Mess&Anger** as a backend proxy
-(clients never hold the secret), a **Store Settings → IPN URL** configuration screen,
-a **Payment Requests** manager, and inline **payment cards inside chat**.
+(clients never hold the secret), a **Payment Requests** manager, and inline
+**payment cards inside chat**. Merchant credentials are operator config in the server
+environment — there is no runtime UI for changing them.
 
 ---
 
@@ -12,16 +13,16 @@ Copy `.env.example` → `.env` and fill:
 
 | Variable | Where | Purpose |
 |----------|-------|---------|
-| `JWT_SECRET` | server | Derives the AES-256-GCM key that encrypts stored merchant secrets at rest. **Required**, use a long random value. |
+| `JWT_SECRET` | server | Required for admin auth tokens. Use a long random value. |
 | `PAYMENTO_API_URL` | server | Paymento API base, default `https://api.paymento.io`. Override to point at staging/test. |
-| `PAYMENTO_API_KEY` | server | Operator (global) API key. Takes precedence over per-merchant stored keys. |
+| `PAYMENTO_API_KEY` | server | Operator (global) API key. |
 | `PAYMENTO_SECRET_KEY` | server | Operator (global) secret. Used to verify IPN HMAC signatures. |
+| `PAYMENTO_RETURN_URL` | server (optional) | Default `ReturnUrl` sent to the gateway when the client does not send one. |
 | `VITE_PAYMENTO_API_URL` | client (optional) | Override the API base the client shows; normally not needed. |
 | `VITE_APP_URL` | client (optional) | Public app URL used for return links. |
 
-Per-merchant credentials (API key + secret) can also be entered in the **Store Settings**
-screen and are pushed to the backend, where the secret is encrypted (AES-256-GCM) before
-storage. ENV operator creds always win when present.
+`PAYMENTO_API_KEY` / `PAYMENTO_SECRET_KEY` are the **only** credential source.
+Leave them empty to disable payments (create/verify answer `503`).
 
 ---
 
@@ -38,22 +39,18 @@ JWT_SECRET=change-me-please   npx tsx server/signaling-server.ts
 In the frontend dev server, `/api` is proxied to `:8766` (see `vite.config.ts`),
 so the client calls `/api/paymento/*` directly.
 
-Database tables `merchant_config` and `payments` are created automatically on first run
-(`server/db.ts`).
+The `payments` database table is created automatically on first run (`server/db.ts`).
 
 ---
 
-## 3. Configuration flow (Store Settings → IPN URL)
+## 3. Configuration
 
-1. Open **Settings → Store Settings**.
-2. A banner shows whether Paymento is **Configured** or **Not Configured**.
-3. Enter your **API Key** and **Secret** (and optionally IPN/Return URLs), then **Save**.
-   The secret is sent once to the backend and stored encrypted.
-4. Configure the **IPN URL** at your Paymento dashboard as:
-   ```
-   https://<your-domain>/api/paymento/ipn
-   ```
-   Only HTTPS URLs are accepted in the UI.
+1. Set `PAYMENTO_API_KEY` and `PAYMENTO_SECRET_KEY` in the server environment (`.env`).
+   There is no runtime UI or API for changing credentials.
+2. Configure the **IPN URL** at your Paymento dashboard as:
+    ```
+    https://<your-domain>/api/paymento/ipn
+    ```
 
 ---
 
@@ -97,20 +94,17 @@ All under `/api/paymento`:
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/config` | Save merchant API key + encrypted secret. |
 | POST | `/create` | Create Paymento request (secret stays server-side), returns `{token, paymentUrl, orderId}`. |
 | POST | `/ipn` | Paymento callback. Verifies `X-HMAC-SHA256-SIGNATURE` (HMAC-SHA256, uppercase hex). Updates status. Returns `401` on bad signature. |
 | GET  | `/verify/:token` | Proxies Paymento verify, returns `{status, orderId, amount, currency}`. |
-| GET  | `/list` | Recent payments from local DB. |
+| GET  | `/list` | Recent payments from local DB. **Requires admin JWT** (`Authorization: Bearer <token>` from `/api/auth/verify-2fa`); operator-only, not used by the app UI. |
 
 ---
 
 ## 7. Security
 
-- **Secret never reaches the client** except during the one-time config save.
-- Merchant secret at rest: **AES-256-GCM**, key = `scrypt(JWT_SECRET, 'paymento-salt', 32)`.
+- **Secret never reaches the client**; it lives only in the server environment.
 - **IPN HMAC**: `HMAC-SHA256(rawBody, secret).toUpperCase().hex()` compared timing-safely.
-- ENV operator creds override per-merchant creds for resolution.
 - IPN payloads that are not yet in our DB are still recorded on first valid contact.
 
 ---
@@ -136,7 +130,7 @@ Paths are isolated in constants so a gateway version change is a one-line fix:
 
 ## 9. Tests
 
-Integration test with a mock Paymento server (config, create, list, IPN valid/invalid, verify):
+Integration test with a mock Paymento server (create, list, IPN valid/invalid, verify):
 
 ```bash
 npx vitest run --config vitest.server.config.ts server/__tests__/paymento.test.ts

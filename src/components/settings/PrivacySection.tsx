@@ -39,6 +39,7 @@ interface PrivacySectionProps {
   setMediaAutoLoad?: (v: string) => void;
   selfDestructDefault?: string;
   setSelfDestructDefault?: (v: string) => void;
+  premium?: boolean;
 }
 
 export const PrivacySection = ({
@@ -48,7 +49,7 @@ export const PrivacySection = ({
   stealthMode, anonymousMode, deliveryReceipts, readReceipts, typingIndicators,
   ghostViewMode, forwardAnonymization, onlineStatus, allowForwarding, setAllowForwarding,
   allowMetadata, setAllowMetadata, forwardCountLimit, setForwardCountLimit,
-  onUpdateSettings, onBack, t, mediaAutoLoad, setMediaAutoLoad, selfDestructDefault, setSelfDestructDefault
+  onUpdateSettings, onBack, t, mediaAutoLoad, setMediaAutoLoad, selfDestructDefault, setSelfDestructDefault, premium
 }: PrivacySectionProps) => {
   const [showPriorityModal, setShowPriorityModal] = useState(false);
   const handlePrioritySave = (name: string) => {
@@ -66,7 +67,7 @@ export const PrivacySection = ({
   };
 
   const cycleSelfDestructDefault = () => {
-    const options = ['Off', '1 min', '5 min', '1 hour', '1 day'];
+    const options = premium ? ['Off', '1 min', '5 min', '1 hour', '1 day'] : ['Off', '1 min', '5 min'];
     const idx = options.indexOf(selfDestructDefault as string);
     const next = options[(idx + 1) % options.length];
     if (setSelfDestructDefault) setSelfDestructDefault(next);
@@ -152,7 +153,7 @@ export const PrivacySection = ({
             iconBg="t-accent-bg"
             iconColor="t-accent"
             title={t('settings.selfDestructDefault')}
-            subtitle={t('settings.selfDestructDefaultSubtitle')}
+            subtitle={premium ? t('settings.selfDestructDefaultSubtitle') : t('premium.gatingSelfDestruct')}
             value={selfDestructDefault as string}
             isDark={isDark}
             onClick={cycleSelfDestructDefault}

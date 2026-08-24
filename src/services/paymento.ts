@@ -1,6 +1,5 @@
 import { PAYMENTO_BACKEND_BASE, buildGatewayUrl } from '../config/paymento'
 import type {
-  PaymentoConfig,
   PaymentoCreateInput,
   PaymentoCreateResult,
   PaymentoVerifyResult,
@@ -31,16 +30,6 @@ export async function createPaymentRequest(
   return { token: data.token, paymentUrl: data.paymentUrl || buildGatewayUrl(data.token) }
 }
 
-// Push merchant API key + secret to the backend so IPN callbacks can be verified.
-export async function pushPaymentoConfig(config: PaymentoConfig): Promise<{ ok: boolean }> {
-  return postJson(`${PAYMENTO_BACKEND_BASE}/config`, {
-    apiKey: config.apiKey,
-    secretKey: config.secretKey,
-    ipnUrl: config.ipnUrl,
-    returnUrl: config.returnUrl,
-  })
-}
-
 // Query the current status of a payment (proxies Paymento verify with server-held secret).
 export async function verifyPayment(token: string): Promise<PaymentoVerifyResult> {
   const res = await fetch(`${PAYMENTO_BACKEND_BASE}/verify/${encodeURIComponent(token)}`)
@@ -60,23 +49,6 @@ export async function verifyPayment(token: string): Promise<PaymentoVerifyResult
 
 export function gatewayUrl(token: string): string {
   return buildGatewayUrl(token)
-}
-
-export interface PaymentListItem {
-  order_id: string
-  token: string
-  amount: string
-  currency: string
-  status: number
-  created_at: string
-  updated_at: string
-}
-
-export async function listPayments(limit = 50): Promise<PaymentListItem[]> {
-  const res = await fetch(`${PAYMENTO_BACKEND_BASE}/list?limit=${limit}`)
-  if (!res.ok) throw new Error('Failed to load payments')
-  const data = await res.json()
-  return (data.payments as PaymentListItem[]) || []
 }
 
 // Distribute the payment link through the messenger (share sheet / clipboard fallback).

@@ -1,8 +1,14 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { MessageReactions } from './MessageReactions';
+
+let mockStore: any = { premiumEntitlement: { premium: false, plan: null, expiresAt: null } };
+
+vi.mock('../../store', () => ({
+  useAppStore: (selector: any) => (typeof selector === 'function' ? selector(mockStore) : mockStore),
+}));
 
 vi.mock('motion/react', () => ({
   motion: { div: 'div', button: 'button', span: 'span', p: 'p' },
@@ -24,6 +30,10 @@ const baseProps: any = {
 };
 
 describe('MessageReactions', () => {
+  beforeEach(() => {
+    mockStore = { premiumEntitlement: { premium: false, plan: null, expiresAt: null } };
+  });
+
   it('renders add reaction button when no reactions exist', () => {
     render(<MessageReactions {...baseProps} />);
     const plusButton = document.querySelector('.lucide-plus');
@@ -91,5 +101,28 @@ describe('MessageReactions', () => {
     );
     const tooltipEl = document.querySelector('[data-tooltip]');
     expect(tooltipEl).toBeInTheDocument();
+  });
+
+  it('renders 6 reaction options for the free tier', () => {
+    const { container } = render(
+      <MessageReactions
+        {...baseProps}
+        activeReactionPicker={1}
+        msg={{ id: 1, reactions: {} }}
+      />,
+    );
+    expect(container.querySelectorAll('button').length).toBe(6);
+  });
+
+  it('renders 18 reaction options for the premium tier', () => {
+    mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
+    const { container } = render(
+      <MessageReactions
+        {...baseProps}
+        activeReactionPicker={1}
+        msg={{ id: 1, reactions: {} }}
+      />,
+    );
+    expect(container.querySelectorAll('button').length).toBe(18);
   });
 });

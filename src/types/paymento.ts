@@ -1,11 +1,3 @@
-export interface PaymentoConfig {
-  apiKey: string
-  secretKey: string
-  ipnUrl: string
-  returnUrl: string
-  enabled: boolean
-}
-
 export interface PaymentoCreateInput {
   amount: number | string
   currency: string

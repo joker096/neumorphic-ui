@@ -8,6 +8,7 @@ import { initPerformanceMonitoring } from "./lib/performance";
 import { AnimationProvider } from "./contexts/AnimationContext";
 import { preloadICQTheme } from "./lib/emojiCache";
 import { preloadICQSounds } from "./lib/soundCache";
+import { useAppStore } from "./store";
 
 type ErrorHandler = {
   lastError: Error | null;
@@ -85,6 +86,8 @@ const bootstrap = async () => {
       </ErrorBoundary>
     </StrictMode>,
   );
+
+  useAppStore.getState().refreshPremiumEntitlement();
 
   if (typeof requestIdleCallback !== 'undefined') {
     requestIdleCallback(() => Promise.all([

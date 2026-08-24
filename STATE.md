@@ -1,6 +1,19 @@
 # State Compressed - Security Fixes Progress
 
-## Status: UI BATCH (chat swipe / profile / company) DONE (uncommitted, 2026-08-22). tsc 0, eslint 0, 40 targeted tests green.
+## Status: PREMIUM PHASE 2 FEATURE GATING + STICKER TEASER DONE (uncommitted, 2026-08-24). tsc 0, eslint 0, full suite 4054/4054, l10n PASS, build OK.
+- Attachment limit: `PREMIUM_FILE_LIMITS` (free 50 MB / premium 500 MB) + `getAttachmentLimit(premium)` in `src/config/premium.ts`; `useChatPreviewState.handleImageAttach` rejects oversized files with toast `premium.fileTooLarge` ({{limit}} interpolation).
+- Reactions: `src/config/reactions.ts` — free 6, premium +12 (18 total), `getAvailableReactionEmojis(premium)`; `MessageReactions` picker gated by store `premiumEntitlement.premium`.
+- Stickers: `ICQ_FREE_STICKER_COUNT = 24` in `premium.ts`; `getIcqStickerIds(premium)` in `src/lib/icqEmojis.ts`; `StickerPicker` ICQ pack gated + free-tier crown teaser button at end of ICQ row (click → toast `premium.stickerLocked`, hidden for premium).
+- Discoverability: `PremiumSection` "What Premium unlocks" perks group (FileUp/Smile/Crown SettingsRows).
+- Locales: 6 new `premium.*` keys in all 8 locales (`fileTooLarge`, `perksTitle`, `perkFiles`, `perkReactions`, `perkStickers`, `stickerLocked`).
+- Tests +16: `premium.test.ts` (4), `reactions.test.ts` (4), `icqEmojis.test.ts` (2), `StickerPicker.test.tsx` (4: gating ×2 via `vi.hoisted` mock + teaser ×2 via hoisted `toast` mock), `MessageReactions.test.tsx` (2, free 6 / premium 18 picker buttons). Component store mock: mutable `let mockStore` + `vi.mock('../../store', selector pattern)` — i18n doesn't use the store, safe.
+
+## Status (prev): PREMIUM ENTITLEMENT PERSISTENCE DONE (uncommitted, 2026-08-24). tsc 0, eslint 0, full suite 4038/4038, build OK.
+- `src/hooks/usePremiumEntitlementRefresh.ts`: refresh entitlement on foreground return (document `visibilitychange`→visible, `window` focus), 30s throttle (absorbs post-bootstrap focus bursts, ref seeded with mount time), expired `expiresAt` re-fetches immediately bypassing throttle. Mounted in `App.tsx`; startup fetch stays in `main.tsx`.
+- Tests: `usePremiumEntitlementRefresh.test.ts` 6/6 (throttle, focus, visible-transition, hidden no-op, expired bypass, listener cleanup).
+- CHANGELOG updated. Phase 2 feature gating now done (see status above).
+
+## Status (prev): UI BATCH (chat swipe / profile / company) DONE (uncommitted, 2026-08-22). tsc 0, eslint 0, 40 targeted tests green.
 
 ### Batch details (2026-08-22)
 - Chat swipe: `ChatListView.tsx` — regular chats now get `onMute` / `onDelete` / `onMenuRequest` (match pinned). Archive was already working.

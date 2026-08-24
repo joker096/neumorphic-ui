@@ -1,5 +1,5 @@
 // Paymento gateway integration configuration.
-// Credentials live server-side (ENV) and/or in client secureStorage.
+// Merchant credentials live server-side only (PAYMENTO_API_KEY / PAYMENTO_SECRET_KEY env).
 
 const ENV_API_URL = (import.meta.env.VITE_PAYMENTO_API_URL as string | undefined) || ''
 export const PAYMENTO_API_URL = (ENV_API_URL || 'https://api.paymento.io').replace(/\/+$/, '')
@@ -12,14 +12,6 @@ export const PAYMENTO_BACKEND_BASE = '/api/paymento'
 // Paymento API paths (adjust here if the gateway version changes).
 export const PAYMENTO_CREATE_PATH = '/v1/payment/request'
 export const PAYMENTO_VERIFY_PATH = '/v1/payment/verify'
-
-export const PAYMENTO_SECURE_KEYS = {
-  apiKey: 'paymento.apiKey',
-  secretKey: 'paymento.secretKey',
-  ipnUrl: 'paymento.ipnUrl',
-  returnUrl: 'paymento.returnUrl',
-  enabled: 'paymento.enabled',
-} as const
 
 export function buildGatewayUrl(token: string): string {
   return `${PAYMENTO_GATEWAY_URL}?token=${encodeURIComponent(token)}`

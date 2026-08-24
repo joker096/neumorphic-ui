@@ -1,47 +1,27 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 import crypto from 'node:crypto'
 import {
-  upsertMerchantConfig,
-  getMerchantSecretEnc,
   insertPayment,
   updatePaymentStatus,
   getPaymentByOrderId,
   getPaymentByToken,
+  getActiveEntitlement,
+  grantEntitlement,
+  recordSubscriptionGrant,
   listPayments,
 } from '../db.js'
+import { getPlan } from '../plans.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 
+// Merchant credentials are operator config: set PAYMENTO_API_KEY and PAYMENTO_SECRET_KEY in the
+// server environment. There is no runtime UI or API for changing them.
 const API_URL = (process.env.PAYMENTO_API_URL || 'https://api.paymento.io').replace(/\/+$/, '')
 const ENV_API_KEY = process.env.PAYMENTO_API_KEY || ''
 const ENV_SECRET = process.env.PAYMENTO_SECRET_KEY || ''
+const RETURN_URL = (process.env.PAYMENTO_RETURN_URL || '').replace(/\/+$/, '')
 const GATEWAY_URL = 'https://app.paymento.io/gateway'
 const CREATE_PATH = '/v1/payment/request'
 const VERIFY_PATH = '/v1/payment/verify'
-
-// --- Encryption of merchant secrets at rest (AES-256-GCM, key derived from the app secret) ---
-const _paymentoJwtSecret = process.env.JWT_SECRET
-if (!_paymentoJwtSecret) {
-  throw new Error('JWT_SECRET is required to derive the Paymento encryption key; refusing to start with a hardcoded fallback')
-}
-const ENC_KEY = crypto.scryptSync(_paymentoJwtSecret, 'paymento-salt', 32)
-
-function encryptSecret(plain: string): string {
-  const iv = crypto.randomBytes(12)
-  const cipher = crypto.createCipheriv('aes-256-gcm', ENC_KEY, iv)
-  const enc = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()])
-  const tag = cipher.getAuthTag()
-  return Buffer.concat([iv, tag, enc]).toString('base64')
-}
-
-function decryptSecret(b64: string): string {
-  const buf = Buffer.from(b64, 'base64')
-  const iv = buf.subarray(0, 12)
-  const tag = buf.subarray(12, 28)
-  const enc = buf.subarray(28)
-  const decipher = crypto.createDecipheriv('aes-256-gcm', ENC_KEY, iv)
-  decipher.setAuthTag(tag)
-  return Buffer.concat([decipher.update(enc), decipher.final()]).toString('utf8')
-}
 
 // --- Request body readers ---
 const MAX_RAW_BODY = 1024 * 1024 // 1MB hard limit to prevent body-based DoS
@@ -93,27 +73,6 @@ async function readJson<T = any>(req: IncomingMessage): Promise<T> {
   }
 }
 
-// --- Secret resolution: ENV operator creds take precedence, else stored merchant config ---
-function resolveSecret(apiKey?: string): string {
-  if (ENV_API_KEY && (!apiKey || apiKey === ENV_API_KEY)) return ENV_SECRET
-  if (apiKey) {
-    const enc = getMerchantSecretEnc(apiKey)
-    if (enc) {
-      try {
-        return decryptSecret(enc)
-      } catch {
-        return ''
-      }
-    }
-  }
-  return ''
-}
-
-function resolveApiKey(provided?: string): string {
-  if (provided) return provided
-  return ENV_API_KEY
-}
-
 function verifySignature(rawPayload: string, receivedSignature: string, secret: string): boolean {
   if (!receivedSignature || !secret) return false
   const calc = crypto.createHmac('sha256', secret).update(rawPayload, 'utf8').digest('hex').toUpperCase()
@@ -122,6 +81,19 @@ function verifySignature(rawPayload: string, receivedSignature: string, secret: 
   let diff = 0
   for (let i = 0; i < calc.length; i++) diff |= calc.charCodeAt(i) ^ expected.charCodeAt(i)
   return diff === 0
+}
+
+// --- Subscription (pay-per-key) order ids ---
+// Format: sub:<devicePublicKeyB64>:<planId>[:<nonce>]
+const SUB_ORDER_RE = /^sub:([A-Za-z0-9+/=]{40,64}):([a-z][a-z0-9]{0,15})(?::.+)?$/
+// Paymento statuses that mean money is in: 7 = Paid, 8 = Approved (merchant confirmed).
+const PAID_STATUSES = new Set([7, 8])
+
+function parseSubscriptionOrderId(orderId: string): { publicKey: string; planId: string } | null {
+  const m = SUB_ORDER_RE.exec(orderId)
+  if (!m) return null
+  if (!getPlan(m[2])) return null
+  return { publicKey: m[1], planId: m[2] }
 }
 
 function sendJson(res: ServerResponse, status: number, data: unknown): void {
@@ -206,11 +178,6 @@ async function callPaymentoVerify(
 
 // --- Route handler ---
 export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
-  if (path === '/api/paymento/config' && req.method === 'POST') {
-    if (!requireAuth(req as AuthenticatedRequest, res)) return true
-    handleConfig(req, res)
-    return true
-  }
   if (path === '/api/paymento/create' && req.method === 'POST') {
     const ip = req.socket.remoteAddress || 'unknown'
     if (!checkCreateRateLimit(ip)) {
@@ -233,50 +200,87 @@ export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, p
     sendJson(res, 200, { payments: listPayments(50) })
     return true
   }
+  if (path === '/api/paymento/entitlement' && req.method === 'GET') {
+    handleEntitlement(req, res)
+    return true
+  }
   return false
 }
 
-async function handleConfig(req: IncomingMessage, res: ServerResponse): Promise<void> {
+// --- Entitlement lookup (device pk is public info, but the endpoint is rate-limited) ---
+const entRateMap = new Map<string, { count: number; resetAt: number }>()
+const ENT_MAX = 30
+const ENT_WINDOW = 60000
+function checkEntitlementRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = entRateMap.get(ip)
+  if (!entry || now > entry.resetAt) {
+    entRateMap.set(ip, { count: 1, resetAt: now + ENT_WINDOW })
+    return true
+  }
+  if (entry.count >= ENT_MAX) return false
+  entry.count++
+  return true
+}
+setInterval(() => {
+  const now = Date.now()
+  for (const [k, e] of entRateMap) if (now > e.resetAt) entRateMap.delete(k)
+}, ENT_WINDOW)
+
+function handleEntitlement(req: IncomingMessage, res: ServerResponse): void {
   try {
-    const body = await readJson<{ apiKey?: string; secretKey?: string; ipnUrl?: string; returnUrl?: string }>(req)
-    if (!body.apiKey || !body.secretKey) {
-      sendJson(res, 400, { error: 'apiKey and secretKey are required' })
+    const ip = req.socket.remoteAddress || 'unknown'
+    if (!checkEntitlementRateLimit(ip)) {
+      sendJson(res, 429, { error: 'Too many requests. Try again later.' })
       return
     }
-    upsertMerchantConfig(
-      body.apiKey,
-      encryptSecret(body.secretKey),
-      body.ipnUrl || '',
-      body.returnUrl || '',
-    )
-    sendJson(res, 200, { ok: true })
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
+    const pk = url.searchParams.get('pk') || ''
+    if (!pk || pk.length > 128) {
+      sendJson(res, 400, { error: 'Missing or invalid pk' })
+      return
+    }
+    const row = getActiveEntitlement(pk)
+    if (!row) {
+      sendJson(res, 200, { premium: false })
+      return
+    }
+    sendJson(res, 200, { premium: true, plan: row.plan, expiresAt: row.expiresAt })
   } catch (err: any) {
-    sendJson(res, 500, { error: err?.message || 'config failed' })
+    console.error('[Paymento] Entitlement error:', err)
+    sendJson(res, 500, { error: 'Entitlement lookup failed' })
   }
 }
 
 async function handleCreate(req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
+    if (!ENV_API_KEY || !ENV_SECRET) {
+      sendJson(res, 503, { error: 'Paymento is not configured on the server' })
+      return
+    }
     const body = await readJson<any>(req)
-    const apiKey = resolveApiKey(body.apiKey)
-    if (!apiKey) {
-      sendJson(res, 400, { error: 'Paymento API key not configured' })
-      return
-    }
-    const secret = resolveSecret(apiKey)
-    if (!secret) {
-      sendJson(res, 400, { error: 'Paymento secret not configured for this API key' })
-      return
-    }
 
     const orderId = String(body.orderId || `ord-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`)
+
+    // Price-floor guard: a subscription order must cost at least the plan price.
+    const subOrder = parseSubscriptionOrderId(orderId)
+    if (subOrder) {
+      const plan = getPlan(subOrder.planId)!
+      const amount = Number(body.amount)
+      if (!Number.isFinite(amount) || amount < plan.price) {
+        sendJson(res, 400, { error: `Amount must be at least ${plan.price} ${plan.currency} for plan ${plan.id}` })
+        return
+      }
+    }
+
     const payload: Record<string, unknown> = {
       fiatAmount: String(body.amount),
       fiatCurrency: body.currency || 'USD',
       orderId,
       Speed: body.speed === 1 ? 1 : 0,
     }
-    if (body.returnUrl) payload.ReturnUrl = body.returnUrl
+    const returnUrl = typeof body.returnUrl === 'string' && body.returnUrl ? body.returnUrl : RETURN_URL
+    if (returnUrl) payload.ReturnUrl = returnUrl
     if (body.email) payload.EmailAddress = body.email
     if (body.description) {
       payload.additionalData = [{ key: 'description', value: String(body.description) }]
@@ -284,14 +288,14 @@ async function handleCreate(req: IncomingMessage, res: ServerResponse): Promise<
       payload.additionalData = body.additionalData
     }
 
-    const { token } = await callPaymentoCreate(apiKey, payload)
+    const { token } = await callPaymentoCreate(ENV_API_KEY, payload)
     const paymentUrl = `${GATEWAY_URL}?token=${encodeURIComponent(token)}`
 
     insertPayment({
       token,
       paymentId: null,
       orderId,
-      apiKey,
+      apiKey: ENV_API_KEY,
       amount: String(body.amount),
       currency: String(body.currency || 'USD'),
       status: 0,
@@ -323,9 +327,7 @@ async function handleIpn(req: IncomingMessage, res: ServerResponse): Promise<voi
     }
 
     const payment = getPaymentByOrderId(orderId)
-    const apiKey = payment?.api_key || ''
-    const secret = resolveSecret(apiKey)
-    if (!verifySignature(raw, signature, secret)) {
+    if (!verifySignature(raw, signature, ENV_SECRET)) {
       console.warn('[Paymento] Invalid IPN signature for', orderId)
       sendJson(res, 401, { error: 'Invalid signature' })
       return
@@ -335,13 +337,25 @@ async function handleIpn(req: IncomingMessage, res: ServerResponse): Promise<voi
     const paymentId = body.PaymentId != null ? Number(body.PaymentId) : null
     updatePaymentStatus(orderId, status, paymentId)
 
-    if (apiKey && !payment) {
+    // Pay-per-key grant: trust anchor is the Paymento HMAC above, not the orderId.
+    if (PAID_STATUSES.has(status)) {
+      const sub = parseSubscriptionOrderId(orderId)
+      if (sub) {
+        const first = recordSubscriptionGrant(orderId, sub.publicKey, sub.planId)
+        if (first) {
+          const plan = getPlan(sub.planId)!
+          grantEntitlement(sub.publicKey, sub.planId, plan.days)
+        }
+      }
+    }
+
+    if (!payment) {
       // First contact for an order we didn't create locally: still record it.
       insertPayment({
         token: String(body.Token || ''),
         paymentId,
         orderId,
-        apiKey,
+        apiKey: ENV_API_KEY,
         amount: '',
         currency: '',
         status,
@@ -359,14 +373,13 @@ async function handleIpn(req: IncomingMessage, res: ServerResponse): Promise<voi
 
 async function handleVerify(req: IncomingMessage, res: ServerResponse, path: string): Promise<void> {
   try {
-    const token = decodeURIComponent(path.replace('/api/paymento/verify/', ''))
-    const payment = getPaymentByToken(token)
-    const apiKey = payment?.api_key || ENV_API_KEY
-    if (!apiKey) {
-      sendJson(res, 400, { error: 'API key not configured' })
+    if (!ENV_API_KEY) {
+      sendJson(res, 503, { error: 'Paymento is not configured on the server' })
       return
     }
-    const result = await callPaymentoVerify(apiKey, token)
+    const token = decodeURIComponent(path.replace('/api/paymento/verify/', ''))
+    const payment = getPaymentByToken(token)
+    const result = await callPaymentoVerify(ENV_API_KEY, token)
     const row = payment ?? (result.orderId ? getPaymentByOrderId(result.orderId) : null)
     if (row) {
       if (!result.currency) result.currency = String(row.currency ?? '')

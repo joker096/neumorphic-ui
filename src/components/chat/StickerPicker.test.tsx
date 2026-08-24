@@ -3,12 +3,27 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { StickerPicker } from './StickerPicker';
 
+const mockGetIcqStickerIds = vi.hoisted(() =>
+  vi.fn((premium: boolean) => (premium ? ['icq:1', 'icq:2', 'icq:3'] : ['icq:1', 'icq:2'])),
+);
+
+const mockToast = vi.hoisted(() => vi.fn());
+
+vi.mock('../ui/Toast', () => ({ toast: mockToast }));
+
+let mockStore: any = { premiumEntitlement: { premium: false, plan: null, expiresAt: null } };
+
+vi.mock('../../store', () => ({
+  useAppStore: (selector: any) => (typeof selector === 'function' ? selector(mockStore) : mockStore),
+}));
+
 vi.mock('../../lib/icqEmojis', () => ({
   ICQ_EMOJI_MAP: [
     { id: 'icq:1', name: 'smile' },
     { id: 'icq:2', name: 'laugh' },
     { id: 'icq:3', name: 'cry' },
   ],
+  getIcqStickerIds: mockGetIcqStickerIds,
   getICQEmojiPath: vi.fn((id: string) => `/icq/${id}.png`),
   getICQStickerSrc: vi.fn((path: string) => `/stickers/${path}.png`),
 }));
@@ -34,6 +49,9 @@ describe('StickerPicker', () => {
   beforeEach(() => {
     mockOnSelect.mockClear();
     mockOnClose.mockClear();
+    mockGetIcqStickerIds.mockClear();
+    mockToast.mockClear();
+    mockStore = { premiumEntitlement: { premium: false, plan: null, expiresAt: null } };
   });
 
   it('renders all tabs', () => {
@@ -89,5 +107,30 @@ describe('StickerPicker', () => {
   it('renders in light theme', () => {
     render(<StickerPicker {...defaultProps} theme="light" />);
     expect(screen.getAllByText('stickers.icq').length).toBe(2);
+  });
+
+  it('limits the ICQ pack for the free tier', () => {
+    render(<StickerPicker {...defaultProps} />);
+    expect(mockGetIcqStickerIds).toHaveBeenCalledWith(false);
+  });
+
+  it('unlocks the full ICQ pack for premium', () => {
+    mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
+    render(<StickerPicker {...defaultProps} />);
+    expect(mockGetIcqStickerIds).toHaveBeenCalledWith(true);
+  });
+
+  it('shows the premium teaser for the free tier and toasts on click', () => {
+    render(<StickerPicker {...defaultProps} />);
+    const teaser = screen.getByLabelText('premium.stickerLocked');
+    fireEvent.click(teaser);
+    expect(mockToast).toHaveBeenCalledTimes(1);
+    expect(mockOnSelect).not.toHaveBeenCalled();
+  });
+
+  it('hides the teaser for premium', () => {
+    mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
+    render(<StickerPicker {...defaultProps} />);
+    expect(screen.queryByLabelText('premium.stickerLocked')).not.toBeInTheDocument();
   });
 });
