@@ -462,7 +462,9 @@
     "report": "Пожаловаться",
     "tab": {
       "media": "Медиа"
-    }
+    },
+    "subscribersLabel": "Подписчики",
+    "postsLabel": "Записи"
   },
   "createChannel": {
     "title": "Создать канал",

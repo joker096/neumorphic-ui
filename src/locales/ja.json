@@ -462,7 +462,9 @@
     "report": "レポート",
     "tab": {
       "media": "メディア"
-    }
+    },
+    "subscribersLabel": "登録者",
+    "postsLabel": "投稿"
   },
   "createChannel": {
     "title": "チャンネルを作成",

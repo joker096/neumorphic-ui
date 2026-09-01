@@ -462,7 +462,9 @@
     "report": "Melden",
     "tab": {
       "media": "Medien"
-    }
+    },
+    "subscribersLabel": "Abonnenten",
+    "postsLabel": "Beiträge"
   },
   "createChannel": {
     "title": "Kanal erstellen",

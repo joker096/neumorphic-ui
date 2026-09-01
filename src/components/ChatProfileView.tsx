@@ -211,11 +211,11 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   <div className="grid grid-cols-3 gap-2">
                     <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
                       <div className={`text-lg font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.subscriberCount ?? chat.subscribers ?? CHAT_PROFILE_DEFAULT_SUBSCRIBERS}</div>
-                      <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('chat.subscribers', { count: 0 }).replace(/\s*\d+\s*/g, '').trim() || 'Subscribers'}</div>
+                      <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('profile.subscribersLabel', 'Subscribers')}</div>
                     </div>
                     <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
                       <div className={`text-lg font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.postCount ?? chat.history?.length ?? 0}</div>
-                      <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('chat.posts', { count: 0 }).replace(/\s*\d+\s*/g, '').trim() || 'Posts'}</div>
+                      <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('profile.postsLabel', 'Posts')}</div>
                     </div>
                     <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
                       <div className={`text-sm font-bold truncate px-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.ownerId ? (ownerName || t('profile.owner', 'Owner')) : '—'}</div>

@@ -462,7 +462,9 @@
     "report": "举报",
     "tab": {
       "media": "媒体"
-    }
+    },
+    "subscribersLabel": "订阅者",
+    "postsLabel": "帖子"
   },
   "createChannel": {
     "title": "创建频道",

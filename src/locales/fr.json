@@ -462,7 +462,9 @@
     "report": "Signaler",
     "tab": {
       "media": "Médias"
-    }
+    },
+    "subscribersLabel": "Abonnés",
+    "postsLabel": "Publications"
   },
   "createChannel": {
     "title": "Créer un canal",
