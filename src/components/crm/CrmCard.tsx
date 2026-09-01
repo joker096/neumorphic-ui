@@ -2,6 +2,7 @@ import React from 'react';
 import { UserCircle2, Briefcase, CheckSquare, AlertTriangle, ArrowUpRight } from 'lucide-react';
 import type { CrmContact, Deal, CrmTask } from '../../lib/crm/types';
 import { useI18n } from '../../lib/i18n';
+import { isOpenDealStage } from '../../constants/crmConstants';
 
 interface CrmCardProps {
   contact: CrmContact;
@@ -31,7 +32,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
     vip: t('crm.statusVip'),
   };
   const myDeals = deals.filter((d) => d.contactId === contact.userId);
-  const openDeals = myDeals.filter((d) => d.stage !== 'won' && d.stage !== 'lost');
+  const openDeals = myDeals.filter((d) => isOpenDealStage(d.stage));
   const dealValue = openDeals.reduce((sum, d) => sum + d.amount, 0);
   const myTasks = tasks.filter((t) => t.contactId === contact.userId);
   const openTasks = myTasks.filter((t) => !t.done);

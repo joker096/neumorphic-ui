@@ -26,6 +26,18 @@ export const DEAL_STAGES: { id: DealStage; labelKey: string; gradient: string }[
   { id: 'lost', labelKey: 'crm.stageLost', gradient: 'from-rose-400 to-red-500' },
 ];
 
+/** All deal-stage ids (drift-free source for filters and loops). */
+export const CRM_DEAL_STAGES = DEAL_STAGES.map((s) => s.id) as readonly DealStage[];
+
+/** Named stage constants so stage filters never hardcode literals. */
+export const CRM_STAGE_WON: DealStage = 'won';
+export const CRM_STAGE_LOST: DealStage = 'lost';
+export const CRM_DEFAULT_DEAL_STAGE: DealStage = 'new';
+
+/** True for stages still in the pipeline (not won/lost). */
+export const isOpenDealStage = (stage: DealStage): boolean =>
+  stage !== CRM_STAGE_WON && stage !== CRM_STAGE_LOST;
+
 export const CONTACT_STATUSES: { id: CrmContactStatus; labelKey: string }[] = [
   { id: 'lead', labelKey: 'crm.statusLead' },
   { id: 'client', labelKey: 'crm.statusClient' },

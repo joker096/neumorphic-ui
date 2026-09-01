@@ -6,6 +6,7 @@
  */
 
 import type { CrmContact, CrmContactStatus, Deal, DealStage, CrmTask } from './types';
+import { CRM_STAGE_LOST, CRM_STAGE_WON, isOpenDealStage } from '../../constants/crmConstants';
 
 export interface ChurnRisk {
   userId: string;
@@ -64,9 +65,9 @@ export function computeCrmAnalytics(
       byStage[d.stage] += 1;
       byStageValue[d.stage] += d.amount;
     }
-    if (d.stage === 'won') {
+    if (d.stage === CRM_STAGE_WON) {
       wonValue += d.amount;
-    } else if (d.stage !== 'lost') {
+    } else if (d.stage !== CRM_STAGE_LOST) {
       pipelineValue += d.amount;
       dealsOpen += 1;
     }
@@ -85,7 +86,7 @@ export function computeCrmAnalytics(
   }
 
   const activeDealContactIds = new Set(
-    deals.filter((d) => d.stage !== 'lost' && d.stage !== 'won').map((d) => d.contactId),
+    deals.filter((d) => isOpenDealStage(d.stage)).map((d) => d.contactId),
   );
   const churnRisk: ChurnRisk[] = contacts
     .filter((c) =>

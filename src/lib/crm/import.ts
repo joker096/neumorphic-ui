@@ -20,6 +20,7 @@ import type {
   SystemRole,
   TaskPriority,
 } from './types';
+import { CRM_DEFAULT_DEAL_STAGE } from '../../constants/crmConstants';
 
 export type ImportFormat = 'csv' | 'json';
 
@@ -240,11 +241,11 @@ function mapStatus(raw: string | undefined, row: number, issues: ImportIssue[]):
 }
 
 function mapStage(raw: string | undefined, row: number, issues: ImportIssue[]): DealStage {
-  if (!raw) return 'new';
+  if (!raw) return CRM_DEFAULT_DEAL_STAGE;
   const k = raw.trim().toLowerCase();
   const hit = STAGE_MAP[k];
   if (!hit) issues.push({ row, field: 'stage', code: 'unknown-stage', value: raw, severity: 'warning' });
-  return hit ?? 'new';
+  return hit ?? CRM_DEFAULT_DEAL_STAGE;
 }
 
 function mapPriority(raw: string | undefined, row: number, issues: ImportIssue[]): TaskPriority {

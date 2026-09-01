@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
-import { CRM_FALLBACKS, crmAvatarAt, CONTACT_STATUSES } from '../../constants/crmConstants';
+import { CRM_FALLBACKS, crmAvatarAt, CONTACT_STATUSES, isOpenDealStage } from '../../constants/crmConstants';
 import type { CrmContact, CrmContactStatus } from '../../lib/crm/types';
 import { RoleBadge } from './RoleBadge';
 import { ContactCard } from './ContactCard';
@@ -122,7 +122,7 @@ export const CrmPeople: React.FC<Props> = ({
     );
     const openTasks = tasks.filter((x) => !x.done && x.assigneeId && memberIds.has(x.assigneeId)).length;
     const openDeals = deals.filter(
-      (d) => d.stage !== 'won' && d.stage !== 'lost' && d.ownerId && memberIds.has(d.ownerId),
+      (d) => isOpenDealStage(d.stage) && d.ownerId && memberIds.has(d.ownerId),
     ).length;
     const leadId = departments.find((d) => d.id === key)?.leadId;
     const lead = leadId ? contacts.find((c) => c.userId === leadId)?.displayName ?? null : null;

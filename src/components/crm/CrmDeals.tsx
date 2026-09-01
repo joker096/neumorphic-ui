@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
-import { CRM_FALLBACKS, DEAL_STAGES } from '../../constants/crmConstants';
+import { CRM_FALLBACKS, CRM_STAGE_LOST, DEAL_STAGES } from '../../constants/crmConstants';
 import type { Deal, DealStage } from '../../lib/crm/types';
 import { DealModal } from './CrmDealModal';
 import { useCrmPermissions } from '../../lib/crm/permissions';
@@ -49,7 +49,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
   }, [focusDealId, onFocusHandled]);
 
   const contactName = (id: string) => contacts.find((c) => c.userId === id)?.displayName ?? id;
-  const total = deals.filter((d) => d.stage !== 'lost').reduce((s, d) => s + d.amount, 0);
+  const total = deals.filter((d) => d.stage !== CRM_STAGE_LOST).reduce((s, d) => s + d.amount, 0);
 
   const stageLabel = (id: DealStage) => {
     const s = DEAL_STAGES.find((x) => x.id === id);

@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
-import { CRM_FALLBACKS, DEAL_STAGES } from '../../constants/crmConstants';
+import { CRM_DEFAULT_DEAL_STAGE, CRM_FALLBACKS, DEAL_STAGES } from '../../constants/crmConstants';
 import type { Deal, DealStage } from '../../lib/crm/types';
 import { CrmModal } from './CrmModal';
 import { useCrmPermissions } from '../../lib/crm/permissions';
@@ -28,7 +28,7 @@ export const DealModal: React.FC<Props> = ({ deal, onClose }) => {
   const [form, setForm] = useState({
     title: deal?.title ?? '',
     contactId: deal?.contactId ?? '',
-    stage: (deal?.stage ?? 'new') as DealStage,
+    stage: (deal?.stage ?? CRM_DEFAULT_DEAL_STAGE) as DealStage,
     amount: String(deal?.amount ?? ''),
     currency: deal?.currency ?? 'RUB',
     ownerId: deal?.ownerId ?? userId,
