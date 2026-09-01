@@ -36,12 +36,14 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
                 <div className={`text-xs font-bold uppercase tracking-[0.2em] ${isDark ? "text-orange-400" : "text-orange-600"}`}>{t('chat.savedMessages')}</div>
                 <div className={`text-sm mt-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{t('chat.savedItems', { n: chatSavedMessages.length, chatName })}</div>
               </div>
-              <button
-                onClick={onClose}
-                className={modalCloseClass(isDark)}
-              >
-                <X size={16} />
-              </button>
+<button
+  type="button"
+  aria-label={t('common.close')}
+  onClick={onClose}
+  className={modalCloseClass(isDark)}
+>
+  <X size={16} />
+</button>
             </div>
             <div className="p-4 overflow-y-auto max-h-[calc(78vh-76px)]">
               {chatSavedMessages.length > 0 ? (

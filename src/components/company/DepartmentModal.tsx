@@ -84,12 +84,14 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-        >
-          <X size={18} />
-        </button>
+<button
+  type="button"
+  aria-label={t('common.close')}
+  onClick={onClose}
+  className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+>
+  <X size={18} />
+</button>
         <h3 className="text-xl font-bold mb-5 text-[var(--text-primary)]">
           {department ? t('company.editDepartment', 'Edit department') : t('company.addDepartment', 'Add department')}
         </h3>

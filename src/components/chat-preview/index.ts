@@ -3,7 +3,6 @@ export { SearchBar } from "./SearchBar";
 export { ReactionPicker } from "./ReactionPicker";
 export { MessageActions } from "./MessageActions";
 export { MessageReactions } from "./MessageReactions";
-export { InputFooter } from "./InputFooter";
 export { SavedMessagesPanel } from "./SavedMessagesPanel";
 export { ChatListItem } from "./ChatListItem";
 export { AvatarRow } from "./AvatarRow";

@@ -5,8 +5,10 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { FormField } from '../ui/FormField';
 
-const closeBtn = (onClick: () => void) => (
+const closeBtn = (onClick: () => void, ariaLabel: string) => (
   <button
+    type="button"
+    aria-label={ariaLabel}
     onClick={onClick}
     className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
   >
@@ -47,7 +49,7 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl bg-white border border-[var(--border-color)]">
-        {closeBtn(onClose)}
+        {closeBtn(onClose, t('common.close'))}
         <div className="flex items-center gap-2 mb-1">
           <div className="w-9 h-9 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--accent)]">
             <Building2 size={18} />

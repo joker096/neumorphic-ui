@@ -63,9 +63,9 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
       <div className="absolute inset-0 z-[100] flex flex-col bg-[var(--bg-primary)]/95">
         <div className="flex items-center justify-between px-4 py-3 md:px-20 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
           <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
-          <button onClick={onClose} className={closeBtnStyle}>
-            <X size={16} />
-          </button>
+<button type="button" aria-label={t('common.close')} onClick={onClose} className={closeBtnStyle}>
+  <X size={16} />
+</button>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 size={24} className="animate-spin text-[var(--text-secondary)]" />

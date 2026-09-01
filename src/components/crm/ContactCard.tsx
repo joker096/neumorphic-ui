@@ -121,9 +121,9 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
             <div className="flex-1 text-center text-xs text-[var(--text-secondary)] py-2">{t('crm.readOnly', 'Read only — admins can edit')}</div>
           )}
           {!isNew && (can('manageMembers')) && (
-            <button onClick={handleRemove} className="min-h-11 px-4 rounded-xl flex items-center justify-center font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110">
-              <Trash2 size={16} />
-            </button>
+<button type="button" aria-label={t('crm.remove', CRM_FALLBACKS.remove)} onClick={handleRemove} className="min-h-11 px-4 rounded-xl flex items-center justify-center font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110">
+  <Trash2 size={16} />
+</button>
           )}
         </div>
       }

@@ -31,7 +31,7 @@ export function ChatListBots({ bots, onOpenBot, isDark, t }: ChatListBotsProps) 
           role="button"
           tabIndex={0}
           onClick={() => onOpenBot?.(b.id)}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpenBot?.(b.id); }}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenBot?.(b.id); } }}
           className={`w-full p-4 rounded-xl mb-4 flex flex-col gap-2 cursor-pointer transition-colors ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-[var(--bg-elevated)]" : "bg-white border border-[var(--border-color)] shadow-sm hover:bg-slate-50"}`}
         >
           <div className="flex items-center gap-3">

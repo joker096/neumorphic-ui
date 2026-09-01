@@ -6,8 +6,10 @@ import { useI18n } from '../../lib/i18n';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { COMPANY_EDIT_FALLBACKS, COMPANY_MEMBER_FALLBACKS } from '../../constants/companyConstants';
 
-const closeBtn = (onClick: () => void) => (
+const closeBtn = (onClick: () => void, ariaLabel: string) => (
   <button
+    type="button"
+    aria-label={ariaLabel}
     onClick={onClick}
     className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
   >
@@ -77,7 +79,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
-        {closeBtn(onClose)}
+        {closeBtn(onClose, t('common.close'))}
         <h3 className="text-xl font-bold mb-1 text-[var(--text-primary)]">{member.displayName}</h3>
         <div className="text-xs text-[var(--text-secondary)] mb-5">
           {member.role === 'admin'

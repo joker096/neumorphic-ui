@@ -143,9 +143,9 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                 placeholder={t('settings.newAccountPlaceholder', 'Account name...')}
                 className={`flex-1 min-w-0 bg-transparent outline-none text-sm transition-colors ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-800 placeholder:text-slate-400"}`}
               />
-              <button type="submit" disabled={!newAccountName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 min-w-11 min-h-11 ${newAccountName.trim() ? "bg-[var(--accent)] text-[var(--text-primary)]" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
-                <Check size={16} />
-              </button>
+<button type="submit" aria-label={t('settings.addAccount', 'Add Account')} disabled={!newAccountName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 min-w-11 min-h-11 ${newAccountName.trim() ? "bg-[var(--accent)] text-[var(--text-primary)]" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
+  <Check size={16} />
+</button>
             </form>
           ) : (
             <div

@@ -69,4 +69,13 @@ describe('AppearanceSettings - additional tests', () => {
     render(<AppearanceSettings {...defaultProps} />);
     expect(screen.getByText('settings.pwaPromptSubtitle')).toBeInTheDocument();
   });
+
+  it('accent swatches keep 44px hit zone and are labelled', () => {
+    const { container } = render(<AppearanceSettings {...defaultProps} />);
+    const swatch = container.querySelector('button[aria-label="#3b82f6"]') as HTMLElement;
+    expect(swatch).toBeInTheDocument();
+    expect(swatch.className).toContain('min-w-11');
+    expect(swatch.className).toContain('min-h-11');
+    expect(swatch).toHaveAttribute('aria-pressed');
+  });
 });

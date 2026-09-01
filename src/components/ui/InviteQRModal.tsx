@@ -52,12 +52,14 @@ export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }
             className={`${modalSurface(isDark, 'max-w-[340px]')} relative flex flex-col items-center`}
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={onClose}
-              className={`absolute top-4 right-4 z-10 ${modalCloseClass(isDark)}`}
-            >
-              <X size={18} />
-            </button>
+<button
+  type="button"
+  aria-label={t('common.close')}
+  onClick={onClose}
+  className={`absolute top-4 right-4 z-10 ${modalCloseClass(isDark)}`}
+>
+  <X size={18} />
+</button>
 
             <h3 className="text-lg font-bold mb-2 text-center text-foreground">
               {t('onboarding.invite') || 'Invite friends'}

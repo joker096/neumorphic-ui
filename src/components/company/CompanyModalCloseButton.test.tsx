@@ -10,4 +10,9 @@ describe("CompanyModalCloseButton", () => {
     fireEvent.click(screen.getByRole("button"));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it("exposes an accessible close label", () => {
+    render(<CompanyModalCloseButton onClick={vi.fn()} />);
+    expect(screen.getByRole("button")).toHaveAttribute("aria-label");
+  });
 });

@@ -84,7 +84,7 @@ export const PlaylistView = ({
           role="button"
           tabIndex={0}
           onClick={() => setShowPlaylist(false)}
-          onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowPlaylist(false); }}
+          onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setShowPlaylist(false); } }}
           className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[var(--text-warm-dark)] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
            title={t('systemPlayer.backToPlayer')}
         >

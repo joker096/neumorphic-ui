@@ -27,7 +27,7 @@ export const TopBar = ({
             tabIndex={0}
             aria-label={t('systemPlayer.equalizerSettings')}
             onClick={() => setShowEq(true)}
-            onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowEq(true); }}
+            onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setShowEq(true); } }}
             className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "hover:bg-white/10" : "hover:bg-black/10"} transition-colors`}
             title={t('systemPlayer.equalizerSettings')}
           >

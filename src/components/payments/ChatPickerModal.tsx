@@ -28,12 +28,14 @@ export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModa
           <h3 className="text-sm font-bold text-[var(--text-primary)]">
             {title || t('payments.sendToChat')}
           </h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-[var(--text-primary)] opacity-70 hover:opacity-100 active:scale-95 transition-transform"
-          >
-            <X size={18} />
-          </button>
+<button
+  type="button"
+  aria-label={t('common.close')}
+  onClick={onClose}
+  className="p-1.5 rounded-lg text-[var(--text-primary)] opacity-70 hover:opacity-100 active:scale-95 transition-transform"
+>
+  <X size={18} />
+</button>
         </div>
         <div className="max-h-[60vh] overflow-y-auto">
           {chats.length === 0 && (
