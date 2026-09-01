@@ -152,7 +152,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
           {sent ? (
             <EmptyState
               isDark={isDark}
-              icon={<LifeBuoy size={28} />}
+              icon={<LifeBuoy size={32} />}
               title={t('thanksTitle', 'Thanks for reaching out')}
               description={t('thanksDesc', 'Our team usually replies within 24 hours.')}
               action={{ label: t('sendAnother', 'Send another'), onClick: resetForm }}
@@ -209,9 +209,12 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
                 type="button"
                 disabled={!canSubmit}
                 onClick={submit}
-                className={`mt-1 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium min-h-[44px] transition-colors active:scale-[0.99] ${canSubmit ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : "bg-[var(--bg-tertiary)] text-gray-400 cursor-not-allowed"}`}
+                aria-label={t('sendRequest', 'Send request')}
+                title={t('sendRequest', 'Send request')}
+                className={`mt-1 w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors active:scale-[0.99] ${canSubmit ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : "bg-[var(--bg-tertiary)] text-gray-400 cursor-not-allowed"}`}
               >
-                <MessageSquare size={16} aria-hidden="true" /> {t('sendRequest', 'Send request')}
+                <MessageSquare size={16} aria-hidden="true" />
+                <span className="sr-only">{t('sendRequest', 'Send request')}</span>
               </button>
             </>
           )}
@@ -221,9 +224,12 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
       <button
         type="button"
         onClick={reportBug}
-        className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-xl transition-colors active:scale-[0.99] ${isDark ? "bg-white/5 text-rose-300 hover:bg-white/10" : "bg-rose-50 text-rose-500 hover:bg-rose-100"}`}
+        aria-label={t('reportBug', 'Report a bug')}
+        title={t('reportBug', 'Report a bug')}
+        className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors active:scale-[0.99] ${isDark ? "bg-white/5 text-rose-300 hover:bg-white/10" : "bg-rose-50 text-rose-500 hover:bg-rose-100"}`}
       >
-        <Bug size={16} aria-hidden="true" /> {t('reportBug', 'Report a bug')}
+        <Bug size={16} aria-hidden="true" />
+        <span className="sr-only">{t('reportBug', 'Report a bug')}</span>
       </button>
     </SubView>
   );

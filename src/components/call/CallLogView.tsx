@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { SubView } from '../ui/SubView';
 import { DataState } from '../ui/DataState';
-import { PhoneIncoming, PhoneOutgoing, PhoneMissed, Search, Trash2 } from 'lucide-react';
+import { PhoneIncoming, PhoneOutgoing, PhoneMissed, PhoneOff, Phone, Search, Trash2 } from 'lucide-react';
 import { useAppStore } from '../../store';
+import { callManager } from '../../lib/call/CallManager';
 
-export const CallLogView = ({ isDark = false, onBack }: { isDark?: boolean; onBack?: () => void }) => {
+export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark?: boolean; onBack?: () => void; onOpenContacts?: () => void }) => {
   const { t } = useI18n();
   const callHistory = useAppStore(s => s.callHistory);
   const clearCallHistory = useAppStore(s => s.clearCallHistory);
@@ -19,6 +20,7 @@ export const CallLogView = ({ isDark = false, onBack }: { isDark?: boolean; onBa
 
   const getIcon = (type: string) => {
     if (type === 'missed') return <PhoneMissed size={18} className="text-red-400" />;
+    if (type === 'declined') return <PhoneOff size={18} className="text-gray-400" />;
     if (type === 'incoming') return <PhoneIncoming size={18} className="text-emerald-400" />;
     return <PhoneOutgoing size={18} className="text-[var(--accent)]" />;
   };
@@ -28,7 +30,7 @@ export const CallLogView = ({ isDark = false, onBack }: { isDark?: boolean; onBa
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-tertiary)]" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
             <input
               type="text"
               value={query}
@@ -53,7 +55,10 @@ export const CallLogView = ({ isDark = false, onBack }: { isDark?: boolean; onBa
           <DataState
             status="empty"
             isDark={isDark}
-            title={callHistory.length === 0 ? t('call.noCallsYet') : t('call.noCallsSubtitle')}
+            emptyIcon={callHistory.length === 0 ? undefined : 'search'}
+            title={callHistory.length === 0 ? t('call.noCallsYet') : t('call.noCallsMatch')}
+            description={t('call.noCallsSubtitle')}
+            action={query ? { label: t('search.clear', 'Clear'), onClick: () => setQuery('') } : onOpenContacts ? { label: t('call.viewContacts', 'View contacts'), onClick: onOpenContacts } : undefined}
           />
         ) : (
           <div className="flex flex-col gap-2">
@@ -74,6 +79,16 @@ export const CallLogView = ({ isDark = false, onBack }: { isDark?: boolean; onBa
                     {call.duration && ` · ${call.duration}`}
                   </p>
                 </div>
+                {(call.type === 'missed' || call.type === 'declined') && (
+                  <button
+                    onClick={() => callManager.startPreviewCall(`cb_${call.id}`, call.name, 'audio').catch(() => {})}
+                    className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent)]' : 'bg-gray-100 text-slate-500 hover:text-[var(--accent)]'}`}
+                    title={t('call.callBack')}
+                    aria-label={t('call.callBack')}
+                  >
+                    <Phone size={16} />
+                  </button>
+                )}
               </div>
             ))}
           </div>

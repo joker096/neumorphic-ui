@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createChatSlice } from './chatSlice';
+import { createChatSlice, canGroupPermission, getGroupRole, groupPermissionsOf, DEFAULT_GROUP_PERMISSIONS } from './chatSlice';
 
 const makeSlice = (initial: any = {}) => {
   let state: any = { ...initial };
@@ -80,11 +80,153 @@ describe('chatSlice', () => {
     expect(get().scheduledQueue.messages).toHaveLength(0);
   });
 
+  it('deleteGroup removes the group chat and its dangling references', () => {
+    const { slice, get } = makeSlice({
+      chats: [
+        { id: 'g1', type: 'group', history: [] },
+        { id: 'g1', type: 'dm', history: [] },
+        { id: 'g2', type: 'group', history: [] },
+      ],
+      archivedChats: ['g1', 'g2'],
+      pinnedMessageList: [{ id: 1, chatId: 'g1' }, { id: 2, chatId: 'g2' }],
+    });
+    slice.deleteGroup('g1');
+    expect(get().chats.find((c: any) => c.id === 'g1' && c.type === 'group')).toBeUndefined();
+    expect(get().chats.find((c: any) => c.id === 'g1' && c.type === 'dm')).toBeDefined();
+    expect(get().archivedChats).not.toContain('g1');
+    expect(get().pinnedMessageList.map((p: any) => p.chatId)).not.toContain('g1');
+  });
+
+  it('leaveGroup: owner leaving dissolves the group', () => {
+    const { slice, get } = makeSlice({
+      chats: [{ id: 'g1', type: 'group', group: { ownerId: 'me', inviteToken: 'ma_g1', slowModeSeconds: 0 }, members: [{ id: 'c1', name: 'C', color: '', role: 'member' }] }],
+      archivedChats: ['g1'],
+      pinnedMessageList: [{ id: 1, chatId: 'g1' }],
+    });
+    slice.leaveGroup('g1', 'me');
+    expect(get().chats).toHaveLength(0);
+    expect(get().archivedChats).not.toContain('g1');
+    expect(get().pinnedMessageList).toHaveLength(0);
+  });
+
+  it('leaveGroup: non-owner member is removed, group stays', () => {
+    const { slice, get } = makeSlice({
+      chats: [{
+        id: 'g1',
+        type: 'group',
+        group: { ownerId: 'me', inviteToken: 'ma_g1', slowModeSeconds: 0 },
+        members: [{ id: 'c1', name: 'A', color: '', role: 'member' }, { id: 'c2', name: 'B', color: '', role: 'member' }],
+      }],
+    });
+    slice.leaveGroup('g1', 'c2');
+    expect(get().chats).toHaveLength(1);
+    expect(get().chats[0].members.map((m: any) => m.id)).toEqual(['c1']);
+  });
+
+  it('leaveGroup: unknown chat or non-member user is a no-op', () => {
+    const { slice, get } = makeSlice({
+      chats: [{ id: 'g1', type: 'group', group: { ownerId: 'me', inviteToken: 'ma_g1', slowModeSeconds: 0 }, members: [{ id: 'c1', name: 'A', color: '', role: 'member' }] }],
+    });
+    slice.leaveGroup('nope', 'me');
+    slice.leaveGroup('g1', 'stranger');
+    expect(get().chats).toHaveLength(1);
+    expect(get().chats[0].members.map((m: any) => m.id)).toEqual(['c1']);
+  });
+
   it('addPinnedMessage/removePinnedMessage', () => {
     const { slice, get } = makeSlice();
     slice.addPinnedMessage({ id: 7, chatId: 'c', pinBy: 'u' });
     expect(get().pinnedMessageList).toHaveLength(1);
     slice.removePinnedMessage(7);
     expect(get().pinnedMessageList).toHaveLength(0);
+  });
+
+  it('removePinnedMessage is scoped by chatId', () => {
+    const { slice, get } = makeSlice();
+    slice.addPinnedMessage({ id: 1, chatId: 'c1', pinBy: 'u' });
+    slice.addPinnedMessage({ id: 1, chatId: 'c2', pinBy: 'u' });
+    slice.removePinnedMessage(1, 'c1');
+    expect(get().pinnedMessageList).toHaveLength(1);
+    expect(get().pinnedMessageList[0].chatId).toBe('c2');
+  });
+
+  it('addPinnedMessage does not duplicate the same message in the same chat', () => {
+    const { slice, get } = makeSlice();
+    slice.addPinnedMessage({ id: 7, chatId: 'c', pinBy: 'u' });
+    slice.addPinnedMessage({ id: 7, chatId: 'c', pinBy: 'u' });
+    expect(get().pinnedMessageList).toHaveLength(1);
+  });
+
+  it('getGroupRole resolves owner, member role, and null for strangers', () => {
+    const chat = {
+      group: { ownerId: 'me', inviteToken: 'x', slowModeSeconds: 0 },
+      members: [{ id: 'c1', name: 'A', color: '', role: 'admin' as const }, { id: 'c2', name: 'B', color: '', role: 'member' as const }],
+    };
+    expect(getGroupRole(chat, 'me')).toBe('owner');
+    expect(getGroupRole(chat, 'c1')).toBe('admin');
+    expect(getGroupRole(chat, 'c2')).toBe('member');
+    expect(getGroupRole(chat, 'stranger')).toBeNull();
+    expect(getGroupRole(null, 'me')).toBeNull();
+  });
+
+  it('canGroupPermission follows the role matrix and is null-safe', () => {
+    expect(canGroupPermission('owner', 'deleteGroup')).toBe(true);
+    expect(canGroupPermission('owner', 'manageMembers')).toBe(true);
+    expect(canGroupPermission('owner', 'manageGroup')).toBe(true);
+    expect(canGroupPermission('admin', 'deleteGroup')).toBe(false);
+    expect(canGroupPermission('admin', 'manageMembers')).toBe(true);
+    expect(canGroupPermission('member', 'manageGroup')).toBe(false);
+    expect(canGroupPermission(null, 'deleteGroup')).toBe(false);
+  });
+
+  it('groupPermissionsOf falls back to defaults when group or permissions missing', () => {
+    expect(groupPermissionsOf(undefined)).toEqual(DEFAULT_GROUP_PERMISSIONS);
+    expect(groupPermissionsOf({ ownerId: 'me', inviteToken: 'x', slowModeSeconds: 0 })).toEqual(DEFAULT_GROUP_PERMISSIONS);
+    expect(groupPermissionsOf({ ownerId: 'me', inviteToken: 'x', slowModeSeconds: 0, permissions: { sendMessages: false, addMembers: true, mentionEveryone: true } }))
+      .toEqual({ sendMessages: false, addMembers: true, mentionEveryone: true });
+  });
+
+  it('createGroup seeds default group permissions', () => {
+    const { slice, get } = makeSlice({
+      contacts: [{ id: 'c1', name: 'A', color: '' }, { id: 'c2', name: 'B', color: '' }],
+      userProfile: { id: 'me' },
+    });
+    const id = slice.createGroup({ name: 'G', memberIds: ['c1', 'c2'] });
+    const chat = get().chats.find((c: any) => c.id === id);
+    expect(chat.group.permissions).toEqual(DEFAULT_GROUP_PERMISSIONS);
+    expect(typeof chat.createdAt).toBe('number');
+  });
+
+  it('setChatMuted patches only the target chat, unknown id is a no-op', () => {
+    const { slice, get } = makeSlice({
+      chats: [{ id: 'g1', muted: false }, { id: 'g2' }],
+    });
+    slice.setChatMuted('g1', true);
+    expect(get().chats.find((c: any) => c.id === 'g1').muted).toBe(true);
+    expect(get().chats.find((c: any) => c.id === 'g2').muted).toBeUndefined();
+    slice.setChatMuted('nope', false);
+    expect(get().chats.find((c: any) => c.id === 'g1').muted).toBe(true);
+  });
+
+  it('setChatMuted mutes a channel-shaped chat (drives channel notifications)', () => {
+    const { slice, get } = makeSlice({
+      chats: [{ id: 'c1', isChannel: true, muted: false }],
+    });
+    slice.setChatMuted('c1', true);
+    expect(get().chats.find((c: any) => c.id === 'c1').muted).toBe(true);
+    slice.setChatMuted('c1', false);
+    expect(get().chats.find((c: any) => c.id === 'c1').muted).toBe(false);
+  });
+
+  it('leaveChannel removes the channel chat and cleans archive/pinned refs, keeps groups', () => {
+    const { slice, get } = makeSlice({
+      chats: [{ id: 'ch1', isChannel: true }, { id: 'g1', type: 'group' }],
+      archivedChats: ['ch1'],
+      pinnedMessageList: [{ id: 1, chatId: 'ch1', pinBy: 'me', pinnedAt: 0 }],
+    });
+    slice.leaveChannel('ch1');
+    expect(get().chats).toEqual([{ id: 'g1', type: 'group' }]);
+    expect(get().archivedChats).toEqual([]);
+    expect(get().pinnedMessageList).toEqual([]);
   });
 });

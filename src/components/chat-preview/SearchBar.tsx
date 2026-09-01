@@ -1,6 +1,7 @@
 import React from 'react'
 import { SearchInput } from '../ui/SearchInput'
 import { useI18n } from '../../lib/i18n'
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface SearchBarProps {
   showSearch: boolean
@@ -49,7 +50,7 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
               key={f.key}
               type="button"
               onClick={() => onSearchTypeChange(f.key)}
-              className={`shrink-0 min-h-[32px] px-3 rounded-full text-[12px] font-semibold transition-colors cursor-pointer ${
+              className={`shrink-0 min-h-11 px-3 rounded-full text-[12px] font-semibold transition-colors cursor-pointer ${
                 active
                   ? isDark
                     ? 'bg-orange-500/20 text-orange-300 border border-orange-500/40'
@@ -74,18 +75,20 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
               onClick={onPrevMatch}
               disabled={!hasMatches}
               aria-label={t('chat.searchPrev', 'Previous match')}
-              className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-40 enabled:hover:bg-black/10 dark:enabled:hover:bg-white/10 transition-colors cursor-pointer"
+              title={t('chat.searchPrev', 'Previous match')}
+              className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-40 enabled:hover:bg-black/10 dark:enabled:hover:bg-white/10 transition-colors cursor-pointer"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--text-secondary)]"><polyline points="18 15 12 9 6 15"></polyline></svg>
+              <ChevronUp size={16} className="text-[var(--text-secondary)]" />
             </button>
             <button
               type="button"
               onClick={onNextMatch}
               disabled={!hasMatches}
               aria-label={t('chat.searchNext', 'Next match')}
-              className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-40 enabled:hover:bg-black/10 dark:enabled:hover:bg-white/10 transition-colors cursor-pointer"
+              title={t('chat.searchNext', 'Next match')}
+              className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-40 enabled:hover:bg-black/10 dark:enabled:hover:bg-white/10 transition-colors cursor-pointer"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--text-secondary)]"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <ChevronDown size={16} className="text-[var(--text-secondary)]" />
             </button>
           </div>
         )}

@@ -1,11 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../lib/idb', () => ({
-  saveCompanyDepartments: vi.fn(() => Promise.resolve()),
-  saveCompanyContacts: vi.fn(() => Promise.resolve()),
-  getCompanyDepartments: vi.fn(() => Promise.resolve(null)),
-  getCompanyContacts: vi.fn(() => Promise.resolve(null)),
-}));
+vi.mock('../../lib/idb', () => {
+  const store: Record<string, any> = {};
+  return {
+    saveCompanyDepartments: vi.fn(() => Promise.resolve()),
+    saveCompanyContacts: vi.fn(() => Promise.resolve()),
+    getCompanyDepartments: vi.fn(() => Promise.resolve(null)),
+    getCompanyContacts: vi.fn(() => Promise.resolve(null)),
+    get: vi.fn((k: string) => Promise.resolve(store[k] ?? null)),
+    set: vi.fn((k: string, v: any) => {
+      store[k] = v;
+      return Promise.resolve();
+    }),
+    getCompanyGroupKey: vi.fn(() => Promise.resolve(null)),
+    saveCompanyId: vi.fn(() => Promise.resolve()),
+  };
+});
 
 import * as idb from '../../lib/idb';
 import { createCompanySlice } from './companySlice';
@@ -84,5 +94,25 @@ describe('companySlice departments & contacts', () => {
     const id = get().companyContacts[0].id;
     slice.removeCompanyContact(id);
     expect(get().companyContacts).toHaveLength(0);
+  });
+});
+
+describe('acceptInvite', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('returns false when no invite record exists', async () => {
+    const { slice } = makeSlice();
+    const ok = await slice.acceptInvite('NOPE');
+    expect(ok).toBe(false);
+  });
+
+  it('joins local company when invite record exists', async () => {
+    const { slice, get } = makeSlice();
+    await (idb as any).set('company_invites', {
+      'INV-1': { companyId: 'org_1' },
+    });
+    const ok = await slice.acceptInvite('INV-1');
+    expect(ok).toBe(true);
+    expect(get().companyId).toBe('org_1');
   });
 });

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
@@ -8,7 +9,7 @@ import { CrmModal } from './CrmModal';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 
 const inputCls =
-  'w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
+  'w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 const labelCls = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block';
 
 type Props = { deal?: Deal; onClose: () => void };
@@ -61,8 +62,9 @@ export const DealModal: React.FC<Props> = ({ deal, onClose }) => {
       title={isNew ? t('crm.newDeal', 'New deal') : deal!.title}
       footer={
         editable ? (
-          <button onClick={handleSave} className="w-full min-h-[44px] rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110">
-            {t('crm.save', CRM_FALLBACKS.save)}
+          <button onClick={handleSave} aria-label={t('crm.save', CRM_FALLBACKS.save)} title={t('crm.save', CRM_FALLBACKS.save)} className="w-full min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center gap-2">
+            <Check size={16} aria-hidden="true" />
+            <span className="sr-only">{t('crm.save', CRM_FALLBACKS.save)}</span>
           </button>
         ) : (
           <div className="text-center text-xs text-[var(--text-secondary)] py-2">{t('crm.readOnly', 'Read only — managers can edit')}</div>

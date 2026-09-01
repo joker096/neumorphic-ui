@@ -2,8 +2,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MicOff } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import { useAppStore } from '../../store';
 import type { ActiveCall, CallType } from '../../lib/call/types';
-import { IncomingCallSheet } from './IncomingCallSheet';
 import { CallMediaStage } from './CallMediaStage';
 import { CallControlBar } from './CallControlBar';
 import { CallTopBar } from './CallTopBar';
@@ -14,9 +14,7 @@ import {
 
 interface CallScreenProps {
   call: ActiveCall;
-  incomingCall: { peerId: string; displayName: string; callType: 'audio' | 'video' } | null;
   onEnd: () => void;
-  acceptCall: (peerId: string, name: string, type: 'audio' | 'video') => Promise<any>;
   toggleMute: () => void;
   toggleVideo: () => void;
   toggleScreenShare: () => void;
@@ -30,9 +28,7 @@ interface CallScreenProps {
 
 export const CallScreen: React.FC<CallScreenProps> = ({
   call,
-  incomingCall,
   onEnd,
-  acceptCall,
   toggleMute,
   toggleVideo,
   toggleScreenShare,
@@ -44,6 +40,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
   onMinimize,
 }) => {
   const { t } = useI18n();
+  const latencyMs = useAppStore((s) => s.latencyMs);
   const remoteVideoRef = React.useRef<HTMLVideoElement | null>(null);
   const localVideoRef = React.useRef<HTMLVideoElement | null>(null);
   const remoteAudioRef = React.useRef<HTMLAudioElement | null>(null);
@@ -66,7 +63,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
     if (localVideoRef.current && call?.localStream) {
       localVideoRef.current.srcObject = call.localStream;
     }
-  }, [call?.localStream]);
+  }, [call?.localStream, call?.isVideoEnabled, isVideo]);
 
   React.useEffect(() => {
     if (remoteAudioRef.current && call?.remotePeer?.stream) {
@@ -153,10 +150,10 @@ export const CallScreen: React.FC<CallScreenProps> = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.96 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-0 z-[200] flex flex-col overflow-hidden"
+          className="fixed inset-0 z-[200] flex flex-col overflow-hidden bg-[var(--bg-primary)]"
           style={{
             background:
-              'linear-gradient(165deg, color-mix(in srgb, var(--bg-primary) 82%, var(--accent)) 0%, var(--bg-primary, #0d1017) 55%, #0c0e15 100%)',
+              'radial-gradient(130% 100% at 50% -10%, color-mix(in srgb, var(--accent) 10%, var(--bg-primary)) 0%, var(--bg-primary) 55%)',
           }}
         >
           <audio ref={remoteAudioRef} autoPlay playsInline />
@@ -177,14 +174,14 @@ export const CallScreen: React.FC<CallScreenProps> = ({
             />
 
             {isVideo && call.localStream && call.isVideoEnabled && !isGroup && (
-              <motion.div
-                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                 drag
-                 dragMomentum={false}
-                 dragConstraints={containerRef as any}
-                 className="absolute bottom-28 sm:bottom-32 right-3 sm:right-5 w-28 h-40 sm:w-36 sm:h-52 rounded-[1.5rem] overflow-hidden neo-raised ring-1 ring-[var(--accent)]/20 cursor-grab active:cursor-grabbing"
-               >
+                <motion.div
+                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                   animate={{ opacity: 1, y: 0, scale: 1 }}
+                   drag
+                   dragMomentum={false}
+                   dragConstraints={containerRef as any}
+                   className="absolute bottom-28 sm:bottom-32 right-3 sm:right-5 w-28 h-40 sm:w-36 sm:h-52 rounded-[1.5rem] overflow-hidden neo-raised ring-1 ring-white/10 cursor-grab active:cursor-grabbing"
+                 >
                 <video
                   ref={localVideoRef}
                   autoPlay
@@ -194,7 +191,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
                 />
                 <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-gradient-to-t from-black/70 to-transparent flex items-center gap-1">
                   <span className="text-xs font-medium text-white/90 truncate">{t('call.you')}</span>
-                  {call.isMuted && <MicOff size={11} className="text-[var(--danger)] shrink-0" />}
+                  {call.isMuted && <MicOff size={12} className="text-[var(--danger)] shrink-0" />}
                 </div>
               </motion.div>
             )}
@@ -217,8 +214,9 @@ export const CallScreen: React.FC<CallScreenProps> = ({
               isGroup={isGroup}
               participantCount={call.participants.length}
               statusLabel={statusLabel}
-              elapsed={elapsed}
-              status={call.status}
+               elapsed={elapsed}
+               status={call.status}
+               latencyMs={latencyMs}
               isPreview={(call as any).isPreview}
               isRecording={call.isRecording}
               t={t}
@@ -243,21 +241,6 @@ export const CallScreen: React.FC<CallScreenProps> = ({
             onEnd={onEnd}
           />
         </motion.div>
-      )}
-      {incomingCall && (
-        <IncomingCallSheet
-          callerName={incomingCall.displayName}
-          callType={incomingCall.callType}
-          onAccept={async () => {
-            await acceptCall(incomingCall.peerId, incomingCall.displayName, incomingCall.callType);
-          }}
-          onReject={async () => {
-            await onEnd();
-          }}
-          onAcceptVideo={async () => {
-            await acceptCall(incomingCall.peerId, incomingCall.displayName, 'video');
-          }}
-        />
       )}
     </>
   );

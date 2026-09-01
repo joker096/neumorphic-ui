@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Trash2, ChevronDown, UserCog } from 'lucide-react';
+import { X, Trash2, ChevronDown, UserCog, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CompanyMember } from '../../lib/company/types';
 import { useI18n } from '../../lib/i18n';
@@ -9,7 +9,7 @@ import { COMPANY_EDIT_FALLBACKS, COMPANY_MEMBER_FALLBACKS } from '../../constant
 const closeBtn = (onClick: () => void) => (
   <button
     onClick={onClick}
-    className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+    className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
   >
     <X size={18} />
   </button>
@@ -98,19 +98,19 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t('company.renamePlaceholder', COMPANY_EDIT_FALLBACKS.renamePlaceholder)}
-                className="w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
+                className="w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
               />
             </div>
 
             <div className="p-4 rounded-md neu-card-inset">
               <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block flex items-center gap-1.5">
-                <UserCog size={13} /> {t('company.role', COMPANY_EDIT_FALLBACKS.role)}
+                <UserCog size={14} /> {t('company.role', COMPANY_EDIT_FALLBACKS.role)}
               </label>
               <div className="flex gap-2">
                 <button
                   onClick={() => onChangeRole('admin')}
                   disabled={member.role === 'admin'}
-                  className={`flex-1 min-h-[44px] rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
+                  className={`flex-1 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
                     member.role === 'admin'
                       ? "bg-[var(--accent)] text-white"
                       : "bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110"
@@ -121,7 +121,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                 <button
                   onClick={() => onChangeRole('manager')}
                   disabled={member.role === 'manager'}
-                  className={`flex-1 min-h-[44px] rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
+                  className={`flex-1 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
                     member.role === 'manager'
                       ? "bg-[var(--color-warning)] text-white"
                       : "bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110"
@@ -132,7 +132,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                 <button
                   onClick={() => onChangeRole('member')}
                   disabled={member.role === 'member' || isCurrentUser}
-                  className={`flex-1 min-h-[44px] rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
+                  className={`flex-1 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
                     member.role === 'member'
                       ? "bg-[var(--accent)] text-white"
                       : "bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110"
@@ -146,18 +146,23 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
             <button
               onClick={handleRemove}
               disabled={isCurrentUser}
-              className="w-full min-h-[44px] rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110 disabled:opacity-50"
+              aria-label={t('company.removeMember', COMPANY_EDIT_FALLBACKS.removeMember)}
+              title={t('company.removeMember', COMPANY_EDIT_FALLBACKS.removeMember)}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110 disabled:opacity-50"
             >
               <Trash2 size={16} />
-              {t('company.removeMember', COMPANY_EDIT_FALLBACKS.removeMember)}
+              <span className="sr-only">{t('company.removeMember', COMPANY_EDIT_FALLBACKS.removeMember)}</span>
             </button>
 
             <button
               onClick={handleSave}
               disabled={saving}
-              className="w-full min-h-[44px] rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
+              aria-label={t('company.save', COMPANY_EDIT_FALLBACKS.save)}
+              title={t('company.save', COMPANY_EDIT_FALLBACKS.save)}
+              className="w-full min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
             >
-              {saving ? t('company.saving', 'Saving...') : t('company.save', COMPANY_EDIT_FALLBACKS.save)}
+              {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Check size={16} aria-hidden="true" />}
+              <span className="sr-only">{t('company.save', COMPANY_EDIT_FALLBACKS.save)}</span>
             </button>
           </div>
         ) : (
@@ -173,6 +178,8 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
         message={member.displayName}
         confirmLabel={t('common.confirm', 'Confirm')}
         cancelLabel={t('common.cancel', 'Cancel')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
         zIndex="z-[130]"

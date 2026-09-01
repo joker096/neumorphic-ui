@@ -27,7 +27,7 @@ interface FormFieldProps {
 // Hairline border + inset shadow keep fields visible on card surfaces
 // (in dark theme the modal background equals the page background otherwise).
 const inputBase = (_isDark: boolean, hasError?: boolean) =>
-  `w-full h-12 px-4 rounded-xl text-xs outline-none transition-all border border-border shadow-[var(--inset-field-shadow)] ${
+  `w-full h-[var(--control-height-md)] px-[var(--spacing-16)] rounded-[var(--radius-control)] text-[length:var(--text-body)] outline-none transition-all border border-border shadow-[var(--inset-field-shadow)] ${
     hasError
       ? 'bg-input-bg text-input-text placeholder:text-input-placeholder'
       : 'bg-input-bg text-input-text placeholder:text-input-placeholder'
@@ -88,7 +88,7 @@ export const FormField = ({
             onClick={iconAction}
             title={iconTooltip}
             disabled={disabled}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center transition-colors bg-muted hover:bg-muted text-foreground ${disabled ? 'opacity-50' : ''}`}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-[var(--radius-control)] flex items-center justify-center transition-colors bg-muted hover:bg-muted text-foreground ${disabled ? 'opacity-50' : ''}`}
           >
             <Icon size={16} />
           </button>

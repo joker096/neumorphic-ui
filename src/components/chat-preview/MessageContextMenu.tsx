@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import {
   sheetOverlay,
   sheetBackdrop,
@@ -38,7 +39,10 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
 
   if (!open) return null;
 
-  return (
+  const portalTarget =
+    document.querySelector("[data-theme]") || document.body;
+
+  return ReactDOM.createPortal(
     <div
       className={sheetOverlay}
       role="dialog"
@@ -46,7 +50,7 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
       aria-label={title || t("chat.messageActions", "Message actions")}
     >
       <div className={sheetBackdrop} onClick={onClose} aria-hidden="true" />
-      <div className={sheetSurface(isDark)}>
+      <div className={sheetSurface(isDark, 'p-1.5')}>
         {title && <div className={sheetTitleClass(isDark)}>{title}</div>}
         <div className="flex flex-col">
           {actions.map((a) => (
@@ -57,17 +61,18 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
                 a.onClick();
                 onClose();
               }}
-              className={sheetActionClass(isDark, a.danger)}
+              className={sheetActionClass(isDark, a.danger, true)}
             >
-              {a.icon && <span className="shrink-0">{a.icon}</span>}
+              {a.icon && <span className="shrink-0 text-[16px]">{a.icon}</span>}
               <span>{a.label}</span>
             </button>
           ))}
         </div>
-        <button type="button" onClick={onClose} className={sheetCancelClass(isDark)}>
+        <button type="button" onClick={onClose} className={sheetCancelClass(isDark, true)}>
           {t("common.cancel", "Cancel")}
         </button>
       </div>
-    </div>
+    </div>,
+    portalTarget
   );
 };

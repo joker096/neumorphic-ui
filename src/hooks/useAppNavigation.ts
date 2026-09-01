@@ -17,6 +17,7 @@ export function useAppNavigation(
   setActiveChat: Dispatch<SetStateAction<any>>,
   setChats: Dispatch<SetStateAction<any[]>>,
   setActiveCall: (call: any) => void,
+  openChat?: (chat: any, opts?: { returnTo?: { view: string; subView?: string | null }; forceView?: string }) => void,
 ) {
 
   const handleNavigate = useCallback((target: string) => {
@@ -42,10 +43,13 @@ export function useAppNavigation(
   }, [setActiveCall]);
 
   const handlePreviewMessage = useCallback((name: string, color?: string) => {
-    setView("chats");
     const existingChat = chats.find((chat) => chat.name === name && chat.type === "direct");
     if (existingChat) {
-      setActiveChat(existingChat);
+      if (openChat) openChat(existingChat);
+      else {
+        setView("chats");
+        setActiveChat(existingChat);
+      }
       return;
     }
 
@@ -58,8 +62,12 @@ export function useAppNavigation(
       history: [],
     };
     setChats((prev: any[]) => [newChat, ...prev] as any);
-    setActiveChat(newChat);
-  }, [chats, setView, setActiveChat, setChats]);
+    if (openChat) openChat(newChat);
+    else {
+      setView("chats");
+      setActiveChat(newChat);
+    }
+  }, [chats, openChat, setView, setActiveChat, setChats]);
 
   const isChatListRoute = useMemo(() =>
     ["chats", "channels", "bots"].includes(view),

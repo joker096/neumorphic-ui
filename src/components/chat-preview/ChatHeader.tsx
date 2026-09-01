@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronRight, Search, Phone, Video } from "lucide-react";
+import { ChevronRight, Search, Phone, Video, Users } from "lucide-react";
 import { IconButton } from "../ui/IconButton";
 import { useAppStore } from "../../store";
 
@@ -12,6 +12,10 @@ interface ChatHeaderProps {
     id: string | number;
     type?: string;
     isChannel?: boolean;
+    subscriberCount?: number;
+    subscribers?: number;
+    postCount?: number;
+    history?: any[];
   };
   isDark?: boolean;
   onClose: () => void;
@@ -25,17 +29,19 @@ interface ChatHeaderProps {
 
 export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSearchToggle, onCall, onVideoCall, t, typing }: ChatHeaderProps) => {
   const canCall = !(chat.type === "group" || chat.type === "channel" || chat.type === "bot" || chat.isChannel);
+  const isChannelChat = chat.isChannel || chat.type === "channel";
+  const subscriberCount = chat.subscriberCount ?? chat.subscribers ?? 0;
   const overrideAvatar = useAppStore((state) => state.contactAvatars)[chat.name];
   return (
     <div
       className={`px-2 sm:px-3 py-2 flex items-center gap-2 sm:gap-3 relative z-10 ${
         isDark
-          ? "bg-[var(--bg-tertiary)]/90 border-b border-[var(--border-color)] backdrop-blur-md"
-          : "bg-[var(--bg-primary)]/90 border-b border-[var(--border-color)] backdrop-blur-md"
+          ? "bg-gradient-to-b from-[var(--bg-tertiary)] to-[var(--bg-tertiary)]/80 border-b border-[var(--border-color)]/70 backdrop-blur-md"
+          : "bg-gradient-to-b from-[var(--bg-primary)] to-[var(--bg-primary)]/80 border-b border-[var(--border-color)]/70 backdrop-blur-md"
       }`}
     >
       <IconButton
-        icon={<ChevronRight className="rotate-180" strokeWidth={2} />}
+        icon={<ChevronRight className="rotate-180" />}
         aria-label={t("chat.goBack")}
         onClick={onClose}
         isDark={isDark}
@@ -62,7 +68,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
         ) : (
           chat.name.charAt(0)
         )}
-        {chat.online && (
+        {chat.online && !isChannelChat && (
           <div
             className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-[2px] ${
               isDark ? "bg-[var(--success)] border-[var(--bg-tertiary)]" : "bg-[var(--success)] border-[var(--bg-primary)]"
@@ -79,74 +85,103 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             >
               {chat.name}
             </span>
-            <span
-              className={`w-1.5 h-1.5 rounded-full shrink-0 ${chat.online ? "bg-[var(--success)]" : "bg-gray-500"}`}
-            />
-            <span
-              className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
-            >
-              {chat.online ? t("chat.filters.online") : t("chat.filters.offline")}
-            </span>
-          </div>
-          {typing && (
-            <div className="flex items-center gap-1 mt-0.5">
+            {typing ? (
               <span
-                className={`text-xs italic animate-pulse ${isDark ? "text-[var(--success)]" : "text-[var(--success)]"}`}
+                className="flex items-center gap-1.5 shrink-0"
+                aria-live="polite"
               >
-                {t("chat.typing")}
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
+                </span>
+                <span
+                  className={`text-xs sm:text-xs font-medium tracking-wide italic truncate ${isDark ? "text-[var(--success)]" : "text-[var(--success)]"}`}
+                >
+                  {t("chat.typing")}
+                </span>
+                <span className="flex items-end gap-0.5 h-3">
+                  <span
+                    className="w-1 h-1 rounded-full bg-[var(--success)] animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <span
+                    className="w-1 h-1 rounded-full bg-[var(--success)] animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <span
+                    className="w-1 h-1 rounded-full bg-[var(--success)] animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  />
+                </span>
               </span>
-              <span className="flex gap-0.5">
+            ) : isChannelChat ? (
+              <>
+                <Users size={12} className={`shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`} />
                 <span
-                  className={`w-1 h-1 rounded-full animate-bounce ${isDark ? "bg-[var(--success)]" : "bg-[var(--success)]"}`}
-                  style={{ animationDelay: "0ms" }}
+                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+                >
+                  {t("chat.subscribers", { count: subscriberCount })}
+                </span>
+                <span
+                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+                >
+                  ·
+                </span>
+                <span
+                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+                >
+                  {t("chat.posts", { count: chat.postCount ?? chat.history?.length ?? 0 })}
+                </span>
+              </>
+            ) : (
+              <>
+                <span
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${chat.online ? "bg-[var(--success)]" : "bg-gray-500"}`}
                 />
                 <span
-                  className={`w-1 h-1 rounded-full animate-bounce ${isDark ? "bg-[var(--success)]" : "bg-[var(--success)]"}`}
-                  style={{ animationDelay: "150ms" }}
-                />
-                <span
-                  className={`w-1 h-1 rounded-full animate-bounce ${isDark ? "bg-[var(--success)]" : "bg-[var(--success)]"}`}
-                  style={{ animationDelay: "300ms" }}
-                />
-              </span>
-            </div>
-          )}
+                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+                >
+                  {chat.online ? t("chat.filters.online") : t("chat.filters.offline")}
+                </span>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
       {canCall && onCall && (
         <IconButton
-          icon={<Phone strokeWidth={2} />}
+          icon={<Phone />}
           aria-label={t("chat.startCall")}
           onClick={() => onCall(chat.name, chat.color)}
           isDark={isDark}
           variant="ghost"
           size="md"
-          className="shrink-0"
+          className="shrink-0 shadow-md shadow-black/10 dark:shadow-black/30"
         />
       )}
 
       {canCall && onVideoCall && (
         <IconButton
-          icon={<Video strokeWidth={2} />}
+          icon={<Video />}
           aria-label={t("chat.startVideoCall")}
           onClick={() => onVideoCall(chat.name, chat.color)}
           isDark={isDark}
           variant="ghost"
           size="md"
-          className="shrink-0"
+          className="shrink-0 shadow-md shadow-black/10 dark:shadow-black/30"
         />
       )}
 
       {onSearchToggle && (
         <IconButton
-          icon={<Search strokeWidth={2} />}
+          icon={<Search />}
           aria-label={t("chat.searchMessages")}
           onClick={onSearchToggle}
           isDark={isDark}
           variant="ghost"
           size="md"
-          className="shrink-0"
+          className="shrink-0 shadow-md shadow-black/10 dark:shadow-black/30"
         />
       )}
     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type RefObject } from 'react';
 
 // Accessibility - Announce events and manage focus
 
@@ -21,38 +21,43 @@ export function announce(message: string, priority: AccessibilityPriority = 'pol
   }, 100);
 }
 
-export function useFocusTrap(element: HTMLElement | null): () => void {
-  if (!element) {
-    return () => {};
-  }
+const FOCUSABLE_SELECTOR = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
-  const focusableSelectors = 'a[href], button, [tabindex]:not([tabindex="-1"])';
-  const focusableElements = element.querySelectorAll(focusableSelectors);
+export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean): void {
+  useEffect(() => {
+    if (!active) return;
+    const container = ref.current;
+    if (!container) return;
 
-  const firstFocusable = focusableElements[0] as HTMLElement | null;
-  const lastFocusable = focusableElements[focusableElements.length - 1] as HTMLElement | null;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const focusables = () =>
+      Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter((el) => !el.hasAttribute('disabled'));
 
-  function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Tab') {
-      if (focusableElements.length === 0) {
+    const first = focusables()[0];
+    (first ?? container).focus();
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Tab') return;
+      const items = focusables();
+      if (items.length === 0) {
+        e.preventDefault();
         return;
       }
-
-      if (e.shiftKey && document.activeElement === firstFocusable) {
+      if (e.shiftKey && document.activeElement === items[0]) {
         e.preventDefault();
-        lastFocusable?.focus();
-      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+        items[items.length - 1].focus();
+      } else if (!e.shiftKey && document.activeElement === items[items.length - 1]) {
         e.preventDefault();
-        firstFocusable?.focus();
+        items[0].focus();
       }
     }
-  }
 
-  element.addEventListener('keydown', handleKeyDown);
-
-  return () => {
-    element.removeEventListener('keydown', handleKeyDown);
-  };
+    container.addEventListener('keydown', handleKeyDown);
+    return () => {
+      container.removeEventListener('keydown', handleKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [ref, active]);
 }
 
 export function useReducedMotion(): boolean {

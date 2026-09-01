@@ -1,5 +1,5 @@
 import React, { FormEvent, useEffect, useState } from "react";
-import { Lock } from "lucide-react";
+import { Lock, LockOpen } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { STORAGE_KEYS } from "../../constants/storage";
 import { cryptoCore } from "../../lib/crypto/cryptoCore";
@@ -141,13 +141,16 @@ export function LockScreen({
             )}
             <button
               type="submit"
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 ${
+              aria-label={t("lock.unlock")}
+              title={t("lock.unlock")}
+              className={`w-full min-h-11 min-w-11 flex items-center justify-center py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 ${
                 isDark
                   ? "bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--text-primary)] shadow-lg"
                   : "bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] shadow-lg"
               }`}
             >
-              {t("lock.unlock")}
+              <LockOpen size={20} />
+              <span className="sr-only">{t("lock.unlock")}</span>
             </button>
           </form>
         )}

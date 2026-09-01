@@ -35,24 +35,25 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
 
   return (
     <div className="absolute bottom-0 left-0 w-full p-3 z-20 flex items-center gap-2">
-      <input
-        type="text"
-        value={reply}
-        onChange={(e) => onReplyChange(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && onSendReply()}
-        placeholder={user.isMe ? t('story.repliesOff', 'Replies are off for your story') : t('story.replyPlaceholder', 'Send a reply…')}
-        disabled={user.isMe}
-        aria-label={t('story.replyPlaceholder', 'Send a reply…')}
-        maxLength={STORY_REPLY_MAX_LENGTH}
-        className="flex-1 rounded-full px-4 py-2.5 text-sm bg-white/15 text-white placeholder-white/60 border border-white/20 outline-none focus:bg-white/25 min-h-[44px]"
-      />
+      {!user.isMe && (
+        <input
+          type="text"
+          value={reply}
+          onChange={(e) => onReplyChange(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && onSendReply()}
+          placeholder={t('story.replyPlaceholder', 'Send a reply…')}
+          aria-label={t('story.replyPlaceholder', 'Send a reply…')}
+          maxLength={STORY_REPLY_MAX_LENGTH}
+          className="flex-1 rounded-full px-4 py-2.5 text-sm bg-white/15 text-white placeholder-white/60 border border-white/20 outline-none focus:bg-white/25 min-h-11"
+        />
+      )}
       {!user.isMe && (
         <button
           type="button"
           onClick={handleLike}
           aria-label={t('story.react')}
           aria-pressed={liked}
-          className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-colors active:scale-95 ${liked ? 'bg-rose-500 text-white' : 'bg-white/15 text-white hover:bg-white/25'}`}
+          className={`w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 transition-colors active:scale-95 ${liked ? 'bg-rose-500 text-white' : 'bg-white/15 text-white hover:bg-white/25'}`}
         >
           <Heart size={18} fill={liked ? 'currentColor' : 'none'} aria-hidden="true" />
         </button>
@@ -61,7 +62,7 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
         type="button"
         onClick={onShare}
         aria-label={t('story.share', 'Share')}
-        className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 bg-white/15 text-white hover:bg-white/25 transition-colors active:scale-95"
+        className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-white/15 text-white hover:bg-white/25 transition-colors active:scale-95"
       >
         <Share2 size={18} aria-hidden="true" />
       </button>
@@ -70,7 +71,7 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
         onClick={onOpenMenu}
         aria-label={t('common.more')}
         aria-haspopup="menu"
-        className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 bg-white/15 text-white hover:bg-white/25 transition-colors active:scale-95"
+        className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-white/15 text-white hover:bg-white/25 transition-colors active:scale-95"
       >
         <MoreVertical size={18} aria-hidden="true" />
       </button>

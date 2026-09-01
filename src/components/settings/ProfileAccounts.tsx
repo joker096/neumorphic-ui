@@ -71,7 +71,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
             <div
               key={acc.id}
               onClick={() => editingId !== acc.id && onSelect(acc.id)}
-              className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-[44px] ${isDark ? "hover:bg-[var(--hover-bg-dark)]" : "hover:bg-slate-100"}`}
+              className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-11 ${isDark ? "hover:bg-[var(--hover-bg-dark)]" : "hover:bg-slate-100"}`}
             >
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] font-bold bg-gradient-to-br ${acc.color} flex-shrink-0`}>
                 {acc.name.charAt(0)}
@@ -91,7 +91,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                     <button
                       type="submit"
                       aria-label={t('settings.save', 'Save')}
-                      className="p-1 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center bg-[var(--accent)] text-[var(--text-primary)]"
+                      className="p-1 rounded-lg min-w-11 min-h-11 flex items-center justify-center bg-[var(--accent)] text-[var(--text-primary)]"
                     >
                       <Check size={14} />
                     </button>
@@ -108,7 +108,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                     onClick={(e) => startEdit(e, acc)}
                     className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-gray-500 hover:text-[var(--accent)] hover:bg-white/5" : "text-slate-400 hover:text-[var(--accent)] hover:bg-slate-200"}`}
                   >
-                    <Pencil size={13} />
+                    <Pencil size={14} />
                   </button>
                 )}
                 {accounts.length > 1 && editingId !== acc.id && (
@@ -126,7 +126,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                 )}
                 {activeId === acc.id && editingId !== acc.id && (
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 "bg-[var(--accent-soft)] text-[var(--accent)]"`}>
-                    <Check size={14} strokeWidth={3} />
+                    <Check size={14} strokeWidth={2.5} />
                   </div>
                 )}
               </div>
@@ -143,14 +143,14 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                 placeholder={t('settings.newAccountPlaceholder', 'Account name...')}
                 className={`flex-1 min-w-0 bg-transparent outline-none text-sm transition-colors ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-800 placeholder:text-slate-400"}`}
               />
-              <button type="submit" disabled={!newAccountName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 min-w-[44px] min-h-[44px] ${newAccountName.trim() ? "bg-[var(--accent)] text-[var(--text-primary)]" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
+              <button type="submit" disabled={!newAccountName.trim()} className={`p-1.5 rounded-lg flex-shrink-0 min-w-11 min-h-11 ${newAccountName.trim() ? "bg-[var(--accent)] text-[var(--text-primary)]" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} transition-colors`}>
                 <Check size={16} />
               </button>
             </form>
           ) : (
             <div
               onClick={() => setShowAddInput(true)}
-              className={`flex items-center gap-3 p-3 shrink-0 rounded-2xl cursor-pointer transition-colors min-h-[44px] "hover:bg-[var(--hover-bg-dark)] text-[var(--accent)]"`}
+              className={`flex items-center gap-3 p-3 shrink-0 rounded-2xl cursor-pointer transition-colors min-h-11 "hover:bg-[var(--hover-bg-dark)] text-[var(--accent)]"`}
             >
               <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center "bg-[var(--accent-soft)]"`}>
                 <Plus size={20} />

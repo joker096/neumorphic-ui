@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Building2, Users, Phone, Mail, Tag, ChevronDown, ListChecks, Check } from 'lucide-react';
+import { Plus, Building2, Users, Phone, Mail, Tag, ChevronDown, ListChecks, Check, Trash2, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
@@ -171,21 +171,26 @@ export const CrmPeople: React.FC<Props> = ({
           {can('manageMembers') && (
             <button
               onClick={() => (selectMode ? exitSelect() : (setSelectMode(true), setSelectedIds([])))}
-              className={`flex items-center gap-1.5 min-h-[var(--control-height-sm)] px-2.5 rounded-xl font-bold text-[13px] cursor-pointer transition-all ${
+              aria-label={t('crm.bulkSelect', CRM_FALLBACKS.bulkSelect)}
+              title={t('crm.bulkSelect', CRM_FALLBACKS.bulkSelect)}
+              className={`flex items-center justify-center w-11 min-h-[var(--control-height-sm)] rounded-xl font-bold text-[13px] cursor-pointer transition-all ${
                 selectMode
                   ? 'bg-[var(--accent)] text-[var(--ink-on-saturate)]'
                   : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <ListChecks size={15} /> {t('crm.bulkSelect', CRM_FALLBACKS.bulkSelect)}
+              <ListChecks size={16} />
             </button>
           )}
           {can('manageMembers') && (
             <button
               onClick={() => setShowAdd(true)}
-              className="flex items-center gap-1.5 min-h-[var(--control-height-sm)] px-2.5 rounded-xl font-bold text-[13px] cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--ink-on-saturate)] hover:brightness-110"
+              aria-label={t('crm.addContact', CRM_FALLBACKS.addContact)}
+              title={t('crm.addContact', CRM_FALLBACKS.addContact)}
+              className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl font-bold text-[13px] cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--ink-on-saturate)] hover:brightness-110 flex items-center justify-center"
             >
-              <Plus size={15} /> {t('crm.addContact', CRM_FALLBACKS.addContact)}
+              <Plus size={16} aria-hidden="true" />
+              <span className="sr-only">{t('crm.addContact', CRM_FALLBACKS.addContact)}</span>
             </button>
           )}
         </div>
@@ -206,10 +211,10 @@ export const CrmPeople: React.FC<Props> = ({
             type="button"
             aria-expanded={!isCollapsed}
             onClick={() => toggleCrmGroup(group.key)}
-            className="w-full flex items-center gap-2 px-2 py-1 mb-1 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-1.5 mb-1 min-h-[44px] text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <ChevronDown size={14} className={`transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
-            {group.key === 'clients' ? <Building2 size={13} /> : <Users size={13} />}
+            {group.key === 'clients' ? <Building2 size={14} /> : <Users size={14} />}
             <span className="truncate">{group.label} ({group.items.length})</span>
             {stats && (
               <span className="normal-case tracking-normal font-medium text-[var(--text-secondary)] flex items-center gap-2 truncate">
@@ -240,7 +245,7 @@ export const CrmPeople: React.FC<Props> = ({
                         : 'border-[var(--border-color)]'
                     }`}
                   >
-                    {selectedIds.includes(c.userId) && <Check size={13} />}
+                    {selectedIds.includes(c.userId) && <Check size={14} />}
                   </span>
                 )}
                 <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${crmAvatarAt(i)} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm shrink-0`}>
@@ -264,14 +269,14 @@ export const CrmPeople: React.FC<Props> = ({
                     {c.assignedManagerId && c.assignedManagerId !== c.userId && (
                       <span>👤 {managerName(c.assignedManagerId)}</span>
                     )}
-                    {c.phone && <span className="inline-flex items-center gap-1"><Phone size={10} />{c.phone}</span>}
-                    {c.email && <span className="inline-flex items-center gap-1 truncate max-w-[160px]"><Mail size={10} />{c.email}</span>}
+                    {c.phone && <span className="inline-flex items-center gap-1"><Phone size={12} />{c.phone}</span>}
+                    {c.email && <span className="inline-flex items-center gap-1 truncate max-w-[160px]"><Mail size={12} />{c.email}</span>}
                   </div>
                   {c.tags.length > 0 && (
                     <div className="flex items-center gap-1 mt-1 flex-wrap">
                       {c.tags.filter((x) => x !== 'me').map((tag) => (
                         <span key={tag} className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
-                          <Tag size={9} />{tag}
+                          <Tag size={12} />{tag}
                         </span>
                       ))}
                     </div>
@@ -293,7 +298,7 @@ export const CrmPeople: React.FC<Props> = ({
             <select
               value={bulkManager}
               onChange={(e) => setBulkManager(e.target.value)}
-              className="min-h-[36px] px-2 rounded-xl bg-[var(--bg-primary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs"
+              className="min-h-11 px-2 rounded-xl bg-[var(--bg-primary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs"
             >
               <option value="">{t('crm.bulkAssign', CRM_FALLBACKS.bulkAssign)}</option>
               {managers.map((m) => (
@@ -303,10 +308,14 @@ export const CrmPeople: React.FC<Props> = ({
           )}
           {can('assignManagers') && bulkManager && (
             <button
+              type="button"
               onClick={applyManager}
-              className="min-h-[36px] px-2.5 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-bold"
+              aria-label={t('crm.apply', CRM_FALLBACKS.apply)}
+              title={t('crm.apply', CRM_FALLBACKS.apply)}
+              className="min-h-[44px] min-w-[44px] w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
             >
-              {t('crm.apply', CRM_FALLBACKS.apply)}
+              <Check size={18} aria-hidden="true" />
+              <span className="sr-only">{t('crm.apply', CRM_FALLBACKS.apply)}</span>
             </button>
           )}
           {can('manageMembers') && (
@@ -315,22 +324,29 @@ export const CrmPeople: React.FC<Props> = ({
                 value={bulkTag}
                 onChange={(e) => setBulkTag(e.target.value)}
                 placeholder={t('crm.bulkTagPlaceholder', CRM_FALLBACKS.bulkTagPlaceholder)}
-                className="min-h-[36px] px-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:border-[var(--accent)] outline-none text-xs text-[var(--text-primary)]"
+                className="min-h-[44px] px-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:border-[var(--accent)] outline-none text-xs text-[var(--text-primary)]"
               />
               <button
+                type="button"
                 onClick={applyTag}
-                className="min-h-[36px] px-2.5 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-bold"
+                aria-label={t('crm.apply', CRM_FALLBACKS.apply)}
+                title={t('crm.apply', CRM_FALLBACKS.apply)}
+                className="min-h-[44px] min-w-[44px] w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
               >
-                {t('crm.apply', CRM_FALLBACKS.apply)}
+                <Check size={18} aria-hidden="true" />
+                <span className="sr-only">{t('crm.apply', CRM_FALLBACKS.apply)}</span>
               </button>
             </div>
           )}
           {can('manageMembers') && selectedIds.length > 0 && (
             <button
               onClick={() => setBulkDeleteOpen(true)}
-              className="min-h-[36px] px-2.5 rounded-xl bg-rose-500/15 text-rose-500 text-xs font-bold"
+              aria-label={t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
+              title={t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
+              className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl bg-rose-500/15 text-rose-500 text-xs font-bold flex items-center justify-center"
             >
-              {t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
+              <Trash2 size={16} aria-hidden="true" />
+              <span className="sr-only">{t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}</span>
             </button>
           )}
         </div>
@@ -354,6 +370,8 @@ export const CrmPeople: React.FC<Props> = ({
         variant="danger"
         confirmLabel={t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
         cancelLabel={t('crm.cancel', 'Cancel')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         onConfirm={confirmBulkDelete}
         onCancel={() => setBulkDeleteOpen(false)}
       />

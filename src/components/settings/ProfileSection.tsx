@@ -15,7 +15,7 @@ export type FieldVisibility = 'everyone' | 'contactsOnly';
 
 export interface ProfileField {
   id: string;
-  type: 'phone' | 'email' | 'telegram' | 'whatsapp' | 'signal' | 'signalv2v' | 'username' | 'custom';
+  type: 'phone' | 'email' | 'telegram' | 'whatsapp' | 'signal' | 'signalv2v' | 'username' | 'link' | 'custom';
   value: string;
   label: string;
   visibility: FieldVisibility;
@@ -45,6 +45,7 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
   const [activeId, setActiveId] = useState<number>(1);
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(userProfile.name);
+  const [editUsername, setEditUsername] = useState(userProfile.username || '');
   const [editBio, setEditBio] = useState(userProfile.bio || '');
   const [editAvatar, setEditAvatar] = useState(userProfile.avatar || '');
   const [editStatus, setEditStatus] = useState(userProfile.status || '');
@@ -71,6 +72,7 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
   const handleSave = () => {
     setUserProfile({
       name: editName,
+      username: editUsername.replace(/^@/, '').trim(),
       bio: editBio,
       avatar: editAvatar,
       status: editStatus,
@@ -87,6 +89,7 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
 
   const handleCancel = () => {
     setEditName(userProfile.name);
+    setEditUsername(userProfile.username || '');
     setEditBio(userProfile.bio || '');
     setEditAvatar(userProfile.avatar || '');
     setEditStatus(userProfile.status || '');
@@ -101,13 +104,6 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
       const reader = new FileReader();
       reader.onload = () => setEditAvatar(reader.result as string);
       reader.readAsDataURL(file);
-    }
-  };
-
-  const handleRemoveAvatar = () => {
-    setEditAvatar('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
     }
   };
 
@@ -169,6 +165,7 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
             isDark={isDark}
             t={t}
             editName={editName}
+            editUsername={editUsername}
             editBio={editBio}
             editAvatar={editAvatar}
             editStatus={editStatus}
@@ -176,6 +173,7 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
             editFields={editFields}
             newFieldVisibility={newFieldVisibility}
             setEditName={setEditName}
+            setEditUsername={setEditUsername}
             setEditBio={setEditBio}
             setEditAvatar={setEditAvatar}
             setEditStatus={setEditStatus}
@@ -183,7 +181,6 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
             setNewFieldVisibility={setNewFieldVisibility}
             fileInputRef={fileInputRef}
             onFileChange={handleFileChange}
-            onRemoveAvatar={handleRemoveAvatar}
             onAddField={addField}
             onRemoveField={removeField}
             onUpdateField={updateField}
@@ -209,14 +206,14 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
               <div className="p-4">
                 <button
                   onClick={handleRestoreIdentity}
-                  className={`w-full flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-[44px] "hover:bg-[var(--hover-bg-dark)] text-[var(--accent)]"`}
+                  aria-label={t('settings.restoreIdentity', 'Restore Identity')}
+                  title={t('settings.restoreIdentity', 'Restore Identity')}
+                  className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-2xl cursor-pointer transition-colors text-[var(--accent)] hover:bg-[var(--accent-soft)]`}
                 >
-                  <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center "bg-[var(--accent-soft)]"`}>
-                    <RotateCcw size={20} />
-                  </div>
-                  <span className="text-sm font-bold">{t('settings.restoreIdentity', 'Restore Identity')}</span>
+                  <RotateCcw size={20} />
+                  <span className="sr-only">{t('settings.restoreIdentity', 'Restore Identity')}</span>
                 </button>
-                <p className={`text-xs mt-2 px-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('settings.restoreIdentityDescription', 'Restore your identity from a backup or another device')}</p>
+                <p className={`text-xs mt-2 px-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('settings.restoreIdentityDescription', 'Restore identity using your 24-word recovery phrase')}</p>
               </div>
             </div>
           </>

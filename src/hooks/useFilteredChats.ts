@@ -52,6 +52,7 @@ export function useFilteredChats(
     if (activeFolder === 'unread') return chat.unread > 0;
     if (activeFolder === 'personal') return chat.name === 'Alice Freeman';
     if (activeFolder === 'work') return chat.name === 'Design Team';
+    if (activeFolder === 'groups') return chat.type === 'group';
     return true;
   }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters]);
 

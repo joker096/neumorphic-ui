@@ -1,6 +1,6 @@
 import { HardDrive, Download, Database, Trash2, MessageSquare, Shield } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
-import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
+import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { useAppStore } from '../../store';
 
@@ -16,6 +16,10 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
   const { t } = useI18n();
   const mediaAutoLoad = useAppStore((s) => s.mediaAutoLoad);
   const setMediaAutoLoad = useAppStore((s) => s.setMediaAutoLoad);
+  const draftsEnabled = useAppStore((s) => s.draftsEnabled);
+  const setDraftsEnabled = useAppStore((s) => s.setDraftsEnabled);
+  const offlineMode = useAppStore((s) => s.offlineMode);
+  const setOfflineMode = useAppStore((s) => s.setOfflineMode);
 
   const cycleAutoLoad = () => {
     const current: AutoLoadOption = (AUTO_LOAD_OPTIONS as readonly string[]).includes(mediaAutoLoad)
@@ -62,23 +66,25 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
           isDark={isDark}
           value={t('settings.enabled', 'On')}
         />
-        <SettingsRow
+        <SettingsToggleRow
           icon={<MessageSquare size={16} />}
           iconBg="t-accent-bg"
           iconColor="t-accent"
           title={t('settings.draftsSaved', 'Message drafts')}
           subtitle={t('settings.draftsSavedSubtitle', 'Unsent messages saved per chat')}
+          isOn={draftsEnabled}
           isDark={isDark}
-          value={t('settings.enabled', 'On')}
+          onToggle={() => setDraftsEnabled(!draftsEnabled)}
         />
-        <SettingsRow
+        <SettingsToggleRow
           icon={<Database size={16} />}
           iconBg={isDark ? "bg-purple-500/10" : "bg-purple-100"}
           iconColor={isDark ? "text-purple-400" : "text-purple-600"}
           title={t('settings.feedCacheSize', 'Offline mode (PWA)')}
           subtitle={t('settings.offlineModeSubtitle', 'Read chats and send messages when offline')}
+          isOn={offlineMode}
           isDark={isDark}
-          value={t('settings.enabled', 'On')}
+          onToggle={() => setOfflineMode(!offlineMode)}
         />
         <SettingsRow
           icon={<Trash2 size={16} />}

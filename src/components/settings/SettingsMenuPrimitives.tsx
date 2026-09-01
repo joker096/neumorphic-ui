@@ -35,7 +35,7 @@ interface SettingsNavItemProps {
 export const SettingsNavItem = ({ icon, iconBg, title, subtitle, isDark, onClick, rightElement, className = '' }: SettingsNavItemProps) => (
   <div
     onClick={onClick}
-    className={`flex items-center gap-3 px-4 py-3 min-h-[44px] cursor-pointer transition-colors hover:opacity-80 ${className}`}
+    className={`flex items-center gap-3 px-4 py-3 min-h-11 cursor-pointer transition-colors hover:opacity-80 ${className}`}
   >
     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg || ''}`}>
       {icon}

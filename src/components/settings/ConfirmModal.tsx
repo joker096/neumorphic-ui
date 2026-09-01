@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { useFocusTrap } from '../../lib/a11y';
+import { Check, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { modalBackdrop, modalOverlay, modalSurface, currentTheme, type ModalTheme } from '../ui/modalShared';
 
@@ -30,6 +32,8 @@ export const ConfirmModal = ({
   const titleId = `confirm-modal-title-${title.replace(/\s+/g, '-').toLowerCase()}`;
   const messageId = message ? `${titleId}-desc` : undefined;
   const cancelRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, isOpen);
 
   useEffect(() => {
     if (isOpen) {
@@ -62,6 +66,7 @@ export const ConfirmModal = ({
         >
           <div className={modalBackdrop} onClick={onCancel} aria-hidden="true" />
           <motion.div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
@@ -80,18 +85,22 @@ export const ConfirmModal = ({
                 ref={cancelRef}
                 variant="secondary"
                 size="md"
-                className="flex-1"
+                className="flex-1 min-h-11"
+                icon={<X />}
+                aria-label={cancelLabel}
                 onClick={onCancel}
               >
-                {cancelLabel}
+                <span className="sr-only">{cancelLabel}</span>
               </Button>
               <Button
                 variant={variant === 'danger' ? 'danger' : 'primary'}
                 size="md"
-                className="flex-1"
+                className="flex-1 min-h-11"
+                icon={<Check />}
+                aria-label={confirmLabel}
                 onClick={onConfirm}
               >
-                {confirmLabel}
+                <span className="sr-only">{confirmLabel}</span>
               </Button>
             </div>
           </motion.div>

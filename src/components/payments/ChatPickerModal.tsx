@@ -1,5 +1,6 @@
 import { useAppStore } from '../../store'
 import { X } from 'lucide-react'
+import { useI18n } from '../../lib/i18n'
 
 interface ChatPickerModalProps {
   open: boolean
@@ -9,13 +10,14 @@ interface ChatPickerModalProps {
 }
 
 export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModalProps) => {
+  const { t } = useI18n()
   const chats = useAppStore((s: any) => s.chats || [])
 
   if (!open) return null
 
   return (
     <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
     >
       <div
@@ -24,7 +26,7 @@ export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModa
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
           <h3 className="text-sm font-bold text-[var(--text-primary)]">
-            {title || 'Send to chat'}
+            {title || t('payments.sendToChat')}
           </h3>
           <button
             onClick={onClose}
@@ -36,7 +38,7 @@ export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModa
         <div className="max-h-[60vh] overflow-y-auto">
           {chats.length === 0 && (
             <div className="p-4 text-center text-sm text-[var(--text-primary)] opacity-60">
-              No chats yet
+              {t('chat.noChats')}
             </div>
           )}
           {chats.map((chat: any) => (
@@ -50,7 +52,7 @@ export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModa
               </span>
               <span className="min-w-0">
                 <span className="block text-sm font-medium text-[var(--text-primary)] truncate">
-                  {chat.name || chat.title || `Chat ${chat.id}`}
+                  {chat.name || chat.title || t('chat.chatName', { id: chat.id })}
                 </span>
                 {chat.lastMessage && (
                   <span className="block text-xs opacity-60 truncate">{chat.lastMessage}</span>

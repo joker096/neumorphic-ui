@@ -143,7 +143,7 @@ export const ContactCustomField = ({ field, updateField, removeField, t }: Conta
         <button
           type="button"
           onClick={() => removeField(field.id)}
-          className="min-w-[36px] min-h-[36px] shrink-0 rounded-full flex items-center justify-center cursor-pointer transition-colors hover:bg-destructive/10 text-destructive"
+          className="min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center cursor-pointer transition-colors hover:bg-destructive/10 text-destructive"
           title={t('contacts.removeField', 'Remove field')}
           aria-label={t('contacts.removeField', 'Remove field')}
         >

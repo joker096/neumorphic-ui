@@ -1,20 +1,33 @@
-import type { ActiveCall } from '../../lib/call/types';
+import type { ActiveCall, IncomingCall } from '../../lib/call/types';
 import type { CallFolder } from '../types';
+
+export type CallHistoryType = 'missed' | 'incoming' | 'outgoing' | 'declined';
+
+export interface CallHistoryEntry {
+  id: string;
+  name: string;
+  time: string;
+  type: CallHistoryType;
+  duration?: string;
+}
 
 export interface CallSlice {
   activeCall: ActiveCall | null;
   setActiveCall: (call: ActiveCall | null) => void;
   callMinimized: boolean;
   setCallMinimized: (minimized: boolean) => void;
-  callHistory: Array<{ id: string; name: string; time: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }>;
-  setCallHistory: (updater: Array<{ id: string; name: string; time: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }> | ((prev: Array<{ id: string; name: string; time: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }>) => Array<{ id: string; name: string; time: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }>)) => void;
-  addCallToHistory: (entry: { name: string; type: 'missed' | 'incoming' | 'outgoing'; duration?: string }) => void;
+  incomingCall: IncomingCall | null;
+  setIncomingCall: (call: IncomingCall | null) => void;
+  callHistory: CallHistoryEntry[];
+  setCallHistory: (updater: CallHistoryEntry[] | ((prev: CallHistoryEntry[]) => CallHistoryEntry[])) => void;
+  addCallToHistory: (entry: { name: string; type: CallHistoryType; duration?: string }) => void;
   clearCallHistory: () => void;
   callFolders: CallFolder[];
   addCallFolder: (folder: Omit<CallFolder, 'id'>) => void;
   removeCallFolder: (id: string) => void;
   setCallFolderFilter: (id: string, filter: CallFolder['filter']) => void;
   recordings: any[];
+  setRecordings: (list: any[]) => void;
   recordingsSearchQuery: string;
   recordingsSortBy: string;
   recordingsSortOrder: string;
@@ -28,6 +41,8 @@ export const createCallSlice = (set: any, get: any): CallSlice => ({
   setActiveCall: (call) => set({ activeCall: call, callMinimized: false }),
   callMinimized: false,
   setCallMinimized: (minimized) => set({ callMinimized: minimized }),
+  incomingCall: null,
+  setIncomingCall: (call) => set({ incomingCall: call }),
   callHistory: [],
   setCallHistory: (updater) => set((state: any) => ({
     callHistory: typeof updater === 'function' ? updater(state.callHistory) : updater
@@ -51,6 +66,7 @@ export const createCallSlice = (set: any, get: any): CallSlice => ({
     callFolders: state.callFolders.map((f: CallFolder) => f.id === id ? { ...f, filter } : f)
   })),
   recordings: [],
+  setRecordings: (list) => set({ recordings: list }),
   recordingsSearchQuery: '',
   recordingsSortBy: 'date',
   recordingsSortOrder: 'desc',

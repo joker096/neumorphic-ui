@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { AppModal } from '../ui/AppModal';
 import { Button } from '../ui/Button';
+import { Check, X } from 'lucide-react';
 
 interface TextInputModalProps {
   isOpen: boolean;
@@ -64,12 +65,12 @@ export const TextInputModal = ({
           />
         </div>
       </div>
-      <div className="flex gap-3">
-         <Button variant="secondary" size="md" className="flex-1" onClick={onCancel}>
-           {cancelLabel}
+       <div className="flex gap-3">
+         <Button variant="secondary" size="md" className="flex-1" icon={<X />} aria-label={cancelLabel} onClick={onCancel}>
+           <span className="sr-only">{cancelLabel}</span>
          </Button>
-         <Button variant="primary" size="md" className="flex-1" onClick={handleSubmit}>
-           {confirmLabel}
+         <Button variant="primary" size="md" className="flex-1" icon={<Check />} aria-label={confirmLabel} onClick={handleSubmit}>
+           <span className="sr-only">{confirmLabel}</span>
          </Button>
        </div>
     </AppModal>

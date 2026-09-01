@@ -59,7 +59,7 @@ describe('MessageContextMenu', () => {
   it('closes on backdrop click', () => {
     const onClose = vi.fn();
     const { container } = renderMenu({ open: true, onClose, actions: baseActions });
-    const backdrop = container.querySelector('.fixed.inset-0 > div');
+    const backdrop = document.querySelector('.fixed.inset-0 > div');
     expect(backdrop).toBeTruthy();
     fireEvent.click(backdrop as HTMLElement);
     expect(onClose).toHaveBeenCalledTimes(1);

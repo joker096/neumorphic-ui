@@ -3,8 +3,11 @@ import { AppSideList } from "./AppSideList";
 import { AppMainContent } from "./AppMainContent";
 import { BottomNav } from "../navigation";
 import { EcoSidebarNav } from "../ecochat/EcoSidebarNav";
+import { OfflineBanner } from "../status/OfflineBanner";
 import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { STORAGE_KEYS } from "../../constants/storage";
 
 export interface AppShellProps {
   theme: "light" | "dark";
@@ -47,10 +50,13 @@ export interface AppShellProps {
   setGlobalSelectedContact: (contact: any) => void;
   setShowCreateChannel: (show: boolean) => void;
   setShowCreateBot: (show: boolean) => void;
+  setShowCreateGroup: (show: boolean) => void;
   setShowAdvancedFilterModal: (show: boolean) => void;
   advancedFilters: Record<string, boolean>;
   handlePreviewCall: (name: string, color?: string, callType?: "audio" | "video") => void;
   handlePreviewMessage: (name: string, color?: string) => void;
+  onOpenChat?: (chat: any, opts?: { returnTo?: { view: string; subView?: string | null }; forceView?: string }) => void;
+  onCloseChat?: () => void;
   setFontSize: (size: string) => void;
   t: (key: string, opts?: string) => string;
   showAddContactFromChat?: boolean;
@@ -103,10 +109,13 @@ function AppShellImpl({
   setGlobalSelectedContact,
   setShowCreateChannel,
   setShowCreateBot,
+  setShowCreateGroup,
   setShowAdvancedFilterModal,
   advancedFilters,
   handlePreviewCall,
   handlePreviewMessage,
+  onOpenChat,
+  onCloseChat,
   setFontSize,
   t,
   showAddContactFromChat,
@@ -118,10 +127,25 @@ function AppShellImpl({
   setMiniAppBotId,
 }: AppShellProps) {
   const isMobile = useIsMobile();
+  const [sideWidth, setSideWidth] = useLocalStorage<number>(STORAGE_KEYS.SIDE_PANEL_WIDTH, 320);
+  const clampSideWidth = (w: number) => Math.min(480, Math.max(240, w));
+  const startSideResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = clampSideWidth(sideWidth);
+    const onMove = (ev: MouseEvent) => setSideWidth(clampSideWidth(startW + ev.clientX - startX));
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
 
   const chatListCoreProps = {
     theme,
     view,
+    onOpenChat,
     activeFolder,
     setActiveFolder,
     chatSearchQuery,
@@ -138,6 +162,7 @@ function AppShellImpl({
     setActiveStory,
     setShowCreateChannel,
     setShowCreateBot,
+    setShowCreateGroup,
     setShowAdvancedFilterModal,
     advancedFilters,
     t,
@@ -147,6 +172,10 @@ function AppShellImpl({
     showAddContactFromChat,
     setShowAddContactFromChat,
     onAddContactFromChat,
+    onOpenBot: (botId: string) => {
+      setActiveBotId?.(botId);
+      setView("bot");
+    },
   };
 
   const mainContentProps = {
@@ -175,6 +204,7 @@ function AppShellImpl({
     stealthMode,
     activeChat,
     activeChatWorkspaceProps,
+    onCloseChat,
     chatListProps: chatListCoreProps,
     activeBotId,
     setActiveBotId,
@@ -183,14 +213,19 @@ function AppShellImpl({
   };
 
   return (
-    <div data-theme={theme} data-font-size={fontSize} className={`w-full h-[100dvh] flex font-sans select-none overflow-hidden relative ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-[var(--text-primary)]"}`}>
+    <div data-theme={theme} data-font-size={fontSize} className={`w-full h-[100dvh] flex flex-col font-sans select-none overflow-hidden relative ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-[var(--text-primary)]"}`}>
       <div id="sr-region" aria-live="polite" role="status" className="sr-only" />
+      <OfflineBanner t={t} />
+      <div className="flex-1 min-h-0 flex">
 
-      {/* 3-column desktop layout: rail (76px) + side list (320px) + main (flexible) */}
+      {/* 3-column desktop layout: rail (76px) + resizable side list (240–480px) + main (flexible) */}
       {!isMobile && (
-        <div className="hidden md:grid md:grid-cols-[76px_320px_1fr] md:grid-rows-[minmax(0,1fr)] w-full h-full min-h-0 overflow-hidden">
+        <div
+          className="hidden md:grid md:grid-rows-[minmax(0,1fr)] w-full h-full min-h-0 overflow-hidden"
+          style={{ gridTemplateColumns: `76px ${clampSideWidth(sideWidth)}px 4px 1fr` }}
+        >
           {/* Icon Rail */}
-          <aside aria-label="Navigation sidebar" className="z-40">
+          <aside aria-label={t("a11y.navSidebar")} className="z-40">
             <EcoSidebarNav
               activeView={view}
               isDark={isDark}
@@ -220,6 +255,17 @@ function AppShellImpl({
             setView={setView}
           />
 
+          {/* Drag to resize the side list; double-click resets to 320px */}
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={t("desktop.resizePanel", "Drag to resize panel")}
+            title={t("desktop.resizePanel", "Drag to resize panel")}
+            className="cursor-col-resize hover:bg-[var(--accent)]/40"
+            onMouseDown={startSideResize}
+            onDoubleClick={() => setSideWidth(320)}
+          />
+
           {/* Main Content (desktop only) — open chat stays; full-panel features override */}
           <AppMainContent isMobile={false} isChatListRoute={isChatListRoute} {...mainContentProps} />
         </div>
@@ -227,8 +273,9 @@ function AppShellImpl({
 
       {/* Mobile layout: single column — rendered only below md */}
       {isMobile && <AppMainContent isMobile isChatListRoute={isChatListRoute} {...mainContentProps} />}
+      </div>
 
-      <footer aria-label="Mobile navigation" className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+      <footer aria-label={t("a11y.navMobile")} className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
         <BottomNav
           activeView={view}
           isDark={isDark}

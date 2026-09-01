@@ -46,6 +46,24 @@ export const useSettingsSectionData = () => {
   const setVisActivity = useAppStore(state => state.setVisActivity);
   const uiAnimations = useAppStore(state => state.uiAnimations);
   const setUiAnimations = useAppStore(state => state.setUiAnimations);
+  const themeMode = useAppStore(state => state.themeMode);
+  const setThemeMode = useAppStore(state => state.setThemeMode);
+  const accentColor = useAppStore(state => state.accentColor);
+  const setAccentColor = useAppStore(state => state.setAccentColor);
+  const chatBackground = useAppStore(state => state.chatBackground);
+  const setChatBackground = useAppStore(state => state.setChatBackground);
+  const density = useAppStore(state => state.density);
+  const setDensity = useAppStore(state => state.setDensity);
+  const messageRadius = useAppStore(state => state.messageRadius);
+  const setMessageRadius = useAppStore(state => state.setMessageRadius);
+  const animationIntensity = useAppStore(state => state.animationIntensity);
+  const setAnimationIntensity = useAppStore(state => state.setAnimationIntensity);
+  const profilePhotoVisibility = useAppStore(state => state.profilePhotoVisibility);
+  const setProfilePhotoVisibility = useAppStore(state => state.setProfilePhotoVisibility);
+  const callsVisibility = useAppStore(state => state.callsVisibility);
+  const setCallsVisibility = useAppStore(state => state.setCallsVisibility);
+  const messagesFrom = useAppStore(state => state.messagesFrom);
+  const setMessagesFrom = useAppStore(state => state.setMessagesFrom);
   const dndEnabled = useAppStore(state => state.dndEnabled);
   const setDndEnabled = useAppStore(state => state.setDndEnabled);
   const dndFrom = useAppStore(state => state.dndFrom);
@@ -143,6 +161,24 @@ export const useSettingsSectionData = () => {
     setVisActivity,
     uiAnimations,
     setUiAnimations,
+    themeMode,
+    setThemeMode,
+    accentColor,
+    setAccentColor,
+    chatBackground,
+    setChatBackground,
+    density,
+    setDensity,
+    messageRadius,
+    setMessageRadius,
+    animationIntensity,
+    setAnimationIntensity,
+    profilePhotoVisibility,
+    setProfilePhotoVisibility,
+    callsVisibility,
+    setCallsVisibility,
+    messagesFrom,
+    setMessagesFrom,
     dndEnabled,
     setDndEnabled,
     dndFrom,

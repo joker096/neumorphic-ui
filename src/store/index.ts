@@ -27,6 +27,7 @@ import type { ProfileSlice } from './slices/profileSlice';
 import type { CrmSlice } from './slices/crmSlice';
 import type { ContactAvatarSlice } from './slices/contactAvatarSlice';
 import type { PremiumSlice } from './slices/premiumSlice';
+import type { NotificationSlice } from './slices/notificationSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
 import { createChatSlice } from './slices/chatSlice';
 import { createCallSlice } from './slices/callSlice';
@@ -41,6 +42,7 @@ import { createProfileSlice } from './slices/profileSlice';
 import { createCrmSlice, saveCrmPersisted } from './slices/crmSlice';
 import { createContactAvatarSlice } from './slices/contactAvatarSlice';
 import { createPremiumSlice } from './slices/premiumSlice';
+import { createNotificationSlice } from './slices/notificationSlice';
 
 // Re-export types for consumers
 export type {
@@ -69,7 +71,7 @@ export const initAppStorage = async () => {
 export { DEFAULT_BOT_PERMISSIONS };
 
 // --- Store interface ---
-export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice, ContactAvatarSlice, PremiumSlice {}
+export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice, ContactAvatarSlice, PremiumSlice, NotificationSlice {}
 
 export const useAppStore = create<AppState>()((set, get) => ({
   ...createSettingsSlice(set, get),
@@ -86,6 +88,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   ...createCrmSlice(set, get),
   ...createContactAvatarSlice(set, get),
   ...createPremiumSlice(set, get),
+  ...createNotificationSlice(set, get),
 }));
 
 // --- Data hydration gate ---
@@ -109,7 +112,7 @@ useAppStore.subscribe((s) => {
     || cur.t !== crmPersistRef.t
   ) {
     crmPersistRef = cur;
-    saveCrmPersisted(s);
+    saveCrmPersisted(s).catch(() => {});
   }
 });
 

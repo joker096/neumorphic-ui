@@ -7,9 +7,13 @@ export function useKeyboardScroll(containerRef: React.RefObject<HTMLDivElement |
     const container = containerRef.current;
     if (!container) return;
 
+    let savedScrollTop: number | null = null;
+
     const handleFocus = (e: FocusEvent) => {
       const target = e.target as HTMLElement;
       if (!target || !target.matches(KEYBOARD_INPUT_SELECTORS)) return;
+
+      savedScrollTop = container.scrollTop;
 
       requestAnimationFrame(() => {
         const rect = target.getBoundingClientRect();
@@ -28,10 +32,13 @@ export function useKeyboardScroll(containerRef: React.RefObject<HTMLDivElement |
 
     const handleBlur = () => {
       setTimeout(() => {
-        container.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        });
+        if (savedScrollTop !== null) {
+          container.scrollTo({
+            top: savedScrollTop,
+            behavior: 'smooth',
+          });
+          savedScrollTop = null;
+        }
       }, 300);
     };
 

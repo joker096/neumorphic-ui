@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X } from "lucide-react";
+import { X, Bookmark } from "lucide-react";
 import { sheetSurface, modalCloseClass } from "../ui/modalShared";
 
 interface SavedMessagesPanelProps {
@@ -54,9 +54,12 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
                         </div>
                         <button
                           onClick={() => onToggleSavedMessage?.({ id: chatName }, { id: saved.messageId })}
-                          className={`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600"}`}
+                          aria-label={t('chat.unsave')}
+                          title={t('chat.unsave')}
+                          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600"}`}
                         >
-                          {t('chat.unsave')}
+                          <Bookmark size={16} />
+                          <span className="sr-only">{t('chat.unsave')}</span>
                         </button>
                       </div>
                       <div className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>

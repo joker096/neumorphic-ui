@@ -97,6 +97,13 @@ export const FeatureViews = ({
           </Suspense>
         );
       }
+      if (subView === 'callLog') {
+        return (
+          <Suspense fallback={<Loader />}>
+            <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} onOpenContacts={() => { setSubView?.(null); onNavigate?.('contacts'); }} />
+          </Suspense>
+        );
+      }
       if (subView === 'radar') {
         return (
           <Suspense fallback={<Loader />}>
@@ -128,7 +135,7 @@ export const FeatureViews = ({
     case "calls":
       return (
         <Suspense fallback={<Loader />}>
-          <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} />
+          <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} onOpenContacts={() => onNavigate?.('contacts')} />
         </Suspense>
       );
     case "company":
@@ -157,6 +164,11 @@ export const FeatureViews = ({
           onOpenMiniApp={(id) => {
             setMiniAppBotId?.(id);
             setView("miniApp");
+          }}
+          onStart={(botName) => {
+            onMessage(botName);
+            setActiveBotId?.(null);
+            setView("chats");
           }}
         />
       );

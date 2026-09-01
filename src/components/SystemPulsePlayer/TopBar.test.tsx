@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 vi.mock('lucide-react', () => ({
@@ -91,5 +91,12 @@ describe('TopBar', () => {
     render(<TopBar {...(defaultProps as any)} />);
     const playlistBtn = screen.getByTitle('View Playlist');
     expect(playlistBtn).toBeInTheDocument();
+  });
+
+  it('opens the add station modal on radio add-station click', () => {
+    const setShowAddStationModal = vi.fn();
+    render(<TopBar {...(defaultProps as any)} isRadioMode={true} setShowAddStationModal={setShowAddStationModal} />);
+    fireEvent.click(screen.getByTitle('Add Station'));
+    expect(setShowAddStationModal).toHaveBeenCalledWith(true);
   });
 });

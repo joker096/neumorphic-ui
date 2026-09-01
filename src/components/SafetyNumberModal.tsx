@@ -21,7 +21,7 @@ export const SafetyNumberModal = ({ open, contactId, contactName, myPeerId, them
 
   useEffect(() => {
     if (open && myPeerId) {
-      computeSafetyNumber(myPeerId, contactId).then(setSafetyNumber);
+      computeSafetyNumber(myPeerId, contactId).then(setSafetyNumber).catch(() => {});
     }
   }, [open, myPeerId, contactId]);
 

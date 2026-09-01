@@ -12,7 +12,7 @@ export const CompanyCreatePrompt = ({ t, onCreate }: CompanyCreatePromptProps) =
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4 py-16 px-6 text-center">
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--accent)]">
-        <Building2 size={30} />
+        <Building2 size={32} />
       </div>
       <div>
         <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('company.noCompany', 'No company yet')}</h3>
@@ -20,20 +20,24 @@ export const CompanyCreatePrompt = ({ t, onCreate }: CompanyCreatePromptProps) =
       </div>
       <button
         onClick={onCreate}
-        className="min-h-[44px] px-6 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+        aria-label={t('company.createCta', 'Create company')}
+        title={t('company.createCta', 'Create company')}
+        className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
       >
         <Building2 size={16} />
-        {t('company.createCta', 'Create company')}
+        <span className="sr-only">{t('company.createCta', 'Create company')}</span>
       </button>
 
       <button
         onClick={() => setShowHelp((v) => !v)}
-        className="mt-2 min-h-[44px] px-4 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-tertiary)]"
+        aria-label={t('company.createHelpCta', 'How to create a company')}
+        title={t('company.createHelpCta', 'How to create a company')}
+        className="mt-2 w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-tertiary)]"
         aria-expanded={showHelp}
       >
         <HelpCircle size={16} />
-        {t('company.createHelpCta', 'How to create a company')}
         <ChevronDown size={16} className={`transition-transform ${showHelp ? 'rotate-180' : ''}`} />
+        <span className="sr-only">{t('company.createHelpCta', 'How to create a company')}</span>
       </button>
 
       {showHelp && (

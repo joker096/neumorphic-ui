@@ -17,6 +17,7 @@ export interface Contact {
   lastSeen: number;
   isFavorite?: boolean;
   isBlocked?: boolean;
+  muted?: boolean;
   localFields?: ContactField[];
   telegram?: string;
   whatsapp?: string;
@@ -37,6 +38,7 @@ export interface Contact {
 
 export interface UserProfile {
   name: string;
+  username?: string;
   bio?: string;
   avatar?: string;
   avatarColor?: string;

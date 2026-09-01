@@ -16,6 +16,9 @@
 | `UI_CYCLE.md` | Этот документ — правила цикла |
 | `e2e/ui-audit.spec.ts` | Машиночитаемый аудит (Playwright) |
 | `test-results/ui-audit-report.json` | Отчёт: все findings + summary (errors/warnings) |
+| `scripts/icon-font-audit.mjs` | Статический icon/font scale audit (I1/F1/F2) |
+| `e2e/icon-font-audit.spec.ts` | Playwright runtime icon/font audit |
+| `test-results/icon-font-audit-report.json` | Icon/font findings + summary (errors/warnings) |
 
 ---
 
@@ -38,6 +41,8 @@
 ```
 npm run lint          # eslint + tsc — 0 ошибок
 npm run test:ui-audit # аудит (playwright, mock-режим VITE_USE_MOCK=true)
+npm run icon-font:audit # статический icon/font scale audit
+npm run test:icon-font # runtime icon/font audit (playwright)
 ```
 
 - [ ] `npm run lint` — 0 ошибок.
@@ -127,6 +132,52 @@ npm test        # регресс: фикс UI не сломал логику
 3. ✅ В `CHANGELOG.md` — строка про фиксы UI (если были).
 
 **Счётчик сброса:** любой новый finding → счётчик = 0.
+
+---
+
+## Icon/font scale audit
+
+Отдельный от UI-аудита цикл для иконок и шрифтов. Source of truth: `src/styles/tokens.css`.
+
+Команды:
+
+```
+npm run icon-font:audit  # node scripts/icon-font-audit.mjs
+npm run test:icon-font   # playwright test e2e/icon-font-audit.spec.ts
+npm run icon-font:cycle  # cycle runner: lint + test + static audit + e2e audit
+```
+
+Шкалы:
+
+| Область | Значения |
+|---------|----------|
+| Icon `size` | `12 14 16 18 20 24 28 32` |
+| Icon hero/empty-state | `40 44 48` |
+| Font px ramp | `11 12 13 14 16 18 20 24 28 32 40` |
+| Font minimum | `11px` |
+
+Статические проверки:
+
+| Код | Что | Правило |
+|-----|-----|---------|
+| `I1` | icon-off-scale | `size={N}` вне icon-шкалы; `N >= 100` не проверяется |
+| `F2` | font-below-min | font `< 11px` |
+| `F1` | font-off-ramp | font `< 40px` и вне font-ramp |
+
+Runtime проверки (`e2e/icon-font-audit.spec.ts`):
+
+| Check | Severity | Правило |
+|-------|----------|---------|
+| `font-below-min` | error | видимый computed `font-size < 11px` |
+| `icon-control` | error | видимый lucide icon внутри control > 60% меньшей стороны control; skip control min side `>= 72px` |
+| `icon-text` | warn | icon/text ratio в labeled button вне `[0.8, 1.75]` |
+
+Known exceptions:
+
+- `FormattedText.tsx` `text-[0.9em]` — relative unit, масштабируется вместе с parent.
+- `SidebarNav.tsx` inline `fontSize: 13` — вне static class scanner, но соответствует font-ramp.
+
+> **Критерий:** static findings `0`, runtime errors `0`. Cycle завершён только после трёх зелёных прогонов `npm run icon-font:cycle`.
 
 ---
 

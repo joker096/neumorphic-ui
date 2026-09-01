@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Mic, MicOff, PhoneOff } from 'lucide-react';
+import { Mic, MicOff, PhoneOff, Phone, LogOut } from 'lucide-react';
 import { callManager } from '../../lib/call/CallManager';
 import { useI18n } from '../../lib/i18n';
 import type { CallEventType } from '../../lib/call/types';
@@ -77,9 +77,12 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
           </div>
           <button
             onClick={handleJoin}
-            className="px-4 py-2 rounded-full bg-green-500 hover:bg-green-600 text-[var(--ink-on-saturate)] text-sm font-medium"
+            aria-label={t('huddle.join')}
+            title={t('huddle.join')}
+            className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-green-500 hover:bg-green-600 text-[var(--ink-on-saturate)]"
           >
-            {t('huddle.join')}
+            <Phone size={18} />
+            <span className="sr-only">{t('huddle.join')}</span>
           </button>
         </div>
       </div>
@@ -101,7 +104,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
         <div className="flex items-center gap-2">
           <button
             onClick={handleToggleMute}
-            className={`w-10 h-10 rounded-full flex items-center justify-center ${
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center ${
               isMuted
                 ? 'bg-red-500 text-[var(--ink-on-saturate)]'
                 : 'bg-white/20 text-[var(--text-primary)] hover:bg-white/30'
@@ -111,9 +114,12 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
           </button>
           <button
             onClick={handleLeave}
-            className="px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-[var(--ink-on-saturate)] text-sm font-medium"
+            aria-label={t('huddle.leave')}
+            title={t('huddle.leave')}
+            className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-[var(--ink-on-saturate)]"
           >
-            {t('huddle.leave')}
+            <LogOut size={18} />
+            <span className="sr-only">{t('huddle.leave')}</span>
           </button>
         </div>
       </div>

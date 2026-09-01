@@ -66,6 +66,20 @@ export function handleAdsRoute(req: IncomingMessage, res: ServerResponse, path: 
 
 const MAX_BODY_SIZE = 1024 * 100 // 100KB limit
 
+const HTTP_URL_RE = /^https?:\/\//i
+
+export function validateAdInput(data: any): string | null {
+  if (typeof data !== 'object' || data === null) return 'Invalid request body'
+  for (const f of ['title', 'image_url', 'target_url'] as const) {
+    const v = data[f]
+    if (typeof v !== 'string' || !v.trim()) return `${f}: required`
+    if (f === 'title' && v.trim().length > 200) return 'title: max 200 characters'
+    if (f !== 'title' && (v.length > 2048 || !HTTP_URL_RE.test(v))) return `${f}: must be a valid http(s) URL`
+  }
+  if (data.active !== undefined && typeof data.active !== 'boolean') return 'active: must be a boolean'
+  return null
+}
+
 function readBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     let body = ''
@@ -118,9 +132,10 @@ function handleListAds(res: ServerResponse): void {
 async function handleCreateAd(req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
     const { title, image_url, target_url, active } = await readBody(req)
-    if (!title || !image_url || !target_url) {
+    const err = validateAdInput({ title, image_url, target_url, active })
+    if (err) {
       res.writeHead(400, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ error: 'title, image_url, target_url required' }))
+      res.end(JSON.stringify({ error: err }))
       return
     }
     const result = getDb().prepare(
@@ -143,13 +158,24 @@ async function handleUpdateAd(req: IncomingMessage, res: ServerResponse, id: num
       res.end(JSON.stringify({ error: 'Ad not found' }))
       return
     }
+    const candidate = {
+      title: fields.title ?? existing.title,
+      image_url: fields.image_url ?? existing.image_url,
+      target_url: fields.target_url ?? existing.target_url,
+    }
+    const err = validateAdInput(candidate)
+    if (err) {
+      res.writeHead(400, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: err }))
+      return
+    }
     getDb().prepare(`
       UPDATE ads SET title = ?, image_url = ?, target_url = ?, active = ?,
         updated_at = datetime('now') WHERE id = ?
     `).run(
-      fields.title ?? existing.title,
-      fields.image_url ?? existing.image_url,
-      fields.target_url ?? existing.target_url,
+      candidate.title,
+      candidate.image_url,
+      candidate.target_url,
       fields.active !== undefined ? (fields.active ? 1 : 0) : existing.active,
       id
     )

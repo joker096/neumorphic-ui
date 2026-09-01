@@ -16,7 +16,7 @@ const iconBtn = (icon: ReactNode, label: string, onClick?: () => void, disabled 
     onClick={onClick}
     disabled={disabled}
     title={disabled ? COMPANY_EDIT_FALLBACKS.onlyAdmins : undefined}
-    className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all shrink-0 hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+    className={`w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all shrink-0 hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
     aria-label={label}
   >
     {icon}

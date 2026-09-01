@@ -1,50 +1,47 @@
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
 import { SidebarNav } from './SidebarNav';
 
-const defaultProps = {
-  activeView: 'chats',
-  unreadCount: 0,
-  onNavigate: vi.fn(),
-  t: (key: string) => key,
-};
+const t = (key: string) => key;
 
 describe('SidebarNav', () => {
-  it('renders sidebar with nav items', () => {
-    render(<SidebarNav {...defaultProps} />);
-    expect(screen.getByLabelText('nav.chats')).toBeInTheDocument();
-    expect(screen.getByLabelText('nav.contacts')).toBeInTheDocument();
-    expect(screen.getByLabelText('settings.company')).toBeInTheDocument();
-    expect(screen.getByLabelText('nav.calls')).toBeInTheDocument();
+  it('renders all five primary menu items', () => {
+    render(<SidebarNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByRole('button', { name: 'nav.chats' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'nav.contacts' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'nav.calls' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'settings.company' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'nav.workplace' })).toBeInTheDocument();
   });
 
-  it('highlights the current section', () => {
-    render(<SidebarNav {...defaultProps} activeView="contacts" isDark={true} />);
-    const contactsBtn = screen.getByLabelText('nav.contacts').closest('button');
-    expect(contactsBtn).toHaveClass('text-[var(--accent)]');
-    expect(contactsBtn?.className).toContain('from-[var(--accent)]/20');
+  it('marks the active view with aria-current="page"', () => {
+    render(<SidebarNav activeView="contacts" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByRole('button', { name: 'nav.contacts' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'nav.chats' })).not.toHaveAttribute('aria-current');
   });
 
-  it('shows icons for nav items', () => {
-    const { container } = render(<SidebarNav {...defaultProps} />);
-    const svgs = container.querySelectorAll('svg');
-    expect(svgs.length).toBeGreaterThanOrEqual(4);
-  });
-
-  it('fires onNavigate when item clicked', () => {
+  it('navigates to the clicked menu item', () => {
     const onNavigate = vi.fn();
-    render(<SidebarNav {...defaultProps} onNavigate={onNavigate} />);
-    fireEvent.click(screen.getByLabelText('nav.calls'));
-    expect(onNavigate).toHaveBeenCalledWith('calls');
+    render(<SidebarNav activeView="chats" unreadCount={0} onNavigate={onNavigate} t={t} />);
+    fireEvent.click(screen.getByRole('button', { name: 'nav.workplace' }));
+    expect(onNavigate).toHaveBeenCalledWith('workplace');
   });
 
-  it('shows unread badge on chats when unreadCount > 0', () => {
-    render(<SidebarNav {...defaultProps} unreadCount={5} />);
-    expect(screen.getByText('5')).toBeInTheDocument();
+  it('hides company item when hideCompany is set', () => {
+    render(<SidebarNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={t} hideCompany />);
+    expect(screen.queryByRole('button', { name: 'settings.company' })).not.toBeInTheDocument();
   });
 
-  it('renders company item', () => {
-    render(<SidebarNav {...defaultProps} />);
-    expect(screen.getByLabelText('settings.company')).toBeInTheDocument();
+  it('shows unread badge on chats and company only', () => {
+    render(<SidebarNav activeView="chats" unreadCount={7} companyUnreadCount={3} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByText('7')).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
+  });
+
+  it('omits badges on non-badge items', () => {
+    render(<SidebarNav activeView="chats" unreadCount={9} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByRole('button', { name: 'nav.contacts' })).not.toHaveTextContent('9');
   });
 });

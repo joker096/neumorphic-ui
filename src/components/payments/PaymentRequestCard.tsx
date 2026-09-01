@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import QRCode from 'qrcode'
-import { ExternalLink, Copy, Share2, Send, CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react'
+import { ExternalLink, Copy, Check, Share2, Send, CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react'
 import { toast } from '../ui/Toast'
 import { gatewayUrl, verifyPayment, sharePaymentLink } from '../../services/paymento'
 import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPending } from '../../types/paymento'
+import { useI18n } from '../../lib/i18n'
 
 interface PaymentRequestCardProps {
   token: string
@@ -26,6 +27,7 @@ export const PaymentRequestCard = ({
   onStatus,
   onSendToChat,
 }: PaymentRequestCardProps) => {
+  const { t } = useI18n()
   const url = useMemo(() => gatewayUrl(token), [token])
   const [qr, setQr] = useState<string>('')
   const [status, setStatus] = useState<number | null>(null)
@@ -94,13 +96,13 @@ export const PaymentRequestCard = ({
   const handleCopy = async () => {
     await navigator.clipboard?.writeText(url)
     setCopied(true)
-    toast('Payment link copied', 'success')
+    toast(t('payments.linkCopied'), 'success')
     setTimeout(() => setCopied(false), 1500)
   }
 
   const handleShare = async () => {
-    await sharePaymentLink(url, description || 'Complete your payment')
-    toast('Payment link shared', 'info')
+    await sharePaymentLink(url, description || t('payments.completePayment'))
+    toast(t('payments.linkShared'), 'info')
   }
 
   return (
@@ -112,7 +114,7 @@ export const PaymentRequestCard = ({
       <div className="flex items-start gap-4">
         <div className="w-[120px] h-[120px] rounded-xl overflow-hidden bg-white shrink-0 flex items-center justify-center">
           {qr ? (
-            <img src={qr} alt="Payment QR" className="w-full h-full object-contain" />
+            <img src={qr} alt={t('payments.qr')} className="w-full h-full object-contain" />
           ) : (
             <div className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
           )}
@@ -139,33 +141,41 @@ export const PaymentRequestCard = ({
           rel="noreferrer"
           className="flex-1 flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform"
         >
-          <ExternalLink size={15} /> Open
+          <ExternalLink size={16} /> {t('payments.open')}
         </a>
         <button
           onClick={handleCopy}
-          className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform ${
+          aria-label={copied ? t('payments.copied') : t('payments.copy')}
+          title={copied ? t('payments.copied') : t('payments.copy')}
+          className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
             isDark ? 'bg-white/10 text-[var(--text-primary)' : 'bg-slate-100 text-slate-700'
           }`}
         >
-          {copied ? <CheckCircle2 size={15} /> : <Copy size={15} />} {copied ? 'Copied' : 'Copy'}
+          {copied ? <Check size={16} /> : <Copy size={16} />}
+          <span className="sr-only">{copied ? t('payments.copied') : t('payments.copy')}</span>
         </button>
         <button
           onClick={handleShare}
-          className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform ${
+          aria-label={t('payments.share')}
+          title={t('payments.share')}
+          className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
             isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'
           }`}
         >
-          <Share2 size={15} />
+          <Share2 size={16} />
+          <span className="sr-only">{t('payments.share')}</span>
         </button>
         {onSendToChat && (
           <button
             onClick={onSendToChat}
-            title="Send to chat"
-            className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform ${
+            aria-label={t('payments.sendToChat')}
+            title={t('payments.sendToChat')}
+            className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
               isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'
             }`}
           >
-            <Send size={15} />
+            <Send size={16} />
+            <span className="sr-only">{t('payments.sendToChat')}</span>
           </button>
         )}
       </div>

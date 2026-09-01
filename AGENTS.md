@@ -1,6 +1,6 @@
 # Унифицированное задание для ИИ: Автономный цикл итеративной оптимизации приложения
 
-> **Версия:** 1.0  
+> **Версия:** 1.1 (2026-08-30: слит единый цикл — раздел «Dead Controls Cycle (D1–D5)»)  
 > **Формат:** Markdown (.md)  
 > **Принцип работы:** Бесконечный цикл проверки → исправления → повторной проверки до достижения нулевых ошибок.
 
@@ -48,6 +48,7 @@
 - [ ] Удалить **все неиспользуемые импорты** в каждом файле
 - [ ] Удалить **все закомментированные блоки кода** (если не являются документацией)
 - [ ] Удалить `console.log`, `debugger`, временные комментарии
+- [ ] Мёртвые контролы: скан и фикс по классам D1–D5 (см. раздел «Dead Controls Cycle (D1–D5)»)
 - [ ] Проверить `package.json` / `requirements.txt` на неиспользуемые зависимости
 
 ### 1.4 Проверка синтаксиса и корректности кода
@@ -264,6 +265,119 @@
 
 ---
 
+## 🔄 Dead Controls Cycle (D1–D5)
+
+> Детальное раскрытие ЭТАПА 1.3 (dead code) и 6.1 (проверка всех кнопок на кликабельность). Срабатывает на каждом проходе общего цикла и отдельно по команде. Машиночитаемые гейты — `npm run lint`, `npx tsc --noEmit`, `npx vitest run`; фиксы фиксируются под `### Fixed` в `CHANGELOG.md`.
+
+**Золотое правило:**
+> *Контрол, который при клике не меняет наблюдаемое состояние (store / DOM / local state) — баг. Исправить и просканировать заново. Цикл завершён только при 0 findings в трёх подряд прогонах.*
+
+### КЛАССЫ ДЕФЕКТОВ (что искать)
+
+| Код | Класс | Сигнал | Реальный кейс |
+|-----|-------|--------|---------------|
+| `D1` | Синтетический id | setter ищет id, которого нет в store | `setContactMuted(hash_<chatId>)` — профиль из chat list |
+| `D2` | Same-value write | действие пишет текущее значение, а не противоположное | `setChatMuted(id, isChatMuted)` |
+| `D3` | Guarded no-op | действие/handler early-return'ится в текущем render-контексте | permissions-тумблеры для non-group / non-admin |
+| `D4` | Double toggle | вложенный интерактив без `stopPropagation` — клик считается дважды, состояние откатывается | `SettingsRow`: клик по строке + внутренний switch |
+| `D5` | Empty handler | `onClick={() => {}}`, undefined, no-op | `SettingsRow`: chevron/строка без действия (системный, фикс 2026-08-30) |
+
+### ЭТАП 0: БАЗОВАЯ ПРОВЕРКА (baseline)
+
+```
+npm run lint          # eslint + tsc — 0 ошибок
+npx tsc --noEmit      # типы
+npx vitest run        # регресс
+```
+
+- [ ] `npm run lint` — 0 ошибок.
+- [ ] `npx tsc --noEmit` — 0 ошибок.
+- [ ] `npx vitest run` — 0 падений.
+
+> **🔴 Критерий перехода:** baseline зелёный. Красный — сначала чиним упавшее (не пишем новый код), затем Этап 1.
+
+### ЭТАП 1: СКАН
+
+Целевые поиск-паттерны (повторять на каждом проходе):
+
+```powershell
+# интерактивы:
+rg -n "role=\"switch\"|role=\"button\"|<button|ToggleSwitch|SettingsRow" src/components
+rg -n "onClick=|onToggle=" src/components
+```
+
+Для **каждого** контрола трассировать 5 вопросов:
+
+1. **Откуда id/значение?** prop из store? из пропсов? синтезированный? → `D1`.
+2. **Действие пишет противоположное значение?** `setX(id, !isX)` или эхо `setX(id, isX)`? → `D2`.
+3. **Гарды:** ранний `return` в action/handler делает действие no-op в текущем контексте рендера? → `D3`.
+4. **Вложенность:** интерактив внутри интерактива без `e.stopPropagation()`? → `D4`.
+5. **Хендлер не пустой?** он меняет наблюдаемое состояние (store/DOM/local state)? → `D5`.
+
+Приоритет обхода: модальные профили (`ContactProfileModal`, `ChatProfileView`, `CallPanel`) → настройки (`SettingsRow`, `NotificationsSection`) → списки → UI-kit.
+
+> **🔴 Критерий перехода:** таблица findings полная: `контрол | файл:строка | код (D1..D5) | эффект`. Пустая таблица → Этап 3.
+
+### ЭТАП 2: ФИКСЫ (по приоритету)
+
+Порядок: `D4` → `D1` → `D2` → `D3` → `D5`.
+
+- **D4** — `e.stopPropagation()` на внутреннем интерактиве; хит-зона одна.
+- **D1** — резолвить реальную сущность: contact из store → name-matched DM-чат → fallback на local state. Не изобретать id. Для DM-чата `setChatMuted(dmChat.id, ...)` — **без** `String()` (строгое сравнение со сохранённым id).
+- **D2** — писать противоположное значение: `setX(id, !isX)`.
+- **D3** — house style: скрывать контрол в неприменимом контексте (`{guard && ( ... )}`), а не `disabled`.
+- **D5** — либо реализовать действие, либо удалить контрол.
+
+**Правило фикса:** каждый фикс = регрессионный тест рядом с компонентом (клик → assert изменения store/DOM/state) + строка в `CHANGELOG.md` под `### Fixed`.
+
+> **🔴 Критерий перехода:** все findings закрыты, каждый с тестом. Если остался — вернуться к Этапу 2.
+
+### ЭТАП 3: ПОВТОРНЫЙ ПРОГОН
+
+```
+npm run lint
+npx tsc --noEmit
+npx vitest run
+```
+
+- [ ] Перескан (Этап 1) — 0 findings.
+- [ ] `npm run lint` — 0 ошибок.
+- [ ] `npx tsc --noEmit` — 0 ошибок.
+- [ ] `npx vitest run` — зелёный.
+
+**Условие завершения цикла:** findings 0 + три последовательных зелёных прогона + строки про фиксы в `CHANGELOG.md` (если были). Любой новый finding → счётчик = 0.
+
+### АНТИПАТТЕРНЫ
+
+| Антипаттерн | Почему |
+|-------------|--------|
+| `disabled` на мёртвом контроле вместо скрытия | House style — скрывать; disabled — мёртвый UI, вводит в заблуждение |
+| `onClick={() => {}}` «чтобы линтер молчал» | Прячет D5 |
+| Писать текущее значение в store «как fallback» | Это D2, не фикс |
+| Изобретать синтетические id | Это D1, не фикс |
+| Убирать `stopPropagation` «упростить» | D4 вернётся |
+| Чинить один компонент, не просканировав остальные | Тот же паттерн живёт в других модалках/секциях |
+
+### Pass log
+
+| Дата | Findings | Фиксы | Гейты |
+|------|----------|-------|-------|
+| 2026-08-29 | 3 (D1×1, D2×1, D3×1) | `ContactProfileModal.tsx` (D1), `ChatProfileView.tsx` (D2, D3) | lint 0, tsc clean, vitest 4375/4375 (199 файлов) |
+| 2026-08-30 | 1 (D5 системный: `SettingsRow`) | `ui/SettingsRow.tsx` (interactive = `Boolean(onClick)`, chevron только для interactive-строк, non-interactive строка → обычный `div`, right-side контрол сохраняет свою хит-зону; регрессия `SettingsRow.test.tsx`) | lint 0, tsc clean, vitest 4376/4376 (199 файлов) |
+| 2026-08-30 | 4 (D1×2, D5×1, D3×1) | `ContactProfileModal.tsx` (D1: `blockedContact` резолвится id→name, `setContactBlocked(realId, …)`; D3: Block скрыт, когда контакт в store не резолвится), `useProfileActions.ts` (D1: `handleProfileBlock` — только risk-guard + close, delete-by-name убран), `ChatProfileView.tsx` (D5: фейковый Block-кнопка → реальный toggle name-matched контакта; D3: скрытие без контакта); регрессия `ContactProfileModal.test.tsx` +3, новый `ChatProfileView.test.tsx` (3) | lint 0, tsc clean, vitest 4382/4382 (200 файлов) |
+| 2026-08-30 | 3 (D5×3) | `ChatProfileView.tsx` (D5: канал-«Leave» только тост → новый `chatSlice.leaveChannel`, строгий id, чистка `archivedChats`/`pinnedMessageList`), `SystemPulsePlayer/TopBar.tsx` (D5: «Add Station» только `onKeyDown` → `onClick` через `openAddStation`), `SystemPulsePlayer/PlaylistView.tsx` + `SystemPulsePlayer.tsx` (D5: file input без `onChange` → `handleFileSelect` из player-state); регрессия `chatSlice.test.ts` +1, `ChatProfileView.test.tsx` +1, `TopBar.test.tsx` +1, `PlaylistView.test.tsx` +1 | lint 0, tsc clean, vitest 4386/4386 (200 файлов) |
+| 2026-08-31 | 2 (D1×1, D3×1) | `useProfileActions.ts` (D1: `handleProfileToggleFavorite` мапилл только `contacts` — chat-only id из чат-листа no-op, favorite терялся; теперь параллельный map `chats` по strict id), `CompanyMembersPanel.tsx` (D3: «Start call» enabled при `selectedIds.size > 0`, но `startGroupVideoCall` фильтрует себя и early-return при 0 участников — selected-only-self = dead button; `disabled={!hasParticipant}`); регрессия: новый `useProfileActions.test.ts` (3), `CompanyMembersPanel.test.tsx` +1 | lint 0, tsc clean, vitest 5464/5464 (317 файлов) |
+| 2026-09-01 | 0 | Перескан D1–D5: 0 findings (D4 закрыт: `Row` в `ChatProfileView` = plain div, `SettingsRow`/`SettingsToggleRow` с stopPropagation, `ui/ToggleSwitch` 1 usage в non-clickable parent; D2: все set* пишут противоположное значение; `hash_` в `ChatPreviewLayer` = задокументированная name-matched fallback chain) | lint 0, tsc clean, vitest 5464/5464 (317 файлов) — зелёный проход 1/3 |
+| 2026-09-01 | 0 | Перескан D1–D5: 0 findings (D5: `onClick={() => {}}` только в test mocks; D1: `hash_` в app-коде только `ChatPreviewLayer:188`; D2: все call sites set* = инверсия/константа) | lint 0, tsc clean, vitest 5464/5464 (317 файлов) — зелёный проход 2/3 |
+| 2026-09-01 | 0 (D1–D5) + 2 observation (§1.3 dead code) | Перескан D1–D5: 0 findings (все `role="button"`/`role="switch"` = живые хендлеры: CrmDeals→setSelected, ChatHeader→onProfileClick, MessageReactions→picker, ChatListBots→onOpenBot (AppShell:175), ThemeToggle→setTheme; все onToggle = инверсия/константа). Observation §1.3: `ThemeToggle.tsx` + `LanguageSelector.tsx` не рендерятся (только barrel-реэкспорт + self-тесты; CHANGELOG:31 — ThemeToggle заменён inline-сегментным контролом; план 2026-06-25:307 — LanguageSelector «оставлен для будущего использования»); решение о удалении — за пользователем | lint 0, tsc clean, vitest 5464/5464 (317 файлов) — зелёный проход 3/3 |
+| 2026-09-01 | 0 | §1.3 фикс: удалены `ThemeToggle.tsx` + `LanguageSelector.tsx` (+тесты, −10 тестов), barrel-экспорты из `AppChrome.tsx` (barrel жив: AdvancedFilterModal/StoryViewer/StoryComposer). Перескан D1–D5: 0 findings (empty handlers только в test mocks; `hash_` app-code только `ChatPreviewLayer.tsx:188`) | lint 0, tsc clean, vitest 5454/5454 (315 файлов) |
+| 2026-09-01 | 0 (D1–D5) + §5.3 doc | Docs-фикс §5.3: `docs/architecture-messenger-schema.md` — High-Level Flow обновлён (устаревшие `GlobalControls`/`HubView` → цепочка `AppAuthGate → AppShell → AppSideList/AppMainContent → ChatWorkspace \| FeatureViews \| ContentView → AppOverlays`, сверено с `App.tsx:261-376`); добавлены недостающие UI-модули (`chat-preview`, `auth`, `call`, `company`, `contacts`, `crm`, `ecochat`, `embed`, `huddle`, `integrations`, `landing`, `lock`, `navigation`, `payments`, `recordings`, `settings`, `status`, `stories`, `SystemPulsePlayer`) + карта компонентов-корня; `ui/*` список уточнён. Код не тронут, D-перескан: 0 findings | lint 0, tsc clean, vitest 5454/5454 (315 файлов) |
+| 2026-09-01 | 0 (D1–D5) + финальный батч (§1.3 + e2e) | Финальный батч: `NetworkSection.tsx` — Obfuscation Mode row отцеплена от retired `TrafficObfuscator` (цикл через store-only `setObfuscationMode` aesgcm→httpmask→mediadummy; +3 unit tests, `vi.mock` обфускатора убран); e2e re-target после удаления `ThemeToggle` — theme → `getByTestId('theme-mode-light'/'theme-mode-dark')` + `html[data-theme]`, company nav → `getByText('CRM')` (heading `CrmView`). Перескан D1–D5: 0 findings | lint 0, tsc clean, vitest 5456/5456 (315 файлов), e2e 189/189 |
+| 2026-09-01 | 0 (D1–D5) + §1.3/§3.3 dep cleanup | Unused devDeps удалены (`esbuild`, `jimp`, `@jimp/plugin-color`, `@vitest/ui` — import-скан: 0 ссылок в src/server/scripts/e2e/config/.ps1), lockfile синхронизирован. `npm audit` полный инвентарь: остаток = 2 advisory в цепи `@bubblewrap/core` (`extract-zip` HIGH — нет фиксированной версии, `file-type` MODERATE — jimp 0.22.12 требует default export, удалённый в file-type ≥17) → dev-only (`scripts/build-android.mjs`), не в бандле, trusted inputs = documented accepted risk (§29). `npm run audit` (prod gate) 0 high/critical. Перескан D1–D5: 0 findings | lint 0, tsc clean, vitest 5458/5458 (315 файлов) |
+| 2026-09-01 | 0 (D1–D5) + §26 deferred i18n | Код-батч §26: `DataState` RU icon-sniffing → `emptyIcon?: 'search' | 'inbox'` (call sites: `ChatListView`/`GlobalSearch`/`WorkplaceView` → `search`, `CallLogView` conditional), `crm/import.ts` RU literals → structured `ImportIssueCode`/`value` + `crm.import.iss*` ×8, `ChatMessage` Morse → `chat.morseEncode`/`chat.morseDecode` ×8; docs close-out (CHANGELOG `### Fixed`, STATE.md). Перескан D1–D5 после кода: 0 findings (retry/action-кнопки `DataState` guard-rendered; `emptyIcon`-call sites live; Morse toggle = реальная инверсия; `onClick={() => {}}` только в test mocks; `hash_` app-code только `ChatPreviewLayer.tsx:188`) — 3 последовательных зелёных прохода | lint 0, tsc clean, vitest 5458/5458 (315 файлов), e2e 189/189 |
+
+---
+
 ## ✅ УСЛОВИЕ ЗАВЕРШЕНИЯ АВТОНОМНОГО ЦИКЛА
 
 ### Цикл считается завершённым ТОЛЬКО когда:
@@ -288,6 +402,7 @@
   □ Компоненты атомарны (< 300 строк)
   □ Нет пустых файлов/директорий
   □ Нет dead code
+  □ Нет мёртвых контролов (D1–D5, раздел «Dead Controls Cycle (D1–D5)»)
 
 □ СИНТАКСИС
   □ Линтер: 0 ошибок, 0 предупреждений

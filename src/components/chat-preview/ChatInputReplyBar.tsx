@@ -19,7 +19,7 @@ export function ChatInputReplyBar({ replyTarget, setReplyTarget, isDark, t }: Ch
     }`}>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-bold opacity-70">
-          <ChevronRight size={10} className="rotate-180" />
+          <ChevronRight size={12} className="rotate-180" />
           {t("chat.replyingTo")} {replyTarget.sender === "me" ? t("chat.yourMessage") : replyTarget.sender}
         </div>
         <div className="text-[12px] truncate mt-0.5">
@@ -32,14 +32,16 @@ export function ChatInputReplyBar({ replyTarget, setReplyTarget, isDark, t }: Ch
                 : t("chat.attachment")}
         </div>
       </div>
-      <button
-        type="button"
-        onClick={() => setReplyTarget(null)}
-        className={`mt-0.5 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all active:scale-90 ${
+       <button
+         type="button"
+         onClick={() => setReplyTarget(null)}
+         aria-label={t("common.close")}
+         title={t("common.close")}
+        className={`mt-0.5 min-w-11 min-h-11 rounded-full flex items-center justify-center transition-all active:scale-90 ${
           isDark ? "text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"
         }`}
       >
-        <X size={14} strokeWidth={2} />
+        <X size={14} strokeWidth={2.5} />
       </button>
     </div>
   );

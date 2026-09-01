@@ -19,6 +19,7 @@ type ChatListWorkspaceProps = {
   setActiveStory: (story: any) => void;
   setShowCreateChannel: (show: boolean) => void;
   setShowCreateBot: (show: boolean) => void;
+  setShowCreateGroup?: (show: boolean) => void;
   setShowAdvancedFilterModal: (show: boolean) => void;
   advancedFilters: Record<string, boolean>;
   t: (key: string, options?: any) => string;

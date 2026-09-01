@@ -63,7 +63,7 @@ export const GroupCallParticipants: React.FC<GroupCallParticipantsProps> = ({
             <button
               type="button"
               onClick={() => onMuteToggle(participant.peerId)}
-              className="neo-circle absolute top-2 right-2 w-11 h-11 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className="neo-circle absolute top-2 right-2 w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               aria-label={participant.isMuted ? t('chat.unmuteMicrophone') : t('chat.muteMicrophone')}
               title={participant.isMuted ? t('chat.unmuteMicrophone') : t('chat.muteMicrophone')}
             >

@@ -4,6 +4,12 @@ import { render, screen, fireEvent, within, waitFor } from '@testing-library/rea
 import '@testing-library/jest-dom/vitest';
 import { act } from 'react';
 import { ContactProfileModal } from './ContactProfileModal';
+import { useAppStore } from '../store';
+import { toast } from './ui/Toast';
+
+vi.mock('./ui/Toast', () => ({
+  toast: vi.fn(),
+}));
 
 vi.mock('../lib/i18n', () => ({
   useI18n: () => ({
@@ -161,6 +167,7 @@ describe('ContactProfileModal', () => {
   });
 
   it('calls onBlock when Block confirmed', async () => {
+    useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0 }] as any);
     render(<ContactProfileModal {...defaultProps} />);
 
     const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
@@ -181,6 +188,7 @@ describe('ContactProfileModal', () => {
   });
 
   it('does not call onBlock when Block cancelled', async () => {
+    useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0 }] as any);
     render(<ContactProfileModal {...defaultProps} />);
 
     const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
@@ -252,5 +260,180 @@ describe('ContactProfileModal', () => {
 
     expect(screen.queryByText('Test User')).not.toBeInTheDocument();
     expect(defaultProps.onClose).not.toHaveBeenCalled();
+  });
+
+  describe('shared media', () => {
+    it('renders shared media from the DM chat history', () => {
+      useAppStore.getState().setChats([{ id: 1, name: 'Test User', history: [{ id: 106, type: 'file', fileName: 'report.pdf' }] }]);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      expect(screen.getByText('profile.sharedMedia')).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'profile.tab.files' }));
+      expect(screen.getByText('report.pdf')).toBeInTheDocument();
+    });
+
+    it('does not render shared media when the contact has no DM chat', () => {
+      useAppStore.getState().setChats([{ id: 1, name: 'Someone Else', history: [] }]);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      expect(screen.queryByText('profile.sharedMedia')).not.toBeInTheDocument();
+    });
+
+    it('shows the no-media placeholder when the DM chat has no media', () => {
+      useAppStore.getState().setChats([{ id: 1, name: 'Test User', history: [{ id: 1, type: 'text', text: 'hello' }] }]);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      expect(screen.getByText('profile.noMedia')).toBeInTheDocument();
+    });
+  });
+
+  describe('notifications', () => {
+    it('defaults to on when the store contact is not muted', () => {
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0 }] as any);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('reflects a muted contact from the store and unmutes on toggle', () => {
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0, muted: true }] as any);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      const toggle = screen.getByRole('switch');
+      expect(toggle).toHaveAttribute('aria-checked', 'false');
+      fireEvent.click(toggle);
+      expect(useAppStore.getState().contacts[0].muted).toBe(false);
+    });
+
+    it('mutes the store contact when toggled off', () => {
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0 }] as any);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      fireEvent.click(screen.getByRole('switch'));
+      expect(useAppStore.getState().contacts[0].muted).toBe(true);
+    });
+  });
+
+  describe('block', () => {
+    it('marks the store contact as blocked when Block is confirmed', async () => {
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0 }] as any);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
+      fireEvent.click(moreBtn!);
+      await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+      const banBtn = document.querySelector('[class*="lucide-ban"]')?.closest('button') as HTMLElement;
+      expect(banBtn).toBeInTheDocument();
+      fireEvent.click(banBtn!);
+      await act(async () => { await new Promise(r => setTimeout(r, 50)); });
+
+      const confirmDialog = document.querySelector('[role="dialog"]') as HTMLElement;
+      const confirmBtn = within(confirmDialog).getByRole('button', { name: 'contacts.blockSpammer' });
+      fireEvent.click(confirmBtn);
+
+      expect(useAppStore.getState().contacts[0].isBlocked).toBe(true);
+    });
+
+    it('shows a blocked badge for a blocked store contact', () => {
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0, isBlocked: true }] as any);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      expect(screen.getByText('profile.blocked')).toBeInTheDocument();
+    });
+
+    it('does not show the blocked badge for a non-blocked contact', () => {
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0 }] as any);
+      render(<ContactProfileModal {...defaultProps} />);
+
+      expect(screen.queryByText('profile.blocked')).not.toBeInTheDocument();
+    });
+
+    it('marks the store contact as blocked when the profile id is synthetic (name match)', async () => {
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0 }] as any);
+      render(<ContactProfileModal {...defaultProps} contact={{ ...mockContact, id: 'hash_chat_999' }} />);
+
+      const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
+      fireEvent.click(moreBtn!);
+      await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+      const banBtn = document.querySelector('[class*="lucide-ban"]')?.closest('button') as HTMLElement;
+      expect(banBtn).toBeInTheDocument();
+      fireEvent.click(banBtn!);
+      await act(async () => { await new Promise(r => setTimeout(r, 50)); });
+
+      const confirmDialog = document.querySelector('[role="dialog"]') as HTMLElement;
+      const confirmBtn = within(confirmDialog).getByRole('button', { name: 'contacts.blockSpammer' });
+      fireEvent.click(confirmBtn);
+
+      expect(useAppStore.getState().contacts.find((c: any) => c.id === 'hash_test_123')?.isBlocked).toBe(true);
+    });
+
+    it('hides the Block action when no store contact resolves', async () => {
+      useAppStore.getState().setContacts([] as any);
+      render(<ContactProfileModal {...defaultProps} contact={{ ...mockContact, id: 'hash_chat_999' }} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /moreActions|More actions/ }));
+      await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+      expect(document.querySelector('[class*="lucide-ban"]')).toBeNull();
+    });
+  });
+
+  describe('report', () => {
+    it('submits a report when Report is clicked from the More menu', async () => {
+      render(<ContactProfileModal {...defaultProps} />);
+
+      const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
+      fireEvent.click(moreBtn!);
+      await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+      const reportBtn = screen.getByRole('button', { name: 'profile.report' });
+      fireEvent.click(reportBtn);
+
+      expect(toast).toHaveBeenCalledWith('profile.reported', 'info');
+    });
+  });
+
+  describe('unblock', () => {
+    it('unblocks a blocked contact when Unblock is clicked from the More menu', async () => {
+      const onUnblock = vi.fn();
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0, isBlocked: true }] as any);
+      render(<ContactProfileModal {...defaultProps} onUnblock={onUnblock} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /moreActions|More actions/ }));
+      await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+      fireEvent.click(screen.getByRole('button', { name: /profile\.unblock/ }));
+
+      expect(onUnblock).toHaveBeenCalled();
+      const updated = useAppStore.getState().contacts.find((c: any) => c.id === 'hash_test_123');
+      expect(updated?.isBlocked).toBe(false);
+    });
+
+    it('does not show the Unblock button for a non-blocked contact', async () => {
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0 }] as any);
+      render(<ContactProfileModal {...defaultProps} onUnblock={() => {}} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /moreActions|More actions/ }));
+      await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+      expect(screen.queryByRole('button', { name: /profile\.unblock/ })).not.toBeInTheDocument();
+    });
+
+    it('unblocks the store contact when the profile id is synthetic (name match)', async () => {
+      const onUnblock = vi.fn();
+      useAppStore.getState().setContacts([{ id: 'hash_test_123', name: 'Test User', color: '', lastSeen: 0, isBlocked: true }] as any);
+      render(<ContactProfileModal {...defaultProps} contact={{ ...mockContact, id: 'hash_chat_999' }} onUnblock={onUnblock} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /moreActions|More actions/ }));
+      await act(async () => { await new Promise(r => setTimeout(r, 100)); });
+
+      fireEvent.click(screen.getByRole('button', { name: /profile\.unblock/ }));
+
+      expect(onUnblock).toHaveBeenCalled();
+      const updated = useAppStore.getState().contacts.find((c: any) => c.id === 'hash_test_123');
+      expect(updated?.isBlocked).toBe(false);
+    });
   });
 });

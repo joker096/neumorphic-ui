@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
-vi.mock('lucide-react', () => ({ Volume2: 'div', VolumeX: 'div', ArrowLeft: 'div' }));
+vi.mock('lucide-react', () => ({ Volume2: 'div', VolumeX: 'div', ArrowLeft: 'div', RotateCcw: 'div' }));
 
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({

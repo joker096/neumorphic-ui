@@ -1,6 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import { motion } from "motion/react";
+import { useI18n } from "../../lib/i18n";
 
 type VideoOverlayProps = {
   isDark?: boolean;
@@ -13,6 +14,7 @@ type VideoOverlayProps = {
 export const VideoOverlay = ({
   isDark = false, showVideo, videoUrl, videoRef, closeVideo
 }: VideoOverlayProps) => {
+  const { t } = useI18n();
   if (!showVideo || !videoUrl) return null;
 
   return (
@@ -30,7 +32,9 @@ export const VideoOverlay = ({
         </div>
         <button
           onClick={closeVideo}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] transition-all"
+          aria-label={t("common.close")}
+          title={t("common.close")}
+          className="absolute top-4 right-4 w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-[var(--text-primary)] transition-all"
         >
           <X size={20} />
         </button>

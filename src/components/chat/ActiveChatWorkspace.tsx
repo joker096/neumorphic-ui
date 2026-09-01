@@ -44,6 +44,7 @@ type ActiveChatWorkspaceProps = {
   onToggleSchedulePopup: () => void;
   onToggleSilent: () => void;
   onToggleMorse: () => void;
+  onCloseChat?: () => void;
 };
 
 export const ActiveChatWorkspace = ({
@@ -89,12 +90,13 @@ export const ActiveChatWorkspace = ({
   onToggleSchedulePopup,
   onToggleSilent,
   onToggleMorse,
+  onCloseChat,
 }: ActiveChatWorkspaceProps) => (
  <div className="w-full max-w-full sm:max-w-[600px] md:max-w-[640px] lg:max-w-[800px] h-full md:h-[calc(100%-0.5rem)] relative z-10 md:z-10 animate-fade-in md:mt-2 max-h-[calc(100vh-2rem)]">
    <ChatPreviewLayer
       chat={activeChat}
       theme={theme}
-      onClose={() => setActiveChat(null)}
+      onClose={() => (onCloseChat ? onCloseChat() : setActiveChat(null))}
       onUpdateChat={setActiveChat}
       onAction={(text: string) => (text === "MUTE_TOGGLE" ? setActiveChat({ ...activeChat, isMuted: !activeChat.isMuted }) : setMessageText(text))}
       onCall={onPreviewCall}

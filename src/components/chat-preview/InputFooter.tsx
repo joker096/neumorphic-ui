@@ -19,7 +19,7 @@ const InputFooterImpl = ({ isDark = false, isChannel, isMuted, placeholder, t, o
         <button
           type="button"
           onClick={onMuteToggle}
-          className={`w-full py-3 md:py-3.5 rounded-2xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide min-h-[44px] ${
+          className={`w-full py-3 md:py-3.5 rounded-2xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide min-h-11 ${
             isDark
               ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-[var(--accent)] border border-[var(--border-color)]"
               : "bg-white hover:bg-slate-50 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"
@@ -30,13 +30,15 @@ const InputFooterImpl = ({ isDark = false, isChannel, isMuted, placeholder, t, o
       ) : (
         <>
           <button
-            className={`w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 min-w-[44px] min-h-[44px] ${
+            aria-label={t('chat.attachFile')}
+            title={t('chat.attachFile')}
+            className={`w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 min-w-11 min-h-11 ${
               isDark
                 ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-gray-400 shadow-[0_4px_8px_rgba(0,0,0,0.4),_inset_0_1px_1px_rgba(255,255,255,0.05)] border border-[var(--border-color)]/[0.02]"
                 : "bg-[var(--bg-secondary)] hover:bg-white text-slate-500 shadow-[-2px_-2px_6px_rgba(255,255,255,0.9),_4px_4px_8px_rgba(165,175,190,0.4),_inset_1px_1px_2px_rgba(255,255,255,1)]"
             }`}
           >
-            <Plus size={22} />
+            <Plus size={24} />
           </button>
           <div className={`flex-1 min-w-0 h-12 rounded-full px-4 md:px-5 flex items-center transition-all duration-300 focus-within:scale-[1.01] ${
             isDark
@@ -46,11 +48,13 @@ const InputFooterImpl = ({ isDark = false, isChannel, isMuted, placeholder, t, o
             <input
               type="text"
               placeholder={placeholder || t('chat.messagePlaceholder')}
-              className={`w-full bg-transparent border-none outline-none text-[14px] md:text-[14.5px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
+              className={`w-full bg-transparent border-none outline-none text-[14px] ${isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"}`}
             />
           </div>
           <button
-            className={`w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 min-w-[44px] min-h-[44px] ${
+            aria-label={t('chat.holdToRecordVoiceNote')}
+            title={t('chat.holdToRecordVoiceNote')}
+            className={`w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 min-w-11 min-h-11 ${
               "bg-[var(--accent-soft)] text-[var(--accent)] border border-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] shadow-[0_4px_8px_rgba(0,0,0,0.12)]"
             }`}
           >

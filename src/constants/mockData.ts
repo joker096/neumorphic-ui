@@ -4,6 +4,9 @@
 import type { MockCall, MockChat, MockChannel, OnlineContact } from '../types/constants';
 import type { Contact } from '../types/contact';
 
+/** ISO date (YYYY-MM-DD, UTC) n days before today — stable within a session */
+const isoDaysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);
+
 export const MOCK_CALLS: MockCall[] = [
   {
     id: 1,
@@ -45,6 +48,7 @@ export const MOCK_CHATS: MockChat[] = [
         sender: "them",
         text: "Hey! Look at this new design concept 🎨",
         time: "10:35",
+        date: isoDaysAgo(0),
       },
       {
         id: 102,
@@ -52,12 +56,14 @@ export const MOCK_CHATS: MockChat[] = [
         type: "image",
         url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop",
         time: "10:36",
+        date: isoDaysAgo(0),
       },
       {
         id: 103,
         sender: "me",
         text: "Wow, the colors are amazing! Is this for the new dashboard?",
         time: "10:38",
+        date: isoDaysAgo(0),
         status: "read",
       },
       {
@@ -67,8 +73,17 @@ export const MOCK_CHATS: MockChat[] = [
         duration: "0:24",
         audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
         time: "10:40",
+        date: isoDaysAgo(0),
       },
-      { id: 105, sender: "them", text: "Let me know!", time: "10:42" },
+       {
+         id: 106,
+         sender: "them",
+         type: "file",
+          fileName: "dashboard-mockup.pdf",
+          time: "10:41",
+          date: isoDaysAgo(0),
+        },
+        { id: 105, sender: "them", text: "Let me know!", time: "10:42", date: isoDaysAgo(0) },
     ],
   },
   {
@@ -79,12 +94,21 @@ export const MOCK_CHATS: MockChat[] = [
     unread: 5,
     online: false,
     color: "from-amber-400 to-orange-500",
+    type: "group",
+    createdAt: new Date(2026, 1, 10).getTime(),
+    memberIds: ["contact_001", "contact_002"],
+    members: [
+      { id: "contact_001", name: "Alice Freeman", color: "from-pink-400 to-rose-400", role: "owner" },
+      { id: "contact_002", name: "Bob Smith", color: "from-blue-400 to-indigo-400", role: "member" },
+    ],
+    group: { inviteToken: "ma_2", slowModeSeconds: 0, ownerId: "contact_001" },
     history: [
       {
         id: 201,
         sender: "them",
         text: "Alice: I pushed the updated files.",
         time: "Yesterday, 14:20",
+        date: isoDaysAgo(1),
       },
       {
         id: 202,
@@ -94,12 +118,14 @@ export const MOCK_CHATS: MockChat[] = [
           "https://images.unsplash.com/photo-1616469829581-73993eb86b02?q=80&w=2670&auto=format&fit=crop",
         duration: "0:45",
         time: "Yesterday, 15:10",
+        date: isoDaysAgo(1),
       },
       {
         id: 203,
         sender: "them",
         text: "Bob: Let's review the new components later.",
         time: "Yesterday, 16:30",
+        date: isoDaysAgo(1),
       },
     ],
   },
@@ -117,6 +143,7 @@ export const MOCK_CHATS: MockChat[] = [
         sender: "me",
         text: "Are you available to sync on the server deployment?",
         time: "Tue, 09:15",
+        date: isoDaysAgo(2),
         status: "read",
       },
       {
@@ -126,6 +153,15 @@ export const MOCK_CHATS: MockChat[] = [
         duration: "0:14",
         audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
         time: "Tue, 09:20",
+        date: isoDaysAgo(2),
+      },
+      {
+        id: 303,
+        sender: "them",
+        type: "file",
+        fileName: "old-scan.pdf",
+        time: "Jul 28",
+        date: isoDaysAgo(30),
       },
     ],
   },
@@ -144,6 +180,7 @@ export const MOCK_CHATS: MockChat[] = [
         sender: "them",
         text: "Welcome to Nexus Network! How can I assist you today?",
         time: "08:58",
+        date: isoDaysAgo(0),
         keyboard: [
           [{ text: "🔒 Setup 2FA", action: "setup_2fa" }, { text: "💬 Help", action: "help" }],
           [{ text: "🛡️ Advanced Privacy", action: "privacy" }]
@@ -154,6 +191,7 @@ export const MOCK_CHATS: MockChat[] = [
         sender: "me",
         text: "/status",
         time: "08:59",
+        date: isoDaysAgo(0),
         status: "read",
       },
       {
@@ -161,6 +199,7 @@ export const MOCK_CHATS: MockChat[] = [
         sender: "them",
         text: "All critical services are online.\nLatency: 14ms\nNodes: 24 active",
         time: "09:00",
+        date: isoDaysAgo(0),
       }
     ]
   }
@@ -225,18 +264,24 @@ export const MOCK_CHANNELS: MockChannel[] = [
     time: "11:00",
     unread: 12,
     color: "from-slate-700 to-slate-900",
+    subscribers: 1248,
+    username: "techinsights",
+    verified: true,
+    description: "Daily updates on neural engines, vector embeddings and AI tooling.",
     history: [
       {
         id: 401,
         sender: "them",
         text: "Welcome to Tech Insights. Today we dive into the new vector embeddings...",
         time: "Mon",
+        date: isoDaysAgo(1),
       },
       {
         id: 402,
         sender: "them",
         text: "New update on the neural engines.",
         time: "11:00",
+        date: isoDaysAgo(0),
       },
     ],
   },
@@ -248,12 +293,24 @@ export const MOCK_CHANNELS: MockChannel[] = [
     time: "Feb 24",
     unread: 0,
     color: "from-purple-500 to-fuchsia-500",
+    subscribers: 342,
+    username: "designdrops",
+    verified: false,
+    description: "Design inspiration, form patterns and UI details.",
     history: [
       {
         id: 501,
         sender: "them",
         text: "10 tips for better neumorphic forms.",
         time: "Feb 24",
+        date: isoDaysAgo(9),
+      },
+      {
+        id: 502,
+        sender: "them",
+        text: "Read more: https://example.com/neumorphic-forms-tips",
+        time: "Feb 25",
+        date: isoDaysAgo(8),
       },
     ],
   },

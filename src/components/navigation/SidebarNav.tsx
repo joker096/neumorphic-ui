@@ -27,7 +27,7 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
       {/* Logo / app mark */}
       <div className="flex items-center justify-center h-16 shrink-0 border-b border-transparent">
         <div
-          className={`w-9 h-9 rounded-2xl flex items-center justify-center font-black text-sm select-none ${
+          className={`w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center font-black text-sm select-none ${
             isDark
               ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white shadow-[0_4px_14px_rgba(var(--accent-rgb),0.35)]"
               : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white shadow-[0_3px_10px_rgba(var(--accent-rgb),0.3)]"
@@ -82,7 +82,7 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
       <div className={`mx-3 mb-4 mt-auto h-px ${isDark ? "bg-white/[0.05]" : "bg-black/[0.05]"}`} />
       <div className="flex items-center justify-center pb-4">
         <div
-          className={`w-9 h-9 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 ${
+          className={`w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 ${
             isDark
               ? "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] shadow-[inset_0_1px_3px_rgba(255,255,255,0.08)]"
               : "bg-white text-slate-500 hover:text-slate-700 shadow-[0_1px_4px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)]"

@@ -13,6 +13,16 @@ vi.mock('./FormattedText', () => ({
   FormattedText: ({ text }: any) => <span>{text}</span>,
 }));
 
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => key,
+    lang: 'en',
+    setLang: vi.fn(),
+  }),
+  I18nProvider: ({ children }: { children: React.ReactNode }) => children,
+  I18nContext: { Provider: ({ children }: { children: React.ReactNode }) => children },
+}));
+
 const mockScheduledMessages = [
   { id: 1, chatId: '1', text: 'Meeting at 3pm', scheduledAt: new Date('2025-01-15T15:00:00').getTime(), type: 'text' },
   { id: 2, chatId: '1', text: 'Reminder: call John', scheduledAt: new Date('2025-01-16T10:30:00').getTime(), type: 'text' },
@@ -47,13 +57,13 @@ describe('ScheduledMessages', () => {
 
   it('shows cancel/remove button for each message', () => {
     render(<ScheduledMessages {...defaultProps} />);
-    const removeButtons = screen.getAllByRole('button', { name: 'Remove scheduled message' });
+    const removeButtons = screen.getAllByRole('button', { name: 'chat.removeScheduledMessage' });
     expect(removeButtons).toHaveLength(2);
   });
 
   it('shows cancel/remove buttons for all messages', () => {
     render(<ScheduledMessages {...defaultProps} />);
-    const removeButtons = document.querySelectorAll('[aria-label="Remove scheduled message"]');
+    const removeButtons = document.querySelectorAll('[aria-label="chat.removeScheduledMessage"]');
     expect(removeButtons).toHaveLength(2);
   });
 
@@ -66,7 +76,7 @@ describe('ScheduledMessages', () => {
         scheduledQueue={{ removeMessage }}
       />,
     );
-    const removeButtons = document.querySelectorAll('[aria-label="Remove scheduled message"]');
+    const removeButtons = document.querySelectorAll('[aria-label="chat.removeScheduledMessage"]');
     fireEvent.click(removeButtons[0]);
     expect(removeMessage).toHaveBeenCalledWith(1);
   });

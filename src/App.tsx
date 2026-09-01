@@ -23,8 +23,12 @@ import { AppChrome } from './components/app/AppChrome';
 import { STORAGE_KEYS } from './constants/storage';
 import { ThemeContext } from './contexts/ThemeContext';
 import { AppAuthGate } from './components/app/AppAuthGate';
-import { ToastViewport } from './components/ui/Toast';
 import { ServicesProvider } from './services';
+import { createLocalServices } from './services/localServices';
+import { installMessAngerSdk, createMessAngerSdk } from './lib/sdk';
+import { runCrmDeepLink } from './lib/crm/deepLink';
+import { AcceptInviteModal } from './components/crm/AcceptInviteModal';
+import { toast } from './components/ui/Toast';
 
 export default function App() {
   const { theme, setTheme, isDark, fontSize, setFontSize, t } = useAppSettings();
@@ -48,12 +52,14 @@ export default function App() {
   const {
     showCreateChannel, setShowCreateChannel,
     showCreateBot, setShowCreateBot,
+    showCreateGroup, setShowCreateGroup,
     globalSelectedContact, setGlobalSelectedContact,
     showContactPicker, setShowContactPicker,
     editingContact, setEditingContact,
     showAdvancedFilterModal, setShowAdvancedFilterModal,
     advancedFilters, setAdvancedFilters,
     showAddContactFromChat, setShowAddContactFromChat,
+    chatReturnContext, setChatReturnContext,
   } = useUiStore();
 
   const [activeStory, setActiveStory] = useState<{ id: number, name: string, color: string } | null>(null);
@@ -78,6 +84,15 @@ export default function App() {
 
   useEffect(() => {
     const stop = startRecordingRetention();
+    installMessAngerSdk();
+    const sdk = createMessAngerSdk();
+    if (typeof window !== 'undefined') {
+      runCrmDeepLink(sdk, window.location.search, window.location.hash)
+        .then((r) => { if (r && r.imported > 0) toast(`Imported ${r.imported} contacts from link`, 'success'); })
+        .catch(() => {});
+      const invite = new URLSearchParams(window.location.search).get('invite');
+      if (invite) setPendingInvite(invite);
+    }
     return stop;
   }, []);
 
@@ -94,6 +109,7 @@ export default function App() {
   const [silentMode, setSilentMode] = useState(false);
   const [showStickerPicker, setShowStickerPicker] = useState(false);
   const [chatSearchQuery, setChatSearchQuery] = useState("");
+  const [pendingInvite, setPendingInvite] = useState<string | null>(null);
 
   // Clear any pending reply when switching to a different contact/chat
   const activeChatIdRef = useRef(activeChat?.id ?? null);
@@ -117,6 +133,37 @@ export default function App() {
     view, subView, activeChatId: activeChat?.id ?? null,
     chats, channels, setView, setSubView, setActiveChat,
   });
+
+  // Resolve whether a chat belongs to a company (so back returns to CRM).
+  const isCompanyChat = useCallback((chat: any) => {
+    if (!chat) return false;
+    if ((chat as any).company) return true;
+    const match = contacts.find((ct: any) => ct.name === chat.name || ct.id === chat.id);
+    return !!(match && match.company);
+  }, [contacts]);
+
+  // Open a chat, recording where the back button should return to.
+  const openChat = useCallback((chat: any, opts?: { returnTo?: { view: string; subView?: string | null }; forceView?: string }) => {
+    const route = (["chats", "channels", "bots"] as string[]).includes(view) ? view : "chats";
+    if (opts?.returnTo) {
+      setChatReturnContext({ view: opts.returnTo.view, subView: opts.returnTo.subView ?? null });
+    } else if (isCompanyChat(chat)) {
+      setChatReturnContext({ view: "company", subView: null });
+    } else {
+      setChatReturnContext({ view: route, subView });
+    }
+    setView((opts?.forceView as any) || route);
+    setActiveChat(chat);
+  }, [isCompanyChat, view, subView, setChatReturnContext, setView, setActiveChat]);
+
+  // Back/close from a chat: return to the recorded context.
+  const closeChat = useCallback(() => {
+    if (chatReturnContext) {
+      setView(chatReturnContext.view as any);
+      setSubView(chatReturnContext.subView);
+    }
+    setActiveChat(null);
+  }, [chatReturnContext, setView, setSubView, setActiveChat]);
 
   const {
     sendVoiceMessage, sendStickerMessage, handleSendMessage, toggleSavedMessage,
@@ -142,7 +189,7 @@ export default function App() {
     handlePreviewMessage,
     isChatListRoute,
   } = useAppNavigation(
-    view, chats, activeChat, setView, setSubView, setActiveChat, setChats, setActiveCall,
+    view, chats, activeChat, setView, setSubView, setActiveChat, setChats, setActiveCall, openChat,
   );
 
   const {
@@ -210,7 +257,7 @@ export default function App() {
   });
 
   return (
-    <ServicesProvider>
+    <ServicesProvider services={createLocalServices()}>
     <AppAuthGate onRegistrationComplete={() => {}}>
       <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
         <AppChrome isDark={isDark} connectionStatus={connectionStatus} />
@@ -235,6 +282,8 @@ export default function App() {
           activeChat={activeChat}
           setActiveChat={setActiveChat}
           activeChatWorkspaceProps={activeChatWorkspaceProps}
+          onOpenChat={openChat}
+          onCloseChat={closeChat}
           activeFolder={activeFolder}
           setActiveFolder={setActiveFolder}
           chatSearchQuery={chatSearchQuery}
@@ -255,6 +304,7 @@ export default function App() {
           setGlobalSelectedContact={setGlobalSelectedContact}
           setShowCreateChannel={setShowCreateChannel}
           setShowCreateBot={setShowCreateBot}
+          setShowCreateGroup={setShowCreateGroup}
           setShowAdvancedFilterModal={setShowAdvancedFilterModal}
           advancedFilters={advancedFilters}
           handlePreviewCall={handlePreviewCall}
@@ -276,6 +326,8 @@ export default function App() {
           setShowCreateChannel={setShowCreateChannel}
           showCreateBot={showCreateBot}
           setShowCreateBot={setShowCreateBot}
+          showCreateGroup={showCreateGroup}
+          setShowCreateGroup={setShowCreateGroup}
           showAdvancedFilterModal={showAdvancedFilterModal}
           setShowAdvancedFilterModal={setShowAdvancedFilterModal}
           advancedFilters={advancedFilters}
@@ -304,7 +356,22 @@ export default function App() {
         />
 
         <CallOverlay />
-        <ToastViewport isDark={isDark} />
+        {pendingInvite && (
+          <AcceptInviteModal
+            code={pendingInvite}
+            onAccept={async () => {
+              const ok = await useAppStore.getState().acceptInvite(pendingInvite);
+              toast(
+                ok
+                  ? t('crm.inviteAccepted', 'Invitation accepted')
+                  : t('crm.inviteInvalid', 'Invite not valid on this device'),
+                ok ? 'success' : 'error',
+              );
+              setPendingInvite(null);
+            }}
+            onClose={() => setPendingInvite(null)}
+          />
+        )}
       </ThemeContext.Provider>
     </AppAuthGate>
     </ServicesProvider>

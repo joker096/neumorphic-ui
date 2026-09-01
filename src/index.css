@@ -2,6 +2,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Dark mode follows the app's [data-theme] attribute (set on <html>),
+   not the system media query. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   --font-sans: "Segoe UI Variable", "Avenir Next", ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
   --font-display: "Segoe UI Variable", "Avenir Next", ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
@@ -88,6 +92,7 @@ body {
     radial-gradient(ellipse at 85% 90%, rgba(150,93,255,0.05), transparent 45%),
     var(--bg-primary, #070a0f);
   color: var(--text-primary, #f5f7fb);
+  line-height: var(--leading-normal);
   text-rendering: optimizeLegibility;
 }
 
@@ -444,6 +449,11 @@ body::after {
 body {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.005em;
+}
+
+/* Heading ramp: tighter leading than body text (overrides via leading-* utilities) */
+h1, h2, h3, h4 {
+  line-height: var(--leading-tight);
 }
 
 /* Voice-note seek slider: full 44px touch target with a thin 6px custom track */

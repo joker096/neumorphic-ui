@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { P2PTransport } from './P2PTransport';
 import { HMACAuth } from './HMACAuth';
+import { b64encode, b64decode } from '../crypto/cryptoCore';
 
 let mockWs: any = null;
 let mockPc: any = null;
@@ -114,7 +115,7 @@ function makeTransport(opts: Partial<{
   signalingUrl: string;
   localPublicKey: string;
   iceServers: RTCIceServer[];
-  obfuscator: any;
+  obfuscationEnabled?: boolean;
 }> = {}) {
   return new P2PTransport({
     signalingUrl: opts.signalingUrl ?? 'ws://localhost:8080',
@@ -123,8 +124,14 @@ function makeTransport(opts: Partial<{
     onMessage: onMessage as any,
     onConnected,
     onDisconnected,
-    obfuscator: opts.obfuscator,
+    obfuscationEnabled: opts.obfuscationEnabled,
   } as any);
+}
+
+async function getSubtle(): Promise<SubtleCrypto> {
+  if (globalThis.crypto?.subtle) return globalThis.crypto.subtle
+  const { webcrypto } = await import('node:crypto')
+  return webcrypto.subtle as unknown as SubtleCrypto
 }
 
 const flush = () => new Promise<void>((r) => setTimeout(r, 0));
@@ -162,7 +169,6 @@ describe('P2PTransport', () => {
       expect((transport as any).iceServers).toEqual([
         { urls: 'stun:turn.neumorphic.local:3478' },
       ]);
-      expect((transport as any).obfuscator).toBeNull();
       expect((transport as any).isRelayOnly).toBe(false);
     });
 
@@ -175,10 +181,10 @@ describe('P2PTransport', () => {
       expect((transport as any).iceServers).toBe(customIce);
     });
 
-    it('stores obfuscator when provided', () => {
-      const obfuscator = { obfuscate: vi.fn(), deobfuscate: vi.fn() };
-      const transport = makeTransport({ obfuscator });
-      expect((transport as any).obfuscator).toBe(obfuscator);
+    it('defaults to session encryption enabled with no key until ECDH', () => {
+      const transport = makeTransport();
+      expect((transport as any).obfuscationEnabled).toBe(true);
+      expect((transport as any).sessionAesKey).toBeNull();
     });
   });
 
@@ -338,7 +344,10 @@ describe('P2PTransport', () => {
       const callerKey = (caller as any).hmacKey as string;
       const calleeKey = (callee as any).hmacKey as string;
       expect(callerKey).toBe(calleeKey);
-      expect(callerKey).toMatch(/^[0-9a-f]{128}$/);
+      expect(callerKey).toMatch(/^[0-9a-f]{64}$/);
+
+      expect((caller as any).sessionAesKey).not.toBeNull();
+      expect((callee as any).sessionAesKey).not.toBeNull();
 
       const offerMsg = JSON.parse(sent.find((s) => s.includes('"type":"offer"'))!);
       const answerMsg = JSON.parse(sent.find((s) => s.includes('"type":"answer"'))!);
@@ -375,17 +384,82 @@ it('sends data via data channel when hmacKey is not set', async () => {
       });
     });
 
-it('obfuscates data before sending when obfuscator is set', async () => {
-       const obfuscator = { obfuscate: vi.fn().mockResolvedValue('obfuscated-payload') };
-       const transport = makeTransport({ obfuscator });
+it('encrypts data with per-session AES-GCM key before sending', async () => {
+       const subtle = await getSubtle();
+       const transport = makeTransport();
        const dc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
        (transport as any).dataChannel = dc;
-       (transport as any).hmacKey = null;
+       (transport as any).hmacKey = 'some-key';
+       const aesKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+       (transport as any).sessionAesKey = aesKey;
 
        await transport.send('secret-data');
 
-       expect(obfuscator.obfuscate).toHaveBeenCalledWith('secret-data');
-       expect(dc.send).toHaveBeenCalledWith('obfuscated-payload');
+       await vi.waitFor(() => {
+         expect(dc.send).toHaveBeenCalled();
+       });
+       const sent = dc.send.mock.calls[0][0] as string;
+       expect(sent.startsWith('mock-sig|')).toBe(true);
+       const payload = sent.slice('mock-sig|'.length);
+       expect(payload).not.toContain('secret-data');
+       const sep = payload.indexOf(':');
+       const plain = await subtle.decrypt(
+         { name: 'AES-GCM', iv: b64decode(payload.slice(0, sep)) },
+         aesKey,
+         b64decode(payload.slice(sep + 1)),
+       );
+       expect(new TextDecoder().decode(plain)).toBe('secret-data');
+     });
+
+     it('decrypts session payloads on receive with the same key', async () => {
+       const subtle = await getSubtle();
+       const transport = makeTransport();
+       const dc: any = { readyState: 'open', send: vi.fn(), close: vi.fn(), onopen: null, onclose: null, onmessage: null, onerror: null };
+       (transport as any).dataChannel = dc;
+       (transport as any).setupDataChannel();
+       (transport as any).hmacKey = 'some-key';
+       const aesKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+       (transport as any).sessionAesKey = aesKey;
+
+       const iv = crypto.getRandomValues(new Uint8Array(12));
+       const cipher = new Uint8Array(await subtle.encrypt(
+         { name: 'AES-GCM', iv },
+         aesKey,
+         new TextEncoder().encode('round-trip-secret'),
+       ));
+       const payload = `${b64encode(iv)}:${b64encode(cipher)}`;
+
+       await dc.onmessage?.({ data: `mock-sig|${payload}` });
+
+       await vi.waitFor(() => {
+         expect(onMessage).toHaveBeenCalledWith('round-trip-secret');
+       });
+     });
+
+     it('drops payloads that a different session key cannot decrypt', async () => {
+       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+       const subtle = await getSubtle();
+       const transport = makeTransport();
+       const dc: any = { readyState: 'open', send: vi.fn(), close: vi.fn(), onopen: null, onclose: null, onmessage: null, onerror: null };
+       (transport as any).dataChannel = dc;
+       (transport as any).setupDataChannel();
+       (transport as any).hmacKey = 'some-key';
+       const sendKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+       const recvKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+       (transport as any).sessionAesKey = recvKey;
+
+       const iv = crypto.getRandomValues(new Uint8Array(12));
+       const cipher = new Uint8Array(await subtle.encrypt(
+         { name: 'AES-GCM', iv },
+         sendKey,
+         new TextEncoder().encode('mismatch-secret'),
+       ));
+       const payload = `${b64encode(iv)}:${b64encode(cipher)}`;
+
+       await dc.onmessage?.({ data: `mock-sig|${payload}` });
+
+       expect(onMessage).not.toHaveBeenCalledWith('mismatch-secret');
+       warnSpy.mockRestore();
      });
 
      it('warns and does not send when data channel is not open', async () => {
@@ -483,18 +557,6 @@ it('obfuscates data before sending when obfuscator is set', async () => {
       await transport.call('peer-key');
 
       expect(mockPc.pcConfig.iceServers).toBe(newServers);
-    });
-  });
-
-  describe('setObfuscator()', () => {
-    it('sets the obfuscator instance', () => {
-      const transport = makeTransport();
-      expect((transport as any).obfuscator).toBeNull();
-
-      const obfuscator = { obfuscate: vi.fn(), deobfuscate: vi.fn() } as any;
-      transport.setObfuscator(obfuscator);
-
-      expect((transport as any).obfuscator).toBe(obfuscator);
     });
   });
 

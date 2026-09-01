@@ -23,7 +23,11 @@ export async function fetchEntitlement(devicePublicKey: string): Promise<Entitle
   const res = await fetch(
     `${PAYMENTO_BACKEND_BASE}/entitlement?pk=${encodeURIComponent(devicePublicKey)}`,
   )
-  if (!res.ok) throw new Error(`Entitlement check failed (${res.status})`)
+  if (!res.ok) {
+    const err = new Error(`Entitlement check failed (${res.status})`)
+    ;(err as Error & { status: number }).status = res.status
+    throw err
+  }
   const data = (await res.json()) as { premium?: boolean; plan?: string; expiresAt?: number }
   return {
     premium: data.premium === true,

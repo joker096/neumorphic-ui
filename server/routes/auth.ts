@@ -101,7 +101,7 @@ function readBody(req: IncomingMessage): Promise<any> {
 
 let captchaSessions = new Map<string, { answer: number; expiresAt: number }>()
 
-function generateCaptchaChallenge(): { challenge: string; answer: number; sessionId: string } {
+export function generateCaptchaChallenge(): { challenge: string; answer: number; sessionId: string } {
   const ops = ['+', '-', '\u00d7']
   const op = ops[Math.floor(Math.random() * ops.length)]
   let a = 0, b = 0, answer = 0
@@ -121,10 +121,10 @@ function generateCaptchaChallenge(): { challenge: string; answer: number; sessio
   const sessionId = crypto.randomUUID()
   const expiresAt = Date.now() + 5 * 60 * 1000
   captchaSessions.set(sessionId, { answer, expiresAt })
-  return { challenge: `${a} ${op} ${b} = ?`, answer: -1, sessionId }
+  return { challenge: `${a} ${op} ${b} = ?`, answer, sessionId }
 }
 
-function verifyCaptcha(sessionId: string, userAnswer: number): boolean {
+export function verifyCaptcha(sessionId: string, userAnswer: number): boolean {
   const entry = captchaSessions.get(sessionId)
   if (!entry || Date.now() > entry.expiresAt) return false
   captchaSessions.delete(sessionId)

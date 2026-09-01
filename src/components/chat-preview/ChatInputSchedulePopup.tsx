@@ -22,7 +22,7 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
         <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">{t("chat.scheduleSend")}</span>
         <button
           type="button"
-          className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer ${
+          className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer ${
             isDark ? "text-gray-400 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800"
           }`}
           onClick={() => setShowSchedulePopup(false)}

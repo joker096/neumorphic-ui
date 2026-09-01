@@ -209,20 +209,24 @@ function handleDeleteAd(req: AuthenticatedRequest, res: ServerResponse, id: numb
 export function handleAdminRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
   const authReq = req as AuthenticatedRequest
 
-  // Analytics read endpoints (no auth - public but rate limited)
+  // Analytics read endpoints (auth required — previously leaked user data publicly)
   if (path === '/api/admin/stats' && req.method === 'GET') {
+    if (!requireAuth(authReq, res)) return true
     handleGetStatsOverview(res)
     return true
   }
   if (path === '/api/admin/users' && req.method === 'GET') {
+    if (!requireAuth(authReq, res)) return true
     handleGetUsersList(req, res)
     return true
   }
   if (path === '/api/admin/devices' && req.method === 'GET') {
+    if (!requireAuth(authReq, res)) return true
     handleGetDeviceStats(res)
     return true
   }
   if (path === '/api/admin/countries' && req.method === 'GET') {
+    if (!requireAuth(authReq, res)) return true
     handleGetCountryStats(res)
     return true
   }

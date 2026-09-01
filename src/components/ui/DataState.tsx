@@ -1,6 +1,7 @@
 import React from 'react';
-import { AlertTriangle, Lock, ShieldAlert, Trash2, WifiOff, Loader2, Inbox, Search } from 'lucide-react';
+import { AlertTriangle, Lock, ShieldAlert, Trash2, WifiOff, Loader2, Inbox, Search, RefreshCw } from 'lucide-react';
 import { EmptyState, ErrorState } from './States';
+import { useI18n } from '../../lib/i18n';
 
 export type DataStatus =
   | 'loading'
@@ -27,14 +28,16 @@ export interface DataStateProps {
   code?: string;
   /** Дочерний контент, отображаемый при status === 'loaded' или 'partial' */
   children?: React.ReactNode;
+  /** Иконка empty-состояния (search — для «ничего не найдено», inbox — по умолчанию) */
+  emptyIcon?: 'search' | 'inbox';
 }
 
 const WRAPPER = 'flex flex-col items-center justify-center text-center px-6 py-12';
 const ICON_BOX = 'w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-muted text-muted-foreground';
 const TITLE = 'text-sm font-semibold text-foreground';
 const SUBTEXT = 'text-xs mt-1 max-w-xs text-muted-foreground';
-const PRIMARY_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-[40px] bg-primary text-primary-foreground active:scale-95 transition-transform';
-const GHOST_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-[40px] transition-colors active:scale-95 text-primary';
+const PRIMARY_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-11 bg-primary text-primary-foreground active:scale-95 transition-transform';
+const GHOST_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-11 transition-colors active:scale-95 text-primary';
 
 /**
  * Единый компонент состояний данных (бриф §16.2).
@@ -49,14 +52,16 @@ export const DataState = ({
   supportAction,
   code,
   children,
+  emptyIcon,
 }: DataStateProps) => {
+  const { t } = useI18n();
   if (status === 'loaded') return <>{children}</>;
   if (status === 'partial') {
     return (
       <div className="flex flex-col">
         <div className="flex items-center gap-2 px-4 py-2 text-[12px] bg-amber-500/10 text-amber-500">
           <AlertTriangle size={14} />
-          <span>{title ?? 'Часть данных недоступна'}</span>
+          <span>{title ?? t('dataState.partial')}</span>
         </div>
         {children}
       </div>
@@ -66,8 +71,8 @@ export const DataState = ({
   if (status === 'loading') {
     return (
       <div className={WRAPPER}>
-        <Loader2 size={28} className="animate-spin mb-4 text-primary" />
-        <div className="text-sm text-muted-foreground">{title ?? 'Загрузка…'}</div>
+        <Loader2 size={32} className="animate-spin mb-4 text-primary" />
+        <div className="text-sm text-muted-foreground">{title ?? t('dataState.loading')}</div>
       </div>
     );
   }
@@ -75,8 +80,8 @@ export const DataState = ({
   if (status === 'empty') {
     return (
       <EmptyState
-        icon={title?.includes('результат') ? <Search size={28} /> : <Inbox size={28} />}
-        title={title ?? 'Здесь пока пусто'}
+        icon={emptyIcon === 'search' ? <Search size={32} /> : <Inbox size={32} />}
+        title={title ?? t('dataState.empty')}
         description={description}
         action={action}
       />
@@ -84,21 +89,22 @@ export const DataState = ({
   }
 
   if (status === 'error') {
-    return <ErrorState message={title ?? 'Что-то пошло не так'} code={code} retryAction={retryAction} supportAction={supportAction} />;
+    return <ErrorState message={title ?? t('dataState.error')} description={description} code={code} retryAction={retryAction} supportAction={supportAction} />;
   }
 
   if (status === 'offline') {
     return (
       <div className={WRAPPER}>
         <div className={ICON_BOX}>
-          <WifiOff size={28} />
+          <WifiOff size={32} />
         </div>
-        <div className={TITLE}>{title ?? 'Нет соединения'}</div>
+        <div className={TITLE}>{title ?? t('dataState.offline')}</div>
         {description && <div className={SUBTEXT}>{description}</div>}
         <div className="flex items-center gap-2 mt-4">
           {retryAction && (
-            <button onClick={retryAction} className={PRIMARY_BTN}>
-              Повторить
+            <button onClick={retryAction} aria-label={t('ui.retry')} title={t('ui.retry')} className="flex items-center justify-center w-9 h-9 min-w-11 min-h-11 text-sm font-medium px-4 py-2 rounded-lg bg-primary text-primary-foreground active:scale-95 transition-transform">
+              <RefreshCw size={16} />
+              <span className="sr-only">{t('ui.retry')}</span>
             </button>
           )}
           {action && (
@@ -115,9 +121,9 @@ export const DataState = ({
     return (
       <div className={WRAPPER}>
         <div className={ICON_BOX}>
-          <Lock size={28} />
+          <Lock size={32} />
         </div>
-        <div className={TITLE}>{title ?? 'Требуется вход'}</div>
+        <div className={TITLE}>{title ?? t('dataState.unauthorized')}</div>
         {description && <div className={SUBTEXT}>{description}</div>}
         {action && (
           <button onClick={action.onClick} className={`mt-4 ${PRIMARY_BTN}`}>
@@ -132,9 +138,9 @@ export const DataState = ({
     return (
       <div className={WRAPPER}>
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-rose-500/10 text-rose-500">
-          <ShieldAlert size={28} />
+          <ShieldAlert size={32} />
         </div>
-        <div className={TITLE}>{title ?? 'Доступ ограничен'}</div>
+        <div className={TITLE}>{title ?? t('dataState.restricted')}</div>
         {description && <div className={SUBTEXT}>{description}</div>}
       </div>
     );
@@ -144,9 +150,9 @@ export const DataState = ({
     return (
       <div className={WRAPPER}>
         <div className={ICON_BOX}>
-          <Trash2 size={28} />
+          <Trash2 size={32} />
         </div>
-        <div className={TITLE}>{title ?? 'Удалено'}</div>
+        <div className={TITLE}>{title ?? t('dataState.deleted')}</div>
         {description && <div className={SUBTEXT}>{description}</div>}
       </div>
     );

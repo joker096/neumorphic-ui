@@ -49,7 +49,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-colors shrink-0 ${
+            className={`px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors shrink-0 ${
               activeTab === tab.id
                 ? 'bg-[var(--accent)] text-[var(--text-primary)]'
                 : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'
@@ -88,10 +88,10 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
                   </button>
                 );
               })}
-              {pack.id === 'icq' && !premium && (
+              {pack.id !== 'icq' && !premium && (
                 <button
-                  onClick={() => toast(t('premium.stickerLocked', 'The full ICQ sticker pack is available with Premium'))}
-                  aria-label={t('premium.stickerLocked', 'The full ICQ sticker pack is available with Premium')}
+                  onClick={() => toast(t('premium.stickerLocked', 'This sticker pack is available with Premium'))}
+                  aria-label={t('premium.stickerLocked', 'This sticker pack is available with Premium')}
                   className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
                 >
                   <Crown size={16} />

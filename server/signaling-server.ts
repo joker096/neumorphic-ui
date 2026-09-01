@@ -9,6 +9,7 @@ import { handleAuthRoute } from './routes/auth.js'
 import { handleStatsRoute } from './routes/stats.js'
 import { handleAdsRoute } from './routes/ads.js'
 import { handlePaymentoRoute } from './routes/paymento.js'
+import { handleIntegrationsRoute } from './routes/integrations.js'
 import { applyCSP } from './csp.js'
 
 const PORT = parseInt(process.env.PORT || '8765', 10)
@@ -61,7 +62,7 @@ function getClientIp(ws: WebSocket): string {
 function verifyWsToken(authHeader: string): boolean {
   try {
     const token = authHeader.slice(7) // remove 'Bearer '
-    jwt.verify(token, JWT_SECRET)
+    jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] })
     return true
   } catch {
     return false
@@ -479,7 +480,8 @@ const restServer = createServer((req, res) => {
       handleAuthRoute(req, res, path) ||
       handleStatsRoute(req, res, path) ||
       handleAdsRoute(req, res, path) ||
-      handlePaymentoRoute(req, res, path)
+      handlePaymentoRoute(req, res, path) ||
+      handleIntegrationsRoute(req, res, path)
 
     if (!handled) {
       res.writeHead(404)

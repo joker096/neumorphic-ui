@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { CompanySettingsView } from './CompanySettingsView';
+import { CompanyProfileEditor } from './CompanyProfileEditor';
 
 type CompanySettingsModalProps = {
   onClose: () => void;
@@ -14,7 +14,7 @@ export const CompanySettingsModal = ({ onClose }: CompanySettingsModalProps) => 
     onClick={onClose}
   >
     <div className="absolute inset-0 z-[100]" onClick={(e) => e.stopPropagation()}>
-      <CompanySettingsView onClose={onClose} />
+      <CompanyProfileEditor onClose={onClose} />
     </div>
   </motion.div>
 );

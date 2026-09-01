@@ -31,12 +31,12 @@ export const FormActions = ({
        : 'bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-lg'
 
   return (
-    <div className={`flex gap-3 mt-4 ${className}`}>
+    <div className={`flex gap-[var(--spacing-12)] mt-[var(--spacing-16)] ${className}`}>
       {onCancel && (
         <button
           type="button"
           onClick={onCancel}
-          className={`flex-1 h-12 rounded-xl font-bold transition-all active:scale-95 ${
+          className={`flex-1 h-[var(--control-height-md)] rounded-[var(--radius-control)] text-[length:var(--text-button)] font-bold transition-all active:scale-95 ${
             isDark
               ? 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
               : 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
@@ -48,7 +48,7 @@ export const FormActions = ({
       <button
         type="button"
         onClick={() => { if (!disabled && !loading) onSubmit?.() }}
-        className={`flex-1 h-12 rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 ${
+        className={`flex-1 h-[var(--control-height-md)] rounded-[var(--radius-control)] text-[length:var(--text-button)] font-bold transition-all flex items-center justify-center gap-[var(--spacing-08)] active:scale-95 ${
           disabled || loading
             ? 'opacity-50 cursor-not-allowed text-[var(--text-tertiary)] bg-[var(--bg-tertiary)]'
             : `${submitBg} text-[var(--text-primary)]`

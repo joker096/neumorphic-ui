@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Share2, Phone, Mail, MessageSquare, Send, Shield, AtSign } from 'lucide-react';
+import { Edit, Share2, Phone, Mail, MessageSquare, Send, Shield, AtSign, Link } from 'lucide-react';
 import { DEFAULT_AVATAR_COLOR, getFieldTypeLabel } from '../../constants/settingsConstants';
 import type { UserProfile } from '../../types/contact';
 
@@ -14,18 +14,20 @@ interface ProfileHeaderCardProps {
 const renderFieldIcon = (type: string) => {
   switch (type) {
     case 'phone':
-      return <Phone size={10} className="inline mr-1" />;
+      return <Phone size={12} className="inline mr-1" />;
     case 'email':
-      return <Mail size={10} className="inline mr-1" />;
+      return <Mail size={12} className="inline mr-1" />;
     case 'telegram':
-      return <MessageSquare size={10} className="inline mr-1" />;
+      return <MessageSquare size={12} className="inline mr-1" />;
     case 'whatsapp':
-      return <Send size={10} className="inline mr-1" />;
+      return <Send size={12} className="inline mr-1" />;
     case 'signal':
     case 'signalv2v':
-      return <Shield size={10} className="inline mr-1" />;
+      return <Shield size={12} className="inline mr-1" />;
     case 'username':
-      return <AtSign size={10} className="inline mr-1" />;
+      return <AtSign size={12} className="inline mr-1" />;
+    case 'link':
+      return <Link size={12} className="inline mr-1" />;
     default:
       return null;
   }
@@ -33,7 +35,7 @@ const renderFieldIcon = (type: string) => {
 
 export const ProfileHeaderCard = ({ isDark, userProfile, t, onEdit, onShare }: ProfileHeaderCardProps) => {
   const avatarColor = userProfile.avatarColor || DEFAULT_AVATAR_COLOR;
-  const initial = (userProfile.name || 'U').charAt(0).toUpperCase();
+  const initial = (userProfile.name || userProfile.username || 'U').charAt(0).toUpperCase();
   const fields = (userProfile.fields ?? []) as Array<{ id?: string; value: string; label?: string; type: string; visibleTo?: string }>;
 
   return (
@@ -55,7 +57,8 @@ export const ProfileHeaderCard = ({ isDark, userProfile, t, onEdit, onShare }: P
         </div>
       </div>
       <div className="pt-8 pb-4 px-4 text-center">
-        <h3 className="text-xl font-bold text-[var(--text-primary)]">{userProfile.name || t('settings.defaultUserName', 'User')}</h3>
+        <h3 className="text-xl font-bold text-[var(--text-primary)]">{userProfile.name || (userProfile.username ? `@${userProfile.username}` : t('settings.defaultUserName', 'User'))}</h3>
+        {userProfile.username && userProfile.name && <p className="text-sm mt-0.5 font-medium text-[var(--accent)]">@{userProfile.username}</p>}
         {userProfile.bio && <p className="text-xs mt-1 text-[var(--text-secondary)]">{userProfile.bio}</p>}
         {userProfile.status && <p className="text-xs mt-1 text-[var(--text-tertiary)]">{userProfile.status}</p>}
         {fields.length > 0 && (
@@ -85,17 +88,21 @@ export const ProfileHeaderCard = ({ isDark, userProfile, t, onEdit, onShare }: P
       <div className="flex justify-center gap-2 pb-4">
         <button
           onClick={onEdit}
-          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium min-h-[44px] transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+          aria-label={t('settings.editProfile', 'Edit Profile')}
+          title={t('settings.editProfile', 'Edit Profile')}
+          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
         >
           <Edit size={14} />
-          {t('settings.editProfile', 'Edit Profile')}
+          <span className="sr-only">{t('settings.editProfile', 'Edit Profile')}</span>
         </button>
         <button
           onClick={onShare}
-          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium min-h-[44px] transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+          aria-label={t('settings.shareIdentity', 'Share Identity')}
+          title={t('settings.shareIdentity', 'Share Identity')}
+          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
         >
           <Share2 size={16} />
-          {t('settings.shareIdentity', 'Share Identity')}
+          <span className="sr-only">{t('settings.shareIdentity', 'Share Identity')}</span>
         </button>
       </div>
     </div>

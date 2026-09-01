@@ -1,5 +1,5 @@
 import React from "react";
-import { BellOff, ChevronRight, Clock, Mic, Smile, Plus } from "lucide-react";
+import { BellOff, ChevronRight, Clock, Mic, Smile, Plus, VolumeX, Volume2, Radio, X } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { CHAT_SEND_GRADIENT } from "../../constants/chatConstants";
 import { LiveVoiceRecorder } from "../LiveVoiceRecorder";
@@ -8,6 +8,8 @@ import { ChatInputSchedulePopup } from "./ChatInputSchedulePopup";
 import { ChatInputReplyBar } from "./ChatInputReplyBar";
 import { ChatInputVoiceError } from "./ChatInputVoiceError";
 import { MorsePreview } from "./MorsePreview";
+import { p2pNetwork } from "../../lib/p2p/network";
+import { useAppStore } from "../../store";
 
 interface ChatInputAreaProps {
   isDark: boolean;
@@ -31,11 +33,12 @@ interface ChatInputAreaProps {
   setShowSchedulePopupFn2: (v: boolean) => void;
   eReplyTarget: any;
   setLocalReplyTarget: (v: any) => void;
-  sendMessage: () => void;
+  sendMessage: (attachment?: { url: string; type: 'image' | 'video' }) => void;
   sendVoiceMessage?: (url: string, dur: string) => void;
   sendStickerMessage?: (sticker: string) => void;
   handleImageAttach: (e: React.ChangeEvent<HTMLInputElement>, chat: any, onUpdateChat: any, silent: boolean) => void;
   onUpdateChat?: (chat: any) => void;
+  onPasteFiles?: (files: FileList | null) => void;
   onAction?: (action: string) => void;
   setChannels?: (updater: any) => void;
   theme: "light" | "dark";
@@ -67,36 +70,173 @@ function ChatInputAreaImpl({
   sendMessage,
   sendVoiceMessage,
   sendStickerMessage,
-  handleImageAttach,
-  onUpdateChat,
-  onAction,
+    handleImageAttach,
+    onUpdateChat,
+    onPasteFiles,
+    onAction,
   setChannels,
   theme,
   t,
 }: ChatInputAreaProps) {
   const { t: translate } = useI18n();
+  const showTyping = useAppStore((state) => state.typingIndicators);
+  const userProfile = useAppStore((state) => state.userProfile);
+  const typingActiveRef = React.useRef(false);
+  const idleTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [pendingMedia, setPendingMedia] = React.useState<{ url: string; type: 'image' | 'video' } | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (isChannel || !showTyping || !chat?.name) return;
+    const name = chat.name;
+
+    if (eMsgText.trim()) {
+      if (!typingActiveRef.current) {
+        typingActiveRef.current = true;
+        p2pNetwork.sendTypingIndicator(name, true);
+      }
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = setTimeout(() => {
+        typingActiveRef.current = false;
+        p2pNetwork.sendTypingIndicator(name, false);
+      }, 2500);
+    } else {
+      if (typingActiveRef.current) {
+        typingActiveRef.current = false;
+        p2pNetwork.sendTypingIndicator(name, false);
+      }
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    }
+
+    return () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      if (typingActiveRef.current) {
+        typingActiveRef.current = false;
+        p2pNetwork.sendTypingIndicator(name, false);
+      }
+    };
+  }, [eMsgText, isChannel, showTyping, chat?.name]);
+
   const messagePlaceholder = eMorseMode ? t("chat.morsePlaceholder") : t("chat.messagePlaceholder");
   const inputStyle = eMorseMode
     ? { fontFamily: "monospace", color: isDark ? "#fbbf24" : "#d97706", filter: "saturate(0.8)" }
     : undefined;
 
   if (isChannel) {
+    const isChannelOwner = !!chat.ownerId && chat.ownerId === userProfile.id;
+    if (!isChannelOwner) {
+      return (
+        <div className="px-4 pb-3 pt-1">
+          <button
+            type="button"
+            onClick={() => {
+              setChannels?.((prev: any) => prev.map((c: any) => (c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c)));
+              onAction?.("MUTE_TOGGLE");
+            }}
+            className={`w-full py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors font-medium text-sm tracking-wide min-w-[44px] min-h-[44px] ${
+              isDark
+                ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-[var(--accent)] border border-[var(--border-color)]"
+                : "bg-white hover:bg-slate-50 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"
+            }`}
+            aria-label={chat.isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
+            title={chat.isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
+          >
+            {chat.isMuted ? <Volume2 size={16} /> : <VolumeX size={16} />}
+            <span className="sr-only">{chat.isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}</span>
+          </button>
+        </div>
+      );
+    }
+    const sendPost = () => {
+      if (!eMsgText.trim() && !pendingMedia) return;
+      sendMessage(pendingMedia ?? undefined);
+      setPendingMedia(null);
+    };
     return (
       <div className="px-4 pb-3 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setChannels?.((prev: any) => prev.map((c: any) => (c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c)));
-            onAction?.("MUTE_TOGGLE");
-          }}
-          className={`w-full py-3 rounded-xl flex items-center justify-center cursor-pointer transition-colors font-medium text-sm tracking-wide ${
-            isDark
-              ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-[var(--accent)] border border-[var(--border-color)]"
-              : "bg-white hover:bg-slate-50 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"
+        {pendingMedia && (
+          <div className="relative w-fit mb-2">
+            {pendingMedia.type === 'image' ? (
+              <img src={pendingMedia.url} alt="" className="h-20 w-20 object-cover rounded-lg" />
+            ) : (
+              <video src={pendingMedia.url} className="h-20 w-20 object-cover rounded-lg" />
+            )}
+            <button
+              type="button"
+              onClick={() => setPendingMedia(null)}
+              aria-label={t('chat.removeMedia')}
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        )}
+        <div
+          className={`w-full flex-shrink-0 h-11 rounded-full px-3 flex items-center gap-1 ${
+            isDark ? "bg-[var(--bg-secondary)]" : "bg-white shadow-sm"
           }`}
         >
-          {chat.isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
-        </button>
+          <input
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            id="channel-post-media-input"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setPendingMedia({ url: URL.createObjectURL(file), type: file.type.startsWith('video') ? 'video' : 'image' });
+              }
+              e.target.value = "";
+            }}
+            aria-label={t('chat.attachFile')}
+          />
+          <label
+            htmlFor="channel-post-media-input"
+            aria-label={t('chat.attachFile')}
+            className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-colors min-w-[44px] min-h-[44px] ${
+              isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Plus size={16} />
+          </label>
+          <input
+            type="text"
+            value={eMsgText}
+            onChange={(e) => setMsgTextFn(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendPost();
+              }
+            }}
+            placeholder={t("channelComposer.placeholder")}
+            aria-label={t("channelComposer.placeholder")}
+            autoComplete="off"
+            inputMode="text"
+            enterKeyHint="send"
+            spellCheck={!eMorseMode}
+            className={`flex-1 bg-transparent outline-none border-none text-sm px-2 py-1 ${
+              isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-muted)]" : "text-slate-800 placeholder:text-slate-400"
+            } ${eMorseMode ? "font-mono" : ""}`}
+            style={inputStyle}
+          />
+          <button
+            type="button"
+            onClick={sendPost}
+            disabled={!eMsgText.trim() && !pendingMedia}
+            aria-label={t("channelComposer.send")}
+            title={t("channelComposer.send")}
+            className={`h-9 w-9 rounded-full flex items-center justify-center transition-colors min-w-[44px] min-h-[44px] ${
+              (eMsgText.trim() || pendingMedia)
+                ? `${CHAT_SEND_GRADIENT} text-white`
+                : isDark
+                ? "bg-[var(--border-color)] text-[var(--text-muted)]"
+                : "bg-slate-200 text-slate-400"
+            }`}
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
     );
   }
@@ -146,7 +286,7 @@ function ChatInputAreaImpl({
                 }}
                 aria-label={t("chat.attachFile")}
               />
-              <div className={`min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${
+              <div className={`min-w-[44px] min-h-[44px] sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${
                 isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800 hover:bg-slate-200"
               }`}>
                 <Plus size={16} />
@@ -156,7 +296,7 @@ function ChatInputAreaImpl({
             <button
               type="button"
               aria-label={t("chat.scheduleMessage")}
-              className={`min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
+              className={`min-w-[44px] min-h-[44px] sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
                 eScheduleDateTime
                   ? isDark
                     ? "bg-[var(--accent)]/20 text-[var(--accent)]"
@@ -173,7 +313,7 @@ function ChatInputAreaImpl({
             <button
               type="button"
               aria-label={t("stickers.title")}
-              className={`min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
+              className={`min-w-[44px] min-h-[44px] sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
                 eShowStickerPicker
                   ? isDark
                     ? "bg-[var(--accent)]/20 text-[var(--accent)]"
@@ -182,18 +322,28 @@ function ChatInputAreaImpl({
                     ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5"
                     : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800 hover:bg-slate-200"
               }`}
-              onClick={() => setShowStickerPickerFn2(!eShowStickerPicker)}
+              onClick={() => {
+                setShowStickerPickerFn2(!eShowStickerPicker);
+              }}
             >
               <Smile size={16} />
             </button>
           </>
         )}
 
-        <div className="order-first sm:order-none w-full sm:w-auto flex-shrink-0 sm:flex-1 min-w-0 h-11 sm:h-12 rounded-full px-2 sm:px-3 md:px-4 flex items-center gap-1">
+        <div className="order-first sm:order-none w-full sm:w-auto flex-shrink-0 sm:flex-1 min-w-0 h-11 sm:h-11 rounded-full px-2 sm:px-3 md:px-4 flex items-center gap-1">
           <input
+            ref={inputRef}
             type="text"
             value={eMsgText}
             onChange={(e) => setMsgTextFn(e.target.value)}
+            onPaste={(e) => {
+              const files = e.clipboardData?.files;
+              if (files && files.length) {
+                e.preventDefault();
+                onPasteFiles?.(files);
+              }
+            }}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             placeholder={messagePlaceholder}
             aria-label={messagePlaceholder}
@@ -235,7 +385,7 @@ function ChatInputAreaImpl({
               onClick={() => {
                 setMorseModeFn2(!eMorseMode);
               }}
-              className={`min-w-[44px] min-h-[44px] px-1.5 py-1 rounded-full text-xs font-mono font-bold cursor-pointer transition-colors ${
+              className={`min-w-[44px] min-h-[44px] px-1.5 py-1 rounded-full text-xs font-mono font-bold cursor-pointer transition-colors flex items-center justify-center ${
                 eMorseMode
                   ? "bg-amber-500 text-[var(--ink-on-saturate)]"
                   : isDark
@@ -243,7 +393,8 @@ function ChatInputAreaImpl({
                     : "hover:bg-black/5 text-slate-500"
               }`}
             >
-              M
+              <Radio size={14} />
+              <span className="sr-only">{t("chat.morse")}</span>
             </button>
           </div>
         </div>
@@ -266,7 +417,7 @@ function ChatInputAreaImpl({
             }
           }}
           onContextMenu={(e) => e.preventDefault()}
-          className={`order-last sm:order-none ml-auto sm:ml-0 min-w-[44px] min-h-[44px] sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${
+          className={`order-last sm:order-none ml-auto sm:ml-0 min-w-[44px] min-h-[44px] sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${
             eScheduleDateTime && eMsgText
               ? isDark
                 ? "bg-[var(--cyan)] text-[var(--bg-primary)]"

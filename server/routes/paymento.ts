@@ -262,20 +262,38 @@ async function handleCreate(req: IncomingMessage, res: ServerResponse): Promise<
 
     const orderId = String(body.orderId || `ord-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`)
 
+    const amount = Number(body.amount)
+    if (body.amount === undefined || body.amount === null || body.amount === '' || !Number.isFinite(amount) || amount <= 0) {
+      sendJson(res, 400, { error: 'Valid amount required' })
+      return
+    }
+    const currency = body.currency !== undefined && body.currency !== '' ? String(body.currency) : 'USD'
+    if (!/^[A-Za-z]{3}$/.test(currency)) {
+      sendJson(res, 400, { error: 'Invalid currency' })
+      return
+    }
+    if (body.description !== undefined && (typeof body.description !== 'string' || body.description.length > 500)) {
+      sendJson(res, 400, { error: 'Description must be at most 500 characters' })
+      return
+    }
+    if (body.returnUrl !== undefined && (typeof body.returnUrl !== 'string' || body.returnUrl.length > 2048 || !/^https?:\/\//i.test(body.returnUrl))) {
+      sendJson(res, 400, { error: 'Invalid returnUrl' })
+      return
+    }
+
     // Price-floor guard: a subscription order must cost at least the plan price.
     const subOrder = parseSubscriptionOrderId(orderId)
     if (subOrder) {
       const plan = getPlan(subOrder.planId)!
-      const amount = Number(body.amount)
-      if (!Number.isFinite(amount) || amount < plan.price) {
+      if (amount < plan.price) {
         sendJson(res, 400, { error: `Amount must be at least ${plan.price} ${plan.currency} for plan ${plan.id}` })
         return
       }
     }
 
     const payload: Record<string, unknown> = {
-      fiatAmount: String(body.amount),
-      fiatCurrency: body.currency || 'USD',
+      fiatAmount: String(amount),
+      fiatCurrency: currency,
       orderId,
       Speed: body.speed === 1 ? 1 : 0,
     }
@@ -296,15 +314,15 @@ async function handleCreate(req: IncomingMessage, res: ServerResponse): Promise<
       paymentId: null,
       orderId,
       apiKey: ENV_API_KEY,
-      amount: String(body.amount),
-      currency: String(body.currency || 'USD'),
+      amount: String(amount),
+      currency,
       status: 0,
       additionalData: JSON.stringify(payload.additionalData || []),
     })
 
     sendJson(res, 200, { token, paymentUrl, orderId })
   } catch (err: any) {
-    sendJson(res, 502, { error: err?.message || 'create failed' })
+    sendJson(res, 502, { error: 'Payment processing failed' })
   }
 }
 
@@ -388,6 +406,6 @@ async function handleVerify(req: IncomingMessage, res: ServerResponse, path: str
     updatePaymentStatus(result.orderId || (row?.order_id ?? ''), result.status, null)
     sendJson(res, 200, result)
   } catch (err: any) {
-    sendJson(res, 502, { error: err?.message || 'verify failed' })
+    sendJson(res, 502, { error: 'Payment verification failed' })
   }
 }

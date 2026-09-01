@@ -1,13 +1,12 @@
 import { retry } from '../lib/retry';
 
 // Track component mount states to prevent state updates on unmounted components
-const componentMap = new Map<number, () => boolean>();
+const componentMap = new Map<string, () => boolean>();
 
 export function trackComponentMount(mounted: () => boolean): () => void {
   const id = Math.random().toString(36).slice(2);
-  const key = Number(id);
-  componentMap.set(key, mounted);
-  return () => componentMap.delete(key);
+  componentMap.set(id, mounted);
+  return () => componentMap.delete(id);
 }
 
 export function safeSet<T extends Record<string, any>>(

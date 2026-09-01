@@ -16,7 +16,7 @@ const ICON_SIZE: Record<BackButtonSize, number> = { sm: 16, md: 18, lg: 20 };
 const BOX: Record<BackButtonSize, string> = {
   sm: "w-10 h-10 min-w-[44px] min-h-[44px]",
   md: "w-10 h-10 min-w-[44px] min-h-[44px]",
-  lg: "w-12 h-12 min-w-[48px] min-h-[48px]",
+  lg: "w-9 h-9 min-w-[44px] min-h-[44px]",
 };
 
 export const BackButton = ({

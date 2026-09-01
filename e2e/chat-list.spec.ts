@@ -84,24 +84,12 @@ test.describe('Chat list', () => {
 
   test('advanced filter modal opens and closes', async ({ page }) => {
     await gotoChats(page);
-    // Filter icon button sits near the folder bar
-    const filterIcon = page
-      .locator('div.rounded-full, [class*="filter"]')
-      .filter({ has: page.locator('svg') })
-      .last();
-    // Fallback: click element that opens "Advanced Filters" via any clickable ancestor
     const advancedTitle = page.getByText('Advanced Filters');
-    if (!(await advancedTitle.count())) {
-      await filterIcon.click().catch(() => {});
-    }
-    if (await advancedTitle.count()) {
-      await expect(advancedTitle).toBeVisible();
-      const reset = page.getByText('Reset', { exact: true });
-      if (await reset.count()) await reset.click();
-      const apply = page.getByText('Apply', { exact: true });
-      if (await apply.count()) await apply.click();
-      await expect(advancedTitle).toHaveCount(0);
-    }
+    await page.getByRole('button', { name: 'Filters', exact: true }).click();
+    await expect(advancedTitle).toBeVisible();
+    await page.getByText('Reset', { exact: true }).click();
+    await page.getByText('Apply', { exact: true }).click();
+    await expect(advancedTitle).toHaveCount(0);
   });
 
   test('channels tab shows create-channel tile', async ({ page }) => {

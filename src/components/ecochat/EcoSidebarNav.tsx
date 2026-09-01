@@ -69,7 +69,7 @@ export const EcoSidebarNav = ({
               aria-current={isActive ? "page" : undefined}
               aria-label={label}
               onClick={() => onNavigate?.(item.id)}
-              className={`relative w-full flex flex-col items-center justify-center gap-1 min-h-[44px] rounded-xl py-2.5 px-1 transition-all duration-200 cursor-pointer ${
+              className={`relative w-full flex flex-col items-center justify-center gap-1 min-h-11 rounded-xl py-2.5 px-1 transition-all duration-200 cursor-pointer ${
                 isActive
                   ? "text-[var(--accent)]"
                   : `text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] ${hoverBg}`
@@ -92,15 +92,12 @@ export const EcoSidebarNav = ({
                 />
               )}
               <span className="relative">
-                <Icon className="w-5 h-5" strokeWidth={isActive ? 2.25 : 1.75} />
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                 {badgeCount > 0 && (
                   <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white text-xs font-semibold flex items-center justify-center shadow-md" style={{ boxShadow: "0 0 8px rgba(var(--accent-rgb),0.4)" }}>
                     {badgeCount > 99 ? "99+" : badgeCount}
                   </span>
                 )}
-              </span>
-              <span className="text-xs font-medium leading-none truncate max-w-full px-0.5">
-                {label}
               </span>
             </button>
           );
@@ -111,9 +108,9 @@ export const EcoSidebarNav = ({
       <div className="p-2 border-t border-[var(--border-color)] space-y-1">
         <button
           type="button"
-          aria-label={userProfile.name || effectiveT("settings.defaultUserName", "User")}
+          aria-label={userProfile.name || (userProfile.username ? `@${userProfile.username}` : effectiveT("settings.defaultUserName", "User"))}
           onClick={handleProfileClick}
-          className={`w-full flex items-center justify-center min-h-[44px] rounded-xl py-2 ${hoverBg} transition-all cursor-pointer`}
+          className={`w-full flex items-center justify-center min-h-11 rounded-xl py-2 ${hoverBg} transition-all cursor-pointer`}
         >
           <span className="relative inline-flex">
             {userProfile.avatar ? (
@@ -127,7 +124,7 @@ export const EcoSidebarNav = ({
               />
             ) : (
               <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white text-xs font-bold shadow-lg" style={{ boxShadow: "0 0 10px rgba(var(--accent-rgb),0.25)" }}>
-                {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}
+                {(userProfile.name || userProfile.username || "U").charAt(0).toUpperCase()}
               </span>
             )}
             <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[var(--success)] border-2 rounded-full" style={{ borderColor: footerStatusRing }} />

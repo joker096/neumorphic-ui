@@ -19,9 +19,15 @@ describe('SettingsRow - additional tests', () => {
     expect(container.querySelector('[class*="w-8.h-8"]') || container.querySelector('[class*="rounded-lg"]') || container.querySelector('[class*="w-8"]')).not.toBeInTheDocument();
   });
 
-  it('renders chevron when no rightElement', () => {
+  it('renders chevron when interactive', () => {
+    const { container } = render(<SettingsRow title="Test" onClick={() => undefined} />);
+    expect(container.querySelector('[class*="opacity-30"]')).toBeInTheDocument();
+  });
+
+  it('renders without chevron and without button when not interactive', () => {
     const { container } = render(<SettingsRow title="Test" />);
-    expect(container.querySelector('[class*="lucide-chevron-right"]') || container.querySelector('[class*="text-gray-400"]') || container.querySelector('[class*="opacity-30"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="opacity-30"]')).not.toBeInTheDocument();
+    expect(container.querySelector('button')).not.toBeInTheDocument();
   });
 
   it('renders rightElement when provided', () => {

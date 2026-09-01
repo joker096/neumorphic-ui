@@ -14,10 +14,12 @@ const defaultProps = {
   },
   onClose: vi.fn(),
   onProfileClick: vi.fn(),
-  t: (key: string) => {
+  t: (key: string, opts?: any) => {
     const map: Record<string, string> = {
       'chat.filters.online': 'Online',
       'chat.filters.offline': 'Offline',
+      'chat.subscribers': `${opts?.count ?? 0} subscribers`,
+      'chat.posts': `${opts?.count ?? 0} posts`,
     };
     return map[key] || key;
   },
@@ -96,5 +98,16 @@ describe('ChatHeader', () => {
     expect(screen.queryByLabelText('chat.startCall')).not.toBeInTheDocument();
     rerender(<ChatHeader {...defaultProps} onCall={vi.fn()} onVideoCall={vi.fn()} chat={{ ...defaultProps.chat, type: 'bot' }} />);
     expect(screen.queryByLabelText('chat.startCall')).not.toBeInTheDocument();
+  });
+
+  it('shows subscriber and post counts for a channel', () => {
+    render(
+      <ChatHeader
+        {...defaultProps}
+        chat={{ ...defaultProps.chat, type: 'channel', subscriberCount: 12, postCount: 3 }}
+      />,
+    );
+    expect(screen.getByText('12 subscribers')).toBeInTheDocument();
+    expect(screen.getByText('3 posts')).toBeInTheDocument();
   });
 });

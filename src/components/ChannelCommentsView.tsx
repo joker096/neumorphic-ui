@@ -128,12 +128,12 @@ export const ChannelCommentsView = ({
               type="button"
               onClick={onClose}
               aria-label={t('common.close', 'Close')}
-              className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors mr-3 ${isDark ? 'hover:bg-[var(--bg-tertiary)]/20 text-[var(--text-secondary)]' : 'hover:bg-black/5 text-[var(--text-secondary)]'}`}
+              className={`w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors mr-3 ${isDark ? 'hover:bg-[var(--bg-tertiary)]/20 text-[var(--text-secondary)]' : 'hover:bg-black/5 text-[var(--text-secondary)]'}`}
             >
               <ChevronLeft size={24} />
             </button>
             <div>
-              <h3 className="font-bold text-[15px] text-[var(--text-primary)]">
+              <h3 className="font-bold text-[16px] text-[var(--text-primary)]">
                 {t('channelComments.title')}
               </h3>
               <p
@@ -170,7 +170,7 @@ export const ChannelCommentsView = ({
                 type="button"
                 onClick={handleSend}
                 aria-label={t('channelComments.send', 'Send')}
-                className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full ml-2 cursor-pointer transition-transform active:scale-95 ${
+                className={`min-w-11 min-h-11 flex items-center justify-center rounded-full ml-2 cursor-pointer transition-transform active:scale-95 ${
                   comment.trim()
                     ? isDark
                       ? 'bg-[var(--accent)] text-[var(--text-primary)]'

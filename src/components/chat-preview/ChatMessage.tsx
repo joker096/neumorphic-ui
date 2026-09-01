@@ -17,6 +17,7 @@ import { BubbleActions } from "./BubbleActions";
 import { ChannelCommentsRow } from "./ChannelCommentsRow";
 import { ReplyQuote } from "./ReplyQuote";
 import { PaymentChatBubble } from "../payments/PaymentChatBubble";
+import { isMorseCode, decodeMorse } from "../MorseDecoder";
 
 interface ChatMessageProps {
   msg: any;
@@ -85,6 +86,8 @@ function ChatMessageImpl({
   });
   const [translation, setTranslation] = React.useState<string | null>(null);
   const [translating, setTranslating] = React.useState(false);
+  const [morseDecoded, setMorseDecoded] = React.useState(false);
+  const isMorse = typeof msg.text === "string" && msg.type !== "sticker" && msg.type !== "payment" && isMorseCode(msg.text);
   const stickerSrc = React.useMemo(
     () => (msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null),
     [msg.text, msg.type, theme],
@@ -172,8 +175,23 @@ function ChatMessageImpl({
           {msg.replyTo && <ReplyQuote replyTo={msg.replyTo} isDark={isDark} />}
           {msg.text && msg.type !== "sticker" && msg.type !== "payment" && (
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
-              <FormattedText text={msg.text} searchTerm={searchQuery} />
+              <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
             </span>
+          )}
+          {isMorse && (
+            <button
+              type="button"
+              onClick={() => setMorseDecoded((v) => !v)}
+               aria-label={morseDecoded ? t("chat.morseEncode", "Show Morse code") : t("chat.morseDecode", "Show text")}
+               title={morseDecoded ? t("chat.morseEncode", "Show Morse code") : t("chat.morseDecode", "Show text")}
+              className={`mt-1 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-mono tracking-wider transition-colors min-h-[28px] cursor-pointer ${
+                isDark
+                  ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30"
+                  : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border border-amber-500/30"
+              }`}
+            >
+              {morseDecoded ? "••• / −−−" : "AБВ"}
+            </button>
           )}
           {linkPreview && (
             <div className={`mt-2 p-2 rounded-xl border text-xs ${isDark ? "bg-white/5 border-[var(--border-color)] text-gray-300" : "bg-slate-50 border-[var(--border-color)] text-slate-600"}`}>

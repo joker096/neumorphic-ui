@@ -12,12 +12,29 @@
 ### Font Sizes
 | Token | Size | Use |
 |-------|------|-----|
-| `--text-xs` | 12px | Labels, badges |
-| `--text-sm` | 14px | Body text, inputs |
+| `--text-2xs` | 11px | Micro labels |
+| `--text-xs` | 12px | Labels, badges, inputs |
+| `--text-sm` | 14px | Body text, buttons |
 | `--text-base` | 16px | Primary content |
 | `--text-lg` | 18px | Section headers |
 | `--text-xl` | 20px | Large headings |
 | `--text-2xl` | 24px | Hero text |
+
+### Line Heights
+| Token | Value | Use |
+|-------|-------|-----|
+| `--leading-tight` | 1.25 | Headings (base rule on h1–h4) |
+| `--leading-normal` | 1.45 | Body text (base rule on body) |
+
+Per-element overrides use Tailwind `leading-*` utilities (class specificity wins over the base rules).
+
+### Font Weights
+Weights use the Tailwind utility scale — no separate weight tokens:
+- Regular 400 — body text
+- Medium 500 (`font-medium`) — buttons, labels, active states
+- Semibold/Bold 600/700 — headings, emphasis
+
+Tracking: base body `letter-spacing: -0.005em`; custom `--tracking-wide/wider/widest` (negative) for display text.
 
 ## Color System
 
@@ -59,6 +76,26 @@
 | xl | 1280px | Desktop |
 | 2xl | 1536px | Large desktop |
 
+## Icons
+
+- Family: `lucide-react` only. Raw inline `<svg>` is forbidden except for the `FormActions` loading spinner.
+- Stroke: base `strokeWidth={2}` (lucide default). Emphasis `strokeWidth={2.5}` allowed for active/pressed state and tiny glyphs (≤14px).
+- Optical size scale (px, passed via `size`):
+
+| Size | Use |
+|------|-----|
+| 12 | Micro / status glyphs |
+| 14 | Compact inline (lists, chips) |
+| 16 | Default inline |
+| 18 | Large inline (headers) |
+| 20 | Buttons / form controls |
+| 24 | Extended (panels, empty hints) |
+| 32 | Empty states / hero |
+| 40 / 48 | Display (brand, onboarding) |
+
+- Off-scale sizes (9, 10, 11, 13, 15, 22, 26, 28, 30, 36) are forbidden.
+- Icon-only buttons must carry `aria-label` + `title` (localised). Icon-only buttons with an obvious text label next to them may rely on that label.
+
 ## Neumorphic Shadows
 
 - Raised dark: `3px 3px 6px #0d1017, -3px -3px 6px #1f232b`
@@ -69,6 +106,7 @@
 ## Accessibility
 
 - Touch targets minimum: **44×44px**
+- All `Button` sizes (sm/md/lg/xl) enforce a **44px minimum height** (`SIZE_MAP` in `config/buttonThemes.ts` + `--control-height-sm/md/lg` tokens); component-level `min-h` overrides below 44px are forbidden
 - Focus visible: 2px gold outline with 3px offset
 - Reduced motion: `prefers-reduced-motion` respected globally
 - Skip link: present on all pages

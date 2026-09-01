@@ -39,13 +39,18 @@ export const ToggleSwitch = ({
       tabIndex={disabled ? -1 : 0}
       onClick={handleToggle}
       onKeyDown={handleKeyDown}
-      className={`relative inline-flex items-center rounded-full transition-all cursor-pointer border ${className || 'w-12 h-6'} ${
+      className={`relative inline-flex items-center justify-center my-[-10px] min-w-[var(--control-size-xl)] min-h-[var(--control-height-md)] transition-all cursor-pointer ${className || 'w-12 h-6'} ${
+        disabled ? 'opacity-50 cursor-not-allowed' : ''
+      } ${disabled ? '' : 'active:scale-95'}`}
+    >
+      <div className={`relative w-full max-w-12 h-6 inline-flex items-center rounded-full border transition-all ${
         isOn
           ? 'bg-primary border-transparent'
           : 'bg-muted border-border'
-      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${disabled ? '' : 'active:scale-95}'}`}
-    >
-      <span className={`absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-all bg-background ${isOn ? 'right-0.5' : 'left-0.5'}`} />
+      }`}>
+        <span className={`absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-all bg-background ${isOn ? 'right-0.5' : 'left-0.5'}`} />
+      </div>
     </div>
   );
+
 };

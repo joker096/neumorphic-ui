@@ -1,4 +1,4 @@
-import { Users, Loader2, AlertCircle } from 'lucide-react';
+import { Users, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { MemberItem } from './MemberItem';
 import type { CompanyMember } from '../../lib/company/types';
@@ -60,9 +60,12 @@ export const MemberList = ({
           {onRetry && (
             <button
               onClick={onRetry}
-              className="min-h-[44px] px-4 rounded-xl text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+              aria-label={t('company.retry', COMPANY_UI_FALLBACKS.retry)}
+              title={t('company.retry', COMPANY_UI_FALLBACKS.retry)}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
             >
-              {t('company.retry', COMPANY_UI_FALLBACKS.retry)}
+              <RefreshCw size={16} />
+              <span className="sr-only">{t('company.retry', COMPANY_UI_FALLBACKS.retry)}</span>
             </button>
           )}
         </div>

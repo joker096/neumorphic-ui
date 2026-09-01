@@ -1,19 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useI18n } from '../lib/i18n';
-import { QrCode, Scan, Users, UserPlus, X, Clock, Check, Copy, Share, Phone, MessageSquare, Trash2, Edit, Loader2, Star } from 'lucide-react';
+import { QrCode, Scan, Users, UserPlus, Clock, Check, Copy, Share, Phone, MessageSquare, Edit, Loader2, Star, UserX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Scanner } from '@yudiel/react-qr-scanner';
+import type { IScannerError } from '@yudiel/react-qr-scanner';
 import QRCode from 'qrcode';
 import { ContactProfileModal } from './ContactProfileModal';
 import { useDebounce } from '../hooks/useDebounce';
 import { useAppStore } from '../store';
 import type { ContactTag } from '../types/contact';
 import { ContactCreateEditModal } from './ContactCreateEditModal';
-import { ConfirmDialog } from './ui/ConfirmDialog';
 import { ContactItem } from './contacts/ContactItem';
 import { ContactAddForm } from './contacts/ContactAddForm';
 import type { Contact, ContactField } from '../types/contact';
 import { FormModal } from './ui/FormModal';
+import { InviteQRModal } from './ui/InviteQRModal';
 import { FormField } from './ui/FormField';
 import { FormActions } from './ui/FormActions';
 import { SearchInput } from './ui/SearchInput';
@@ -21,7 +22,7 @@ import { DataState } from './ui/DataState';
 import { PROFILE_FALLBACK_ID } from '../constants/settingsConstants';
 import { pickContactGradient } from '../constants/contactConstants';
 
-type TabOption = 'all' | 'favorites' | 'recent';
+type TabOption = 'all' | 'favorites' | 'recent' | 'blocked';
 
 export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall, onMessage, onEdit }: {
   theme: 'light' | 'dark', 
@@ -56,7 +57,22 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<TabOption>('all');
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [showInvite, setShowInvite] = useState(false);
+  const [scanError, setScanError] = useState<IScannerError | null>(null);
+  const [scannerKey, setScannerKey] = useState(0);
+
+  const openScan = () => {
+    setScanError(null);
+    setScannerKey((k) => k + 1);
+    setIsScanning(true);
+    setShowAddForm(false);
+    setShowShareId(false);
+  };
+
+  const retryScan = () => {
+    setScanError(null);
+    setScannerKey((k) => k + 1);
+  };
 
   const toggleFavorite = (id: string, isFavorite: boolean) => {
     setContacts(prev => prev.map(c => c.id === id ? { ...c, isFavorite } : c));
@@ -85,7 +101,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
     navigator.clipboard.writeText(shareId).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    }).catch(() => {});
   };
 
   const debouncedSearch = useDebounce(searchQuery, 200);
@@ -96,6 +112,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
       switch (activeTab) {
         case 'favorites': return c.isFavorite;
         case 'recent': return c.lastSeen > 0;
+        case 'blocked': return c.isBlocked;
         default: return true;
       }
   }), [contacts, debouncedSearch, activeTab]);
@@ -110,33 +127,40 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
     { key: 'all' as TabOption, label: t('contacts.allTab', { count: contacts.length }), icon: <Users size={14} /> },
     { key: 'favorites' as TabOption, label: t('contacts.favoritesTab', { count: contacts.filter(c => c.isFavorite).length }), icon: <Star size={14} /> },
     { key: 'recent' as TabOption, label: t('contacts.recentTab'), icon: <Clock size={14} /> },
+    { key: 'blocked' as TabOption, label: t('contacts.blockedTab', { count: contacts.filter(c => c.isBlocked).length }), icon: <UserX size={14} /> },
   ], [contacts, t]);
 
   return (
     <div data-testid="contacts-container" className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
       
       <div className="w-full flex items-center justify-between gap-2 mb-4 px-2">
-        <h2 className={`font-sans text-base sm:text-lg font-bold tracking-wide truncate min-w-0 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
+        <h2 className={`font-sans text-sm sm:text-base font-bold tracking-wide truncate min-w-0 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
           {t('contacts.title')}
         </h2>
         <div className="flex gap-1.5 sm:gap-2 text-[var(--accent)] shrink-0">
           <motion.button whileTap={{ scale: 0.9 }}
-            onClick={() => { setIsScanning(true); setShowAddForm(false); setShowShareId(false); }}
+            onClick={openScan}
             title={t('contacts.scanContactQR')}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
-            <Scan size={22} />
+            <Scan size={24} />
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }}
             onClick={() => { setShowShareId(true); setIsScanning(false); setShowAddForm(false); }}
             title={t('contacts.shareIdentity')}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
-            <QrCode size={22} />
+            <QrCode size={24} />
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }}
             onClick={() => { setShowAddForm(true); setIsScanning(false); setShowShareId(false); }}
             title={t('contacts.addContact')}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
-            <UserPlus size={22} />
+            <UserPlus size={24} />
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.9 }}
+            onClick={() => { setShowInvite(true); setIsScanning(false); setShowShareId(false); setShowAddForm(false); }}
+            title={t('onboarding.invite')}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
+            <Share size={24} />
           </motion.button>
         </div>
       </div>
@@ -151,7 +175,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           {tabs.map(tab => (
             <motion.button key={tab.key} whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 min-h-[var(--control-height-sm)] rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 min-h-[var(--control-height-sm)] rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab.key
                   ? (isDark ? 'bg-white/10 text-[var(--text-primary)] shadow-sm' : 'bg-white shadow-sm text-slate-800')
                   : (isDark ? 'text-gray-400 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')
@@ -173,15 +197,27 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
       <div className="w-full flex-1 overflow-y-auto">
         <AnimatePresence mode="popLayout">
           {sortedContacts.length === 0 && !showAddForm && !isScanning && !showShareId ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <DataState
-                status="empty"
-                isDark={isDark}
-                title={t('contacts.noContacts')}
-                description={t('contacts.noContactsSubtitle')}
-                action={{ label: t('contacts.addContact'), onClick: () => setShowAddForm(true) }}
-              />
-            </motion.div>
+            activeTab === 'blocked' ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <DataState
+                  status="empty"
+                  isDark={isDark}
+                  title={t('contacts.noBlocked')}
+                  description={t('contacts.noBlockedHint')}
+                  action={{ label: t('contacts.viewAll'), onClick: () => setActiveTab('all') }}
+                />
+              </motion.div>
+            ) : (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <DataState
+                  status="empty"
+                  isDark={isDark}
+                  title={t('contacts.noContacts')}
+                  description={t('contacts.noContactsSubtitle')}
+                  action={{ label: t('contacts.addContact'), onClick: () => setShowAddForm(true) }}
+                />
+              </motion.div>
+            )
           ) : (
             <motion.div initial="hidden" animate="show" className="flex flex-col gap-2">
               {sortedContacts.map((c, i) => (
@@ -199,9 +235,9 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
         onCall={() => { if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color); setSelectedContact(null); }}
         onVideoCall={() => { if (onVideoCall && selectedContact) onVideoCall(selectedContact.name, selectedContact.color); setSelectedContact(null); }}
         onMessage={() => { if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color); setSelectedContact(null); }}
-        onDelete={() => {}}
-        onRequestDelete={() => { if (selectedContact) setConfirmDeleteId(selectedContact.id); }}
+        onDelete={() => { if (selectedContact) setContacts(contacts.filter(c => c.id !== selectedContact.id)); }}
         onBlock={() => { if (selectedContact) setContacts(contacts.map(c => c.id === selectedContact.id ? { ...c, isBlocked: true } : c)); setSelectedContact(null); }}
+        onUnblock={() => { if (selectedContact) setContacts(contacts.map(c => c.id === selectedContact.id ? { ...c, isBlocked: false } : c)); setSelectedContact(null); }}
         onEdit={() => { if (selectedContact) { setEditingContact(selectedContact); setShowEditForm(true); } setSelectedContact(null); }}
         onToggleFavorite={(id, isFavorite) => {
           toggleFavorite(id, isFavorite);
@@ -209,15 +245,6 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
             setSelectedContact({ ...selectedContact, isFavorite });
           }
         }}
-      />
-
-      <ConfirmDialog isOpen={confirmDeleteId !== null}
-        title={t('contacts.deleteContact')}
-        message={t('contacts.confirmDeleteMessage', { name: contacts.find(c => c.id === confirmDeleteId)?.name || '' })}
-        confirmLabel={t('contacts.deleteContact')} cancelLabel={t('contacts.close')}
-        variant="danger" theme={isDark ? 'dark' : 'light'}
-        onConfirm={() => { if (confirmDeleteId) setContacts(contacts.filter(c => c.id !== confirmDeleteId)); setConfirmDeleteId(null); }}
-        onCancel={() => setConfirmDeleteId(null)}
       />
 
       <ContactAddForm
@@ -230,7 +257,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
         setId={setNewContactId}
         onClose={() => { setShowAddForm(false); setNewContactName(''); setNewContactId(''); }}
         onSubmit={handleAddContact}
-        onScan={() => { setShowAddForm(false); setIsScanning(true); }}
+        onScan={openScan}
         t={t}
       />
 
@@ -244,13 +271,29 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
         title={t('contacts.scanContactQR')} subtitle={t('contacts.scanDescription')}
         icon={Scan} theme={theme} closeTitle={t('contacts.close')}>
           <div className={`w-full aspect-square overflow-hidden relative shadow-inner rounded-xl ${isDark ? "bg-black" : "bg-gray-100"}`}>
-           <Scanner onScan={(result) => {
-             if (result && result.length > 0) {
-               setIsScanning(false); setNewContactId(result[0].rawValue); setShowAddForm(true);
-             }
-           }} styles={{ container: { width: '100%', height: '100%' } }} />
-           <div className="absolute inset-0 border-4 border-[var(--accent)]/50 pointer-events-none mix-blend-overlay rounded-xl" />
-         </div>
+            {scanError ? (
+              <DataState
+                status="error"
+                isDark={isDark}
+                title={scanError.kind === 'permission-denied' ? t('contacts.cameraPermissionDenied') : t('contacts.cameraError')}
+                retryAction={retryScan}
+              />
+            ) : (
+              <>
+                <Scanner
+                  key={scannerKey}
+                  onScan={(result) => {
+                    if (result && result.length > 0) {
+                      setIsScanning(false); setNewContactId(result[0].rawValue); setShowAddForm(true);
+                    }
+                  }}
+                  onError={(e) => setScanError(e)}
+                  styles={{ container: { width: '100%', height: '100%' } }}
+                />
+                <div className="absolute inset-0 border-4 border-[var(--accent)]/50 pointer-events-none mix-blend-overlay rounded-xl" />
+              </>
+            )}
+          </div>
       </FormModal>
 
       <FormModal isOpen={showShareId} onClose={() => setShowShareId(false)}
@@ -282,7 +325,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
               </motion.button>
               <motion.button whileTap={{ scale: 0.95 }}
                 aria-label={t('contacts.share', 'Share contact')}
-                className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${
+                className={`w-10 h-10 min-w-11 min-h-11 shrink-0 flex items-center justify-center rounded-xl transition-colors ${
                   isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"
                 }`}>
                 <Share size={14} />
@@ -291,6 +334,14 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           </div>
         </div>
       </FormModal>
+
+      <InviteQRModal
+        isOpen={showInvite}
+        onClose={() => setShowInvite(false)}
+        inviteText={t('onboarding.inviteText')}
+        isDark={isDark}
+        t={t}
+      />
     </div>
   );
 };

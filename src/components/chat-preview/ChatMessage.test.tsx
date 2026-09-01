@@ -1,0 +1,256 @@
+import React from 'react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
+import { ChatMessage } from './ChatMessage';
+import { MessageContextMenu } from './MessageContextMenu';
+import { toast } from '../ui/Toast';
+
+const t = (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key);
+
+const h = vi.hoisted(() => ({
+  menuArgs: null as any,
+  detectLang: vi.fn(),
+  translate: vi.fn(),
+}));
+
+vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
+vi.mock('../../lib/icqEmojis', () => ({ getICQStickerSrc: () => 'sticker-url' }));
+vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t }) }));
+vi.mock('../../services', () => ({
+  useServices: () => ({ translate: { detectLang: h.detectLang, translate: h.translate } }),
+}));
+vi.mock('../ui/Toast', () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn(), info: vi.fn() }) }));
+vi.mock('./FormattedText', () => ({
+  FormattedText: ({ text }: any) => <span data-testid="formatted-text">{text}</span>,
+}));
+vi.mock('./MessageReactions', () => ({
+  MessageReactions: ({ activeReactionPicker }: any) => (
+    <div data-testid="message-reactions" data-active={String(activeReactionPicker)} />
+  ),
+}));
+vi.mock('./MessageContextMenu', () => ({
+  MessageContextMenu: vi.fn(({ open }: any) => (open ? <div data-testid="message-context-menu" data-open="true" /> : null)),
+}));
+vi.mock('./messageMenuActions', () => ({
+  buildMessageMenuActions: vi.fn((args: any) => {
+    h.menuArgs = args;
+    return [{ key: 'reply', label: 'Reply', onClick: () => args.onReply(args.msg) }];
+  }),
+}));
+vi.mock('../features/bot/InlineKeyboard', () => ({
+  InlineKeyboard: ({ botId, messageId, rows }: any) => (
+    <div data-testid="inline-keyboard" data-bot={botId} data-msg={messageId}>{String(rows.length)}</div>
+  ),
+}));
+vi.mock('./AttachmentMedia', () => ({
+  AttachmentMedia: (props: any) => (
+    <div data-testid="attachment-media" data-sticker={props.stickerSrc || ''} />
+  ),
+}));
+vi.mock('./MessageTimestamp', () => ({ MessageTimestamp: () => <div data-testid="message-timestamp" /> }));
+vi.mock('./BubbleActions', () => ({ BubbleActions: () => <div data-testid="bubble-actions" /> }));
+vi.mock('./ChannelCommentsRow', () => ({ ChannelCommentsRow: () => <div data-testid="channel-comments" /> }));
+vi.mock('./ReplyQuote', () => ({ ReplyQuote: () => <div data-testid="reply-quote" /> }));
+vi.mock('../payments/PaymentChatBubble', () => ({
+  PaymentChatBubble: ({ isDark }: any) => <div data-testid="payment-bubble" data-dark={String(isDark)} />,
+}));
+
+const baseProps = (overrides: any = {}) => ({
+  msg: { id: 1, text: 'hello', _isLastInGroup: false },
+  isMe: false,
+  isDark: false,
+  isChannel: false,
+  chat: { id: 'c1' },
+  stealthMode: false,
+  deliveryReceipts: true,
+  readReceipts: true,
+  chatSavedMessages: [],
+  searchQuery: '',
+  swipeReplyId: null,
+  activeReactionPicker: null,
+  theme: 'light',
+  onReply: vi.fn(),
+  onToggleSavedMessage: vi.fn(),
+  onSetActivePhotoUrl: vi.fn(),
+  onSetPhotoOpen: vi.fn(),
+  onSetActiveReactionPicker: vi.fn(),
+  onSwipeReplyId: vi.fn(),
+  onSetVideoOpen: vi.fn(),
+  onSetShowComments: vi.fn(),
+  onSetActivePostId: vi.fn(),
+  onSetBounceMsgId: vi.fn(),
+  onReactionMessage: vi.fn(),
+  ...overrides,
+});
+
+const bubbleEl = () => document.querySelector('[class*="max-w-full md:max-w-[80%]"]') as HTMLElement;
+
+describe('ChatMessage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('renders text message with formatted text and bubble actions for non-channel', () => {
+    render(<ChatMessage {...baseProps()} />);
+    expect(screen.getByTestId('formatted-text')).toHaveTextContent('hello');
+    expect(screen.getByTestId('bubble-actions')).toBeInTheDocument();
+    expect(screen.queryByTestId('channel-comments')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('message-timestamp')).not.toBeInTheDocument();
+    expect(screen.getByTestId('message-reactions')).toHaveAttribute('data-active', 'null');
+  });
+
+  it('renders timestamp when message is last in group', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', _isLastInGroup: true } })} />);
+    expect(screen.getByTestId('message-timestamp')).toBeInTheDocument();
+  });
+
+  it('renders own message right-aligned with gradient bubble', () => {
+    render(<ChatMessage {...baseProps({ isMe: true })} />);
+    const wrapper = screen.getByText('hello').closest('.items-end') as HTMLElement;
+    expect(wrapper).not.toBeNull();
+    const bubble = bubbleEl();
+    expect(bubble.className).toContain('bg-gradient-to-br');
+  });
+
+  it('renders date separator without bubble', () => {
+    render(<ChatMessage {...baseProps({ msg: { _isDateSeparator: true, _dateLabel: 'Today' } })} />);
+    expect(screen.getByText('Today')).toBeInTheDocument();
+    expect(screen.queryByTestId('formatted-text')).not.toBeInTheDocument();
+  });
+
+  it('passes sticker source to AttachmentMedia and hides formatted text', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 2, type: 'sticker', text: 'smile', _isLastInGroup: true } })} />);
+    expect(screen.getByTestId('attachment-media')).toHaveAttribute('data-sticker', 'sticker-url');
+    expect(screen.queryByTestId('formatted-text')).not.toBeInTheDocument();
+  });
+
+  it('renders payment bubble for payment messages', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 3, type: 'payment', text: '$10', _isLastInGroup: true }, isDark: true })} />);
+    expect(screen.getByTestId('payment-bubble')).toHaveAttribute('data-dark', 'true');
+    expect(screen.queryByTestId('formatted-text')).not.toBeInTheDocument();
+  });
+
+  it('renders reply quote when msg has replyTo', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 4, text: 'chained', replyTo: { id: 1 }, _isLastInGroup: true } })} />);
+    expect(screen.getByTestId('reply-quote')).toBeInTheDocument();
+  });
+
+  it('renders link preview for URL in text', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 5, text: 'see https://example.com now', _isLastInGroup: true } })} />);
+    expect(screen.getByText('https://example.com')).toBeInTheDocument();
+  });
+
+  it('skips link preview without URL', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 6, text: 'plain text', _isLastInGroup: true } })} />);
+    expect(screen.queryByText(/https?:\/\//)).not.toBeInTheDocument();
+  });
+
+  it('renders keyboard rows and fires onAction', () => {
+    const onAction = vi.fn();
+    const msg = {
+      id: 7,
+      text: 'kb',
+      keyboard: [
+        [{ text: 'A', action: 'actA' }, { text: 'B' }],
+        [{ text: 'C' }],
+      ],
+      _isLastInGroup: true,
+    };
+    render(<ChatMessage {...baseProps({ msg, onAction })} />);
+    const buttons = screen.getAllByRole('button');
+    expect(buttons).toHaveLength(3);
+    fireEvent.click(screen.getByText('A'));
+    expect(onAction).toHaveBeenCalledWith('actA');
+    fireEvent.click(screen.getByText('B'));
+    expect(onAction).toHaveBeenCalledWith('B');
+  });
+
+  it('renders inline keyboard with bot and message ids', () => {
+    const msg = { id: 9, text: 'ib', inlineKeyboard: [[{ text: 'Go' }]], _isLastInGroup: true };
+    render(<ChatMessage {...baseProps({ msg, chat: { id: 'c9', botId: 'bot1' } })} />);
+    const kb = screen.getByTestId('inline-keyboard');
+    expect(kb).toHaveAttribute('data-bot', 'bot1');
+    expect(kb).toHaveAttribute('data-msg', '9');
+    expect(kb).toHaveTextContent('1');
+  });
+
+  it('renders channel comments row for channels', () => {
+    render(<ChatMessage {...baseProps({ isChannel: true })} />);
+    expect(screen.getByTestId('channel-comments')).toBeInTheDocument();
+    expect(screen.queryByTestId('bubble-actions')).not.toBeInTheDocument();
+  });
+
+  it('applies selection ring when selected', () => {
+    render(<ChatMessage {...baseProps({ selected: true, selectionMode: true })} />);
+    expect(bubbleEl().className).toContain('ring-2 ring-orange-500');
+  });
+
+  it('opens context menu on right-click', () => {
+    const MCMMock = MessageContextMenu as any as ReturnType<typeof vi.fn>;
+    render(<ChatMessage {...baseProps()} />);
+    fireEvent.contextMenu(bubbleEl());
+    const lastCall = MCMMock.mock.calls[MCMMock.mock.calls.length - 1][0];
+    expect(lastCall.open).toBe(true);
+    expect(lastCall.isDark).toBe(false);
+    expect(lastCall.actions).toEqual([{ key: 'reply', label: 'Reply', onClick: expect.any(Function) }]);
+  });
+
+  it('does not open menu on right-click during selection mode', () => {
+    const MCMMock = MessageContextMenu as any as ReturnType<typeof vi.fn>;
+    render(<ChatMessage {...baseProps({ selectionMode: true })} />);
+    fireEvent.contextMenu(bubbleEl());
+    const lastCall = MCMMock.mock.calls[MCMMock.mock.calls.length - 1][0];
+    expect(lastCall.open).toBe(false);
+  });
+
+  it('double-tap bubbles heart reaction', () => {
+    const onReactionMessage = vi.fn();
+    const onSetBounceMsgId = vi.fn();
+    render(<ChatMessage {...baseProps({ onReactionMessage, onSetBounceMsgId })} />);
+    fireEvent.click(bubbleEl());
+    fireEvent.click(bubbleEl());
+    expect(onReactionMessage).toHaveBeenCalledWith(1, '👍');
+    expect(onSetBounceMsgId).toHaveBeenCalledWith(1);
+  });
+
+  it('long-press opens context menu', () => {
+    vi.useFakeTimers();
+    const MCMMock = MessageContextMenu as any as ReturnType<typeof vi.fn>;
+    render(<ChatMessage {...baseProps()} />);
+    fireEvent.pointerDown(bubbleEl());
+    act(() => { vi.advanceTimersByTime(500); });
+    const lastCall = MCMMock.mock.calls[MCMMock.mock.calls.length - 1][0];
+    expect(lastCall.open).toBe(true);
+  });
+
+  it('forwards reply through built menu actions', () => {
+    const onReply = vi.fn();
+    render(<ChatMessage {...baseProps({ onReply })} />);
+    expect(h.menuArgs.msg).toEqual({ id: 1, text: 'hello', _isLastInGroup: false });
+    expect(h.menuArgs.isChannel).toBe(false);
+    h.menuArgs.onReply(h.menuArgs.msg);
+    expect(onReply).toHaveBeenCalledWith({ id: 1, text: 'hello', _isLastInGroup: false });
+  });
+
+  it('translates message and shows translation', async () => {
+    h.detectLang.mockResolvedValue('en');
+    h.translate.mockResolvedValue('Привет');
+    render(<ChatMessage {...baseProps()} />);
+    await act(async () => { await h.menuArgs.onTranslate(); });
+    expect(h.detectLang).toHaveBeenCalledWith('hello');
+    expect(h.translate).toHaveBeenCalledWith('hello', 'en', 'ru');
+    await waitFor(() => expect(screen.getByText('Привет')).toBeInTheDocument());
+  });
+
+  it('toasts when translation unavailable', async () => {
+    h.detectLang.mockRejectedValue(new Error('no'));
+    render(<ChatMessage {...baseProps()} />);
+    await act(async () => { await h.menuArgs.onTranslate(); });
+    await waitFor(() => expect(toast).toHaveBeenCalledWith('Перевод не подключён'));
+  });
+});

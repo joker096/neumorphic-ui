@@ -65,7 +65,7 @@ test.describe('Navigation & chrome', () => {
   test('nav: Company Chat opens the company view', async ({ page }) => {
     await gotoApp(page);
     await page.getByRole('button', { name: /company/i }).first().click();
-    await expect(page.getByText(/company/i).first()).toBeVisible();
+    await expect(page.getByText('CRM').first()).toBeVisible();
   });
 
   test('transport indicator is present with a connection title', async ({ page }) => {

@@ -37,9 +37,9 @@ export const CallControlBar: React.FC<CallControlBarProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 24 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100vw-2rem)]"
+        className="absolute bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 w-[calc(100vw-1.5rem)] max-w-[640px] px-1"
       >
-        <div className="neo-raised rounded-[2rem] px-3 sm:px-5 py-3 flex items-center gap-2 sm:gap-3">
+        <div className="neo-raised rounded-[2rem] px-3 sm:px-4 py-3 flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto scrollbar-none">
           <ControlButton
             active={call.isMuted}
             activeColor={CALL_CONTROL_ACTIVE_COLORS.danger}
@@ -103,15 +103,17 @@ export const CallControlBar: React.FC<CallControlBarProps> = ({
             onClick={() => onChangeCallType(call.callType === 'audio' ? 'video' : 'audio')}
           />
 
+          <div className="w-px h-8 bg-[var(--border-color)] mx-0.5 shrink-0" />
+
           <motion.button
             onClick={onEnd}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.9 }}
-            className={`w-16 h-16 rounded-full ${CALL_END_GRADIENT} text-white flex items-center justify-center shadow-lg shadow-[var(--danger)]/30 hover:shadow-[var(--danger)]/50 transition-shadow`}
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.92 }}
+            className={`w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-full ${CALL_END_GRADIENT} text-white flex items-center justify-center shadow-lg shadow-[var(--danger)]/30 hover:shadow-[var(--danger)]/50 transition-shadow`}
             title={t('call.endCall')}
             aria-label={t('call.endCall')}
           >
-            <PhoneOff size={26} strokeWidth={2.5} />
+            <PhoneOff size={24} strokeWidth={2.5} />
           </motion.button>
         </div>
       </motion.div>

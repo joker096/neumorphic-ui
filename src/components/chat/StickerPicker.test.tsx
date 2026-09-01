@@ -120,10 +120,11 @@ describe('StickerPicker', () => {
     expect(mockGetIcqStickerIds).toHaveBeenCalledWith(true);
   });
 
-  it('shows the premium teaser for the free tier and toasts on click', () => {
+  it('shows the premium teaser on non-ICQ packs for the free tier and toasts on click', () => {
     render(<StickerPicker {...defaultProps} />);
-    const teaser = screen.getByLabelText('premium.stickerLocked');
-    fireEvent.click(teaser);
+    const teasers = screen.getAllByLabelText('premium.stickerLocked');
+    expect(teasers.length).toBeGreaterThan(0);
+    fireEvent.click(teasers[0]);
     expect(mockToast).toHaveBeenCalledTimes(1);
     expect(mockOnSelect).not.toHaveBeenCalled();
   });

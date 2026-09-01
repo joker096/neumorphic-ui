@@ -41,22 +41,26 @@ export const CompanyMembersPanel = ({
   onEnterGroupMode,
   onExitGroupMode,
   onStartGroupCall,
-}: CompanyMembersPanelProps) => (
+}: CompanyMembersPanelProps) => {
+  const hasParticipant = [...selectedIds].some((id) => id !== currentUserId);
+  return (
   <>
     <div className="flex items-center justify-end mb-2">
       {!groupMode ? (
         <button
           onClick={onEnterGroupMode}
           disabled={members.length < 2}
-          className="min-h-[40px] px-3 rounded-xl flex items-center gap-2 text-xs font-bold cursor-pointer transition-all bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:brightness-110 disabled:opacity-40"
+          aria-label={t('company.startGroupCall', 'Group video call')}
+          title={t('company.startGroupCall', 'Group video call')}
+          className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 text-xs font-bold cursor-pointer transition-all bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:brightness-110 disabled:opacity-40"
         >
-          <Users size={15} />
-          {t('company.startGroupCall', 'Group video call')}
+          <Users size={16} />
+          <span className="sr-only">{t('company.startGroupCall', 'Group video call')}</span>
         </button>
       ) : (
         <button
           onClick={onExitGroupMode}
-          className="min-h-[40px] px-3 rounded-xl flex items-center gap-2 text-xs font-bold cursor-pointer transition-all bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:brightness-110"
+          className="min-h-11 px-3 rounded-xl flex items-center gap-2 text-xs font-bold cursor-pointer transition-all bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:brightness-110"
         >
           {t('company.cancel', 'Cancel')}
         </button>
@@ -91,13 +95,16 @@ export const CompanyMembersPanel = ({
         </span>
         <button
           onClick={onStartGroupCall}
-          disabled={selectedIds.size === 0}
-          className="min-h-[44px] px-5 rounded-xl flex items-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
+          disabled={!hasParticipant}
+          aria-label={t('company.startCall', 'Start call')}
+          title={t('company.startCall', 'Start call')}
+          className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
         >
           <Video size={16} />
-          {t('company.startCall', 'Start call')}
+          <span className="sr-only">{t('company.startCall', 'Start call')}</span>
         </button>
       </div>
     )}
   </>
-);
+  );
+  };

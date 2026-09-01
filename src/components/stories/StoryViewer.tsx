@@ -223,7 +223,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
               goPrev();
             }}
             aria-label={t('common.back')}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 opacity-0 md:opacity-100"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 min-w-11 min-h-11 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 opacity-0 md:opacity-100"
           >
             <ChevronLeft size={20} aria-hidden="true" />
           </button>

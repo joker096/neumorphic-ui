@@ -21,7 +21,7 @@ export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRol
     <div className="flex flex-col gap-2 px-2 mb-3">
       <div className="flex items-center gap-2">
         <div className="flex-1 flex items-center gap-2 px-3 min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)]">
-          <Search size={15} className="text-[var(--text-secondary)] shrink-0" />
+          <Search size={16} className="text-[var(--text-secondary)] shrink-0" />
           <input
             value={filters.search}
             onChange={(e) => setFilter('search', e.target.value)}

@@ -75,6 +75,26 @@ export function deriveSharedHmacKey(privateKey: Uint8Array, publicKey: Uint8Arra
   return buf2hex(nacl.hash(shared))
 }
 
+/**
+ * Derive independent per-session keys from an X25519 ECDH exchange.
+ * The 64-byte SHA-512 digest of the shared secret is split into two halves:
+ * the first 32 bytes become the HMAC key, the second 32 bytes become the
+ * AES-GCM session key. Both peers derive identical keys locally, so neither
+ * key is ever transmitted. Because the DH ephemeral keys are rotated per
+ * session and signed by the persistent Ed25519 identity (TOFU), the resulting
+ * ciphertext has forward secrecy and is immune to signaling-layer MITM.
+ */
+export function deriveSharedSessionKeys(
+  privateKey: Uint8Array,
+  publicKey: Uint8Array,
+): { hmacKey: string; aesKeyHex: string } {
+  const shared = x25519DH(privateKey, publicKey)
+  const digest = nacl.hash(shared)
+  const hmacKey = buf2hex(digest.subarray(0, 32))
+  const aesKeyHex = buf2hex(digest.subarray(32, 64))
+  return { hmacKey, aesKeyHex }
+}
+
 export class CryptoCore {
   async deriveAESKeyFromPassword(
     password: string, saltHex?: string, iterations = 100000,

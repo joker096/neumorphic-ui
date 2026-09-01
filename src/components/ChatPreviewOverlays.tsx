@@ -1,4 +1,5 @@
 import React from "react";
+import { useAppStore } from "../store";
 import { ChannelCommentsView } from "./ChannelCommentsView";
 import { SavedMessagesPanel } from "./chat-preview/SavedMessagesPanel";
 import { ContactProfileModal } from "./ContactProfileModal";
@@ -34,6 +35,7 @@ interface ChatPreviewOverlaysProps {
   onMessage?: (name: string, color?: string) => void;
   profileOpen: boolean;
   setProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onClosePreview?: () => void;
 }
 
 export function ChatPreviewOverlays({
@@ -46,6 +48,7 @@ export function ChatPreviewOverlays({
   selectedContact, setSelectedContact, setEditingContact,
   onUpdateChat, onCall, onVideoCall, onMessage,
   profileOpen, setProfileOpen,
+  onClosePreview,
 }: ChatPreviewOverlaysProps) {
   const handleCall = () => {
     if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
@@ -59,6 +62,37 @@ export function ChatPreviewOverlays({
     if (onMessage && selectedContact) onMessage(selectedContact.name, selectedContact.color);
     setSelectedContact(null);
   };
+
+  const pushNotification = useAppStore((s) => s.pushNotification);
+  const setChats = useAppStore((s) => s.setChats);
+  const setContacts = useAppStore((s) => s.setContacts);
+
+  const handleDeleteContact = () => {
+    if (selectedContact) {
+      setContacts((prev: any[]) => (prev || []).filter((c: any) => c.name !== selectedContact.name));
+      if (chat && chat.type !== "group" && chat.type !== "channel") {
+        setChats((prev: any[]) => (prev || []).filter((c: any) => c.name !== selectedContact.name));
+        onClosePreview?.();
+      }
+    }
+    setSelectedContact(null);
+  };
+  const prevMsgCount = React.useRef(0);
+  React.useEffect(() => {
+    if (!chat) return;
+    const msgs = chat.messages;
+    const len = Array.isArray(msgs) ? msgs.length : 0;
+    if (prevMsgCount.current && len > prevMsgCount.current) {
+      const added = msgs.slice(prevMsgCount.current);
+      added.forEach((m: any) => {
+        if (m && !m.isMe) {
+          const kind = chat.type === "group" ? "group" : chat.type === "channel" ? "channel" : "message";
+          pushNotification({ title: chat.name, body: typeof m.text === "string" ? m.text : "", kind, chatId: chat.id });
+        }
+      });
+    }
+    prevMsgCount.current = len;
+  }, [chat, pushNotification]);
 
   return (
     <>
@@ -84,7 +118,7 @@ export function ChatPreviewOverlays({
         onCall={handleCall}
         onVideoCall={handleVideoCall}
         onMessage={handleMessage}
-        onDelete={() => setSelectedContact(null)}
+        onDelete={handleDeleteContact}
         onEdit={() => { if (selectedContact) setEditingContact(selectedContact); setSelectedContact(null); }}
         onBlock={() => setSelectedContact(null)}
         onToggleFavorite={(id, isFavorite) => {

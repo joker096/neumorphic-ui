@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { Button } from './Button';
 import { Modal } from './Modal';
@@ -9,6 +9,8 @@ interface ConfirmDialogProps {
   message?: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  confirmIcon?: ReactNode;
+  cancelIcon?: ReactNode;
   variant?: 'default' | 'danger';
   theme?: 'light' | 'dark';
   zIndex?: string;
@@ -22,6 +24,8 @@ export function ConfirmDialog({
   message = '',
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
+  confirmIcon,
+  cancelIcon,
   variant = 'default',
   theme = 'dark',
   zIndex = 'z-50',
@@ -51,21 +55,32 @@ export function ConfirmDialog({
       zIndex={zIndex}
       footer={
         <>
-          <Button variant="secondary" size="md" className="flex-1" onClick={onCancel}>
-            {cancelLabel}
+          <Button
+            variant="secondary"
+            size="md"
+            className={`flex-1 ${cancelIcon ? 'min-w-11 px-0' : ''}`}
+            onClick={onCancel}
+            aria-label={cancelIcon ? cancelLabel : undefined}
+            icon={cancelIcon}
+            iconSize={18}
+          >
+            {cancelIcon ? <span className="sr-only">{cancelLabel}</span> : cancelLabel}
           </Button>
           <Button
             variant={variant === 'danger' ? 'danger' : 'primary'}
             size="md"
-            className="flex-1"
+            className={`flex-1 ${confirmIcon ? 'min-w-11 px-0' : ''}`}
             onClick={onConfirm}
+            aria-label={confirmIcon ? confirmLabel : undefined}
+            icon={confirmIcon}
+            iconSize={18}
           >
-            {confirmLabel}
+            {confirmIcon ? <span className="sr-only">{confirmLabel}</span> : confirmLabel}
           </Button>
         </>
       }
     >
-      <p className={`text-sm mb-6 leading-relaxed text-[var(--text-secondary)]`}>{message}</p>
+      <p className={`text-[length:var(--text-sm)] mb-[var(--spacing-24)] leading-relaxed text-[var(--text-secondary)]`}>{message}</p>
     </Modal>
   );
 }

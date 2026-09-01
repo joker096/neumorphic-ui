@@ -1,5 +1,6 @@
 import React from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { Trash2, X } from "lucide-react";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { useI18n } from "../../lib/i18n";
 import { usePlayerState } from "./usePlayerState";
@@ -123,6 +124,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
             setStationUrl={state.setStationUrl}
             stationAddError={state.stationAddError}
             setStationAddError={state.setStationAddError}
+            handleFileSelect={state.handleFileSelect}
           />
         )}
       </AnimatePresence>
@@ -158,6 +160,8 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
         message={t('systemPlayer.confirmRemove', { name: (state.confirmDeleteMode === 'radio' ? state.radioStations : state.playlist)[state.confirmDeleteIndex ?? 0]?.name || '' }) || `Delete ${(state.confirmDeleteMode === 'radio' ? state.radioStations : state.playlist)[state.confirmDeleteIndex ?? 0]?.name || ''}?`}
         confirmLabel={t('systemPlayer.remove')}
         cancelLabel={t('contacts.close')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         variant="danger"
         theme={state.isDark ? 'dark' : 'light'}
         onConfirm={() => {

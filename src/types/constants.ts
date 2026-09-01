@@ -18,15 +18,22 @@ export interface MockChat {
   online: boolean;
   color: string;
   isBot?: boolean;
+  type?: 'group';
+  createdAt?: number;
+  memberIds?: string[];
+  members?: Array<{ id: string; name: string; color: string; role: 'owner' | 'admin' | 'member' }>;
+  group?: { inviteToken: string; slowModeSeconds: number; ownerId: string };
   history: Array<{
     id: number;
     sender: 'them' | 'me';
     text?: string;
-    type?: 'image' | 'audio' | 'video' | 'document';
+    type?: 'image' | 'audio' | 'video' | 'file' | 'document';
+    fileName?: string;
     url?: string;
     duration?: string;
     thumb?: string;
     time?: string;
+    date?: string;
     status?: 'sent' | 'delivered' | 'read';
     keyboard?: Array<{ text: string; action: string }[]>;
     audioUrl?: string;
@@ -45,15 +52,21 @@ export interface MockChannel {
     id: number;
     sender: 'them' | 'me';
     text?: string;
-    type?: 'image' | 'audio' | 'video' | 'document';
+    type?: 'image' | 'audio' | 'video' | 'file' | 'document';
+    fileName?: string;
     url?: string;
     duration?: string;
     thumb?: string;
     time?: string;
+    date?: string;
     status?: 'sent' | 'delivered' | 'read';
     keyboard?: Array<{ text: string; action: string }[]>;
     audioUrl?: string;
   }>;
+  subscribers?: number;
+  username?: string;
+  verified?: boolean;
+  description?: string;
 }
 
 export interface OnlineContact {

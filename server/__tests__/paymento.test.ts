@@ -136,6 +136,51 @@ describe('Paymento integration', () => {
     expect(found.status).toBe(0)
   })
 
+  it('create: non-numeric amount rejected with 400', async () => {
+    const res = await fetch(`${base()}/api/paymento/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: 'not-a-number', currency: 'USD', orderId: 'ord_bad_amount' }),
+    })
+    expect(res.status).toBe(400)
+    expect(((await res.json()) as any).error).toMatch(/amount/i)
+  })
+
+  it('create: malformed currency rejected with 400', async () => {
+    const res = await fetch(`${base()}/api/paymento/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: '10', currency: 'US', orderId: 'ord_bad_cur' }),
+    })
+    expect(res.status).toBe(400)
+    expect(((await res.json()) as any).error).toMatch(/currency/i)
+  })
+
+  it('create: non-http returnUrl rejected with 400', async () => {
+    const res = await fetch(`${base()}/api/paymento/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: '10',
+        currency: 'USD',
+        orderId: 'ord_bad_url',
+        returnUrl: 'javascript:alert(1)',
+      }),
+    })
+    expect(res.status).toBe(400)
+    expect(((await res.json()) as any).error).toMatch(/returnUrl/i)
+  })
+
+  it('create: overlong description rejected with 400', async () => {
+    const res = await fetch(`${base()}/api/paymento/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: '10', currency: 'USD', orderId: 'ord_bad_desc', description: 'x'.repeat(501) }),
+    })
+    expect(res.status).toBe(400)
+    expect(((await res.json()) as any).error).toMatch(/description/i)
+  })
+
   it('ipn: valid HMAC signature updates status to 7', async () => {
     const body = JSON.stringify({
       Token: MOCK_TOKEN,

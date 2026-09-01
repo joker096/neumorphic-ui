@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Loader2 } from "lucide-react";
+import { Loader2, MicOff } from "lucide-react";
 import { GroupCallParticipants } from "./GroupCallParticipants";
 import {
   CALL_AVATAR_GRADIENT,
@@ -39,7 +39,7 @@ export const CallMediaStage: React.FC<CallMediaStageProps> = ({
     }
     const showAvatarFallback = !call.isVideoEnabled || call.callType === 'screen' || !call.remotePeer?.stream;
     return (
-      <div className="absolute inset-0 bg-[var(--bg-primary,#0d1017)]">
+      <div className="absolute inset-0 bg-[var(--bg-primary)]">
         <video
           ref={remoteVideoRef}
           autoPlay
@@ -47,16 +47,23 @@ export const CallMediaStage: React.FC<CallMediaStageProps> = ({
           className="w-full h-full object-cover"
         />
         {showAvatarFallback && (
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-            <div className="neo-raised w-32 h-32 rounded-full flex items-center justify-center">
-              <div className={`w-24 h-24 rounded-full ${CALL_AVATAR_GRADIENT_SOFT} flex items-center justify-center`}>
-                <span className="text-5xl font-bold text-white tracking-tight">{initial}</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/55 backdrop-blur-md">
+            <div className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-[var(--accent)]/25 blur-3xl" />
+            <div className="pointer-events-none absolute bottom-0 right-0 w-72 h-72 rounded-full bg-[var(--accent2)]/20 blur-3xl" />
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="neo-raised w-36 h-36 sm:w-44 sm:h-44 rounded-full flex items-center justify-center"
+            >
+              <div className={`w-28 h-28 sm:w-28 sm:h-28 rounded-full ${CALL_AVATAR_GRADIENT} flex items-center justify-center shadow-[0_8px_30px_-6px_var(--accent)]/50`}>
+                <span className="text-5xl sm:text-6xl font-bold text-white tracking-tight drop-shadow-lg">{initial}</span>
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
         {call.status === 'connecting' && !call.remotePeer?.stream && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/40 backdrop-blur-[2px]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/45 backdrop-blur-[2px]">
             <Loader2 size={40} className="animate-spin text-white/80" />
             <span className="text-white/70 text-sm font-medium">{statusLabel}</span>
           </div>
@@ -67,30 +74,35 @@ export const CallMediaStage: React.FC<CallMediaStageProps> = ({
 
   return (
     <div className={`w-full h-full flex flex-col items-center justify-center relative overflow-hidden ${CALL_AUDIO_STAGE_GRADIENT}`}>
-      {/* Telegram-style blurred avatar backdrop */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] aspect-square">
-          <div className={`w-full h-full rounded-full ${CALL_AVATAR_GRADIENT} opacity-25 blur-3xl scale-150`} />
-        </div>
-      </div>
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--accent-soft)_0%,_transparent_60%)] pointer-events-none" />
+      <div className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full bg-[var(--accent)]/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-12 w-80 h-80 rounded-full bg-[var(--accent2)]/15 blur-3xl" />
       {isGroup && (
-        <div className="flex flex-wrap items-center justify-center gap-3 max-w-md px-6 mb-8 relative z-10">
-          {call.participants.map((p: any) => (
-            <div
-              key={p.peerId}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full neo-raised-sm ${
-                p.peerId === call.remotePeer?.peerId ? 'ring-1 ring-[var(--accent)]/50' : ''
-              }`}
-            >
-              <span className="w-7 h-7 rounded-full bg-[var(--accent)]/15 flex items-center justify-center text-xs font-bold text-[var(--accent)]">
-                {(p.displayName || '?').charAt(0).toUpperCase()}
-              </span>
-              <span className="text-[var(--text-secondary)] text-xs font-medium truncate max-w-[8rem]">
-                {p.displayName || t('call.unknownCaller')}
-              </span>
-            </div>
-          ))}
+        <div className="relative z-10 w-full max-w-xl px-6 mb-8 grid grid-cols-3 sm:grid-cols-4 gap-3">
+          {call.participants.map((p: any) => {
+            const isRemote = p.peerId === call.remotePeer?.peerId;
+            return (
+              <div
+                key={p.peerId}
+                className={`flex flex-col items-center gap-2 p-2 rounded-2xl neo-raised-sm ${
+                  isRemote ? 'ring-1 ring-[var(--accent)]/60' : ''
+                }`}
+              >
+                <div className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-full ${CALL_AVATAR_GRADIENT} flex items-center justify-center`}>
+                  <span className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                    {(p.displayName || '?').charAt(0).toUpperCase()}
+                  </span>
+                  {isRemote && call.isMuted && (
+                    <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center text-[var(--text-tertiary)]">
+                      <MicOff size={12} />
+                    </span>
+                  )}
+                </div>
+                <span className="text-[var(--text-secondary)] text-xs font-medium truncate max-w-full text-center">
+                  {p.displayName || t('call.unknownCaller')}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
       <motion.div
@@ -99,10 +111,10 @@ export const CallMediaStage: React.FC<CallMediaStageProps> = ({
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10"
       >
-        <div className="absolute -inset-4 rounded-full bg-[var(--accent)]/15 animate-pulse" />
-        <div className="absolute -inset-8 rounded-full bg-[var(--accent)]/10 animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute -inset-3 rounded-full bg-[var(--accent)]/15 animate-pulse" />
+        <div className="absolute -inset-7 rounded-full bg-[var(--accent)]/10 animate-pulse" style={{ animationDelay: '0.5s' }} />
         <div className="neo-raised w-40 h-40 sm:w-52 sm:h-52 rounded-full flex items-center justify-center">
-          <div className={`w-32 h-32 sm:w-44 sm:h-44 rounded-full ${CALL_AVATAR_GRADIENT} flex items-center justify-center`}>
+          <div className={`w-32 h-32 sm:w-44 sm:h-44 rounded-full ${CALL_AVATAR_GRADIENT} flex items-center justify-center shadow-[0_10px_40px_-8px_var(--accent)]/50`}>
             <span className="text-6xl sm:text-7xl font-bold text-white tracking-tight drop-shadow-lg">
               {initial}
             </span>

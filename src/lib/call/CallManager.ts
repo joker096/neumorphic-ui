@@ -1,7 +1,8 @@
 import { nanoid } from 'nanoid';
 import { callRecorderService } from '../../lib/callRecorderService';
 import { useAppStore } from '../../store';
-import type { CallPeer, CallEventType, CallEventHandler, ActiveCall, CallType } from './types';
+import { CALL_NETWORK_QUALITY_MS } from '../../constants/callConstants';
+import type { CallPeer, CallEventType, CallEventHandler, ActiveCall, CallType, CallErrorReason, DeviceCheckResult, IncomingCall } from './types';
 
 class CallManager {
   private static instance: CallManager | null = null;
@@ -12,9 +13,27 @@ class CallManager {
   private screenStream: MediaStream | null = null;
   private localStream: MediaStream | null = null;
   private isRecording = false;
+  private incomingTimer: ReturnType<typeof setTimeout> | null = null;
+  private networkErrorTimer: ReturnType<typeof setTimeout> | null = null;
+  private qualityLevel: number | null = null;
+
+  /** Time (ms) a call stays in `connecting` before being marked `connected`. */
+  static readonly CONNECT_DELAY_MS = 1500;
+
+  /** Time (ms) a demoted call stays `reconnecting` before surfacing a network error. */
+  static readonly NETWORK_ERROR_TIMEOUT_MS = 10_000;
 
   constructor() {
     CallManager.instance = this;
+    useAppStore.subscribe((state, prev) => {
+      if (state.connectionStatus !== prev.connectionStatus) {
+        if (state.connectionStatus === 'connected') this.markConnected();
+        else if (prev.connectionStatus === 'connected') this.markReconnecting();
+      }
+      if (state.latencyMs !== prev.latencyMs) this.trackQuality(state.latencyMs);
+    });
+    window.addEventListener('offline', () => this.markReconnecting());
+    window.addEventListener('online', () => this.markConnected());
   }
 
   static getInstance(): CallManager {
@@ -59,6 +78,157 @@ class CallManager {
     this.activeCall = call;
   }
 
+  /**
+   * Requests camera/microphone access. On failure emits `call:error` with a
+   * user-facing reason and rethrows so callers keep their existing rejection flow.
+   */
+  private async acquireLocalStream(callType: CallType): Promise<MediaStream> {
+    try {
+      return await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: callType !== 'audio',
+      });
+    } catch (err) {
+      const name = err instanceof DOMException ? err.name : '';
+      const reason: CallErrorReason =
+        name === 'NotAllowedError'
+          ? 'permission'
+          : name === 'NotFoundError'
+            ? 'no-device'
+            : name === 'NotReadableError' || name === 'OverconstrainedError'
+              ? 'device-busy'
+              : 'unknown';
+      this.emit('call:error', { reason });
+      throw err;
+    }
+  }
+
+  /**
+   * Reports which media devices are available. Used before starting a call so
+   * a missing microphone/camera is caught before the peer is rung.
+   */
+  async checkDevices(): Promise<DeviceCheckResult> {
+    const md = navigator.mediaDevices;
+    if (!md) return { supported: false, hasAudio: false, hasVideo: false };
+    try {
+      const devices = await md.enumerateDevices();
+      return {
+        supported: true,
+        hasAudio: devices.some((d) => d.kind === 'audioinput'),
+        hasVideo: devices.some((d) => d.kind === 'videoinput'),
+      };
+    } catch {
+      // Enumeration can fail before permission is granted; fall through so
+      // getUserMedia surfaces the real error.
+      return { supported: true, hasAudio: true, hasVideo: true };
+    }
+  }
+
+  /**
+   * Blocks the call start when the required devices are missing. Emits
+   * `call:error` and throws so callers keep their rejection flow.
+   */
+  private async assertDevicesAvailable(callType: CallType) {
+    const md = navigator.mediaDevices;
+    if (!md) {
+      this.emit('call:error', { reason: 'unknown' });
+      throw new DOMException('Media devices unsupported', 'UnknownError');
+    }
+    let devices: MediaDeviceInfo[];
+    try {
+      devices = await md.enumerateDevices();
+    } catch {
+      return;
+    }
+    if (devices.length === 0) return; // can't determine without permission — getUserMedia decides
+    const hasAudio = devices.some((d) => d.kind === 'audioinput');
+    const hasVideo = devices.some((d) => d.kind === 'videoinput');
+    if (!hasAudio || (callType !== 'audio' && !hasVideo)) {
+      this.emit('call:error', { reason: 'no-device' });
+      throw new DOMException('Required device missing', 'NotFoundError');
+    }
+  }
+
+  /**
+   * Marks an active `connected` call as `reconnecting` when the transport or
+   * browser network drops. No-op for other statuses.
+   */
+  private markReconnecting() {
+    const call = this.activeCall;
+    if (!call || call.status !== 'connected') return;
+    this.qualityLevel = null;
+    this.activeCall = { ...call, status: 'reconnecting' };
+    this.updateStore(this.activeCall);
+    this.emit('call:reconnecting', { call: this.activeCall });
+    this.armNetworkErrorTimer();
+  }
+
+  /** Restores an active `reconnecting`/`error` call to `connected` when the network recovers. */
+  private markConnected() {
+    const call = this.activeCall;
+    if (!call || (call.status !== 'reconnecting' && call.status !== 'error')) return;
+    this.clearNetworkErrorTimer();
+    this.activeCall = { ...call, status: 'connected' };
+    this.updateStore(this.activeCall);
+    this.emit('call:reconnected', { call: this.activeCall });
+  }
+
+  /**
+   * Arms the network-error timer once, when a call is demoted to `reconnecting`.
+   * If the call is not restored before it fires, it is marked `error`.
+   */
+  private armNetworkErrorTimer() {
+    if (this.networkErrorTimer) return;
+    this.networkErrorTimer = setTimeout(() => {
+      this.networkErrorTimer = null;
+      const call = this.activeCall;
+      if (!call || call.status !== 'reconnecting') return;
+      this.activeCall = { ...call, status: 'error' };
+      this.updateStore(this.activeCall);
+      this.emit('call:network-error', { call: this.activeCall });
+    }, CallManager.NETWORK_ERROR_TIMEOUT_MS);
+  }
+
+  private clearNetworkErrorTimer() {
+    if (this.networkErrorTimer) {
+      clearTimeout(this.networkErrorTimer);
+      this.networkErrorTimer = null;
+    }
+  }
+
+  /**
+   * Tracks the in-call network quality level (3 good / 2 fair / 1 poor) derived
+   * from the transport latency and emits `call:quality` when it changes. The
+   * first reading after (re)connect is the baseline so the bar is not
+   * re-announced.
+   */
+  private trackQuality(latencyMs: number) {
+    const call = this.activeCall;
+    if (!call || call.status !== 'connected') {
+      this.qualityLevel = null;
+      return;
+    }
+    const level = latencyMs < CALL_NETWORK_QUALITY_MS.good ? 3 : latencyMs < CALL_NETWORK_QUALITY_MS.fair ? 2 : 1;
+    if (this.qualityLevel === null) {
+      this.qualityLevel = level;
+      return;
+    }
+    if (level === this.qualityLevel) return;
+    this.qualityLevel = level;
+    this.emit('call:quality', { level });
+  }
+
+  /** Flips a `connecting` call to `connected` after a short simulated handshake. */
+  private scheduleConnected(callId: string) {
+    setTimeout(() => {
+      const call = this.activeCall;
+      if (!call || call.callId !== callId || call.status !== 'connecting') return;
+      this.activeCall = { ...call, status: 'connected' };
+      this.updateStore(this.activeCall);
+      this.emit('call:accepted', { call: this.activeCall });
+    }, CallManager.CONNECT_DELAY_MS);
+  }
+
   async startCall(
     peerId: string,
     displayName: string,
@@ -66,11 +236,9 @@ class CallManager {
     participants: CallPeer[] = [],
   ): Promise<ActiveCall> {
     if (this.activeCall) await this.endCall();
+    await this.assertDevicesAvailable(callType);
     const callId = nanoid();
-    this.localStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: callType !== 'audio',
-    });
+    this.localStream = await this.acquireLocalStream(callType);
     const call: ActiveCall = {
       callId,
       direction: 'outgoing',
@@ -88,6 +256,7 @@ class CallManager {
       participants: [this.localPeer(peerId, displayName), ...participants],
     };
     this.updateStore(call);
+    this.scheduleConnected(callId);
     this.emit('call:accepted', { call });
     return call;
   }
@@ -123,6 +292,7 @@ class CallManager {
     };
     this.activeCall = call;
     this.updateStore(call);
+    this.scheduleConnected(call.callId);
     this.emit('call:accepted', { call });
     return call;
   }
@@ -134,11 +304,9 @@ class CallManager {
     participants: CallPeer[] = [],
   ): Promise<ActiveCall> {
     if (this.activeCall) await this.endCall();
+    await this.assertDevicesAvailable(callType);
     const callId = nanoid();
-    this.localStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: callType !== 'audio',
-    });
+    this.localStream = await this.acquireLocalStream(callType);
     const call: ActiveCall = {
       callId,
       direction: 'incoming',
@@ -156,6 +324,7 @@ class CallManager {
       participants: [this.localPeer(peerId, displayName), ...participants],
     };
     this.updateStore(call);
+    this.scheduleConnected(callId);
     this.emit('call:accepted', { call });
     return call;
   }
@@ -164,6 +333,8 @@ class CallManager {
     if (this.activeCall?.isRecording && this.activeCall?.recordingId) {
       callRecorderService.stopRecording();
     }
+    this.clearNetworkErrorTimer();
+    this.qualityLevel = null;
     this.stopTracks();
     if (this.localStream) {
       this.localStream.getTracks().forEach((t) => t.stop());
@@ -177,7 +348,63 @@ class CallManager {
     const prev = this.activeCall;
     this.updateStore(null);
     this.pendingPeerStreams.clear();
-    if (prev) this.emit('call:ended', { callId: prev.callId });
+    if (prev) {
+      this.logCallToHistory(prev);
+      this.emit('call:ended', { callId: prev.callId });
+    }
+  }
+
+  private logCallToHistory(call: ActiveCall) {
+    const store = useAppStore.getState();
+    const name = call.remotePeer?.displayName || '';
+    const type: 'missed' | 'incoming' | 'outgoing' | 'declined' =
+      call.direction === 'incoming' ? 'incoming' : 'outgoing';
+    let duration: string | undefined;
+    if (call.status === 'connected') {
+      const total = Math.max(0, Math.floor((Date.now() - (call.startTime || Date.now())) / 1000));
+      const m = Math.floor(total / 60);
+      const s = total % 60;
+      duration = `${m}m ${s}s`;
+    }
+    store.addCallToHistory({ name, type, duration });
+  }
+
+  /**
+   * Rings an incoming call (sheet overlay). If nobody answers within
+   * `timeoutMs`, it is logged to the call history as `missed`.
+   */
+  startIncomingCall(peerId: string, displayName: string, callType: 'audio' | 'video' = 'audio', timeoutMs = 30000) {
+    if (this.incomingTimer) clearTimeout(this.incomingTimer);
+    const store = useAppStore.getState();
+    store.setIncomingCall({ peerId, displayName, callType });
+    this.incomingTimer = setTimeout(() => {
+      this.incomingTimer = null;
+      const current = useAppStore.getState().incomingCall;
+      if (!current || current.peerId !== peerId) return;
+      useAppStore.getState().setIncomingCall(null);
+      useAppStore.getState().addCallToHistory({ name: displayName, type: 'missed' });
+    }, timeoutMs);
+  }
+
+  /**
+   * Accepts the ringing incoming call (optionally forcing a call type).
+   * The sheet stays open when access fails so the user can retry or reject.
+   */
+  async answerIncoming(forceType?: 'audio' | 'video'): Promise<ActiveCall | null> {
+    const incoming = useAppStore.getState().incomingCall;
+    if (!incoming) return null;
+    const call = await this.acceptCall(incoming.peerId, incoming.displayName, forceType ?? incoming.callType);
+    useAppStore.getState().setIncomingCall(null);
+    return call;
+  }
+
+  /** Rejects the ringing incoming call; logged to history as `declined`. */
+  rejectIncoming() {
+    const incoming = useAppStore.getState().incomingCall;
+    if (!incoming) return;
+    useAppStore.getState().setIncomingCall(null);
+    useAppStore.getState().addCallToHistory({ name: incoming.displayName, type: 'declined' });
+    this.emit('call:rejected', { peerId: incoming.peerId });
   }
 
   async toggleMute(): Promise<boolean> {
@@ -236,7 +463,17 @@ class CallManager {
   async changeCallType(newType: CallType): Promise<boolean> {
     if (!this.activeCall) return false;
     if (newType === this.activeCall.callType) return true;
-    
+
+    try {
+      if (newType === 'video' && !this.localStream?.getVideoTracks().length) {
+        const track = await this.acquireVideoTrack();
+        if (this.localStream && track) this.localStream.addTrack(track);
+      } else {
+        this.localStream?.getVideoTracks().forEach((t) => (t.enabled = newType !== 'audio'));
+      }
+    } catch {
+      return false;
+    }
     const isVideo = newType === 'video' || newType === 'screen';
     this.activeCall = {
       ...this.activeCall,
@@ -247,6 +484,19 @@ class CallManager {
     this.updateStore(this.activeCall);
     this.emit('call:accepted', { call: this.activeCall });
     return true;
+  }
+
+  /**
+   * Requests a camera track for an in-call audio→video switch. The companion
+   * audio track from the request is stopped so only the live one remains.
+   */
+  private async acquireVideoTrack(): Promise<MediaStreamTrack | null> {
+    const stream = await this.acquireLocalStream('video');
+    const videoTrack = stream.getVideoTracks()[0];
+    stream.getTracks().forEach((t) => {
+      if (t.kind !== 'video') t.stop();
+    });
+    return videoTrack ?? null;
   }
 
   async toggleSpeaker(): Promise<boolean> {

@@ -1,8 +1,8 @@
 import { motion } from "motion/react";
-import { Bot, Hash, ListFilter, MessageCircle, Mic } from "lucide-react";
+import { Bot, Check, Hash, ListFilter, MessageCircle, Mic, RotateCcw } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { AppModal } from "../ui/AppModal";
-import { modalPrimaryBtnClass, modalSecondaryBtnClass } from "../ui/modalShared";
+import { modalPrimaryIconBtnClass, modalSecondaryIconBtnClass } from "../ui/modalShared";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -60,18 +60,26 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
       ))}
     </div>
 
-    <div className="mt-8 flex gap-3">
+    <div className="mt-4 flex gap-3">
       <button
+        type="button"
         onClick={() => setFilters({ hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false })}
-        className={modalSecondaryBtnClass}
+        aria-label={t("chat.filters.reset")}
+        title={t("chat.filters.reset")}
+        className={modalSecondaryIconBtnClass}
       >
-        {t("chat.filters.reset")}
+        <RotateCcw size={16} aria-hidden="true" />
+        <span className="sr-only">{t("chat.filters.reset")}</span>
       </button>
       <button
+        type="button"
         onClick={onClose}
-        className={modalPrimaryBtnClass}
+        aria-label={t("chat.filters.apply")}
+        title={t("chat.filters.apply")}
+        className={modalPrimaryIconBtnClass}
       >
-        {t("chat.filters.apply")}
+        <Check size={16} aria-hidden="true" />
+        <span className="sr-only">{t("chat.filters.apply")}</span>
       </button>
     </div>
   </AppModal>

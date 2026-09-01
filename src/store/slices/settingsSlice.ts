@@ -36,6 +36,10 @@ export interface SettingsSlice {
   isOnline: boolean;
   setOnlineStatus: (status: boolean) => void;
   forwardAnonymization: boolean;
+  draftsEnabled: boolean;
+  setDraftsEnabled: (enabled: boolean) => void;
+  offlineMode: boolean;
+  setOfflineMode: (enabled: boolean) => void;
   currentLanguage: string;
   soundEnabled: boolean;
   soundVolume: number;
@@ -65,6 +69,24 @@ export interface SettingsSlice {
   visNumber: string;
   visActivity: string;
   uiAnimations: boolean;
+  themeMode: 'light' | 'dark' | 'system';
+  setThemeMode: (mode: 'light' | 'dark' | 'system') => void;
+  accentColor: string;
+  setAccentColor: (color: string) => void;
+  chatBackground: string;
+  setChatBackground: (bg: string) => void;
+  density: 'comfortable' | 'compact';
+  setDensity: (d: 'comfortable' | 'compact') => void;
+  messageRadius: number;
+  setMessageRadius: (r: number) => void;
+  animationIntensity: 'off' | 'low' | 'high';
+  setAnimationIntensity: (i: 'off' | 'low' | 'high') => void;
+  profilePhotoVisibility: string;
+  setProfilePhotoVisibility: (v: string) => void;
+  callsVisibility: string;
+  setCallsVisibility: (v: string) => void;
+  messagesFrom: string;
+  setMessagesFrom: (v: string) => void;
   dndEnabled: boolean;
   dndFrom: string;
   dndTo: string;
@@ -129,6 +151,8 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   turnServerUser: '',
   turnServerPass: '',
   anonymousMode: savedPrivacySettings.anonymousMode ?? false,
+  draftsEnabled: savedPrivacySettings.draftsEnabled ?? true,
+  offlineMode: savedPrivacySettings.offlineMode ?? true,
   ghostViewMode: savedPrivacySettings.ghostViewMode ?? false,
   readReceipts: savedPrivacySettings.readReceipts ?? true,
   typingIndicators: savedPrivacySettings.typingIndicators ?? true,
@@ -168,6 +192,15 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   visNumber: savedPrivacySettings.visNumber ?? 'Nobody',
   visActivity: savedPrivacySettings.visActivity ?? 'My contacts',
   uiAnimations: savedPrivacySettings.uiAnimations ?? true,
+  themeMode: savedPrivacySettings.themeMode ?? 'system',
+  accentColor: savedPrivacySettings.accentColor ?? '#10b981',
+  chatBackground: savedPrivacySettings.chatBackground ?? 'default',
+  density: savedPrivacySettings.density ?? 'comfortable',
+  messageRadius: savedPrivacySettings.messageRadius ?? 16,
+  animationIntensity: savedPrivacySettings.animationIntensity ?? 'high',
+  profilePhotoVisibility: savedPrivacySettings.profilePhotoVisibility ?? 'everyone',
+  callsVisibility: savedPrivacySettings.callsVisibility ?? 'everyone',
+  messagesFrom: savedPrivacySettings.messagesFrom ?? 'everyone',
   dndEnabled: savedPrivacySettings.dndEnabled ?? false,
   dndFrom: savedPrivacySettings.dndFrom ?? '22:00',
   dndTo: savedPrivacySettings.dndTo ?? '08:00',
@@ -252,6 +285,42 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
     set({ uiAnimations: v });
     persistSetting('uiAnimations', v);
   },
+  setThemeMode: (mode) => {
+    set({ themeMode: mode });
+    persistSetting('themeMode', mode);
+  },
+  setAccentColor: (color) => {
+    set({ accentColor: color });
+    persistSetting('accentColor', color);
+  },
+  setChatBackground: (bg) => {
+    set({ chatBackground: bg });
+    persistSetting('chatBackground', bg);
+  },
+  setDensity: (d) => {
+    set({ density: d });
+    persistSetting('density', d);
+  },
+  setMessageRadius: (r) => {
+    set({ messageRadius: r });
+    persistSetting('messageRadius', r);
+  },
+  setAnimationIntensity: (i) => {
+    set({ animationIntensity: i });
+    persistSetting('animationIntensity', i);
+  },
+  setProfilePhotoVisibility: (v) => {
+    set({ profilePhotoVisibility: v });
+    persistSetting('profilePhotoVisibility', v);
+  },
+  setCallsVisibility: (v) => {
+    set({ callsVisibility: v });
+    persistSetting('callsVisibility', v);
+  },
+  setMessagesFrom: (v) => {
+    set({ messagesFrom: v });
+    persistSetting('messagesFrom', v);
+  },
   setDndEnabled: (v) => {
     set({ dndEnabled: v });
     persistSetting('dndEnabled', v);
@@ -303,7 +372,9 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setRiskShellActive: (active) => set({ riskShellActive: active }),
   shareRecording: false,
   setShareRecording: (enabled) => set({ shareRecording: enabled }),
-  saveAudioRecordings: savedPrivacySettings.saveAudioRecordings ?? true,
+  setDraftsEnabled: (enabled) => { set({ draftsEnabled: enabled }); persistSetting('draftsEnabled', enabled); },
+  setOfflineMode: (enabled) => { set({ offlineMode: enabled }); persistSetting('offlineMode', enabled); },
+    saveAudioRecordings: savedPrivacySettings.saveAudioRecordings ?? false,
   saveVideoRecordings: savedPrivacySettings.saveVideoRecordings ?? false,
   recordingsRetentionDays: savedPrivacySettings.recordingsRetentionDays ?? 0,
   setSaveAudioRecordings: (enabled) => {

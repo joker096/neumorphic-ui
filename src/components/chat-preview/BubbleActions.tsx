@@ -23,7 +23,7 @@ export function BubbleActions({
         aria-label={t('chat.reply')}
         onClick={(e) => { e.stopPropagation(); onReply(msg); }}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
+        className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
       >
         <Reply size={16} />
       </button>
@@ -32,7 +32,7 @@ export function BubbleActions({
         aria-label={t('chat.save')}
         onClick={(e) => { e.stopPropagation(); onToggleSavedMessage(chat, msg); }}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
+        className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
       >
         {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? (
           <Bookmark size={16} className="fill-current" />

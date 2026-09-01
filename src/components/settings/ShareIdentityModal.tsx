@@ -29,7 +29,21 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
     navigator.clipboard.writeText(shareId).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    }).catch(() => {});
+  };
+
+  const handleShare = async () => {
+    // D5: кнопка Share без действия. Web Share API + fallback на копирование.
+    const shareData = { title: 'My identity', text: shareId };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        // пользователь отменил — молча
+      }
+    }
+    handleCopyId();
   };
 
   return (
@@ -47,7 +61,7 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
       >
         <button
           type="button"
-          className={`absolute top-4 right-4 z-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+          className={`absolute top-4 right-4 z-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
           onClick={onClose}
           title={t('contacts.close', 'Close')}
           aria-label={t('contacts.close', 'Close')}
@@ -72,11 +86,11 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
               {shareId}
             </div>
             <div className="flex gap-2 w-full">
-              <button onClick={handleCopyId} className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
+              <button onClick={handleCopyId} aria-label={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} title={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
                 {copied ? <Check size={14} /> : <Copy size={14} />}
-                {copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')}
+                <span className="sr-only">{copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')}</span>
               </button>
-              <button className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-xl transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
+              <button onClick={handleShare} aria-label={t('settings.shareIdentity', 'Share Identity')} title={t('settings.shareIdentity', 'Share Identity')} className={`w-10 h-10 min-w-11 min-h-11 shrink-0 flex items-center justify-center rounded-xl transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
                 <Share2 size={14} />
               </button>
             </div>

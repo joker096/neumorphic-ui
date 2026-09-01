@@ -1,4 +1,4 @@
-import { Users, Plus, Loader2, AlertCircle, Mail, Phone } from 'lucide-react';
+import { Users, Plus, Loader2, AlertCircle, Mail, Phone, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { CompanyContact, CompanyDepartment } from '../../types/constants';
 
@@ -44,10 +44,12 @@ export const ContactList = ({
         {canManage && onAdd && (
           <button
             onClick={onAdd}
-            className="min-h-[44px] min-w-[44px] px-3 rounded-xl flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+            aria-label={addLabel}
+            title={addLabel}
+            className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
           >
-            <Plus size={15} />
-            <span className="hidden sm:inline">{addLabel}</span>
+            <Plus size={16} />
+            <span className="sr-only">{addLabel}</span>
           </button>
         )}
       </div>
@@ -64,9 +66,12 @@ export const ContactList = ({
           {onRetry && (
             <button
               onClick={onRetry}
-              className="min-h-[44px] px-4 rounded-xl text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+              aria-label={t('company.retry', 'Retry')}
+              title={t('company.retry', 'Retry')}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
             >
-              {t('company.retry', 'Retry')}
+              <RefreshCw size={16} />
+              <span className="sr-only">{t('company.retry', 'Retry')}</span>
             </button>
           )}
         </div>
@@ -88,7 +93,7 @@ export const ContactList = ({
                   onClick={() => onContactClick?.(contact)}
                   className="w-full text-left p-3 rounded-2xl flex items-center gap-3 cursor-pointer transition-all bg-[var(--bg-tertiary)] hover:brightness-110"
                 >
-                  <div className="w-11 h-11 rounded-full flex items-center justify-center bg-gradient-to-br from-teal-400 to-cyan-500 text-white font-bold">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-teal-400 to-cyan-500 text-white font-bold">
                     {contact.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -98,10 +103,10 @@ export const ContactList = ({
                     ) : null}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5 text-xs text-[var(--text-secondary)]">
                       {contact.phone && (
-                        <span className="inline-flex items-center gap-1"><Phone size={11} />{contact.phone}</span>
+                        <span className="inline-flex items-center gap-1"><Phone size={12} />{contact.phone}</span>
                       )}
                       {contact.email && (
-                        <span className="inline-flex items-center gap-1 truncate"><Mail size={11} />{contact.email}</span>
+                        <span className="inline-flex items-center gap-1 truncate"><Mail size={12} />{contact.email}</span>
                       )}
                     </div>
                     {dept && (

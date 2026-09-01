@@ -1,6 +1,7 @@
 import { SafeRender } from "../resilience";
 import { LazyContactsView, LazyCrmView, LazyCallLogView } from "../features/FeatureViews";
 import { ChatListView } from "../ChatListView";
+import { useI18n } from "../../lib/i18n";
 
 interface AppSideListProps {
   view: string;
@@ -20,8 +21,9 @@ export function AppSideList({
   chatListProps, contacts, setContacts,
   handlePreviewCall, handlePreviewMessage, setView,
 }: AppSideListProps) {
+  const { t } = useI18n();
   return (
-    <aside aria-label="Side list" className="z-30 border-r border-[var(--border-color)] min-w-0 min-h-0 flex flex-col">
+    <aside aria-label={t("a11y.sideList")} className="z-30 border-r border-[var(--border-color)] min-w-0 min-h-0 flex flex-col">
       {isChatListRoute ? (
         <SafeRender>
           <ChatListView {...chatListProps} />
@@ -48,7 +50,7 @@ export function AppSideList({
         </SafeRender>
       ) : view === "calls" ? (
         <SafeRender>
-          <LazyCallLogView isDark={isDark} onBack={() => setView("chats")} />
+          <LazyCallLogView isDark={isDark} onBack={() => setView("chats")} onOpenContacts={() => setView('contacts')} />
         </SafeRender>
       ) : null}
     </aside>

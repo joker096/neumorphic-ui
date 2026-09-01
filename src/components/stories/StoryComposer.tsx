@@ -106,13 +106,13 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
             {media?.kind === 'video' && (
               <video src={media.url} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop playsInline />
             )}
-            {!media && <Type size={28} className="text-white/70" aria-hidden="true" />}
+            {!media && <Type size={32} className="text-white/70" aria-hidden="true" />}
             {media && (
               <button
                 type="button"
                 onClick={removeMedia}
                 aria-label={t('story.removeMedia', 'Remove media')}
-                className="absolute top-2 right-2 z-20 flex items-center justify-center w-9 h-9 rounded-full bg-black/55 text-white cursor-pointer transition-colors hover:bg-black/75"
+                className="absolute top-2 right-2 z-20 flex items-center justify-center w-9 h-9 min-w-11 min-h-11 rounded-full bg-black/55 text-white cursor-pointer transition-colors hover:bg-black/75"
               >
                 <X size={16} aria-hidden="true" />
               </button>
@@ -137,13 +137,13 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
                   onClick={() => setBg(g)}
                   aria-label={t('story.pickBackground', 'Pick background')}
                   aria-pressed={bg === g}
-                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${g} transition-transform active:scale-90 ${bg === g ? 'ring-2 ring-offset-2 ring-[var(--accent)] ring-offset-[var(--bg-secondary)]' : ''}`}
+                  className={`w-10 h-10 min-w-11 min-h-11 rounded-full bg-gradient-to-br ${g} transition-transform active:scale-90 ${bg === g ? 'ring-2 ring-offset-2 ring-[var(--accent)] ring-offset-[var(--bg-secondary)]' : ''}`}
                 />
               ))}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className={`w-10 h-10 rounded-full flex items-center justify-center border border-dashed border-[var(--border-color)] ${isDark ? 'text-gray-400' : 'text-slate-400'} cursor-pointer transition-colors hover:text-[var(--accent)]`}
+                className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center border border-dashed border-[var(--border-color)] ${isDark ? 'text-gray-400' : 'text-slate-400'} cursor-pointer transition-colors hover:text-[var(--accent)]`}
                 aria-label={t('story.fromGallery', 'From gallery')}
               >
                 <ImageIcon size={16} />
@@ -170,7 +170,7 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
                     type="button"
                     onClick={() => setAudience(a.id)}
                     aria-pressed={active}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm min-h-[44px] transition-colors ${active ? activeChip : chipBase}`}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm min-h-11 transition-colors ${active ? activeChip : chipBase}`}
                   >
                     <Icon size={16} aria-hidden="true" />
                     {t(a.labelKey, a.fallback)}
@@ -202,7 +202,7 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
         </div>
 
         <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--border-color)]">
-          <Button variant="primary" className="flex-1 min-h-[44px]" icon={<Send size={16} />} onClick={publish}>
+          <Button variant="primary" className="flex-1" icon={<Send size={16} />} onClick={publish}>
             {t('story.addToStory', 'Add to story')}
           </Button>
         </div>

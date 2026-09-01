@@ -1,8 +1,9 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { ContactsView } from './ContactsView';
+import { useAppStore } from '../store';
 
 vi.mock('../lib/i18n', () => ({
   useI18n: () => ({
@@ -12,6 +13,16 @@ vi.mock('../lib/i18n', () => ({
   }),
   I18nProvider: ({ children }: { children: React.ReactNode }) => children,
   I18nContext: { Provider: ({ children }: { children: React.ReactNode }) => children },
+}));
+
+vi.mock('@yudiel/react-qr-scanner', () => ({
+  Scanner: ({ onScan, onError }: any) => (
+    <div data-testid="qr-scanner">
+      <button data-testid="btn-simulate-scan" onClick={() => onScan?.([{ rawValue: 'scanned-data' }])}>Simulate Scan</button>
+      <button data-testid="btn-scan-permission-denied" onClick={() => onError?.({ kind: 'permission-denied', message: 'denied', cause: null })}>Simulate Permission Denied</button>
+      <button data-testid="btn-scan-camera-error" onClick={() => onError?.({ kind: 'no-camera', message: 'no camera', cause: null })}>Simulate Camera Error</button>
+    </div>
+  ),
 }));
 
 const mockContacts = [
@@ -208,6 +219,33 @@ describe('ContactsView', () => {
     fireEvent.click(screen.getByTitle('contacts.scanContactQR'));
 
     expect(screen.getByRole('heading', { name: /contacts.scanContactQR/ })).toBeInTheDocument();
+    expect(screen.getByTestId('qr-scanner')).toBeInTheDocument();
+  });
+
+  it('shows permission denied state with retry when camera is denied', () => {
+    render(<ContactsView {...defaultProps} />);
+
+    fireEvent.click(screen.getByTitle('contacts.scanContactQR'));
+    fireEvent.click(screen.getByTestId('btn-scan-permission-denied'));
+
+    expect(screen.getByText('contacts.cameraPermissionDenied')).toBeInTheDocument();
+    expect(screen.queryByTestId('qr-scanner')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('ui.retry'));
+
+    expect(screen.getByTestId('qr-scanner')).toBeInTheDocument();
+    expect(screen.queryByText('contacts.cameraPermissionDenied')).not.toBeInTheDocument();
+  });
+
+  it('shows generic camera error state for other scanner errors', () => {
+    render(<ContactsView {...defaultProps} />);
+
+    fireEvent.click(screen.getByTitle('contacts.scanContactQR'));
+    fireEvent.click(screen.getByTestId('btn-scan-camera-error'));
+
+    expect(screen.getByText('contacts.cameraError')).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('ui.retry'));
+    expect(screen.getByTestId('qr-scanner')).toBeInTheDocument();
   });
 
   it('applies dark theme styles', () => {
@@ -239,5 +277,50 @@ describe('ContactsView', () => {
 
     // Check that close button exists
     expect(screen.getByTitle('contacts.close')).toBeInTheDocument();
+  });
+
+  it('filters contacts by search query', async () => {
+    render(<ContactsView {...defaultProps} />);
+
+    fireEvent.change(screen.getByPlaceholderText('contacts.searchPlaceholder'), { target: { value: 'Bob' } });
+
+    expect(screen.getByText('contacts.foundResults')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('Alice')).not.toBeInTheDocument());
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+  });
+
+  it('unblocks a blocked contact from the blocked tab', async () => {
+    const blockedContacts = [{ id: 'hash_block_111', name: 'Blocked Guy', color: 'from-red-400 to-rose-500', lastSeen: 0, isBlocked: true }] as any;
+    const setContacts = vi.fn();
+    useAppStore.getState().setContacts(blockedContacts);
+    render(<ContactsView theme="dark" contacts={blockedContacts} setContacts={setContacts} onCall={mockOnCall} onMessage={mockOnMessage} />);
+
+    fireEvent.click(screen.getByText('contacts.blockedTab'));
+
+    const row = await screen.findByText('Blocked Guy');
+    fireEvent.click(row);
+
+    fireEvent.click(screen.getByRole('button', { name: /contacts\.moreActions/ }));
+    await waitFor(() => expect(screen.getByRole('button', { name: /profile\.unblock/ })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: /profile\.unblock/ }));
+
+    expect(setContacts).toHaveBeenCalledWith([expect.objectContaining({ id: 'hash_block_111', isBlocked: false })]);
+  });
+
+  it('opens invite modal when invite button clicked', () => {
+    render(<ContactsView {...defaultProps} />);
+
+    fireEvent.click(screen.getByTitle('onboarding.invite'));
+
+    expect(screen.getByRole('heading', { name: /onboarding\.invite/ })).toBeInTheDocument();
+    expect(screen.getByText('onboarding.inviteText')).toBeInTheDocument();
+  });
+
+  it('shows empty state with noContacts message and add action', () => {
+    render(<ContactsView {...defaultProps} contacts={[]} />);
+
+    expect(screen.getByText('contacts.noContacts')).toBeInTheDocument();
+    expect(screen.getByText('contacts.noContactsSubtitle')).toBeInTheDocument();
+    expect(screen.getByText('contacts.addContact')).toBeInTheDocument();
   });
 });

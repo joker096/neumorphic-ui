@@ -23,9 +23,9 @@ const ICON_SIZE: Record<IconButtonSize, number> = {
 };
 
 const BOX_SIZE: Record<IconButtonSize, string> = {
-  sm: "w-10 h-10",
-  md: "w-10 h-10",
-  lg: "w-12 h-12",
+  sm: "w-[var(--control-size-sm)] h-[var(--control-size-sm)]",
+  md: "w-[var(--control-size-md)] h-[var(--control-size-md)]",
+  lg: "w-[var(--control-size-lg)] h-[var(--control-size-lg)]",
 };
 
 const BASE =

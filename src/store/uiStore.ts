@@ -7,6 +7,8 @@ export interface UIState {
   setShowCreateChannel: (show: boolean) => void;
   showCreateBot: boolean;
   setShowCreateBot: (show: boolean) => void;
+  showCreateGroup: boolean;
+  setShowCreateGroup: (show: boolean) => void;
   globalSelectedContact: ContactProfile | null;
   setGlobalSelectedContact: (contact: ContactProfile | null) => void;
   showContactPicker: boolean;
@@ -19,6 +21,8 @@ export interface UIState {
   setAdvancedFilters: (filters: { hasMedia: boolean; hasAudio: boolean; hasReplies: boolean; fromBots: boolean; priority: boolean } | ((prev: { hasMedia: boolean; hasAudio: boolean; hasReplies: boolean; fromBots: boolean; priority: boolean }) => { hasMedia: boolean; hasAudio: boolean; hasReplies: boolean; fromBots: boolean; priority: boolean })) => void;
   showAddContactFromChat: boolean;
   setShowAddContactFromChat: (show: boolean) => void;
+  chatReturnContext: { view: string; subView: string | null } | null;
+  setChatReturnContext: (ctx: { view: string; subView: string | null } | null) => void;
 }
 
 export const useUiStore = create<UIState>()(
@@ -28,6 +32,8 @@ export const useUiStore = create<UIState>()(
       setShowCreateChannel: (show) => set({ showCreateChannel: show }),
       showCreateBot: false,
       setShowCreateBot: (show) => set({ showCreateBot: show }),
+      showCreateGroup: false,
+      setShowCreateGroup: (show) => set({ showCreateGroup: show }),
       globalSelectedContact: null,
       setGlobalSelectedContact: (contact) => set({ globalSelectedContact: contact }),
       showContactPicker: false,
@@ -43,6 +49,8 @@ export const useUiStore = create<UIState>()(
         })),
       showAddContactFromChat: false,
       setShowAddContactFromChat: (show) => set({ showAddContactFromChat: show }),
+      chatReturnContext: null,
+      setChatReturnContext: (ctx) => set({ chatReturnContext: ctx }),
     }),
     {
       name: 'ui-storage',

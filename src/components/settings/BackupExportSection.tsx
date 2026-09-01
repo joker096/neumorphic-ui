@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Database, FileJson, FileUp, Lock, Trash2, Upload } from 'lucide-react';
+import { Database, FileJson, FileUp, Lock, Trash2, Upload, X } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsRow, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
@@ -148,8 +148,6 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
     }
   };
 
-  const mutedText = isDark ? 'text-gray-400' : 'text-slate-500';
-
   const promptTitle = prompt === 'decrypt'
     ? t('toast.passwordRequiredDecryption', 'Password required')
     : t('toast.enterBackupPassword', 'Enter a password to encrypt your backup');
@@ -170,9 +168,12 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
           type="button"
           onClick={handleBackup}
           disabled={busy === 'backup'}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors active:scale-[0.99] ${isDark ? 'text-[var(--accent)] hover:bg-white/5' : 'text-[var(--accent)] hover:bg-black/5'} disabled:opacity-50`}
+          aria-label={busy === 'backup' ? t('settings.working', 'Working…') : t('settings.createBackup', 'Back up now')}
+          title={busy === 'backup' ? t('settings.working', 'Working…') : t('settings.createBackup', 'Back up now')}
+          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--accent)] transition-colors active:scale-[0.99] ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'} disabled:opacity-50`}
         >
-          <Upload size={16} /> {busy === 'backup' ? t('settings.working', 'Working…') : t('settings.createBackup', 'Back up now')}
+          <Upload size={16} />
+          <span className="sr-only">{busy === 'backup' ? t('settings.working', 'Working…') : t('settings.createBackup', 'Back up now')}</span>
         </button>
         <SettingsRow
           icon={<Lock size={16} />}
@@ -219,19 +220,15 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
 
       <SettingsSectionTitle title={t('settings.dangerZone', 'Danger Zone')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
-        <button
-          type="button"
+        <SettingsRow
+          icon={<Trash2 size={16} />}
+          iconBg={isDark ? 'bg-rose-500/10' : 'bg-rose-100'}
+          iconColor={isDark ? 'text-rose-400' : 'text-rose-600'}
+          title={t('settings.clearCache', 'Clear cache')}
+          subtitle={t('settings.clearCacheSubtitle', 'Clear temporary files and cache data')}
+          isDark={isDark}
           onClick={() => setClearPending(true)}
-          className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:opacity-80 ${isDark ? '' : ''}`}
-        >
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-rose-500/10">
-            <Trash2 size={16} className="text-rose-400" />
-          </div>
-          <div className="flex-1">
-            <div className="text-sm font-medium text-rose-400">{busy === 'clear' ? t('settings.working', 'Working…') : t('settings.clearCache', 'Clear cache')}</div>
-            <div className={`text-xs mt-0.5 ${mutedText}`}>{t('settings.clearCacheSub', 'Remove stored media and drafts')}</div>
-          </div>
-        </button>
+        />
       </SettingsGroup>
 
       <TextInputModal
@@ -250,6 +247,8 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
         message={t('settings.importWarning', 'Import will overwrite your current data')}
         confirmLabel={t('common.confirm', 'Confirm')}
         cancelLabel={t('common.cancel', 'Cancel')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
         onConfirm={() => { void confirmImport(); }}
@@ -261,6 +260,8 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
         message={t('settings.confirmClearCache', 'Are you sure you want to clear all cache data?')}
         confirmLabel={t('common.confirm', 'Confirm')}
         cancelLabel={t('common.cancel', 'Cancel')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
         onConfirm={() => { void confirmClear(); }}

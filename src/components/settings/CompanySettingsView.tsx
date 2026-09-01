@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronLeft, Building2, BookOpen, Plus } from 'lucide-react'
+import { ChevronLeft, Building2, BookOpen, Plus, X, Loader2 } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
 import { useAppStore } from '../../store'
 import { SettingsSectionTitle, SettingsToggleRow, SettingsRow, SettingsGroup } from '../ui/SettingsRow'
@@ -46,13 +46,13 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
         <button
           onClick={onBack}
           aria-label={t('common.back')}
-          className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-200 ${
+          className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-all duration-200 ${
             isDark
               ? 'bg-[var(--bg-tertiary)] hover:bg-[var(--hover-bg-dark)] text-[var(--text-secondary)]'
               : 'bg-[var(--bg-primary)] hover:bg-white text-[var(--text-secondary)] shadow-sm'
           }`}
         >
-          <ChevronLeft size={16} strokeWidth={2} />
+          <ChevronLeft size={16} />
         </button>
         <div className="flex-1">
           <div className={`text-lg font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
@@ -83,9 +83,12 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
         {!companyId && !showCreate && (
           <button
             onClick={() => setShowCreate(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl min-h-[44px] font-bold text-sm transition-colors active:scale-[0.99] bg-[var(--accent)] text-[var(--button-primary-text)]"
+            aria-label={t('company.createTitle', 'Create Company')}
+            title={t('company.createTitle', 'Create Company')}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl min-h-11 font-bold text-sm transition-colors active:scale-[0.99] bg-[var(--accent)] text-[var(--button-primary-text)]"
           >
-            <Plus size={16} /> {t('company.createTitle', 'Create Company')}
+            <Plus size={16} aria-hidden="true" />
+            <span className="sr-only">{t('company.createTitle', 'Create Company')}</span>
           </button>
         )}
 
@@ -97,7 +100,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
                 placeholder={t('company.namePlaceholder', 'Acme Inc.')}
-                className="w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
+                className="w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
               />
             </div>
             <div>
@@ -106,22 +109,28 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
                 value={yourName}
                 onChange={(e) => setYourName(e.target.value)}
                 placeholder={t('company.displayNamePlaceholder', 'John Doe')}
-                className="w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
+                className="w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
               />
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowCreate(false)}
-                className="flex-1 min-h-[44px] rounded-xl font-bold text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110"
+                aria-label={t('company.cancel', 'Cancel')}
+                title={t('company.cancel', 'Cancel')}
+                className="flex-1 min-w-11 min-h-11 rounded-xl font-bold text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110 flex items-center justify-center"
               >
-                {t('company.cancel', 'Cancel')}
+                <X size={18} aria-hidden="true" />
+                <span className="sr-only">{t('company.cancel', 'Cancel')}</span>
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!orgName.trim() || !yourName.trim() || creating}
-                className="flex-1 min-h-[44px] rounded-xl font-bold text-sm bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
+                aria-label={t('company.create', 'Create Company')}
+                title={t('company.create', 'Create Company')}
+                className="flex-1 min-w-11 min-h-11 rounded-xl font-bold text-sm bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {creating ? t('company.creating', 'Creating...') : t('company.create', 'Create Company')}
+                {creating ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Plus size={18} aria-hidden="true" />}
+                <span className="sr-only">{t('company.create', 'Create Company')}</span>
               </button>
             </div>
           </div>

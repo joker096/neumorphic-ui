@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   createCrmSlice,
   loadCrmPersisted,
@@ -9,6 +9,16 @@ import {
 import { SYSTEM_ROLE_PERMISSIONS } from '../../constants/crmConstants';
 import { DEFAULT_CRM_FILTERS } from '../../lib/crm/types';
 import type { CrmContact, CrmPermission } from '../../lib/crm/types';
+
+vi.mock('../../lib/crm/atRest', () => ({
+  isEncryptedPayload: (v: unknown) =>
+    !!v &&
+    typeof v === 'object' &&
+    typeof (v as Record<string, unknown>).cipher === 'string' &&
+    typeof (v as Record<string, unknown>).iv === 'string',
+  encryptCrmData: async (plain: string) => ({ cipher: plain, iv: 'x' }),
+  decryptCrmData: async (p: { cipher: string }) => p.cipher,
+}));
 
 const makeStore = () => {
   let state: Record<string, any> = {
@@ -44,30 +54,40 @@ beforeEach(() => {
 });
 
 describe('crmSlice persistence', () => {
-  it('returns null when nothing is stored', () => {
-    expect(loadCrmPersisted()).toBeNull();
+  it('returns null when nothing is stored', async () => {
+    expect(await loadCrmPersisted()).toBeNull();
   });
 
-  it('returns null for corrupted JSON', () => {
+  it('returns null for corrupted JSON', async () => {
     localStorage.setItem(CRM_STORAGE_KEY, '{not json');
-    expect(loadCrmPersisted()).toBeNull();
+    expect(await loadCrmPersisted()).toBeNull();
   });
 
-  it('returns null when contacts list is empty', () => {
+  it('returns null when contacts list is empty', async () => {
     localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify({ contacts: [] }));
-    expect(loadCrmPersisted()).toBeNull();
+    expect(await loadCrmPersisted()).toBeNull();
   });
 
-  it('round-trips saved CRM data', () => {
+  it('round-trips saved CRM data', async () => {
     const contacts = [user('u1')];
     const departments = [{ id: 'dep_1', name: 'Sales', color: 'from-teal-400 to-cyan-500' }];
     const customRoles = [{ id: 'role_1', name: 'Custom', permissions: ['viewAll' as CrmPermission] }];
-    saveCrmPersisted({ crmContacts: contacts, crmDepartments: departments, crmCustomRoles: customRoles, crmDeals: [], crmTasks: [] });
-    const loaded = loadCrmPersisted();
+    await saveCrmPersisted({ crmContacts: contacts, crmDepartments: departments, crmCustomRoles: customRoles, crmDeals: [], crmTasks: [] });
+    const loaded = await loadCrmPersisted();
     expect(loaded).not.toBeNull();
     expect(loaded?.contacts).toEqual(contacts);
     expect(loaded?.departments).toEqual(departments);
     expect(loaded?.customRoles).toEqual(customRoles);
+  });
+
+  it('stores an encrypted envelope (wrapped payload, no top-level plaintext keys)', async () => {
+    const contacts = [user('u1', { displayName: 'SecretCo' })];
+    await saveCrmPersisted({ crmContacts: contacts, crmDepartments: [], crmCustomRoles: [], crmDeals: [], crmTasks: [] });
+    const raw = localStorage.getItem(CRM_STORAGE_KEY) ?? '';
+    const parsed = JSON.parse(raw);
+    expect(parsed.cipher).toBeTypeOf('string');
+    expect(parsed.iv).toBeTypeOf('string');
+    expect(parsed).not.toHaveProperty('contacts');
   });
 });
 
@@ -91,27 +111,27 @@ describe('resolvePermissions', () => {
 });
 
 describe('ensureCrmSeed', () => {
-  it('seeds demo data for a fresh store', () => {
+  it('seeds demo data for a fresh store', async () => {
     const { slice, getState } = makeStore();
     expect(getState().crmLoaded).toBe(false);
-    slice.ensureCrmSeed('me', 'Me');
+    await slice.ensureCrmSeed('me', 'Me');
     expect(getState().crmLoaded).toBe(true);
     expect(getState().crmContacts.length).toBeGreaterThan(1);
     expect(getState().crmContacts[0].userId).toBe('me');
     expect(getState().crmContacts[0].role).toBe('admin');
   });
 
-  it('is a no-op when data is already loaded', () => {
+  it('is a no-op when data is already loaded', async () => {
     const { slice, getState } = makeStore();
-    slice.ensureCrmSeed('me', 'Me');
+    await slice.ensureCrmSeed('me', 'Me');
     const before = getState().crmContacts;
-    slice.ensureCrmSeed('other', 'Other');
+    await slice.ensureCrmSeed('other', 'Other');
     expect(getState().crmContacts).toBe(before);
   });
 
-  it('loads persisted data and prepends the current user when missing', () => {
+  it('loads persisted data and prepends the current user when missing', async () => {
     const persisted = [user('a'), user('b')];
-    saveCrmPersisted({
+    await saveCrmPersisted({
       crmContacts: persisted,
       crmDepartments: [{ id: 'd1', name: 'D', color: 'x' }],
       crmCustomRoles: [],
@@ -119,14 +139,14 @@ describe('ensureCrmSeed', () => {
       crmTasks: [],
     });
     const { slice, getState } = makeStore();
-    slice.ensureCrmSeed('me', 'Me');
+    await slice.ensureCrmSeed('me', 'Me');
     expect(getState().crmContacts.map((c: CrmContact) => c.userId)).toEqual(['me', 'a', 'b']);
     expect(getState().crmDepartments).toHaveLength(1);
   });
 
-  it('does not duplicate the current user when already persisted', () => {
+  it('does not duplicate the current user when already persisted', async () => {
     const persisted = [user('me', { role: 'admin' }), user('a')];
-    saveCrmPersisted({
+    await saveCrmPersisted({
       crmContacts: persisted,
       crmDepartments: [],
       crmCustomRoles: [],
@@ -134,15 +154,15 @@ describe('ensureCrmSeed', () => {
       crmTasks: [],
     });
     const { slice, getState } = makeStore();
-    slice.ensureCrmSeed('me', 'Me');
+    await slice.ensureCrmSeed('me', 'Me');
     expect(getState().crmContacts.filter((c: CrmContact) => c.userId === 'me')).toHaveLength(1);
   });
 });
 
 describe('resetCrmDemo', () => {
-  it('clears the storage key and restores demo data', () => {
+  it('clears the storage key and restores demo data', async () => {
     const { slice, getState } = makeStore();
-    saveCrmPersisted({
+    await saveCrmPersisted({
       crmContacts: [user('a')],
       crmDepartments: [],
       crmCustomRoles: [],

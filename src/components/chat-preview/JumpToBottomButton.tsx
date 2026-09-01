@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
+import { ChevronDown } from "lucide-react";
 
 interface JumpToBottomButtonProps {
   isNearBottom: boolean;
@@ -19,9 +20,7 @@ export const JumpToBottomButton = ({ isNearBottom, unreadSinceScroll, isDark, on
           isDark ? 'bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110' : 'bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110'
         }`}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 9l6 6 6-6"/>
-        </svg>
+        <ChevronDown size={16} strokeWidth={2.5} />
         {unreadSinceScroll > 0 && (
           <span className="text-xs font-bold">{unreadSinceScroll}</span>
         )}

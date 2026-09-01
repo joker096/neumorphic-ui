@@ -11,10 +11,6 @@ vi.mock('../../lib/i18n', () => ({
  }),
 }));
 
-vi.mock('../../lib/transport/obfuscator', () => ({
- trafficObfuscator: { setMode: vi.fn() },
-}));
-
 describe('NetworkSection - additional tests', () => {
   const defaultProps = {
    isDark: false,
@@ -22,10 +18,10 @@ describe('NetworkSection - additional tests', () => {
   setProxyEnabled: vi.fn(),
   proxyUrl: '',
   setProxyUrl: vi.fn(),
-  obfuscationMode: 'aesgcm',
-  setObfuscationMode: vi.fn(),
-  obfuscationEnabled: false,
-  setObfuscationEnabled: vi.fn(),
+   obfuscationEnabled: false,
+   setObfuscationEnabled: vi.fn(),
+   obfuscationMode: 'aesgcm',
+   setObfuscationMode: vi.fn(),
   torBridge: 'None',
   setTorBridge: vi.fn(),
   turnServerUrl: '',
@@ -87,18 +83,34 @@ it('renders TURN server inputs', () => {
    expect(container.querySelector('[class*="rounded-lg"]') || container.querySelector('[class*="border-"]')).toBeInTheDocument();
   });
 
- it('renders obfuscation mode when enabled', () => {
+it('renders obfuscation toggle row', () => {
   render(<NetworkSection {...defaultProps} obfuscationEnabled={true} />);
-  expect(screen.getByText('settings.obfuscationMode')).toBeInTheDocument();
- });
-
- it('renders obfuscation mode value', () => {
-  render(<NetworkSection {...defaultProps} obfuscationEnabled={true} />);
-  expect(screen.getByText('aesgcm')).toBeInTheDocument();
+  expect(screen.getByText('settings.obfuscation')).toBeInTheDocument();
  });
 
   it('renders all groups', () => {
-   const { container } = render(<NetworkSection {...defaultProps} />);
-   expect(container.querySelectorAll('button, input, [class*="group"]').length).toBeGreaterThanOrEqual(2);
+    const { container } = render(<NetworkSection {...defaultProps} />);
+    expect(container.querySelectorAll('button, input, [class*="group"]').length).toBeGreaterThanOrEqual(2);
+   });
+
+ it('hides obfuscation mode row when obfuscation is off', () => {
+   render(<NetworkSection {...defaultProps} obfuscationEnabled={false} />);
+   expect(screen.queryByText('settings.obfuscationMode')).not.toBeInTheDocument();
   });
+
+  it('shows obfuscation mode row and cycles it when obfuscation is on', () => {
+    const setObfuscationMode = vi.fn();
+    const { rerender } = render(
+      <NetworkSection {...defaultProps} obfuscationEnabled={true} obfuscationMode="aesgcm" setObfuscationMode={setObfuscationMode} />,
+    );
+    const row = screen.getByRole('button', { name: /obfuscationMode/i });
+    expect(row).toHaveTextContent('aesgcm');
+    fireEvent.click(row);
+    expect(setObfuscationMode).toHaveBeenCalledWith('httpmask');
+    rerender(
+      <NetworkSection {...defaultProps} obfuscationEnabled={true} obfuscationMode="httpmask" setObfuscationMode={setObfuscationMode} />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /obfuscationMode/i }));
+    expect(setObfuscationMode).toHaveBeenCalledWith('mediadummy');
+   });
 });

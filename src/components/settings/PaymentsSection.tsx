@@ -27,13 +27,15 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
       <SettingsSectionTitle title={t('settings.wallet', 'Wallet')} isDark={isDark} />
       <div className={`rounded-2xl p-5 mb-2 ${isDark ? "bg-gradient-to-br from-[var(--accent)]/20 to-transparent border border-[var(--border-color)]" : "bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20"}`}>
         <div className={`text-xs uppercase tracking-widest font-bold opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`}>{t('settings.balance', 'Balance')}</div>
-        <div className={`text-3xl font-bold mt-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>${balance.toFixed(2)}</div>
+        <div className={`text-[32px] font-bold mt-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>${balance.toFixed(2)}</div>
         <div className="flex gap-2 mt-4">
-          <button onClick={() => toast(t('settings.topUp', 'Top up started'), 'success')} className="flex-1 flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg min-h-[40px] bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
-            <Plus size={15} /> {t('settings.topUpBtn', 'Top up')}
+          <button onClick={() => toast(t('settings.topUp', 'Top up started'), 'success')} aria-label={t('settings.topUpBtn', 'Top up')} title={t('settings.topUpBtn', 'Top up')} className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
+            <Plus size={16} />
+            <span className="sr-only">{t('settings.topUpBtn', 'Top up')}</span>
           </button>
-          <button onClick={() => toast(t('settings.sendStarted', 'Send started'), 'info')} className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg min-h-[40px] transition-colors active:scale-95 ${isDark ? "bg-white/10 text-[var(--text-primary)]" : "bg-slate-800 text-white"}`}>
-            <ArrowUpRight size={15} /> {t('settings.sendBtn', 'Send')}
+          <button onClick={() => toast(t('settings.sendStarted', 'Send started'), 'info')} aria-label={t('settings.sendBtn', 'Send')} title={t('settings.sendBtn', 'Send')} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors active:scale-95 ${isDark ? "bg-white/10 text-[var(--text-primary)]" : "bg-slate-800 text-white"}`}>
+            <ArrowUpRight size={16} />
+            <span className="sr-only">{t('settings.sendBtn', 'Send')}</span>
           </button>
         </div>
       </div>
@@ -91,9 +93,12 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
         ))}
         <button
           onClick={() => toast(t('settings.receiptOpen', 'Opening receipts…'), 'info')}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors active:scale-[0.99] ${isDark ? "text-[var(--accent)] hover:bg-white/5" : "text-[var(--accent)] hover:bg-black/5"}`}
+          aria-label={t('settings.viewAllReceipts', 'View all receipts')}
+          title={t('settings.viewAllReceipts', 'View all receipts')}
+          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--accent)] transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
         >
-          <Receipt size={16} /> {t('settings.viewAllReceipts', 'View all receipts')}
+          <Receipt size={16} />
+          <span className="sr-only">{t('settings.viewAllReceipts', 'View all receipts')}</span>
         </button>
       </SettingsGroup>
     </SubView>

@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
-vi.mock('lucide-react', () => ({ Trash2: 'div', Music: 'div', Radio: 'div', Plus: 'div' }));
+vi.mock('lucide-react', () => ({ Trash2: 'div', Music: 'div', Radio: 'div', Plus: 'div', ChevronLeft: 'div' }));
 
 vi.mock('../../lib/i18n', () => {
   const translations: Record<string, string> = {
@@ -61,6 +61,7 @@ const defaultProps = {
   setStationUrl: vi.fn(),
   stationAddError: '',
   setStationAddError: vi.fn(),
+  handleFileSelect: vi.fn(),
 };
 
 describe('PlaylistView', () => {
@@ -84,5 +85,14 @@ describe('PlaylistView', () => {
     render(<PlaylistView {...defaultProps} />);
     const backBtn = screen.getByTitle('Back to Player');
     expect(backBtn).toBeInTheDocument();
+  });
+
+  it('wires the add track file input to handleFileSelect', () => {
+    const handleFileSelect = vi.fn();
+    render(<PlaylistView {...defaultProps} handleFileSelect={handleFileSelect} />);
+    fireEvent.change(screen.getByTitle('Add Track').querySelector('input') as HTMLInputElement, {
+      target: { files: [new File(['x'], 'a.mp3', { type: 'audio/mpeg' })] },
+    });
+    expect(handleFileSelect).toHaveBeenCalledTimes(1);
   });
 });

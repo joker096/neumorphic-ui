@@ -73,10 +73,12 @@ export const CrmExportMenu: React.FC<Props> = ({ contacts, departments, deals, t
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+        aria-label={t('crm.export', CRM_FALLBACKS.export)}
+        title={t('crm.export', CRM_FALLBACKS.export)}
+        className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
       >
-        <Download size={15} />
-        {t('crm.export', CRM_FALLBACKS.export)}
+        <Download size={16} aria-hidden="true" />
+        <span className="sr-only">{t('crm.export', CRM_FALLBACKS.export)}</span>
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-1 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-lg z-[140] overflow-hidden min-w-[190px]">

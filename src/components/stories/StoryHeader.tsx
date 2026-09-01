@@ -29,7 +29,7 @@ export const StoryHeader: React.FC<StoryHeaderProps> = ({ user, timeLabel, onClo
       </div>
       {user.isMe && (
         <div className="flex items-center gap-1 text-white/60 text-xs bg-white/10 px-2 py-1 rounded-full shrink-0">
-          <Lock size={11} aria-hidden="true" /> {t('story.private', 'Private')}
+          <Lock size={12} aria-hidden="true" /> {t('story.private', 'Private')}
         </div>
       )}
       <CloseButton onClick={onClose} aria-label={t('common.close')} size="lg" className="!text-white hover:!bg-white/20" />

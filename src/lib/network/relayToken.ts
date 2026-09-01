@@ -16,7 +16,7 @@ let cachedUntil = 0
 let inflight: Promise<string> | null = null
 
 function getRestBase(wsUrl: string): string {
-  const override = (import.meta as any)?.env?.VITE_SIGNALING_REST_URL as string | undefined
+  const override = (import.meta.env as any)?.VITE_SIGNALING_REST_URL as string | undefined
   if (override) return override.replace(/\/$/, '')
   try {
     const u = new URL(wsUrl)

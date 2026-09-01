@@ -1,6 +1,12 @@
 export type CallType = 'audio' | 'video' | 'screen';
 export type CallDirection = 'incoming' | 'outgoing';
-export type CallStatus = 'idle' | 'ringing' | 'connecting' | 'connected' | 'ended';
+export type CallStatus = 'idle' | 'ringing' | 'connecting' | 'connected' | 'reconnecting' | 'error' | 'ended';
+
+export interface IncomingCall {
+  peerId: string;
+  displayName: string;
+  callType: 'audio' | 'video';
+}
 export type CallRole = 'initiator' | 'answerer';
 
 export interface CallPeer {
@@ -29,6 +35,14 @@ export interface ActiveCall {
   isPreview?: boolean;
 }
 
+export type CallErrorReason = 'permission' | 'no-device' | 'device-busy' | 'unknown';
+
+export interface DeviceCheckResult {
+  supported: boolean;
+  hasAudio: boolean;
+  hasVideo: boolean;
+}
+
 export type CallEventType =
   | 'call:incoming'
   | 'call:accepted'
@@ -40,6 +54,10 @@ export type CallEventType =
   | 'call:recording-toggled'
   | 'call:peer-joined'
   | 'call:peer-left'
-  | 'call:error';
+  | 'call:error'
+  | 'call:reconnecting'
+  | 'call:reconnected'
+  | 'call:network-error'
+  | 'call:quality';
 
 export type CallEventHandler = (event: { type: CallEventType; data?: any }) => void;

@@ -3,6 +3,16 @@ import * as idb from 'idb-keyval';
 
 // Store the hex of the master key after initialization
 let _masterKeyHex: string | null = null;
+// Effective raw device bound key (fingerprint-derived or imported override)
+let _effectiveRaw: Uint8Array | null = null;
+
+const STATIC_SALT_HEX = 'c0ffee00000000000000000000000000';
+const OVERRIDE_KEY_ID = '__nexus_device_key_override';
+const KEY_ITERATIONS = 600000;
+
+async function importRawKey(raw: Uint8Array): Promise<CryptoKey> {
+  return crypto.subtle.importKey('raw', raw, 'AES-GCM', true, ['encrypt', 'decrypt']);
+}
 
 export const deviceSecurity = {
   async getDeviceFingerprint(): Promise<string> {
@@ -13,11 +23,48 @@ export const deviceSecurity = {
     return `${ua}|${coreCount}|${platform}|${screen}`;
   },
 
-  async getDeviceBoundKey(): Promise<CryptoKey> {
+  async _deriveFingerprintRaw(): Promise<Uint8Array> {
     const fingerprint = await this.getDeviceFingerprint();
-    const staticSaltHex = 'c0ffee00000000000000000000000000';
-    const { key } = await cryptoCore.deriveAESKeyFromPassword(fingerprint, staticSaltHex, 600000);
-    return key;
+    const passKey = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(fingerprint),
+      'PBKDF2',
+      false,
+      ['deriveBits'],
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt: hex2buf(STATIC_SALT_HEX), iterations: KEY_ITERATIONS, hash: 'SHA-256' },
+      passKey,
+      256,
+    );
+    return new Uint8Array(bits);
+  },
+
+  async _fingerprintKey(): Promise<CryptoKey> {
+    return importRawKey(await this._deriveFingerprintRaw());
+  },
+
+  async getDeviceBoundKeyRaw(): Promise<Uint8Array> {
+    if (_effectiveRaw) return _effectiveRaw;
+    const stored = await idb.get(OVERRIDE_KEY_ID);
+    if (stored && stored.cipher && stored.iv) {
+      try {
+        const fpKey = await this._fingerprintKey();
+        const raw = hex2buf(await cryptoCore.decryptData(stored.cipher, stored.iv, fpKey));
+        if (raw.length === 32) {
+          _effectiveRaw = raw;
+          return raw;
+        }
+      } catch (e) {
+        console.warn('Failed to unwrap device key override. Using fingerprint key.', e);
+      }
+    }
+    _effectiveRaw = await this._deriveFingerprintRaw();
+    return _effectiveRaw;
+  },
+
+  async getDeviceBoundKey(): Promise<CryptoKey> {
+    return importRawKey(await this.getDeviceBoundKeyRaw());
   },
 
   async initSessionMasterKey(): Promise<CryptoKey> {
@@ -83,5 +130,48 @@ export const deviceSecurity = {
   // Get the stored master key hex
   getStoredMasterKeyHex(): string | null {
     return _masterKeyHex;
+  },
+
+  // Export the effective device key wrapped under a user passphrase (migration to another device)
+  async exportEncryptedKey(passphrase: string): Promise<string> {
+    const raw = await this.getDeviceBoundKeyRaw();
+    const { key, saltHex } = await cryptoCore.deriveAESKeyFromPassword(passphrase);
+    const { cipher, iv } = await cryptoCore.encryptData(buf2hex(raw), key);
+    return JSON.stringify({ v: 1, salt: saltHex, iv, cipher });
+  },
+
+  // Import a passphrase-wrapped device key; re-wrap under this device's fingerprint key and persist
+  async importEncryptedKey(passphrase: string, bundle: string): Promise<void> {
+    let parsed: { v?: unknown; salt?: unknown; iv?: unknown; cipher?: unknown };
+    try {
+      parsed = JSON.parse(bundle);
+    } catch (e) {
+      throw new TypeError('importEncryptedKey: invalid bundle', e);
+    }
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      parsed.v !== 1 ||
+      typeof parsed.salt !== 'string' ||
+      typeof parsed.iv !== 'string' ||
+      typeof parsed.cipher !== 'string'
+    ) {
+      throw new TypeError('importEncryptedKey: invalid bundle format');
+    }
+    const { key } = await cryptoCore.deriveAESKeyFromPassword(passphrase, parsed.salt);
+    const rawHex = await cryptoCore.decryptData(parsed.cipher, parsed.iv, key);
+    const raw = hex2buf(rawHex);
+    if (raw.length !== 32) {
+      throw new TypeError('importEncryptedKey: invalid key material');
+    }
+    const fpKey = await this._fingerprintKey();
+    const { cipher, iv } = await cryptoCore.encryptData(buf2hex(raw), fpKey);
+    await idb.set(OVERRIDE_KEY_ID, { cipher, iv });
+    _effectiveRaw = raw;
+  },
+
+  async clearDeviceKeyOverride(): Promise<void> {
+    await idb.del(OVERRIDE_KEY_ID);
+    _effectiveRaw = null;
   }
 };

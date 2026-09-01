@@ -74,4 +74,16 @@ describe('AdvancedFilterModal - additional tests', () => {
     const toggles = document.querySelectorAll('.w-\\[44px\\]');
     expect(toggles.length).toBe(5);
   });
+
+  it('renders square icon-only reset and apply buttons', () => {
+    render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
+    const resetBtn = screen.getByRole('button', { name: 'chat.filters.reset' }) as HTMLElement;
+    const applyBtn = screen.getByRole('button', { name: 'chat.filters.apply' }) as HTMLElement;
+    expect(resetBtn.className).toContain('w-10');
+    expect(resetBtn.className).toContain('h-10');
+    expect(applyBtn.className).toContain('w-10');
+    expect(applyBtn.className).toContain('h-10');
+    expect(resetBtn.className).not.toContain('w-full');
+    expect(applyBtn.className).not.toContain('w-full');
+  });
 });

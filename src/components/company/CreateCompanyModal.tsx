@@ -8,7 +8,7 @@ import { FormField } from '../ui/FormField';
 const closeBtn = (onClick: () => void) => (
   <button
     onClick={onClick}
-    className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+    className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
   >
     <X size={18} />
   </button>
@@ -66,7 +66,7 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
               {t('company.companyName', 'Company name')}
             </label>
             <div className="flex items-center gap-3">
-              <div className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+              <div className="min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
                 <Building2 size={16} />
               </div>
               <FormField
@@ -85,7 +85,7 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
               {t('company.yourName', 'Your name')}
             </label>
             <div className="flex items-center gap-3">
-              <div className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+              <div className="min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
                 <User size={16} />
               </div>
               <FormField
@@ -103,16 +103,16 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
         <button
           onClick={handleCreate}
           disabled={!canSubmit || creating}
-          className="w-full mt-5 min-h-[44px] rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
+          aria-label={t('company.createCta', 'Create company')}
+          title={t('company.createCta', 'Create company')}
+          className="w-full mt-5 min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
         >
           {creating ? (
-            <Loader2 size={16} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin" aria-hidden="true" />
           ) : (
-            <Check size={16} />
+            <Check size={16} aria-hidden="true" />
           )}
-          {creating
-            ? t('company.creating', 'Creating...')
-            : t('company.createCta', 'Create company')}
+          <span className="sr-only">{t('company.createCta', 'Create company')}</span>
         </button>
       </div>
     </div>

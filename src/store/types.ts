@@ -7,13 +7,18 @@ export interface P2PChannel {
    id: string;
    name: string;
    ownerPublicKey: string;
-   channelId: string;
+   ownerId?: string;
+   history?: any[];
+    channelId: string;
    subscriberCount: number;
    postCount: number;
-   isPrivate: boolean;
-   isPublic: boolean;
-   createdAt: number;
-   description?: string;
+    isPrivate: boolean;
+    isPublic: boolean;
+    createdAt: number;
+    subscribers?: number;
+    username?: string;
+    verified?: boolean;
+    description?: string;
    rules?: string[];
    settings?: {
       canPost?: boolean;

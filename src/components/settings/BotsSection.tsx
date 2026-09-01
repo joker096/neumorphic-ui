@@ -7,6 +7,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { TextInputModal } from './TextInputModal';
 import type { BotConfig } from '../../store';
 import { DEFAULT_BOT_PERMISSIONS } from '../../store';
+import { saveBot } from '../../lib';
 
 interface BotsSectionProps {
   isDark?: boolean;
@@ -39,6 +40,8 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
       isRunning: false,
     };
     setBots(prev => [...prev, newBot]);
+    // persist to idb bots_list so localBot.getBotProfile/getMiniApp can resolve it
+    saveBot(newBot);
     toast.success(t('settings.botAdded'));
     setShowAddBotModal(false);
   };
@@ -84,7 +87,7 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
               rightElement={
                 <button
                   onClick={(e) => { e.stopPropagation(); handleRemoveBot(bot.id, bot.name); }}
-                  className="flex items-center justify-center w-11 h-11 -mr-2 rounded-lg hover:text-red-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                  className="flex items-center justify-center w-9 h-9 min-w-11 min-h-11 -mr-2 rounded-lg hover:text-red-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                   title={t('settings.removeBot')}
                   aria-label={t('settings.removeBot')}
                 >

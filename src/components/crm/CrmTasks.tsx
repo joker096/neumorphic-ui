@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Plus, CheckCircle2, Circle, Trash2, Flag } from 'lucide-react';
+import { Plus, CheckCircle2, Circle, Trash2, Flag, X, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
@@ -17,7 +17,7 @@ const priorityColor: Record<TaskPriority, string> = {
 };
 
 const inputCls =
-  'w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
+  'w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 const labelCls = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block';
 
 type Props = { task?: CrmTask; onClose: () => void };
@@ -60,8 +60,9 @@ const TaskModal: React.FC<Props> = ({ task, onClose }) => {
       title={task ? task.title : t('crm.newTask', 'New task')}
       footer={
         editable ? (
-          <button onClick={handleSave} className="w-full min-h-[44px] rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110">
-            {t('crm.save', CRM_FALLBACKS.save)}
+          <button onClick={handleSave} aria-label={t('crm.save', CRM_FALLBACKS.save)} title={t('crm.save', CRM_FALLBACKS.save)} className="w-full min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center gap-2">
+            <Check size={16} aria-hidden="true" />
+            <span className="sr-only">{t('crm.save', CRM_FALLBACKS.save)}</span>
           </button>
         ) : <div className="text-center text-xs text-[var(--text-secondary)] py-2">{t('crm.readOnly', 'Read only')}</div>
       }
@@ -150,8 +151,9 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
           {tasks.filter((x) => !x.done).length} {t('crm.open', 'open')}
         </span>
         {can('manageTasks') && (
-          <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 min-h-[40px] px-3 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110">
-            <Plus size={15} /> {t('crm.addTask', CRM_FALLBACKS.addTask)}
+          <button onClick={() => setShowAdd(true)} aria-label={t('crm.addTask', CRM_FALLBACKS.addTask)} title={t('crm.addTask', CRM_FALLBACKS.addTask)} className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center">
+            <Plus size={16} aria-hidden="true" />
+            <span className="sr-only">{t('crm.addTask', CRM_FALLBACKS.addTask)}</span>
           </button>
         )}
       </div>
@@ -179,7 +181,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
             <div className="flex-1 min-w-0">
               <div className={`text-sm font-medium break-words ${task.done ? 'line-through text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'}`}>{task.title}</div>
               <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-[var(--text-secondary)]">
-                <span className={`px-1.5 py-0.5 rounded-full ${priorityColor[task.priority]}`}><Flag size={9} className="inline mr-0.5" />{task.priority}</span>
+                <span className={`px-1.5 py-0.5 rounded-full ${priorityColor[task.priority]}`}><Flag size={12} className="inline mr-0.5" />{task.priority}</span>
                 {name(task.assigneeId) && <span>👤 {name(task.assigneeId)}</span>}
                 {task.dueAt && <span>⏰ {new Date(task.dueAt).toLocaleDateString()}</span>}
                 {name(task.contactId) && <span>🔗 {name(task.contactId)}</span>}
@@ -210,6 +212,8 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
         message={tasks.find((x) => x.id === confirmTaskId)?.title ?? ''}
         confirmLabel={t('common.confirm', 'Confirm')}
         cancelLabel={t('common.cancel', 'Cancel')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
         zIndex="z-[130]"

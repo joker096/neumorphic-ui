@@ -9,8 +9,8 @@ const JWT_SECRET = process.env.JWT_SECRET
 let _signToken, _verifyToken
 
 if (JWT_SECRET) {
-  _signToken = (payload: { adminId: number; username: string }) => jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' })
-  _verifyToken = (token: string) => jwt.verify(token, JWT_SECRET)
+  _signToken = (payload: { adminId: number; username: string }) => jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256', expiresIn: '24h' })
+  _verifyToken = (token: string) => jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] })
 } else {
   console.warn('WARN: JWT_SECRET not set. Signaling server will fail to start.')
   console.warn('CLI commands work without it. Run once: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"')
@@ -31,12 +31,13 @@ export function signToken(payload: JwtPayload): string {
  * server only validates the signature (the payload `id` is informational), so
  * this is a self-contained, serverless auth source — no external IdP, no DB.
  * The relay's WebSocket handshake requires `?token=<jwt>`; this endpoint lets
- * any client obtain one, which is acceptable for this E2E-encrypted app where
- * message confidentiality is enforced client-side by recipient public keys.
+ * any client obtain one. Message confidentiality is enforced client-side by
+ * per-session ECDH-derived AES-GCM encryption (see P2PTransport), not by the
+ * relay.
  */
 export function signRelayToken(id: string, expiresIn: string | number = '1h'): string {
   if (!JWT_SECRET) throw new Error('JWT_SECRET not configured. Cannot sign relay token.')
-  return jwt.sign({ id, scope: 'relay' }, JWT_SECRET, { expiresIn } as jwt.SignOptions)
+  return jwt.sign({ id, scope: 'relay' }, JWT_SECRET, { algorithm: 'HS256', expiresIn } as jwt.SignOptions)
 }
 
 export function verifyToken(token: string): JwtPayload {

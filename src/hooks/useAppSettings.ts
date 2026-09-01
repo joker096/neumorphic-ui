@@ -13,6 +13,12 @@ export function useAppSettings() {
   const setTheme = (t: Theme) => setThemeState(t);
   const isDark = theme === 'dark';
 
+  // Mirror the theme onto <html> so CSS vars resolve outside AppShell
+  // (body/html backgrounds, scrollbars) and Tailwind `dark:` variants match.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
   const language = lang;
   const setLanguage = setLang;
 

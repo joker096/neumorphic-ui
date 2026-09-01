@@ -1,11 +1,12 @@
 import { HMACAuth } from './HMACAuth'
-import { TrafficObfuscator } from '../transport/obfuscator'
 import { getRelayToken, withToken } from '../network/relayToken'
 import {
   generateX25519KeyPair,
   buf2hex,
   hex2buf,
-  deriveSharedHmacKey,
+  b64encode,
+  b64decode,
+  deriveSharedSessionKeys,
 } from '../crypto/cryptoCore'
 import { signDh, verifyOrPinPeer } from './identityPin'
 
@@ -28,7 +29,6 @@ interface P2PTransportConfig {
   onMessage: P2PMessageHandler
   onConnected: P2PConnectionHandler
   onDisconnected: P2PConnectionHandler
-  obfuscator?: TrafficObfuscator;
   obfuscationEnabled?: boolean;
   identitySecretKey?: Uint8Array
   identityPublicKey?: Uint8Array
@@ -59,8 +59,8 @@ export class P2PTransport {
   private outgoingStreams: MediaStream[] = []
   private pendingOutgoingTracks: MediaStreamTrack[] = []
   private localHandlesTracks = false
-  private obfuscator: TrafficObfuscator | null = null
   private obfuscationEnabled = true
+  private sessionAesKey: CryptoKey | null = null
   private identitySecretKey: Uint8Array | null = null
   private identityPublicKey: Uint8Array | null = null
 
@@ -73,7 +73,6 @@ export class P2PTransport {
     this.iceServers = config.iceServers ?? [
       { urls: 'stun:turn.neumorphic.local:3478' },
     ]
-    this.obfuscator = config.obfuscator ?? null
     this.obfuscationEnabled = config.obfuscationEnabled ?? true
     this.identitySecretKey = config.identitySecretKey ?? null
     this.identityPublicKey = config.identityPublicKey ?? null
@@ -191,14 +190,31 @@ export class P2PTransport {
     })
   }
 
-  private async deriveHmacFromPeerDh(peerDhPubHex: string): Promise<string | null> {
-    if (!this.localDhPrivateKey) return null
+  /**
+   * Derive the per-session HMAC + AES-GCM keys from the peer's ephemeral DH
+   * public key. Both keys come from the same SHA-512 digest of the ECDH shared
+   * secret, split into two independent 32-byte halves. The keys are derived
+   * locally on both peers and are never transmitted.
+   */
+  private async deriveSessionFromPeerDh(peerDhPubHex: string): Promise<boolean> {
+    if (!this.localDhPrivateKey) return false
     try {
       const peerKey = hex2buf(peerDhPubHex)
-      if (peerKey.length !== 32) return null
-      return await deriveSharedHmacKey(this.localDhPrivateKey, peerKey)
+      if (peerKey.length !== 32) return false
+      const { hmacKey, aesKeyHex } = deriveSharedSessionKeys(this.localDhPrivateKey, peerKey)
+      this.hmacKey = hmacKey
+      this.sessionAesKey = await crypto.subtle.importKey(
+        'raw',
+        hex2buf(aesKeyHex),
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt'],
+      )
+      return true
     } catch {
-      return null
+      this.hmacKey = null
+      this.sessionAesKey = null
+      return false
     }
   }
 
@@ -228,21 +244,56 @@ export class P2PTransport {
   }
 
   async send(data: string): Promise<void> {
-    let payload = data;
-    if (this.obfuscationEnabled && this.obfuscator) {
-      payload = await this.obfuscator.obfuscate(data);
-    }
     if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
       console.warn('[P2PTransport] Data channel not open')
       return
     }
 
+    let payload = data;
+    if (this.obfuscationEnabled && this.sessionAesKey) {
+      payload = await this.encryptPayload(data);
+    }
+
     if (this.hmacKey) {
-      HMACAuth.sign(this.hmacKey, payload).then((sig) => {
-        this.dataChannel!.send(`${sig}|${payload}`)
-      })
+      HMACAuth.sign(this.hmacKey, payload)
+        .then((sig) => {
+          this.dataChannel!.send(`${sig}|${payload}`)
+        })
+        .catch((e) => console.warn('[P2PTransport] HMAC sign failed', e))
     } else {
       this.dataChannel.send(payload)
+    }
+  }
+
+  private async encryptPayload(data: string): Promise<string> {
+    const iv = crypto.getRandomValues(new Uint8Array(12))
+    const cipher = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      this.sessionAesKey!,
+      new TextEncoder().encode(data),
+    )
+    return `${b64encode(iv)}:${b64encode(new Uint8Array(cipher))}`
+  }
+
+  private async decryptPayload(payload: string): Promise<string | null> {
+    if (!this.sessionAesKey) return null
+    const sep = payload.indexOf(':')
+    if (sep === -1) {
+      console.warn('[P2PTransport] Missing AES-GCM IV separator')
+      return null
+    }
+    try {
+      const iv = b64decode(payload.slice(0, sep))
+      const cipher = b64decode(payload.slice(sep + 1))
+      const plain = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        this.sessionAesKey,
+        cipher,
+      )
+      return new TextDecoder().decode(plain)
+    } catch {
+      console.warn('[P2PTransport] Failed to decrypt session payload')
+      return null
     }
   }
 
@@ -262,6 +313,7 @@ export class P2PTransport {
     this.signalingWs = null
     this.peerPublicKey = null
     this.hmacKey = null
+    this.sessionAesKey = null
     this.localDhPrivateKey = null
     this.pendingCandidates = []
     this.reconnectAttempts = 0
@@ -276,10 +328,6 @@ export class P2PTransport {
 
   setIceServers(servers: RTCIceServer[]): void {
     this.iceServers = servers
-  }
-
-  setObfuscator(obfuscator: TrafficObfuscator): void {
-    this.obfuscator = obfuscator
   }
 
   private createPeerConnection(): void {
@@ -379,6 +427,12 @@ export class P2PTransport {
         data = payload
       }
 
+      if (this.obfuscationEnabled && this.sessionAesKey) {
+        const plain = await this.decryptPayload(data)
+        if (plain === null) return
+        data = plain
+      }
+
       this.onMessage(data)
     }
 
@@ -433,7 +487,7 @@ export class P2PTransport {
       const ownKp = generateX25519KeyPair()
       this.localDhPrivateKey = ownKp.secretKey
       const myDhPub = buf2hex(ownKp.publicKey)
-      this.hmacKey = await this.deriveHmacFromPeerDh(msg.dhPub)
+      await this.deriveSessionFromPeerDh(msg.dhPub)
       let myIdentityPub: string | undefined
       let myDhSig: string | undefined
       if (this.identitySecretKey && this.identityPublicKey) {
@@ -449,9 +503,10 @@ export class P2PTransport {
         dhSig: myDhSig,
       })
     } else {
-      // Insecure plaintext HMAC fallback removed: the HMAC key must be derived
-      // from ECDH and is never transmitted. Proceed without message authentication.
+      // Insecure plaintext HMAC fallback removed: the keys must be derived
+      // from ECDH and are never transmitted. Proceed without authentication/encryption.
       this.hmacKey = null
+      this.sessionAesKey = null
       this.sendSignaling({
         type: 'answer',
         target: msg.from,
@@ -474,13 +529,15 @@ export class P2PTransport {
         if (!ok) {
           console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting answer')
           this.hmacKey = null
+          this.sessionAesKey = null
           return
         }
       }
-      this.hmacKey = await this.deriveHmacFromPeerDh(msg.dhPub)
+      await this.deriveSessionFromPeerDh(msg.dhPub)
     } else {
       // Insecure plaintext HMAC fallback removed.
       this.hmacKey = null
+      this.sessionAesKey = null
     }
 
     await this.peerConnection!.setRemoteDescription(

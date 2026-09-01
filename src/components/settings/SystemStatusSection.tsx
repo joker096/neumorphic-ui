@@ -119,7 +119,7 @@ export const SystemStatusSection = ({
           <div className={`${modalSurface(isDark)} max-w-[420px]`} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[var(--accent-soft)] text-[var(--accent)]">
-                <Smartphone size={26} />
+                <Smartphone size={24} />
               </div>
               <div className="min-w-0">
                 <h3 className="text-lg font-bold text-foreground truncate">{APP_INFO.NAME}</h3>

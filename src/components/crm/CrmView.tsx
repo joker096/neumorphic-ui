@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Users, TrendingUp, CheckSquare, ShieldCheck, UserPlus } from 'lucide-react';
+import { Users, TrendingUp, CheckSquare, ShieldCheck, UserPlus, Upload } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
@@ -10,6 +10,7 @@ import { CrmRoles } from './CrmRoles';
 import { CrmGlobalSearch } from './CrmGlobalSearch';
 import { CrmExportMenu } from './CrmExportMenu';
 import { CrmInviteModal } from './CrmInviteModal';
+import { CrmImportWizard } from './CrmImportWizard';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import type { CrmFocusKind } from '../../lib/crm/types';
 
@@ -42,9 +43,10 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
   const [tab, setTab] = useState<Tab>('people');
   const [focus, setFocus] = useState<{ kind: CrmFocusKind; id: string } | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   useEffect(() => {
-    ensureCrmSeed(userId, userName);
+    void ensureCrmSeed(userId, userName);
   }, [ensureCrmSeed, userId, userName]);
 
   const roleLabel = me?.role === 'admin' ? t('crm.roleAdmin', CRM_FALLBACKS.roleAdmin)
@@ -72,13 +74,24 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
         </div>
         <div className="flex items-center gap-2">
           <CrmExportMenu contacts={contacts} departments={departments} deals={deals} tasks={tasks} />
+          <button
+            onClick={() => setImportOpen(true)}
+            aria-label={t('crm.import.title', 'Import CRM data')}
+            title={t('crm.import.title', 'Import CRM data')}
+            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+          >
+            <Upload size={16} aria-hidden="true" />
+            <span className="sr-only">{t('crm.import.title', 'Import CRM data')}</span>
+          </button>
           {can('manageCompany') && (
             <button
               onClick={() => setInviteOpen(true)}
-              className="min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+              aria-label={t('crm.invite', CRM_FALLBACKS.invite)}
+              title={t('crm.invite', CRM_FALLBACKS.invite)}
+              className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
             >
-              <UserPlus size={15} />
-              {t('crm.invite', CRM_FALLBACKS.invite)}
+              <UserPlus size={16} aria-hidden="true" />
+              <span className="sr-only">{t('crm.invite', CRM_FALLBACKS.invite)}</span>
             </button>
           )}
         </div>
@@ -88,19 +101,28 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
         <CrmGlobalSearch contacts={contacts} deals={deals} tasks={tasks} onPick={handlePick} />
       </div>
 
-      <div className="flex gap-1 px-3 py-2 border-b border-[var(--border-color)] overflow-x-auto">
-        {TABS.map((tb) => (
-          <button
-            key={tb.id}
-            onClick={() => setTab(tb.id)}
-            className={`flex items-center gap-1.5 px-2.5 min-h-[var(--control-height-sm)] rounded-xl text-[10px] font-bold whitespace-nowrap transition-all ${
-              tab === tb.id ? 'bg-[var(--accent)] text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)] hover:bg-[var(--list-item-hover-bg)]'
-            }`}
-          >
-            {tb.icon}
-            {t(tb.labelKey, (CRM_FALLBACKS as any)[tb.labelKey.replace('crm.', '')])}
-          </button>
-        ))}
+      <div className="flex gap-1.5 px-3 py-2 border-b border-[var(--border-color)] overflow-x-auto">
+        {TABS.map((tb) => {
+          const label = t(tb.labelKey, (CRM_FALLBACKS as any)[tb.labelKey.replace('crm.', '')]);
+          const active = tab === tb.id;
+          return (
+            <button
+              key={tb.id}
+              onClick={() => setTab(tb.id)}
+              title={label}
+              aria-label={label}
+              aria-current={active}
+              className={`flex flex-col items-center justify-center gap-1 px-3 min-h-[var(--control-height-sm)] rounded-xl transition-all ${
+                active
+                  ? 'neo-pressed text-[var(--accent)]'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--list-item-hover-bg)]'
+              }`}
+            >
+              {tb.icon}
+              <span className="text-xs font-semibold leading-none">{label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {tab === 'people' && (
@@ -118,6 +140,7 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
       {tab === 'roles' && <CrmRoles />}
 
       {inviteOpen && <CrmInviteModal onClose={() => setInviteOpen(false)} />}
+      {importOpen && <CrmImportWizard onClose={() => setImportOpen(false)} />}
     </div>
   );
 };

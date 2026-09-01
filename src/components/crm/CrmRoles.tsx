@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, ShieldCheck, Building2, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, ShieldCheck, Building2, RefreshCw, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
@@ -10,7 +10,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 
 const inputCls =
-  'w-full min-h-[40px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
+  'w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 const DEP_COLORS = ['from-sky-400 to-blue-500', 'from-emerald-400 to-green-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-rose-400 to-pink-500'];
 
 export const CrmRoles: React.FC = () => {
@@ -47,7 +47,7 @@ export const CrmRoles: React.FC = () => {
         {can('manageDepartments') && (
           <div className="flex gap-2 mb-3 px-2">
             <input value={depName} onChange={(e) => setDepName(e.target.value)} placeholder={t('crm.departmentName', 'Department name')} className={inputCls} />
-            <button onClick={() => { if (depName.trim()) { addDepartment(depName.trim(), DEP_COLORS[departments.length % DEP_COLORS.length]); setDepName(''); toast.success(t('crm.departmentCreated', 'Department created')); } }} className="min-h-[40px] px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer">
+            <button onClick={() => { if (depName.trim()) { addDepartment(depName.trim(), DEP_COLORS[departments.length % DEP_COLORS.length]); setDepName(''); toast.success(t('crm.departmentCreated', 'Department created')); } }} className="min-h-11 px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer">
               <Plus size={16} />
             </button>
           </div>
@@ -89,7 +89,7 @@ export const CrmRoles: React.FC = () => {
         {can('manageRoles') && (
           <div className="flex gap-2 mb-3 px-2">
             <input value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder={t('crm.roleName', CRM_FALLBACKS.roleName)} className={inputCls} />
-            <button onClick={() => { if (roleName.trim()) { addCustomRole(roleName.trim()); setRoleName(''); toast.success(t('crm.roleCreated', 'Role created')); } }} className="min-h-[40px] px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer">
+            <button onClick={() => { if (roleName.trim()) { addCustomRole(roleName.trim()); setRoleName(''); toast.success(t('crm.roleCreated', 'Role created')); } }} className="min-h-11 px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer">
               <Plus size={16} />
             </button>
           </div>
@@ -142,10 +142,14 @@ export const CrmRoles: React.FC = () => {
           </div>
           <div className="px-2">
             <button
+              type="button"
               onClick={() => setConfirm({ type: 'reset' })}
-              className="min-h-[44px] px-4 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] inline-flex items-center gap-1.5"
+              aria-label={t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}
+              title={t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}
+              className="min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] inline-flex items-center justify-center"
             >
-              <RefreshCw size={14} /> {t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}
+              <RefreshCw size={18} aria-hidden="true" />
+              <span className="sr-only">{t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}</span>
             </button>
           </div>
         </section>
@@ -163,6 +167,8 @@ export const CrmRoles: React.FC = () => {
         message={confirm?.type === 'reset' ? t('crm.resetDemoWarning', 'This will replace your current CRM data.') : ''}
         confirmLabel={t('common.confirm', 'Confirm')}
         cancelLabel={t('common.cancel', 'Cancel')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
         zIndex="z-[130]"

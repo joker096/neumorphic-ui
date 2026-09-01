@@ -1,6 +1,7 @@
 import { Component, Suspense } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import { detectBrowserLanguage } from "../../lib/i18n";
+import { RefreshCw } from "lucide-react";
 import { forceFreshReload, isChunkLoadError } from "../../lib/chunk-reload";
 import { getErrorBoundaryString } from "../../constants/errorBoundaryStrings";
 
@@ -131,9 +132,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             </details>
             <button
               onClick={chunkError ? () => forceFreshReload(true) : this.handleRetry}
-              className="mt-4 px-4 py-2 bg-[var(--accent)]/20 border border-[var(--accent)]/40 rounded-lg text-sm hover:bg-[var(--accent)]/30 transition-colors"
+              aria-label={chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}
+              title={chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}
+              className="mt-4 w-9 h-9 min-w-11 min-h-11 flex items-center justify-center bg-[var(--accent)]/20 border border-[var(--accent)]/40 rounded-lg hover:bg-[var(--accent)]/30 transition-colors"
             >
-              {chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}
+              <RefreshCw size={16} />
+              <span className="sr-only">{chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}</span>
             </button>
           </div>
         </div>

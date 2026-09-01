@@ -1,12 +1,73 @@
 import type { Contact } from '../../types/contact';
 import type { P2PChannel, BotConfig, ScheduledMessage } from '../types';
 
+export type GroupRole = 'owner' | 'admin' | 'member';
+
+export type GroupPermission = 'manageMembers' | 'manageGroup' | 'deleteGroup';
+
+export const GROUP_ROLE_PERMISSIONS: Record<GroupRole, readonly GroupPermission[]> = {
+  owner: ['manageMembers', 'manageGroup', 'deleteGroup'],
+  admin: ['manageMembers', 'manageGroup'],
+  member: [],
+};
+
+export interface GroupPermissions {
+  sendMessages: boolean;
+  addMembers: boolean;
+  mentionEveryone: boolean;
+}
+
+export const DEFAULT_GROUP_PERMISSIONS: GroupPermissions = {
+  sendMessages: true,
+  addMembers: false,
+  mentionEveryone: false,
+};
+
+export interface GroupMember {
+  id: string;
+  name: string;
+  color: string;
+  role: GroupRole;
+  banned?: boolean;
+  muted?: boolean;
+}
+
+export interface GroupInfo {
+  inviteToken: string;
+  slowModeSeconds: number;
+  ownerId: string;
+  permissions?: GroupPermissions;
+}
+
+export const canGroupPermission = (role: GroupRole | null | undefined, perm: GroupPermission): boolean =>
+  role ? GROUP_ROLE_PERMISSIONS[role].includes(perm) : false;
+
+export const getGroupRole = (
+  chat: { group?: GroupInfo; members?: GroupMember[] } | undefined | null,
+  userId: string,
+): GroupRole | null => {
+  if (!chat) return null;
+  if (chat.group?.ownerId === userId) return 'owner';
+  return (chat.members ?? []).find((m: GroupMember) => m.id === userId)?.role ?? null;
+};
+
+export const groupPermissionsOf = (group: GroupInfo | undefined | null): GroupPermissions =>
+  group?.permissions ?? { ...DEFAULT_GROUP_PERMISSIONS };
+
 export interface ChatSlice {
   chats: any[];
+  createGroup: (opts: { name: string; memberIds: string[] }) => string;
+  updateGroup: (chatId: string, patch: Partial<{ members: GroupMember[]; group: GroupInfo }>) => void;
+  deleteGroup: (chatId: string) => void;
+  leaveGroup: (chatId: string, userId: string) => void;
+  leaveChannel: (chatId: string | number) => void;
+  setChatMuted: (chatId: string, muted: boolean) => void;
   setChats: (updater: any[] | ((prev: any[]) => any[])) => void;
   forwardMessage: (message: any, targetChatId: string) => void;
   contacts: Contact[];
   setContacts: (updater: Contact[] | ((prev: Contact[]) => Contact[])) => void;
+  setContactMuted: (contactId: string, muted: boolean) => void;
+  setContactBlocked: (contactId: string, blocked: boolean) => void;
   favoriteContacts: string[];
   addFavorite: (id: string) => void;
   removeFavorite: (id: string) => void;
@@ -20,13 +81,80 @@ export interface ChatSlice {
   pinChat: (chatId: string | number) => void;
   pinnedMessageList: Array<{ id: number; chatId: string | number; pinBy: string; pinnedAt: number }>;
   addPinnedMessage: (pin: { id: number; chatId: string | number; pinBy: string }) => void;
-  removePinnedMessage: (id: number) => void;
+  removePinnedMessage: (id: number, chatId?: string | number) => void;
 }
 
 export const createChatSlice = (set: any, get: any): ChatSlice => ({
   chats: [],
   setChats: (updater) => set((state: any) => ({
     chats: typeof updater === 'function' ? updater(state.chats) : updater
+  })),
+  createGroup: ({ name, memberIds }) => {
+    const profile = get().userProfile;
+    const contacts = get().contacts;
+    const id = `group_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const members: GroupMember[] = contacts
+      .filter((c: Contact) => memberIds.includes(c.id))
+      .map((c: Contact, i: number) => ({
+        id: c.id,
+        name: c.name,
+        color: c.color,
+        role: (i === 0 ? 'owner' : 'member') as GroupRole,
+      }));
+    const chat = {
+      id,
+      name,
+      type: 'group',
+      createdAt: Date.now(),
+      color: 'from-emerald-400 to-teal-500',
+      online: false,
+      history: [],
+      unread: 0,
+      message: '',
+      time: 'now',
+      members,
+      memberIds: members.map((m) => m.id),
+      group: {
+        inviteToken: `ma_${id}`,
+        slowModeSeconds: 0,
+        ownerId: profile?.id || 'me',
+        permissions: { ...DEFAULT_GROUP_PERMISSIONS },
+      },
+    };
+    set((state: any) => ({ chats: [chat, ...state.chats] }));
+    return id;
+  },
+  updateGroup: (chatId, patch) => set((state: any) => ({
+    chats: state.chats.map((chat: any) => {
+      if (chat.id !== chatId || chat.type !== 'group') return chat;
+      return {
+        ...chat,
+        ...(patch.members ? { members: patch.members, memberIds: patch.members.map((m: GroupMember) => m.id) } : null),
+        group: patch.group ? { ...chat.group, ...patch.group } : chat.group,
+      };
+    })
+  })),
+  deleteGroup: (chatId) => set((state: any) => ({
+    chats: state.chats.filter((chat: any) => !(chat.id === chatId && chat.type === 'group')),
+    archivedChats: state.archivedChats.filter((id: string | number) => id !== chatId),
+    pinnedMessageList: state.pinnedMessageList.filter((p: any) => p.chatId !== chatId),
+  })),
+  leaveGroup: (chatId, userId) => {
+    const chat = get().chats.find((c: any) => c.id === chatId && c.type === 'group');
+    if (!chat) return;
+    if (chat.group?.ownerId === userId) {
+      get().deleteGroup(chatId);
+      return;
+    }
+    get().updateGroup(chatId, { members: (chat.members ?? []).filter((m: GroupMember) => m.id !== userId) });
+  },
+  leaveChannel: (chatId) => set((state: any) => ({
+    chats: state.chats.filter((chat: any) => !(chat.id === chatId && (chat.isChannel || chat.type === 'channel'))),
+    archivedChats: state.archivedChats.filter((id: string | number) => id !== chatId),
+    pinnedMessageList: state.pinnedMessageList.filter((p: any) => p.chatId !== chatId),
+  })),
+  setChatMuted: (chatId, muted) => set((state: any) => ({
+    chats: state.chats.map((chat: any) => (chat.id === chatId ? { ...chat, muted } : chat)),
   })),
   forwardMessage: (message: any, targetChatId: string) => {
     set((storeState: any) => {
@@ -45,6 +173,12 @@ export const createChatSlice = (set: any, get: any): ChatSlice => ({
   contacts: [],
   setContacts: (updater) => set((state: any) => ({
     contacts: typeof updater === 'function' ? updater(state.contacts) : updater
+  })),
+  setContactMuted: (contactId, muted) => set((state: any) => ({
+    contacts: state.contacts.map((c: Contact) => (c.id === contactId ? { ...c, muted } : c)),
+  })),
+  setContactBlocked: (contactId, blocked) => set((state: any) => ({
+    contacts: state.contacts.map((c: Contact) => (c.id === contactId ? { ...c, isBlocked: blocked } : c)),
   })),
   favoriteContacts: [],
   addFavorite: (id) => set((state: any) => ({
@@ -79,6 +213,12 @@ export const createChatSlice = (set: any, get: any): ChatSlice => ({
     return { chats: state.chats.map((c: any) => c.id === chatId ? { ...c, pinned: true } : c) };
   }),
   pinnedMessageList: [],
-  addPinnedMessage: (pin) => set((state: any) => ({ pinnedMessageList: [...state.pinnedMessageList, { ...pin, pinnedAt: state.pinnedMessageList.length }] })),
-  removePinnedMessage: (id) => set((state: any) => ({ pinnedMessageList: state.pinnedMessageList.filter((p: any) => p.id !== id) })),
+  addPinnedMessage: (pin) => set((state: any) => (
+    state.pinnedMessageList.some((p: any) => p.id === pin.id && p.chatId === pin.chatId)
+      ? state
+      : { pinnedMessageList: [...state.pinnedMessageList, { ...pin, pinnedAt: state.pinnedMessageList.length }] }
+  )),
+  removePinnedMessage: (id, chatId) => set((state: any) => ({
+    pinnedMessageList: state.pinnedMessageList.filter((p: any) => !(p.id === id && (chatId === undefined || p.chatId === chatId)))
+  })),
 });

@@ -27,8 +27,8 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
             <React.Fragment key={emoji}>
               <Tooltip content={`${count === 1 ? 'You' : count + ' users'} reacted with ${emoji}`} position="top" theme={isDark ? 'dark' : 'light'}>
                 <div
-                  className={`rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center cursor-help group select-none border transition-colors ${isDark ? "bg-[var(--bg-tertiary)] text-gray-300 border-[var(--border-color)] hover:border-[var(--border-color)] hover:bg-[var(--hover-bg-dark)]" : "bg-white text-slate-700 border-[var(--border-color)] hover:bg-slate-50 hover:border-[var(--border-color)]"}`}
-                  onClick={() => onReactionMessage(msg.id, emoji)}
+                  className={`rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center ${isMe ? 'cursor-default' : 'cursor-help group select-none'} border transition-colors ${isDark ? "bg-[var(--bg-tertiary)] text-gray-300 border-[var(--border-color)] hover:border-[var(--border-color)] hover:bg-[var(--hover-bg-dark)]" : "bg-white text-slate-700 border-[var(--border-color)] hover:bg-slate-50 hover:border-[var(--border-color)]"}`}
+                  onClick={() => { if (!isMe) onReactionMessage(msg.id, emoji); }}
                 >
                   {emoji}
                   <span className={`ml-1.5 text-xs font-bold ${isDark ? "opacity-60" : "opacity-80"}`}>{String(count)}</span>
@@ -38,16 +38,18 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
           ))}
         </div>
       )}
-      <div
-        className={`opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-[var(--text-primary)]" : "bg-white text-slate-400 hover:text-slate-800"} w-11 h-11 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]`}
-        onClick={() => onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
-        aria-label={t("chat.reactions")}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id); }}
-      >
-        <Plus size={16} />
-      </div>
+      {!isMe && (
+        <div
+          className={`opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:outline-none transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-[var(--text-primary)]" : "bg-white text-slate-400 hover:text-slate-800"} w-11 h-11 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]`}
+          onClick={() => onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
+          aria-label={t("chat.reactions")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id); }}
+        >
+          <Plus size={16} />
+        </div>
+      )}
       <AnimatePresence>
         {activeReactionPicker === msg.id && (
           <motion.div
@@ -60,7 +62,7 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
               <button
                 key={emoji}
                 type="button"
-                className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
+                className="w-10 h-10 min-w-11 min-h-11 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
                 onClick={() => onReactionMessage(msg.id, emoji)}
                 aria-label={emoji}
               >

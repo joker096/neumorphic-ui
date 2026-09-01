@@ -17,6 +17,10 @@ vi.mock('../../store', () => {
     callFolders: [],
     addCallFolder: vi.fn(),
     removeCallFolder: vi.fn(),
+    activeBotId: 'bot_1',
+    setActiveBotId: vi.fn(),
+    miniAppBotId: null,
+    setMiniAppBotId: vi.fn(),
   };
   return { useAppStore: vi.fn((selector?: (s: typeof state) => any) => (selector ? selector(state) : state)) };
 });
@@ -28,6 +32,9 @@ vi.mock('../SystemPulsePlayer/SystemPulsePlayer', () => ({ SystemPulsePlayer: ({
 vi.mock('../RecordingsScreen', () => ({ RecordingsScreen: ({ theme }: any) => <div data-testid="recordings-screen">RecordingsScreen</div> }));
 vi.mock('../MeshRadar', () => ({ MeshRadar: ({ theme }: any) => <div data-testid="mesh-radar">MeshRadar</div> }));
 vi.mock('../crm/CrmView', () => ({ CrmView: ({ theme }: any) => <div data-testid="crm-view">CrmView</div> }));
+
+let capturedOnStart: ((botName: string) => void) | undefined;
+vi.mock('./bot/BotProfileView', () => ({ BotProfileView: ({ onStart }: any) => { capturedOnStart = onStart; return <div data-testid="bot-profile">BotProfileView</div>; } }));
 
 import { FeatureViews } from './FeatureViews';
 
@@ -53,5 +60,17 @@ describe('FeatureViews', () => {
   it('returns null for unknown view', () => {
     const { container } = render(<FeatureViews {...defaultProps} view="unknown" />);
     expect(container.innerHTML).toBe('');
+  });
+
+  it('bot view Start (onStart) opens chat via onMessage (D5 regress)', () => {
+    const onMessage = vi.fn();
+    const setView = vi.fn();
+    capturedOnStart = undefined;
+    render(<FeatureViews {...defaultProps} view="bot" onMessage={onMessage} setView={setView} />);
+    expect(screen.getByTestId('bot-profile')).toBeInTheDocument();
+    expect(capturedOnStart).toBeTypeOf('function');
+    capturedOnStart?.('HelperBot');
+    expect(onMessage).toHaveBeenCalledWith('HelperBot');
+    expect(setView).toHaveBeenCalledWith('chats');
   });
 });

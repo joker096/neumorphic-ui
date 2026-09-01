@@ -61,5 +61,3 @@ export const APP_INFO = {
   BUILD_DATE: (typeof __APP_BUILD_DATE__ === 'string' && __APP_BUILD_DATE__) || 'dev',
   VERSION: '1.0',
 };
-
-export const APK_URL = '/app-release-signed.apk';

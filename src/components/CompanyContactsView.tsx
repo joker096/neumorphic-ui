@@ -8,6 +8,8 @@ import { ContactList } from './company/ContactList';
 import { ContactModal } from './company/ContactModal';
 import { CompanyCreatePrompt } from './company/CompanyCreatePrompt';
 import { CompanyTabs } from './company/CompanyTabs';
+import { TeamInbox } from './company/TeamInbox';
+import { SiteChatManager } from './company/SiteChatManager';
 import { CompanyMembersPanel } from './company/CompanyMembersPanel';
 import { CompanyScanQrModal } from './company/CompanyScanQrModal';
 import { CompanyInviteModal } from './company/CompanyInviteModal';
@@ -98,6 +100,14 @@ export const CompanyContactsView = ({ onCall, onVideoCall, onMessage, theme }: C
               addLabel={company.t('company.addContact') || 'Add contact'}
               t={company.t}
             />
+          )}
+
+          {company.activeTab === 'inbox' && (
+            <TeamInbox isDark={isDark} />
+          )}
+
+          {company.activeTab === 'sitechat' && (
+            <SiteChatManager isDark={isDark} />
           )}
         </>
       )}

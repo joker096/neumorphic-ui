@@ -14,9 +14,9 @@ type Props = {
 };
 
 const GROUP_ICONS: Record<CrmFocusKind, React.ReactNode> = {
-  people: <User size={13} />,
-  deals: <TrendingUp size={13} />,
-  tasks: <CheckSquare size={13} />,
+  people: <User size={14} />,
+  deals: <TrendingUp size={14} />,
+  tasks: <CheckSquare size={14} />,
 };
 
 export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPick }) => {
@@ -66,7 +66,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
     if (items.length === 0) return null;
     return (
       <div>
-        <div className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">
+        <div className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">
           {GROUP_ICONS[kind]}
           {label}
         </div>
@@ -77,7 +77,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
             className="w-full text-left px-2.5 py-2 hover:bg-[var(--list-item-hover-bg)] transition-colors"
           >
             <div className="text-xs font-semibold text-[var(--text-primary)]">{hit.title}</div>
-            {hit.subtitle && <div className="text-[10px] text-[var(--text-secondary)] truncate">{hit.subtitle}</div>}
+            {hit.subtitle && <div className="text-[11px] text-[var(--text-secondary)] truncate">{hit.subtitle}</div>}
           </button>
         ))}
       </div>
@@ -87,7 +87,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
   return (
     <div ref={boxRef} className="relative flex-1 min-w-0">
       <div className="flex items-center gap-2 px-3 min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] focus-within:border-[var(--accent)]">
-        <Search size={15} className="text-[var(--text-secondary)] shrink-0" />
+        <Search size={16} className="text-[var(--text-secondary)] shrink-0" />
         <input
           value={query}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}

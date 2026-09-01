@@ -399,7 +399,7 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('All top-level sections', () => {
-    const sections = ['nav', 'chat', 'common', 'createChannel', 'createBot', 'admin', 'aftercare', 'campaigns', 'campaignSheet', 'channelComments', 'recordings', 'voiceRecorder', 'morseDecoder', 'photoViewer', 'meshRadar', 'accountSwitcher', 'soundSettings', 'systemPlayer', 'search', 'confirmDialog', 'toast', 'views', 'contacts', 'header', 'lock', 'hub', 'settings', 'gifSearch', 'error', 'stickers', 'login', 'company'];
+    const sections = ['nav', 'chat', 'common', 'createChannel', 'createBot', 'admin', 'aftercare', 'campaigns', 'campaignSheet', 'channelComments', 'recordings', 'voiceRecorder', 'morseDecoder', 'photoViewer', 'meshRadar', 'accountSwitcher', 'soundSettings', 'systemPlayer', 'search', 'confirmDialog', 'toast', 'views', 'contacts', 'header', 'lock', 'hub', 'settings', 'gifSearch', 'error', 'stickers', 'login', 'company', 'offline', 'notif'];
 
     for (const section of sections) {
       it(`section "${section}" has at least one key in en.json`, () => {
@@ -444,7 +444,8 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
       'contacts.confirmDeleteMessage', 'contacts.contactName', 'contacts.deleteContact', 'contacts.edit', 'contacts.editContact',
       'contacts.favoritesTab', 'contacts.foundResults', 'contacts.lastSeenAgo', 'contacts.message', 'contacts.networkId',
       'contacts.noContacts', 'contacts.noContactsSubtitle', 'contacts.recentTab', 'contacts.saveChanges', 'contacts.saveContact',
-      'contacts.scanContactQR', 'contacts.scanDescription', 'contacts.searchPlaceholder', 'contacts.shareDescription',
+      'contacts.scanContactQR', 'contacts.scanDescription', 'contacts.cameraPermissionDenied', 'contacts.cameraError',
+      'contacts.searchPlaceholder', 'contacts.shareDescription',
       'contacts.shareIdentity', 'contacts.title', 'contacts.localInfo', 'contacts.localFieldsNotShared', 'contacts.addField',
       'contacts.noLocalFields', 'contacts.fieldTypePhone', 'contacts.fieldTypeEmail', 'contacts.fieldTypeTelegram',
       'contacts.fieldTypeCustom', 'contacts.fieldSubtypeMobile', 'contacts.fieldSubtypeWork', 'contacts.fieldSubtypeHome',
@@ -499,6 +500,20 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
 
     for (const lang of allLocales) {
       for (const key of companyKeys) {
+        it(`"${key}" translates in ${lang}`, () => {
+          const val = getTranslation(key, lang);
+          expect(val).not.toBe(key);
+          expect(val.length).toBeGreaterThan(0);
+        });
+      }
+    }
+  });
+
+  describe('offline.* and notif.* keys translations', () => {
+    const offlineKeys = ['offline.banner', 'offline.lastSynced', 'offline.justNow', 'offline.minutesAgo', 'notif.blockedHint'];
+
+    for (const lang of allLocales) {
+      for (const key of offlineKeys) {
         it(`"${key}" translates in ${lang}`, () => {
           const val = getTranslation(key, lang);
           expect(val).not.toBe(key);

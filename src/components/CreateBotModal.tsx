@@ -12,6 +12,7 @@ import {
   modalInfoClass,
 } from './ui/modalShared';
 import { BOT_DEFAULT_OWNER_ID, BOT_ID_PREFIX } from '../constants/botConstants';
+import { saveBot } from '../lib';
 
 export const CreateBotModal = ({ theme = 'dark', onClose }: { theme?: 'dark' | 'light', onClose: () => void }) => {
   const isDark = theme === "dark";
@@ -53,6 +54,8 @@ export const CreateBotModal = ({ theme = 'dark', onClose }: { theme?: 'dark' | '
        };
       
        setBots([...bots, newBot]);
+       // persist to idb bots_list so localBot.getBotProfile/getMiniApp can resolve it
+       await saveBot(newBot);
        setLoading(false);
        onClose();
   };
@@ -69,8 +72,8 @@ export const CreateBotModal = ({ theme = 'dark', onClose }: { theme?: 'dark' | '
          <p className="leading-relaxed">{t('createBot.info')}</p>
       </div>
 
-      <button onClick={handleCreate} disabled={!name.trim() || loading} className={modalPrimaryBtnClass}>
-         {loading ? <div className="w-5 h-5 border-2 border-[var(--border-color)] border-t-white rounded-full animate-spin"></div> : <><Check size={20} /> {t('createBot.generate')}</>}
+      <button onClick={handleCreate} disabled={!name.trim() || loading} aria-label={t('createBot.generate')} title={t('createBot.generate')} className={modalPrimaryBtnClass}>
+         {loading ? <div className="w-5 h-5 border-2 border-[var(--border-color)] border-t-white rounded-full animate-spin"></div> : <><Check size={20} /> <span className="sr-only">{t('createBot.generate')}</span></>}
       </button>
     </AppModal>
   )

@@ -54,7 +54,7 @@ describe('ConfirmDialog - additional tests', () => {
 
   it('renders message as undefined when not provided', () => {
     render(<ConfirmDialog isOpen={true} title="Test" message={undefined} onConfirm={() => {}} onCancel={() => {}} />);
-    const msgEl = document.querySelector('[class*="text-sm"]')?.closest('[class*="mb-6"]');
+    const msgEl = document.querySelector('p');
     expect(msgEl?.textContent).toBe('');
   });
 

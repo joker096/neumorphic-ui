@@ -1,6 +1,5 @@
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
-import { trafficObfuscator } from '../../lib/transport/obfuscator';
 import type { TunnelBackend } from '../../lib/transport/wsTunnel';
 import { Globe, RefreshCw, Network, Radio } from 'lucide-react';
 
@@ -10,10 +9,10 @@ interface NetworkSectionProps {
   setProxyEnabled: (v: boolean) => void;
   proxyUrl: string;
   setProxyUrl: (v: string) => void;
-  obfuscationMode: string;
-  setObfuscationMode: (v: string) => void;
   obfuscationEnabled: boolean;
   setObfuscationEnabled: (v: boolean) => void;
+  obfuscationMode: string;
+  setObfuscationMode: (v: string) => void;
   torBridge: string;
   setTorBridge: (v: string) => void;
   turnServerUrl: string;
@@ -30,27 +29,26 @@ interface NetworkSectionProps {
   t: (key: string) => string;
 }
 
-const OBFUSCATION_MODES = ['aesgcm', 'httpmask', 'mediadummy'];
 const TOR_BRIDGES = ['None', 'obfs4', 'meek', 'Snowflake'];
+const OBFUSCATION_MODES = ['aesgcm', 'httpmask', 'mediadummy'];
 const RELAY_BACKENDS: TunnelBackend[] = ['direct', 'cfworker', 'domainfront', 'peertunnel'];
 
 export const NetworkSection = ({
   isDark = false, proxyEnabled, setProxyEnabled, proxyUrl, setProxyUrl,
-  obfuscationMode, setObfuscationMode, obfuscationEnabled, setObfuscationEnabled,
+  obfuscationEnabled, setObfuscationEnabled,
+  obfuscationMode, setObfuscationMode,
   torBridge, setTorBridge, turnServerUrl, onUpdateSettings, onBack, t,
   relayBackend, setRelayBackend, autoReconnectEnabled, setAutoReconnectEnabled,
   p2pMeshEnabled, setP2pMeshEnabled,
 }: NetworkSectionProps) => {
-  const cycleObfuscationMode = () => {
-    const idx = OBFUSCATION_MODES.indexOf(obfuscationMode);
-    const next = OBFUSCATION_MODES[(idx + 1) % OBFUSCATION_MODES.length];
-    setObfuscationMode(next);
-    trafficObfuscator.setMode(next as 'aesgcm' | 'httpmask' | 'mediadummy');
-  };
-
   const cycleTorBridge = () => {
     const idx = TOR_BRIDGES.indexOf(torBridge);
     setTorBridge(TOR_BRIDGES[(idx + 1) % TOR_BRIDGES.length]);
+  };
+
+  const cycleObfuscationMode = () => {
+    const idx = OBFUSCATION_MODES.indexOf(obfuscationMode);
+    setObfuscationMode(OBFUSCATION_MODES[(idx + 1) % OBFUSCATION_MODES.length]);
   };
 
   const cycleRelayBackend = () => {
@@ -91,7 +89,7 @@ export const NetworkSection = ({
           isDark={isDark}
         />
         {obfuscationEnabled && (
-          <SettingsRow 
+          <SettingsRow
             title={t('settings.obfuscationMode')}
             value={obfuscationMode}
             isDark={isDark}

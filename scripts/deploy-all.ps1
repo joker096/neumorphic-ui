@@ -124,13 +124,8 @@ if (-not $SkipBuild) {
   $ServerDist = "$RootDir/dist/server"
   if (Test-Path $ServerDist) { Remove-Item -Recurse -Force $ServerDist }
   New-Item -ItemType Directory -Path $ServerDist -Force | Out-Null
-  Copy-Item "$RootDir/server/signaling-server.ts" "$ServerDist/signaling-server.ts"
-  Copy-Item "$RootDir/server/auth.ts" "$ServerDist/auth.ts"
-  Copy-Item "$RootDir/server/db.ts" "$ServerDist/db.ts"
-  Copy-Item "$RootDir/server/cli.ts" "$ServerDist/cli.ts"
-  Copy-Item "$RootDir/server/csp.ts" "$ServerDist/csp.ts"
-  Copy-Item -Recurse "$RootDir/server/routes" "$ServerDist/routes"
-  Copy-Item -Recurse "$RootDir/server/middleware" "$ServerDist/middleware"
+  Get-ChildItem "$RootDir/server" -File -Filter *.ts | ForEach-Object { Copy-Item $_.FullName "$ServerDist/$($_.Name)" }
+  Get-ChildItem "$RootDir/server" -Directory | Where-Object { $_.Name -ne '__tests__' } | ForEach-Object { Copy-Item -Recurse $_.FullName "$ServerDist/$($_.Name)" }
   Copy-Item "$RootDir/package.json" "$ServerDist/package.json"
   Write-Host "  ✓ Signaling files prepared" -ForegroundColor Green
 } else {
@@ -262,13 +257,8 @@ if (-not $SkipSignaling) {
   if (-not $SkipBuild) {
     if (Test-Path $ServerDist) { Remove-Item -Recurse -Force $ServerDist }
     New-Item -ItemType Directory -Path $ServerDist -Force | Out-Null
-    Copy-Item "$RootDir/server/signaling-server.ts" "$ServerDist/signaling-server.ts"
-    Copy-Item "$RootDir/server/auth.ts" "$ServerDist/auth.ts"
-    Copy-Item "$RootDir/server/db.ts" "$ServerDist/db.ts"
-    Copy-Item "$RootDir/server/cli.ts" "$ServerDist/cli.ts"
-    Copy-Item "$RootDir/server/csp.ts" "$ServerDist/csp.ts"
-    Copy-Item -Recurse "$RootDir/server/routes" "$ServerDist/routes"
-    Copy-Item -Recurse "$RootDir/server/middleware" "$ServerDist/middleware"
+    Get-ChildItem "$RootDir/server" -File -Filter *.ts | ForEach-Object { Copy-Item $_.FullName "$ServerDist/$($_.Name)" }
+    Get-ChildItem "$RootDir/server" -Directory | Where-Object { $_.Name -ne '__tests__' } | ForEach-Object { Copy-Item -Recurse $_.FullName "$ServerDist/$($_.Name)" }
     Copy-Item "$RootDir/package.json" "$ServerDist/package.json"
     Write-Host "  ✓ Signaling files prepared (dist/server)" -ForegroundColor Green
   }
@@ -276,16 +266,11 @@ if (-not $SkipSignaling) {
 
   Write-Host "  Uploading server files..." -ForegroundColor Yellow
   ssh $Server "mkdir -p $AppRoot/server/routes $AppRoot/server/middleware" 2>&1 | Out-Null
-  scp "$ServerDist/signaling-server.ts" "${Server}:$AppRoot/server/signaling-server.ts" 2>&1 | Out-Null
-  scp "$ServerDist/auth.ts" "${Server}:$AppRoot/server/auth.ts" 2>&1 | Out-Null
-  scp "$ServerDist/db.ts" "${Server}:$AppRoot/server/db.ts" 2>&1 | Out-Null
-  scp "$ServerDist/cli.ts" "${Server}:$AppRoot/server/cli.ts" 2>&1 | Out-Null
-  scp "$ServerDist/csp.ts" "${Server}:$AppRoot/server/csp.ts" 2>&1 | Out-Null
-  Get-ChildItem "$ServerDist/routes" -File | ForEach-Object {
-    scp $_.FullName "${Server}:$AppRoot/server/routes/$($_.Name)" 2>&1 | Out-Null
+  Get-ChildItem "$ServerDist" -File -Filter *.ts | ForEach-Object {
+    scp $_.FullName "${Server}:$AppRoot/server/$($_.Name)" 2>&1 | Out-Null
   }
-  Get-ChildItem "$ServerDist/middleware" -File | ForEach-Object {
-    scp $_.FullName "${Server}:$AppRoot/server/middleware/$($_.Name)" 2>&1 | Out-Null
+  Get-ChildItem "$ServerDist" -Directory | ForEach-Object {
+    scp -r $_.FullName "${Server}:$AppRoot/server/" 2>&1 | Out-Null
   }
   scp "$ServerDist/package.json" "${Server}:$AppRoot/package.json" 2>&1 | Out-Null
 

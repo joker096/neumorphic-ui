@@ -1,5 +1,5 @@
 import React, { RefObject } from 'react';
-import { Camera, Trash2, X, Check, Upload } from 'lucide-react';
+import { Camera, X, Check } from 'lucide-react';
 import { AVATAR_COLORS } from '../../constants/settingsConstants';
 import { ProfileFieldEditor } from './ProfileFieldEditor';
 import type { ProfileField, FieldVisibility } from './ProfileSection';
@@ -8,6 +8,7 @@ interface ProfileEditFormProps {
   isDark: boolean;
   t: (key: string, fallback?: string) => string;
   editName: string;
+  editUsername: string;
   editBio: string;
   editAvatar: string;
   editStatus: string;
@@ -15,6 +16,7 @@ interface ProfileEditFormProps {
   editFields: ProfileField[];
   newFieldVisibility: FieldVisibility;
   setEditName: (v: string) => void;
+  setEditUsername: (v: string) => void;
   setEditBio: (v: string) => void;
   setEditAvatar: (v: string) => void;
   setEditStatus: (v: string) => void;
@@ -22,7 +24,6 @@ interface ProfileEditFormProps {
   setNewFieldVisibility: (v: FieldVisibility) => void;
   fileInputRef: RefObject<HTMLInputElement>;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onRemoveAvatar: () => void;
   onAddField: () => void;
   onRemoveField: (id: string) => void;
   onUpdateField: (id: string, updates: Partial<ProfileField>) => void;
@@ -31,9 +32,9 @@ interface ProfileEditFormProps {
 }
 
 export const ProfileEditForm = ({
-  isDark, t, editName, editBio, editAvatar, editStatus, editColor, editFields,
-  newFieldVisibility, setEditName, setEditBio, setEditAvatar, setEditStatus, setEditColor,
-  setNewFieldVisibility, fileInputRef, onFileChange, onRemoveAvatar, onAddField,
+  isDark, t, editName, editUsername, editBio, editAvatar, editStatus, editColor, editFields,
+  newFieldVisibility, setEditName, setEditUsername, setEditBio, setEditAvatar, setEditStatus, setEditColor,
+  setNewFieldVisibility, fileInputRef, onFileChange, onAddField,
   onRemoveField, onUpdateField, onCancel, onSave,
 }: ProfileEditFormProps) => {
   const initial = (editName || 'U').charAt(0).toUpperCase() || 'U';
@@ -50,7 +51,7 @@ export const ProfileEditForm = ({
               <img src={editAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
             ) : (
               <div className={`w-full h-full bg-gradient-to-br ${editColor} flex items-center justify-center`}>
-                <span className="text-[var(--text-primary)] text-4xl font-bold">{initial}</span>
+                <span className="text-[var(--text-primary)] text-[40px] font-bold">{initial}</span>
               </div>
             )}
           </div>
@@ -65,26 +66,6 @@ export const ProfileEditForm = ({
           className="hidden"
           onChange={onFileChange}
         />
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold min-h-[var(--control-height-sm)] bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
-          >
-            <Upload size={14} />
-            {editAvatar ? t('settings.changePhoto', 'Change Photo') : t('settings.uploadPhoto', 'Upload Photo')}
-          </button>
-          {editAvatar && (
-            <button
-              type="button"
-              onClick={onRemoveAvatar}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold min-h-[var(--control-height-sm)] bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-            >
-              <Trash2 size={14} />
-              {t('settings.removePhoto', 'Remove Photo')}
-            </button>
-          )}
-        </div>
         <p className="text-xs text-[var(--text-tertiary)] text-center">
           {t('settings.profilePhotoSubtitle', 'Tap to upload or change your photo')}
         </p>
@@ -97,6 +78,20 @@ export const ProfileEditForm = ({
           value={editName}
           onChange={(e) => setEditName(e.target.value)}
           placeholder={t('settings.enterName', 'Enter your name')}
+          className="w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.username', 'Username')}</label>
+        <input
+          type="text"
+          value={editUsername}
+          onChange={(e) => setEditUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, '').slice(0, 32))}
+          placeholder={t('settings.usernamePlaceholder', '@username')}
+          autoCapitalize="none"
+          autoComplete="off"
+          spellCheck={false}
           className="w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors"
         />
       </div>
@@ -135,7 +130,7 @@ export const ProfileEditForm = ({
                 key={color}
                 type="button"
                 onClick={() => setEditColor(color)}
-                className={`w-10 h-10 rounded-full bg-gradient-to-br ${color} flex items-center justify-center transition-all ${editColor === color ? 'ring-2 ring-orange-500 ring-offset-2 scale-110' : 'opacity-70 hover:opacity-100'}`}
+                className={`w-10 h-10 min-w-11 min-h-11 rounded-full bg-gradient-to-br ${color} flex items-center justify-center transition-all ${editColor === color ? 'ring-2 ring-orange-500 ring-offset-2 scale-110' : 'opacity-70 hover:opacity-100'}`}
               >
                 {editColor === color && <Check size={14} className="text-[var(--text-primary)]" />}
               </button>
@@ -158,17 +153,21 @@ export const ProfileEditForm = ({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 h-12 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] active:scale-[0.98] transition-all"
+          aria-label={t('settings.cancel', 'Cancel')}
+          title={t('settings.cancel', 'Cancel')}
+          className="flex-1 min-h-11 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] active:scale-[0.98] transition-all"
         >
-          <X size={18} />
-          {t('settings.cancel', 'Cancel')}
+          <X size={18} aria-hidden="true" />
+          <span className="sr-only">{t('settings.cancel', 'Cancel')}</span>
         </button>
         <button
           type="submit"
-          className="flex-1 h-12 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110 active:scale-[0.98] shadow-lg transition-all"
+          aria-label={t('settings.saveProfile', 'Save Profile')}
+          title={t('settings.saveProfile', 'Save Profile')}
+          className="flex-1 min-h-11 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110 active:scale-[0.98] shadow-lg transition-all"
         >
-          <Check size={18} />
-          {t('settings.saveProfile', 'Save Profile')}
+          <Check size={18} aria-hidden="true" />
+          <span className="sr-only">{t('settings.saveProfile', 'Save Profile')}</span>
         </button>
       </div>
     </form>

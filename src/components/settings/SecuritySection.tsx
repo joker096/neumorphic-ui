@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Shield, Key, Lock, Unlock, Timer, ShieldCheck, Fingerprint, LockKeyhole } from 'lucide-react';
+import { Shield, Key, Lock, Unlock, Timer, ShieldCheck, Fingerprint, LockKeyhole, Monitor, Trash2, Smartphone, Clock } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from 'sonner';
 import { ConfirmModal } from './ConfirmModal';
 import { cryptoCore } from '../../lib/crypto/cryptoCore';
+import { deviceSecurity } from '../../lib/deviceSecurity';
 import { useAppStore } from '../../store';
 import { isBiometricAvailable, registerBiometric } from '../../lib/biometric';
 
@@ -35,6 +36,14 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
   const setTwoFactor = useAppStore(s => s.setTwoFactor);
   const deadMansSwitch = useAppStore(s => s.deadMansSwitch);
   const setDeadMansSwitch = useAppStore(s => s.setDeadMansSwitch);
+  const [showKeyRecovery, setShowKeyRecovery] = useState(false);
+  const [keyExportPass, setKeyExportPass] = useState('');
+  const [keyExportBundle, setKeyExportBundle] = useState('');
+  const [keyImportBundle, setKeyImportBundle] = useState('');
+  const [keyImportPass, setKeyImportPass] = useState('');
+  const [keyBusy, setKeyBusy] = useState(false);
+  const [showKeyRestoreConfirm, setShowKeyRestoreConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -124,6 +133,71 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
     setDeadMansSwitch(next);
   };
 
+  const handleKeyExport = async () => {
+    if (keyBusy) return;
+    if (!keyExportPass) {
+      toast.error(t('settings.keyRecovery.exportPass'));
+      return;
+    }
+    setKeyBusy(true);
+    try {
+      setKeyExportBundle(await deviceSecurity.exportEncryptedKey(keyExportPass));
+      toast.success(t('settings.keyRecovery.exported'));
+    } catch {
+      toast.error(t('settings.keyRecovery.failed'));
+    } finally {
+      setKeyBusy(false);
+    }
+  };
+
+  const handleKeyCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(keyExportBundle);
+      toast.success(t('settings.keyRecovery.copied'));
+    } catch {
+      toast.error(t('settings.keyRecovery.failed'));
+    }
+  };
+
+  const handleKeyImport = async () => {
+    if (keyBusy) return;
+    if (!keyImportBundle.trim() || !keyImportPass) {
+      toast.error(t('settings.keyRecovery.failed'));
+      return;
+    }
+    setKeyBusy(true);
+    try {
+      await deviceSecurity.importEncryptedKey(keyImportPass, keyImportBundle.trim());
+      toast.success(t('settings.keyRecovery.imported'));
+      setKeyImportBundle('');
+      setKeyImportPass('');
+    } catch {
+      toast.error(t('settings.keyRecovery.failed'));
+    } finally {
+      setKeyBusy(false);
+    }
+  };
+
+  const handleKeyRestoreConfirm = async () => {
+    setShowKeyRestoreConfirm(false);
+    try {
+      await deviceSecurity.clearDeviceKeyOverride();
+      toast.success(t('settings.keyRecovery.restored'));
+    } catch {
+      toast.error(t('settings.keyRecovery.failed'));
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    setShowDeleteConfirm(false);
+    try {
+      await cryptoCore.secureWipe();
+      toast.success(t('settings.accountDeleted'));
+    } catch {
+      toast.error(t('settings.wipeFailed'));
+    }
+  };
+
   return (
     <SubView title={t('settings.security')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('settings.appLock')} isDark={isDark} />
@@ -145,6 +219,7 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
               isDark={isDark}
               onIcon={<Lock size={14} />}
               offIcon={<Unlock size={14} />}
+              ariaLabel={t('settings.pinLock')}
             />
           }
           onClick={() => {
@@ -168,12 +243,22 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
               className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
               autoFocus
             />
-            <button
-              onClick={confirmPinAction}
-              className={`mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"}`}
-            >
-              {pinMode === 'set' ? t('settings.confirmPin') : t('settings.removePin')}
-            </button>
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={confirmPinAction}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"}`}
+              >
+                {pinMode === 'set' ? t('settings.confirmPin') : t('settings.removePin')}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowPinInput(false); setPinValue(''); }}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/5 text-slate-600 hover:bg-black/10"}`}
+              >
+                {t('common.cancel')}
+              </button>
+            </div>
             <div aria-live="polite" role="status" className="sr-only">
               {pinValue.length > 0 && pinValue.length < 4 ? t('settings.pinTooShort') : ''}
             </div>
@@ -196,6 +281,7 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
               isDark={isDark}
                onIcon={<Fingerprint size={14} />}
                offIcon={<Fingerprint size={14} />}
+               ariaLabel={t('settings.biometricUnlock')}
              />
           }
         />
@@ -277,6 +363,130 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
         />
       </SettingsGroup>
 
+      <SettingsSectionTitle title={t('settings.keyRecovery.title')} isDark={isDark} />
+      <SettingsGroup isDark={isDark} className="mb-6">
+        <SettingsRow
+          icon={<Key size={16} />}
+          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
+          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          title={t('settings.keyRecovery.export')}
+          subtitle={t('settings.keyRecovery.subtitle')}
+          isDark={isDark}
+          onClick={() => setShowKeyRecovery(v => !v)}
+        />
+        {showKeyRecovery && (
+          <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
+            <p className={`text-xs mb-3 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+              {t('settings.keyRecovery.hint')}
+            </p>
+            <label htmlFor="key-recovery-export-pass" className={`block text-xs font-medium mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+              {t('settings.keyRecovery.exportPass')}
+            </label>
+            <input
+              id="key-recovery-export-pass"
+              type="password"
+              value={keyExportPass}
+              onChange={e => setKeyExportPass(e.target.value)}
+              placeholder={t('settings.keyRecovery.exportPassHint')}
+              autoComplete="new-password"
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+            />
+            <button
+              type="button"
+              onClick={handleKeyExport}
+              disabled={keyBusy}
+              className={`mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"} disabled:opacity-50`}
+            >
+              {t('settings.keyRecovery.generate')}
+            </button>
+            {keyExportBundle && (
+              <div className="mt-2">
+                <textarea
+                  readOnly
+                  value={keyExportBundle}
+                  aria-label={t('settings.keyRecovery.export')}
+                  className={`w-full h-28 px-2 py-2 rounded-lg text-[11px] font-mono resize-none focus:outline-none border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-700"}`}
+                />
+                <button
+                  type="button"
+                  onClick={handleKeyCopy}
+                  className={`mt-1 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/5 text-slate-600 hover:bg-black/10"}`}
+                >
+                  {t('settings.keyRecovery.copy')}
+                </button>
+              </div>
+            )}
+            <label htmlFor="key-recovery-import-bundle" className={`block text-xs font-medium mt-3 mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+              {t('settings.keyRecovery.importBundle')}
+            </label>
+            <textarea
+              id="key-recovery-import-bundle"
+              value={keyImportBundle}
+              onChange={e => setKeyImportBundle(e.target.value)}
+              placeholder={t('settings.keyRecovery.import')}
+              className={`w-full h-24 px-2 py-2 rounded-lg text-[11px] font-mono resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+            />
+            <label htmlFor="key-recovery-import-pass" className={`block text-xs font-medium mt-2 mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+              {t('settings.keyRecovery.importPass')}
+            </label>
+            <input
+              id="key-recovery-import-pass"
+              type="password"
+              value={keyImportPass}
+              onChange={e => setKeyImportPass(e.target.value)}
+              autoComplete="new-password"
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+            />
+            <button
+              type="button"
+              onClick={handleKeyImport}
+              disabled={keyBusy}
+              className={`mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"} disabled:opacity-50`}
+            >
+              {t('settings.keyRecovery.import')}
+            </button>
+          </div>
+        )}
+
+        <SettingsRow
+          icon={<ShieldCheck size={16} />}
+          iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
+          iconColor={isDark ? "text-amber-400" : "text-amber-600"}
+          title={t('settings.keyRecovery.restore')}
+          subtitle={t('settings.keyRecovery.restoreSubtitle')}
+          isDark={isDark}
+          onClick={() => setShowKeyRestoreConfirm(true)}
+        />
+      </SettingsGroup>
+
+      <SettingsSectionTitle title={t('settings.sessionsDevices')} isDark={isDark} />
+      <SettingsGroup isDark={isDark} className="mb-6">
+        <SettingsRow
+          icon={<Monitor size={16} />}
+          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
+          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          title={t('settings.thisDevice')}
+          subtitle={t('settings.thisDeviceSubtitle')}
+          isDark={isDark}
+        />
+        <SettingsRow
+          icon={<Smartphone size={16} />}
+          iconBg={isDark ? "bg-gray-500/10" : "bg-gray-100"}
+          iconColor={isDark ? "text-gray-400" : "text-gray-500"}
+          title={t('settings.activeSessions')}
+          subtitle={t('settings.noOtherSessions')}
+          isDark={isDark}
+        />
+        <SettingsRow
+          icon={<Clock size={16} />}
+          iconBg={isDark ? "bg-gray-500/10" : "bg-gray-100"}
+          iconColor={isDark ? "text-gray-400" : "text-gray-500"}
+          title={t('settings.loginHistory')}
+          subtitle={t('settings.loginHistoryUnavailable')}
+          isDark={isDark}
+        />
+      </SettingsGroup>
+
       <SettingsSectionTitle title={t('settings.dangerZone')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         <SettingsRow
@@ -287,6 +497,15 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
           subtitle={t('settings.wipeSubtitle')}
           isDark={isDark}
           onClick={handleWipeData}
+        />
+        <SettingsRow
+          icon={<Trash2 size={16} />}
+          iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
+          iconColor={isDark ? "text-red-400" : "text-red-600"}
+          title={t('settings.deleteAccount')}
+          subtitle={t('settings.deleteAccountSubtitle')}
+          isDark={isDark}
+          onClick={() => setShowDeleteConfirm(true)}
         />
       </SettingsGroup>
 
@@ -299,6 +518,28 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
         variant="danger"
         onConfirm={handleConfirmWipe}
         onCancel={() => setShowWipeConfirm(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showKeyRestoreConfirm}
+        title={t('settings.keyRecovery.restore')}
+        message={t('settings.keyRecovery.confirmRestore')}
+        confirmLabel={t('settings.keyRecovery.restore')}
+        cancelLabel={t('common.cancel')}
+        variant="danger"
+        onConfirm={handleKeyRestoreConfirm}
+        onCancel={() => setShowKeyRestoreConfirm(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title={t('settings.deleteAccount')}
+        message={t('settings.confirmDeleteAccount')}
+        confirmLabel={t('settings.deleteAccount')}
+        cancelLabel={t('common.cancel')}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
       />
     </SubView>
   );

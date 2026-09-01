@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Trash2 } from 'lucide-react';
+import { X, Trash2, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CompanyContact, CompanyDepartment } from '../../types/constants';
 import { useI18n } from '../../lib/i18n';
@@ -84,7 +84,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <X size={18} />
         </button>
@@ -137,7 +137,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             <select
               value={departmentId ?? ''}
               onChange={(e) => setDepartmentId(e.target.value || null)}
-              className="w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-sm"
+              className="w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-sm"
             >
               <option value="">{t('company.contactDepartmentNone', 'No department')}</option>
               {departments.map((d) => (
@@ -162,19 +162,24 @@ export const ContactModal: React.FC<ContactModalProps> = ({
           {contact && canManage && onRemove && (
             <button
               onClick={handleRemove}
-              className="w-full min-h-[44px] rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110"
+              aria-label={t('company.removeMember', 'Remove')}
+              title={t('company.removeMember', 'Remove')}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110"
             >
               <Trash2 size={16} />
-              {t('company.removeMember', 'Remove')}
+              <span className="sr-only">{t('company.removeMember', 'Remove')}</span>
             </button>
           )}
 
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full min-h-[44px] rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
+            aria-label={t('company.save', 'Save')}
+            title={t('company.save', 'Save')}
+            className="w-full min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
           >
-            {saving ? t('company.saving', 'Saving...') : t('company.save', 'Save')}
+            {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Check size={16} aria-hidden="true" />}
+            <span className="sr-only">{t('company.save', 'Save')}</span>
           </button>
         </div>
       </div>
@@ -185,6 +190,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({
         message={contact?.name ?? ''}
         confirmLabel={t('common.confirm', 'Confirm')}
         cancelLabel={t('common.cancel', 'Cancel')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
         zIndex="z-[130]"

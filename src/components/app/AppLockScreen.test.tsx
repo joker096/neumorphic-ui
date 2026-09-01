@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
-vi.mock('lucide-react', () => ({ Lock: 'div', Fingerprint: 'div' }));
+vi.mock('lucide-react', () => ({ Lock: 'div', Fingerprint: 'div', LockOpen: 'div' }));
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({
     t: (key: string, fallback?: string) => {

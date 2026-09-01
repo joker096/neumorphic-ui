@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import type { ProfileField, FieldVisibility } from './ProfileSection';
 import { PROFILE_FIELD_TYPES, VISIBILITY_OPTIONS } from '../../constants/settingsConstants';
 
@@ -21,9 +21,12 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
         <button
           type="button"
           onClick={onAdd}
-          className="text-xs font-bold px-3 py-1.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
+          aria-label={t('settings.addField', 'Add Field')}
+          title={t('settings.addField', 'Add Field')}
+          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
         >
-          {t('settings.addField', 'Add Field')}
+          <Plus size={16} />
+          <span className="sr-only">{t('settings.addField', 'Add Field')}</span>
         </button>
       </div>
 
@@ -61,7 +64,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
             <button
               type="button"
               onClick={() => onRemove(field.id)}
-              className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
+              className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-[var(--text-tertiary)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
               aria-label={t('settings.removeField', 'Remove field')}
               title={t('settings.removeField', 'Remove field')}
             >
@@ -86,6 +89,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
               field.type === 'whatsapp' ? t('settings.whatsappPlaceholder', '+1 999 123-4567') :
               (field.type === 'signal' || field.type === 'signalv2v') ? t('settings.signalPlaceholder', 'Signal V2V ID') :
               field.type === 'username' ? t('settings.usernamePlaceholder', '@username') :
+              field.type === 'link' ? t('settings.linkPlaceholder', 'https://') :
               t('settings.genericValuePlaceholder', 'Value')
             }
             value={field.value}

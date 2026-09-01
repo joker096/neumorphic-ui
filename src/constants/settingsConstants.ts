@@ -35,6 +35,7 @@ export const PROFILE_FIELD_TYPES: readonly ProfileFieldTypeOption[] = [
   { value: "signal", label: "Signal", labelKey: "settings.fieldTypeSignal" },
   { value: "signalv2v", label: "Signal V2V", labelKey: "settings.fieldTypeSignalV2V" },
   { value: "username", label: "Username", labelKey: "settings.fieldTypeUsername" },
+  { value: "link", label: "Link", labelKey: "settings.fieldTypeLink" },
   { value: "custom", label: "Custom", labelKey: "settings.fieldTypeCustom" },
 ];
 

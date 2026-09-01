@@ -22,21 +22,23 @@ vi.mock('./crypto/cryptoCore', () => ({
   hex2buf: mockHex2buf,
 }));
 
-const { idbGet, idbSet } = vi.hoisted(() => ({
+const { idbGet, idbSet, idbDel } = vi.hoisted(() => ({
   idbGet: vi.fn(),
   idbSet: vi.fn(),
+  idbDel: vi.fn(),
 }));
 
 vi.mock('idb-keyval', () => ({
   get: idbGet,
   set: idbSet,
-  del: vi.fn(),
+  del: idbDel,
 }));
 
 const mockSubtle = {
   generateKey: vi.fn().mockResolvedValue(mockCryptoKey),
   importKey: vi.fn().mockResolvedValue(mockCryptoKey),
   exportKey: vi.fn().mockResolvedValue(new Uint8Array([1, 2, 3, 4]).buffer),
+  deriveBits: vi.fn().mockResolvedValue(new Uint8Array(32).buffer),
 };
 vi.stubGlobal('crypto', { subtle: mockSubtle });
 
@@ -44,15 +46,19 @@ describe('deviceSecurity', () => {
   let deviceSecurity: {
     getDeviceFingerprint(): Promise<string>;
     getDeviceBoundKey(): Promise<CryptoKey>;
+    getDeviceBoundKeyRaw(): Promise<Uint8Array>;
     initSessionMasterKey(): Promise<CryptoKey>;
     importMasterKeyFromHex(hexKey: string): Promise<CryptoKey>;
     storeMasterKeyHex(hexKey: string): Promise<void>;
     getStoredMasterKeyHex(): string | null;
+    exportEncryptedKey(passphrase: string): Promise<string>;
+    importEncryptedKey(passphrase: string, bundle: string): Promise<void>;
+    clearDeviceKeyOverride(): Promise<void>;
   };
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    mockDeriveAESKeyFromPassword.mockResolvedValue({ key: mockCryptoKey });
+    mockDeriveAESKeyFromPassword.mockResolvedValue({ key: mockCryptoKey, saltHex: 'mock-salt' });
     mockEncryptData.mockResolvedValue({ cipher: 'mock-cipher', iv: 'mock-iv' });
     mockDecryptData.mockResolvedValue('mock-decrypted-hex');
     mockBuf2hex.mockReturnValue('mock-generated-hex');
@@ -92,15 +98,56 @@ describe('deviceSecurity', () => {
     expect(fingerprint).toBe('Mozilla/5.0 Test|1|unknown|0x0');
   });
 
-  it('getDeviceBoundKey() calls deriveAESKeyFromPassword with fingerprint and static salt', async () => {
+  it('getDeviceBoundKey() derives AES-GCM key from fingerprint via PBKDF2 deriveBits', async () => {
     await deviceSecurity.getDeviceBoundKey();
 
-    expect(mockDeriveAESKeyFromPassword).toHaveBeenCalledWith(
-      'Mozilla/5.0 Test|8|Win64|1920x1080',
-      'c0ffee00000000000000000000000000',
-      600000,
+    expect(mockSubtle.importKey).toHaveBeenCalledWith(
+      'raw',
+      new TextEncoder().encode('Mozilla/5.0 Test|8|Win64|1920x1080'),
+      'PBKDF2',
+      false,
+      ['deriveBits'],
     );
-    expect(mockDeriveAESKeyFromPassword).toHaveBeenCalledTimes(1);
+    expect(mockSubtle.deriveBits).toHaveBeenCalledWith(
+      { name: 'PBKDF2', salt: new Uint8Array([1, 2, 3, 4]), iterations: 600000, hash: 'SHA-256' },
+      expect.anything(),
+      256,
+    );
+  });
+
+  it('getDeviceBoundKeyRaw() caches the effective raw key across calls', async () => {
+    idbGet.mockResolvedValue(undefined);
+
+    const first = await deviceSecurity.getDeviceBoundKeyRaw();
+    const second = await deviceSecurity.getDeviceBoundKeyRaw();
+
+    expect(first).toHaveLength(32);
+    expect(second).toBe(first);
+    expect(mockSubtle.deriveBits).toHaveBeenCalledTimes(1);
+  });
+
+  it('getDeviceBoundKeyRaw() prefers IDB override when it decrypts to a valid 32-byte key', async () => {
+    const overrideRaw = new Uint8Array(32).fill(0x5a);
+    mockHex2buf.mockImplementation((hex: string) =>
+      hex === 'c0ffee00000000000000000000000000' ? new Uint8Array(32) : overrideRaw,
+    );
+    idbGet.mockResolvedValue({ cipher: 'override-cipher', iv: 'override-iv' });
+
+    const raw = await deviceSecurity.getDeviceBoundKeyRaw();
+
+    expect(idbGet).toHaveBeenCalledWith('__nexus_device_key_override');
+    expect(mockDecryptData).toHaveBeenCalledWith('override-cipher', 'override-iv', mockCryptoKey);
+    expect(raw).toEqual(overrideRaw);
+  });
+
+  it('getDeviceBoundKeyRaw() falls back to fingerprint key when override decrypt fails', async () => {
+    idbGet.mockResolvedValue({ cipher: 'override-cipher', iv: 'override-iv' });
+    mockDecryptData.mockRejectedValue(new Error('decrypt failed'));
+
+    const raw = await deviceSecurity.getDeviceBoundKeyRaw();
+
+    expect(raw).toHaveLength(32);
+    expect(console.warn).toHaveBeenCalled();
   });
 
   it('initSessionMasterKey() returns existing key when stored key decrypts successfully', async () => {
@@ -160,7 +207,7 @@ describe('deviceSecurity', () => {
 
     await deviceSecurity.storeMasterKeyHex(hexKey);
 
-    expect(mockDeriveAESKeyFromPassword).toHaveBeenCalled();
+    expect(mockSubtle.deriveBits).toHaveBeenCalled();
     expect(mockEncryptData).toHaveBeenCalledWith(hexKey, mockCryptoKey);
     expect(idbSet).toHaveBeenCalledWith('__nexus_key_storage', { cipher: 'mock-cipher', iv: 'mock-iv' });
     expect(deviceSecurity.getStoredMasterKeyHex()).toBe(hexKey);
@@ -176,5 +223,65 @@ describe('deviceSecurity', () => {
 
   it('getStoredMasterKeyHex() returns null before any init', () => {
     expect(deviceSecurity.getStoredMasterKeyHex()).toBeNull();
+  });
+
+  it('exportEncryptedKey() wraps effective raw key under passphrase and returns v1 bundle', async () => {
+    idbGet.mockResolvedValue(undefined);
+
+    const bundle = JSON.parse(await deviceSecurity.exportEncryptedKey('my-passphrase'));
+
+    expect(mockDeriveAESKeyFromPassword).toHaveBeenCalledWith('my-passphrase');
+    expect(mockEncryptData).toHaveBeenCalledWith('mock-generated-hex', mockCryptoKey);
+    expect(bundle).toEqual({ v: 1, salt: 'mock-salt', iv: 'mock-iv', cipher: 'mock-cipher' });
+  });
+
+  it('importEncryptedKey() stores override encrypted under fingerprint key and updates effective raw', async () => {
+    const importedRaw = new Uint8Array(32).fill(0x42);
+    mockHex2buf.mockImplementation((hex: string) =>
+      hex === 'mock-decrypted-hex' ? importedRaw : new Uint8Array(32),
+    );
+    const bundle = JSON.stringify({ v: 1, salt: 'bundle-salt', iv: 'bundle-iv', cipher: 'bundle-cipher' });
+
+    await deviceSecurity.importEncryptedKey('my-passphrase', bundle);
+
+    expect(mockDeriveAESKeyFromPassword).toHaveBeenCalledWith('my-passphrase', 'bundle-salt');
+    expect(mockDecryptData).toHaveBeenCalledWith('bundle-cipher', 'bundle-iv', mockCryptoKey);
+    expect(mockEncryptData).toHaveBeenCalledWith('mock-generated-hex', mockCryptoKey);
+    expect(idbSet).toHaveBeenCalledWith('__nexus_device_key_override', { cipher: 'mock-cipher', iv: 'mock-iv' });
+
+    idbGet.mockResolvedValue({ cipher: 'stale', iv: 'stale' });
+    const raw = await deviceSecurity.getDeviceBoundKeyRaw();
+    expect(raw).toEqual(importedRaw);
+    expect(idbGet).not.toHaveBeenCalled();
+  });
+
+  it('importEncryptedKey() rejects malformed bundles', async () => {
+    const validBundle = () =>
+      JSON.stringify({ v: 1, salt: 'aabb', iv: 'codd', cipher: 'eeff' });
+
+    await expect(deviceSecurity.importEncryptedKey('p', 'not-json')).rejects.toThrow();
+    await expect(deviceSecurity.importEncryptedKey('p', JSON.stringify('scalar'))).rejects.toThrow();
+    await expect(deviceSecurity.importEncryptedKey('p', JSON.stringify({ v: 2, salt: 'aabb', iv: 'codd', cipher: 'eeff' }))).rejects.toThrow();
+    await expect(deviceSecurity.importEncryptedKey('p', JSON.stringify({ v: 1, salt: 1, iv: 'codd', cipher: 'eeff' }))).rejects.toThrow();
+
+    mockDecryptData.mockResolvedValue('short-hex');
+    mockHex2buf.mockImplementation((hex: string) => (hex === 'short-hex' ? new Uint8Array(8) : new Uint8Array(32)));
+    await expect(deviceSecurity.importEncryptedKey('p', validBundle())).rejects.toThrow();
+
+    expect(idbSet).not.toHaveBeenCalled();
+  });
+
+  it('clearDeviceKeyOverride() deletes stored override and resets effective raw', async () => {
+    mockHex2buf.mockReturnValue(new Uint8Array(32));
+    const bundle = JSON.stringify({ v: 1, salt: 'aabb', iv: 'codd', cipher: 'eeff' });
+    await deviceSecurity.importEncryptedKey('p', bundle);
+
+    await deviceSecurity.clearDeviceKeyOverride();
+
+    expect(idbDel).toHaveBeenCalledWith('__nexus_device_key_override');
+    idbGet.mockResolvedValue(undefined);
+    const raw = await deviceSecurity.getDeviceBoundKeyRaw();
+    expect(raw).toHaveLength(32);
+    expect(mockSubtle.deriveBits).toHaveBeenCalledTimes(2);
   });
 });

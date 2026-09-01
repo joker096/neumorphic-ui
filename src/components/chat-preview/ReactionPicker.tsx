@@ -25,7 +25,7 @@ export const ReactionPicker = ({ visible, isDark = false, isMe, messageId, emoji
         <button
           key={emoji}
           type="button"
-          className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
+          className="w-10 h-10 min-w-11 min-h-11 flex items-center justify-center cursor-pointer hover:bg-white/20 rounded-full transition-colors text-lg"
           onClick={() => onSelect(emoji)}
           aria-label={emoji}
         >

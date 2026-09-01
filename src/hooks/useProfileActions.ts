@@ -55,8 +55,9 @@ export function useProfileActions(
     }
     if (activeChat && activeChat.name === globalSelectedContact.name) setActiveChat(null);
     setChats((prev: any[]) => prev.filter((contact: any) => contact.name !== globalSelectedContact.name));
+    setContacts((prev: any[]) => (prev || []).filter((c: any) => c.name !== globalSelectedContact.name));
     setGlobalSelectedContact(null);
-  }, [globalSelectedContact, activeChat, setActiveChat, setChats, setGlobalSelectedContact]);
+  }, [globalSelectedContact, activeChat, setActiveChat, setChats, setContacts, setGlobalSelectedContact]);
 
   const handleProfileEdit = useCallback(() => {
     if (!globalSelectedContact || guard()) return;
@@ -71,15 +72,14 @@ export function useProfileActions(
       toast.warning('Paused by risk shell');
       return;
     }
-    if (activeChat && activeChat.name === globalSelectedContact.name) setActiveChat(null);
-    setChats((prev: any[]) => prev.filter((contact: any) => contact.name !== globalSelectedContact.name));
     setGlobalSelectedContact(null);
-  }, [globalSelectedContact, activeChat, setActiveChat, setChats, setGlobalSelectedContact]);
+  }, [globalSelectedContact, setGlobalSelectedContact]);
 
   const handleProfileToggleFavorite = useCallback((id: string, isFavorite: boolean) => {
-    setContacts((prev: any[]) => prev.map((c: any) => c.id === id ? { ...c, isFavorite } : c));
+    setContacts((prev: any[]) => (prev || []).map((c: any) => c.id === id ? { ...c, isFavorite } : c));
+    setChats((prev: any[]) => (prev || []).map((c: any) => c.id === id ? { ...c, isFavorite } : c));
     setGlobalSelectedContact((prev: any) => prev && prev.id === id ? { ...prev, isFavorite } : prev);
-  }, [setContacts, setGlobalSelectedContact]);
+  }, [setContacts, setChats, setGlobalSelectedContact]);
 
   return {
     handleProfileCall,

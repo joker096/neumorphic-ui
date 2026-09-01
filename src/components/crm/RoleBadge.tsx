@@ -28,7 +28,7 @@ export const RoleBadge: React.FC<{ contact: CrmContact }> = ({ contact }) => {
   return (
     <span className="inline-flex items-center gap-1 flex-wrap">
       <span className={`inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${tone[contact.role]}`}>
-        <Icon size={10} />
+        <Icon size={12} />
         {roleLabel(contact.role, t)}
       </span>
       {custom && (

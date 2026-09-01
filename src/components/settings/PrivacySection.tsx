@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
-import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, UserCheck, UserX, Check, X, MessageSquare, Wifi, WifiOff, Share, FileText, Download, Clock } from 'lucide-react';
+import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, UserCheck, UserX, Check, X, MessageSquare, Wifi, WifiOff, Share, FileText, Download, Clock, Phone } from 'lucide-react';
 import { TextInputModal } from '../settings/TextInputModal';
 
 interface PrivacySectionProps {
@@ -39,6 +39,12 @@ interface PrivacySectionProps {
   setMediaAutoLoad?: (v: string) => void;
   selfDestructDefault?: string;
   setSelfDestructDefault?: (v: string) => void;
+  profilePhotoVisibility?: string;
+  setProfilePhotoVisibility?: (v: string) => void;
+  callsVisibility?: string;
+  setCallsVisibility?: (v: string) => void;
+  messagesFrom?: string;
+  setMessagesFrom?: (v: string) => void;
   premium?: boolean;
 }
 
@@ -49,7 +55,8 @@ export const PrivacySection = ({
   stealthMode, anonymousMode, deliveryReceipts, readReceipts, typingIndicators,
   ghostViewMode, forwardAnonymization, onlineStatus, allowForwarding, setAllowForwarding,
   allowMetadata, setAllowMetadata, forwardCountLimit, setForwardCountLimit,
-  onUpdateSettings, onBack, t, mediaAutoLoad, setMediaAutoLoad, selfDestructDefault, setSelfDestructDefault, premium
+  onUpdateSettings, onBack, t, mediaAutoLoad, setMediaAutoLoad, selfDestructDefault, setSelfDestructDefault,
+  profilePhotoVisibility, setProfilePhotoVisibility, callsVisibility, setCallsVisibility, messagesFrom, setMessagesFrom, premium
 }: PrivacySectionProps) => {
   const [showPriorityModal, setShowPriorityModal] = useState(false);
   const handlePrioritySave = (name: string) => {
@@ -92,7 +99,7 @@ export const PrivacySection = ({
           title={t('settings.ghostViewMode')}
           subtitle={t('settings.ghostViewModeSubtitle')}
           isDark={isDark}
-          rightElement={<ToggleSwitch isOn={ghostViewMode || false} onToggle={() => onUpdateSettings({ ghostViewMode: !ghostViewMode })} isDark={isDark} onIcon={<Eye size={14} />} offIcon={<EyeOff size={14} />} />}
+          rightElement={<ToggleSwitch isOn={ghostViewMode || false} onToggle={() => onUpdateSettings({ ghostViewMode: !ghostViewMode })} isDark={isDark} onIcon={<Eye size={14} />} offIcon={<EyeOff size={14} />} ariaLabel={t('settings.ghostViewMode')} />}
           onClick={() => onUpdateSettings({ ghostViewMode: !ghostViewMode })}
         />
         <SettingsRow title={t('settings.blacklist')} value="0 users" isDark={isDark} />
@@ -104,7 +111,7 @@ export const PrivacySection = ({
           title={t('settings.dnd')}
           subtitle={t('settings.dndSubtitle')}
           isDark={isDark}
-          rightElement={<ToggleSwitch isOn={dndEnabled} onToggle={() => setDndEnabled(!dndEnabled)} isDark={isDark} onIcon={<BellOff size={14} />} offIcon={<Bell size={14} />} />}
+          rightElement={<ToggleSwitch isOn={dndEnabled} onToggle={() => setDndEnabled(!dndEnabled)} isDark={isDark} onIcon={<BellOff size={14} />} offIcon={<Bell size={14} />} ariaLabel={t('settings.dnd')} />}
           onClick={() => setDndEnabled(!dndEnabled)}
         />
         {dndFrom && dndTo && setDndFrom && setDndTo && (
@@ -167,7 +174,7 @@ export const PrivacySection = ({
           title={t('settings.stealthMode')}
           subtitle={t('settings.stealthModeSubtitle')}
           isDark={isDark}
-          rightElement={<ToggleSwitch isOn={stealthMode} onToggle={() => onUpdateSettings({ stealthMode: !stealthMode })} isDark={isDark} onIcon={<ShieldOff size={14} />} offIcon={<Shield size={14} />} />}
+          rightElement={<ToggleSwitch isOn={stealthMode} onToggle={() => onUpdateSettings({ stealthMode: !stealthMode })} isDark={isDark} onIcon={<ShieldOff size={14} />} offIcon={<Shield size={14} />} ariaLabel={t('settings.stealthMode')} />}
           onClick={() => onUpdateSettings({ stealthMode: !stealthMode })}
         />
         <SettingsRow
@@ -177,28 +184,28 @@ export const PrivacySection = ({
           icon={<EyeOff size={16} />}
           iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
           iconColor={isDark ? "text-red-400" : "text-red-600"}
-          rightElement={<ToggleSwitch isOn={anonymousMode} onToggle={() => onUpdateSettings({ anonymousMode: !anonymousMode })} isDark={isDark} onIcon={<EyeOff size={14} />} offIcon={<Eye size={14} />} />}
+          rightElement={<ToggleSwitch isOn={anonymousMode} onToggle={() => onUpdateSettings({ anonymousMode: !anonymousMode })} isDark={isDark} onIcon={<EyeOff size={14} />} offIcon={<Eye size={14} />} ariaLabel={t('settings.anonymousMode')} />}
           onClick={() => onUpdateSettings({ anonymousMode: !anonymousMode })}
         />
         <SettingsRow
           title={t('settings.deliveryReceipts')}
           subtitle={t('settings.deliveryReceiptsSubtitle')}
           isDark={isDark}
-          rightElement={<ToggleSwitch isOn={deliveryReceipts} onToggle={() => onUpdateSettings({ deliveryReceipts: !deliveryReceipts })} isDark={isDark} onIcon={<Check size={14} />} offIcon={<X size={14} />} />}
+          rightElement={<ToggleSwitch isOn={deliveryReceipts} onToggle={() => onUpdateSettings({ deliveryReceipts: !deliveryReceipts })} isDark={isDark} onIcon={<Check size={14} />} offIcon={<X size={14} />} ariaLabel={t('settings.deliveryReceipts')} />}
           onClick={() => onUpdateSettings({ deliveryReceipts: !deliveryReceipts })}
         />
         <SettingsRow
           title={t('settings.receipts')}
           subtitle={t('settings.receiptsEnableSubtitle')}
           isDark={isDark}
-          rightElement={<ToggleSwitch isOn={readReceipts} onToggle={() => onUpdateSettings({ readReceipts: !readReceipts })} isDark={isDark} onIcon={<Check size={14} />} offIcon={<X size={14} />} />}
+          rightElement={<ToggleSwitch isOn={readReceipts} onToggle={() => onUpdateSettings({ readReceipts: !readReceipts })} isDark={isDark} onIcon={<Check size={14} />} offIcon={<X size={14} />} ariaLabel={t('settings.receipts')} />}
           onClick={() => onUpdateSettings({ readReceipts: !readReceipts })}
         />
         <SettingsRow
           title={t('settings.typingIndicators')}
           subtitle={t('settings.typingIndicatorsSubtitle')}
           isDark={isDark}
-          rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => onUpdateSettings({ typingIndicators: !typingIndicators })} isDark={isDark} onIcon={<MessageSquare size={14} />} offIcon={<MessageSquare size={14} />} />}
+          rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => onUpdateSettings({ typingIndicators: !typingIndicators })} isDark={isDark} onIcon={<MessageSquare size={14} />} offIcon={<MessageSquare size={14} />} ariaLabel={t('settings.typingIndicators')} />}
           onClick={() => onUpdateSettings({ typingIndicators: !typingIndicators })}
         />
         {onlineStatus !== undefined && (
@@ -206,8 +213,44 @@ export const PrivacySection = ({
             title={t('settings.onlineStatus')}
             subtitle={t('settings.onlineStatusSubtitle')}
             isDark={isDark}
-            rightElement={<ToggleSwitch isOn={onlineStatus} onToggle={() => onUpdateSettings({ onlineStatus: !onlineStatus })} isDark={isDark} onIcon={<Wifi size={14} />} offIcon={<WifiOff size={14} />} />}
+            rightElement={<ToggleSwitch isOn={onlineStatus} onToggle={() => onUpdateSettings({ onlineStatus: !onlineStatus })} isDark={isDark} onIcon={<Wifi size={14} />} offIcon={<WifiOff size={14} />} ariaLabel={t('settings.onlineStatus')} />}
             onClick={() => onUpdateSettings({ onlineStatus: !onlineStatus })}
+          />
+        )}
+        {profilePhotoVisibility !== undefined && setProfilePhotoVisibility && (
+          <SettingsRow
+            icon={<UserCheck size={16} />}
+            iconBg={isDark ? "bg-pink-500/10" : "bg-pink-100"}
+            iconColor={isDark ? "text-pink-400" : "text-pink-600"}
+            title={t('settings.profilePhotoVisibility')}
+            subtitle={t('settings.profilePhotoVisibilitySubtitle')}
+            value={profilePhotoVisibility as string}
+            isDark={isDark}
+            onClick={() => setProfilePhotoVisibility(profilePhotoVisibility === 'everyone' ? 'contacts' : profilePhotoVisibility === 'contacts' ? 'nobody' : 'everyone')}
+          />
+        )}
+        {callsVisibility !== undefined && setCallsVisibility && (
+          <SettingsRow
+            icon={<Phone size={16} />}
+            iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
+            iconColor={isDark ? "text-blue-400" : "text-blue-600"}
+            title={t('settings.callsVisibility')}
+            subtitle={t('settings.callsVisibilitySubtitle')}
+            value={callsVisibility as string}
+            isDark={isDark}
+            onClick={() => setCallsVisibility(callsVisibility === 'everyone' ? 'contacts' : callsVisibility === 'contacts' ? 'nobody' : 'everyone')}
+          />
+        )}
+        {messagesFrom !== undefined && setMessagesFrom && (
+          <SettingsRow
+            icon={<MessageSquare size={16} />}
+            iconBg={isDark ? "bg-indigo-500/10" : "bg-indigo-100"}
+            iconColor={isDark ? "text-indigo-400" : "text-indigo-600"}
+            title={t('settings.whoCanMessage')}
+            subtitle={t('settings.whoCanMessageSubtitle')}
+            value={messagesFrom as string}
+            isDark={isDark}
+            onClick={() => setMessagesFrom(messagesFrom === 'everyone' ? 'contacts' : 'everyone')}
           />
         )}
         {allowForwarding !== undefined && setAllowForwarding && (
@@ -215,7 +258,7 @@ export const PrivacySection = ({
             title={t('settings.forwardAllow')}
             subtitle={t('settings.forwardAllowSubtitle')}
             isDark={isDark}
-            rightElement={<ToggleSwitch isOn={allowForwarding} onToggle={() => setAllowForwarding(!allowForwarding)} isDark={isDark} onIcon={<Share size={14} />} offIcon={<Share size={14} />} />}
+            rightElement={<ToggleSwitch isOn={allowForwarding} onToggle={() => setAllowForwarding(!allowForwarding)} isDark={isDark} onIcon={<Share size={14} />} offIcon={<Share size={14} />} ariaLabel={t('settings.forwardAllow')} />}
             onClick={() => setAllowForwarding(!allowForwarding)}
           />
         )}
@@ -224,7 +267,7 @@ export const PrivacySection = ({
             title={t('settings.allowMetadata')}
             subtitle={t('settings.allowMetadataSubtitle')}
             isDark={isDark}
-            rightElement={<ToggleSwitch isOn={allowMetadata} onToggle={() => setAllowMetadata(!allowMetadata)} isDark={isDark} onIcon={<FileText size={14} />} offIcon={<FileText size={14} />} />}
+            rightElement={<ToggleSwitch isOn={allowMetadata} onToggle={() => setAllowMetadata(!allowMetadata)} isDark={isDark} onIcon={<FileText size={14} />} offIcon={<FileText size={14} />} ariaLabel={t('settings.allowMetadata')} />}
             onClick={() => setAllowMetadata(!allowMetadata)}
           />
         )}

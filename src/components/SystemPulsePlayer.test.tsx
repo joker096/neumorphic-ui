@@ -95,8 +95,8 @@ it('opens and closes the playlist', async () => {
         expect(screen.getByText('System Playlist')).toBeInTheDocument();
      });
 
-     const closeBtn = screen.getByRole('button', { hidden: true });
-     fireEvent.click(closeBtn);
+      const closeBtn = screen.getAllByRole('button', { hidden: true }).find(el => el.getAttribute('title') === 'Back to Player');
+      fireEvent.click(closeBtn!);
 
      await waitFor(() => {
         expect(screen.queryByText('System Playlist')).not.toBeInTheDocument();

@@ -12,7 +12,7 @@ interface PinnedMessagesBarProps {
   onJump?: (id: number) => void;
 }
 
-const previewOf = (messages: any[], id: number): string => {
+export const previewOf = (messages: any[], id: number): string => {
   const msg = messages.find((m) => m.id === id);
   if (!msg) return "";
   if (typeof msg.text === "string" && msg.text) return msg.text;
@@ -53,7 +53,7 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
         }`}
         aria-label={t("chat.pinnedMessages", "Pinned messages")}
       >
-        <Pin size={15} className={isDark ? "text-orange-400" : "text-orange-500"} />
+        <Pin size={16} className={isDark ? "text-orange-400" : "text-orange-500"} />
         <span className="flex-1 min-w-0">
           <span className="block text-[13px] font-semibold truncate">{previewOf(messages, top.id)}</span>
           <span className="block text-xs opacity-70">
@@ -88,7 +88,7 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
                   <button
                     type="button"
                     onClick={() => onUnpin(p.id)}
-                    className={`shrink-0 min-h-[40px] px-2 rounded-lg flex items-center justify-center cursor-pointer ${isDark ? "text-gray-400 hover:text-red-400 hover:bg-white/5" : "text-slate-500 hover:text-red-500 hover:bg-black/5"}`}
+                    className={`shrink-0 min-h-11 px-2 rounded-lg flex items-center justify-center cursor-pointer ${isDark ? "text-gray-400 hover:text-red-400 hover:bg-white/5" : "text-slate-500 hover:text-red-500 hover:bg-black/5"}`}
                     aria-label={t("chat.unpin", "Unpin")}
                   >
                     <X size={16} />

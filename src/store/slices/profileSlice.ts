@@ -23,6 +23,7 @@ export interface ProfileSlice {
   userProfile: {
     id: string;
     name: string;
+    username: string;
     bio: string;
     avatar: string;
     avatarColor?: string;
@@ -32,6 +33,7 @@ export interface ProfileSlice {
   setUserProfile: (profile: Partial<{
     id?: string;
     name: string;
+    username: string;
     bio: string;
     avatar: string;
     avatarColor?: string;
@@ -42,8 +44,8 @@ export interface ProfileSlice {
 
 export const createProfileSlice = (set: any, get: any): ProfileSlice => ({
   userProfile: savedUserProfile
-    ? { ...savedUserProfile, id: ensureProfileId(savedUserProfile), status: savedUserProfile.status ?? '' }
-    : { id: ensureProfileId(), name: 'User', bio: '', avatar: '', fields: [], status: '' },
+    ? { username: '', ...savedUserProfile, id: ensureProfileId(savedUserProfile), status: savedUserProfile.status ?? '', name: savedUserProfile.name === 'User' ? '' : (savedUserProfile.name ?? '') }
+    : { id: ensureProfileId(), name: '', username: '', bio: '', avatar: '', fields: [], status: '' },
   setUserProfile: (profile) => {
     set((state: any) => ({
       userProfile: { ...state.userProfile, ...profile }

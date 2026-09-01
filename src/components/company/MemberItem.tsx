@@ -24,7 +24,7 @@ const actionBtn = (icon: React.ReactNode, label: string, onClick: (e: React.Mous
   <button
     aria-label={label}
     onClick={onClick}
-    className={`w-11 h-11 rounded-full flex items-center justify-center cursor-pointer transition-all shrink-0 min-w-[44px] min-h-[44px] ${
+    className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all shrink-0 min-w-11 min-h-11 ${
       isDark ? "bg-[var(--bg-tertiary)] hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)]" : "bg-[var(--bg-secondary)] hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)]"
     }`}
   >
@@ -97,7 +97,7 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
       <div className="flex gap-2 shrink-0">
         {!selectable && onEdit && (
           actionBtn(
-            <Pencil size={15} />,
+            <Pencil size={16} />,
             t('company.editMember', COMPANY_MEMBER_FALLBACKS.editMember),
             (e) => {
               e.stopPropagation();

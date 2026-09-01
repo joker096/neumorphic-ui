@@ -20,7 +20,7 @@ export const NavItemButton = React.memo(
     const isBottom = variant === "bottom";
 
     const buttonClassName = isBottom
-      ? `relative flex h-full min-w-[44px] min-h-[48px] flex-1 flex-col items-center justify-center cursor-pointer
+      ? `relative flex h-full min-w-11 min-h-11 flex-1 flex-col items-center justify-center cursor-pointer
          transition-all duration-200 active:scale-[0.98] focus-visible:outline-none
          focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40
          ${active
@@ -31,12 +31,12 @@ export const NavItemButton = React.memo(
              ? "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
              : "text-slate-400 hover:text-slate-600"}`
       : variant === "eco"
-        ? `flex min-h-[44px] items-center gap-3 rounded-2xl px-3 py-3
+        ? `flex min-h-11 items-center gap-3 rounded-2xl px-3 py-3
            transition-all duration-300 cursor-pointer relative
            ${active
              ? "bg-white text-emerald-800 shadow-[0_4px_15px_rgba(0,0,0,0.15)]"
              : "text-white/90 hover:bg-white/10"}`
-         : `flex min-h-[44px] items-center justify-center rounded-xl px-3 py-2.5 cursor-pointer
+         : `flex min-h-11 items-center justify-center rounded-xl px-3 py-2.5 cursor-pointer
             transition-all duration-200 active:scale-[0.97] focus-visible:outline-none
             focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40
            ${active
@@ -67,7 +67,7 @@ export const NavItemButton = React.memo(
         onClick={onClick}
         className={buttonClassName}
       >
-        <Icon className="w-[1.25rem] h-[1.25rem] flex-shrink-0" strokeWidth={active ? 2.5 : 1.75} />
+        <Icon size={20} className="flex-shrink-0" strokeWidth={active ? 2.5 : 2} />
         {variant === "eco" && (
           <span className="font-medium whitespace-nowrap">{label}</span>
         )}

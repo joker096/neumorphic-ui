@@ -22,7 +22,7 @@ export const SettingsSection = ({ title, onBack, children, icon: Icon, ariaLabel
         <button
           onClick={onBack}
           aria-label={ariaLabel}
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] active:bg-[var(--bg-tertiary)]"
+          className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center transition-all bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] active:bg-[var(--bg-tertiary)]"
           style={{ touchAction: 'none' }}
         >
           <ChevronLeft size={20} className="text-[var(--text-primary)]" />

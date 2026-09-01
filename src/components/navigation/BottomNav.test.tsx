@@ -1,96 +1,96 @@
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BottomNav } from './BottomNav';
-import { useAppStore } from '../../store';
+import '@testing-library/jest-dom/vitest';
 
-const defaultProps = {
-  activeView: 'chats',
-  unreadCount: 0,
-  onNavigate: vi.fn(),
-  t: (key: string) => key,
-};
+let currentMembers: any[] = [];
+let currentProfile: any = { name: 'Test User', username: 'tester', avatar: '' };
+
+vi.mock('../../store', () => ({
+  useAppStore: (selector: any) => selector?.({
+    companyMembers: currentMembers,
+    userProfile: currentProfile,
+  }),
+}));
+
+import { BottomNav } from './BottomNav';
+
+const t = (key: string) => key;
 
 describe('BottomNav', () => {
   beforeEach(() => {
-    useAppStore.setState({
-      userProfile: {
-        id: 'u1',
-        name: 'User',
-        bio: '',
-        avatar: '',
-        fields: [],
-        status: ''
-      },
-      companyMembers: [{ userId: 'u1', displayName: 'User', role: 'admin', publicKey: 'k', joinedAt: 0, lastActive: 0, online: false }],
-    });
+    currentMembers = [{ userId: 'current', role: 'admin' }];
+    currentProfile = { id: 'current', name: 'Test User', username: 'tester', avatar: '' };
   });
 
-  it('renders all nav items with accessible labels', () => {
-    render(<BottomNav {...defaultProps} />);
-    expect(screen.getByLabelText('nav.chats')).toBeInTheDocument();
-    expect(screen.getByLabelText('nav.contacts')).toBeInTheDocument();
-    expect(screen.getByLabelText('settings.company')).toBeInTheDocument();
-    expect(screen.getByLabelText('nav.calls')).toBeInTheDocument();
+  it('renders all five primary menu items', () => {
+    render(<BottomNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByRole('button', { name: 'nav.chats' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'nav.contacts' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'nav.calls' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'settings.company' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'nav.workplace' })).toBeInTheDocument();
   });
 
-  it('hides company item when hideCompany is true', () => {
-    render(<BottomNav {...defaultProps} hideCompany />);
-    expect(screen.queryByLabelText('settings.company')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('nav.chats')).toBeInTheDocument();
-    expect(screen.getByLabelText('nav.contacts')).toBeInTheDocument();
-    expect(screen.getByLabelText('nav.calls')).toBeInTheDocument();
+  it('marks the active view with aria-current="page"', () => {
+    render(<BottomNav activeView="calls" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByRole('button', { name: 'nav.calls' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'nav.chats' })).not.toHaveAttribute('aria-current');
   });
 
-  it('highlights the active item', () => {
-    render(<BottomNav {...defaultProps} activeView="contacts" isDark={true} />);
-    const chatBtn = screen.getByLabelText('nav.chats').closest('button');
-    const contactsBtn = screen.getByLabelText('nav.contacts').closest('button');
-    expect(chatBtn).toHaveClass('text-[var(--text-tertiary)]');
-    expect(contactsBtn).toHaveClass('text-[var(--accent)]');
-  });
-
-  it('fires onNavigate when an item is clicked', () => {
+  it('navigates to the clicked menu item', () => {
     const onNavigate = vi.fn();
-    render(<BottomNav {...defaultProps} onNavigate={onNavigate} />);
-    fireEvent.click(screen.getByLabelText('nav.calls'));
-    expect(onNavigate).toHaveBeenCalledWith('calls');
+    render(<BottomNav activeView="chats" unreadCount={0} onNavigate={onNavigate} t={t} />);
+    fireEvent.click(screen.getByRole('button', { name: 'nav.contacts' }));
+    expect(onNavigate).toHaveBeenCalledWith('contacts');
   });
 
-  it('shows an icon for each visible nav item', () => {
-    const { container } = render(<BottomNav {...defaultProps} />);
-    const svgs = container.querySelectorAll('svg');
-    expect(svgs.length).toBe(5);
+  it('hides company item when hideCompany is set', () => {
+    render(<BottomNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={t} hideCompany />);
+    expect(screen.queryByRole('button', { name: 'settings.company' })).not.toBeInTheDocument();
   });
 
-  it('renders company item by default', () => {
-    render(<BottomNav {...defaultProps} />);
-    expect(screen.getByLabelText('settings.company')).toBeInTheDocument();
+  it('hides admin-only workplace for non-admin users', () => {
+    currentMembers = [{ userId: 'u1', role: 'member' }];
+    render(<BottomNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.queryByRole('button', { name: 'nav.workplace' })).not.toBeInTheDocument();
   });
 
-  it('shows badge when unreadCount > 0 for chats', () => {
-    render(<BottomNav {...defaultProps} unreadCount={3} />);
+  it('shows admin-only workplace for admins', () => {
+    render(<BottomNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByRole('button', { name: 'nav.workplace' })).toBeInTheDocument();
+  });
+
+  it('shows unread badge on chats and company only', () => {
+    render(<BottomNav activeView="chats" unreadCount={7} companyUnreadCount={3} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByText('7')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
-  it('renders profile button with the current user name', () => {
-    useAppStore.setState({
-      userProfile: {
-        id: 'u1',
-        name: 'Ada Lovelace',
-        bio: '',
-        avatar: '',
-        fields: [],
-        status: ''
-      }
-    });
-    render(<BottomNav {...defaultProps} />);
-    expect(screen.getByLabelText('Ada Lovelace')).toBeInTheDocument();
+  it('omits badges on non-badge items', () => {
+    render(<BottomNav activeView="chats" unreadCount={9} onNavigate={vi.fn()} t={t} />);
+    const contactsButton = screen.getByRole('button', { name: 'nav.contacts' });
+    expect(contactsButton).not.toHaveTextContent('9');
   });
 
-  it('navigates to settings when profile is clicked', () => {
+  it('navigates to settings from the profile button', () => {
     const onNavigate = vi.fn();
-    render(<BottomNav {...defaultProps} onNavigate={onNavigate} />);
-    fireEvent.click(screen.getByLabelText('User'));
+    render(<BottomNav activeView="chats" unreadCount={0} onNavigate={onNavigate} t={t} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Test User' }));
     expect(onNavigate).toHaveBeenCalledWith('settings');
+  });
+
+  it('marks settings active on the profile button', () => {
+    render(<BottomNav activeView="settings" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByRole('button', { name: 'Test User' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('falls back to username or default label for profile button', () => {
+    currentProfile = { name: '', username: 'boss', avatar: '' };
+    const { rerender } = render(<BottomNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByRole('button', { name: '@boss' })).toBeInTheDocument();
+    currentProfile = { name: '', username: '', avatar: '' };
+    rerender(<BottomNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={(k) => (k === 'settings.defaultUserName' ? 'Anonymous' : k)} />);
+    expect(screen.getByRole('button', { name: 'Anonymous' })).toBeInTheDocument();
   });
 });

@@ -4,7 +4,7 @@ import { ensureAppReady, gotoSettings } from './test-utils';
 test.describe('Mess&Anger basic smoke tests', () => {
   test('app loads with dark theme by default', async ({ page }) => {
     await ensureAppReady(page);
-    await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('html[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
   });
 
   test('settings navigation works', async ({ page }) => {
@@ -20,12 +20,12 @@ test.describe('Mess&Anger basic smoke tests', () => {
 
   test('theme toggle switches between dark and light', async ({ page }) => {
     await gotoSettings(page);
-    await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('html[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
     await page.getByText('Theme', { exact: true }).first().click();
-    await page.locator('[role="switch"][title="Switch to Light Mode"]').click();
-    await expect(page.locator('[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
-    await page.locator('[role="switch"][title="Switch to Dark Mode"]').click();
-    await expect(page.locator('[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
+    await page.getByTestId('theme-mode-light').click();
+    await expect(page.locator('html[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
+    await page.getByTestId('theme-mode-dark').click();
+    await expect(page.locator('html[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
   });
 
   test('contacts page loads from hub', async ({ page }) => {

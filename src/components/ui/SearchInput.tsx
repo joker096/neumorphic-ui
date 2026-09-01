@@ -31,7 +31,7 @@ export interface SearchInputProps {
 export function SearchInput({
   value,
   onChange,
-  placeholder = 'Search...',
+  placeholder,
   isDark = true,
   shape = 'rounded',
   showSearchIcon = true,
@@ -49,6 +49,7 @@ export function SearchInput({
   onBlur,
 }: SearchInputProps) {
   const { t } = useI18n()
+  const resolvedPlaceholder = placeholder ?? t('common.searchPlaceholder')
   const inputRef = useRef<HTMLInputElement>(null)
   const [focused, setFocused] = useState(false)
   const hasValue = value.length > 0
@@ -69,18 +70,18 @@ export function SearchInput({
 
   const isPill = shape === 'pill'
 
-  const inputSize = large ? 'text-[20px] font-bold tracking-[0.1em]' : 'text-xs font-medium'
+  const inputSize = large ? 'text-[length:var(--text-h3)] font-bold tracking-[0.1em]' : 'text-[length:var(--text-body-small)] font-medium'
   const inputColor = 'text-foreground placeholder:text-muted-foreground'
   const iconColor = focused ? 'text-primary' : 'text-muted-foreground'
   const actionBtn = 'text-muted-foreground hover:text-foreground hover:bg-muted'
-  const btnClass = `shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
+  const btnClass = `shrink-0 min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] flex items-center justify-center rounded-full transition-colors ${actionBtn}`
   // Inputs are borderless: the cursor/placeholder is enough affordance.
   // Do NOT add a border or focus border here (see message composer style).
   if (isPill) {
     const wrapperVariant = isDark
       ? `bg-card`
       : `bg-background`
-    const wrapperBase = `w-full flex items-center gap-2 transition-all duration-300 cursor-text rounded-full ${large ? 'h-12 px-6' : 'h-11 px-4'}`
+    const wrapperBase = `w-full flex items-center gap-2 transition-all duration-300 cursor-text rounded-full ${large ? 'h-12 px-[var(--spacing-24)]' : 'h-[var(--control-height-md)] px-[var(--spacing-16)]'}`
 
     return (
       <div
@@ -90,7 +91,6 @@ export function SearchInput({
         {showSearchIcon && (
           <Search
             size={large ? 18 : 16}
-            strokeWidth={1.75}
             className={`shrink-0 transition-colors ${iconColor}`}
           />
         )}
@@ -107,9 +107,9 @@ export function SearchInput({
           )}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           className={`flex-1 h-full min-w-0 bg-transparent border-none outline-none ${centered ? 'text-center' : ''} ${inputSize} ${inputColor}`}
-          aria-label={placeholder}
+          aria-label={resolvedPlaceholder}
         />
         {hasValue && (
           <button
@@ -135,7 +135,6 @@ export function SearchInput({
         {showSearchIcon && (
           <Search
             size={16}
-            strokeWidth={1.75}
             className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors pointer-events-none ${iconColor}`}
           />
         )}
@@ -152,13 +151,13 @@ export function SearchInput({
           )}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholder={placeholder}
-          className={`w-full h-11 leading-11 rounded-xl text-xs focus:outline-none transition-colors ${
+          placeholder={resolvedPlaceholder}
+          className={`w-full h-[var(--control-height-md)] leading-[var(--control-height-md)] rounded-[var(--radius-control)] text-[length:var(--text-body-small)] focus:outline-none transition-colors ${
             isDark
               ? 'bg-muted text-foreground placeholder:text-muted-foreground'
               : 'bg-background text-foreground placeholder:text-muted-foreground'
-          } ${showSearchIcon ? 'pl-9' : 'pl-4'} ${hasValue || rightElement ? 'pr-12' : 'pr-4'}`}
-          aria-label={placeholder}
+          } ${showSearchIcon ? 'pl-9' : 'pl-[var(--spacing-16)]'} ${hasValue || rightElement ? 'pr-12' : 'pr-[var(--spacing-16)]'}`}
+          aria-label={resolvedPlaceholder}
         />
         {(hasValue || rightElement) && (
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">

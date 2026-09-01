@@ -82,8 +82,10 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
             )}
           </div>
           <motion.button whileTap={{ scale: 0.9 }} onClick={onClose}
+            aria-label={t('common.close')}
+            title={t('common.close')}
             className={`p-2 rounded-full shrink-0 ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
-            <X className="w-5 h-5" />
+            <X size={20} />
           </motion.button>
         </div>
         <input type="range" min={0} max={duration || 0} value={currentTime}
@@ -95,23 +97,27 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
         </div>
         <div className="flex items-center justify-center gap-4 mb-5">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(-15)}
-            className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-15s</motion.button>
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-15s</motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(-5)}
-            className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-5s</motion.button>
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-5s</motion.button>
           <motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.05 }} onClick={togglePlay}
+            aria-label={playing ? t('systemPlayer.pause') : t('systemPlayer.play')}
+            title={playing ? t('systemPlayer.pause') : t('systemPlayer.play')}
             className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-[var(--text-primary)] flex items-center justify-center shadow-lg shadow-orange-500/20">
-            {playing ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
+            {playing ? <Pause size={24} /> : <Play size={24} className="ml-0.5" />}
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(5)}
-            className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+5s</motion.button>
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+5s</motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(15)}
-            className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+15s</motion.button>
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+15s</motion.button>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => setMuted(!muted)}
+              aria-label={muted ? t('systemPlayer.unmute') : t('systemPlayer.mute')}
+              title={muted ? t('systemPlayer.unmute') : t('systemPlayer.mute')}
               className={`p-2 rounded-full ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
-              {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </motion.button>
             <input type="range" min={0} max={1} step={0.05} value={muted ? 0 : volume}
               onChange={(e) => { const v = Number(e.target.value); setVolume(v); if (audioRef.current) audioRef.current.volume = v; setMuted(false); }}
@@ -121,12 +127,16 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
             className={`px-2.5 py-1 text-xs font-mono rounded-lg ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{rate}x</motion.button>
           <div className="flex items-center gap-1">
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => onExport(recording.id, recording.title || 'recording')}
-              className={`p-2 rounded-full ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>
-              <Download className="w-4 h-4" />
+              aria-label={t('recordings.export')}
+              title={t('recordings.export')}
+              className={`p-2 rounded-full ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
+              <Download size={16} />
             </motion.button>
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => onDelete(recording.id)}
+              aria-label={t('recordings.delete')}
+              title={t('recordings.delete')}
               className="p-2 rounded-full text-red-500 hover:bg-red-500/10">
-              <Trash2 className="w-4 h-4" />
+              <Trash2 size={16} />
             </motion.button>
           </div>
         </div>

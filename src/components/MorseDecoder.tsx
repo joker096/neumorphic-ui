@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Scan } from "lucide-react";
 import { useI18n } from '../lib/i18n';
 
 const MORSE_MAP: Record<string, string> = {
@@ -153,25 +154,17 @@ export const MorseDecoder = ({
           {encodedText}
         </div>
         {!decoded ? (
-          <button
-            onClick={handleDecode}
-            className={`mt-3 px-3 py-1.5 rounded flex items-center gap-2 font-mono text-xs tracking-widest transition-colors ${
-              'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30'
-            }`}
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            {label('morseDecoder.decode', 'DECODE MORSE')}
-          </button>
+           <button
+             onClick={handleDecode}
+             aria-label={label('morseDecoder.decode', 'DECODE MORSE')}
+             title={label('morseDecoder.decode', 'DECODE MORSE')}
+             className={`mt-3 w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded font-mono text-xs tracking-widest transition-colors ${
+               'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30'
+             }`}
+           >
+             <Scan size={16} />
+             <span className="sr-only">{label('morseDecoder.decode', 'DECODE MORSE')}</span>
+           </button>
         ) : (
           <div
             className={`mt-3 p-3 rounded-lg border ${

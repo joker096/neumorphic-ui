@@ -30,10 +30,9 @@ const SECTIONS: SectionDef[] = [
   { menu: 'Data and Storage', anchor: 'Data and Storage', rows: ['Auto-load media', 'Clear cache'] },
   { menu: 'Company Chat', anchor: 'Company Chat', rows: ['Company guide'] },
   { menu: 'Bots', anchor: 'Bots' },
-  { menu: 'Call Log', anchor: 'Recordings' },
+  { menu: 'Call settings', anchor: 'Call settings', rows: ['Call History', 'Call Log'] },
   { menu: 'Mesh Radar', anchor: 'Mesh Radar' },
   { menu: 'Payments & Billing', anchor: 'Payments & Billing' },
-  { menu: 'Call recordings', anchor: 'Call recordings' },
   { menu: 'Proxy and Network', anchor: 'Proxy and Network', rows: ['Use Proxy', 'Obfuscation'] },
   { menu: 'Spam Protection', anchor: 'Spam Protection' },
   { menu: 'System Status', anchor: 'System Status' },
@@ -96,13 +95,13 @@ test.describe('Settings cycle', () => {
     await main(page).getByText('Theme', { exact: true }).first().click();
     await expect(main(page).getByText('Appearance', { exact: true }).first()).toBeVisible();
 
-    const toLight = page.locator('[title="Switch to Light Mode"]').first();
+    const toLight = page.getByTestId('theme-mode-light');
     await expect(toLight).toBeVisible();
     await toLight.click();
-    await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'light');
+    await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'light');
 
-    await page.locator('[title="Switch to Dark Mode"]').first().click();
-    await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+    await page.getByTestId('theme-mode-dark').click();
+    await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark');
   });
 
   test('language switch to Russian and back to English', async ({ page }) => {

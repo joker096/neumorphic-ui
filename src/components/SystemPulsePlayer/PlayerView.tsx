@@ -61,7 +61,7 @@ export const PlayerView = ({
           className="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-primary)] border border-[var(--border-color)] shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_-3px_-3px_6px_rgba(255,255,255,0.1),_inset_3px_3px_6px_rgba(0,0,0,0.3)] transition-all"
         >
           <div className={`absolute inset-0 rounded-full ${isRadioMode ? "bg-gradient-to-br from-[#5cc25c]/20 to-transparent" : "bg-gradient-to-br from-green-500/20 to-transparent"} ${isRadioMode ? "opacity-100" : "opacity-0"} transition-opacity`} />
-          {isRadioMode ? <Radio size={22} className="text-[#5cc25c] drop-shadow-[0_0_4px_rgba(92,194,92,0.5)]" /> : <List size={22} className="text-[var(--text-primary)]" />}
+          {isRadioMode ? <Radio size={24} className="text-[#5cc25c] drop-shadow-[0_0_4px_rgba(92,194,92,0.5)]" /> : <List size={24} className="text-[var(--text-primary)]" />}
         </motion.div>
       </div>
 
@@ -69,7 +69,7 @@ export const PlayerView = ({
         <div
           onClick={prevTrack}
           title={t('systemPlayer.previousTrack')}
-          className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform"
+          className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform"
         >
           <SkipBack size={18} fill="currentColor" />
         </div>
@@ -80,7 +80,7 @@ export const PlayerView = ({
         <div
           onClick={nextTrack}
           title={t('systemPlayer.nextTrack')}
-          className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform"
+          className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform"
         >
           <SkipForward size={18} fill="currentColor" />
         </div>

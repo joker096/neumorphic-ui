@@ -6,7 +6,6 @@ import { P2PTransport } from './P2PTransport';
 import { MeshDHT, DHTBootstrapPeer } from './MeshDHT';
 import { MeshRouterCore, MeshRouterSingleton } from './MeshRouter';
 import { useAppStore } from '../../store';
-import { trafficObfuscator } from '../transport/obfuscator';
 import { getMasterKeySet } from '../identity/masterKey';
 
 export interface PeerConnection {
@@ -43,6 +42,7 @@ export class P2PNetwork {
   private peers: Map<string, PeerConnection> = new Map();
   private transports: Map<string, P2PTransport> = new Map();
   private messageHandlers: Set<(msg: BroadcastMessage) => void> = new Set();
+  private typingHandlers: Set<(name: string, isTyping: boolean) => void> = new Set();
   private connectionCallbacks: Set<(peerId: string) => void> = new Set();
   private disconnectionCallbacks: Set<(peerId: string) => void> = new Set();
   private isInitialized = false;
@@ -170,7 +170,6 @@ export class P2PNetwork {
     const transport = new P2PTransport({
       signalingUrl: '', // No signaling URL needed in Kadabra
       localPublicKey: this.peerPublicKey,
-      obfuscator: obfuscationEnabled ? trafficObfuscator : undefined,
       obfuscationEnabled,
       identitySecretKey: identity?.ed25519Secret,
       identityPublicKey: identity?.ed25519Public,
@@ -198,6 +197,13 @@ export class P2PNetwork {
         }
         this.disconnectionCallbacks.forEach((cb) => cb(id));
       },
+    });
+
+    transport.onMetadataSignal((type, data) => {
+      if (type === 'typing-indicator') {
+        const name = typeof data?.name === 'string' ? data.name : String(data?.name ?? '');
+        if (name) this.typingHandlers.forEach((h) => h(name, !!data?.isTyping));
+      }
     });
 
     try {
@@ -257,6 +263,31 @@ export class P2PNetwork {
   onDisconnection(callback: P2PConnectionCallback): () => void {
     this.disconnectionCallbacks.add(callback);
     return () => this.disconnectionCallbacks.delete(callback);
+  }
+
+  /**
+   * Subscribe to incoming typing-indicator signals from any connected peer.
+   * Handler receives the sending contact's `name` and the typing state.
+   * Returns an unsubscribe function.
+   */
+  onTypingIndicator(callback: (name: string, isTyping: boolean) => void): () => void {
+    this.typingHandlers.add(callback);
+    return () => this.typingHandlers.delete(callback);
+  }
+
+  /**
+   * Broadcast a typing-indicator signal to every connected peer.
+   * The local contact `name` is included so receivers can map it to a chat.
+   */
+  sendTypingIndicator(name: string, isTyping: boolean): void {
+    if (!name) return;
+    for (const transport of this.transports.values()) {
+      try {
+        transport.sendMetadataSignal('typing-indicator', { isTyping, name });
+      } catch {
+        /* transport not ready — ignore */
+      }
+    }
   }
 
   getPeers(): PeerConnection[] {

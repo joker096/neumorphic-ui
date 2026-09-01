@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Building2, UserPlus, ShieldCheck, KeyRound, ChevronRight, ArrowRight } from 'lucide-react';
+import { BookOpen, Building2, UserPlus, ShieldCheck, KeyRound, ChevronRight } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsSectionTitle, SettingsRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
@@ -71,12 +71,12 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
       {onCreateCompany && (
         <button
           onClick={onCreateCompany}
-          className="w-full mb-4 flex items-center justify-between gap-3 px-4 py-3 rounded-xl min-h-[44px] transition-colors active:scale-[0.99] bg-[var(--accent)] text-[var(--button-primary-text)]"
+          aria-label={t('company.guide.createCta', 'Create your company')}
+          title={t('company.guide.createCta', 'Create your company')}
+          className="w-9 h-9 min-w-11 min-h-11 mb-4 flex items-center justify-center rounded-xl transition-colors active:scale-[0.99] bg-[var(--accent)] text-[var(--button-primary-text)]"
         >
-          <span className="flex items-center gap-2 font-bold text-sm">
-            <Building2 size={16} /> {t('company.guide.createCta', 'Create your company')}
-          </span>
-          <ArrowRight size={16} />
+          <Building2 size={16} />
+          <span className="sr-only">{t('company.guide.createCta', 'Create your company')}</span>
         </button>
       )}
 

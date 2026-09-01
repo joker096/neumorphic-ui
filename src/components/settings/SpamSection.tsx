@@ -18,7 +18,7 @@ export const SpamSection = ({ isDark = false, spamFilterEnabled, setSpamFilterEn
         subtitle={t('settings.spamFilterSubtitle')}
         isDark={isDark}
         rightElement={
-          <ToggleSwitch isOn={spamFilterEnabled} onToggle={() => setSpamFilterEnabled(!spamFilterEnabled)} isDark={isDark} onIcon={<Shield size={14} />} offIcon={<ShieldOff size={14} />} />
+          <ToggleSwitch isOn={spamFilterEnabled} onToggle={() => setSpamFilterEnabled(!spamFilterEnabled)} isDark={isDark} onIcon={<Shield size={14} />} offIcon={<ShieldOff size={14} />} ariaLabel={t('settings.spamFilter')} />
         }
         onClick={() => setSpamFilterEnabled(!spamFilterEnabled)}
       />

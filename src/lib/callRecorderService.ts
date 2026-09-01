@@ -25,6 +25,7 @@ class CallRecorderService {
   private mediaRecorder: MediaRecorder | null = null;
   private chunks: Blob[] = [];
   private currentRecordingId: string | null = null;
+  private recordedStartedAt: number | null = null;
   private handlers: Set<(recording: boolean) => void> = new Set();
 
   get isRecording(): boolean {
@@ -72,6 +73,7 @@ class CallRecorderService {
       };
 
       this.mediaRecorder.start();
+      this.recordedStartedAt = Date.now();
       this.state = 'recording';
       this.notify(true);
       return true;
@@ -92,6 +94,7 @@ class CallRecorderService {
   discardRecording(): void {
     this.chunks = [];
     this.currentRecordingId = null;
+    this.recordedStartedAt = null;
     this.mediaRecorder = null;
     this.state = 'idle';
     this.notify(false);
@@ -129,8 +132,29 @@ class CallRecorderService {
       console.error('call-recorder: Failed to save blob:', err);
     }
 
+    const durationMs = this.recordedStartedAt ? Date.now() - this.recordedStartedAt : 0;
+    const store = useAppStore.getState();
+    if (!store.recordings.some((r: { id: string }) => r.id === id)) {
+      store.addRecording({
+        id,
+        callId: id,
+        callType: isVideo ? 'video' : 'audio',
+        participants: [],
+        startedAt: this.recordedStartedAt ?? Date.now(),
+        duration: durationMs,
+        recordingDuration: durationMs,
+        fileSize: blob.size,
+        mimeType: isVideo ? 'video/webm' : 'audio/webm',
+        blobId: id,
+        isFavorite: false,
+        tags: [],
+        createdAt: Date.now(),
+      });
+    }
+
     this.chunks = [];
     this.currentRecordingId = null;
+    this.recordedStartedAt = null;
     this.mediaRecorder = null;
     this.state = 'idle';
     this.notify(false);

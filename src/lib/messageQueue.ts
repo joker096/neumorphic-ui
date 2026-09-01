@@ -56,16 +56,32 @@ export async function markMessageSent(id: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(QUEUE_STORE, 'readwrite');
     const store = transaction.objectStore(QUEUE_STORE);
-    const request = store.get(id);
-    request.onsuccess = () => {
-      const item = request.result;
-      if (item) {
-        item.sent = true;
-        store.put(item);
+    const valuesReq = store.getAll();
+    const keysReq = store.getAllKeys();
+    let valuesDone = false;
+    let keysDone = false;
+    let all: any[] = [];
+    let keys: unknown[] = [];
+    const tryFinish = () => {
+      if (!valuesDone || !keysDone) return;
+      const idx = all.findIndex((m: any) => m.id === id);
+      if (idx !== -1) {
+        store.put({ ...all[idx], sent: true }, keys[idx] as IDBValidKey);
       }
       resolve();
     };
-    request.onerror = () => reject(request.error);
+    valuesReq.onsuccess = () => {
+      all = valuesReq.result || [];
+      valuesDone = true;
+      tryFinish();
+    };
+    keysReq.onsuccess = () => {
+      keys = keysReq.result || [];
+      keysDone = true;
+      tryFinish();
+    };
+    valuesReq.onerror = () => reject(valuesReq.error);
+    keysReq.onerror = () => reject(keysReq.error);
   });
 }
 
@@ -74,17 +90,35 @@ export async function retryMessage(message: any): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(QUEUE_STORE, 'readwrite');
     const store = transaction.objectStore(QUEUE_STORE);
-    const request = store.get(message.id);
-    request.onsuccess = () => {
-      const item = request.result;
-      if (item) {
+    const valuesReq = store.getAll();
+    const keysReq = store.getAllKeys();
+    let valuesDone = false;
+    let keysDone = false;
+    let all: any[] = [];
+    let keys: unknown[] = [];
+    const tryFinish = () => {
+      if (!valuesDone || !keysDone) return;
+      const idx = all.findIndex((m: any) => m.id === message.id);
+      if (idx !== -1) {
+        const item = { ...all[idx] };
         item.retryCount = (item.retryCount || 0) + 1;
         item.lastRetry = Date.now();
-        store.put(item);
+        store.put(item, keys[idx] as IDBValidKey);
       }
       resolve();
     };
-    request.onerror = () => reject(request.error);
+    valuesReq.onsuccess = () => {
+      all = valuesReq.result || [];
+      valuesDone = true;
+      tryFinish();
+    };
+    keysReq.onsuccess = () => {
+      keys = keysReq.result || [];
+      keysDone = true;
+      tryFinish();
+    };
+    valuesReq.onerror = () => reject(valuesReq.error);
+    keysReq.onerror = () => reject(keysReq.error);
   });
 }
 

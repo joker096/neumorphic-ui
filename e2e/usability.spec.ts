@@ -36,7 +36,7 @@ async function gotoApp(page: Page) {
   await page.goto('/');
   await page.waitForTimeout(500);
 
-  const hasTheme = await page.locator('[data-theme]').count();
+  const hasTheme = await page.locator('html[data-theme]').count();
   if (hasTheme === 0) {
     const hasRegistration = await page.getByText(/welcome|generate|recovery|passphrase/i).count();
     if (hasRegistration > 0) {
@@ -45,7 +45,7 @@ async function gotoApp(page: Page) {
     }
   }
 
-  await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark');
   await page.waitForTimeout(1200);
 }
 
@@ -64,7 +64,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
       test(vp.name, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await gotoApp(page);
-        await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+        await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark');
         await expect(page.getByPlaceholder('Search chats or messages...').first()).toBeVisible();
       });
     }
@@ -83,7 +83,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
       await gotoApp(page);
       await page.evaluate(() => document.body.style.zoom = '200%');
       await page.waitForTimeout(600);
-      await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+      await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark');
       await page.evaluate(() => document.body.style.zoom = '100%');
     });
   });
@@ -148,18 +148,18 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
   test.describe('Theme & dark mode', () => {
     test('app boots in dark mode by default', async ({ page }) => {
       await gotoApp(page);
-      await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+      await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark');
     });
 
     test('theme toggle switches mode', async ({ page }) => {
       await gotoApp(page);
       await openSettingsViaProfile(page);
       await page.getByText('Theme').first().click();
-      const toggle = page.locator('[role="switch"]').first();
+      const toggle = page.getByTestId('theme-mode-light');
       await expect(toggle).toBeVisible();
       await toggle.click();
       await page.waitForTimeout(600);
-      const newTheme = await page.locator('[data-theme]').getAttribute('data-theme');
+      const newTheme = await page.locator('html[data-theme]').getAttribute('data-theme');
       expect(['light', 'dark']).toContain(newTheme);
     });
 
@@ -167,12 +167,11 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
       await gotoApp(page);
       await openSettingsViaProfile(page);
       await page.getByText('Theme').first().click();
-      const toggle = page.locator('[role="switch"]').first();
-      await toggle.click();
+      await page.getByTestId('theme-mode-light').click();
       await page.waitForTimeout(600);
-      await toggle.click();
+      await page.getByTestId('theme-mode-dark').click();
       await page.waitForTimeout(600);
-      await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+      await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark');
     });
   });
 

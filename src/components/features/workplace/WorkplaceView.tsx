@@ -8,10 +8,12 @@ import {
   CreditCard,
   Plus,
   Search,
+  CheckCheck,
 } from "lucide-react";
 import { useI18n } from "../../../lib/i18n";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
+import { Skeleton } from "../../ui/Skeleton";
 
 type TabId = "tasks" | "automation" | "analytics" | "moderation" | "kb" | "payments";
 
@@ -107,12 +109,12 @@ function TasksTab({ isDark }: { isDark?: boolean }) {
           placeholder={t('workplace.newTask')}
           className="flex-1 px-3 py-2 rounded-xl border border-[var(--border-color)] bg-transparent"
         />
-        <button className="px-3 py-2 rounded-xl bg-[var(--accent)] text-white" aria-label={t('workplace.add')}>
+        <button type="submit" className="px-3 py-2 rounded-xl bg-[var(--accent)] text-white" aria-label={t('workplace.add')}>
           <Plus size={18} />
         </button>
       </form>
       {state.status === "loading" ? (
-        <DataState status="loading" isDark={isDark} />
+        <Skeleton />
       ) : state.data.length === 0 ? (
         <DataState status="empty" isDark={isDark} title={t('workplace.noTasks')} description={t('workplace.createFirstTask')} />
       ) : (
@@ -139,7 +141,7 @@ function AutomationTab({ isDark }: { isDark?: boolean }) {
   return (
     <Panel>
       {state.status === "loading" ? (
-        <DataState status="loading" isDark={isDark} />
+        <Skeleton />
       ) : state.data.length === 0 ? (
         <DataState status="empty" isDark={isDark} title={t('workplace.noRules')} description={t('workplace.addRules')} />
       ) : (
@@ -169,7 +171,7 @@ function AnalyticsTab({ isDark, channelId }: { isDark?: boolean; channelId: stri
   return (
     <Panel>
       {state.status === "loading" ? (
-        <DataState status="loading" isDark={isDark} />
+        <Skeleton />
       ) : state.data.length === 0 ? (
         <DataState status="empty" isDark={isDark} title={t('workplace.noData')} description={t('workplace.metricsAppear')} />
       ) : (
@@ -200,7 +202,7 @@ function ModerationTab({ isDark }: { isDark?: boolean }) {
   return (
     <Panel>
       {state.status === "loading" ? (
-        <DataState status="loading" isDark={isDark} />
+        <Skeleton />
       ) : state.data.length === 0 ? (
         <DataState status="empty" isDark={isDark} title={t('workplace.queueEmpty')} description={t('workplace.complaintsHere')} />
       ) : (
@@ -210,9 +212,12 @@ function ModerationTab({ isDark }: { isDark?: boolean }) {
             <span className="flex-1 text-sm">{item.summary}</span>
             <button
               onClick={() => moderation.resolve(item.id)}
-              className="px-3 py-1 rounded-lg bg-[var(--accent)] text-white text-xs"
+              aria-label={t('workplace.resolve')}
+              title={t('workplace.resolve')}
+              className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg bg-[var(--accent)] text-white text-xs"
             >
-              {t('workplace.resolve')}
+              <CheckCheck size={18} />
+              <span className="sr-only">{t('workplace.resolve')}</span>
             </button>
           </div>
         ))
@@ -244,9 +249,9 @@ function KbTab({ isDark }: { isDark?: boolean }) {
       {q.trim() === "" ? (
         <DataState status="empty" isDark={isDark} title={t('workplace.enterQuery')} description={t('workplace.searchKbArticles')} />
       ) : state.status === "loading" ? (
-        <DataState status="loading" isDark={isDark} />
+        <Skeleton />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title={t('workplace.nothingFound')} />
+        <DataState status="empty" isDark={isDark} emptyIcon="search" title={t('workplace.nothingFound')} description={t('workplace.nothingFoundHint')} />
       ) : (
         state.data.map((a) => (
           <article key={a.id} className="px-3 py-2 rounded-xl border border-[var(--border-color)]">
@@ -283,9 +288,12 @@ export function PaymentCard({ invoice, isDark, onPay }: PaymentCardProps) {
         ) : (
           <button
             onClick={() => onPay?.(invoice.id)}
-            className="px-4 py-1.5 rounded-xl bg-[var(--accent)] text-white text-sm font-semibold"
+            aria-label={t('workplace.pay')}
+            title={t('workplace.pay')}
+            className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-[var(--accent)] text-white text-sm font-semibold"
           >
-            {t('workplace.pay')}
+            <CreditCard size={18} />
+            <span className="sr-only">{t('workplace.pay')}</span>
           </button>
         )}
       </div>
@@ -304,7 +312,7 @@ function PaymentsTab({ isDark }: { isDark?: boolean }) {
   return (
     <Panel>
       {state.status === "loading" ? (
-        <DataState status="loading" isDark={isDark} />
+        <Skeleton />
       ) : state.data.length === 0 ? (
         <DataState status="empty" isDark={isDark} title={t('workplace.noInvoices')} description={t('workplace.invoicesAppear')} />
       ) : (

@@ -5,7 +5,9 @@ import { useDebounce } from "./useDebounce";
 import { encodeMorse } from "../components/MorseDecoder";
 import { useI18n } from "../lib/i18n";
 import { getAttachmentLimit } from "../config/premium";
+import { isAllowedFileType } from "../config/allowedFileTypes";
 import { toast } from "../components/ui/Toast";
+import { queueMessage, getPendingMessages, markMessageSent } from "../lib/messageQueue";
 
 export function useChatPreviewState(
   chat: any,
@@ -127,52 +129,101 @@ export function useChatPreviewState(
     prevHistoryLen.current = curLen;
   }, [chat.history?.length, isNearBottom]);
 
-  const sendMessage = () => {
+  const sendMessage = (attachment?: { url: string; type: 'image' | 'video' }) => {
     const textToSend = eMorseMode ? encodeMorse(eMsgText) : eMsgText.trim();
-    if (!textToSend) return;
-    if (textToSend.length > 20000) return;
-    const newMessage = {
+    const hasAttachment = !!attachment;
+    if (!textToSend && !hasAttachment) return;
+    if (textToSend && textToSend.length > 20000) return;
+    const newMessage: any = {
       id: Date.now(),
       sender: "me",
       text: textToSend,
-      type: eMorseMode ? "morse" : undefined,
-      replyTo: eReplyTarget ? {
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: navigator.onLine ? "sent" : "queued",
+      silent: eSilentMode,
+    };
+    if (hasAttachment) {
+      newMessage.type = attachment!.type;
+      newMessage.attachment = attachment!.url;
+    } else {
+      newMessage.type = eMorseMode ? "morse" : undefined;
+      newMessage.replyTo = eReplyTarget ? {
         id: eReplyTarget.id,
         sender: eReplyTarget.sender,
         text: eReplyTarget.text,
         type: eReplyTarget.type,
         duration: eReplyTarget.duration
-      } : undefined,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: "sent",
-      silent: eSilentMode,
-    };
+      } : undefined;
+    }
+    void queueMessage({ ...newMessage, chatId: chat.id }).catch(() => {});
     const updatedChat = {
       ...chat,
       history: [...(chat.history || []), newMessage],
+      ...(chat.isChannel
+        ? { postCount: (chat.postCount ?? chat.history?.length ?? 0) + 1 }
+        : {}),
     };
     if (onUpdateChat) onUpdateChat(updatedChat);
+    if (chat.isChannel) {
+      setChannels((prev: any[]) =>
+        prev.map((c: any) =>
+          c.id === chat.id
+            ? { ...c, history: updatedChat.history, postCount: updatedChat.postCount }
+            : c
+        )
+      );
+    }
     setMsgTextFn("");
-    setLocalReplyTarget(null);
+    setReplyTargetFn2(null);
     setLocalMorseMode(false);
     setLocalSilentMode(false);
   };
 
-  const handleImageAttach = (e: React.ChangeEvent<HTMLInputElement>, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const attachFile = (file: File, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
     const limit = getAttachmentLimit(premium);
     if (file.size > limit) {
       toast(t("premium.fileTooLarge", { limit: `${Math.round(limit / (1024 * 1024))} MB` }), "error");
       return;
     }
+    if (!isAllowedFileType(file)) {
+      toast(t("premium.fileTypeInvalid", "File type not allowed"), "error");
+      return;
+    }
+    const mime = file.type || "";
+    const msgType: "image" | "file" = mime.startsWith("image/") ? "image" : "file";
     const url = URL.createObjectURL(file);
-    const newMsg = { id: Date.now(), sender: "me", text: "", type: "image", attachment: url, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: "sent", silent };
+    const newMsg = {
+      id: Date.now(),
+      sender: "me",
+      text: "",
+      type: msgType,
+      attachment: url,
+      fileName: msgType === "file" ? file.name : undefined,
+      fileSize: file.size,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: navigator.onLine ? "sent" : "queued",
+      silent,
+    };
+    void queueMessage({ ...newMsg, chatId: chatData.id }).catch(() => {});
     const updated = { ...chatData, history: [...(chatData.history || []), newMsg] };
     if (onUpdChat) onUpdChat(updated);
   };
 
+  const handleImageAttach = (e: React.ChangeEvent<HTMLInputElement>, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    attachFile(file, chatData, onUpdChat, silent);
+  };
+
+  const handleFileDrop = (files: FileList | null | undefined, chatData: any, onUpdChat: ((c: any) => void) | undefined) => {
+    const file = files?.[0];
+    if (!file) return;
+    attachFile(file, chatData, onUpdChat, false);
+  };
+
   const handleReactionMessage = (msgId: string | number, emoji: string) => {
+    const target = (chat.history || []).find((m: any) => m.id === msgId);
+    if (target && target.sender === "me") return;
     const updatedChat = {
       ...chat,
       history: (chat.history || []).map((m: any) => {
@@ -202,6 +253,30 @@ export function useChatPreviewState(
       setChatsStore(prev => prev.map(c => c.id === chat.id ? updatedChat : c));
     }, 1500);
     return () => clearTimeout(timer);
+  }, [chat, onUpdateChat, setChatsStore]);
+
+  // Offline-first (§23): flush queued messages to "sent" when the network is back.
+  useEffect(() => {
+    const flush = async () => {
+      if (!navigator.onLine) return;
+      try {
+        const pending = await getPendingMessages();
+        for (const item of pending) await markMessageSent(item.id);
+        if (pending.length > 0 && (chat.history || []).some((m: any) => m.status === "queued")) {
+          const updatedChat = {
+            ...chat,
+            history: (chat.history || []).map((m: any) => (m.status === "queued" ? { ...m, status: "sent" } : m)),
+          };
+          if (onUpdateChat) onUpdateChat(updatedChat);
+          setChatsStore(prev => prev.map(c => (c.id === chat.id ? updatedChat : c)));
+        }
+      } catch {
+        /* queue is best-effort */
+      }
+    };
+    flush();
+    window.addEventListener("online", flush);
+    return () => window.removeEventListener("online", flush);
   }, [chat, onUpdateChat, setChatsStore]);
 
   const debouncedSearch = useDebounce(searchQuery, 200);
@@ -334,6 +409,7 @@ export function useChatPreviewState(
     msgListRef,
     sendMessage,
     handleImageAttach,
+    handleFileDrop,
     handleReactionMessage,
     filteredHistory,
     mediaItems,

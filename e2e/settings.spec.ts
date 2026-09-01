@@ -16,7 +16,7 @@ test.describe('Settings', () => {
     for (const text of [
       'Profile & Accounts',
       'Bots',
-      'Call Log',
+      'Call settings',
       'Mesh Radar',
       'Theme',
       'Language',
@@ -45,13 +45,13 @@ test.describe('Settings', () => {
     await page.getByText('Theme').first().click();
     await expect(page.getByText('Appearance').first()).toBeVisible();
 
-    const toggle = page.locator('[title="Switch to Light Mode"]').first();
+    const toggle = page.getByTestId('theme-mode-light');
     await expect(toggle).toBeVisible();
     await toggle.click();
-    await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'light');
+    await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'light');
 
-    await page.locator('[title="Switch to Dark Mode"]').first().click();
-    await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark');
+    await page.getByTestId('theme-mode-dark').click();
+    await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark');
   });
 
   test('appearance: font size cycles Small -> Medium -> Large', async ({ page }) => {
@@ -223,6 +223,7 @@ test.describe('Settings', () => {
 
   test('recordings section renders empty state', async ({ page }) => {
     await gotoSettings(page);
+    await openSettingsItem(page, 'Call settings');
     await openSettingsItem(page, 'Call Log');
     await expect(page.getByPlaceholder('Search recordings...').first()).toBeVisible({
       timeout: 5000,

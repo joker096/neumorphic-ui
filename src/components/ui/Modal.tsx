@@ -1,6 +1,7 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import { useFocusTrap } from '../../lib/a11y';
 import {
   modalBackdrop,
   modalSurface,
@@ -10,11 +11,13 @@ import {
   type ModalTheme,
 } from './modalShared';
 
-type ModalSize = 'sm' | 'md' | 'lg';
+type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 const SIZE: Record<ModalSize, string> = {
-  sm: 'max-w-[340px]',
-  md: 'max-w-[420px]',
-  lg: 'max-w-[560px]',
+  xs: 'max-w-[320px]',
+  sm: 'max-w-[420px]',
+  md: 'max-w-[560px]',
+  lg: 'max-w-[720px]',
+  xl: 'max-w-[960px]',
 };
 
 export interface ModalProps {
@@ -57,6 +60,8 @@ export function Modal({
   const dark = resolveDark(isDark);
   const reduce = useReducedMotion();
   const hasHeader = Boolean(title || subtitle || icon);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, isOpen);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -72,7 +77,7 @@ export function Modal({
       {isOpen && (
         <div
           data-theme={dark ? 'dark' : 'light'}
-          className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4`}
+          className={`fixed inset-0 ${zIndex} flex items-center justify-center p-[var(--spacing-16)]`}
         >
           <motion.div
             initial={reduce ? false : { opacity: 0 }}
@@ -84,6 +89,7 @@ export function Modal({
             aria-hidden="true"
           />
           <motion.div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel || title}
@@ -95,7 +101,7 @@ export function Modal({
             onClick={(e) => e.stopPropagation()}
           >
             {hasHeader && (
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start justify-between gap-[var(--spacing-12)]">
                 <ModalHeader
                   title={title}
                   subtitle={subtitle}
@@ -114,11 +120,12 @@ export function Modal({
                 isDark={dark}
                 onClick={onClose}
                 label={closeLabel}
-                className="absolute top-4 right-4 z-10"
+                  className="absolute top-[var(--spacing-16)] right-[var(--spacing-16)] z-10"
+
               />
             )}
             <div>{children}</div>
-            {footer && <div className="flex gap-3 mt-6">{footer}</div>}
+            {footer && <div className="flex gap-[var(--spacing-12)] mt-[var(--spacing-24)]">{footer}</div>}
           </motion.div>
         </div>
       )}

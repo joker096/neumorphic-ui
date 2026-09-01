@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Mic, Square, Trash2, Send, Pause, Play } from 'lucide-react';
+import { Mic, Square, Trash2, Send, Pause, Play, RotateCcw } from 'lucide-react';
 import { VoiceWaveform } from './chat-preview/VoiceWaveform';
 import { useI18n } from '../lib/i18n';
 
@@ -157,12 +157,14 @@ return (
              </div>
              <div className="flex items-center justify-between">
                 <div className="flex gap-2">
-                   <button onClick={onReRecord} className={`px-3 py-1.5 rounded-full text-xs font-bold bg-red-500/20 text-red-400 hover:bg-red-500/30`} title={label('voiceRecorder.rerecord', 'Re-record')}>
-                        {label('voiceRecorder.rerecord', 'Re-record')}
-                    </button>
-                    <button onClick={onCancel} className={`px-3 py-1.5 rounded-full text-xs font-bold neu-button`} title={label('voiceRecorder.discard', 'Discard')}>
-                       {label('voiceRecorder.discard', 'Discard')}
-                    </button>
+                    <button onClick={onReRecord} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full text-xs font-bold bg-red-500/20 text-red-400 hover:bg-red-500/30`} title={label('voiceRecorder.rerecord', 'Re-record')} aria-label={label('voiceRecorder.rerecord', 'Re-record')}>
+                         <RotateCcw size={18} />
+                         <span className="sr-only">{label('voiceRecorder.rerecord', 'Re-record')}</span>
+                     </button>
+                     <button onClick={onCancel} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full text-xs font-bold neu-button`} title={label('voiceRecorder.discard', 'Discard')} aria-label={label('voiceRecorder.discard', 'Discard')}>
+                        <Trash2 size={18} />
+                        <span className="sr-only">{label('voiceRecorder.discard', 'Discard')}</span>
+                     </button>
                 </div>
                 <button 
                    onClick={() => {
@@ -171,10 +173,12 @@ return (
                       const url = previewUrl;
                       onSend(url, `${m}:${s.toString().padStart(2, '0')}`);
                    }}
-                   className="px-4 py-1.5 rounded-full text-xs font-bold bg-orange-500 text-[var(--text-primary)] shadow-md"
-                  >
-                     {label('voiceRecorder.send', 'Send')}
-                   </button>
+                    className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full text-xs font-bold bg-orange-500 text-[var(--text-primary)] shadow-md"
+                      title={label('voiceRecorder.send', 'Send')} aria-label={label('voiceRecorder.send', 'Send')}
+                   >
+                      <Send size={18} />
+                      <span className="sr-only">{label('voiceRecorder.send', 'Send')}</span>
+                    </button>
              </div>
           </div>
         ) : (
@@ -193,7 +197,7 @@ return (
              >
               <div 
                   onClick={handleCancel}
-                  className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 text-[var(--text-secondary)] hover:text-red-400"
+                  className="w-10 h-10 min-w-11 min-h-11 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 text-[var(--text-secondary)] hover:text-red-400"
                     title={label('voiceRecorder.discard', 'Discard')}
                 >
                   <Trash2 size={18} />
@@ -222,7 +226,7 @@ return (
                   )}
                  <button 
                      onClick={handleStopRecording}
-                     className="w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                     className="w-10 h-10 min-w-11 min-h-11 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[0_0_10px_rgba(249,115,22,0.5)]"
                      title={label('voiceRecorder.stopAndSend', 'Stop and Send')}
                   >
                      <Send size={18} className="-ml-0.5" />

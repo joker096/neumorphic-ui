@@ -6,7 +6,7 @@ vi.mock('lucide-react', () => ({
   Camera: 'div', Trash2: 'div', X: 'div', Check: 'div', Upload: 'div',
   Plus: 'div', Share2: 'div', Copy: 'div', QrCode: 'div', Edit: 'div',
   Mail: 'div', MessageSquare: 'div', Phone: 'div', Send: 'div',
-  Shield: 'div', AtSign: 'div', ChevronLeft: 'div', ChevronRight: 'div',
+  Shield: 'div', AtSign: 'div', Link: 'div', ChevronLeft: 'div', ChevronRight: 'div',
   RotateCcw: 'div', Pencil: 'div',
 }));
 
@@ -43,6 +43,11 @@ describe('ProfileSection', () => {
   it('renders profile section title', () => {
     render(<ProfileSection onBack={vi.fn()} t={(k: string, fallback?: string) => fallback || k} />);
     expect(screen.getByText('Profile & Accounts')).toBeInTheDocument();
+  });
+
+  it('renders restore identity description', () => {
+    render(<ProfileSection onBack={vi.fn()} t={(k: string, fallback?: string) => fallback || k} />);
+    expect(screen.getByText('Restore identity using your 24-word recovery phrase')).toBeInTheDocument();
   });
 
   it('renders user name', () => {
@@ -85,23 +90,40 @@ describe('ProfileSection', () => {
     expect(screen.getByDisplayValue('Working')).toBeInTheDocument();
   });
 
-  it('renders upload photo button when no avatar', () => {
-    currentProfile = { name: 'Test User', bio: 'Hello', avatar: '', fields: [] };
+  it('renders username field in edit mode', () => {
+    currentProfile = { name: 'Test User', username: 'testuser', bio: 'Hello', status: 'Working', avatar: '', fields: [] };
     render(<ProfileSection onBack={vi.fn()} t={(k: string, fallback?: string) => fallback || k} />);
     fireEvent.click(screen.getByText('Edit Profile'));
-    expect(screen.getByText('Upload Photo')).toBeInTheDocument();
+    expect(screen.getByText('Username')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('testuser')).toBeInTheDocument();
   });
 
-  it('renders change and remove photo buttons when avatar exists', () => {
-    currentProfile = { name: 'Test User', bio: 'Hello', avatar: 'data:image/png;base64,abc', fields: [] };
+  it('filters special characters out of username input', () => {
     render(<ProfileSection onBack={vi.fn()} t={(k: string, fallback?: string) => fallback || k} />);
     fireEvent.click(screen.getByText('Edit Profile'));
-    expect(screen.getByText('Change Photo')).toBeInTheDocument();
-    expect(screen.getByText('Remove Photo')).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText('@username'), { target: { value: 'bad-user@name!' } });
+    expect(screen.getByDisplayValue('badusername')).toBeInTheDocument();
   });
 
   it('renders share identity button', () => {
     render(<ProfileSection onBack={vi.fn()} t={(k: string, fallback?: string) => fallback || k} />);
     expect(screen.getByText('Share Identity')).toBeInTheDocument();
+  });
+
+  it('renders link field in header card', () => {
+    currentProfile = {
+      name: 'Test User', bio: 'Hello', status: 'Working', avatar: '',
+      fields: [{ id: 'f1', type: 'link', value: 'https://example.com', label: '', visibility: 'everyone' }],
+    };
+    render(<ProfileSection onBack={vi.fn()} t={(k: string, fallback?: string) => fallback || k} />);
+    expect(screen.getByText('https://example.com')).toBeInTheDocument();
+  });
+
+  it('offers link type with url placeholder in field editor', () => {
+    render(<ProfileSection onBack={vi.fn()} t={(k: string, fallback?: string) => fallback || k} />);
+    fireEvent.click(screen.getByText('Edit Profile'));
+    fireEvent.click(screen.getByText('Add Field'));
+    fireEvent.change(document.querySelectorAll('select')[1], { target: { value: 'link' } });
+    expect(screen.getByPlaceholderText('https://')).toBeInTheDocument();
   });
 });

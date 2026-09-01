@@ -21,28 +21,28 @@ export const MessageSelectionBar: React.FC<MessageSelectionBarProps> = ({
 }) => {
   const { t } = useI18n();
   const btn = (extra: string) =>
-    `flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-xs font-bold transition-colors cursor-pointer ${extra}`;
+    `w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full text-xs sm:text-xs font-bold transition-colors cursor-pointer ${extra}`;
 
   return (
     <div className={`flex items-center gap-1.5 sm:gap-2 px-2 py-2 rounded-2xl shrink-0 mb-2 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
       <button onClick={onCancel} className={btn(isDark ? "bg-[var(--bg-tertiary)] text-gray-300 hover:text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-600 hover:text-slate-800 border border-[var(--border-color)] shadow-sm")} aria-label={t("chat.cancel", "Cancel")}>
-        <X size={15} />
+        <X size={16} />
       </button>
       <span className={`text-xs font-bold px-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
         {count} {t("chat.selected", "selected")}
       </span>
       <div className="flex-1" />
-      <button onClick={onSelectAll} className={btn(isDark ? "bg-[var(--bg-tertiary)] text-gray-300 hover:text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-600 hover:text-slate-800 border border-[var(--border-color)] shadow-sm")}>
-        <CheckCheck size={15} />
-        {t("chat.selectAll", "Select all")}
+      <button onClick={onSelectAll} aria-label={t("chat.selectAll", "Select all")} title={t("chat.selectAll", "Select all")} className={btn(isDark ? "bg-[var(--bg-tertiary)] text-gray-300 hover:text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white text-slate-600 hover:text-slate-800 border border-[var(--border-color)] shadow-sm")}>
+        <CheckCheck size={16} />
+        <span className="sr-only">{t("chat.selectAll", "Select all")}</span>
       </button>
-      <button onClick={onForward} disabled={count === 0} className={btn(isDark ? "bg-[var(--bg-tertiary)] text-gray-300 hover:text-[var(--text-primary)] border border-[var(--border-color)] disabled:opacity-40" : "bg-white text-slate-600 hover:text-slate-800 border border-[var(--border-color)] shadow-sm disabled:opacity-40")}>
-        <Forward size={15} />
-        {t("chat.forward", "Forward")}
+      <button onClick={onForward} disabled={count === 0} aria-label={t("chat.forward", "Forward")} title={t("chat.forward", "Forward")} className={btn(isDark ? "bg-[var(--bg-tertiary)] text-gray-300 hover:text-[var(--text-primary)] border border-[var(--border-color)] disabled:opacity-40" : "bg-white text-slate-600 hover:text-slate-800 border border-[var(--border-color)] shadow-sm disabled:opacity-40")}>
+        <Forward size={16} />
+        <span className="sr-only">{t("chat.forward", "Forward")}</span>
       </button>
-      <button onClick={onDelete} disabled={count === 0} className={btn(isDark ? "bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-40" : "bg-red-500/10 text-red-600 hover:bg-red-500/20 disabled:opacity-40")}>
-        <Trash2 size={15} />
-        {t("chat.delete", "Delete")}
+      <button onClick={onDelete} disabled={count === 0} aria-label={t("chat.delete", "Delete")} title={t("chat.delete", "Delete")} className={btn(isDark ? "bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-40" : "bg-red-500/10 text-red-600 hover:bg-red-500/20 disabled:opacity-40")}>
+        <Trash2 size={16} />
+        <span className="sr-only">{t("chat.delete", "Delete")}</span>
       </button>
     </div>
   );

@@ -107,7 +107,7 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
           transition={enabled ? { duration: 0.4, delay: 0.25 } : undefined}
           className="text-center"
         >
-          <h2 className="text-4xl font-bold text-[var(--text-primary)] mb-3 tracking-tight">
+          <h2 className="text-[40px] font-bold text-[var(--text-primary)] mb-3 tracking-tight">
             {callerName}
           </h2>
           <div className="flex items-center justify-center gap-2">

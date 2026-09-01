@@ -14,6 +14,9 @@ export const useCall = () => {
         case 'call:video-toggled':
         case 'call:screen-share-toggled':
         case 'call:recording-toggled':
+        case 'call:reconnecting':
+        case 'call:reconnected':
+        case 'call:network-error':
           setCall(callManager.getActiveCall());
           break;
         case 'call:ended':

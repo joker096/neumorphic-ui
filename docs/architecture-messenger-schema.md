@@ -11,11 +11,12 @@ src/main.tsx
   -> ErrorBoundary
   -> I18nProvider
   -> App
-      -> GlobalControls
-      -> HubView or ContentView
-          -> ChatWorkspace
-          -> FeatureViews
-      -> AppOverlays
+      -> AppAuthGate
+          -> AppShell
+              -> AppSideList
+              -> AppMainContent
+                  -> ChatWorkspace | FeatureViews | ContentView
+          -> AppOverlays
 ```
 
 ## State Ownership
@@ -58,12 +59,18 @@ Owns localization:
 
 Owns top-level layout and shell pieces:
 
-- `GlobalControls.tsx` - fixed theme and language controls
-- `HubView.tsx` - radial hub and account switcher
-- `ContentView.tsx` - non-hub screen shell
-- `ContentViewHeader.tsx` - back button and screen title
+- `AppShell.tsx` - root shell (grid layout, side list, main content, overlays)
+- `AppChrome.tsx` - toasts (sonner), transport indicator, dark glow
+- `AppAuthGate.tsx` - auth/registration gate wrapping the app
+- `AppLockScreen.tsx` - PIN app-lock screen
+- `AppMainContent.tsx` - main content scroll container
+- `AppSideList.tsx` - sidebar chat/contact list
 - `AppOverlays.tsx` - modals, floating call widget, contact editor
-- `ThemeToggle.tsx`, `LanguageSelector.tsx`, `HomeButton.tsx`, `RadialMenu.tsx`, `StoryViewerOverlay.tsx`, `AdvancedFilterModal.tsx` - focused chrome components
+- `CallOverlay.tsx` - active call overlay
+- `ContentView.tsx` - non-hub screen shell
+- `AdvancedFilterModal.tsx` - advanced chat-filter modal
+
+The barrel `src/components/AppChrome.tsx` (components root) re-exports `AdvancedFilterModal`, `StoryViewer`, `StoryComposer`.
 
 ### `src/components/chat/*`
 
@@ -83,12 +90,13 @@ Owns feature screen routing:
 
 Owns reusable visual primitives:
 
-- buttons
-- pills
-- search bars
-- toggles
-- modals
-- waveform primitives
+- buttons and icon buttons
+- avatars
+- modals, dialogs, and forms
+- settings rows and toggles
+- search inputs
+- skeletons, data/empty states, toasts
+- waveform and glow primitives
 
 ### `src/components/resilience/*`
 
@@ -96,6 +104,86 @@ Owns runtime failure containment:
 
 - `ErrorBoundary.tsx` - safe render wrapper
 - `SafeRender.tsx` - reusable boundary around risky sections
+
+### `src/components/chat-preview/*`
+
+Owns chat-preview layer internals: `ChatHeader`, `ChatListItem`, `ChatListBots`, `ChatMessage`, `ChatInputArea` (reply/schedule/voice-error parts), message actions/reactions/context menus, pinned/saved/scheduled bars, `NotificationCenter`, search, view tabs.
+
+### `src/components/auth/*`
+
+Login and registration screens.
+
+### `src/components/call/*`
+
+Call screen, call controls and top bar, group participants, incoming-call sheet, call log.
+
+### `src/components/company/*`
+
+Company profile, members, departments, invites, team inbox.
+
+### `src/components/contacts/*`
+
+Contact item and contact form fields.
+
+### `src/components/crm/*`
+
+CRM view: deals, tasks, people, roles, import/export.
+
+### `src/components/ecochat/*`
+
+Eco sidebar navigation.
+
+### `src/components/embed/*`
+
+Embeddable widget.
+
+### `src/components/huddle/*`
+
+Huddle widget.
+
+### `src/components/integrations/*`
+
+Integrations panels: connect form, health, logs, mapping, conflicts.
+
+### `src/components/landing/*`
+
+Landing page sections (hero, features, CTA, footer).
+
+### `src/components/lock/*`
+
+Lock screen.
+
+### `src/components/navigation/*`
+
+Bottom nav and sidebar nav.
+
+### `src/components/payments/*`
+
+Payment request cards and payment chat picker.
+
+### `src/components/recordings/*`
+
+Recording player.
+
+### `src/components/settings/*`
+
+Settings sections: profile, security, devices, storage, network, spam, premium, backups.
+
+### `src/components/status/*`
+
+Offline banner and transport indicator.
+
+### `src/components/stories/*`
+
+Story viewer and composer.
+
+### `src/components/SystemPulsePlayer/*`
+
+System Pulse radio player: top bar, playlist, stations, video overlay.
+
+### Components root (`src/components/*.tsx`)
+
+Cross-cutting views not yet grouped into a folder: `ChatPreviewLayer`, `ChatProfileView`, `ChatListView`, `ChatMessageList`, `ChatPreviewOverlays`, `ContactProfileModal`, `ContactsView`, `CompanyContactsView`, `ContactCreateEditModal`, `CreateBotModal`, `CreateChannelModal`, `CreateGroupModal`, `GlobalSearch`, `MediaViewer`, `MeshRadar`, `MorseDecoder`, `ProfileView`, `RecordingsScreen`, `SettingsView`, `SystemPulsePlayer`, `SafetyNumberModal`, `FloatingCallWidget`, `ChannelCommentsView`, `LiveVoiceRecorder`, `QrCode`, `Tooltip`.
 
 ## Feature Interaction Rules
 

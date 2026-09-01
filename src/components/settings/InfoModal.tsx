@@ -1,5 +1,6 @@
 import { AppModal } from '../ui/AppModal';
 import { Button } from '../ui/Button';
+import { Check, X } from 'lucide-react';
 
 interface InfoModalProps {
   isOpen: boolean;
@@ -20,11 +21,11 @@ export function InfoModal({ isOpen, isDark, title, children, actionLabel, action
         {children}
       </div>
       <div className="flex gap-3">
-        <Button variant="secondary" size="md" className="flex-1" onClick={onClose}>
-          {t('common.close')}
+        <Button variant="secondary" size="md" className="flex-1" icon={<X />} aria-label={t('common.close')} onClick={onClose}>
+          <span className="sr-only">{t('common.close')}</span>
         </Button>
-        <Button variant="primary" size="md" className="flex-1" onClick={() => { onClose(); onAction(); }}>
-          {actionLabel}
+        <Button variant="primary" size="md" className="flex-1" icon={<Check />} aria-label={actionLabel} onClick={() => { onClose(); onAction(); }}>
+          <span className="sr-only">{actionLabel}</span>
         </Button>
       </div>
     </AppModal>

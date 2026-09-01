@@ -125,11 +125,11 @@ export const SPACING = {
 
 // Unified sizing system
 export const SIZE_MAP: Record<ButtonSize, string> = {
-  sm: 'px-3 py-2.5 text-[13px] min-h-[40px]',
-  md: 'px-4 py-2.5 text-[14px] min-h-[44px]',
-  lg: 'px-5 py-3 text-base min-h-[48px]',
-  xl: 'px-6 py-3.5 text-base min-h-[52px]',
-  'icon-sm': 'w-8 h-8',
-  'icon-md': 'w-10 h-10',
-  'icon-lg': 'w-12 h-12',
+  sm: 'px-[var(--spacing-12)] py-[var(--spacing-10)] text-[length:var(--text-body-small)] min-h-[var(--control-height-md)]',
+  md: 'px-[var(--spacing-16)] py-[var(--spacing-10)] text-[length:var(--text-button)] min-h-[var(--control-height-md)]',
+  lg: 'px-[var(--spacing-20)] py-[var(--spacing-10)] text-[length:var(--text-body)] min-h-[var(--control-height-md)]',
+  xl: 'px-[var(--spacing-24)] py-[var(--spacing-10)] text-[length:var(--text-body)] min-h-[var(--control-height-md)]',
+  'icon-sm': 'w-[var(--control-size-sm)] h-[var(--control-size-sm)] min-w-[var(--control-height-md)] min-h-[var(--control-height-md)]',
+  'icon-md': 'w-[var(--control-size-md)] h-[var(--control-size-md)] min-w-[var(--control-height-md)] min-h-[var(--control-height-md)]',
+  'icon-lg': 'w-[var(--control-size-lg)] h-[var(--control-size-lg)] min-w-[var(--control-height-md)] min-h-[var(--control-height-md)]',
 };

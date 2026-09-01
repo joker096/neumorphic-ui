@@ -164,7 +164,7 @@ describe('FormSelect', () => {
     expect(select?.className).not.toContain('border');
   });
 
-  it('renders with rounded-lg', () => {
+  it('renders with control radius', () => {
     const { container } = render(
       <FormSelect
         value=""
@@ -173,10 +173,10 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('rounded-lg');
+    expect(select?.className).toContain('rounded-[var(--radius-control)]');
   });
 
-  it('renders with text-xs', () => {
+  it('renders with control text size', () => {
     const { container } = render(
       <FormSelect
         value=""
@@ -185,10 +185,10 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('text-xs');
+    expect(select?.className).toContain('text-[length:var(--text-body-small)]');
   });
 
-  it('renders with h-8 height', () => {
+  it('renders with control height', () => {
     const { container } = render(
       <FormSelect
         value=""
@@ -197,10 +197,10 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('h-8');
+    expect(select?.className).toContain('h-[var(--control-height-md)]');
   });
 
-  it('renders with px-2 padding', () => {
+  it('renders with control padding', () => {
     const { container } = render(
       <FormSelect
         value=""
@@ -209,7 +209,7 @@ describe('FormSelect', () => {
       />
     );
     const select = container.querySelector('select')!;
-    expect(select?.className).toContain('px-2');
+    expect(select?.className).toContain('px-[var(--spacing-12)]');
   });
 
   it('renders with outline-none', () => {

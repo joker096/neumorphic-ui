@@ -59,7 +59,7 @@ export function ControlButton({
       aria-label={label}
       aria-pressed={!!active}
     >
-      <Icon size={sizeConfig.icon} strokeWidth={active ? 2.5 : 1.9} />
+      <Icon size={sizeConfig.icon} strokeWidth={active ? 2.5 : 2} />
       {active && activeColor && (
         <motion.span
           layoutId="active-indicator"

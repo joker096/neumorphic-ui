@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { Copy, Check } from 'lucide-react';
 import { useAppStore } from '../../store';
+import * as idb from '../../lib/idb';
 import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
 import { CrmModal } from './CrmModal';
@@ -11,6 +12,7 @@ const APP_HOME_URL = (import.meta.env.VITE_APP_URL as string | undefined) || 'ht
 export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { t } = useI18n();
   const ensureCrmInviteCode = useAppStore((s) => s.ensureCrmInviteCode);
+  const companyId = useAppStore((s) => s.companyId);
   const [code, setCode] = useState('');
   const [qrUrl, setQrUrl] = useState('');
   const [copied, setCopied] = useState(false);
@@ -30,6 +32,17 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
     return () => { cancelled = true; };
   }, [code]);
 
+  useEffect(() => {
+    if (!code || !companyId) return;
+    (async () => {
+      const invites = ((await idb.get('company_invites')) as
+        | Record<string, { companyId: string }>
+        | null) || {};
+      invites[code] = { companyId };
+      await idb.set('company_invites', invites);
+    })();
+  }, [code, companyId]);
+
   const link = code ? `${APP_HOME_URL}/?invite=${code}` : '';
 
   const copy = async () => {
@@ -46,15 +59,6 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
     <CrmModal
       onClose={onClose}
       title={t('crm.inviteTitle', CRM_FALLBACKS.inviteTitle)}
-      footer={(
-        <button
-          onClick={copy}
-          className="w-full min-h-[44px] rounded-xl bg-[var(--accent)] text-white text-sm font-bold flex items-center justify-center gap-2 cursor-pointer"
-        >
-          {copied ? <Check size={15} /> : <Copy size={15} />}
-          {copied ? t('crm.copied', CRM_FALLBACKS.copied) : link}
-        </button>
-      )}
     >
       <div className="flex flex-col items-center gap-3 py-2">
         {qrUrl ? (
@@ -68,12 +72,22 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
             {t('crm.inviteCode', CRM_FALLBACKS.inviteCode)}
           </div>
         )}
-        <div className="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+        <div className="text-[11px] uppercase tracking-wide text-[var(--text-secondary)]">
           {t('crm.inviteCode', CRM_FALLBACKS.inviteCode)}
         </div>
         <div className="font-mono text-lg font-bold tracking-widest text-[var(--text-primary)]">{code}</div>
-        <div className="text-xs text-[var(--text-secondary)] text-center break-all">{link}</div>
-        <div className="text-[10px] text-[var(--text-secondary)] text-center">
+        <div className="text-xs text-[var(--text-secondary)] text-center break-all flex items-center gap-2 justify-center">
+          <span>{link}</span>
+          <button
+            onClick={copy}
+            aria-label={t('crm.copyLink', 'Copy invite link')}
+            title={t('crm.copyLink', 'Copy invite link')}
+            className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--bg-secondary)] text-[var(--accent)] hover:bg-[var(--bg-tertiary)] transition-colors"
+          >
+            {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+          </button>
+        </div>
+        <div className="text-[11px] text-[var(--text-secondary)] text-center">
           {t('crm.inviteHint', CRM_FALLBACKS.inviteHint)}
         </div>
       </div>

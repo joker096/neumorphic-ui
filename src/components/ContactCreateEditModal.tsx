@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useI18n } from '../lib/i18n';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, Plus } from 'lucide-react';
 import type { Contact, ContactField, ContactTag } from '../types/contact';
 import { AppModal } from './ui/AppModal';
 import { ContactCRMFields, ContactCustomField } from './contacts/ContactFormFields';
@@ -77,7 +77,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
-          <div className="text-xs text-center p-3 rounded-xl bg-[var(--danger-soft)] text-[var(--danger)]">
+          <div role="alert" className="text-xs text-center p-3 rounded-xl bg-[var(--danger-soft)] text-[var(--danger)]">
             {error}
           </div>
         )}
@@ -131,9 +131,12 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
             <button
               type="button"
               onClick={addField}
-              className="text-xs font-bold px-2.5 py-1.5 rounded-full cursor-pointer transition-colors bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground"
+              aria-label={t('contacts.addField')}
+              title={t('contacts.addField')}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground"
             >
-              {t('contacts.addField')}
+              <Plus size={18} />
+              <span className="sr-only">{t('contacts.addField')}</span>
             </button>
           </div>
           {localFields.length === 0 ? (
@@ -157,11 +160,13 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
         <button
           type="submit"
           disabled={!name.trim() || !id.trim() || hasFieldErrors || isLoading}
-          className="w-full h-[var(--control-height-lg)] rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-accent text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]"
+          aria-label={t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}
+          title={t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}
+          className="w-full h-10 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-accent text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]"
         >
           {isLoading && <Loader2 size={18} className="animate-spin" />}
           <Check size={18} />
-          {t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}
+          <span className="sr-only">{t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}</span>
         </button>
       </form>
     </AppModal>

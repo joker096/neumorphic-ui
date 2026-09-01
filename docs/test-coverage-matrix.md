@@ -120,6 +120,7 @@ Gap (P2, pass3): `stories/*` (все), `SystemPulsePlayer/hooks/*`, `recordings/
 | F16 | Offline/resilience/error boundary | `resilience.spec.ts` | ✅ |
 | F17 | Адаптив 320px/zoom/touch | `usability.spec.ts` | ✅ |
 | F18 | Тема/язык/font size | `settings.spec.ts` | ✅ |
+| F19 | Цикл настроек: все switch/cycle-row/select/инпуты + персист | `settings-feature-cycle.spec.ts` | ✅ |
 
 ## 8. Visual — P2
 

@@ -1,7 +1,13 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { BotsSection } from './BotsSection';
+
+const saveBotMock = vi.fn();
+
+vi.mock('../../lib', () => ({
+ saveBot: (...args: unknown[]) => saveBotMock(...args),
+}));
 
 vi.mock('../../lib/i18n', () => ({
  useI18n: () => ({
@@ -59,4 +65,26 @@ it('renders add bot button', () => {
    const { container } = render(<BotsSection bots={[]} setBots={vi.fn()} onBack={vi.fn()} t={(k: string) => k} />);
    expect(container.querySelector('[class*="rounded-full"]') || container.querySelector('[class*="hover:bg-"]')).toBeInTheDocument();
   });
+ });
+
+describe('BotsSection - bot persistence (D1/D2 regress)', () => {
+ beforeEach(() => {
+  saveBotMock.mockClear();
+ });
+
+ const perms = { readMessages: true, sendMessages: true, editMessages: false, deleteMessages: false, inlineKeyboard: false, readUserData: false, accessGroups: false, accessFiles: false };
+
+ it('persists created bot to idb via saveBot (store <-> idb bridge)', async () => {
+  const setBots = vi.fn();
+  render(<BotsSection bots={[]} setBots={setBots} onBack={vi.fn()} t={(k: string) => k} />);
+
+  fireEvent.click(screen.getByText('settings.addBot'));
+  const input = screen.getByPlaceholderText('settings.enterBotName');
+  fireEvent.change(input, { target: { value: 'HelperBot' } });
+  fireEvent.click(screen.getByLabelText('common.confirm'));
+
+  await waitFor(() => expect(saveBotMock).toHaveBeenCalledTimes(1));
+  expect(saveBotMock).toHaveBeenCalledWith(expect.objectContaining({ id: expect.stringContaining('bot_'), name: 'HelperBot' }));
+  expect(setBots).toHaveBeenCalled();
+ });
 });

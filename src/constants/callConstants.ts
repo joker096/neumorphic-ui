@@ -39,6 +39,18 @@ export const CALL_HUDDLE_DEFAULT_NAME = "Huddle";
 /** Maps a raw call status to a translation key (when one exists). */
 export const CALL_STATUS_LABEL_KEYS: Partial<Record<string, string>> = {
   connecting: "call.connecting",
+  reconnecting: "call.reconnecting",
+  error: "call.networkError",
+};
+
+/** Latency (ms) above which in-call network quality degrades: good < 150, fair < 400, poor >= 400. */
+export const CALL_NETWORK_QUALITY_MS = { good: 150, fair: 400 };
+
+/** Bar colours per network quality level (3 = good, 2 = fair, 1 = poor). */
+export const CALL_NETWORK_QUALITY_COLORS: Record<number, string> = {
+  3: "bg-[var(--accent)]",
+  2: "bg-amber-400",
+  1: "bg-[var(--danger)]",
 };
 
 /** Size presets for the circular call control buttons. */

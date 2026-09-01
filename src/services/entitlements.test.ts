@@ -6,6 +6,7 @@ import { getMasterKeySet } from '../lib/identity/masterKey'
 import type { MasterKeySet } from '../lib/identity/masterKey'
 
 // Mirrors server/routes/paymento.ts SUB_ORDER_RE (kept in sync by this test).
+// eslint-disable-next-line security/detect-unsafe-regex -- bounded char class, no overlapping quantifiers (no ReDoS)
 const SERVER_ORDER_RE = /^sub:([A-Za-z0-9+/=]{40,64}):([a-z][a-z0-9]{0,15})(?::.+)?$/
 
 vi.mock('../lib/identity/masterKey', () => ({

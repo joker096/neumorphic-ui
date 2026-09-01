@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { ExternalLink, Copy, CheckCircle2, XCircle, Loader2, Clock, Wallet } from 'lucide-react'
+import { ExternalLink, Copy, Check, CheckCircle2, XCircle, Loader2, Clock, Wallet } from 'lucide-react'
 import { verifyPayment } from '../../services/paymento'
 import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPending } from '../../types/paymento'
 import { toast } from '../ui/Toast'
+import { useI18n } from '../../lib/i18n'
 
 interface PaymentChatBubbleProps {
   msg: any
@@ -10,6 +11,7 @@ interface PaymentChatBubbleProps {
 }
 
 export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProps) => {
+  const { t } = useI18n()
   const token = msg?.paymentToken as string | undefined
   const url = (msg?.paymentUrl as string) || ''
   const amount = msg?.amount
@@ -70,7 +72,7 @@ export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProp
     if (!url) return
     await navigator.clipboard?.writeText(url)
     setCopied(true)
-    toast('Payment link copied', 'success')
+    toast(t('payments.linkCopied'), 'success')
     setTimeout(() => setCopied(false), 1500)
   }
 
@@ -90,7 +92,7 @@ export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProp
         >
           <Wallet size={16} className="text-[var(--accent)]" />
         </span>
-        <span className="text-xs font-bold uppercase tracking-widest opacity-70">Payment Request</span>
+        <span className="text-xs font-bold uppercase tracking-widest opacity-70">{t('payments.request')}</span>
       </div>
       {description && <div className="text-sm font-medium">{description}</div>}
       {amount != null && amount !== '' && (
@@ -107,15 +109,18 @@ export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProp
           rel="noreferrer"
           className="flex-1 flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform"
         >
-          <ExternalLink size={15} /> Pay
+          <ExternalLink size={16} /> {t('payments.pay')}
         </a>
         <button
           onClick={handleCopy}
-          className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform ${
+          aria-label={copied ? t('payments.copied') : t('payments.copy')}
+          title={copied ? t('payments.copied') : t('payments.copy')}
+          className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
             isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'
           }`}
         >
-          {copied ? <CheckCircle2 size={15} /> : <Copy size={15} />} {copied ? 'Copied' : 'Copy'}
+          {copied ? <Check size={16} /> : <Copy size={16} />}
+          <span className="sr-only">{copied ? t('payments.copied') : t('payments.copy')}</span>
         </button>
       </div>
     </div>

@@ -1,8 +1,9 @@
 import React, { useRef, useCallback } from "react";
 import { motion } from "motion/react";
-import { Archive, ArchiveRestore, Phone, Video, Bell, BellOff, Trash2, MessageSquare } from "lucide-react";
+import { Archive, ArchiveRestore, Phone, Video, Bell, BellOff, Trash2, MessageSquare, X, Megaphone, Check, MapPin } from "lucide-react";
 import { FormattedText } from "./FormattedText";
 import { useAppStore } from "../../store";
+import { p2pNetwork } from "../../lib/p2p/network";
 import { CHAT_SEND_GRADIENT } from "../../constants/chatConstants";
 
 interface ChatListItemProps {
@@ -53,6 +54,15 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   const typingIndicators = useAppStore((state) => state.typingIndicators);
   const contactAvatars = useAppStore((state) => state.contactAvatars);
   const overrideAvatar = contactAvatars[chat.name];
+  const [remoteTyping, setRemoteTyping] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!typingIndicators || !chat.name) return;
+    return p2pNetwork.onTypingIndicator((name, isTyping) => {
+      if (name === chat.name) setRemoteTyping(isTyping);
+    });
+  }, [typingIndicators, chat.name]);
+
   const dragged = useRef(false);
   const dragDistance = useRef(0);
   const [swipedOpen, setSwipedOpen] = React.useState<"closed" | "left" | "right">("closed");
@@ -136,7 +146,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
     setSwipedOpen("closed");
   };
 
-  const targetX = swipedOpen === "left" ? -150 : swipedOpen === "right" ? 180 : 0;
+  const targetX = swipedOpen === "left" ? -186 : swipedOpen === "right" ? 200 : 0;
 
   return (
     <div
@@ -149,7 +159,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
     >
       {(onClick || (onCall && onVideoCall)) && (
         <div
-          className={`absolute inset-0 flex items-center justify-start overflow-hidden bg-[var(--bg-tertiary)] transition-opacity duration-200 ${
+          className={`absolute inset-0 flex items-stretch justify-start gap-1 overflow-hidden rounded-2xl bg-[var(--bg-tertiary)] px-2 transition-opacity duration-200 ${
             swipedOpen === "right" ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
           }`}
           aria-hidden={swipedOpen !== "right"}
@@ -157,35 +167,35 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           {onClick && (
             <button
               onClick={() => handleSwipeAction("message")}
-              className={`h-full flex items-center justify-center text-white cursor-pointer border-none w-[56px] min-h-[44px] shrink-0 transition-colors ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
               aria-label={t('chat.openChat')}
             >
-             <MessageSquare size={18} fill="currentColor" stroke="currentColor" />
+             <MessageSquare size={20} fill="currentColor" stroke="currentColor" />
            </button>
           )}
           {onCall && (
             <button
               onClick={() => handleSwipeAction("call")}
-              className={`h-full flex items-center justify-center text-white cursor-pointer border-none w-[56px] min-h-[44px] shrink-0 transition-colors ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
               aria-label={t('chat.startCall')}
             >
-             <Phone size={18} fill="currentColor" stroke="currentColor" />
+             <Phone size={20} fill="currentColor" stroke="currentColor" />
            </button>
           )}
           {onVideoCall && (
             <button
               onClick={() => handleSwipeAction("video")}
-              className={`h-full flex items-center justify-center text-white cursor-pointer border-none w-[56px] min-h-[44px] shrink-0 transition-colors ${isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
               aria-label={t('chat.startVideoCall')}
             >
-             <Video size={18} fill="currentColor" stroke="currentColor" />
+             <Video size={20} fill="currentColor" stroke="currentColor" />
            </button>
           )}
         </div>
       )}
     {(onMute || onArchive || onDelete) && (
       <div
-        className={`absolute inset-0 flex items-center justify-end overflow-hidden bg-[var(--bg-tertiary)] transition-opacity duration-200 ${
+        className={`absolute inset-0 flex items-stretch justify-end gap-1 overflow-hidden rounded-2xl bg-[var(--bg-tertiary)] px-2 transition-opacity duration-200 ${
           swipedOpen === "left" ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
         aria-hidden={swipedOpen !== "left"}
@@ -193,38 +203,38 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         {onMute && (
           <button
             onClick={() => handleSwipeAction("mute")}
-            className={`h-full flex items-center justify-center text-white cursor-pointer border-none w-[50px] min-h-[44px] shrink-0 transition-colors ${isDark ? "bg-amber-500 hover:bg-amber-400" : "bg-amber-500 hover:bg-amber-600"}`}
+            className={`my-1.5 flex aspect-square w-[50px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-amber-500 hover:bg-amber-400" : "bg-amber-500 hover:bg-amber-600"}`}
             aria-label={chat.isMuted ? t('chat.unmute') : t('chat.mute')}
           >
-            {chat.isMuted ? <BellOff size={18} /> : <Bell size={18} />}
+            {chat.isMuted ? <BellOff size={20} /> : <Bell size={20} />}
           </button>
         )}
         {onArchive && (
           <button
             onClick={() => handleSwipeAction("archive")}
-            className={`h-full flex items-center justify-center text-white cursor-pointer border-none w-[50px] min-h-[44px] shrink-0 transition-colors ${isArchived ? (isDark ? "bg-[#38d69a] hover:bg-[#2fb985]" : "bg-emerald-500 hover:bg-emerald-600") : isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
+            className={`my-1.5 flex aspect-square w-[50px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isArchived ? (isDark ? "bg-[#38d69a] hover:bg-[#2fb985]" : "bg-emerald-500 hover:bg-emerald-600") : isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
             aria-label={archiveLabel}
           >
             {isArchived
-              ? <ArchiveRestore size={18} />
-              : <Archive size={18} />
+              ? <ArchiveRestore size={20} />
+              : <Archive size={20} />
             }
           </button>
         )}
         {onDelete && (
           <button
             onClick={() => handleSwipeAction("delete")}
-            className={`h-full flex items-center justify-center text-white cursor-pointer border-none w-[50px] min-h-[44px] shrink-0 transition-colors ${isDark ? "bg-red-500 hover:bg-red-400" : "bg-red-500 hover:bg-red-600"}`}
+            className={`my-1.5 flex aspect-square w-[50px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-red-500 hover:bg-red-400" : "bg-red-500 hover:bg-red-600"}`}
             aria-label={t('chat.delete')}
           >
-            <Trash2 size={18} />
+            <Trash2 size={20} />
           </button>
         )}
       </div>
     )}
       <motion.div
         drag={selectMode ? false : "x"}
-        dragConstraints={{ left: -160, right: 200 }}
+        dragConstraints={{ left: -200, right: 240 }}
         dragElastic={0.05}
         onDragStart={() => {
           dragged.current = false;
@@ -234,11 +244,15 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           dragDistance.current = Math.abs(info.offset.x);
         }}
         onDragEnd={(_, info) => {
-          if (swipedOpen === "closed") {
-            if (info.offset.x < -70) setSwipedOpen("left");
-            else if (info.offset.x > 70) setSwipedOpen("right");
-          } else if (swipedOpen === "left" && info.offset.x > 30) setSwipedOpen("closed");
-          else if (swipedOpen === "right" && info.offset.x < -30) setSwipedOpen("closed");
+          const wasClosed = swipedOpen === "closed";
+          let next: "closed" | "left" | "right" = swipedOpen;
+          if (wasClosed) {
+            if (info.offset.x < -70) next = "left";
+            else if (info.offset.x > 70) next = "right";
+          } else if (swipedOpen === "left" && info.offset.x > 30) next = "closed";
+          else if (swipedOpen === "right" && info.offset.x < -30) next = "closed";
+          if (next !== swipedOpen && next !== "closed") navigator.vibrate?.(20);
+          setSwipedOpen(next);
           if (dragDistance.current > 10) dragged.current = true;
         }}
         onPointerDown={handlePointerDown}
@@ -297,9 +311,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               }`}
             >
               {selected ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
+                <Check size={16} strokeWidth={2.5} className="text-white" />
               ) : (
                 <div className={`w-4 h-4 rounded-full border-2 ${isDark ? "border-gray-500" : "border-slate-300"}`} />
               )}
@@ -322,8 +334,17 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           )}
           {chat.online && !selectMode && (
             <div
+              role="img"
+              aria-label={t("chat.filters.online")}
               className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-2 z-10 ${isDark ? "bg-[#38d69a] border-[var(--bg-secondary)]" : "bg-emerald-500 border-[var(--bg-secondary)]"}`}
             />
+          )}
+          {type === "channel" && !selectMode && (
+            <div
+              className={`absolute -bottom-0.5 -right-0.5 w-[15px] h-[15px] rounded-full border-2 z-10 flex items-center justify-center ${isDark ? "bg-[var(--accent)] border-[var(--bg-secondary)]" : "bg-[var(--accent)] border-[var(--bg-secondary)]"}`}
+            >
+              <Megaphone size={12} className="text-white" />
+            </div>
           )}
         </div>
 
@@ -333,9 +354,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               className={`font-bold text-[13px] md:text-sm truncate pr-2 flex items-center gap-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}
             >
               {chat.pinned && (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 opacity-60 rotate-45">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-                </svg>
+                <MapPin size={12} className="shrink-0 opacity-60 rotate-45" />
               )}
               {chat.name}
             </span>
@@ -349,7 +368,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             <span
               className={`text-xs md:text-xs truncate pr-4 ${isDark ? (active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]") : active ? "text-[var(--accent)]" : "text-slate-500"} ${chat.unread ? "font-medium" : ""}`}
             >
-               {typingIndicators && chat.isTyping && type === "chat" ? (
+                {typingIndicators && (chat.isTyping || remoteTyping) && type === "chat" ? (
                 <span className="font-bold tracking-wide italic text-[var(--accent)]">
                   {t("chat.typing")}
                 </span>
@@ -380,70 +399,6 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           </div>
         </div>
       </motion.div>
-        {!selectMode && (
-          <div className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 items-center gap-1 rounded-full bg-[var(--bg-tertiary)] p-1 shadow-md opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto pointer-events-none transition-opacity duration-150 z-20">
-            {onClick && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleSwipeAction("message"); }}
-                className="h-9 w-9 flex items-center justify-center rounded-full text-[var(--text-primary)] bg-[var(--bg-secondary)] hover:bg-[var(--accent)] hover:text-white transition-colors"
-                aria-label={t('chat.openChat')}
-              >
-                <MessageSquare size={16} fill="currentColor" stroke="currentColor" />
-              </button>
-            )}
-            {onCall && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleSwipeAction("call"); }}
-                className="h-9 w-9 flex items-center justify-center rounded-full text-white bg-[#2b2f42] hover:bg-[#363b52] transition-colors"
-                aria-label={t('chat.startCall')}
-              >
-                <Phone size={16} fill="currentColor" stroke="currentColor" />
-              </button>
-            )}
-            {onVideoCall && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleSwipeAction("video"); }}
-                className="h-9 w-9 flex items-center justify-center rounded-full text-white bg-[var(--accent)] hover:brightness-110 transition-colors"
-                aria-label={t('chat.startVideoCall')}
-              >
-                <Video size={16} fill="currentColor" stroke="currentColor" />
-              </button>
-            )}
-            {onMute && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleSwipeAction("mute"); }}
-                className="h-9 w-9 flex items-center justify-center rounded-full text-white bg-amber-500 hover:bg-amber-400 transition-colors"
-                aria-label={chat.isMuted ? t('chat.unmute') : t('chat.mute')}
-              >
-                {chat.isMuted ? <BellOff size={16} /> : <Bell size={16} />}
-              </button>
-            )}
-            {onArchive && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleSwipeAction("archive"); }}
-                className={`h-9 w-9 flex items-center justify-center rounded-full text-white transition-colors ${isArchived ? "bg-[#38d69a] hover:bg-[#2fb985]" : "bg-[var(--accent)] hover:brightness-110"}`}
-                aria-label={archiveLabel}
-              >
-                {isArchived ? <ArchiveRestore size={16} /> : <Archive size={16} />}
-              </button>
-            )}
-            {onDelete && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleSwipeAction("delete"); }}
-                className="h-9 w-9 flex items-center justify-center rounded-full text-white bg-red-500 hover:bg-red-400 transition-colors"
-                aria-label={t('chat.delete')}
-              >
-                <Trash2 size={16} />
-              </button>
-            )}
-          </div>
-        )}
       {showDeleteConfirm && (
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
@@ -457,7 +412,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 bg-red-500/15 text-red-500">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-red-500/15 text-red-500">
                 <Trash2 size={20} />
               </div>
               <div className="min-w-0">
@@ -469,16 +424,22 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 h-[44px] rounded-xl font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]"
+                aria-label={t('common.cancel')}
+                title={t('common.cancel')}
+                className="flex-1 min-w-11 h-[44px] rounded-xl font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] flex items-center justify-center"
               >
-                {t('common.cancel')}
+                <X size={16} />
+                <span className="sr-only">{t('common.cancel')}</span>
               </button>
               <button
                 type="button"
                 onClick={() => { onDelete?.(chat.id); setShowDeleteConfirm(false); }}
-                className="flex-1 h-[44px] rounded-xl font-bold transition-colors bg-red-500 text-white hover:bg-red-600"
+                aria-label={t('chat.delete')}
+                title={t('chat.delete')}
+                className="flex-1 min-w-11 h-[44px] rounded-xl font-bold transition-colors bg-red-500 text-white hover:bg-red-600 flex items-center justify-center"
               >
-                {t('chat.delete')}
+                <Trash2 size={16} />
+                <span className="sr-only">{t('chat.delete')}</span>
               </button>
             </div>
           </div>

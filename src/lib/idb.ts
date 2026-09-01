@@ -12,6 +12,8 @@ import {
 } from 'idb-keyval';
 import { STORAGE_KEYS } from '../constants/storage';
 import type { CompanyMember } from '../lib/company/types';
+import type { EncryptedPayload } from './crypto/types';
+import { encryptCrmData, decryptCrmData, isEncryptedPayload } from './crm/atRest';
 
 const hasIdb = typeof indexedDB !== 'undefined';
 
@@ -228,15 +230,34 @@ export async function getAllCompanyMessages(): Promise<any[]> {
   return (await get('company_msgs_list')) || [];
 }
 
-// --- Company settings operations ---
+// --- Company metadata: encrypted at rest (device-bound AES-256-GCM) ---
+
+async function encBlob(value: unknown): Promise<unknown> {
+  try {
+    return await encryptCrmData(JSON.stringify(value));
+  } catch {
+    return value;
+  }
+}
+
+async function decBlob<T>(raw: unknown): Promise<T | null> {
+  if (raw == null) return null;
+  if (isEncryptedPayload(raw)) {
+    try {
+      return JSON.parse(await decryptCrmData(raw as EncryptedPayload)) as T;
+    } catch {
+      return null;
+    }
+  }
+  return raw as T;
+}
 
 export async function saveCompanySettings(settings: Record<string, string>): Promise<void> {
-  await set(STORAGE_KEYS.COMPANY_SETTINGS, settings);
+  await set(STORAGE_KEYS.COMPANY_SETTINGS, await encBlob(settings));
 }
 
 export async function getCompanySettings(): Promise<Record<string, string> | null> {
-  const data = await get(STORAGE_KEYS.COMPANY_SETTINGS);
-  return data || null;
+  return decBlob<Record<string, string>>(await get(STORAGE_KEYS.COMPANY_SETTINGS));
 }
 
 export async function saveCompanyId(id: string): Promise<void> {
@@ -245,34 +266,90 @@ export async function saveCompanyId(id: string): Promise<void> {
 
 export async function getCompanyId(): Promise<string | null> {
   const data = await get(STORAGE_KEYS.COMPANY_ID);
-  return data || null;
+  return typeof data === 'string' ? data : null;
+}
+
+export async function saveCompanyMembers(members: CompanyMember[]): Promise<void> {
+  await set(STORAGE_KEYS.COMPANY_MEMBERS, await encBlob(members));
 }
 
 export async function getCompanyMembers(): Promise<CompanyMember[] | null> {
-  const data = await get(STORAGE_KEYS.COMPANY_MEMBERS);
-  return Array.isArray(data) ? data : null;
+  return decBlob<CompanyMember[]>(await get(STORAGE_KEYS.COMPANY_MEMBERS));
 }
 
 // --- Company departments ---
 
 export async function saveCompanyDepartments(departments: any[]): Promise<void> {
-  await set(STORAGE_KEYS.COMPANY_DEPARTMENTS, departments);
+  await set(STORAGE_KEYS.COMPANY_DEPARTMENTS, await encBlob(departments));
 }
 
 export async function getCompanyDepartments(): Promise<any[] | null> {
-  const data = await get(STORAGE_KEYS.COMPANY_DEPARTMENTS);
-  return Array.isArray(data) ? data : null;
+  return decBlob<any[]>(await get(STORAGE_KEYS.COMPANY_DEPARTMENTS));
 }
 
 // --- Company contacts ---
 
 export async function saveCompanyContacts(contacts: any[]): Promise<void> {
-  await set(STORAGE_KEYS.COMPANY_CONTACTS, contacts);
+  await set(STORAGE_KEYS.COMPANY_CONTACTS, await encBlob(contacts));
 }
 
 export async function getCompanyContacts(): Promise<any[] | null> {
-  const data = await get(STORAGE_KEYS.COMPANY_CONTACTS);
-  return Array.isArray(data) ? data : null;
+  return decBlob<any[]>(await get(STORAGE_KEYS.COMPANY_CONTACTS));
+}
+
+// --- Company group key (raw base64, encrypted at rest) ---
+
+export async function saveCompanyGroupKey(companyId: string, rawB64: string): Promise<void> {
+  await set(`company_groupkey_${companyId}`, await encBlob(rawB64));
+}
+
+export async function getCompanyGroupKey(companyId: string): Promise<string | null> {
+  const data = await decBlob<string>(await get<string>(`company_groupkey_${companyId}`));
+  return typeof data === 'string' ? data : null;
+}
+
+// --- Company channels ---
+
+export async function saveCompanyChannels(channels: any[]): Promise<void> {
+  await set(STORAGE_KEYS.COMPANY_CHANNELS, await encBlob(channels));
+}
+
+export async function getCompanyChannels(): Promise<any[] | null> {
+  return decBlob<any[]>(await get(STORAGE_KEYS.COMPANY_CHANNELS));
+}
+
+// --- Company CRM sync envelopes ---
+
+export async function saveCompanyCrmEnvelopes(envelopes: any[]): Promise<void> {
+  await set('company_crm_sync_envelopes', await encBlob(envelopes));
+}
+
+export async function getCompanyCrmEnvelopes(): Promise<any[] | null> {
+  return decBlob<any[]>(await get('company_crm_sync_envelopes'));
+}
+
+// --- Company channel keys + site chats (encrypted at rest) ---
+
+export async function saveCompanyChannelKeys(
+  keys: Record<string, { publicKeyB64: string; secretKeyB64: string }>,
+): Promise<void> {
+  await set('company_channel_keys', await encBlob(keys));
+}
+
+export async function getCompanyChannelKeys(): Promise<
+  Record<string, { publicKeyB64: string; secretKeyB64: string }> | null
+> {
+  return decBlob<Record<string, { publicKeyB64: string; secretKeyB64: string }>>(
+    await get('company_channel_keys'),
+  );
+}
+
+export async function saveCompanySiteChats(chats: any[]): Promise<void> {
+  await set('company_site_chats', await encBlob(chats));
+}
+
+export async function getCompanySiteChats(): Promise<any[] | null> {
+  return decBlob<any[]>(await get('company_site_chats'));
 }
 
 // --- Bulk reset ---

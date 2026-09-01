@@ -74,9 +74,12 @@ interface ChatPreviewLayerProps {
 export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onHoldRecord, onReRecord, onPermissionDenied,   onSendVoice, onToggleStickerPicker, onForward, onDelete }: ChatPreviewLayerProps) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
-  const isTyping = useChatPreviewTyping(chat.id, chat.online, chat.type);
+  const isTyping = useChatPreviewTyping(chat.id, chat.name, chat.online, chat.type);
   const [profileOpen, setProfileOpen] = React.useState(false);
   const pinnedMessageList = useAppStore((s) => s.pinnedMessageList);
+  const userProfile = useAppStore((s) => s.userProfile);
+  // File drag & drop: same posting rights as the composer (channels — owner only).
+  const canAttachFiles = !chat.isChannel || (!!chat.ownerId && chat.ownerId === userProfile?.id);
 
   const {
     selectionMode,
@@ -133,6 +136,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     msgListRef,
     sendMessage,
     handleImageAttach,
+    handleFileDrop,
     handleReactionMessage,
     mediaItems,
     chatSavedMessages,
@@ -158,6 +162,19 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     replyTarget, setReplyTargetProp,
   );
   const setChannels = useAppStore(s => s.setChannels);
+
+  // Deep-link: jump to a message when opened via search (chat carries __jumpToMessageId).
+  React.useEffect(() => {
+    const target = (chat as any)?.__jumpToMessageId;
+    if (target == null) return;
+    const idx = flatItems.findIndex((item: any) => !item._isDateSeparator && item.id === target);
+    if (idx >= 0) setIsNearBottom(false);
+    const frame = window.requestAnimationFrame(() => {
+      if (idx >= 0) (msgListRef.current as any)?.scrollToIndex?.(idx, "center");
+      if (onUpdateChat) onUpdateChat({ ...chat, __jumpToMessageId: undefined });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [chat.id, (chat as any)?.__jumpToMessageId]);
 
   const handleProfileClick = () => {
     const groupish = chat.type === 'group' || chat.type === 'channel' || chat.type === 'bot' || chat.isChannel;
@@ -188,10 +205,12 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 40, scale: 0.95 }}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      onDragOver={canAttachFiles ? (e) => e.preventDefault() : undefined}
+      onDrop={canAttachFiles ? (e) => { e.preventDefault(); handleFileDrop(e.dataTransfer?.files, chat, onUpdateChat); } : undefined}
       className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 ${
         isDark
-          ? "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] border border-[var(--accent)]/10"
-          : "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)]"
+          ? "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] rounded-2xl"
+          : "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] rounded-2xl"
       }`}
     >
       <ChatHeader
@@ -307,6 +326,32 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         scheduledQueue={scheduledQueue}
       />
 
+      {isTyping && !chat.isChannel && (
+        <div className="px-4 sm:px-6 pb-1 flex justify-start">
+          <div
+            className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl rounded-bl-md ${
+              isDark
+                ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]/60"
+                : "bg-white/70 border border-[var(--border-color)]/60"
+            } shadow-[0_2px_4px_rgba(0,0,0,0.12)]`}
+            aria-live="polite"
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-bounce`}
+              style={{ animationDelay: "0ms" }}
+            />
+            <span
+              className={`w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-bounce`}
+              style={{ animationDelay: "150ms" }}
+            />
+            <span
+              className={`w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-bounce`}
+              style={{ animationDelay: "300ms" }}
+            />
+          </div>
+        </div>
+      )}
+
       <ChatInputArea
         isDark={isDark}
         isChannel={chat.isChannel}
@@ -334,6 +379,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         sendStickerMessage={sendStickerMessage}
         handleImageAttach={handleImageAttach}
         onUpdateChat={onUpdateChat}
+        onPasteFiles={(files) => handleFileDrop(files, chat, onUpdateChat)}
         onAction={onAction}
         setChannels={setChannels}
         theme={theme}
@@ -366,6 +412,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onMessage={onMessage}
         profileOpen={profileOpen}
         setProfileOpen={setProfileOpen}
+        onClosePreview={onClose}
       />
     </motion.div>
   );

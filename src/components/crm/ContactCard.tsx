@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, Tag as TagIcon, X, Phone, Video, MessageSquare } from 'lucide-react';
+import { Trash2, Tag as TagIcon, X, Phone, Video, MessageSquare, Plus, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
@@ -11,7 +11,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 
 const inputCls =
-  'w-full min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
+  'w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 const labelCls = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block';
 const selectCls = inputCls;
 
@@ -113,14 +113,15 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
       footer={
         <div className="flex items-center gap-2">
           {editable ? (
-            <button onClick={handleSave} className="flex-1 min-h-[44px] rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110">
-              {t('crm.save', CRM_FALLBACKS.save)}
+            <button onClick={handleSave} aria-label={t('crm.save', CRM_FALLBACKS.save)} title={t('crm.save', CRM_FALLBACKS.save)} className="flex-1 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center gap-2">
+              <Check size={16} aria-hidden="true" />
+              <span className="sr-only">{t('crm.save', CRM_FALLBACKS.save)}</span>
             </button>
           ) : (
             <div className="flex-1 text-center text-xs text-[var(--text-secondary)] py-2">{t('crm.readOnly', 'Read only — admins can edit')}</div>
           )}
           {!isNew && (can('manageMembers')) && (
-            <button onClick={handleRemove} className="min-h-[44px] px-4 rounded-xl flex items-center justify-center font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110">
+            <button onClick={handleRemove} className="min-h-11 px-4 rounded-xl flex items-center justify-center font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110">
               <Trash2 size={16} />
             </button>
           )}
@@ -157,26 +158,32 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
               <button
                 type="button"
                 onClick={() => { onCall?.(contact.displayName, contact.avatarColor); onClose(); }}
-                className="min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl border border-green-500/20 bg-green-500/15 text-green-500 text-xs font-bold cursor-pointer transition-all hover:bg-green-500/25"
+                aria-label={t('crm.call', CRM_FALLBACKS.call)}
+                title={t('crm.call', CRM_FALLBACKS.call)}
+                className="min-h-11 min-w-11 flex items-center justify-center rounded-xl border border-green-500/20 bg-green-500/15 text-green-500 text-xs font-bold cursor-pointer transition-all hover:bg-green-500/25"
               >
-                <Phone size={18} />
-                {t('crm.call', CRM_FALLBACKS.call)}
+                <Phone size={18} aria-hidden="true" />
+                <span className="sr-only">{t('crm.call', CRM_FALLBACKS.call)}</span>
               </button>
               <button
                 type="button"
                 onClick={() => { onVideoCall?.(contact.displayName, contact.avatarColor); onClose(); }}
-                className="min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl border border-teal-500/20 bg-teal-500/15 text-teal-500 text-xs font-bold cursor-pointer transition-all hover:bg-teal-500/25"
+                aria-label={t('crm.videoCall', CRM_FALLBACKS.videoCall)}
+                title={t('crm.videoCall', CRM_FALLBACKS.videoCall)}
+                className="min-h-11 min-w-11 flex items-center justify-center rounded-xl border border-teal-500/20 bg-teal-500/15 text-teal-500 text-xs font-bold cursor-pointer transition-all hover:bg-teal-500/25"
               >
-                <Video size={18} />
-                {t('crm.videoCall', CRM_FALLBACKS.videoCall)}
+                <Video size={18} aria-hidden="true" />
+                <span className="sr-only">{t('crm.videoCall', CRM_FALLBACKS.videoCall)}</span>
               </button>
               <button
                 type="button"
                 onClick={() => { onMessage?.(contact.displayName, contact.avatarColor); onClose(); }}
-                className="min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl border border-[var(--accent-soft)] bg-[var(--accent-soft)] text-[var(--accent)] text-xs font-bold cursor-pointer transition-all hover:brightness-110"
+                aria-label={t('crm.message', CRM_FALLBACKS.message)}
+                title={t('crm.message', CRM_FALLBACKS.message)}
+                className="min-h-11 min-w-11 flex items-center justify-center rounded-xl border border-[var(--accent-soft)] bg-[var(--accent-soft)] text-[var(--accent)] text-xs font-bold cursor-pointer transition-all hover:brightness-110"
               >
-                <MessageSquare size={18} />
-                {t('crm.message', CRM_FALLBACKS.message)}
+                <MessageSquare size={18} aria-hidden="true" />
+                <span className="sr-only">{t('crm.message', CRM_FALLBACKS.message)}</span>
               </button>
             </div>
           </>
@@ -253,13 +260,13 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
               placeholder={t('crm.tagsPlaceholder', CRM_FALLBACKS.tagsPlaceholder)}
               className={inputCls}
             />
-            {editable && <button onClick={addTag} className="min-h-[44px] px-3 rounded-xl bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-bold cursor-pointer">+</button>}
+            {editable && <button onClick={addTag} aria-label={t('crm.addTag', 'Add tag')} title={t('crm.addTag', 'Add tag')} className="min-h-11 min-w-11 w-11 rounded-xl bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-bold cursor-pointer flex items-center justify-center"><Plus size={18} aria-hidden="true" /><span className="sr-only">{t('crm.addTag', 'Add tag')}</span></button>}
           </div>
           <div className="flex flex-wrap gap-1.5 mt-2">
             {form.tags.map((tag) => (
               <span key={tag} className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
-                <TagIcon size={10} />{tag}
-                {editable && <button onClick={() => set('tags', form.tags.filter((x) => x !== tag))} className="ml-0.5"><X size={10} /></button>}
+                <TagIcon size={12} />{tag}
+                {editable && <button onClick={() => set('tags', form.tags.filter((x) => x !== tag))} className="ml-0.5"><X size={12} /></button>}
               </span>
             ))}
           </div>
@@ -277,6 +284,8 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
         message={contact?.displayName ?? ''}
         confirmLabel={t('common.confirm', 'Confirm')}
         cancelLabel={t('common.cancel', 'Cancel')}
+        confirmIcon={<Trash2 />}
+        cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
         zIndex="z-[130]"

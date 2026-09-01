@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Trash2, Music, Radio, Plus } from "lucide-react";
+import { Trash2, Music, Radio, Plus, ChevronLeft } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 
 type Track = {
@@ -44,6 +44,7 @@ type PlaylistViewProps = {
   setStationUrl: (v: string) => void;
   stationAddError: string;
   setStationAddError: (v: string) => void;
+  handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export const PlaylistView = ({
@@ -51,7 +52,7 @@ export const PlaylistView = ({
   confirmDeleteIndex, setConfirmDeleteIndex, confirmDeleteMode, setConfirmDeleteMode,
   currentTrackIndex, setCurrentTrackIndex, radioStationIndex, setRadioStationIndex,
   playlist, setPlaylist, radioStations, setRadioStations, videoUrl, setVideoUrl, setShowVideo, setIsVideoPlaying,
-  textColor, setShowAddStationModal, stationName, setStationName, stationUrl, setStationUrl, stationAddError, setStationAddError
+  textColor, setShowAddStationModal, stationName, setStationName, stationUrl, setStationUrl, stationAddError, setStationAddError, handleFileSelect
 }: PlaylistViewProps) => {
   const { t } = useI18n();
   const handleTrackClick = (track: Track, i: number) => {
@@ -84,19 +85,19 @@ export const PlaylistView = ({
           tabIndex={0}
           onClick={() => setShowPlaylist(false)}
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') setShowPlaylist(false); }}
-          className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[var(--text-warm-dark)] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
+          className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[var(--text-warm-dark)] hover:bg-white/10" : "bg-black/5 text-slate-700 hover:bg-black/10"} transition-colors`}
            title={t('systemPlayer.backToPlayer')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <ChevronLeft size={18} />
         </div>
         <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{isRadioMode ? t('systemPlayer.radioStations') : t('systemPlayer.systemPlaylist')}</span>
         {!isRadioMode ? (
-          <label className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`}             title={t('systemPlayer.addTrack')}>
+          <label className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`}             title={t('systemPlayer.addTrack')}>
             <Plus size={18} />
-            <input type="file" accept="audio/*" className="hidden" />
+            <input type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
           </label>
         ) : (
-           <div className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('systemPlayer.addStation')}
+           <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('systemPlayer.addStation')}
             onClick={() => {
               setStationName("");
               setStationUrl("");
@@ -124,7 +125,7 @@ export const PlaylistView = ({
                 onClick={() => handleTrackClick(track, i)}
                 className="flex items-center flex-1 min-w-0 gap-4 cursor-pointer"
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isActive ? (isRadioMode ? "bg-[#45a045]" : "bg-[#c25c34]") : (isDark ? "bg-[#2a3036] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]")} shadow-md transition-colors`}>
+                <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 ${isActive ? (isRadioMode ? "bg-[#45a045]" : "bg-[#c25c34]") : (isDark ? "bg-[#2a3036] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]")} shadow-md transition-colors`}>
                   {isActive && isPlaying ? (
                     <div className="flex gap-0.5 items-end h-3">
                       {[0, 1, 2].map((bar) => (
@@ -155,7 +156,10 @@ export const PlaylistView = ({
                   setConfirmDeleteMode(isRadioMode ? 'radio' : 'playlist');
                   setConfirmDeleteIndex(i);
                 }}
-                className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
+                className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
+                role="button"
+                tabIndex={0}
+                aria-label={t('systemPlayer.remove')}
                 title={t('systemPlayer.remove')}
               >
                 <Trash2 size={14} />

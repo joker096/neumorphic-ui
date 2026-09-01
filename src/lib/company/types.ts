@@ -21,9 +21,10 @@ export interface DeviceRecord {
 }
 
 export interface WrappedKey {
-  memberPublicKey: string
-  ciphertext: string
-  nonce: string
+  memberPublicKey: string;
+  ephemeralPublicKey: string;
+  ciphertext: string;
+  nonce: string;
 }
 
 export interface GroupKeyMaterial {

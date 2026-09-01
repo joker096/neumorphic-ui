@@ -39,12 +39,18 @@ const mockStore = {
   joinCompanyFromInvite: vi.fn().mockResolvedValue(undefined),
 };
 
-vi.mock('../store', () => ({
-  useAppStore: (selector: any) => {
+vi.mock('../store', () => {
+  const listeners: any[] = [];
+  const useAppStore = (selector: any) => {
     if (typeof selector === 'function') return selector(mockStore);
     return mockStore;
-  },
-}));
+  };
+  (useAppStore as any).subscribe = (listener: any) => {
+    listeners.push(listener);
+    return () => undefined;
+  };
+  return { useAppStore };
+});
 
 vi.mock('./company/CompanyHeader', () => ({
   CompanyHeader: ({ onScanQR, onInvite, onSettings }: any) => (
@@ -78,8 +84,8 @@ vi.mock('./company/ChannelList', () => ({
   ),
 }));
 
-vi.mock('./company/CompanySettingsView', () => ({
-  CompanySettingsView: ({ onClose }: any) => (
+vi.mock('./company/CompanyProfileEditor', () => ({
+  CompanyProfileEditor: ({ onClose }: any) => (
     <div data-testid="company-settings-view">
       <button data-testid="btn-close-settings" onClick={onClose}>Close Settings</button>
     </div>

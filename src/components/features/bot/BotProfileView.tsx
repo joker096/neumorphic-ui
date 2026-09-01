@@ -1,4 +1,4 @@
-import { Bot, ExternalLink, ChevronLeft } from "lucide-react";
+import { Bot, ExternalLink, ChevronLeft, Play } from "lucide-react";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
 import { BotCommandList } from "./BotCommandList";
@@ -9,9 +9,10 @@ export interface BotProfileViewProps {
   isDark?: boolean;
   onBack?: () => void;
   onOpenMiniApp?: (botId: string) => void;
+  onStart?: (botName: string) => void;
 }
 
-export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp }: BotProfileViewProps) {
+export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }: BotProfileViewProps) {
   const { bot } = useServices();
   const state = useServiceData(() => bot.getBotProfile(botId), [botId]);
 
@@ -84,17 +85,26 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp }: BotProf
         <BotCommandList commands={profile.commands} isDark={isDark} />
 
         <div className="flex gap-3 mt-4">
-          <button className="flex items-center justify-center min-h-11 px-5 rounded-xl bg-[var(--accent)] text-white font-semibold text-sm">
-            {BOT_LABELS.start}
+          <button
+            onClick={() => onStart?.(profile.name)}
+            aria-label={BOT_LABELS.start}
+            title={BOT_LABELS.start}
+            className="flex items-center justify-center min-w-11 min-h-11 px-5 rounded-xl bg-[var(--accent)] text-white font-semibold text-sm"
+          >
+            <Play size={18} />
+            <span className="sr-only">{BOT_LABELS.start}</span>
           </button>
           {profile.canOpenMiniApp && (
             <button
               onClick={() => onOpenMiniApp?.(botId)}
-              className={`flex items-center justify-center gap-2 min-h-11 px-5 rounded-xl font-semibold text-sm border border-[var(--border-color)] ${
+              aria-label={BOT_LABELS.openApp}
+              title={BOT_LABELS.openApp}
+              className={`flex items-center justify-center w-9 h-9 min-w-11 min-h-11 rounded-xl font-semibold text-sm border border-[var(--border-color)] ${
                 isDark ? "bg-[var(--bg-tertiary)]" : "bg-white"
               }`}
             >
-              <ExternalLink size={16} /> {BOT_LABELS.openApp}
+              <ExternalLink size={16} />
+              <span className="sr-only">{BOT_LABELS.openApp}</span>
             </button>
           )}
         </div>

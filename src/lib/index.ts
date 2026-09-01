@@ -30,5 +30,4 @@ export * from './crypto';
 export * from './gestures';
 export * from './identity';
 export * from './recovery';
-export * from './signaling';
 export * from './sounds';

@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import type { InviteQRPayload } from '../../lib/company/types';
 import type { CompanyMember, CompanyDepartment, CompanyContact } from '../../types/constants';
 
-export type CompanyTab = 'members' | 'departments' | 'contacts';
+export type CompanyTab = 'members' | 'departments' | 'contacts' | 'inbox' | 'sitechat';
 export type TFunction = (key: string, fallback?: string | Record<string, string | number>) => string;
 
 export const useCompanyContacts = () => {
@@ -34,6 +34,8 @@ export const useCompanyContacts = () => {
   const addContact = useAppStore(state => state.addCompanyContact);
   const updateContact = useAppStore(state => state.updateCompanyContact);
   const removeContact = useAppStore(state => state.removeCompanyContact);
+  const siteChats = useAppStore(state => state.siteChats);
+  const createSiteChat = useAppStore(state => state.createSiteChat);
 
   const [showCreate, setShowCreate] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -167,7 +169,7 @@ export const useCompanyContacts = () => {
       .filter((member: CompanyMember) => member.userId !== userProfile.id && selectedIds.has(member.userId))
       .map((member: CompanyMember) => ({ peerId: member.publicKey || member.userId, displayName: member.displayName }));
     if (participants.length === 0) return;
-    callManager.startCall(userProfile.id, userProfile.name || 'Me', 'video', participants);
+    callManager.startCall(userProfile.id, userProfile.name || 'Me', 'video', participants).catch(() => {});
     exitGroupMode();
   };
 
@@ -210,6 +212,8 @@ export const useCompanyContacts = () => {
     handleRemoveDepartment,
     handleSaveContact,
     handleRemoveContact,
+    siteChats,
+    createSiteChat,
     toggleSelectMember,
     exitGroupMode,
     startGroupVideoCall,

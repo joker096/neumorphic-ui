@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import * as idb from "idb-keyval";
 import { getMasterKeySet, hasMasterIdentity } from "../lib/identity/masterKey";
+import { logError } from "../lib/errorHandling";
 
 export type IdentityStatus = "loading" | "new-user" | "existing-user";
 
@@ -31,8 +31,9 @@ export function useIdentityAuth() {
         }
 
         setStatus("new-user");
-      } catch {
+      } catch (e) {
         if (cancelled) return;
+        logError(e, "identityCheck");
         setStatus("new-user");
       }
     }

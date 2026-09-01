@@ -22,9 +22,9 @@ describe('MessageSelectionBar', () => {
   it('fires the action handlers', () => {
     render(<MessageSelectionBar {...base} />);
     fireEvent.click(screen.getByLabelText('chat.cancel'));
-    fireEvent.click(screen.getByText('chat.selectAll'));
-    fireEvent.click(screen.getByText('chat.forward'));
-    fireEvent.click(screen.getByText('chat.delete'));
+    fireEvent.click(screen.getByLabelText('chat.selectAll'));
+    fireEvent.click(screen.getByLabelText('chat.forward'));
+    fireEvent.click(screen.getByLabelText('chat.delete'));
     expect(base.onCancel).toHaveBeenCalled();
     expect(base.onSelectAll).toHaveBeenCalled();
     expect(base.onForward).toHaveBeenCalled();
@@ -33,7 +33,7 @@ describe('MessageSelectionBar', () => {
 
   it('disables forward and delete when count is zero', () => {
     render(<MessageSelectionBar {...base} count={0} />);
-    expect(screen.getByText('chat.forward')).toBeDisabled();
-    expect(screen.getByText('chat.delete')).toBeDisabled();
+    expect(screen.getByLabelText('chat.forward')).toBeDisabled();
+    expect(screen.getByLabelText('chat.delete')).toBeDisabled();
   });
 });

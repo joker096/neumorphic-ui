@@ -4,6 +4,7 @@ import { ContactCreateEditModal } from "../ContactCreateEditModal";
 import { ContactProfileModal } from "../ContactProfileModal";
 import { CreateBotModal } from "../CreateBotModal";
 import { CreateChannelModal } from "../CreateChannelModal";
+import { CreateGroupModal } from "../CreateGroupModal";
 import { FloatingCallWidget } from "../FloatingCallWidget";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -14,6 +15,8 @@ type AppOverlaysProps = {
   setShowCreateChannel: (show: boolean) => void;
   showCreateBot: boolean;
   setShowCreateBot: (show: boolean) => void;
+  showCreateGroup?: boolean;
+  setShowCreateGroup?: (show: boolean) => void;
   showAdvancedFilterModal: boolean;
   setShowAdvancedFilterModal: (show: boolean) => void;
   advancedFilters: Record<string, boolean>;
@@ -48,6 +51,8 @@ export const AppOverlays = ({
   setShowCreateChannel,
   showCreateBot,
   setShowCreateBot,
+  showCreateGroup = false,
+  setShowCreateGroup,
   showAdvancedFilterModal,
   setShowAdvancedFilterModal,
   advancedFilters,
@@ -80,6 +85,7 @@ export const AppOverlays = ({
       <AnimatePresence>
         {showCreateChannel && <CreateChannelModal theme={theme} onClose={() => setShowCreateChannel(false)} />}
         {showCreateBot && <CreateBotModal theme={theme} onClose={() => setShowCreateBot(false)} />}
+        {showCreateGroup && <CreateGroupModal theme={theme} onClose={() => setShowCreateGroup?.(false)} />}
         {showAdvancedFilterModal && (
           <AdvancedFilterModal
             onClose={() => setShowAdvancedFilterModal(false)}

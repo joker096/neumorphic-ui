@@ -33,9 +33,11 @@ export const ChatMediaPanel = ({
     <>
       <div className={`px-3 sm:px-5 pt-3 sm:pt-4 pb-2 flex flex-col gap-2 overflow-x-auto scrollbar-none ${isDark ? "bg-[var(--bg-tertiary)]/60" : "bg-[var(--bg-primary)]/60"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowFilterMenu(!showFilterMenu)}
-            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold whitespace-nowrap transition-colors ${showFilterMenu ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}
+           <button
+             onClick={() => setShowFilterMenu(!showFilterMenu)}
+             aria-label={t('chat.filters.button')}
+             title={t('chat.filters.button')}
+             className={`min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-bold whitespace-nowrap transition-colors ${showFilterMenu ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}
           >
             <ListFilter size={14} />
           </button>
@@ -75,7 +77,7 @@ export const ChatMediaPanel = ({
         <div className="flex items-center gap-2">
           {['all', 'photos', 'audio', 'links'].map((tab) => (
             <button key={tab} onClick={() => setMediaTab(tab)}
-              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : isDark ? "bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "bg-black/5 text-slate-500 hover:text-slate-800"}`}
+              className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : isDark ? "bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "bg-black/5 text-slate-500 hover:text-slate-800"}`}
             >
               {tab === 'all' ? t('chat.filters.mediaTabs.all') : tab === 'photos' ? t('chat.filters.mediaTabs.photos') : tab === 'audio' ? t('chat.filters.mediaTabs.audio') : t('chat.filters.mediaTabs.links')}
             </button>

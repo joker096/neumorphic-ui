@@ -28,7 +28,7 @@ export const FormSelect = ({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`w-full h-8 rounded-lg text-xs outline-none px-2 ${
+      className={`w-full h-[var(--control-height-md)] rounded-[var(--radius-control)] text-[length:var(--text-body-small)] outline-none px-[var(--spacing-12)] ${
         isDark
           ? 'bg-card text-foreground'
           : 'bg-muted text-foreground'

@@ -2,11 +2,14 @@ import type {
   CrmContact, Department, CustomRole, Deal, CrmTask, CrmFilters,
   CrmPermission, SystemRole, CrmContactStatus, DealStage,
 } from '../../lib/crm/types';
+import type { Contact } from '../../types/contact';
+import { syncMessengerContacts } from '../../lib/crm/bridge';
 import { SYSTEM_ROLE_PERMISSIONS } from '../../constants/crmConstants';
 import { DEFAULT_CRM_FILTERS } from '../../lib/crm/types';
 import {
   MOCK_CRM_CONTACTS, MOCK_DEPARTMENTS, MOCK_CUSTOM_ROLES, MOCK_DEALS, MOCK_TASKS,
 } from '../../constants/crmMockData';
+import { encryptCrmData, decryptCrmData, isEncryptedPayload } from '../../lib/crm/atRest';
 
 const uid = (prefix: string) =>
   `${prefix}_${typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10)}`;
@@ -35,11 +38,23 @@ interface PersistedCrm {
   tasks: CrmTask[];
 }
 
-export function loadCrmPersisted(): PersistedCrm | null {
+export async function loadCrmPersisted(): Promise<PersistedCrm | null> {
   try {
     const raw = localStorage.getItem(CRM_STORAGE_KEY);
     if (!raw) return null;
-    const data = JSON.parse(raw) as Partial<PersistedCrm>;
+    let json: string;
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (isEncryptedPayload(parsed)) {
+        json = await decryptCrmData(parsed);
+      } else {
+        // Legacy plaintext blob (pre-encryption) — re-saved encrypted on next change.
+        json = raw;
+      }
+    } catch {
+      json = raw;
+    }
+    const data = JSON.parse(json) as Partial<PersistedCrm>;
     if (!Array.isArray(data.contacts) || data.contacts.length === 0) return null;
     return {
       contacts: data.contacts,
@@ -53,21 +68,23 @@ export function loadCrmPersisted(): PersistedCrm | null {
   }
 }
 
-export function saveCrmPersisted(state: {
+export async function saveCrmPersisted(state: {
   crmContacts: CrmContact[];
   crmDepartments: Department[];
   crmCustomRoles: CustomRole[];
   crmDeals: Deal[];
   crmTasks: CrmTask[];
-}): void {
+}): Promise<void> {
   try {
-    localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify({
+    const json = JSON.stringify({
       contacts: state.crmContacts,
       departments: state.crmDepartments,
       customRoles: state.crmCustomRoles,
       deals: state.crmDeals,
       tasks: state.crmTasks,
-    }));
+    });
+    const enc = await encryptCrmData(json);
+    localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify(enc));
   } catch {
     /* storage unavailable — in-memory only */
   }
@@ -96,9 +113,11 @@ export interface CrmSlice {
   crmInviteCode: string;
 
   // lifecycle
-  ensureCrmSeed: (currentUserId: string, currentUserName: string) => void;
+  ensureCrmSeed: (currentUserId: string, currentUserName: string) => Promise<void>;
   resetCrmDemo: (currentUserId: string, currentUserName: string) => void;
   ensureCrmInviteCode: () => string;
+  importBatch: (data: { contacts: CrmContact[]; deals: Deal[]; tasks: CrmTask[]; mergedContacts?: CrmContact[] }) => void;
+  syncMessengerContacts: (messenger: Contact[]) => { added: CrmContact[]; updated: CrmContact[] };
 
   // contacts
   addContact: (contact: Omit<CrmContact, 'userId' | 'tags' | 'status'> & Partial<Pick<CrmContact, 'tags' | 'status'>>) => void;
@@ -152,7 +171,7 @@ export const createCrmSlice = (set: any, get: any): CrmSlice => ({
   crmCollapsedGroups: [],
   crmInviteCode: '',
 
-  ensureCrmSeed: (currentUserId, currentUserName) => {
+  ensureCrmSeed: async (currentUserId, currentUserName) => {
     const state = get();
     if (state.crmLoaded && state.crmContacts.length > 0) return;
     const currentUser: CrmContact = {
@@ -165,7 +184,7 @@ export const createCrmSlice = (set: any, get: any): CrmSlice => ({
       tags: ['me'],
       online: true,
     };
-    const persisted = loadCrmPersisted();
+    const persisted = await loadCrmPersisted();
     if (persisted) {
       set({
         crmContacts: persisted.contacts.some((c) => c.userId === currentUserId)
@@ -211,6 +230,40 @@ export const createCrmSlice = (set: any, get: any): CrmSlice => ({
       crmDeals: MOCK_DEALS,
       crmTasks: MOCK_TASKS,
     });
+  },
+
+  importBatch: (data) => set((s: any) => {
+    const crmContacts = [...s.crmContacts];
+    for (const m of data.mergedContacts ?? []) {
+      const idx = crmContacts.findIndex((x: CrmContact) => x.userId === m.userId);
+      const tags = Array.from(new Set([...(idx >= 0 ? (crmContacts[idx].tags ?? []) : []), ...(m.tags ?? [])]));
+      const merged: CrmContact = idx >= 0
+        ? {
+            ...crmContacts[idx],
+            phone: crmContacts[idx].phone ?? m.phone,
+            email: crmContacts[idx].email ?? m.email,
+            title: crmContacts[idx].title ?? m.title,
+            notes: crmContacts[idx].notes ?? m.notes,
+            avatarColor: crmContacts[idx].avatarColor ?? m.avatarColor,
+            status: crmContacts[idx].status !== 'lead' ? crmContacts[idx].status : m.status,
+            tags,
+            lastActive: Date.now(),
+          }
+        : { ...m, tags };
+      if (idx >= 0) crmContacts[idx] = merged;
+      else crmContacts.push(merged);
+    }
+    return {
+      crmContacts: [...crmContacts, ...(data.contacts ?? [])],
+      crmDeals: [...s.crmDeals, ...(data.deals ?? [])],
+      crmTasks: [...s.crmTasks, ...(data.tasks ?? [])],
+    };
+  }),
+
+  syncMessengerContacts: (messenger) => {
+    const { contacts, added, updated } = syncMessengerContacts(get().crmContacts, messenger);
+    set({ crmContacts: contacts });
+    return { added, updated };
   },
 
   ensureCrmInviteCode: () => {

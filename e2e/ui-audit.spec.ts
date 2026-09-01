@@ -362,7 +362,7 @@ async function runAudit(page: Page, viewport: string, view: string, zoomed = fal
 async function gotoView(page: Page, view: View, vp: Viewport): Promise<void> {
   await page.setViewportSize({ width: vp.width, height: vp.height });
   await page.goto('/?e2e=1', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('[data-theme]')).toHaveAttribute('data-theme', 'dark', { timeout: 20000 });
+  await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark', { timeout: 20000 });
   await page.waitForTimeout(400);
   if (view === 'chats') return;
   if (view === 'settings') {

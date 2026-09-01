@@ -1,5 +1,6 @@
-import { Archive, Plus, Globe } from "lucide-react";
+import { Archive, Plus, Globe, Users } from "lucide-react";
 import { SearchInput } from "../ui/SearchInput";
+import { NotificationCenter } from "./NotificationCenter";
 
 interface ChatListSearchHeaderProps {
   isDark: boolean;
@@ -12,12 +13,13 @@ interface ChatListSearchHeaderProps {
   setActiveFolder: (f: string) => void;
   setShowCreateChannel: (s: boolean) => void;
   setShowCreateBot: (s: boolean) => void;
+  setShowCreateGroup?: (s: boolean) => void;
   onOpenGlobalSearch?: () => void;
 }
 
 export const ChatListSearchHeader = ({
   isDark, view, chatSearchQuery, setChatSearchQuery, archivedUnreadCount,
-  t, setView, setActiveFolder, setShowCreateChannel, setShowCreateBot, onOpenGlobalSearch,
+  t, setView, setActiveFolder, setShowCreateChannel, setShowCreateBot, setShowCreateGroup, onOpenGlobalSearch,
 }: ChatListSearchHeaderProps) => (
   <div className="mb-4 sm:mb-6 relative z-30 flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
     <div className="flex-1 min-w-[120px]">
@@ -40,6 +42,18 @@ export const ChatListSearchHeader = ({
         <Plus size={16} />
       </button>
     ) : (
+      <>
+      {setShowCreateGroup && (
+        <button
+          type="button"
+          aria-label={t("chat.createGroup")}
+          title={t("chat.createGroup")}
+          onClick={() => setShowCreateGroup(true)}
+          className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30" : "bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20 shadow-sm"}`}
+        >
+          <Users size={16} />
+        </button>
+      )}
       <button
         type="button"
         aria-label={t("chat.archived")}
@@ -54,6 +68,7 @@ export const ChatListSearchHeader = ({
           </div>
         )}
       </button>
+      </>
     )}
     {onOpenGlobalSearch && (
       <button
@@ -66,6 +81,7 @@ export const ChatListSearchHeader = ({
         <Globe size={16} />
       </button>
     )}
+    <NotificationCenter isDark={isDark} t={t} />
   </div>
 );
 

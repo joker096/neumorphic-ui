@@ -4,9 +4,9 @@ import { SearchInput } from "../ui/SearchInput";
 import { SettingsSectionTitle, ToggleSwitch } from "../ui/SettingsRow";
 import {
   Activity, Bell, BellOff, Bot, Building2, ChevronRight, Cloud,
-  Globe, HardDrive, Lock, Mic, Network, Palette, Radar, Shield,
+  Globe, HardDrive, Lock, Monitor, Network, Palette, Phone, Radar, Shield,
   ShieldAlert, Smartphone, User, FolderTree, Download, HelpCircle,
-  CreditCard, Video, Receipt, Crown,
+  CreditCard, Receipt, Crown,
 } from "lucide-react";
 import { SettingsCard, SettingsDivider, SettingsNavItem } from "./SettingsMenuPrimitives";
 import { BigMenuButton, NavGroup, NavItemDef } from "./SettingsMenuParts";
@@ -75,6 +75,13 @@ export function SettingsMainMenu({
       subtitle: t('settings.privacySubtitle'),
       onClick: () => setActiveSection('privacy'),
     },
+    {
+      icon: <Monitor size={18} className={isDark ? "text-sky-400" : "text-sky-600"} />,
+      iconBg: isDark ? "bg-sky-500/20" : "bg-sky-100",
+      title: t('settings.devices', 'Devices'),
+      subtitle: t('settings.devicesSubtitle', 'Sessions and connected devices'),
+      onClick: () => setActiveSection('devices'),
+    },
   ];
 
   const chatsItems: NavItemDef[] = [
@@ -84,6 +91,16 @@ export function SettingsMainMenu({
       title: t('settings.folders'),
       subtitle: t('settings.foldersSubtitle', 'Organize chats into filters'),
       onClick: () => setActiveSection('folders'),
+    },
+  ];
+
+  const callsItems: NavItemDef[] = [
+    {
+      icon: <Phone size={16} className={isDark ? "text-sky-400" : "text-sky-600"} />,
+      iconBg: isDark ? "bg-sky-500/10" : "bg-sky-100",
+      title: t('call.callsSettings', 'Call settings'),
+      subtitle: t('call.callsSettingsSubtitle', 'Recording, history and call tools'),
+      onClick: () => setActiveSection('calls'),
     },
   ];
 
@@ -115,13 +132,6 @@ export function SettingsMainMenu({
       onClick: () => setActiveSection('bots'),
     },
     {
-      icon: <Mic size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />,
-      iconBg: isDark ? "bg-amber-500/10" : "bg-amber-100",
-      title: t('nav.recordings'),
-      subtitle: t('hub.recordingsSubtitle'),
-      onClick: () => setSubView?.('recordings'),
-    },
-    {
       icon: <Radar size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />,
       iconBg: isDark ? "bg-cyan-500/10" : "bg-cyan-100",
       title: t('nav.radar'),
@@ -141,13 +151,6 @@ export function SettingsMainMenu({
       title: t('payRequests.menuTitle', 'Payment Requests'),
       subtitle: t('payRequests.menuSubtitle', 'Create & track crypto payments'),
       onClick: () => setActiveSection('paymentRequests'),
-    },
-    {
-      icon: <Video size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />,
-      iconBg: isDark ? "bg-amber-500/10" : "bg-amber-100",
-      title: t('settings.callRecordings'),
-      subtitle: t('settings.callRecordingsSubtitle', 'Save calls and video calls, auto-cleanup'),
-      onClick: () => setActiveSection('callRecordings'),
     },
   ];
 
@@ -265,6 +268,8 @@ export function SettingsMainMenu({
         <NavGroup isDark={isDark} title={t('settings.privacySecuritySection')} items={privacyItems} />
 
         <NavGroup isDark={isDark} title={t('settings.chatsSection', 'Chats')} items={chatsItems} />
+
+        <NavGroup isDark={isDark} title={t('settings.callsSection', 'Calls')} items={callsItems} />
 
         <div className="w-full">
           <SettingsSectionTitle title={t('settings.dataStorageSection')} isDark={isDark} />

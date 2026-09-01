@@ -6,9 +6,7 @@ export const GlowingPlusLight: React.FC = () => (
     <div className="absolute inset-0 bg-orange-400/50 blur-[14px] rounded-full scale-[2.2]" />
     <Plus
       size={20}
-      strokeWidth={2}
-      role="img"
-      aria-label="plus"
+      aria-hidden="true"
       className="relative z-10 text-orange-50 drop-shadow-[0_0_4px_rgba(249,115,22,0.9)]"
     />
   </div>

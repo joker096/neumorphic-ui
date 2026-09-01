@@ -51,7 +51,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
               </span>
-              <span className="text-xs font-bold text-red-400 tracking-wider">REC</span>
+              <span className="text-xs font-bold text-red-400 tracking-wider">{t('call.rec')}</span>
             </div>
           )}
           <div className="flex flex-col">
@@ -72,7 +72,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
             onClick={(e) => { e.stopPropagation(); setActiveCall({ ...activeCall, isMuted: !activeCall.isMuted }); }}
             title={activeCall.isMuted ? t('chat.unmute') : t('chat.mute')}
             aria-label={activeCall.isMuted ? t('chat.unmute') : t('chat.mute')}
-            className={`neo-circle w-11 h-11 rounded-full flex items-center justify-center ${
+            className={`neo-circle w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center ${
               activeCall.isMuted 
                 ? "neo-circle-pressed text-[var(--danger)]"
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -84,7 +84,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
             onClick={(e) => { e.stopPropagation(); callManager.endCall().catch(() => {}); setActiveCall(null); }}
             title={t('chat.endCall')}
             aria-label={t('chat.endCall')}
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition-transform active:scale-95 ${CALL_END_GRADIENT} hover:brightness-110`}
+            className={`w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center text-white shadow-lg transition-transform active:scale-95 ${CALL_END_GRADIENT} hover:brightness-110`}
           >
             <Phone size={20} className="rotate-[135deg] fill-white/20" strokeWidth={2.5} />
           </button>

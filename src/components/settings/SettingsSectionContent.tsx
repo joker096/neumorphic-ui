@@ -9,6 +9,7 @@ import { SettingsMainMenu } from './SettingsMainMenu';
 import { useSettingsSectionData } from './useSettingsSectionData';
 
 const NetworkSection = React.lazy(() => import('./NetworkSection').then(m => ({ default: m.NetworkSection })));
+const DevicesSection = React.lazy(() => import('./DevicesSection').then(m => ({ default: m.DevicesSection })));
 const SecuritySection = React.lazy(() => import('./SecuritySection').then(m => ({ default: m.SecuritySection })));
 const BotsSection = React.lazy(() => import('./BotsSection').then(m => ({ default: m.BotsSection })));
 const SpamSection = React.lazy(() => import('./SpamSection').then(m => ({ default: m.SpamSection })));
@@ -21,7 +22,7 @@ const HelpSupportSection = React.lazy(() => import('./HelpSupportSection').then(
 const CompanyGuideSection = React.lazy(() => import('./CompanyGuideSection').then(m => ({ default: m.CompanyGuideSection })));
 const PaymentsSection = React.lazy(() => import('./PaymentsSection').then(m => ({ default: m.PaymentsSection })));
 const PaymentRequestsSection = React.lazy(() => import('./PaymentRequestsSection').then(m => ({ default: m.PaymentRequestsSection })));
-const CallRecordingsSection = React.lazy(() => import('./CallRecordingsSection').then(m => ({ default: m.CallRecordingsSection })));
+const CallsSection = React.lazy(() => import('./CallsSection').then(m => ({ default: m.CallsSection })));
 const PremiumSection = React.lazy(() => import('./PremiumSection').then(m => ({ default: m.PremiumSection })));
 
 export type SettingsSectionContentProps = {
@@ -57,10 +58,10 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     setMediaAutoLoad,
     selfDestructDefault,
     setSelfDestructDefault,
-    obfuscationMode,
-    setObfuscationMode,
     obfuscationEnabled,
     setObfuscationEnabled,
+    obfuscationMode,
+    setObfuscationMode,
     proxyUrl,
     setProxyUrl,
     torBridge,
@@ -78,6 +79,24 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     setVisActivity,
     uiAnimations,
     setUiAnimations,
+    themeMode,
+    setThemeMode,
+    accentColor,
+    setAccentColor,
+    chatBackground,
+    setChatBackground,
+    density,
+    setDensity,
+    messageRadius,
+    setMessageRadius,
+    animationIntensity,
+    setAnimationIntensity,
+    profilePhotoVisibility,
+    setProfilePhotoVisibility,
+    callsVisibility,
+    setCallsVisibility,
+    messagesFrom,
+    setMessagesFrom,
     dndEnabled,
     setDndEnabled,
     dndFrom,
@@ -145,6 +164,18 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setFontSize={setFontSize}
       uiAnimations={uiAnimations}
       setUiAnimations={setUiAnimations}
+      themeMode={themeMode}
+      setThemeMode={setThemeMode}
+      accentColor={accentColor}
+      setAccentColor={setAccentColor}
+      chatBackground={chatBackground}
+      setChatBackground={setChatBackground}
+      density={density}
+      setDensity={setDensity}
+      messageRadius={messageRadius}
+      setMessageRadius={setMessageRadius}
+      animationIntensity={animationIntensity}
+      setAnimationIntensity={setAnimationIntensity}
       showPwaBanner={showPwaBanner}
       setShowPwaBanner={setShowPwaBanner}
       onBack={() => setActiveSection('main')}
@@ -212,6 +243,12 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setMediaAutoLoad={setMediaAutoLoad}
       selfDestructDefault={selfDestructDefault}
       setSelfDestructDefault={setSelfDestructDefault}
+      profilePhotoVisibility={profilePhotoVisibility}
+      setProfilePhotoVisibility={setProfilePhotoVisibility}
+      callsVisibility={callsVisibility}
+      setCallsVisibility={setCallsVisibility}
+      messagesFrom={messagesFrom}
+      setMessagesFrom={setMessagesFrom}
       onUpdateSettings={updateSettings}
       onBack={() => setActiveSection('main')}
       t={t}
@@ -225,10 +262,10 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setProxyEnabled={setProxyEnabled}
       proxyUrl={proxyUrl}
       setProxyUrl={setProxyUrl}
-      obfuscationMode={obfuscationMode}
-      setObfuscationMode={setObfuscationMode}
       obfuscationEnabled={obfuscationEnabled}
       setObfuscationEnabled={setObfuscationEnabled}
+      obfuscationMode={obfuscationMode}
+      setObfuscationMode={setObfuscationMode}
       torBridge={torBridge}
       setTorBridge={setTorBridge}
       turnServerUrl={turnServerUrl}
@@ -302,6 +339,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'appearance' && renderAppearanceSettings()}
       {activeSection === 'language' && renderLanguageSettings()}
       {activeSection === 'security' && <Suspense fallback={fallback}>{renderSecuritySettings()}</Suspense>}
+      {activeSection === 'devices' && <Suspense fallback={fallback}><DevicesSection isDark={isDark} onBack={() => setActiveSection('main')} t={t} /></Suspense>}
       {activeSection === 'privacy' && renderPrivacySettings()}
       {activeSection === 'network' && <Suspense fallback={fallback}>{renderNetworkSettings()}</Suspense>}
       {activeSection === 'bots' && <Suspense fallback={fallback}>{renderBotsSettings()}</Suspense>}
@@ -316,7 +354,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'help' && <Suspense fallback={fallback}><HelpSupportSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
       {activeSection === 'payments' && <Suspense fallback={fallback}><PaymentsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
       {activeSection === 'paymentRequests' && <Suspense fallback={fallback}><PaymentRequestsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'callRecordings' && <Suspense fallback={fallback}><CallRecordingsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'calls' && <Suspense fallback={fallback}><CallsSection isDark={isDark} onBack={() => setActiveSection('main')} setSubView={setSubView} /></Suspense>}
       {activeSection === 'premium' && <Suspense fallback={fallback}><PremiumSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
     </AnimatePresence>
   );

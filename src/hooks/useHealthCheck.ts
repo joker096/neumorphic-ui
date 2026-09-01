@@ -3,6 +3,13 @@ import { getErrorStats, clearErrorLog } from "../lib/errorHandling";
 
 export type HealthStatus = "healthy" | "degraded" | "unhealthy";
 
+function statusFromStats(stats: ReturnType<typeof getErrorStats>): HealthStatus {
+  const { critical, major } = stats;
+  if (critical > 3 || major > 5) return "unhealthy";
+  if (critical > 0 || major > 0) return "degraded";
+  return "healthy";
+}
+
 export function useHealthCheck(): {
   status: HealthStatus;
   stats: ReturnType<typeof getErrorStats>;
@@ -10,35 +17,23 @@ export function useHealthCheck(): {
 } {
   const [stats, setStats] = useState(getErrorStats());
 
-  const checkStatus = useCallback((): HealthStatus => {
-    const { critical, major, minor, total } = stats;
-
-    if (critical > 3 || major > 5) return "unhealthy";
-    if (critical > 0 || major > 0) return "degraded";
-    return "healthy";
-  }, [stats]);
-
-  const [status, setStatus] = useState<HealthStatus>(() => checkStatus());
+  const [status, setStatus] = useState<HealthStatus>(() => statusFromStats(getErrorStats()));
 
   useEffect(() => {
     const interval = setInterval(() => {
       const newStats = getErrorStats();
       setStats(newStats);
-      const newStatus = checkStatus();
-      setStatus(newStatus);
+      setStatus(statusFromStats(newStats));
     }, 10000); // Check every 10 seconds
 
     return () => clearInterval(interval);
-  }, [checkStatus]);
+  }, []);
 
   const clearErrors = useCallback(() => {
     clearErrorLog();
     const newStats = getErrorStats();
     setStats(newStats);
-    const { critical, major } = newStats;
-    if (critical > 3 || major > 5) setStatus("unhealthy");
-    else if (critical > 0 || major > 0) setStatus("degraded");
-    else setStatus("healthy");
+    setStatus(statusFromStats(newStats));
   }, []);
 
   return {

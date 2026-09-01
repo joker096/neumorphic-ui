@@ -19,7 +19,7 @@ export const CreateChannelModal = ({ theme = 'dark', onClose }: { theme?: 'dark'
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [isPublic, setIsPublic] = useState(true);
-  const { channels, setChannels } = useAppStore();
+  const { channels, setChannels, userProfile } = useAppStore();
 
   const handleCreate = () => {
       if (!name.trim()) return;
@@ -28,9 +28,10 @@ export const CreateChannelModal = ({ theme = 'dark', onClose }: { theme?: 'dark'
       const channelPostKey = generatePostKey(`chan_${Date.now()}`);
 
       const newChannel: P2PChannel = {
-         id: `chan_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
-         name,
-         ownerPublicKey: keypair.publicKey,
+          id: `chan_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+          name,
+          ownerPublicKey: keypair.publicKey,
+          ownerId: userProfile.id,
          channelId: `channel_${name.toLowerCase().replace(/\s+/g, '_')}`,
          subscriberCount: 1,
          postCount: 0,
@@ -87,18 +88,18 @@ export const CreateChannelModal = ({ theme = 'dark', onClose }: { theme?: 'dark'
       </div>
 
       <div className="flex gap-3 mt-2">
-          <div onClick={() => setIsPublic(true)} className={modalOptionClass(isPublic)}>
-            <Globe size={20} />
+          <div role="button" tabIndex={0} onClick={() => setIsPublic(true)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsPublic(true); } }} className={modalOptionClass(isPublic)}>
+            <Globe size={16} />
              <span className="text-sm font-bold">{t('createChannel.public')}</span>
           </div>
-          <div onClick={() => setIsPublic(false)} className={modalOptionClass(!isPublic)}>
-             <Lock size={20} />
+          <div role="button" tabIndex={0} onClick={() => setIsPublic(false)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsPublic(false); } }} className={modalOptionClass(!isPublic)}>
+             <Lock size={16} />
              <span className="text-sm font-bold">{t('createChannel.private')}</span>
           </div>
       </div>
 
-      <button onClick={handleCreate} disabled={!name.trim()} className={modalPrimaryBtnClass}>
-          <Check size={18} /> {t('createChannel.create')}
+      <button onClick={handleCreate} disabled={!name.trim()} aria-label={t('createChannel.create')} title={t('createChannel.create')} className={modalPrimaryBtnClass}>
+          <Check size={18} /> <span className="sr-only">{t('createChannel.create')}</span>
       </button>
     </AppModal>
   );

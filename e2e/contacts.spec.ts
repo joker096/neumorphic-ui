@@ -122,6 +122,25 @@ test.describe('Contacts & identity', () => {
     }
   });
 
+  test('contact profile shows shared media from the chat history', async ({ page }) => {
+    await gotoContacts(page);
+    await page.getByText('Alice Freeman').first().click();
+    await expect(page.getByText('Shared media', { exact: true }).first()).toBeVisible();
+    await page.getByRole('button', { name: 'Files' }).first().click();
+    await expect(page.getByText('dashboard-mockup.pdf').first()).toBeVisible();
+  });
+
+  test('contact profile has a notifications toggle', async ({ page }) => {
+    await gotoContacts(page);
+    await page.getByText('Alice Freeman').first().click();
+    const row = page.getByText('Notifications', { exact: true }).locator('..').locator('..');
+    await expect(row).toBeVisible();
+    const toggle = row.getByRole('switch');
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
+  });
+
   test('delete contact from profile modal asks for confirmation', async ({ page }) => {
     await gotoContacts(page);
     await page.getByText('Alice Freeman').first().click();
@@ -138,5 +157,60 @@ test.describe('Contacts & identity', () => {
       // Cancel instead of actually deleting to keep mocks intact (Escape closes the confirm dialog)
       await page.keyboard.press('Escape');
     }
+  });
+
+  test('report contact from profile modal submits a report', async ({ page }) => {
+    await gotoContacts(page);
+    await page.getByText('Alice Freeman').first().click();
+    const more = page.getByLabel('More actions').first();
+    if (!(await more.count())) return;
+    await more.click();
+    await page.getByLabel('Report').first().click();
+    await expect(page.getByText('Report submitted')).toBeVisible();
+  });
+
+  test('block contact from profile modal marks the contact blocked', async ({ page }) => {
+    await gotoContacts(page);
+    await page.getByText('Alice Freeman').first().click();
+    const more = page.getByLabel('More actions').first();
+    if (!(await more.count())) return;
+    await more.click();
+    await page.getByLabel('Block Spammer').click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Block Spammer' }).click();
+    // Profile closes on block; reopen to verify the blocked badge
+    await page.getByText('Alice Freeman').first().click();
+    await expect(page.getByText('User blocked')).toBeVisible();
+  });
+
+  test('invite modal opens from the header invite button', async ({ page }) => {
+    await gotoContacts(page);
+    await page.locator('[title="Invite friends"]').first().click();
+    await expect(page.getByRole('heading', { name: 'Invite friends' })).toBeVisible();
+    await expect(
+      page.getByText('Join me on Mess&Anger — secure, decentralized messaging!')
+    ).toBeVisible();
+  });
+
+  test('blocked tab lists blocked contacts and unblock removes them', async ({ page }) => {
+    await gotoContacts(page);
+    // Block Alice Freeman via the profile More menu
+    await page.getByText('Alice Freeman').first().click();
+    await page.getByLabel('More actions').first().click();
+    await page.getByLabel('Block Spammer').click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Block Spammer' }).click();
+
+    // Blocked tab shows the blocked contact
+    await page.getByRole('button', { name: /Blocked \(/i }).click();
+    await expect(page.getByText('Alice Freeman').first()).toBeVisible();
+
+    // Unblock from the profile
+    await page.getByText('Alice Freeman').first().click();
+    await page.getByLabel('More actions').first().click();
+    await page.getByLabel('Unblock', { exact: true }).click();
+
+    // Blocked list is now empty
+    await expect(page.getByText('No blocked contacts')).toBeVisible();
   });
 });

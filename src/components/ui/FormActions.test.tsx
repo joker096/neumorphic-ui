@@ -126,14 +126,14 @@ describe('FormActions', () => {
     expect(cancelBtn?.className).toContain('active:scale-95');
   });
 
-  it('renders with gap-3 between buttons', () => {
+  it('renders with tokenized gap between buttons', () => {
     const { container } = render(<FormActions submitLabel="Submit" />);
-    expect(container.firstElementChild).toHaveClass('gap-3');
+    expect(container.firstElementChild?.className).toContain('gap-[var(--spacing-12)]');
   });
 
-  it('renders with mt-4 margin top', () => {
+  it('renders with tokenized margin top', () => {
     const { container } = render(<FormActions submitLabel="Submit" />);
-    expect(container.firstElementChild).toHaveClass('mt-4');
+    expect(container.firstElementChild?.className).toContain('mt-[var(--spacing-16)]');
   });
 
   it('renders with font-bold', () => {
@@ -142,16 +142,16 @@ describe('FormActions', () => {
     expect(submitBtn?.className).toContain('font-bold');
   });
 
-  it('renders with h-12 height', () => {
+  it('renders with control height', () => {
     const { container } = render(<FormActions submitLabel="Submit" />);
     const submitBtn = container.querySelector('button:last-of-type')!;
-    expect(submitBtn?.className).toContain('h-12');
+    expect(submitBtn?.className).toContain('h-[var(--control-height-md)]');
   });
 
-  it('renders with rounded-xl border radius', () => {
+  it('renders with control radius', () => {
     const { container } = render(<FormActions submitLabel="Submit" />);
     const submitBtn = container.querySelector('button:last-of-type')!;
-    expect(submitBtn?.className).toContain('rounded-xl');
+    expect(submitBtn?.className).toContain('rounded-[var(--radius-control)]');
   });
 
   it('renders with transition-all', () => {
@@ -173,9 +173,9 @@ describe('FormActions', () => {
     expect(submitBtn?.className).toContain('items-center');
   });
 
-  it('renders with gap-2 on submit button', () => {
+  it('renders with tokenized icon gap on submit button', () => {
     const { container } = render(<FormActions submitLabel="Submit" />);
     const submitBtn = container.querySelector('button:last-of-type')!;
-    expect(submitBtn?.className).toContain('gap-2');
+    expect(submitBtn?.className).toContain('gap-[var(--spacing-08)]');
   });
 });

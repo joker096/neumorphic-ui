@@ -22,7 +22,7 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
   const filteredItems = NAV_ITEMS.filter(
     item => !(item.id === "company" && hideCompany) && (!item.adminOnly || admin),
   );
-  const profileLabel = userProfile.name || t("settings.defaultUserName");
+  const profileLabel = userProfile.name || (userProfile.username ? `@${userProfile.username}` : t("settings.defaultUserName"));
   const isSettingsActive = activeView === "settings";
 
   return (
@@ -59,7 +59,7 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
         aria-label={profileLabel}
         aria-current={isSettingsActive ? "page" : undefined}
         onClick={() => onNavigate("settings")}
-        className={`flex h-full w-[44px] min-w-[44px] min-h-[44px] flex-shrink-0 items-center justify-center rounded-xl transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 ${
+        className={`flex h-full w-[44px] min-w-11 min-h-11 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 ${
           isSettingsActive
             ? isDark
               ? "bg-white/[0.05]"
@@ -83,7 +83,7 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
               decoding="async"
             />
           ) : (
-            userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"
+            (userProfile.name || userProfile.username || "U").charAt(0).toUpperCase()
           )}
         </span>
       </button>

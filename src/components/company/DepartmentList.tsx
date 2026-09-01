@@ -1,4 +1,4 @@
-import { Building2, Plus, Loader2, AlertCircle } from 'lucide-react';
+import { Building2, Plus, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { CompanyDepartment, CompanyMember } from '../../types/constants';
 import { memberColorAt } from '../../constants/companyConstants';
@@ -53,10 +53,12 @@ export const DepartmentList = ({
         {canManage && onAdd && (
           <button
             onClick={onAdd}
-            className="min-h-[44px] min-w-[44px] px-3 rounded-xl flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+            aria-label={addLabel}
+            title={addLabel}
+            className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
           >
-            <Plus size={15} />
-            <span className="hidden sm:inline">{addLabel}</span>
+            <Plus size={16} />
+            <span className="sr-only">{addLabel}</span>
           </button>
         )}
       </div>
@@ -73,9 +75,12 @@ export const DepartmentList = ({
           {onRetry && (
             <button
               onClick={onRetry}
-              className="min-h-[44px] px-4 rounded-xl text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+              aria-label={t('company.retry', 'Retry')}
+              title={t('company.retry', 'Retry')}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
             >
-              {t('company.retry', 'Retry')}
+              <RefreshCw size={16} />
+              <span className="sr-only">{t('company.retry', 'Retry')}</span>
             </button>
           )}
         </div>
@@ -99,7 +104,7 @@ export const DepartmentList = ({
                   onClick={() => onDepartmentClick?.(dept)}
                   className="w-full text-left p-3 rounded-2xl flex items-center gap-3 cursor-pointer transition-all bg-[var(--bg-tertiary)] hover:brightness-110"
                 >
-                  <div className={`w-11 h-11 rounded-full flex items-center justify-center bg-gradient-to-br ${dept.color || memberColorAt(i)}`}>
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br ${dept.color || memberColorAt(i)}`}>
                     <Building2 size={18} className="text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
