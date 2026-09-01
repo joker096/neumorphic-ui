@@ -8,6 +8,7 @@ import { toast } from './ui/Toast';
 import { SafetyNumberModal } from './SafetyNumberModal';
 import type { ContactField } from '../types/contact';
 import { CONTACT_FALLBACK_GRADIENT, CONTACT_MAX_DAYS } from '../constants/contactConstants';
+import { MINUTE_MS, HOUR_MS, DAY_MS, ACTIVE_NOW_THRESHOLD_MS } from '../constants/time';
 import { SharedMediaTabs } from './chat/SharedMediaTabs';
 import { ToggleSwitch } from './ui/ToggleSwitch';
 
@@ -208,7 +209,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 contact.name.charAt(0)
               )}
               {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
-                <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < 60000) ? "bg-green-500" : "bg-gray-400"}`} />
+                <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < ACTIVE_NOW_THRESHOLD_MS) ? "bg-green-500" : "bg-gray-400"}`} />
               )}
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -295,10 +296,10 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                   if (!contact.lastSeen) return '—';
                   const delta = Date.now() - contact.lastSeen;
                   if (delta < 0 || isNaN(delta)) return '—';
-                  if (delta < 60000) return t('contacts.activeNow');
-                  if (delta < 3600000) return t('chat.minutesAgo', { count: Math.floor(delta / 60000) });
-                  if (delta < 86400000) return t('chat.hoursAgo', { count: Math.floor(delta / 3600000) });
-                  const days = Math.floor(delta / 86400000);
+                  if (delta < ACTIVE_NOW_THRESHOLD_MS) return t('contacts.activeNow');
+                  if (delta < HOUR_MS) return t('chat.minutesAgo', { count: Math.floor(delta / MINUTE_MS) });
+                  if (delta < DAY_MS) return t('chat.hoursAgo', { count: Math.floor(delta / HOUR_MS) });
+                  const days = Math.floor(delta / DAY_MS);
                   if (days > CONTACT_MAX_DAYS) return t('chat.yearsAgo', { count: Math.floor(days / 365) });
                   return t('chat.daysAgo', { count: days });
                 })()}

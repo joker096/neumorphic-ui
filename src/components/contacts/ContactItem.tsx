@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Star, StarOff, Phone, Video } from "lucide-react";
 import type { Contact } from "../../types/contact";
 import { SWIPE_ACTION_COLORS, CONTACT_MAX_DAYS } from "../../constants/contactConstants";
+import { MINUTE_MS, HOUR_MS, DAY_MS } from "../../constants/time";
 
 interface ContactItemProps {
   contact: Contact;
@@ -134,11 +135,11 @@ export const ContactItem: React.FC<ContactItemProps> = ({
               &bull; {(() => {
                 const delta = Date.now() - contact.lastSeen;
                 if (delta < 0 || isNaN(delta) || !contact.lastSeen) return '—';
-                if (delta < 3600000)
-                  return t("chat.minutesAgo", { count: Math.floor(delta / 60000) || 1 });
-                if (delta < 86400000)
-                  return t("chat.hoursAgo", { count: Math.floor(delta / 3600000) });
-                const days = Math.floor(delta / 86400000);
+                if (delta < HOUR_MS)
+                  return t("chat.minutesAgo", { count: Math.floor(delta / MINUTE_MS) || 1 });
+                if (delta < DAY_MS)
+                  return t("chat.hoursAgo", { count: Math.floor(delta / HOUR_MS) });
+                const days = Math.floor(delta / DAY_MS);
                 if (days > CONTACT_MAX_DAYS)
                   return t("chat.yearsAgo", { count: Math.floor(days / 365) });
                 return t("chat.daysAgo", { count: days });
