@@ -2064,7 +2064,8 @@
     "paid": "Bezahlt",
     "pay": "Zahlen",
     "adminOnlyTitle": "Admin access required",
-    "adminOnlyBody": "The workspace is restricted to company administrators."
+    "adminOnlyBody": "The workspace is restricted to company administrators.",
+    "actionFailed": "Speichern fehlgeschlagen."
   },
   "landing": {
     "communication": "Communication",

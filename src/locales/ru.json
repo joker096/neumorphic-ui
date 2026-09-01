@@ -2064,7 +2064,8 @@
     "paid": "Оплачено",
     "pay": "Оплатить",
     "adminOnlyTitle": "Admin access required",
-    "adminOnlyBody": "The workspace is restricted to company administrators."
+    "adminOnlyBody": "The workspace is restricted to company administrators.",
+    "actionFailed": "Не удалось сохранить изменения."
   },
   "landing": {
     "communication": "Communication",

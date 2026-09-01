@@ -46,7 +46,7 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
   const [importOpen, setImportOpen] = useState(false);
 
   useEffect(() => {
-    void ensureCrmSeed(userId, userName);
+    void ensureCrmSeed(userId, userName).catch(() => {});
   }, [ensureCrmSeed, userId, userName]);
 
   const roleLabel = me?.role === 'admin' ? t('crm.roleAdmin', CRM_FALLBACKS.roleAdmin)

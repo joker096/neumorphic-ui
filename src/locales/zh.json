@@ -2064,7 +2064,8 @@
     "paid": "已支付",
     "pay": "支付",
     "adminOnlyTitle": "Admin access required",
-    "adminOnlyBody": "The workspace is restricted to company administrators."
+    "adminOnlyBody": "The workspace is restricted to company administrators.",
+    "actionFailed": "无法保存更改。"
   },
   "landing": {
     "communication": "Communication",

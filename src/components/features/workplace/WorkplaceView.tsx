@@ -14,8 +14,13 @@ import { useI18n } from "../../../lib/i18n";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
 import { Skeleton } from "../../ui/Skeleton";
+import { toast } from "../../ui/Toast";
 
 type TabId = "tasks" | "automation" | "analytics" | "moderation" | "kb" | "payments";
+
+function reportServiceError(t: (k: string, fb?: string) => string) {
+  toast(t("workplace.actionFailed", "Could not save changes"), "error");
+}
 
 const TAB_LABEL: Record<TabId, string> = {
   tasks: "workplace.tabTasks",
@@ -99,8 +104,12 @@ function TasksTab({ isDark }: { isDark?: boolean }) {
         onSubmit={async (e) => {
           e.preventDefault();
           if (!title.trim()) return;
-          await tasks.createTask({ title });
-          setTitle("");
+          try {
+            await tasks.createTask({ title });
+            setTitle("");
+          } catch {
+            reportServiceError(t);
+          }
         }}
       >
         <input
@@ -118,11 +127,11 @@ function TasksTab({ isDark }: { isDark?: boolean }) {
       ) : state.data.length === 0 ? (
         <DataState status="empty" isDark={isDark} title={t('workplace.noTasks')} description={t('workplace.createFirstTask')} />
       ) : (
-        state.data.map((t) => (
-          <label key={t.id} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-color)]">
-            <input type="checkbox" checked={t.done} onChange={() => tasks.updateTask(t.id, { done: !t.done })} />
-            <span className={t.done ? "line-through opacity-60" : ""}>{t.title}</span>
-            {t.assignee && <span className="ml-auto text-xs opacity-60">{t.assignee}</span>}
+        state.data.map((task) => (
+          <label key={task.id} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-color)]">
+            <input type="checkbox" checked={task.done} onChange={() => tasks.updateTask(task.id, { done: !task.done }).catch(() => reportServiceError(t))} />
+            <span className={task.done ? "line-through opacity-60" : ""}>{task.title}</span>
+            {task.assignee && <span className="ml-auto text-xs opacity-60">{task.assignee}</span>}
           </label>
         ))
       )}
@@ -151,7 +160,7 @@ function AutomationTab({ isDark }: { isDark?: boolean }) {
               <div className="font-semibold text-sm">{r.name}</div>
               <div className="text-xs opacity-60">{r.trigger} → {r.action}</div>
             </div>
-            <input type="checkbox" checked={r.enabled} onChange={() => automation.toggleRule(r.id, !r.enabled)} aria-label={t('workplace.on')} />
+            <input type="checkbox" checked={r.enabled} onChange={() => automation.toggleRule(r.id, !r.enabled).catch(() => reportServiceError(t))} aria-label={t('workplace.on')} />
           </div>
         ))
       )}
@@ -211,7 +220,7 @@ function ModerationTab({ isDark }: { isDark?: boolean }) {
             <span className="text-xs uppercase opacity-60">{item.type}</span>
             <span className="flex-1 text-sm">{item.summary}</span>
             <button
-              onClick={() => moderation.resolve(item.id)}
+              onClick={() => moderation.resolve(item.id).catch(() => reportServiceError(t))}
               aria-label={t('workplace.resolve')}
               title={t('workplace.resolve')}
               className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg bg-[var(--accent)] text-white text-xs"

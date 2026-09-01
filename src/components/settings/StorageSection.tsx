@@ -32,7 +32,7 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
   const handleClearCache = () => {
     try {
       if (typeof caches !== 'undefined') {
-        caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+        caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
       }
     } catch {
       // ignore

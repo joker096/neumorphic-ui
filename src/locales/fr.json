@@ -2064,7 +2064,8 @@
     "paid": "Payé",
     "pay": "Payer",
     "adminOnlyTitle": "Admin access required",
-    "adminOnlyBody": "The workspace is restricted to company administrators."
+    "adminOnlyBody": "The workspace is restricted to company administrators.",
+    "actionFailed": "Impossible d'enregistrer les modifications."
   },
   "landing": {
     "communication": "Communication",
