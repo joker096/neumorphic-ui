@@ -49,6 +49,7 @@ export const useAppConnection = () => {
       setConnectionStatus('connecting');
       useAppStore.getState().setConnectionStatus('connecting');
       useAppStore.getState().setRegionBlocked(false);
+      mgr.getPool().reset();
       mgr.connect().catch(() => {
         setConnectionStatus('error');
         useAppStore.getState().setConnectionStatus('error');

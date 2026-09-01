@@ -45,8 +45,20 @@ export class SignallingPool {
   }
 
   getNextAvailable(): string | null {
-    const available = Array.from(this.seeds.values()).filter(s => s.status === 'untested' || s.status === 'active');
-    if (available.length === 0) return null;
+    const all = Array.from(this.seeds.values());
+    if (all.length === 0) return null;
+    const available = all.filter(s => s.status === 'untested' || s.status === 'active');
+    if (available.length === 0) {
+      // No healthy candidate: retry the earliest-failed seed instead of parking
+      // 'blocked' forever. A transient failure (e.g. a deploy restart dropping
+      // the live WebSocket) must not permanently keep the transport away from
+      // 'connected', even across reloads (the failed state persists to storage).
+      const failed = all
+        .filter(s => s.status === 'failed')
+        .sort((a, b) => a.lastTested - b.lastTested);
+      if (failed.length > 0) return failed[0].url;
+      return null;
+    }
     available.sort((a, b) => a.latencyMs - b.latencyMs);
     return available[0].url;
   }
