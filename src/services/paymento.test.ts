@@ -106,6 +106,16 @@ describe('verifyPayment', () => {
 
     await expect(verifyPayment('tok')).rejects.toThrow('Verify failed (500)');
   });
+
+  it('does not throw on a non-JSON error body (HTML 502)', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 502,
+      text: async () => '<html><body>Bad Gateway</body></html>',
+    });
+
+    await expect(verifyPayment('tok')).rejects.toThrow('Verify failed (502)');
+  });
 });
 
 describe('gatewayUrl', () => {

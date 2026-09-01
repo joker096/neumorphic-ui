@@ -34,6 +34,17 @@ Owns application state and orchestration only:
 
 `App.tsx` should not grow with new UI blocks. New screens should become components and be wired into `FeatureViews`, `ChatWorkspace`, or `AppOverlays`.
 
+### `src/config/*` + `src/constants/*` (config layer)
+
+Static, app-wide values live outside components so they are not hardcoded in JSX/hooks:
+
+- `src/config/app.ts` — public-surface URLs (`APP_HOME_URL`, `MESSENGER_WEB_BASE`, `INVITE_SHORT_BASE`, `EMBED_WIDGET_URL`, `channelInviteLink`, `groupInviteUrl`)
+- `src/config/paymento.ts` — payments backend base + gateway URLs
+- `src/config/signalling.ts` — signalling seed URLs
+- `src/config/integrations.ts` — `/api/v1/integrations` path builder
+- `src/constants/*` — UI/font/company/crm/landing/chat/settings constants and deadline-stage tables
+- `src/constants.ts` — barrel re-exporting storage keys, mock data, language/sticker tables, DND/priority helpers
+
 ### `src/store/index.ts`
 
 Zustand store owns persisted app data:
@@ -82,9 +93,11 @@ Owns chat list and active chat composition:
 
 ### `src/components/features/*`
 
-Owns feature screen routing:
+Owns feature screen routing and feature modules:
 
-- `FeatureViews.tsx` - switch for pulse, radar, calls, settings, recordings, contacts
+- `FeatureViews.tsx` - switch over `profile`, `settings` (subviews: recordings, callLog, radar), `contacts`, `calls` (callLog), `company`, `bot`, `miniApp`, `workplace`
+- `workplace/*` - `WorkplaceView.tsx` team workspace (tasks, automation, analytics, moderation, knowledge base, payments) — routed via `case "workplace"` in `FeatureViews`
+- `bot/*` - bot mini-app surfaces: `MiniAppView`, `BotProfileView`, `InlineKeyboard`, `BotCommandList`
 
 ### `src/components/ui/*`
 

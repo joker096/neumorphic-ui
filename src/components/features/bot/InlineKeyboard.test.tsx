@@ -84,6 +84,20 @@ describe('InlineKeyboard', () => {
     open.mockRestore();
   });
 
+  it('blocks non-http(s) url buttons from opening', () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const evil: InlineKeyboardButton[][] = [
+      [{ text: 'Evil', url: 'javascript:alert(1)' }],
+      [{ text: 'Data', url: 'data:text/html,<script>1</script>' }],
+    ];
+    render(<InlineKeyboard botId="b1" messageId="m1" rows={evil} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Evil' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Data' }));
+    expect(open).not.toHaveBeenCalled();
+    expect(mockBot.handleInlineButton).not.toHaveBeenCalled();
+    open.mockRestore();
+  });
+
   it('shows the not-configured message when the bot is not configured', async () => {
     mockBot.handleInlineButton.mockRejectedValue(new ServiceNotConfiguredError('bot'));
     render(<InlineKeyboard botId="b1" messageId="m1" rows={ROWS} />);

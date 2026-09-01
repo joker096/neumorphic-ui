@@ -12,7 +12,14 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   })
   const text = await res.text()
-  const data = text ? JSON.parse(text) : {}
+  let data: any = {}
+  if (text) {
+    try {
+      data = JSON.parse(text)
+    } catch {
+      data = {}
+    }
+  }
   if (!res.ok) {
     throw new Error((data && (data.error || data.message)) || `Request failed (${res.status})`)
   }
@@ -34,7 +41,14 @@ export async function createPaymentRequest(
 export async function verifyPayment(token: string): Promise<PaymentoVerifyResult> {
   const res = await fetch(`${PAYMENTO_BACKEND_BASE}/verify/${encodeURIComponent(token)}`)
   const text = await res.text()
-  const data = text ? JSON.parse(text) : {}
+  let data: any = {}
+  if (text) {
+    try {
+      data = JSON.parse(text)
+    } catch {
+      data = {}
+    }
+  }
   if (!res.ok) {
     throw new Error(data?.error || `Verify failed (${res.status})`)
   }

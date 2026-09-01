@@ -75,9 +75,8 @@
 App (orchestration)
 ├── SidebarNav       — left sidebar navigation
 ├── BottomNav        — bottom navigation
-├── ContentView      — non-hub screen shell
-├── HubView          — radial hub screen
-├── FeatureViews     — feature screen router (settings, calls, radar, pulse, etc.)
+├── ContentView      — non-chat screen shell
+├── FeatureViews     — feature screen router (profile, settings, contacts, calls, company, bot, miniApp, workplace)
 ├── AppOverlays      — modals, floating widgets, popups
 ├── CallScreen       — active call UI
 ├── IncomingCallSheet — incoming call UI

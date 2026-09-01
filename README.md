@@ -40,10 +40,14 @@ npm run dev
 | `npm run dev` | Start dev server |
 | `npm run lint` | ESLint + TypeScript check |
 | `npm run build` | Production build |
-| `npx vitest run` | Run unit tests |
-| `npx playwright test` | Run e2e tests |
-| `node server/cli.js` | Admin CLI (stats, ads) |
-| `node server/signaling-server.js` | Start signaling server |
+| `npm test` | Run unit tests (Vitest) |
+| `npm run test:e2e` | Run Playwright e2e tests |
+| `npm run l10n:audit` | i18n key/fallback audit (0 errors) |
+| `npm run icon-font:audit` | Icon/font audit |
+| `npm run button:audit` | Dead-control audit (D1–D5) |
+| `npm run audit` | Prod dependency audit (0 high/critical) |
+| `npm run admin:create` | Admin CLI (stats, ads) — `npx tsx server/cli.ts` |
+| `npm run deploy:server` | Start signaling server + REST API (via `deploy-all.ps1 -SkipBuild -SkipAndroid`) |
 
 ## Environment
 
@@ -59,6 +63,6 @@ ALLOWED_ORIGINS=https://yourdomain.com
 
 ## Tests
 
-- **Unit:** 4349+ tests across 182 files (Vitest)
-- **E2E:** Playwright specs in `e2e/`
+- **Unit:** ~5450+ tests across 315+ files (Vitest)
+- **E2E:** ~189 Playwright specs in `e2e/`
 - **Lint:** ESLint + TypeScript — 0 errors

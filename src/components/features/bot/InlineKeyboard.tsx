@@ -39,7 +39,14 @@ export function InlineKeyboard({ botId, messageId, isDark, rows }: InlineKeyboar
 
   const handle = async (btn: { text: string; data?: string; url?: string }) => {
     if (btn.url) {
-      window.open(btn.url, "_blank", "noopener,noreferrer");
+      try {
+        const parsed = new URL(btn.url)
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          window.open(btn.url, "_blank", "noopener,noreferrer");
+        }
+      } catch {
+        // ignore malformed / non-http(s) URLs
+      }
       return;
     }
     try {

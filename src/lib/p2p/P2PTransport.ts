@@ -126,7 +126,12 @@ export class P2PTransport {
       }
 
       this.signalingWs.onmessage = (event) => {
-        const msg = JSON.parse(event.data)
+        let msg: any
+        try {
+          msg = JSON.parse(event.data)
+        } catch {
+          return
+        }
         if (msg.type === 'registered') {
           this.signalingWs!.onmessage = this.handleSignalingEvent
           this.reconnectAttempts = 0
@@ -442,7 +447,12 @@ export class P2PTransport {
   }
 
   private handleSignalingEvent = (event: MessageEvent) => {
-    const msg = JSON.parse(event.data)
+    let msg: any
+    try {
+      msg = JSON.parse(event.data)
+    } catch {
+      return
+    }
     this.handleSignalingMessage(msg).catch((err) =>
       console.error('[P2PTransport] Signaling handler error:', err),
     )
