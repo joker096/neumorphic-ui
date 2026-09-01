@@ -1,4 +1,5 @@
 import { ListFilter } from "lucide-react";
+import { CHAT_FOLDER_KEYS } from "../../constants/chatConstants";
 
 interface FolderFilterBarProps {
   isDark: boolean;
@@ -9,7 +10,7 @@ interface FolderFilterBarProps {
   t: (key: string, options?: any) => string;
 }
 
-const FOLDERS = ["all", "personal", "unread", "work", "groups", "archived"] as const;
+const FOLDERS = CHAT_FOLDER_KEYS;
 
 export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t }: FolderFilterBarProps) => (
     <div className="flex items-center gap-2 mb-3 sm:mb-4 shrink-0">

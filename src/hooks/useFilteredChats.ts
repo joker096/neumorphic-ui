@@ -1,4 +1,10 @@
 import { useMemo } from "react";
+import { CHAT_FOLDER_KEYS } from "../constants/chatConstants";
+const ARCHIVED = CHAT_FOLDER_KEYS[5];
+const UNREAD = CHAT_FOLDER_KEYS[2];
+const PERSONAL = CHAT_FOLDER_KEYS[1];
+const WORK = CHAT_FOLDER_KEYS[3];
+const GROUPS = CHAT_FOLDER_KEYS[4];
 
 export function useFilteredChats(
   currentChatList: any[],
@@ -47,12 +53,12 @@ export function useFilteredChats(
     if (advancedFilters.fromBots && chat.type !== 'bot') return false;
     if (advancedFilters.priority && !chat.isPriority) return false;
     const isArchived = archivedChats.includes(chat.id);
-    if (activeFolder === 'archived') return isArchived;
+    if (activeFolder === ARCHIVED) return isArchived;
     if (isArchived) return false;
-    if (activeFolder === 'unread') return chat.unread > 0;
-    if (activeFolder === 'personal') return chat.name === 'Alice Freeman';
-    if (activeFolder === 'work') return chat.name === 'Design Team';
-    if (activeFolder === 'groups') return chat.type === 'group';
+    if (activeFolder === UNREAD) return chat.unread > 0;
+    if (activeFolder === PERSONAL) return chat.name === 'Alice Freeman';
+    if (activeFolder === WORK) return chat.name === 'Design Team';
+    if (activeFolder === GROUPS) return chat.type === 'group';
     return true;
   }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters]);
 
@@ -65,7 +71,7 @@ export function useFilteredChats(
     const matchesSearch = !query || channel.name.toLowerCase().includes(query) || (channel as any).message?.toLowerCase().includes(query) || historyText.includes(query);
     if (!matchesSearch) return false;
     const isArchived = archivedChats.includes(channel.id);
-    if (activeFolder === 'archived') return isArchived;
+    if (activeFolder === ARCHIVED) return isArchived;
     if (isArchived) return false;
     return true;
   }), [channels, chatSearchQuery, activeFolder, archivedChats]);

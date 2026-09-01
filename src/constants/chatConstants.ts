@@ -30,3 +30,11 @@ export const CHAT_PROFILE_DEFAULT_MEMBERS = 24;
 
 /** Toast auto-dismiss duration for DND-blocked message attempts. */
 export const TOAST_DND_DURATION_MS = 3000;
+
+/**
+ * The canonical chat-list folder filter keys rendered by `FolderFilterBar`.
+ * One source of truth so the rendered tab list and the filter logic in
+ * `useFilteredChats` cannot drift from each other.
+ */
+export const CHAT_FOLDER_KEYS = ["all", "personal", "unread", "work", "groups", "archived"] as const;
+export type ChatFolderKey = (typeof CHAT_FOLDER_KEYS)[number];
