@@ -11,7 +11,6 @@ export { useChatMessages } from './useChatMessages';
 export { useAppConnection } from './useAppConnection';
 export { useDataSeeding, useScheduledMessages } from './useAppEffects';
 export { useAppView } from './useAppView';
-export { useChatInteraction } from './useChatInteraction';
 export { useKeyboardScroll } from './useKeyboardScroll';
 export { useChatPreviewState } from './useChatPreviewState';
 export { useChatMessageActions } from './useChatMessageActions';

@@ -332,7 +332,10 @@
     "file": "Fichier",
     "chatName": "Discussion {{id}}",
     "morseEncode": "Show Morse code",
-    "morseDecode": "Show text"
+    "morseDecode": "Show text",
+    "dndBlockedMessage": "Message bloqué - DND actif. Les contacts prioritaires peuvent contourner.",
+    "dndBlockedSticker": "Sticker bloqué - DND actif. Les contacts prioritaires peuvent contourner.",
+    "dndBlockedVoice": "Message vocal bloqué - DND actif. Les contacts prioritaires peuvent contourner."
   },
   "time": {
     "justNow": "À l'instant",

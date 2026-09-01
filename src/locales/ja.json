@@ -332,7 +332,10 @@
     "file": "ファイル",
     "chatName": "チャット {{id}}",
     "morseEncode": "Show Morse code",
-    "morseDecode": "Show text"
+    "morseDecode": "Show text",
+    "dndBlockedMessage": "メッセージはブロックされました - DNDが有効です。優先連絡先は許可されます。",
+    "dndBlockedSticker": "スタンプはブロックされました - DNDが有効です。優先連絡先は許可されます。",
+    "dndBlockedVoice": "音声メッセージはブロックされました - DNDが有効です。優先連絡先は許可されます。"
   },
   "time": {
     "justNow": "たった今",

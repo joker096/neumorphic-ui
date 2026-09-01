@@ -332,7 +332,10 @@
     "file": "文件",
     "chatName": "聊天 {{id}}",
     "morseEncode": "Show Morse code",
-    "morseDecode": "Show text"
+    "morseDecode": "Show text",
+    "dndBlockedMessage": "消息已被阻止 - DND已开启。优先联系人可以绕过。",
+    "dndBlockedSticker": "贴纸已被阻止 - DND已开启。优先联系人可以绕过。",
+    "dndBlockedVoice": "语音消息已被阻止 - DND已开启。优先联系人可以绕过。"
   },
   "time": {
     "justNow": "刚刚",

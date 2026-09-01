@@ -332,7 +332,10 @@
     "sharedImage": "Shared image",
     "sharedImageText": "Shared image: {{text}}",
     "file": "File",
-    "chatName": "Chat {{id}}"
+    "chatName": "Chat {{id}}",
+    "dndBlockedMessage": "Message blocked - DND is active. Priority contacts can bypass.",
+    "dndBlockedSticker": "Sticker blocked - DND is active. Priority contacts can bypass.",
+    "dndBlockedVoice": "Voice message blocked - DND is active. Priority contacts can bypass."
   },
   "time": {
     "justNow": "Just now",

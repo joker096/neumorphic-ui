@@ -332,7 +332,10 @@
     "file": "Datei",
     "chatName": "Chat {{id}}",
     "morseEncode": "Show Morse code",
-    "morseDecode": "Show text"
+    "morseDecode": "Show text",
+    "dndBlockedMessage": "Nachricht blockiert - DND ist aktiv. Prioritätskontakte können umgehen.",
+    "dndBlockedSticker": "Sticker blockiert - DND ist aktiv. Prioritätskontakte können umgehen.",
+    "dndBlockedVoice": "Sprachnachricht blockiert - DND ist aktiv. Prioritätskontakte können umgehen."
   },
   "time": {
     "justNow": "Gerade eben",

@@ -2,6 +2,8 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 import { encodeMorse } from "../components/MorseDecoder";
 import { parseMentions, isDNDEnabled, isPriorityContact } from "../constants";
+import { TOAST_DND_DURATION_MS } from "../constants/chatConstants";
+import { useI18n } from "../lib/i18n";
 
 export function useMessageActions(
   activeChat: any,
@@ -22,6 +24,8 @@ export function useMessageActions(
   setShowStickerPicker: (v: boolean) => void,
   setSavedMessages: (updater: any) => void,
 ) {
+
+  const { t } = useI18n();
 
   const updateMessageStatus = useCallback((msgId: number, status: string) => {
     setChats((prevChats: any[]) => prevChats.map((c: any) => {
@@ -65,25 +69,25 @@ export function useMessageActions(
   const sendVoiceMessage = useCallback((audioUrl: string, durationStr: string) => {
     if (!activeChat) return;
     if (isDNDEnabled() && !isPriorityContact(activeChat?.name || "")) {
-      toast("Voice message blocked - DND is active. Priority contacts can bypass.", { duration: 3000 });
+      toast(t("chat.dndBlockedVoice", "Voice message blocked - DND is active. Priority contacts can bypass."), { duration: TOAST_DND_DURATION_MS });
       return;
     }
     const newMessage = buildNewMessage({ text: "", type: "audio", audioUrl, duration: durationStr });
     appendMessage(newMessage);
     setReplyTarget(null);
-  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget]);
+  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t]);
 
   const sendStickerMessage = useCallback((sticker: string) => {
     if (!activeChat || !sticker) return;
     if (isDNDEnabled() && !isPriorityContact(activeChat?.name || "")) {
-      toast("Sticker blocked - DND is active. Priority contacts can bypass.", { duration: 3000 });
+      toast(t("chat.dndBlockedSticker", "Sticker blocked - DND is active. Priority contacts can bypass."), { duration: TOAST_DND_DURATION_MS });
       return;
     }
     const newMessage = buildNewMessage({ text: sticker, type: "sticker" });
     appendMessage(newMessage);
     setReplyTarget(null);
     setShowStickerPicker(false);
-  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, setShowStickerPicker]);
+  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, setShowStickerPicker, t]);
 
   const handleSendMessage = useCallback(() => {
     if (!messageText.trim() && !morseMode) return;
@@ -94,7 +98,7 @@ export function useMessageActions(
     if (!activeChat) return;
 
     if (isDNDEnabled() && !isPriorityContact(activeChat?.name || "")) {
-      toast("Message blocked - DND is active. Priority contacts can bypass.", { duration: 3000 });
+      toast(t("chat.dndBlockedMessage", "Message blocked - DND is active. Priority contacts can bypass."), { duration: TOAST_DND_DURATION_MS });
       return;
     }
 
@@ -129,7 +133,7 @@ export function useMessageActions(
   }, [
     messageText, morseMode, activeChat, scheduleDateTime, scheduledQueue,
     buildNewMessage, appendMessage, setMessageText, setScheduleDateTime,
-    setSilentMode, setReplyTarget, setDraftTextByChat, updateMessageStatus,
+    setSilentMode, setReplyTarget, setDraftTextByChat, updateMessageStatus, t,
   ]);
 
   const toggleSavedMessage = useCallback((chatContext: any, msg: any) => {

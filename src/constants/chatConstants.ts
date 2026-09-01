@@ -27,3 +27,6 @@ export const CHAT_PROFILE_MOCK_MEMBERS: readonly string[] = ["Alice", "Bob", "Ca
 /** Default subscriber/member counts used when a chat does not provide them. */
 export const CHAT_PROFILE_DEFAULT_SUBSCRIBERS = 1240;
 export const CHAT_PROFILE_DEFAULT_MEMBERS = 24;
+
+/** Toast auto-dismiss duration for DND-blocked message attempts. */
+export const TOAST_DND_DURATION_MS = 3000;
