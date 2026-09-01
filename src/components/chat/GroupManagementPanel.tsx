@@ -4,6 +4,7 @@ import { useAppStore } from '../../store';
 import type { GroupInfo, GroupMember } from '../../store/slices/chatSlice';
 import { canGroupPermission, getGroupRole } from '../../store/slices/chatSlice';
 import { useI18n } from '../../lib/i18n';
+import { groupInviteUrl } from '../../config/app';
 
 const SLOW_MODE_OPTIONS = [0, 10, 30, 60];
 
@@ -27,7 +28,7 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
   const canManageGroup = canGroupPermission(myRole, 'manageGroup');
   const canManageMembers = canGroupPermission(myRole, 'manageMembers');
 
-  const inviteUrl = `https://ma.to/${liveGroup.inviteToken}`;
+  const inviteUrl = groupInviteUrl(liveGroup.inviteToken);
   const memberIds = liveMembers.map((m) => m.id);
   const pendingContacts = contacts.filter((c) => !memberIds.includes(c.id));
 

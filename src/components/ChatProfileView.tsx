@@ -16,6 +16,7 @@ import { InviteQRModal } from './ui/InviteQRModal';
 import { ToggleSwitch } from './ui/SettingsRow';
 import { toast } from './ui/Toast';
 import { DataState } from './ui/DataState';
+import { channelInviteLink as buildChannelInviteLink } from '../config/app';
 import type { GroupInfo, GroupMember, GroupPermissions } from '../store/slices/chatSlice';
 import { canGroupPermission, getGroupRole, groupPermissionsOf } from '../store/slices/chatSlice';
 import { GroupManagementPanel } from './chat/GroupManagementPanel';
@@ -49,7 +50,7 @@ const TABS = [
 export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage, onCall, onVideoCall }: ChatProfileViewProps) => {
   const { t } = useI18n();
   const kind: ChatProfileKind = chat.type ?? (chat.isChannel ? 'channel' : 'user');
-  const channelInviteLink = `https://messanger.app/channel/${typeof chat.username === 'string' && chat.username ? '@' + chat.username : chat.id}`;
+  const channelInviteLink = buildChannelInviteLink(chat.username, chat.id);
   const [activeTab, setActiveTab] = useState('media');
   const [muted, setMuted] = useState(false);
   const [notifications, setNotifications] = useState(true);

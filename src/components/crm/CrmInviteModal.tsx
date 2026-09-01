@@ -6,8 +6,7 @@ import * as idb from '../../lib/idb';
 import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
 import { CrmModal } from './CrmModal';
-
-const APP_HOME_URL = (import.meta.env.VITE_APP_URL as string | undefined) || 'https://mess.cvr.name';
+import { APP_HOME_URL } from '../../config/app';
 
 export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { t } = useI18n();

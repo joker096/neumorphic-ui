@@ -8,6 +8,7 @@
  */
 
 import { b64encode, b64decode } from '../crypto/cryptoCore';
+import { EMBED_WIDGET_URL } from '../../config/app';
 
 export interface EmbedConfig {
   v: 1;
@@ -46,7 +47,7 @@ export function parseEmbedToken(token: string): EmbedConfig {
 
 export function generateEmbedSnippet(
   token: string,
-  widgetUrl = 'https://messanger.app/embed.js',
+  widgetUrl = EMBED_WIDGET_URL,
 ): string {
   return `<script src="${widgetUrl}" data-messanger-token="${token}" async></script>`;
 }
