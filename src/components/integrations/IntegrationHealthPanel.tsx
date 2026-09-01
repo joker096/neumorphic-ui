@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
+import { integrationPath } from '../../config/integrations';
 
 export function IntegrationHealthPanel({
   integrationId,
@@ -13,7 +14,7 @@ export function IntegrationHealthPanel({
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/v1/integrations/${integrationId}/health`, {
+    fetch(integrationPath('health', integrationId), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))

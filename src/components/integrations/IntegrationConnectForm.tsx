@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useI18n } from '../../lib/i18n';
+import { INTEGRATIONS_PATH, integrationPath } from '../../config/integrations';
 
 export function IntegrationConnectForm({
   token,
@@ -18,7 +19,7 @@ export function IntegrationConnectForm({
   async function connect() {
     setError(null);
     try {
-      const createRes = await fetch('/api/v1/integrations', {
+      const createRes = await fetch(INTEGRATIONS_PATH, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +36,7 @@ export function IntegrationConnectForm({
       const created: { integration?: { id: string }; id?: string } = await createRes.json();
       const id = created.integration?.id ?? created.id;
       if (!id) throw new Error('no integration id');
-      const connRes = await fetch(`/api/v1/integrations/${id}/connect`, {
+      const connRes = await fetch(integrationPath('connect', id), {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });

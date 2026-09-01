@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
+import { integrationPath } from '../../config/integrations';
 
 export interface AuditRow {
   action: string;
@@ -20,7 +21,7 @@ export function IntegrationLogsPanel({
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/v1/integrations/${integrationId}/logs`, {
+    fetch(integrationPath('logs', integrationId), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))

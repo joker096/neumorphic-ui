@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
+import { integrationPath } from '../../config/integrations';
 
 export interface ConflictRow {
   id: string;
@@ -22,7 +23,7 @@ export function IntegrationConflictsPanel({
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/v1/integrations/${integrationId}/conflicts`, {
+    fetch(integrationPath('conflicts', integrationId), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))

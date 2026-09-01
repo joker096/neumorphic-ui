@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
+import { INTEGRATIONS_PATH } from '../../config/integrations';
 
 export interface IntegrationSummary {
   id: string;
@@ -15,7 +16,7 @@ export function IntegrationsPanel({ token }: { token?: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/v1/integrations', {
+    fetch(INTEGRATIONS_PATH, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))

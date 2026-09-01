@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useI18n } from '../../lib/i18n';
+import { integrationPath } from '../../config/integrations';
 
 export function IntegrationImportPanel({
   integrationId,
@@ -17,7 +18,7 @@ export function IntegrationImportPanel({
     setError(null);
     setResult(null);
     try {
-      const res = await fetch(`/api/v1/integrations/${integrationId}/imports`, {
+      const res = await fetch(integrationPath('imports', integrationId), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

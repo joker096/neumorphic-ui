@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useI18n } from '../../lib/i18n';
+import { integrationPath } from '../../config/integrations';
 
 export interface MappingRow {
   sourceField: string;
@@ -26,7 +27,7 @@ export function IntegrationMappingEditor({
   async function save() {
     setError(null);
     try {
-      const res = await fetch(`/api/v1/integrations/${integrationId}/mappings`, {
+      const res = await fetch(integrationPath('mappings', integrationId), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
