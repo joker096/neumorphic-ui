@@ -39,14 +39,6 @@ export const PROFILE_FIELD_TYPES: readonly ProfileFieldTypeOption[] = [
   { value: "custom", label: "Custom", labelKey: "settings.fieldTypeCustom" },
 ];
 
-export const FIELD_TYPE_LABELS: Record<string, string> = Object.fromEntries(
-  PROFILE_FIELD_TYPES.map((t) => [t.value, t.label]),
-);
-
-export function getFieldTypeLabel(type: string): string {
-  return FIELD_TYPE_LABELS[type] ?? type;
-}
-
 export interface VisibilityOption {
   value: "everyone" | "contactsOnly";
   labelKey: string;

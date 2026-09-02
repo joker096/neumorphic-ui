@@ -1,6 +1,6 @@
 import React from 'react';
 import { Edit, Share2, Phone, Mail, MessageSquare, Send, Shield, AtSign, Link } from 'lucide-react';
-import { DEFAULT_AVATAR_COLOR, getFieldTypeLabel } from '../../constants/settingsConstants';
+import { DEFAULT_AVATAR_COLOR, PROFILE_FIELD_TYPES } from '../../constants/settingsConstants';
 import type { UserProfile } from '../../types/contact';
 
 interface ProfileHeaderCardProps {
@@ -64,8 +64,8 @@ export const ProfileHeaderCard = ({ isDark, userProfile, t, onEdit, onShare }: P
         {fields.length > 0 && (
           <div className="flex flex-col gap-2 mt-4">
             {fields.map((field) => {
-              const typeLabel = getFieldTypeLabel(field.type);
-              const displayLabel = field.label || t(`settings.fieldType${typeLabel}`, typeLabel);
+              const typeOption = PROFILE_FIELD_TYPES.find((o) => o.value === field.type);
+              const displayLabel = field.label || (typeOption ? t(typeOption.labelKey, typeOption.label) : field.type);
               const isContactsOnly = field.visibleTo ? field.visibleTo !== 'everyone' : false;
               return (
                 <div key={field.id || field.value} className="flex items-center gap-2 px-2 py-1 rounded-md bg-[var(--bg-secondary)]">

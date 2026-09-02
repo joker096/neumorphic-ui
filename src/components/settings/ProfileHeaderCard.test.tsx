@@ -94,6 +94,20 @@ describe('ProfileHeaderCard', () => {
     expect(screen.queryByText('Custom')).not.toBeInTheDocument();
   });
 
+  it('localizes the Signal V2V type via settings.fieldTypeSignalV2V', () => {
+    const keys: string[] = [];
+    const spyT = (key: string, fallback?: string) => {
+      keys.push(key);
+      return typeof fallback === 'string' ? fallback : key;
+    };
+    renderCard({
+      t: spyT,
+      userProfile: { ...profile, fields: [{ id: '5', type: 'signalv2v', value: 'sig', label: '', visibleTo: 'everyone' }] },
+    });
+    expect(keys).toContain('settings.fieldTypeSignalV2V');
+    expect(screen.getByText('Signal V2V')).toBeInTheDocument();
+  });
+
   it('omits value span for empty field values', () => {
     renderCard({
       userProfile: { ...profile, fields: [{ id: '4', type: 'link', value: '', label: '', visibleTo: 'everyone' }] },
