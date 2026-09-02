@@ -1,4 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
+import { randomUUID } from 'node:crypto'
 import bcrypt from 'bcrypt'
 import { getDb } from '../db.js'
 import { signToken, verifyToken, verifyTotp, createAdminSession, invalidateSession, signRelayToken } from '../auth.js'
@@ -67,11 +68,14 @@ async function handleToken(req: IncomingMessage, res: ServerResponse): Promise<v
     const id =
       body && typeof body.id === 'string' && body.id
         ? body.id.slice(0, 256)
-        : crypto.randomUUID()
+        : randomUUID()
     const token = signRelayToken(id)
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ token }))
-  } catch {
+  } catch (err) {
+    // Log the real cause (almost always JWT_SECRET missing in the relay env) so
+    // PM2 logs show why token issuance fails instead of a bare 500.
+    console.error('[auth] relay token issuance failed:', err)
     res.writeHead(500, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ error: 'Token issuance failed' }))
   }
@@ -118,7 +122,7 @@ export function generateCaptchaChallenge(): { challenge: string; answer: number;
     b = Math.floor(Math.random() * 12) + 1
     answer = a * b
   }
-  const sessionId = crypto.randomUUID()
+  const sessionId = randomUUID()
   const expiresAt = Date.now() + 5 * 60 * 1000
   captchaSessions.set(sessionId, { answer, expiresAt })
   return { challenge: `${a} ${op} ${b} = ?`, answer, sessionId }

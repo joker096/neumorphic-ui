@@ -206,6 +206,29 @@ if (-not $SkipWebDeploy) {
   $DistDir = "$RootDir/dist"
   if (-not (Test-Path $DistDir)) { throw "dist/ not found. Run without -SkipBuild first." }
 
+  # ── Bump the service-worker CACHE_VERSION on every deploy ──
+  # Stale-while-new SW serves the cached index.html cache-first; if the
+  # CACHE_VERSION doesn't change, the old app bundle keeps being served
+  # (and old signaling seeds linger) even after a fresh build+upload.
+  # Bump both the dist copy (uploaded) and the public source (source of truth).
+  Write-Host "  Bumping service-worker CACHE_VERSION..." -ForegroundColor Yellow
+  $swPath = "$DistDir/sw.js"
+  $swSrcPath = "$RootDir/public/sw.js"
+  if (Test-Path $swPath) {
+    $swText = Get-Content $swPath -Raw
+    if ($swText -match "const CACHE_VERSION = 'v(\d+)'") {
+      $nextVer = [int]$Matches[1] + 1
+      $newVer = "const CACHE_VERSION = 'v$nextVer'"
+      ($swText -replace "const CACHE_VERSION = 'v\d+'", $newVer) | Set-Content $swPath -NoNewline
+      (Get-Content $swSrcPath -Raw) -replace "const CACHE_VERSION = 'v\d+'", $newVer | Set-Content $swSrcPath -NoNewline
+      Write-Host "  ✓ CACHE_VERSION bumped to v$nextVer" -ForegroundColor Green
+    } else {
+      Write-Host "  ⚠ Could not locate CACHE_VERSION in sw.js; leaving unchanged" -ForegroundColor Yellow
+    }
+  } else {
+    Write-Host "  ⚠ dist/sw.js not found; skipping cache bump" -ForegroundColor Yellow
+  }
+
   Write-Host "  Creating remote dirs..." -ForegroundColor Yellow
   ssh $Server "mkdir -p $WebRoot" 2>&1 | Out-Null
 
@@ -287,19 +310,11 @@ if (-not $SkipSignaling) {
      Write-Host "  ✓ Admin deployed to $AppRoot/dist/admin/" -ForegroundColor Green
    }
 
-  Write-Host "  Restarting signaling server via PM2..." -ForegroundColor Yellow
-  $pm2Status = ssh $Server "pm2 list 2>&1 | grep $Pm2Name" 2>&1
-  if ($pm2Status) {
-    ssh $Server "set -a; [ -f '$AppRoot/.env' ] && source '$AppRoot/.env'; set +a; cd '$AppRoot' && pm2 restart $Pm2Name --update-env 2>&1" 2>&1 | Out-Null
-    Write-Host "  ✓ PM2 process '$Pm2Name' restarted" -ForegroundColor Green
-  } else {
-    Write-Host "  Starting new PM2 process '$Pm2Name'..." -ForegroundColor Yellow
-    ssh $Server "set -a; [ -f '$AppRoot/.env' ] && source '$AppRoot/.env'; set +a; cd '$AppRoot' && pm2 start server/signaling-server.ts --name $Pm2Name --interpreter npx --interpreter-args tsx 2>&1" 2>&1 | Out-Null
-    Write-Host "  ✓ PM2 process '$Pm2Name' started" -ForegroundColor Green
-  }
-  ssh $Server "pm2 save" 2>&1 | Out-Null
-
-    # ── Inject JWT_SECRET if not already set ──
+    # ── Inject JWT_SECRET BEFORE the PM2 restart ──
+    # The relay (signaling-server.ts) refuses to start without JWT_SECRET and the
+    # client's /api/auth/token endpoint (signRelayToken) 500s without it. Ensuring
+    # .env is populated first means the process never boots (or restarts) into a
+    # missing-secret state that would 500 every relay-token request.
     Write-Host "  Ensuring JWT_SECRET is configured..." -ForegroundColor Yellow
     ssh $Server "grep -q 'JWT_SECRET=' '$AppRoot/.env' 2>/dev/null"
     if ($LASTEXITCODE -ne 0) {
@@ -310,6 +325,19 @@ if (-not $SkipSignaling) {
    } else {
      Write-Host "  ✓ JWT_SECRET already configured" -ForegroundColor Green
    }
+
+   Write-Host "  Restarting signaling server via PM2..." -ForegroundColor Yellow
+   $pm2Status = ssh $Server "pm2 list 2>&1 | grep $Pm2Name" 2>&1
+   if ($pm2Status) {
+     ssh $Server "set -a; [ -f '$AppRoot/.env' ] && source '$AppRoot/.env'; set +a; cd '$AppRoot' && pm2 restart $Pm2Name --update-env 2>&1" 2>&1 | Out-Null
+     Write-Host "  ✓ PM2 process '$Pm2Name' restarted" -ForegroundColor Green
+   } else {
+     Write-Host "  Starting new PM2 process '$Pm2Name'..." -ForegroundColor Yellow
+     ssh $Server "set -a; [ -f '$AppRoot/.env' ] && source '$AppRoot/.env'; set +a; cd '$AppRoot' && pm2 start server/signaling-server.ts --name $Pm2Name --interpreter npx --interpreter-args tsx 2>&1" 2>&1 | Out-Null
+     Write-Host "  ✓ PM2 process '$Pm2Name' started" -ForegroundColor Green
+   }
+   ssh $Server "pm2 save" 2>&1 | Out-Null
+
 
     # ── Create admin user if not skipped ──
      if (-not $SkipAdminCreate) {
