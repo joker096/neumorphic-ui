@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useServices } from "../../../services";
 import { isServiceNotConfiguredError } from "../../../services/types";
 import type { InlineKeyboardButton } from "../../../services/types";
-import { BOT_LABELS } from "../../../constants/botConstants";
+import { useI18n } from "../../../lib/i18n";
 
 export interface InlineKeyboardProps {
   botId: string;
@@ -14,6 +14,7 @@ export interface InlineKeyboardProps {
 
 export function InlineKeyboard({ botId, messageId, isDark, rows }: InlineKeyboardProps) {
   const { bot } = useServices();
+  const { t } = useI18n();
   const [fetched, setFetched] = useState<InlineKeyboardButton[][] | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -51,12 +52,12 @@ export function InlineKeyboard({ botId, messageId, isDark, rows }: InlineKeyboar
     }
     try {
       await bot.handleInlineButton(botId, messageId, btn);
-      setFeedback(BOT_LABELS.inlineProcessed(btn.text));
+      setFeedback(t("bot.inlineProcessed", { text: btn.text }));
     } catch (e) {
       if (isServiceNotConfiguredError(e)) {
-        setFeedback(BOT_LABELS.inlineNotConfigured);
+        setFeedback(t("bot.inlineNotConfigured", "Bot integration not connected"));
       } else {
-        setFeedback(BOT_LABELS.inlineError);
+        setFeedback(t("bot.inlineError", "Button processing error"));
       }
     }
   };

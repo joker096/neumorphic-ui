@@ -1,7 +1,7 @@
 import { ChevronLeft, Terminal } from "lucide-react";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
-import { BOT_LABELS } from "../../../constants/botConstants";
+import { useI18n } from "../../../lib/i18n";
 
 export interface MiniAppProps {
   botId: string;
@@ -11,6 +11,7 @@ export interface MiniAppProps {
 
 export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
   const { bot } = useServices();
+  const { t } = useI18n();
   const state = useServiceData(() => bot.getMiniApp(botId), [botId]);
 
   if (state.status === "loading") {
@@ -23,18 +24,18 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
           <div className="flex items-center gap-3 p-4 border-b border-[var(--border-color)]">
             <button
               onClick={onClose}
-              aria-label={BOT_LABELS.back}
+              aria-label={t("bot.back", "Back")}
               className="flex items-center justify-center min-w-11 min-h-11 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
             >
               <ChevronLeft size={20} />
             </button>
-            <h2 className="font-bold">{BOT_LABELS.miniAppTitle}</h2>
+            <h2 className="font-bold">{t("bot.miniAppTitle", "Mini-app")}</h2>
           </div>
         )}
         <NotConfiguredState
           isDark={isDark}
           feature="bot"
-          hint={BOT_LABELS.notConfiguredMiniAppHint}
+          hint={t("bot.notConfiguredMiniAppHint", "Mini-app requires BotService.getMiniApp (app url + WebApp bridge).")}
         />
       </div>
     );
@@ -44,7 +45,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
       <DataState
         status="error"
         isDark={isDark}
-        title={BOT_LABELS.miniAppUnavailable}
+        title={t("bot.miniAppUnavailable", "Mini-app unavailable")}
         description={state.error}
         retryAction={() => undefined}
       />
@@ -57,8 +58,8 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
       <DataState
         status="empty"
         isDark={isDark}
-        title={BOT_LABELS.miniAppEmptyTitle}
-        description={BOT_LABELS.miniAppEmptyDesc}
+        title={t("bot.miniAppEmptyTitle", "No app")}
+        description={t("bot.miniAppEmptyDesc", "This bot has no mini-app.")}
       />
     );
   }
@@ -68,7 +69,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
       <div className="flex items-center gap-3 p-3 border-b border-[var(--border-color)]">
         <button
           onClick={onClose}
-          aria-label={BOT_LABELS.back}
+          aria-label={t("bot.back", "Back")}
           className="flex items-center justify-center min-w-11 min-h-11 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
         >
           <ChevronLeft size={20} />

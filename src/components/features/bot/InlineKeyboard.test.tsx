@@ -14,6 +14,25 @@ vi.mock('../../../services', () => ({
   useServices: () => ({ bot: mockBot }),
 }));
 
+vi.mock('../../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string, fallback?: string | Record<string, string | number>) => {
+      const dict: Record<string, string> = {
+        'bot.inlineProcessed': '«{{text}}» — обработано',
+        'bot.inlineNotConfigured': 'Интеграция бота не подключена',
+        'bot.inlineError': 'Ошибка обработки кнопки',
+      };
+      let text = dict[key] ?? (typeof fallback === 'string' ? fallback : key);
+      if (fallback && typeof fallback === 'object') {
+        for (const [k, v] of Object.entries(fallback)) {
+          text = text.replace(new RegExp(`{{${k}}}`, 'g'), String(v));
+        }
+      }
+      return text;
+    },
+  }),
+}));
+
 const ROWS: InlineKeyboardButton[][] = [
   [
     { text: 'Buy', data: 'buy' },

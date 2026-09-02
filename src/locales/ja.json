@@ -2254,5 +2254,22 @@
     "start": "会話を始める",
     "typeMessage": "メッセージを入力…",
     "openChat": "チャットを開く"
+  },
+  "bot": {
+    "profileTitle": "プロファイル",
+    "commands": "コマンド",
+    "start": "開始",
+    "openApp": "アプリを開く",
+    "back": "戻る",
+    "profileLoadError": "プロファイルの読み込みに失敗しました",
+    "notConfiguredProfileHint": "ボットのプロファイルにはバックエンドアダプター BotService.getBotProfile が必要です。",
+    "miniAppTitle": "ミニアプリ",
+    "notConfiguredMiniAppHint": "ミニアプリには BotService.getMiniApp（アプリURL + WebAppブリッジ）が必要です。",
+    "miniAppUnavailable": "ミニアプリを利用できません",
+    "miniAppEmptyTitle": "アプリなし",
+    "miniAppEmptyDesc": "このボットにはミニアプリがありません。",
+    "inlineProcessed": "「{{text}}」— 処理済み",
+    "inlineNotConfigured": "ボット連携が接続されていません",
+    "inlineError": "ボタンの処理エラー"
   }
 }

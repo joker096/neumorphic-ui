@@ -2254,5 +2254,22 @@
     "start": "대화 시작",
     "typeMessage": "메시지 입력…",
     "openChat": "채팅 열기"
+  },
+  "bot": {
+    "profileTitle": "프로필",
+    "commands": "명령",
+    "start": "시작",
+    "openApp": "앱 열기",
+    "back": "뒤로",
+    "profileLoadError": "프로필을 불러오지 못했습니다",
+    "notConfiguredProfileHint": "봇 프로필에는 백엔드 어댑터 BotService.getBotProfile이 필요합니다.",
+    "miniAppTitle": "미니 앱",
+    "notConfiguredMiniAppHint": "미니 앱에는 BotService.getMiniApp(앱 URL + WebApp 브리지)이 필요합니다.",
+    "miniAppUnavailable": "미니 앱 사용할 수 없음",
+    "miniAppEmptyTitle": "앱 없음",
+    "miniAppEmptyDesc": "이 봇에는 미니 앱이 없습니다.",
+    "inlineProcessed": "«{{text}}» — 처리됨",
+    "inlineNotConfigured": "봇 연동이 연결되지 않았습니다",
+    "inlineError": "버튼 처리 오류"
   }
 }

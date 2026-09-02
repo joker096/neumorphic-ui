@@ -2,7 +2,8 @@ import { Bot, ExternalLink, ChevronLeft, Play } from "lucide-react";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
 import { BotCommandList } from "./BotCommandList";
-import { BOT_LABELS, BOT_AVATAR_FALLBACK_GRADIENT } from "../../../constants/botConstants";
+import { BOT_AVATAR_FALLBACK_GRADIENT } from "../../../constants/botConstants";
+import { useI18n } from "../../../lib/i18n";
 
 export interface BotProfileViewProps {
   botId: string;
@@ -14,6 +15,7 @@ export interface BotProfileViewProps {
 
 export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }: BotProfileViewProps) {
   const { bot } = useServices();
+  const { t } = useI18n();
   const state = useServiceData(() => bot.getBotProfile(botId), [botId]);
 
   if (state.status === "loading") {
@@ -24,7 +26,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
       <NotConfiguredState
         isDark={isDark}
         feature="bot"
-        hint={BOT_LABELS.notConfiguredProfileHint}
+        hint={t("bot.notConfiguredProfileHint", "Bot profile requires a backend adapter BotService.getBotProfile.")}
       />
     );
   }
@@ -33,7 +35,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
       <DataState
         status="error"
         isDark={isDark}
-        title={BOT_LABELS.profileLoadError}
+        title={t("bot.profileLoadError", "Failed to load profile")}
         description={state.error}
         retryAction={() => undefined}
       />
@@ -50,12 +52,12 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
       <div className="flex items-center gap-3 p-4 border-b border-[var(--border-color)]">
         <button
           onClick={onBack}
-          aria-label={BOT_LABELS.back}
+          aria-label={t("bot.back", "Back")}
           className="flex items-center justify-center min-w-11 min-h-11 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
         >
           <ChevronLeft size={20} />
         </button>
-        <h2 className="font-bold text-lg">{BOT_LABELS.profileTitle}</h2>
+        <h2 className="font-bold text-lg">{t("bot.profileTitle", "Profile")}</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center gap-4">
@@ -87,24 +89,24 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
         <div className="flex gap-3 mt-4">
           <button
             onClick={() => onStart?.(profile.name)}
-            aria-label={BOT_LABELS.start}
-            title={BOT_LABELS.start}
+            aria-label={t("bot.start", "Start")}
+            title={t("bot.start", "Start")}
             className="flex items-center justify-center min-w-11 min-h-11 px-5 rounded-xl bg-[var(--accent)] text-white font-semibold text-sm"
           >
             <Play size={18} />
-            <span className="sr-only">{BOT_LABELS.start}</span>
+            <span className="sr-only">{t("bot.start", "Start")}</span>
           </button>
           {profile.canOpenMiniApp && (
             <button
               onClick={() => onOpenMiniApp?.(botId)}
-              aria-label={BOT_LABELS.openApp}
-              title={BOT_LABELS.openApp}
+              aria-label={t("bot.openApp", "Open app")}
+              title={t("bot.openApp", "Open app")}
               className={`flex items-center justify-center w-9 h-9 min-w-11 min-h-11 rounded-xl font-semibold text-sm border border-[var(--border-color)] ${
                 isDark ? "bg-[var(--bg-tertiary)]" : "bg-white"
               }`}
             >
               <ExternalLink size={16} />
-              <span className="sr-only">{BOT_LABELS.openApp}</span>
+              <span className="sr-only">{t("bot.openApp", "Open app")}</span>
             </button>
           )}
         </div>

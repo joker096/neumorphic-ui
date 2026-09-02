@@ -2254,5 +2254,22 @@
     "start": "Beginnen Sie die Unterhaltung",
     "typeMessage": "Nachricht eingeben…",
     "openChat": "Chat öffnen"
+  },
+  "bot": {
+    "profileTitle": "Profil",
+    "commands": "Befehle",
+    "start": "Starten",
+    "openApp": "App öffnen",
+    "back": "Zurück",
+    "profileLoadError": "Profil konnte nicht geladen werden",
+    "notConfiguredProfileHint": "Der Bot-Profil benötigt einen Backend-Adapter BotService.getBotProfile.",
+    "miniAppTitle": "Mini-App",
+    "notConfiguredMiniAppHint": "Mini-App benötigt BotService.getMiniApp (App-URL + WebApp-Bridge).",
+    "miniAppUnavailable": "Mini-App nicht verfügbar",
+    "miniAppEmptyTitle": "Keine App",
+    "miniAppEmptyDesc": "Dieser Bot hat keine Mini-App.",
+    "inlineProcessed": "„{{text}}“ — verarbeitet",
+    "inlineNotConfigured": "Bot-Integration nicht verbunden",
+    "inlineError": "Fehler bei der Knopfbearbeitung"
   }
 }

@@ -2254,5 +2254,22 @@
     "start": "开始对话",
     "typeMessage": "输入消息…",
     "openChat": "打开聊天"
+  },
+  "bot": {
+    "profileTitle": "资料",
+    "commands": "命令",
+    "start": "开始",
+    "openApp": "打开应用",
+    "back": "返回",
+    "profileLoadError": "无法加载资料",
+    "notConfiguredProfileHint": "机器人资料需要后端适配器 BotService.getBotProfile。",
+    "miniAppTitle": "小程序",
+    "notConfiguredMiniAppHint": "小程序需要 BotService.getMiniApp（应用 URL + WebApp 桥接）。",
+    "miniAppUnavailable": "小程序不可用",
+    "miniAppEmptyTitle": "没有应用",
+    "miniAppEmptyDesc": "该机器人没有小程序。",
+    "inlineProcessed": "“{{text}}” — 已处理",
+    "inlineNotConfigured": "机器人集成未连接",
+    "inlineError": "按钮处理错误"
   }
 }

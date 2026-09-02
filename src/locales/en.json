@@ -2252,5 +2252,22 @@
     "start": "Start the conversation",
     "typeMessage": "Type a message…",
     "openChat": "Open chat"
+  },
+  "bot": {
+    "profileTitle": "Profile",
+    "commands": "Commands",
+    "start": "Start",
+    "openApp": "Open app",
+    "back": "Back",
+    "profileLoadError": "Failed to load profile",
+    "notConfiguredProfileHint": "Bot profile requires a backend adapter BotService.getBotProfile.",
+    "miniAppTitle": "Mini-app",
+    "notConfiguredMiniAppHint": "Mini-app requires BotService.getMiniApp (app url + WebApp bridge).",
+    "miniAppUnavailable": "Mini-app unavailable",
+    "miniAppEmptyTitle": "No app",
+    "miniAppEmptyDesc": "This bot has no mini-app.",
+    "inlineProcessed": "“{{text}}” — processed",
+    "inlineNotConfigured": "Bot integration not connected",
+    "inlineError": "Button processing error"
   }
 }

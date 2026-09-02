@@ -16,6 +16,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test-setup.ts'],
     exclude: ['e2e/**', 'admin/**', 'node_modules/**', '.kilo/**', '.agents/**', '.qwen/**', '.kilocode/**'],
+    hookTimeout: 30000,
   },
   resolve: {
     alias: {

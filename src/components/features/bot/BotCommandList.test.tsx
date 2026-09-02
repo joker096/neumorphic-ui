@@ -1,8 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { BotCommandList } from './BotCommandList';
 import type { BotCommand } from '../../../services/types';
+
+vi.mock('../../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string, fallback?: string | Record<string, string | number>) =>
+      key === 'bot.commands' ? 'Команды' : typeof fallback === 'string' ? fallback : key,
+  }),
+}));
 
 const COMMANDS: BotCommand[] = [
   { command: 'start', description: 'Start the bot' },

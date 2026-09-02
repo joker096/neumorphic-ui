@@ -1,5 +1,5 @@
 import type { BotCommand } from "../../../services/types";
-import { BOT_LABELS } from "../../../constants/botConstants";
+import { useI18n } from "../../../lib/i18n";
 
 export interface BotCommandListProps {
   commands: BotCommand[];
@@ -8,12 +8,13 @@ export interface BotCommandListProps {
 
 /** Renders the command list of a bot profile. No-op when empty. */
 export function BotCommandList({ commands, isDark }: BotCommandListProps) {
+  const { t } = useI18n();
   if (!commands || commands.length === 0) return null;
 
   return (
     <div className="w-full max-w-md mt-2">
       <div className="text-xs font-bold uppercase tracking-widest mb-2 opacity-60">
-        {BOT_LABELS.commandsHeading}
+        {t("bot.commands", "Commands")}
       </div>
       <div className="flex flex-col gap-1">
         {commands.map((c) => (

@@ -2254,5 +2254,22 @@
     "start": "Начните разговор",
     "typeMessage": "Введите сообщение…",
     "openChat": "Открыть чат"
+  },
+  "bot": {
+    "profileTitle": "Профиль бота",
+    "commands": "Команды",
+    "start": "Начать",
+    "openApp": "Открыть приложение",
+    "back": "Назад",
+    "profileLoadError": "Не удалось загрузить профиль",
+    "notConfiguredProfileHint": "Профиль бота требует бэкенд-адаптера BotService.getBotProfile.",
+    "miniAppTitle": "Mini-app",
+    "notConfiguredMiniAppHint": "Mini-app требует BotService.getMiniApp (url приложения + WebApp bridge).",
+    "miniAppUnavailable": "Mini-app недоступен",
+    "miniAppEmptyTitle": "Нет приложения",
+    "miniAppEmptyDesc": "У этого бота нет mini-app.",
+    "inlineProcessed": "«{{text}}» — обработано",
+    "inlineNotConfigured": "Интеграция бота не подключена",
+    "inlineError": "Ошибка обработки кнопки"
   }
 }
