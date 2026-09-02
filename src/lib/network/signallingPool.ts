@@ -13,13 +13,32 @@ export class SignallingPool {
   private seeds: Map<string, SeedEntry> = new Map();
 
   constructor(initialSeeds: string[]) {
+    // Load persisted seeds but ALWAYS reconcile against the current config so a
+    // stale seed from an older bundle can never permanently override the intended
+    // signaling endpoints (e.g. old `signaling*.messanger.app` hosts surviving a
+    // deploy that moved to a new domain).
     this.load();
-    if (this.seeds.size === 0) {
-      for (const url of initialSeeds) {
-        this.seeds.set(url, { url, status: 'untested', lastTested: 0, latencyMs: 0 });
+    this.reconcile(initialSeeds);
+  }
+
+  private reconcile(initialSeeds: string[]): void {
+    let changed = false;
+    const initialSet = new Set(initialSeeds);
+    // Drop persisted seeds that are no longer part of the config.
+    for (const url of Array.from(this.seeds.keys())) {
+      if (!initialSet.has(url)) {
+        this.seeds.delete(url);
+        changed = true;
       }
-      this.save();
     }
+    // Ensure every configured seed is present.
+    for (const url of initialSeeds) {
+      if (!this.seeds.has(url)) {
+        this.seeds.set(url, { url, status: 'untested', lastTested: 0, latencyMs: 0 });
+        changed = true;
+      }
+    }
+    if (changed) this.save();
   }
 
   getAll(): SeedEntry[] { return Array.from(this.seeds.values()); }
