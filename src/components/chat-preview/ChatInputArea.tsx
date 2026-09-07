@@ -1,8 +1,8 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { BellOff, ChevronRight, Clock, Mic, Smile, Plus, VolumeX, Volume2, Radio, X } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { CHAT_SEND_GRADIENT } from "../../constants/chatConstants";
-import { LiveVoiceRecorder } from "../LiveVoiceRecorder";
+const LazyLiveVoiceRecorder = lazy(() => import("../LiveVoiceRecorder").then(m => ({ default: m.LiveVoiceRecorder })));
 import { StickerPicker } from "../chat/StickerPicker";
 import { ChatInputSchedulePopup } from "./ChatInputSchedulePopup";
 import { ChatInputReplyBar } from "./ChatInputReplyBar";
@@ -254,21 +254,23 @@ function ChatInputAreaImpl({
 
       {eIsRecordingVoice ? (
         <div className="px-3 pb-2">
-          <LiveVoiceRecorder
-            isDark={isDark}
-            onCancel={() => setIsRecordingVoiceFn2(false)}
-            onReRecord={() => setIsRecordingVoiceFn2(true)}
-            onPermissionDenied={(msg: string) => {
-              setIsRecordingVoiceFn2(false);
-              setVoiceNoteErrFn2(msg);
-            }}
-            onSend={(url, dur) => {
-              setIsRecordingVoiceFn2(false);
-              if (sendVoiceMessage) sendVoiceMessage(url, dur);
-              else setVoiceNoteErrFn2("");
-            }}
-            holdToRecord
-          />
+          <Suspense fallback={null}>
+            <LazyLiveVoiceRecorder
+              isDark={isDark}
+              onCancel={() => setIsRecordingVoiceFn2(false)}
+              onReRecord={() => setIsRecordingVoiceFn2(true)}
+              onPermissionDenied={(msg: string) => {
+                setIsRecordingVoiceFn2(false);
+                setVoiceNoteErrFn2(msg);
+              }}
+              onSend={(url, dur) => {
+                setIsRecordingVoiceFn2(false);
+                if (sendVoiceMessage) sendVoiceMessage(url, dur);
+                else setVoiceNoteErrFn2("");
+              }}
+              holdToRecord
+            />
+          </Suspense>
         </div>
       ) : null}
 

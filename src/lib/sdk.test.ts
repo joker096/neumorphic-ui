@@ -16,9 +16,9 @@ describe('MessAnger SDK', () => {
     expect(names).toContain('Bob');
   });
 
-  it('exposes analytics over store data', () => {
+  it('exposes analytics over store data', async () => {
     const sdk = createMessAngerSdk();
-    const a = sdk.getAnalytics();
+    const a = await sdk.getAnalytics();
     expect(typeof a.totalContacts).toBe('number');
     expect(typeof a.pipelineValue).toBe('number');
     expect(Array.isArray(a.churnRisk)).toBe(true);
@@ -28,16 +28,16 @@ describe('MessAnger SDK', () => {
     expect(createMessAngerSdk().version).toMatch(/^\d+\.\d+\.\d+$/);
   });
 
-  it('syncs messenger contacts without duplicating', () => {
+  it('syncs messenger contacts without duplicating', async () => {
     const sdk = createMessAngerSdk();
     const before = sdk.getContacts().length;
-    const r = sdk.syncMessenger([
+    const r = await sdk.syncMessenger([
       { id: 'm1', name: 'Mess One', color: '#000', tags: ['client'], lastSeen: Date.now() },
       { id: 'm2', name: 'Mess Two', color: '#111', tags: ['lead'], lastSeen: Date.now() },
     ]);
     expect(r.added).toBe(2);
     expect(sdk.getContacts().length).toBe(before + 2);
-    const r2 = sdk.syncMessenger([{ id: 'm1', name: 'Mess One', color: '#000', tags: ['client'], lastSeen: Date.now() }]);
+    const r2 = await sdk.syncMessenger([{ id: 'm1', name: 'Mess One', color: '#000', tags: ['client'], lastSeen: Date.now() }]);
     expect(r2.updated).toBe(1);
     expect(r2.added).toBe(0);
   });

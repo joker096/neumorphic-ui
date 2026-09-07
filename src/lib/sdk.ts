@@ -7,10 +7,7 @@
  */
 
 import { useAppStore } from '../store';
-import { importFromText } from './crm/import';
-import { syncMessengerContacts } from './crm/bridge';
-import { computeCrmAnalytics } from './crm/analytics';
-import { downloadCrmMigrationBundle } from './backup';
+import type { computeCrmAnalytics } from './crm/analytics';
 import type { CrmContact, Deal, CrmTask } from './crm/types';
 import type { Contact } from '../types/contact';
 
@@ -32,33 +29,39 @@ export interface MessAngerSdk {
   getContacts: () => CrmContact[];
   getDeals: () => Deal[];
   getTasks: () => CrmTask[];
-  getAnalytics: (readStats?: { sent: number; read: number }) => ReturnType<typeof computeCrmAnalytics>;
-  syncMessenger: (contacts: Contact[]) => { added: number; updated: number };
+  getAnalytics: (readStats?: { sent: number; read: number }) => Promise<ReturnType<typeof computeCrmAnalytics>>;
+  syncMessenger: (contacts: Contact[]) => Promise<{ added: number; updated: number }>;
 }
 
 let installed = false;
 
 export function createMessAngerSdk(): MessAngerSdk {
   const store = () => useAppStore.getState();
-  const run = (text: string, hint?: 'csv' | 'json') => {
+  const run = async (text: string, hint?: 'csv' | 'json') => {
+    const { importFromText } = await import('./crm/import');
     const { result } = importFromText(text, hint ? { formatHint: hint } : undefined);
     store().importBatch(result);
     return { imported: result.contacts.length, issues: result.issues.length };
   };
   return {
     version: VERSION,
-    importText: (text, opts) => Promise.resolve(run(text)),
-    importCsv: (text, opts) => Promise.resolve(run(text, 'csv')),
-    importJson: (text, opts) => Promise.resolve(run(text, 'json')),
-    exportBundle: (password) => downloadCrmMigrationBundle(password).then(() => undefined),
+    importText: (text, opts) => run(text),
+    importCsv: (text, opts) => run(text, 'csv'),
+    importJson: (text, opts) => run(text, 'json'),
+    exportBundle: async (password) => {
+      const { downloadCrmMigrationBundle } = await import('./backup');
+      await downloadCrmMigrationBundle(password);
+    },
     getContacts: () => store().crmContacts,
     getDeals: () => store().crmDeals,
     getTasks: () => store().crmTasks,
-    getAnalytics: (readStats) => {
+    getAnalytics: async (readStats) => {
+      const { computeCrmAnalytics } = await import('./crm/analytics');
       const s = store();
       return computeCrmAnalytics(s.crmContacts, s.crmDeals, s.crmTasks, readStats);
     },
-    syncMessenger: (contacts) => {
+    syncMessenger: async (contacts) => {
+      const { syncMessengerContacts } = await import('./crm/bridge');
       const res = syncMessengerContacts(store().crmContacts, contacts);
       store().syncMessengerContacts(contacts);
       return { added: res.added.length, updated: res.updated.length };
