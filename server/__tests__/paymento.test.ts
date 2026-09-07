@@ -233,6 +233,19 @@ describe('Paymento integration', () => {
     expect(data.amount).toBe(10)
     expect(data.currency).toBe('USD')
   })
+
+  it('verify: rate-limits repeated calls for the same token', async () => {
+    const token = `rl_${crypto.randomUUID()}`
+    const statuses: number[] = []
+    for (let i = 0; i < 31; i++) {
+      const res = await fetch(`${base()}/api/paymento/verify/${token}`, { method: 'GET' })
+      statuses.push(res.status)
+      if (res.status === 429) break
+    }
+    expect(statuses).toHaveLength(31)
+    expect(statuses[30]).toBe(429)
+    expect(statuses.slice(0, 30).every((s) => s === 200)).toBe(true)
+  })
 })
 
 describe('Paymento pay-per-key entitlements', () => {

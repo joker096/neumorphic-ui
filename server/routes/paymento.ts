@@ -12,6 +12,7 @@ import {
 } from '../db.js'
 import { getPlan } from '../plans.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
+import { checkRateLimit } from '../middleware/rateLimit.js'
 
 // Merchant credentials are operator config: set PAYMENTO_API_KEY and PAYMENTO_SECRET_KEY in the
 // server environment. There is no runtime UI or API for changing them.
@@ -192,6 +193,12 @@ export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, p
     return true
   }
   if (path.startsWith('/api/paymento/verify/') && req.method === 'GET') {
+    const ip = req.socket.remoteAddress || 'unknown'
+    const token = decodeURIComponent(path.replace('/api/paymento/verify/', '') || '')
+    if (!checkRateLimit(`paymento-verify:${ip}:${token}`, { windowMs: 60000, maxRequests: 30 }).allowed) {
+      sendJson(res, 429, { error: 'Too many requests. Try again later.' })
+      return true
+    }
     handleVerify(req, res, path)
     return true
   }
