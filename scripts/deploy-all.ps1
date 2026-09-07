@@ -63,6 +63,14 @@ if (-not $SkipAdminCreate -and ([string]::IsNullOrWhiteSpace($AdminUser) -or [st
   throw "Set -AdminUser/-AdminPass or ADMIN_USER/ADMIN_PASS, or use -SkipAdminCreate"
 }
 
+# Machine PATH once carried a literal `%PATH%` entry, which poisons cmd.exe %PATH%
+# expansion (node/eslint/tsc stop resolving). Strip it + dedupe before any npm call.
+$cleanPath = ($env:Path -split ';' | Where-Object { $_ -and $_ -ne '%PATH%' } | Select-Object -Unique) -join ';'
+if ($cleanPath -ne $env:Path) {
+  $env:Path = $cleanPath
+  Write-Host "  ⚠ PATH sanitized (removed literal %PATH% / duplicate entries)" -ForegroundColor Yellow
+}
+
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
 Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Cyan
@@ -83,9 +91,12 @@ if (-not $SkipBuild) {
       Write-Host "  Lint + typecheck..." -ForegroundColor Yellow
       npm run lint
       if ($LASTEXITCODE -ne 0) { throw "Lint + TypeScript check failed" }
-      Write-Host "  Running tests..." -ForegroundColor Yellow
-      npx vitest run
-      if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
+        Write-Host "  Running tests..." -ForegroundColor Yellow
+        # Deterministic: invoke the package bin through node directly. npx/npm-run
+        # bin resolution is unreliable on this machine (cmd falls through to
+        # "'vitest' is not recognized"); this runs the exact same entry point.
+        node "$RootDir\node_modules\vitest\vitest.mjs" run
+        if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
     }
    Write-Host "  Building main SPA..." -ForegroundColor Yellow
      npm run build

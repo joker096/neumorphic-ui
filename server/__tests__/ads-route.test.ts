@@ -15,8 +15,9 @@ let harnessServer: http.Server
 let harnessPort = 0
 
 function startServer(handler: (req: http.IncomingMessage, res: http.ServerResponse) => void): Promise<http.Server> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const s = http.createServer(handler)
+    s.once('error', reject)
     s.listen(0, '127.0.0.1', () => resolve(s))
   })
 }
@@ -36,7 +37,11 @@ beforeAll(async () => {
   ;(globalThis as any).__adminToken = adminToken
 
   harnessServer = await startServer(harnessHandler)
-  harnessPort = (harnessServer.address() as any).port
+  const address = harnessServer.address()
+  if (!address || typeof address === 'string' || !address.port) {
+    throw new Error(`ads-route harness: no usable port (${String(address)})`)
+  }
+  harnessPort = address.port
 })
 
 afterAll(async () => {
