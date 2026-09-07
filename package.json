@@ -87,6 +87,7 @@
     "eslint": "^10.8.0",
     "eslint-plugin-security": "^4.0.1",
     "javascript-obfuscator": "^4.2.2",
+    "jimp": "^0.22.12",
     "jsdom": "^29.1.1",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
@@ -96,6 +97,7 @@
   },
   "overrides": {
     "extract-zip": "^2.0.1",
+    "qs": "^6.16.0",
     "uuid": "^11.1.1"
   }
 }
