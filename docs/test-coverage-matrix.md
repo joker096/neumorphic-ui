@@ -84,7 +84,7 @@
 
 ## 5. Hooks — P1
 
-Покрыто: `useAppLock`, `useAppView`, `useCall`, `useChatMessages`, `useDebounce`, `useFilteredChats`, `useGlobalErrorHandler`, `useLocalStorage`, `useScheduledMessages`, `useScreenshotProtection`, `useUndoDelete`.
+Покрыто: `useAppLock`, `useAppView`, `useCall`, `useDebounce`, `useFilteredChats`, `useGlobalErrorHandler`, `useLocalStorage`, `useScheduledMessages`, `useScreenshotProtection`, `useUndoDelete`.
 
 Gap (P1, pass2): `useAppConnection`, `useAppNavigation`, `useAppSettings`, `useAsyncState`, `useHealthCheck`, `useIdentityAuth`, `useUnreadCount`, `useMessageActions`.
 

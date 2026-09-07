@@ -7,7 +7,6 @@ export { useLocalStorage } from './useLocalStorage';
 export { useMeshPeers } from './useMeshPeers';
 export { useScreenshotProtection } from './useScreenshotProtection';
 export { useUndoDelete } from './useUndoDelete';
-export { useChatMessages } from './useChatMessages';
 export { useAppConnection } from './useAppConnection';
 export { useDataSeeding, useScheduledMessages } from './useAppEffects';
 export { useAppView } from './useAppView';

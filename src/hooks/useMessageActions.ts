@@ -1,9 +1,10 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { encodeMorse } from "../components/MorseDecoder";
 import { parseMentions, isDNDEnabled, isPriorityContact } from "../constants";
 import { TOAST_DND_DURATION_MS } from "../constants/chatConstants";
 import { useI18n } from "../lib/i18n";
+import { queueMessage, getPendingMessages, markMessageSent } from "../lib/messageQueue";
 
 export function useMessageActions(
   activeChat: any,
@@ -42,7 +43,7 @@ export function useMessageActions(
     id: Date.now(),
     sender: "me",
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    status: "sent",
+    status: navigator.onLine ? "sent" : "queued",
     silent: silentMode,
     replyTo: replyTarget ? {
       id: replyTarget.id,
@@ -74,6 +75,7 @@ export function useMessageActions(
     }
     const newMessage = buildNewMessage({ text: "", type: "audio", audioUrl, duration: durationStr });
     appendMessage(newMessage);
+    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => {});
     setReplyTarget(null);
   }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t]);
 
@@ -85,6 +87,7 @@ export function useMessageActions(
     }
     const newMessage = buildNewMessage({ text: sticker, type: "sticker" });
     appendMessage(newMessage);
+    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => {});
     setReplyTarget(null);
     setShowStickerPicker(false);
   }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, setShowStickerPicker, t]);
@@ -124,17 +127,47 @@ export function useMessageActions(
     });
 
     appendMessage(newMessage);
+    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => {});
     setMessageText("");
     setSilentMode(false);
     setReplyTarget(null);
     setDraftTextByChat((prev: Record<string, string>) => ({ ...prev, [String(activeChat.id)]: "" }));
 
-    setTimeout(() => updateMessageStatus(newMessage.id, "delivered"), 1000);
+    if (navigator.onLine) {
+      setTimeout(() => updateMessageStatus(newMessage.id, "delivered"), 1000);
+    }
   }, [
     messageText, morseMode, activeChat, scheduleDateTime, scheduledQueue,
     buildNewMessage, appendMessage, setMessageText, setScheduleDateTime,
     setSilentMode, setReplyTarget, setDraftTextByChat, updateMessageStatus, t,
   ]);
+
+  // Offline-first: flush queued messages to "sent" when the network is back.
+  useEffect(() => {
+    const flush = async () => {
+      if (!navigator.onLine) return;
+      try {
+        const pending = await getPendingMessages();
+        for (const item of pending) await markMessageSent(item.id);
+        if (pending.length > 0) {
+          setChats((prevChats: any[]) => prevChats.map((c: any) =>
+            c.history?.some((m: any) => m.status === "queued")
+              ? { ...c, history: c.history.map((m: any) => (m.status === "queued" ? { ...m, status: "sent" } : m)) }
+              : c
+          ));
+          setActiveChat((prev: any) => {
+            if (!prev || !prev.history?.some((m: any) => m.status === "queued")) return prev;
+            return { ...prev, history: prev.history.map((m: any) => (m.status === "queued" ? { ...m, status: "sent" } : m)) };
+          });
+        }
+      } catch {
+        /* queue is best-effort */
+      }
+    };
+    void flush();
+    window.addEventListener("online", flush);
+    return () => window.removeEventListener("online", flush);
+  }, [setChats, setActiveChat]);
 
   const toggleSavedMessage = useCallback((chatContext: any, msg: any) => {
     if (!chatContext || !msg) return;
