@@ -1,14 +1,15 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { Search } from "lucide-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { SearchInput } from "./ui/SearchInput";
 import { OnboardingPanel } from "./ui/OnboardingPanel";
-import { InviteQRModal } from "./ui/InviteQRModal";
 import { ChatListItem, AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots } from "./chat-preview";
 import { ChatContextMenu } from "./chat-preview/ChatContextMenu";
 import { GlobalSearch } from "./GlobalSearch";
 import { DataState } from "./ui/DataState";
 import { useChatListActions } from "../hooks/useChatListActions";
+
+const InviteQRModal = lazy(() => import("./ui/InviteQRModal").then((m) => ({ default: m.InviteQRModal })));
 
 type Translate = (key: string, options?: any) => string;
 
@@ -306,13 +307,15 @@ export const ChatListView = ({
                 onStartChat={() => setShowAddContactFromChat?.(true)}
                 onInvite={() => setShowInviteModal(true)}
               />
-              <InviteQRModal
-                isOpen={showInviteModal}
-                onClose={() => setShowInviteModal(false)}
-                inviteText={t("onboarding.inviteText")}
-                isDark={isDark}
-                t={t}
-              />
+              <Suspense fallback={null}>
+                <InviteQRModal
+                  isOpen={showInviteModal}
+                  onClose={() => setShowInviteModal(false)}
+                  inviteText={t("onboarding.inviteText")}
+                  isDark={isDark}
+                  t={t}
+                />
+              </Suspense>
             </>
           ) : view === "channels" ? (
             <OnboardingPanel

@@ -117,7 +117,7 @@ export default defineConfig({
           crypto: ['tweetnacl'],
           animation: ['motion'],
           icons: ['lucide-react'],
-          ui: ['@tanstack/react-virtual', '@yudiel/react-qr-scanner', 'qrcode', 'sonner'],
+          ui: ['@tanstack/react-virtual', 'sonner'],
         },
       },
     },
