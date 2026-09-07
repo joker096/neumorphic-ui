@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bot, ExternalLink, ChevronLeft, Play } from "lucide-react";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
@@ -16,7 +17,8 @@ export interface BotProfileViewProps {
 export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }: BotProfileViewProps) {
   const { bot } = useServices();
   const { t } = useI18n();
-  const state = useServiceData(() => bot.getBotProfile(botId), [botId]);
+  const [reloadTick, setReloadTick] = useState(0);
+  const state = useServiceData(() => bot.getBotProfile(botId), [botId, reloadTick]);
 
   if (state.status === "loading") {
     return <DataState status="loading" isDark={isDark} />;
@@ -37,7 +39,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
         isDark={isDark}
         title={t("bot.profileLoadError", "Failed to load profile")}
         description={state.error}
-        retryAction={() => undefined}
+        retryAction={() => setReloadTick(n => n + 1)}
       />
     );
   }
@@ -91,10 +93,10 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
             onClick={() => onStart?.(profile.name)}
             aria-label={t("bot.start", "Start")}
             title={t("bot.start", "Start")}
-            className="flex items-center justify-center min-w-11 min-h-11 px-5 rounded-xl bg-[var(--accent)] text-white font-semibold text-sm"
+            className="flex items-center justify-center gap-2 min-w-11 min-h-11 px-5 rounded-xl bg-[var(--accent)] text-white font-semibold text-sm"
           >
             <Play size={18} />
-            <span className="sr-only">{t("bot.start", "Start")}</span>
+            <span>{t("bot.start", "Start")}</span>
           </button>
           {profile.canOpenMiniApp && (
             <button

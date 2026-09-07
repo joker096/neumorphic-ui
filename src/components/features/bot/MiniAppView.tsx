@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ChevronLeft, Terminal } from "lucide-react";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
@@ -12,7 +13,8 @@ export interface MiniAppProps {
 export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
   const { bot } = useServices();
   const { t } = useI18n();
-  const state = useServiceData(() => bot.getMiniApp(botId), [botId]);
+  const [reloadTick, setReloadTick] = useState(0);
+  const state = useServiceData(() => bot.getMiniApp(botId), [botId, reloadTick]);
 
   if (state.status === "loading") {
     return <DataState status="loading" isDark={isDark} />;
@@ -47,7 +49,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
         isDark={isDark}
         title={t("bot.miniAppUnavailable", "Mini-app unavailable")}
         description={state.error}
-        retryAction={() => undefined}
+        retryAction={() => setReloadTick(n => n + 1)}
       />
     );
   }
