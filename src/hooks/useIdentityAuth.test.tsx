@@ -55,4 +55,13 @@ describe("useIdentityAuth", () => {
     await waitFor(() => expect(result.current.status).toBe("new-user"));
     expect(logError).toHaveBeenCalled();
   });
+
+  it("recheck re-runs the identity check and updates status", async () => {
+    const { result } = renderHook(() => useIdentityAuth());
+    await flush();
+    await waitFor(() => expect(result.current.status).toBe("new-user"));
+    masterKeyMock.hasMasterIdentity.mockResolvedValue(true);
+    await result.current.recheck();
+    await waitFor(() => expect(result.current.status).toBe("existing-user"));
+  });
 });

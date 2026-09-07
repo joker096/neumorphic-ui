@@ -27,6 +27,8 @@ import { ServicesProvider } from './services';
 import { createLocalServices } from './services/localServices';
 import { installMessAngerSdk, createMessAngerSdk } from './lib/sdk';
 import { runCrmDeepLink } from './lib/crm/deepLink';
+import { parseStoryDeepLink, clearStoryDeepLink } from './lib/stories/storyDeepLink';
+import { findStoryUser } from './components/stories/storiesData';
 import { AcceptInviteModal } from './components/crm/AcceptInviteModal';
 import { toast } from './components/ui/Toast';
 
@@ -62,7 +64,7 @@ export default function App() {
     chatReturnContext, setChatReturnContext,
   } = useUiStore();
 
-  const [activeStory, setActiveStory] = useState<{ id: number, name: string, color: string } | null>(null);
+  const [activeStory, setActiveStory] = useState<{ id: number | string, name: string, color: string } | null>(null);
   const [showStoryComposer, setShowStoryComposer] = useState(false);
   const [activeBotId, setActiveBotId] = useState<string | null>(null);
   const [miniAppBotId, setMiniAppBotId] = useState<string | null>(null);
@@ -92,6 +94,12 @@ export default function App() {
         .catch(() => {});
       const invite = new URLSearchParams(window.location.search).get('invite');
       if (invite) setPendingInvite(invite);
+      const storyLink = parseStoryDeepLink(window.location.hash, window.location.search);
+      if (storyLink) {
+        const u = findStoryUser(storyLink.userId);
+        setActiveStory({ id: u.id, name: u.name, color: u.color });
+        clearStoryDeepLink();
+      }
     }
     return stop;
   }, []);
@@ -258,7 +266,7 @@ export default function App() {
 
   return (
     <ServicesProvider services={createLocalServices()}>
-    <AppAuthGate onRegistrationComplete={() => {}}>
+    <AppAuthGate>
       <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
         <AppChrome isDark={isDark} connectionStatus={connectionStatus} />
         <AppShell

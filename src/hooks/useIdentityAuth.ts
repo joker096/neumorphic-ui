@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { getMasterKeySet, hasMasterIdentity } from "../lib/identity/masterKey";
 import { logError } from "../lib/errorHandling";
 
@@ -11,39 +11,30 @@ export function useIdentityAuth() {
     (new URLSearchParams(window.location.search).has("e2e") ||
       import.meta.env.VITE_USE_MOCK === "true");
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function check() {
-      try {
-        const exists = await hasMasterIdentity();
-        if (cancelled) return;
-        if (exists) {
-          setStatus("existing-user");
-          return;
-        }
-
-        if (isE2EMode) {
-          await getMasterKeySet();
-          if (cancelled) return;
-          setStatus("existing-user");
-          return;
-        }
-
-        setStatus("new-user");
-      } catch (e) {
-        if (cancelled) return;
-        logError(e, "identityCheck");
-        setStatus("new-user");
+  const recheck = useCallback(async () => {
+    try {
+      const exists = await hasMasterIdentity();
+      if (exists) {
+        setStatus("existing-user");
+        return;
       }
+
+      if (isE2EMode) {
+        await getMasterKeySet();
+        setStatus("existing-user");
+        return;
+      }
+
+      setStatus("new-user");
+    } catch (e) {
+      logError(e, "identityCheck");
+      setStatus("new-user");
     }
-
-    check();
-
-    return () => {
-      cancelled = true;
-    };
   }, [isE2EMode]);
 
-  return { status };
+  useEffect(() => {
+    recheck();
+  }, [recheck]);
+
+  return { status, recheck };
 }

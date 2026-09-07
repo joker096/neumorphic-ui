@@ -43,4 +43,19 @@ describe('App', () => {
     render(<App />);
     expect(document.body).toBeInTheDocument();
   });
+
+  it('opens a story from a scheme deep link without crashing', () => {
+    const prevHash = window.location.hash;
+    window.location.hash = '#nexus://story/1/11';
+    render(<App />);
+    expect(document.body).toBeInTheDocument();
+    window.location.hash = prevHash;
+  });
+
+  it('opens a story from a query deep link without crashing', () => {
+    global.history.replaceState({}, '', '?story=1:11');
+    render(<App />);
+    expect(document.body).toBeInTheDocument();
+    global.history.replaceState({}, '', '/');
+  });
 });

@@ -7,6 +7,8 @@ const identity = vi.hoisted(() => ({
   status: "loading" as "loading" | "new-user" | "existing-user",
 }));
 
+const recheckMock = vi.hoisted(() => vi.fn());
+
 const lock = vi.hoisted(() => ({
   pinInput: "",
   setPinInput: vi.fn(),
@@ -36,7 +38,7 @@ const lockCapture = vi.hoisted(() => ({
 }));
 
 vi.mock("../../hooks/useIdentityAuth", () => ({
-  useIdentityAuth: () => ({ status: identity.status }),
+  useIdentityAuth: () => ({ status: identity.status, recheck: recheckMock }),
 }));
 
 vi.mock("../../hooks/useAppLock", () => ({
@@ -84,6 +86,7 @@ describe("AppAuthGate", () => {
     lock.handleUnlockBiometric = vi.fn();
     lock.isLocked = false;
     storeState.appLockBiometricEnabled = false;
+    recheckMock.mockClear();
     authCapture.registration = null;
     authCapture.login = null;
     lockCapture.lock = null;
@@ -91,30 +94,29 @@ describe("AppAuthGate", () => {
 
   it("renders loading spinner while identity status is loading", () => {
     const { container } = render(
-      <AppAuthGate onRegistrationComplete={vi.fn()}>
+      <AppAuthGate>
         <div>child</div>
       </AppAuthGate>,
     );
     expect(container.querySelector(".animate-spin")).toBeInTheDocument();
   });
 
-  it("renders registration screen for new user", () => {
+  it("renders registration screen for new user and rechecks identity on completion", () => {
     identity.status = "new-user";
-    const onRegistrationComplete = vi.fn();
     render(
-      <AppAuthGate onRegistrationComplete={onRegistrationComplete}>
+      <AppAuthGate>
         <div>child</div>
       </AppAuthGate>,
     );
     expect(screen.getByTestId("registration-screen")).toBeInTheDocument();
     authCapture.registration.onComplete();
-    expect(onRegistrationComplete).toHaveBeenCalledOnce();
+    expect(recheckMock).toHaveBeenCalledOnce();
   });
 
   it("renders children for unlocked existing user", () => {
     identity.status = "existing-user";
     render(
-      <AppAuthGate onRegistrationComplete={vi.fn()}>
+      <AppAuthGate>
         <div>child</div>
       </AppAuthGate>,
     );
@@ -129,7 +131,7 @@ describe("AppAuthGate", () => {
     storeState.appLockBiometricEnabled = true;
 
     render(
-      <AppAuthGate onRegistrationComplete={vi.fn()}>
+      <AppAuthGate>
         <div>child</div>
       </AppAuthGate>,
     );
@@ -152,9 +154,8 @@ describe("AppAuthGate", () => {
 
   it("shows login after show-login event and returns to children on back", async () => {
     identity.status = "existing-user";
-    const onRegistrationComplete = vi.fn();
     render(
-      <AppAuthGate onRegistrationComplete={onRegistrationComplete}>
+      <AppAuthGate>
         <div>child</div>
       </AppAuthGate>,
     );
@@ -167,14 +168,13 @@ describe("AppAuthGate", () => {
 
     authCapture.login.onBack();
     await waitFor(() => expect(screen.getByText("child")).toBeInTheDocument());
-    expect(onRegistrationComplete).not.toHaveBeenCalled();
+    expect(recheckMock).not.toHaveBeenCalled();
   });
 
   it("completes login after show-login event", async () => {
     identity.status = "existing-user";
-    const onRegistrationComplete = vi.fn();
     render(
-      <AppAuthGate onRegistrationComplete={onRegistrationComplete}>
+      <AppAuthGate>
         <div>child</div>
       </AppAuthGate>,
     );
@@ -186,6 +186,6 @@ describe("AppAuthGate", () => {
 
     authCapture.login.onComplete();
     await waitFor(() => expect(screen.getByText("child")).toBeInTheDocument());
-    expect(onRegistrationComplete).toHaveBeenCalledOnce();
+    expect(recheckMock).not.toHaveBeenCalled();
   });
 });

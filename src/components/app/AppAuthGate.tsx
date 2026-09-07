@@ -7,11 +7,10 @@ import { useAppStore } from "../../store";
 
 type AppAuthGateProps = {
   children: React.ReactNode;
-  onRegistrationComplete: () => void;
 };
 
-export const AppAuthGate = ({ children, onRegistrationComplete }: AppAuthGateProps) => {
-  const { status: identityStatus } = useIdentityAuth();
+export const AppAuthGate = ({ children }: AppAuthGateProps) => {
+  const { status: identityStatus, recheck } = useIdentityAuth();
   const {
     pinInput, setPinInput, pinError, biometricError, biometricBusy,
     biometricAvailable, lockAttempts, lockBlockedUntil, lockBlockTimer,
@@ -35,16 +34,13 @@ export const AppAuthGate = ({ children, onRegistrationComplete }: AppAuthGatePro
   }
 
   if (identityStatus === "new-user") {
-    return <RegistrationScreen onComplete={onRegistrationComplete} />;
+    return <RegistrationScreen onComplete={() => void recheck()} />;
   }
 
   if (showLogin) {
     return (
       <LoginScreen
-        onComplete={() => {
-          setShowLogin(false);
-          onRegistrationComplete();
-        }}
+        onComplete={() => setShowLogin(false)}
         onBack={() => setShowLogin(false)}
       />
     );

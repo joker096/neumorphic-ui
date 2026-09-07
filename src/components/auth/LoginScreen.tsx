@@ -146,10 +146,10 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
               disabled={isProcessing || phrase.split(/\s+/).filter(w => w.length > 0).length < 12}
               aria-label={t("auth.login.restore", "Restore Identity")}
               title={t("auth.login.restore", "Restore Identity")}
-              className="w-full min-h-11 min-w-11 flex items-center justify-center py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full min-h-11 min-w-11 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Undo size={20} />
-              <span className="sr-only">{t("auth.login.restore", "Restore Identity")}</span>
+              <span>{t("auth.login.restore", "Restore Identity")}</span>
             </button>
           </div>
         )}
@@ -212,10 +212,10 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
                   disabled={isProcessing || pin.length < 4}
                   aria-label={t("auth.login.continue", "Continue")}
                   title={t("auth.login.continue", "Continue")}
-                  className="w-full min-h-11 min-w-11 flex items-center justify-center py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full min-h-11 min-w-11 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ArrowRight size={20} />
-                  <span className="sr-only">{t("auth.login.continue", "Continue")}</span>
+                  <span>{t("auth.login.continue", "Continue")}</span>
                 </button>
                 <button
                   onClick={() => {
@@ -224,10 +224,10 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
                   }}
                   aria-label={t("auth.login.skipPin", "Skip PIN Setup")}
                   title={t("auth.login.skipPin", "Skip PIN Setup")}
-                  className="w-full min-h-11 min-w-11 flex items-center justify-center py-3 mt-3 rounded-xl font-medium text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  className="w-full min-h-11 min-w-11 flex items-center justify-center gap-2 py-3 mt-3 rounded-xl font-medium text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <ArrowRight size={18} />
-                  <span className="sr-only">{t("auth.login.skipPin", "Skip PIN Setup")}</span>
+                  <span>{t("auth.login.skipPin", "Skip PIN Setup")}</span>
                 </button>
               </>
             )}
@@ -247,10 +247,10 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
               onClick={handleComplete}
               aria-label={t("auth.login.enterApp", "Enter App")}
               title={t("auth.login.enterApp", "Enter App")}
-              className="w-full min-h-11 min-w-11 flex items-center justify-center py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
+              className="w-full min-h-11 min-w-11 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
             >
               <LogIn size={20} />
-              <span className="sr-only">{t("auth.login.enterApp", "Enter App")}</span>
+              <span>{t("auth.login.enterApp", "Enter App")}</span>
             </button>
           </div>
         )}
