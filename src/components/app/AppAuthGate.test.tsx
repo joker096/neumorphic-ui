@@ -50,11 +50,14 @@ vi.mock("../../store", () => ({
     selector(storeState),
 }));
 
-vi.mock("../auth", () => ({
+vi.mock("../auth/RegistrationScreen", () => ({
   RegistrationScreen: (props: any) => {
     authCapture.registration = props;
     return React.createElement("div", { "data-testid": "registration-screen" });
   },
+}));
+
+vi.mock("../auth/LoginScreen", () => ({
   LoginScreen: (props: any) => {
     authCapture.login = props;
     return React.createElement("div", { "data-testid": "login-screen" });
@@ -101,14 +104,14 @@ describe("AppAuthGate", () => {
     expect(container.querySelector(".animate-spin")).toBeInTheDocument();
   });
 
-  it("renders registration screen for new user and rechecks identity on completion", () => {
+  it("renders registration screen for new user and rechecks identity on completion", async () => {
     identity.status = "new-user";
     render(
       <AppAuthGate>
         <div>child</div>
       </AppAuthGate>,
     );
-    expect(screen.getByTestId("registration-screen")).toBeInTheDocument();
+    expect(await screen.findByTestId("registration-screen")).toBeInTheDocument();
     authCapture.registration.onComplete();
     expect(recheckMock).toHaveBeenCalledOnce();
   });

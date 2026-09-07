@@ -1,9 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import { RegistrationScreen, LoginScreen } from "../auth";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { AppLockScreen } from "./AppLockScreen";
 import { useAppLock } from "../../hooks/useAppLock";
 import { useIdentityAuth } from "../../hooks/useIdentityAuth";
 import { useAppStore } from "../../store";
+
+const RegistrationScreen = lazy(
+  () => import("../auth/RegistrationScreen").then((m) => ({ default: m.RegistrationScreen })),
+);
+const LoginScreen = lazy(
+  () => import("../auth/LoginScreen").then((m) => ({ default: m.LoginScreen })),
+);
 
 type AppAuthGateProps = {
   children: React.ReactNode;
@@ -34,15 +40,21 @@ export const AppAuthGate = ({ children }: AppAuthGateProps) => {
   }
 
   if (identityStatus === "new-user") {
-    return <RegistrationScreen onComplete={() => void recheck()} />;
+    return (
+      <Suspense fallback={null}>
+        <RegistrationScreen onComplete={() => void recheck()} />
+      </Suspense>
+    );
   }
 
   if (showLogin) {
     return (
-      <LoginScreen
-        onComplete={() => setShowLogin(false)}
-        onBack={() => setShowLogin(false)}
-      />
+      <Suspense fallback={null}>
+        <LoginScreen
+          onComplete={() => setShowLogin(false)}
+          onBack={() => setShowLogin(false)}
+        />
+      </Suspense>
     );
   }
 
