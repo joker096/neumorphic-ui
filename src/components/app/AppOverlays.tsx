@@ -1,10 +1,10 @@
 import { lazy, Suspense } from "react";
 import { AnimatePresence } from "motion/react";
-import { AdvancedFilterModal } from "../AppChrome";
 import { ContactProfileModal } from "../ContactProfileModal";
 import { FloatingCallWidget } from "../FloatingCallWidget";
 import { useTheme } from "../../contexts/ThemeContext";
 
+const LazyAdvancedFilterModal = lazy(() => import("./AdvancedFilterModal").then(m => ({ default: m.AdvancedFilterModal })));
 const LazyCreateChannelModal = lazy(() => import("../CreateChannelModal").then(m => ({ default: m.CreateChannelModal })));
 const LazyCreateBotModal = lazy(() => import("../CreateBotModal").then(m => ({ default: m.CreateBotModal })));
 const LazyCreateGroupModal = lazy(() => import("../CreateGroupModal").then(m => ({ default: m.CreateGroupModal })));
@@ -89,13 +89,15 @@ export const AppOverlays = ({
         {showCreateBot && <Suspense fallback={null}><LazyCreateBotModal theme={theme} onClose={() => setShowCreateBot(false)} /></Suspense>}
         {showCreateGroup && <Suspense fallback={null}><LazyCreateGroupModal theme={theme} onClose={() => setShowCreateGroup?.(false)} /></Suspense>}
         {showAdvancedFilterModal && (
-          <AdvancedFilterModal
+          <Suspense fallback={null}>
+          <LazyAdvancedFilterModal
             onClose={() => setShowAdvancedFilterModal(false)}
             isDark={isDark}
             filters={advancedFilters}
             setFilters={setAdvancedFilters}
             t={t}
           />
+          </Suspense>
         )}
       </AnimatePresence>
 

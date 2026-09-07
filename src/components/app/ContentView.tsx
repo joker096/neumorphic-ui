@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
-import { StoryViewer, StoryComposer } from "../AppChrome";
+import { StoryViewer } from "../stories/StoryViewer";
+import { StoryComposer } from "../stories/StoryComposer";
 import { useAnimationsEnabled, useAnimationDuration } from "../../contexts/AnimationContext";
 
 type Story = {

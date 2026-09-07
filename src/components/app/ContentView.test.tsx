@@ -7,8 +7,11 @@ vi.mock('motion/react', () => ({
   AnimatePresence: ({ children }: any) => children,
 }));
 
-vi.mock('../AppChrome', () => ({
+vi.mock('../stories/StoryViewer', () => ({
   StoryViewer: () => <div>StoryViewer</div>,
+}));
+
+vi.mock('../stories/StoryComposer', () => ({
   StoryComposer: () => <div>StoryComposer</div>,
 }));
 
