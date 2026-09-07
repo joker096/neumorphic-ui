@@ -69,6 +69,7 @@ export interface BotConfig {
   commands: any[];
   permissions: BotPermissions;
   isRunning: boolean;
+  description?: string;
 }
 
 // --- Device / Session ---

@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Bot, Plus, Power, Trash2 } from 'lucide-react';
-import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
+import { Bot, Plus, Trash2 } from 'lucide-react';
+import { SettingsRow, SettingsGroup, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from 'sonner';
 import { ConfirmModal } from './ConfirmModal';
-import { TextInputModal } from './TextInputModal';
+import { CreateBotModal } from '../CreateBotModal';
+import { BotEditModal } from './BotEditModal';
 import type { BotConfig } from '../../store';
-import { DEFAULT_BOT_PERMISSIONS } from '../../store';
 import { saveBot } from '../../lib';
 
 interface BotsSectionProps {
@@ -18,32 +18,20 @@ interface BotsSectionProps {
 }
 
 export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSectionProps) => {
-  const [showAddBotModal, setShowAddBotModal] = useState(false);
+  const [showCreateBotModal, setShowCreateBotModal] = useState(false);
+  const [editBotId, setEditBotId] = useState<string | null>(null);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const [removeBotId, setRemoveBotId] = useState<string | null>(null);
   const [removeBotName, setRemoveBotName] = useState('');
 
-  const handleAddBot = () => {
-    setShowAddBotModal(true);
-  };
+  const editBot = editBotId ? bots.find(b => b.id === editBotId) : undefined;
 
-  const handleConfirmAddBot = (name: string) => {
-    if (!name?.trim()) return;
-    const newBot: BotConfig = {
-      id: `bot_${Date.now()}`,
-      name: name.trim(),
-      token: '',
-      publicKey: '',
-      ownerId: 'current-user',
-      commands: [],
-      permissions: { ...DEFAULT_BOT_PERMISSIONS },
-      isRunning: false,
-    };
-    setBots(prev => [...prev, newBot]);
+  const handleSaveBot = (updated: BotConfig) => {
+    setBots(prev => prev.map(b => b.id === updated.id ? updated : b));
     // persist to idb bots_list so localBot.getBotProfile/getMiniApp can resolve it
-    saveBot(newBot);
-    toast.success(t('settings.botAdded'));
-    setShowAddBotModal(false);
+    void saveBot(updated);
+    toast.success(t('settings.botEdited'));
+    setEditBotId(null);
   };
 
   const handleToggleBot = (botId: string) => {
@@ -85,16 +73,24 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
               subtitle={bot.isRunning ? t('settings.botRunning') : t('settings.botStopped')}
               isDark={isDark}
               rightElement={
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleRemoveBot(bot.id, bot.name); }}
-                  className="flex items-center justify-center w-9 h-9 min-w-11 min-h-11 -mr-2 rounded-lg hover:text-red-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                  title={t('settings.removeBot')}
-                  aria-label={t('settings.removeBot')}
-                >
-                  <Trash2 size={18} />
-                </button>
+                <div className="flex items-center" onClick={e => e.stopPropagation()}>
+                  <ToggleSwitch
+                    isOn={bot.isRunning}
+                    onToggle={() => handleToggleBot(bot.id)}
+                    isDark={isDark}
+                    ariaLabel={bot.name}
+                  />
+                  <button
+                    onClick={() => handleRemoveBot(bot.id, bot.name)}
+                    className="flex items-center justify-center w-9 h-9 min-w-11 min-h-11 -mr-2 rounded-lg hover:text-red-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                    title={t('settings.removeBot')}
+                    aria-label={t('settings.removeBot')}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               }
-              onClick={() => handleToggleBot(bot.id)}
+              onClick={() => setEditBotId(bot.id)}
             />
           ))}
         </SettingsGroup>
@@ -108,7 +104,7 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
           title={t('settings.addBot')}
           subtitle={t('settings.addBotSubtitle')}
           isDark={isDark}
-          onClick={handleAddBot}
+          onClick={() => setShowCreateBotModal(true)}
         />
       </SettingsGroup>
 
@@ -122,15 +118,22 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
         onCancel={() => { setShowRemoveConfirm(false); setRemoveBotId(null); setRemoveBotName(''); }}
       />
 
-<TextInputModal
-         isOpen={showAddBotModal}
-         title={t('settings.addBot')}
-         placeholder={t('settings.enterBotName')}
-         onConfirm={handleConfirmAddBot}
-         onCancel={() => setShowAddBotModal(false)}
-         confirmLabel={t('common.confirm')}
-         cancelLabel={t('common.cancel')}
-       />
+      {showCreateBotModal && (
+        <CreateBotModal
+          theme={isDark ? 'dark' : 'light'}
+          onCreated={() => toast.success(t('settings.botAdded'))}
+          onClose={() => setShowCreateBotModal(false)}
+        />
+      )}
+
+      {editBot && (
+        <BotEditModal
+          bot={editBot}
+          theme={isDark ? 'dark' : 'light'}
+          onSave={handleSaveBot}
+          onClose={() => setEditBotId(null)}
+        />
+      )}
     </SubView>
   );
 };
