@@ -1,14 +1,15 @@
 import { lazy, Suspense } from "react";
 import { AnimatePresence } from "motion/react";
 import { ContactProfileModal } from "../ContactProfileModal";
-import { FloatingCallWidget } from "../FloatingCallWidget";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAppStore } from "../../store";
 
 const LazyAdvancedFilterModal = lazy(() => import("./AdvancedFilterModal").then(m => ({ default: m.AdvancedFilterModal })));
 const LazyCreateChannelModal = lazy(() => import("../CreateChannelModal").then(m => ({ default: m.CreateChannelModal })));
 const LazyCreateBotModal = lazy(() => import("../CreateBotModal").then(m => ({ default: m.CreateBotModal })));
 const LazyCreateGroupModal = lazy(() => import("../CreateGroupModal").then(m => ({ default: m.CreateGroupModal })));
 const LazyContactCreateEditModal = lazy(() => import("../ContactCreateEditModal").then(m => ({ default: m.ContactCreateEditModal })));
+const LazyFloatingCallWidget = lazy(() => import("../FloatingCallWidget").then(m => ({ default: m.FloatingCallWidget })));
 
 type AppOverlaysProps = {
   isDark?: boolean;
@@ -82,6 +83,8 @@ export const AppOverlays = ({
    onProfileToggleFavorite,
 }: AppOverlaysProps) => {
   const { theme } = useTheme();
+  const activeCall = useAppStore((s) => s.activeCall);
+  const callMinimized = useAppStore((s) => s.callMinimized);
   return (
     <>
       <AnimatePresence>
@@ -149,7 +152,11 @@ export const AppOverlays = ({
         )}
       </AnimatePresence>
 
-      <FloatingCallWidget theme={theme} />
+      {activeCall && callMinimized && (
+        <Suspense fallback={null}>
+          <LazyFloatingCallWidget theme={theme} />
+        </Suspense>
+      )}
     </>
   );
 };

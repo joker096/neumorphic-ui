@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { useCall } from "../../hooks/useCall";
@@ -6,8 +6,9 @@ import { useAppStore } from "../../store";
 import { callManager } from "../../lib/call/CallManager";
 import { useI18n } from "../../lib/i18n";
 import type { CallEventType } from "../../lib/call/types";
-import { CallScreen } from "../call/CallScreen";
-import { IncomingCallSheet } from "../call/IncomingCallSheet";
+
+const LazyCallScreen = lazy(() => import("../call/CallScreen").then((m) => ({ default: m.CallScreen })));
+const LazyIncomingCallSheet = lazy(() => import("../call/IncomingCallSheet").then((m) => ({ default: m.IncomingCallSheet })));
 
 export const CallOverlay = () => {
   const callMinimized = useAppStore((s) => s.callMinimized);
@@ -39,37 +40,39 @@ export const CallOverlay = () => {
   }, [t]);
 
   return (
-    <AnimatePresence>
-      {call && !callMinimized && (
-        <CallScreen
-          call={call}
-          onEnd={endCall}
-          toggleMute={toggleMute}
-          toggleVideo={toggleVideo}
-          toggleScreenShare={toggleScreenShare}
-          toggleRecording={toggleRecording}
-          toggleSpeaker={toggleSpeaker}
-          flipCamera={flipCamera}
-          changeCallType={changeCallType}
-          setActiveCall={setActiveCall}
-          onMinimize={() => setCallMinimized(true)}
-        />
-      )}
-      {incomingCall && (
-        <IncomingCallSheet
-          callerName={incomingCall.displayName}
-          callType={incomingCall.callType}
-          onAccept={() => {
-            void callManager.answerIncoming().catch(() => {});
-          }}
-          onReject={() => {
-            callManager.rejectIncoming();
-          }}
-          onAcceptVideo={() => {
-            void callManager.answerIncoming('video').catch(() => {});
-          }}
-        />
-      )}
-    </AnimatePresence>
+    <Suspense fallback={null}>
+      <AnimatePresence>
+        {call && !callMinimized && (
+          <LazyCallScreen
+            call={call}
+            onEnd={endCall}
+            toggleMute={toggleMute}
+            toggleVideo={toggleVideo}
+            toggleScreenShare={toggleScreenShare}
+            toggleRecording={toggleRecording}
+            toggleSpeaker={toggleSpeaker}
+            flipCamera={flipCamera}
+            changeCallType={changeCallType}
+            setActiveCall={setActiveCall}
+            onMinimize={() => setCallMinimized(true)}
+          />
+        )}
+        {incomingCall && (
+          <LazyIncomingCallSheet
+            callerName={incomingCall.displayName}
+            callType={incomingCall.callType}
+            onAccept={() => {
+              void callManager.answerIncoming().catch(() => {});
+            }}
+            onReject={() => {
+              callManager.rejectIncoming();
+            }}
+            onAcceptVideo={() => {
+              void callManager.answerIncoming('video').catch(() => {});
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </Suspense>
   );
 };

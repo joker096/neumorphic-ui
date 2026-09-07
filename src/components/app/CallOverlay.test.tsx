@@ -100,17 +100,18 @@ describe('CallOverlay', () => {
     toastMock.success.mockClear();
   });
 
-  it('renders the active CallScreen when a call is not minimized', () => {
+  it('renders the active CallScreen when a call is not minimized', async () => {
     const call = { callId: 'c1' };
     callHook.call = call;
     render(<CallOverlay />);
-    expect(screen.getByText('active call screen')).toBeInTheDocument();
+    expect(await screen.findByText('active call screen')).toBeInTheDocument();
     expect(callScreenRef.current?.call).toBe(call);
   });
 
-  it('wires minimize to the store and ends the call via the hook', () => {
+  it('wires minimize to the store and ends the call via the hook', async () => {
     callHook.call = { callId: 'c1' };
     render(<CallOverlay />);
+    await screen.findByText('active call screen');
     (callScreenRef.current?.onMinimize as () => void)();
     expect(storeState.setCallMinimized).toHaveBeenCalledWith(true);
     expect(callScreenRef.current?.onEnd).toBe(callHook.endCall);
@@ -129,9 +130,10 @@ describe('CallOverlay', () => {
     expect(callScreenRef.current).toBeNull();
   });
 
-  it('renders the incoming sheet and wires accept, reject and video accept', () => {
+  it('renders the incoming sheet and wires accept, reject and video accept', async () => {
     storeState.incomingCall = { displayName: 'Alice', callType: 'audio' };
     render(<CallOverlay />);
+    await screen.findByRole('button', { name: 'accept' });
     expect(incomingRef.current?.callerName).toBe('Alice');
     fireEvent.click(screen.getByRole('button', { name: 'accept' }));
     fireEvent.click(screen.getByRole('button', { name: 'reject' }));
