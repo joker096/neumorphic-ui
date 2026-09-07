@@ -402,7 +402,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                   key={h}
                   type="button"
                   onClick={() => setQuery(h)}
-                  className={`w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-left text-[13px] cursor-pointer ${
+                  className={`w-full flex items-center gap-3 px-3 min-h-11 rounded-xl text-left text-[13px] cursor-pointer ${
                     isDark ? "text-[var(--text-primary)] hover:bg-white/[0.05]" : "text-slate-700 hover:bg-black/5"
                   }`}
                 >

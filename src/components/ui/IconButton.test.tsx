@@ -45,8 +45,8 @@ describe("IconButton", () => {
   it("has a 44x44 touch target", () => {
     render(<IconButton icon={<X />} aria-label="Close" />);
     const btn = screen.getByRole("button");
-    expect(btn.className).toContain("min-w-[44px]");
-    expect(btn.className).toContain("min-h-[44px]");
+    expect(btn.className).toContain("min-w-11");
+    expect(btn.className).toContain("min-h-11");
   });
 
   it("is rounded-full", () => {

@@ -6,7 +6,7 @@ import { CRM_FALLBACKS, SYSTEM_ROLES, CONTACT_STATUSES } from '../../constants/c
 import type { CrmContactStatus, SystemRole } from '../../lib/crm/types';
 
 const selectCls =
-  'min-h-[44px] px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
+  'min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 
 export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRoles }) => {
   const { t } = useI18n();
@@ -20,19 +20,19 @@ export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRol
   return (
     <div className="flex flex-col gap-2 px-2 mb-3">
       <div className="flex items-center gap-2">
-        <div className="flex-1 flex items-center gap-2 px-3 min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)]">
+        <div className="flex-1 flex items-center gap-2 px-3 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)]">
           <Search size={16} className="text-[var(--text-secondary)] shrink-0" />
           <input
             value={filters.search}
             onChange={(e) => setFilter('search', e.target.value)}
             placeholder={t('crm.search', CRM_FALLBACKS.search)}
             aria-label={t('crm.search', CRM_FALLBACKS.search)}
-            className="flex-1 min-h-[44px] bg-transparent outline-none text-sm text-[var(--text-primary)]"
+            className="flex-1 min-h-11 bg-transparent outline-none text-sm text-[var(--text-primary)]"
           />
         </div>
         <button
           onClick={() => setFilter('assignedToMe', !filters.assignedToMe)}
-          className={`min-h-[44px] px-3 rounded-xl text-xs font-bold transition-all shrink-0 ${
+          className={`min-h-11 px-3 rounded-xl text-xs font-bold transition-all shrink-0 ${
             filters.assignedToMe
               ? 'bg-[var(--accent)] text-white'
               : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
@@ -72,7 +72,7 @@ export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRol
             onClick={() => onOpenRoles()}
             title={t('crm.manageCategories', CRM_FALLBACKS.manageCategories)}
             aria-label={t('crm.manageCategories', CRM_FALLBACKS.manageCategories)}
-            className="min-h-[44px] w-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer self-center"
+            className="min-h-11 w-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer self-center"
           >
             <Settings2 size={14} />
           </button>

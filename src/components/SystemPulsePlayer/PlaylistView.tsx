@@ -164,7 +164,7 @@ export const PlaylistView = ({
                     setConfirmDeleteIndex(i);
                   }
                 }}
-                className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
+                className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
                 role="button"
                 tabIndex={0}
                 aria-label={t('systemPlayer.remove')}

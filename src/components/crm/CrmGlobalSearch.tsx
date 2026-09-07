@@ -86,7 +86,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
 
   return (
     <div ref={boxRef} className="relative flex-1 min-w-0">
-      <div className="flex items-center gap-2 px-3 min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] focus-within:border-[var(--accent)]">
+      <div className="flex items-center gap-2 px-3 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] focus-within:border-[var(--accent)]">
         <Search size={16} className="text-[var(--text-secondary)] shrink-0" />
         <input
           value={query}
@@ -94,7 +94,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
           onFocus={() => setOpen(true)}
           placeholder={t('crm.searchPlaceholder', CRM_FALLBACKS.searchPlaceholder)}
           aria-label={t('crm.searchPlaceholder', CRM_FALLBACKS.searchPlaceholder)}
-          className="flex-1 min-h-[44px] bg-transparent outline-none text-sm text-[var(--text-primary)]"
+          className="flex-1 min-h-11 bg-transparent outline-none text-sm text-[var(--text-primary)]"
         />
       </div>
       {open && q && groups && (

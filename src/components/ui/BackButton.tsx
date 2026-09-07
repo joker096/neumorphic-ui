@@ -14,9 +14,9 @@ export interface BackButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonEle
 
 const ICON_SIZE: Record<BackButtonSize, number> = { sm: 16, md: 18, lg: 20 };
 const BOX: Record<BackButtonSize, string> = {
-  sm: "w-10 h-10 min-w-[44px] min-h-[44px]",
-  md: "w-10 h-10 min-w-[44px] min-h-[44px]",
-  lg: "w-9 h-9 min-w-[44px] min-h-[44px]",
+  sm: "w-10 h-10 min-w-11 min-h-11",
+  md: "w-10 h-10 min-w-11 min-h-11",
+  lg: "w-9 h-9 min-w-11 min-h-11",
 };
 
 export const BackButton = ({

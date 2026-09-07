@@ -35,7 +35,7 @@ describe('ChatContextMenu', () => {
     render(<ChatContextMenu anchor={{ x: 5000, y: 5000 }} items={items} onClose={vi.fn()} />);
     const menu = screen.getByRole('menu');
     expect(menu.style.left).toBe(`${window.innerWidth - 188 - 8}px`);
-    expect(menu.style.top).toBe(`${window.innerHeight - 2 * 38 - 10 - 8}px`);
+    expect(menu.style.top).toBe(`${window.innerHeight - 2 * 44 - 8 - 8}px`);
   });
 
   it('marks item as disabled', () => {

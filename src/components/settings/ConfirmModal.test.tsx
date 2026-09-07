@@ -20,4 +20,11 @@ describe('ConfirmModal', () => {
     expect(screen.getByText('Delete')).toBeInTheDocument();
     expect(screen.getByText('Keep')).toBeInTheDocument();
   });
+
+  it('renders message with theme-safe text', () => {
+    render(
+      <ConfirmModal isOpen={true} title="Delete?" message="Are you sure?" onConfirm={vi.fn()} onCancel={vi.fn()} />
+    );
+    expect(screen.getByText('Are you sure?')).toHaveClass('text-[var(--text-secondary)]');
+  });
 });

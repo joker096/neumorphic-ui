@@ -8,7 +8,7 @@ export const SettingsView = ({ theme, setTheme, setSubView, fontSize: fontSizePr
   // Do NOT add overflow-y-auto / h-full / min-h-0 here — let the content flow and
   // the surrounding layout scroll naturally (so the user just scrolls the page down).
   return (
-    <div className={`w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8 rounded-2xl overflow-y-auto overflow-x-hidden ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-[0_8px_24px_rgba(0,0,0,0.25)]" : "bg-white border border-[var(--border-color)] shadow-[0_8px_24px_rgba(15,23,42,0.05)]"}`}>
+    <div className={`w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8 rounded-2xl overflow-y-auto overflow-x-hidden border border-[var(--border-color)] shadow-[var(--shadow-panel)] ${isDark ? "bg-[var(--bg-secondary)]" : "bg-white"}`}>
       <SettingsSectionContent theme={theme} setTheme={setTheme} setSubView={setSubView} fontSize={fontSizeProp} setFontSize={setFontSizeProp} language={languageProp} setLanguage={setLanguageProp} />
     </div>
   );

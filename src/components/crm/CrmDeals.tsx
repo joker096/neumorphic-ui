@@ -63,7 +63,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
           <TrendingUp size={14} /> {fmt(total, 'RUB')}
         </div>
         {can('manageDeals') && (
-          <button onClick={() => setShowAdd(true)} aria-label={t('crm.addDeal', CRM_FALLBACKS.addDeal)} title={t('crm.addDeal', CRM_FALLBACKS.addDeal)} className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center">
+          <button onClick={() => setShowAdd(true)} aria-label={t('crm.addDeal', CRM_FALLBACKS.addDeal)} title={t('crm.addDeal', CRM_FALLBACKS.addDeal)} className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center">
             <Plus size={16} aria-hidden="true" />
             <span className="sr-only">{t('crm.addDeal', CRM_FALLBACKS.addDeal)}</span>
           </button>
@@ -111,7 +111,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                 type="button"
                 onClick={toggle}
                 aria-expanded={!isCollapsed}
-                className="flex flex-col gap-1.5 w-full min-h-[44px] text-left px-1 py-1"
+                className="flex flex-col gap-1.5 w-full min-h-11 text-left px-1 py-1"
               >
                 <div className="flex items-center justify-between w-full gap-2">
                   <span className="flex items-center gap-2 min-w-0">

@@ -187,7 +187,7 @@ export const CrmPeople: React.FC<Props> = ({
               onClick={() => setShowAdd(true)}
               aria-label={t('crm.addContact', CRM_FALLBACKS.addContact)}
               title={t('crm.addContact', CRM_FALLBACKS.addContact)}
-              className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl font-bold text-[13px] cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--ink-on-saturate)] hover:brightness-110 flex items-center justify-center"
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-[13px] cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--ink-on-saturate)] hover:brightness-110 flex items-center justify-center"
             >
               <Plus size={16} aria-hidden="true" />
               <span className="sr-only">{t('crm.addContact', CRM_FALLBACKS.addContact)}</span>
@@ -211,7 +211,7 @@ export const CrmPeople: React.FC<Props> = ({
             type="button"
             aria-expanded={!isCollapsed}
             onClick={() => toggleCrmGroup(group.key)}
-            className="w-full flex items-center gap-2 px-2 py-1.5 mb-1 min-h-[44px] text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-1.5 mb-1 min-h-11 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <ChevronDown size={14} className={`transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
             {group.key === 'clients' ? <Building2 size={14} /> : <Users size={14} />}
@@ -312,7 +312,7 @@ export const CrmPeople: React.FC<Props> = ({
               onClick={applyManager}
               aria-label={t('crm.apply', CRM_FALLBACKS.apply)}
               title={t('crm.apply', CRM_FALLBACKS.apply)}
-              className="min-h-[44px] min-w-[44px] w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
+              className="min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
             >
               <Check size={18} aria-hidden="true" />
               <span className="sr-only">{t('crm.apply', CRM_FALLBACKS.apply)}</span>
@@ -324,14 +324,14 @@ export const CrmPeople: React.FC<Props> = ({
                 value={bulkTag}
                 onChange={(e) => setBulkTag(e.target.value)}
                 placeholder={t('crm.bulkTagPlaceholder', CRM_FALLBACKS.bulkTagPlaceholder)}
-                className="min-h-[44px] px-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:border-[var(--accent)] outline-none text-xs text-[var(--text-primary)]"
+                className="min-h-11 px-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:border-[var(--accent)] outline-none text-xs text-[var(--text-primary)]"
               />
               <button
                 type="button"
                 onClick={applyTag}
                 aria-label={t('crm.apply', CRM_FALLBACKS.apply)}
                 title={t('crm.apply', CRM_FALLBACKS.apply)}
-                className="min-h-[44px] min-w-[44px] w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
+                className="min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
               >
                 <Check size={18} aria-hidden="true" />
                 <span className="sr-only">{t('crm.apply', CRM_FALLBACKS.apply)}</span>

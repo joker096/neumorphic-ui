@@ -59,6 +59,7 @@ export const FormModal = ({
             <button
               onClick={onClose}
               title={closeTitle}
+              aria-label={closeTitle || 'Close'}
               className={`absolute top-4 right-4 z-10 ${modalCloseClass(isDark)}`}
             >
               <X size={18} />

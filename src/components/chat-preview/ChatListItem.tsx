@@ -167,7 +167,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           {onClick && (
             <button
               onClick={() => handleSwipeAction("message")}
-              className={`my-1.5 flex aspect-square w-[56px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
               aria-label={t('chat.openChat')}
             >
              <MessageSquare size={20} fill="currentColor" stroke="currentColor" />
@@ -176,7 +176,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           {onCall && (
             <button
               onClick={() => handleSwipeAction("call")}
-              className={`my-1.5 flex aspect-square w-[56px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
               aria-label={t('chat.startCall')}
             >
              <Phone size={20} fill="currentColor" stroke="currentColor" />
@@ -185,7 +185,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           {onVideoCall && (
             <button
               onClick={() => handleSwipeAction("video")}
-              className={`my-1.5 flex aspect-square w-[56px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
               aria-label={t('chat.startVideoCall')}
             >
              <Video size={20} fill="currentColor" stroke="currentColor" />
@@ -203,7 +203,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         {onMute && (
           <button
             onClick={() => handleSwipeAction("mute")}
-            className={`my-1.5 flex aspect-square w-[50px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-amber-500 hover:bg-amber-400" : "bg-amber-500 hover:bg-amber-600"}`}
+            className={`my-1.5 flex aspect-square w-[50px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-amber-500 hover:bg-amber-400" : "bg-amber-500 hover:bg-amber-600"}`}
             aria-label={chat.isMuted ? t('chat.unmute') : t('chat.mute')}
           >
             {chat.isMuted ? <BellOff size={20} /> : <Bell size={20} />}
@@ -212,7 +212,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         {onArchive && (
           <button
             onClick={() => handleSwipeAction("archive")}
-            className={`my-1.5 flex aspect-square w-[50px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isArchived ? (isDark ? "bg-[#38d69a] hover:bg-[#2fb985]" : "bg-emerald-500 hover:bg-emerald-600") : isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
+            className={`my-1.5 flex aspect-square w-[50px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isArchived ? (isDark ? "bg-[#38d69a] hover:bg-[#2fb985]" : "bg-emerald-500 hover:bg-emerald-600") : isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
             aria-label={archiveLabel}
           >
             {isArchived
@@ -224,7 +224,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         {onDelete && (
           <button
             onClick={() => handleSwipeAction("delete")}
-            className={`my-1.5 flex aspect-square w-[50px] min-h-[44px] shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-red-500 hover:bg-red-400" : "bg-red-500 hover:bg-red-600"}`}
+            className={`my-1.5 flex aspect-square w-[50px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-red-500 hover:bg-red-400" : "bg-red-500 hover:bg-red-600"}`}
             aria-label={t('chat.delete')}
           >
             <Trash2 size={20} />

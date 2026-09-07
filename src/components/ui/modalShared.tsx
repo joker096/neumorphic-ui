@@ -23,10 +23,10 @@ export const modalOverlay = 'fixed inset-0 z-50 flex items-center justify-center
 export const modalBackdrop = 'absolute inset-0 bg-black/60 backdrop-blur-sm';
 
 export const modalSurface = (_isDark: boolean, maxWidth = 'max-w-[420px]') =>
-  `relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card text-foreground p-6 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.65)] ring-1 ring-black/5`;
+  `relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card text-foreground p-6 shadow-[var(--shadow-modal)] ring-1 ring-black/5`;
 
 export const modalCloseClass = (_isDark: boolean) =>
-  `min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer transition-colors bg-muted hover:bg-muted text-foreground`;
+  `min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors bg-muted hover:bg-muted text-foreground`;
 
 export const modalTitleClass = (_isDark: boolean) => `text-lg font-bold text-foreground`;
 
@@ -127,7 +127,7 @@ export const modalFieldClass =
 
 /** Full-width primary action button (accent). */
 export const modalPrimaryBtnClass =
-  'w-full h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]';
+  'w-full h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[var(--shadow-btn-primary)]';
 
 /** Secondary / ghost button. */
 export const modalSecondaryBtnClass =
@@ -135,7 +135,7 @@ export const modalSecondaryBtnClass =
 
 /** Square icon-only primary action button (no w-full — safe inside sibling rows). */
 export const modalPrimaryIconBtnClass =
-  'w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]';
+  'w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[var(--shadow-btn-primary)]';
 
 /** Square icon-only secondary / ghost button. */
 export const modalSecondaryIconBtnClass =

@@ -20,11 +20,11 @@ describe('CloseButton', () => {
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
-  it('has min-w-[44px] min-h-[44px] touch zone', () => {
+  it('has min-w-11 min-h-11 touch zone', () => {
     const { container } = render(<CloseButton onClick={mockOnClick} />);
     const btn = container.querySelector('button');
-    expect(btn?.className).toContain('min-w-[44px]');
-    expect(btn?.className).toContain('min-h-[44px]');
+    expect(btn?.className).toContain('min-w-11');
+    expect(btn?.className).toContain('min-h-11');
   });
 
   it('applies custom className', () => {

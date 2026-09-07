@@ -133,7 +133,7 @@ function ChatInputAreaImpl({
               setChannels?.((prev: any) => prev.map((c: any) => (c.id === chat.id ? { ...c, isMuted: !chat.isMuted } : c)));
               onAction?.("MUTE_TOGGLE");
             }}
-            className={`w-full py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors font-medium text-sm tracking-wide min-w-[44px] min-h-[44px] ${
+            className={`w-full py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors font-medium text-sm tracking-wide min-w-11 min-h-11 ${
               isDark
                 ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-[var(--accent)] border border-[var(--border-color)]"
                 : "bg-white hover:bg-slate-50 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"
@@ -193,7 +193,7 @@ function ChatInputAreaImpl({
           <label
             htmlFor="channel-post-media-input"
             aria-label={t('chat.attachFile')}
-            className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-colors min-w-[44px] min-h-[44px] ${
+            className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-colors min-w-11 min-h-11 ${
               isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800"
             }`}
           >
@@ -226,7 +226,7 @@ function ChatInputAreaImpl({
             disabled={!eMsgText.trim() && !pendingMedia}
             aria-label={t("channelComposer.send")}
             title={t("channelComposer.send")}
-            className={`h-9 w-9 rounded-full flex items-center justify-center transition-colors min-w-[44px] min-h-[44px] ${
+            className={`h-9 w-9 rounded-full flex items-center justify-center transition-colors min-w-11 min-h-11 ${
               (eMsgText.trim() || pendingMedia)
                 ? `${CHAT_SEND_GRADIENT} text-white`
                 : isDark
@@ -286,7 +286,7 @@ function ChatInputAreaImpl({
                 }}
                 aria-label={t("chat.attachFile")}
               />
-              <div className={`min-w-[44px] min-h-[44px] sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${
+              <div className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${
                 isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800 hover:bg-slate-200"
               }`}>
                 <Plus size={16} />
@@ -296,7 +296,7 @@ function ChatInputAreaImpl({
             <button
               type="button"
               aria-label={t("chat.scheduleMessage")}
-              className={`min-w-[44px] min-h-[44px] sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
+              className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
                 eScheduleDateTime
                   ? isDark
                     ? "bg-[var(--accent)]/20 text-[var(--accent)]"
@@ -313,7 +313,7 @@ function ChatInputAreaImpl({
             <button
               type="button"
               aria-label={t("stickers.title")}
-              className={`min-w-[44px] min-h-[44px] sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
+              className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
                 eShowStickerPicker
                   ? isDark
                     ? "bg-[var(--accent)]/20 text-[var(--accent)]"
@@ -365,7 +365,7 @@ function ChatInputAreaImpl({
               onClick={() => {
                 setSilentModeFn2(!eSilentMode);
               }}
-              className={`min-w-[44px] min-h-[44px] px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+              className={`min-w-11 min-h-11 px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
                 eSilentMode
                   ? isDark
                     ? "text-[var(--accent)]"
@@ -385,7 +385,7 @@ function ChatInputAreaImpl({
               onClick={() => {
                 setMorseModeFn2(!eMorseMode);
               }}
-              className={`min-w-[44px] min-h-[44px] px-1.5 py-1 rounded-full text-xs font-mono font-bold cursor-pointer transition-colors flex items-center justify-center ${
+              className={`min-w-11 min-h-11 px-1.5 py-1 rounded-full text-xs font-mono font-bold cursor-pointer transition-colors flex items-center justify-center ${
                 eMorseMode
                   ? "bg-amber-500 text-[var(--ink-on-saturate)]"
                   : isDark
@@ -417,7 +417,7 @@ function ChatInputAreaImpl({
             }
           }}
           onContextMenu={(e) => e.preventDefault()}
-          className={`order-last sm:order-none ml-auto sm:ml-0 min-w-[44px] min-h-[44px] sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${
+          className={`order-last sm:order-none ml-auto sm:ml-0 min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${
             eScheduleDateTime && eMsgText
               ? isDark
                 ? "bg-[var(--cyan)] text-[var(--bg-primary)]"

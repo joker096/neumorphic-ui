@@ -47,6 +47,7 @@ describe('CrmExportMenu', () => {
     expect(screen.getByRole('button', { name: 'Deals (CSV)' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Tasks (CSV)' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Company (JSON)' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Contacts (CSV)' })).toHaveClass('min-h-11');
   });
 
   it('closes on second click of trigger', () => {

@@ -57,6 +57,11 @@ describe('FormModal', () => {
     expect(closeBtn).toBeInTheDocument();
   });
 
+  it('close button has accessible label', () => {
+    render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
+    expect(document.querySelector('button')).toHaveAttribute('aria-label', 'Close');
+  });
+
   it('calls onClose when close button is clicked', () => {
     const onClose = vi.fn();
     render(<FormModal isOpen={true} onClose={onClose}>Content</FormModal>);
@@ -128,16 +133,16 @@ describe('FormModal', () => {
     expect(modal).toHaveClass('max-h-[90vh]');
   });
 
-  it('renders close button with min-w-[44px]', () => {
+  it('renders close button with min-w-11', () => {
     render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
     const closeBtn = document.querySelector('button');
-    expect(closeBtn?.className).toContain('min-w-[44px]');
+    expect(closeBtn?.className).toContain('min-w-11');
   });
 
-  it('renders close button with min-h-[44px]', () => {
+  it('renders close button with min-h-11', () => {
     render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
     const closeBtn = document.querySelector('button');
-    expect(closeBtn?.className).toContain('min-h-[44px]');
+    expect(closeBtn?.className).toContain('min-h-11');
   });
 
   it('renders close button with cursor-pointer', () => {

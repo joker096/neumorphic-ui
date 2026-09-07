@@ -31,7 +31,7 @@ const BOX_SIZE: Record<IconButtonSize, string> = {
 const BASE =
   "inline-flex items-center justify-center rounded-full cursor-pointer select-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 active:scale-95";
 
-const TOUCH_TARGET = "min-w-[44px] min-h-[44px]";
+const TOUCH_TARGET = "min-w-11 min-h-11";
 
 const VARIANTS: Record<IconButtonVariant, { dark: string; light: string }> = {
   ghost: {

@@ -78,7 +78,7 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
             onClick={() => setImportOpen(true)}
             aria-label={t('crm.import.title', 'Import CRM data')}
             title={t('crm.import.title', 'Import CRM data')}
-            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+            className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
           >
             <Upload size={16} aria-hidden="true" />
             <span className="sr-only">{t('crm.import.title', 'Import CRM data')}</span>
@@ -88,7 +88,7 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
               onClick={() => setInviteOpen(true)}
               aria-label={t('crm.invite', CRM_FALLBACKS.invite)}
               title={t('crm.invite', CRM_FALLBACKS.invite)}
-              className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
             >
               <UserPlus size={16} aria-hidden="true" />
               <span className="sr-only">{t('crm.invite', CRM_FALLBACKS.invite)}</span>

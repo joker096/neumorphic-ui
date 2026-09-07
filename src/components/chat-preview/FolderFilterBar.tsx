@@ -26,7 +26,7 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
             type="button"
             aria-pressed={isActive}
             onClick={() => setActiveFolder(folder)}
-            className="group min-h-[44px] min-w-[44px] p-1 flex items-center justify-center cursor-pointer transition-all shrink-0 active:scale-95"
+            className="group min-h-11 min-w-11 p-1 flex items-center justify-center cursor-pointer transition-all shrink-0 active:scale-95"
           >
             <span
               className={`min-h-[22px] min-w-[34px] px-2 py-0 rounded-full text-[12px] font-bold whitespace-nowrap ${

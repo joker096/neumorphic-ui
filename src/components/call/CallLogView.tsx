@@ -43,7 +43,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
           {callHistory.length > 0 && (
             <button
               onClick={clearCallHistory}
-              className={`p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-red-500/10 hover:text-red-400' : 'bg-gray-100 text-slate-600 hover:bg-red-50 hover:text-red-500'}`}
+              className={`p-3 min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-red-500/10 hover:text-red-400' : 'bg-gray-100 text-slate-600 hover:bg-red-50 hover:text-red-500'}`}
               title={t('call.clearAll')}
             >
               <Trash2 size={18} />
@@ -82,7 +82,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
                 {(call.type === 'missed' || call.type === 'declined') && (
                   <button
                     onClick={() => callManager.startPreviewCall(`cb_${call.id}`, call.name, 'audio').catch(() => {})}
-                    className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent)]' : 'bg-gray-100 text-slate-500 hover:text-[var(--accent)]'}`}
+                    className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent)]' : 'bg-gray-100 text-slate-500 hover:text-[var(--accent)]'}`}
                     title={t('call.callBack')}
                     aria-label={t('call.callBack')}
                   >

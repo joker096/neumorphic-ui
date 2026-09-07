@@ -71,7 +71,7 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
       <button
         type="button"
         onClick={onClose}
-        className="flex-1 min-h-11 px-3 text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] shadow-[0_8px_24px_-8px_var(--accent)]"
+        className="flex-1 min-h-11 px-3 text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] shadow-[var(--shadow-btn-primary)]"
       >
         <Check size={16} aria-hidden="true" />
         <span>{t("chat.filters.apply")}</span>

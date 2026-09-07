@@ -141,25 +141,25 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           <motion.button whileTap={{ scale: 0.9 }}
             onClick={openScan}
             title={t('contacts.scanContactQR')}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
+            className="min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all">
             <Scan size={24} />
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }}
             onClick={() => { setShowShareId(true); setIsScanning(false); setShowAddForm(false); }}
             title={t('contacts.shareIdentity')}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
+            className="min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all">
             <QrCode size={24} />
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }}
             onClick={() => { setShowAddForm(true); setIsScanning(false); setShowShareId(false); }}
             title={t('contacts.addContact')}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
+            className="min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all">
             <UserPlus size={24} />
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }}
             onClick={() => { setShowInvite(true); setIsScanning(false); setShowShareId(false); setShowAddForm(false); }}
             title={t('onboarding.invite')}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 transition-all">
+            className="min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all">
             <Share size={24} />
           </motion.button>
         </div>

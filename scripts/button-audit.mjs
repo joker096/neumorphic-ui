@@ -40,30 +40,69 @@ function walk(dir, out = []) {
   return out;
 }
 
-/** Разбивает код на самодостаточные JSX-блоки <button ...>...</button>. */
+/**
+ * Находит конец открывающего тега, учитывая строки/шаблонные литералы
+ * и фигурные выражения атрибутов (стрелочные `=>` внутри `{}` не путает с концом тега).
+ * Возвращает индекс символа '>' или -1.
+ */
+function findTagEnd(src, from) {
+  let i = from;
+  let inQuote = null; // null | "'" | '"' | '`'
+  let exprDepth = 0;
+  while (i < src.length) {
+    const ch = src[i];
+    if (inQuote) {
+      if (ch === inQuote && src[i - 1] !== '\\') inQuote = null;
+      i += 1;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') {
+      inQuote = ch;
+      i += 1;
+      continue;
+    }
+    if (ch === '{') exprDepth += 1;
+    else if (ch === '}') exprDepth = Math.max(0, exprDepth - 1);
+    else if (ch === '>' && exprDepth === 0) return i;
+    i += 1;
+  }
+  return -1;
+}
+
+/**
+ * Разбивает код на JSX-кнопки: self-closing `<button ... />` и парные
+ * `<button ...>...</button>`. `inner` — содержимое между тегами (пусто
+ * для self-closing); D4-проверка идёт только по `inner`, чтобы собственный
+ * `role=` атрибут тега не считался вложенным интерактивом.
+ */
 function extractButtons(src) {
   const buttons = [];
   let i = 0;
-  while (i < src.length - 1) {
+  for (;;) {
     const open = src.indexOf('<button', i);
     if (open === -1) break;
-    // закрывающий тег блока: ищем </button> после open
-    const close = src.indexOf('</button>', open);
-    if (close === -1) break;
-    const block = src.slice(open, close);
-    buttons.push({ block, start: open, end: close });
-    i = close + '</button>'.length;
+    const tagEnd = findTagEnd(src, open);
+    if (tagEnd === -1) break;
+    const tag = src.slice(open, tagEnd + 1);
+    if (tag.trimEnd().endsWith('/>')) {
+      buttons.push({ tag, inner: '', start: open });
+      i = tagEnd + 1;
+    } else {
+      const close = src.indexOf('</button>', tagEnd + 1);
+      if (close === -1) break;
+      buttons.push({ tag, inner: src.slice(tagEnd + 1, close), start: open });
+      i = close + '</button>'.length;
+    }
   }
   return buttons;
 }
 
-function hasOnClick(block) {
-  // onClick может быть многострочным; простой поиск внутри блока
-  return /onClick\s*=/.test(block);
+function hasOnClick(tag) {
+  return /onClick\s*=/.test(tag);
 }
 
-function parseOnClickExpr(block) {
-  const m = block.match(/onClick\s*=\s*\{([\s\S]*?)\}/);
+function parseOnClickExpr(tag) {
+  const m = tag.match(/onClick\s*=\s*\{([\s\S]*?)\}/);
   return m ? m[1].trim() : null;
 }
 
@@ -73,11 +112,11 @@ function isEmptyHandler(expr) {
   return compact === '()=>{}' || compact === '()=>undefined' || compact === '()=>{};';
 }
 
-function isNestedInteractive(block) {
-  // вложенный <button> или role=switch/button внутри без stopPropagation
-  const innerButtons = /<button/.test(block.replace(/<button[^>]*>/, ''));
-  const switchRole = /role="switch"/.test(block) || /role="button"/.test(block);
-  const hasStop = /stopPropagation/.test(block);
+function isNestedInteractive(inner) {
+  // вложенный <button> или role=switch/button в содержимом без stopPropagation
+  const innerButtons = /<button/.test(inner);
+  const switchRole = /role="switch"/.test(inner) || /role="button"/.test(inner);
+  const hasStop = /stopPropagation/.test(inner);
   return (innerButtons || switchRole) && !hasStop;
 }
 
@@ -88,11 +127,11 @@ function auditFile(fp) {
   const buttons = extractButtons(src);
   for (const b of buttons) {
     const line = src.slice(0, b.start).split('\n').length;
-    const expr = parseOnClickExpr(b.block);
-    const isSubmit = /type="submit"/.test(b.block);
-    const isPrimitive = /\{\.\.\.(rest|props|others?)\}/.test(b.block);
+    const expr = parseOnClickExpr(b.tag);
+    const isSubmit = /type="submit"/.test(b.tag);
+    const isPrimitive = /\{\.\.\.(rest|props|others?)\}/.test(b.tag);
 
-    if (!hasOnClick(b.block)) {
+    if (!hasOnClick(b.tag)) {
       if (isSubmit || isPrimitive) {
         // не D5: submit-кнопка (обрабатывается onSubmit формы) или примитив со spread-props
         continue;
@@ -104,7 +143,7 @@ function auditFile(fp) {
       FINDINGS.push({ file: fp, line, code: 'D5', msg: 'onClick = пустой no-op' });
       continue;
     }
-    if (isNestedInteractive(b.block)) {
+    if (isNestedInteractive(b.inner)) {
       FINDINGS.push({ file: fp, line, code: 'D4', msg: 'вложенный интерактив без stopPropagation' });
     }
   }

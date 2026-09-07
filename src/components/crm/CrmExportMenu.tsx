@@ -75,7 +75,7 @@ export const CrmExportMenu: React.FC<Props> = ({ contacts, departments, deals, t
         aria-haspopup="menu"
         aria-label={t('crm.export', CRM_FALLBACKS.export)}
         title={t('crm.export', CRM_FALLBACKS.export)}
-        className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+        className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
       >
         <Download size={16} aria-hidden="true" />
         <span className="sr-only">{t('crm.export', CRM_FALLBACKS.export)}</span>
@@ -86,7 +86,7 @@ export const CrmExportMenu: React.FC<Props> = ({ contacts, departments, deals, t
             <button
               key={item.label}
               onClick={item.run}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-[var(--text-primary)] hover:bg-[var(--list-item-hover-bg)] transition-colors"
+              className="w-full min-h-11 flex items-center gap-2 px-3 py-2.5 text-xs text-[var(--text-primary)] hover:bg-[var(--list-item-hover-bg)] transition-colors"
             >
               <span className="text-[var(--text-secondary)]">{item.icon}</span>
               {item.label}

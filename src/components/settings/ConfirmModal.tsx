@@ -79,7 +79,7 @@ export const ConfirmModal = ({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 id={titleId} className="text-lg font-bold mb-2 text-[var(--text-primary)]">{title}</h3>
-            {message && <p id={messageId} className="text-sm mb-6 leading-relaxed text-gray-400">{message}</p>}
+            {message && <p id={messageId} className="text-sm mb-6 leading-relaxed text-[var(--text-secondary)]">{message}</p>}
             <div className="flex gap-3">
               <Button
                 ref={cancelRef}

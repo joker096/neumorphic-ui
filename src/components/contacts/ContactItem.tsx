@@ -154,7 +154,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
           }}
           aria-label={contact.isFavorite ? t('contacts.unfavorite', 'Remove from favorites') : t('contacts.favorite', 'Add to favorites')}
           aria-pressed={contact.isFavorite}
-          className={`shrink-0 transition-transform active:scale-90 min-w-[44px] min-h-[44px] flex items-center justify-center ${contact.isFavorite ? (isDark ? "text-yellow-400" : "text-yellow-500") : (isDark ? "text-gray-600" : "text-slate-300")}`}
+          className={`shrink-0 transition-transform active:scale-90 min-w-11 min-h-11 flex items-center justify-center ${contact.isFavorite ? (isDark ? "text-yellow-400" : "text-yellow-500") : (isDark ? "text-gray-600" : "text-slate-300")}`}
         >
           {contact.isFavorite ? <Star size={16} fill="currentColor" /> : <StarOff size={16} />}
         </button>

@@ -56,7 +56,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
 
   if (anchor) {
     const width = 188;
-    const height = items.length * 38 + 10;
+    const height = items.length * 44 + 8;
     const x = Math.min(anchor.x, window.innerWidth - width - 8);
     const y = Math.min(anchor.y, window.innerHeight - height - 8);
     return (

@@ -168,6 +168,11 @@
   --neo-shadow-inset-sm: inset 2px 2px 5px rgba(0,0,0,0.55), inset -2px -2px 5px rgba(255,255,255,0.02);
   --neo-surface: #1a1d24;
 
+  /* Canonical surface shadows (dark) */
+  --shadow-btn-primary: 0 8px 24px -8px var(--accent);
+  --shadow-panel: 0 8px 24px rgba(0,0,0,0.25);
+  --shadow-modal: 0 24px 60px -12px rgba(0,0,0,0.65);
+
   /* Must differ from --bg-secondary (modal/card surface) or inputs vanish in modals */
   --input-bg: #1a1d24;
   --input-text: #f0f2f5;
@@ -259,6 +264,11 @@
   --neo-shadow-inset: inset 4px 4px 10px rgba(148,163,184,0.5), inset -4px -4px 10px rgba(255,255,255,0.9);
   --neo-shadow-inset-sm: inset 2px 2px 5px rgba(148,163,184,0.45), inset -2px -2px 5px rgba(255,255,255,0.9);
   --neo-surface: #f1f5f9;
+
+  /* Canonical surface shadows (light) */
+  --shadow-btn-primary: 0 8px 24px -8px var(--accent);
+  --shadow-panel: 0 8px 24px rgba(15,23,42,0.05);
+  --shadow-modal: 0 24px 60px -12px rgba(0,0,0,0.65);
 
   --input-bg: #ffffff;
   --input-text: #0f172a;
