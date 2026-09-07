@@ -31,8 +31,8 @@ export interface AppMainContentProps {
   handlePreviewMessage: (name: string, color?: string) => void;
   fontSize: string;
   setFontSize: (size: string) => void;
-  activeStory: { id: number; name: string; color: string } | null;
-  setActiveStory: (story: { id: number; name: string; color: string } | null) => void;
+  activeStory: { id: number | string; name: string; color: string } | null;
+  setActiveStory: (story: { id: number | string; name: string; color: string } | null) => void;
   showStoryComposer?: boolean;
   onCloseComposer?: () => void;
   stealthMode: boolean;

@@ -10,6 +10,9 @@ import { StoryHeader } from './StoryHeader';
 import { StoryContent } from './StoryContent';
 import { StoryFooter } from './StoryFooter';
 import { StoryOptionsMenu } from './StoryOptionsMenu';
+import { StoryShareMenu } from './StoryShareMenu';
+import { ChatPickerModal } from '../payments/ChatPickerModal';
+import { useAppStore } from '../../store';
 
 interface StoryViewerProps {
   activeUser: { id: number | string; name: string; color: string } | null;
@@ -32,6 +35,8 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
   const [reply, setReply] = useState('');
   const [liked, setLiked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [forwardPicker, setForwardPicker] = useState(false);
   const timerRef = useRef<number | null>(null);
 
   const user = allUsers[userIndex] ?? MY_STORY_USER;
@@ -50,7 +55,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
     }
   };
 
-  const handleShare = async () => {
+  const handleShare = () => {
     if (!story || !shareUrl) return;
     const shareData = {
       title: user.name,
@@ -58,14 +63,37 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
       url: shareUrl,
     };
     if (typeof navigator !== 'undefined' && navigator.share) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch {
-        return;
-      }
+      navigator.share(shareData).catch(() => {});
+      return;
     }
-    await copyLink();
+    setShareOpen(true);
+  };
+
+  const buildStoryMessage = () => ({
+    id: Date.now(),
+    type: 'story' as const,
+    sender: 'me' as const,
+    time: Date.now(),
+    status: 'sent' as const,
+    text: story?.caption ?? '',
+    story: {
+      userId: user.id,
+      userName: user.name,
+      userColor: user.color,
+      storyId: story?.id,
+      type: story?.type,
+      bg: story?.bg,
+      image: story?.image,
+      video: story?.video,
+      caption: story?.caption,
+    },
+  });
+
+  const handleForward = (chat: any) => {
+    if (!story) return;
+    useAppStore.getState().forwardMessage(buildStoryMessage(), String(chat.id));
+    setForwardPicker(false);
+    toast(t('story.forwarded', 'Story shared'), 'success');
   };
 
   const handleDelete = () => {
@@ -235,6 +263,26 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
           isMe={!!user.isMe}
           onCopyLink={copyLink}
           onDelete={handleDelete}
+        />
+
+        <StoryShareMenu
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+          onForward={() => {
+            setShareOpen(false);
+            setForwardPicker(true);
+          }}
+          onCopyLink={() => {
+            setShareOpen(false);
+            copyLink();
+          }}
+        />
+
+        <ChatPickerModal
+          open={forwardPicker}
+          onClose={() => setForwardPicker(false)}
+          onPick={handleForward}
+          title={t('story.forwardToChat', 'Forward')}
         />
       </motion.div>
     </AnimatePresence>

@@ -16,8 +16,8 @@ export interface AppShellProps {
   view: string;
   subView: string | null;
   setSubView: (v: string | null) => void;
-  activeStory: { id: number; name: string; color: string } | null;
-  setActiveStory: (story: { id: number; name: string; color: string } | null) => void;
+  activeStory: { id: number | string; name: string; color: string } | null;
+  setActiveStory: (story: { id: number | string; name: string; color: string } | null) => void;
   onComposeStory?: () => void;
   showStoryComposer?: boolean;
   onCloseComposer?: () => void;

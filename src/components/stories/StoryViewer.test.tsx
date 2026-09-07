@@ -156,11 +156,13 @@ describe('StoryViewer', () => {
     );
   });
 
-  it('falls back to clipboard when navigator.share is missing', async () => {
+  it('opens share sheet when navigator.share is missing, and copies link from it', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(window.navigator, 'clipboard', { value: { writeText }, configurable: true });
     render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+    expect(await screen.findByText('Share story')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /copy link/i }));
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('nexus://story/1/11'));
     expect(toast).toHaveBeenCalledWith('Link copied', 'success');
   });
