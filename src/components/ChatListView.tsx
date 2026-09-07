@@ -5,11 +5,11 @@ import { SearchInput } from "./ui/SearchInput";
 import { OnboardingPanel } from "./ui/OnboardingPanel";
 import { ChatListItem, AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots } from "./chat-preview";
 import { ChatContextMenu } from "./chat-preview/ChatContextMenu";
-import { GlobalSearch } from "./GlobalSearch";
 import { DataState } from "./ui/DataState";
 import { useChatListActions } from "../hooks/useChatListActions";
 
 const InviteQRModal = lazy(() => import("./ui/InviteQRModal").then((m) => ({ default: m.InviteQRModal })));
+const GlobalSearch = lazy(() => import("./GlobalSearch").then((m) => ({ default: m.GlobalSearch })));
 
 type Translate = (key: string, options?: any) => string;
 
@@ -337,16 +337,18 @@ export const ChatListView = ({
       )}
 
       {globalSearchOpen && (
-        <GlobalSearch
-          isDark={isDark}
-          chats={filteredChats}
-          channels={filteredChannels}
-          contacts={contacts}
-          onClose={() => setGlobalSearchOpen(false)}
-          onOpenChat={(c) => (onOpenChat ? onOpenChat(c) : setActiveChat(c))}
-          onOpenContact={(c) => setGlobalSelectedContact(c)}
-          t={t}
-        />
+        <Suspense fallback={null}>
+          <GlobalSearch
+            isDark={isDark}
+            chats={filteredChats}
+            channels={filteredChannels}
+            contacts={contacts}
+            onClose={() => setGlobalSearchOpen(false)}
+            onOpenChat={(c) => (onOpenChat ? onOpenChat(c) : setActiveChat(c))}
+            onOpenContact={(c) => setGlobalSelectedContact(c)}
+            t={t}
+          />
+        </Suspense>
       )}
     </div>
   );

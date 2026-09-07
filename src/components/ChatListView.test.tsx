@@ -103,31 +103,31 @@ const baseProps = {
 };
 
 describe('ChatListView keyboard shortcuts', () => {
-  it('opens global search on Ctrl+K', () => {
+  it('opens global search on Ctrl+K', async () => {
     render(<ChatListView {...baseProps} />);
     expect(screen.queryByTestId('global-search')).not.toBeInTheDocument();
 
     fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
 
-    expect(screen.getByTestId('global-search')).toBeInTheDocument();
+    expect(await screen.findByTestId('global-search')).toBeInTheDocument();
   });
 
-  it('closes global search on second Ctrl+K', () => {
+  it('closes global search on second Ctrl+K', async () => {
     render(<ChatListView {...baseProps} />);
 
     fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
-    expect(screen.getByTestId('global-search')).toBeInTheDocument();
+    expect(await screen.findByTestId('global-search')).toBeInTheDocument();
 
     fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
     expect(screen.queryByTestId('global-search')).not.toBeInTheDocument();
   });
 
-  it('opens global search on Cmd+K (metaKey)', () => {
+  it('opens global search on Cmd+K (metaKey)', async () => {
     render(<ChatListView {...baseProps} />);
 
     fireEvent.keyDown(document, { key: 'k', metaKey: true });
 
-    expect(screen.getByTestId('global-search')).toBeInTheDocument();
+    expect(await screen.findByTestId('global-search')).toBeInTheDocument();
   });
 
   it('does not open global search on plain K', () => {
