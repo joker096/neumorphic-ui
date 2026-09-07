@@ -64,7 +64,7 @@ export const useAppConnection = () => {
       unsub1();
       unsub2();
     };
-  }, [relayBackend]);
+  }, [relayBackend, autoReconnect]);
 
   return { connectionStatus, regionBlocked, managerRef };
 };

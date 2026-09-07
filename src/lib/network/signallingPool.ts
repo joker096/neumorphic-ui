@@ -1,4 +1,4 @@
-type ServerStatus = 'untested' | 'active' | 'failed' | 'blocked';
+type ServerStatus = 'untested' | 'active' | 'failed';
 
 interface SeedEntry {
   url: string;
@@ -58,11 +58,6 @@ export class SignallingPool {
     if (entry) { entry.status = 'failed'; entry.lastTested = Date.now(); this.save(); }
   }
 
-  markBlocked(url: string): void {
-    const entry = this.seeds.get(url);
-    if (entry) { entry.status = 'blocked'; entry.lastTested = Date.now(); this.save(); }
-  }
-
   getNextAvailable(): string | null {
     const all = Array.from(this.seeds.values());
     if (all.length === 0) return null;
@@ -100,8 +95,19 @@ export class SignallingPool {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const parsed: SeedEntry[] = JSON.parse(raw);
-        for (const entry of parsed) this.seeds.set(entry.url, entry);
+        const parsed = JSON.parse(raw) as Array<Omit<SeedEntry, 'status'> & { status: string }>;
+        for (const entry of parsed) {
+          const status: ServerStatus =
+            entry.status === 'active' || entry.status === 'failed' || entry.status === 'untested'
+              ? entry.status
+              : 'failed';
+          this.seeds.set(entry.url, {
+            url: entry.url,
+            status,
+            lastTested: entry.lastTested ?? 0,
+            latencyMs: entry.latencyMs ?? 0,
+          });
+        }
       }
     } catch { /* ignore */ }
   }

@@ -2,6 +2,9 @@ export type TunnelBackend = 'direct' | 'cfworker' | 'domainfront' | 'peertunnel'
 import { getRelayToken, withToken } from '../network/relayToken';
 type TunnelStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
+const HEARTBEAT_INTERVAL_MS = 30000;
+const HEARTBEAT_TIMEOUT_MS = 45000;
+
 interface TunnelConfig {
   url: string;
   backend: TunnelBackend;
@@ -19,6 +22,9 @@ export class WsTunnel {
   private onCloseCallback?: () => void;
   private onErrorCallback?: (err: Error) => void;
   private originalUrl: string;
+  private aborted = false;
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  private lastPongAt: number = 0;
 
   constructor(config: TunnelConfig) {
     this.originalUrl = config.url;
@@ -44,17 +50,46 @@ export class WsTunnel {
   getStatus(): TunnelStatus { return this.status; }
   setUrl(url: string): void { this.url = url; }
 
+  private startHeartbeat(): void {
+    this.stopHeartbeat();
+    this.lastPongAt = Date.now();
+    this.heartbeatTimer = setInterval(() => {
+      if (this.status !== 'connected' || !this.ws) return;
+      const elapsed = Date.now() - this.lastPongAt;
+      if (elapsed > HEARTBEAT_TIMEOUT_MS) {
+        this.ws.close();
+        return;
+      }
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, HEARTBEAT_INTERVAL_MS);
+  }
+
+  private stopHeartbeat(): void {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+  }
+
   connect(url?: string): Promise<void> {
     this.url = url || this.url;
     this.status = 'connecting';
+    this.aborted = false;
     const timeoutMs = 10000;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        try { this.ws?.close(); } catch {}
+        this.aborted = true;
+        if (this.ws) {
+          if (this.ws.readyState === WebSocket.OPEN) this.ws.close();
+          this.ws = null;
+        }
         this.status = 'error';
         reject(new Error(`WebSocket connect timeout after ${timeoutMs}ms`));
       }, timeoutMs);
       const open = (finalUrl: string) => {
+        if (this.aborted) return;
         try {
           this.ws = new WebSocket(finalUrl);
         } catch (err) {
@@ -65,18 +100,35 @@ export class WsTunnel {
         }
         const done = (fn: () => void) => () => { clearTimeout(timer); fn(); };
         this.ws.onopen = done(() => {
+          if (this.aborted) return;
           this.status = 'connected';
+          this.startHeartbeat();
           if (this.onOpenCallback) this.onOpenCallback();
           resolve();
         });
         this.ws.onmessage = (event) => {
+          if (typeof event.data === 'string' && event.data.startsWith('{')) {
+            try {
+              const parsed = JSON.parse(event.data) as { type?: string };
+              if (parsed?.type === 'pong') {
+                this.lastPongAt = Date.now();
+                return;
+              }
+            } catch {
+              /* fall through and dispatch raw payload */
+            }
+          }
           if (this.onMessageCallback) this.onMessageCallback(event.data);
         };
         this.ws.onclose = done(() => {
+          if (this.aborted) return;
+          this.stopHeartbeat();
           this.status = 'disconnected';
           if (this.onCloseCallback) this.onCloseCallback();
         });
         this.ws.onerror = done(() => {
+          if (this.aborted) return;
+          this.stopHeartbeat();
           this.status = 'error';
           const err = new Error(`WebSocket connection failed for backend: ${this.backend}`);
           if (this.onErrorCallback) this.onErrorCallback(err);
@@ -100,7 +152,13 @@ export class WsTunnel {
   onError(callback: (err: Error) => void): void { this.onErrorCallback = callback; }
 
   close(): void {
-    if (this.ws) { this.ws.close(); this.ws = null; }
+    this.stopHeartbeat();
+    if (this.aborted) return;
+    this.aborted = true;
+    if (this.ws) {
+      if (this.ws.readyState === WebSocket.OPEN) this.ws.close();
+      this.ws = null;
+    }
     this.status = 'disconnected';
   }
 }

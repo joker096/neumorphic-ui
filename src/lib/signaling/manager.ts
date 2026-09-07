@@ -17,6 +17,7 @@ export class SignallingManager {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private disposed = false;
   private autoReconnect = true;
+  private connectInFlight = false;
 
   constructor(seedUrls: string[], backend?: TunnelBackend, autoReconnect = true) {
     this.pool = new SignallingPool(seedUrls);
@@ -44,9 +45,13 @@ export class SignallingManager {
 
   async connect(): Promise<void> {
     if (this.disposed) return;
+    if (this.connectInFlight) return;
+    if (this.state === 'connected') return;
+    this.connectInFlight = true;
     this.setState('connecting');
     const url = this.pool.getNextAvailable();
     if (!url) {
+      this.connectInFlight = false;
       this.setState('blocked');
       this.blockedRegionCallbacks.forEach(cb => cb({
         region: 'unknown',
@@ -76,6 +81,8 @@ export class SignallingManager {
       this.latencyMs = Date.now() - start;
       this.pool.markFailed(url);
       this.scheduleReconnect();
+    } finally {
+      this.connectInFlight = false;
     }
   }
 

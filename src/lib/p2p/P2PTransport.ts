@@ -60,6 +60,7 @@ export class P2PTransport {
   private pendingOutgoingTracks: MediaStreamTrack[] = []
   private localHandlesTracks = false
   private obfuscationEnabled = true
+  private stopped = false
   private sessionAesKey: CryptoKey | null = null
   private identitySecretKey: Uint8Array | null = null
   private identityPublicKey: Uint8Array | null = null
@@ -103,6 +104,7 @@ export class P2PTransport {
   }
 
   async connect(): Promise<void> {
+    this.stopped = false
     if (this.signalingWs?.readyState === WebSocket.OPEN) return
 
     const token = await getRelayToken().catch(() => '')
@@ -115,9 +117,24 @@ export class P2PTransport {
         reject(err)
         return
       }
+      const ws = this.signalingWs
+      let settled = false
+      const connectTimer = setTimeout(() => {
+        if (settled) return
+        settled = true
+        if (this.signalingWs === ws) this.signalingWs = null
+        ws.onclose = null
+        ws.close()
+        reject(new Error('Signaling connect timeout'))
+      }, 10000)
+      const settle = () => {
+        settled = true
+        clearTimeout(connectTimer)
+      }
 
-      this.signalingWs.onopen = () => {
-        this.signalingWs!.send(
+      ws.onopen = () => {
+        if (settled) return
+        ws.send(
           JSON.stringify({
             type: 'register',
             publicKey: this.localPublicKey,
@@ -125,7 +142,8 @@ export class P2PTransport {
         )
       }
 
-      this.signalingWs.onmessage = (event) => {
+      ws.onmessage = (event) => {
+        if (settled) return
         let msg: any
         try {
           msg = JSON.parse(event.data)
@@ -133,19 +151,23 @@ export class P2PTransport {
           return
         }
         if (msg.type === 'registered') {
+          settle()
           this.signalingWs!.onmessage = this.handleSignalingEvent
           this.reconnectAttempts = 0
           resolve()
         } else if (msg.type === 'error') {
+          settle()
           reject(new Error(msg.message))
         }
       }
 
-      this.signalingWs.onerror = () => {
+      ws.onerror = () => {
+        if (settled) return
+        settle()
         reject(new Error('WebSocket connection failed'))
       }
 
-      this.signalingWs.onclose = () => {
+      ws.onclose = () => {
         this.handleWsClose()
       }
     })
@@ -308,6 +330,7 @@ export class P2PTransport {
   }
 
   disconnect(): void {
+    this.stopped = true
     this.dataChannel?.close()
     this.dataChannel = null
     this.callControlChannel?.close()
@@ -475,6 +498,18 @@ export class P2PTransport {
   private async handleOffer(msg: any): Promise<void> {
     this.peerPublicKey = msg.from
 
+    if (!msg.dhPub) {
+      console.warn('[P2PTransport] Rejecting offer without dhPub (fail-closed)')
+      this.peerPublicKey = null
+      this.peerConnection?.close()
+      this.peerConnection = null
+      this.localDhPrivateKey = null
+      this.hmacKey = null
+      this.sessionAesKey = null
+      this.pendingCandidates = []
+      return
+    }
+
     this.createPeerConnection()
 
     await this.peerConnection!.setRemoteDescription(new RTCSessionDescription(msg.sdp))
@@ -484,45 +519,40 @@ export class P2PTransport {
 
     // Derive the shared HMAC key from the caller's ephemeral DH public key.
     // The HMAC key is derived locally and never transmitted.
-    if (msg.dhPub) {
-      // Authenticate the caller's DH key against its pinned identity (TOFU).
-      if (msg.identityPub && msg.dhSig) {
-        const peerId = this.peerPublicKey ?? msg.from ?? ''
-        const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
-        if (!ok) {
-          console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting offer')
-          return
-        }
+    // Authenticate the caller's DH key against its pinned identity (TOFU).
+    if (msg.identityPub && msg.dhSig) {
+      const peerId = this.peerPublicKey ?? msg.from ?? ''
+      const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
+      if (!ok) {
+        console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting offer')
+        this.peerPublicKey = null
+        this.peerConnection?.close()
+        this.peerConnection = null
+        this.localDhPrivateKey = null
+        this.hmacKey = null
+        this.sessionAesKey = null
+        this.pendingCandidates = []
+        return
       }
-      const ownKp = generateX25519KeyPair()
-      this.localDhPrivateKey = ownKp.secretKey
-      const myDhPub = buf2hex(ownKp.publicKey)
-      await this.deriveSessionFromPeerDh(msg.dhPub)
-      let myIdentityPub: string | undefined
-      let myDhSig: string | undefined
-      if (this.identitySecretKey && this.identityPublicKey) {
-        myIdentityPub = buf2hex(this.identityPublicKey)
-        myDhSig = signDh(this.identitySecretKey, myDhPub)
-      }
-      this.sendSignaling({
-        type: 'answer',
-        target: msg.from,
-        sdp: answer,
-        dhPub: myDhPub,
-        identityPub: myIdentityPub,
-        dhSig: myDhSig,
-      })
-    } else {
-      // Insecure plaintext HMAC fallback removed: the keys must be derived
-      // from ECDH and are never transmitted. Proceed without authentication/encryption.
-      this.hmacKey = null
-      this.sessionAesKey = null
-      this.sendSignaling({
-        type: 'answer',
-        target: msg.from,
-        sdp: answer,
-      })
     }
+    const ownKp = generateX25519KeyPair()
+    this.localDhPrivateKey = ownKp.secretKey
+    const myDhPub = buf2hex(ownKp.publicKey)
+    await this.deriveSessionFromPeerDh(msg.dhPub)
+    let myIdentityPub: string | undefined
+    let myDhSig: string | undefined
+    if (this.identitySecretKey && this.identityPublicKey) {
+      myIdentityPub = buf2hex(this.identityPublicKey)
+      myDhSig = signDh(this.identitySecretKey, myDhPub)
+    }
+    this.sendSignaling({
+      type: 'answer',
+      target: msg.from,
+      sdp: answer,
+      dhPub: myDhPub,
+      identityPub: myIdentityPub,
+      dhSig: myDhSig,
+    })
 
     for (const c of this.pendingCandidates) {
       await this.peerConnection!.addIceCandidate(new RTCIceCandidate(c))
@@ -531,24 +561,35 @@ export class P2PTransport {
   }
 
   private async handleAnswer(msg: any): Promise<void> {
-    if (msg.dhPub && this.localDhPrivateKey) {
-      // Authenticate the callee's DH key against its pinned identity (TOFU).
-      if (msg.identityPub && msg.dhSig) {
-        const peerId = this.peerPublicKey ?? ''
-        const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
-        if (!ok) {
-          console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting answer')
-          this.hmacKey = null
-          this.sessionAesKey = null
-          return
-        }
-      }
-      await this.deriveSessionFromPeerDh(msg.dhPub)
-    } else {
-      // Insecure plaintext HMAC fallback removed.
+    if (!msg.dhPub || !this.localDhPrivateKey) {
+      console.warn('[P2PTransport] Rejecting answer without dhPub (fail-closed)')
+      this.peerPublicKey = null
+      this.peerConnection?.close()
+      this.peerConnection = null
+      this.localDhPrivateKey = null
       this.hmacKey = null
       this.sessionAesKey = null
+      this.pendingCandidates = []
+      return
     }
+
+    // Authenticate the callee's DH key against its pinned identity (TOFU).
+    if (msg.identityPub && msg.dhSig) {
+      const peerId = this.peerPublicKey ?? ''
+      const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
+      if (!ok) {
+        console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting answer')
+        this.peerPublicKey = null
+        this.peerConnection?.close()
+        this.peerConnection = null
+        this.localDhPrivateKey = null
+        this.hmacKey = null
+        this.sessionAesKey = null
+        this.pendingCandidates = []
+        return
+      }
+    }
+    await this.deriveSessionFromPeerDh(msg.dhPub)
 
     await this.peerConnection!.setRemoteDescription(
       new RTCSessionDescription(msg.sdp),
@@ -573,6 +614,7 @@ export class P2PTransport {
   }
 
   private handleWsClose(): void {
+    if (this.stopped) return
     if (this.peerPublicKey) {
       this.onDisconnected(this.peerPublicKey)
     }

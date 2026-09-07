@@ -128,6 +128,13 @@ wss.on('connection', (ws, req) => {
     return
   }
 
+  // Liveness flag is refreshed by protocol-level pong responses. The interval
+  // below terminates sockets that fail to respond to pings.
+  (ws as any).isAlive = true
+  ws.on('pong', () => {
+    (ws as any).isAlive = true
+  })
+
   let registeredKey: string | null = null
 
   const send = (data: object) => {
@@ -180,7 +187,9 @@ wss.on('connection', (ws, req) => {
           type: msg.type,
           from: registeredKey,
           sdp: msg.sdp,
-          ...(msg.hmacKey ? { hmacKey: msg.hmacKey } : {}),
+          ...(msg.dhPub ? { dhPub: msg.dhPub } : {}),
+          ...(msg.identityPub ? { identityPub: msg.identityPub } : {}),
+          ...(msg.dhSig ? { dhSig: msg.dhSig } : {}),
         }))
         break
       }
@@ -307,6 +316,10 @@ wss.on('connection', (ws, req) => {
         break
       }
 
+      case 'ping':
+        send({ type: 'pong' })
+        break
+
       default:
         send({ type: 'error', message: `Unknown message type: ${msg.type}` })
     }
@@ -346,6 +359,23 @@ wss.on('connection', (ws, req) => {
     }
   })
 })
+
+// Terminate dead authenticated WebSocket connections.
+// `isAlive` is set after successful auth and refreshed by protocol pong.
+// A socket that misses one ping check remains for one interval and is
+// terminated on the next, so dead sockets close after ~60s.
+setInterval(() => {
+  for (const client of Array.from(wss.clients)) {
+    const sock = client as any
+    if (typeof sock.isAlive !== 'boolean') continue
+    if (sock.isAlive === false) {
+      client.terminate()
+      continue
+    }
+    sock.isAlive = false
+    client.ping()
+  }
+}, 30000)
 
 // --- REST API Server (port 8766) ---
 const SERVER_DIR = dirname(fileURLToPath(import.meta.url))

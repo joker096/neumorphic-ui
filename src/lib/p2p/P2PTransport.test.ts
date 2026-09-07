@@ -109,6 +109,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 function makeTransport(opts: Partial<{
@@ -693,5 +694,84 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
 
       expect(mockPc).toBeNull();
     });
+  });
+});
+
+describe('P2PTransport security regressions', () => {
+  it('rejects signaling connect after 10s without registered', async () => {
+    vi.useFakeTimers();
+    const transport = makeTransport();
+    const p = transport.connect();
+    let rejection: Error | null = null;
+    const handled = p.then(
+      () => {
+        rejection = new Error('connect unexpectedly resolved');
+      },
+      (err: Error) => {
+        rejection = err;
+      },
+    );
+    for (let i = 0; i < 3 && mockWs === null; i += 1) {
+      await vi.advanceTimersByTimeAsync(0);
+    }
+    expect(mockWs).not.toBeNull();
+
+    await vi.advanceTimersByTimeAsync(10000);
+    await handled;
+
+    expect(rejection).toBeInstanceOf(Error);
+    expect(rejection?.message).toBe('Signaling connect timeout');
+    expect((transport as any).signalingWs).toBeNull();
+    expect(mockWs.close).toHaveBeenCalled();
+  });
+
+  it('fails closed for offer without dhPub', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const transport = makeTransport();
+    const closeMock = vi.fn();
+    (transport as any).peerConnection = { close: closeMock };
+    (transport as any).peerPublicKey = 'peer';
+    (transport as any).localDhPrivateKey = new Uint8Array(32);
+    (transport as any).hmacKey = 'key';
+    (transport as any).sessionAesKey = 'aes';
+    (transport as any).pendingCandidates = [{ candidate: 'candidate' } as any];
+
+    await (transport as any).handleOffer({ from: 'peer', sdp: { type: 'offer', sdp: 'sdp' } });
+
+    expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting offer without dhPub (fail-closed)');
+    expect(closeMock).toHaveBeenCalled();
+    expect((transport as any).peerConnection).toBeNull();
+    expect((transport as any).peerPublicKey).toBeNull();
+    expect((transport as any).localDhPrivateKey).toBeNull();
+    expect((transport as any).hmacKey).toBeNull();
+    expect((transport as any).sessionAesKey).toBeNull();
+    expect((transport as any).pendingCandidates).toEqual([]);
+    warnSpy.mockRestore();
+  });
+
+  it('fails closed for answer without dhPub', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const transport = makeTransport();
+    const closeMock = vi.fn();
+    const setRemoteMock = vi.fn();
+    (transport as any).peerConnection = { close: closeMock, setRemoteDescription: setRemoteMock };
+    (transport as any).peerPublicKey = 'peer';
+    (transport as any).localDhPrivateKey = null;
+    (transport as any).hmacKey = 'key';
+    (transport as any).sessionAesKey = 'aes';
+    (transport as any).pendingCandidates = [{ candidate: 'candidate' } as any];
+
+    await (transport as any).handleAnswer({ sdp: { type: 'answer', sdp: 'sdp' } });
+
+    expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting answer without dhPub (fail-closed)');
+    expect(closeMock).toHaveBeenCalled();
+    expect(setRemoteMock).not.toHaveBeenCalled();
+    expect((transport as any).peerConnection).toBeNull();
+    expect((transport as any).peerPublicKey).toBeNull();
+    expect((transport as any).localDhPrivateKey).toBeNull();
+    expect((transport as any).hmacKey).toBeNull();
+    expect((transport as any).sessionAesKey).toBeNull();
+    expect((transport as any).pendingCandidates).toEqual([]);
+    warnSpy.mockRestore();
   });
 });

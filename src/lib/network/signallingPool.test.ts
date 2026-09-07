@@ -78,4 +78,15 @@ describe('SignallingPool', () => {
     const reloaded = new SignallingPool(current);
     expect(reloaded.getAll().map(e => e.url)).toEqual(current);
   });
+
+  it('normalizes legacy persisted blocked status to failed', () => {
+    localStorage.setItem('mess_signalling_pool', JSON.stringify([
+      { url: 'wss://legacy.messanger.app/ws', status: 'blocked', lastTested: 1, latencyMs: 0 },
+    ]));
+
+    const pool = new SignallingPool(['wss://legacy.messanger.app/ws']);
+
+    expect(pool.getStatus('wss://legacy.messanger.app/ws')).toBe('failed');
+    expect(pool.getNextAvailable()).toBe('wss://legacy.messanger.app/ws');
+  });
 });
