@@ -1,10 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { useI18n } from '../lib/i18n';
 import { QrCode, Scan, Users, UserPlus, Clock, Check, Copy, Share, Phone, MessageSquare, Edit, Loader2, Star, UserX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Scanner } from '@yudiel/react-qr-scanner';
 import type { IScannerError } from '@yudiel/react-qr-scanner';
-import QRCode from 'qrcode';
 import { ContactProfileModal } from './ContactProfileModal';
 import { useDebounce } from '../hooks/useDebounce';
 import { useAppStore } from '../store';
@@ -24,6 +22,8 @@ import { pickContactGradient } from '../constants/contactConstants';
 
 type TabOption = 'all' | 'favorites' | 'recent' | 'blocked';
 
+const ScannerLazy = lazy(() => import('@yudiel/react-qr-scanner').then((m) => ({ default: m.Scanner })));
+
 export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall, onMessage, onEdit }: {
   theme: 'light' | 'dark', 
   contacts: Contact[],
@@ -40,7 +40,8 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(shareId, { margin: 1, width: 256, color: { dark: '#0f172a', light: '#ffffff' } })
+    import('qrcode')
+      .then((qr) => qr.toDataURL(shareId, { margin: 1, width: 256, color: { dark: '#0f172a', light: '#ffffff' } }))
       .then((url) => { if (!cancelled) setQrDataUrl(url); })
       .catch(() => { if (!cancelled) setQrDataUrl(''); });
     return () => { cancelled = true; };
@@ -280,16 +281,18 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
               />
             ) : (
               <>
-                <Scanner
-                  key={scannerKey}
-                  onScan={(result) => {
-                    if (result && result.length > 0) {
-                      setIsScanning(false); setNewContactId(result[0].rawValue); setShowAddForm(true);
-                    }
-                  }}
-                  onError={(e) => setScanError(e)}
-                  styles={{ container: { width: '100%', height: '100%' } }}
-                />
+                <Suspense fallback={null}>
+                  <ScannerLazy
+                    key={scannerKey}
+                    onScan={(result) => {
+                      if (result && result.length > 0) {
+                        setIsScanning(false); setNewContactId(result[0].rawValue); setShowAddForm(true);
+                      }
+                    }}
+                    onError={(e) => setScanError(e)}
+                    styles={{ container: { width: '100%', height: '100%' } }}
+                  />
+                </Suspense>
                 <div className="absolute inset-0 border-4 border-[var(--accent)]/50 pointer-events-none mix-blend-overlay rounded-xl" />
               </>
             )}

@@ -222,39 +222,39 @@ describe('ContactsView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'contacts.edit' }));
   });
 
-  it('opens scan modal when Scan button clicked', () => {
+  it('opens scan modal when Scan button clicked', async () => {
     render(<ContactsView {...defaultProps} />);
 
     fireEvent.click(screen.getByTitle('contacts.scanContactQR'));
 
     expect(screen.getByRole('heading', { name: /contacts.scanContactQR/ })).toBeInTheDocument();
-    expect(screen.getByTestId('qr-scanner')).toBeInTheDocument();
+    expect(await screen.findByTestId('qr-scanner')).toBeInTheDocument();
   });
 
-  it('shows permission denied state with retry when camera is denied', () => {
+  it('shows permission denied state with retry when camera is denied', async () => {
     render(<ContactsView {...defaultProps} />);
 
     fireEvent.click(screen.getByTitle('contacts.scanContactQR'));
-    fireEvent.click(screen.getByTestId('btn-scan-permission-denied'));
+    fireEvent.click(await screen.findByTestId('btn-scan-permission-denied'));
 
     expect(screen.getByText('contacts.cameraPermissionDenied')).toBeInTheDocument();
     expect(screen.queryByTestId('qr-scanner')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByLabelText('ui.retry'));
 
-    expect(screen.getByTestId('qr-scanner')).toBeInTheDocument();
+    expect(await screen.findByTestId('qr-scanner')).toBeInTheDocument();
     expect(screen.queryByText('contacts.cameraPermissionDenied')).not.toBeInTheDocument();
   });
 
-  it('shows generic camera error state for other scanner errors', () => {
+  it('shows generic camera error state for other scanner errors', async () => {
     render(<ContactsView {...defaultProps} />);
 
     fireEvent.click(screen.getByTitle('contacts.scanContactQR'));
-    fireEvent.click(screen.getByTestId('btn-scan-camera-error'));
+    fireEvent.click(await screen.findByTestId('btn-scan-camera-error'));
 
     expect(screen.getByText('contacts.cameraError')).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText('ui.retry'));
-    expect(screen.getByTestId('qr-scanner')).toBeInTheDocument();
+    expect(await screen.findByTestId('qr-scanner')).toBeInTheDocument();
   });
 
   it('applies dark theme styles', () => {
