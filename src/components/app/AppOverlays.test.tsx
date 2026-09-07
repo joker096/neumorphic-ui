@@ -72,9 +72,9 @@ describe('AppOverlays', () => {
     expect(await screen.findByText('CreateGroupModal')).toBeInTheDocument();
   });
 
-  it('shows ContactProfileModal when globalSelectedContact is set', () => {
+  it('shows ContactProfileModal when globalSelectedContact is set', async () => {
     render(<AppOverlays {...defaultProps} globalSelectedContact={{ id: '1', name: 'Test' }} />);
-    expect(screen.getByText('ContactProfileModal')).toBeInTheDocument();
+    expect(await screen.findByText('ContactProfileModal')).toBeInTheDocument();
   });
 
   it('shows ContactCreateEditModal when editingContact is set', async () => {

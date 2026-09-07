@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { AnimatePresence } from "motion/react";
-import { ContactProfileModal } from "../ContactProfileModal";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAppStore } from "../../store";
 
@@ -10,6 +9,7 @@ const LazyCreateBotModal = lazy(() => import("../CreateBotModal").then(m => ({ d
 const LazyCreateGroupModal = lazy(() => import("../CreateGroupModal").then(m => ({ default: m.CreateGroupModal })));
 const LazyContactCreateEditModal = lazy(() => import("../ContactCreateEditModal").then(m => ({ default: m.ContactCreateEditModal })));
 const LazyFloatingCallWidget = lazy(() => import("../FloatingCallWidget").then(m => ({ default: m.FloatingCallWidget })));
+const LazyContactProfileModal = lazy(() => import("../ContactProfileModal").then(m => ({ default: m.ContactProfileModal })));
 
 type AppOverlaysProps = {
   isDark?: boolean;
@@ -104,18 +104,22 @@ export const AppOverlays = ({
         )}
       </AnimatePresence>
 
-      <ContactProfileModal
-        contact={globalSelectedContact}
-        theme={theme}
-        onClose={() => setGlobalSelectedContact(null)}
-        onCall={onProfileCall}
-        onVideoCall={onProfileVideoCall}
-        onMessage={onProfileMessage}
-        onDelete={onProfileDelete}
-        onEdit={onProfileEdit}
-        onBlock={onProfileBlock}
-        onToggleFavorite={onProfileToggleFavorite}
-      />
+      {globalSelectedContact && (
+        <Suspense fallback={null}>
+          <LazyContactProfileModal
+            contact={globalSelectedContact}
+            theme={theme}
+            onClose={() => setGlobalSelectedContact(null)}
+            onCall={onProfileCall}
+            onVideoCall={onProfileVideoCall}
+            onMessage={onProfileMessage}
+            onDelete={onProfileDelete}
+            onEdit={onProfileEdit}
+            onBlock={onProfileBlock}
+            onToggleFavorite={onProfileToggleFavorite}
+          />
+        </Suspense>
+      )}
 
       <AnimatePresence>
         {editingContact && (

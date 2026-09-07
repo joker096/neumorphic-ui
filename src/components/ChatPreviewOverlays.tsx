@@ -2,10 +2,10 @@ import React from "react";
 import { useAppStore } from "../store";
 import { ChannelCommentsView } from "./ChannelCommentsView";
 import { SavedMessagesPanel } from "./chat-preview/SavedMessagesPanel";
-import { ContactProfileModal } from "./ContactProfileModal";
 import type { ContactProfile } from "./ContactProfileModal";
 const LazyMediaViewer = React.lazy(() => import("./MediaViewer").then((m) => ({ default: m.MediaViewer })));
 const LazyChatProfileView = React.lazy(() => import("./ChatProfileView").then((m) => ({ default: m.ChatProfileView })));
+const LazyContactProfileModal = React.lazy(() => import("./ContactProfileModal").then((m) => ({ default: m.ContactProfileModal })));
 
 type TranslateFn = (key: string, fallback?: string | Record<string, string | number>) => string;
 
@@ -111,21 +111,25 @@ export function ChatPreviewOverlays({
       )}
       <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} />
       <SavedMessagesPanel show={showSavedPanel} isDark={isDark} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(c, msg) => onToggleSavedMessage?.(c, msg)} t={t} />
-      <ContactProfileModal
-        contact={selectedContact}
-        theme={theme}
-        onClose={() => setSelectedContact(null)}
-        onCall={handleCall}
-        onVideoCall={handleVideoCall}
-        onMessage={handleMessage}
-        onDelete={handleDeleteContact}
-        onEdit={() => { if (selectedContact) setEditingContact(selectedContact); setSelectedContact(null); }}
-        onBlock={() => setSelectedContact(null)}
-        onToggleFavorite={(id, isFavorite) => {
-          setSelectedContact(prev => prev && prev.id === id ? { ...prev, isFavorite } : prev);
-          if (chat) onUpdateChat?.({ ...chat, isFavorite });
-        }}
-      />
+      {selectedContact && (
+        <React.Suspense fallback={null}>
+          <LazyContactProfileModal
+            contact={selectedContact}
+            theme={theme}
+            onClose={() => setSelectedContact(null)}
+            onCall={handleCall}
+            onVideoCall={handleVideoCall}
+            onMessage={handleMessage}
+            onDelete={handleDeleteContact}
+            onEdit={() => { if (selectedContact) setEditingContact(selectedContact); setSelectedContact(null); }}
+            onBlock={() => setSelectedContact(null)}
+            onToggleFavorite={(id, isFavorite) => {
+              setSelectedContact(prev => prev && prev.id === id ? { ...prev, isFavorite } : prev);
+              if (chat) onUpdateChat?.({ ...chat, isFavorite });
+            }}
+          />
+        </React.Suspense>
+      )}
       {profileOpen && (
         <React.Suspense fallback={null}>
           <LazyChatProfileView
