@@ -28,6 +28,7 @@ import type { CrmSlice } from './slices/crmSlice';
 import type { ContactAvatarSlice } from './slices/contactAvatarSlice';
 import type { PremiumSlice } from './slices/premiumSlice';
 import type { NotificationSlice } from './slices/notificationSlice';
+import type { WalletSlice } from './slices/walletSlice';
 import { createSettingsSlice } from './slices/settingsSlice';
 import { createChatSlice } from './slices/chatSlice';
 import { createCallSlice } from './slices/callSlice';
@@ -43,6 +44,7 @@ import { createCrmSlice, saveCrmPersisted } from './slices/crmSlice';
 import { createContactAvatarSlice } from './slices/contactAvatarSlice';
 import { createPremiumSlice } from './slices/premiumSlice';
 import { createNotificationSlice } from './slices/notificationSlice';
+import { createWalletSlice } from './slices/walletSlice';
 
 // Re-export types for consumers
 export type {
@@ -71,7 +73,7 @@ export const initAppStorage = async () => {
 export { DEFAULT_BOT_PERMISSIONS };
 
 // --- Store interface ---
-export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice, ContactAvatarSlice, PremiumSlice, NotificationSlice {}
+export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice, ContactAvatarSlice, PremiumSlice, NotificationSlice, WalletSlice {}
 
 export const useAppStore = create<AppState>()((set, get) => ({
   ...createSettingsSlice(set, get),
@@ -89,7 +91,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
   ...createContactAvatarSlice(set, get),
   ...createPremiumSlice(set, get),
   ...createNotificationSlice(set, get),
+  ...createWalletSlice(set, get),
 }));
+
+export { selectWalletBalance } from './slices/walletSlice';
 
 // --- Data hydration gate ---
 // Set to true after IDB hydration completes so the persist subscription
@@ -117,22 +122,24 @@ useAppStore.subscribe((s) => {
 });
 
 // Persist chats / contacts / channels / call history to IndexedDB
-let dataPersistRef: { chats: unknown; contacts: unknown; channels: unknown; calls: unknown } | null = null;
+let dataPersistRef: { chats: unknown; contacts: unknown; channels: unknown; calls: unknown; wallet: unknown } | null = null;
 useAppStore.subscribe((s) => {
   if (!dataHydrated) return;
-  const cur = { chats: s.chats, contacts: s.contacts, channels: s.channels, calls: s.callHistory };
+  const cur = { chats: s.chats, contacts: s.contacts, channels: s.channels, calls: s.callHistory, wallet: s.transactions };
   if (
     !dataPersistRef
     || cur.chats !== dataPersistRef.chats
     || cur.contacts !== dataPersistRef.contacts
     || cur.channels !== dataPersistRef.channels
     || cur.calls !== dataPersistRef.calls
+    || cur.wallet !== dataPersistRef.wallet
   ) {
     dataPersistRef = cur;
     idb.set('chats_all', s.chats).catch(() => {});
     idb.set('contacts_all', s.contacts).catch(() => {});
     idb.set('channels_all', s.channels).catch(() => {});
     idb.set('call_history_all', s.callHistory).catch(() => {});
+    idb.set('wallet_all', s.transactions).catch(() => {});
     if (s.cloudSync.enabled) useAppStore.getState().markCloudSyncPendingChange();
   }
 });

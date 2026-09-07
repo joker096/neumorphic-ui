@@ -77,10 +77,10 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
       <SettingsSectionTitle title={t('premium.perksTitle', 'What Premium unlocks')} isDark={isDark} />
       <SettingsGroup isDark={isDark} className="mb-6">
         <SettingsRow
-          icon={<FileUp size={16} />}
+          icon={<Crown size={16} />}
           iconBg={isDark ? 'bg-amber-500/10' : 'bg-amber-100'}
           iconColor={isDark ? 'text-amber-400' : 'text-amber-600'}
-          title={t('premium.perkFiles', 'Attachments up to 500 MB')}
+          title={t('premium.perkStickers', 'Full ICQ sticker pack')}
           isDark={isDark}
         />
         <SettingsRow
@@ -91,10 +91,10 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
           isDark={isDark}
         />
         <SettingsRow
-          icon={<Crown size={16} />}
+          icon={<FileUp size={16} />}
           iconBg={isDark ? 'bg-amber-500/10' : 'bg-amber-100'}
           iconColor={isDark ? 'text-amber-400' : 'text-amber-600'}
-          title={t('premium.perkStickers', 'Full ICQ sticker pack')}
+          title={t('premium.perkFiles', 'Attachments up to 500 MB')}
           isDark={isDark}
         />
       </SettingsGroup>

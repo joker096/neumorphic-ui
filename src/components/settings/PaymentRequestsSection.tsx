@@ -109,10 +109,10 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
           disabled={creating}
           aria-label={t('payRequests.create', 'Create payment request')}
           title={t('payRequests.create', 'Create payment request')}
-          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-xl font-medium bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-[0.99] transition-transform disabled:opacity-50"
+          className="w-full min-h-11 flex items-center justify-center gap-2 rounded-xl font-medium bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-[0.99] transition-transform disabled:opacity-50"
         >
           {creating ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <Plus size={16} />}
-          <span className="sr-only">{t('payRequests.create', 'Create payment request')}</span>
+          <span>{t('payRequests.create', 'Create payment request')}</span>
         </button>
       </div>
 

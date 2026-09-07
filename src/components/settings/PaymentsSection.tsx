@@ -1,44 +1,205 @@
-import React, { useState } from 'react';
-import { CreditCard, Wallet, Plus, ArrowUpRight, ArrowDownLeft, Receipt, ShieldCheck, Smartphone } from 'lucide-react';
+import { useState } from 'react';
+import { CreditCard, Plus, ArrowUpRight, ArrowDownLeft, ShieldCheck, Smartphone, Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
-import { SettingsGroup, SettingsSectionTitle, SettingsRow, SettingsToggleRow } from '../ui/SettingsRow';
+import { SettingsGroup, SettingsSectionTitle, SettingsToggleRow, SettingsRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from '../ui/Toast';
+import { PaymentRequestCard } from '../payments/PaymentRequestCard';
+import { ChatPickerModal } from '../payments/ChatPickerModal';
+import { createPaymentRequest, buildPaymentMessage } from '../../services/paymento';
+import { generateOrderId, buildGatewayUrl } from '../../config/paymento';
+import { isPaymentSuccessful } from '../../types/paymento';
+import { useAppStore, selectWalletBalance } from '../../store';
 
 interface PaymentsSectionProps {
   isDark?: boolean;
   onBack: () => void;
 }
 
-const TRANSACTIONS = [
-  { id: 1, title: 'Coffee Shop', amount: -4.5, date: '2026-08-12', icon: <Wallet size={16} /> },
-  { id: 2, title: 'Refund · Marketplace', amount: 12.0, date: '2026-08-10', icon: <ArrowDownLeft size={16} /> },
-  { id: 3, title: 'Transfer to Mom', amount: -20.0, date: '2026-08-08', icon: <ArrowUpRight size={16} /> },
-];
+interface WalletPayload {
+  token: string;
+  paymentUrl: string;
+  amount: string;
+  currency: string;
+  description: string;
+}
+
+type WalletMode = 'topup' | 'send';
+
+const STATUS_ICON = {
+  pending: <Clock size={14} />,
+  success: <CheckCircle2 size={14} />,
+  failed: <XCircle size={14} />,
+};
 
 export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps) => {
   const { t } = useI18n();
-  const [enabled, setEnabled] = useState(true);
-  const [biometric, setBiometric] = useState(true);
-  const [balance] = useState(128.4);
+  const transactions = useAppStore((s) => s.transactions);
+  const walletCurrency = useAppStore((s) => s.walletCurrency);
+  const walletEnabled = useAppStore((s) => s.walletEnabled);
+  const biometricEnabled = useAppStore((s) => s.biometricEnabled);
+  const setWalletEnabled = useAppStore((s) => s.setWalletEnabled);
+  const setBiometricEnabled = useAppStore((s) => s.setBiometricEnabled);
+
+  const [mode, setMode] = useState<WalletMode | null>(null);
+  const [amount, setAmount] = useState('');
+  const [currency, setCurrency] = useState(walletCurrency);
+  const [creating, setCreating] = useState(false);
+  const [active, setActive] = useState<WalletPayload | null>(null);
+  const [activeMode, setActiveMode] = useState<WalletMode | null>(null);
+  const [picker, setPicker] = useState<WalletPayload | null>(null);
+
+  const balance = selectWalletBalance(transactions);
+
+  const openForm = (m: WalletMode) => {
+    if (!walletEnabled) {
+      toast(t('wallet.disabled', 'Payments are disabled'), 'error');
+      return;
+    }
+    setMode(m);
+    setActive(null);
+    setAmount('');
+  };
+
+  const handleCreate = async () => {
+    if (!mode) return;
+    const amt = parseFloat(amount);
+    if (!amt || amt <= 0) {
+      toast(t('wallet.invalidAmount', 'Enter a valid amount'), 'error');
+      return;
+    }
+    setCreating(true);
+    try {
+      const res = await createPaymentRequest({
+        amount: amt,
+        currency,
+        orderId: generateOrderId(),
+        description: mode === 'topup' ? t('wallet.topUp', 'Top up') : t('wallet.send', 'Send'),
+      });
+      const payload: WalletPayload = {
+        token: res.token,
+        paymentUrl: res.paymentUrl || buildGatewayUrl(res.token),
+        amount: String(amt),
+        currency,
+        description: mode === 'topup' ? t('wallet.topUp', 'Top up') : t('wallet.send', 'Send'),
+      };
+      useAppStore.getState().walletTransactionStart(
+        mode,
+        amt,
+        mode === 'topup' ? t('wallet.topUp', 'Top up') : t('wallet.send', 'Send'),
+        payload.token,
+      );
+      setActive(payload);
+      setActiveMode(mode);
+      setCreating(false);
+      setMode(null);
+    } catch (e: any) {
+      toast(e?.message || 'Failed', 'error');
+      setCreating(false);
+    }
+  };
+
+  const handleStatus = (status: number) => {
+    if (!active) return;
+    const successful = isPaymentSuccessful(status);
+    useAppStore.getState().walletTransactionResolve(active.token, successful);
+    if (successful) {
+      toast(active.description === t('wallet.topUp', 'Top up') ? t('wallet.topUpDone', 'Top-up completed') : t('wallet.sendDone', 'Transfer completed'), 'success');
+    }
+  };
+
+  const handleSendToChat = () => {
+    if (!active) return;
+    setPicker(active);
+  };
+
+  const handlePickChat = (chat: any) => {
+    if (!picker) return;
+    const msg = buildPaymentMessage(picker);
+    useAppStore.getState().forwardMessage(msg, String(chat.id));
+    toast(t('wallet.sentToChat', 'Payment sent to chat'), 'success');
+    setPicker(null);
+  };
+
+  const txIcon = (type: WalletMode) =>
+    type === 'topup' ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />;
 
   return (
     <SubView title={t('settings.payments', 'Payments & Billing')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.wallet', 'Wallet')} isDark={isDark} />
+      <SettingsSectionTitle title={t('wallet.title', 'Wallet')} isDark={isDark} />
       <div className={`rounded-2xl p-5 mb-2 ${isDark ? "bg-gradient-to-br from-[var(--accent)]/20 to-transparent border border-[var(--border-color)]" : "bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20"}`}>
-        <div className={`text-xs uppercase tracking-widest font-bold opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`}>{t('settings.balance', 'Balance')}</div>
-        <div className={`text-[32px] font-bold mt-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>${balance.toFixed(2)}</div>
+        <div className={`text-xs uppercase tracking-widest font-bold opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`}>{t('wallet.balance', 'Balance')}</div>
+        <div className={`text-[32px] font-bold mt-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{balance.toFixed(2)} {walletCurrency}</div>
         <div className="flex gap-2 mt-4">
-          <button onClick={() => toast(t('settings.topUp', 'Top up started'), 'success')} aria-label={t('settings.topUpBtn', 'Top up')} title={t('settings.topUpBtn', 'Top up')} className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
+          <button onClick={() => openForm('topup')} aria-label={t('wallet.topUp', 'Top up')} title={t('wallet.topUp', 'Top up')} className="min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
             <Plus size={16} />
-            <span className="sr-only">{t('settings.topUpBtn', 'Top up')}</span>
+            <span className="text-sm font-medium">{t('wallet.topUp', 'Top up')}</span>
           </button>
-          <button onClick={() => toast(t('settings.sendStarted', 'Send started'), 'info')} aria-label={t('settings.sendBtn', 'Send')} title={t('settings.sendBtn', 'Send')} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors active:scale-95 ${isDark ? "bg-white/10 text-[var(--text-primary)]" : "bg-slate-800 text-white"}`}>
+          <button onClick={() => openForm('send')} aria-label={t('wallet.send', 'Send')} title={t('wallet.send', 'Send')} className={`min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg transition-colors active:scale-95 ${isDark ? "bg-white/10 text-[var(--text-primary)]" : "bg-slate-800 text-white"}`}>
             <ArrowUpRight size={16} />
-            <span className="sr-only">{t('settings.sendBtn', 'Send')}</span>
+            <span className="text-sm font-medium">{t('wallet.send', 'Send')}</span>
           </button>
         </div>
       </div>
+
+      {(mode || active) && (
+        <div className="rounded-2xl p-4 mb-2 border bg-white/5 border-[var(--border-color)]">
+          {!active ? (
+            <>
+              <div className={`text-sm font-medium mb-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
+                {mode === 'topup' ? t('wallet.topUp', 'Top up') : t('wallet.send', 'Send')}
+              </div>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className={`flex-1 min-w-0 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-slate-300 text-slate-900'}`}
+                />
+                <input
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value.toUpperCase())}
+                  maxLength={6}
+                  className={`w-24 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-slate-300 text-slate-900'}`}
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCreate}
+                  disabled={creating}
+                  data-testid="wallet-submit"
+                  aria-label={mode === 'topup' ? t('wallet.topUp', 'Top up') : t('wallet.send', 'Send')}
+                  title={mode === 'topup' ? t('wallet.topUp', 'Top up') : t('wallet.send', 'Send')}
+                  className="flex-1 flex items-center justify-center text-sm font-medium px-3 py-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-[0.99] transition-transform disabled:opacity-50"
+                >
+                  {creating ? <Loader2 size={16} className="animate-spin" /> : mode === 'topup' ? <Plus size={16} /> : <ArrowUpRight size={16} />}
+                  <span className="ml-1">{mode === 'topup' ? t('wallet.topUp', 'Top up') : t('wallet.send', 'Send')}</span>
+                </button>
+                <button
+                  onClick={() => setMode(null)}
+                  aria-label={t('common.close', 'Close')}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium active:scale-[0.99] transition-transform ${isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'}`}
+                >
+                  {t('common.cancel', 'Cancel')}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <PaymentRequestCard
+                token={active.token}
+                amount={active.amount}
+                currency={active.currency}
+                description={active.description}
+                isDark={isDark}
+                onStatus={handleStatus}
+                onSendToChat={activeMode === 'send' ? handleSendToChat : undefined}
+              />
+            </>
+          )}
+        </div>
+      )}
 
       <SettingsSectionTitle title={t('settings.paymentSettings', 'Settings')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
@@ -48,9 +209,9 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
           iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
           title={t('settings.paymentsEnabled', 'Payments')}
           subtitle={t('settings.paymentsEnabledSub', 'Send and receive money')}
-          isOn={enabled}
+          isOn={walletEnabled}
           isDark={isDark}
-          onToggle={() => { setEnabled(v => !v); toast(t('settings.saved', 'Saved'), 'success'); }}
+          onToggle={() => { setWalletEnabled(!walletEnabled); toast(t('settings.saved', 'Saved'), 'success'); }}
         />
         <SettingsToggleRow
           icon={<Smartphone size={16} />}
@@ -58,9 +219,9 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
           iconColor="t-accent"
           title={t('settings.biometricPay', 'Biometric confirmation')}
           subtitle={t('settings.biometricPaySub', 'Require Face ID / fingerprint')}
-          isOn={biometric}
+          isOn={biometricEnabled}
           isDark={isDark}
-          onToggle={() => setBiometric(v => !v)}
+          onToggle={() => setBiometricEnabled(!biometricEnabled)}
         />
         <SettingsRow
           icon={<ShieldCheck size={16} />}
@@ -72,18 +233,26 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.recentTransactions', 'Recent transactions')} isDark={isDark} />
+      <SettingsSectionTitle title={t('wallet.transactions', 'Transactions')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
-        {TRANSACTIONS.map((tx, i) => (
+        {transactions.length === 0 && (
+          <div className={`px-4 py-6 text-center text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+            {t('wallet.empty', 'No transactions yet')}
+          </div>
+        )}
+        {transactions.map((tx, i) => (
           <div key={tx.id}>
-            {i > 0 && <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />}
+            {i > 0 && <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-slate-100"}`} />}
             <div className="flex items-center gap-3 px-4 py-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-white/5" : "bg-slate-100"} ${tx.amount >= 0 ? "text-emerald-400" : (isDark ? "text-gray-300" : "text-slate-600")}`}>
-                {tx.icon}
+                {txIcon(tx.type)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{tx.title}</div>
-                <div className={`text-xs ${isDark ? "text-gray-500" : "text-slate-400"}`}>{tx.date}</div>
+                <div className={`text-xs flex items-center gap-1 ${tx.status === 'failed' ? 'text-red-500' : (isDark ? 'text-gray-500' : 'text-slate-400')}`}>
+                  {STATUS_ICON[tx.status]}
+                  {tx.status === 'pending' ? t('wallet.pending', 'Pending') : tx.status === 'failed' ? t('wallet.failed', 'Payment failed') : new Date(tx.date).toLocaleDateString()}
+                </div>
               </div>
               <span className={`text-sm font-semibold ${tx.amount >= 0 ? "text-emerald-400" : (isDark ? "text-[var(--text-primary)]" : "text-slate-800")}`}>
                 {tx.amount >= 0 ? '+' : ''}{tx.amount.toFixed(2)}
@@ -91,16 +260,14 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
             </div>
           </div>
         ))}
-        <button
-          onClick={() => toast(t('settings.receiptOpen', 'Opening receipts…'), 'info')}
-          aria-label={t('settings.viewAllReceipts', 'View all receipts')}
-          title={t('settings.viewAllReceipts', 'View all receipts')}
-          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--accent)] transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
-        >
-          <Receipt size={16} />
-          <span className="sr-only">{t('settings.viewAllReceipts', 'View all receipts')}</span>
-        </button>
       </SettingsGroup>
+
+      <ChatPickerModal
+        open={picker !== null}
+        onClose={() => setPicker(null)}
+        onPick={handlePickChat}
+        title={t('wallet.payToChat', 'Send payment to chat')}
+      />
     </SubView>
   );
 };
