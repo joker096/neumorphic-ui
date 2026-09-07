@@ -166,11 +166,31 @@ const auditInPage = (): { findings: Omit<Finding, 'viewport' | 'view'>[]; totals
       (el) => el.checkVisibility && el.checkVisibility() && !el.closest('[aria-hidden="true"]'),
     );
     const innermost = interactives.filter((el) => !interactives.some((o) => o !== el && o.contains(el)));
-    const boxes: { el: Element; r: DOMRect }[] = [];
+    // Detect elements inside a fixed bottom bar (e.g. the bottom nav). The bar is
+    // chrome that content scrolls beneath (standard mobile pattern), not an
+    // overlapping layer — used below to skip content-vs-bar overlap pairs.
+    const inFixedBottomBar = (el: Element): boolean => {
+      let node: Element | null = el;
+      while (node && node !== document.body) {
+        const cs = getComputedStyle(node);
+        if (cs.position === 'fixed') {
+          const nr = node.getBoundingClientRect();
+          return (
+            nr.bottom >= window.innerHeight - 1 &&
+            nr.left <= 1 &&
+            nr.right >= window.innerWidth - 1 &&
+            nr.height < window.innerHeight * 0.5
+          );
+        }
+        node = node.parentElement;
+      }
+      return false;
+    };
+    const boxes: { el: Element; r: DOMRect; inBar: boolean }[] = [];
     innermost.forEach((el) => {
       const r = el.getBoundingClientRect();
       if (!inView(r)) return;
-      boxes.push({ el, r });
+      boxes.push({ el, r, inBar: inFixedBottomBar(el) });
       if (r.width < 44 || r.height < 44) {
         push('touch-target', 'error', describe(el), `${Math.round(r.width)}x${Math.round(r.height)} < 44x44`);
       }
@@ -202,6 +222,10 @@ const auditInPage = (): { findings: Omit<Finding, 'viewport' | 'view'>[]; totals
         const a = boxes[i];
         const b = boxes[j];
         if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
+        // False-positive guard (UI_CYCLE.md §2.5): the fixed bottom nav is chrome
+        // that content scrolls beneath, not an overlapping layer. Skip content-vs-
+        // bar pairs; bar-bar and content-content pairs are still checked.
+        if (a.inBar !== b.inBar) continue;
         const ra = visibleRect(a.el, a.r);
         const rb = visibleRect(b.el, b.r);
         const ix = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
