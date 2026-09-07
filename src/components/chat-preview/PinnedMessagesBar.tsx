@@ -21,6 +21,7 @@ export const previewOf = (messages: any[], id: number): string => {
   if (msg.type === "audio") return "Voice message";
   if (msg.type === "sticker") return "Sticker";
   if (msg.type === "file") return "File";
+  if (msg.type === "story") return "Story";
   return "Message";
 };
 

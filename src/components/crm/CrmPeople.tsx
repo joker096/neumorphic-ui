@@ -343,10 +343,10 @@ export const CrmPeople: React.FC<Props> = ({
               onClick={() => setBulkDeleteOpen(true)}
               aria-label={t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
               title={t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
-              className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-xl bg-rose-500/15 text-rose-500 text-xs font-bold flex items-center justify-center"
+              className="min-h-11 px-3 rounded-xl bg-rose-500/15 text-rose-500 text-xs font-bold flex items-center justify-center gap-1.5"
             >
               <Trash2 size={16} aria-hidden="true" />
-              <span className="sr-only">{t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}</span>
+              <span>{t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}</span>
             </button>
           )}
         </div>

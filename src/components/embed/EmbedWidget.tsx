@@ -127,7 +127,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
               placeholder={t('embed.typeMessage')}
               className="flex-1 min-h-11 rounded-xl px-3 bg-[var(--input-bg)] text-[var(--text-primary)] outline-none"
             />
-            <button onClick={() => void send()} className={`min-w-11 h-[40px] rounded-xl flex items-center justify-center cursor-pointer ${bubbleBg}`}>
+            <button onClick={() => void send()} className={`min-w-11 min-h-11 rounded-xl flex items-center justify-center cursor-pointer ${bubbleBg}`}>
               <Send size={16} />
             </button>
           </div>

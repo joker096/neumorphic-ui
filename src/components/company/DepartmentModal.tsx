@@ -188,7 +188,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
             className="w-full min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
           >
             {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Check size={16} aria-hidden="true" />}
-            <span className="sr-only">{t('company.save', 'Save')}</span>
+            <span>{t('company.save', 'Save')}</span>
           </button>
         </div>
       </div>

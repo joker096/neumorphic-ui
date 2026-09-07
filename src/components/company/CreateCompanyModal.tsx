@@ -114,7 +114,7 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
           ) : (
             <Check size={16} aria-hidden="true" />
           )}
-          <span className="sr-only">{t('company.createCta', 'Create company')}</span>
+          <span>{t('company.createCta', 'Create company')}</span>
         </button>
       </div>
     </div>

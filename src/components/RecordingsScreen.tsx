@@ -102,7 +102,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('recordings.searchPlaceholder', 'Search recordings...')}
             aria-label={t('recordings.searchPlaceholder', 'Search recordings...')}
-            className={`w-full h-11 pl-9 pr-3 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400'}`}
+            className={`w-full h-11 pl-10 pr-3 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400'}`}
           />
         </div>
 

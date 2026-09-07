@@ -158,7 +158,7 @@ export const ProfileEditForm = ({
           className="flex-1 min-h-11 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] active:scale-[0.98] transition-all"
         >
           <X size={18} aria-hidden="true" />
-          <span className="sr-only">{t('settings.cancel', 'Cancel')}</span>
+          <span>{t('settings.cancel', 'Cancel')}</span>
         </button>
         <button
           type="submit"
@@ -167,7 +167,7 @@ export const ProfileEditForm = ({
           className="flex-1 min-h-11 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110 active:scale-[0.98] shadow-lg transition-all"
         >
           <Check size={18} aria-hidden="true" />
-          <span className="sr-only">{t('settings.saveProfile', 'Save Profile')}</span>
+          <span>{t('settings.saveProfile', 'Save Profile')}</span>
         </button>
       </div>
     </form>

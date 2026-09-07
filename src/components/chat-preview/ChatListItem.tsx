@@ -351,7 +351,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
           <div className="flex justify-between items-center mb-[2px]">
             <span
-              className={`font-bold text-[13px] md:text-sm truncate pr-2 flex items-center gap-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}
+              className={`font-bold text-[13px] md:text-sm truncate pr-2 flex items-center gap-1 text-[var(--text-primary)]`}
             >
               {chat.pinned && (
                 <MapPin size={12} className="shrink-0 opacity-60 rotate-45" />
@@ -359,14 +359,14 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               {chat.name}
             </span>
             <span
-              className={`text-xs md:text-xs font-medium tracking-wide shrink-0 ${isDark ? "text-[var(--text-tertiary)]" : "text-slate-400"}`}
+              className={`text-xs md:text-xs font-medium tracking-wide shrink-0 text-[var(--text-tertiary)]`}
             >
               {fuzzedTime}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span
-              className={`text-xs md:text-xs truncate pr-4 ${isDark ? (active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]") : active ? "text-[var(--accent)]" : "text-slate-500"} ${chat.unread ? "font-medium" : ""}`}
+              className={`text-xs md:text-xs truncate pr-4 ${active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]"} ${chat.unread ? "font-medium" : ""}`}
             >
                 {typingIndicators && (chat.isTyping || remoteTyping) && type === "chat" ? (
                 <span className="font-bold tracking-wide italic text-[var(--accent)]">
@@ -387,11 +387,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             )}
             {(chat as any).hasMentions && (
               <div
-                className={`shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center shadow-sm ${
-                  isDark
-                    ? "bg-[#51d7ff]/90 text-[var(--bg-primary)]"
-                    : "bg-[#51d7ff] text-[var(--bg-primary)]"
-                }`}
+                className={`shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center shadow-sm bg-[#51d7ff] text-[#0f172a]`}
               >
                 <span className="text-xs font-bold pb-[0.5px] leading-none">@</span>
               </div>
@@ -426,20 +422,20 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
                 onClick={() => setShowDeleteConfirm(false)}
                 aria-label={t('common.cancel')}
                 title={t('common.cancel')}
-                className="flex-1 min-w-11 h-[44px] rounded-xl font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] flex items-center justify-center"
+                className="flex-1 min-w-11 h-[44px] rounded-xl font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] flex items-center justify-center gap-1.5"
               >
                 <X size={16} />
-                <span className="sr-only">{t('common.cancel')}</span>
+                <span>{t('common.cancel')}</span>
               </button>
               <button
                 type="button"
                 onClick={() => { onDelete?.(chat.id); setShowDeleteConfirm(false); }}
                 aria-label={t('chat.delete')}
                 title={t('chat.delete')}
-                className="flex-1 min-w-11 h-[44px] rounded-xl font-bold transition-colors bg-red-500 text-white hover:bg-red-600 flex items-center justify-center"
+                className="flex-1 min-w-11 h-[44px] rounded-xl font-bold transition-colors bg-red-500 text-white hover:bg-red-600 flex items-center justify-center gap-1.5"
               >
                 <Trash2 size={16} />
-                <span className="sr-only">{t('chat.delete')}</span>
+                <span>{t('chat.delete')}</span>
               </button>
             </div>
           </div>

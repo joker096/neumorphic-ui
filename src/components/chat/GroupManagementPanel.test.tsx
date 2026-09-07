@@ -81,4 +81,12 @@ describe('GroupManagementPanel role gating', () => {
     expect(screen.queryByRole('button', { name: 'Owner Mute' })).toBeNull();
     expect(screen.queryByRole('combobox', { name: 'Owner Role' })).toBeNull();
   });
+
+  it('renders selects with 44px tap targets (§2.2)', () => {
+    renderPanel('owner');
+    const slowMode = screen.getByRole('combobox', { name: 'Slow mode' }) as HTMLSelectElement;
+    expect(slowMode.className).toContain('h-[var(--control-height-md)]');
+    const roleSelect = screen.getByRole('combobox', { name: 'A Role' }) as HTMLSelectElement;
+    expect(roleSelect.className).toContain('h-[var(--control-height-md)]');
+  });
 });

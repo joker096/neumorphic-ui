@@ -33,7 +33,7 @@ export const ProfileView: ComponentType<ProfileViewProps> = ({
 
   return (
     <div
-      className={`w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-28 sm:pb-8 rounded-2xl ${
+      className={`w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8 rounded-2xl ${
         isDark
           ? "bg-[var(--bg-secondary)] border border-[var(--border-color)] shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
           : "bg-white border border-[var(--border-color)] shadow-[0_8px_24px_rgba(15,23,42,0.05)]"

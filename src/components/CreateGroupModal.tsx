@@ -53,7 +53,7 @@ export const CreateGroupModal = ({ theme = 'dark', onClose }: { theme?: 'dark' |
       </div>
 
       <button onClick={handleCreate} disabled={!name.trim() || selectedIds.length === 0} aria-label={t('createGroup.create')} title={t('createGroup.create')} className={modalPrimaryBtnClass}>
-        <Users size={18} /> <span className="sr-only">{t('createGroup.create')}</span>
+        <Users size={18} /> <span>{t('createGroup.create')}</span>
       </button>
     </AppModal>
   );

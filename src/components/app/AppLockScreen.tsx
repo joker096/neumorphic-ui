@@ -96,7 +96,7 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
               }`}
             >
               <LockOpen size={20} />
-              <span className="sr-only">{t('lock.unlock')}</span>
+              <span>{t('lock.unlock')}</span>
             </button>
             {biometricEnabled && biometricAvailable && (
               <>

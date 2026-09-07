@@ -115,7 +115,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
           {editable ? (
             <button onClick={handleSave} aria-label={t('crm.save', CRM_FALLBACKS.save)} title={t('crm.save', CRM_FALLBACKS.save)} className="flex-1 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center gap-2">
               <Check size={16} aria-hidden="true" />
-              <span className="sr-only">{t('crm.save', CRM_FALLBACKS.save)}</span>
+              <span>{t('crm.save', CRM_FALLBACKS.save)}</span>
             </button>
           ) : (
             <div className="flex-1 text-center text-xs text-[var(--text-secondary)] py-2">{t('crm.readOnly', 'Read only — admins can edit')}</div>

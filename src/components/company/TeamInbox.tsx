@@ -200,7 +200,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
           />
           <button
             onClick={() => void send()}
-            className="min-w-11 h-[40px] rounded-xl flex items-center justify-center bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] cursor-pointer"
+            className="min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] cursor-pointer"
           >
             <Send size={16} />
           </button>

@@ -175,7 +175,7 @@ export function useChatPreviewState(
     }
     setMsgTextFn("");
     setReplyTargetFn2(null);
-    setLocalMorseMode(false);
+    setMorseModeFn2(false);
     setLocalSilentMode(false);
   };
 

@@ -150,7 +150,7 @@ export function LockScreen({
               }`}
             >
               <LockOpen size={20} />
-              <span className="sr-only">{t("lock.unlock")}</span>
+              <span>{t("lock.unlock")}</span>
             </button>
           </form>
         )}

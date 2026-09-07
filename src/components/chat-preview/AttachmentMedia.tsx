@@ -3,6 +3,7 @@ import { Play, FileText, ImageOff, VideoOff } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { VoiceWaveform } from "./VoiceWaveform";
 import { formatSize } from "../../utils/formatSize";
+import { StoryCard } from "../stories/StoryCard";
 
 interface AttachmentMediaProps {
   msg: any;
@@ -24,6 +25,10 @@ export function AttachmentMedia({
   useEffect(() => {
     setMediaErr(false);
   }, [msg.attachment, msg.url, msg.thumb]);
+
+  if (msg.type === "story") {
+    return <StoryCard story={msg.story} />;
+  }
 
   if (msg.type === "audio") {
     return <VoiceWaveform duration={msg.duration} isMe={isMe} isDark={isDark} audioUrl={msg.audioUrl} />;

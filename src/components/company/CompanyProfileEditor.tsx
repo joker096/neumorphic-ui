@@ -61,7 +61,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
   if (loading) {
     return (
       <div className="absolute inset-0 z-[100] flex flex-col bg-[var(--bg-primary)]/95">
-        <div className="flex items-center justify-between px-4 py-3 md:px-20 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
+        <div className="flex items-center justify-between px-4 py-3 md:px-16 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
           <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
 <button type="button" aria-label={t('common.close')} onClick={onClose} className={closeBtnStyle}>
   <X size={16} />
@@ -76,14 +76,14 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
 
   return (
     <div className="absolute inset-0 z-[100] flex flex-col bg-[var(--bg-primary)]/95">
-      <div className="flex items-center justify-between px-4 py-3 md:px-20 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
+      <div className="flex items-center justify-between px-4 py-3 md:px-16 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
         <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
         <button onClick={onClose} className={closeBtnStyle}>
           <X size={16} />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 md:px-20 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 md:px-16 space-y-3">
         {FIELDS.map(f => (
           <div key={f.key} className="p-4 rounded-md neu-card-inset">
             <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
@@ -109,7 +109,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
         ))}
       </div>
 
-      <div className="px-4 py-3 md:px-20 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
+      <div className="px-4 py-3 md:px-16 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
         <button
           onClick={handleSave}
           disabled={saving}

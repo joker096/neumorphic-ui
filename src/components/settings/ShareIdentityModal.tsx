@@ -86,12 +86,13 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
               {shareId}
             </div>
             <div className="flex gap-2 w-full">
-              <button onClick={handleCopyId} aria-label={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} title={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
+              <button onClick={handleCopyId} aria-label={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} title={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} className={`flex-1 min-h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
                 {copied ? <Check size={14} /> : <Copy size={14} />}
-                <span className="sr-only">{copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')}</span>
+                <span>{copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')}</span>
               </button>
-              <button onClick={handleShare} aria-label={t('settings.shareIdentity', 'Share Identity')} title={t('settings.shareIdentity', 'Share Identity')} className={`w-10 h-10 min-w-11 min-h-11 shrink-0 flex items-center justify-center rounded-xl transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
+              <button onClick={handleShare} aria-label={t('settings.shareIdentity', 'Share Identity')} title={t('settings.shareIdentity', 'Share Identity')} className={`flex-1 min-h-11 shrink-0 flex items-center justify-center gap-2 rounded-xl font-bold text-xs transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
                 <Share2 size={14} />
+                <span>{t('settings.shareIdentity', 'Share Identity')}</span>
               </button>
             </div>
           </div>

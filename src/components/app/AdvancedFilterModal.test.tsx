@@ -75,15 +75,22 @@ describe('AdvancedFilterModal - additional tests', () => {
     expect(toggles.length).toBe(5);
   });
 
-  it('renders square icon-only reset and apply buttons', () => {
+  it('renders labeled reset and apply buttons', () => {
     render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
     const resetBtn = screen.getByRole('button', { name: 'chat.filters.reset' }) as HTMLElement;
     const applyBtn = screen.getByRole('button', { name: 'chat.filters.apply' }) as HTMLElement;
-    expect(resetBtn.className).toContain('w-10');
-    expect(resetBtn.className).toContain('h-10');
-    expect(applyBtn.className).toContain('w-10');
-    expect(applyBtn.className).toContain('h-10');
-    expect(resetBtn.className).not.toContain('w-full');
-    expect(applyBtn.className).not.toContain('w-full');
+    expect(resetBtn.textContent).toContain('chat.filters.reset');
+    expect(applyBtn.textContent).toContain('chat.filters.apply');
+    expect(resetBtn.className).toContain('flex-1');
+    expect(applyBtn.className).toContain('flex-1');
+    expect(resetBtn.className).toContain('min-h-11');
+    expect(applyBtn.className).toContain('min-h-11');
+  });
+
+  it('renders filter label rows with 44px tap targets (§2.2)', () => {
+    render(<AdvancedFilterModal t={(k: string) => k} filters={{}} setFilters={vi.fn()} onClose={vi.fn()} />);
+    const label = screen.getByText('chat.filters.hasMedia').closest('label');
+    expect(label).not.toBeNull();
+    expect(label?.className).toContain('min-h-11');
   });
 });

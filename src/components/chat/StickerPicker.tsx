@@ -78,7 +78,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
                   <button
                     key={`${pack.id}-${idx}`}
                     onClick={() => { onSelect(pack.id === 'icq' ? `icq:${st}` : st); onClose(); }}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-transform active:scale-95 hover:bg-[var(--bg-elevated)]`}
+                    className={`min-w-11 min-h-11 rounded-full flex items-center justify-center text-xl transition-transform active:scale-95 hover:bg-[var(--bg-elevated)]`}
                   >
                     {stickerSrc ? (
                       <img src={stickerSrc} alt={st} className="w-7 h-7 object-contain" loading="lazy" decoding="async" />
@@ -92,7 +92,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
                 <button
                   onClick={() => toast(t('premium.stickerLocked', 'This sticker pack is available with Premium'))}
                   aria-label={t('premium.stickerLocked', 'This sticker pack is available with Premium')}
-                  className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
+                  className="min-w-11 min-h-11 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
                 >
                   <Crown size={16} />
                 </button>

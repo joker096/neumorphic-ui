@@ -90,19 +90,19 @@ export const ProfileHeaderCard = ({ isDark, userProfile, t, onEdit, onShare }: P
           onClick={onEdit}
           aria-label={t('settings.editProfile', 'Edit Profile')}
           title={t('settings.editProfile', 'Edit Profile')}
-          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+          className="min-h-11 min-w-11 px-3 flex items-center justify-center gap-2 rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
         >
           <Edit size={14} />
-          <span className="sr-only">{t('settings.editProfile', 'Edit Profile')}</span>
+          <span className="text-sm">{t('settings.editProfile', 'Edit Profile')}</span>
         </button>
         <button
           onClick={onShare}
           aria-label={t('settings.shareIdentity', 'Share Identity')}
           title={t('settings.shareIdentity', 'Share Identity')}
-          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+          className="min-h-11 min-w-11 px-3 flex items-center justify-center gap-2 rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
         >
           <Share2 size={16} />
-          <span className="sr-only">{t('settings.shareIdentity', 'Share Identity')}</span>
+          <span className="text-sm">{t('settings.shareIdentity', 'Share Identity')}</span>
         </button>
       </div>
     </div>

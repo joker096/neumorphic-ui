@@ -111,6 +111,15 @@ describe("TeamInbox", () => {
     expect(input).toHaveValue("");
   });
 
+  it("send button has min-h-11 touch zone", () => {
+    store.companyChannels = [channel];
+    store.activeChannelId = "ch1";
+    render(<TeamInbox />);
+
+    const buttons = screen.getAllByRole("button");
+    expect(buttons[buttons.length - 1].className).toContain("min-h-11");
+  });
+
   it("sends on Enter in the input", () => {
     store.companyChannels = [channel];
     store.activeChannelId = "ch1";

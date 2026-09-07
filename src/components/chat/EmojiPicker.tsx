@@ -141,7 +141,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("emojis.search", "Search")}
             aria-label={t("emojis.search", "Search")}
-            className="w-full pl-7 pr-2 py-1.5 rounded-lg text-[13px] bg-black/5 dark:bg-white/10 outline-none border-none"
+            className="w-full pl-8 pr-2 py-1.5 rounded-lg text-[13px] bg-black/5 dark:bg-white/10 outline-none border-none"
           />
         </div>
       </div>

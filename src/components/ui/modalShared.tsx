@@ -106,7 +106,7 @@ export const sheetTitleClass = (_isDark: boolean) =>
 export const sheetActionClass = (_isDark: boolean, danger = false, compact = false) =>
   `flex items-center gap-[var(--spacing-12)] w-full min-h-[var(--control-height-md)] ${compact ? 'px-[var(--spacing-12)] py-[var(--spacing-06)] text-[length:var(--text-body-small)]' : 'px-[var(--spacing-16)] py-[var(--spacing-10)] text-[length:var(--text-button)]'} text-left font-medium rounded-[var(--radius-card)] transition-colors cursor-pointer active:scale-[0.99] ${
     danger
-      ? 'text-red-500 hover:bg-red-500/10'
+      ? 'text-[var(--danger)] hover:bg-[var(--danger-soft)]'
       : 'text-foreground hover:bg-muted'
   }`;
 
@@ -127,19 +127,19 @@ export const modalFieldClass =
 
 /** Full-width primary action button (accent). */
 export const modalPrimaryBtnClass =
-  'w-full h-10 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]';
+  'w-full h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]';
 
 /** Secondary / ghost button. */
 export const modalSecondaryBtnClass =
-  'flex-1 h-10 text-sm font-bold rounded-xl transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]';
+  'flex-1 h-11 text-sm font-bold rounded-xl transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]';
 
 /** Square icon-only primary action button (no w-full — safe inside sibling rows). */
 export const modalPrimaryIconBtnClass =
-  'w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]';
+  'w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]';
 
 /** Square icon-only secondary / ghost button. */
 export const modalSecondaryIconBtnClass =
-  'w-10 h-10 rounded-xl flex items-center justify-center transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]';
+  'w-11 h-11 rounded-xl flex items-center justify-center transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]';
 
 /** Informational callout box. */
 export const modalInfoClass =

@@ -142,7 +142,7 @@ function ChatInputAreaImpl({
             title={chat.isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
           >
             {chat.isMuted ? <Volume2 size={16} /> : <VolumeX size={16} />}
-            <span className="sr-only">{chat.isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}</span>
+            <span>{chat.isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}</span>
           </button>
         </div>
       );
@@ -437,7 +437,7 @@ function ChatInputAreaImpl({
 
       <ChatInputReplyBar replyTarget={eReplyTarget} setReplyTarget={setLocalReplyTarget} isDark={isDark} t={t} />
       <ChatInputVoiceError voiceNoteError={eVoiceNoteError} isDark={isDark} />
-      <MorsePreview msgText={eMsgText} isDark={isDark} />
+      {eMorseMode && <MorsePreview msgText={eMsgText} isDark={isDark} />}
 
       {eShowStickerPicker && (
         <div className="animate-fade-in">

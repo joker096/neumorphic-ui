@@ -156,6 +156,14 @@ export const PlaylistView = ({
                   setConfirmDeleteMode(isRadioMode ? 'radio' : 'playlist');
                   setConfirmDeleteIndex(i);
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setConfirmDeleteMode(isRadioMode ? 'radio' : 'playlist');
+                    setConfirmDeleteIndex(i);
+                  }
+                }}
                 className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
                 role="button"
                 tabIndex={0}

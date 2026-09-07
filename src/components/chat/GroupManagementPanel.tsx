@@ -82,7 +82,7 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
               aria-label={t('group.slowMode', 'Slow mode')}
               value={liveGroup.slowModeSeconds}
               onChange={(e) => patchGroup({ slowModeSeconds: Number(e.target.value) })}
-              className={`w-24 h-8 rounded-lg text-sm px-2 ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]' : 'bg-slate-100 text-slate-900'}`}
+              className={`w-24 h-[var(--control-height-md)] rounded-lg text-sm px-2 ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]' : 'bg-slate-100 text-slate-900'}`}
             >
               {SLOW_MODE_OPTIONS.map((sec) => (
                 <option key={sec} value={sec}>
@@ -115,7 +115,7 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
                     aria-label={`${m.name} ${t('group.role', 'Role')}`}
                     value={m.role}
                     onChange={(e) => patchMembers(liveMembers.map((x) => (x.id === m.id ? { ...x, role: e.target.value as GroupMember['role'] } : x)))}
-                    className={`w-16 h-8 rounded-lg text-xs px-1 ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]' : 'bg-slate-100 text-slate-900'}`}
+                    className={`w-16 h-[var(--control-height-md)] rounded-lg text-xs px-1 ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]' : 'bg-slate-100 text-slate-900'}`}
                   >
                     <option value="admin">{t('group.admin', 'Admin')}</option>
                     <option value="member">{t('group.member', 'Member')}</option>

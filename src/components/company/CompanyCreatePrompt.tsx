@@ -22,22 +22,22 @@ export const CompanyCreatePrompt = ({ t, onCreate }: CompanyCreatePromptProps) =
         onClick={onCreate}
         aria-label={t('company.createCta', 'Create company')}
         title={t('company.createCta', 'Create company')}
-        className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+        className="min-h-11 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
       >
         <Building2 size={16} />
-        <span className="sr-only">{t('company.createCta', 'Create company')}</span>
+        <span>{t('company.createCta', 'Create company')}</span>
       </button>
 
       <button
         onClick={() => setShowHelp((v) => !v)}
         aria-label={t('company.createHelpCta', 'How to create a company')}
         title={t('company.createHelpCta', 'How to create a company')}
-        className="mt-2 w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-tertiary)]"
+        className="mt-2 min-h-11 px-4 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-tertiary)]"
         aria-expanded={showHelp}
       >
         <HelpCircle size={16} />
+        <span>{t('company.createHelpCta', 'How to create a company')}</span>
         <ChevronDown size={16} className={`transition-transform ${showHelp ? 'rotate-180' : ''}`} />
-        <span className="sr-only">{t('company.createHelpCta', 'How to create a company')}</span>
       </button>
 
       {showHelp && (

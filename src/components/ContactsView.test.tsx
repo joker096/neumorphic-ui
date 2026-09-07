@@ -126,6 +126,15 @@ describe('ContactsView', () => {
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringMatching(/^nexus:\/\/id\//));
   });
 
+  it('share modal copy ID button has min-h-11 touch zone', () => {
+    render(<ContactsView {...defaultProps} />);
+
+    fireEvent.click(screen.getByTitle('contacts.shareIdentity'));
+
+    const copyBtn = screen.getByRole('button', { name: 'contacts.copyId' });
+    expect(copyBtn.className).toContain('min-h-11');
+  });
+
   it('sorts contacts alphabetically by default', () => {
     render(<ContactsView {...defaultProps} />);
 

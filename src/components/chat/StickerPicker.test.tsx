@@ -134,4 +134,17 @@ describe('StickerPicker', () => {
     render(<StickerPicker {...defaultProps} />);
     expect(screen.queryByLabelText('premium.stickerLocked')).not.toBeInTheDocument();
   });
+
+  it('renders sticker and premium-teaser buttons with 44px tap targets (§2.2)', () => {
+    render(<StickerPicker {...defaultProps} />);
+    const stickerBtns = document.querySelectorAll('button[class*="min-w-11"]');
+    expect(stickerBtns.length).toBeGreaterThan(0);
+    stickerBtns.forEach((btn) => expect(btn.className).toContain('min-h-11'));
+    const teasers = screen.getAllByLabelText('premium.stickerLocked');
+    expect(teasers.length).toBeGreaterThan(0);
+    teasers.forEach((teaser) => {
+      expect(teaser.className).toContain('min-w-11');
+      expect(teaser.className).toContain('min-h-11');
+    });
+  });
 });

@@ -95,6 +95,16 @@ describe('LiveVoiceRecorder', () => {
     });
   });
 
+  it('renders pause/resume button with 44px tap target (§2.2)', async () => {
+    render(<LiveVoiceRecorder {...defaultProps} />);
+    await waitFor(() => {
+      expect(screen.getByTitle('Pause')).toBeInTheDocument();
+    });
+    const pauseBtn = screen.getByTitle('Pause') as HTMLElement;
+    expect(pauseBtn.className).toContain('min-h-11');
+    expect(pauseBtn.className).toContain('min-w-11');
+  });
+
   it('calls onPermissionDenied and onCancel when mic access fails', async () => {
     const MediaRecorderMock = vi.fn();
     const getUserMediaSpy = vi.fn().mockRejectedValue(new Error('Permission denied'));

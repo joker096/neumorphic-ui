@@ -146,10 +146,10 @@ export const CrmRoles: React.FC = () => {
               onClick={() => setConfirm({ type: 'reset' })}
               aria-label={t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}
               title={t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}
-              className="min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] inline-flex items-center justify-center"
+              className="min-h-11 px-4 rounded-xl cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] inline-flex items-center justify-center gap-2"
             >
               <RefreshCw size={18} aria-hidden="true" />
-              <span className="sr-only">{t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}</span>
+              <span>{t('crm.resetDemo', CRM_FALLBACKS.resetDemo)}</span>
             </button>
           </div>
         </section>

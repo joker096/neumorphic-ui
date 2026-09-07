@@ -33,7 +33,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
       <select
         value={newFieldVisibility}
         onChange={(e) => onVisibilityChange(e.target.value as FieldVisibility)}
-        className="w-full h-9 rounded-lg text-xs outline-none px-3 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+         className="w-full min-h-11 rounded-lg text-xs outline-none px-3 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)]"
       >
         {VISIBILITY_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.fallback)}</option>
@@ -46,7 +46,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
             <select
               value={field.type}
               onChange={(e) => onUpdate(field.id, { type: e.target.value as ProfileField['type'] })}
-              className="h-9 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+              className="min-h-11 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
             >
               {PROFILE_FIELD_TYPES.map((opt) => (
                 <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.label)}</option>
@@ -55,7 +55,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
             <select
               value={field.visibility}
               onChange={(e) => onUpdate(field.id, { visibility: e.target.value as FieldVisibility })}
-              className="h-9 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+              className="min-h-11 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
             >
               {VISIBILITY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.fallback)}</option>
@@ -77,7 +77,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
               placeholder={t('settings.customLabelPlaceholder', 'Label')}
               value={field.label}
               onChange={(e) => onUpdate(field.id, { label: e.target.value })}
-              className="w-full h-9 rounded-lg text-xs outline-none px-3 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+              className="w-full min-h-11 rounded-lg text-xs outline-none px-3 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
             />
           )}
           <input
@@ -94,7 +94,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
             }
             value={field.value}
             onChange={(e) => onUpdate(field.id, { value: e.target.value })}
-            className="w-full h-9 rounded-lg text-xs outline-none px-3 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+            className="w-full min-h-11 rounded-lg text-xs outline-none px-3 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
           />
         </div>
       ))}

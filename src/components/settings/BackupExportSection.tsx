@@ -57,7 +57,10 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
     setLastBackup(now);
   };
 
-  const handleBackup = () => setPrompt('backup');
+  const handleBackup = () => {
+    if (busy === 'backup') return;
+    setPrompt('backup');
+  };
 
   const handleExportChats = () => setPrompt('chats');
 
@@ -164,17 +167,15 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
           subtitle={formatLastBackup(lastBackup)}
           isDark={isDark}
         />
-        <button
-          type="button"
-          onClick={handleBackup}
-          disabled={busy === 'backup'}
-          aria-label={busy === 'backup' ? t('settings.working', 'Working…') : t('settings.createBackup', 'Back up now')}
+        <SettingsRow
+          icon={<Upload size={16} />}
+          iconBg={isDark ? 'bg-emerald-500/10' : 'bg-emerald-100'}
+          iconColor={isDark ? 'text-emerald-400' : 'text-emerald-600'}
           title={busy === 'backup' ? t('settings.working', 'Working…') : t('settings.createBackup', 'Back up now')}
-          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--accent)] transition-colors active:scale-[0.99] ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'} disabled:opacity-50`}
-        >
-          <Upload size={16} />
-          <span className="sr-only">{busy === 'backup' ? t('settings.working', 'Working…') : t('settings.createBackup', 'Back up now')}</span>
-        </button>
+          subtitle={t('settings.backupHowToExport', 'Create an encrypted backup file with all your data')}
+          isDark={isDark}
+          onClick={handleBackup}
+        />
         <SettingsRow
           icon={<Lock size={16} />}
           iconBg={isDark ? 'bg-amber-500/10' : 'bg-amber-100'}
@@ -192,7 +193,7 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
           iconBg={isDark ? 'bg-cyan-500/10' : 'bg-cyan-100'}
           iconColor={isDark ? 'text-cyan-400' : 'text-cyan-600'}
           title={t('settings.exportJson', 'Export chat history (encrypted)')}
-          subtitle={busy === 'export' ? t('settings.working', 'Working…') : t('settings.backupHowToExport', 'Create an encrypted backup file with all your data')}
+          subtitle={busy === 'export' ? t('settings.working', 'Working…') : t('settings.exportJsonSub', 'Messages, media links, settings')}
           isDark={isDark}
           onClick={handleExportChats}
         />

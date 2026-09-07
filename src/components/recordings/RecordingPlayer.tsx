@@ -26,7 +26,8 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.src = blobUrl;
-      audioRef.current.play().catch(() => setPlaying(false));
+      const p = audioRef.current.play();
+      if (p) p.catch(() => setPlaying(false));
     }
     return () => {
       if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
@@ -90,6 +91,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
         </div>
         <input type="range" min={0} max={duration || 0} value={currentTime}
           onChange={(e) => { const t = Number(e.target.value); if (audioRef.current) audioRef.current.currentTime = t; setCurrentTime(t); }}
+          aria-label={t('a11y.seek', 'Seek')}
           className="w-full h-1.5 accent-orange-500 cursor-pointer mb-1.5 rounded-full appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-orange-500 [&::-webkit-slider-thumb]:shadow-md" />
         <div className={`flex justify-between text-xs mb-5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
           <span>{formatDuration(currentTime)}</span>
@@ -121,6 +123,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
             </motion.button>
             <input type="range" min={0} max={1} step={0.05} value={muted ? 0 : volume}
               onChange={(e) => { const v = Number(e.target.value); setVolume(v); if (audioRef.current) audioRef.current.volume = v; setMuted(false); }}
+              aria-label={t('a11y.volume', 'Volume')}
               className="w-20 h-1 accent-orange-500 cursor-pointer" />
           </div>
           <motion.button whileTap={{ scale: 0.9 }} onClick={cycleRate}

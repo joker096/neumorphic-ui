@@ -73,10 +73,10 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
           onClick={onCreateCompany}
           aria-label={t('company.guide.createCta', 'Create your company')}
           title={t('company.guide.createCta', 'Create your company')}
-          className="w-9 h-9 min-w-11 min-h-11 mb-4 flex items-center justify-center rounded-xl transition-colors active:scale-[0.99] bg-[var(--accent)] text-[var(--button-primary-text)]"
+          className="min-h-11 px-3 mb-4 flex items-center justify-center gap-2 rounded-xl transition-colors active:scale-[0.99] bg-[var(--accent)] text-[var(--button-primary-text)]"
         >
           <Building2 size={16} />
-          <span className="sr-only">{t('company.guide.createCta', 'Create your company')}</span>
+          <span className="text-sm font-medium">{t('company.guide.createCta', 'Create your company')}</span>
         </button>
       )}
 
@@ -100,7 +100,7 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
                 <ChevronRight size={16} className={`shrink-0 transition-transform ${isOpen ? 'rotate-90 text-[var(--accent)]' : (isDark ? 'text-gray-500' : 'text-slate-400')}`} />
               </button>
               {isOpen && (
-                <div className={`px-4 pb-4 pl-14 text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+                <div className={`px-4 pb-4 pl-16 text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
                   {t(step.bodyKey, step.bodyFallback)}
                 </div>
               )}

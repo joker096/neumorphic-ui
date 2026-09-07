@@ -99,7 +99,7 @@ export const CreateChannelModal = ({ theme = 'dark', onClose }: { theme?: 'dark'
       </div>
 
       <button onClick={handleCreate} disabled={!name.trim()} aria-label={t('createChannel.create')} title={t('createChannel.create')} className={modalPrimaryBtnClass}>
-          <Check size={18} /> <span className="sr-only">{t('createChannel.create')}</span>
+          <Check size={18} /> <span>{t('createChannel.create')}</span>
       </button>
     </AppModal>
   );

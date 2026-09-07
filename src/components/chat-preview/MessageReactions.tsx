@@ -45,7 +45,7 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
           aria-label={t("chat.reactions")}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id); }}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id); } }}
         >
           <Plus size={16} />
         </div>

@@ -41,7 +41,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
   }
 
   return (
-    <div className="w-full max-w-[500px] flex flex-col p-5 mb-8 pb-28 sm:pb-8">
+    <div className="w-full max-w-[500px] flex flex-col p-5 mb-8 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8">
       <div className="w-full shrink-0 mb-4 flex items-center gap-3">
         <button
           onClick={onBack}
@@ -85,10 +85,10 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
             onClick={() => setShowCreate(true)}
             aria-label={t('company.createTitle', 'Create Company')}
             title={t('company.createTitle', 'Create Company')}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl min-h-11 font-bold text-sm transition-colors active:scale-[0.99] bg-[var(--accent)] text-[var(--button-primary-text)]"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl min-h-11 font-bold text-sm transition-colors active:scale-[0.99] bg-[var(--accent)] text-[var(--button-primary-text)]"
           >
             <Plus size={16} aria-hidden="true" />
-            <span className="sr-only">{t('company.createTitle', 'Create Company')}</span>
+            <span>{t('company.createTitle', 'Create Company')}</span>
           </button>
         )}
 
@@ -117,10 +117,10 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
                 onClick={() => setShowCreate(false)}
                 aria-label={t('company.cancel', 'Cancel')}
                 title={t('company.cancel', 'Cancel')}
-                className="flex-1 min-w-11 min-h-11 rounded-xl font-bold text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110 flex items-center justify-center"
+                className="flex-1 min-w-11 min-h-11 rounded-xl font-bold text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110 flex items-center justify-center gap-2"
               >
                 <X size={18} aria-hidden="true" />
-                <span className="sr-only">{t('company.cancel', 'Cancel')}</span>
+                <span>{t('company.cancel', 'Cancel')}</span>
               </button>
               <button
                 onClick={handleCreate}
@@ -130,7 +130,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
                 className="flex-1 min-w-11 min-h-11 rounded-xl font-bold text-sm bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {creating ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Plus size={18} aria-hidden="true" />}
-                <span className="sr-only">{t('company.create', 'Create Company')}</span>
+                <span>{t('company.create', 'Create Company')}</span>
               </button>
             </div>
           </div>

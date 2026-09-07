@@ -180,7 +180,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
                     id="help-category"
                     value={category}
                     onChange={e => setCategory(e.target.value)}
-                    className="w-full appearance-none rounded-lg px-3 py-2 pr-9 text-sm bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--border-color)] outline-none focus:ring-2 focus:ring-[var(--accent)]/40"
+                    className="w-full appearance-none rounded-lg px-3 py-2 pr-10 text-sm bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--border-color)] outline-none focus:ring-2 focus:ring-[var(--accent)]/40"
                   >
                     {CATEGORIES.map(c => (
                       <option key={c.value} value={c.value}>{t(c.labelKey, c.fallback)}</option>
@@ -211,10 +211,10 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
                 onClick={submit}
                 aria-label={t('sendRequest', 'Send request')}
                 title={t('sendRequest', 'Send request')}
-                className={`mt-1 w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors active:scale-[0.99] ${canSubmit ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : "bg-[var(--bg-tertiary)] text-gray-400 cursor-not-allowed"}`}
+                className={`mt-1 w-full h-10 min-h-11 flex items-center justify-center gap-2 rounded-lg text-sm font-bold transition-colors active:scale-[0.99] ${canSubmit ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : "bg-[var(--bg-tertiary)] text-gray-400 cursor-not-allowed"}`}
               >
                 <MessageSquare size={16} aria-hidden="true" />
-                <span className="sr-only">{t('sendRequest', 'Send request')}</span>
+                <span>{t('sendRequest', 'Send request')}</span>
               </button>
             </>
           )}
@@ -226,10 +226,10 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
         onClick={reportBug}
         aria-label={t('reportBug', 'Report a bug')}
         title={t('reportBug', 'Report a bug')}
-        className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors active:scale-[0.99] ${isDark ? "bg-white/5 text-rose-300 hover:bg-white/10" : "bg-rose-50 text-rose-500 hover:bg-rose-100"}`}
+        className={`w-full h-10 min-h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-sm transition-colors active:scale-[0.99] ${isDark ? "bg-white/5 text-rose-300 hover:bg-white/10" : "bg-rose-50 text-rose-500 hover:bg-rose-100"}`}
       >
         <Bug size={16} aria-hidden="true" />
-        <span className="sr-only">{t('reportBug', 'Report a bug')}</span>
+        <span>{t('reportBug', 'Report a bug')}</span>
       </button>
     </SubView>
   );

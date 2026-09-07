@@ -37,7 +37,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('call.searchCalls')}
               aria-label={t('call.searchCalls')}
-              className={`w-full h-11 pl-9 pr-3 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400'}`}
+              className={`w-full h-11 pl-10 pr-3 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400'}`}
             />
           </div>
           {callHistory.length > 0 && (

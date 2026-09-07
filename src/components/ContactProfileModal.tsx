@@ -352,7 +352,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 <MessageSquare size={20} fill="currentColor" />
                 <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.message')}</span>
               </button>
-              <button onClick={() => setShowSafetyNumber(true)} title={t('contacts.verifySecurityDesc')} className={`w-full h-10 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-black/5 hover:bg-black/10 text-slate-600'}`}>
+              <button onClick={() => setShowSafetyNumber(true)} title={t('contacts.verifySecurityDesc')} className={`w-full min-h-11 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-black/5 hover:bg-black/10 text-slate-600'}`}>
                 <ShieldCheck size={16} />
                 <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.verifySecurity')}</span>
               </button>

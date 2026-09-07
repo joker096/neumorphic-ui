@@ -175,7 +175,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           {tabs.map(tab => (
             <motion.button key={tab.key} whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 min-h-[var(--control-height-sm)] rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 min-h-[var(--control-height-sm)] rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab.key
                   ? (isDark ? 'bg-white/10 text-[var(--text-primary)] shadow-sm' : 'bg-white shadow-sm text-slate-800')
                   : (isDark ? 'text-gray-400 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')
@@ -317,7 +317,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
             </div>
             <div className="flex gap-2 w-full">
               <motion.button whileTap={{ scale: 0.95 }} onClick={copyId}
-                className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-xl font-bold text-xs transition-colors ${
+                className={`flex-1 flex items-center justify-center gap-2 min-h-11 rounded-xl font-bold text-xs transition-colors ${
                   copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")
                 }`}>
                 {copied ? <Check size={14} /> : <Copy size={14} />}

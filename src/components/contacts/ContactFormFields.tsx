@@ -16,7 +16,7 @@ interface ContactCRMFieldsProps {
 }
 
 const fieldBoxClass =
-  'w-full h-10 rounded-xl px-3 flex items-center gap-2 border border-border shadow-[var(--inset-field-shadow)] bg-input-bg transition-colors';
+  'w-full min-h-11 rounded-xl px-3 flex items-center gap-2 border border-border shadow-[var(--inset-field-shadow)] bg-input-bg transition-colors';
 const fieldInputClass =
   'flex-1 bg-transparent outline-none text-xs text-input-text placeholder:text-input-placeholder';
 const fieldIconClass = 'shrink-0 text-muted-foreground';
@@ -86,7 +86,7 @@ export const ContactCRMFields = ({ company, setCompany, position, setPosition, t
                   key={tag}
                   type="button"
                   onClick={() => toggleTag(tag)}
-                  className={`text-xs font-medium px-2 py-1.5 rounded-lg transition-colors ${
+                  className={`text-xs font-medium px-2 min-h-11 flex items-center justify-center rounded-lg transition-colors ${
                     tags.includes(tag as ContactTag) ? getTagColor(tag) : 'text-muted-foreground hover:bg-muted'
                   }`}
                 >
@@ -114,7 +114,7 @@ interface ContactCustomFieldProps {
 }
 
 const fieldControlClass =
-  'w-full h-8 rounded-xl text-xs outline-none px-2 border border-border bg-input-bg text-input-text transition-colors';
+  'w-full min-h-11 rounded-xl text-xs outline-none px-2 border border-border bg-input-bg text-input-text transition-colors';
 
 export const ContactCustomField = ({ field, updateField, removeField, t }: ContactCustomFieldProps) => {
   const typeDefaults: Record<string, string> = {

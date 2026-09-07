@@ -102,9 +102,9 @@ export const DataState = ({
         {description && <div className={SUBTEXT}>{description}</div>}
         <div className="flex items-center gap-2 mt-4">
           {retryAction && (
-            <button onClick={retryAction} aria-label={t('ui.retry')} title={t('ui.retry')} className="flex items-center justify-center w-9 h-9 min-w-11 min-h-11 text-sm font-medium px-4 py-2 rounded-lg bg-primary text-primary-foreground active:scale-95 transition-transform">
+            <button onClick={retryAction} aria-label={t('ui.retry')} title={t('ui.retry')} className="flex items-center justify-center gap-2 min-h-11 px-3 text-sm font-medium rounded-lg bg-primary text-primary-foreground active:scale-95 transition-transform">
               <RefreshCw size={16} />
-              <span className="sr-only">{t('ui.retry')}</span>
+              <span>{t('ui.retry')}</span>
             </button>
           )}
           {action && (

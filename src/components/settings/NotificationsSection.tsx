@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Bell, BellOff, MessageCircle, Users, Megaphone, AtSign, Volume2,
-  Eye, Moon, Timer, Music,
+  Eye, Moon, Timer, Music, Plus,
 } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsSectionTitle, SettingsRow, SettingsToggleRow } from '../ui/SettingsRow';
@@ -268,11 +268,10 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         <button
           onClick={() => setExceptionPickerOpen(true)}
           aria-label={t('settings.addException', 'Add exception')}
-          title={t('settings.addException', 'Add exception')}
-          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--accent)] transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+          className={`w-full min-h-11 flex items-center justify-center gap-2 mt-2 rounded-lg text-sm font-medium text-[var(--accent)] transition-colors active:scale-[0.99] border border-dashed ${isDark ? "hover:bg-white/5 border-white/15" : "hover:bg-black/5 border-black/15"}`}
         >
-          <Bell size={16} />
-          <span className="sr-only">{t('settings.addException', 'Add exception')}</span>
+          <Plus size={16} />
+          <span>{t('settings.addException', 'Add exception')}</span>
         </button>
       </SettingsGroup>
       <ChatPickerModal
@@ -293,9 +292,10 @@ const ToggleSwitchLoose = ({ isOn, onToggle, isDark, ariaLabel }: { isOn: boolea
     aria-label={ariaLabel}
     aria-checked={isOn}
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
-    className={`relative min-w-11 min-h-[24px] w-11 h-6 flex items-center rounded-full px-1 cursor-pointer transition-colors duration-200 ${isOn ? 'bg-emerald-500 justify-end' : (isDark ? 'bg-gray-600 justify-start' : 'bg-slate-300 justify-start')}`}
+    className="my-[-10px] min-w-11 min-h-11 flex items-center cursor-pointer"
   >
-    <div className={`w-4 h-4 rounded-full bg-white shadow-sm shrink-0`} />
-    <span aria-hidden="true" className="absolute inset-y-[-10px] left-0 right-0 pointer-events-none" />
+    <span className={`w-11 h-6 flex items-center rounded-full px-1 transition-colors duration-200 ${isOn ? 'bg-emerald-500 justify-end' : (isDark ? 'bg-gray-600 justify-start' : 'bg-slate-300 justify-start')}`}>
+      <span className={`w-4 h-4 rounded-full bg-white shadow-sm shrink-0`} />
+    </span>
   </button>
 );

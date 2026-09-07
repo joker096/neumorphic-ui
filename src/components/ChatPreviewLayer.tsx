@@ -329,7 +329,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
       {isTyping && !chat.isChannel && (
         <div className="px-4 sm:px-6 pb-1 flex justify-start">
           <div
-            className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl rounded-bl-md ${
+            className={`flex items-center gap-1.5 px-3 py-2.5 rounded-2xl rounded-bl-md ${
               isDark
                 ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]/60"
                 : "bg-white/70 border border-[var(--border-color)]/60"

@@ -166,11 +166,10 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
         <button
           onClick={addFolder}
           aria-label={t('settings.addFolder', 'Create folder')}
-          title={t('settings.addFolder', 'Create folder')}
-          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--accent)] transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+          className={`w-full min-h-11 flex items-center justify-center gap-2 mt-2 rounded-lg text-sm font-medium text-[var(--accent)] transition-colors active:scale-[0.99] border border-dashed ${isDark ? "hover:bg-white/5 border-white/15" : "hover:bg-black/5 border-black/15"}`}
         >
           <Plus size={16} />
-          <span className="sr-only">{t('settings.addFolder', 'Create folder')}</span>
+          <span>{t('settings.addFolder', 'Create folder')}</span>
         </button>
       </SettingsGroup>
     </SubView>

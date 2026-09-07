@@ -158,12 +158,12 @@ export const MorseDecoder = ({
              onClick={handleDecode}
              aria-label={label('morseDecoder.decode', 'DECODE MORSE')}
              title={label('morseDecoder.decode', 'DECODE MORSE')}
-             className={`mt-3 w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded font-mono text-xs tracking-widest transition-colors ${
+             className={`mt-3 min-h-11 px-4 flex items-center justify-center gap-2 rounded font-mono text-xs tracking-widest transition-colors ${
                'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30'
              }`}
            >
              <Scan size={16} />
-             <span className="sr-only">{label('morseDecoder.decode', 'DECODE MORSE')}</span>
+             <span>{label('morseDecoder.decode', 'DECODE MORSE')}</span>
            </button>
         ) : (
           <div

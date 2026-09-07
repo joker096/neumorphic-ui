@@ -145,6 +145,8 @@
   --danger-soft: rgba(255,96,125,0.12);
   --cyan: #51d7ff;
   --amber: #ffc85b;
+  --waveform-played-self: #f0f2f5;
+  --waveform-played-other: #6f7fff;
 
   --button-primary-bg: #6f7fff;
   --button-primary-text: #ffffff;
@@ -191,7 +193,6 @@
   --hover-bg-light: rgba(0,0,0,0.05);
 
   --text-warm-dark: #e6d6b8;
-  --text-warm-light: #e6d6b8;
 
   --system-background: #0d1017;
   --separator: rgba(255,255,255,0.08);
@@ -233,12 +234,8 @@
   --accent-warm: #ea580c;
   --accent-warm-soft: rgba(234,88,12,0.15);
   --accent-warm-highlight: #d97706;
-  --info: #2563de;
-  --info-soft: rgba(37,99,222,0.12);
+  --danger: #dc2023;
   --danger-soft: rgba(220,32,35,0.1);
-  --success-text: #15803d;
-  --warning-text: #b45309;
-  --muted: #475569;
 
   --waveform-played-self: #0f172a;
   --waveform-played-other: #ea580c;
@@ -287,7 +284,6 @@
   --hover-bg-light: rgba(0,0,0,0.05);
 
   --text-warm-dark: #e6d6b8;
-  --text-warm-light: #e6d6b8;
 
   --system-background: #f8fafc;
   --separator: rgba(0,0,0,0.08);
@@ -333,6 +329,8 @@
   --text-primary: #f0ece4;
   --text-secondary: rgba(240,236,228,0.72);
   --accent: #c9a96e;
+  --accent-rgb: 201,169,110;
+  --accent2-rgb: 201,169,110;
   --accent-soft: rgba(201,169,110,0.14);
   --gold: #c9a96e;
   --gold-soft: rgba(201,169,110,0.14);

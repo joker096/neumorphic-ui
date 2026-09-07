@@ -395,6 +395,15 @@ describe('ContactProfileModal', () => {
     });
   });
 
+  describe('tap targets', () => {
+    it('verify-security button has min-h-11 touch zone', () => {
+      render(<ContactProfileModal {...defaultProps} />);
+
+      const verifyBtn = screen.getByRole('button', { name: 'contacts.verifySecurity' });
+      expect(verifyBtn.className).toContain('min-h-11');
+    });
+  });
+
   describe('unblock', () => {
     it('unblocks a blocked contact when Unblock is clicked from the More menu', async () => {
       const onUnblock = vi.fn();

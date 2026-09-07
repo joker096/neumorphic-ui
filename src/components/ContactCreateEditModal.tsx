@@ -162,11 +162,11 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
           disabled={!name.trim() || !id.trim() || hasFieldErrors || isLoading}
           aria-label={t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}
           title={t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}
-          className="w-full h-10 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-accent text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]"
+          className="w-full min-h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-accent text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_24px_-8px_var(--accent)]"
         >
           {isLoading && <Loader2 size={18} className="animate-spin" />}
           <Check size={18} />
-          <span className="sr-only">{t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}</span>
+          <span>{t(isEditing ? 'contacts.saveChanges' : 'contacts.saveContact')}</span>
         </button>
       </form>
     </AppModal>

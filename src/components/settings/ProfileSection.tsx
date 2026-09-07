@@ -208,10 +208,10 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
                   onClick={handleRestoreIdentity}
                   aria-label={t('settings.restoreIdentity', 'Restore Identity')}
                   title={t('settings.restoreIdentity', 'Restore Identity')}
-                  className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-2xl cursor-pointer transition-colors text-[var(--accent)] hover:bg-[var(--accent-soft)]`}
+                  className={`min-h-11 px-3 flex items-center justify-center gap-2 rounded-2xl cursor-pointer transition-colors text-[var(--accent)] hover:bg-[var(--accent-soft)]`}
                 >
-                  <RotateCcw size={20} />
-                  <span className="sr-only">{t('settings.restoreIdentity', 'Restore Identity')}</span>
+                  <RotateCcw size={18} />
+                  <span className="text-sm font-medium">{t('settings.restoreIdentity', 'Restore Identity')}</span>
                 </button>
                 <p className={`text-xs mt-2 px-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('settings.restoreIdentityDescription', 'Restore identity using your 24-word recovery phrase')}</p>
               </div>

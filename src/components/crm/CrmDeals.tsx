@@ -172,7 +172,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                             setDealStage(d.id, e.target.value as DealStage);
                             toast.success(t('crm.stageChanged', 'Stage updated'));
                           }}
-                          className="w-full min-h-[30px] mt-2 px-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-[11px] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] disabled:opacity-40"
+                          className="w-full min-h-11 mt-2 px-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-[11px] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] disabled:opacity-40"
                         >
                           {DEAL_STAGES.map((s) => (
                             <option key={s.id} value={s.id}>{stageLabel(s.id)}</option>

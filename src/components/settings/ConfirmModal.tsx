@@ -90,7 +90,7 @@ export const ConfirmModal = ({
                 aria-label={cancelLabel}
                 onClick={onCancel}
               >
-                <span className="sr-only">{cancelLabel}</span>
+                <span>{cancelLabel}</span>
               </Button>
               <Button
                 variant={variant === 'danger' ? 'danger' : 'primary'}
@@ -100,7 +100,7 @@ export const ConfirmModal = ({
                 aria-label={confirmLabel}
                 onClick={onConfirm}
               >
-                <span className="sr-only">{confirmLabel}</span>
+                <span>{confirmLabel}</span>
               </Button>
             </div>
           </motion.div>

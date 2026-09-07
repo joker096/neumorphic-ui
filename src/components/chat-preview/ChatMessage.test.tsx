@@ -164,10 +164,23 @@ describe('ChatMessage', () => {
     render(<ChatMessage {...baseProps({ msg, onAction })} />);
     const buttons = screen.getAllByRole('button');
     expect(buttons).toHaveLength(3);
+    buttons.forEach((b) => expect(b.className).toContain('min-h-11'));
     fireEvent.click(screen.getByText('A'));
     expect(onAction).toHaveBeenCalledWith('actA');
     fireEvent.click(screen.getByText('B'));
     expect(onAction).toHaveBeenCalledWith('B');
+  });
+
+  it('morse toggle has 44px hit area and toggles decode', () => {
+    const msg = { id: 11, text: '. . . . - . . . -', _isLastInGroup: true };
+    render(<ChatMessage {...baseProps({ msg })} />);
+    const btn = screen.getByRole('button', { name: 'Show text' });
+    expect(btn.className).toContain('min-h-11');
+    const before = screen.getByTestId('formatted-text').textContent;
+    fireEvent.click(btn);
+    expect(screen.getByTestId('formatted-text').textContent).not.toBe(before);
+    fireEvent.click(screen.getByRole('button', { name: 'Show Morse code' }));
+    expect(screen.getByTestId('formatted-text').textContent).toBe(before);
   });
 
   it('renders inline keyboard with bot and message ids', () => {
@@ -187,7 +200,7 @@ describe('ChatMessage', () => {
 
   it('applies selection ring when selected', () => {
     render(<ChatMessage {...baseProps({ selected: true, selectionMode: true })} />);
-    expect(bubbleEl().className).toContain('ring-2 ring-orange-500');
+    expect(bubbleEl().className).toContain('ring-2 ring-[var(--accent)]');
   });
 
   it('opens context menu on right-click', () => {

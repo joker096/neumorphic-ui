@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { createEmbedToken } from '../../lib/embed/token';
 
 vi.mock('../../lib/i18n', () => ({
@@ -78,5 +78,17 @@ describe('EmbedWidget', () => {
       lastClient._cb({ senderPubKey: 'g', cipher: 'c', iv: 'i' });
     });
     expect(await screen.findByText('reply from company')).toBeTruthy();
+  });
+
+  it('send button has min-h-11 touch zone', async () => {
+    render(<EmbedWidget token={token} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+
+    const input = await screen.findByPlaceholderText('embed.typeMessage');
+    const sendBtn = within(input.parentElement as HTMLElement).getByRole('button');
+    expect(sendBtn.className).toContain('min-h-11');
   });
 });

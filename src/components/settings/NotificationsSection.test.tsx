@@ -10,7 +10,7 @@ const storeState = vi.hoisted(() => ({
 vi.mock('lucide-react', () => ({
   Bell: 'div', BellOff: 'div', MessageCircle: 'div', Users: 'div', Megaphone: 'div', AtSign: 'div',
   Volume2: 'div', Eye: 'div', Moon: 'div', Timer: 'div', Music: 'div', ChevronLeft: 'div', ChevronRight: 'div',
-  X: 'div',
+  X: 'div', Plus: 'div',
 }));
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 vi.mock('../../lib/i18n', () => ({
@@ -70,6 +70,12 @@ describe('NotificationsSection', () => {
     const sw = screen.getByRole('switch', { name: t('settings.groups', 'Groups') });
     fireEvent.click(sw);
     expect(sw).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('loose toggle (Groups) has 44px tap target (§2.2)', () => {
+    renderSection();
+    const sw = screen.getByRole('switch', { name: t('settings.groups', 'Groups') });
+    expect(sw.className).toContain('min-h-11');
   });
 
   it('selects badge mode', () => {

@@ -2,7 +2,6 @@ import { motion } from "motion/react";
 import { Bot, Check, Hash, ListFilter, MessageCircle, Mic, RotateCcw } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { AppModal } from "../ui/AppModal";
-import { modalPrimaryIconBtnClass, modalSecondaryIconBtnClass } from "../ui/modalShared";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -24,7 +23,7 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
         { id: "fromBots", label: t("chat.filters.fromBots"), icon: Bot },
         { id: "priority", label: t("chat.filters.priority"), icon: Hash },
       ].map((filter) => (
-        <label key={filter.id} className="flex items-center gap-3 cursor-pointer group">
+        <label key={filter.id} className="flex items-center gap-3 cursor-pointer group min-h-11">
           <div
             className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${
               filters[filter.id as keyof typeof filters]
@@ -64,22 +63,18 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
       <button
         type="button"
         onClick={() => setFilters({ hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false })}
-        aria-label={t("chat.filters.reset")}
-        title={t("chat.filters.reset")}
-        className={modalSecondaryIconBtnClass}
+        className="flex-1 min-h-11 px-3 text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]"
       >
         <RotateCcw size={16} aria-hidden="true" />
-        <span className="sr-only">{t("chat.filters.reset")}</span>
+        <span>{t("chat.filters.reset")}</span>
       </button>
       <button
         type="button"
         onClick={onClose}
-        aria-label={t("chat.filters.apply")}
-        title={t("chat.filters.apply")}
-        className={modalPrimaryIconBtnClass}
+        className="flex-1 min-h-11 px-3 text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] shadow-[0_8px_24px_-8px_var(--accent)]"
       >
         <Check size={16} aria-hidden="true" />
-        <span className="sr-only">{t("chat.filters.apply")}</span>
+        <span>{t("chat.filters.apply")}</span>
       </button>
     </div>
   </AppModal>

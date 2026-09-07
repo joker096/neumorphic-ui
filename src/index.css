@@ -88,8 +88,8 @@ body {
   padding: 0;
   min-height: 100%;
   background:
-    radial-gradient(ellipse at 15% 10%, rgba(111,127,255,0.07), transparent 45%),
-    radial-gradient(ellipse at 85% 90%, rgba(150,93,255,0.05), transparent 45%),
+    radial-gradient(ellipse at 15% 10%, rgba(var(--accent-rgb, 111,127,255), 0.07), transparent 45%),
+    radial-gradient(ellipse at 85% 90%, rgba(var(--accent2-rgb, 150,93,255), 0.05), transparent 45%),
     var(--bg-primary, #070a0f);
   color: var(--text-primary, #f5f7fb);
   line-height: var(--leading-normal);
@@ -139,13 +139,18 @@ textarea {
 button:focus-visible,
 a:focus-visible,
 select:focus-visible,
-[role="button"]:focus-visible {
-  outline: 2px solid rgba(111, 127, 255, 0.65);
+[role="button"]:focus-visible,
+[role="switch"]:focus-visible,
+[role="menuitem"]:focus-visible,
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible,
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--accent, #6f7fff);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: rgba(111, 127, 255, 0.28);
+  background: rgba(var(--accent-rgb, 111,127,255), 0.28);
   color: inherit;
 }
 
@@ -183,6 +188,9 @@ select:focus-visible,
   background: rgba(15,23,42,0.3);
 }
 [data-theme="light"] {
+  scrollbar-color: rgba(15,23,42,0.18) transparent;
+}
+[data-theme="light"] * {
   scrollbar-color: rgba(15,23,42,0.18) transparent;
 }
 

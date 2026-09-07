@@ -79,7 +79,7 @@ describe('BackupExportSection', () => {
 
   it('creates encrypted backup with password and updates last backup', async () => {
     renderSection();
-    fireEvent.click(screen.getByLabelText(t('settings.createBackup', 'Back up now')));
+    fireEvent.click(screen.getByText(t('settings.createBackup', 'Back up now')));
     expect(screen.getByTestId('text-input-modal')).toHaveAttribute('data-open', 'true');
     fireEvent.click(screen.getByText('confirm-pass'));
     await waitFor(() => expect(downloadBackup).toHaveBeenCalledWith('secret123'));
@@ -89,7 +89,7 @@ describe('BackupExportSection', () => {
 
   it('rejects empty password with error toast', async () => {
     renderSection();
-    fireEvent.click(screen.getByLabelText(t('settings.createBackup', 'Back up now')));
+    fireEvent.click(screen.getByText(t('settings.createBackup', 'Back up now')));
     fireEvent.click(screen.getByText('confirm-empty'));
     expect(toast).toHaveBeenCalledWith(t('toast.noPasswordProvided', 'No password provided'), 'error');
     expect(downloadBackup).not.toHaveBeenCalled();

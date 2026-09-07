@@ -134,10 +134,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               onClick={chunkError ? () => forceFreshReload(true) : this.handleRetry}
               aria-label={chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}
               title={chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}
-              className="mt-4 w-9 h-9 min-w-11 min-h-11 flex items-center justify-center bg-[var(--accent)]/20 border border-[var(--accent)]/40 rounded-lg hover:bg-[var(--accent)]/30 transition-colors"
+              className="mt-4 min-h-11 px-4 flex items-center justify-center gap-2 bg-[var(--accent)]/20 border border-[var(--accent)]/40 rounded-lg hover:bg-[var(--accent)]/30 transition-colors"
             >
               <RefreshCw size={16} />
-              <span className="sr-only">{chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}</span>
+              <span>{chunkError ? fallbackT("error.reloadPage") : fallbackT("error.tryAgain")}</span>
             </button>
           </div>
         </div>

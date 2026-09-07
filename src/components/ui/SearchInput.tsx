@@ -156,7 +156,7 @@ export function SearchInput({
             isDark
               ? 'bg-muted text-foreground placeholder:text-muted-foreground'
               : 'bg-background text-foreground placeholder:text-muted-foreground'
-          } ${showSearchIcon ? 'pl-9' : 'pl-[var(--spacing-16)]'} ${hasValue || rightElement ? 'pr-12' : 'pr-[var(--spacing-16)]'}`}
+          } ${showSearchIcon ? 'pl-10' : 'pl-[var(--spacing-16)]'} ${hasValue || rightElement ? 'pr-12' : 'pr-[var(--spacing-16)]'}`}
           aria-label={resolvedPlaceholder}
         />
         {(hasValue || rightElement) && (

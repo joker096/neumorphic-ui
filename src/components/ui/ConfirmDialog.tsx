@@ -58,24 +58,24 @@ export function ConfirmDialog({
           <Button
             variant="secondary"
             size="md"
-            className={`flex-1 ${cancelIcon ? 'min-w-11 px-0' : ''}`}
+            className="flex-1"
             onClick={onCancel}
             aria-label={cancelIcon ? cancelLabel : undefined}
             icon={cancelIcon}
             iconSize={18}
           >
-            {cancelIcon ? <span className="sr-only">{cancelLabel}</span> : cancelLabel}
+            {cancelLabel}
           </Button>
           <Button
             variant={variant === 'danger' ? 'danger' : 'primary'}
             size="md"
-            className={`flex-1 ${confirmIcon ? 'min-w-11 px-0' : ''}`}
+            className="flex-1"
             onClick={onConfirm}
             aria-label={confirmIcon ? confirmLabel : undefined}
             icon={confirmIcon}
             iconSize={18}
           >
-            {confirmIcon ? <span className="sr-only">{confirmLabel}</span> : confirmLabel}
+            {confirmLabel}
           </Button>
         </>
       }

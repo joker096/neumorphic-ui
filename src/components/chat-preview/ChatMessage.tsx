@@ -87,7 +87,7 @@ function ChatMessageImpl({
   const [translation, setTranslation] = React.useState<string | null>(null);
   const [translating, setTranslating] = React.useState(false);
   const [morseDecoded, setMorseDecoded] = React.useState(false);
-  const isMorse = typeof msg.text === "string" && msg.type !== "sticker" && msg.type !== "payment" && isMorseCode(msg.text);
+  const isMorse = typeof msg.text === "string" && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && isMorseCode(msg.text);
   const stickerSrc = React.useMemo(
     () => (msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null),
     [msg.text, msg.type, theme],
@@ -115,7 +115,7 @@ function ChatMessageImpl({
     return (
       <div className="sticky top-0 z-10 flex items-center gap-3 py-2">
         <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
-        <span className={`text-xs font-bold uppercase tracking-widest shrink-0 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+        <span className="text-xs font-bold uppercase tracking-widest shrink-0 text-[var(--text-tertiary)]">
           {msg._dateLabel}
         </span>
         <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
@@ -152,7 +152,7 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-orange-500" : ""} ${
+          className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${
             isMe
               ? isDark
                 ? "bg-[var(--accent-soft)] text-[var(--text-primary)] border border-[var(--accent-soft)] shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
@@ -173,7 +173,7 @@ function ChatMessageImpl({
           />
           {msg.type === "payment" && <PaymentChatBubble msg={msg} isDark={isDark} />}
           {msg.replyTo && <ReplyQuote replyTo={msg.replyTo} isDark={isDark} />}
-          {msg.text && msg.type !== "sticker" && msg.type !== "payment" && (
+          {msg.text && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && (
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
             </span>
@@ -184,7 +184,7 @@ function ChatMessageImpl({
               onClick={() => setMorseDecoded((v) => !v)}
                aria-label={morseDecoded ? t("chat.morseEncode", "Show Morse code") : t("chat.morseDecode", "Show text")}
                title={morseDecoded ? t("chat.morseEncode", "Show Morse code") : t("chat.morseDecode", "Show text")}
-              className={`mt-1 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-mono tracking-wider transition-colors min-h-[28px] cursor-pointer ${
+               className={`mt-1 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-mono tracking-wider transition-colors min-h-11 cursor-pointer ${
                 isDark
                   ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30"
                   : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border border-amber-500/30"
@@ -207,7 +207,7 @@ function ChatMessageImpl({
                     <button
                       key={j}
                       onClick={() => { if (onAction) onAction(btn.action || btn.text); }}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[#2a2d36] hover:bg-[#343842] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[var(--bg-primary)] hover:bg-slate-200 text-slate-700 border border-[var(--border-color)]"}`}
+                                             className={`flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[#2a2d36] hover:bg-[#343842] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[var(--bg-primary)] hover:bg-slate-200 text-slate-700 border border-[var(--border-color)]"}`}
                     >
                       {btn.text}
                     </button>

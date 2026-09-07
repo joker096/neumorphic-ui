@@ -217,7 +217,7 @@ return (
 {isRecording && (
                     <button 
                          onClick={handlePauseResume}
-                         className={`w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-gray-300`}
+                          className={`w-10 h-10 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-white/5 text-gray-300`}
                           title={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
                           aria-label={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
                        >
