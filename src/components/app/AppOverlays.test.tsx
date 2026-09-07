@@ -17,6 +17,10 @@ vi.mock('../CreateBotModal', () => ({
   CreateBotModal: () => <div>CreateBotModal</div>,
 }));
 
+vi.mock('../CreateGroupModal', () => ({
+  CreateGroupModal: () => <div>CreateGroupModal</div>,
+}));
+
 vi.mock('../ContactCreateEditModal', () => ({
   ContactCreateEditModal: () => <div>ContactCreateEditModal</div>,
 }));
@@ -53,14 +57,19 @@ describe('AppOverlays', () => {
     expect(screen.queryByText('CreateBotModal')).not.toBeInTheDocument();
   });
 
-  it('shows CreateChannelModal when showCreateChannel is true', () => {
+  it('shows CreateChannelModal when showCreateChannel is true', async () => {
     render(<AppOverlays {...defaultProps} showCreateChannel={true} />);
-    expect(screen.getByText('CreateChannelModal')).toBeInTheDocument();
+    expect(await screen.findByText('CreateChannelModal')).toBeInTheDocument();
   });
 
-  it('shows CreateBotModal when showCreateBot is true', () => {
+  it('shows CreateBotModal when showCreateBot is true', async () => {
     render(<AppOverlays {...defaultProps} showCreateBot={true} />);
-    expect(screen.getByText('CreateBotModal')).toBeInTheDocument();
+    expect(await screen.findByText('CreateBotModal')).toBeInTheDocument();
+  });
+
+  it('shows CreateGroupModal when showCreateGroup is true', async () => {
+    render(<AppOverlays {...defaultProps} showCreateGroup={true} setShowCreateGroup={vi.fn()} />);
+    expect(await screen.findByText('CreateGroupModal')).toBeInTheDocument();
   });
 
   it('shows ContactProfileModal when globalSelectedContact is set', () => {
@@ -68,8 +77,8 @@ describe('AppOverlays', () => {
     expect(screen.getByText('ContactProfileModal')).toBeInTheDocument();
   });
 
-  it('shows ContactCreateEditModal when editingContact is set', () => {
+  it('shows ContactCreateEditModal when editingContact is set', async () => {
     render(<AppOverlays {...defaultProps} editingContact={{ id: '1', name: 'Test' }} />);
-    expect(screen.getByText('ContactCreateEditModal')).toBeInTheDocument();
+    expect(await screen.findByText('ContactCreateEditModal')).toBeInTheDocument();
   });
 });

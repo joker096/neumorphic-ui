@@ -1,12 +1,14 @@
+import { lazy, Suspense } from "react";
 import { AnimatePresence } from "motion/react";
 import { AdvancedFilterModal } from "../AppChrome";
-import { ContactCreateEditModal } from "../ContactCreateEditModal";
 import { ContactProfileModal } from "../ContactProfileModal";
-import { CreateBotModal } from "../CreateBotModal";
-import { CreateChannelModal } from "../CreateChannelModal";
-import { CreateGroupModal } from "../CreateGroupModal";
 import { FloatingCallWidget } from "../FloatingCallWidget";
 import { useTheme } from "../../contexts/ThemeContext";
+
+const LazyCreateChannelModal = lazy(() => import("../CreateChannelModal").then(m => ({ default: m.CreateChannelModal })));
+const LazyCreateBotModal = lazy(() => import("../CreateBotModal").then(m => ({ default: m.CreateBotModal })));
+const LazyCreateGroupModal = lazy(() => import("../CreateGroupModal").then(m => ({ default: m.CreateGroupModal })));
+const LazyContactCreateEditModal = lazy(() => import("../ContactCreateEditModal").then(m => ({ default: m.ContactCreateEditModal })));
 
 type AppOverlaysProps = {
   isDark?: boolean;
@@ -83,9 +85,9 @@ export const AppOverlays = ({
   return (
     <>
       <AnimatePresence>
-        {showCreateChannel && <CreateChannelModal theme={theme} onClose={() => setShowCreateChannel(false)} />}
-        {showCreateBot && <CreateBotModal theme={theme} onClose={() => setShowCreateBot(false)} />}
-        {showCreateGroup && <CreateGroupModal theme={theme} onClose={() => setShowCreateGroup?.(false)} />}
+        {showCreateChannel && <Suspense fallback={null}><LazyCreateChannelModal theme={theme} onClose={() => setShowCreateChannel(false)} /></Suspense>}
+        {showCreateBot && <Suspense fallback={null}><LazyCreateBotModal theme={theme} onClose={() => setShowCreateBot(false)} /></Suspense>}
+        {showCreateGroup && <Suspense fallback={null}><LazyCreateGroupModal theme={theme} onClose={() => setShowCreateGroup?.(false)} /></Suspense>}
         {showAdvancedFilterModal && (
           <AdvancedFilterModal
             onClose={() => setShowAdvancedFilterModal(false)}
@@ -112,7 +114,8 @@ export const AppOverlays = ({
 
       <AnimatePresence>
         {editingContact && (
-          <ContactCreateEditModal
+          <Suspense fallback={null}>
+          <LazyContactCreateEditModal
             contact={editingContact}
             isDark={isDark}
             onClose={() => setEditingContact(null)}
@@ -128,9 +131,11 @@ export const AppOverlays = ({
               setEditingContact(null);
             }}
           />
+          </Suspense>
         )}
         {showAddContactFromChat && !editingContact && (
-          <ContactCreateEditModal
+          <Suspense fallback={null}>
+          <LazyContactCreateEditModal
             contact={null}
             isDark={isDark}
             onClose={() => setShowAddContactFromChat(false)}
@@ -138,6 +143,7 @@ export const AppOverlays = ({
               onAddContactFromChat?.(name, id, color, localFields);
             }}
           />
+          </Suspense>
         )}
       </AnimatePresence>
 
