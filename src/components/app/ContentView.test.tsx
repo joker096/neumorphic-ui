@@ -27,12 +27,12 @@ describe('ContentView', () => {
     expect(screen.getByText('Content')).toBeInTheDocument();
   });
 
-  it('renders StoryViewer', () => {
+  it('renders StoryViewer', async () => {
     render(
       <ContentView onCloseStory={vi.fn()} activeStory={null} isStealthMode={false}>
         <div>Content</div>
       </ContentView>
     );
-    expect(screen.getByText('StoryViewer')).toBeInTheDocument();
+    await expect(screen.findByText('StoryViewer')).resolves.toBeInTheDocument();
   });
 });

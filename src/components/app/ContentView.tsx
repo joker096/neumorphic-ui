@@ -1,8 +1,9 @@
 import { motion } from "motion/react";
-import type { ReactNode } from "react";
-import { StoryViewer } from "../stories/StoryViewer";
-import { StoryComposer } from "../stories/StoryComposer";
+import { lazy, Suspense, type ReactNode } from "react";
 import { useAnimationsEnabled, useAnimationDuration } from "../../contexts/AnimationContext";
+
+const StoryViewer = lazy(() => import("../stories/StoryViewer").then(m => ({ default: m.StoryViewer })));
+const StoryComposer = lazy(() => import("../stories/StoryComposer").then(m => ({ default: m.StoryComposer })));
 
 type Story = {
   id: number | string;
@@ -51,8 +52,10 @@ export const ContentView = ({
       <div className="flex-1 w-full overflow-hidden relative flex flex-col items-center min-h-0">
         {children}
       </div>
-      <StoryViewer activeUser={activeStory} onClose={onCloseStory} isDark={isDark} isStealthMode={isStealthMode} />
-      <StoryComposer open={showStoryComposer} onClose={onCloseComposer ?? (() => {})} isDark={isDark} />
+      <Suspense fallback={null}>
+        <StoryViewer activeUser={activeStory} onClose={onCloseStory} isDark={isDark} isStealthMode={isStealthMode} />
+        <StoryComposer open={showStoryComposer} onClose={onCloseComposer ?? (() => {})} isDark={isDark} />
+      </Suspense>
     </motion.div>
   );
 };
