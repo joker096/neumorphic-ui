@@ -1,17 +1,17 @@
-import { lazy, Suspense, type ComponentType } from "react";
+import { lazy, Suspense } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useI18n } from "../../lib/i18n";
 import { useAppStore } from "../../store";
 import { isCompanyAdmin } from "../../config/navigation";
-import { ProfileView } from "../ProfileView";
-import { BotProfileView } from "./bot/BotProfileView";
-import { MiniApp } from "./bot/MiniAppView";
-import { WorkplaceView } from "./workplace/WorkplaceView";
 import { DataState } from "../ui/DataState";
+
+const LazyProfileView = lazy(() => import("../ProfileView").then(m => ({ default: m.ProfileView })));
+const LazyBotProfileView = lazy(() => import("./bot/BotProfileView").then(m => ({ default: m.BotProfileView })));
+const LazyMiniApp = lazy(() => import("./bot/MiniAppView").then(m => ({ default: m.MiniApp })));
+const LazyWorkplaceView = lazy(() => import("./workplace/WorkplaceView").then(m => ({ default: m.WorkplaceView })));
 
 export const LazySettingsView = lazy(() => import("../SettingsView").then(m => ({ default: m.SettingsView })));
 export const LazyContactsView = lazy(() => import("../ContactsView").then(m => ({ default: m.ContactsView })));
-export const LazyCompanyContactsView = lazy(() => import("../CompanyContactsView").then(m => ({ default: m.CompanyContactsView })));
 export const LazyCrmView = lazy(() => import("../crm/CrmView").then(m => ({ default: m.CrmView })));
 export const LazyRecordingsScreen = lazy(() => import("../RecordingsScreen").then(m => ({ default: m.RecordingsScreen })));
 export const LazyMeshRadar = lazy(() => import("../MeshRadar").then(m => ({ default: m.MeshRadar })));
@@ -86,7 +86,7 @@ export const FeatureViews = ({
     case "profile":
       return (
         <Suspense fallback={<Loader />}>
-          <ProfileView setView={setView} />
+          <LazyProfileView setView={setView} />
         </Suspense>
       );
     case "settings":
@@ -154,31 +154,35 @@ export const FeatureViews = ({
       );
     case "bot":
       return (
-        <BotProfileView
-          botId={activeBotId ?? ""}
-          isDark={theme === "dark"}
-          onBack={() => {
-            setActiveBotId?.(null);
-            setView("bots");
-          }}
-          onOpenMiniApp={(id) => {
-            setMiniAppBotId?.(id);
-            setView("miniApp");
-          }}
-          onStart={(botName) => {
-            onMessage(botName);
-            setActiveBotId?.(null);
-            setView("chats");
-          }}
-        />
+        <Suspense fallback={<Loader />}>
+          <LazyBotProfileView
+            botId={activeBotId ?? ""}
+            isDark={theme === "dark"}
+            onBack={() => {
+              setActiveBotId?.(null);
+              setView("bots");
+            }}
+            onOpenMiniApp={(id) => {
+              setMiniAppBotId?.(id);
+              setView("miniApp");
+            }}
+            onStart={(botName) => {
+              onMessage(botName);
+              setActiveBotId?.(null);
+              setView("chats");
+            }}
+          />
+        </Suspense>
       );
     case "miniApp":
       return (
-        <MiniApp
-          botId={miniAppBotId ?? ""}
-          isDark={theme === "dark"}
-          onClose={() => setView("bot")}
-        />
+        <Suspense fallback={<Loader />}>
+          <LazyMiniApp
+            botId={miniAppBotId ?? ""}
+            isDark={theme === "dark"}
+            onClose={() => setView("bot")}
+          />
+        </Suspense>
       );
     case "workplace":
       if (!adminOnlyAccessible) {
@@ -191,7 +195,11 @@ export const FeatureViews = ({
           />
         );
       }
-      return <WorkplaceView isDark={theme === "dark"} />;
+      return (
+        <Suspense fallback={<Loader />}>
+          <LazyWorkplaceView isDark={theme === "dark"} />
+        </Suspense>
+      );
     default:
       return null;
   }

@@ -62,12 +62,12 @@ describe('FeatureViews', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  it('bot view Start (onStart) opens chat via onMessage (D5 regress)', () => {
+  it('bot view Start (onStart) opens chat via onMessage (D5 regress)', async () => {
     const onMessage = vi.fn();
     const setView = vi.fn();
     capturedOnStart = undefined;
     render(<FeatureViews {...defaultProps} view="bot" onMessage={onMessage} setView={setView} />);
-    expect(screen.getByTestId('bot-profile')).toBeInTheDocument();
+    expect(await screen.findByTestId('bot-profile')).toBeInTheDocument();
     expect(capturedOnStart).toBeTypeOf('function');
     capturedOnStart?.('HelperBot');
     expect(onMessage).toHaveBeenCalledWith('HelperBot');
