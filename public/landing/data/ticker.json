@@ -1,0 +1,10 @@
+{
+  "en": ["ML-KEM-768", "AES-256-GCM", "X25519", "Double Ratchet", "Tor bridges", "Domain Fronting", "Stealth ±5 min", "No central servers", "Post-quantum", "P2P WebRTC", "Ciphertext", "511 tests"],
+  "ru": ["ML-KEM-768", "AES-256-GCM", "X25519", "Double Ratchet", "Tor-мосты", "Domain Fronting", "Стелс ±5 мин", "Без центральных серверов", "Пост-квантовая", "P2P WebRTC", "Шифротекст", "511 тестов"],
+  "de": ["ML-KEM-768", "AES-256-GCM", "X25519", "Double Ratchet", "Tor-Brücken", "Domain Fronting", "Stealth ±5 Min", "Kein zentraler Server", "Post-Quanten", "P2P WebRTC", "Chiffertext", "511 Tests"],
+  "es": ["ML-KEM-768", "AES-256-GCM", "X25519", "Double Ratchet", "Puentes Tor", "Domain Fronting", "Sigilo ±5 min", "Sin servidores centrales", "Post-cuántico", "P2P WebRTC", "Cifrado", "511 pruebas"],
+  "fr": ["ML-KEM-768", "AES-256-GCM", "X25519", "Double Ratchet", "Ponts Tor", "Domain Fronting", "Discrétion ±5 min", "Aucun serveur central", "Post-quantique", "P2P WebRTC", "Chiffrement", "511 tests"],
+  "zh": ["ML-KEM-768", "AES-256-GCM", "X25519", "双棘轮", "Tor 桥", "域名前置", "隐匿 ±5 分钟", "无中心服务器", "后量子", "P2P WebRTC", "密文", "511 项测试"],
+  "ja": ["ML-KEM-768", "AES-256-GCM", "X25519", "ダブルラチェット", "Tor ブリッジ", "ドメインフロンティング", "ステルス ±5分", "中央サーバーなし", "ポスト量子", "P2P WebRTC", "暗号文", "511 テスト"],
+  "ko": ["ML-KEM-768", "AES-256-GCM", "X25519", "이중 래칫", "Tor 브리지", "도메인 프론티링", "스텔스 ±5분", "중앙 서버 없음", "포스트 양자", "P2P WebRTC", "암호문", "511 테스트"]
+}

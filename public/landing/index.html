@@ -26,6 +26,10 @@
   <meta name="twitter:description" content="Без серверов. Без телефона. Пост-квантовое шифрование.">
   <meta name="twitter:image" content="https://mess.cvr.name/og-image.png">
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/webp" href="/icons/favicon.webp">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icon-192.png">
@@ -65,6 +69,7 @@
         <div class="lang-opt" data-lang="es">🇪🇸 ES</div>
         <div class="lang-opt" data-lang="zh">🇨🇳 ZH</div>
         <div class="lang-opt" data-lang="ja">🇯🇵 JA</div>
+        <div class="lang-opt" data-lang="ko">🇰🇷 KO</div>
       </div>
     </div>
     <a href="#download" class="nav-cta" data-i18n="nav.download">Download</a>
@@ -85,7 +90,7 @@
 <!-- ═══════════════════ STATS ═══════════════════ -->
 <section class="stats r">
   <h2 data-i18n="stats.label">By the numbers</h2>
-  <div class="stat"><span class="n" data-count="24">0</span><span class="l" data-i18n="stats.servers">Central servers</span></div>
+  <div class="stat"><span class="n" data-count="0">0</span><span class="l" data-i18n="stats.servers">Central servers</span></div>
   <div class="stat"><span class="n" data-count="2">0</span><span class="l" data-i18n="stats.crypto">AES-GCM + ML-KEM-768</span></div>
   <div class="stat"><span class="n" data-count="8">0</span><span class="l" data-i18n="stats.langs">Interface languages</span></div>
   <div class="stat"><span class="n" data-count="10">0</span><span class="l" data-i18n="stats.layers">Security layers</span></div>
@@ -97,9 +102,9 @@
   <h2 data-i18n="feat.title">Everything you need.<br><em>Nothing you don't.</em></h2>
   <p class="desc" data-i18n="feat.desc">Every feature ships with privacy and security baked in. No toggle to turn off — because you shouldn't have to choose between usability and anonymity.</p>
   <div class="bento">
-    <div class="card" data-tilt data-i18n-key="feat.n1"><div class="gl"></div><p class="n">01 · P2P Network</p><h3 data-i18n="feat.h1">Direct device-to-device connection</h3><p data-i18n="feat.p1">WebRTC creates an encrypted tunnel directly between you and your contact. No server ever sees your messages — there's nothing in between.</p></div>
-    <div class="card mid" data-tilt data-i18n-key="feat.n2"><div class="gl"></div><p class="n">02 · Cryptography</p><h3 data-i18n="feat.h2">AES-256 + ML-KEM-768</h3><p data-i18n="feat.p2">Dual encryption. ML-KEM-768 approved by NIST in 2024 — resistant to quantum computer attacks for decades ahead.</p></div>
-    <div class="card" data-tilt data-i18n-key="feat.n3"><div class="gl"></div><p class="n">03 · Anonymity</p><h3 data-i18n="feat.h3">No phone or email required</h3><p data-i18n="feat.p3">Identity is your cryptographic fingerprint. Add contacts via QR code, username, or nexus:// link.</p></div>
+    <div class="card" data-tilt><div class="gl"></div><p class="n" data-i18n="feat.n1">01 · P2P Network</p><h3 data-i18n="feat.h1">Direct device-to-device connection</h3><p data-i18n="feat.p1">WebRTC creates an encrypted tunnel directly between you and your contact. No server ever sees your messages — there's nothing in between.</p></div>
+    <div class="card mid" data-tilt><div class="gl"></div><p class="n" data-i18n="feat.n2">02 · Cryptography</p><h3 data-i18n="feat.h2">AES-256 + ML-KEM-768</h3><p data-i18n="feat.p2">Dual encryption. ML-KEM-768 approved by NIST in 2024 — resistant to quantum computer attacks for decades ahead.</p></div>
+    <div class="card" data-tilt><div class="gl"></div><p class="n" data-i18n="feat.n3">03 · Anonymity</p><h3 data-i18n="feat.h3">No phone or email required</h3><p data-i18n="feat.p3">Identity is your cryptographic fingerprint. Add contacts via QR code, username, or nexus:// link.</p></div>
   </div>
 </section>
 
@@ -110,9 +115,17 @@
   <p class="desc" data-i18n="cmp.desc">All popular messengers store your data on their servers. Mess&Anger is the only one where data lives exclusively on your device.</p>
   <div class="cmp">
     <table>
-      <tr><th data-i18n="cmp.param">Feature</th><th data-i18n="cmp.has">Has</th><th data-i18n="cmp.no">No</th><th data-i18n="cmp.param">Feature</th></tr>
-      <tr data-i18n-key="cmp.r1"><td>Central servers</td><td class="n">No (P2P)</td><td data-i18n-key="cmp.r2">E2E by default</td><td>Signal</td></tr>
-      <tr data-i18n-key="cmp.r3"><td>Post-quantum</td><td class="y">Yes</td><td data-i18n-key="cmp.r4">Phone number</td><td>Telegram</td></tr>
+      <tr><th data-i18n="cmp.param">Feature</th><th>Mess&amp;Anger</th><th>Telegram</th><th>Signal</th></tr>
+      <tr><td data-i18n="cmp.r1">Central servers</td><td class="y" data-i18n="cmp.r1a">No (P2P)</td><td data-i18n="cmp.has">Yes</td><td data-i18n="cmp.has">Yes</td></tr>
+      <tr><td data-i18n="cmp.r2">E2E by default</td><td class="y" data-i18n="cmp.always">Always</td><td data-i18n="cmp.r2t">Secret chats only</td><td data-i18n="cmp.always">Always</td></tr>
+      <tr><td data-i18n="cmp.r3">Post-quantum</td><td class="y" data-i18n="cmp.has">Yes</td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td></tr>
+      <tr><td data-i18n="cmp.r4">Phone number</td><td class="y" data-i18n="cmp.r4a">Not required</td><td data-i18n="cmp.req">Required</td><td data-i18n="cmp.req">Required</td></tr>
+      <tr><td data-i18n="cmp.r5">Data storage</td><td class="y" data-i18n="cmp.r5a">Device only</td><td data-i18n="cmp.r5t">Telegram Cloud</td><td data-i18n="cmp.r5s">Signal Server</td></tr>
+      <tr><td data-i18n="cmp.r6">Censorship resistance</td><td class="y">5 <span data-i18n="cmp.r6a">layers</span></td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td></tr>
+      <tr><td data-i18n="cmp.r_dr">Forward Secrecy</td><td class="y" data-i18n="cmp.r7a">Every message</td><td data-i18n="cmp.partial">Partial</td><td data-i18n="cmp.always">Always</td></tr>
+      <tr><td data-i18n="cmp.r_ts">Timestamp fuzzing</td><td class="y" data-i18n="cmp.r_tsa">Stealth mode ±5 min</td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td></tr>
+      <tr><td data-i18n="cmp.r_tor">Tor bridges</td><td class="y" data-i18n="cmp.has">Yes</td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td></tr>
+      <tr><td data-i18n="cmp.r_enc">Storage encryption</td><td class="y" data-i18n="cmp.has">Yes</td><td data-i18n="cmp.no">No</td><td data-i18n="cmp.no">No</td></tr>
     </table>
   </div>
 </section>
@@ -200,6 +213,9 @@
 
 <!-- ═══════════════════ MESH RADAR ═══════════════════ -->
 <section class="mesh r">
+  <p class="sec-label" data-i18n="mesh.label">Unique feature</p>
+  <h2 data-i18n="mesh.title">Mesh Compass — <em>Node Radar</em></h2>
+  <p class="desc" data-i18n="mesh.desc">The only messenger with a visual radar of nearby relay nodes. Works without internet, cellular or power grid — up to 50 km range.</p>
   <canvas id="meshCanvas" width="240" height="240"></canvas>
 </section>
 

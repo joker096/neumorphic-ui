@@ -59,7 +59,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
         </div>
       )}
 
-      <section className="relative z-10 min-h-[100dvh] flex flex-col items-center justify-center px-6 py-24">
+      <section className="relative z-10 min-h-[100dvh] flex flex-col items-center justify-center px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -91,7 +91,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <div className="flex items-center gap-4">
             <button
               onClick={onGetStarted}
-              className="group relative overflow-hidden rounded-full px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+              className="group relative overflow-hidden rounded-full px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
             >
               <span className="relative z-10 flex items-center gap-3">
                 {t("landing.openApp")}
@@ -105,7 +105,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className={`rounded-full px-7 py-3.5 text-sm font-bold border transition-all duration-300 ${
+              className={`rounded-full px-8 py-3 text-sm font-bold border transition-all duration-300 ${
                 isDark
                   ? "border-[var(--border-color)] text-gray-300 hover:bg-white/5"
                   : "border-[var(--border-color)] text-slate-600 hover:bg-black/5"
@@ -128,7 +128,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
         </motion.div>
       </section>
 
-      <section className="relative z-10 px-6 py-32">
+      <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-6xl mx-auto">
           <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border ${
             isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
@@ -178,7 +178,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
         </motion.div>
       </section>
 
-      <section className="relative z-10 px-6 py-32">
+      <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-5xl mx-auto">
           <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border ${
             isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
@@ -229,7 +229,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
         </motion.div>
       </section>
 
-      <section className="relative z-10 px-6 py-32">
+      <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-3xl mx-auto text-center">
           <h2 className={`text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 ${
             isDark ? "text-[var(--text-primary)]" : "text-slate-900"

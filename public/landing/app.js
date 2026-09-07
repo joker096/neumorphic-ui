@@ -10,15 +10,16 @@ const LANGS = {
   fr:{ label:'🇫🇷 FR', htmlLang:'fr' },
   es:{ label:'🇪🇸 ES', htmlLang:'es' },
   zh:{ label:'🇨🇳 ZH', htmlLang:'zh' },
-  ja:{ label:'🇯🇵 JA', htmlLang:'ja' }
+  ja:{ label:'🇯🇵 JA', htmlLang:'ja' },
+  ko:{ label:'🇰🇷 KO', htmlLang:'ko' }
 };
-const SUPPORTED = ['ru','en','de','fr','es','zh','ja'];
+const SUPPORTED = ['ru','en','de','fr','es','zh','ja','ko'];
 
 // Load translations for a language
 async function loadLang(lang) {
   if (T[lang]) return T[lang];
   try {
-    const resp = await fetch('/lang/' + lang + '.json');
+    const resp = await fetch('lang/' + lang + '.json');
     const data = await resp.json();
     T[lang] = data;
   } catch(e) {
@@ -65,9 +66,8 @@ function applyLang(lang) {
       }
     });
 
-    // Also update ticker/marquee
+    // Also update ticker
     buildTicker(lang);
-    buildMarquee(lang);
 
     // Fade animation
     document.body.classList.remove('lang-fade');
@@ -114,44 +114,24 @@ window.addEventListener('scroll', () => nav.classList.toggle('s', scrollY > 60),
 // TICKER (fetched from /data/ticker.json)
 // ════════════════════════════════════════════════════
 let _tickCache = {};
-function buildTicker(lang) {
-  if (!_tickCache[lang]) {
-    fetch('/data/ticker.json')
-      .then(r => r.json())
-      .then(data => {
-        _tickCache[lang] = data[lang] || data.ru;
-        document.getElementById('tk').innerHTML =
-          [..._tickCache[lang],..._tickCache[lang],..._tickCache[lang]].map(t => '<div class="ti">'+t+'</div>').join('');
-      });
-  } else {
-    document.getElementById('tk').innerHTML =
-      [..._tickCache[lang],..._tickCache[lang],..._tickCache[lang]].map(t => '<div class="ti">'+t+'</div>').join('');
-  }
+function tickerHTML(items) {
+  return [...items, ...items].map(t => '<div class="ti">'+t+'</div>').join('');
 }
-
-// ════════════════════════════════════════════════════
-// MARQUEE (fetched from /data/marquee.json)
-// ════════════════════════════════════════════════════
-let _mq1Cache = {};
-let _mq2Cache = {};
-function buildMarquee(lang) {
-  if (!_mq1Cache[lang]) {
-    fetch('/data/marquee.json')
-      .then(r => r.json())
-      .then(data => {
-        _mq1Cache[lang] = data[lang] || data.ru;
-        _mq2Cache[lang] = (data[lang] || data.ru)[1] || [];
-        document.getElementById('mq1').innerHTML =
-          [..._mq1Cache[lang],..._mq1Cache[lang],..._mq1Cache[lang]].map(t => '<div class="mq-i">'+t+'</div>').join('');
-        document.getElementById('mq2').innerHTML =
-          [..._mq2Cache[lang],..._mq2Cache[lang],..._mq2Cache[lang],..._mq2Cache[lang]].map(t => '<div class="mq-i">'+t+'</div>').join('');
-      });
-  } else {
-    document.getElementById('mq1').innerHTML =
-      [..._mq1Cache[lang],..._mq1Cache[lang],..._mq1Cache[lang]].map(t => '<div class="mq-i">'+t+'</div>').join('');
-    document.getElementById('mq2').innerHTML =
-      [..._mq2Cache[lang],..._mq2Cache[lang],..._mq2Cache[lang],..._mq2Cache[lang]].map(t => '<div class="mq-i">'+t+'</div>').join('');
+function buildTicker(lang) {
+  const render = () => {
+    document.getElementById('tk').innerHTML = tickerHTML(_tickCache[lang]);
+  };
+  if (_tickCache[lang]) {
+    render();
+    return;
   }
+  fetch('data/ticker.json')
+    .then(r => r.json())
+    .then(data => {
+      _tickCache[lang] = data[lang] || data.ru || [];
+      render();
+    })
+    .catch(() => {});
 }
 
 // ════════════════════════════════════════════════════
@@ -196,16 +176,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (el) { e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
   });
 });
-
-// ════════════════════════════════════════════════════
-// SCROLL PROGRESS
-// ════════════════════════════════════════════════════
-const progressBar = document.getElementById('scroll-progress');
-window.addEventListener('scroll', () => {
-  const total = document.documentElement.scrollHeight - window.innerHeight;
-  const pct = total > 0 ? (window.scrollY / total * 100) : 0;
-  if (progressBar) progressBar.style.width = pct + '%';
-}, {passive:true});
 
 // ════════════════════════════════════════════════════
 // 3D PARALLAX (cards tilt on hover)
@@ -271,23 +241,23 @@ window.addEventListener('scroll', () => {
 })();
 
 // ════════════════════════════════════════════════════
-// SCORE BARS ANIMATION
+// FAQ TOGGLE
 // ════════════════════════════════════════════════════
-(function(){
-  const fills = document.querySelectorAll('.score-bar-fill[data-width]');
-  if(!fills.length) return;
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if(e.isIntersecting){
-        const w = parseFloat(e.target.dataset.width);
-        e.target.style.transform = 'scaleX(' + w + ')';
-        e.target.classList.add('active');
-        io.unobserve(e.target);
-      }
-    });
-  }, {threshold: 0.3});
-  fills.forEach(f => io.observe(f));
-})();
+document.querySelectorAll('.faq dt').forEach(dt => {
+  dt.setAttribute('tabindex', '0');
+  dt.setAttribute('role', 'button');
+  dt.setAttribute('aria-expanded', 'false');
+  const dd = dt.nextElementSibling;
+  const toggle = () => {
+    const open = dt.classList.toggle('open');
+    if (dd && dd.tagName === 'DD') dd.classList.toggle('open', open);
+    dt.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  dt.addEventListener('click', toggle);
+  dt.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  });
+});
 
 // ════════════════════════════════════════════════════
 // MESH RADAR CANVAS
