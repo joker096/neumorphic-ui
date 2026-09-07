@@ -26,7 +26,18 @@
     "enabled": "켜짐",
     "markRead": "모두 읽음 처리",
     "settingsTitle": "설정",
-    "title": "알림"
+    "title": "알림",
+    "settings": {
+      "allMessages": "모든 메시지",
+      "mentions": "멘션",
+      "replies": "답장",
+      "calls": "통화",
+      "groups": "그룹",
+      "channels": "채널",
+      "sounds": "사운드",
+      "desktop": "데스크톱",
+      "mobile": "모바일"
+    }
   },
   "search": {
     "messagesPeople": "메시지, 사람 검색...",
@@ -661,6 +672,11 @@
     "linkCopied": "링크 복사됨",
     "storySaved": "스토리 저장됨",
     "storyDeleted": "스토리 삭제됨",
+    "forwardToChat": "전달",
+    "forwarded": "스토리 공유됨",
+    "shareSheet": "스토리 공유",
+    "sharedStory": "스토리",
+    "sharedBy": "스토리",
     "moreTitle": "스토리 옵션",
     "unsupportedMedia": "Unsupported file type",
     "removeMedia": "Remove media"
@@ -980,6 +996,7 @@
     "blacklist": "블랙리스트",
     "blockedBackends": "차단된 백엔드",
     "botAdded": "봇이 추가되었습니다",
+    "botEdited": "봇이 업데이트되었습니다",
     "botRunning": "실행 중",
     "botStopped": "중지됨",
     "botTokenMask": "Token: •••••••••••••••",
@@ -1378,7 +1395,7 @@
     "relayPreference": "settings.relayPreference",
     "relaySection": "settings.relaySection",
     "remove": "settings.remove",
-    "removeBot": "settings.removeBot",
+    "removeBot": "봇 제거",
     "removeField": "필드 삭제",
     "removePin": "PIN 제거",
     "removed": "제거됨",
@@ -2222,6 +2239,8 @@
     "sideList": "사이드 목록",
     "sticker": "스티커",
     "videoThumbnail": "동영상 썸네일",
+    "seek": "탐색",
+    "volume": "볼륨",
     "seekVoiceNote": "음성 메모 탐색"
   },
   "payments": {
@@ -2270,6 +2289,24 @@
     "miniAppEmptyDesc": "이 봇에는 미니 앱이 없습니다.",
     "inlineProcessed": "«{{text}}» — 처리됨",
     "inlineNotConfigured": "봇 연동이 연결되지 않았습니다",
-    "inlineError": "버튼 처리 오류"
+    "inlineError": "버튼 처리 오류",
+    "editTitle": "봇 편집",
+    "nameLabel": "봇 이름",
+    "descriptionLabel": "설명",
+    "descriptionPlaceholder": "이 봇은 무엇을 합니까?"
+  },"wallet":{"send":"보내기","failed":"결제 실패","topUpDone":"충전 완료","topUpDesc":"입금","balance":"잔액","sentToChat":"결제가 채팅으로 전송됨","topUp":"충전","payToChat":"결제를 채팅으로 보내기","sendDesc":"돈 보내기","invalidAmount":"유효한 금액을 입력하세요","sendDone":"송금 완료","pending":"처리 중","disabled":"결제가 비활성화됨","transactions":"거래 내역","created":"결제 생성됨","currency":"통화","amount":"금액","title":"지갑","empty":"거래 내역이 없습니다"},
+  "transport": {
+    "direct": "직접",
+    "connecting": "연결 중...",
+    "degraded": "제한됨",
+    "offline": "오프라인",
+    "error": "오류",
+    "meaningDirect": "리레이 없이 P2P 채널을 통해 피어에 직접 연결됨.",
+    "meaningConnecting": "시그널링/트랜스포트 링크를 설정하는 중입니다.",
+    "meaningDegraded": "연결은 되어 있지만 제한된 경로로 라우팅됩니다.",
+    "meaningOffline": "연결되지 않았습니다. 링크 확립을 기다리는 중입니다.",
+    "meaningError": "연결에 실패했습니다. 트랜스포트를 확립할 수 없습니다.",
+    "current": "현재:",
+    "allStatuses": "모든 상태"
   }
 }

@@ -26,7 +26,18 @@
     "enabled": "Enabled",
     "markRead": "Mark all read",
     "settingsTitle": "Settings",
-    "title": "Notifications"
+    "title": "Notifications",
+    "settings": {
+      "allMessages": "All messages",
+      "mentions": "Mentions",
+      "replies": "Replies",
+      "calls": "Calls",
+      "groups": "Groups",
+      "channels": "Channels",
+      "sounds": "Sounds",
+      "desktop": "Desktop",
+      "mobile": "Mobile"
+    }
   },
   "search": {
     "messagesPeople": "Search messages, people...",
@@ -659,6 +670,11 @@
     "linkCopied": "Link copied",
     "storySaved": "Story saved",
     "storyDeleted": "Story deleted",
+    "forwardToChat": "Forward",
+    "forwarded": "Story shared",
+    "shareSheet": "Share story",
+    "sharedStory": "Story",
+    "sharedBy": "Story",
     "moreTitle": "Story options",
     "unsupportedMedia": "Unsupported file type",
     "removeMedia": "Remove media"
@@ -978,6 +994,7 @@
     "blacklist": "Blacklist",
     "blockedBackends": "Blocked Backends",
     "botAdded": "Bot added successfully",
+    "botEdited": "Bot updated successfully",
     "botRunning": "Running",
     "botStopped": "Stopped",
     "botTokenMask": "Token: •••••••••••••••",
@@ -2220,6 +2237,8 @@
     "sideList": "Side list",
     "sticker": "Sticker",
     "videoThumbnail": "Video thumbnail",
+    "seek": "Seek",
+    "volume": "Volume",
     "seekVoiceNote": "Seek voice note"
   },
   "payments": {
@@ -2268,6 +2287,24 @@
     "miniAppEmptyDesc": "This bot has no mini-app.",
     "inlineProcessed": "“{{text}}” — processed",
     "inlineNotConfigured": "Bot integration not connected",
-    "inlineError": "Button processing error"
+    "inlineError": "Button processing error",
+    "editTitle": "Edit bot",
+    "nameLabel": "Bot name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What does this bot do?"
+  },"wallet":{"send":"Send","failed":"Payment failed","topUpDone":"Top-up completed","topUpDesc":"Deposit money","balance":"Balance","sentToChat":"Payment sent to chat","topUp":"Top up","payToChat":"Send payment to chat","sendDesc":"Send money","invalidAmount":"Enter a valid amount","sendDone":"Transfer completed","pending":"Pending","disabled":"Payments are disabled","transactions":"Transactions","created":"Payment created","currency":"Currency","amount":"Amount","title":"Wallet","empty":"No transactions yet"},
+  "transport": {
+    "direct": "Direct",
+    "connecting": "Connecting...",
+    "degraded": "Degraded",
+    "offline": "Offline",
+    "error": "Error",
+    "meaningDirect": "Connected to a peer over a direct P2P channel (no relay).",
+    "meaningConnecting": "Establishing the signaling / transport link.",
+    "meaningDegraded": "Connected, but routed through a degraded / restricted path.",
+    "meaningOffline": "Not connected. Waiting to establish a link.",
+    "meaningError": "Connection failed — the transport could not be established.",
+    "current": "Current:",
+    "allStatuses": "All statuses"
   }
 }

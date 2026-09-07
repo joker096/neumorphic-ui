@@ -650,6 +650,20 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
     }
   });
 
+  describe('transport indicator keys', () => {
+    const transportIndicatorKeys = ['transport.direct', 'transport.connecting', 'transport.degraded', 'transport.offline', 'transport.error', 'transport.meaningDirect', 'transport.meaningConnecting', 'transport.meaningDegraded', 'transport.meaningOffline', 'transport.meaningError', 'transport.current', 'transport.allStatuses'];
+
+    for (const lang of allLocales) {
+      for (const key of transportIndicatorKeys) {
+        it(`"${key}" translates in ${lang}`, () => {
+          const val = getTranslation(key, lang);
+          expect(val).not.toBe(key);
+          expect(val.length).toBeGreaterThan(0);
+        });
+      }
+    }
+  });
+
   describe('settings.advanced keys', () => {
     const advancedKeys = ['settings.advancedSection', 'settings.advancedPrivacy', 'settings.allowMetadata', 'settings.allowMetadataSubtitle', 'settings.dataStorage', 'settings.dataStorageSection', 'settings.dataStorageSubtitle', 'settings.clearCache', 'settings.clearAll', 'settings.clearCacheSubtitle'];
 

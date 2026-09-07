@@ -1,8 +1,19 @@
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 import { TransportIndicator } from './TransportIndicator';
+
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string, fallback?: string) => fallback ?? key,
+    lang: 'en',
+    setLang: vi.fn(),
+  }),
+  I18nProvider: ({ children }: { children: React.ReactNode }) => children,
+  I18nContext: { Provider: ({ children }: { children: React.ReactNode }) => children },
+}));
 
 describe('TransportIndicator', () => {
   it('renders disconnected by default', () => {

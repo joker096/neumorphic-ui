@@ -68,9 +68,9 @@ test.describe('Navigation & chrome', () => {
     await expect(page.getByText('CRM').first()).toBeVisible();
   });
 
-  test('transport indicator is present with a connection title', async ({ page }) => {
+  test('transport indicator is present with a connection label', async ({ page }) => {
     await gotoApp(page);
-    await expect(page.locator('[title^="Connection:"]')).toBeVisible();
+    await expect(page.locator('[role="status"][aria-label^="Connection:"]')).toBeVisible();
   });
 
   test('skip link targets main content', async ({ page }) => {

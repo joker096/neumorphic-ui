@@ -26,7 +26,18 @@
     "enabled": "已启用",
     "markRead": "全部标为已读",
     "settingsTitle": "设置",
-    "title": "通知"
+    "title": "通知",
+    "settings": {
+      "allMessages": "所有消息",
+      "mentions": "提及",
+      "replies": "回复",
+      "calls": "通话",
+      "groups": "群组",
+      "channels": "频道",
+      "sounds": "声音",
+      "desktop": "桌面",
+      "mobile": "移动端"
+    }
   },
   "search": {
     "messagesPeople": "搜索消息、联系人…",
@@ -661,6 +672,11 @@
     "linkCopied": "链接已复制",
     "storySaved": "故事已保存",
     "storyDeleted": "故事已删除",
+    "forwardToChat": "转发",
+    "forwarded": "故事已分享",
+    "shareSheet": "分享故事",
+    "sharedStory": "故事",
+    "sharedBy": "故事",
     "moreTitle": "故事选项",
     "unsupportedMedia": "Unsupported file type",
     "removeMedia": "Remove media"
@@ -980,6 +996,7 @@
     "blacklist": "黑名单",
     "blockedBackends": "已屏蔽的后端",
     "botAdded": "机器人添加成功",
+    "botEdited": "机器人更新成功",
     "botRunning": "运行中",
     "botStopped": "已停止",
     "botTokenMask": "Token: •••••••••••••••",
@@ -1378,7 +1395,7 @@
     "relayPreference": "settings.relayPreference",
     "relaySection": "settings.relaySection",
     "remove": "settings.remove",
-    "removeBot": "settings.removeBot",
+    "removeBot": "删除机器人",
     "removeField": "移除字段",
     "removePin": "移除 PIN",
     "removed": "已移除",
@@ -2222,6 +2239,8 @@
     "sideList": "侧边列表",
     "sticker": "贴纸",
     "videoThumbnail": "视频缩略图",
+    "seek": "定位",
+    "volume": "音量",
     "seekVoiceNote": "定位语音消息"
   },
   "payments": {
@@ -2270,6 +2289,24 @@
     "miniAppEmptyDesc": "该机器人没有小程序。",
     "inlineProcessed": "“{{text}}” — 已处理",
     "inlineNotConfigured": "机器人集成未连接",
-    "inlineError": "按钮处理错误"
+    "inlineError": "按钮处理错误",
+    "editTitle": "编辑机器人",
+    "nameLabel": "机器人名称",
+    "descriptionLabel": "描述",
+    "descriptionPlaceholder": "这个机器人做什么？"
+  },"wallet":{"send":"发送","failed":"付款失败","topUpDone":"充值完成","topUpDesc":"存入资金","balance":"余额","sentToChat":"付款已发送到聊天","topUp":"充值","payToChat":"发送付款到聊天","sendDesc":"发送资金","invalidAmount":"请输入有效金额","sendDone":"转账完成","pending":"处理中","disabled":"付款已禁用","transactions":"交易记录","created":"已创建付款","currency":"货币","amount":"金额","title":"钱包","empty":"暂无交易记录"},
+  "transport": {
+    "direct": "直连",
+    "connecting": "连接中...",
+    "degraded": "降级",
+    "offline": "离线",
+    "error": "错误",
+    "meaningDirect": "已通过 P2P 直连通道连接到对等端（无中继）。",
+    "meaningConnecting": "正在建立信令/传输链路。",
+    "meaningDegraded": "已连接，但通过降级/受限路径路由。",
+    "meaningOffline": "未连接。等待建立链路。",
+    "meaningError": "连接失败——无法建立传输。",
+    "current": "当前:",
+    "allStatuses": "所有状态"
   }
 }
