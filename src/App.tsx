@@ -24,9 +24,6 @@ import { ThemeContext } from './contexts/ThemeContext';
 import { AppAuthGate } from './components/app/AppAuthGate';
 import { ServicesProvider } from './services';
 import { createLocalServices } from './services/localServices';
-import { installMessAngerSdk, createMessAngerSdk } from './lib/sdk';
-import { runCrmDeepLink } from './lib/crm/deepLink';
-import { parseStoryDeepLink, clearStoryDeepLink } from './lib/stories/storyDeepLink';
 import { findStoryUser } from './components/stories/storiesData';
 import { AcceptInviteModal } from './components/crm/AcceptInviteModal';
 import { toast } from './components/ui/Toast';
@@ -90,21 +87,27 @@ export default function App() {
     import("./lib/recordingRetention").then(({ startRecordingRetention }) => {
       stopRetention = startRecordingRetention();
     }).catch(() => {});
-    installMessAngerSdk();
-    const sdk = createMessAngerSdk();
-    if (typeof window !== 'undefined') {
-      runCrmDeepLink(sdk, window.location.search, window.location.hash)
-        .then((r) => { if (r && r.imported > 0) toast(`Imported ${r.imported} contacts from link`, 'success'); })
-        .catch(() => {});
-      const invite = new URLSearchParams(window.location.search).get('invite');
-      if (invite) setPendingInvite(invite);
-      const storyLink = parseStoryDeepLink(window.location.hash, window.location.search);
-      if (storyLink) {
-        const u = findStoryUser(storyLink.userId);
-        setActiveStory({ id: u.id, name: u.name, color: u.color });
-        clearStoryDeepLink();
+    Promise.all([
+      import("./lib/sdk"),
+      import("./lib/crm/deepLink"),
+      import("./lib/stories/storyDeepLink"),
+    ]).then(([sdkModule, crmDeepLinkModule, storyDeepLinkModule]) => {
+      sdkModule.installMessAngerSdk();
+      const sdk = sdkModule.createMessAngerSdk();
+      if (typeof window !== 'undefined') {
+        crmDeepLinkModule.runCrmDeepLink(sdk, window.location.search, window.location.hash)
+          .then((r) => { if (r && r.imported > 0) toast(`Imported ${r.imported} contacts from link`, 'success'); })
+          .catch(() => {});
+        const invite = new URLSearchParams(window.location.search).get('invite');
+        if (invite) setPendingInvite(invite);
+        const storyLink = storyDeepLinkModule.parseStoryDeepLink(window.location.hash, window.location.search);
+        if (storyLink) {
+          const u = findStoryUser(storyLink.userId);
+          setActiveStory({ id: u.id, name: u.name, color: u.color });
+          storyDeepLinkModule.clearStoryDeepLink();
+        }
       }
-    }
+    }).catch(() => {});
     return () => stopRetention();
   }, []);
 
