@@ -54,25 +54,38 @@ vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({ t: (key: string) => key, lang: 'en', setLang: vi.fn() }),
 }));
 
+vi.mock('../ChatPreviewLayer', () => ({
+  ChatPreviewLayer: (props: any) =>
+    React.createElement('div', {
+      'data-testid': 'chat-preview-layer',
+      'data-chat-id': props.chat?.id,
+    }),
+}));
+
 describe('ActiveChatWorkspace', () => {
-  it('renders without crashing', () => {
+  it('renders without crashing', async () => {
     const { container } = render(<ActiveChatWorkspace {...mockProps} />);
+    await screen.findByTestId('chat-preview-layer');
     expect(container).toBeTruthy();
   });
 
-  it('renders with active chat data', () => {
+  it('renders with active chat data', async () => {
     render(<ActiveChatWorkspace {...mockProps} />);
+    const chatPreview = await screen.findByTestId('chat-preview-layer');
+    expect(chatPreview).toHaveAttribute('data-chat-id', 'chat-1');
     const elements = document.querySelectorAll('[class*="animate-fade-in"]');
     expect(elements.length).toBeGreaterThan(0);
   });
 
-  it('accepts all props correctly', () => {
+  it('accepts all props correctly', async () => {
     const { container } = render(<ActiveChatWorkspace {...mockProps} />);
+    await screen.findByTestId('chat-preview-layer');
     expect(container).toBeTruthy();
   });
 
-  it('renders in light theme', () => {
+  it('renders in light theme', async () => {
     render(<ActiveChatWorkspace {...mockProps} theme="light" />);
+    await screen.findByTestId('chat-preview-layer');
     const elements = document.querySelectorAll('[class*="animate-fade-in"]');
     expect(elements.length).toBeGreaterThan(0);
   });

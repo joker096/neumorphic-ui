@@ -1,5 +1,15 @@
-import type { Dispatch, SetStateAction } from "react";
-import { ChatPreviewLayer } from "../ChatPreviewLayer";
+import { lazy, Suspense, type Dispatch, type SetStateAction } from "react";
+const LazyChatPreviewLayer = lazy(() =>
+  import("../ChatPreviewLayer").then((m) => ({ default: m.ChatPreviewLayer })),
+);
+
+function ChatPreviewFallback() {
+  return (
+    <div className="h-full w-full flex items-center justify-center" aria-hidden="true">
+      <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+    </div>
+  );
+}
 
 type ActiveChatWorkspaceProps = {
   theme: "light" | "dark";
@@ -93,8 +103,9 @@ export const ActiveChatWorkspace = ({
   onCloseChat,
 }: ActiveChatWorkspaceProps) => (
  <div className="w-full max-w-full sm:max-w-[600px] md:max-w-[640px] lg:max-w-[800px] h-full md:h-[calc(100%-0.5rem)] relative z-10 md:z-10 animate-fade-in md:mt-2 max-h-[calc(100vh-2rem)]">
-   <ChatPreviewLayer
-      chat={activeChat}
+    <Suspense fallback={<ChatPreviewFallback />}>
+      <LazyChatPreviewLayer
+       chat={activeChat}
       theme={theme}
       onClose={() => (onCloseChat ? onCloseChat() : setActiveChat(null))}
       onUpdateChat={setActiveChat}
@@ -143,7 +154,8 @@ export const ActiveChatWorkspace = ({
       onReRecord={onReRecord}
       onPermissionDenied={onPermissionDenied}
       onSendVoice={onSendVoice}
-       onToggleStickerPicker={() => setShowStickerPicker(!showStickerPicker)}
-     />
-  </div>
+        onToggleStickerPicker={() => setShowStickerPicker(!showStickerPicker)}
+      />
+    </Suspense>
+   </div>
 );
