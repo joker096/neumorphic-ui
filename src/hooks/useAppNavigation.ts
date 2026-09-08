@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useAppStore } from "../store";
 import type { Dispatch, SetStateAction } from "react";
-import { callManager } from "../lib/call/CallManager";
 
 type View = 'hub' | 'chats' | 'channels' | 'bots' | 'radar' | 'pulse' | 'calls' | 'settings' | 'profile' | 'contacts' | 'stories' | 'recordings' | 'company' | 'workplace' | 'bot' | 'miniApp';
 
@@ -32,14 +31,16 @@ export function useAppNavigation(
       return;
     }
     // Route through CallManager so the full CallScreen (driven by `useCall`) renders.
-    callManager.startPreviewCall('preview', name, callType).catch(() => {});
-    if (previewCallTimer) clearTimeout(previewCallTimer);
-    previewCallTimer = setTimeout(() => {
-      const cur = useAppStore.getState().activeCall as any;
-      if (cur && cur.isPreview && cur.status === 'connecting') {
-        callManager.endCall().catch(() => {});
-      }
-    }, 30000);
+    void import('../lib/call/CallManager').then(({ callManager }) => {
+      callManager.startPreviewCall('preview', name, callType).catch(() => {});
+      if (previewCallTimer) clearTimeout(previewCallTimer);
+      previewCallTimer = setTimeout(() => {
+        const cur = useAppStore.getState().activeCall as any;
+        if (cur && cur.isPreview && cur.status === 'connecting') {
+          callManager.endCall().catch(() => {});
+        }
+      }, 30000);
+    });
   }, [setActiveCall]);
 
   const handlePreviewMessage = useCallback((name: string, color?: string) => {

@@ -1,5 +1,4 @@
 export { useAppLock } from './useAppLock';
-export { useCall } from './useCall';
 export { useDebounce } from './useDebounce';
 export { useGlobalErrorHandler } from './useGlobalErrorHandler';
 export { useHealthCheck } from './useHealthCheck';

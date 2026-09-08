@@ -1,5 +1,4 @@
 import type { Contact } from '../types/contact';
-import { callRecorderService } from '../lib/callRecorderService';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 
@@ -55,6 +54,7 @@ export function listRiskSessions() {
 }
 
 export async function startRecordingForCampaign(campaignId: string) {
+  const { callRecorderService } = await import('../lib/callRecorderService');
   const recordingId = `rec-${campaignId}-${nanoid(6)}`;
   await callRecorderService.startRecording(recordingId, new MediaStream(), false);
   return recordingId;

@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { AppOverlays, CallOverlay } from "./components/app";
+import { lazy, Suspense, useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { AppOverlays } from "./components/app";
 import { useMessageActions } from "./hooks/useMessageActions";
 import { useProfileActions } from "./hooks/useProfileActions";
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
@@ -17,7 +17,6 @@ import { useUnreadCount } from './hooks/useUnreadCount';
 import { useDataHydration } from './hooks/useDataHydration';
 import { useBrowserBackNavigation } from './hooks/useBrowserBackNavigation';
 import { useLocalStorage } from "./hooks/useLocalStorage";
-import { startRecordingRetention } from "./lib/recordingRetention";
 import { AppShell } from './components/app/AppShell';
 import { AppChrome } from './components/app/AppChrome';
 import { STORAGE_KEYS } from './constants/storage';
@@ -31,6 +30,8 @@ import { parseStoryDeepLink, clearStoryDeepLink } from './lib/stories/storyDeepL
 import { findStoryUser } from './components/stories/storiesData';
 import { AcceptInviteModal } from './components/crm/AcceptInviteModal';
 import { toast } from './components/ui/Toast';
+
+const LazyCallOverlay = lazy(() => import("./components/app/CallOverlay").then((m) => ({ default: m.CallOverlay })));
 
 export default function App() {
   const { theme, setTheme, isDark, fontSize, setFontSize, t } = useAppSettings();
@@ -85,7 +86,10 @@ export default function App() {
   useScheduledMessages();
 
   useEffect(() => {
-    const stop = startRecordingRetention();
+    let stopRetention: () => void = () => {};
+    import("./lib/recordingRetention").then(({ startRecordingRetention }) => {
+      stopRetention = startRecordingRetention();
+    }).catch(() => {});
     installMessAngerSdk();
     const sdk = createMessAngerSdk();
     if (typeof window !== 'undefined') {
@@ -101,7 +105,7 @@ export default function App() {
         clearStoryDeepLink();
       }
     }
-    return stop;
+    return () => stopRetention();
   }, []);
 
   const [view, setView] = useState<'chats' | 'channels' | 'bots' | 'settings' | 'profile' | 'contacts' | 'stories' | 'company' | 'calls' | 'workplace' | 'bot' | 'miniApp'>('chats');
@@ -363,7 +367,7 @@ export default function App() {
            onProfileToggleFavorite={handleProfileToggleFavorite}
         />
 
-        <CallOverlay />
+        <Suspense fallback={null}><LazyCallOverlay /></Suspense>
         {pendingInvite && (
           <AcceptInviteModal
             code={pendingInvite}
