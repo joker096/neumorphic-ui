@@ -9,7 +9,6 @@ import { DEFAULT_CRM_FILTERS } from '../../lib/crm/types';
 import {
   MOCK_CRM_CONTACTS, MOCK_DEPARTMENTS, MOCK_CUSTOM_ROLES, MOCK_DEALS, MOCK_TASKS,
 } from '../../constants/crmMockData';
-import { encryptCrmData, decryptCrmData, isEncryptedPayload } from '../../lib/crm/atRest';
 
 const uid = (prefix: string) =>
   `${prefix}_${typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10)}`;
@@ -42,6 +41,7 @@ export async function loadCrmPersisted(): Promise<PersistedCrm | null> {
   try {
     const raw = localStorage.getItem(CRM_STORAGE_KEY);
     if (!raw) return null;
+    const { isEncryptedPayload, decryptCrmData } = await import('../../lib/crm/atRest');
     let json: string;
     try {
       const parsed: unknown = JSON.parse(raw);
@@ -83,6 +83,7 @@ export async function saveCrmPersisted(state: {
       deals: state.crmDeals,
       tasks: state.crmTasks,
     });
+    const { encryptCrmData } = await import('../../lib/crm/atRest');
     const enc = await encryptCrmData(json);
     localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify(enc));
   } catch {

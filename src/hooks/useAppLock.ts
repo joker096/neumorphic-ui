@@ -1,5 +1,4 @@
 import { useState, FormEvent, useEffect } from "react";
-import { cryptoCore } from "../lib/crypto/cryptoCore";
 import { STORAGE_KEYS } from "../constants";
 import { useAppStore } from "../store";
 import { getLockBlockDuration } from "../config/lockBackoff";
@@ -119,6 +118,7 @@ export const useAppLock = () => {
       return;
     }
 
+    const { cryptoCore } = await import("../lib/crypto/cryptoCore");
     const hashed = await cryptoCore.hashAppLockPIN(pinInput, appLockSalt);
     if (hashed.hash === appLockHashedPIN) {
       unlockSuccess();

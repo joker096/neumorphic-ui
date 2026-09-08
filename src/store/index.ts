@@ -1,11 +1,9 @@
 import { create } from 'zustand';
-import { deviceSecurity } from '../lib/deviceSecurity';
 import { logError } from '../lib/errorHandling';
 import type { ActiveCall } from '../lib/call/types';
 import type { CompanyChannel, CompanyMessage, CompanyMember } from '../constants';
 import type { InviteQRPayload } from '../lib/company/types';
 import type { Contact, UserProfile } from '../types/contact';
-import { generateCompanyId, createCompanyUser, saveMembers } from '../lib/company/companyUser';
 import * as idb from '../lib/idb';
 import { DEFAULT_BOT_PERMISSIONS } from './defaults';
 import type {
@@ -61,6 +59,7 @@ export const setSessionMasterKey = (key: CryptoKey | null): void => {
 };
 
 export const initAppStorage = async () => {
+  const { deviceSecurity } = await import('../lib/deviceSecurity');
   try {
     sessionMasterKey = await deviceSecurity.initSessionMasterKey();
   } catch (e) {

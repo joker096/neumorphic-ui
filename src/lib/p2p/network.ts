@@ -2,11 +2,10 @@
 // Kadabra-style P2P network that uses DHT for peer discovery
 // instead of a central signaling server.
 
-import { P2PTransport } from './P2PTransport';
+import type { P2PTransport } from './P2PTransport';
 import { MeshDHT, DHTBootstrapPeer } from './MeshDHT';
 import { MeshRouterCore, MeshRouterSingleton } from './MeshRouter';
 import { useAppStore } from '../../store';
-import { getMasterKeySet } from '../identity/masterKey';
 
 export interface PeerConnection {
   peerId: string;
@@ -166,8 +165,10 @@ export class P2PNetwork {
 
     // Create transport (this would use WebRTC in production)
     const obfuscationEnabled = useAppStore.getState().obfuscationEnabled;
+    const { P2PTransport: Transport } = await import('./P2PTransport');
+    const { getMasterKeySet } = await import('../identity/masterKey');
     const identity = await getMasterKeySet().catch(() => null);
-    const transport = new P2PTransport({
+    const transport = new Transport({
       signalingUrl: '', // No signaling URL needed in Kadabra
       localPublicKey: this.peerPublicKey,
       obfuscationEnabled,

@@ -1,5 +1,3 @@
-import * as nacl from 'tweetnacl'
-import { buf2hex, hex2buf } from '../crypto/cryptoCore'
 import * as idb from 'idb-keyval'
 
 const SEED_LENGTH = 32
@@ -21,6 +19,7 @@ export async function generateMasterSeed(): Promise<Uint8Array> {
 }
 
 export async function deriveKeysFromSeed(seed: Uint8Array): Promise<MasterKeySet> {
+  const { buf2hex } = await import('../crypto/cryptoCore')
   const info = new TextEncoder().encode(STATIC_SALT)
   const keyMaterial = await crypto.subtle.importKey('raw', seed, 'HKDF', false, ['deriveBits'])
   const derived = await crypto.subtle.deriveBits(
@@ -35,6 +34,7 @@ export async function deriveKeysFromSeed(seed: Uint8Array): Promise<MasterKeySet
   const aesRawKey = dv.slice(64, 96)
   const futureUse = dv.slice(96, 128)
 
+  const nacl = await import('tweetnacl')
   const x25519Kp = nacl.box.keyPair.fromSecretKey(x25519Secret)
   const signKp = nacl.sign.keyPair.fromSeed(ed25519Secret)
 
@@ -52,6 +52,7 @@ export async function deriveKeysFromSeed(seed: Uint8Array): Promise<MasterKeySet
 }
 
 export async function storeMasterSeed(seed: Uint8Array): Promise<void> {
+  const { buf2hex } = await import('../crypto/cryptoCore')
   await idb.set(SEED_STORAGE_KEY, buf2hex(seed))
 }
 
@@ -67,5 +68,6 @@ export async function getMasterKeySet(): Promise<MasterKeySet> {
     await storeMasterSeed(seed)
     return deriveKeysFromSeed(seed)
   }
+  const { hex2buf } = await import('../crypto/cryptoCore')
   return deriveKeysFromSeed(hex2buf(stored))
 }

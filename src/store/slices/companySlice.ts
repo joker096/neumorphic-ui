@@ -10,14 +10,7 @@ import type { CompanyChannel, CompanyMessage, CompanyMember, CompanyDepartment, 
 import type { InviteQRPayload, CompanyEnvelope } from '../../lib/company/types';
 import type { CrmContact, Deal, CrmTask } from '../../lib/crm/types';
 import * as idb from '../../lib/idb';
-import { generateCompanyId, generateInviteCode, createCompanyUser, saveMembers } from '../../lib/company/companyUser';
-import { b64encode } from '../../lib/crypto/cryptoCore';
-import { generateGroupKey, exportRawKey, importRawKey } from '../../lib/company/groupKey';
-import { sealCrmSnapshot, openCrmSnapshot } from '../../lib/company/companyCrmSync';
-import { getMasterKeySet } from '../../lib/identity/masterKey';
-import { CompanyRosterSync, type RosterMember, type CompanyRosterHandlers } from '../../lib/company/relayRoster';
-import { generateChannelKeyPair } from '../../lib/embed/embedCrypto';
-import { createEmbedToken, generateEmbedSnippet } from '../../lib/embed/token';
+import type { CompanyRosterSync, RosterMember, CompanyRosterHandlers } from '../../lib/company/relayRoster';
 import { toast } from 'sonner';
 
 // Active serverless roster/presence sync connection (one per store instance).
@@ -150,7 +143,9 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
       m.userId === userId ? { ...m, role } : m,
     );
     set({ companyMembers: next });
-    saveMembers(next).catch(() => {});
+    import('../../lib/company/companyUser')
+      .then(({ saveMembers }) => saveMembers(next))
+      .catch(() => {});
     get().broadcastRoster();
   },
   renameMember: (userId, displayName) => set((state: any) => ({
@@ -161,7 +156,9 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
   removeMember: (userId) => {
     const next = get().companyMembers.filter((m: CompanyMember) => m.userId !== userId);
     set({ companyMembers: next });
-    saveMembers(next).catch(() => {});
+    import('../../lib/company/companyUser')
+      .then(({ saveMembers }) => saveMembers(next))
+      .catch(() => {});
     get().broadcastRoster();
   },
   setHideWhenOfficeOnly: (hide) => {
@@ -191,6 +188,7 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
       const raw = await idb.getCompanyGroupKey(storedId);
       if (raw) {
         try {
+          const { importRawKey } = await import('../../lib/company/groupKey');
           set({ activeGroupKey: await importRawKey(raw), activeGroupKeyVersion: 1 });
         } catch {
           /* ignore corrupt key */
@@ -215,6 +213,9 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     }
   },
   createCompany: async (name, displayName) => {
+    const { generateCompanyId, createCompanyUser, saveMembers } = await import('../../lib/company/companyUser');
+    const { b64encode } = await import('../../lib/crypto/cryptoCore');
+    const { generateGroupKey, exportRawKey } = await import('../../lib/company/groupKey');
     const companyId = generateCompanyId();
     const user = await createCompanyUser(displayName, companyId, 'admin');
     const currentUserId = get().userProfile?.id || user.userId;
@@ -258,6 +259,7 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
   createCompanyInvite: async () => {
     const id = get().companyId;
     if (!id) return null;
+    const { generateInviteCode } = await import('../../lib/company/companyUser');
     const code = generateInviteCode();
     const name = get().companySettings?.name || 'Company';
     const adminKey = get().companyMembers.find((m: CompanyMember) => m.role === 'admin')?.publicKey || '';
@@ -265,6 +267,9 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     return payload;
   },
   joinCompanyFromInvite: async (payload, displayName) => {
+    const { createCompanyUser, saveMembers } = await import('../../lib/company/companyUser');
+    const { b64encode } = await import('../../lib/crypto/cryptoCore');
+    const { generateGroupKey, exportRawKey, importRawKey } = await import('../../lib/company/groupKey');
     const user = await createCompanyUser(displayName, payload.org, 'member');
     const currentUserId = get().userProfile?.id || user.userId;
     const member: CompanyMember = {
@@ -397,6 +402,8 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
       memberCount: 1,
       createdAt: Date.now(),
     };
+    const { generateChannelKeyPair } = await import('../../lib/embed/embedCrypto');
+    const { createEmbedToken, generateEmbedSnippet } = await import('../../lib/embed/token');
     const kp = generateChannelKeyPair();
     const channelKeys = { ...get().channelKeys, [channelId]: kp };
     const token = createEmbedToken({ companyId, channelId, channelPubKeyB64: kp.publicKeyB64, label: name });
@@ -424,6 +431,9 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     const companyId = get().companyId;
     if (!gk || !companyId) return { ok: false };
     try {
+      const { getMasterKeySet } = await import('../../lib/identity/masterKey');
+      const { b64encode } = await import('../../lib/crypto/cryptoCore');
+      const { sealCrmSnapshot } = await import('../../lib/company/companyCrmSync');
       const master = await getMasterKeySet();
       const meta = {
         companyId,
@@ -447,6 +457,7 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     const gk = get().activeGroupKey;
     if (!gk) return;
     try {
+      const { openCrmSnapshot } = await import('../../lib/company/companyCrmSync');
       const payload = await openCrmSnapshot(gk, env);
       get().importBatch(payload);
     } catch {
@@ -472,6 +483,7 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     if (!rec) return false;
     try {
       const groupRaw = await idb.getCompanyGroupKey(rec.companyId);
+      const { importRawKey } = await import('../../lib/company/groupKey');
       const groupKey = groupRaw ? await importRawKey(groupRaw) : null;
       set({
         companyId: rec.companyId,
@@ -488,6 +500,10 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     const companyId = get().companyId;
     if (!companyId) return;
     try {
+      const { getMasterKeySet } = await import('../../lib/identity/masterKey');
+      const { b64encode } = await import('../../lib/crypto/cryptoCore');
+      const { CompanyRosterSync } = await import('../../lib/company/relayRoster');
+      const { saveMembers } = await import('../../lib/company/companyUser');
       const master = await getMasterKeySet();
       const myPublicKey = b64encode(master.x25519Public);
       const handlers: CompanyRosterHandlers = {
