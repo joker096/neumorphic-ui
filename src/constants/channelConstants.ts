@@ -29,13 +29,6 @@ export interface ChannelComment {
   postId?: number;
 }
 
-export const EMPTY_COMMENTS_STATE_TEXT = 'leaveAComment';
-
-export const SEED_CHANNEL_COMMENTS: ChannelComment[] = [
-  { id: 1, sender: 'Alice Freeman', text: "Wow, that's amazing! 🔥", time: '10:45' },
-  { id: 2, sender: 'Charlie', text: "Can't wait to test this out later today.", time: '10:49' },
-];
-
 export const COMMENT_OUTGOING_LIGHT_GRADIENT = 'bg-gradient-to-br from-orange-400 to-orange-500';
 export const COMMENT_OUTGOING_DARK_BG = 'bg-orange-600/20 border border-orange-500/30';
 export const COMMENT_INCOMING_DARK_BG = 'bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-secondary)]';

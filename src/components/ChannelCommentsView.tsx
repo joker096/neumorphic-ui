@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Send, MessageSquare } from 'lucide-react';
 import { FormattedText } from './chat-preview/FormattedText';
 import { useI18n } from '../lib/i18n';
+import { get, set } from '../lib/idb';
 import {
   CURRENT_USER_SENDER,
-  SEED_CHANNEL_COMMENTS,
   getCommentBubbleClass,
   COMMENT_SENDER_NAME_CLASS_DARK,
   COMMENT_SENDER_NAME_CLASS_LIGHT,
@@ -93,19 +93,28 @@ export const ChannelCommentsView = ({
   const isDark = theme === 'dark';
   const { t } = useI18n();
   const [comment, setComment] = useState('');
-  const [comments, setComments] = useState<ChannelComment[]>(SEED_CHANNEL_COMMENTS);
+  const [comments, setComments] = useState<ChannelComment[]>([]);
   const commentIdRef = useRef(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    void get<ChannelComment[]>(`channel_comments_${postId}`).then((stored) => {
+      if (!cancelled) setComments(stored ?? []);
+    });
+    return () => { cancelled = true; };
+  }, [postId]);
 
   const handleSend = () => {
     const text = comment.trim();
     if (!text) return;
 
     const newId = Date.now() + commentIdRef.current++;
-
-    setComments((prev) => [
-      ...prev,
+    const next: ChannelComment[] = [
+      ...comments,
       { id: newId, sender: CURRENT_USER_SENDER, text, time: formatCurrentTime(), postId },
-    ]);
+    ];
+    setComments(next);
+    void set(`channel_comments_${postId}`, next);
     setComment('');
   };
 
