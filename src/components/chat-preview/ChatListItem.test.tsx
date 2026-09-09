@@ -7,6 +7,7 @@ import { ChatListItem } from './ChatListItem';
 vi.mock('motion/react', () => ({
   motion: { div: ({ children, ...rest }: any) => <div {...rest}>{children}</div>, button: 'button', span: 'span', p: 'p' },
   AnimatePresence: ({ children }: any) => children,
+  useReducedMotion: () => false,
 }));
 
 vi.mock('./FormattedText', () => ({
@@ -119,7 +120,8 @@ describe('ChatListItem', () => {
     const onDelete = vi.fn();
     render(<ChatListItem {...defaultProps} onDelete={onDelete} />);
     fireEvent.click(screen.getAllByLabelText('chat.delete')[0]);
-    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    expect(screen.getByText('chat.deleteChat')).toBeInTheDocument();
+    expect(onDelete).not.toHaveBeenCalled();
     fireEvent.click(screen.getByText('chat.delete'));
     expect(onDelete).toHaveBeenCalledWith(1);
   });

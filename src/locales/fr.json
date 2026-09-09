@@ -119,6 +119,7 @@
     "delete": "Supprimer",
     "deleteChat": "Supprimer le chat",
     "deleteConfirm": "Cette action supprimera définitivement le chat et tous ses messages. Elle est irréversible.",
+    "bulkDeleteConfirm": "Supprimer {{count}} chats ?",
     "views": {
       "one": "{{count}} vue",
       "few": "{{count}} vues",

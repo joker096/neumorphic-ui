@@ -38,22 +38,41 @@ vi.mock('./chat-preview/ChatContextMenu', () => ({
   ChatContextMenu: () => <div data-testid="chat-context-menu" />,
 }));
 
+vi.mock('./ui/ConfirmDialog', () => ({
+  ConfirmDialog: (props: any) =>
+    props.isOpen ? (
+      <div role="dialog">
+        <span data-testid="confirm-title">{props.title}</span>
+        <button type="button" data-testid="confirm-cancel" onClick={props.onCancel}>{props.cancelLabel}</button>
+        <button type="button" data-testid="confirm-confirm" onClick={props.onConfirm}>{props.confirmLabel}</button>
+      </div>
+    ) : null,
+}));
+
+const hookWith = vi.hoisted(() => (overrides: Record<string, any> = {}) => ({
+  selectMode: false,
+  selectedIds: new Set<string | number>(),
+  handleToggleSelect: vi.fn(),
+  handleCancelSelect: vi.fn(),
+  handleBulkArchive: vi.fn(),
+  handleBulkDelete: vi.fn(),
+  handleBulkMarkRead: vi.fn(),
+  menu: null,
+  openMenu: vi.fn(),
+  closeMenu: vi.fn(),
+  menuItems: [],
+  handleMenuMute: vi.fn(),
+  handleMenuDelete: vi.fn(),
+  deleteConfirm: null,
+  requestMenuDelete: vi.fn(),
+  requestBulkDelete: vi.fn(),
+  cancelDelete: vi.fn(),
+  confirmDelete: vi.fn(),
+  ...overrides,
+}));
+
 vi.mock('../hooks/useChatListActions', () => ({
-  useChatListActions: () => ({
-    selectMode: false,
-    selectedIds: new Set<string | number>(),
-    handleToggleSelect: vi.fn(),
-    handleCancelSelect: vi.fn(),
-    handleBulkArchive: vi.fn(),
-    handleBulkDelete: vi.fn(),
-    handleBulkMarkRead: vi.fn(),
-    menu: null,
-    openMenu: vi.fn(),
-    closeMenu: vi.fn(),
-    menuItems: [],
-    handleMenuMute: vi.fn(),
-    handleMenuDelete: vi.fn(),
-  }),
+  useChatListActions: vi.fn(() => hookWith()),
 }));
 
 vi.mock('./ui/SearchInput', () => ({ SearchInput: () => <div /> }));
@@ -64,6 +83,7 @@ vi.mock('./ui/DataState', () => ({ DataState: () => <div /> }));
 // ── Component under test ───────────────────────────────────────────────
 
 import { ChatListView } from './ChatListView';
+import { useChatListActions } from '../hooks/useChatListActions';
 
 const t = (key: string, _fallback?: string) => key;
 
@@ -180,5 +200,38 @@ describe('ChatListView avatar → contact profile (D1)', () => {
     expect(setGlobalSelectedContact).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'dm-42', name: 'Ghost' }),
     );
+  });
+});
+
+describe('ChatListView delete confirmation (lifted ConfirmDialog)', () => {
+  it('renders no confirm dialog when no delete is pending', () => {
+    render(<ChatListView {...baseProps} />);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('confirms a single chat delete through the lifted dialog', () => {
+    const confirmDelete = vi.fn();
+    vi.mocked(useChatListActions).mockImplementation(
+      () => hookWith({ deleteConfirm: { kind: 'single', chat: { id: 'dm-1', name: 'Alice' } }, confirmDelete }),
+    );
+
+    render(<ChatListView {...baseProps} />);
+
+    expect(screen.getByTestId('confirm-title')).toHaveTextContent('chat.deleteChat');
+    fireEvent.click(screen.getByTestId('confirm-confirm'));
+    expect(confirmDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('confirms a bulk delete with the count title', () => {
+    const confirmDelete = vi.fn();
+    vi.mocked(useChatListActions).mockImplementation(
+      () => hookWith({ selectedIds: new Set(['a', 'b', 'c']), deleteConfirm: { kind: 'bulk' }, confirmDelete }),
+    );
+
+    render(<ChatListView {...baseProps} />);
+
+    expect(screen.getByTestId('confirm-title')).toHaveTextContent('chat.bulkDeleteConfirm');
+    fireEvent.click(screen.getByTestId('confirm-confirm'));
+    expect(confirmDelete).toHaveBeenCalledTimes(1);
   });
 });

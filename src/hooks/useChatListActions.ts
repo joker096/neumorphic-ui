@@ -15,6 +15,7 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
   const [menu, setMenu] = useState<{ chat: any; anchor: { x: number; y: number } | null } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ kind: "single"; chat: any } | { kind: "bulk" } | null>(null);
 
   const handleToggleSelect = (chatId: string | number) => {
     setSelectedIds(prev => {
@@ -63,6 +64,23 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     setSelectedIds(new Set([chat.id]));
   };
 
+  const requestMenuDelete = (chat: any) => {
+    setDeleteConfirm({ kind: "single", chat });
+  };
+  const requestBulkDelete = () => {
+    setDeleteConfirm({ kind: "bulk" });
+  };
+  const cancelDelete = () => setDeleteConfirm(null);
+  const confirmDelete = () => {
+    if (!deleteConfirm) return;
+    if (deleteConfirm.kind === "single") {
+      handleMenuDelete(deleteConfirm.chat);
+    } else {
+      handleBulkDelete();
+    }
+    setDeleteConfirm(null);
+  };
+
   const openMenu = (chat: any, anchor: { x: number; y: number } | null) => {
     setMenu({ chat, anchor });
   };
@@ -108,7 +126,7 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
         label: t("chat.delete"),
         icon: buildMenuIcon("delete"),
         danger: true,
-        onClick: () => handleMenuDelete(menu.chat),
+        onClick: () => requestMenuDelete(menu.chat),
       },
     ];
   }, [menu, t, activeFolder, toggleArchive, activeChatId]);
@@ -127,5 +145,10 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     menuItems,
     handleMenuMute,
     handleMenuDelete,
+    deleteConfirm,
+    requestMenuDelete,
+    requestBulkDelete,
+    cancelDelete,
+    confirmDelete,
   };
 }

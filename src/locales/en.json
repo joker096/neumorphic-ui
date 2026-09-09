@@ -119,6 +119,7 @@
     "delete": "Delete",
     "deleteChat": "Delete chat",
     "deleteConfirm": "This will permanently delete the chat and all its messages. This action cannot be undone.",
+    "bulkDeleteConfirm": "Delete {{count}} chats?",
     "views": {
       "one": "{{count}} View",
       "few": "{{count}} Views",

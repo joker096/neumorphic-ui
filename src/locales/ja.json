@@ -119,6 +119,7 @@
     "delete": "削除",
     "deleteChat": "チャットを削除",
     "deleteConfirm": "チャットとすべてのメッセージを完全に削除します。この操作は元に戻せません。",
+    "bulkDeleteConfirm": "{{count}}件のチャットを削除しますか？",
     "views": {
       "one": "{{count}} ビュー",
       "few": "{{count}} ビュー",

@@ -119,6 +119,7 @@
     "delete": "Eliminar",
     "deleteChat": "Eliminar chat",
     "deleteConfirm": "Esto eliminará permanentemente el chat y todos sus mensajes. Esta acción no se puede deshacer.",
+    "bulkDeleteConfirm": "¿Eliminar {{count}} chats?",
     "views": {
       "one": "{{count}} vista",
       "few": "{{count}} vistas",

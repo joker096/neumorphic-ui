@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from "react";
-import { Search } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { SearchInput } from "./ui/SearchInput";
 import { OnboardingPanel } from "./ui/OnboardingPanel";
 import { ChatListItem, AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots } from "./chat-preview";
 import { ChatContextMenu } from "./chat-preview/ChatContextMenu";
+import { ConfirmDialog } from "./ui/ConfirmDialog";
 import { DataState } from "./ui/DataState";
 import { useChatListActions } from "../hooks/useChatListActions";
 
@@ -109,7 +110,6 @@ export const ChatListView = ({
     handleToggleSelect,
     handleCancelSelect,
     handleBulkArchive,
-    handleBulkDelete,
     handleBulkMarkRead,
     menu,
     openMenu,
@@ -117,6 +117,11 @@ export const ChatListView = ({
     menuItems,
     handleMenuMute,
     handleMenuDelete,
+    deleteConfirm,
+    requestMenuDelete,
+    requestBulkDelete,
+    cancelDelete,
+    confirmDelete,
   } = useChatListActions({ t, activeFolder, toggleArchive, setActiveChat, activeChatId });
 
   const pinnedChats = useMemo(() => filteredChats.filter((c: any) => c.pinned), [filteredChats]);
@@ -245,7 +250,7 @@ export const ChatListView = ({
           t={t}
           onCancel={handleCancelSelect}
           onArchive={handleBulkArchive}
-          onDelete={handleBulkDelete}
+          onDelete={requestBulkDelete}
           onMarkRead={handleBulkMarkRead}
         />
       )}
@@ -335,6 +340,23 @@ export const ChatListView = ({
           onClose={closeMenu}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title={
+          deleteConfirm?.kind === "bulk"
+            ? t("chat.bulkDeleteConfirm", { count: selectedIds.size })
+            : t("chat.deleteChat")
+        }
+        message={deleteConfirm?.kind === "bulk" ? "" : t("chat.deleteConfirm")}
+        variant="danger"
+        theme={theme}
+        confirmLabel={t("chat.delete")}
+        cancelLabel={t("common.cancel")}
+        confirmIcon={<Trash2 size={18} />}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
 
       {globalSearchOpen && (
         <Suspense fallback={null}>

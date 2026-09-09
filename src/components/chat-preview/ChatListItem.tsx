@@ -1,7 +1,8 @@
 import React, { useRef, useCallback } from "react";
 import { motion } from "motion/react";
-import { Archive, ArchiveRestore, Phone, Video, Bell, BellOff, Trash2, MessageSquare, X, Megaphone, Check, MapPin } from "lucide-react";
+import { Archive, ArchiveRestore, Phone, Video, Bell, BellOff, Trash2, MessageSquare, Megaphone, Check, MapPin } from "lucide-react";
 import { FormattedText } from "./FormattedText";
+import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { useAppStore } from "../../store";
 import { p2pNetwork } from "../../lib/p2p/network";
 import { CHAT_SEND_GRADIENT } from "../../constants/chatConstants";
@@ -395,52 +396,21 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           </div>
         </div>
       </motion.div>
-      {showDeleteConfirm && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          onClick={() => setShowDeleteConfirm(false)}
-        >
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-label={t('chat.deleteChat')}
-            className="relative w-full max-w-[420px] rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-red-500/15 text-red-500">
-                <Trash2 size={20} />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('chat.deleteChat')}</h3>
-                <p className="text-xs mt-1 leading-relaxed text-[var(--text-secondary)]">{t('chat.deleteConfirm')}</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                aria-label={t('common.cancel')}
-                title={t('common.cancel')}
-                className="flex-1 min-w-11 h-[44px] rounded-xl font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] flex items-center justify-center gap-1.5"
-              >
-                <X size={16} />
-                <span>{t('common.cancel')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => { onDelete?.(chat.id); setShowDeleteConfirm(false); }}
-                aria-label={t('chat.delete')}
-                title={t('chat.delete')}
-                className="flex-1 min-w-11 h-[44px] rounded-xl font-bold transition-colors bg-red-500 text-white hover:bg-red-600 flex items-center justify-center gap-1.5"
-              >
-                <Trash2 size={16} />
-                <span>{t('chat.delete')}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title={t("chat.deleteChat")}
+        message={t("chat.deleteConfirm")}
+        variant="danger"
+        theme={theme}
+        confirmLabel={t("chat.delete")}
+        cancelLabel={t("common.cancel")}
+        confirmIcon={<Trash2 size={18} />}
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          onDelete?.(chat.id);
+          setShowDeleteConfirm(false);
+        }}
+      />
     </div>
   );
 });
