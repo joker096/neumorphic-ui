@@ -51,7 +51,7 @@ export function TransportIndicator({ status = 'disconnected' }: { status?: Statu
             {t(meta.meaningKey, meta.meaning)}
           </span>
 
-          <span className="mt-2.5 block border-t border-[var(--border-color)] pt-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+          <span className="mt-2.5 block border-t border-[var(--border-color)] pt-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
             {t('transport.allStatuses', 'All statuses')}
           </span>
           <ul className="mt-1.5 space-y-1 text-[11px] leading-snug">
