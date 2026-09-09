@@ -86,7 +86,6 @@ export interface CompanySlice {
   joinCompanyChannel: (token?: string) => Promise<void>;
   leaveCompanyChannel: () => void;
   setActiveChannel: (id: string | null) => void;
-  addCompanyChannel: (channel: CompanyChannel) => void;
   loadCompanyChannels: () => Promise<void>;
   siteChats: SiteChat[];
   channelKeys: Record<string, { publicKeyB64: string; secretKeyB64: string }>;
@@ -379,10 +378,6 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     }
   },
   setActiveChannel: (id) => set({ activeChannelId: id }),
-  addCompanyChannel: (channel) => {
-    set((s: any) => ({ companyChannels: [...s.companyChannels, channel] }));
-    idb.saveCompanyChannels(get().companyChannels).catch(() => {});
-  },
   loadCompanyChannels: async () => {
     const chans = await idb.getCompanyChannels();
     if (chans && chans.length) {
