@@ -3,14 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { ConfirmDialog } from './ConfirmDialog';
 
-vi.mock('../../lib/i18n', () => ({
-  useI18n: () => ({
-    t: (key: string) => key,
-    lang: 'en',
-    setLang: vi.fn(),
-  }),
-}));
-
 describe('ConfirmDialog - additional tests', () => {
   it('renders when isOpen', () => {
     render(<ConfirmDialog isOpen={true} title="Test" onConfirm={() => {}} onCancel={() => {}} />);
@@ -52,10 +44,26 @@ describe('ConfirmDialog - additional tests', () => {
     expect(screen.getByText('This is a test message.')).toBeInTheDocument();
   });
 
-  it('renders message as undefined when not provided', () => {
+  it('does not render message paragraph when not provided', () => {
     render(<ConfirmDialog isOpen={true} title="Test" message={undefined} onConfirm={() => {}} onCancel={() => {}} />);
-    const msgEl = document.querySelector('p');
-    expect(msgEl?.textContent).toBe('');
+    expect(document.querySelector('p')).toBeNull();
+  });
+
+  it('does not confirm when Enter keydown on focused cancel button', () => {
+    const onConfirm = vi.fn();
+    const onCancel = vi.fn();
+    render(<ConfirmDialog isOpen={true} title="Test" onConfirm={onConfirm} onCancel={onCancel} />);
+    const cancelBtn = screen.getByText('Cancel');
+    cancelBtn.focus();
+    fireEvent.keyDown(cancelBtn, { key: 'Enter' });
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+
+  it('cancels exactly once on Escape', () => {
+    const onCancel = vi.fn();
+    render(<ConfirmDialog isOpen={true} title="Test" onConfirm={() => {}} onCancel={onCancel} />);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it('renders confirm button with custom label', () => {

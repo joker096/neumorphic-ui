@@ -1,5 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
-import { useI18n } from '../../lib/i18n';
+import type { ReactNode } from 'react';
 import { Button } from './Button';
 import { Modal } from './Modal';
 
@@ -33,17 +32,6 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const isDark = theme === 'dark';
-  const { t } = useI18n();
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel();
-      if (e.key === 'Enter') onConfirm();
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [isOpen, onCancel, onConfirm]);
 
   return (
     <Modal
@@ -80,7 +68,7 @@ export function ConfirmDialog({
         </>
       }
     >
-      <p className={`text-[length:var(--text-sm)] mb-[var(--spacing-24)] leading-relaxed text-[var(--text-secondary)]`}>{message}</p>
+      {message && <p className={`text-[length:var(--text-sm)] mb-[var(--spacing-24)] leading-relaxed text-[var(--text-secondary)]`}>{message}</p>}
     </Modal>
   );
 }
