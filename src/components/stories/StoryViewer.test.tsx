@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { StoryViewer } from './StoryViewer';
-import { MY_STORY_USER } from './storiesData';
+import { MY_STORY_USER, STORY_USERS, type StoryItem } from './storiesData';
 import { toast } from '../ui/Toast';
 
 vi.mock('motion/react', () => ({
@@ -211,16 +211,27 @@ describe('StoryViewer', () => {
     expect(screen.queryByRole('dialog', { name: 'Story options' })).toBeNull();
   });
 
-  it('deletes own story and shows empty state', () => {
+  it('deletes last own story and advances to next user with stories', () => {
     const onClose = vi.fn();
     render(<StoryViewer activeUser={ME} onClose={onClose} />);
     fireEvent.click(screen.getByRole('button', { name: 'common.more' }));
     fireEvent.click(screen.getByRole('button', { name: 'Delete story' }));
     expect(toast).toHaveBeenCalledWith('Story deleted', 'success');
     expect(MY_STORY_USER.stories).toHaveLength(0);
-    expect(screen.getByText('No stories to show')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'common.close' }));
+    expect(screen.getByRole('dialog', { name: 'Alice' })).toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('closes viewer when no user has stories after delete', () => {
+    const onClose = vi.fn();
+    const saved: StoryItem[][] = [MY_STORY_USER, ...STORY_USERS].map((u) => u.stories.map((s) => ({ ...s })));
+    [MY_STORY_USER, ...STORY_USERS].forEach((u) => (u.stories = []));
+    MY_STORY_USER.stories = [{ id: 999, type: 'gradient' as const, bg: '', time: Date.now(), views: 0, reactions: 0 }];
+    render(<StoryViewer activeUser={ME} onClose={onClose} />);
+    fireEvent.click(screen.getByRole('button', { name: 'common.more' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete story' }));
     expect(onClose).toHaveBeenCalledTimes(1);
+    [MY_STORY_USER, ...STORY_USERS].forEach((u, i) => (u.stories = saved[i]));
   });
 
   it('close button in header calls onClose', () => {

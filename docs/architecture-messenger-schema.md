@@ -83,6 +83,8 @@ Owns top-level layout and shell pieces:
 
 The barrel `src/components/AppChrome.tsx` (components root) re-exports `AdvancedFilterModal`, `StoryViewer`, `StoryComposer`.
 
+Known F2 limitation: `StoryViewer.sendReply` (`src/components/stories/StoryViewer.tsx:178-182`, wired via `StoryFooter` at `src/components/stories/StoryViewer.tsx:247`) is toast-only — it clears the local reply state and shows `story.replySent`, but does not persist a story reply to idb/store. Documented accepted limitation for this audit pass.
+
 ### `src/components/chat/*`
 
 Owns chat list and active chat composition:

@@ -102,13 +102,19 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
     const target = allUsers[userIndex];
     const remaining = target ? getVisibleStories(target) : [];
     if (remaining.length === 0) {
-      if (allUsers.length > 1) {
-        const next = userIndex < allUsers.length - 1 ? userIndex : userIndex - 1;
-        resetStory(next, 0);
-      } else {
+      let next = -1;
+      for (let i = 1; i < allUsers.length; i++) {
+        const idx = (userIndex + i) % allUsers.length;
+        if (getVisibleStories(allUsers[idx]).length > 0) {
+          next = idx;
+          break;
+        }
+      }
+      if (next === -1) {
         onClose();
         return;
       }
+      resetStory(next, 0);
     } else {
       resetStory(userIndex, Math.min(storyIndex, remaining.length - 1));
     }
