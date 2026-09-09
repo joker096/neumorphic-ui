@@ -3,10 +3,6 @@ import { Globe, Users, UserCheck, EyeOff, type LucideIcon } from 'lucide-react';
 export const STORY_DURATION_MS = 5000;
 export const STORY_PROGRESS_TICK_MS = 50;
 
-export const STORY_SHARE_SCHEME = 'nexus';
-export const STORY_SHARE_PATH = (userId: number | string, storyId: number | string) =>
-  `${STORY_SHARE_SCHEME}://story/${userId}/${storyId}`;
-
 export const STORY_DEFAULT_GRADIENT = 'from-slate-700 via-slate-900 to-black';
 
 export const STORY_GRADIENTS = [

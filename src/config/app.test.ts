@@ -6,6 +6,7 @@ import {
   EMBED_WIDGET_URL,
   channelInviteLink,
   groupInviteUrl,
+  storyShareLink,
 } from './app';
 
 describe('app url config', () => {
@@ -24,5 +25,10 @@ describe('app url config', () => {
 
   it('builds group invite urls', () => {
     expect(groupInviteUrl('tok')).toBe('https://ma.to/tok');
+  });
+
+  it('builds story share deep links on the app home', () => {
+    expect(storyShareLink(1, 11)).toBe('https://mess.cvr.name#nexus://story/1/11');
+    expect(storyShareLink('abc', 22)).toBe('https://mess.cvr.name#nexus://story/abc/22');
   });
 });

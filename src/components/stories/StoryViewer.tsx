@@ -3,7 +3,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { toast } from '../ui/Toast';
-import { STORY_DURATION_MS, STORY_PROGRESS_TICK_MS, STORY_SHARE_PATH, STORY_MINUTES_DIVISOR } from '../../constants/storyConstants';
+import { STORY_DURATION_MS, STORY_PROGRESS_TICK_MS, STORY_MINUTES_DIVISOR } from '../../constants/storyConstants';
+import { storyShareLink } from '../../config/app';
 import { STORY_USERS, MY_STORY_USER, getVisibleStories, deleteMyStory, type StoryUser } from './storiesData';
 import { StoryProgressBar } from './StoryProgressBar';
 import { StoryHeader } from './StoryHeader';
@@ -43,7 +44,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
   const stories = getVisibleStories(user);
   const story = stories[storyIndex] ?? stories[0];
 
-  const shareUrl = story ? STORY_SHARE_PATH(user.id, story.id) : '';
+  const shareUrl = story ? storyShareLink(user.id, story.id) : '';
 
   const copyLink = async () => {
     if (!shareUrl) return;
@@ -56,16 +57,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
   };
 
   const handleShare = () => {
-    if (!story || !shareUrl) return;
-    const shareData = {
-      title: user.name,
-      text: t('story.shareText', 'Check out this story'),
-      url: shareUrl,
-    };
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      navigator.share(shareData).catch(() => {});
-      return;
-    }
+    if (!story) return;
     setShareOpen(true);
   };
 

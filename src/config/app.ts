@@ -22,3 +22,8 @@ export function channelInviteLink(username: string | undefined, chatId: string):
 export function groupInviteUrl(token: string): string {
   return `${INVITE_SHORT_BASE}/${token}`;
 }
+
+// Deep link that opens the story viewer on app mount (handled by `parseStoryDeepLink`).
+export function storyShareLink(userId: number | string, storyId: number | string): string {
+  return `${APP_HOME_URL}#nexus://story/${userId}/${storyId}`;
+}

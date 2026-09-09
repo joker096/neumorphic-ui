@@ -35,7 +35,6 @@ beforeEach(() => {
     value: { writeText: vi.fn().mockResolvedValue(undefined) },
     configurable: true,
   });
-  delete (navigator as { share?: unknown }).share;
 });
 
 describe('StoryViewer', () => {
@@ -142,18 +141,13 @@ describe('StoryViewer', () => {
     container.remove();
   });
 
-  it('shares via navigator.share when available', async () => {
+  it('opens in-app share sheet even when navigator.share is available (never native share)', async () => {
     const share = vi.fn().mockResolvedValue({});
     Object.defineProperty(window.navigator, 'share', { value: share, configurable: true });
     render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
-    await waitFor(() =>
-      expect(share).toHaveBeenCalledWith({
-        title: 'Alice',
-        text: 'Check out this story',
-        url: 'nexus://story/1/11',
-      }),
-    );
+    expect(await screen.findByText('Share story')).toBeInTheDocument();
+    expect(share).not.toHaveBeenCalled();
   });
 
   it('opens share sheet when navigator.share is missing, and copies link from it', async () => {
@@ -163,7 +157,7 @@ describe('StoryViewer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
     expect(await screen.findByText('Share story')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /copy link/i }));
-    await waitFor(() => expect(writeText).toHaveBeenCalledWith('nexus://story/1/11'));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('https://mess.cvr.name#nexus://story/1/11'));
     expect(toast).toHaveBeenCalledWith('Link copied', 'success');
   });
 
@@ -207,7 +201,7 @@ describe('StoryViewer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'common.more' }));
     expect(screen.getByRole('dialog', { name: 'Story options' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
-    await waitFor(() => expect(writeText).toHaveBeenCalledWith('nexus://story/1/11'));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('https://mess.cvr.name#nexus://story/1/11'));
     expect(screen.queryByRole('dialog', { name: 'Story options' })).toBeNull();
   });
 
