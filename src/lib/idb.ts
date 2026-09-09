@@ -13,7 +13,6 @@ import {
 import { STORAGE_KEYS } from '../constants/storage';
 import type { CompanyMember } from '../lib/company/types';
 import type { EncryptedPayload } from './crypto/types';
-import { encryptCrmData, decryptCrmData, isEncryptedPayload } from './crm/atRest';
 
 const hasIdb = typeof indexedDB !== 'undefined';
 
@@ -234,6 +233,7 @@ export async function getAllCompanyMessages(): Promise<any[]> {
 
 async function encBlob(value: unknown): Promise<unknown> {
   try {
+    const { encryptCrmData } = await import('./crm/atRest');
     return await encryptCrmData(JSON.stringify(value));
   } catch {
     return value;
@@ -242,6 +242,7 @@ async function encBlob(value: unknown): Promise<unknown> {
 
 async function decBlob<T>(raw: unknown): Promise<T | null> {
   if (raw == null) return null;
+  const { isEncryptedPayload, decryptCrmData } = await import('./crm/atRest');
   if (isEncryptedPayload(raw)) {
     try {
       return JSON.parse(await decryptCrmData(raw as EncryptedPayload)) as T;

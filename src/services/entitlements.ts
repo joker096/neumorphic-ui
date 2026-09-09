@@ -1,4 +1,3 @@
-import { getMasterKeySet } from '../lib/identity/masterKey'
 import { PAYMENTO_BACKEND_BASE } from '../config/paymento'
 
 export interface EntitlementState {
@@ -15,6 +14,7 @@ export function bufToBase64(bytes: Uint8Array): string {
 
 // Stable per-install device public key (ed25519, base64, 44 chars incl. padding).
 export async function getDevicePublicKey(): Promise<string> {
+  const { getMasterKeySet } = await import('../lib/identity/masterKey')
   const keys = await getMasterKeySet()
   return bufToBase64(keys.ed25519Public)
 }

@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { getMasterKeySet, hasMasterIdentity } from "../lib/identity/masterKey";
 import { logError } from "../lib/errorHandling";
 
 export type IdentityStatus = "loading" | "new-user" | "existing-user";
@@ -13,6 +12,7 @@ export function useIdentityAuth() {
 
   const recheck = useCallback(async () => {
     try {
+      const { hasMasterIdentity, getMasterKeySet } = await import("../lib/identity/masterKey");
       const exists = await hasMasterIdentity();
       if (exists) {
         setStatus("existing-user");
