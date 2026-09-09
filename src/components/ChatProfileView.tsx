@@ -181,7 +181,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
               <CloseButton onClick={onClose} aria-label={t('common.close')} size="lg" />
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto scrollbar-none">
               {/* Identity */}
               <div className="flex flex-col items-center text-center px-6 pt-6 pb-2">
                 <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${chat.color} flex items-center justify-center text-white text-[40px] font-bold shadow-lg`}>
@@ -268,7 +268,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium min-h-11 whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium min-h-9 whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
                       >
                         {tab.icon} {t(tab.label, tab.fallback)}
                       </button>

@@ -29,6 +29,17 @@ describe('CrmModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('hides the scrollbar on the modal body scroll region', () => {
+    render(
+      <CrmModal onClose={() => {}} title="Scroll body">
+        <p>deal body</p>
+      </CrmModal>,
+    );
+    const scrollRegion = screen.getByText('deal body').parentElement as HTMLElement;
+    expect(scrollRegion.className).toContain('overflow-y-auto');
+    expect(scrollRegion.className).toContain('scrollbar-none');
+  });
+
   it('omits the footer and applies a custom width', () => {
     render(
       <CrmModal onClose={() => {}} title="No footer" maxWidth="max-w-[600px]">

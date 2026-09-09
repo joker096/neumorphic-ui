@@ -29,7 +29,7 @@ export const CrmModal: React.FC<ModalProps> = ({ onClose, title, children, foote
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={title} className={`w-full ${maxWidth} max-h-[90vh] flex flex-col shadow-2xl relative rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)]`}>
       {closeBtn(onClose, 'Close')}
       <h3 className="text-xl font-bold px-6 pt-5 pb-3 text-[var(--text-primary)]">{title}</h3>
-      <div className="flex-1 overflow-y-auto px-6 pb-4">{children}</div>
+      <div className="flex-1 overflow-y-auto scrollbar-none px-6 pb-4">{children}</div>
       {footer && (
         <div className="px-6 py-3 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/60 rounded-b-2xl">
           {footer}

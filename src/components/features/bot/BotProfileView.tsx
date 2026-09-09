@@ -62,7 +62,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
         <h2 className="font-bold text-lg">{t("bot.profileTitle", "Profile")}</h2>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center gap-4">
+      <div className="flex-1 overflow-y-auto scrollbar-none p-6 flex flex-col items-center gap-4">
         <div
           className="w-24 h-24 rounded-full flex items-center justify-center text-white shadow-lg"
           style={{ background: profile.avatarColor ?? BOT_AVATAR_FALLBACK_GRADIENT }}

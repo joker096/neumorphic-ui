@@ -54,6 +54,15 @@ describe('ContactProfileModal', () => {
     expect(screen.getByText('hash_test_123')).toBeInTheDocument();
   });
 
+  it('hides the scrollbar on the profile scroll region', () => {
+    render(<ContactProfileModal {...defaultProps} />);
+
+    const scrollRegion = document.querySelector('[class*="max-h-[85vh]"]') as HTMLElement;
+    expect(scrollRegion).toBeInTheDocument();
+    expect(scrollRegion.className).toContain('overflow-y-auto');
+    expect(scrollRegion.className).toContain('scrollbar-none');
+  });
+
   it('shows online indicator when online', () => {
     render(<ContactProfileModal {...defaultProps} />);
 

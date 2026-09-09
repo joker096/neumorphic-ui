@@ -201,7 +201,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </div>
             )}
 
-            <div className="flex w-full flex-col items-center max-h-[85vh] overflow-y-auto">
+            <div className="flex w-full flex-col items-center max-h-[85vh] overflow-y-auto scrollbar-none">
             <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[40px] shadow-lg relative group`}>
               {overrideAvatar ? (
                 <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover rounded-full" loading="lazy" decoding="async" />
