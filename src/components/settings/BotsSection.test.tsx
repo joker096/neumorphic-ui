@@ -4,10 +4,12 @@ import '@testing-library/jest-dom/vitest';
 import { BotsSection } from './BotsSection';
 
 const saveBotMock = vi.fn();
+const deleteBotMock = vi.fn();
 const createBotConfigMock = vi.fn();
 
 vi.mock('../../lib', () => ({
   saveBot: (...args: unknown[]) => saveBotMock(...args),
+  deleteBot: (...args: unknown[]) => deleteBotMock(...args),
 }));
 
 vi.mock('../../lib/bot', () => ({
@@ -49,6 +51,7 @@ describe('BotsSection - additional tests', () => {
 describe('BotsSection - bot create/edit/toggle/remove (D1–D5 regress)', () => {
   beforeEach(() => {
     saveBotMock.mockClear();
+    deleteBotMock.mockClear();
     createBotConfigMock.mockClear();
     createBotConfigMock.mockImplementation(async (name: string) => ({
       id: 'bot_test',
@@ -101,6 +104,7 @@ describe('BotsSection - bot create/edit/toggle/remove (D1–D5 regress)', () => 
 
     const updater = setBots.mock.calls[0][0] as (prev: unknown[]) => unknown[];
     expect(updater([fixture()])).toEqual([expect.objectContaining({ isRunning: true })]);
+    expect(saveBotMock).toHaveBeenCalledWith(expect.objectContaining({ id: '1', isRunning: true }));
   });
 
   it('removes bot via trash + confirm', () => {
@@ -112,6 +116,7 @@ describe('BotsSection - bot create/edit/toggle/remove (D1–D5 regress)', () => 
 
     const updater = setBots.mock.calls[0][0] as (prev: unknown[]) => unknown[];
     expect(updater([fixture()])).toEqual([]);
+    expect(deleteBotMock).toHaveBeenCalledWith('1');
   });
 
   it('row click opens editor, not toggle', () => {

@@ -157,6 +157,11 @@ export async function getAllBots(): Promise<any[]> {
   return (await get('bots_list')) || [];
 }
 
+export async function deleteBot(botId: string): Promise<void> {
+  const all = (await get('bots_list') || []).filter((b: any) => b.id !== botId);
+  await set('bots_list', all);
+}
+
 // --- Scheduled message operations ---
 
 export async function addScheduledMessage(msg: any): Promise<void> {

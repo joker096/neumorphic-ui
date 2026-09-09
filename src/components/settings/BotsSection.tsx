@@ -7,7 +7,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { CreateBotModal } from '../CreateBotModal';
 import { BotEditModal } from './BotEditModal';
 import type { BotConfig } from '../../store';
-import { saveBot } from '../../lib';
+import { saveBot, deleteBot } from '../../lib';
 
 interface BotsSectionProps {
   isDark?: boolean;
@@ -35,7 +35,11 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
   };
 
   const handleToggleBot = (botId: string) => {
-    setBots(prev => prev.map(b => b.id === botId ? { ...b, isRunning: !b.isRunning } : b));
+    const bot = bots.find(b => b.id === botId);
+    if (!bot) return;
+    const next = { ...bot, isRunning: !bot.isRunning };
+    setBots(prev => prev.map(b => b.id === botId ? next : b));
+    void saveBot(next);
   };
 
   const handleRemoveBot = (botId: string, botName: string) => {
@@ -47,6 +51,7 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
   const handleConfirmRemove = () => {
     if (removeBotId) {
       setBots(prev => prev.filter(b => b.id !== removeBotId));
+      void deleteBot(removeBotId);
       toast.success(`${removeBotName} ${t('settings.removed')}`);
     }
     setShowRemoveConfirm(false);

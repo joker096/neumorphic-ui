@@ -12,7 +12,7 @@ export { trackComponentMount, safeSet, retryableWrite, safeRead, retryWithFallba
 export { preloadLocales, getTranslation, getTranslationWithFallback, I18nContext, useI18n, detectBrowserLanguage, I18nProvider } from './i18n';
 export { getICQEmojiPath, getICQStickerSrc, getICQEmojiUrl, ICQ_EMOJI_MAP } from './icqEmojis';
 export type { ICQEmoji } from '../types/emoji';
-export { set, get, del, clear, keys, saveChat, getAllChats, deleteChat, clearChats, saveContact, getAllContacts, saveChannel, getAllChannels, saveBot, getAllBots, addScheduledMessage, removeScheduledMessage, getAllScheduledMessages, clearScheduledMessages, saveRecording, deleteRecording, getAllRecordings, clearRecordings, addCallHistoryEntry, getAllCallHistory, clearCallHistory, addCompanyMessage, getAllCompanyMessages, clearAll, reset } from './idb';
+export { set, get, del, clear, keys, saveChat, getAllChats, deleteChat, clearChats, saveContact, getAllContacts, saveChannel, getAllChannels, saveBot, getAllBots, deleteBot, addScheduledMessage, removeScheduledMessage, getAllScheduledMessages, clearScheduledMessages, saveRecording, deleteRecording, getAllRecordings, clearRecordings, addCallHistoryEntry, getAllCallHistory, clearCallHistory, addCompanyMessage, getAllCompanyMessages, clearAll, reset } from './idb';
 export { lazyWithFallback } from './lazy';
 export { FeatureViews } from './lazyViews';
 export { queueMessage, getPendingMessages, markMessageSent, retryMessage, clearPendingMessages } from './messageQueue';

@@ -120,16 +120,17 @@ useAppStore.subscribe((s) => {
   }
 });
 
-// Persist chats / contacts / channels / call history to IndexedDB
-let dataPersistRef: { chats: unknown; contacts: unknown; channels: unknown; calls: unknown; wallet: unknown } | null = null;
+// Persist chats / contacts / channels / bots / call history to IndexedDB
+let dataPersistRef: { chats: unknown; contacts: unknown; channels: unknown; bots: unknown; calls: unknown; wallet: unknown } | null = null;
 useAppStore.subscribe((s) => {
   if (!dataHydrated) return;
-  const cur = { chats: s.chats, contacts: s.contacts, channels: s.channels, calls: s.callHistory, wallet: s.transactions };
+  const cur = { chats: s.chats, contacts: s.contacts, channels: s.channels, bots: s.bots, calls: s.callHistory, wallet: s.transactions };
   if (
     !dataPersistRef
     || cur.chats !== dataPersistRef.chats
     || cur.contacts !== dataPersistRef.contacts
     || cur.channels !== dataPersistRef.channels
+    || cur.bots !== dataPersistRef.bots
     || cur.calls !== dataPersistRef.calls
     || cur.wallet !== dataPersistRef.wallet
   ) {
@@ -137,6 +138,7 @@ useAppStore.subscribe((s) => {
     idb.set('chats_all', s.chats).catch(() => {});
     idb.set('contacts_all', s.contacts).catch(() => {});
     idb.set('channels_all', s.channels).catch(() => {});
+    idb.set('bots_list', s.bots).catch(() => {});
     idb.set('call_history_all', s.callHistory).catch(() => {});
     idb.set('wallet_all', s.transactions).catch(() => {});
     if (s.cloudSync.enabled) useAppStore.getState().markCloudSyncPendingChange();

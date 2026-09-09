@@ -40,6 +40,7 @@ export default function App() {
   const callHistory = useAppStore(s => s.callHistory);
   const setCallHistory = useAppStore(s => s.setCallHistory);
   const bots = useAppStore(s => s.bots);
+  const setBots = useAppStore(s => s.setBots);
   const scheduledQueue = useAppStore(s => s.scheduledQueue);
   const archivedChats = useAppStore(s => s.archivedChats);
   const toggleArchive = useAppStore(s => s.toggleArchive);
@@ -74,7 +75,7 @@ export default function App() {
   const [draftTextByChat, setDraftTextByChat] = useLocalStorage<Record<string, string>>(STORAGE_KEYS.DRAFTS, {});
 
   useDataHydration({
-    setChats, setContacts, setChannels, setCallHistory, loadCompanyMessages,
+    setChats, setContacts, setChannels, setBots, setCallHistory, loadCompanyMessages,
     callHistory, chats, contacts, channels,
   });
 
