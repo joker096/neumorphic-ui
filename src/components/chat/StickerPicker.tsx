@@ -43,7 +43,7 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
   const visiblePacks = search ? filteredPacks.filter(p => p.name.toLowerCase().includes(search.toLowerCase())) : filteredPacks;
 
   return (
-    <div className="w-full max-w-full flex flex-col gap-3">
+    <div className="w-full max-w-full flex flex-col gap-3 px-2 sm:px-3 pb-2">
       <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         {[{ id: 'all', label: t('stickers.all') }, { id: 'icq', label: t('stickers.icq') }, { id: 'default', label: t('stickers.default') }, { id: 'animals', label: t('stickers.animals') }].map(tab => (
           <button

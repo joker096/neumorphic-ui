@@ -473,7 +473,10 @@
     "reported": "Denuncia enviada",
     "report": "Denunciar",
     "tab": {
-      "media": "Medios"
+      "media": "Medios",
+      "files": "Archivos",
+      "links": "Enlaces",
+      "voice": "Voz"
     },
     "subscribersLabel": "Suscriptores",
     "postsLabel": "Publicaciones"

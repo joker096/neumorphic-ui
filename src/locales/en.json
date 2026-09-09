@@ -473,7 +473,10 @@
     "reported": "Report submitted",
     "report": "Report",
     "tab": {
-      "media": "Media"
+      "media": "Media",
+      "files": "Files",
+      "links": "Links",
+      "voice": "Voice"
     },
     "subscribersLabel": "Subscribers",
     "postsLabel": "Posts"

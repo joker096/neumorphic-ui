@@ -473,7 +473,10 @@
     "reported": "리포트 제출됨",
     "report": "리포트",
     "tab": {
-      "media": "미디어"
+      "media": "미디어",
+      "files": "파일",
+      "links": "링크",
+      "voice": "음성"
     },
     "subscribersLabel": "구독자",
     "postsLabel": "게시물"

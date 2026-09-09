@@ -473,7 +473,10 @@
     "reported": "举报已提交",
     "report": "举报",
     "tab": {
-      "media": "媒体"
+      "media": "媒体",
+      "files": "文件",
+      "links": "链接",
+      "voice": "语音"
     },
     "subscribersLabel": "订阅者",
     "postsLabel": "帖子"

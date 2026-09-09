@@ -473,7 +473,10 @@
     "reported": "Signalement envoyé",
     "report": "Signaler",
     "tab": {
-      "media": "Médias"
+      "media": "Médias",
+      "files": "Fichiers",
+      "links": "Lien",
+      "voice": "Voix"
     },
     "subscribersLabel": "Abonnés",
     "postsLabel": "Publications"

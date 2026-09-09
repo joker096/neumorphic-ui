@@ -473,7 +473,10 @@
     "reported": "Жалоба отправлена",
     "report": "Пожаловаться",
     "tab": {
-      "media": "Медиа"
+      "media": "Медиа",
+      "files": "Файлы",
+      "links": "Ссылки",
+      "voice": "Голос"
     },
     "subscribersLabel": "Подписчики",
     "postsLabel": "Записи"

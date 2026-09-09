@@ -473,7 +473,10 @@
     "reported": "レポートを送信しました",
     "report": "レポート",
     "tab": {
-      "media": "メディア"
+      "media": "メディア",
+      "files": "ファイル",
+      "links": "リンク",
+      "voice": "音声"
     },
     "subscribersLabel": "登録者",
     "postsLabel": "投稿"

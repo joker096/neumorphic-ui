@@ -473,7 +473,10 @@
     "reported": "Meldung eingereicht",
     "report": "Melden",
     "tab": {
-      "media": "Medien"
+      "media": "Medien",
+      "files": "Dateien",
+      "links": "Links",
+      "voice": "Audio"
     },
     "subscribersLabel": "Abonnenten",
     "postsLabel": "Beiträge"
