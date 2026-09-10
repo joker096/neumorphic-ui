@@ -1,13 +1,14 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { CrmFilterBar } from './CrmFilterBar';
 
 const { state, useAppStore } = vi.hoisted(() => {
   const state: any = {
     crmFilters: { search: '', role: 'all', departmentId: 'all', status: 'all', tag: 'all', assignedToMe: false },
     setCrmFilter: vi.fn(),
+    resetCrmFilters: vi.fn(),
     crmDepartments: [
       { id: 'dep1', name: 'Sales', color: '' },
       { id: 'dep2', name: 'Support', color: '' },
@@ -31,26 +32,51 @@ describe('CrmFilterBar', () => {
   beforeEach(() => {
     state.crmFilters = { search: '', role: 'all', departmentId: 'all', status: 'all', tag: 'all', assignedToMe: false };
     state.setCrmFilter.mockClear();
+    state.resetCrmFilters.mockClear();
   });
 
-  it('renders search input wired to filters.search', () => {
+  it('renders desktop selects and mobile trigger', () => {
     render(<CrmFilterBar />);
-    const input = screen.getByRole('textbox', { name: 'Search contacts...' }) as HTMLInputElement;
-    expect(input.value).toBe('');
-    fireEvent.change(input, { target: { value: 'ali' } });
-    expect(state.setCrmFilter).toHaveBeenCalledWith('search', 'ali');
+    expect(screen.getAllByRole('combobox')).toHaveLength(4);
+    expect(screen.getByRole('button', { name: /Filters/ })).toBeTruthy();
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('toggles "Assigned to me" filter', () => {
+  it('opens the filter sheet and closes it via done', () => {
     render(<CrmFilterBar />);
-    fireEvent.click(screen.getByRole('button', { name: 'Assigned to me' }));
+    fireEvent.click(screen.getByRole('button', { name: /Filters/ }));
+    const dialog = screen.getByRole('dialog', { name: 'Filters' });
+    expect(within(dialog).getAllByRole('combobox')).toHaveLength(4);
+    fireEvent.click(within(dialog).getByRole('button', { name: /Done/ }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('resets filters and closes the sheet', () => {
+    render(<CrmFilterBar />);
+    fireEvent.click(screen.getByRole('button', { name: /Filters/ }));
+    const dialog = screen.getByRole('dialog', { name: 'Filters' });
+    fireEvent.click(within(dialog).getByRole('button', { name: /Reset/ }));
+    expect(state.resetCrmFilters).toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('shows the active filter badge on the mobile trigger', () => {
+    state.crmFilters = { ...state.crmFilters, role: 'manager', tag: 'hot' };
+    render(<CrmFilterBar />);
+    expect(screen.getByTestId('crm-filter-badge')).toHaveTextContent('2');
+  });
+
+  it('toggles assigned-to-me from the sheet', () => {
+    render(<CrmFilterBar />);
+    fireEvent.click(screen.getByRole('button', { name: /Filters/ }));
+    const dialog = screen.getByRole('dialog', { name: 'Filters' });
+    fireEvent.click(within(dialog).getByRole('button', { name: /Assigned to me/ }));
     expect(state.setCrmFilter).toHaveBeenCalledWith('assignedToMe', true);
   });
 
   it('role select lists system roles and writes filter', () => {
     render(<CrmFilterBar />);
-    const selects = screen.getAllByRole('combobox');
-    const roleSelect = selects[0] as HTMLSelectElement;
+    const roleSelect = screen.getAllByRole('combobox')[0] as HTMLSelectElement;
     expect(roleSelect.value).toBe('all');
     expect(Array.from(roleSelect.options).map((o) => o.textContent)).toEqual(
       ['Role: All', 'Admin', 'Manager', 'Member'],
@@ -99,7 +125,6 @@ describe('CrmFilterBar', () => {
     expect((selects[1] as HTMLSelectElement).value).toBe('dep1');
     expect((selects[2] as HTMLSelectElement).value).toBe('lead');
     expect((selects[3] as HTMLSelectElement).value).toBe('hot');
-    expect((screen.getByRole('textbox', { name: 'Search contacts...' }) as HTMLInputElement).value).toBe('q');
     unmount();
   });
 
@@ -113,5 +138,14 @@ describe('CrmFilterBar', () => {
     render(<CrmFilterBar onOpenRoles={onOpenRoles} />);
     fireEvent.click(screen.getByRole('button', { name: 'Manage departments' }));
     expect(onOpenRoles).toHaveBeenCalledTimes(1);
+  });
+
+  it('manage-departments button keeps 44px tap target (no flex-shrink)', () => {
+    const onOpenRoles = vi.fn();
+    render(<CrmFilterBar onOpenRoles={onOpenRoles} />);
+    const btn = screen.getByRole('button', { name: 'Manage departments' });
+    expect(btn.className).toContain('min-h-11');
+    expect(btn.className).toContain('w-11');
+    expect(btn.className).toContain('shrink-0');
   });
 });

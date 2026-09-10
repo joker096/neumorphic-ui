@@ -479,7 +479,11 @@
       "voice": "음성"
     },
     "subscribersLabel": "구독자",
-    "postsLabel": "게시물"
+    "postsLabel": "게시물",
+    "membersCount": {
+      "one": "{{count}}명의 멤버",
+      "other": "{{count}}명의 멤버"
+    }
   },
   "createChannel": {
     "title": "채널 만들기",
@@ -1782,6 +1786,10 @@
     "status": "상태",
     "tag": "태그",
     "assignedToMe": "내게 할당됨",
+    "filters": "필터",
+    "resetFilters": "필터 초기화",
+    "done": "완료",
+    "clearSearch": "검색 지우기",
     "you": "당신",
     "clients": "고객 및 리드",
     "noDepartment": "부서 없음",

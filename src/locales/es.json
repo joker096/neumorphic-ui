@@ -479,7 +479,11 @@
       "voice": "Voz"
     },
     "subscribersLabel": "Suscriptores",
-    "postsLabel": "Publicaciones"
+    "postsLabel": "Publicaciones",
+    "membersCount": {
+      "one": "{{count}} miembro",
+      "other": "{{count}} miembros"
+    }
   },
   "createChannel": {
     "title": "Crear canal",
@@ -1782,6 +1786,10 @@
     "status": "Estado",
     "tag": "Etiqueta",
     "assignedToMe": "Asignado a mí",
+    "filters": "Filtros",
+    "resetFilters": "Restablecer filtros",
+    "done": "Listo",
+    "clearSearch": "Borrar búsqueda",
     "you": "Tú",
     "clients": "Clientes y prospectos",
     "noDepartment": "Sin departamento",

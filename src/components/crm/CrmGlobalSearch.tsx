@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, User, TrendingUp, CheckSquare } from 'lucide-react';
+import { Search, User, TrendingUp, CheckSquare, X } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import { useAppStore } from '../../store';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
 import type { CrmContact, Deal, CrmTask, CrmFocusKind } from '../../lib/crm/types';
 
@@ -21,13 +22,15 @@ const GROUP_ICONS: Record<CrmFocusKind, React.ReactNode> = {
 
 export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPick }) => {
   const { t } = useI18n();
-  const [query, setQuery] = useState('');
+  const search = useAppStore((s) => s.crmFilters.search);
+  const setFilter = useAppStore((s) => s.setCrmFilter);
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
 
-  const q = query.trim().toLowerCase();
+  const q = search.trim().toLowerCase();
   const groups = useMemo(() => {
     if (!q) return null;
+    const contactName = (id?: string | null) => (id ? contacts.find((c) => c.userId === id)?.displayName ?? '' : '');
     const people: Hit[] = contacts
       .filter((c) =>
         c.displayName.toLowerCase().includes(q)
@@ -36,13 +39,16 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
       .slice(0, 5)
       .map((c) => ({ kind: 'people' as CrmFocusKind, id: c.userId, title: c.displayName, subtitle: c.title || c.email || '' }));
     const dealHits: Hit[] = deals
-      .filter((d) => d.title.toLowerCase().includes(q))
+      .filter((d) => d.title.toLowerCase().includes(q) || contactName(d.contactId).toLowerCase().includes(q))
       .slice(0, 5)
-      .map((d) => ({ kind: 'deals' as CrmFocusKind, id: d.id, title: d.title, subtitle: d.stage }));
+      .map((d) => ({ kind: 'deals' as CrmFocusKind, id: d.id, title: d.title, subtitle: contactName(d.contactId) || d.stage }));
     const taskHits: Hit[] = tasks
-      .filter((x) => x.title.toLowerCase().includes(q))
+      .filter((x) => {
+        const taskName = contactName(x.assigneeId) || contactName(x.contactId);
+        return x.title.toLowerCase().includes(q) || taskName.toLowerCase().includes(q);
+      })
       .slice(0, 5)
-      .map((x) => ({ kind: 'tasks' as CrmFocusKind, id: x.id, title: x.title, subtitle: x.priority }));
+      .map((x) => ({ kind: 'tasks' as CrmFocusKind, id: x.id, title: x.title, subtitle: contactName(x.assigneeId) || contactName(x.contactId) || x.priority }));
     return { people, deals: dealHits, tasks: taskHits };
   }, [q, contacts, deals, tasks]);
 
@@ -56,7 +62,6 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
 
   const pick = (hit: Hit) => {
     onPick(hit.kind, hit.id);
-    setQuery('');
     setOpen(false);
   };
 
@@ -89,13 +94,24 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
       <div className="flex items-center gap-2 px-3 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] focus-within:border-[var(--accent)]">
         <Search size={16} className="text-[var(--text-secondary)] shrink-0" />
         <input
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          value={search}
+          onChange={(e) => { setFilter('search', e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           placeholder={t('crm.searchPlaceholder', CRM_FALLBACKS.searchPlaceholder)}
           aria-label={t('crm.searchPlaceholder', CRM_FALLBACKS.searchPlaceholder)}
           className="flex-1 min-h-11 bg-transparent outline-none text-sm text-[var(--text-primary)]"
         />
+        {search.trim() ? (
+          <button
+            type="button"
+            onClick={() => setFilter('search', '')}
+            aria-label={t('crm.clearSearch', CRM_FALLBACKS.clearSearch)}
+            title={t('crm.clearSearch', CRM_FALLBACKS.clearSearch)}
+            className="min-h-11 min-w-11 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
+          >
+            <X size={14} />
+          </button>
+        ) : null}
       </div>
       {open && q && groups && (
         <div className="absolute left-0 right-0 top-full mt-1 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-lg z-[140] overflow-hidden">

@@ -479,7 +479,11 @@
       "voice": "Audio"
     },
     "subscribersLabel": "Abonnenten",
-    "postsLabel": "Beiträge"
+    "postsLabel": "Beiträge",
+    "membersCount": {
+      "one": "{{count}} Mitglied",
+      "other": "{{count}} Mitglieder"
+    }
   },
   "createChannel": {
     "title": "Kanal erstellen",
@@ -1782,6 +1786,10 @@
     "status": "Status",
     "tag": "Tag",
     "assignedToMe": "Mir zugewiesen",
+    "filters": "Filter",
+    "resetFilters": "Filter zurücksetzen",
+    "done": "Fertig",
+    "clearSearch": "Suche löschen",
     "you": "Du",
     "clients": "Kunden & Interessenten",
     "noDepartment": "Keine Abteilung",

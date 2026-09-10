@@ -479,7 +479,11 @@
       "voice": "Voice"
     },
     "subscribersLabel": "Subscribers",
-    "postsLabel": "Posts"
+    "postsLabel": "Posts",
+    "membersCount": {
+      "one": "{{count}} member",
+      "other": "{{count}} members"
+    }
   },
   "createChannel": {
     "title": "Create Channel",
@@ -1780,6 +1784,10 @@
     "status": "Status",
     "tag": "Tag",
     "assignedToMe": "Assigned to me",
+    "filters": "Filters",
+    "resetFilters": "Reset filters",
+    "done": "Done",
+    "clearSearch": "Clear search",
     "you": "You",
     "clients": "Clients & leads",
     "noDepartment": "No department",

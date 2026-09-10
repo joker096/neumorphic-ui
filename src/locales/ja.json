@@ -479,7 +479,11 @@
       "voice": "音声"
     },
     "subscribersLabel": "登録者",
-    "postsLabel": "投稿"
+    "postsLabel": "投稿",
+    "membersCount": {
+      "one": "{{count}}人のメンバー",
+      "other": "{{count}}人のメンバー"
+    }
   },
   "createChannel": {
     "title": "チャンネルを作成",
@@ -1782,6 +1786,10 @@
     "status": "ステータス",
     "tag": "タグ",
     "assignedToMe": "自分に割り当て済み",
+    "filters": "フィルター",
+    "resetFilters": "フィルターをリセット",
+    "done": "完了",
+    "clearSearch": "検索をクリア",
     "you": "あなた",
     "clients": "クライアントとリード",
     "noDepartment": "部署なし",

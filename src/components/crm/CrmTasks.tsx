@@ -116,6 +116,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
   const { isDark } = useTheme();
   const tasks = useAppStore((s) => s.crmTasks);
   const contacts = useAppStore((s) => s.crmContacts);
+  const filters = useAppStore((s) => s.crmFilters);
   const toggleTask = useAppStore((s) => s.toggleTask);
   const removeTask = useAppStore((s) => s.removeTask);
   const { can } = useCrmPermissions();
@@ -142,13 +143,20 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
 
   const editTask = tasks.find((x) => x.id === editTaskId) ?? null;
 
-  const sorted = [...tasks].sort((a, b) => Number(a.done) - Number(b.done) || (a.dueAt ?? 0) - (b.dueAt ?? 0));
+  const q = filters.search.trim().toLowerCase();
+  const visibleTasks = q
+    ? tasks.filter((task) =>
+        task.title.toLowerCase().includes(q)
+        || (name(task.assigneeId) ?? '').toLowerCase().includes(q)
+        || (name(task.contactId) ?? '').toLowerCase().includes(q))
+    : tasks;
+  const sorted = [...visibleTasks].sort((a, b) => Number(a.done) - Number(b.done) || (a.dueAt ?? 0) - (b.dueAt ?? 0));
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto px-3 py-3">
       <div className="flex items-center justify-between px-2 mb-3">
         <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
-          {tasks.filter((x) => !x.done).length} {t('crm.open', 'open')}
+          {visibleTasks.filter((x) => !x.done).length} {t('crm.open', 'open')}
         </span>
         {can('manageTasks') && (
           <button onClick={() => setShowAdd(true)} aria-label={t('crm.addTask', CRM_FALLBACKS.addTask)} title={t('crm.addTask', CRM_FALLBACKS.addTask)} className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center">
@@ -158,7 +166,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
         )}
       </div>
 
-      {tasks.length === 0 && <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noTasks', CRM_FALLBACKS.noTasks)}</div>}
+      {visibleTasks.length === 0 && <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noTasks', CRM_FALLBACKS.noTasks)}</div>}
 
       <div className="flex flex-col gap-2">
         {sorted.map((task) => (

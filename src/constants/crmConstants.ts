@@ -120,6 +120,10 @@ export const CRM_FALLBACKS = {
   status: 'Status',
   tag: 'Tag',
   assignedToMe: 'Assigned to me',
+  filters: 'Filters',
+  resetFilters: 'Reset filters',
+  done: 'Done',
+  clearSearch: 'Clear search',
   // contact card
   editContact: 'Edit contact',
   newContact: 'New contact',

@@ -85,7 +85,7 @@ export const CrmPeople: React.FC<Props> = ({
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
     return contacts.filter((c) => {
-      if (q && !c.displayName.toLowerCase().includes(q) && !(c.email ?? '').toLowerCase().includes(q)) return false;
+      if (q && !c.displayName.toLowerCase().includes(q) && !(c.email ?? '').toLowerCase().includes(q) && !(c.title ?? '').toLowerCase().includes(q)) return false;
       if (filters.role !== 'all' && c.role !== filters.role) return false;
       if (filters.departmentId !== 'all' && (c.departmentId ?? 'none') !== filters.departmentId) return false;
       if (filters.status !== 'all' && c.status !== filters.status) return false;

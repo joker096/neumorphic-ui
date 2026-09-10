@@ -21,6 +21,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
   const { t } = useI18n();
   const deals = useAppStore((s) => s.crmDeals);
   const contacts = useAppStore((s) => s.crmContacts);
+  const filters = useAppStore((s) => s.crmFilters);
   const setDealStage = useAppStore((s) => s.setDealStage);
   const { can } = useCrmPermissions();
 
@@ -49,7 +50,11 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
   }, [focusDealId, onFocusHandled]);
 
   const contactName = (id: string) => contacts.find((c) => c.userId === id)?.displayName ?? id;
-  const total = deals.filter((d) => d.stage !== CRM_STAGE_LOST).reduce((s, d) => s + d.amount, 0);
+  const q = filters.search.trim().toLowerCase();
+  const visibleDeals = q
+    ? deals.filter((d) => d.title.toLowerCase().includes(q) || (contacts.find((c) => c.userId === d.contactId)?.displayName ?? '').toLowerCase().includes(q))
+    : deals;
+  const total = visibleDeals.filter((d) => d.stage !== CRM_STAGE_LOST).reduce((s, d) => s + d.amount, 0);
 
   const stageLabel = (id: DealStage) => {
     const s = DEAL_STAGES.find((x) => x.id === id);
@@ -76,7 +81,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
 
       <div className="flex flex-col gap-3">
         {DEAL_STAGES.map((stage) => {
-          const stageDeals = deals.filter((d) => d.stage === stage.id);
+          const stageDeals = visibleDeals.filter((d) => d.stage === stage.id);
           const isOver = dragOverStage === stage.id;
           const isCollapsed = collapsed.has(stage.id);
           const stageSum = stageDeals.reduce((s, d) => s + d.amount, 0);

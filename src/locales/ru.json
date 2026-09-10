@@ -479,7 +479,11 @@
       "voice": "Голос"
     },
     "subscribersLabel": "Подписчики",
-    "postsLabel": "Записи"
+    "postsLabel": "Записи",
+    "membersCount": {
+      "one": "{{count}} участник",
+      "other": "{{count}} участников"
+    }
   },
   "createChannel": {
     "title": "Создать канал",
@@ -1782,6 +1786,10 @@
     "status": "Статус",
     "tag": "Тег",
     "assignedToMe": "Мне",
+    "filters": "Фильтры",
+    "resetFilters": "Сбросить фильтры",
+    "done": "Готово",
+    "clearSearch": "Очистить поиск",
     "you": "Вы",
     "clients": "Клиенты и лиды",
     "noDepartment": "Без отдела",
