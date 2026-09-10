@@ -17,7 +17,6 @@ npm run deploy -- -SkipAdminCreate
 
 pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipAdminCreate
 
-
 pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipAdminCreate -SkipAndroid -SkipDesktop -SkipVerify         
 ```
 Script requires admin credentials. Two options:
