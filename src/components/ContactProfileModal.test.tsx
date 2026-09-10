@@ -127,8 +127,7 @@ describe('ContactProfileModal', () => {
   it('calls onEdit when Edit button clicked', () => {
     render(<ContactProfileModal {...defaultProps} />);
 
-    const avatar = screen.getByText('T').closest('div[class*="group"]') as HTMLElement;
-    const editBtn = within(avatar).getByLabelText('contacts.edit');
+    const editBtn = screen.getByLabelText('contacts.edit');
     fireEvent.click(editBtn);
 
     expect(defaultProps.onEdit).toHaveBeenCalled();

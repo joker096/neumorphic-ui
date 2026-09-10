@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   X, MessageCircle, Phone, Video, Users, Bell, BellOff, Image as ImageIcon, FileText,
   Link as LinkIcon, Mic, Shield, Crown, Flag, UserX, LogOut, Volume2, VolumeX, Info,
-  Bot as BotIcon, AtSign, Globe, Lock, Trash2, Pin, UserPlus,
+  Bot as BotIcon, AtSign, Globe, Lock, Trash2, Pin, UserPlus, BadgeCheck,
 } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 import { useAppStore } from '../store';
@@ -53,7 +53,6 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
   const channelInviteLink = buildChannelInviteLink(chat.username, chat.id);
   const [activeTab, setActiveTab] = useState('media');
   const [muted, setMuted] = useState(false);
-  const [notifications, setNotifications] = useState(true);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
@@ -86,7 +85,6 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
   const groupCreatedAt: number | undefined = liveChat?.createdAt;
   const groupPinned = kind === 'group' ? pinnedMessageList.filter((p: any) => p.chatId === chat.id) : [];
   const isChatMuted = kind === 'group' || kind === 'channel' ? !!liveChat?.muted : muted;
-  const notificationsOn = kind === 'group' || kind === 'channel' ? !isChatMuted : notifications;
   const crmContacts = useAppStore((s) => s.crmContacts);
   const crmDeals = useAppStore((s) => s.crmDeals);
   const crmTasks = useAppStore((s) => s.crmTasks);
@@ -123,7 +121,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
     }
     if (kind === 'group') {
       const memberCount = Array.isArray(chat.members) ? chat.members.length : (chat.members ?? CHAT_PROFILE_DEFAULT_MEMBERS);
-      return `${memberCount} members`;
+      return t('profile.membersCount', { count: memberCount });
     }
     if (kind === 'bot') return t('profile.bot', 'Bot');
     return chat.online ? t('profile.online', 'online') : chat.username ?? t('profile.offline', 'last seen recently');
@@ -184,13 +182,13 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
             <div className="flex-1 overflow-y-auto scrollbar-none">
               {/* Identity */}
               <div className="flex flex-col items-center text-center px-6 pt-6 pb-2">
-                <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${chat.color} flex items-center justify-center text-white text-[40px] font-bold shadow-lg`}>
+                <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${chat.color} flex items-center justify-center text-white text-[40px] font-bold shadow-lg relative`}>
                   {chat.name.charAt(0)}
-                  {kind === 'bot' && <span className="absolute ml-16 -mt-2 w-7 h-7 rounded-full bg-[var(--accent)] flex items-center justify-center text-xs"><BotIcon size={16} /></span>}
+                  {kind === 'bot' && <span className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[var(--accent)] flex items-center justify-center text-xs text-white border-2 border-white md:border-[var(--bg-secondary)]"><BotIcon size={16} /></span>}
                 </div>
                 <div className={`mt-3 font-bold text-xl flex items-center gap-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
                   {chat.name}
-                  {chat.verified && <span className="text-[var(--accent)]">✓</span>}
+                  {chat.verified && <BadgeCheck size={20} className="text-[var(--accent)]" />}
                 </div>
                 <div className={`text-sm ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle()}</div>
                 {chat.username && <div className={`text-xs mt-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>@{chat.username}</div>}
@@ -240,7 +238,6 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
               {/* Quick toggles */}
               <div className="px-4 mt-4 space-y-2">
                 <Row icon={isChatMuted ? <BellOff size={16} /> : <Bell size={16} />} title={t('profile.mute', 'Mute')} isDark={isDark} right={<ToggleSwitch isOn={isChatMuted} onToggle={() => (kind === 'group' || kind === 'channel' ? setChatMuted(chat.id, !isChatMuted) : setMuted(v => !v))} ariaLabel={t('profile.mute', 'Mute')} isDark={isDark} />} />
-                <Row icon={<Bell size={16} />} title={t('profile.notifications', 'Notifications')} isDark={isDark} right={<ToggleSwitch isOn={notificationsOn} onToggle={() => (kind === 'group' || kind === 'channel' ? setChatMuted(chat.id, !isChatMuted) : setNotifications(v => !v))} ariaLabel={t('profile.notifications', 'Notifications')} isDark={isDark} />} />
               </div>
 
               {/* In-chat CRM card */}
@@ -377,16 +374,20 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   <LogOut size={18} /> {t('profile.leave', 'Leave')}
                 </button>
               )}
-              <button onClick={() => { toast(t('profile.reported', 'Report submitted'), 'info'); }} className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-amber-500 bg-amber-500/10 font-medium min-h-11 active:scale-95 transition-transform">
-                <Flag size={18} /> {t('profile.report', 'Report')}
+              <button
+                onClick={() => { toast(t('profile.reported', 'Report submitted'), 'info'); }}
+                aria-label={t('profile.report', 'Report')}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-amber-500 bg-amber-500/10 font-medium min-w-11 min-h-11 active:scale-95 transition-transform"
+              >
+                <Flag size={18} /> <span className="hidden sm:inline">{t('profile.report', 'Report')}</span>
               </button>
               {canDeleteGroup && (
                 <button
                   onClick={() => setDeleteOpen(true)}
                   aria-label={t('group.delete', 'Delete group')}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-rose-500 bg-rose-500/10 font-medium min-h-11 active:scale-95 transition-transform"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-rose-500 bg-rose-500/10 font-medium min-w-11 min-h-11 active:scale-95 transition-transform"
                 >
-                  <Trash2 size={18} /> {t('group.delete', 'Delete group')}
+                  <Trash2 size={18} /> <span className="hidden sm:inline">{t('group.delete', 'Delete group')}</span>
                 </button>
               )}
             </div>

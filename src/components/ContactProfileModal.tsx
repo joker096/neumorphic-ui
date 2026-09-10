@@ -202,7 +202,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             )}
 
             <div className="flex w-full flex-col items-center max-h-[85vh] overflow-y-auto scrollbar-none">
-            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[40px] shadow-lg relative group`}>
+            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[40px] shadow-lg relative`}>
               {overrideAvatar ? (
                 <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover rounded-full" loading="lazy" decoding="async" />
               ) : (
@@ -231,7 +231,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               )}
               <button
                 onClick={() => { onEdit?.(); onClose(); }}
-                 className={`absolute -top-1 -right-1 w-11 h-11 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-lg`}
+                 className={`absolute -top-1 -right-1 w-11 h-11 rounded-full flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-lg`}
                 aria-label={t('contacts.edit')}
               >
                 <Edit size={14} />

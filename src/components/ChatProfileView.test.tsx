@@ -110,7 +110,10 @@ describe('ChatProfileView block action', () => {
     mockStore.chats = [{ id: 4, name: 'Tech Insights', color: 'from-slate-700 to-slate-900', isChannel: true }];
     render(<ChatProfileView open={defaultProps.open} chat={{ id: 4, name: 'Tech Insights', color: 'from-slate-700 to-slate-900', isChannel: true }} isDark={defaultProps.isDark} onClose={defaultProps.onClose} onMessage={defaultProps.onMessage} onCall={defaultProps.onCall} onVideoCall={defaultProps.onVideoCall} />);
 
-    fireEvent.click(screen.getAllByRole('switch')[0]);
+    // single quick-toggle row (Mute/Notifications dedup): no permission switches for channels.
+    const switches = screen.getAllByRole('switch');
+    expect(switches).toHaveLength(1);
+    fireEvent.click(switches[0]);
 
     expect(mockStore.setChatMuted).toHaveBeenCalledWith(4, true);
   });
@@ -126,7 +129,8 @@ describe('ChatProfileView block action', () => {
     }];
     render(<ChatProfileView open={defaultProps.open} chat={{ id: 2, name: 'Design Team', color: 'from-amber-400 to-orange-500', type: 'group' }} isDark={defaultProps.isDark} onClose={defaultProps.onClose} onMessage={defaultProps.onMessage} onCall={defaultProps.onCall} onVideoCall={defaultProps.onVideoCall} />);
 
-    fireEvent.click(screen.getAllByRole('switch')[2]);
+    // switch order: [0]=Mute row, [1]=Send messages permission (Notifications row removed).
+    fireEvent.click(screen.getAllByRole('switch')[1]);
 
     expect(mockStore.updateGroup).toHaveBeenCalledWith(2, expect.objectContaining({ group: expect.objectContaining({ permissions: expect.objectContaining({ sendMessages: false }) }) }));
   });

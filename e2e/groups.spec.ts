@@ -166,8 +166,6 @@ test.describe('Group management', () => {
     await expect(muteToggle).toHaveAttribute('aria-checked', 'false');
     await muteToggle.click();
     await expect(muteToggle).toHaveAttribute('aria-checked', 'true');
-    // The Notifications row mirrors the mute state
-    await expect(page.getByRole('switch', { name: 'Notifications' })).toHaveAttribute('aria-checked', 'false');
 
     // Close + reopen the profile: state lives in the store, not component state
     await page.getByRole('button', { name: 'Close', exact: true }).last().click();
