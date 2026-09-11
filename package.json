@@ -11,6 +11,7 @@
     "build:hardened": "vite build && node scripts/obfuscate-dist.mjs",
     "build:web": "pwsh -NoProfile -File scripts/build-web.ps1",
     "build:android": "node scripts/build-android.mjs",
+    "assetlinks": "node scripts/generate-assetlinks.mjs",
     "build:ios": "node scripts/build-ios.mjs",
     "build:desktop": "tauri build",
     "build:desktop:windows": "tauri build --target x86_64-pc-windows-msvc",

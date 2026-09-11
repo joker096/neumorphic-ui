@@ -50,7 +50,7 @@ export const EcoSidebarNav = ({
       }}
     >
       {/* Navigation */}
-      <nav className="flex flex-1 flex-col px-2 space-y-1 overflow-y-auto">
+      <nav className="flex flex-1 flex-col px-2 space-y-2 overflow-y-auto">
         {items.map((item: NavItem) => {
           const isActive = activeView === item.id;
           const badgeCount = BADGE_ITEM_IDS.has(item.id)
@@ -68,8 +68,9 @@ export const EcoSidebarNav = ({
               type="button"
               aria-current={isActive ? "page" : undefined}
               aria-label={label}
+              title={label}
               onClick={() => onNavigate?.(item.id)}
-              className={`relative w-full flex flex-col items-center justify-center gap-1 min-h-11 rounded-xl py-2.5 px-1 transition-all duration-200 cursor-pointer ${
+              className={`relative w-full flex flex-col items-center justify-center gap-1 min-h-12 rounded-xl py-2 px-1 transition-all duration-200 cursor-pointer ${
                 isActive
                   ? "text-[var(--accent)]"
                   : `text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] ${hoverBg}`

@@ -4,16 +4,26 @@ import fs from 'fs';
 import http from 'http';
 import { spawn, execSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
+// .env is canonical for signing secrets; override so it wins over stray
+// process/user-environment values (avoids the keystore-password-mismatch bug).
+dotenv.config({ path: path.join(ROOT, '.env'), override: true, quiet: true });
+
 const ANDROID_DIR = path.join(ROOT, 'android');
 const TWA_MANIFEST = path.join(ANDROID_DIR, 'twa-manifest.json');
-const KEYSTORE = path.join(ROOT, 'messandanger-keystore.jks');
+// Single source of truth for package id, host, version, colors:
+// config/android-publish.json (bump appVersion/appVersionCode there).
+const PUBLISH_CONFIG = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'config', 'android-publish.json'), 'utf-8'),
+);
+const KEYSTORE = path.join(ROOT, PUBLISH_CONFIG.keyStoreFile);
 const KEYSTORE_PASS = process.env.BUBBLEWRAP_KEYSTORE_PASSWORD;
 const KEY_PASS = process.env.BUBBLEWRAP_KEY_PASSWORD;
 if (!KEYSTORE_PASS || !KEY_PASS) {
-  console.error('FATAL: BUBBLEWRAP_KEYSTORE_PASSWORD and BUBBLEWRAP_KEY_PASSWORD must be set in environment');
+  console.error('FATAL: BUBBLEWRAP_KEYSTORE_PASSWORD and BUBBLEWRAP_KEY_PASSWORD must be set in .env (or environment)');
   process.exit(1);
 }
 const ANDROID_HOME = process.env.ANDROID_HOME || 'C:\\Users\\topse\\AppData\\Local\\Android\\Sdk';
@@ -134,7 +144,7 @@ async function buildAndroid() {
   const signedApk = path.join(ROOT, 'app-release-signed.apk');
   await runCmd(path.join(buildTools, 'apksigner.bat'), [
     'sign', '--ks', KEYSTORE, '--ks-pass', `pass:${KEYSTORE_PASS}`,
-    '--ks-key-alias', 'messandanger', '--key-pass', `pass:${KEY_PASS}`,
+    '--ks-key-alias', PUBLISH_CONFIG.signingAlias, '--key-pass', `pass:${KEY_PASS}`,
     '--out', signedApk, alignedApk,
   ], { cwd: ANDROID_DIR, env });
 
@@ -150,7 +160,7 @@ async function buildAndroid() {
     await runCmd(path.join(JAVA_HOME, 'bin', 'jarsigner.exe'), [
       '-verbose', '-sigalg', 'SHA256withRSA', '-digestalg', 'SHA-256',
       '-keystore', KEYSTORE, '-storepass', KEYSTORE_PASS, '-keypass', KEY_PASS,
-      unsignedAab, 'messandanger',
+      unsignedAab, PUBLISH_CONFIG.signingAlias,
     ], { cwd: ANDROID_DIR, env });
   } catch {
     // jarsigner may exit non-zero on self-signed cert warning; check if AAB was actually produced
@@ -197,20 +207,31 @@ async function main() {
     if (fs.existsSync(TWA_MANIFEST)) fs.unlinkSync(TWA_MANIFEST);
     banner('Creating TWA Manifest');
     const twaManifest = new TwaManifest({
-      packageId: 'app.messandanger.messenger', host: 'mess.cvr.name',
-      name: 'Mess&Anger', launcherName: 'Mess&Anger',
-      startUrl: '/', display: 'standalone', orientation: 'portrait',
-      themeColor: '#0a0a0a', backgroundColor: '#0a0a0a',
-      navigationColor: '#0a0a0a', themeColorDark: '#000000',
-      navigationColorDark: '#000000', navigationDividerColor: '#000000',
-      navigationDividerColorDark: '#000000',
+      packageId: PUBLISH_CONFIG.packageId,
+      host: PUBLISH_CONFIG.host,
+      name: PUBLISH_CONFIG.name,
+      launcherName: PUBLISH_CONFIG.launcherName,
+      startUrl: PUBLISH_CONFIG.startUrl,
+      display: PUBLISH_CONFIG.display,
+      orientation: PUBLISH_CONFIG.orientation,
+      themeColor: PUBLISH_CONFIG.themeColor,
+      backgroundColor: PUBLISH_CONFIG.backgroundColor,
+      navigationColor: PUBLISH_CONFIG.navigationColor,
+      themeColorDark: PUBLISH_CONFIG.themeColorDark,
+      navigationColorDark: PUBLISH_CONFIG.navigationColorDark,
+      navigationDividerColor: PUBLISH_CONFIG.navigationDividerColor,
+      navigationDividerColorDark: PUBLISH_CONFIG.navigationDividerColorDark,
       iconUrl: `${serverUrl}/icons/pwa-512x512.png`,
       maskableIconUrl: `${serverUrl}/icons/pwa-512x512.png`,
-      enableNotifications: true, enableSiteSettingsShortcut: true,
-      isChromeOSOnly: false, appVersion: '1.0.0', appVersionCode: 1,
-      splashScreenFadeOutDuration: 300, fallbackType: 'customtabs',
+      enableNotifications: PUBLISH_CONFIG.enableNotifications,
+      enableSiteSettingsShortcut: PUBLISH_CONFIG.enableSiteSettingsShortcut,
+      isChromeOSOnly: false,
+      appVersion: PUBLISH_CONFIG.appVersion,
+      appVersionCode: PUBLISH_CONFIG.appVersionCode,
+      splashScreenFadeOutDuration: PUBLISH_CONFIG.splashScreenFadeOutDuration,
+      fallbackType: PUBLISH_CONFIG.fallbackType,
       generatorApp: 'bubblewrap-cli',
-      signingKey: { path: KEYSTORE, alias: 'messandanger' },
+      signingKey: { path: KEYSTORE, alias: PUBLISH_CONFIG.signingAlias },
       shortcuts: [], features: {}, additionalTrustedOrigins: [],
       fingerprints: [], retainedBundles: [],
     });
@@ -219,6 +240,11 @@ async function main() {
 
     await createKeystore(await TwaManifest.fromFile(TWA_MANIFEST), config);
     await createProject(await TwaManifest.fromFile(TWA_MANIFEST));
+
+    // Keytool is on PATH here (JAVA_HOME/bin) only sometimes; generate-assetlinks
+    // resolves keytool itself. Runs after keystore exists.
+    log.info('→ Digital Asset Links (.well-known/assetlinks.json)');
+    await runCmd(process.execPath, [path.join(__dirname, 'generate-assetlinks.mjs')], { cwd: ROOT });
 
     if (!skipBuild) await buildAndroid();
   } finally {

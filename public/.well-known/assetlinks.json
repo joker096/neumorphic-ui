@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.messandanger.messenger",
+      "sha256_cert_fingerprints": [
+        "13:36:84:83:A8:79:06:AD:1A:61:97:86:91:03:9A:BA:DE:F0:70:E7:1C:9B:52:8E:E4:73:A2:73:A3:9F:86:3D"
+      ]
+    }
+  }
+]
