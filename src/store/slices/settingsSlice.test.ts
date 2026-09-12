@@ -26,6 +26,9 @@ describe('settingsSlice', () => {
     expect(slice.readReceipts).toBe(true);
     expect(slice.currentLanguage).toBe('en');
     expect(slice.soundVolume).toBe(0.7);
+    expect(slice.saveAudioRecordings).toBe(true);
+    expect(slice.saveVideoRecordings).toBe(true);
+    expect(slice.autoRecordCalls).toBe(true);
   });
 
   it('loads persisted settings from localStorage', async () => {
@@ -83,5 +86,14 @@ describe('settingsSlice', () => {
     slice.setOnlineStatus(false);
     expect(get().onlineStatus).toBe(false);
     expect(get().isOnline).toBe(false);
+  });
+
+  it('setAutoRecordCalls updates state and persists', async () => {
+    const { createSettingsSlice } = await import('./settingsSlice');
+    const { slice, get } = mk(createSettingsSlice);
+    slice.setAutoRecordCalls(false);
+    expect(get().autoRecordCalls).toBe(false);
+    const stored = JSON.parse(localStorage.getItem(PRIVACY_KEY)!);
+    expect(stored.autoRecordCalls).toBe(false);
   });
 });

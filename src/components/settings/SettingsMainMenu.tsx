@@ -5,7 +5,7 @@ import { SettingsSectionTitle, ToggleSwitch } from "../ui/SettingsRow";
 import {
   Activity, Bell, BellOff, Bot, Building2, ChevronRight, Cloud,
   Globe, HardDrive, Lock, Monitor, Network, Palette, Phone, Radar, Shield,
-  ShieldAlert, Smartphone, User, FolderTree, Download, HelpCircle,
+  Smartphone, User, FolderTree, Download, HelpCircle,
   CreditCard, Receipt, Crown,
 } from "lucide-react";
 import { SettingsCard, SettingsDivider, SettingsNavItem } from "./SettingsMenuPrimitives";
@@ -28,14 +28,12 @@ interface SettingsMainMenuProps {
   cloudSync: CloudSyncState;
   setCloudSyncEnabled: (v: boolean) => void;
   language: string;
-  proxyEnabled: boolean;
-  spamFilterEnabled: boolean;
 }
 
 export function SettingsMainMenu({
   isDark, searchQuery, setSearchQuery, t, setActiveSection, setSubView,
   notificationsEnabled, setNotificationsEnabled, soundEnabled, setSoundEnabled,
-  cloudSync, setCloudSyncEnabled, language, proxyEnabled, spamFilterEnabled,
+  cloudSync, setCloudSyncEnabled, language,
 }: SettingsMainMenuProps) {
   useEffect(() => {
     if (notificationsEnabled && 'Notification' in window && Notification.permission === 'default') {
@@ -86,7 +84,7 @@ export function SettingsMainMenu({
 
   const chatsItems: NavItemDef[] = [
     {
-      icon: <FolderTree size={16} className={isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"} />,
+      icon: <FolderTree size={16} className={"text-[var(--accent)]"} />,
       iconBg: isDark ? "bg-[var(--accent-soft)]" : "bg-[var(--accent)]/10",
       title: t('settings.folders'),
       subtitle: t('settings.foldersSubtitle', 'Organize chats into filters'),
@@ -159,15 +157,8 @@ export function SettingsMainMenu({
       icon: <Network size={16} className="t-accent" />,
       iconBg: "t-accent-bg",
       title: t('settings.network'),
-      subtitle: proxyEnabled ? t('settings.networkEnabled') : t('settings.disabled'),
+      subtitle: t('settings.networkSubtitle', 'Relay, transport and connection'),
       onClick: () => setActiveSection('network'),
-    },
-    {
-      icon: <ShieldAlert size={16} className={isDark ? "text-red-400" : "text-red-600"} />,
-      iconBg: isDark ? "bg-red-500/10" : "bg-red-100",
-      title: t('settings.spamProtection'),
-      subtitle: spamFilterEnabled ? t('settings.spamActive') : t('settings.spamDisabled'),
-      onClick: () => setActiveSection('spam'),
     },
     {
       icon: <Activity size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />,

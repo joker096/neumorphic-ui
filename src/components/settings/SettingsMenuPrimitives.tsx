@@ -54,5 +54,5 @@ interface SettingsDividerProps {
 }
 
 export const SettingsDivider = ({ isDark }: SettingsDividerProps) => (
-  <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />
+  <div className={`border-t ${"border-[var(--border-color)]"}`} />
 );

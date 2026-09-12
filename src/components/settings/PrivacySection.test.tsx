@@ -15,11 +15,7 @@ describe('PrivacySection - additional tests', () => {
  const mockUpdateSettings = vi.fn();
   const defaultProps = {
    isDark: false,
-   visNumber: 'none',
-  setVisNumber: vi.fn(),
-  visActivity: 'none',
-  setVisActivity: vi.fn(),
-  dndEnabled: false,
+   dndEnabled: false,
   setDndEnabled: vi.fn(),
   dndFrom: '22:00',
   setDndFrom: vi.fn(),
@@ -75,10 +71,9 @@ describe('PrivacySection - additional tests', () => {
   expect(screen.getByText('settings.privacy')).toBeInTheDocument();
  });
 
- it('renders visibility values', () => {
+ it('renders privacy cycle rows', () => {
   render(<PrivacySection {...defaultProps} />);
-  // Check that settings text is present in the component
-  expect(screen.getByText('settings.whoSeesNumber') || screen.getByText('settings.lastSeen') || screen.getByText(/none|contacts|everyone/) || screen.getByText(/stealthMode|anonymousMode/)).toBeInTheDocument();
+  expect(screen.getByText('settings.ghostViewMode') || screen.getByText('settings.onlineStatus') || screen.getByText(/stealthMode|anonymousMode/)).toBeInTheDocument();
  });
 
  it('renders DND time values', () => {

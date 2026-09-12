@@ -1,20 +1,12 @@
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import type { TunnelBackend } from '../../lib/transport/wsTunnel';
-import { Globe, RefreshCw, Network, Radio } from 'lucide-react';
+import { RefreshCw, Radio } from 'lucide-react';
 
 interface NetworkSectionProps {
   isDark?: boolean;
-  proxyEnabled: boolean;
-  setProxyEnabled: (v: boolean) => void;
-  proxyUrl: string;
-  setProxyUrl: (v: string) => void;
   obfuscationEnabled: boolean;
   setObfuscationEnabled: (v: boolean) => void;
-  obfuscationMode: string;
-  setObfuscationMode: (v: string) => void;
-  torBridge: string;
-  setTorBridge: (v: string) => void;
   turnServerUrl: string;
   turnServerUser?: string;
   turnServerPass?: string;
@@ -22,35 +14,19 @@ interface NetworkSectionProps {
   setRelayBackend: (v: string) => void;
   autoReconnectEnabled: boolean;
   setAutoReconnectEnabled: (v: boolean) => void;
-  p2pMeshEnabled: boolean;
-  setP2pMeshEnabled: (v: boolean) => void;
   onUpdateSettings: (settings: Record<string, unknown>) => void;
   onBack: () => void;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
 }
 
-const TOR_BRIDGES = ['None', 'obfs4', 'meek', 'Snowflake'];
-const OBFUSCATION_MODES = ['aesgcm', 'httpmask', 'mediadummy'];
 const RELAY_BACKENDS: TunnelBackend[] = ['direct', 'cfworker', 'domainfront', 'peertunnel'];
 
 export const NetworkSection = ({
-  isDark = false, proxyEnabled, setProxyEnabled, proxyUrl, setProxyUrl,
+  isDark = false,
   obfuscationEnabled, setObfuscationEnabled,
-  obfuscationMode, setObfuscationMode,
-  torBridge, setTorBridge, turnServerUrl, onUpdateSettings, onBack, t,
+  turnServerUrl, onUpdateSettings, onBack, t,
   relayBackend, setRelayBackend, autoReconnectEnabled, setAutoReconnectEnabled,
-  p2pMeshEnabled, setP2pMeshEnabled,
 }: NetworkSectionProps) => {
-  const cycleTorBridge = () => {
-    const idx = TOR_BRIDGES.indexOf(torBridge);
-    setTorBridge(TOR_BRIDGES[(idx + 1) % TOR_BRIDGES.length]);
-  };
-
-  const cycleObfuscationMode = () => {
-    const idx = OBFUSCATION_MODES.indexOf(obfuscationMode);
-    setObfuscationMode(OBFUSCATION_MODES[(idx + 1) % OBFUSCATION_MODES.length]);
-  };
-
   const cycleRelayBackend = () => {
     const idx = RELAY_BACKENDS.indexOf(relayBackend as TunnelBackend);
     const next = RELAY_BACKENDS[(idx + 1) % RELAY_BACKENDS.length];
@@ -59,28 +35,8 @@ export const NetworkSection = ({
 
   return (
     <SubView key="network" title={t('settings.network')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.proxySection')} isDark={isDark} />
+      <SettingsSectionTitle title={t('settings.relaySection')} isDark={isDark} />
       <SettingsGroup isDark={isDark} className="mb-6">
-        <SettingsToggleRow
-          title={t('settings.useProxy')}
-          subtitle={t('settings.proxyUrlSubtitle')}
-          isOn={proxyEnabled}
-          onToggle={() => setProxyEnabled(!proxyEnabled)}
-          isDark={isDark}
-          toggleOnIcon={<Globe size={14} />}
-          toggleOffIcon={<Globe size={14} />}
-        />
-        {proxyEnabled && (
-          <div className="px-4 py-3">
-            <div className={`text-xs mb-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.proxyUrlSubtitle')}</div>
-            <input 
-              placeholder={t('settings.proxyUrlExample')}
-              value={proxyUrl}
-              onChange={(e) => setProxyUrl(e.target.value)}
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-800"}`}
-            />
-          </div>
-        )}
         <SettingsToggleRow
           title={t('settings.obfuscation')}
           subtitle={obfuscationEnabled ? t('settings.obfuscationActive') : t('settings.obfuscationDisabled')}
@@ -88,18 +44,6 @@ export const NetworkSection = ({
           onToggle={() => setObfuscationEnabled(!obfuscationEnabled)}
           isDark={isDark}
         />
-        {obfuscationEnabled && (
-          <SettingsRow
-            title={t('settings.obfuscationMode')}
-            value={obfuscationMode}
-            isDark={isDark}
-            onClick={cycleObfuscationMode}
-          />
-        )}
-      </SettingsGroup>
-
-      <SettingsSectionTitle title={t('settings.relaySection')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
         <SettingsRow
           title={t('settings.relayBackend')}
           subtitle={relayBackend}
@@ -109,12 +53,6 @@ export const NetworkSection = ({
           iconColor="t-accent"
           isDark={isDark}
           onClick={cycleRelayBackend}
-        />
-        <SettingsRow 
-          title={t('settings.torBridge')}
-          value={torBridge}
-          isDark={isDark}
-          onClick={cycleTorBridge}
         />
       </SettingsGroup>
 
@@ -128,15 +66,6 @@ export const NetworkSection = ({
           isDark={isDark}
           toggleOnIcon={<RefreshCw size={14} />}
           toggleOffIcon={<RefreshCw size={14} />}
-        />
-        <SettingsToggleRow
-          title={t('settings.p2pMeshMode')}
-          subtitle={t('settings.p2pMeshModeSubtitle')}
-          isOn={p2pMeshEnabled}
-          onToggle={() => setP2pMeshEnabled(!p2pMeshEnabled)}
-          isDark={isDark}
-          toggleOnIcon={<Network size={14} />}
-          toggleOffIcon={<Network size={14} />}
         />
       </SettingsGroup>
       

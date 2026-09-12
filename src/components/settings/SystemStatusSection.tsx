@@ -13,7 +13,7 @@ interface SystemStatusSectionProps {
   blockedBackends: string[];
   regionBlocked: boolean;
   onBack: () => void;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
   isOnline?: boolean;
   pendingMessages?: number;
 }
@@ -107,7 +107,7 @@ export const SystemStatusSection = ({
           <SettingsRow
             icon={<Smartphone size={16} />}
             title={t('settings.about')}
-            subtitle={`Build: ${APP_INFO.BUILD_DATE}`}
+            subtitle={`${t('settings.build', 'Build')}: ${APP_INFO.BUILD_DATE}`}
             isDark={isDark}
             onClick={() => setShowAbout(true)}
           />

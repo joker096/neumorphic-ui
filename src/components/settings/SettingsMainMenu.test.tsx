@@ -54,8 +54,6 @@ const baseProps = {
   } as CloudSyncState,
   setCloudSyncEnabled: vi.fn(),
   language: 'en',
-  proxyEnabled: false,
-  spamFilterEnabled: false,
 };
 
 type MenuProps = typeof baseProps;
@@ -307,7 +305,6 @@ describe('SettingsMainMenu — services group', () => {
 describe('SettingsMainMenu — advanced group', () => {
   it.each([
     ['settings.network', 'network'],
-    ['settings.spamProtection', 'spam'],
     ['settings.systemStatus', 'systemStatus'],
     ['settings.helpSupport', 'help'],
   ])('%s opens %s section', (label, section) => {
@@ -316,14 +313,9 @@ describe('SettingsMainMenu — advanced group', () => {
     expect(baseProps.setActiveSection).toHaveBeenCalledWith(section);
   });
 
-  it('network subtitle reflects proxyEnabled', () => {
-    renderMenu({ proxyEnabled: true });
-    expect(screen.getByText('settings.networkEnabled')).toBeInTheDocument();
-  });
-
-  it('spam subtitle reflects spamFilterEnabled', () => {
-    renderMenu({ spamFilterEnabled: true });
-    expect(screen.getByText('settings.spamActive')).toBeInTheDocument();
+  it('network subtitle reflects connection fallback', () => {
+    renderMenu();
+    expect(screen.getByText('Relay, transport and connection')).toBeInTheDocument();
   });
 });
 

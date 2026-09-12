@@ -1,4 +1,9 @@
+import { encryptPersistValue, decryptPersistValue, isEncrypted } from '../../lib/securePersist';
+
 const PRIVACY_STORAGE_KEY = 'mess_privacy_settings_v2';
+
+/** Keys whose values must be encrypted before persisting to localStorage. */
+const ENCRYPTED_KEYS = new Set(['totpSecret', 'turnServerUrl', 'turnServerUser', 'turnServerPass']);
 
 const savedPrivacySettings = (() => {
   try {
@@ -11,8 +16,46 @@ const savedPrivacySettings = (() => {
 function persistSetting(key: string, value: unknown) {
   try {
     const prev = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
-    localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify({ ...prev, [key]: value }));
+    prev[key] = value;
+    localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(prev));
+    if (ENCRYPTED_KEYS.has(key) && typeof value === 'string' && value) {
+      encryptPersistValue(value)
+        .then((enc) => {
+          const current = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
+          current[key] = enc;
+          localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(current));
+        })
+        .catch(() => { /* key not ready — plaintext fallback stays */ });
+    }
   } catch {}
+}
+
+/** Set of keys `updateSettings` is allowed to change (mitigates S3). */
+const UPDATE_ALLOWLIST = new Set([
+  'currentLanguage', 'soundEnabled', 'ghostViewMode', 'stealthMode',
+  'anonymousMode', 'deliveryReceipts', 'readReceipts', 'typingIndicators',
+  'onlineStatus', 'allowForwarding', 'allowMetadata', 'forwardCountLimit',
+  'turnServerUrl', 'turnServerUser', 'turnServerPass',
+]);
+
+/**
+ * Post-key-init hydration: decrypts any sensitive settings that were
+ * persisted while the session key was unavailable (or written before this
+ * module existed). Called by initAppStorage after setSessionPersistKey.
+ */
+export async function hydrateSecurePrivacyFields(get: () => any, setLocal: (partial: any) => void): Promise<void> {
+  const updates: Record<string, string> = {};
+  for (const key of ENCRYPTED_KEYS) {
+    const value = savedPrivacySettings[key];
+    if (isEncrypted(value)) {
+      try {
+        updates[key] = await decryptPersistValue(value);
+      } catch { /* leave as-is */ }
+    }
+  }
+  if (Object.keys(updates).length > 0) {
+    setLocal({ ...updates });
+  }
 }
 
 export interface SettingsSlice {
@@ -53,6 +96,8 @@ export interface SettingsSlice {
   toggleContactReadReceipt: (chatId: string | number, enabled: boolean) => void;
   notifications: boolean;
   twoFactor: boolean;
+  totpSecret: string | null;
+  setTotpSecret: (secret: string | null) => void;
   proxyEnabled: boolean;
   spamFilter: boolean;
   pwaBanner: boolean;
@@ -131,9 +176,11 @@ export interface SettingsSlice {
   setShareRecording: (enabled: boolean) => void;
   saveAudioRecordings: boolean;
   saveVideoRecordings: boolean;
+  autoRecordCalls: boolean;
   recordingsRetentionDays: number;
   setSaveAudioRecordings: (enabled: boolean) => void;
   setSaveVideoRecordings: (enabled: boolean) => void;
+  setAutoRecordCalls: (enabled: boolean) => void;
   setRecordingsRetentionDays: (days: number) => void;
   adminPausedAt: number | null;
   setAdminPausedAt: (ts: number | null) => void;
@@ -147,9 +194,9 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   appLockAutoLockOnBackground: savedPrivacySettings.appLockAutoLockOnBackground ?? true,
   appLockIdleSeconds: savedPrivacySettings.appLockIdleSeconds ?? 0,
   appLocked: !!(savedPrivacySettings.appLockHashedPIN || savedPrivacySettings.appLockBiometricEnabled),
-  turnServerUrl: '',
-  turnServerUser: '',
-  turnServerPass: '',
+  turnServerUrl: isEncrypted(savedPrivacySettings.turnServerUrl) ? '' : (savedPrivacySettings.turnServerUrl ?? ''),
+  turnServerUser: isEncrypted(savedPrivacySettings.turnServerUser) ? '' : (savedPrivacySettings.turnServerUser ?? ''),
+  turnServerPass: isEncrypted(savedPrivacySettings.turnServerPass) ? '' : (savedPrivacySettings.turnServerPass ?? ''),
   anonymousMode: savedPrivacySettings.anonymousMode ?? false,
   draftsEnabled: savedPrivacySettings.draftsEnabled ?? true,
   offlineMode: savedPrivacySettings.offlineMode ?? true,
@@ -176,6 +223,7 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   })),
   notifications: savedPrivacySettings.notifications ?? true,
   twoFactor: savedPrivacySettings.twoFactor ?? false,
+  totpSecret: isEncrypted(savedPrivacySettings.totpSecret) ? null : (savedPrivacySettings.totpSecret ?? null),
   proxyEnabled: savedPrivacySettings.proxy ?? false,
   spamFilter: savedPrivacySettings.spamFilter ?? true,
   pwaBanner: savedPrivacySettings.pwaBanner ?? true,
@@ -220,6 +268,10 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setTwoFactor: (v) => {
     set({ twoFactor: v });
     persistSetting('twoFactor', v);
+  },
+  setTotpSecret: (secret) => {
+    set({ totpSecret: secret });
+    persistSetting('totpSecret', secret);
   },
   setProxyEnabled: (v) => {
     set({ proxyEnabled: v });
@@ -361,10 +413,26 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   lockApp: () => set({ appLocked: true }),
   unlockApp: () => set({ appLocked: false }),
   updateSettings: (settings) => {
-    set((state: any) => ({ ...state, ...settings }));
+    const allowed: Record<string, unknown> = {};
+    for (const key of Object.keys(settings)) {
+      if (UPDATE_ALLOWLIST.has(key)) allowed[key] = settings[key];
+    }
+    set((state: any) => ({ ...state, ...allowed }));
     try {
       const prev = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
-      localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify({ ...prev, ...settings }));
+      const next = { ...prev, ...allowed };
+      localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(next));
+      for (const [key, value] of Object.entries(allowed)) {
+        if (ENCRYPTED_KEYS.has(key) && typeof value === 'string' && value) {
+          encryptPersistValue(value)
+            .then((enc) => {
+              const current = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
+              current[key] = enc;
+              localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(current));
+            })
+            .catch(() => { /* key not ready — plaintext fallback stays */ });
+        }
+      }
     } catch {}
   },
   setOnlineStatus: (status) => set({ onlineStatus: status, isOnline: status }),
@@ -374,8 +442,9 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setShareRecording: (enabled) => set({ shareRecording: enabled }),
   setDraftsEnabled: (enabled) => { set({ draftsEnabled: enabled }); persistSetting('draftsEnabled', enabled); },
   setOfflineMode: (enabled) => { set({ offlineMode: enabled }); persistSetting('offlineMode', enabled); },
-    saveAudioRecordings: savedPrivacySettings.saveAudioRecordings ?? false,
-  saveVideoRecordings: savedPrivacySettings.saveVideoRecordings ?? false,
+    saveAudioRecordings: savedPrivacySettings.saveAudioRecordings ?? true,
+  saveVideoRecordings: savedPrivacySettings.saveVideoRecordings ?? true,
+  autoRecordCalls: savedPrivacySettings.autoRecordCalls ?? true,
   recordingsRetentionDays: savedPrivacySettings.recordingsRetentionDays ?? 0,
   setSaveAudioRecordings: (enabled) => {
     set({ saveAudioRecordings: enabled });
@@ -384,6 +453,10 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setSaveVideoRecordings: (enabled) => {
     set({ saveVideoRecordings: enabled });
     persistSetting('saveVideoRecordings', enabled);
+  },
+  setAutoRecordCalls: (enabled) => {
+    set({ autoRecordCalls: enabled });
+    persistSetting('autoRecordCalls', enabled);
   },
   setRecordingsRetentionDays: (days) => {
     set({ recordingsRetentionDays: days });

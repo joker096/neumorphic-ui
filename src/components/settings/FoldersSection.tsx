@@ -34,11 +34,11 @@ const ICON_MAP: Record<FolderIcon, React.ReactNode> = {
 };
 
 const INCLUDE_OPTIONS = [
-  { id: 'private', label: 'Private chats' },
-  { id: 'groups', label: 'Groups' },
-  { id: 'channels', label: 'Channels' },
-  { id: 'bots', label: 'Bots' },
-  { id: 'muted', label: 'Muted' },
+  { id: 'private', labelKey: 'settings.privateChats', fallback: 'Private chats' },
+  { id: 'groups', labelKey: 'settings.groups', fallback: 'Groups' },
+  { id: 'channels', labelKey: 'settings.channels', fallback: 'Channels' },
+  { id: 'bots', labelKey: 'settings.bots', fallback: 'Bots' },
+  { id: 'muted', labelKey: 'settings.muted', fallback: 'Muted' },
 ];
 
 const DEFAULT_FOLDERS: Folder[] = [
@@ -48,9 +48,16 @@ const DEFAULT_FOLDERS: Folder[] = [
   { id: 'archive', name: 'Archive', icon: 'archive', includes: [], badge: 'none' },
 ];
 
+const defaultFolderName = (f: Folder, t: (key: string, fallback?: string) => string) =>
+  f.id === 'all' ? t('settings.folderDefault.all', 'All')
+    : f.id === 'personal' ? t('settings.folderDefault.personal', 'Personal')
+    : f.id === 'work' ? t('settings.folderDefault.work', 'Work')
+    : f.id === 'archive' ? t('settings.folderDefault.archive', 'Archive')
+    : f.name;
+
 export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionProps) => {
   const { t } = useI18n();
-  const [folders, setFolders] = useState<Folder[]>(DEFAULT_FOLDERS);
+  const [folders, setFolders] = useState<Folder[]>(() => DEFAULT_FOLDERS.map(f => ({ ...f, name: defaultFolderName(f, t) })));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftName, setDraftName] = useState('');
   const [draftIncludes, setDraftIncludes] = useState<string[]>([]);
@@ -63,7 +70,7 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
 
   const saveEdit = () => {
     if (!editingId) return;
-    const name = draftName.trim() || 'Folder';
+    const name = draftName.trim() || t('settings.folderFallback', 'Folder');
     setFolders(prev => prev.map(f => (f.id === editingId ? { ...f, name, includes: draftIncludes } : f)));
     setEditingId(null);
     toast(t('settings.folderSaved', 'Folder updated'), 'success');
@@ -81,8 +88,9 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
 
   const addFolder = () => {
     const id = `custom-${Date.now()}`;
-    setFolders(prev => [...prev, { id, name: 'New folder', icon: 'custom', includes: ['private'], badge: 'all' }]);
-    startEdit({ id, name: 'New folder', icon: 'custom', includes: ['private'], badge: 'all' });
+    const newName = t('settings.newFolder', 'New folder');
+    setFolders(prev => [...prev, { id, name: newName, icon: 'custom', includes: ['private'], badge: 'all' }]);
+    startEdit({ id, name: newName, icon: 'custom', includes: ['private'], badge: 'all' });
   };
 
   const toggleInclude = (id: string) => {
@@ -106,7 +114,7 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
       <SettingsGroup isDark={isDark}>
         {folders.map((f, i) => (
           <div key={f.id}>
-            {i > 0 && <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />}
+            {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
             {editingId === f.id ? (
               <div className="px-4 py-3">
                 <div className="flex items-center gap-2 mb-3">
@@ -127,7 +135,7 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
                       onClick={() => toggleInclude(opt.id)}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full min-h-11 transition-colors ${draftIncludes.includes(opt.id) ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
                     >
-                      {opt.label}
+                      {t(opt.labelKey, opt.fallback)}
                     </button>
                   ))}
                 </div>
@@ -140,7 +148,7 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{f.name}</div>
-                  <button onClick={() => cycleBadge(f.id)} aria-label={`${t('settings.badge', 'Badge')}: ${badgeLabel(f.badge)}`} title={`${t('settings.badge', 'Badge')}: ${badgeLabel(f.badge)}`} className={`w-9 h-9 min-w-11 flex items-center justify-center rounded-lg transition-colors ${isDark ? "text-gray-400 hover:text-[var(--accent)]" : "text-slate-500 hover:text-[var(--accent)]"}`}>
+                  <button onClick={() => cycleBadge(f.id)} aria-label={`${t('settings.badge', 'Badge')}: ${badgeLabel(f.badge)}`} title={`${t('settings.badge', 'Badge')}: ${badgeLabel(f.badge)}`} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors ${isDark ? "text-gray-400 hover:text-[var(--accent)]" : "text-slate-500 hover:text-[var(--accent)]"}`}>
                     <BadgeCheck size={16} />
                     <span className="sr-only">{`${t('settings.badge', 'Badge')}: ${badgeLabel(f.badge)}`}</span>
                   </button>

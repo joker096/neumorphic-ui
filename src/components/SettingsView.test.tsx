@@ -339,7 +339,6 @@ describe('SettingsView', () => {
 
     expect(screen.getByText('Advanced')).toBeInTheDocument();
     expect(screen.getByText('Proxy & Network')).toBeInTheDocument();
-    expect(screen.getByText('Spam Protection')).toBeInTheDocument();
     expect(screen.getByText('System Status')).toBeInTheDocument();
   });
 

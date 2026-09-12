@@ -12,7 +12,6 @@ const NetworkSection = React.lazy(() => import('./NetworkSection').then(m => ({ 
 const DevicesSection = React.lazy(() => import('./DevicesSection').then(m => ({ default: m.DevicesSection })));
 const SecuritySection = React.lazy(() => import('./SecuritySection').then(m => ({ default: m.SecuritySection })));
 const BotsSection = React.lazy(() => import('./BotsSection').then(m => ({ default: m.BotsSection })));
-const SpamSection = React.lazy(() => import('./SpamSection').then(m => ({ default: m.SpamSection })));
 const SystemStatusSection = React.lazy(() => import('./SystemStatusSection').then(m => ({ default: m.SystemStatusSection })));
 const StorageSection = React.lazy(() => import('./StorageSection').then(m => ({ default: m.StorageSection })));
 const NotificationsSection = React.lazy(() => import('./NotificationsSection').then(m => ({ default: m.NotificationsSection })));
@@ -48,35 +47,17 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     setNotificationsEnabled,
     soundEnabled,
     setSoundEnabled,
-    proxyEnabled,
-    setProxyEnabled,
-    spamFilterEnabled,
-    setSpamFilterEnabled,
-    showPwaBanner,
-    setShowPwaBanner,
     mediaAutoLoad,
     setMediaAutoLoad,
     selfDestructDefault,
     setSelfDestructDefault,
     obfuscationEnabled,
     setObfuscationEnabled,
-    obfuscationMode,
-    setObfuscationMode,
-    proxyUrl,
-    setProxyUrl,
-    torBridge,
-    setTorBridge,
     turnServerUrl,
     relayBackend,
     setRelayBackend,
     autoReconnectEnabled,
     setAutoReconnectEnabled,
-    p2pMeshEnabled,
-    setP2pMeshEnabled,
-    visNumber,
-    setVisNumber,
-    visActivity,
-    setVisActivity,
     uiAnimations,
     setUiAnimations,
     themeMode,
@@ -91,12 +72,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     setMessageRadius,
     animationIntensity,
     setAnimationIntensity,
-    profilePhotoVisibility,
-    setProfilePhotoVisibility,
-    callsVisibility,
-    setCallsVisibility,
-    messagesFrom,
-    setMessagesFrom,
     dndEnabled,
     setDndEnabled,
     dndFrom,
@@ -150,8 +125,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       cloudSync={cloudSync}
       setCloudSyncEnabled={setCloudSyncEnabled}
       language={language}
-      proxyEnabled={proxyEnabled}
-      spamFilterEnabled={spamFilterEnabled}
     />
   );
 
@@ -176,8 +149,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setMessageRadius={setMessageRadius}
       animationIntensity={animationIntensity}
       setAnimationIntensity={setAnimationIntensity}
-      showPwaBanner={showPwaBanner}
-      setShowPwaBanner={setShowPwaBanner}
       onBack={() => setActiveSection('main')}
     />
   );
@@ -213,10 +184,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       <PrivacySection
         isDark={isDark}
         premium={premiumEntitlement.premium}
-      visNumber={visNumber}
-      setVisNumber={setVisNumber}
-      visActivity={visActivity}
-      setVisActivity={setVisActivity}
       dndEnabled={dndEnabled}
       setDndEnabled={setDndEnabled}
       dndFrom={dndFrom}
@@ -243,12 +210,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setMediaAutoLoad={setMediaAutoLoad}
       selfDestructDefault={selfDestructDefault}
       setSelfDestructDefault={setSelfDestructDefault}
-      profilePhotoVisibility={profilePhotoVisibility}
-      setProfilePhotoVisibility={setProfilePhotoVisibility}
-      callsVisibility={callsVisibility}
-      setCallsVisibility={setCallsVisibility}
-      messagesFrom={messagesFrom}
-      setMessagesFrom={setMessagesFrom}
       onUpdateSettings={updateSettings}
       onBack={() => setActiveSection('main')}
       t={t}
@@ -258,23 +219,13 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
   const renderNetworkSettings = () => (
     <NetworkSection
       isDark={isDark}
-      proxyEnabled={proxyEnabled}
-      setProxyEnabled={setProxyEnabled}
-      proxyUrl={proxyUrl}
-      setProxyUrl={setProxyUrl}
       obfuscationEnabled={obfuscationEnabled}
       setObfuscationEnabled={setObfuscationEnabled}
-      obfuscationMode={obfuscationMode}
-      setObfuscationMode={setObfuscationMode}
-      torBridge={torBridge}
-      setTorBridge={setTorBridge}
       turnServerUrl={turnServerUrl}
       relayBackend={relayBackend}
       setRelayBackend={setRelayBackend}
       autoReconnectEnabled={autoReconnectEnabled}
       setAutoReconnectEnabled={setAutoReconnectEnabled}
-      p2pMeshEnabled={p2pMeshEnabled}
-      setP2pMeshEnabled={setP2pMeshEnabled}
       onUpdateSettings={updateSettings}
       onBack={() => setActiveSection('main')}
       t={t}
@@ -286,16 +237,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       isDark={isDark}
       bots={bots}
       setBots={setBots}
-      onBack={() => setActiveSection('main')}
-      t={t}
-    />
-  );
-
-  const renderSpamSettings = () => (
-    <SpamSection
-      isDark={isDark}
-      spamFilterEnabled={spamFilterEnabled}
-      setSpamFilterEnabled={setSpamFilterEnabled}
       onBack={() => setActiveSection('main')}
       t={t}
     />
@@ -343,7 +284,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'privacy' && renderPrivacySettings()}
       {activeSection === 'network' && <Suspense fallback={fallback}>{renderNetworkSettings()}</Suspense>}
       {activeSection === 'bots' && <Suspense fallback={fallback}>{renderBotsSettings()}</Suspense>}
-      {activeSection === 'spam' && <Suspense fallback={fallback}>{renderSpamSettings()}</Suspense>}
       {activeSection === 'systemStatus' && <Suspense fallback={fallback}>{renderSystemStatusSettings()}</Suspense>}
       {activeSection === 'company' && <Suspense fallback={fallback}>{renderCompanySettings()}</Suspense>}
       {activeSection === 'companyGuide' && <Suspense fallback={fallback}>{renderCompanyGuideSettings()}</Suspense>}

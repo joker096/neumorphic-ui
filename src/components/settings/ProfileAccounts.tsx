@@ -106,7 +106,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                     type="button"
                     aria-label={t('settings.editAccount', 'Edit account')}
                     onClick={(e) => startEdit(e, acc)}
-                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-gray-500 hover:text-[var(--accent)] hover:bg-white/5" : "text-slate-400 hover:text-[var(--accent)] hover:bg-slate-200"}`}
+                    className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-gray-500 hover:text-[var(--accent)] hover:bg-white/5" : "text-slate-400 hover:text-[var(--accent)] hover:bg-slate-200"}`}
                   >
                     <Pencil size={14} />
                   </button>
@@ -119,13 +119,13 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                       e.stopPropagation();
                       setPendingDeleteId(acc.id);
                     }}
-                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-gray-500 hover:text-red-400 hover:bg-white/5" : "text-slate-400 hover:text-red-600 hover:bg-slate-200"}`}
+                    className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-gray-500 hover:text-red-400 hover:bg-white/5" : "text-slate-400 hover:text-red-600 hover:bg-slate-200"}`}
                   >
                     <Trash2 size={14} />
                   </button>
                 )}
                 {activeId === acc.id && editingId !== acc.id && (
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 "bg-[var(--accent-soft)] text-[var(--accent)]"`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-[var(--accent-soft)] text-[var(--accent)]`}>
                     <Check size={14} strokeWidth={2.5} />
                   </div>
                 )}
@@ -150,9 +150,9 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
           ) : (
             <div
               onClick={() => setShowAddInput(true)}
-              className={`flex items-center gap-3 p-3 shrink-0 rounded-2xl cursor-pointer transition-colors min-h-11 "hover:bg-[var(--hover-bg-dark)] text-[var(--accent)]"`}
+              className={`flex items-center gap-3 p-3 shrink-0 rounded-2xl cursor-pointer transition-colors min-h-11 hover:bg-[var(--hover-bg-dark)] text-[var(--accent)]`}
             >
-              <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center "bg-[var(--accent-soft)]"`}>
+              <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-[var(--accent-soft)]`}>
                 <Plus size={20} />
               </div>
               <span className="text-sm font-bold">{t('settings.addAccount', 'Add Account')}</span>

@@ -1,15 +1,11 @@
 import { useState } from 'react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
-import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, UserCheck, UserX, Check, X, MessageSquare, Wifi, WifiOff, Share, FileText, Download, Clock, Phone } from 'lucide-react';
+import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, Check, X, MessageSquare, Wifi, WifiOff, Share, FileText, Download, Clock } from 'lucide-react';
 import { TextInputModal } from '../settings/TextInputModal';
 
 interface PrivacySectionProps {
   isDark?: boolean;
-  visNumber: string;
-  setVisNumber: (v: string) => void;
-  visActivity: string;
-  setVisActivity: (v: string) => void;
   dndEnabled: boolean;
   setDndEnabled: (v: boolean) => void;
   dndFrom?: string;
@@ -34,29 +30,23 @@ interface PrivacySectionProps {
   setForwardCountLimit?: (v: number) => void;
   onUpdateSettings: (settings: Record<string, unknown>) => void;
   onBack: () => void;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
   mediaAutoLoad?: string;
   setMediaAutoLoad?: (v: string) => void;
   selfDestructDefault?: string;
   setSelfDestructDefault?: (v: string) => void;
-  profilePhotoVisibility?: string;
-  setProfilePhotoVisibility?: (v: string) => void;
-  callsVisibility?: string;
-  setCallsVisibility?: (v: string) => void;
-  messagesFrom?: string;
-  setMessagesFrom?: (v: string) => void;
   premium?: boolean;
 }
 
 export const PrivacySection = ({
-  isDark = false, visNumber, setVisNumber, visActivity, setVisActivity,
+  isDark = false,
   dndEnabled, setDndEnabled, dndFrom, setDndFrom, dndTo, setDndTo,
   priorityContacts, setPriorityContacts,
   stealthMode, anonymousMode, deliveryReceipts, readReceipts, typingIndicators,
   ghostViewMode, forwardAnonymization, onlineStatus, allowForwarding, setAllowForwarding,
   allowMetadata, setAllowMetadata, forwardCountLimit, setForwardCountLimit,
   onUpdateSettings, onBack, t, mediaAutoLoad, setMediaAutoLoad, selfDestructDefault, setSelfDestructDefault,
-  profilePhotoVisibility, setProfilePhotoVisibility, callsVisibility, setCallsVisibility, messagesFrom, setMessagesFrom, premium
+  premium
 }: PrivacySectionProps) => {
   const [showPriorityModal, setShowPriorityModal] = useState(false);
   const handlePrioritySave = (name: string) => {
@@ -80,21 +70,23 @@ export const PrivacySection = ({
     if (setSelfDestructDefault) setSelfDestructDefault(next);
   };
 
+  const mediaAutoLoadLabel = (v: string) =>
+    v === 'Off' ? t('settings.autoLoad.never', 'Off')
+      : v === 'Wi-Fi' ? t('settings.autoLoad.wifi', 'Wi-Fi')
+      : v === 'Always' ? t('settings.autoLoad.always', 'Always')
+      : v;
+
+  const selfDestructLabel = (v: string) =>
+    v === 'Off' ? t('settings.selfDestruct.off', 'Off')
+      : v === '1 min' ? t('settings.selfDestruct.1min', '1 min')
+      : v === '5 min' ? t('settings.selfDestruct.5min', '5 min')
+      : v === '1 hour' ? t('settings.selfDestruct.1hour', '1 hour')
+      : v === '1 day' ? t('settings.selfDestruct.1day', '1 day')
+      : v;
+
   return (
     <SubView key="privacy" title={t('settings.privacy')} isDark={isDark} onBack={onBack}>
       <SettingsGroup isDark={isDark} className="mb-6">
-        <SettingsRow
-          title={t('settings.whoSeesNumber')}
-          value={visNumber}
-          isDark={isDark}
-          onClick={() => setVisNumber(visNumber === t('settings.visibility.none') ? t('settings.visibility.contacts') : visNumber === t('settings.visibility.contacts') ? t('settings.visibility.everyone') : t('settings.visibility.none'))}
-        />
-        <SettingsRow
-          title={t('settings.lastSeen')}
-          value={visActivity}
-          isDark={isDark}
-          onClick={() => setVisActivity(visActivity === t('settings.visibility.none') ? t('settings.visibility.contacts') : visActivity === t('settings.visibility.everyone') ? t('settings.visibility.none') : t('settings.visibility.contacts'))}
-        />
         <SettingsRow
           title={t('settings.ghostViewMode')}
           subtitle={t('settings.ghostViewModeSubtitle')}
@@ -149,7 +141,7 @@ export const PrivacySection = ({
             iconColor={isDark ? "text-cyan-400" : "text-cyan-600"}
             title={t('settings.mediaAutoLoad')}
             subtitle={t('settings.mediaAutoLoadSubtitle')}
-            value={mediaAutoLoad as string}
+            value={mediaAutoLoadLabel(mediaAutoLoad as string)}
             isDark={isDark}
             onClick={cycleMediaAutoLoad}
           />
@@ -161,7 +153,7 @@ export const PrivacySection = ({
             iconColor="t-accent"
             title={t('settings.selfDestructDefault')}
             subtitle={premium ? t('settings.selfDestructDefaultSubtitle') : t('premium.gatingSelfDestruct')}
-            value={selfDestructDefault as string}
+            value={selfDestructLabel(selfDestructDefault as string)}
             isDark={isDark}
             onClick={cycleSelfDestructDefault}
           />
@@ -215,42 +207,6 @@ export const PrivacySection = ({
             isDark={isDark}
             rightElement={<ToggleSwitch isOn={onlineStatus} onToggle={() => onUpdateSettings({ onlineStatus: !onlineStatus })} isDark={isDark} onIcon={<Wifi size={14} />} offIcon={<WifiOff size={14} />} ariaLabel={t('settings.onlineStatus')} />}
             onClick={() => onUpdateSettings({ onlineStatus: !onlineStatus })}
-          />
-        )}
-        {profilePhotoVisibility !== undefined && setProfilePhotoVisibility && (
-          <SettingsRow
-            icon={<UserCheck size={16} />}
-            iconBg={isDark ? "bg-pink-500/10" : "bg-pink-100"}
-            iconColor={isDark ? "text-pink-400" : "text-pink-600"}
-            title={t('settings.profilePhotoVisibility')}
-            subtitle={t('settings.profilePhotoVisibilitySubtitle')}
-            value={profilePhotoVisibility as string}
-            isDark={isDark}
-            onClick={() => setProfilePhotoVisibility(profilePhotoVisibility === 'everyone' ? 'contacts' : profilePhotoVisibility === 'contacts' ? 'nobody' : 'everyone')}
-          />
-        )}
-        {callsVisibility !== undefined && setCallsVisibility && (
-          <SettingsRow
-            icon={<Phone size={16} />}
-            iconBg={isDark ? "bg-blue-500/10" : "bg-blue-100"}
-            iconColor={isDark ? "text-blue-400" : "text-blue-600"}
-            title={t('settings.callsVisibility')}
-            subtitle={t('settings.callsVisibilitySubtitle')}
-            value={callsVisibility as string}
-            isDark={isDark}
-            onClick={() => setCallsVisibility(callsVisibility === 'everyone' ? 'contacts' : callsVisibility === 'contacts' ? 'nobody' : 'everyone')}
-          />
-        )}
-        {messagesFrom !== undefined && setMessagesFrom && (
-          <SettingsRow
-            icon={<MessageSquare size={16} />}
-            iconBg={isDark ? "bg-indigo-500/10" : "bg-indigo-100"}
-            iconColor={isDark ? "text-indigo-400" : "text-indigo-600"}
-            title={t('settings.whoCanMessage')}
-            subtitle={t('settings.whoCanMessageSubtitle')}
-            value={messagesFrom as string}
-            isDark={isDark}
-            onClick={() => setMessagesFrom(messagesFrom === 'everyone' ? 'contacts' : 'everyone')}
           />
         )}
         {allowForwarding !== undefined && setAllowForwarding && (
