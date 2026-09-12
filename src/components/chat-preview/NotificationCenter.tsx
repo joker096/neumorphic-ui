@@ -27,12 +27,12 @@ const SETTING_KEYS: { key: keyof NotificationSettings; labelKey: string; label: 
   { key: "mobile", labelKey: "notif.settings.mobile", label: "Mobile" },
 ];
 
-function relTime(ts: number): string {
+function relTime(ts: number, t: (k: string, o?: any) => string): string {
   const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 60) return "now";
-  if (s < 3600) return `${Math.floor(s / 60)}m`;
-  if (s < 86400) return `${Math.floor(s / 3600)}h`;
-  return `${Math.floor(s / 86400)}d`;
+  if (s < 60) return t("notif.relNow", "now");
+  if (s < 3600) return t("notif.relMin", { n: Math.floor(s / 60) });
+  if (s < 86400) return t("notif.relHour", { n: Math.floor(s / 3600) });
+  return t("notif.relDay", { n: Math.floor(s / 86400) });
 }
 
 export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: string, o?: any) => string }) {
@@ -53,9 +53,16 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
   // up/down flip when there is no room below the bell button.
   React.useLayoutEffect(() => {
     if (!open || !btnRef.current) return;
-    const r = btnRef.current.getBoundingClientRect();
-    const flip = r.bottom + 400 > window.innerHeight;
-    setPos({ top: flip ? r.top - 8 : r.bottom + 8, right: Math.max(8, window.innerWidth - r.right), flip });
+    const calc = () => {
+      const b = btnRef.current;
+      if (!b) return;
+      const r = b.getBoundingClientRect();
+      const flip = r.bottom + 400 > window.innerHeight;
+      setPos({ top: flip ? r.top - 8 : r.bottom + 8, right: Math.max(8, window.innerWidth - r.right), flip });
+    };
+    calc();
+    window.addEventListener("resize", calc);
+    return () => window.removeEventListener("resize", calc);
   }, [open]);
 
   const requestPerm = () => {
@@ -83,9 +90,9 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
 
       {open && (
         <>
-          <div className="fixed inset-0 z-[90]" onClick={() => setOpen(false)} aria-hidden />
+          <div className="fixed inset-0 z-[var(--z-tooltip)]" onClick={() => setOpen(false)} aria-hidden />
           <div
-            className={`fixed z-[95] w-[320px] max-w-[90vw] rounded-2xl shadow-2xl border border-black/10 ${isDark ? "bg-[var(--bg-secondary)] text-gray-100" : "bg-white text-slate-800"}`}
+            className={`fixed z-[var(--z-toast)] w-[320px] max-w-[90vw] rounded-2xl shadow-2xl border border-black/10 ${isDark ? "bg-[var(--bg-secondary)] text-gray-100" : "bg-white text-slate-800"}`}
             style={{ top: pos?.top, right: pos?.right, transform: pos?.flip ? "translateY(-100%)" : undefined }}
             role="dialog"
             aria-label={t("notif.title", "Notifications")}
@@ -156,7 +163,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
                           <div className="text-[13px] font-medium truncate">{n.title}</div>
                           {n.body && <div className="text-[12px] opacity-70 truncate">{n.body}</div>}
                         </div>
-                        <span className="text-[11px] opacity-50 flex-shrink-0">{relTime(n.createdAt)}</span>
+                        <span className="text-[11px] opacity-50 flex-shrink-0">{relTime(n.createdAt, t)}</span>
                       </button>
                     );
                   })

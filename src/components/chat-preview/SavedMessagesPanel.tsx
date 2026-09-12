@@ -21,7 +21,7 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-blur-sm"
+          className="absolute inset-0 z-[var(--z-dropdown)] flex items-end justify-center bg-black/40 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -31,7 +31,7 @@ export const SavedMessagesPanel = ({ show, isDark = false, chatSavedMessages, ch
               onClick={(e) => e.stopPropagation()}
               className={`${sheetSurface(isDark, "max-w-[760px] max-h-[78%] overflow-hidden border-x")}`}
             >
-            <div className={`p-4 flex items-center justify-between ${isDark ? "border-b border-[var(--border-color)]" : "border-b border-[var(--border-color)]"}`}>
+            <div className={`p-4 flex items-center justify-between ${"border-b border-[var(--border-color)]"}`}>
               <div>
                 <div className={`text-xs font-bold uppercase tracking-[0.2em] ${isDark ? "text-orange-400" : "text-orange-600"}`}>{t('chat.savedMessages')}</div>
                 <div className={`text-sm mt-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>{t('chat.savedItems', { n: chatSavedMessages.length, chatName })}</div>

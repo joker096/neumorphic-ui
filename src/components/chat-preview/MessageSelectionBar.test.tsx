@@ -11,6 +11,8 @@ describe('MessageSelectionBar', () => {
     onCancel: vi.fn(),
     onSelectAll: vi.fn(),
     onForward: vi.fn(),
+    onCopy: vi.fn(),
+    onSave: vi.fn(),
     onDelete: vi.fn(),
   };
 
@@ -24,16 +26,22 @@ describe('MessageSelectionBar', () => {
     fireEvent.click(screen.getByLabelText('chat.cancel'));
     fireEvent.click(screen.getByLabelText('chat.selectAll'));
     fireEvent.click(screen.getByLabelText('chat.forward'));
+    fireEvent.click(screen.getByLabelText('chat.copy'));
+    fireEvent.click(screen.getByLabelText('chat.save'));
     fireEvent.click(screen.getByLabelText('chat.delete'));
     expect(base.onCancel).toHaveBeenCalled();
     expect(base.onSelectAll).toHaveBeenCalled();
     expect(base.onForward).toHaveBeenCalled();
+    expect(base.onCopy).toHaveBeenCalled();
+    expect(base.onSave).toHaveBeenCalled();
     expect(base.onDelete).toHaveBeenCalled();
   });
 
-  it('disables forward and delete when count is zero', () => {
+  it('disables forward, copy, save and delete when count is zero', () => {
     render(<MessageSelectionBar {...base} count={0} />);
     expect(screen.getByLabelText('chat.forward')).toBeDisabled();
+    expect(screen.getByLabelText('chat.copy')).toBeDisabled();
+    expect(screen.getByLabelText('chat.save')).toBeDisabled();
     expect(screen.getByLabelText('chat.delete')).toBeDisabled();
   });
 });

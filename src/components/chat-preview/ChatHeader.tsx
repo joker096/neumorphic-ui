@@ -1,5 +1,5 @@
-import React from "react";
-import { ChevronRight, Search, Phone, Video, Users } from "lucide-react";
+import React, { useState } from "react";
+import { ChevronRight, Search, Phone, Video, Users, MoreVertical } from "lucide-react";
 import { IconButton } from "../ui/IconButton";
 import { useAppStore } from "../../store";
 
@@ -28,10 +28,17 @@ interface ChatHeaderProps {
 }
 
 export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSearchToggle, onCall, onVideoCall, t, typing }: ChatHeaderProps) => {
+  const [moreOpen, setMoreOpen] = useState(false);
   const canCall = !(chat.type === "group" || chat.type === "channel" || chat.type === "bot" || chat.isChannel);
   const isChannelChat = chat.isChannel || chat.type === "channel";
   const subscriberCount = chat.subscriberCount ?? chat.subscribers ?? 0;
   const overrideAvatar = useAppStore((state) => state.contactAvatars)[chat.name];
+
+  const secondaryActions = [
+    canCall && onCall && { key: "call", icon: <Phone />, label: t("chat.startCall"), onClick: () => onCall(chat.name, chat.color) },
+    canCall && onVideoCall && { key: "video", icon: <Video />, label: t("chat.startVideoCall"), onClick: () => onVideoCall(chat.name, chat.color) },
+    onSearchToggle && { key: "search", icon: <Search />, label: t("chat.searchMessages"), onClick: () => onSearchToggle() },
+  ].filter(Boolean) as { key: string; icon: React.ReactNode; label: string; onClick: () => void }[];
   return (
     <div
       className={`px-2 sm:px-3 py-2 flex items-center gap-2 sm:gap-3 relative z-10 ${
@@ -81,7 +88,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <span
-              className={`font-bold text-[12px] sm:text-[13px] tracking-tight truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}
+              className={`font-bold text-[13px] sm:text-[14px] tracking-tight truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}
             >
               {chat.name}
             </span>
@@ -95,7 +102,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
                 </span>
                 <span
-                  className={`text-xs sm:text-xs font-medium tracking-wide italic truncate ${isDark ? "text-[var(--success)]" : "text-[var(--success)]"}`}
+                  className={`text-xs sm:text-xs font-medium tracking-wide italic truncate ${"text-[var(--success)]"}`}
                 >
                   {t("chat.typing")}
                 </span>
@@ -116,19 +123,19 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
               </span>
             ) : isChannelChat ? (
               <>
-                <Users size={12} className={`shrink-0 ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`} />
+                <Users size={12} className={`shrink-0 ${"text-[var(--accent)]"}`} />
                 <span
-                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${"text-[var(--accent)]/90"}`}
                 >
                   {t("chat.subscribers", { count: subscriberCount })}
                 </span>
                 <span
-                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${"text-[var(--accent)]/90"}`}
                 >
                   ·
                 </span>
                 <span
-                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${"text-[var(--accent)]/90"}`}
                 >
                   {t("chat.posts", { count: chat.postCount ?? chat.history?.length ?? 0 })}
                 </span>
@@ -139,7 +146,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
                   className={`w-1.5 h-1.5 rounded-full shrink-0 ${chat.online ? "bg-[var(--success)]" : "bg-gray-500"}`}
                 />
                 <span
-                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${isDark ? "text-[var(--accent)]/90" : "text-[var(--accent)]/90"}`}
+                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${"text-[var(--accent)]/90"}`}
                 >
                   {chat.online ? t("chat.filters.online") : t("chat.filters.offline")}
                 </span>
@@ -150,39 +157,86 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
       </div>
 
       {canCall && onCall && (
-        <IconButton
-          icon={<Phone />}
-          aria-label={t("chat.startCall")}
-          onClick={() => onCall(chat.name, chat.color)}
-          isDark={isDark}
-          variant="ghost"
-          size="md"
-          className="shrink-0 shadow-md shadow-black/10 dark:shadow-black/30"
-        />
+        <div className="shrink-0 hidden sm:block">
+          <IconButton
+            icon={<Phone />}
+            aria-label={t("chat.startCall")}
+            onClick={() => onCall(chat.name, chat.color)}
+            isDark={isDark}
+            variant="ghost"
+            size="md"
+            className="shadow-md shadow-black/10 dark:shadow-black/30"
+          />
+        </div>
       )}
 
       {canCall && onVideoCall && (
-        <IconButton
-          icon={<Video />}
-          aria-label={t("chat.startVideoCall")}
-          onClick={() => onVideoCall(chat.name, chat.color)}
-          isDark={isDark}
-          variant="ghost"
-          size="md"
-          className="shrink-0 shadow-md shadow-black/10 dark:shadow-black/30"
-        />
+        <div className="shrink-0 hidden sm:block">
+          <IconButton
+            icon={<Video />}
+            aria-label={t("chat.startVideoCall")}
+            onClick={() => onVideoCall(chat.name, chat.color)}
+            isDark={isDark}
+            variant="ghost"
+            size="md"
+            className="shadow-md shadow-black/10 dark:shadow-black/30"
+          />
+        </div>
       )}
 
       {onSearchToggle && (
-        <IconButton
-          icon={<Search />}
-          aria-label={t("chat.searchMessages")}
-          onClick={onSearchToggle}
-          isDark={isDark}
-          variant="ghost"
-          size="md"
-          className="shrink-0 shadow-md shadow-black/10 dark:shadow-black/30"
-        />
+        <div className="shrink-0 hidden sm:block">
+          <IconButton
+            icon={<Search />}
+            aria-label={t("chat.searchMessages")}
+            onClick={onSearchToggle}
+            isDark={isDark}
+            variant="ghost"
+            size="md"
+            className="shadow-md shadow-black/10 dark:shadow-black/30"
+          />
+        </div>
+      )}
+
+      {secondaryActions.length > 0 && (
+        <div className="relative shrink-0 sm:hidden">
+          <IconButton
+            icon={<MoreVertical />}
+            aria-label={t("chat.more")}
+            aria-expanded={moreOpen}
+            onClick={() => setMoreOpen((o) => !o)}
+            isDark={isDark}
+            variant="ghost"
+            size="md"
+            className="shadow-md shadow-black/10 dark:shadow-black/30"
+          />
+          {moreOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setMoreOpen(false)} aria-hidden="true" />
+              <div
+                className={`absolute right-0 top-full mt-2 z-50 min-w-[200px] rounded-xl border border-[var(--border-color)] p-1 shadow-xl overflow-hidden ${
+                  isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]" : "bg-white text-slate-800"
+                }`}
+                role="menu"
+              >
+                {secondaryActions.map((action) => (
+                  <button
+                    key={action.key}
+                    role="menuitem"
+                    onClick={() => {
+                      setMoreOpen(false);
+                      action.onClick();
+                    }}
+                    className="w-full min-h-11 flex items-center gap-2.5 px-3 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--bg-hover)] cursor-pointer"
+                  >
+                    {action.icon}
+                    <span>{action.label}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       )}
     </div>
   );

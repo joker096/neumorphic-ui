@@ -17,7 +17,7 @@ export const JumpToBottomButton = ({ isNearBottom, unreadSinceScroll, isDark, on
         exit={{ opacity: 0, y: 20, scale: 0.9 }}
         onClick={onScrollToBottom}
         className={`absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 rounded-full shadow-lg cursor-pointer ${
-          isDark ? 'bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110' : 'bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110'
+          'bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110'
         }`}
       >
         <ChevronDown size={16} strokeWidth={2.5} />

@@ -125,7 +125,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -202,39 +202,39 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             )}
 
             <div className="flex w-full flex-col items-center max-h-[85vh] overflow-y-auto scrollbar-none">
-            <div className={`w-24 h-24 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[40px] shadow-lg relative`}>
+            <div className={`w-20 h-20 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[32px] shadow-lg relative`}>
               {overrideAvatar ? (
                 <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover rounded-full" loading="lazy" decoding="async" />
               ) : (
                 contact.name.charAt(0)
               )}
               {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
-                <div className={`absolute bottom-0 right-0 w-6 h-6 rounded-full border-4 ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < ACTIVE_NOW_THRESHOLD_MS) ? "bg-green-500" : "bg-gray-400"}`} />
+                <div className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-[3px] ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < ACTIVE_NOW_THRESHOLD_MS) ? "bg-green-500" : "bg-gray-400"}`} />
               )}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                 className={`absolute -bottom-1 -left-1 w-11 h-11 rounded-full flex items-center justify-center shadow-lg bg-[var(--accent)] hover:brightness-110 text-[var(--text-primary)]`}
+                 className={`absolute -bottom-1 -left-1 min-w-11 min-h-11 rounded-full flex items-center justify-center shadow-lg bg-[var(--accent)] hover:brightness-110 text-[var(--text-primary)]`}
                 aria-label={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
                 title={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
               >
-                <Camera size={16} />
+                <Camera size={14} />
               </button>
               {overrideAvatar && (
                 <button
                   onClick={() => removeContactAvatar(contact.name)}
-                   className={`absolute -top-1 -left-1 w-11 h-11 rounded-full flex items-center justify-center shadow-lg bg-red-500 hover:bg-red-600 text-white`}
+                   className={`absolute -top-1 -left-1 min-w-11 min-h-11 rounded-full flex items-center justify-center shadow-lg bg-red-500 hover:bg-red-600 text-white`}
                   aria-label={t('contacts.removePhoto')}
                   title={t('contacts.removePhoto')}
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={12} />
                 </button>
               )}
               <button
                 onClick={() => { onEdit?.(); onClose(); }}
-                 className={`absolute -top-1 -right-1 w-11 h-11 rounded-full flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-lg`}
+                 className={`absolute -top-1 -right-1 min-w-11 min-h-11 rounded-full flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-lg`}
                 aria-label={t('contacts.edit')}
               >
-                <Edit size={14} />
+                <Edit size={12} />
               </button>
             </div>
             <input
@@ -244,15 +244,15 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               className="hidden"
               onChange={handleAvatarFileChange}
             />
-            <p className="text-xs text-[var(--text-tertiary)] text-center mt-2 max-w-[220px]">
+            <p className="text-[11px] text-[var(--text-tertiary)] text-center mt-1.5 max-w-[220px]">
               {t('contacts.profilePhotoNote')}
             </p>
 
-            <h2 className={`text-2xl font-bold mt-4 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
+            <h2 className={`text-xl font-bold mt-3 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
               {contact.name}
               <button
                 onClick={() => handleToggleFavorite(contact.id, contact.isFavorite || false)}
-                className={`p-1.5 rounded-full transition-all active:scale-90 ${contact.isFavorite ? (isDark ? "text-yellow-400 bg-white/10" : "text-yellow-500 bg-black/5") : (isDark ? "text-gray-500 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800")}`}
+                className={`min-w-11 min-h-11 flex items-center justify-center rounded-full transition-all active:scale-90 ${contact.isFavorite ? (isDark ? "text-yellow-400 bg-white/10" : "text-yellow-500 bg-black/5") : (isDark ? "text-gray-500 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800")}`}
                 title={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
                 aria-label={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
                 aria-pressed={contact.isFavorite}
@@ -348,7 +348,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                   <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.videoCall')}</span>
                 </button>
               </div>
-              <button onClick={() => { onMessage?.(); onClose(); }} className={`w-full h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] text-[var(--accent)] border border-[var(--accent-soft)]' : 'bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] text-[var(--accent)] border border-[var(--accent-soft)]'}`}>
+              <button onClick={() => { onMessage?.(); onClose(); }} className={`w-full h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${'bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] text-[var(--accent)] border border-[var(--accent-soft)]'}`}>
                 <MessageSquare size={20} fill="currentColor" />
                 <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.message')}</span>
               </button>

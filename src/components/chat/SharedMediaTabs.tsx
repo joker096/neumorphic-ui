@@ -10,10 +10,10 @@ interface SharedMediaTabsProps {
 }
 
 const TABS = [
-  { id: 'media', label: 'profile.tab.media', fallback: 'Media', icon: <ImageIcon size={16} /> },
-  { id: 'files', label: 'profile.tab.files', fallback: 'Files', icon: <FileText size={16} /> },
-  { id: 'links', label: 'profile.tab.links', fallback: 'Links', icon: <LinkIcon size={16} /> },
-  { id: 'voice', label: 'profile.tab.voice', fallback: 'Voice', icon: <Mic size={16} /> },
+  { id: 'media', label: 'profile.tab.media', fallback: 'Media', icon: <ImageIcon size={14} /> },
+  { id: 'files', label: 'profile.tab.files', fallback: 'Files', icon: <FileText size={14} /> },
+  { id: 'links', label: 'profile.tab.links', fallback: 'Links', icon: <LinkIcon size={14} /> },
+  { id: 'voice', label: 'profile.tab.voice', fallback: 'Voice', icon: <Mic size={14} /> },
 ];
 
 export const SharedMediaTabs = ({ messages, isDark, onOpenChat }: SharedMediaTabsProps) => {
@@ -35,12 +35,12 @@ export const SharedMediaTabs = ({ messages, isDark, onOpenChat }: SharedMediaTab
 
   return (
     <>
-      <div className="flex gap-2 overflow-x-auto">
+      <div className="flex gap-1.5 overflow-x-auto">
         {TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActive(tab.id)}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium min-h-9 whitespace-nowrap transition-colors ${active === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
+            className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium min-h-11 whitespace-nowrap transition-colors ${active === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
           >
             {tab.icon} {t(tab.label, tab.fallback)}
           </button>

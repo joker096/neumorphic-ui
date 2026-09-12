@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCheck, Forward, Trash2, X } from "lucide-react";
+import { Bookmark, CheckCheck, Copy, Forward, Trash2, X } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 
 interface MessageSelectionBarProps {
@@ -8,6 +8,8 @@ interface MessageSelectionBarProps {
   onCancel: () => void;
   onSelectAll: () => void;
   onForward: () => void;
+  onCopy: () => void;
+  onSave: () => void;
   onDelete: () => void;
 }
 
@@ -17,6 +19,8 @@ export const MessageSelectionBar: React.FC<MessageSelectionBarProps> = ({
   onCancel,
   onSelectAll,
   onForward,
+  onCopy,
+  onSave,
   onDelete,
 }) => {
   const { t } = useI18n();
@@ -40,6 +44,14 @@ export const MessageSelectionBar: React.FC<MessageSelectionBarProps> = ({
       <button onClick={onForward} disabled={count === 0} aria-label={t("chat.forward", "Forward")} title={t("chat.forward", "Forward")} className={barBtn(isDark ? "bg-[var(--bg-tertiary)] text-gray-300 hover:text-[var(--text-primary)] border border-[var(--border-color)] disabled:opacity-40" : "bg-white text-slate-600 hover:text-slate-800 border border-[var(--border-color)] shadow-sm disabled:opacity-40")}>
         <Forward size={16} />
         <span>{t("chat.forward", "Forward")}</span>
+      </button>
+      <button onClick={onCopy} disabled={count === 0} aria-label={t("chat.copy", "Copy")} title={t("chat.copy", "Copy")} className={barBtn(isDark ? "bg-[var(--bg-tertiary)] text-gray-300 hover:text-[var(--text-primary)] border border-[var(--border-color)] disabled:opacity-40" : "bg-white text-slate-600 hover:text-slate-800 border border-[var(--border-color)] shadow-sm disabled:opacity-40")}>
+        <Copy size={16} />
+        <span>{t("chat.copy", "Copy")}</span>
+      </button>
+      <button onClick={onSave} disabled={count === 0} aria-label={t("chat.save", "Save")} title={t("chat.save", "Save")} className={barBtn(isDark ? "bg-[var(--bg-tertiary)] text-gray-300 hover:text-[var(--text-primary)] border border-[var(--border-color)] disabled:opacity-40" : "bg-white text-slate-600 hover:text-slate-800 border border-[var(--border-color)] shadow-sm disabled:opacity-40")}>
+        <Bookmark size={16} />
+        <span>{t("chat.save", "Save")}</span>
       </button>
       <button onClick={onDelete} disabled={count === 0} aria-label={t("chat.delete", "Delete")} title={t("chat.delete", "Delete")} className={barBtn(isDark ? "bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-40" : "bg-red-500/10 text-red-600 hover:bg-red-500/20 disabled:opacity-40")}>
         <Trash2 size={16} />

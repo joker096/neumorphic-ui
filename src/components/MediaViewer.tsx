@@ -4,6 +4,7 @@ import { X, ZoomIn, ZoomOut, Download, Share2, Forward, Trash2, Bookmark, Play, 
 import { useI18n } from '../lib/i18n';
 import { CloseButton } from './ui/CloseButton';
 import { toast } from './ui/Toast';
+import { useBodyScrollLock } from '../lib/a11y';
 
 export type MediaKind = 'photo' | 'video' | 'document' | 'audio';
 
@@ -37,6 +38,7 @@ const meta = (m: MediaItem): { icon: React.ReactNode } => {
 };
 
 export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev, onNext, total, index }: MediaViewerProps) => {
+  useBodyScrollLock(true);
   const { t } = useI18n();
   const [scale, setScale] = useState(1);
   const [playing, setPlaying] = useState(false);

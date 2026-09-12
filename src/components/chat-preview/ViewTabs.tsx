@@ -14,7 +14,7 @@ interface ViewTabsProps {
 }
 
 export const ViewTabs = ({ view, isDark, onSelect, t }: ViewTabsProps) => (
-  <div className={`flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6 px-1 border-b pb-3 overflow-x-auto scrollbar-none shrink-0 ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+  <div className={`flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6 px-1 border-b pb-3 overflow-x-auto scrollbar-none shrink-0 ${"border-[var(--border-color)]"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
     {TABS.map((tab) => (
       <div
         key={tab.id}

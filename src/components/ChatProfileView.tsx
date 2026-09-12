@@ -41,10 +41,10 @@ interface ChatProfileViewProps {
 }
 
 const TABS = [
-  { id: 'media', label: 'profile.tab.media', fallback: 'Media', icon: <ImageIcon size={16} /> },
-  { id: 'files', label: 'profile.tab.files', fallback: 'Files', icon: <FileText size={16} /> },
-  { id: 'links', label: 'profile.tab.links', fallback: 'Links', icon: <LinkIcon size={16} /> },
-  { id: 'voice', label: 'profile.tab.voice', fallback: 'Voice', icon: <Mic size={16} /> },
+  { id: 'media', label: 'profile.tab.media', fallback: 'Media', icon: <ImageIcon size={14} /> },
+  { id: 'files', label: 'profile.tab.files', fallback: 'Files', icon: <FileText size={14} /> },
+  { id: 'links', label: 'profile.tab.links', fallback: 'Links', icon: <LinkIcon size={14} /> },
+  { id: 'voice', label: 'profile.tab.voice', fallback: 'Voice', icon: <Mic size={14} /> },
 ];
 
 export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage, onCall, onVideoCall }: ChatProfileViewProps) => {
@@ -128,18 +128,18 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
   };
 
   const actions = (
-    <div className="flex items-center gap-2 mt-4">
-      <button onClick={() => { onMessage?.(); onClose(); }} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--button-primary-text)] font-medium min-h-11 active:scale-95 transition-transform">
-        <MessageCircle size={18} /> {t('profile.message', 'Message')}
+    <div className="flex items-center gap-2 mt-3">
+      <button onClick={() => { onMessage?.(); onClose(); }} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-[var(--accent)] text-[var(--button-primary-text)] font-medium min-h-10 active:scale-95 transition-transform">
+        <MessageCircle size={16} /> {t('profile.message', 'Message')}
       </button>
       {kind !== 'channel' && (
-        <button onClick={() => { onCall?.(); onClose(); }} aria-label={t('profile.call')} className="shrink-0 w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
-          <Phone size={18} />
+        <button onClick={() => { onCall?.(); onClose(); }} aria-label={t('profile.call')} className="shrink-0 w-10 h-10 min-w-10 min-h-10 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
+          <Phone size={16} />
         </button>
       )}
       {kind === 'user' || kind === 'bot' ? (
-        <button onClick={() => { onVideoCall?.(); onClose(); }} aria-label={t('profile.video')} className="shrink-0 w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
-          <Video size={18} />
+        <button onClick={() => { onVideoCall?.(); onClose(); }} aria-label={t('profile.video')} className="shrink-0 w-10 h-10 min-w-10 min-h-10 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
+          <Video size={16} />
         </button>
       ) : (
         <button
@@ -148,14 +148,14 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
             toast(t('profile.notificationsOff', 'Muted for this chat'), 'info');
           }}
           aria-label={t('profile.mute')}
-          className="shrink-0 w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform"
+          className="shrink-0 w-10 h-10 min-w-10 min-h-10 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform"
         >
-          {isChatMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          {isChatMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </button>
       )}
       {kind === 'channel' && (
-        <button onClick={() => setShowInvite(true)} aria-label={t('invite')} className="shrink-0 w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
-          <UserPlus size={18} />
+        <button onClick={() => setShowInvite(true)} aria-label={t('invite')} className="shrink-0 w-10 h-10 min-w-10 min-h-10 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
+          <UserPlus size={16} />
         </button>
       )}
     </div>
@@ -170,7 +170,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 40 }}
           transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-          className="fixed inset-0 z-[130] flex items-stretch justify-center bg-black/40 md:bg-transparent"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-stretch justify-center bg-black/40 md:bg-transparent"
         >
           <div className={`absolute md:relative md:max-w-[420px] w-full h-full flex flex-col ${isDark ? "bg-[var(--bg-secondary)]" : "bg-white"} md:my-6 md:h-[calc(100%-3rem)] md:rounded-2xl md:border border-[var(--border-color)] md:shadow-2xl overflow-hidden`}>
             {/* Header */}
@@ -181,24 +181,24 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
 
             <div className="flex-1 overflow-y-auto scrollbar-none">
               {/* Identity */}
-              <div className="flex flex-col items-center text-center px-6 pt-6 pb-2">
-                <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${chat.color} flex items-center justify-center text-white text-[40px] font-bold shadow-lg relative`}>
+              <div className="flex flex-col items-center text-center px-5 pt-5 pb-2">
+                <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${chat.color} flex items-center justify-center text-white text-[32px] font-bold shadow-lg relative`}>
                   {chat.name.charAt(0)}
-                  {kind === 'bot' && <span className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[var(--accent)] flex items-center justify-center text-xs text-white border-2 border-white md:border-[var(--bg-secondary)]"><BotIcon size={16} /></span>}
+                  {kind === 'bot' && <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[var(--accent)] flex items-center justify-center text-[11px] text-white border-2 border-white md:border-[var(--bg-secondary)]"><BotIcon size={14} /></span>}
                 </div>
-                <div className={`mt-3 font-bold text-xl flex items-center gap-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
+                <div className={`mt-2.5 font-bold text-lg flex items-center gap-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
                   {chat.name}
-                  {chat.verified && <BadgeCheck size={20} className="text-[var(--accent)]" />}
+                  {chat.verified && <BadgeCheck size={18} className="text-[var(--accent)]" />}
                 </div>
-                <div className={`text-sm ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle()}</div>
-                {chat.username && <div className={`text-xs mt-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>@{chat.username}</div>}
+                <div className={`text-[13px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle()}</div>
+                {chat.username && <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>@{chat.username}</div>}
                 {kind === 'channel' && (
-                  <div className={`flex items-center gap-1 text-xs mt-1.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+                  <div className={`flex items-center gap-1 text-[11px] mt-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
                     {chat.isPublic ? <Globe size={12} /> : <Lock size={12} />}
                     <span>{chat.isPublic ? t('profile.channelPublic', 'Public channel') : t('profile.channelPrivate', 'Private channel')}</span>
                   </div>
                 )}
-                {chat.description && <div className={`mt-2 text-xs leading-relaxed ${isDark ? "text-gray-500" : "text-slate-400"}`}>{chat.description}</div>}
+                {chat.description && <div className={`mt-1.5 text-[11px] leading-relaxed ${isDark ? "text-gray-500" : "text-slate-400"}`}>{chat.description}</div>}
                 {actions}
               </div>
 
@@ -260,12 +260,12 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                 </div>
               ) : (
                 <div className="px-4 mt-5">
-                  <div className="flex gap-2 overflow-x-auto">
+                  <div className="flex gap-1.5 overflow-x-auto">
                     {TABS.map(tab => (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium min-h-9 whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium min-h-7 whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
                       >
                         {tab.icon} {t(tab.label, tab.fallback)}
                       </button>
@@ -400,7 +400,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
               cancelLabel={t('common.cancel', 'Cancel')}
               variant="danger"
               theme={isDark ? 'dark' : 'light'}
-              zIndex="z-[140]"
+              zIndex="z-[var(--z-modal-nested)]"
               onConfirm={() => { deleteGroup(chat.id); setDeleteOpen(false); toast(t('group.deleted', 'Group deleted'), 'success'); onClose(); }}
               onCancel={() => setDeleteOpen(false)}
             />
@@ -413,7 +413,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
               cancelLabel={t('common.cancel', 'Cancel')}
               variant="danger"
               theme={isDark ? 'dark' : 'light'}
-              zIndex="z-[140]"
+              zIndex="z-[var(--z-modal-nested)]"
               onConfirm={() => { leaveGroup(chat.id, userProfile.id); setLeaveOpen(false); toast(t('group.left', 'You left the group'), 'success'); onClose(); }}
               onCancel={() => setLeaveOpen(false)}
             />

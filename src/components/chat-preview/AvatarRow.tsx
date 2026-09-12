@@ -24,7 +24,7 @@ export const AvatarRow = ({ theme, onStoryClick, onComposeStory, t }: AvatarRowP
           onClick={() => onComposeStory && onComposeStory()}
           className="flex flex-col items-center gap-1 sm:gap-1.5 group cursor-pointer shrink-0"
         >
-          <div className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-95 ${isDark ? "bg-[#1f222a] border border-[var(--border-color)] border-dashed" : "bg-[var(--bg-primary)] border border-[var(--border-color)] border-dashed"}`}>
+          <div className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-95 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] border-dashed" : "bg-[var(--bg-primary)] border border-[var(--border-color)] border-dashed"}`}>
             <Plus size={20} className={isDark ? "text-gray-300 group-hover:text-[var(--text-primary)]" : "text-slate-500 group-hover:text-[var(--text-secondary)]"} />
           </div>
           <span className={`text-xs sm:text-xs font-semibold tracking-wide transition-colors ${isDark ? "text-gray-300 group-hover:text-gray-100" : "text-slate-500 group-hover:text-slate-800"}`}>

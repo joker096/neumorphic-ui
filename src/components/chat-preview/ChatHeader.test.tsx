@@ -110,4 +110,34 @@ describe('ChatHeader', () => {
     expect(screen.getByText('12 subscribers')).toBeInTheDocument();
     expect(screen.getByText('3 posts')).toBeInTheDocument();
   });
+
+  it('More menu reveals secondary actions and fires them', () => {
+    const onCall = vi.fn();
+    const onVideoCall = vi.fn();
+    const onSearchToggle = vi.fn();
+    render(
+      <ChatHeader
+        {...defaultProps}
+        onCall={onCall}
+        onVideoCall={onVideoCall}
+        onSearchToggle={onSearchToggle}
+      />,
+    );
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('chat.more'));
+    const video = screen.getByRole('menuitem', { name: 'chat.startVideoCall' });
+    expect(screen.getByRole('menuitem', { name: 'chat.startCall' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'chat.searchMessages' })).toBeInTheDocument();
+    fireEvent.click(video);
+    expect(onVideoCall).toHaveBeenCalledWith('Alice Johnson', 'from-purple-400 to-pink-600');
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('More menu closes on backdrop click', () => {
+    render(<ChatHeader {...defaultProps} onSearchToggle={vi.fn()} />);
+    fireEvent.click(screen.getByLabelText('chat.more'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    fireEvent.click(document.querySelector('div[aria-hidden="true"]') as HTMLElement);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
 });

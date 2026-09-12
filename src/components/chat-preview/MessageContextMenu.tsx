@@ -9,6 +9,7 @@ import {
   sheetCancelClass,
 } from "../ui/modalShared";
 import { useI18n } from "../../lib/i18n";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export interface MessageContextAction {
   key: string;
@@ -28,14 +29,7 @@ interface MessageContextMenuProps {
 
 export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, onClose, title, actions, isDark = false }) => {
   const { t } = useI18n();
-  React.useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  useEscapeKey(onClose, open);
 
   if (!open) return null;
 

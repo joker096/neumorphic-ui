@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { ComponentType } from "react";
 import { Pin, PinOff, BellOff, Bell, CheckCheck, Archive, ArchiveRestore, Trash2, CheckSquare } from "lucide-react";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export interface ContextMenuItem {
   id: string;
@@ -33,22 +34,26 @@ export const buildMenuIcon = (id: string) => ICONS[id] ?? Pin;
 
 export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items, onClose }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [, setSizeTick] = useState(0);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
+    const onResize = () => setSizeTick((t) => t + 1);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEscapeKey(onClose);
+
+  useEffect(() => {
     const onDown = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();
     };
     const onTouch = (e: TouchEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();
     };
-    window.addEventListener("keydown", onKey);
     window.addEventListener("mousedown", onDown);
     window.addEventListener("touchstart", onTouch);
     return () => {
-      window.removeEventListener("keydown", onKey);
       window.removeEventListener("mousedown", onDown);
       window.removeEventListener("touchstart", onTouch);
     };
@@ -56,7 +61,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
 
   if (anchor) {
     const width = 188;
-    const height = items.length * 44 + 8;
+    const height = items.length * 36 + 8;
     const x = Math.min(anchor.x, window.innerWidth - width - 8);
     const y = Math.min(anchor.y, window.innerHeight - height - 8);
     return (
@@ -77,7 +82,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
                 it.onClick();
                 onClose();
               }}
-              className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-left transition-colors min-h-11 cursor-pointer ${
+              className={`w-full flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium text-left transition-colors min-h-9 cursor-pointer ${
                 it.disabled
                   ? "opacity-40 cursor-not-allowed"
                   : it.danger
