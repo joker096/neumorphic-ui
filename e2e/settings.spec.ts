@@ -27,7 +27,6 @@ test.describe('Settings', () => {
       'Privacy',
       'Data and Storage',
       'Proxy and Network',
-      'Spam Protection',
       'System Status',
     ]) {
       await expect(page.getByText(text).first()).toBeVisible();
@@ -62,7 +61,7 @@ test.describe('Settings', () => {
     // Default is Medium from app defaults; clicking cycles
     await fontRow.click();
     await page.waitForTimeout(300);
-    const size = await page.locator('[data-font-size]').getAttribute('data-font-size');
+    const size = await page.locator('html').getAttribute('data-font-size');
     expect(size).toBeTruthy();
   });
 
@@ -120,11 +119,11 @@ test.describe('Settings', () => {
   test('privacy: visibility rows cycle values', async ({ page }) => {
     await gotoSettings(page);
     await openSettingsItem(page, 'Privacy');
-    const numberRow = page.getByText('Who can see my number').first();
+    const numberRow = page.getByText('Ghost View Mode').first();
     await expect(numberRow).toBeVisible();
     await numberRow.click();
     await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
-    await page.getByText('Who can see my last seen').first().click();
+    await page.getByText('Online Status').first().click();
     await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
   });
 
@@ -147,37 +146,30 @@ test.describe('Settings', () => {
     }
   });
 
-  test('network: proxy toggle reveals proxy url input', async ({ page }) => {
+  test('network: relay cycles and TURN server input accepts text', async ({ page }) => {
     await gotoSettings(page);
     await openSettingsItem(page, 'Proxy and Network');
-    await expect(page.getByText('Use Proxy').first()).toBeVisible();
-    const useProxyRow = page.getByText('Use Proxy').first();
-    const switchEl = useProxyRow
-      .locator('xpath=ancestor::*[self::div or self::button][1]')
-      .locator('[role="switch"]')
-      .first();
-    if (await switchEl.count()) {
-      const before = await switchEl.getAttribute('aria-checked');
-      if (before !== 'true') {
-        await switchEl.click();
-      }
-      await expect(
-        page.getByPlaceholder('socks5://127.0.0.1:9050')
-      ).toBeVisible({ timeout: 5000 });
-      // leave proxy on is harmless; revert to previous anyway
-      if (before !== 'true') await switchEl.click();
-    } else {
-      await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
-    }
+    await expect(page.getByText('Relay Backend').first()).toBeVisible();
+    const relayRow = page.getByText('Relay Backend').first();
+    await relayRow.click();
+    await expect(page.getByText(/direct|cfworker|domainfront|peertunnel/).first()).toBeVisible();
+    await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
+
+    const turn = page.getByPlaceholder('turn:example.com:3478');
+    await expect(turn).toBeVisible();
+    await turn.fill('turn:e2e.local:3478');
+    await expect(turn).toHaveValue('turn:e2e.local:3478');
+    await turn.fill('');
+    await expect(turn).toHaveValue('');
   });
 
-  test('network: obfuscation and relay rows are present', async ({ page }) => {
+  test('network: live transport rows are present', async ({ page }) => {
     await gotoSettings(page);
     await openSettingsItem(page, 'Proxy and Network');
     await expect(page.getByText('Obfuscation').first()).toBeVisible();
     await expect(page.getByText('Relay Backend').first()).toBeVisible();
-    await expect(page.getByText('Tor Bridge').first()).toBeVisible();
-    await expect(page.getByText('P2P Mesh Mode').first()).toBeVisible();
+    await expect(page.getByText('Auto-reconnect').first()).toBeVisible();
+    await expect(page.getByText('TURN Server').first()).toBeVisible();
   });
 
   test('storage: clear cache shows confirm modal (cancellable)', async ({ page }) => {

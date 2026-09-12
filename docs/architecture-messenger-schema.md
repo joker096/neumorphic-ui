@@ -26,6 +26,7 @@ src/main.tsx
 Owns application state and orchestration only:
 
 - theme and language state
+- boot-time appearance sync (`useAppearanceEffects` → `documentElement`: accent/chat-bg/density/radius/animation; `useAppSettings` mirrors `data-font-size`)
 - current view and active chat
 - message input, draft, reply, schedule, voice, sticker, and filter state
 - contact profile and edit modal state

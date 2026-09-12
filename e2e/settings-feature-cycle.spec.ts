@@ -8,13 +8,14 @@ import { gotoSettings, ensureAppReady, openSettingsViaProfile } from './test-uti
  * Part A — every [role="switch"] in a section must have a non-empty
  *          accessible name and must flip (aria-checked) and revert cleanly.
  *          PIN/biometric switches are visibility-checked only (they open a
- *          PIN input panel / trigger WebAuthn registration).
- * Part B — cycle rows (Font size, Relay backend, Tor bridge, Obfuscation mode,
- *          Auto-load media, Auto-wipe) must change value on click and return
- *          to the original value.
+ *          PIN input panel / trigger WebAuthn registration). Two-Factor
+ *          Authentication is visibility-checked only too (its toggle opens
+ *          the TOTP setup panel).
+ * Part B — cycle rows (Font size, Relay backend, Auto-load media) must change
+ *          value on click and return to the original value.
  * Part C — the Idle lock select must change and restore.
- * Part D — text inputs (TURN server, proxy URL) must accept and clear input.
- * Part E — a stateful toggle (Spam Filter) must survive a reload.
+ * Part D — text inputs (TURN server) must accept and clear input.
+ * Part E — a stateful toggle (Auto-reconnect) must survive a reload.
  *
  * Every test traps uncaught page errors and fails if any occur.
  */
@@ -22,7 +23,7 @@ import { gotoSettings, ensureAppReady, openSettingsViaProfile } from './test-uti
 const main = (page: Page) => page.getByRole('main');
 
 /** Switches that must NOT be flipped: they open a PIN panel / WebAuthn. */
-const SKIP_NAMES = ['PIN Lock', 'Fingerprint unlock'];
+const SKIP_NAMES = ['PIN Lock', 'Fingerprint unlock', 'Two-Factor Authentication'];
 
 async function trapErrors(page: Page) {
   const errors: string[] = [];
@@ -121,7 +122,7 @@ test.describe('Settings feature cycle', () => {
     await assertNoErrors();
   });
 
-  test('Security: safe switches flip, Idle lock select works, Auto-wipe cycles', async ({ page }) => {
+  test('Security: safe switches flip, Idle lock select works', async ({ page }) => {
     const assertNoErrors = await trapErrors(page);
     await gotoSettings(page);
     await openSection(page, 'Security');
@@ -141,8 +142,6 @@ test.describe('Settings feature cycle', () => {
     await select.selectOption(before);
     await expect(select).toHaveValue(before);
 
-    // Part B: Dead Man's Switch cycle row.
-    await auditCycleRow(page, 'Auto-wipe (Dead Man\'s Switch)');
     await backToMainMenu(page);
     await assertNoErrors();
   });
@@ -183,20 +182,12 @@ test.describe('Settings feature cycle', () => {
     await assertNoErrors();
   });
 
-  test('Proxy and Network: switches flip, relay cycles back, inputs accept text', async ({ page }) => {
+  test('Proxy and Network: switches flip, relay cycles back, TURN input works', async ({ page }) => {
     const assertNoErrors = await trapErrors(page);
     await gotoSettings(page);
     await openSection(page, 'Proxy and Network');
     await auditSwitches(page, 'Proxy and Network');
     await auditCycleRow(page, 'Relay Backend');
-    await auditCycleRow(page, 'Tor Bridge');
-
-    // Obfuscation mode row is only visible while the Obfuscation switch is ON.
-    const obfuscation = main(page).getByRole('switch', { name: 'Obfuscation', exact: true });
-    const obfBefore = await obfuscation.getAttribute('aria-checked');
-    if (obfBefore !== 'true') await obfuscation.click();
-    await auditCycleRow(page, 'Obfuscation Mode');
-    if (obfBefore !== 'true') await obfuscation.click();
 
     // Part D: TURN server input (always visible).
     const turn = main(page).getByPlaceholder('turn:example.com:3478');
@@ -206,27 +197,15 @@ test.describe('Settings feature cycle', () => {
     await turn.fill('');
     await expect(turn).toHaveValue('');
 
-    // Part D: proxy URL input — visible only while Use Proxy is ON.
-    const proxy = main(page).getByRole('switch', { name: 'Use Proxy', exact: true });
-    const proxyBefore = await proxy.getAttribute('aria-checked');
-    if (proxyBefore !== 'true') await proxy.click();
-    const proxyUrl = main(page).getByPlaceholder('socks5://127.0.0.1:9050');
-    await expect(proxyUrl).toBeVisible({ timeout: 5000 });
-    await proxyUrl.fill('socks5://e2e.local:9050');
-    await expect(proxyUrl).toHaveValue('socks5://e2e.local:9050');
-    await proxyUrl.fill('');
-    await expect(proxyUrl).toHaveValue('');
-    if (proxyBefore !== 'true') await proxy.click();
-
     await backToMainMenu(page);
     await assertNoErrors();
   });
 
-  test('Spam Protection: switch flips and survives reload', async ({ page }) => {
+  test('Network: Auto-reconnect switch flips and survives reload', async ({ page }) => {
     const assertNoErrors = await trapErrors(page);
     await gotoSettings(page);
-    await openSection(page, 'Spam Protection');
-    const sw = main(page).getByRole('switch', { name: 'Spam Filter' });
+    await openSection(page, 'Proxy and Network');
+    const sw = main(page).getByRole('switch', { name: 'Auto-reconnect', exact: true });
     await expect(sw).toBeVisible({ timeout: 5000 });
     const before = await sw.getAttribute('aria-checked');
     await sw.click();
@@ -236,8 +215,8 @@ test.describe('Settings feature cycle', () => {
     await page.goto('/?e2e=1', { waitUntil: 'domcontentloaded' });
     await ensureAppReady(page);
     await openSettingsViaProfile(page);
-    await openSection(page, 'Spam Protection');
-    const reloaded = main(page).getByRole('switch', { name: 'Spam Filter' });
+    await openSection(page, 'Proxy and Network');
+    const reloaded = main(page).getByRole('switch', { name: 'Auto-reconnect', exact: true });
     await expect(reloaded).toHaveAttribute('aria-checked', before === 'true' ? 'false' : 'true', {
       timeout: 5000,
     });

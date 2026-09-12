@@ -79,7 +79,8 @@ Tracking: base body `letter-spacing: -0.005em`; custom `--tracking-wide/wider/wi
 ## Icons
 
 - Family: `lucide-react` only. Raw inline `<svg>` is forbidden except for the `FormActions` loading spinner.
-- Stroke: base `strokeWidth={2}` (lucide default). Emphasis `strokeWidth={2.5}` allowed for active/pressed state and tiny glyphs (≤14px).
+- **`AppIcon` wrapper** (`src/components/ui/AppIcon.tsx`): normalized lucide rendering. Props: `icon` (lucide component), `size` (default 16), `active` (boolean — boosts strokeWidth to 2.5), `filled` (boolean — sets fill=currentColor for select icons). Auto-strokeWidth: 2 base, 2.5 when `size ≤ 14` or `active`. Type `AppIconSource = ComponentType<{size?, strokeWidth?, fill?, className?}>` — all icon-bearing component props should accept this type.
+- Stroke: base `strokeWidth={2}` (lucide default). Emphasis `strokeWidth={2.5}` allowed for active/pressed state and tiny glyphs (≤14px). AppIcon handles this automatically.
 - Optical size scale (px, passed via `size`):
 
 | Size | Use |
@@ -98,10 +99,34 @@ Tracking: base body `letter-spacing: -0.005em`; custom `--tracking-wide/wider/wi
 
 ## Neumorphic Shadows
 
-- Raised dark: `3px 3px 6px #0d1017, -3px -3px 6px #1f232b`
-- Inset dark: `inset 3px 3px 6px #0d1017, inset -3px -3px 6px #1f232b`
-- Raised light: `3px 3px 6px #d1d9e6, -3px -3px 6px #ffffff`
-- Inset light: `inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff`
+All shadow values defined as CSS custom properties in `src/styles/tokens.css` (dark + light themes).
+
+### Token Reference
+
+| Token | Dark Value | Light Value |
+|-------|-----------|-------------|
+| `--neo-shadow-out` | `-7px -7px 16px rgba(255,255,255,0.035)` | `-7px -7px 16px rgba(255,255,255,0.9)` |
+| `--neo-shadow-in` | `7px 7px 16px rgba(0,0,0,0.55)` | `7px 7px 16px rgba(148,163,184,0.45)` |
+| `--neo-shadow-out-sm` | `-3px -3px 7px rgba(255,255,255,0.03)` | `-3px -3px 7px rgba(255,255,255,0.9)` |
+| `--neo-shadow-in-sm` | `3px 3px 7px rgba(0,0,0,0.5)` | `3px 3px 7px rgba(148,163,184,0.4)` |
+| `--neo-shadow-inset` | `inset 4px 4px 10px rgba(0,0,0,0.6), inset -4px -4px 10px rgba(255,255,255,0.025)` | `inset 4px 4px 10px rgba(148,163,184,0.5), inset -4px -4px 10px rgba(255,255,255,0.9)` |
+| `--neo-shadow-inset-sm` | `inset 2px 2px 5px rgba(0,0,0,0.55), inset -2px -2px 5px rgba(255,255,255,0.02)` | `inset 2px 2px 5px rgba(148,163,184,0.45), inset -2px -2px 5px rgba(255,255,255,0.9)` |
+| `--inset-field-shadow` | `inset 0 2px 4px 0 rgba(0,0,0,0.4)` | `inset 0 1px 2px 0 rgba(0,0,0,0.15)` |
+| `--shadow-btn-primary` | `0 8px 24px -8px var(--accent)` | `0 8px 24px -8px var(--accent)` |
+| `--shadow-btn-primary-pressed` | `0 2px 8px -4px var(--accent)` | `0 2px 8px -4px var(--accent)` |
+
+### CSS Classes
+
+| Class | Purpose | Shadow Used |
+|-------|---------|-------------|
+| `.neo-raised` | True neumorphic raised (call screens) | `--neo-shadow-out` + `--neo-shadow-in` |
+| `.neo-raised-sm` | Small neumorphic raised | `--neo-shadow-out-sm` + `--neo-shadow-in-sm` |
+| `.neo-pressed` | True neumorphic pressed | `--neo-shadow-inset` |
+| `.neo-circle` | Circular call buttons | `--neo-shadow-out-sm` + `--neo-shadow-in-sm` |
+| `.neu-raised` | App-wide raised surface (panels, cards, modals) | `--neo-shadow-out-sm` + `--neo-shadow-in-sm` |
+| `.neu-inset` | App-wide inset surface | `--neo-shadow-inset-sm` |
+| `.neu-card-inset` | Card/section inset | `--neo-shadow-inset-sm` |
+| `.neu-input` | Input fields | `--inset-field-shadow` (+ ring on focus) |
 
 ## Accessibility
 
