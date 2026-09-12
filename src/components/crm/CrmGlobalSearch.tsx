@@ -114,7 +114,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
         ) : null}
       </div>
       {open && q && groups && (
-        <div className="absolute left-0 right-0 top-full mt-1 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-lg z-[140] overflow-hidden">
+        <div className="absolute left-0 right-0 top-full mt-1 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-lg z-[var(--z-dropdown)] overflow-hidden">
           {!hasAny && (
             <div className="px-3 py-3 text-xs text-[var(--text-secondary)]">{t('crm.noResults', CRM_FALLBACKS.noResults)}</div>
           )}

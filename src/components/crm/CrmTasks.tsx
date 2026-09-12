@@ -224,7 +224,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
         cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
-        zIndex="z-[130]"
+        zIndex="z-[var(--z-modal-nested)]"
         onConfirm={() => {
           if (confirmTaskId) removeTask(confirmTaskId);
           setConfirmTaskId(null);

@@ -6,6 +6,7 @@ import { useI18n } from '../../lib/i18n';
 import { DEPARTMENT_COLORS, departmentColorAt } from '../../constants/companyConstants';
 import { FormField } from '../ui/FormField';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 type DepartmentModalProps = {
   department: CompanyDepartment | null;
@@ -42,6 +43,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
   const [memberIds, setMemberIds] = useState<string[]>(department?.memberIds || []);
   const [saving, setSaving] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
+  useEscapeKey(onClose);
 
   const colorSwatch = (isDark ? 'border-white/30' : 'border-black/10');
 
@@ -82,7 +84,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
   const panelBg = isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]";
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
 <button
   type="button"
@@ -203,7 +205,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
         cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
-        zIndex="z-[130]"
+        zIndex="z-[var(--z-modal-nested)]"
         onConfirm={handleConfirmRemove}
         onCancel={() => setConfirmRemove(false)}
       />

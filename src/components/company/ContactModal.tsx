@@ -5,6 +5,7 @@ import type { CompanyContact, CompanyDepartment } from '../../types/constants';
 import { useI18n } from '../../lib/i18n';
 import { FormField } from '../ui/FormField';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 type ContactModalProps = {
   contact: CompanyContact | null;
@@ -34,6 +35,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   const [notes, setNotes] = useState(contact?.notes || '');
   const [saving, setSaving] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
+  useEscapeKey(onClose);
 
   const handleSave = () => {
     const trimmed = name.trim();
@@ -80,7 +82,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   const panelBg = isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]";
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
 <button
   type="button"
@@ -196,7 +198,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
         cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
-        zIndex="z-[130]"
+        zIndex="z-[var(--z-modal-nested)]"
         onConfirm={handleConfirmRemove}
         onCancel={() => setConfirmRemove(false)}
       />

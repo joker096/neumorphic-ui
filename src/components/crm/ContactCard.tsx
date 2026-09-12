@@ -288,7 +288,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
         cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
-        zIndex="z-[130]"
+        zIndex="z-[var(--z-modal-nested)]"
         onConfirm={handleConfirmRemove}
         onCancel={() => setConfirmRemove(false)}
       />

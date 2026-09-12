@@ -65,34 +65,14 @@ export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRol
 
   return (
     <div className="flex flex-col gap-2 px-2 mb-3">
-      <div className="hidden md:flex flex-wrap items-center gap-2">
-        {renderSelects(false)}
-        <button
-          type="button"
-          onClick={() => setFilter('assignedToMe', !filters.assignedToMe)}
-          className={assignedCls}
-        >
-          {t('crm.assignedToMe', CRM_FALLBACKS.assignedToMe)}
-        </button>
-        {onOpenRoles && (
-          <button
-            type="button"
-            onClick={() => onOpenRoles()}
-            title={t('crm.manageCategories', CRM_FALLBACKS.manageCategories)}
-            aria-label={t('crm.manageCategories', CRM_FALLBACKS.manageCategories)}
-            className="min-h-11 w-11 shrink-0 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer self-center"
-          >
-            <Settings2 size={14} />
-          </button>
-        )}
-      </div>
+      {/* Toggle button — always visible */}
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => setOpen((prev) => !prev)}
         aria-label={t('crm.filters', CRM_FALLBACKS.filters)}
-        className="md:hidden flex items-center gap-2 min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] cursor-pointer"
+        className="flex items-center gap-2 min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] cursor-pointer"
       >
-        <SlidersHorizontal size={16} className="text-[var(--text-secondary)]" />
+        <SlidersHorizontal size={16} className={`text-[var(--text-secondary)] transition-transform ${open ? 'rotate-90' : ''}`} />
         <span className="text-xs font-bold">{t('crm.filters', CRM_FALLBACKS.filters)}</span>
         {activeCount > 0 && (
           <span data-testid="crm-filter-badge" className="ml-1 text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--accent)] text-white">
@@ -100,11 +80,38 @@ export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRol
           </span>
         )}
       </button>
+
+      {/* Desktop: inline selects */}
+      {open && (
+        <div className="hidden md:flex flex-wrap items-center gap-2">
+          {renderSelects(false)}
+          <button
+            type="button"
+            onClick={() => setFilter('assignedToMe', !filters.assignedToMe)}
+            className={assignedCls}
+          >
+            {t('crm.assignedToMe', CRM_FALLBACKS.assignedToMe)}
+          </button>
+          {onOpenRoles && (
+            <button
+              type="button"
+              onClick={() => onOpenRoles()}
+              title={t('crm.manageCategories', CRM_FALLBACKS.manageCategories)}
+              aria-label={t('crm.manageCategories', CRM_FALLBACKS.manageCategories)}
+              className="min-h-11 w-11 shrink-0 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer self-center"
+            >
+              <Settings2 size={14} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Mobile: bottom sheet */}
       {open && (
         <div
           role="dialog"
           aria-label={t('crm.filters', CRM_FALLBACKS.filters)}
-          className="md:hidden fixed bottom-0 left-0 right-0 z-[140] bg-[var(--bg-secondary)] border-t border-[var(--border-color)] rounded-t-2xl p-3 flex flex-col gap-3"
+          className="md:hidden fixed bottom-0 left-0 right-0 z-[var(--z-drawer)] bg-[var(--bg-secondary)] border-t border-[var(--border-color)] rounded-t-2xl p-3 flex flex-col gap-3"
         >
           <div className="flex flex-col gap-2">
             {renderSelects(true)}

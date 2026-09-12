@@ -28,6 +28,8 @@ vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
 }));
 
+const toggleFilters = () => fireEvent.click(screen.getByRole('button', { name: /Filters/ }));
+
 describe('CrmFilterBar', () => {
   beforeEach(() => {
     state.crmFilters = { search: '', role: 'all', departmentId: 'all', status: 'all', tag: 'all', assignedToMe: false };
@@ -35,32 +37,47 @@ describe('CrmFilterBar', () => {
     state.resetCrmFilters.mockClear();
   });
 
-  it('renders desktop selects and mobile trigger', () => {
+  it('renders toggle button and badge, hides selects initially', () => {
     render(<CrmFilterBar />);
-    expect(screen.getAllByRole('combobox')).toHaveLength(4);
     expect(screen.getByRole('button', { name: /Filters/ })).toBeTruthy();
+    expect(screen.queryAllByRole('combobox')).toHaveLength(0);
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('toggles filter selects visible on click', () => {
+    render(<CrmFilterBar />);
+    toggleFilters();
+    // jsdom renders both desktop inline + mobile sheet selects
+    expect(screen.getAllByRole('combobox').length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('toggles filter selects hidden on second click', () => {
+    render(<CrmFilterBar />);
+    toggleFilters();
+    expect(screen.getAllByRole('combobox').length).toBeGreaterThanOrEqual(4);
+    toggleFilters();
+    expect(screen.queryAllByRole('combobox')).toHaveLength(0);
   });
 
   it('opens the filter sheet and closes it via done', () => {
     render(<CrmFilterBar />);
-    fireEvent.click(screen.getByRole('button', { name: /Filters/ }));
+    toggleFilters();
     const dialog = screen.getByRole('dialog', { name: 'Filters' });
-    expect(within(dialog).getAllByRole('combobox')).toHaveLength(4);
+    expect(within(dialog).getAllByRole('combobox').length).toBeGreaterThanOrEqual(4);
     fireEvent.click(within(dialog).getByRole('button', { name: /Done/ }));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('resets filters and closes the sheet', () => {
     render(<CrmFilterBar />);
-    fireEvent.click(screen.getByRole('button', { name: /Filters/ }));
+    toggleFilters();
     const dialog = screen.getByRole('dialog', { name: 'Filters' });
     fireEvent.click(within(dialog).getByRole('button', { name: /Reset/ }));
     expect(state.resetCrmFilters).toHaveBeenCalled();
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('shows the active filter badge on the mobile trigger', () => {
+  it('shows the active filter badge on the toggle button', () => {
     state.crmFilters = { ...state.crmFilters, role: 'manager', tag: 'hot' };
     render(<CrmFilterBar />);
     expect(screen.getByTestId('crm-filter-badge')).toHaveTextContent('2');
@@ -68,7 +85,7 @@ describe('CrmFilterBar', () => {
 
   it('toggles assigned-to-me from the sheet', () => {
     render(<CrmFilterBar />);
-    fireEvent.click(screen.getByRole('button', { name: /Filters/ }));
+    toggleFilters();
     const dialog = screen.getByRole('dialog', { name: 'Filters' });
     fireEvent.click(within(dialog).getByRole('button', { name: /Assigned to me/ }));
     expect(state.setCrmFilter).toHaveBeenCalledWith('assignedToMe', true);
@@ -76,6 +93,7 @@ describe('CrmFilterBar', () => {
 
   it('role select lists system roles and writes filter', () => {
     render(<CrmFilterBar />);
+    toggleFilters();
     const roleSelect = screen.getAllByRole('combobox')[0] as HTMLSelectElement;
     expect(roleSelect.value).toBe('all');
     expect(Array.from(roleSelect.options).map((o) => o.textContent)).toEqual(
@@ -87,6 +105,7 @@ describe('CrmFilterBar', () => {
 
   it('department select lists departments and writes filter', () => {
     render(<CrmFilterBar />);
+    toggleFilters();
     const departmentSelect = screen.getAllByRole('combobox')[1] as HTMLSelectElement;
     expect(Array.from(departmentSelect.options).map((o) => o.textContent)).toEqual([
       'Department: All',
@@ -99,6 +118,7 @@ describe('CrmFilterBar', () => {
 
   it('status select lists contact statuses and writes filter', () => {
     render(<CrmFilterBar />);
+    toggleFilters();
     const statusSelect = screen.getAllByRole('combobox')[2] as HTMLSelectElement;
     expect(Array.from(statusSelect.options).map((o) => o.value)).toEqual([
       'all', 'lead', 'client', 'partner', 'vendor', 'internal', 'vip',
@@ -109,6 +129,7 @@ describe('CrmFilterBar', () => {
 
   it('tag select is built from contact tags (deduped, empty filtered)', () => {
     render(<CrmFilterBar />);
+    toggleFilters();
     const tagSelect = screen.getAllByRole('combobox')[3] as HTMLSelectElement;
     expect(Array.from(tagSelect.options).map((o) => o.value)).toEqual([
       'all', 'vip', 'hot', 'cold',
@@ -120,6 +141,7 @@ describe('CrmFilterBar', () => {
   it('reflects current filter values from store', () => {
     state.crmFilters = { search: 'q', role: 'manager', departmentId: 'dep1', status: 'lead', tag: 'hot', assignedToMe: true };
     const { unmount } = render(<CrmFilterBar />);
+    toggleFilters();
     const selects = screen.getAllByRole('combobox');
     expect((selects[0] as HTMLSelectElement).value).toBe('manager');
     expect((selects[1] as HTMLSelectElement).value).toBe('dep1');
@@ -130,12 +152,14 @@ describe('CrmFilterBar', () => {
 
   it('omits manage-departments button without onOpenRoles', () => {
     render(<CrmFilterBar />);
+    toggleFilters();
     expect(screen.queryByRole('button', { name: 'Manage departments' })).toBeNull();
   });
 
   it('renders manage-departments button and calls onOpenRoles', () => {
     const onOpenRoles = vi.fn();
     render(<CrmFilterBar onOpenRoles={onOpenRoles} />);
+    toggleFilters();
     fireEvent.click(screen.getByRole('button', { name: 'Manage departments' }));
     expect(onOpenRoles).toHaveBeenCalledTimes(1);
   });
@@ -143,6 +167,7 @@ describe('CrmFilterBar', () => {
   it('manage-departments button keeps 44px tap target (no flex-shrink)', () => {
     const onOpenRoles = vi.fn();
     render(<CrmFilterBar onOpenRoles={onOpenRoles} />);
+    toggleFilters();
     const btn = screen.getByRole('button', { name: 'Manage departments' });
     expect(btn.className).toContain('min-h-11');
     expect(btn.className).toContain('w-11');

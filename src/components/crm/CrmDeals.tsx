@@ -8,6 +8,7 @@ import { CRM_FALLBACKS, CRM_STAGE_LOST, DEAL_STAGES } from '../../constants/crmC
 import type { Deal, DealStage } from '../../lib/crm/types';
 import { DealModal } from './CrmDealModal';
 import { useCrmPermissions } from '../../lib/crm/permissions';
+import { DataState } from '../ui/DataState';
 
 const fmt = (amount: number, currency: string) =>
   new Intl.NumberFormat('ru-RU', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
@@ -76,7 +77,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
       </div>
 
       {deals.length === 0 && (
-        <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noDeals', CRM_FALLBACKS.noDeals)}</div>
+        <DataState status="empty" title={t('crm.noDeals', CRM_FALLBACKS.noDeals)} />
       )}
 
       <div className="flex flex-col gap-3">

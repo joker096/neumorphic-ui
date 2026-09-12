@@ -53,6 +53,11 @@ export const CrmRoles: React.FC = () => {
           </div>
         )}
         <div className="flex flex-col gap-2 px-2">
+          {departments.length === 0 && (
+            <div className="text-xs text-[var(--text-secondary)] p-3 rounded-2xl border border-dashed border-[var(--border-color)] text-center">
+              {t('crm.noDepartments', 'No departments yet. Add the first one.')}
+            </div>
+          )}
           {departments.map((d) => (
             <div key={d.id} className="flex items-center gap-3 p-3 rounded-2xl border border-[var(--border-color)]">
               <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${d.color} shrink-0`} />
@@ -72,7 +77,7 @@ export const CrmRoles: React.FC = () => {
                 </select>
               )}
               {can('manageDepartments') && (
-                <button onClick={() => setConfirm({ type: 'department', id: d.id })} className="text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0">
+                <button onClick={() => setConfirm({ type: 'department', id: d.id })} aria-label={t('crm.deleteDepartment', 'Delete department')} title={t('crm.deleteDepartment', 'Delete department')} className="min-w-11 min-h-11 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0 rounded-xl">
                   <Trash2 size={16} />
                 </button>
               )}
@@ -95,6 +100,11 @@ export const CrmRoles: React.FC = () => {
           </div>
         )}
         <div className="flex flex-col gap-3 px-2">
+          {customRoles.length === 0 && (
+            <div className="text-xs text-[var(--text-secondary)] p-3 rounded-2xl border border-dashed border-[var(--border-color)] text-center">
+              {t('crm.noRoles', 'No custom roles yet. Create one to fine-tune access.')}
+            </div>
+          )}
           {customRoles.map((r) => (
             <div key={r.id} className="p-3 rounded-2xl border border-[var(--border-color)]">
               <div className="flex items-center gap-2 mb-3">
@@ -104,7 +114,7 @@ export const CrmRoles: React.FC = () => {
                   <span className="flex-1 font-bold text-sm text-[var(--text-primary)]">{r.name}</span>
                 )}
                 {can('manageRoles') && (
-                  <button onClick={() => setConfirm({ type: 'role', id: r.id })} className="text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0">
+                  <button onClick={() => setConfirm({ type: 'role', id: r.id })} aria-label={t('crm.deleteRole', 'Delete role')} title={t('crm.deleteRole', 'Delete role')} className="min-w-11 min-h-11 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0 rounded-xl">
                     <Trash2 size={16} />
                   </button>
                 )}
@@ -171,7 +181,7 @@ export const CrmRoles: React.FC = () => {
         cancelIcon={<X />}
         variant="danger"
         theme={isDark ? 'dark' : 'light'}
-        zIndex="z-[130]"
+        zIndex="z-[var(--z-modal-nested)]"
         onConfirm={() => {
           if (confirm?.type === 'department' && confirm.id) removeDepartment(confirm.id);
           else if (confirm?.type === 'role' && confirm.id) removeCustomRole(confirm.id);

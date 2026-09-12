@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ChannelItem } from './ChannelItem';
 import type { CompanyChannel } from '../../lib/company/types';
 import { CHANNEL_GRADIENTS, DEFAULT_CHANNEL_GRADIENT } from '../../constants/companyConstants';
+import { DataState } from '../ui/DataState';
 
 type ChannelListProps = {
   isDark?: boolean;
@@ -20,6 +21,9 @@ export const ChannelList = ({ isDark = false, channels, channelsLabel, onChannel
         <span className="truncate">{channelsLabel}</span>
       </div>
 
+      {channels.length === 0 && (
+        <DataState status="empty" title={t('company.noChannels')} />
+      )}
       <div className="flex flex-col gap-2">
         <AnimatePresence>
           {channels.map((channel, i) => (

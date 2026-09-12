@@ -81,7 +81,7 @@ export const CrmExportMenu: React.FC<Props> = ({ contacts, departments, deals, t
         <span className="sr-only">{t('crm.export', CRM_FALLBACKS.export)}</span>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-lg z-[140] overflow-hidden min-w-[190px]">
+        <div className="absolute right-0 top-full mt-1 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-lg z-[var(--z-dropdown)] overflow-hidden min-w-[190px]">
           {items.map((item) => (
             <button
               key={item.label}

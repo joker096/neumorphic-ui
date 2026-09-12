@@ -54,7 +54,7 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={selectable ? onToggleSelect : onClick}
-      className={`w-full flex items-center gap-3 p-3 md:p-3 rounded-2xl cursor-pointer transition-all active:scale-95 min-h-[56px] ${isDark ? "hover:bg-[var(--list-item-hover-bg)]" : "hover:bg-[var(--list-item-hover-bg)]"}`}
+      className={`w-full flex items-center gap-3 p-3 md:p-3 rounded-2xl cursor-pointer transition-all active:scale-95 min-h-[56px] ${"hover:bg-[var(--list-item-hover-bg)]"}`}
     >
       <div className="relative shrink-0">
         <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm`}>

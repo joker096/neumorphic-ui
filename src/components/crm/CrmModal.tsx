@@ -1,6 +1,7 @@
 import React, { ReactNode, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useFocusTrap } from '../../lib/a11y';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 const closeBtn = (onClick: () => void, label: string) => (
   <button
@@ -23,9 +24,10 @@ type ModalProps = {
 export const CrmModal: React.FC<ModalProps> = ({ onClose, title, children, footer, maxWidth = 'max-w-[420px]' }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   useFocusTrap(dialogRef, true);
+  useEscapeKey(onClose);
 
   return (
-  <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={title} className={`w-full ${maxWidth} max-h-[90vh] flex flex-col shadow-2xl relative rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)]`}>
       {closeBtn(onClose, 'Close')}
       <h3 className="text-xl font-bold px-6 pt-5 pb-3 text-[var(--text-primary)]">{title}</h3>

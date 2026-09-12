@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Users, TrendingUp, CheckSquare, ShieldCheck, UserPlus, Upload } from 'lucide-react';
+import { Crown, Users, TrendingUp, CheckSquare, ShieldCheck, UserPlus, Upload } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
+import { getAvailableCrmTabs } from '../../config/premium';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
 import { CrmPeople } from './CrmPeople';
 import { CrmDeals } from './CrmDeals';
@@ -28,10 +29,12 @@ type Props = {
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
   onMessage?: (name: string, color?: string) => void;
+  onOpenPremium?: () => void;
 };
 
-export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => {
+export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage, onOpenPremium }) => {
   const { t } = useI18n();
+  const premium = Boolean(useAppStore((s) => s.premiumEntitlement?.premium));
   const ensureCrmSeed = useAppStore((s) => s.ensureCrmSeed);
   const userId = useAppStore((s) => s.userProfile.id);
   const userName = useAppStore((s) => s.userProfile.name);
@@ -48,6 +51,12 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
   useEffect(() => {
     void ensureCrmSeed(userId, userName).catch(() => {});
   }, [ensureCrmSeed, userId, userName]);
+
+  const availableTabs = getAvailableCrmTabs(premium);
+
+  useEffect(() => {
+    if (!premium && tab !== 'people') setTab('people');
+  }, [premium, tab]);
 
   const roleLabel = me?.role === 'admin' ? t('crm.roleAdmin', CRM_FALLBACKS.roleAdmin)
     : me?.role === 'manager' ? t('crm.roleManager', CRM_FALLBACKS.roleManager)
@@ -73,36 +82,53 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <CrmExportMenu contacts={contacts} departments={departments} deals={deals} tasks={tasks} />
-          <button
-            onClick={() => setImportOpen(true)}
-            aria-label={t('crm.import.title', 'Import CRM data')}
-            title={t('crm.import.title', 'Import CRM data')}
-            className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
-          >
-            <Upload size={16} aria-hidden="true" />
-            <span className="sr-only">{t('crm.import.title', 'Import CRM data')}</span>
-          </button>
-          {can('manageCompany') && (
-            <button
-              onClick={() => setInviteOpen(true)}
-              aria-label={t('crm.invite', CRM_FALLBACKS.invite)}
-              title={t('crm.invite', CRM_FALLBACKS.invite)}
-              className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
-            >
-              <UserPlus size={16} aria-hidden="true" />
-              <span className="sr-only">{t('crm.invite', CRM_FALLBACKS.invite)}</span>
-            </button>
+          {premium && (
+            <>
+              <CrmExportMenu contacts={contacts} departments={departments} deals={deals} tasks={tasks} />
+              <button
+                onClick={() => setImportOpen(true)}
+                aria-label={t('crm.import.title', 'Import CRM data')}
+                title={t('crm.import.title', 'Import CRM data')}
+                className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+              >
+                <Upload size={16} aria-hidden="true" />
+                <span className="sr-only">{t('crm.import.title', 'Import CRM data')}</span>
+              </button>
+              {can('manageCompany') && (
+                <button
+                  onClick={() => setInviteOpen(true)}
+                  aria-label={t('crm.invite', CRM_FALLBACKS.invite)}
+                  title={t('crm.invite', CRM_FALLBACKS.invite)}
+                  className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+                >
+                  <UserPlus size={16} aria-hidden="true" />
+                  <span className="sr-only">{t('crm.invite', CRM_FALLBACKS.invite)}</span>
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
 
       <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border-color)]">
-        <CrmGlobalSearch contacts={contacts} deals={deals} tasks={tasks} onPick={handlePick} />
+        <CrmGlobalSearch contacts={contacts} deals={premium ? deals : []} tasks={premium ? tasks : []} onPick={handlePick} />
       </div>
 
+      {!premium && (
+        <div className="mx-3 mt-2 flex items-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2">
+          <Crown size={14} className="shrink-0 text-[var(--accent)]" aria-hidden="true" />
+          <span className="flex-1 text-xs text-[var(--text-secondary)]">{t('premium.crmLocked', 'CRM deals, tasks and roles are available with Premium')}</span>
+          <button
+            onClick={() => onOpenPremium?.()}
+            className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
+          >
+            {t('premium.crmUnlock', 'Open Premium')}
+          </button>
+        </div>
+      )}
+
       <div className="flex gap-1.5 px-3 py-2 border-b border-[var(--border-color)] overflow-x-auto">
-        {TABS.map((tb) => {
+        {TABS.filter((tb) => availableTabs.includes(tb.id)).map((tb) => {
           const label = t(tb.labelKey, (CRM_FALLBACKS as any)[tb.labelKey.replace('crm.', '')]);
           const active = tab === tb.id;
           return (
@@ -127,7 +153,7 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage }) => 
 
       {tab === 'people' && (
         <CrmPeople
-          onOpenRoles={() => setTab('roles')}
+          onOpenRoles={premium ? () => setTab('roles') : undefined}
           onCall={onCall}
           onVideoCall={onVideoCall}
           onMessage={onMessage}

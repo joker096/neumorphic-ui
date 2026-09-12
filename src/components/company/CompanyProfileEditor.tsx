@@ -60,7 +60,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
 
   if (loading) {
     return (
-      <div className="absolute inset-0 z-[100] flex flex-col bg-[var(--bg-primary)]/95">
+      <div className="absolute inset-0 z-[var(--z-modal)] flex flex-col bg-[var(--bg-primary)]/95">
         <div className="flex items-center justify-between px-4 py-3 md:px-16 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
           <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
 <button type="button" aria-label={t('common.close')} onClick={onClose} className={closeBtnStyle}>
@@ -75,7 +75,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
   }
 
   return (
-    <div className="absolute inset-0 z-[100] flex flex-col bg-[var(--bg-primary)]/95">
+    <div className="absolute inset-0 z-[var(--z-modal)] flex flex-col bg-[var(--bg-primary)]/95">
       <div className="flex items-center justify-between px-4 py-3 md:px-16 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
         <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
         <button onClick={onClose} className={closeBtnStyle}>

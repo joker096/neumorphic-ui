@@ -16,7 +16,7 @@ vi.mock('./CompanyProfileEditor', () => ({
 describe('CompanySettingsModal', () => {
   it('renders the backdrop overlay', () => {
     const { container } = render(<CompanySettingsModal onClose={vi.fn()} />);
-    expect(container.firstElementChild).toHaveClass('fixed', 'inset-0', 'z-50');
+    expect(container.firstElementChild).toHaveClass('fixed', 'inset-0', 'z-[var(--z-modal)]');
   });
 
   it('renders CompanyProfileEditor inside the modal', () => {

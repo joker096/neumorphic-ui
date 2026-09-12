@@ -85,7 +85,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   };
 
   const isDark = theme === 'dark';
-  const panelBg = isDark ? 'bg-[#1f2430] text-white' : 'bg-white text-slate-900';
+  const panelBg = isDark ? 'bg-[var(--bg-tertiary)] text-white' : 'bg-white text-slate-900';
   const bubbleBg = 'bg-[var(--accent)] text-[var(--button-primary-text)]';
 
   return (
@@ -94,7 +94,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
         <div className={`w-[320px] max-w-[90vw] h-[440px] max-h-[80vh] rounded-2xl shadow-2xl border border-[var(--border-color)] flex flex-col overflow-hidden ${panelBg}`}>
           <div className={`px-4 py-3 flex items-center justify-between border-b border-[var(--border-color)] ${bubbleBg}`}>
             <span className="font-bold text-sm">{cfgRef.current?.label || t('embed.chat')}</span>
-            <button onClick={() => setOpen(false)} aria-label={t('embed.close')} className="cursor-pointer">
+            <button onClick={() => setOpen(false)} aria-label={t('embed.close')} title={t('embed.close')} className="min-w-11 min-h-11 flex items-center justify-center rounded-xl cursor-pointer hover:bg-white/10 transition-colors">
               <X size={18} />
             </button>
           </div>

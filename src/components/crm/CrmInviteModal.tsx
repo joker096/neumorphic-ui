@@ -7,6 +7,7 @@ import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
 import { CrmModal } from './CrmModal';
 import { APP_HOME_URL } from '../../config/app';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { t } = useI18n();
@@ -15,6 +16,7 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
   const [code, setCode] = useState('');
   const [qrUrl, setQrUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  useEscapeKey(onClose);
 
   useEffect(() => {
     setCode(ensureCrmInviteCode());
@@ -81,7 +83,7 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
             onClick={copy}
             aria-label={t('crm.copyLink', 'Copy invite link')}
             title={t('crm.copyLink', 'Copy invite link')}
-            className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--bg-secondary)] text-[var(--accent)] hover:bg-[var(--bg-tertiary)] transition-colors"
+            className="shrink-0 min-w-11 min-h-11 rounded-lg flex items-center justify-center bg-[var(--bg-secondary)] text-[var(--accent)] hover:bg-[var(--bg-tertiary)] transition-colors"
           >
             {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
           </button>

@@ -1,5 +1,6 @@
 import { Briefcase } from 'lucide-react';
 import { motion } from 'motion/react';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { CompanyChannel } from '../../lib/company/types';
 
 type ChannelItemProps = {
@@ -11,20 +12,35 @@ type ChannelItemProps = {
   t: (key: string, args?: Record<string, string | number>) => string;
 };
 
-export const ChannelItem = ({ channel, isDark = false, index, gradient, onClick, t }: ChannelItemProps) => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.05 }}
-    className={`w-full flex items-center gap-3 p-3 md:p-3 rounded-2xl cursor-pointer transition-all active:scale-95 min-h-[56px] ${isDark ? "hover:bg-[var(--list-item-hover-bg)]" : "hover:bg-[var(--list-item-hover-bg)]"}`}
-    onClick={onClick}
-  >
+export const ChannelItem = ({ channel, isDark = false, index, gradient, onClick, t }: ChannelItemProps) => {
+  const interactive = Boolean(onClick);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className={`w-full flex items-center gap-3 p-3 md:p-3 rounded-2xl cursor-pointer transition-all active:scale-95 min-h-[56px] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] ${"hover:bg-[var(--list-item-hover-bg)]"}`}
+      onClick={onClick}
+      {...(interactive
+        ? {
+            role: 'button' as const,
+            tabIndex: 0,
+            'aria-label': channel.name,
+            onKeyDown: (e: ReactKeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick?.();
+              }
+            },
+          }
+        : {})}
+    >
     <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-[var(--text-primary)] shrink-0`}>
       <Briefcase size={18} />
     </div>
     <div className="flex-1 min-w-0">
-      <div className={`font-bold truncate text-sm ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{channel.name}</div>
-      <div className={`text-xs truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-secondary)]"}`}>
+      <div className={`font-bold truncate text-sm ${"text-[var(--text-primary)]"}`}>{channel.name}</div>
+      <div className={`text-xs truncate ${"text-[var(--text-secondary)]"}`}>
         {channel.description || t('company.memberCount', { count: channel.memberCount })}
       </div>
     </div>
@@ -33,6 +49,7 @@ export const ChannelItem = ({ channel, isDark = false, index, gradient, onClick,
         {channel.unread}
       </div>
     )}
-  </motion.div>
-);
+</motion.div>
+  );
+};
 
