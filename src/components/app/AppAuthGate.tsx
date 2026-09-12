@@ -20,7 +20,8 @@ export const AppAuthGate = ({ children }: AppAuthGateProps) => {
   const {
     pinInput, setPinInput, pinError, biometricError, biometricBusy,
     biometricAvailable, lockAttempts, lockBlockedUntil, lockBlockTimer,
-    handleUnlock, handleUnlockBiometric, isLocked,
+    handleUnlock, handleUnlockBiometric, isLocked, unlockBusy,
+    totpInput, setTotpInput, totpError, twoFactorRequired,
   } = useAppLock();
   const biometricEnabled = useAppStore(s => s.appLockBiometricEnabled);
   const [showLogin, setShowLogin] = useState(false);
@@ -64,6 +65,10 @@ export const AppAuthGate = ({ children }: AppAuthGateProps) => {
         pinInput={pinInput}
         setPinInput={setPinInput}
         pinError={pinError}
+        totpInput={totpInput}
+        setTotpInput={setTotpInput}
+        totpError={totpError}
+        twoFactorRequired={twoFactorRequired}
         biometricError={biometricError}
         biometricBusy={biometricBusy}
         biometricEnabled={biometricEnabled}
@@ -71,6 +76,7 @@ export const AppAuthGate = ({ children }: AppAuthGateProps) => {
         lockAttempts={lockAttempts}
         lockBlockTimer={lockBlockTimer}
         lockBlockedUntil={lockBlockedUntil}
+        unlockBusy={unlockBusy}
         handleUnlock={handleUnlock}
         handleUnlockBiometric={handleUnlockBiometric}
       />

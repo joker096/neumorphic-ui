@@ -3,6 +3,7 @@ import { STORAGE_KEYS } from "../constants";
 import { useAppStore } from "../store";
 import { getLockBlockDuration } from "../config/lockBackoff";
 import { isBiometricAvailable, verifyBiometric } from "../lib/biometric";
+import { verifyTotp } from "../lib/twoFactor";
 
 export const useAppLock = () => {
   const appLockHashedPIN = useAppStore(s => s.appLockHashedPIN);
@@ -14,12 +15,16 @@ export const useAppLock = () => {
   const appLocked = useAppStore(s => s.appLocked);
   const setAppLocked = useAppStore(s => s.setAppLocked);
   const lockApp = useAppStore(s => s.lockApp);
+  const twoFactor = useAppStore(s => s.twoFactor);
+  const totpSecret = useAppStore(s => s.totpSecret);
 
   const hasPin = !!appLockHashedPIN;
   const hasMethod = hasPin || appLockBiometricEnabled;
 
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
+  const [totpInput, setTotpInput] = useState('');
+  const [totpError, setTotpError] = useState(false);
   const [lockAttempts, setLockAttempts] = useState(() => {
     try { return parseInt(localStorage.getItem(STORAGE_KEYS.LOCK_ATTEMPTS) || '0', 10) } catch { return 0 }
   });
@@ -30,6 +35,7 @@ export const useAppLock = () => {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricError, setBiometricError] = useState(false);
   const [biometricBusy, setBiometricBusy] = useState(false);
+  const [unlockBusy, setUnlockBusy] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -85,11 +91,13 @@ export const useAppLock = () => {
     setAppLocked(false);
     setPinError(false);
     setBiometricError(false);
+    setTotpError(false);
     setLockAttempts(0);
     setLockBlockedUntil(0);
     localStorage.setItem(STORAGE_KEYS.LOCK_ATTEMPTS, '0');
     localStorage.setItem(STORAGE_KEYS.LOCK_BLOCKED_UNTIL, '0');
     setPinInput('');
+    setTotpInput('');
   };
 
   const failAttempt = () => {
@@ -107,23 +115,41 @@ export const useAppLock = () => {
     }
     setPinError(true);
     setPinInput('');
+    setTotpInput('');
   };
+
+  const twoFactorRequired = twoFactor && !!totpSecret;
 
   const handleUnlock = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     if (!appLockHashedPIN || !appLockSalt) return;
+    if (unlockBusy) return;
 
     if (lockBlockedUntil > Date.now()) {
       setPinError(true);
       return;
     }
 
-    const { cryptoCore } = await import("../lib/crypto/cryptoCore");
-    const hashed = await cryptoCore.hashAppLockPIN(pinInput, appLockSalt);
-    if (hashed.hash === appLockHashedPIN) {
+    setUnlockBusy(true);
+    try {
+      const { cryptoCore } = await import("../lib/crypto/cryptoCore");
+      const ok = await cryptoCore.verifyAppLockPIN(pinInput, appLockSalt, appLockHashedPIN);
+      if (!ok) {
+        failAttempt();
+        return;
+      }
+      if (twoFactorRequired) {
+        const ok = await verifyTotp(totpSecret as string, totpInput);
+        if (!ok) {
+          setTotpError(true);
+          failAttempt();
+          setPinInput('');
+          return;
+        }
+      }
       unlockSuccess();
-    } else {
-      failAttempt();
+    } finally {
+      setUnlockBusy(false);
     }
   };
 
@@ -147,9 +173,14 @@ export const useAppLock = () => {
     pinInput,
     setPinInput,
     pinError,
+    totpInput,
+    setTotpInput,
+    totpError,
+    twoFactorRequired,
     biometricError,
     biometricBusy,
     biometricAvailable,
+    unlockBusy,
     lockAttempts,
     lockBlockedUntil,
     lockBlockTimer,

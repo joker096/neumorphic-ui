@@ -6,6 +6,10 @@ type AppLockScreenProps = {
   pinInput: string;
   setPinInput: (v: string) => void;
   pinError: boolean;
+  totpInput?: string;
+  setTotpInput?: (v: string) => void;
+  totpError?: boolean;
+  twoFactorRequired?: boolean;
   biometricError: boolean;
   biometricBusy: boolean;
   biometricEnabled: boolean;
@@ -14,6 +18,7 @@ type AppLockScreenProps = {
   lockBlockTimer: number;
   lockBlockedUntil: number | undefined;
   isDark?: boolean;
+  unlockBusy?: boolean;
   handleUnlock: (e?: React.FormEvent) => Promise<void>;
   handleUnlockBiometric: () => Promise<void>;
 };
@@ -22,6 +27,10 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
   pinInput,
   setPinInput,
   pinError,
+  totpInput = '',
+  setTotpInput = () => {},
+  totpError = false,
+  twoFactorRequired = false,
   biometricError,
   biometricBusy,
   biometricEnabled,
@@ -30,6 +39,7 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
   lockBlockTimer,
   lockBlockedUntil,
   isDark = true,
+  unlockBusy = false,
   handleUnlock,
   handleUnlockBiometric,
 }) => {
@@ -85,18 +95,46 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
                 {t('lock.wrongPin', { remaining: lockAttempts >= 2 ? 3 - Math.min(lockAttempts, 3) : 3 - lockAttempts })}
               </p>
             )}
+            {twoFactorRequired && (
+              <>
+                <label htmlFor="app-lock-totp-input" className="sr-only">{t('lock.totpLabel')}</label>
+                <input
+                  id="app-lock-totp-input"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  autoComplete="one-time-code"
+                  value={totpInput}
+                  onChange={(e) => setTotpInput(e.target.value.replace(/[^0-9]/g, ''))}
+                  aria-invalid={totpError}
+                  aria-describedby={totpError ? 'app-lock-totp-error' : undefined}
+                  placeholder={t('lock.totpLabel')}
+                  className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors ${
+                    isDark
+                      ? "bg-[var(--bg-secondary)] border-[var(--border-color)]"
+                      : "bg-[var(--bg-primary)] border-[var(--border-color)]"
+                  } ${totpError ? "border-red-500 text-red-500" : ""}`}
+                />
+                {totpError && (
+                  <p id="app-lock-totp-error" role="alert" className={`text-xs text-center mb-3 ${isDark ? 'text-red-400' : 'text-red-500'}`}>
+                    {t('lock.totpWrong')}
+                  </p>
+                )}
+              </>
+            )}
             <button
               type="submit"
+              disabled={unlockBusy}
               aria-label={t('lock.unlock')}
               title={t('lock.unlock')}
-              className={`w-full min-h-11 min-w-11 flex items-center justify-center py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 ${
+              className={`w-full min-h-11 min-w-11 flex items-center justify-center py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
                 isDark
                   ? "bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--text-primary)] shadow-lg"
                   : "bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] shadow-lg"
               }`}
             >
               <LockOpen size={20} />
-              <span>{t('lock.unlock')}</span>
+              <span>{unlockBusy ? '…' : t('lock.unlock')}</span>
             </button>
             {biometricEnabled && biometricAvailable && (
               <>

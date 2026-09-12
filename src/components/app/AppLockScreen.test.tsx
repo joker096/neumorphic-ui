@@ -16,6 +16,8 @@ vi.mock('../../lib/i18n', () => ({
         'lock.locked': 'Locked',
         'lock.tryAgainIn': 'Try again in {seconds} seconds',
         'lock.wrongPin': 'Wrong PIN. {remaining} attempt(s) remaining',
+        'lock.totpLabel': '2FA code',
+        'lock.totpWrong': 'Incorrect 2FA code',
       };
       return map[key] || fallback || key;
     }
@@ -57,6 +59,13 @@ describe('AppLockScreen', () => {
     expect(screen.getByText('Unlock')).toBeInTheDocument();
   });
 
+  it('disables unlock and shows ellipsis while busy', () => {
+    render(<AppLockScreen {...defaultProps} unlockBusy />);
+    const button = screen.getByRole('button', { name: 'Unlock' });
+    expect(button).toBeDisabled();
+    expect(screen.getByText('…')).toBeInTheDocument();
+  });
+
   it('shows permanently blocked state', () => {
     render(<AppLockScreen {...defaultProps} lockBlockedUntil={Infinity} />);
     expect(screen.getByText('Too many attempts')).toBeInTheDocument();
@@ -65,5 +74,18 @@ describe('AppLockScreen', () => {
   it('shows temporarily blocked state', () => {
     render(<AppLockScreen {...defaultProps} lockBlockTimer={30} />);
     expect(screen.getByText('Locked')).toBeInTheDocument();
+  });
+
+  it('renders TOTP input when 2FA is required', () => {
+    render(<AppLockScreen {...defaultProps} twoFactorRequired={true} totpError={true} />);
+    const input = document.getElementById('app-lock-totp-input');
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByText('Incorrect 2FA code')).toBeInTheDocument();
+  });
+
+  it('does not render TOTP input when 2FA is off', () => {
+    render(<AppLockScreen {...defaultProps} />);
+    expect(document.getElementById('app-lock-totp-input')).not.toBeInTheDocument();
   });
 });

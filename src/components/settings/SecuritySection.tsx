@@ -8,16 +8,18 @@ import { cryptoCore } from '../../lib/crypto/cryptoCore';
 import { deviceSecurity } from '../../lib/deviceSecurity';
 import { useAppStore } from '../../store';
 import { isBiometricAvailable, registerBiometric } from '../../lib/biometric';
+import { generateSecret, verifyTotp, otpauthUri, totpCode } from '../../lib/twoFactor';
 
 interface SecuritySectionProps {
   isDark?: boolean;
   onBack: () => void;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
 }
 
 export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionProps) => {
   const [showPinInput, setShowPinInput] = useState(false);
   const [pinValue, setPinValue] = useState('');
+  const [pinBusy, setPinBusy] = useState(false);
   const [pinMode, setPinMode] = useState<'set' | 'remove'>('set');
   const [showWipeConfirm, setShowWipeConfirm] = useState(false);
   const [biometricSupported, setBiometricSupported] = useState(false);
@@ -34,10 +36,15 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
   const hasMethod = hasPin || biometricEnabled;
   const twoFactor = useAppStore(s => s.twoFactor);
   const setTwoFactor = useAppStore(s => s.setTwoFactor);
-  const deadMansSwitch = useAppStore(s => s.deadMansSwitch);
-  const setDeadMansSwitch = useAppStore(s => s.setDeadMansSwitch);
+  const setTotpSecret = useAppStore(s => s.setTotpSecret);
+  const [showTotpSetup, setShowTotpSetup] = useState(false);
+  const [totpDraftSecret, setTotpDraftSecret] = useState('');
+  const [totpInput, setTotpInput] = useState('');
+  const [totpBusy, setTotpBusy] = useState(false);
+  const [totpCodeNow, setTotpCodeNow] = useState('');
   const [showKeyRecovery, setShowKeyRecovery] = useState(false);
   const [keyExportPass, setKeyExportPass] = useState('');
+  const [keyExportPassConfirm, setKeyExportPassConfirm] = useState('');
   const [keyExportBundle, setKeyExportBundle] = useState('');
   const [keyImportBundle, setKeyImportBundle] = useState('');
   const [keyImportPass, setKeyImportPass] = useState('');
@@ -50,6 +57,57 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
     isBiometricAvailable().then((ok) => { if (mounted) setBiometricSupported(ok); }).catch(() => {});
     return () => { mounted = false; };
   }, []);
+
+  useEffect(() => {
+    if (!showTotpSetup || !totpDraftSecret) {
+      setTotpCodeNow('');
+      return;
+    }
+    let mounted = true;
+    let timer: ReturnType<typeof setInterval>;
+    const refresh = () => {
+      totpCode(totpDraftSecret).then((code) => { if (mounted) setTotpCodeNow(code); }).catch(() => {});
+    };
+    refresh();
+    timer = setInterval(refresh, 1000);
+    return () => { mounted = false; clearInterval(timer); };
+  }, [showTotpSetup, totpDraftSecret]);
+
+  const openTotpSetup = () => {
+    setTotpDraftSecret(generateSecret());
+    setTotpInput('');
+    setShowTotpSetup(true);
+  };
+
+  const confirmTotpSetup = async () => {
+    if (totpBusy) return;
+    if (totpInput.length !== 6) {
+      toast.error(t('settings.totpInvalid'));
+      return;
+    }
+    setTotpBusy(true);
+    try {
+      const ok = await verifyTotp(totpDraftSecret, totpInput);
+      if (!ok) {
+        toast.error(t('settings.totpInvalid'));
+        setTotpInput('');
+        return;
+      }
+      setTotpSecret(totpDraftSecret);
+      setTwoFactor(true);
+      setShowTotpSetup(false);
+      setTotpInput('');
+      toast.success(t('settings.totpEnabled'));
+    } finally {
+      setTotpBusy(false);
+    }
+  };
+
+  const disableTwoFactor = () => {
+    setTwoFactor(false);
+    setTotpSecret(null);
+    toast.success(t('settings.totpDisabled'));
+  };
 
   const handleToggleBiometric = async () => {
     if (biometricBusy) return;
@@ -76,29 +134,46 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
   };
 
   const handlePinSet = async () => {
+    if (pinBusy) return;
     if (pinValue.length < 4) {
       toast.error(t('settings.pinTooShort'));
       return;
     }
-    const result = await cryptoCore.hashAppLockPIN(pinValue);
-    setAppLock(result.hash, result.saltHex);
-    setShowPinInput(false);
-    setPinValue('');
-    toast.success(t('settings.pinSet'));
+    setPinBusy(true);
+    try {
+      const result = await cryptoCore.hashAppLockPIN(pinValue);
+      setAppLock(result.hash, result.saltHex);
+      setShowPinInput(false);
+      setPinValue('');
+      toast.success(t('settings.pinSet'));
+    } finally {
+      setPinBusy(false);
+    }
   };
 
   const handlePinRemove = async () => {
+    if (pinBusy) return;
     if (pinValue.length < 4) return;
     const currentSalt = useAppStore.getState().appLockSalt || '';
-    const hashed = await cryptoCore.hashAppLockPIN(pinValue, currentSalt);
-    if (hashed.hash !== useAppStore.getState().appLockHashedPIN) {
+    const storedHash = useAppStore.getState().appLockHashedPIN;
+    if (!storedHash) {
       toast.error(t('settings.pinIncorrect'));
       return;
     }
-    setAppLock('', '');
-    setShowPinInput(false);
-    setPinValue('');
-    toast.success(t('settings.pinRemoved'));
+    setPinBusy(true);
+    try {
+      const ok = await cryptoCore.verifyAppLockPIN(pinValue, currentSalt, storedHash);
+      if (!ok) {
+        toast.error(t('settings.pinIncorrect'));
+        return;
+      }
+      setAppLock('', '');
+      setShowPinInput(false);
+      setPinValue('');
+      toast.success(t('settings.pinRemoved'));
+    } finally {
+      setPinBusy(false);
+    }
   };
 
   const startPinAction = (mode: 'set' | 'remove') => {
@@ -126,17 +201,14 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
     }
   };
 
-  const cycleDeadMansSwitch = () => {
-    const options = ['Off', '1 week', '1 month', '3 months', '6 months', '1 year'];
-    const idx = options.indexOf(deadMansSwitch as string);
-    const next = options[(idx + 1) % options.length];
-    setDeadMansSwitch(next);
-  };
-
   const handleKeyExport = async () => {
     if (keyBusy) return;
     if (!keyExportPass) {
       toast.error(t('settings.keyRecovery.exportPass'));
+      return;
+    }
+    if (keyExportPass !== keyExportPassConfirm) {
+      toast.error(t('settings.keyRecovery.exportPassMismatch'));
       return;
     }
     setKeyBusy(true);
@@ -247,9 +319,10 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
               <button
                 type="button"
                 onClick={confirmPinAction}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"}`}
+                disabled={pinBusy}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"}`}
               >
-                {pinMode === 'set' ? t('settings.confirmPin') : t('settings.removePin')}
+                {pinBusy ? '…' : (pinMode === 'set' ? t('settings.confirmPin') : t('settings.removePin'))}
               </button>
               <button
                 type="button"
@@ -342,25 +415,70 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
           title={t('settings.twoFactorAuth')}
           subtitle={t('settings.twoFactorSubtitle')}
           isOn={twoFactor}
-          onToggle={() => setTwoFactor(!twoFactor)}
+          onToggle={() => {
+            if (twoFactor) disableTwoFactor();
+            else openTotpSetup();
+          }}
           isDark={isDark}
           toggleOnIcon={<ShieldCheck size={14} />}
           toggleOffIcon={<ShieldCheck size={14} />}
         />
-      </SettingsGroup>
-
-      <SettingsSectionTitle title={t('settings.autoWipe')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
-        <SettingsRow
-          icon={<Timer size={16} />}
-          iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-          iconColor={isDark ? "text-red-400" : "text-red-600"}
-          title={t('settings.deadMansSwitch')}
-          subtitle={t('settings.deadMansSwitchSubtitle')}
-          value={deadMansSwitch as string}
-          isDark={isDark}
-          onClick={cycleDeadMansSwitch}
-        />
+        {showTotpSetup && (
+          <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
+            <p className={`text-xs mb-3 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+              {t('settings.totpInstruction')}
+            </p>
+            <label htmlFor="security-totp-secret" className={`block text-xs font-medium mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+              {t('settings.totpSecretLabel')}
+            </label>
+            <div
+              id="security-totp-secret"
+              className={`w-full px-3 py-2 rounded-lg text-[11px] font-mono break-all border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-700"}`}
+            >
+              {totpDraftSecret}
+            </div>
+            <p className={`text-[11px] font-mono break-all mt-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+              {otpauthUri(totpDraftSecret, useAppStore.getState().userProfile?.name || 'user')}
+            </p>
+            {totpCodeNow && (
+              <p className={`text-xs mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                {t('settings.totpCurrentCode')}: <span className="font-mono font-semibold">{totpCodeNow}</span>
+              </p>
+            )}
+            <label htmlFor="security-totp-input" className={`block text-xs font-medium mt-3 mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+              {t('settings.totpSecretLabel')}
+            </label>
+            <input
+              id="security-totp-input"
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              autoComplete="one-time-code"
+              value={totpInput}
+              onChange={e => setTotpInput(e.target.value.replace(/[^0-9]/g, ''))}
+              onKeyDown={e => e.key === 'Enter' && confirmTotpSetup()}
+              placeholder={t('settings.totpPlaceholder')}
+              className={`w-full px-3 py-2 rounded-lg text-sm text-center tracking-[0.4em] font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+            />
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={confirmTotpSetup}
+                disabled={totpBusy}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${isDark ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30" : "bg-amber-100 text-amber-700 hover:bg-amber-200"}`}
+              >
+                {t('settings.verify')}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowTotpSetup(false); setTotpInput(''); }}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/5 text-slate-600 hover:bg-black/10"}`}
+              >
+                {t('common.cancel')}
+              </button>
+            </div>
+          </div>
+        )}
       </SettingsGroup>
 
       <SettingsSectionTitle title={t('settings.keyRecovery.title')} isDark={isDark} />
@@ -390,6 +508,19 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
               placeholder={t('settings.keyRecovery.exportPassHint')}
               autoComplete="new-password"
               className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+            />
+            <label htmlFor="key-recovery-export-pass-confirm" className={`block text-xs font-medium mt-2 mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+              {t('settings.keyRecovery.exportPassConfirm')}
+            </label>
+            <input
+              id="key-recovery-export-pass-confirm"
+              type="password"
+              value={keyExportPassConfirm}
+              onChange={e => setKeyExportPassConfirm(e.target.value)}
+              placeholder={t('settings.keyRecovery.exportPassHint')}
+              autoComplete="new-password"
+              aria-invalid={!!keyExportPass && keyExportPassConfirm !== keyExportPass}
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"} ${keyExportPassConfirm && keyExportPassConfirm !== keyExportPass ? "border-red-500" : ""}`}
             />
             <button
               type="button"

@@ -131,7 +131,7 @@ export class CryptoCore {
     return new TextDecoder().decode(decryptedBuffer)
   }
 
-  async hashAppLockPIN(pin: string, saltHex?: string, iterations = 100000) {
+  async hashAppLockPIN(pin: string, saltHex?: string, iterations = 600000) {
     const passKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits'])
     let salt: Uint8Array
     if (saltHex) {
@@ -144,6 +144,20 @@ export class CryptoCore {
     )
     return { hash: buf2hex(hash), saltHex: saltHex || buf2hex(salt) }
   }
+
+  /**
+   * Verify a stored PIN hash. Tries the current iteration count first, then
+   * falls back to the legacy 100k count so hashes produced by older versions
+   * still verify after an upgrade.
+   */
+  async verifyAppLockPIN(pin: string, saltHex: string, storedHash: string): Promise<boolean> {
+    const current = await this.hashAppLockPIN(pin, saltHex, this.appLockIterations)
+    if (current.hash === storedHash) return true
+    const legacy = await this.hashAppLockPIN(pin, saltHex, this.legacyAppLockIterations)
+    return legacy.hash === storedHash
+  }
+  readonly appLockIterations = 600000;
+  readonly legacyAppLockIterations = 100000;
 
   signEd25519(privateKey: Uint8Array, message: string): Uint8Array {
     const msgBuf = Uint8Array.from(new TextEncoder().encode(message))
@@ -162,50 +176,57 @@ export class CryptoCore {
     }
   }
 
-  async secureWipe(): Promise<void> {
+  async secureWipe(): Promise<{ ok: boolean; warnings: string[] }> {
+    const warnings: string[] = []
     try {
       // Delete all IndexedDB databases
       let dbs: IDBDatabaseInfo[] = []
       if (window.indexedDB.databases) {
         try {
           dbs = await window.indexedDB.databases()
-        } catch { /* noop */ }
+        } catch { warnings.push('idb-list') }
       }
       for (const db of dbs) {
         if (db.name) {
           await new Promise<void>((resolve) => {
             const req = window.indexedDB.deleteDatabase(db.name)
             req.onsuccess = () => resolve()
-            req.onerror = () => resolve()
+            req.onerror = () => { warnings.push(`idb-delete:${db.name}`); resolve() }
+            req.onblocked = () => { warnings.push(`idb-blocked:${db.name}`); resolve() }
           })
         }
       }
-    } catch { /* noop */ }
+    } catch { warnings.push('idb') }
 
     if ('caches' in window) {
       try {
         const cacheNames = await caches.keys()
         await Promise.all(cacheNames.map((name) => caches.delete(name)))
-      } catch { /* noop */ }
+      } catch { warnings.push('caches') }
     }
 
     if ('serviceWorker' in navigator) {
       try {
         const regs = await navigator.serviceWorker.getRegistrations()
         for (const reg of regs) {
-          await reg.unregister().catch(() => { /* noop */ })
+          try { await reg.unregister() } catch { warnings.push('sw-unregister') }
         }
-      } catch { /* noop */ }
+      } catch { warnings.push('sw') }
     }
 
     try {
       localStorage.clear()
-    } catch { /* noop */ }
+    } catch { warnings.push('localStorage') }
     try {
       sessionStorage.clear()
-    } catch { /* noop */ }
+    } catch { warnings.push('sessionStorage') }
+
+    if (warnings.length > 0) {
+      try { console.warn('[secureWipe] partial wipe:', warnings) } catch { /* noop */ }
+    }
 
     window.location.reload()
+    return { ok: warnings.length === 0, warnings }
   }
 }
 
