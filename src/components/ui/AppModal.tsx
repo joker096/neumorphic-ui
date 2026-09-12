@@ -22,7 +22,7 @@ export const AppModal = ({
   subtitle,
   icon,
   maxWidth = 'max-w-[380px]',
-  zIndex = 'z-50',
+  zIndex = 'z-[var(--z-modal)]',
   isDark = true,
   closeLabel = 'Close',
 }: AppModalProps) => (

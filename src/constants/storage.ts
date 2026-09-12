@@ -43,6 +43,7 @@ export const STORAGE_KEYS = {
   COMPANY_CONTACTS: 'mess_company_contacts',
   CLOUD_SYNC_META: 'app_cloud_sync_meta',
   CLOUD_SYNC_SNAPSHOT: 'app_cloud_sync_snapshot',
+  PWA_INSTALL_DISMISSED: 'app_pwa_install_dismissed',
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

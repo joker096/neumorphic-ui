@@ -19,7 +19,7 @@ export const SubView = ({ title, onBack, children, isDark = false }: SubViewProp
       exit={{ opacity: 0, x: 20 }}
       className="w-full flex flex-col"
     >
-      <div className="flex items-center gap-3 mb-6 shrink-0 pt-2">
+      <div className="flex items-center gap-2.5 mb-5 shrink-0 pt-2">
         <button
           type="button"
           onClick={onBack}

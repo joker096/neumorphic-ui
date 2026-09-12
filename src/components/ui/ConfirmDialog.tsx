@@ -27,7 +27,7 @@ export function ConfirmDialog({
   cancelIcon,
   variant = 'default',
   theme = 'dark',
-  zIndex = 'z-50',
+  zIndex = 'z-[var(--z-modal)]',
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {

@@ -18,7 +18,7 @@ export const currentTheme = (): ModalTheme => {
 
 /* ---- Centered modal (dialog) ---- */
 
-export const modalOverlay = 'fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4';
+export const modalOverlay = 'fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4';
 
 export const modalBackdrop = 'absolute inset-0 bg-black/60 backdrop-blur-sm';
 
@@ -94,8 +94,8 @@ export function ModalHeader({
 
 /* ---- Bottom sheet (action sheet) ---- */
 
-export const sheetOverlay = 'fixed inset-0 z-[120] flex items-end justify-center';
-export const sheetOverlayAbsolute = 'absolute inset-0 z-[60] flex items-end justify-center';
+export const sheetOverlay = 'fixed inset-0 z-[var(--z-drawer)] flex items-end justify-center';
+export const sheetOverlayAbsolute = 'absolute inset-0 z-[var(--z-dropdown)] flex items-end justify-center';
 export const sheetBackdrop = 'absolute inset-0 bg-black/45 backdrop-blur-[2px]';
 export const sheetSurface = (_isDark: boolean, extra = '') =>
   `relative w-full max-w-md mx-auto rounded-t-2xl p-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-2xl neu-raised bg-popover border-t border-border max-h-[80vh] overflow-y-auto ${extra}`;
@@ -123,11 +123,11 @@ export const modalLabelClass =
  *  Uses the design token control height (44px) with an explicit text size so
  *  the field never inherits an unexpectedly large font. */
 export const modalFieldClass =
-  'w-full h-[var(--control-height-lg)] rounded-xl px-4 outline-none transition-colors bg-[var(--bg-tertiary)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]';
+  'w-full h-[var(--control-height-lg)] rounded-xl px-4 outline-none transition-all border border-transparent shadow-[var(--inset-field-shadow)] focus:border-[var(--accent)] bg-[var(--bg-tertiary)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]';
 
 /** Full-width primary action button (accent). */
 export const modalPrimaryBtnClass =
-  'w-full h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[var(--shadow-btn-primary)]';
+  'w-full h-11 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none shadow-[var(--shadow-btn-primary)]';
 
 /** Secondary / ghost button. */
 export const modalSecondaryBtnClass =
@@ -135,7 +135,7 @@ export const modalSecondaryBtnClass =
 
 /** Square icon-only primary action button (no w-full — safe inside sibling rows). */
 export const modalPrimaryIconBtnClass =
-  'w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed shadow-[var(--shadow-btn-primary)]';
+  'w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none shadow-[var(--shadow-btn-primary)]';
 
 /** Square icon-only secondary / ghost button. */
 export const modalSecondaryIconBtnClass =
@@ -150,7 +150,7 @@ export const modalOptionClass = (active: boolean) =>
   `flex-1 rounded-xl px-2 py-2.5 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all border ${
     active
       ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]'
-      : 'border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'
+      : 'border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] shadow-[var(--inset-field-shadow)]'
   }`;
 
 /** iOS-style toggle track. */

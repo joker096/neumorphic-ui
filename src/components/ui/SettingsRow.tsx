@@ -36,13 +36,13 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <div className={`text-sm font-medium ${isDark ? "text-foreground" : "text-foreground"}`}>{title}</div>
-        {subtitle && <div className={`text-xs mt-0.5 line-clamp-2 ${isDark ? "text-muted-foreground" : "text-muted-foreground"}`}>{subtitle}</div>}
+        <div className={`text-sm font-medium ${"text-foreground"}`}>{title}</div>
+        {subtitle && <div className={`text-xs mt-0.5 line-clamp-2 ${"text-muted-foreground"}`}>{subtitle}</div>}
       </div>
       {rightElement}
-      {value && <span className={`text-xs font-medium mr-1 ${isDark ? "text-muted-foreground" : "text-muted-foreground"}`}>{value}</span>}
+      {value && <span className={`text-xs font-medium mr-1 ${"text-muted-foreground"}`}>{value}</span>}
       {interactive && !hasRightAction && (
-        <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-muted-foreground" : "text-muted-foreground"}`} />
+        <ChevronRight size={16} className={`shrink-0 opacity-30 ${"text-muted-foreground"}`} />
       )}
     </>
   );

@@ -4,7 +4,7 @@ export interface SkeletonProps {
   rows?: number;
 }
 
-const PULSE = 'animate-pulse bg-[var(--bg-tertiary)]';
+const PULSE = 'animate-pulse bg-[var(--bg-tertiary)] shadow-[var(--inset-field-shadow)]';
 
 export const Skeleton = ({ rows = 4 }: SkeletonProps) => (
   <div className="flex flex-col gap-3" aria-busy="true">

@@ -4,6 +4,8 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { X } from 'lucide-react'
 import { modalOverlay, modalBackdrop, modalSurface, modalCloseClass, type ModalTheme } from './modalShared'
+import { useEscapeKey } from '../../hooks/useEscapeKey'
+import { useBodyScrollLock } from '../../lib/a11y'
 
 interface FormModalProps {
   isOpen: boolean
@@ -31,11 +33,13 @@ export const FormModal = ({
   children,
   maxWidth = 'max-w-[380px]',
   theme = 'dark',
-  zIndex = 'z-50',
+  zIndex = 'z-[var(--z-modal)]',
   closeTitle,
 }: FormModalProps) => {
   const isDark = theme === 'dark'
   const resolvedTheme: ModalTheme = theme === 'light' ? 'light' : 'dark'
+  useEscapeKey(onClose, isOpen)
+  useBodyScrollLock(isOpen)
 
   return createPortal(
     <AnimatePresence>
@@ -45,7 +49,7 @@ export const FormModal = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className={modalOverlay.replace('z-50', zIndex)}
+          className={modalOverlay.replace('z-[var(--z-modal)]', zIndex)}
           onClick={onClose}
         >
           <motion.div

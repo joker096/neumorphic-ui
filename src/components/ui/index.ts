@@ -1,7 +1,7 @@
 export { SettingsRow, SettingsSectionTitle, SettingsGroup, ToggleSwitch, SettingsToggleRow } from './SettingsRow';
 export type { SettingsRowProps } from './SettingsRow';
-export { GlowingKnobLine } from './GlowingKnobLine';
-export { GlowingPlusLight } from './GlowingPlusLight';
+export { AppIcon } from './AppIcon';
+export type { AppIconProps, AppIconSource } from './AppIcon';
 export { Button } from './Button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 export { IconButton } from './IconButton';

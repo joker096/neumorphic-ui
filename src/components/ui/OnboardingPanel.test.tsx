@@ -56,7 +56,7 @@ describe('OnboardingPanel', () => {
 
   it('renders with MessageSquarePlus icon', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
-    const iconContainer = container.querySelector('.w-20.h-20');
+    const iconContainer = container.querySelector('.w-16.h-16');
     expect(iconContainer).toBeInTheDocument();
     const svg = container.querySelector('svg');
     expect(svg).toBeInTheDocument();
@@ -64,13 +64,13 @@ describe('OnboardingPanel', () => {
 
   it('renders icon with orange background in dark theme', () => {
     const { container } = render(<OnboardingPanel isDark={true} t={mockT} />);
-    const iconContainer = container.querySelector('.w-20.h-20');
+    const iconContainer = container.querySelector('.w-16.h-16');
     expect(iconContainer?.className).toContain('bg-[var(--accent-soft)]');
   });
 
   it('renders icon with orange background in light theme', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
-    const iconContainer = container.querySelector('.w-20.h-20');
+    const iconContainer = container.querySelector('.w-16.h-16');
     expect(iconContainer?.className).toContain('bg-[var(--accent-soft)]');
   });
 
@@ -86,15 +86,15 @@ describe('OnboardingPanel', () => {
     expect(svg?.getAttribute('class')).toContain('text-[var(--accent)]');
   });
 
-  it('renders with heading size text-xl', () => {
+  it('renders with heading size text-lg', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
-    const heading = container.querySelector('[class*="text-xl"]');
+    const heading = container.querySelector('[class*="text-lg"]');
     expect(heading).toHaveClass('font-bold');
   });
 
   it('renders with centered heading', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
-    const heading = container.querySelector('[class*="text-xl"]');
+    const heading = container.querySelector('[class*="text-lg"]');
     expect(heading).toHaveClass('font-bold');
     expect(container.querySelector('[class*="text-center"]')).toBeInTheDocument();
   });
@@ -256,10 +256,10 @@ describe('OnboardingPanel', () => {
     expect(panel?.className).toContain('justify-center');
   });
 
-  it('renders with py-12 padding', () => {
+  it('renders with py-10 padding', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
     const panel = container.firstElementChild;
-    expect(panel?.className).toContain('py-12');
+    expect(panel?.className).toContain('py-10');
   });
 
   it('renders with px-6 padding', () => {

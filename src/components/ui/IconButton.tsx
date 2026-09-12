@@ -4,7 +4,6 @@ import React, {
   cloneElement,
   isValidElement,
 } from "react";
-import { useTheme } from "../../contexts/ThemeContext";
 
 export type IconButtonSize = "sm" | "md" | "lg";
 export type IconButtonVariant = "ghost" | "filled" | "subtle" | "danger";
@@ -33,36 +32,21 @@ const BASE =
 
 const TOUCH_TARGET = "min-w-11 min-h-11";
 
-const VARIANTS: Record<IconButtonVariant, { dark: string; light: string }> = {
-  ghost: {
-    dark: "bg-muted hover:bg-muted text-muted-foreground hover:text-foreground",
-    light: "bg-muted hover:bg-muted text-muted-foreground hover:text-foreground",
-  },
-  subtle: {
-    dark: "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
-    light: "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
-  },
-  filled: {
-    dark: "bg-primary text-primary-foreground hover:brightness-110 shadow-lg shadow-primary/20",
-    light: "bg-primary text-primary-foreground hover:brightness-110 shadow-lg shadow-primary/20",
-  },
-  danger: {
-    dark: "bg-destructive/90 hover:bg-destructive text-destructive-foreground hover:brightness-110",
-    light: "bg-destructive hover:bg-destructive text-destructive-foreground hover:brightness-110",
-  },
+const VARIANTS: Record<IconButtonVariant, string> = {
+  ghost: "bg-muted hover:bg-muted text-muted-foreground hover:text-foreground",
+  subtle: "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+  filled: "bg-primary text-primary-foreground hover:brightness-110 shadow-lg shadow-primary/20",
+  danger: "bg-destructive/90 hover:bg-destructive text-destructive-foreground hover:brightness-110",
 };
 
 export function IconButton({
   icon,
   size = "md",
   variant = "ghost",
-  isDark: isDarkProp,
   className = "",
   ...rest
 }: IconButtonProps) {
-  const { isDark: ctxDark } = useTheme();
-  const isDark = isDarkProp ?? ctxDark;
-  const themeClasses = isDark ? VARIANTS[variant].dark : VARIANTS[variant].light;
+  const themeClasses = VARIANTS[variant];
   const resolvedIcon =
     isValidElement<Record<string, unknown>>(icon) && icon.props?.size == null
       ? cloneElement(icon as React.ReactElement<{ size?: number }>, { size: ICON_SIZE[size] })

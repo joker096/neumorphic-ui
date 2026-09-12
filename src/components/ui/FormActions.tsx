@@ -37,9 +37,7 @@ export const FormActions = ({
           type="button"
           onClick={onCancel}
           className={`flex-1 h-[var(--control-height-md)] rounded-[var(--radius-control)] text-[length:var(--text-button)] font-bold transition-all active:scale-95 ${
-            isDark
-              ? 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
-              : 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+            'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
           }`}
         >
           {cancelLabel || 'Cancel'}

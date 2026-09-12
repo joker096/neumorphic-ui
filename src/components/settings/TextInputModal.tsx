@@ -9,8 +9,8 @@ interface TextInputModalProps {
   placeholder?: string;
   initial?: string;
   type?: 'text' | 'password';
-  confirmLabel?: string;
-  cancelLabel?: string;
+  confirmLabel: string;
+  cancelLabel: string;
   onConfirm: (value: string) => void;
   onCancel: () => void;
 }
@@ -21,8 +21,8 @@ export const TextInputModal = ({
   placeholder,
   initial = '',
   type = 'text',
-  confirmLabel = 'Save',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   onConfirm,
   onCancel,
 }: TextInputModalProps) => {

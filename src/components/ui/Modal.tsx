@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import { useFocusTrap } from '../../lib/a11y';
+import { useFocusTrap, useBodyScrollLock } from '../../lib/a11y';
 import {
   modalBackdrop,
   modalSurface,
@@ -54,7 +54,7 @@ export function Modal({
   closeLabel = 'Close',
   footer,
   showClose = true,
-  zIndex = 'z-50',
+  zIndex = 'z-[var(--z-modal)]',
   ariaLabel,
 }: ModalProps) {
   const dark = resolveDark(isDark);
@@ -62,6 +62,7 @@ export function Modal({
   const hasHeader = Boolean(title || subtitle || icon);
   const dialogRef = useRef<HTMLDivElement>(null);
   useFocusTrap(dialogRef, isOpen);
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     if (!isOpen) return;

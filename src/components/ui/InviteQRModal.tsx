@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Copy, Check } from 'lucide-react';
 import { QrCode } from '../QrCode';
 import { modalOverlay, modalSurface, modalCloseClass, type ModalTheme } from './modalShared';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 type InviteQRModalProps = {
   isOpen: boolean;
@@ -15,6 +16,7 @@ type InviteQRModalProps = {
 
 export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }: InviteQRModalProps) => {
   const [copied, setCopied] = useState(false);
+  useEscapeKey(onClose, isOpen);
 
   useEffect(() => {
     if (isOpen) {

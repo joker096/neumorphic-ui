@@ -523,6 +523,20 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
     }
   });
 
+  describe('pwa.* keys translations', () => {
+    const pwaKeys = ['pwa.installHint', 'pwa.installButton', 'pwa.dismiss'];
+
+    for (const lang of allLocales) {
+      for (const key of pwaKeys) {
+        it(`"${key}" translates in ${lang}`, () => {
+          const val = getTranslation(key, lang);
+          expect(val).not.toBe(key);
+          expect(val.length).toBeGreaterThan(0);
+        });
+      }
+    }
+  });
+
   describe('toast.* keys translations', () => {
     const toastKeys = [
       'toast.contactAdded', 'toast.encryptionFailed', 'toast.noPasswordProvided', 'toast.encryptedBackupCreated',
