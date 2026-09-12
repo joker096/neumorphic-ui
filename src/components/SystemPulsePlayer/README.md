@@ -12,21 +12,19 @@ Audio player component with neumorphic UI design.
 | `PlaylistView.tsx` | Track and radio station list |
 | `TopBar.tsx` | Top bar with file/folder import, EQ, playlist controls |
 | `AddStationModal.tsx` | Modal for adding radio station URLs |
-| `colors.ts` | Centralized color constants for player UI |
 | `usePlayerState.ts` | Zustand store for player state |
 | `utils.ts` | Audio utilities (Web Audio API helpers) |
 | `VideoOverlay.tsx` | Video overlay for audio visualization |
 
 ## Color System
 
-All player colors are centralized in `colors.ts` and organized by category:
+Player colors use CSS custom properties defined in `src/styles/tokens.css` under the `--player-*` namespace (both `[data-theme="dark"]` and `[data-theme="light"]` blocks):
 
-- `radio` — Radio mode colors (green spectrum)
-- `music` — Music mode colors (orange/brown spectrum)
-- `dark` — Dark theme specific colors
+- Green spectrum — radio mode (`--player-green`, `--player-green-dark`, `--player-green-deep`, ...)
+- Orange/brown spectrum — music mode (`--player-orange`, `--player-orange-dark`, `--player-orange-deep`, ...)
+- Theme-aware surfaces — `--player-panel-bg`, `--player-list-active`, `--player-station-modal`
 
 Usage:
 ```tsx
-import { playerColors } from './colors';
-className={`bg-[${playerColors.radio.main}]`
+className="bg-[var(--player-green)]"
 ```

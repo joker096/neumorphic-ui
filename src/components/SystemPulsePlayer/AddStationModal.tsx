@@ -54,7 +54,7 @@ export const AddStationModal = ({
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className={`w-[90%] max-w-[320px] rounded-2xl p-6 ${isDark ? "bg-[#2a3036]" : "bg-[#e8ecf4]"}`}
+        className={`w-[90%] max-w-[320px] rounded-2xl p-6 ${isDark ? "bg-[var(--player-station-modal)]" : "bg-[var(--player-station-modal-light)]"}`}
       >
         <h3 className={`text-lg font-bold mb-4 ${textColor}`}>{t('systemPlayer.addRadioStation')}</h3>
         <div className="mb-3">
@@ -82,7 +82,7 @@ export const AddStationModal = ({
         <div className="flex gap-2 mt-4">
           <button
             onClick={handleSubmit}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-[#5cc25c] text-[var(--text-primary)]" : "bg-green-600 text-[var(--text-primary)]"}`}
+            className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-[var(--player-green)] text-[var(--text-primary)]" : "bg-green-600 text-[var(--text-primary)]"}`}
           >
             {t('systemPlayer.addStation')}
           </button>

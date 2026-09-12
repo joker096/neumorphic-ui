@@ -59,7 +59,7 @@ export const TopBar = ({
             aria-label={t('systemPlayer.addStation')}
             onClick={openAddStation}
             onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openAddStation(); } }}
-            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`}
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[var(--player-green)]/20 text-[var(--player-green)] hover:bg-[var(--player-green)]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`}
             title={t('systemPlayer.addStation')}
           >
             <Plus size={16} />

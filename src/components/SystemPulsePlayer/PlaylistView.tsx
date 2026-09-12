@@ -97,7 +97,7 @@ export const PlaylistView = ({
             <input type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
           </label>
         ) : (
-           <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[#5cc25c]/20 text-[#5cc25c] hover:bg-[#5cc25c]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('systemPlayer.addStation')}
+           <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[var(--player-green)]/20 text-[var(--player-green)] hover:bg-[var(--player-green)]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('systemPlayer.addStation')}
             onClick={() => {
               setStationName("");
               setStationUrl("");
@@ -110,22 +110,28 @@ export const PlaylistView = ({
       </div>
 
       <div className={`flex flex-col gap-3 flex-1 overflow-y-auto pr-2`}>
-        {activeList.map((track, i) => {
+        {activeList.length === 0 ? (
+          <div className={`flex-1 flex flex-col items-center justify-center gap-2 py-10 text-center ${"text-slate-400"}`}>
+            <Music size={32} className="opacity-40" />
+            <span className="text-xs">{t('systemPlayer.emptyList', 'No tracks or stations yet')}</span>
+          </div>
+        ) : (
+        activeList.map((track, i) => {
           const isActive = i === activeIndex;
           return (
             <motion.div
               key={track.id}
               className={`flex items-center gap-4 p-3 transition-all group ${
                 isActive
-                  ? (isDark ? "bg-[#333a41] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]" : "bg-[#d1d8e0] shadow-[inset_2px_2px_4px_rgba(165,175,190,0.6)]")
-                  : (isDark ? "hover:bg-[#333a41]/50" : "hover:bg-black/5")
+                  ? (isDark ? "bg-[var(--player-list-active)] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]" : "bg-[var(--player-list-active)] shadow-[inset_2px_2px_4px_rgba(165,175,190,0.6)]")
+                  : (isDark ? "hover:bg-[var(--player-list-active)]/50" : "hover:bg-black/5")
               }`}
             >
               <div
                 onClick={() => handleTrackClick(track, i)}
                 className="flex items-center flex-1 min-w-0 gap-4 cursor-pointer"
               >
-                <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 ${isActive ? (isRadioMode ? "bg-[#45a045]" : "bg-[#c25c34]") : (isDark ? "bg-[#2a3036] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]")} shadow-md transition-colors`}>
+                <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 ${isActive ? (isRadioMode ? "bg-[var(--player-green-dark)]" : "bg-[var(--player-orange)]") : (isDark ? "bg-[var(--player-panel-bg)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]")} shadow-md transition-colors`}>
                   {isActive && isPlaying ? (
                     <div className="flex gap-0.5 items-end h-3">
                       {[0, 1, 2].map((bar) => (
@@ -133,19 +139,19 @@ export const PlaylistView = ({
                           key={bar}
                           animate={{ height: ["4px", "10px", "4px", "8px", "4px", "12px", "4px", "8px"] }}
                           transition={{ duration: 0.6 + bar * 0.2, repeat: Infinity }}
-                          className={`w-1 ${isRadioMode ? "bg-[#183a18]" : "bg-[#3a1a0d]"} rounded-full`}
+                          className={`w-1 ${isRadioMode ? "bg-[var(--player-bars-green)]" : "bg-[var(--player-bars-orange)]"} rounded-full`}
                         />
                       ))}
                     </div>
                   ) : (
                     isRadioMode
-                      ? <Radio size={14} className={isActive ? "text-[#183a18]" : textColor} />
-                      : <Music size={14} className={isActive ? "text-[#3a1a0d]" : textColor} />
+                      ? <Radio size={14} className={isActive ? "text-[var(--player-bars-green)]" : textColor} />
+                      : <Music size={14} className={isActive ? "text-[var(--player-bars-orange)]" : textColor} />
                   )}
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className={`text-[14px] font-bold truncate ${isActive && isDark ? "text-[var(--text-primary)]" : textColor}`}>{track.name}</span>
-                  <span className={`text-xs font-mono opacity-60 ${textColor}`}>M-NODE {track.id}</span>
+                  <span className={`text-xs font-mono opacity-60 ${textColor}`}>{t('systemPlayer.nodePrefix', 'M-NODE')} {track.id}</span>
                 </div>
                 <span className={`text-xs font-mono opacity-50 ${textColor} mr-2`}>{track.time}</span>
               </div>
@@ -164,7 +170,7 @@ export const PlaylistView = ({
                     setConfirmDeleteIndex(i);
                   }
                 }}
-                className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
+                className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-[var(--accent)] transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
                 role="button"
                 tabIndex={0}
                 aria-label={t('systemPlayer.remove')}
@@ -174,7 +180,7 @@ export const PlaylistView = ({
               </div>
             </motion.div>
           );
-        })}
+        }))}
       </div>
     </motion.div>
   );

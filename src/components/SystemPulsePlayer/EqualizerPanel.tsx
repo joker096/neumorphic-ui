@@ -70,7 +70,7 @@ export const EqualizerPanel = ({
               aria-label={t('systemPlayer.masterVolume')}
               className={`flex-1 h-3 rounded-full appearance-none outline-none ${isDark ? "bg-black/20" : "bg-black/10"}`}
               style={{
-                background: `linear-gradient(to right, ${isRadioMode ? (isDark ? '#5cc25c' : '#2cab50') : (isDark ? '#e2845c' : '#ab502c')} ${volume}%, ${isDark ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)'} ${volume}%)`
+                background: `linear-gradient(to right, ${isRadioMode ? 'var(--player-eq-radio)' : 'var(--player-eq-music)'} ${volume}%, var(--player-eq-track) ${volume}%)`
               }}
             />
             <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMax')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(100); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title={t('systemPlayer.volumeMax')} onClick={() => setVolume(100)}>
@@ -100,7 +100,7 @@ export const EqualizerPanel = ({
                     writingMode: 'vertical-lr',
                     direction: 'rtl',
                     WebkitAppearance: 'slider-vertical',
-                    background: isDark ? '[var(--bg-tertiary)]' : '#cbd5e1'
+                    background: 'var(--player-eq-bar)'
                   }}
                 />
                 <div className="text-xs font-bold mt-2">{freq}</div>
