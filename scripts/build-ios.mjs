@@ -71,8 +71,15 @@ async function main() {
   
   banner('Generating iOS install link');
   
-  // Create a simple install guide for iOS users
+  // Create a simple install guide for iOS users. Source of truth lives at
+  // public/install-ios.html (Vite copies it into dist on build, so web deploys
+  // always ship it); fall back to the inline template when run standalone.
   const installGuidePath = path.join(DIST_DIR, 'install-ios.html');
+  const staticInstallGuide = path.join(ROOT, 'public', 'install-ios.html');
+  if (fs.existsSync(staticInstallGuide)) {
+    fs.copyFileSync(staticInstallGuide, installGuidePath);
+    console.log('  ✓ iOS install guide copied from public/');
+  } else {
   const installGuide = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -131,6 +138,7 @@ async function main() {
   
   fs.writeFileSync(installGuidePath, installGuide);
   console.log('  ✓ iOS install guide created');
+  }
   
   // Create a plist-style iOS configuration for reference
   const iosConfigPath = path.join(ROOT, 'ios-config.plist');

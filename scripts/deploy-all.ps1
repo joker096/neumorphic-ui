@@ -14,7 +14,10 @@ param(
   [string]$AdminPass = "",
   [switch]$Help,
   [switch]$SkipVerify,
-  [switch]$SkipDesktop
+  [switch]$SkipDesktop,
+  [string]$RelayProxyName = "signalling-relay-fallback",
+  [string]$RelayProxyHost = "",
+  [switch]$SkipRelayProxy
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,10 +45,16 @@ OPTIONS:
   -SkipSignaling Skip signaling server update
    -SkipAdminCreate Skip admin creation after deploy
    -SkipIOS       Skip iOS PWA validation
-   -SkipVerify    Skip release version/integrity verification
-   -SkipDesktop   Skip Windows desktop (Tauri) build in pipeline
-    -AdminUser     Admin username (or ADMIN_USER env)
-    -AdminPass     Admin password (or ADMIN_PASS env, never logged)
+-SkipVerify    Skip release version/integrity verification
+    -SkipDesktop   Skip Windows desktop (Tauri) build in pipeline
+    -RelayProxyName  Cloudflare Workers relay-proxy name (default: signalling-relay-fallback)
+    -RelayProxyHost  Full workers.dev host of the proxy, e.g. signalling-relay-fallback.<acct>.workers.dev.
+                   Set to opt-in: injects it as a second signalling seed into the SPA build.
+                   Falls back to $RelayProxyName.$env:CLOUDFLARE_ACCOUNT_ID.workers.dev when set.
+                   Deploy via wrangler when CLOUDFLARE_API_TOKEN is set.
+    -SkipRelayProxy Skip the Cloudflare relay-proxy seed step entirely
+     -AdminUser     Admin username (or ADMIN_USER env)
+    -AdminPass      Admin password (or ADMIN_PASS env, never logged)
    -Help          Show this help
 
 EXAMPLES:
@@ -53,6 +62,7 @@ EXAMPLES:
   .\scripts\deploy-all.ps1 -SkipAndroid -SkipTests            # quick web deploy
   .\scripts\deploy-all.ps1 -SkipBuild -SkipAndroid            # re-deploy from existing dist
   $env:ADMIN_PASS='pass123'; .\scripts\deploy-all.ps1 -AdminUser=myadmin
+  .\scripts\deploy-all.ps1 -RelayProxyHost signalling-relay-fallback.myacct.workers.dev -SkipAndroid -SkipDesktop -SkipVerify
 "@
   exit 0
 }
@@ -79,6 +89,42 @@ Write-Host "╚═════════════════════�
 Write-Host "  Server: $Server" -ForegroundColor Gray
 Write-Host "  Web:    $WebRoot" -ForegroundColor Gray
 Write-Host "  App:    $AppRoot" -ForegroundColor Gray
+
+# ────────────────────────────────────────────────────────────
+# Phase 0: Cloudflare relay proxy (optional fallback signalling)
+# ────────────────────────────────────────────────────────────
+# Injects a SECOND signalling seed into the SPA build. Vite bakes VITE_* env
+# vars at build time, so this MUST run before `npm run build`. The client
+# already round-robins seeds via SignallingPool, so a dead primary seed no
+# longer kills connectivity. The proxy itself is a free Cloudflare Workers
+# reverse-proxy to the messaging server (server/signalling-proxy-worker.mjs).
+if (-not $SkipRelayProxy) {
+  Write-Host "`n━━━ [0/5] Cloudflare Relay Proxy ━━━" -ForegroundColor Cyan
+  if (-not $RelayProxyHost -and $env:CLOUDFLARE_ACCOUNT_ID) {
+    $RelayProxyHost = "$RelayProxyName.$env:CLOUDFLARE_ACCOUNT_ID.workers.dev"
+  }
+  if ($RelayProxyHost) {
+    $relaySeeds = "wss://mess.cvr.name/ws,wss://$RelayProxyHost/ws"
+    if ($env:CLOUDFLARE_API_TOKEN -and -not $SkipBuild) {
+      Write-Host "  Deploying $RelayProxyName to Cloudflare Workers..." -ForegroundColor Yellow
+      Push-Location $RootDir
+      try {
+        npx wrangler@latest deploy server/signalling-proxy-worker.mjs --name $RelayProxyName 2>&1 | ForEach-Object { Write-Host "  $_" }
+        if ($LASTEXITCODE -ne 0) { throw "wrangler deploy failed" }
+        Write-Host "  ✓ Relay proxy deployed: $RelayProxyHost" -ForegroundColor Green
+      } finally { Pop-Location }
+    } elseif (-not $env:CLOUDFLARE_API_TOKEN) {
+      Write-Host "  ⚠ CLOUDFLARE_API_TOKEN not set — skipping worker deploy. Seeds will reference $RelayProxyHost; deploy the worker manually first." -ForegroundColor Yellow
+    }
+    $env:VITE_SIGNALING_SEED_URLS = $relaySeeds
+    Write-Host "  ✓ Signalling seeds for SPA build:" -ForegroundColor Green
+    Write-Host "      $relaySeeds" -ForegroundColor Gray
+  } else {
+    Write-Host "  ⚠ No proxy host: set -RelayProxyHost or CLOUDFLARE_ACCOUNT_ID. Keeping single seed." -ForegroundColor Yellow
+  }
+} else {
+  Write-Host "`n━━━ Cloudflare relay proxy skipped (-SkipRelayProxy) ━━━" -ForegroundColor Yellow
+}
 
 # ────────────────────────────────────────────────────────────
 # Phase 1: Build
@@ -239,11 +285,59 @@ if (-not $SkipWebDeploy) {
     try {
       # Remove ALL files including hidden ones from the target directory
       ssh $Server "rm -rf $WebRoot/* 2>/dev/null; rm -rf $WebRoot/.* 2>/dev/null; mkdir -p $WebRoot"
-      # Upload using tar with --overwrite to handle any conflicts
-      tar cf - . --exclude=./.git --exclude=./.DS_Store --exclude=./.gitignore | ssh $Server "tar xf - -C $WebRoot --overwrite" 2>$null
-      if ($LASTEXITCODE -ne 0) { throw "Web file upload failed" }
-      Write-Host "  ✓ Web files uploaded to $WebRoot" -ForegroundColor Green
-    } finally { Pop-Location }
+      # Build the archive LOCAL first (not a tar pipe): Windows bsdtar can
+      # transiently fail to "visit" a directory (antivirus/Search-indexer
+      # activity) and silently drop entries; a piped tar swallows the failure
+      # into ssh's exit code and ships a corrupt/partial webroot. Archive to a
+      # file, check tar's OWN exit code, retry transients, then ship the file.
+      $webTar = Join-Path $env:TEMP "web-upload-$PID.tar"
+      $webList = Join-Path $env:TEMP "web-upload-$PID.txt"
+      Remove-Item -Path $webTar, $webList -ErrorAction SilentlyContinue
+      # Reference list of expected files (server/ ships via the signalling
+      # phase, never the webroot).
+      $localFiles = @(Get-ChildItem -Recurse -File -Path . | Where-Object {
+        $_.FullName -notmatch '\\server\\' -and $_.Name -notin @('.DS_Store', '.gitignore', '.git')
+      } | ForEach-Object { $_.FullName.Substring($PWD.Path.Length + 1).Replace('\', '/') })
+      $allEntries = @(Get-ChildItem -Recurse -Path . | Where-Object {
+        $_.FullName -notmatch '\\server\\' -and $_.Name -notin @('.DS_Store', '.gitignore', '.git')
+      } | ForEach-Object { $_.FullName.Substring($PWD.Path.Length + 1).Replace('\', '/') })
+      $allEntries | Set-Content -LiteralPath $webList -Encoding utf8NoBOM
+      $missing = $localFiles
+      for ($attempt = 1; $attempt -le 4 -and $missing.Count -gt 0; $attempt++) {
+        Remove-Item -Path $webTar -ErrorAction SilentlyContinue
+        # Windows bsdtar intermittently fails to "visit" a directory during
+        # recursive reads (av/lockfile/anti-virus churn) and can silently drop
+        # those entries even with rc=0. Sidestep recursion entirely: feed tar an
+        # explicit per-entry file list (-T) so nothing is resolved by directory
+        # scans, then authoritatively diff the archive listing against the local
+        # file set instead of trusting the exit code.
+        tar cf $webTar -T $webList 2>$null
+        $tarFiles = @(tar tf $webTar 2>$null | Where-Object { $_ -and $_ -notmatch '/$' } | ForEach-Object { if ($_.StartsWith('./')) { $_.Substring(2) } elseif ($_.StartsWith('/')) { $_.Substring(1) } else { $_ } })
+        $missing = @($localFiles | Where-Object { $_ -notin $tarFiles })
+        if ($missing.Count -gt 0) {
+          if ($attempt -lt 4) {
+            Write-Host "  ⚠ web archive incomplete: $($missing.Count) files missing, attempt $attempt/4 — retrying... ($($missing[0]))" -ForegroundColor Yellow
+            Start-Sleep -Seconds 2
+          }
+        }
+      }
+      if ($missing.Count -gt 0) { throw "Web archive incomplete after 4 attempts: $($missing.Count) files missing (e.g. $($missing[0]))" }
+      Remove-Item -Path $webList -ErrorAction SilentlyContinue
+      Get-Item $webTar | Select-Object Length | ForEach-Object { Write-Host "  ✓ Web archive built: $($_.Length) bytes — $($localFiles.Count) files verified" -ForegroundColor Green }
+      # Ship the archive and extract deterministically; ssh's exit code now
+      # genuinely reflects the transfer.
+      Get-Content $webTar -AsByteStream -Raw | ssh $Server "cat > $WebRoot/_incoming.tar && tar xf $WebRoot/_incoming.tar -C $WebRoot --overwrite && rm -f $WebRoot/_incoming.tar && echo EXTRACT_OK"
+      if ($LASTEXITCODE -ne 0) { throw "Remote extract failed (ssh exit $LASTEXITCODE)" }
+      # Post-deploy verification: re-check the files tar previously dropped.
+      foreach ($must in @('index.html', 'install-ios.html', 'offline.html', 'sw.js', 'manifest.json')) {
+        $exists = ssh $Server "test -f $WebRoot/$must && echo yes || echo no" 2>&1
+        if ($exists -notmatch 'yes') { throw "Deploy verification failed: $must is missing from $WebRoot" }
+      }
+      Write-Host "  ✓ Web files uploaded to $WebRoot (verified)" -ForegroundColor Green
+    } finally {
+      Remove-Item -Path (Join-Path $env:TEMP "web-upload-$PID.tar") -ErrorAction SilentlyContinue
+      Pop-Location
+    }
 
 # Post-deploy: ensure index.html is not cached (idempotent, guarded by marker)
     Write-Host "  Applying nginx cache-busting..." -ForegroundColor Yellow

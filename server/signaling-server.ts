@@ -31,7 +31,10 @@ const wsTopics = new Map<WebSocket, Set<string>>()
 
 // Rate limit per IP: track connection attempts
 const connectionAttempts = new Map<string, { count: number; resetAt: number }>()
-const MAX_CONNECTIONS_PER_MINUTE = 10
+// 60/min per IP. 10 was too aggressive for shared-VPN egress IPs (many app
+// users behind one provider IP) and, combined with the old client reconnect
+// storm, produced self-sustaining 1008 "Too many connections" denials.
+const MAX_CONNECTIONS_PER_MINUTE = 60
 
 function checkConnectionRateLimit(ip: string): boolean {
   const now = Date.now()
