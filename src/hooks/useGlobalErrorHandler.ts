@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { getErrorLog, getErrorStats, subscribeToErrors, type ErrorRecord } from "../lib/errorHandling";
+import { getErrorLog, subscribeToErrors, type ErrorRecord } from "../lib/errorHandling";
 
 export function useGlobalErrorHandler() {
   const [errors, setErrors] = useState<ErrorRecord[]>(() => getErrorLog());
@@ -41,18 +41,4 @@ export function useGlobalErrorHandler() {
   }, []);
 
   return { errors, handleError };
-}
-
-export function useErrorStats() {
-  const [stats, setStats] = useState(getErrorStats());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStats(getErrorStats());
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return stats;
 }

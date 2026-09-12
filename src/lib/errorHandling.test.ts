@@ -6,7 +6,6 @@ import {
   getErrorLog,
   clearErrorLog,
   subscribeToErrors,
-  getErrorStats,
   generateErrorId,
 } from './errorHandling';
 
@@ -59,15 +58,6 @@ describe('errorHandling', () => {
     logError(new Error('network fail'));
     clearErrorLog();
     expect(getErrorLog()).toHaveLength(0);
-  });
-
-  it('getErrorStats counts by severity', () => {
-    logError(new Error('network fail'));
-    logError(new Error('crypto fail'));
-    const stats = getErrorStats();
-    expect(stats.total).toBe(2);
-    expect(stats.major).toBe(1);
-    expect(stats.critical).toBe(1);
   });
 
   it('truncates long messages', () => {

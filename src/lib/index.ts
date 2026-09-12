@@ -6,7 +6,7 @@ export type { Account } from './accountManager';
 export { callRecorderService } from './callRecorderService';
 export type { CallRecording } from './callRecorderService';
 export { deviceSecurity } from './deviceSecurity';
-export { ErrorSeverity, generateErrorId, classifyError, logError, getErrorLog, clearErrorLog, subscribeToErrors, getErrorStats } from './errorHandling';
+export { ErrorSeverity, generateErrorId, classifyError, logError, getErrorLog, clearErrorLog, subscribeToErrors } from './errorHandling';
 export type { ErrorRecord } from './errorHandling';
 export { trackComponentMount, safeSet, retryableWrite, safeRead, retryWithFallback, initWithFallback, safeAsync } from './gracefulDegradation';
 export { preloadLocales, getTranslation, getTranslationWithFallback, I18nContext, useI18n, detectBrowserLanguage, I18nProvider } from './i18n';

@@ -115,19 +115,3 @@ export function subscribeToErrors(listener: () => void): () => void {
     errorListeners.delete(listener);
   };
 }
-
-export function getErrorStats(): {
-  total: number;
-  critical: number;
-  major: number;
-  minor: number;
-  retryable: number;
-} {
-  return {
-    total: errorLog.length,
-    critical: errorLog.filter((e) => e.severity === ErrorSeverity.CRITICAL).length,
-    major: errorLog.filter((e) => e.severity === ErrorSeverity.MAJOR).length,
-    minor: errorLog.filter((e) => e.severity === ErrorSeverity.MINOR).length,
-    retryable: errorLog.filter((e) => e.retryable).length,
-  };
-}

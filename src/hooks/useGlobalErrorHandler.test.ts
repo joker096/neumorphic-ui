@@ -4,7 +4,6 @@ import { useGlobalErrorHandler } from './useGlobalErrorHandler';
 
 vi.mock('../lib/errorHandling', () => ({
   getErrorLog: vi.fn(() => []),
-  getErrorStats: vi.fn(() => ({ critical: 0, major: 0, minor: 0, total: 0 })),
   subscribeToErrors: vi.fn((cb: any) => { setTimeout(cb, 0); return vi.fn(); }),
 }));
 

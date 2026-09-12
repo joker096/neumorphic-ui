@@ -1,9 +1,7 @@
 export { useAppLock } from './useAppLock';
 export { useDebounce } from './useDebounce';
 export { useGlobalErrorHandler } from './useGlobalErrorHandler';
-export { useHealthCheck } from './useHealthCheck';
 export { useLocalStorage } from './useLocalStorage';
-export { useMeshPeers } from './useMeshPeers';
 export { useScreenshotProtection } from './useScreenshotProtection';
 export { useUndoDelete } from './useUndoDelete';
 export { useAppConnection } from './useAppConnection';
