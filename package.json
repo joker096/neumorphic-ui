@@ -94,7 +94,7 @@
     "typescript": "~5.8.2",
     "vite": "^6.2.3",
     "vite-plugin-compression": "^0.5.1",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.11"
   },
   "overrides": {
     "extract-zip": "^2.0.1",
