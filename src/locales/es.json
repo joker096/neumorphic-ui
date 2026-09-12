@@ -1591,7 +1591,10 @@
       "default": "Por defecto",
       "light": "Claro",
       "dark": "Oscuro",
-      "dots": "Puntos"
+      "dots": "Puntos",
+      "custom": "Custom",
+      "remove": "Remove custom background",
+      "premium": "Premium"
     },
     "confirmDeleteAccount": "¿Eliminar cuenta? Todos los datos se borrarán permanentemente.",
     "confirmTerminateAll": "¿Cerrar todas las demás sesiones? Perderán el acceso.",

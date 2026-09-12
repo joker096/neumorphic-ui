@@ -1589,7 +1589,10 @@
       "default": "Default",
       "light": "Light",
       "dark": "Dark",
-      "dots": "Dots"
+      "dots": "Dots",
+      "custom": "Custom",
+      "remove": "Remove custom background",
+      "premium": "Premium"
     },
     "confirmDeleteAccount": "Delete account? All data will be permanently erased.",
     "confirmTerminateAll": "End all other sessions? They will lose access.",

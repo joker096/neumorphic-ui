@@ -103,6 +103,8 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     blockedBackends,
     regionBlocked,
     premiumEntitlement,
+    customChatBackground,
+    setCustomChatBackground,
   } = useSettingsSectionData();
 
   const isDark = theme === 'dark';
@@ -144,6 +146,9 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setAccentColor={setAccentColor}
       chatBackground={chatBackground}
       setChatBackground={setChatBackground}
+      premium={premiumEntitlement.premium}
+      customChatBackground={customChatBackground}
+      setCustomChatBackground={setCustomChatBackground}
       density={density}
       setDensity={setDensity}
       messageRadius={messageRadius}

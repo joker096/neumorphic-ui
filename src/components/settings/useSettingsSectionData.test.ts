@@ -35,6 +35,7 @@ const mkState = () => ({
   themeMode: 'system', setThemeMode: vi.fn(),
   accentColor: '#6366f1', setAccentColor: vi.fn(),
   chatBackground: '', setChatBackground: vi.fn(),
+  customChatBackground: '', setCustomChatBackground: vi.fn(),
   density: 'comfortable', setDensity: vi.fn(),
   messageRadius: 12, setMessageRadius: vi.fn(),
   animationIntensity: 'medium', setAnimationIntensity: vi.fn(),
@@ -114,5 +115,12 @@ describe('useSettingsSectionData', () => {
     const { result } = renderHook(() => useSettingsSectionData());
     act(() => result.current.updateSettings({ allowForwarding: false }));
     expect(state.updateSettings).toHaveBeenCalledWith({ allowForwarding: false });
+  });
+
+  it('exposes custom chat background value and setter', () => {
+    const { result } = renderHook(() => useSettingsSectionData());
+    expect(result.current.customChatBackground).toBe('');
+    act(() => result.current.setCustomChatBackground('data:image/jpeg;base64,AAAA'));
+    expect(state.setCustomChatBackground).toHaveBeenCalledWith('data:image/jpeg;base64,AAAA');
   });
 });

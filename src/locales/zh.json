@@ -1591,7 +1591,10 @@
       "default": "默认",
       "light": "浅色",
       "dark": "深色",
-      "dots": "点状"
+      "dots": "点状",
+      "custom": "Custom",
+      "remove": "Remove custom background",
+      "premium": "Premium"
     },
     "confirmDeleteAccount": "删除账户？所有数据将被永久清除。",
     "confirmTerminateAll": "结束其他所有会话？它们将失去访问权限。",

@@ -63,4 +63,43 @@ describe('useAppearanceEffects', () => {
     rerender();
     expect(document.documentElement.style.getPropertyValue('--accent-rgb')).toBe('');
   });
+
+  it('sets --chat-bg-image when chat background is custom with a data URL', () => {
+    act(() => {
+      useAppStore.setState({ chatBackground: 'custom', customChatBackground: 'data:image/jpeg;base64,AAAA' });
+    });
+    const { rerender } = renderHook(() => useAppearanceEffects());
+    rerender();
+
+    const root = document.documentElement;
+    expect(root.getAttribute('data-chat-bg')).toBe('custom');
+    expect(root.style.getPropertyValue('--chat-bg-image')).toBe('url("data:image/jpeg;base64,AAAA")');
+  });
+
+  it('removes --chat-bg-image when leaving custom background', () => {
+    act(() => {
+      useAppStore.setState({ chatBackground: 'custom', customChatBackground: 'data:image/jpeg;base64,AAAA' });
+    });
+    const { rerender } = renderHook(() => useAppearanceEffects());
+    rerender();
+    expect(document.documentElement.style.getPropertyValue('--chat-bg-image')).toContain('base64,AAAA');
+
+    act(() => {
+      useAppStore.setState({ chatBackground: 'dots', customChatBackground: 'data:image/jpeg;base64,AAAA' });
+    });
+    rerender();
+
+    const root = document.documentElement;
+    expect(root.getAttribute('data-chat-bg')).toBe('dots');
+    expect(root.style.getPropertyValue('--chat-bg-image')).toBe('');
+  });
+
+  it('does not write --chat-bg-image for custom bg with no data URL yet', () => {
+    act(() => {
+      useAppStore.setState({ chatBackground: 'custom', customChatBackground: '' });
+    });
+    const { rerender } = renderHook(() => useAppearanceEffects());
+    rerender();
+    expect(document.documentElement.style.getPropertyValue('--chat-bg-image')).toBe('');
+  });
 });

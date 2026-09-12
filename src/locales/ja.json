@@ -1591,7 +1591,10 @@
       "default": "デフォルト",
       "light": "ライト",
       "dark": "ダーク",
-      "dots": "ドット"
+      "dots": "ドット",
+      "custom": "Custom",
+      "remove": "Remove custom background",
+      "premium": "Premium"
     },
     "confirmDeleteAccount": "アカウントを削除しますか？すべてのデータが完全に消去されます。",
     "confirmTerminateAll": "他のすべてのセッションを終了しますか？アクセスが解除されます。",

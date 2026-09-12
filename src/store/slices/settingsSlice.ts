@@ -120,6 +120,8 @@ export interface SettingsSlice {
   setAccentColor: (color: string) => void;
   chatBackground: string;
   setChatBackground: (bg: string) => void;
+  customChatBackground: string;
+  setCustomChatBackground: (dataUrl: string) => void;
   density: 'comfortable' | 'compact';
   setDensity: (d: 'comfortable' | 'compact') => void;
   messageRadius: number;
@@ -243,6 +245,7 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   themeMode: savedPrivacySettings.themeMode ?? 'system',
   accentColor: savedPrivacySettings.accentColor ?? '#10b981',
   chatBackground: savedPrivacySettings.chatBackground ?? 'default',
+  customChatBackground: savedPrivacySettings.customChatBackground ?? '',
   density: savedPrivacySettings.density ?? 'comfortable',
   messageRadius: savedPrivacySettings.messageRadius ?? 16,
   animationIntensity: savedPrivacySettings.animationIntensity ?? 'high',
@@ -348,6 +351,10 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setChatBackground: (bg) => {
     set({ chatBackground: bg });
     persistSetting('chatBackground', bg);
+  },
+  setCustomChatBackground: (dataUrl) => {
+    set({ customChatBackground: dataUrl });
+    persistSetting('customChatBackground', dataUrl);
   },
   setDensity: (d) => {
     set({ density: d });

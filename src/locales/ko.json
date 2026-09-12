@@ -1591,7 +1591,10 @@
       "default": "기본값",
       "light": "밝게",
       "dark": "어둡게",
-      "dots": "도트"
+      "dots": "도트",
+      "custom": "Custom",
+      "remove": "Remove custom background",
+      "premium": "Premium"
     },
     "confirmDeleteAccount": "계정을 삭제할까요? 모든 데이터가 영구 삭제됩니다.",
     "confirmTerminateAll": "다른 모든 세션을 종료할까요? 액세스가 해제됩니다.",

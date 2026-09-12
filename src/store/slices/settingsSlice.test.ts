@@ -96,4 +96,21 @@ describe('settingsSlice', () => {
     const stored = JSON.parse(localStorage.getItem(PRIVACY_KEY)!);
     expect(stored.autoRecordCalls).toBe(false);
   });
+
+  it('customChatBackground defaults empty and setter persists', async () => {
+    const { createSettingsSlice } = await import('./settingsSlice');
+    const { slice, get } = mk(createSettingsSlice);
+    expect(get().customChatBackground).toBe('');
+    slice.setCustomChatBackground('data:image/jpeg;base64,AAAA');
+    expect(get().customChatBackground).toBe('data:image/jpeg;base64,AAAA');
+    const stored = JSON.parse(localStorage.getItem(PRIVACY_KEY)!);
+    expect(stored.customChatBackground).toBe('data:image/jpeg;base64,AAAA');
+  });
+
+  it('loads a persisted customChatBackground', async () => {
+    localStorage.setItem(PRIVACY_KEY, JSON.stringify({ customChatBackground: 'data:image/jpeg;base64,BBBB' }));
+    const { createSettingsSlice } = await import('./settingsSlice');
+    const { slice } = mk(createSettingsSlice);
+    expect(slice.customChatBackground).toBe('data:image/jpeg;base64,BBBB');
+  });
 });

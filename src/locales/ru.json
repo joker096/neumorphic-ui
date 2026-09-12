@@ -1591,7 +1591,10 @@
       "default": "По умолчанию",
       "light": "Светлый",
       "dark": "Тёмный",
-      "dots": "Точки"
+      "dots": "Точки",
+      "custom": "Custom",
+      "remove": "Remove custom background",
+      "premium": "Premium"
     },
     "confirmDeleteAccount": "Удалить аккаунт? Все данные будут удалены безвозвратно.",
     "confirmTerminateAll": "Завершить все другие сессии? Они потеряют доступ.",

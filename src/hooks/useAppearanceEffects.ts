@@ -18,6 +18,7 @@ function hexToRgbChannels(hex: string): string | null {
 export function useAppearanceEffects() {
   const accentColor = useAppStore((s) => s.accentColor);
   const chatBackground = useAppStore((s) => s.chatBackground);
+  const customChatBackground = useAppStore((s) => s.customChatBackground);
   const density = useAppStore((s) => s.density);
   const messageRadius = useAppStore((s) => s.messageRadius);
   const animationIntensity = useAppStore((s) => s.animationIntensity);
@@ -34,6 +35,11 @@ export function useAppearanceEffects() {
     }
 
     if (chatBackground) root.setAttribute('data-chat-bg', chatBackground);
+    if (chatBackground === 'custom' && customChatBackground) {
+      root.style.setProperty('--chat-bg-image', `url("${customChatBackground}")`);
+    } else {
+      root.style.removeProperty('--chat-bg-image');
+    }
     if (density) root.setAttribute('data-density', density);
 
     if (typeof messageRadius === 'number') {
@@ -45,5 +51,5 @@ export function useAppearanceEffects() {
     }
 
     if (animationIntensity) root.setAttribute('data-anim-intensity', animationIntensity);
-  }, [accentColor, chatBackground, density, messageRadius, animationIntensity]);
+  }, [accentColor, chatBackground, customChatBackground, density, messageRadius, animationIntensity]);
 }

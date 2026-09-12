@@ -52,6 +52,8 @@ export const useSettingsSectionData = () => {
   const setAccentColor = useAppStore(state => state.setAccentColor);
   const chatBackground = useAppStore(state => state.chatBackground);
   const setChatBackground = useAppStore(state => state.setChatBackground);
+  const customChatBackground = useAppStore(state => state.customChatBackground);
+  const setCustomChatBackground = useAppStore(state => state.setCustomChatBackground);
   const density = useAppStore(state => state.density);
   const setDensity = useAppStore(state => state.setDensity);
   const messageRadius = useAppStore(state => state.messageRadius);
@@ -167,6 +169,8 @@ export const useSettingsSectionData = () => {
     setAccentColor,
     chatBackground,
     setChatBackground,
+    customChatBackground,
+    setCustomChatBackground,
     density,
     setDensity,
     messageRadius,
