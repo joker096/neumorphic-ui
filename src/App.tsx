@@ -81,7 +81,7 @@ export default function App() {
     callHistory, chats, contacts, channels,
   });
 
-  const { connectionStatus } = useAppConnection();
+  const { connectionStatus, connectionError } = useAppConnection();
 
   useScheduledMessages();
 
@@ -299,7 +299,7 @@ export default function App() {
     <ServicesProvider services={createLocalServices()}>
     <AppAuthGate>
       <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
-        <AppChrome isDark={isDark} connectionStatus={connectionStatus} />
+        <AppChrome isDark={isDark} connectionStatus={connectionStatus} connectionError={connectionError} />
         <AppShell
           theme={theme}
           isDark={isDark}

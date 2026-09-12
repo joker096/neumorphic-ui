@@ -83,3 +83,30 @@ describe('TransportIndicator tooltip legend', () => {
     expect(screen.getByLabelText('Connection: Degraded')).toBeInTheDocument();
   });
 });
+
+describe('TransportIndicator error detail', () => {
+  it('shows the server-provided detail in the tooltip for blocked', () => {
+    render(<TransportIndicator status="blocked" detail="Too many connections" />);
+    fireEvent.mouseEnter(screen.getByRole('status'));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Too many connections');
+  });
+
+  it('shows the server-provided detail in the tooltip for error', () => {
+    render(<TransportIndicator status="error" detail="Origin not allowed" />);
+    fireEvent.mouseEnter(screen.getByRole('status'));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Origin not allowed');
+  });
+
+  it('does not render a stale detail when connected', () => {
+    render(<TransportIndicator status="connected" detail="Too many connections" />);
+    fireEvent.mouseEnter(screen.getByRole('status'));
+    expect(screen.getByRole('tooltip')).not.toHaveTextContent('Too many connections');
+  });
+
+  it('omits the detail section when no detail is provided', () => {
+    render(<TransportIndicator status="blocked" />);
+    fireEvent.mouseEnter(screen.getByRole('status'));
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip.textContent).not.toMatch(/Closed by server/i);
+  });
+});

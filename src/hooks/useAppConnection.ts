@@ -8,6 +8,7 @@ export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'blo
 
 export const useAppConnection = () => {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionState>('disconnected');
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const [regionBlocked, setRegionBlocked] = useState(false);
   const managerRef = useRef<SignallingManager | null>(null);
   const relayBackend = useAppStore(state => state.relayBackend);
@@ -19,12 +20,14 @@ export const useAppConnection = () => {
     managerRef.current = mgr;
 
     setConnectionStatus('connecting');
+    setConnectionError(null);
     useAppStore.getState().setConnectionStatus('connecting');
     useAppStore.getState().setTransportBackend(mgr.getBackend());
     useAppStore.getState().setLatency(mgr.getLatency());
 
     mgr.connect().catch(() => {
       setConnectionStatus('error');
+      setConnectionError(mgr.getLastError());
       useAppStore.getState().setConnectionStatus('error');
       useAppStore.getState().setBlockedBackends(['all']);
     });
@@ -32,6 +35,8 @@ export const useAppConnection = () => {
     const unsub1 = mgr.onStateChange((state) => {
       const s = state as ConnectionState;
       setConnectionStatus(s);
+      if (s === 'connected') setConnectionError(null);
+      else if (s === 'blocked' || s === 'error') setConnectionError(mgr.getLastError());
       useAppStore.getState().setConnectionStatus(s);
       useAppStore.getState().setTransportBackend(mgr.getBackend());
       useAppStore.getState().setLatency(mgr.getLatency());
@@ -47,11 +52,13 @@ export const useAppConnection = () => {
 
     const handleOnline = () => {
       setConnectionStatus('connecting');
+      setConnectionError(null);
       useAppStore.getState().setConnectionStatus('connecting');
       useAppStore.getState().setRegionBlocked(false);
       mgr.getPool().reset();
       mgr.connect().catch(() => {
         setConnectionStatus('error');
+        setConnectionError(mgr.getLastError());
         useAppStore.getState().setConnectionStatus('error');
       });
     };
@@ -66,5 +73,5 @@ export const useAppConnection = () => {
     };
   }, [relayBackend, autoReconnect]);
 
-  return { connectionStatus, regionBlocked, managerRef };
+  return { connectionStatus, connectionError, regionBlocked, managerRef };
 };

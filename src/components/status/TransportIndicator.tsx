@@ -21,7 +21,7 @@ const STATUS_META: Record<Status, StatusMeta> = {
 
 const STATUS_ORDER: Status[] = ['connected', 'connecting', 'blocked', 'disconnected', 'error'];
 
-export function TransportIndicator({ status = 'disconnected' }: { status?: Status }) {
+export function TransportIndicator({ status = 'disconnected', detail }: { status?: Status; detail?: string | null }) {
   const [open, setOpen] = useState(false);
   const { t } = useI18n();
   const meta = STATUS_META[status] || STATUS_META.disconnected;
@@ -50,6 +50,11 @@ export function TransportIndicator({ status = 'disconnected' }: { status?: Statu
           <span className="mt-1 block text-[11px] leading-snug text-[var(--text-secondary)]">
             {t(meta.meaningKey, meta.meaning)}
           </span>
+          {(status === 'blocked' || status === 'error') && detail && (
+            <span className="mt-1.5 block text-[11px] font-medium leading-snug text-[var(--danger)] break-words">
+              {detail}
+            </span>
+          )}
 
           <span className="mt-2.5 block border-t border-[var(--border-color)] pt-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
             {t('transport.allStatuses', 'All statuses')}

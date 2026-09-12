@@ -32,7 +32,7 @@ describe('WsTunnel heartbeat', () => {
     close: ReturnType<typeof vi.fn> | undefined;
     onopen: (() => void) | null = null;
     onmessage: ((event: { data: string }) => void) | null = null;
-    onclose: (() => void) | null = null;
+    onclose: ((event?: { code?: number; reason?: string }) => void) | null = null;
     onerror: ((err: Error) => void) | null = null;
 
     constructor(url: string) {
@@ -106,6 +106,38 @@ describe('WsTunnel heartbeat', () => {
     await vi.advanceTimersByTimeAsync(30000);
     expect(ws.close).toHaveBeenCalledTimes(1);
 
+    tunnel.close();
+  });
+
+  it('hands the server close code/reason to onClose handlers and keeps it for inspection', async () => {
+    const { tunnel, ws } = await openTunnel();
+    const onClose = vi.fn();
+    tunnel.onClose(onClose);
+
+    ws.onclose({ code: 1008, reason: 'Too many connections' });
+
+    expect(onClose).toHaveBeenCalledWith({ code: 1008, reason: 'Too many connections' });
+    expect(tunnel.getLastClose()).toEqual({ code: 1008, reason: 'Too many connections' });
+    tunnel.close();
+  });
+
+  it('stores a close frame even when no onClose handler is registered yet', async () => {
+    const { tunnel, ws } = await openTunnel();
+
+    ws.onclose({ code: 1006, reason: '' });
+
+    expect(tunnel.getLastClose()).toEqual({ code: 1006, reason: '' });
+    tunnel.close();
+  });
+
+  it('normalises an abrupt (no-frame) close to code 1006', async () => {
+    const { tunnel, ws } = await openTunnel();
+    const onClose = vi.fn();
+    tunnel.onClose(onClose);
+
+    ws.onclose();
+
+    expect(onClose).toHaveBeenCalledWith({ code: 1006, reason: '' });
     tunnel.close();
   });
 });

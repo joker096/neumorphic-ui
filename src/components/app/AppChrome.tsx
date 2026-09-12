@@ -5,9 +5,10 @@ import { TransportIndicator } from "../status/TransportIndicator";
 export interface AppChromeProps {
   isDark: boolean;
   connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
+  connectionError?: string | null;
 }
 
-function AppChromeImpl({ isDark, connectionStatus }: AppChromeProps) {
+function AppChromeImpl({ isDark, connectionStatus, connectionError }: AppChromeProps) {
   return (
     <>
       <Toaster
@@ -27,7 +28,7 @@ function AppChromeImpl({ isDark, connectionStatus }: AppChromeProps) {
         <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[var(--accent)]/5 to-transparent pointer-events-none" />
       )}
       <div className="absolute top-2 right-2 z-50">
-        <TransportIndicator status={connectionStatus} />
+        <TransportIndicator status={connectionStatus} detail={connectionError} />
       </div>
     </>
   );

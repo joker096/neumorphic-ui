@@ -3,6 +3,32 @@ import { SignallingPool } from '../network/signallingPool';
 
 type MgrState = 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
 type BlockedRegionEvent = { region: string; message: string };
+type CloseInfo = { code: number; reason: string } | null;
+
+/** Server-side rejection close codes / reasons we should NOT treat as a
+ * transient network blip: the peer accepted the TCP/TLS/WS handshake and then
+ * deliberately closed us (rate limit, origin policy, auth). Reconnecting fast
+ * only burns the server's per-IP connection budget (shared VPN egress IPs
+ * make this worse), so back off slowly and surface `blocked`. */
+const SERVER_REJECT_CODES = new Set([1008, 1009, 4401, 4403]);
+const SERVER_REJECT_REASONS = [
+  /too many/i,
+  /origin not allowed/i,
+  /authentication required/i,
+  /blocked/i,
+  /rate.?limit/i,
+];
+
+function isServerReject(info: CloseInfo): boolean {
+  if (!info) return false;
+  if (SERVER_REJECT_CODES.has(info.code)) return true;
+  return SERVER_REJECT_REASONS.some((re) => re.test(info.reason));
+}
+
+/** Fixed slow retry for server-side rejections. Keeps a single misbehaving
+ * client well under any per-IP per-minute cap while not parking the transport
+ * at `blocked` forever. */
+const BLOCKED_RETRY_MS = 45000;
 
 export class SignallingManager {
   private pool: SignallingPool;
@@ -15,6 +41,8 @@ export class SignallingManager {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 10;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private blockedReconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastTunnelError: string | null = null;
   private disposed = false;
   private autoReconnect = true;
   private connectInFlight = false;
@@ -29,6 +57,7 @@ export class SignallingManager {
   getLatency(): number { return this.latencyMs; }
   getPool(): SignallingPool { return this.pool; }
   getBackend(): TunnelBackend { return this.backend; }
+  getLastError(): string | null { return this.lastTunnelError; }
 
   setBackend(backend: TunnelBackend): void {
     this.backend = backend;
@@ -68,22 +97,54 @@ export class SignallingManager {
       this.pool.markActive(url, this.latencyMs);
       this.setState('connected');
       this.reconnectAttempts = 0;
+      this.lastTunnelError = null;
 
-      this.tunnel.onClose(() => {
-        this.pool.markFailed(url);
-        this.scheduleReconnect();
+      this.tunnel.onClose((info) => {
+        if (isServerReject(info)) {
+          this.pool.markFailed(url);
+          this.handleBlocked(info);
+        } else {
+          this.markTransient(url);
+        }
       });
       this.tunnel.onError(() => {
-        this.pool.markFailed(url);
-        this.scheduleReconnect();
+        this.markTransient(url);
       });
     } catch {
       this.latencyMs = Date.now() - start;
-      this.pool.markFailed(url);
-      this.scheduleReconnect();
+      this.markTransient(url);
     } finally {
       this.connectInFlight = false;
     }
+  }
+
+  private markTransient(url: string): void {
+    this.pool.markFailed(url);
+    // A closed socket must never leave the manager in 'connected': connect()
+    // early-returns on 'connected', which would dead-lock reconnection.
+    if (this.state === 'connected' || this.state === 'blocked') this.setState('disconnected');
+    this.scheduleReconnect();
+  }
+
+  private handleBlocked(info: CloseInfo): void {
+    this.lastTunnelError = info?.reason || `Closed by server (code ${info?.code ?? 'unknown'})`;
+    this.setState('blocked');
+    this.clearReconnectTimers();
+    if (this.disposed) return;
+    if (!this.isOnline()) return;
+    this.blockedReconnectTimer = setTimeout(() => {
+      this.blockedReconnectTimer = null;
+      this.connect().catch(() => {});
+    }, BLOCKED_RETRY_MS);
+  }
+
+  private isOnline(): boolean {
+    return typeof navigator !== 'undefined' ? navigator.onLine !== false : true;
+  }
+
+  private clearReconnectTimers(): void {
+    if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null; }
+    if (this.blockedReconnectTimer) { clearTimeout(this.blockedReconnectTimer); this.blockedReconnectTimer = null; }
   }
 
   private scheduleReconnect(): void {
@@ -92,23 +153,24 @@ export class SignallingManager {
       this.setState('error');
       return;
     }
+    if (this.reconnectTimer || this.blockedReconnectTimer) return;
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       this.setState('error');
       return;
     }
+    if (!this.isOnline()) return;
     this.reconnectAttempts++;
     const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts - 1), 30000);
     this.reconnectTimer = setTimeout(() => {
-      if (!this.disposed) this.connect();
+      this.reconnectTimer = null;
+      this.connect().catch(() => {});
     }, delay);
   }
 
   disconnect(): void {
     this.disposed = true;
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
+    this.clearReconnectTimers();
+    this.lastTunnelError = null;
     this.tunnel?.close();
     this.tunnel = null;
     this.setState('disconnected');

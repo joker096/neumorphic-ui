@@ -19,12 +19,13 @@ export class WsTunnel {
   private status: TunnelStatus = 'disconnected';
   private onMessageCallback?: (data: any) => void;
   private onOpenCallback?: () => void;
-  private onCloseCallback?: () => void;
+  private onCloseCallback?: (info: { code: number; reason: string } | null) => void;
   private onErrorCallback?: (err: Error) => void;
   private originalUrl: string;
   private aborted = false;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private lastPongAt: number = 0;
+  private lastClose: { code: number; reason: string } | null = null;
 
   constructor(config: TunnelConfig) {
     this.originalUrl = config.url;
@@ -49,6 +50,15 @@ export class WsTunnel {
   getBackend(): TunnelBackend { return this.backend; }
   getStatus(): TunnelStatus { return this.status; }
   setUrl(url: string): void { this.url = url; }
+
+  /**
+   * The server-issued close code/reason from the last `onclose` event (if any).
+   * Handshake-phase failures (TCP / TLS / HTTP upgrade) surface as close 1006
+   * with an empty reason in browsers; application-level rejections reach the
+   * client as a real close frame (e.g. 1008 "Too many connections" / "Origin
+   * not allowed" / "Authentication required").
+   */
+  getLastClose(): { code: number; reason: string } | null { return this.lastClose; }
 
   private startHeartbeat(): void {
     this.stopHeartbeat();
@@ -120,12 +130,17 @@ export class WsTunnel {
           }
           if (this.onMessageCallback) this.onMessageCallback(event.data);
         };
-        this.ws.onclose = done(() => {
+        this.ws.onclose = (event) => {
+          clearTimeout(timer);
           if (this.aborted) return;
+          this.lastClose = {
+            code: event?.code ?? 1006,
+            reason: event?.reason || '',
+          };
           this.stopHeartbeat();
           this.status = 'disconnected';
-          if (this.onCloseCallback) this.onCloseCallback();
-        });
+          if (this.onCloseCallback) this.onCloseCallback(this.lastClose);
+        };
         this.ws.onerror = done(() => {
           if (this.aborted) return;
           this.stopHeartbeat();
@@ -148,7 +163,7 @@ export class WsTunnel {
 
   onMessage(callback: (data: any) => void): void { this.onMessageCallback = callback; }
   onOpen(callback: () => void): void { this.onOpenCallback = callback; }
-  onClose(callback: () => void): void { this.onCloseCallback = callback; }
+  onClose(callback: (info: { code: number; reason: string } | null) => void): void { this.onCloseCallback = callback; }
   onError(callback: (err: Error) => void): void { this.onErrorCallback = callback; }
 
   close(): void {
