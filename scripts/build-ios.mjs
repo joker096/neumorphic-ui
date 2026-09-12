@@ -142,7 +142,7 @@ async function main() {
   <key>CFBundleName</key>
   <string>Mess&amp;Anger</string>
   <key>CFBundleIdentifier</key>
-  <string>app.messandanger.messenger</string>
+  <string>com.messanger.e2e</string>
   <key>UIRequiresFullScreen</key>
   <true/>
   <key>NSCameraUsageDescription</key>

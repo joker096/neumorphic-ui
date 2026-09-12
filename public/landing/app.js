@@ -364,8 +364,9 @@ document.querySelectorAll('.faq dt').forEach(dt => {
       body += '<a class="btn" href="' + f.url + '" download="' + f.file + '">Download ' + f.kind.toUpperCase() + '</a>';
       body += '<p style="margin-top:8px;font-size:10px;opacity:.5;word-break:break-all">SHA-256: ' + f.sha256.slice(0, 16) + '…</p>';
     } else {
+      const storeLabel = f.platform === 'android' ? 'Google Play' : 'Get ' + f.kind.toUpperCase();
       const link = f.url
-        ? '<a class="btn" href="' + f.url + '" target="_blank" rel="noopener">Get ' + f.kind.toUpperCase() + '</a>'
+        ? '<a class="btn" href="' + f.url + '" target="_blank" rel="noopener">' + storeLabel + '</a>'
         : '<span class="btn" style="opacity:.5">Pending</span>';
       body += '<p>' + (f.note || 'Coming soon.') + '</p>' + link;
     }

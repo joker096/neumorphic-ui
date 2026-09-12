@@ -21,7 +21,7 @@ plugins {
 }
 
 def twaManifest = [
-    applicationId: 'app.messandanger.messenger',
+    applicationId: 'com.messanger.e2e',
     hostName: 'mess.cvr.name', // The domain being opened in the TWA.
     launchUrl: '/', // The start path for the TWA. Must be relative to the domain.
     name: 'Mess&Anger', // The application name.
@@ -52,9 +52,9 @@ def twaManifest = [
 
 android {
     compileSdkVersion 36
-    namespace "app.messandanger.messenger"
+    namespace "com.messanger.e2e"
     defaultConfig {
-        applicationId "app.messandanger.messenger"
+        applicationId "com.messanger.e2e"
         minSdkVersion 21
         targetSdkVersion 36
         versionCode 1

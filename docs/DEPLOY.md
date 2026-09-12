@@ -168,8 +168,8 @@ npm run deploy
 ```
 
 **Выход:**
-- `app-release-signed.apk` — прямая установка
-- `app-release-bundle.aab` — Google Play
+- `app-release-bundle.aab` — Google Play (дистрибуция: https://play.google.com/store/apps/details?id=com.messanger.e2e)
+- `app-release-signed.apk` — только для sideload-тестов (не раздаётся пользователям)
 
 ## Переменные окружения
 

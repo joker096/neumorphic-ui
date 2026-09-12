@@ -1,9 +1,9 @@
 # Google Play — Mess&Anger
 
-Everything needed to publish **Mess&Anger** (TWA, `app.messandanger.messenger`) to Google Play.
+Everything needed to publish **Mess&Anger** (TWA, `com.messanger.e2e`) to Google Play.
 Artifacts, store listing, Data Safety answers, rating guidance, and the upload runbook.
 
-- **Package ID:** `app.messandanger.messenger`
+- **Package ID:** `com.messanger.e2e`
 - **Privacy policy (live):** `https://mess.cvr.name/privacy.html` (static page: `public/privacy.html`, deployed via `scripts/deploy-all.ps1`)
 - **App host:** `https://mess.cvr.name` (HTTPS, Service Worker active)
 - **AAB:** `app-release-bundle.aab` at repo root (build: `node scripts/build-android.mjs`)
@@ -73,7 +73,7 @@ Initial release.
 
 **App URL:** `https://mess.cvr.name`
 **Privacy policy URL:** `https://mess.cvr.name/privacy.html`
-**Contact email:** `privacy@cvr.name` (placeholder — replace with a monitored address before submitting)
+**Contact email:** `top.seo.one@gmail.com`
 
 ## 3. Data Safety form (recommended answers)
 
@@ -133,7 +133,7 @@ reached/deployed before submission (run `scripts/deploy-all.ps1` first).
      deploys it to the web root.
    - Verify live before upload:
      `curl https://mess.cvr.name/.well-known/assetlinks.json` — must list
-     `"package_name": "app.messandanger.messenger"` and the SHA-256 fingerprint
+     `"package_name": "com.messanger.e2e"` and the SHA-256 fingerprint
      printed by the build. If it 404s or the fingerprint differs, fix before
      continuing.
 1. **Deploy the privacy page + assetlinks** (first release only, or whenever `public/privacy.html` changes):
@@ -180,8 +180,8 @@ reached/deployed before submission (run `scripts/deploy-all.ps1` first).
 
 ## 8. Known user decisions (flagged)
 
-- `privacy@cvr.name` is a **placeholder** — set up a monitored mailbox and
-  update both `public/privacy.html` and the store listing before submitting.
+- Contact email `top.seo.one@gmail.com` is set in both `public/privacy.html`
+  and the store listing.
 - Payment gateway name in the privacy policy ("paymento.io") — confirm the
   merchant-facing name matches what buyers see on receipts.
 - Country-level location disclosure (§3) — conservative choice; remove the row

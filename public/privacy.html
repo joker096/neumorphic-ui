@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Mess&amp;Anger — Privacy Policy</title>
+    <meta
+      name="description"
+      content="Privacy policy for Mess&Anger, an end-to-end encrypted peer-to-peer messenger. What data we collect, how we use it, and how to request deletion."
+    />
+    <style>
+      :root {
+        --bg: #e0e5ec;
+        --bg-dark: #1b1f27;
+        --txt: #2d3240;
+        --txt-dark: #d7dce6;
+        --accent: #4b7bec;
+        --radius: 18px;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+        min-height: 100vh;
+        padding: 32px 16px 64px;
+      }
+      body.dark { background: var(--bg-dark); color: var(--txt-dark); }
+      .wrap { max-width: 860px; margin: 0 auto; }
+      .topbar { display: flex; justify-content: flex-end; margin-bottom: 18px; }
+      button.toggle {
+        border: none; cursor: pointer; padding: 10px 16px; border-radius: var(--radius);
+        background: var(--bg); color: var(--txt);
+        box-shadow: 6px 6px 12px #b8bcc4, -6px -6px 12px #ffffff;
+      }
+      body.dark button.toggle { background: var(--bg-dark); color: var(--txt-dark); box-shadow: 6px 6px 12px #11141a, -6px -6px 12px #232833; }
+      button.toggle:active { box-shadow: inset 4px 4px 8px #b8bcc4, inset -4px -4px 8px #ffffff; }
+      body.dark button.toggle:active { box-shadow: inset 4px 4px 8px #11141a, inset -4px -4px 8px #232833; }
+      header { text-align: center; margin-bottom: 28px; }
+      h1 { font-size: clamp(26px, 5vw, 40px); margin: 0 0 6px; }
+      .sub { opacity: 0.7; font-size: 15px; }
+      .sec {
+        margin-top: 22px; background: var(--bg); border-radius: var(--radius); padding: 22px 24px;
+        box-shadow: 8px 8px 18px #b8bcc4, -8px -8px 18px #ffffff;
+      }
+      body.dark .sec { background: var(--bg-dark); box-shadow: 8px 8px 18px #11141a, -8px -8px 18px #232833; }
+      .sec h2 { margin: 0 0 10px; font-size: 18px; }
+      .sec p, .sec li { font-size: 14px; line-height: 1.7; }
+      .sec ul { margin: 0; padding-left: 18px; }
+      .sec code { background: rgba(127,127,127,0.18); padding: 2px 6px; border-radius: 6px; font-size: 12.5px; }
+      footer { text-align: center; opacity: 0.55; font-size: 12px; margin-top: 30px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <a class="toggle" style="text-decoration:none" href="./">← Back to app</a>
+        <button class="toggle" id="theme">Dark / Light</button>
+      </div>
+      <header>
+        <h1>Mess&amp;Anger — Privacy Policy</h1>
+        <div class="sub">Last updated: September 10, 2026</div>
+      </header>
+
+      <div class="sec">
+        <h2>The short version</h2>
+        <p>
+          Mess&amp;Anger is an end-to-end encrypted peer-to-peer (P2P) messenger. You do not create an account:
+          your identity is a cryptographic keypair generated on your device. We never see your message content,
+          and we collect the minimum technical data needed to relay connections, serve in-app ads, and process
+          premium purchases.
+        </p>
+      </div>
+
+      <div class="sec">
+        <h2>How the app works</h2>
+        <ul>
+          <li>
+            <b>Messages are end-to-end encrypted.</b> Content is encrypted on your device with
+            X25519 ECDH + Ed25519 signatures. The relay server only ever sees encrypted blobs — it cannot
+            read your messages, contacts, or files.
+          </li>
+          <li>
+            <b>No account, no email, no phone number.</b> Your identity is a local recovery phrase / master
+            seed stored only on your device. The server recognizes you solely by your Ed25519 public key
+            (a pseudonymous identifier).
+          </li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>What we collect</h2>
+        <ul>
+          <li>
+            <b>Connection record.</b> Each time your device connects to the relay: your device public key,
+            IP address, user agent string, country, and connect/disconnect timestamps. Used to operate and
+            secure the connection service.
+          </li>
+          <li>
+            <b>In-app ad events.</b> Mess&amp;Anger shows first-party ads (created and hosted by us, with no
+            third-party advertising SDK). We record impressions and clicks per device public key to measure
+            performance. Ads are not personalized using message data, contact lists, or personal information.
+          </li>
+          <li>
+            <b>Payment records (premium only).</b> If you purchase a premium subscription, the payment is
+            processed by a third-party payment gateway (<b>paymento.io</b>). We store the resulting order
+            metadata: order ID, amount, currency, status, and your device public key — needed to grant and
+            verify entitlements. Card details are handled exclusively by the payment gateway; we never see
+            your full payment details.
+          </li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>What we do NOT collect</h2>
+        <ul>
+          <li>Message content, attachments, or media — encrypted end-to-end, readable only by the participants.</li>
+          <li>Email address, phone number, or real name.</li>
+          <li>Contact lists — stored only on your device.</li>
+          <li>Third-party analytics, tracking pixels, or advertising SDKs. The app contains no external
+            analytics or tracking code.</li>
+          <li>Cookies and tracking pixels. Sessions are device-local.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>What stays on your device</h2>
+        <p>
+          Your identity (recovery phrase / master seed), contacts, chat history, and media cache are stored
+          locally in your browser / app storage. This data never leaves your device except when you send it
+          (encrypted) to another participant, or when you use a payment feature.
+        </p>
+      </div>
+
+      <div class="sec">
+        <h2>Data retention and deletion</h2>
+        <p>
+          Connection logs and ad events are kept while we operate the service. Payment order records are kept
+          as required to support subscriptions and for legitimate accounting.
+        </p>
+        <p>
+          You may request access to, or deletion of, any data stored against your device public key. Because
+          your identity is a public key you hold locally, you can also permanently leave the service by
+          generating a fresh identity on your device — your old key simply stops connecting.
+        </p>
+      </div>
+
+      <div class="sec">
+        <h2>Your rights</h2>
+        <ul>
+          <li><b>Access:</b> request the data we hold for your device key.</li>
+          <li><b>Correction:</b> no personal attributes to correct beyond connection metadata.</li>
+          <li><b>Deletion:</b> request removal of connection logs, ad events, or payment records.</li>
+          <li><b>Opt-out of ads:</b> ads are the free tier's funding source; a premium subscription removes ads.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>Third parties</h2>
+        <ul>
+          <li>
+            <b>paymento.io</b> — payment processor for premium subscriptions. Subject to their own privacy
+            policy; they receive only what is required to process a payment.
+          </li>
+          <li>
+            <b>Hosting</b> — the relay server is hosted by our provider; connection metadata is stored there
+            under our control.
+          </li>
+          <li>No advertising networks, no analytics vendors, no data brokers.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>Children</h2>
+        <p>
+          The service is not directed to children under 13. We do not knowingly collect personal information
+          from children under 13.
+        </p>
+      </div>
+
+      <div class="sec">
+        <h2>Contact</h2>
+        <p>
+          For privacy questions, data access, or deletion requests:
+          <b><a href="mailto:top.seo.one@gmail.com">top.seo.one@gmail.com</a></b>
+        </p>
+      </div>
+
+      <footer>Mess&amp;Anger — end-to-end encrypted P2P messenger</footer>
+    </div>
+
+    <script>
+      document.getElementById('theme').addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+      });
+    </script>
+  </body>
+</html>

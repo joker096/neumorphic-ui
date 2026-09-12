@@ -11,19 +11,13 @@ const OUT_DIR = path.join(ROOT, 'dist', 'releases');
 
 const REPO_BASE_URL = process.env.RELEASE_BASE_URL || 'https://mess.cvr.name/releases/';
 const SIGN_KEY = process.env.RELEASE_SIGN_KEY || '';
+const ANDROID_PACKAGE_ID = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'android-publish.json'), 'utf8')).packageId;
+const PLAY_STORE_URL = process.env.PLAY_STORE_URL || `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE_ID}`;
 
 const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
 
 function findArtifacts() {
   const found = [];
-  const push = (platform, kind, file, note) => {
-    const p = path.join(ROOT, file);
-    if (fs.existsSync(p)) found.push({ platform, kind, abs: p, note });
-  };
-
-  // Android (already built and signed)
-  push('android', 'apk', 'app-release-signed.apk');
-  push('android', 'aab', 'app-release-bundle.aab');
 
   // Desktop bundles produced by Tauri (scan any `bundle` dir under target, incl. target triple)
   const targetRoot = path.join(ROOT, 'src-tauri', 'target');
@@ -90,6 +84,7 @@ function buildManifest(found) {
 
   // Expected-but-missing platform targets (built on their own OS or published to stores)
   const expected = [
+    { platform: 'android', kind: 'app', url: PLAY_STORE_URL, note: 'Available on Google Play' },
     { platform: 'windows', kind: 'msi', note: 'MSI needs WiX UI extension — build with `tauri build` after installing WixToolset.UI.Extension, or ship the NSIS .exe' },
     { platform: 'linux', kind: 'deb', note: 'Build on Linux: npm run build:desktop:linux' },
     { platform: 'linux', kind: 'appimage', note: 'Build on Linux: npm run build:desktop:linux' },
@@ -107,7 +102,7 @@ function buildManifest(found) {
         file: null,
         size: null,
         sha256: null,
-        url: e.platform === 'web' ? REPO_BASE_URL.replace(/\/$/, '') + '/' : '',
+        url: e.url || (e.platform === 'web' ? REPO_BASE_URL.replace(/\/$/, '') + '/' : ''),
         present: false,
         note: e.note,
       });

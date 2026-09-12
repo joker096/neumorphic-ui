@@ -151,7 +151,7 @@
             body += `<a class="btn" href="${f.url}" download="${f.file}">Download ${f.kind.toUpperCase()}</a>`;
             body += `<button class="btn ghost" style="margin-top:8px" onclick="copy('${f.sha256}')">Copy checksum</button>`;
           } else {
-            const link = f.url ? `<a class="btn" href="${f.url}" target="_blank" rel="noopener">Open</a>` : `<span class="btn disabled">Pending</span>`;
+            const link = f.url ? `<a class="btn" href="${f.url}" target="_blank" rel="noopener">${f.platform === 'android' ? 'Google Play' : 'Open'}</a>` : `<span class="btn disabled">Pending</span>`;
             body += `<div class="pending">${f.note || 'Not built yet.'}</div>`;
             body += link;
           }

@@ -1,5 +1,5 @@
 {
-  "packageId": "app.messandanger.messenger",
+  "packageId": "com.messanger.e2e",
   "host": "mess.cvr.name",
   "name": "Mess&Anger",
   "launcherName": "Mess&Anger",
@@ -13,8 +13,8 @@
   "backgroundColor": "#0A0A0A",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "http://localhost:3057/icons/pwa-512x512.png",
-  "maskableIconUrl": "http://localhost:3057/icons/pwa-512x512.png",
+  "iconUrl": "http://localhost:5033/icons/pwa-512x512.png",
+  "maskableIconUrl": "http://localhost:5033/icons/pwa-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "F:\\AISTUDIO\\neumorphic-ui\\messandanger-keystore.jks",

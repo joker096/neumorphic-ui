@@ -166,17 +166,8 @@ if (-not $SkipAndroid) {
   & "$PSScriptRoot/build-android.ps1" -SkipWebBuild
   if ($LASTEXITCODE -ne 0) { throw "Android build failed" }
   $ApkBuildSuccess = $true
-}
-if ($ApkBuildSuccess) {
-  $DistDir = "$RootDir/dist"
-  if (Test-Path $DistDir) {
-    $ApkSrc = "$RootDir/app-release-signed.apk"
-    if (Test-Path $ApkSrc) {
-      Copy-Item -Path $ApkSrc -Destination "$DistDir/app-release-signed.apk" -Force
-      Write-Host "  ✓ APK copied to dist/app-release-signed.apk" -ForegroundColor Green
-    }
-  }
-}
+ }
+
 
 # Build Windows desktop (Tauri) so the Windows artifact is produced in-pipeline.
 if (-not $SkipDesktop -and $IsWindows) {
@@ -413,7 +404,6 @@ if (-not $SkipSignaling) {
   Write-Host "  WS:     wss://mess.cvr.name/ws" -ForegroundColor Green
 }
 if (-not $SkipAndroid) {
-  Write-Host "  APK:    $RootDir/app-release-signed.apk" -ForegroundColor Green
-  Write-Host "  AAB:    $RootDir/app-release-bundle.aab" -ForegroundColor Green
-  Write-Host "  Web:    https://mess.cvr.name/app-release-signed.apk" -ForegroundColor Green
+  Write-Host "  Play:   https://play.google.com/store/apps/details?id=com.messanger.e2e" -ForegroundColor Green
+  Write-Host "  Sidelo: $RootDir/app-release-signed.apk (testing only, not public)" -ForegroundColor Green
 }

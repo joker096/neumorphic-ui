@@ -10,8 +10,9 @@ const VERSION = pkg.version;
 const relPath = path.join(ROOT, 'dist', 'releases', 'releases.json');
 
 // Platforms that the current pipeline is expected to produce.
+// Android is distributed via Google Play (store link in manifest), not a shipped artifact.
 // Extend this list on the build host that also produces linux/macos/ios.
-const REQUIRED = ['android', 'windows'];
+const REQUIRED = ['windows'];
 
 if (!fs.existsSync(relPath)) {
   console.error('✖ dist/releases/releases.json missing — run `npm run release` first.');
