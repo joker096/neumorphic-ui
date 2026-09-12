@@ -15,6 +15,11 @@
     "justNow": "방금",
     "minutesAgo": "분 전"
   },
+  "pwa": {
+    "installHint": "앱을 설치하면 브라우저 주소 표시줄 없이 전체 화면으로 열립니다",
+    "installButton": "설치",
+    "dismiss": "힌트 닫기"
+  },
   "notif": {
     "blockedHint": "브라우저 설정에서 차단되었습니다. 해당 사이트의 알림을 허용한 뒤 새로고침하세요.",
     "blocked": "차단됨",
@@ -25,6 +30,10 @@
     "enable": "켜기",
     "enabled": "켜짐",
     "markRead": "모두 읽음 처리",
+    "relNow": "지금",
+    "relMin": "{{n}}분",
+    "relHour": "{{n}}시간",
+    "relDay": "{{n}}일",
     "settingsTitle": "설정",
     "title": "알림",
     "settings": {
@@ -78,6 +87,8 @@
     "contact": "연락처"
   },
   "chat": {
+    "draft": "초안",
+    "retry": "다시 시도",
     "archive": "보관",
     "unarchive": "보관 해제",
     "archived": "보관됨",
@@ -120,6 +131,8 @@
     "deleteChat": "Delete chat",
     "deleteConfirm": "This will permanently delete the chat and all its messages. This action cannot be undone.",
     "bulkDeleteConfirm": "Delete {{count}} chats?",
+    "deleteMessageConfirm": "Delete this message?",
+    "bulkDeleteMessageConfirm": "Delete {{count}} messages?",
     "views": {
       "one": "{{count}} 조회",
       "few": "{{count}} 조회",
@@ -195,6 +208,7 @@
     "online": "온라인",
     "offline": "오프라인",
     "searchMessages": "메시지 검색",
+    "more": "더보기",
     "startAudioCall": "음성 통화 시작",
     "unknownCall": "알 수 없는 통화",
     "unknownCaller": "알 수 없는 발신자",
@@ -228,6 +242,9 @@
     "selfDestructActive": "자동 삭제 활성화(1시간)",
     "messagePlaceholder": "메시지...",
     "morsePlaceholder": "모스 부호로 인코딩할 텍스트 입력...",
+    "morseEncode": "Show Morse code",
+    "morseDecode": "Show text",
+    "morseSample": "ABC",
     "attachFile": "파일 첨부",
     "scheduleMessage": "메시지 예약",
     "scheduleSend": "예약 보내기",
@@ -241,6 +258,8 @@
     "photoAttachment": "사진 첨부",
     "attachment": "첨부 파일",
     "attachmentUnavailable": "Attachment unavailable",
+    "loadAttachment": "불러오기",
+    "messageExpired": "메시지가 만료됨",
     "save": "저장",
     "reply": "답장",
     "voiceNote": "음성 메모 • ",
@@ -284,6 +303,8 @@
       },
       "voiceNote": "음성 메모",
       "photo": "사진",
+      "openImage": "이미지 열기",
+      "openItem": "미디어 항목 열기",
       "ready": "준비됨",
       "searchPlaceholder": "채팅에서 검색...",
       "searchMessages": "메시지 검색",
@@ -343,8 +364,6 @@
     "sharedImageText": "공유 이미지: {{text}}",
     "file": "파일",
     "chatName": "채팅 {{id}}",
-    "morseEncode": "Show Morse code",
-    "morseDecode": "Show text",
     "dndBlockedMessage": "메시지 차단됨 - DND 활성. 우선 연락처는 우회할 수 있습니다.",
     "dndBlockedSticker": "스티커 차단됨 - DND 활성. 우선 연락처는 우회할 수 있습니다.",
     "dndBlockedVoice": "음성 메시지 차단됨 - DND 활성. 우선 연락처는 우회할 수 있습니다."
@@ -406,6 +425,7 @@
     "noDevice": "마이크 또는 카메라를 찾을 수 없습니다. 장치를 확인한 후 다시 시도하세요.",
     "deviceBusy": "마이크 또는 카메라가 사용 중입니다. 다른 앱을 닫고 다시 시도하세요.",
     "startFailed": "통화를 시작할 수 없습니다. 다시 시도하세요.",
+    "playRecording": "녹음 재생",
     "rec": "REC"
   },
   "common": {
@@ -737,7 +757,9 @@
     "noMediaFound": "폴더에 미디어 파일이 없습니다",
     "volumeMin": "볼륨 최소",
     "volumeMax": "볼륨 최대",
-    "confirmRemove": "Delete \"{{name}}\"?"
+    "confirmRemove": "Delete \"{{name}}\"?",
+    "nodePrefix": "M-NODE",
+    "emptyList": "트랙이나 방송국이 아직 없습니다"
   },
   "confirmDialog": {
     "ok": "확인",
@@ -899,7 +921,9 @@
     "tryAgainIn": "{seconds}초 후에 다시 시도",
     "wrongPin": "PIN이 틀렸습니다. 남은 시도 {remaining}회",
     "biometric": "지문으로 잠금 해제",
-    "biometricFailed": "지문을 인식하지 못했습니다. 다시 시도하거나 PIN을 사용하세요."
+    "biometricFailed": "지문을 인식하지 못했습니다. 다시 시도하거나 PIN을 사용하세요.",
+    "totpLabel": "2FA 코드",
+    "totpWrong": "잘못된 2FA 코드"
   },
   "hub": {
     "radarSubtitle": "Mesh 노드",
@@ -936,6 +960,8 @@
     "saveAudioCallsSubtitle": "Keep audio call recordings on this device",
     "saveVideoCalls": "Save video calls",
     "saveVideoCallsSubtitle": "Video recordings use a lot of storage space",
+    "autoRecordCalls": "통화 자동 녹음",
+    "autoRecordCallsSubtitle": "통화가 연결될 때 녹음 시작",
     "recordingsCleanupSection": "Automatic cleanup",
     "recordingsRetention": "Delete recordings older than",
     "recordingsRetentionSubtitle": "Periodically remove old calls and video calls",
@@ -1233,6 +1259,8 @@
       "export": "키 번들 내보내기",
       "exportPass": "패스프레이즈",
       "exportPassHint": "번들을 암호화하려면 강력한 패스프레이즈를 입력하세요",
+      "exportPassConfirm": "패스프레이즈 확인",
+      "exportPassMismatch": "패스프레이즈가 일치하지 않습니다",
       "generate": "생성",
       "copy": "복사",
       "copied": "클립보드에 복사됨",
@@ -1271,6 +1299,32 @@
     "messagePreview": "메시지 미리보기",
     "messagePreviewSub": "알림에 텍스트 표시",
     "muted": "음소거됨",
+    "deadMans": {
+      "off": "끔",
+      "1week": "1주",
+      "1month": "1개월",
+      "3months": "3개월",
+      "6months": "6개월",
+      "1year": "1년"
+    },
+    "folderDefault": {
+      "all": "모두",
+      "personal": "개인",
+      "work": "업무",
+      "archive": "보관함"
+    },
+    "folderFallback": "폴더",
+    "myIdentity": "내 아이덴티티",
+    "profilePictureAlt": "{name}의 프로필 사진",
+    "profilePictureAltNone": "프로필 사진",
+    "selfDestruct": {
+      "off": "끔",
+      "1min": "1분",
+      "5min": "5분",
+      "1hour": "1시간",
+      "1day": "1일"
+    },
+    "torBridgeNone": "없음",
     "myProfile": "내 프로필",
     "myProfileSubtitle": "개인 정보",
     "network": "프록시 및 네트워크",
@@ -1475,6 +1529,11 @@
     "totpPlaceholder": "settings.totpPlaceholder",
     "totpSubtitle": "settings.totpSubtitle",
     "totpVerified": "settings.totpVerified",
+    "totpSecretLabel": "비밀 키",
+    "totpCurrentCode": "현재 코드(인증 앱)",
+    "totpInvalid": "잘못된 확인 코드",
+    "totpEnabled": "2단계 인증이 활성화되었습니다",
+    "totpDisabled": "2단계 인증이 비활성화되었습니다",
     "transportBackend": "settings.transportBackend",
     "transportMode": "settings.transportMode",
     "transportModeAesGcm": "settings.transportModeAesGcm",
@@ -1566,7 +1625,9 @@
     "densityMode": {
       "comfortable": "여유",
       "compact": "컴팩트"
-    }
+    },
+    "newFolder": "New folder",
+    "networkSubtitle": "Relay, transport and connection"
   },
   "gifSearch": {
     "searchPlaceholder": "GIF 검색...",
@@ -1960,7 +2021,11 @@
       "warns": "경고"
     },
     "pipeline": "파이프라인",
-    "overdue": "기한 초과"
+    "overdue": "기한 초과",
+    "noDepartments": "부서가 아직 없습니다. 첫 번째 부서를 추가하세요.",
+    "deleteDepartment": "부서 삭제",
+    "noRoles": "사용자 지정 역할이 아직 없습니다. 역할을 만들어 액세스를 세밀하게 조정하세요.",
+    "deleteRole": "역할 삭제"
   },
   "huddle": {
     "title": "Huddle",
@@ -2219,7 +2284,10 @@
     "perkFiles": "최대 500 MB 첨부 파일",
     "perkReactions": "확장 이모지 반응",
     "perkStickers": "프리미엄 스티커 팩",
-    "stickerLocked": "이 스티커 팩은 프리미엄으로 이용 가능합니다"
+    "stickerLocked": "이 스티커 팩은 프리미엄으로 이용 가능합니다",
+    "crmLocked": "CRM 딜, 작업, 역할은 프리미엄에서 사용 가능",
+    "crmUnlock": "프리미엄 열기",
+    "perkCrm": "CRM 딜, 작업, 역할"
   },
   "desktop": {
     "resizePanel": "드래그하여 패널 크기 조정"
@@ -2306,7 +2374,28 @@
     "nameLabel": "봇 이름",
     "descriptionLabel": "설명",
     "descriptionPlaceholder": "이 봇은 무엇을 합니까?"
-  },"wallet":{"send":"보내기","failed":"결제 실패","topUpDone":"충전 완료","topUpDesc":"입금","balance":"잔액","sentToChat":"결제가 채팅으로 전송됨","topUp":"충전","payToChat":"결제를 채팅으로 보내기","sendDesc":"돈 보내기","invalidAmount":"유효한 금액을 입력하세요","sendDone":"송금 완료","pending":"처리 중","disabled":"결제가 비활성화됨","transactions":"거래 내역","created":"결제 생성됨","currency":"통화","amount":"금액","title":"지갑","empty":"거래 내역이 없습니다"},
+  },
+  "wallet": {
+    "send": "보내기",
+    "failed": "결제 실패",
+    "topUpDone": "충전 완료",
+    "topUpDesc": "입금",
+    "balance": "잔액",
+    "sentToChat": "결제가 채팅으로 전송됨",
+    "topUp": "충전",
+    "payToChat": "결제를 채팅으로 보내기",
+    "sendDesc": "돈 보내기",
+    "invalidAmount": "유효한 금액을 입력하세요",
+    "sendDone": "송금 완료",
+    "pending": "처리 중",
+    "disabled": "결제가 비활성화됨",
+    "transactions": "거래 내역",
+    "created": "결제 생성됨",
+    "currency": "통화",
+    "amount": "금액",
+    "title": "지갑",
+    "empty": "거래 내역이 없습니다"
+  },
   "transport": {
     "direct": "직접",
     "connecting": "연결 중...",

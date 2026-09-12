@@ -15,6 +15,11 @@
     "justNow": "только что",
     "minutesAgo": "мин назад"
   },
+  "pwa": {
+    "installHint": "Установи приложение, чтобы открывать его на весь экран без адресной строки",
+    "installButton": "Установить",
+    "dismiss": "Скрыть подсказку"
+  },
   "notif": {
     "blockedHint": "Заблокировано в настройках браузера. Разрешите уведомления для этого сайта там, затем перезагрузите страницу.",
     "blocked": "Заблокировано",
@@ -25,6 +30,10 @@
     "enable": "Включить",
     "enabled": "Включено",
     "markRead": "Отметить все прочитанными",
+    "relNow": "сейчас",
+    "relMin": "{{n}} мин",
+    "relHour": "{{n}} ч",
+    "relDay": "{{n}} дн",
     "settingsTitle": "Настройки",
     "title": "Уведомления",
     "settings": {
@@ -78,6 +87,8 @@
     "contact": "Контакт"
   },
   "chat": {
+    "draft": "Черновик",
+    "retry": "Повторить",
     "archive": "Архив",
     "unarchive": "Разархивировать",
     "archived": "В архиве",
@@ -120,6 +131,8 @@
     "deleteChat": "Удалить чат",
     "deleteConfirm": "Это навсегда удалит чат и все его сообщения. Действие необратимо.",
     "bulkDeleteConfirm": "Удалить {{count}} чатов?",
+    "deleteMessageConfirm": "Удалить это сообщение?",
+    "bulkDeleteMessageConfirm": "Удалить {{count}} сообщений?",
     "views": {
       "one": "{{count}} просмотр",
       "few": "{{count}} просмотра",
@@ -195,6 +208,7 @@
     "online": "В сети",
     "offline": "Не в сети",
     "searchMessages": "Поиск сообщений",
+    "more": "Ещё",
     "startAudioCall": "Начать аудиозвонок",
     "unknownCall": "Неизвестный звонок",
     "unknownCaller": "Неизвестный абонент",
@@ -230,6 +244,7 @@
     "morsePlaceholder": "Напишите для кодирования азбукой Морзе...",
     "morseEncode": "Показать азбуку Морзе",
     "morseDecode": "Показать буквы",
+    "morseSample": "АБВ",
     "attachFile": "Прикрепить файл",
     "scheduleMessage": "Запланировать сообщение",
     "scheduleSend": "Отправить по расписанию",
@@ -243,6 +258,8 @@
     "photoAttachment": "Вложение фото",
     "attachment": "Вложение",
     "attachmentUnavailable": "Вложение недоступно",
+    "loadAttachment": "Загрузить",
+    "messageExpired": "Сообщение истекло",
     "save": "Сохранить",
     "reply": "Ответить",
     "voiceNote": "Голосовое сообщение • ",
@@ -286,6 +303,8 @@
       },
       "voiceNote": "Голосовое",
       "photo": "Фото",
+      "openImage": "Открыть изображение",
+      "openItem": "Открыть медиа",
       "ready": "готово",
       "searchPlaceholder": "Поиск в чате...",
       "searchMessages": "Поиск сообщений",
@@ -406,6 +425,7 @@
     "noDevice": "Микрофон или камера не найдены. Проверьте устройство и повторите попытку.",
     "deviceBusy": "Ваш микрофон или камера заняты. Закройте другое приложение и повторите попытку.",
     "startFailed": "Не удалось начать звонок. Повторите попытку.",
+    "playRecording": "Проиграть запись",
     "rec": "REC"
   },
   "common": {
@@ -737,7 +757,9 @@
     "noMediaFound": "Медиафайлы не найдены в папке",
     "volumeMin": "Громкость мин.",
     "volumeMax": "Громкость макс.",
-    "confirmRemove": "Удалить \"{{name}}\"?"
+    "confirmRemove": "Удалить \"{{name}}\"?",
+    "nodePrefix": "M-NODE",
+    "emptyList": "Пока нет треков или станций"
   },
   "confirmDialog": {
     "ok": "ОК",
@@ -899,7 +921,9 @@
     "tryAgainIn": "Попробуйте снова через {seconds} сек.",
     "wrongPin": "Неверный PIN. Осталось попыток: {remaining}",
     "biometric": "Разблокировать отпечатком пальца",
-    "biometricFailed": "Отпечаток не распознан. Попробуйте ещё раз или используйте PIN."
+    "biometricFailed": "Отпечаток не распознан. Попробуйте ещё раз или используйте PIN.",
+    "totpLabel": "Код 2FA",
+    "totpWrong": "Неверный код 2FA"
   },
   "hub": {
     "radarSubtitle": "Mesh-узлы",
@@ -936,6 +960,8 @@
     "saveAudioCallsSubtitle": "Хранить записи аудиозвонков на этом устройстве",
     "saveVideoCalls": "Сохранять видеозвонки",
     "saveVideoCallsSubtitle": "Видеозаписи занимают много места",
+    "autoRecordCalls": "Записывать звонки автоматически",
+    "autoRecordCallsSubtitle": "Начинать запись при подключении звонка",
     "recordingsCleanupSection": "Автоматическая очистка",
     "recordingsRetention": "Удалять записи старше",
     "recordingsRetentionSubtitle": "Периодически удалять старые звонки и видеозвонки",
@@ -1233,6 +1259,8 @@
       "export": "Экспортировать пакет ключа",
       "exportPass": "Фраза-пароль",
       "exportPassHint": "Введите надёжную фразу-пароль для шифрования пакета",
+      "exportPassConfirm": "Подтвердите фразу-пароль",
+      "exportPassMismatch": "Фразы-пароли не совпадают",
       "generate": "Сгенерировать",
       "copy": "Копировать",
       "copied": "Скопировано в буфер обмена",
@@ -1271,6 +1299,32 @@
     "messagePreview": "Предпросмотр сообщения",
     "messagePreviewSub": "Показывать текст в уведомлениях",
     "muted": "Без звука",
+    "deadMans": {
+      "off": "Откл.",
+      "1week": "1 неделя",
+      "1month": "1 месяц",
+      "3months": "3 месяца",
+      "6months": "6 месяцев",
+      "1year": "1 год"
+    },
+    "folderDefault": {
+      "all": "Все",
+      "personal": "Личное",
+      "work": "Работа",
+      "archive": "Архив"
+    },
+    "folderFallback": "Папка",
+    "myIdentity": "Моя личность",
+    "profilePictureAlt": "{name} фото профиля",
+    "profilePictureAltNone": "Фото профиля",
+    "selfDestruct": {
+      "off": "Откл.",
+      "1min": "1 мин",
+      "5min": "5 мин",
+      "1hour": "1 час",
+      "1day": "1 день"
+    },
+    "torBridgeNone": "Нет",
     "myProfile": "Мой профиль",
     "myProfileSubtitle": "Личная информация",
     "network": "Прокси и Сеть",
@@ -1475,6 +1529,11 @@
     "totpPlaceholder": "000000",
     "totpSubtitle": "Используется для шифрования бэкапа и сопряжения устройств",
     "totpVerified": "TOTP подтвержден и сохранен",
+    "totpSecretLabel": "Секрет",
+    "totpCurrentCode": "Текущий код (приложение-аутентификатор)",
+    "totpInvalid": "Неверный код подтверждения",
+    "totpEnabled": "Двухфакторная аутентификация включена",
+    "totpDisabled": "Двухфакторная аутентификация отключена",
     "transportBackend": "Транспортный бэкенд",
     "transportMode": "Режим транспорта",
     "transportModeAesGcm": "AES-GCM (безопасный)",
@@ -1566,7 +1625,9 @@
     "densityMode": {
       "comfortable": "Просторно",
       "compact": "Компактно"
-    }
+    },
+    "newFolder": "New folder",
+    "networkSubtitle": "Relay, transport and connection"
   },
   "gifSearch": {
     "searchPlaceholder": "Поиск GIF...",
@@ -1960,7 +2021,11 @@
       "warns": "предупреждений"
     },
     "pipeline": "Воронка",
-    "overdue": "просрочено"
+    "overdue": "просрочено",
+    "noDepartments": "Отделов пока нет. Создайте первый.",
+    "deleteDepartment": "Удалить отдел",
+    "noRoles": "Пользовательских ролей пока нет. Создайте роль, чтобы настроить доступ.",
+    "deleteRole": "Удалить роль"
   },
   "huddle": {
     "title": "Huddle",
@@ -2219,7 +2284,10 @@
     "perkFiles": "Вложения до 500 МБ",
     "perkReactions": "Расширенный набор реакций",
     "perkStickers": "Наборы стикеров Premium",
-    "stickerLocked": "Этот набор стикеров доступен с Premium"
+    "stickerLocked": "Этот набор стикеров доступен с Premium",
+    "crmLocked": "CRM-сделки, задачи и роли доступны в Premium",
+    "crmUnlock": "Открыть Premium",
+    "perkCrm": "CRM: сделки, задачи и роли"
   },
   "desktop": {
     "resizePanel": "Перетащите, чтобы изменить размер панели"
@@ -2306,7 +2374,28 @@
     "nameLabel": "Имя бота",
     "descriptionLabel": "Описание",
     "descriptionPlaceholder": "Что делает этот бот?"
-  },"wallet":{"send":"Отправить","failed":"Оплата не прошла","topUpDone":"Пополнение выполнено","topUpDesc":"Внести деньги","balance":"Баланс","sentToChat":"Платёж отправлен в чат","topUp":"Пополнить","payToChat":"Отправить платёж в чат","sendDesc":"Отправить деньги","invalidAmount":"Введите корректную сумму","sendDone":"Перевод выполнен","pending":"Ожидание","disabled":"Платежи отключены","transactions":"Транзакции","created":"Платёж создан","currency":"Валюта","amount":"Сумма","title":"Кошелёк","empty":"Пока нет транзакций"},
+  },
+  "wallet": {
+    "send": "Отправить",
+    "failed": "Оплата не прошла",
+    "topUpDone": "Пополнение выполнено",
+    "topUpDesc": "Внести деньги",
+    "balance": "Баланс",
+    "sentToChat": "Платёж отправлен в чат",
+    "topUp": "Пополнить",
+    "payToChat": "Отправить платёж в чат",
+    "sendDesc": "Отправить деньги",
+    "invalidAmount": "Введите корректную сумму",
+    "sendDone": "Перевод выполнен",
+    "pending": "Ожидание",
+    "disabled": "Платежи отключены",
+    "transactions": "Транзакции",
+    "created": "Платёж создан",
+    "currency": "Валюта",
+    "amount": "Сумма",
+    "title": "Кошелёк",
+    "empty": "Пока нет транзакций"
+  },
   "transport": {
     "direct": "Прямое",
     "connecting": "Соединение...",

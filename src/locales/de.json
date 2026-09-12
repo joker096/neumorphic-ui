@@ -15,6 +15,11 @@
     "justNow": "gerade eben",
     "minutesAgo": "Min. ago"
   },
+  "pwa": {
+    "installHint": "Installiere die App, um sie ohne Browserleiste im Vollbildmodus zu öffnen",
+    "installButton": "Installieren",
+    "dismiss": "Hinweis ausblenden"
+  },
   "notif": {
     "blockedHint": "In den Browser-Einstellungen blockiert. Erlaube Benachrichtigungen für diese Seite dort, dann lade die Seite neu.",
     "blocked": "Blockiert",
@@ -25,6 +30,10 @@
     "enable": "Aktivieren",
     "enabled": "Aktiviert",
     "markRead": "Alle als gelesen markieren",
+    "relNow": "jetzt",
+    "relMin": "{{n}} Min",
+    "relHour": "{{n}} Std",
+    "relDay": "{{n}} Tg",
     "settingsTitle": "Einstellungen",
     "title": "Benachrichtigungen",
     "settings": {
@@ -78,6 +87,8 @@
     "contact": "Kontakt"
   },
   "chat": {
+    "draft": "Entwurf",
+    "retry": "Wiederholen",
     "archive": "Archiv",
     "unarchive": "Entarchivieren",
     "archived": "Archiviert",
@@ -120,6 +131,8 @@
     "deleteChat": "Chat löschen",
     "deleteConfirm": "Dies wird den Chat und alle seine Nachrichten dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden.",
     "bulkDeleteConfirm": "{{count}} Chats löschen?",
+    "deleteMessageConfirm": "Diese Nachricht löschen?",
+    "bulkDeleteMessageConfirm": "{{count}} Nachrichten löschen?",
     "views": {
       "one": "{{count}} Aufruf",
       "few": "{{count}} Aufrufe",
@@ -195,6 +208,7 @@
     "online": "Online",
     "offline": "Offline",
     "searchMessages": "Nachrichten suchen",
+    "more": "Mehr",
     "startAudioCall": "Audioanruf starten",
     "unknownCall": "Unbekannter Anruf",
     "unknownCaller": "Unbekannter Anrufer",
@@ -228,6 +242,9 @@
     "selfDestructActive": "Selbstlöschung aktiv (1 Std.)",
     "messagePlaceholder": "Nachricht...",
     "morsePlaceholder": "Zum Kodieren in Morse eingeben...",
+    "morseEncode": "Morsecode anzeigen",
+    "morseDecode": "Text anzeigen",
+    "morseSample": "ABC",
     "attachFile": "Datei anhängen",
     "scheduleMessage": "Nachricht planen",
     "scheduleSend": "Geplant senden",
@@ -241,6 +258,8 @@
     "photoAttachment": "Fotoanhang",
     "attachment": "Anhang",
     "attachmentUnavailable": "Anhang nicht verfügbar",
+    "loadAttachment": "Laden",
+    "messageExpired": "Nachricht abgelaufen",
     "save": "Speichern",
     "reply": "Antworten",
     "voiceNote": "Sprachnotiz • ",
@@ -284,6 +303,8 @@
       },
       "voiceNote": "Sprachnotiz",
       "photo": "Foto",
+      "openImage": "Bild öffnen",
+      "openItem": "Medienelement öffnen",
       "ready": "bereit",
       "searchPlaceholder": "Im Chat suchen...",
       "searchMessages": "Nachrichten suchen",
@@ -343,8 +364,6 @@
     "sharedImageText": "Geteiltes Bild: {{text}}",
     "file": "Datei",
     "chatName": "Chat {{id}}",
-    "morseEncode": "Morsecode anzeigen",
-    "morseDecode": "Text anzeigen",
     "dndBlockedMessage": "Nachricht blockiert - DND ist aktiv. Prioritätskontakte können umgehen.",
     "dndBlockedSticker": "Sticker blockiert - DND ist aktiv. Prioritätskontakte können umgehen.",
     "dndBlockedVoice": "Sprachnachricht blockiert - DND ist aktiv. Prioritätskontakte können umgehen."
@@ -406,6 +425,7 @@
     "noDevice": "Kein Mikrofon oder keine Kamera gefunden. Prüfe dein Gerät und versuche es erneut.",
     "deviceBusy": "Dein Mikrofon oder deine Kamera wird verwendet. Schließe die andere App und versuche es erneut.",
     "startFailed": "Der Anruf kann nicht gestartet werden. Versuche es erneut.",
+    "playRecording": "Aufnahme abspielen",
     "rec": "REC"
   },
   "common": {
@@ -737,7 +757,9 @@
     "noMediaFound": "Keine Mediendateien im Ordner gefunden",
     "volumeMin": "Lautstärke Min",
     "volumeMax": "Lautstärke Max",
-    "confirmRemove": "„{{name}}“ löschen?"
+    "confirmRemove": "„{{name}}“ löschen?",
+    "nodePrefix": "M-NODE",
+    "emptyList": "Noch keine Titel oder Sender"
   },
   "confirmDialog": {
     "ok": "OK",
@@ -899,7 +921,9 @@
     "tryAgainIn": "Versuche es in {seconds} Sekunden erneut",
     "wrongPin": "Falsche PIN. {remaining} Versuch(e) übrig",
     "biometric": "Mit Fingerabdruck entsperren",
-    "biometricFailed": "Fingerabdruck nicht erkannt. Versuchen Sie es erneut oder verwenden Sie die PIN."
+    "biometricFailed": "Fingerabdruck nicht erkannt. Versuchen Sie es erneut oder verwenden Sie die PIN.",
+    "totpLabel": "2FA-Code",
+    "totpWrong": "Falscher 2FA-Code"
   },
   "hub": {
     "radarSubtitle": "Mesh-Knoten",
@@ -936,6 +960,8 @@
     "saveAudioCallsSubtitle": "Aufnahmen von Audiokonferenzen auf diesem Gerät speichern",
     "saveVideoCalls": "Videoaufnahmen speichern",
     "saveVideoCallsSubtitle": "Videoaufnahmen benötigen viel Speicherplatz",
+    "autoRecordCalls": "Anrufe automatisch aufzeichnen",
+    "autoRecordCallsSubtitle": "Aufzeichnung starten, wenn ein Anruf verbunden wird",
     "recordingsCleanupSection": "Automatische Bereinigung",
     "recordingsRetention": "Aufnahmen löschen, die älter sind als",
     "recordingsRetentionSubtitle": "Periodisch alte Anrufe und Videoaufnahmen löschen",
@@ -1233,6 +1259,8 @@
       "export": "Schlüsselbündel exportieren",
       "exportPass": "Passphrase",
       "exportPassHint": "Starke Passphrase zur Verschlüsselung des Bündels eingeben",
+      "exportPassConfirm": "Passphrase bestätigen",
+      "exportPassMismatch": "Passphrases stimmen nicht überein",
       "generate": "Erstellen",
       "copy": "Kopieren",
       "copied": "In Zwischenablage kopiert",
@@ -1271,6 +1299,32 @@
     "messagePreview": "Nachrichtenvorschau",
     "messagePreviewSub": "Text in Benachrichtigungen anzeigen",
     "muted": "Stumm",
+    "deadMans": {
+      "off": "Aus",
+      "1week": "1 Woche",
+      "1month": "1 Monat",
+      "3months": "3 Monate",
+      "6months": "6 Monate",
+      "1year": "1 Jahr"
+    },
+    "folderDefault": {
+      "all": "Alle",
+      "personal": "Persönlich",
+      "work": "Arbeit",
+      "archive": "Archiv"
+    },
+    "folderFallback": "Ordner",
+    "myIdentity": "Meine Identität",
+    "profilePictureAlt": "{name} Profilbild",
+    "profilePictureAltNone": "Profilbild",
+    "selfDestruct": {
+      "off": "Aus",
+      "1min": "1 Min",
+      "5min": "5 Min",
+      "1hour": "1 Std",
+      "1day": "1 Tag"
+    },
+    "torBridgeNone": "Keine",
     "myProfile": "Mein Profil",
     "myProfileSubtitle": "Persönliche Informationen",
     "network": "Proxy und Netzwerk",
@@ -1475,6 +1529,11 @@
     "totpPlaceholder": "000000",
     "totpSubtitle": "Wird für Backup-Verschlüsselung und Geräte-Kopplung verwendet",
     "totpVerified": "TOTP verifiziert und gespeichert",
+    "totpSecretLabel": "Geheimnis",
+    "totpCurrentCode": "Aktueller Code (Authenticator)",
+    "totpInvalid": "Ungültiger Bestätigungscode",
+    "totpEnabled": "Zwei-Faktor-Authentifizierung aktiviert",
+    "totpDisabled": "Zwei-Faktor-Authentifizierung deaktiviert",
     "transportBackend": "Transport-Backend",
     "transportMode": "Transportmodus",
     "transportModeAesGcm": "AES-GCM (sicher)",
@@ -1566,7 +1625,9 @@
     "densityMode": {
       "comfortable": "Bequem",
       "compact": "Kompakt"
-    }
+    },
+    "newFolder": "New folder",
+    "networkSubtitle": "Relay, transport and connection"
   },
   "gifSearch": {
     "searchPlaceholder": "GIFs suchen...",
@@ -1960,7 +2021,11 @@
       "warns": "Warnungen"
     },
     "pipeline": "Pipeline",
-    "overdue": "überfällig"
+    "overdue": "überfällig",
+    "noDepartments": "Noch keine Abteilungen. Legen Sie die erste an.",
+    "deleteDepartment": "Abteilung löschen",
+    "noRoles": "Noch keine benutzerdefinierten Rollen. Erstellen Sie eine, um den Zugriff fein abzustimmen.",
+    "deleteRole": "Rolle löschen"
   },
   "huddle": {
     "title": "Huddle",
@@ -2219,7 +2284,10 @@
     "perkFiles": "Anhänge bis zu 500 MB",
     "perkReactions": "Erweitertes Reaktionsset",
     "perkStickers": "Premium-Sticker-Sammlungen",
-    "stickerLocked": "Dieser Sticker-Satz ist mit Premium verfügbar"
+    "stickerLocked": "Dieser Sticker-Satz ist mit Premium verfügbar",
+    "crmLocked": "CRM-Deals, Aufgaben und Rollen sind mit Premium verfügbar",
+    "crmUnlock": "Premium öffnen",
+    "perkCrm": "CRM-Deals, Aufgaben und Rollen"
   },
   "desktop": {
     "resizePanel": "Panel per Drag ändern"
@@ -2306,7 +2374,28 @@
     "nameLabel": "Bot-Name",
     "descriptionLabel": "Beschreibung",
     "descriptionPlaceholder": "Was macht dieser Bot?"
-  },"wallet":{"send":"Senden","failed":"Zahlung fehlgeschlagen","topUpDone":"Aufladung abgeschlossen","topUpDesc":"Geld einzahlen","balance":"Guthaben","sentToChat":"Zahlung an Chat gesendet","topUp":"Aufladen","payToChat":"Zahlung an Chat senden","sendDesc":"Geld senden","invalidAmount":"Gültigen Betrag eingeben","sendDone":"Überweisung abgeschlossen","pending":"Ausstehend","disabled":"Zahlungen sind deaktiviert","transactions":"Transaktionen","created":"Zahlung erstellt","currency":"Währung","amount":"Betrag","title":"Geldbörse","empty":"Noch keine Transaktionen"},
+  },
+  "wallet": {
+    "send": "Senden",
+    "failed": "Zahlung fehlgeschlagen",
+    "topUpDone": "Aufladung abgeschlossen",
+    "topUpDesc": "Geld einzahlen",
+    "balance": "Guthaben",
+    "sentToChat": "Zahlung an Chat gesendet",
+    "topUp": "Aufladen",
+    "payToChat": "Zahlung an Chat senden",
+    "sendDesc": "Geld senden",
+    "invalidAmount": "Gültigen Betrag eingeben",
+    "sendDone": "Überweisung abgeschlossen",
+    "pending": "Ausstehend",
+    "disabled": "Zahlungen sind deaktiviert",
+    "transactions": "Transaktionen",
+    "created": "Zahlung erstellt",
+    "currency": "Währung",
+    "amount": "Betrag",
+    "title": "Geldbörse",
+    "empty": "Noch keine Transaktionen"
+  },
   "transport": {
     "direct": "Direkt",
     "connecting": "Verbindet...",

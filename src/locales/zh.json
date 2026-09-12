@@ -15,6 +15,11 @@
     "justNow": "刚刚",
     "minutesAgo": "分钟前"
   },
+  "pwa": {
+    "installHint": "安装应用后，可全屏打开并隐藏浏览器地址栏",
+    "installButton": "安装",
+    "dismiss": "关闭提示"
+  },
   "notif": {
     "blockedHint": "已在浏览器设置中阻止。请允许此站点的通知，然后重新加载。",
     "blocked": "已屏蔽",
@@ -25,6 +30,10 @@
     "enable": "启用",
     "enabled": "已启用",
     "markRead": "全部标为已读",
+    "relNow": "现在",
+    "relMin": "{{n}}分钟",
+    "relHour": "{{n}}小时",
+    "relDay": "{{n}}天",
     "settingsTitle": "设置",
     "title": "通知",
     "settings": {
@@ -78,6 +87,8 @@
     "contact": "联系人"
   },
   "chat": {
+    "draft": "草稿",
+    "retry": "重试",
     "archive": "归档",
     "unarchive": "取消归档",
     "archived": "已归档",
@@ -120,6 +131,8 @@
     "deleteChat": "Delete chat",
     "deleteConfirm": "This will permanently delete the chat and all its messages. This action cannot be undone.",
     "bulkDeleteConfirm": "Delete {{count}} chats?",
+    "deleteMessageConfirm": "Delete this message?",
+    "bulkDeleteMessageConfirm": "Delete {{count}} messages?",
     "views": {
       "one": "{{count}} 次查看",
       "few": "{{count}} 次查看",
@@ -195,6 +208,7 @@
     "online": "在线",
     "offline": "离线",
     "searchMessages": "搜索消息",
+    "more": "更多",
     "startAudioCall": "开始语音通话",
     "unknownCall": "未知通话",
     "unknownCaller": "未知来电者",
@@ -228,6 +242,9 @@
     "selfDestructActive": "自毁已启用（1 小时）",
     "messagePlaceholder": "消息...",
     "morsePlaceholder": "输入以编码为摩斯电码...",
+    "morseEncode": "Show Morse code",
+    "morseDecode": "Show text",
+    "morseSample": "ABC",
     "attachFile": "附加文件",
     "scheduleMessage": "安排消息",
     "scheduleSend": "定时发送",
@@ -241,6 +258,8 @@
     "photoAttachment": "照片附件",
     "attachment": "附件",
     "attachmentUnavailable": "Attachment unavailable",
+    "loadAttachment": "加载",
+    "messageExpired": "消息已过期",
     "save": "保存",
     "reply": "回复",
     "voiceNote": "语音消息 • ",
@@ -284,6 +303,8 @@
       },
       "voiceNote": "语音消息",
       "photo": "照片",
+      "openImage": "打开图片",
+      "openItem": "打开媒体项目",
       "ready": "就绪",
       "searchPlaceholder": "在聊天中搜索...",
       "searchMessages": "消息检索",
@@ -343,8 +364,6 @@
     "sharedImageText": "共享图片：{{text}}",
     "file": "文件",
     "chatName": "聊天 {{id}}",
-    "morseEncode": "Show Morse code",
-    "morseDecode": "Show text",
     "dndBlockedMessage": "消息已被阻止 - DND已开启。优先联系人可以绕过。",
     "dndBlockedSticker": "贴纸已被阻止 - DND已开启。优先联系人可以绕过。",
     "dndBlockedVoice": "语音消息已被阻止 - DND已开启。优先联系人可以绕过。"
@@ -406,6 +425,7 @@
     "noDevice": "未找到麦克风或摄像头。请检查设备后重试。",
     "deviceBusy": "您的麦克风或摄像头正在使用中。请关闭其他应用后重试。",
     "startFailed": "无法开始通话。请重试。",
+    "playRecording": "播放录音",
     "rec": "REC"
   },
   "common": {
@@ -737,7 +757,9 @@
     "noMediaFound": "文件夹中未找到媒体文件",
     "volumeMin": "音量最小",
     "volumeMax": "音量最大",
-    "confirmRemove": "Delete \"{{name}}\"?"
+    "confirmRemove": "Delete \"{{name}}\"?",
+    "nodePrefix": "M-NODE",
+    "emptyList": "暂无曲目或电台"
   },
   "confirmDialog": {
     "ok": "确定",
@@ -899,7 +921,9 @@
     "tryAgainIn": "请在 {seconds} 秒后重试",
     "wrongPin": "PIN 错误，还剩 {remaining} 次尝试",
     "biometric": "使用指纹解锁",
-    "biometricFailed": "指纹未识别。请重试或使用PIN码。"
+    "biometricFailed": "指纹未识别。请重试或使用PIN码。",
+    "totpLabel": "2FA 代码",
+    "totpWrong": "2FA 代码不正确"
   },
   "hub": {
     "radarSubtitle": "Mesh节点",
@@ -936,6 +960,8 @@
     "saveAudioCallsSubtitle": "Keep audio call recordings on this device",
     "saveVideoCalls": "Save video calls",
     "saveVideoCallsSubtitle": "Video recordings use a lot of storage space",
+    "autoRecordCalls": "自动录制通话",
+    "autoRecordCallsSubtitle": "通话连接时开始录制",
     "recordingsCleanupSection": "Automatic cleanup",
     "recordingsRetention": "Delete recordings older than",
     "recordingsRetentionSubtitle": "Periodically remove old calls and video calls",
@@ -1233,6 +1259,8 @@
       "export": "导出密钥包",
       "exportPass": "口令",
       "exportPassHint": "输入强口令以加密密钥包",
+      "exportPassConfirm": "确认口令",
+      "exportPassMismatch": "口令不匹配",
       "generate": "生成",
       "copy": "复制",
       "copied": "已复制到剪贴板",
@@ -1271,6 +1299,32 @@
     "messagePreview": "消息预览",
     "messagePreviewSub": "在通知中显示文字",
     "muted": "已静音",
+    "deadMans": {
+      "off": "关闭",
+      "1week": "1周",
+      "1month": "1个月",
+      "3months": "3个月",
+      "6months": "6个月",
+      "1year": "1年"
+    },
+    "folderDefault": {
+      "all": "全部",
+      "personal": "个人",
+      "work": "工作",
+      "archive": "归档"
+    },
+    "folderFallback": "文件夹",
+    "myIdentity": "我的身份",
+    "profilePictureAlt": "{name}的个人资料照片",
+    "profilePictureAltNone": "个人资料照片",
+    "selfDestruct": {
+      "off": "关闭",
+      "1min": "1分钟",
+      "5min": "5分钟",
+      "1hour": "1小时",
+      "1day": "1天"
+    },
+    "torBridgeNone": "无",
     "myProfile": "我的资料",
     "myProfileSubtitle": "个人信息",
     "network": "代理和网络",
@@ -1475,6 +1529,11 @@
     "totpPlaceholder": "settings.totpPlaceholder",
     "totpSubtitle": "settings.totpSubtitle",
     "totpVerified": "settings.totpVerified",
+    "totpSecretLabel": "密钥",
+    "totpCurrentCode": "当前代码（认证器）",
+    "totpInvalid": "验证码无效",
+    "totpEnabled": "已启用双重身份验证",
+    "totpDisabled": "已禁用双重身份验证",
     "transportBackend": "settings.transportBackend",
     "transportMode": "settings.transportMode",
     "transportModeAesGcm": "settings.transportModeAesGcm",
@@ -1566,7 +1625,9 @@
     "densityMode": {
       "comfortable": "宽松",
       "compact": "紧凑"
-    }
+    },
+    "newFolder": "New folder",
+    "networkSubtitle": "Relay, transport and connection"
   },
   "gifSearch": {
     "searchPlaceholder": "搜索 GIF…",
@@ -1960,7 +2021,11 @@
       "warns": "个警告"
     },
     "pipeline": "管道",
-    "overdue": "逾期"
+    "overdue": "逾期",
+    "noDepartments": "暂无部门。请添加第一个部门。",
+    "deleteDepartment": "删除部门",
+    "noRoles": "暂无自定义角色。请创建一个角色以微调访问权限。",
+    "deleteRole": "删除角色"
   },
   "huddle": {
     "title": "小组讨论",
@@ -2219,7 +2284,10 @@
     "perkFiles": "附件上限 500 MB",
     "perkReactions": "扩展表情回应",
     "perkStickers": "Premium 贴纸包",
-    "stickerLocked": "该贴纸包需 Premium 才能使用"
+    "stickerLocked": "该贴纸包需 Premium 才能使用",
+    "crmLocked": "CRM 交易、任务和角色仅在 Premium 中可用",
+    "crmUnlock": "开通 Premium",
+    "perkCrm": "CRM 交易、任务和角色"
   },
   "desktop": {
     "resizePanel": "拖动调整面板大小"
@@ -2306,7 +2374,28 @@
     "nameLabel": "机器人名称",
     "descriptionLabel": "描述",
     "descriptionPlaceholder": "这个机器人做什么？"
-  },"wallet":{"send":"发送","failed":"付款失败","topUpDone":"充值完成","topUpDesc":"存入资金","balance":"余额","sentToChat":"付款已发送到聊天","topUp":"充值","payToChat":"发送付款到聊天","sendDesc":"发送资金","invalidAmount":"请输入有效金额","sendDone":"转账完成","pending":"处理中","disabled":"付款已禁用","transactions":"交易记录","created":"已创建付款","currency":"货币","amount":"金额","title":"钱包","empty":"暂无交易记录"},
+  },
+  "wallet": {
+    "send": "发送",
+    "failed": "付款失败",
+    "topUpDone": "充值完成",
+    "topUpDesc": "存入资金",
+    "balance": "余额",
+    "sentToChat": "付款已发送到聊天",
+    "topUp": "充值",
+    "payToChat": "发送付款到聊天",
+    "sendDesc": "发送资金",
+    "invalidAmount": "请输入有效金额",
+    "sendDone": "转账完成",
+    "pending": "处理中",
+    "disabled": "付款已禁用",
+    "transactions": "交易记录",
+    "created": "已创建付款",
+    "currency": "货币",
+    "amount": "金额",
+    "title": "钱包",
+    "empty": "暂无交易记录"
+  },
   "transport": {
     "direct": "直连",
     "connecting": "连接中...",

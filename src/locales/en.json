@@ -15,6 +15,11 @@
     "justNow": "just now",
     "minutesAgo": "min ago"
   },
+  "pwa": {
+    "installHint": "Install the app to open it full-screen without the browser bar",
+    "installButton": "Install",
+    "dismiss": "Dismiss install hint"
+  },
   "notif": {
     "blockedHint": "Blocked in browser settings. Enable notifications for this site there, then reload.",
     "blocked": "Blocked",
@@ -25,6 +30,10 @@
     "enable": "Enable",
     "enabled": "Enabled",
     "markRead": "Mark all read",
+    "relNow": "now",
+    "relMin": "{{n}}m",
+    "relHour": "{{n}}h",
+    "relDay": "{{n}}d",
     "settingsTitle": "Settings",
     "title": "Notifications",
     "settings": {
@@ -78,6 +87,8 @@
     "contact": "Contact"
   },
   "chat": {
+    "draft": "Draft",
+    "retry": "Retry",
     "archive": "Archive",
     "unarchive": "Unarchive",
     "archived": "Archived",
@@ -120,6 +131,8 @@
     "deleteChat": "Delete chat",
     "deleteConfirm": "This will permanently delete the chat and all its messages. This action cannot be undone.",
     "bulkDeleteConfirm": "Delete {{count}} chats?",
+    "deleteMessageConfirm": "Delete this message?",
+    "bulkDeleteMessageConfirm": "Delete {{count}} messages?",
     "views": {
       "one": "{{count}} View",
       "few": "{{count}} Views",
@@ -195,6 +208,7 @@
     "online": "Online",
     "offline": "Offline",
     "searchMessages": "Search Messages",
+    "more": "More",
     "startAudioCall": "Start Audio Call",
     "unknownCall": "Unknown Call",
     "unknownCaller": "Unknown Caller",
@@ -230,6 +244,7 @@
     "morsePlaceholder": "Type to encode in Morse...",
     "morseEncode": "Show Morse code",
     "morseDecode": "Show text",
+    "morseSample": "ABC",
     "attachFile": "Attach file",
     "scheduleMessage": "Schedule Message",
     "scheduleSend": "Schedule Send",
@@ -243,6 +258,8 @@
     "photoAttachment": "Photo attachment",
     "attachment": "Attachment",
     "attachmentUnavailable": "Attachment unavailable",
+    "loadAttachment": "Load",
+    "messageExpired": "Message expired",
     "save": "Save",
     "reply": "Reply",
     "voiceNote": "Voice note • ",
@@ -286,6 +303,8 @@
       },
       "voiceNote": "Voice note",
       "photo": "Photo",
+      "openImage": "Open image",
+      "openItem": "Open media item",
       "ready": "ready",
       "searchPlaceholder": "Search in chat...",
       "searchMessages": "Search Messages",
@@ -406,6 +425,7 @@
     "noDevice": "No microphone or camera found. Check your device and try again.",
     "deviceBusy": "Your microphone or camera is in use. Close the other app and try again.",
     "startFailed": "Cannot start the call. Try again.",
+    "playRecording": "Play recording",
     "rec": "REC"
   },
   "common": {
@@ -735,7 +755,9 @@
     "noMediaFound": "No media files found in folder",
     "volumeMin": "Volume Min",
     "volumeMax": "Volume Max",
-    "confirmRemove": "Delete \"{{name}}\"?"
+    "confirmRemove": "Delete \"{{name}}\"?",
+    "nodePrefix": "M-NODE",
+    "emptyList": "No tracks or stations yet"
   },
   "confirmDialog": {
     "ok": "OK",
@@ -897,7 +919,9 @@
     "tryAgainIn": "Try again in {seconds} seconds",
     "wrongPin": "Wrong PIN. {remaining} attempt(s) remaining",
     "biometric": "Unlock with fingerprint",
-    "biometricFailed": "Fingerprint not recognized. Try again or use PIN."
+    "biometricFailed": "Fingerprint not recognized. Try again or use PIN.",
+    "totpLabel": "2FA code",
+    "totpWrong": "Incorrect 2FA code"
   },
   "hub": {
     "radarSubtitle": "Mesh Nodes",
@@ -934,6 +958,8 @@
     "saveAudioCallsSubtitle": "Keep audio call recordings on this device",
     "saveVideoCalls": "Save video calls",
     "saveVideoCallsSubtitle": "Video recordings use a lot of storage space",
+    "autoRecordCalls": "Record calls automatically",
+    "autoRecordCallsSubtitle": "Start recording when a call connects",
     "recordingsCleanupSection": "Automatic cleanup",
     "recordingsRetention": "Delete recordings older than",
     "recordingsRetentionSubtitle": "Periodically remove old calls and video calls",
@@ -1231,6 +1257,8 @@
       "export": "Export Key Bundle",
       "exportPass": "Passphrase",
       "exportPassHint": "Enter a strong passphrase to encrypt the bundle",
+      "exportPassConfirm": "Confirm passphrase",
+      "exportPassMismatch": "Passphrases do not match",
       "generate": "Generate",
       "copy": "Copy",
       "copied": "Copied to clipboard",
@@ -1269,11 +1297,39 @@
     "messagePreview": "Message preview",
     "messagePreviewSub": "Show text in notifications",
     "muted": "Muted",
+    "deadMans": {
+        "off": "Off",
+        "1week": "1 week",
+        "1month": "1 month",
+        "3months": "3 months",
+        "6months": "6 months",
+        "1year": "1 year"
+    },
+    "folderDefault": {
+        "all": "All",
+        "personal": "Personal",
+        "work": "Work",
+        "archive": "Archive"
+    },
+    "folderFallback": "Folder",
+    "newFolder": "New folder",
+    "myIdentity": "My identity",
+    "profilePictureAlt": "{name} profile picture",
+    "profilePictureAltNone": "Profile picture",
+    "selfDestruct": {
+        "off": "Off",
+        "1min": "1 min",
+        "5min": "5 min",
+        "1hour": "1 hour",
+        "1day": "1 day"
+    },
+    "torBridgeNone": "None",
     "myProfile": "My Profile",
     "myProfileSubtitle": "Personal information",
     "network": "Proxy and Network",
     "networkEnabled": "Enabled",
     "networkUsage": "Network usage",
+    "networkSubtitle": "Relay, transport and connection",
     "never": "Never",
     "newAccountPlaceholder": "Account name...",
     "newChat": "New chat",
@@ -1473,6 +1529,11 @@
     "totpPlaceholder": "000000",
     "totpSubtitle": "Used for backup encryption and device pairing",
     "totpVerified": "TOTP verified and saved",
+    "totpSecretLabel": "Secret",
+    "totpCurrentCode": "Current code (authenticator)",
+    "totpInvalid": "Invalid verification code",
+    "totpEnabled": "Two-factor authentication enabled",
+    "totpDisabled": "Two-factor authentication disabled",
     "transportBackend": "Transport Backend",
     "transportMode": "Transport Mode",
     "transportModeAesGcm": "AES-GCM (secure)",
@@ -1958,7 +2019,11 @@
       "warns": "warnings"
     },
     "pipeline": "Pipeline",
-    "overdue": "overdue"
+    "overdue": "overdue",
+    "noDepartments": "No departments yet. Add the first one.",
+    "deleteDepartment": "Delete department",
+    "noRoles": "No custom roles yet. Create one to fine-tune access.",
+    "deleteRole": "Delete role"
   },
   "huddle": {
     "title": "Huddle",
@@ -2217,7 +2282,10 @@
     "perkFiles": "Attachments up to 500 MB",
     "perkReactions": "Extended reaction set",
     "perkStickers": "Premium sticker packs",
-    "stickerLocked": "This sticker pack is available with Premium"
+    "stickerLocked": "This sticker pack is available with Premium",
+    "crmLocked": "CRM deals, tasks and roles are available with Premium",
+    "crmUnlock": "Open Premium",
+    "perkCrm": "CRM deals, tasks and roles"
   },
   "desktop": {
     "resizePanel": "Drag to resize panel"

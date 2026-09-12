@@ -15,6 +15,11 @@
     "justNow": "たった今",
     "minutesAgo": "分前"
   },
+  "pwa": {
+    "installHint": "アプリをインストールすると、ブラウザのバーなしでフルスクリーン表示できます",
+    "installButton": "インストール",
+    "dismiss": "ヒントを閉じる"
+  },
   "notif": {
     "blockedHint": "ブラウザ設定でブロックされています。サイトの通知を許可してから、ページを再読み込みしてください。",
     "blocked": "ブロック済み",
@@ -25,6 +30,10 @@
     "enable": "有効にする",
     "enabled": "有効",
     "markRead": "すべて既読にする",
+    "relNow": "今",
+    "relMin": "{{n}}分",
+    "relHour": "{{n}}時間",
+    "relDay": "{{n}}日",
     "settingsTitle": "設定",
     "title": "通知",
     "settings": {
@@ -78,6 +87,8 @@
     "contact": "連絡先"
   },
   "chat": {
+    "draft": "下書き",
+    "retry": "再試行",
     "archive": "アーカイブ",
     "unarchive": "アーカイブ解除",
     "archived": "アーカイブ済み",
@@ -120,6 +131,8 @@
     "deleteChat": "チャットを削除",
     "deleteConfirm": "チャットとすべてのメッセージを完全に削除します。この操作は元に戻せません。",
     "bulkDeleteConfirm": "{{count}}件のチャットを削除しますか？",
+    "deleteMessageConfirm": "このメッセージを削除しますか？",
+    "bulkDeleteMessageConfirm": "{{count}}件のメッセージを削除しますか？",
     "views": {
       "one": "{{count}} ビュー",
       "few": "{{count}} ビュー",
@@ -195,6 +208,7 @@
     "online": "オンライン",
     "offline": "オフライン",
     "searchMessages": "メッセージを検索",
+    "more": "その他",
     "startAudioCall": "音声通話を開始",
     "unknownCall": "不明な通話",
     "unknownCaller": "不明な発信者",
@@ -228,6 +242,9 @@
     "selfDestructActive": "自爆有効（1 時間）",
     "messagePlaceholder": "メッセージ...",
     "morsePlaceholder": "入力するとモールス符号に変換...",
+    "morseEncode": "モールス符号を表示",
+    "morseDecode": "文字を表示",
+    "morseSample": "ABC",
     "attachFile": "ファイルを添付",
     "scheduleMessage": "メッセージを予約",
     "scheduleSend": "予約送信",
@@ -241,6 +258,8 @@
     "photoAttachment": "写真添付",
     "attachment": "添付ファイル",
     "attachmentUnavailable": "添付ファイルは利用できません",
+    "loadAttachment": "読み込む",
+    "messageExpired": "メッセージが失効しました",
     "save": "保存",
     "reply": "返信",
     "voiceNote": "音声メモ • ",
@@ -284,6 +303,8 @@
       },
       "voiceNote": "音声メモ",
       "photo": "写真",
+      "openImage": "画像を開く",
+      "openItem": "メディアを開く",
       "ready": "準備完了",
       "searchPlaceholder": "チャット内を検索...",
       "searchMessages": "メッセージを検索",
@@ -343,8 +364,6 @@
     "sharedImageText": "共有画像: {{text}}",
     "file": "ファイル",
     "chatName": "チャット {{id}}",
-    "morseEncode": "モールス符号を表示",
-    "morseDecode": "文字を表示",
     "dndBlockedMessage": "メッセージはブロックされました - DNDが有効です。優先連絡先は許可されます。",
     "dndBlockedSticker": "スタンプはブロックされました - DNDが有効です。優先連絡先は許可されます。",
     "dndBlockedVoice": "音声メッセージはブロックされました - DNDが有効です。優先連絡先は許可されます。"
@@ -406,6 +425,7 @@
     "noDevice": "マイクやカメラが見つかりません。デバイスを確認して再度お試しください。",
     "deviceBusy": "マイクまたはカメラが使用中です。他のアプリを閉じて再度お試しください。",
     "startFailed": "通話を開始できません。再度お試しください。",
+    "playRecording": "録音を再生",
     "rec": "REC"
   },
   "common": {
@@ -737,7 +757,9 @@
     "noMediaFound": "フォルダー内にメディアファイルが見つかりません",
     "volumeMin": "ボリューム最小",
     "volumeMax": "ボリューム最大",
-    "confirmRemove": "「{{name}}」を削除しますか？"
+    "confirmRemove": "「{{name}}」を削除しますか？",
+    "nodePrefix": "M-NODE",
+    "emptyList": "トラックまたはステーションがありません"
   },
   "confirmDialog": {
     "ok": "OK",
@@ -899,7 +921,9 @@
     "tryAgainIn": "{seconds}秒後に再試行してください",
     "wrongPin": "PINが違います。残り {remaining} 回",
     "biometric": "指紋でロックを解除",
-    "biometricFailed": "指紋が認識されませんでした。再試行するかPINを使用してください。"
+    "biometricFailed": "指紋が認識されませんでした。再試行するかPINを使用してください。",
+    "totpLabel": "2FAコード",
+    "totpWrong": "2FAコードが正しくありません"
   },
   "hub": {
     "radarSubtitle": "Meshノード",
@@ -936,6 +960,8 @@
     "saveAudioCallsSubtitle": "このデバイスに音声通話の録音を保存",
     "saveVideoCalls": "ビデオ通話を保存",
     "saveVideoCallsSubtitle": "ビデオ録音は大量のストレージ容量を使用します",
+    "autoRecordCalls": "通話を自動的に録音",
+    "autoRecordCallsSubtitle": "通話が接続されたら録音を開始",
     "recordingsCleanupSection": "自動クリーンアップ",
     "recordingsRetention": "以下の期間を超えた録音を削除",
     "recordingsRetentionSubtitle": "古い音声・ビデオ通話を定期的に削除",
@@ -1233,6 +1259,8 @@
       "export": "キー・バンドルをエクスポート",
       "exportPass": "パスフレーズ",
       "exportPassHint": "バンドルの暗号化に強いパスフレーズを入力",
+      "exportPassConfirm": "パスフレーズを確認",
+      "exportPassMismatch": "パスフレーズが一致しません",
       "generate": "生成",
       "copy": "コピー",
       "copied": "クリップボードにコピーしました",
@@ -1271,6 +1299,32 @@
     "messagePreview": "メッセージプレビュー",
     "messagePreviewSub": "通知にテキストを表示",
     "muted": "ミュート中",
+    "deadMans": {
+      "off": "オフ",
+      "1week": "1週間",
+      "1month": "1ヶ月",
+      "3months": "3ヶ月",
+      "6months": "6ヶ月",
+      "1year": "1年"
+    },
+    "folderDefault": {
+      "all": "すべて",
+      "personal": "個人",
+      "work": "仕事",
+      "archive": "アーカイブ"
+    },
+    "folderFallback": "フォルダ",
+    "myIdentity": "自分のID",
+    "profilePictureAlt": "{name}のプロフィール写真",
+    "profilePictureAltNone": "プロフィール写真",
+    "selfDestruct": {
+      "off": "オフ",
+      "1min": "1分",
+      "5min": "5分",
+      "1hour": "1時間",
+      "1day": "1日"
+    },
+    "torBridgeNone": "なし",
     "myProfile": "マイプロフィール",
     "myProfileSubtitle": "個人情報",
     "network": "プロキシとネットワーク",
@@ -1475,6 +1529,11 @@
     "totpPlaceholder": "000000",
     "totpSubtitle": "バックアップの暗号化とデバイスペアリングに使用",
     "totpVerified": "TOTPを確認し保存しました",
+    "totpSecretLabel": "シークレット",
+    "totpCurrentCode": "現在のコード（認証アプリ）",
+    "totpInvalid": "検証コードが無効です",
+    "totpEnabled": "2段階認証が有効になりました",
+    "totpDisabled": "2段階認証が無効になりました",
     "transportBackend": "トランスポートバックエンド",
     "transportMode": "トランスポートモード",
     "transportModeAesGcm": "AES-GCM（セキュア）",
@@ -1566,7 +1625,9 @@
     "densityMode": {
       "comfortable": "快適",
       "compact": "コンパクト"
-    }
+    },
+    "newFolder": "New folder",
+    "networkSubtitle": "Relay, transport and connection"
   },
   "gifSearch": {
     "searchPlaceholder": "GIFを検索...",
@@ -1960,7 +2021,11 @@
       "warns": "警告"
     },
     "pipeline": "パイプライン",
-    "overdue": "期限切れ"
+    "overdue": "期限切れ",
+    "noDepartments": "部署がまだありません。最初の部署を追加してください。",
+    "deleteDepartment": "部署を削除",
+    "noRoles": "カスタムロールがまだありません。ロールを作成してアクセスを調整してください。",
+    "deleteRole": "ロールを削除"
   },
   "huddle": {
     "title": "ハドル",
@@ -2219,7 +2284,10 @@
     "perkFiles": "最大500 MBの添付ファイル",
     "perkReactions": "拡張リアクションセット",
     "perkStickers": "プレミアム・ステッカーパック",
-    "stickerLocked": "このステッカーパックはプレミアムで利用できます"
+    "stickerLocked": "このステッカーパックはプレミアムで利用できます",
+    "crmLocked": "CRMの取引・タスク・ロールはPremiumで利用可能",
+    "crmUnlock": "Premiumを開く",
+    "perkCrm": "CRM取引・タスク・ロール"
   },
   "desktop": {
     "resizePanel": "ドラッグしてパネルのサイズを変更"
@@ -2306,7 +2374,28 @@
     "nameLabel": "ボット名",
     "descriptionLabel": "説明",
     "descriptionPlaceholder": "このボットは何をしますか？"
-  },"wallet":{"send":"送金","failed":"支払い失敗","topUpDone":"チャージ完了","topUpDesc":"入金","balance":"残高","sentToChat":"支払いをチャットに送信しました","topUp":"チャージ","payToChat":"支払いをチャットに送信","sendDesc":"送金する","invalidAmount":"有効な金額を入力してください","sendDone":"送金完了","pending":"処理中","disabled":"支払いが無効です","transactions":"取引","created":"支払いを作成しました","currency":"通貨","amount":"金額","title":"ウォレット","empty":"まだ取引がありません"},
+  },
+  "wallet": {
+    "send": "送金",
+    "failed": "支払い失敗",
+    "topUpDone": "チャージ完了",
+    "topUpDesc": "入金",
+    "balance": "残高",
+    "sentToChat": "支払いをチャットに送信しました",
+    "topUp": "チャージ",
+    "payToChat": "支払いをチャットに送信",
+    "sendDesc": "送金する",
+    "invalidAmount": "有効な金額を入力してください",
+    "sendDone": "送金完了",
+    "pending": "処理中",
+    "disabled": "支払いが無効です",
+    "transactions": "取引",
+    "created": "支払いを作成しました",
+    "currency": "通貨",
+    "amount": "金額",
+    "title": "ウォレット",
+    "empty": "まだ取引がありません"
+  },
   "transport": {
     "direct": "ダイレクト",
     "connecting": "接続中...",
