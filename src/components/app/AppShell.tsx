@@ -258,6 +258,7 @@ function AppShellImpl({
             handlePreviewCall={handlePreviewCall}
             handlePreviewMessage={handlePreviewMessage}
             setView={setView}
+            onOpenPremium={() => { setSubView('premium'); setView('settings'); }}
           />
 
           {/* Drag to resize the side list; double-click resets to 320px */}

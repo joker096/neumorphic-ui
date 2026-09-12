@@ -181,6 +181,15 @@ describe("AppShell", () => {
     expect(captured.sideList.chatListProps.onOpenChat).toBe(baseProps.onOpenChat);
   });
 
+  it("wires onOpenPremium to settings premium subview (D5 regression)", () => {
+    const setSubView = vi.fn();
+    const setView = vi.fn();
+    render(<AppShell {...baseProps} setSubView={setSubView} setView={setView} />);
+    captured.sideList.onOpenPremium();
+    expect(setSubView).toHaveBeenCalledWith("premium");
+    expect(setView).toHaveBeenCalledWith("settings");
+  });
+
   it("wires onComposeStory into desktop chat list props", () => {
     const onComposeStory = vi.fn();
     render(<AppShell {...baseProps} onComposeStory={onComposeStory} />);

@@ -14,12 +14,13 @@ interface AppSideListProps {
   handlePreviewCall: (name: string, color?: string, callType?: "audio" | "video") => void;
   handlePreviewMessage: (name: string, color?: string) => void;
   setView: (view: any) => void;
+  onOpenPremium?: () => void;
 }
 
 export function AppSideList({
   view, isChatListRoute, theme, isDark,
   chatListProps, contacts, setContacts,
-  handlePreviewCall, handlePreviewMessage, setView,
+  handlePreviewCall, handlePreviewMessage, setView, onOpenPremium,
 }: AppSideListProps) {
   const { t } = useI18n();
   return (
@@ -46,6 +47,7 @@ export function AppSideList({
             onCall={handlePreviewCall}
             onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, 'video')}
             onMessage={handlePreviewMessage}
+            onOpenPremium={onOpenPremium}
           />
         </SafeRender>
       ) : view === "calls" ? (
