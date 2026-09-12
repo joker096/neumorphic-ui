@@ -170,21 +170,29 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     set({ pendingInvite: payload });
   },
   loadCompanySettings: async () => {
-    const stored = await idb.getCompanySettings();
+    const [stored, storedId, storedMembers] = await Promise.all([
+      idb.getCompanySettings(),
+      idb.getCompanyId(),
+      idb.getCompanyMembers(),
+    ]);
     if (stored) {
       set({ companySettings: stored as any });
     }
-    const storedId = await idb.getCompanyId();
     if (storedId) {
       set({ companyId: storedId });
       get().joinCompanyChannel();
     }
-    const storedMembers = await idb.getCompanyMembers();
     if (storedMembers && storedMembers.length > 0) {
       set({ companyMembers: storedMembers });
     }
     if (storedId) {
-      const raw = await idb.getCompanyGroupKey(storedId);
+      const [raw, chans, envs, ck, sc] = await Promise.all([
+        idb.getCompanyGroupKey(storedId),
+        idb.getCompanyChannels(),
+        idb.getCompanyCrmEnvelopes(),
+        idb.getCompanyChannelKeys(),
+        idb.getCompanySiteChats(),
+      ]);
       if (raw) {
         try {
           const { importRawKey } = await import('../../lib/company/groupKey');
@@ -193,15 +201,11 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
           /* ignore corrupt key */
         }
       }
-      const chans = await idb.getCompanyChannels();
       if (chans && chans.length) {
         set({ companyChannels: chans, activeChannelId: get().activeChannelId ?? chans[0].id });
       }
-      const envs = await idb.getCompanyCrmEnvelopes();
       if (envs && envs.length) set({ companyCrmEnvelopes: envs });
-      const ck = await idb.getCompanyChannelKeys();
       if (ck) set({ channelKeys: ck as Record<string, { publicKeyB64: string; secretKeyB64: string }> });
-      const sc = await idb.getCompanySiteChats();
       if (sc) set({ siteChats: sc as SiteChat[] });
     }
   },

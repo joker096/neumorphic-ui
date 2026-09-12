@@ -125,10 +125,10 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
   }), [filteredContacts, sortBy]);
 
   const tabs = useMemo(() => [
-    { key: 'all' as TabOption, label: t('contacts.allTab', { count: contacts.length }), icon: <Users size={14} /> },
-    { key: 'favorites' as TabOption, label: t('contacts.favoritesTab', { count: contacts.filter(c => c.isFavorite).length }), icon: <Star size={14} /> },
-    { key: 'recent' as TabOption, label: t('contacts.recentTab'), icon: <Clock size={14} /> },
-    { key: 'blocked' as TabOption, label: t('contacts.blockedTab', { count: contacts.filter(c => c.isBlocked).length }), icon: <UserX size={14} /> },
+    { key: 'all' as TabOption, label: t('contacts.allTab', { count: contacts.length }), icon: <Users size={12} /> },
+    { key: 'favorites' as TabOption, label: t('contacts.favoritesTab', { count: contacts.filter(c => c.isFavorite).length }), icon: <Star size={12} /> },
+    { key: 'recent' as TabOption, label: t('contacts.recentTab'), icon: <Clock size={12} /> },
+    { key: 'blocked' as TabOption, label: t('contacts.blockedTab', { count: contacts.filter(c => c.isBlocked).length }), icon: <UserX size={12} /> },
   ], [contacts, t]);
 
   return (
@@ -176,7 +176,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           {tabs.map(tab => (
             <motion.button key={tab.key} whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 min-h-[var(--control-height-sm)] rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 min-h-[var(--control-height-sm)] min-w-11 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab.key
                   ? (isDark ? 'bg-white/10 text-[var(--text-primary)] shadow-sm' : 'bg-white shadow-sm text-slate-800')
                   : (isDark ? 'text-gray-400 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')
@@ -315,7 +315,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${
             isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"
           }`}>
-            <div className={`font-mono text-xs tracking-widest break-all text-center ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`}>
+            <div className={`font-mono text-xs tracking-widest break-all text-center ${"text-[var(--accent)]"}`}>
               {shareId}
             </div>
             <div className="flex gap-2 w-full">

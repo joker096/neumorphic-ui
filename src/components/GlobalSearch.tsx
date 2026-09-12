@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { Search, X, MessageCircle, Users, Hash, CornerDownLeft, Clock, FileText, Link2 } from "lucide-react";
 import { DataState } from "./ui/DataState";
+import { useBodyScrollLock } from "../lib/a11y";
 
 const SEARCH_HISTORY_KEY = "mess_search_history";
 const HISTORY_LIMIT = 10;
@@ -60,7 +61,7 @@ function renderHighlighted(text: string, query: string): React.ReactNode {
   if (!q) return text;
   return text.split(new RegExp(`(${escapeRegExp(q)})`, "gi")).map((part, i) =>
     part.toLowerCase() === q.toLowerCase()
-      ? <mark key={i} className="rounded-[3px] bg-[var(--accent)]/25 px-[2px]">{part}</mark>
+      ? <mark key={i} className="rounded bg-[var(--accent)]/25 px-[2px]">{part}</mark>
       : part,
   );
 }
@@ -121,6 +122,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
   onOpenContact,
   t,
 }) => {
+  useBodyScrollLock(true);
   const [query, setQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [senderFilter, setSenderFilter] = useState<SenderFilter>("all");
@@ -329,7 +331,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
               type="button"
               aria-label={t("search.clear", "Clear")}
               onClick={() => setQuery("")}
-              className="p-1 rounded-full hover:bg-black/10 cursor-pointer"
+              className="min-w-11 min-h-11 flex items-center justify-center rounded-full hover:bg-black/10 cursor-pointer"
             >
               <X size={16} />
             </button>

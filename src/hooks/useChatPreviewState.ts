@@ -8,6 +8,7 @@ import { getAttachmentLimit } from "../config/premium";
 import { isAllowedFileType } from "../config/allowedFileTypes";
 import { toast } from "../components/ui/Toast";
 import { queueMessage, getPendingMessages, markMessageSent } from "../lib/messageQueue";
+import { SELF_DESTRUCT_MS } from "../constants/time";
 
 export function useChatPreviewState(
   chat: any,
@@ -87,6 +88,18 @@ export function useChatPreviewState(
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [unreadSinceScroll, setUnreadSinceScroll] = useState(0);
 
+  const updateMsgStatusInChat = useCallback((chatArg: any, msgId: string | number, status: string) => {
+    const updatedChat = {
+      ...chatArg,
+      history: (chatArg.history || []).map((m: any) => (m.id === msgId ? { ...m, status } : m)),
+    };
+    if (onUpdateChat) onUpdateChat(updatedChat);
+    setChatsStore((prev: any[]) => prev.map((c: any) => (c.id === chatArg.id ? updatedChat : c)));
+    if (chatArg.isChannel) {
+      setChannels((prev: any[]) => prev.map((c: any) => (c.id === chatArg.id ? updatedChat : c)));
+    }
+  }, [onUpdateChat, setChatsStore, setChannels]);
+
   const [localMessageText, setLocalMessageText] = useState("");
   const [localMorseMode, setLocalMorseMode] = useState(false);
   const [localSilentMode, setLocalSilentMode] = useState(false);
@@ -142,6 +155,9 @@ export function useChatPreviewState(
       status: navigator.onLine ? "sent" : "queued",
       silent: eSilentMode,
     };
+    const selfDestructDefault = useAppStore.getState().selfDestructDefault;
+    const ttl = selfDestructDefault ? SELF_DESTRUCT_MS[selfDestructDefault] : undefined;
+    if (ttl) newMessage.selfDestructAt = Date.now() + ttl;
     if (hasAttachment) {
       newMessage.type = attachment!.type;
       newMessage.attachment = attachment!.url;
@@ -155,7 +171,9 @@ export function useChatPreviewState(
         duration: eReplyTarget.duration
       } : undefined;
     }
-    void queueMessage({ ...newMessage, chatId: chat.id }).catch(() => {});
+    void queueMessage({ ...newMessage, chatId: chat.id }).catch(() =>
+      updateMsgStatusInChat(chat, newMessage.id, "failed"),
+    );
     const updatedChat = {
       ...chat,
       history: [...(chat.history || []), newMessage],
@@ -204,7 +222,9 @@ export function useChatPreviewState(
       status: navigator.onLine ? "sent" : "queued",
       silent,
     };
-    void queueMessage({ ...newMsg, chatId: chatData.id }).catch(() => {});
+    void queueMessage({ ...newMsg, chatId: chatData.id }).catch(() =>
+      updateMsgStatusInChat(chatData, newMsg.id, "failed"),
+    );
     const updated = { ...chatData, history: [...(chatData.history || []), newMsg] };
     if (onUpdChat) onUpdChat(updated);
   };
@@ -220,6 +240,19 @@ export function useChatPreviewState(
     if (!file) return;
     attachFile(file, chatData, onUpdChat, false);
   };
+
+  const retryFailedMessage = useCallback((msg: any) => {
+    if (!chat || !msg) return;
+    updateMsgStatusInChat(chat, msg.id, "queued");
+    void queueMessage({ ...msg, chatId: chat.id })
+      .then(() => {
+        if (navigator.onLine) {
+          updateMsgStatusInChat(chat, msg.id, "sent");
+          setTimeout(() => updateMsgStatusInChat(chat, msg.id, "delivered"), 1000);
+        }
+      })
+      .catch(() => updateMsgStatusInChat(chat, msg.id, "failed"));
+  }, [chat, updateMsgStatusInChat]);
 
   const handleReactionMessage = (msgId: string | number, emoji: string) => {
     const target = (chat.history || []).find((m: any) => m.id === msgId);
@@ -411,6 +444,7 @@ export function useChatPreviewState(
     handleImageAttach,
     handleFileDrop,
     handleReactionMessage,
+    retryFailedMessage,
     filteredHistory,
     mediaItems,
     chatSavedMessages,

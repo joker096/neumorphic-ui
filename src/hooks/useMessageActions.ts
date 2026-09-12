@@ -3,8 +3,10 @@ import { toast } from "sonner";
 import { encodeMorse } from "../components/MorseDecoder";
 import { parseMentions, isDNDEnabled, isPriorityContact } from "../constants";
 import { TOAST_DND_DURATION_MS } from "../constants/chatConstants";
+import { SELF_DESTRUCT_MS } from "../constants/time";
 import { useI18n } from "../lib/i18n";
 import { queueMessage, getPendingMessages, markMessageSent } from "../lib/messageQueue";
+import { useAppStore } from "../store";
 
 export function useMessageActions(
   activeChat: any,
@@ -39,21 +41,27 @@ export function useMessageActions(
     });
   }, [setChats, setActiveChat]);
 
-  const buildNewMessage = useCallback((overrides: Record<string, any> = {}) => ({
-    id: Date.now(),
-    sender: "me",
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    status: navigator.onLine ? "sent" : "queued",
-    silent: silentMode,
-    replyTo: replyTarget ? {
-      id: replyTarget.id,
-      sender: replyTarget.sender,
-      text: replyTarget.text,
-      type: replyTarget.type,
-      duration: replyTarget.duration,
-    } : undefined,
-    ...overrides,
-  }), [silentMode, replyTarget]);
+  const buildNewMessage = useCallback((overrides: Record<string, any> = {}) => {
+    const selfDestructDefault = useAppStore.getState().selfDestructDefault;
+    const ttl = selfDestructDefault ? SELF_DESTRUCT_MS[selfDestructDefault] : undefined;
+    const selfDestructAt = ttl ? Date.now() + ttl : undefined;
+    const msg: any = {
+      id: Date.now(),
+      sender: "me",
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: navigator.onLine ? "sent" : "queued",
+      silent: silentMode,
+      replyTo: replyTarget ? {
+        id: replyTarget.id,
+        sender: replyTarget.sender,
+        text: replyTarget.text,
+        type: replyTarget.type,
+        duration: replyTarget.duration,
+      } : undefined,
+    };
+    if (selfDestructAt) msg.selfDestructAt = selfDestructAt;
+    return { ...msg, ...overrides };
+  }, [silentMode, replyTarget]);
 
   const appendMessage = useCallback((newMessage: any) => {
     setChats((prevChats: any[]) => prevChats.map((c: any) =>
@@ -75,7 +83,7 @@ export function useMessageActions(
     }
     const newMessage = buildNewMessage({ text: "", type: "audio", audioUrl, duration: durationStr });
     appendMessage(newMessage);
-    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => {});
+    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => updateMessageStatus(newMessage.id, "failed"));
     setReplyTarget(null);
   }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t]);
 
@@ -87,7 +95,7 @@ export function useMessageActions(
     }
     const newMessage = buildNewMessage({ text: sticker, type: "sticker" });
     appendMessage(newMessage);
-    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => {});
+    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => updateMessageStatus(newMessage.id, "failed"));
     setReplyTarget(null);
     setShowStickerPicker(false);
   }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, setShowStickerPicker, t]);
@@ -127,7 +135,7 @@ export function useMessageActions(
     });
 
     appendMessage(newMessage);
-    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => {});
+    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => updateMessageStatus(newMessage.id, "failed"));
     setMessageText("");
     setSilentMode(false);
     setReplyTarget(null);

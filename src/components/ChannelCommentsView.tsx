@@ -146,7 +146,7 @@ export const ChannelCommentsView = ({
                 {t('channelComments.title')}
               </h3>
               <p
-                className={`text-xs uppercase tracking-wider font-semibold "text-[var(--accent)]"`}
+                className={`text-xs uppercase tracking-wider font-semibold text-[var(--accent)]`}
               >
                 {t('channelComments.replies', { count: comments.length })}
               </p>
@@ -181,9 +181,7 @@ export const ChannelCommentsView = ({
                 aria-label={t('channelComments.send', 'Send')}
                 className={`min-w-11 min-h-11 flex items-center justify-center rounded-full ml-2 cursor-pointer transition-transform active:scale-95 ${
                   comment.trim()
-                    ? isDark
-                      ? 'bg-[var(--accent)] text-[var(--text-primary)]'
-                      : 'bg-[var(--accent)] text-[var(--text-primary)]'
+                    ? 'bg-[var(--accent)] text-[var(--text-primary)]'
                     : isDark
                       ? 'bg-[var(--bg-tertiary)]/10 text-gray-500'
                       : 'bg-black/5 text-slate-400'

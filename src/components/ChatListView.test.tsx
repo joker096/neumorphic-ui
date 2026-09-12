@@ -57,6 +57,7 @@ const hookWith = vi.hoisted(() => (overrides: Record<string, any> = {}) => ({
   handleBulkArchive: vi.fn(),
   handleBulkDelete: vi.fn(),
   handleBulkMarkRead: vi.fn(),
+  handleBulkMute: vi.fn(),
   menu: null,
   openMenu: vi.fn(),
   closeMenu: vi.fn(),

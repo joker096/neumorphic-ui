@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Play, FileText, ImageOff, VideoOff } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
+import { useAppStore } from "../../store";
 import { VoiceWaveform } from "./VoiceWaveform";
 import { formatSize } from "../../utils/formatSize";
 import { StoryCard } from "../stories/StoryCard";
@@ -20,11 +21,18 @@ export function AttachmentMedia({
   onSetActivePhotoUrl, onSetPhotoOpen, onSetVideoOpen,
 }: AttachmentMediaProps) {
   const { t } = useI18n();
+  const mediaAutoLoad = useAppStore((s) => s.mediaAutoLoad);
   const [mediaErr, setMediaErr] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     setMediaErr(false);
+    setRevealed(false);
   }, [msg.attachment, msg.url, msg.thumb]);
+
+  const autoLoadBlocked =
+    mediaAutoLoad === "Off" || (mediaAutoLoad === "Wi-Fi" && !navigator.onLine);
+  const shouldShowMedia = !autoLoadBlocked || revealed;
 
   if (msg.type === "story") {
     return <StoryCard story={msg.story} />;
@@ -48,11 +56,20 @@ export function AttachmentMedia({
 
   if (msg.type === "image") {
     const src = msg.attachment || msg.url;
-    if (!src || mediaErr) {
+    if (!src || mediaErr || !shouldShowMedia) {
       return (
         <div className={`flex items-center justify-center gap-2 rounded-xl border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
           <ImageOff size={18} />
           <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
+          {autoLoadBlocked && (
+            <button
+              type="button"
+              onClick={() => setRevealed(true)}
+              className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
+            >
+              {t("chat.loadAttachment", "Load")}
+            </button>
+          )}
         </div>
       );
     }
@@ -74,17 +91,26 @@ export function AttachmentMedia({
 
   if (msg.type === "video") {
     const thumb = msg.thumb;
-    if (!thumb || mediaErr) {
+    if (!thumb || mediaErr || !shouldShowMedia) {
       return (
-        <div className={`flex items-center justify-center gap-2 rounded-[14px] border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+        <div className={`flex items-center justify-center gap-2 rounded-[12px] border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
           <VideoOff size={18} />
           <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
+          {autoLoadBlocked && (
+            <button
+              type="button"
+              onClick={() => setRevealed(true)}
+              className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
+            >
+              {t("chat.loadAttachment", "Load")}
+            </button>
+          )}
         </div>
       );
     }
     return (
       <div
-        className="rounded-[14px] overflow-hidden mb-1 relative border border-[var(--border-color)] group cursor-pointer"
+        className="rounded-[12px] overflow-hidden mb-1 relative border border-[var(--border-color)] group cursor-pointer"
         onClick={() => onSetVideoOpen(true)}
       >
         <img src={thumb} alt={t("a11y.videoThumbnail")} className="w-full h-auto sm:w-[180px] sm:h-[100px] md:w-[200px] md:h-[120px] object-cover opacity-80" onError={() => setMediaErr(true)} />

@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
-import { BellOff, Check, CheckCheck, Clock } from "lucide-react";
+import { AlertTriangle, BellOff, Check, CheckCheck, Clock } from "lucide-react";
+import { useI18n } from "../../lib/i18n";
 import { fuzzTime } from "../../utils/chatUtils";
 
 interface MessageTimestampProps {
@@ -9,11 +10,13 @@ interface MessageTimestampProps {
   stealthMode: boolean;
   deliveryReceipts: boolean;
   readReceipts: boolean;
+  onRetry?: () => void;
 }
 
 export function MessageTimestamp({
-  msg, isMe, isDark, stealthMode, deliveryReceipts, readReceipts,
+  msg, isMe, isDark, stealthMode, deliveryReceipts, readReceipts, onRetry,
 }: MessageTimestampProps) {
+  const { t } = useI18n();
   return (
     <div className={`flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide opacity-70 ${isMe && !isDark ? "text-orange-100" : ""} ${msg.type ? "px-2" : ""}`}>
       {msg.silent && <BellOff size={12} className="mr-0.5 opacity-60" />}
@@ -21,12 +24,41 @@ export function MessageTimestamp({
       {isMe && (
         <span className="inline-flex items-center">
           <AnimatePresence mode="wait">
+            {msg.status === "failed" && (
+              onRetry ? (
+                <motion.button
+                  key="failed"
+                  type="button"
+                  onClick={onRetry}
+                  aria-label={t("chat.retry", "Retry")}
+                  title={t("chat.retry", "Retry")}
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.15 }}
+                  className="inline-flex items-center justify-center min-w-5 min-h-5 rounded-full text-[var(--danger)]"
+                >
+                  <AlertTriangle size={12} strokeWidth={2.5} />
+                </motion.button>
+              ) : (
+                <motion.span
+                  key="failed"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.15 }}
+                  className="text-[var(--danger)]"
+                >
+                  <AlertTriangle size={12} strokeWidth={2.5} />
+                </motion.span>
+              )
+            )}
             {msg.status === 'queued' && (
               <motion.span key="queued" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.15 }}>
                 <Clock size={12} strokeWidth={2.5} />
               </motion.span>
             )}
-            {msg.status !== 'queued' && (!deliveryReceipts || msg.status === 'sent') && (
+            {msg.status !== 'queued' && msg.status !== 'failed' && (!deliveryReceipts || msg.status === 'sent') && (
               <motion.span key="sent" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.5 }} transition={{ duration: 0.15 }}>
                 <Check size={12} strokeWidth={2.5} />
               </motion.span>

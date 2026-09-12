@@ -338,4 +338,33 @@ describe('App Store', () => {
       expect(useAppStore.getState().scheduledQueue.messages).toHaveLength(0);
     });
   });
+
+  describe('data persistence coalescing', () => {
+    it('writes the newest snapshot once a burst settles, skipping intermediate states', async () => {
+      const { markDataHydrated } = await import('./index');
+      const idbMock = await import('../lib/idb');
+      const setMock = idbMock.set as unknown as ReturnType<typeof vi.fn>;
+      let release: () => void;
+      const gate = new Promise<void>((r) => { release = r; });
+      setMock.mockClear();
+      setMock.mockImplementation(() => gate);
+
+      markDataHydrated();
+      useAppStore.setState({ chats: [{ id: 'a' }] as any });
+      useAppStore.setState({ chats: [{ id: 'b' }] as any });
+      useAppStore.setState({ chats: [{ id: 'c' }] as any });
+
+      const chatsCalls = () => setMock.mock.calls.filter((c) => c[0] === 'chats_all');
+      expect(chatsCalls()).toHaveLength(1);
+
+      release();
+      await vi.waitFor(() => {
+        const writes = chatsCalls();
+        expect(writes).toHaveLength(2);
+        expect(writes[1][1]).toEqual([{ id: 'c' }]);
+      });
+
+      setMock.mockImplementation(() => Promise.resolve(undefined));
+    });
+  });
 });

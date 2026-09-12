@@ -42,12 +42,14 @@ export const useDataHydration = ({
     let cancelled = false;
     (async () => {
       try {
-        const [storedChats, storedContacts, storedChannels, storedBots, storedCalls] = await Promise.all([
+        const [storedChats, storedContacts, storedChannels, storedBots, storedCalls, , meta] = await Promise.all([
           idb.get<any[]>('chats_all'),
           idb.get<any[]>('contacts_all'),
           idb.get<any[]>('channels_all'),
           idb.get<any[]>('bots_list'),
           idb.get<any[]>('call_history_all'),
+          loadCompanyMessages(),
+          loadCloudSyncMeta(),
         ]);
         if (cancelled) return;
         if (storedChats?.length) setChats(storedChats);
@@ -55,8 +57,6 @@ export const useDataHydration = ({
         if (storedChannels?.length) setChannels(storedChannels);
         if (storedBots?.length) setBots(storedBots);
         if (storedCalls?.length) setCallHistory(storedCalls);
-        loadCompanyMessages();
-        const meta = await loadCloudSyncMeta();
         if (meta) {
           useAppStore.getState().updateCloudSyncStatus({
             enabled: meta.enabled,

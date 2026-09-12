@@ -46,6 +46,11 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     handleCancelSelect();
   };
 
+  const handleBulkMute = () => {
+    setChats(prev => prev.map((c: any) => selectedIds.has(c.id) ? { ...c, isMuted: !c.isMuted } : c));
+    handleCancelSelect();
+  };
+
   const handleMenuPin = (chat: any) => {
     setChats(prev => prev.map((c: any) => c.id === chat.id ? { ...c, pinned: !c.pinned } : c));
   };
@@ -139,6 +144,7 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     handleBulkArchive,
     handleBulkDelete,
     handleBulkMarkRead,
+    handleBulkMute,
     menu,
     openMenu,
     closeMenu,

@@ -84,7 +84,22 @@ function ChatInputAreaImpl({
   const typingActiveRef = React.useRef(false);
   const idleTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [pendingMedia, setPendingMedia] = React.useState<{ url: string; type: 'image' | 'video' } | null>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const growTextarea = (el: HTMLTextAreaElement) => {
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  };
+
+  React.useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    const raf = requestAnimationFrame(() => {
+      el.style.height = "auto";
+      if (el.value) growTextarea(el);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [chat.id]);
 
   React.useEffect(() => {
     if (isChannel || !showTyping || !chat?.name) return;
@@ -172,7 +187,7 @@ function ChatInputAreaImpl({
           </div>
         )}
         <div
-          className={`w-full flex-shrink-0 h-11 rounded-full px-3 flex items-center gap-1 ${
+          className={`w-full flex-shrink-0 min-h-11 max-h-[132px] rounded-[20px] px-3 py-1.5 flex items-center gap-1 ${
             isDark ? "bg-[var(--bg-secondary)]" : "bg-white shadow-sm"
           }`}
         >
@@ -199,10 +214,14 @@ function ChatInputAreaImpl({
           >
             <Plus size={16} />
           </label>
-          <input
-            type="text"
+          <textarea
+            ref={inputRef}
+            rows={1}
             value={eMsgText}
-            onChange={(e) => setMsgTextFn(e.target.value)}
+            onChange={(e) => {
+              setMsgTextFn(e.target.value);
+              growTextarea(e.target);
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -215,7 +234,7 @@ function ChatInputAreaImpl({
             inputMode="text"
             enterKeyHint="send"
             spellCheck={!eMorseMode}
-            className={`flex-1 bg-transparent outline-none border-none text-sm px-2 py-1 ${
+            className={`flex-1 min-w-0 bg-transparent outline-none border-none resize-none text-sm px-2 py-1.5 max-h-[120px] overflow-y-auto ${
               isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-muted)]" : "text-slate-800 placeholder:text-slate-400"
             } ${eMorseMode ? "font-mono" : ""}`}
             style={inputStyle}
@@ -333,12 +352,15 @@ function ChatInputAreaImpl({
           </>
         )}
 
-        <div className="order-first sm:order-none w-full sm:w-auto flex-shrink-0 sm:flex-1 min-w-0 h-11 sm:h-11 rounded-full px-2 sm:px-3 md:px-4 flex items-center gap-1">
-          <input
+        <div className="order-first sm:order-none w-full sm:w-auto flex-shrink-0 sm:flex-1 min-w-0 min-h-11 max-h-[132px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center gap-1">
+          <textarea
             ref={inputRef}
-            type="text"
+            rows={1}
             value={eMsgText}
-            onChange={(e) => setMsgTextFn(e.target.value)}
+            onChange={(e) => {
+              setMsgTextFn(e.target.value);
+              growTextarea(e.target);
+            }}
             onPaste={(e) => {
               const files = e.clipboardData?.files;
               if (files && files.length) {
@@ -346,14 +368,14 @@ function ChatInputAreaImpl({
                 onPasteFiles?.(files);
               }
             }}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
             placeholder={messagePlaceholder}
             aria-label={messagePlaceholder}
             autoComplete="off"
             inputMode="text"
             enterKeyHint="send"
             spellCheck={!eMorseMode}
-            className={`flex-1 min-w-0 h-full bg-transparent border-none outline-none text-[12px] sm:text-[13px] md:text-[14px] ${
+            className={`flex-1 min-w-0 min-h-11 py-[13px] bg-transparent border-none outline-none resize-none text-[12px] sm:text-[13px] md:text-[14px] leading-snug max-h-[120px] overflow-y-auto ${
               isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"
             }`}
             style={inputStyle}
@@ -369,9 +391,7 @@ function ChatInputAreaImpl({
               }}
               className={`min-w-11 min-h-11 px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
                 eSilentMode
-                  ? isDark
-                    ? "text-[var(--accent)]"
-                    : "text-[var(--accent)]"
+                  ? "text-[var(--accent)]"
                   : isDark
                     ? "text-gray-400 hover:text-gray-300"
                     : "text-slate-500 hover:text-slate-700"
@@ -421,9 +441,7 @@ function ChatInputAreaImpl({
           onContextMenu={(e) => e.preventDefault()}
           className={`order-last sm:order-none ml-auto sm:ml-0 min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 select-none ${
             eScheduleDateTime && eMsgText
-              ? isDark
-                ? "bg-[var(--cyan)] text-[var(--bg-primary)]"
-                : "bg-[var(--cyan)] text-[var(--bg-primary)]"
+              ? "bg-[var(--cyan)] text-[var(--bg-primary)]"
               : eMsgText
                 ? isDark
                   ? `${CHAT_SEND_GRADIENT} text-[var(--text-primary)] shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]`

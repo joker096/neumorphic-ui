@@ -94,4 +94,26 @@ describe("useChatListActions delete confirmation", () => {
     expect(result.current.deleteConfirm).toEqual(expect.objectContaining({ kind: "single" }));
     expect(setChatsMock).not.toHaveBeenCalled();
   });
+
+  it("bulk mute toggles isMuted on the selected chats only and exits select mode", () => {
+    const { result } = renderActions();
+    act(() => {
+      result.current.handleToggleSelect("a");
+      result.current.handleToggleSelect("b");
+    });
+    act(() => result.current.handleBulkMute());
+    expect(result.current.selectMode).toBe(false);
+    expect(result.current.selectedIds.size).toBe(0);
+    const updater = setChatsMock.mock.calls[0][0];
+    const next = updater([
+      { id: "a", isMuted: false },
+      { id: "b", isMuted: true },
+      { id: "c", isMuted: false },
+    ]);
+    expect(next).toEqual([
+      { id: "a", isMuted: true },
+      { id: "b", isMuted: false },
+      { id: "c", isMuted: false },
+    ]);
+  });
 });

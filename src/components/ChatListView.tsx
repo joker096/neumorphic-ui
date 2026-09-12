@@ -47,6 +47,7 @@ interface ChatListViewProps {
   showAddContactFromChat?: boolean;
   setShowAddContactFromChat?: (show: boolean) => void;
   onAddContactFromChat?: (name: string, id: string, color?: string, localFields?: any[]) => void;
+  draftTextByChat?: Record<string, string>;
 }
 
 type ChatRow =
@@ -88,6 +89,7 @@ export const ChatListView = ({
   showAddContactFromChat,
   setShowAddContactFromChat,
   onAddContactFromChat,
+  draftTextByChat,
 }: ChatListViewProps) => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
@@ -111,6 +113,7 @@ export const ChatListView = ({
     handleCancelSelect,
     handleBulkArchive,
     handleBulkMarkRead,
+    handleBulkMute,
     menu,
     openMenu,
     closeMenu,
@@ -135,7 +138,7 @@ export const ChatListView = ({
         list.push({
           kind: "header",
           text: t("chat.sectionPinned"),
-          innerClass: `text-xs sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`,
+          innerClass: `text-xs sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] ${"text-[var(--accent)]"}`,
           wrapperClass: "pb-3 sm:pb-4",
         });
         pinnedChats.forEach((c: any) => list.push({ kind: "chat", chat: c }));
@@ -144,7 +147,7 @@ export const ChatListView = ({
       list.push({
         kind: "header",
         text: t("chat.sectionConversations"),
-        innerClass: `text-xs font-bold uppercase tracking-[0.2em] ${isDark ? "text-[var(--accent)]" : "text-[var(--accent)]"}`,
+        innerClass: `text-xs font-bold uppercase tracking-[0.2em] ${"text-[var(--accent)]"}`,
         wrapperClass: "pb-4",
       });
       regularChats.forEach((c: any) => list.push({ kind: "chat", chat: c }));
@@ -179,7 +182,7 @@ export const ChatListView = ({
       chat={chat}
       theme={theme}
       type={type}
-      active={false}
+      active={activeChatId === chat.id}
       onClick={() => (onOpenChat ? onOpenChat(chat) : setActiveChat(chat))}
       onArchive={() => toggleArchive(chat.id)}
       onMute={type === "chat" ? () => handleMenuMute({ id: chat.id }) : undefined}
@@ -193,6 +196,7 @@ export const ChatListView = ({
       selected={type === "chat" ? selectedIds.has(chat.id) : undefined}
       onToggleSelect={type === "chat" ? () => handleToggleSelect(chat.id) : undefined}
       onMenuRequest={type === "chat" ? openMenu : undefined}
+      draftText={draftTextByChat?.[String(chat.id)]}
       onAvatarClick={
         type === "chat"
           ? () => {
@@ -252,6 +256,7 @@ export const ChatListView = ({
           onArchive={handleBulkArchive}
           onDelete={requestBulkDelete}
           onMarkRead={handleBulkMarkRead}
+          onToggleMute={handleBulkMute}
         />
       )}
 

@@ -27,7 +27,7 @@ import type { ContactAvatarSlice } from './slices/contactAvatarSlice';
 import type { PremiumSlice } from './slices/premiumSlice';
 import type { NotificationSlice } from './slices/notificationSlice';
 import type { WalletSlice } from './slices/walletSlice';
-import { createSettingsSlice } from './slices/settingsSlice';
+import { createSettingsSlice, hydrateSecurePrivacyFields } from './slices/settingsSlice';
 import { createChatSlice } from './slices/chatSlice';
 import { createCallSlice } from './slices/callSlice';
 import { createPollSlice } from './slices/pollsSlice';
@@ -60,8 +60,14 @@ export const setSessionMasterKey = (key: CryptoKey | null): void => {
 
 export const initAppStorage = async () => {
   const { deviceSecurity } = await import('../lib/deviceSecurity');
+  const { setSessionPersistKey } = await import('../lib/securePersist');
   try {
     sessionMasterKey = await deviceSecurity.initSessionMasterKey();
+    setSessionPersistKey(sessionMasterKey);
+    await hydrateSecurePrivacyFields(
+      () => useAppStore.getState(),
+      (partial) => useAppStore.setState(partial),
+    );
   } catch (e) {
     logError(e, 'initAppStorage');
     throw e;
@@ -120,11 +126,38 @@ useAppStore.subscribe((s) => {
   }
 });
 
-// Persist chats / contacts / channels / bots / call history to IndexedDB
-let dataPersistRef: { chats: unknown; contacts: unknown; channels: unknown; bots: unknown; calls: unknown; wallet: unknown } | null = null;
+// Persist chats / contacts / channels / bots / call history to IndexedDB.
+// Writes are coalesced: if a burst of state changes arrives while a write is
+// in flight, only the newest snapshot is queued and written next.
+type DataPersistSnapshot = { chats: unknown; contacts: unknown; channels: unknown; bots: unknown; calls: unknown; wallet: unknown };
+let dataPersistRef: DataPersistSnapshot | null = null;
+let persistWriting = false;
+let persistQueued: DataPersistSnapshot | null = null;
+
+const drainPersist = (): void => {
+  persistWriting = true;
+  const next = persistQueued ?? dataPersistRef;
+  persistQueued = null;
+  if (!next) {
+    persistWriting = false;
+    return;
+  }
+  void Promise.all([
+    idb.set('chats_all', next.chats),
+    idb.set('contacts_all', next.contacts),
+    idb.set('channels_all', next.channels),
+    idb.set('bots_list', next.bots),
+    idb.set('call_history_all', next.calls),
+    idb.set('wallet_all', next.wallet),
+  ]).then(() => {
+    persistWriting = false;
+    if (persistQueued) drainPersist();
+  });
+};
+
 useAppStore.subscribe((s) => {
   if (!dataHydrated) return;
-  const cur = { chats: s.chats, contacts: s.contacts, channels: s.channels, bots: s.bots, calls: s.callHistory, wallet: s.transactions };
+  const cur: DataPersistSnapshot = { chats: s.chats, contacts: s.contacts, channels: s.channels, bots: s.bots, calls: s.callHistory, wallet: s.transactions };
   if (
     !dataPersistRef
     || cur.chats !== dataPersistRef.chats
@@ -135,12 +168,11 @@ useAppStore.subscribe((s) => {
     || cur.wallet !== dataPersistRef.wallet
   ) {
     dataPersistRef = cur;
-    idb.set('chats_all', s.chats).catch(() => {});
-    idb.set('contacts_all', s.contacts).catch(() => {});
-    idb.set('channels_all', s.channels).catch(() => {});
-    idb.set('bots_list', s.bots).catch(() => {});
-    idb.set('call_history_all', s.callHistory).catch(() => {});
-    idb.set('wallet_all', s.transactions).catch(() => {});
+    if (persistWriting) {
+      persistQueued = cur;
+    } else {
+      drainPersist();
+    }
     if (s.cloudSync.enabled) useAppStore.getState().markCloudSyncPendingChange();
   }
 });
