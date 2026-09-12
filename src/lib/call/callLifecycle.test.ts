@@ -2,6 +2,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { callManager } from './CallManager';
 import { useAppStore } from '../../store';
 
+const recorderMock = vi.hoisted(() => ({
+  startRecording: vi.fn(async () => true),
+  stopRecording: vi.fn(),
+  getRecordingBlob: vi.fn(),
+}));
+
+vi.mock('../../lib/callRecorderService', () => ({ callRecorderService: recorderMock }));
+
 const makeStream = () =>
   ({
     getTracks: () => [],
@@ -28,11 +36,21 @@ const makeStreamWithTracks = (tracks: MediaStreamTrack[]) =>
   }) as unknown as MediaStream;
 
 const resetCallState = () => {
-  useAppStore.setState({ activeCall: null, callMinimized: false, incomingCall: null, callHistory: [] });
+  useAppStore.setState({
+    activeCall: null,
+    callMinimized: false,
+    incomingCall: null,
+    callHistory: [],
+    autoRecordCalls: true,
+    saveAudioRecordings: true,
+    saveVideoRecordings: true,
+  });
 };
 
 describe('call lifecycle', () => {
   beforeEach(() => {
+    recorderMock.startRecording.mockClear();
+    recorderMock.stopRecording.mockClear();
     vi.useFakeTimers();
     Object.defineProperty(navigator, 'mediaDevices', {
       value: {
@@ -288,5 +306,63 @@ describe('call lifecycle', () => {
     expect(useAppStore.getState().activeCall?.isVideoEnabled).toBe(false);
     expect(errors).toHaveLength(1);
     expect(errors[0].data.reason).toBe('permission');
+  });
+
+  it('auto-starts recording when a call connects and links the id to call history', async () => {
+    const stream = makeStreamWithTracks([makeTrack('audio')]);
+    vi.mocked(navigator.mediaDevices.getUserMedia).mockResolvedValueOnce(stream);
+    (callManager as any).getMixedStream = () => stream;
+
+    await callManager.startCall('p1', 'Alice Freeman', 'audio');
+    await vi.advanceTimersByTimeAsync(1500);
+    await vi.advanceTimersByTimeAsync(0);
+
+    const active = useAppStore.getState().activeCall;
+    expect(active?.status).toBe('connected');
+    expect(active?.isRecording).toBe(true);
+    expect(active?.recordingId).toBeDefined();
+    expect(recorderMock.startRecording).toHaveBeenCalledTimes(1);
+    expect(recorderMock.startRecording).toHaveBeenCalledWith(active!.recordingId, stream, false);
+
+    await callManager.endCall();
+
+    const [entry] = useAppStore.getState().callHistory;
+    expect(entry.recordingId).toBe(active!.recordingId);
+    expect(recorderMock.stopRecording).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not auto-record when autoRecordCalls is disabled', async () => {
+    useAppStore.setState({ autoRecordCalls: false });
+    const stream = makeStreamWithTracks([makeTrack('audio')]);
+    vi.mocked(navigator.mediaDevices.getUserMedia).mockResolvedValueOnce(stream);
+
+    await callManager.startCall('p1', 'Alice Freeman', 'audio');
+    await vi.advanceTimersByTimeAsync(1500);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(useAppStore.getState().activeCall?.isRecording).toBe(false);
+    expect(recorderMock.startRecording).not.toHaveBeenCalled();
+  });
+
+  it('does not auto-record when saving audio recordings is disabled', async () => {
+    useAppStore.setState({ saveAudioRecordings: false });
+    const stream = makeStreamWithTracks([makeTrack('audio')]);
+    vi.mocked(navigator.mediaDevices.getUserMedia).mockResolvedValueOnce(stream);
+
+    await callManager.startCall('p1', 'Alice Freeman', 'audio');
+    await vi.advanceTimersByTimeAsync(1500);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(useAppStore.getState().activeCall?.isRecording).toBe(false);
+    expect(recorderMock.startRecording).not.toHaveBeenCalled();
+  });
+
+  it('skips auto-record for preview calls with no tracks', async () => {
+    await callManager.startPreviewCall('p1', 'Alice Freeman', 'audio');
+    await vi.advanceTimersByTimeAsync(1500);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(useAppStore.getState().activeCall?.isRecording).toBe(false);
+    expect(recorderMock.startRecording).not.toHaveBeenCalled();
   });
 });

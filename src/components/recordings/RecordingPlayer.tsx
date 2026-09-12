@@ -57,7 +57,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-end sm:items-center justify-center"
+      className="fixed inset-0 z-[var(--z-modal)] bg-black/60 backdrop-blur-md flex items-end sm:items-center justify-center"
       onClick={onClose}
     >
       <motion.div
@@ -85,7 +85,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
           <motion.button whileTap={{ scale: 0.9 }} onClick={onClose}
             aria-label={t('common.close')}
             title={t('common.close')}
-            className={`p-2 rounded-full shrink-0 ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
+            className={`min-w-11 min-h-11 flex items-center justify-center rounded-full shrink-0 ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
             <X size={20} />
           </motion.button>
         </div>
@@ -118,7 +118,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => setMuted(!muted)}
               aria-label={muted ? t('systemPlayer.unmute') : t('systemPlayer.mute')}
               title={muted ? t('systemPlayer.unmute') : t('systemPlayer.mute')}
-              className={`p-2 rounded-full ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
+              className={`min-w-11 min-h-11 flex items-center justify-center rounded-full ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
               {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </motion.button>
             <input type="range" min={0} max={1} step={0.05} value={muted ? 0 : volume}
@@ -127,18 +127,18 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
               className="w-20 h-1 accent-orange-500 cursor-pointer" />
           </div>
           <motion.button whileTap={{ scale: 0.9 }} onClick={cycleRate}
-            className={`px-2.5 py-1 text-xs font-mono rounded-lg ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{rate}x</motion.button>
+            className={`min-h-11 min-w-11 flex items-center justify-center px-2 text-xs font-mono rounded-lg ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{rate}x</motion.button>
           <div className="flex items-center gap-1">
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => onExport(recording.id, recording.title || 'recording')}
               aria-label={t('recordings.export')}
               title={t('recordings.export')}
-              className={`p-2 rounded-full ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
+              className={`min-w-11 min-h-11 flex items-center justify-center rounded-full ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}>
               <Download size={16} />
             </motion.button>
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => onDelete(recording.id)}
               aria-label={t('recordings.delete')}
               title={t('recordings.delete')}
-              className="p-2 rounded-full text-red-500 hover:bg-red-500/10">
+              className="min-w-11 min-h-11 flex items-center justify-center rounded-full text-red-500 hover:bg-red-500/10">
               <Trash2 size={16} />
             </motion.button>
           </div>

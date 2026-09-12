@@ -150,7 +150,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.96 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-0 z-[200] flex flex-col overflow-hidden bg-[var(--bg-primary)]"
+          className="fixed inset-0 z-[var(--z-modal)] flex flex-col overflow-hidden bg-[var(--bg-primary)]"
           style={{
             background:
               'radial-gradient(130% 100% at 50% -10%, color-mix(in srgb, var(--accent) 10%, var(--bg-primary)) 0%, var(--bg-primary) 55%)',

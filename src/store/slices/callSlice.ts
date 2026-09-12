@@ -9,6 +9,7 @@ export interface CallHistoryEntry {
   time: string;
   type: CallHistoryType;
   duration?: string;
+  recordingId?: string;
 }
 
 export interface CallSlice {
@@ -20,7 +21,7 @@ export interface CallSlice {
   setIncomingCall: (call: IncomingCall | null) => void;
   callHistory: CallHistoryEntry[];
   setCallHistory: (updater: CallHistoryEntry[] | ((prev: CallHistoryEntry[]) => CallHistoryEntry[])) => void;
-  addCallToHistory: (entry: { name: string; type: CallHistoryType; duration?: string }) => void;
+  addCallToHistory: (entry: { name: string; type: CallHistoryType; duration?: string; recordingId?: string }) => void;
   clearCallHistory: () => void;
   callFolders: CallFolder[];
   addCallFolder: (folder: Omit<CallFolder, 'id'>) => void;

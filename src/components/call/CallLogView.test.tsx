@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { CallLogView } from './CallLogView';
 
 const storeState = vi.hoisted(() => ({
-  callHistory: [] as Array<{ id: string; name: string; type: string; time: string; duration?: string }>,
+  callHistory: [] as Array<{ id: string; name: string; type: string; time: string; duration?: string; recordingId?: string }>,
   clearCallHistory: vi.fn(),
 }));
 
@@ -13,11 +13,17 @@ const callManagerMock = vi.hoisted(() => ({
   startPreviewCall: vi.fn().mockResolvedValue(undefined),
 }));
 
+const recorderServiceMock = vi.hoisted(() => ({
+  getRecordingBlob: vi.fn(),
+}));
+
 vi.mock('../../store', () => ({
   useAppStore: (selector: (s: typeof storeState) => unknown) => selector(storeState),
 }));
 
 vi.mock('../../lib/call/CallManager', () => ({ callManager: callManagerMock }));
+
+vi.mock('../../lib/callRecorderService', () => ({ callRecorderService: recorderServiceMock }));
 
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
@@ -64,6 +70,8 @@ vi.mock('lucide-react', () => ({
   Phone: () => null,
   Search: () => null,
   Trash2: () => null,
+  Play: () => null,
+  X: () => null,
 }));
 
 const alice = { id: '1', name: 'Alice', type: 'incoming', time: '10:00' };
@@ -74,7 +82,10 @@ describe('CallLogView', () => {
     storeState.callHistory = [];
     storeState.clearCallHistory.mockClear();
     callManagerMock.startPreviewCall.mockClear();
+    recorderServiceMock.getRecordingBlob.mockClear();
     subViewRef.current = null;
+    URL.createObjectURL = vi.fn(() => 'blob:mock');
+    URL.revokeObjectURL = vi.fn();
   });
 
   it('shows empty state with View contacts action', () => {
@@ -152,6 +163,39 @@ describe('CallLogView', () => {
     storeState.callHistory = [alice];
     render(<CallLogView />);
     expect(screen.queryByRole('button', { name: 'call.callBack' })).not.toBeInTheDocument();
+  });
+
+  it('offers recording playback for entries with a recordingId', () => {
+    storeState.callHistory = [{ ...alice, recordingId: 'rec_1' }];
+    render(<CallLogView />);
+    expect(screen.getByRole('button', { name: 'call.playRecording' })).toBeInTheDocument();
+  });
+
+  it('does not offer playback for entries without a recordingId', () => {
+    storeState.callHistory = [alice];
+    render(<CallLogView />);
+    expect(screen.queryByRole('button', { name: 'call.playRecording' })).not.toBeInTheDocument();
+  });
+
+  it('opens an inline audio player when playback is clicked and closes it', async () => {
+    recorderServiceMock.getRecordingBlob.mockResolvedValue(new Blob(['x'], { type: 'audio/webm' }));
+    storeState.callHistory = [{ ...alice, recordingId: 'rec_1' }];
+    render(<CallLogView />);
+    fireEvent.click(screen.getByRole('button', { name: 'call.playRecording' }));
+    await waitFor(() => expect(recorderServiceMock.getRecordingBlob).toHaveBeenCalledWith('rec_1'));
+    await waitFor(() => expect(document.querySelector('audio')).toBeInTheDocument());
+    const audio = document.querySelector('audio');
+    expect(audio).toHaveAttribute('src', 'blob:mock');
+    fireEvent.click(screen.getByRole('button', { name: 'common.close' }));
+    await waitFor(() => expect(document.querySelector('audio')).not.toBeInTheDocument());
+  });
+
+  it('stays closed when the recording blob is missing', () => {
+    recorderServiceMock.getRecordingBlob.mockResolvedValue(null);
+    storeState.callHistory = [{ ...alice, recordingId: 'rec_missing' }];
+    render(<CallLogView />);
+    fireEvent.click(screen.getByRole('button', { name: 'call.playRecording' }));
+    expect(document.querySelector('audio')).not.toBeInTheDocument();
   });
 
   it('renders SubView title and working back button', () => {

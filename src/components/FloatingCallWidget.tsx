@@ -42,7 +42,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
         drag
         dragMomentum={false}
         onClick={handleExpand}
-        className={`fixed bottom-6 right-6 z-[100] p-4 neo-raised flex items-center gap-4 cursor-grab active:cursor-grabbing`}
+        className={`fixed bottom-6 right-6 z-[var(--z-popover)] p-4 neo-raised flex items-center gap-4 cursor-grab active:cursor-grabbing`}
       >
         <div className="flex items-center gap-3">
           {isRecording && (

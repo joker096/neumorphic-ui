@@ -226,7 +226,36 @@ class CallManager {
       this.activeCall = { ...call, status: 'connected' };
       this.updateStore(this.activeCall);
       this.emit('call:accepted', { call: this.activeCall });
+      void this.maybeAutoStartRecording();
     }, CallManager.CONNECT_DELAY_MS);
+  }
+
+  /**
+   * Auto-starts recording once a call is connected when the "Record calls
+   * automatically" setting is on and the matching save-recording toggle is
+   * enabled. Skips preview/demo calls (no real tracks). Failure to start is
+   * silent — the call keeps running without a recording.
+   */
+  private async maybeAutoStartRecording(): Promise<void> {
+    const call = this.activeCall;
+    if (!call || call.isPreview || call.isRecording) return;
+    const store = useAppStore.getState();
+    if (!store.autoRecordCalls) return;
+    const keep = call.callType === 'audio' ? store.saveAudioRecordings : store.saveVideoRecordings;
+    if (!keep) return;
+    try {
+      const stream = this.getMixedStream();
+      if (stream.getTracks().length === 0) return;
+      const recordingId = nanoid();
+      const ok = await callRecorderService.startRecording(recordingId, stream, call.callType !== 'audio');
+      if (!ok) return;
+      if (this.activeCall?.callId !== call.callId) return;
+      this.activeCall = { ...call, isRecording: true, recordingId };
+      this.updateStore(this.activeCall);
+      this.emit('call:recording-toggled', { recording: true });
+    } catch {
+      /* recorder unavailable — the call keeps running without a recording */
+    }
   }
 
   async startCall(
@@ -366,7 +395,7 @@ class CallManager {
       const s = total % 60;
       duration = `${m}m ${s}s`;
     }
-    store.addCallToHistory({ name, type, duration });
+    store.addCallToHistory({ name, type, duration, recordingId: call.recordingId });
   }
 
   /**
@@ -538,13 +567,14 @@ class CallManager {
     if (!this.activeCall) return false;
     if (this.activeCall.isRecording) {
       callRecorderService.stopRecording();
-      this.activeCall = { ...this.activeCall, isRecording: false, recordingId: undefined };
+      // Keep recordingId so the call history can link to the saved recording.
+      this.activeCall = { ...this.activeCall, isRecording: false };
       this.updateStore(this.activeCall);
       this.emit('call:recording-toggled', { recording: false });
       return false;
     }
 
-    const recordingId = this.activeCall.recordingId || nanoid();
+    const recordingId = nanoid();
     const stream = this.getMixedStream();
     const ok = await callRecorderService.startRecording(recordingId, stream, this.activeCall.callType !== 'audio');
     if (!ok) return false;

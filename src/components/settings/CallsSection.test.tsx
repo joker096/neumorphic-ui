@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 vi.mock('lucide-react', () => ({
   Video: 'div', Phone: 'div', Clock: 'div', Trash2: 'div', Share2: 'div', History: 'div',
-  FolderOpen: 'div', PhoneIncoming: 'div', ChevronLeft: 'div', ChevronRight: 'div',
+  FolderOpen: 'div', PhoneIncoming: 'div', Mic: 'div', ChevronLeft: 'div', ChevronRight: 'div',
 }));
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 vi.mock('../../lib/i18n', () => ({
@@ -18,10 +18,12 @@ const h = vi.hoisted(() => ({
   saveVideo: true as boolean,
   share: true as boolean,
   retention: 30 as number,
+  autoRecord: true as boolean,
   setSaveAudio: vi.fn(),
   setSaveVideo: vi.fn(),
   setShare: vi.fn(),
   setRetention: vi.fn(),
+  setAutoRecord: vi.fn(),
   startIncomingCall: vi.fn(),
 }));
 
@@ -37,6 +39,8 @@ vi.mock('../../store', () => ({
       setShareRecording: h.setShare,
       recordingsRetentionDays: h.retention,
       setRecordingsRetentionDays: h.setRetention,
+      autoRecordCalls: h.autoRecord,
+      setAutoRecordCalls: h.setAutoRecord,
     }) : {},
 }));
 vi.mock('../../lib/call/CallManager', () => ({ callManager: { startIncomingCall: h.startIncomingCall } }));
@@ -72,6 +76,7 @@ describe('CallsSection', () => {
     h.saveVideo = true;
     h.share = true;
     h.retention = 30;
+    h.autoRecord = true;
   });
 
   it('renders header, sections and back button', () => {
@@ -116,6 +121,12 @@ describe('CallsSection', () => {
     renderSection();
     fireEvent.click(screen.getByRole('switch', { name: t('settings.saveAudioCalls', 'Save audio calls') }));
     expect(h.setSaveAudio).toHaveBeenCalledWith(false);
+  });
+
+  it('toggles auto record calls', () => {
+    renderSection();
+    fireEvent.click(screen.getByRole('switch', { name: t('settings.autoRecordCalls', 'Record calls automatically') }));
+    expect(h.setAutoRecord).toHaveBeenCalledWith(false);
   });
 
   it('toggles save video recordings', () => {

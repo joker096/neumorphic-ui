@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { CALL_CONTROL_SIZES } from '../../constants/callConstants';
+import { AppIcon, type AppIconSource } from '../ui/AppIcon';
 
 /** Animated "connecting" indicator shown next to the call status label. */
 export function StatusDots() {
@@ -28,7 +29,7 @@ export function StatusDots() {
 interface ControlButtonProps {
   active?: boolean;
   activeColor?: string;
-  icon: React.ElementType;
+  icon: AppIconSource;
   label: string;
   onClick: () => void;
   size?: 'sm' | 'md' | 'lg';
@@ -59,7 +60,7 @@ export function ControlButton({
       aria-label={label}
       aria-pressed={!!active}
     >
-      <Icon size={sizeConfig.icon} strokeWidth={active ? 2.5 : 2} />
+      <AppIcon icon={Icon} size={sizeConfig.icon} active={!!active} />
       {active && activeColor && (
         <motion.span
           layoutId="active-indicator"

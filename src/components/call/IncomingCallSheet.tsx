@@ -75,7 +75,7 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
       animate={enabled ? { opacity: 1 } : undefined}
       exit={enabled ? { opacity: 0 } : undefined}
       transition={enabled ? { duration: 0.3, ease: [0.16, 1, 0.3, 1] } : undefined}
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[var(--z-modal)] flex flex-col items-center justify-center overflow-hidden"
       style={{
         background:
           'linear-gradient(165deg, color-mix(in srgb, var(--bg-primary) 82%, var(--accent)) 0%, var(--bg-primary, #0d1017) 55%, #0c0e15 100%)',

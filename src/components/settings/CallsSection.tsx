@@ -1,4 +1,4 @@
-import { Video, Phone, Clock, Trash2, Share2, History, FolderOpen, PhoneIncoming } from 'lucide-react';
+import { Video, Phone, Clock, Trash2, Share2, History, FolderOpen, PhoneIncoming, Mic } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
@@ -23,6 +23,8 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
   const setSaveAudioRecordings = useAppStore((s) => s.setSaveAudioRecordings);
   const saveVideoRecordings = useAppStore((s) => s.saveVideoRecordings);
   const setSaveVideoRecordings = useAppStore((s) => s.setSaveVideoRecordings);
+  const autoRecordCalls = useAppStore((s) => s.autoRecordCalls);
+  const setAutoRecordCalls = useAppStore((s) => s.setAutoRecordCalls);
   const shareRecording = useAppStore((s) => s.shareRecording);
   const setShareRecording = useAppStore((s) => s.setShareRecording);
   const recordingsRetentionDays = useAppStore((s) => s.recordingsRetentionDays);
@@ -85,6 +87,16 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
 
       <SettingsSectionTitle title={t('settings.recordingsSaveSection', 'Save recordings')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
+        <SettingsToggleRow
+          icon={<Mic size={16} />}
+          iconBg={isDark ? 'bg-teal-500/10' : 'bg-teal-100'}
+          iconColor={isDark ? 'text-teal-400' : 'text-teal-600'}
+          title={t('settings.autoRecordCalls', 'Record calls automatically')}
+          subtitle={t('settings.autoRecordCallsSubtitle', 'Start recording when a call connects')}
+          isOn={autoRecordCalls}
+          isDark={isDark}
+          onToggle={() => setAutoRecordCalls(!autoRecordCalls)}
+        />
         <SettingsToggleRow
           icon={<Phone size={16} />}
           iconBg={isDark ? 'bg-emerald-500/10' : 'bg-emerald-100'}

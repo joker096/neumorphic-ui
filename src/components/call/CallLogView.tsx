@@ -2,15 +2,18 @@ import { useMemo, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { SubView } from '../ui/SubView';
 import { DataState } from '../ui/DataState';
-import { PhoneIncoming, PhoneOutgoing, PhoneMissed, PhoneOff, Phone, Search, Trash2 } from 'lucide-react';
+import { PhoneIncoming, PhoneOutgoing, PhoneMissed, PhoneOff, Phone, Search, Trash2, Play, X } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { callManager } from '../../lib/call/CallManager';
+import { callRecorderService } from '../../lib/callRecorderService';
 
 export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark?: boolean; onBack?: () => void; onOpenContacts?: () => void }) => {
   const { t } = useI18n();
   const callHistory = useAppStore(s => s.callHistory);
   const clearCallHistory = useAppStore(s => s.clearCallHistory);
   const [query, setQuery] = useState('');
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     if (!query) return callHistory;
@@ -23,6 +26,24 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
     if (type === 'declined') return <PhoneOff size={18} className="text-gray-400" />;
     if (type === 'incoming') return <PhoneIncoming size={18} className="text-emerald-400" />;
     return <PhoneOutgoing size={18} className="text-[var(--accent)]" />;
+  };
+
+  const openRecording = async (recordingId: string) => {
+    try {
+      const blob = await callRecorderService.getRecordingBlob(recordingId);
+      if (!blob) return;
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+      setBlobUrl(URL.createObjectURL(blob));
+      setPlayingId(recordingId);
+    } catch {
+      /* recording blob missing — playback stays closed */
+    }
+  };
+
+  const closeRecording = () => {
+    if (blobUrl) URL.revokeObjectURL(blobUrl);
+    setBlobUrl(null);
+    setPlayingId(null);
   };
 
   return (
@@ -89,8 +110,39 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
                     <Phone size={16} />
                   </button>
                 )}
+                {call.recordingId && (
+                  <button
+                    onClick={() => openRecording(call.recordingId!)}
+                    className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${playingId === call.recordingId
+                      ? (isDark ? 'bg-sky-500/15 text-sky-400' : 'bg-sky-100 text-sky-600')
+                      : isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent)]' : 'bg-gray-100 text-slate-500 hover:text-[var(--accent)]'}`}
+                    title={t('call.playRecording')}
+                    aria-label={t('call.playRecording')}
+                  >
+                    <Play size={16} />
+                  </button>
+                )}
               </div>
             ))}
+          </div>
+        )}
+
+        {playingId && blobUrl && (
+          <div className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white border border-gray-200'}`}>
+            <audio
+              controls
+              src={blobUrl}
+              className="h-10 flex-1 min-w-0"
+              aria-label={t('call.playRecording')}
+            />
+            <button
+              onClick={closeRecording}
+              className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'text-[var(--text-secondary)] hover:bg-white/5' : 'text-slate-500 hover:bg-gray-100'}`}
+              aria-label={t('common.close')}
+              title={t('common.close')}
+            >
+              <X size={18} />
+            </button>
           </div>
         )}
       </div>
