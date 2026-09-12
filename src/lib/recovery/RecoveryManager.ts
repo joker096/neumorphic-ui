@@ -14,17 +14,21 @@ export const RecoveryManager = {
     const phrase = genMnemonic(seed)
 
     const salt = crypto.getRandomValues(new Uint8Array(16))
-    const phraseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(phrase), 'PBKDF2', false, ['deriveBits'])
-    const derivedBits = await crypto.subtle.deriveBits(
-      { name: 'PBKDF2', salt, iterations: 600000, hash: 'SHA-256' },
-      phraseKey,
-      256,
-    )
-    const hashHex = buf2hex(derivedBits)
-    localStorage.setItem(RECOVERY_HASH_KEY, `${buf2hex(salt)}:${hashHex}`)
+    const hashPhrase = async () => {
+      const phraseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(phrase), 'PBKDF2', false, ['deriveBits'])
+      const derivedBits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt, iterations: 600000, hash: 'SHA-256' },
+        phraseKey,
+        256,
+      )
+      localStorage.setItem(RECOVERY_HASH_KEY, `${buf2hex(salt)}:${buf2hex(derivedBits)}`)
+    }
 
-    await storeMasterSeed(seed)
-    await deviceSecurity.storeMasterKeyHex(masterKeySet.aesKeyHex)
+    // Two PBKDF2-600k ops (phrase hash + device-bound fingerprint) run concurrently.
+    await Promise.all([
+      hashPhrase(),
+      storeMasterSeed(seed).then(() => deviceSecurity.storeMasterKeyHex(masterKeySet.aesKeyHex)),
+    ])
     setSessionMasterKey(masterKeySet.aesKey)
 
     return { phrase, masterKeySet }
@@ -49,8 +53,11 @@ export const RecoveryManager = {
 
     const { deriveKeysFromSeed, storeMasterSeed } = await import('../identity/masterKey')
     const masterKeySet = await deriveKeysFromSeed(entropy)
-    await storeMasterSeed(entropy)
-    await deviceSecurity.storeMasterKeyHex(masterKeySet.aesKeyHex)
+    // Persist operations (IDB seed + device-bound fingerprint) run concurrently.
+    await Promise.all([
+      storeMasterSeed(entropy),
+      deviceSecurity.storeMasterKeyHex(masterKeySet.aesKeyHex),
+    ])
     setSessionMasterKey(masterKeySet.aesKey)
 
     return true

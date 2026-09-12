@@ -10,7 +10,7 @@ vi.mock('idb-keyval', () => ({
 
 vi.mock('../deviceSecurity', () => ({
   deviceSecurity: {
-    storeMasterKeyHex: vi.fn(),
+    storeMasterKeyHex: vi.fn(() => Promise.resolve()),
   }
 }))
 
@@ -29,7 +29,7 @@ vi.mock('../identity/masterKey', () => ({
     ed25519Secret: new Uint8Array(32),
     ed25519Public: new Uint8Array(32),
   })),
-  storeMasterSeed: vi.fn(),
+  storeMasterSeed: vi.fn(() => Promise.resolve()),
 }))
 
 describe('RecoveryManager security', () => {
@@ -76,5 +76,47 @@ describe('RecoveryManager security', () => {
     await RecoveryManager.generateRecoveryPhrase()
     const result = await RecoveryManager.restoreFromPhrase('abandon ability able about above absent absorb absolutely absorb abyss')
     expect(result).toBe(false)
+  })
+
+  it('does not resolve until master seed and device key are persisted', async () => {
+    const { RecoveryManager } = await import('./RecoveryManager')
+    const { storeMasterSeed } = await import('../identity/masterKey')
+    const { deviceSecurity } = await import('../deviceSecurity')
+
+    let release!: (value: void) => void
+    const gate = new Promise<void>((resolve) => { release = resolve })
+    vi.mocked(storeMasterSeed).mockImplementationOnce(() => gate)
+
+    const done = RecoveryManager.generateRecoveryPhrase()
+    await vi.waitFor(() => expect(storeMasterSeed).toHaveBeenCalled())
+    let settled = false
+    void done.then(() => { settled = true })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(settled).toBe(false)
+    release()
+    const result = await done
+    expect(settled).toBe(true)
+    expect(deviceSecurity.storeMasterKeyHex).toHaveBeenCalledWith(result.masterKeySet.aesKeyHex)
+  })
+
+  it('persists master seed and device key concurrently on restore', async () => {
+    const { RecoveryManager } = await import('./RecoveryManager')
+    const { storeMasterSeed } = await import('../identity/masterKey')
+    const { deviceSecurity } = await import('../deviceSecurity')
+
+    const { phrase } = await RecoveryManager.generateRecoveryPhrase()
+
+    vi.mocked(deviceSecurity.storeMasterKeyHex).mockClear()
+    vi.mocked(storeMasterSeed).mockClear()
+    let releaseSeed!: (value: void) => void
+    const seedGate = new Promise<void>((resolve) => { releaseSeed = resolve })
+    vi.mocked(storeMasterSeed).mockImplementationOnce(() => seedGate)
+
+    const restoring = RecoveryManager.restoreFromPhrase(phrase)
+    await vi.waitFor(() => expect(storeMasterSeed).toHaveBeenCalled())
+    // Parallel finalize: the device-bound fingerprint starts while the seed write is still pending.
+    expect(deviceSecurity.storeMasterKeyHex).toHaveBeenCalled()
+    releaseSeed!()
+    await expect(restoring).resolves.toBe(true)
   })
 })

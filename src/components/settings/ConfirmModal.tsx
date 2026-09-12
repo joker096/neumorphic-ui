@@ -1,17 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { useFocusTrap } from '../../lib/a11y';
+import { useFocusTrap, useBodyScrollLock } from '../../lib/a11y';
 import { Check, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { modalBackdrop, modalOverlay, modalSurface, currentTheme, type ModalTheme } from '../ui/modalShared';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
   message?: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
+  confirmLabel: string;
+  cancelLabel: string;
   variant?: 'default' | 'danger';
   isDark?: boolean;
   onConfirm: () => void;
@@ -22,8 +23,8 @@ export const ConfirmModal = ({
   isOpen,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'default',
   isDark,
   onConfirm,
@@ -34,6 +35,8 @@ export const ConfirmModal = ({
   const cancelRef = useRef<HTMLButtonElement | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   useFocusTrap(dialogRef, isOpen);
+  useEscapeKey(onCancel, isOpen);
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     if (isOpen) {
@@ -41,15 +44,6 @@ export const ConfirmModal = ({
       cancelRef.current?.focus();
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, onCancel]);
 
   const resolvedTheme: ModalTheme = isDark === undefined ? currentTheme() : isDark ? 'dark' : 'light';
 

@@ -30,6 +30,15 @@ export function getAttachmentLimit(premium: boolean): number {
 // Free tier unlocks the first N ICQ animated stickers; Premium unlocks the full pack.
 export const ICQ_FREE_STICKER_COUNT = 24
 
+// CRM tiering: free tier keeps the people directory; Premium unlocks the pipeline.
+export type CrmTabId = 'people' | 'deals' | 'tasks' | 'roles'
+
+export const CRM_TABS: CrmTabId[] = ['people', 'deals', 'tasks', 'roles']
+
+export function getAvailableCrmTabs(premium: boolean): CrmTabId[] {
+  return premium ? CRM_TABS : ['people']
+}
+
 // Order id scheme: sub:<devicePublicKeyB64>:<planId>[:<nonce>]
 // Device key binds the subscription to this install; the IPN HMAC is the payment trust anchor.
 export const PREMIUM_ORDER_PREFIX = 'sub'

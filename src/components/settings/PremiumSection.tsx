@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Crown, FileUp, Smile } from 'lucide-react'
+import { Crown, FileUp, Smile, TrendingUp } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
 import { SubView } from '../ui/SubView'
 import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow'
@@ -95,6 +95,13 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
           iconBg={isDark ? 'bg-amber-500/10' : 'bg-amber-100'}
           iconColor={isDark ? 'text-amber-400' : 'text-amber-600'}
           title={t('premium.perkFiles', 'Attachments up to 500 MB')}
+          isDark={isDark}
+        />
+        <SettingsRow
+          icon={<TrendingUp size={16} />}
+          iconBg={isDark ? 'bg-amber-500/10' : 'bg-amber-100'}
+          iconColor={isDark ? 'text-amber-400' : 'text-amber-600'}
+          title={t('premium.perkCrm', 'CRM deals, tasks and roles')}
           isDark={isDark}
         />
       </SettingsGroup>

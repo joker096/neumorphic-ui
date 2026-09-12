@@ -165,6 +165,15 @@ export class P2PNetwork {
 
     // Create transport (this would use WebRTC in production)
     const obfuscationEnabled = useAppStore.getState().obfuscationEnabled;
+    const { turnServerUrl, turnServerUser, turnServerPass } = useAppStore.getState();
+    const iceServers: RTCIceServer[] = [];
+    if (turnServerUrl.trim()) {
+      iceServers.push({
+        urls: turnServerUrl.trim(),
+        ...(turnServerUser ? { username: turnServerUser } : {}),
+        ...(turnServerPass ? { credential: turnServerPass } : {}),
+      });
+    }
     const { P2PTransport: Transport } = await import('./P2PTransport');
     const { getMasterKeySet } = await import('../identity/masterKey');
     const identity = await getMasterKeySet().catch(() => null);
@@ -172,6 +181,7 @@ export class P2PNetwork {
       signalingUrl: '', // No signaling URL needed in Kadabra
       localPublicKey: this.peerPublicKey,
       obfuscationEnabled,
+      iceServers: iceServers.length ? iceServers : undefined,
       identitySecretKey: identity?.ed25519Secret,
       identityPublicKey: identity?.ed25519Public,
       onMessage: (data: string) => {

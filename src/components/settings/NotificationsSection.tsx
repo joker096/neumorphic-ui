@@ -156,7 +156,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         />
         {customTone && NOTIFY_TONES.map((tone, i) => (
           <div key={tone.id}>
-            {i > 0 && <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />}
+            {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
             <div className="flex items-center">
               <button
                 type="button"
@@ -189,7 +189,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
       <SettingsGroup isDark={isDark}>
         {BADGE_MODES.map((mode, i) => (
           <div key={mode.id}>
-            {i > 0 && <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />}
+            {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
             <button
               onClick={() => setBadgeMode(mode.id)}
               className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
@@ -245,7 +245,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         )}
         {exceptions.map((e, i) => (
           <div key={e.id}>
-            {i > 0 && <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`} />}
+            {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-gray-500/10" : "bg-gray-100"}`}>

@@ -55,7 +55,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
           <ChevronLeft size={16} />
         </button>
         <div className="flex-1">
-          <div className={`text-lg font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
+          <div className={`text-lg font-bold ${'text-[var(--text-primary)]'}`}>
             {t('settings.company')}
           </div>
         </div>

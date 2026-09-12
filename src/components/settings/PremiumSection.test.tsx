@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
 vi.mock('lucide-react', () => ({
-  Crown: 'div', FileUp: 'div', Smile: 'div', ChevronLeft: 'div', ChevronRight: 'div',
+  Crown: 'div', FileUp: 'div', Smile: 'div', TrendingUp: 'div', ChevronLeft: 'div', ChevronRight: 'div',
 }));
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 vi.mock('../../lib/i18n', () => ({
@@ -76,11 +76,12 @@ describe('PremiumSection', () => {
     expect(screen.getByText(t('premium.expiresAt'))).toBeInTheDocument();
   });
 
-  it('renders all three perks', () => {
+  it('renders all four perks', () => {
     renderSection();
     expect(screen.getByText(t('premium.perkFiles', 'Attachments up to 500 MB'))).toBeInTheDocument();
     expect(screen.getByText(t('premium.perkReactions', 'Extended reaction set'))).toBeInTheDocument();
     expect(screen.getByText(t('premium.perkStickers', 'Full ICQ sticker pack'))).toBeInTheDocument();
+    expect(screen.getByText(t('premium.perkCrm', 'CRM deals, tasks and roles'))).toBeInTheDocument();
   });
 
   it('renders both plan rows', () => {

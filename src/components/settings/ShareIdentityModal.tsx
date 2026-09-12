@@ -34,7 +34,7 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
 
   const handleShare = async () => {
     // D5: кнопка Share без действия. Web Share API + fallback на копирование.
-    const shareData = { title: 'My identity', text: shareId };
+    const shareData = { title: t('settings.myIdentity', 'My identity'), text: shareId };
     if (navigator.share) {
       try {
         await navigator.share(shareData);
@@ -51,7 +51,7 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 20 }}

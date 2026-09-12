@@ -6,7 +6,7 @@ import type { UserProfile } from '../../types/contact';
 interface ProfileHeaderCardProps {
   isDark: boolean;
   userProfile: UserProfile;
-  t: (key: string, fallback?: string) => string;
+  t: (key: string, fallback?: string | Record<string, string>) => string;
   onEdit: () => void;
   onShare: () => void;
 }
@@ -42,7 +42,7 @@ export const ProfileHeaderCard = ({ isDark, userProfile, t, onEdit, onShare }: P
     <div className={`w-full rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
       <div className={`h-24 bg-gradient-to-br ${userProfile.avatar ? '' : 'from-orange-400 to-red-500'}`}>
         {userProfile.avatar && (
-          <img src={userProfile.avatar} alt={userProfile.name ? `${userProfile.name} profile picture` : "Profile picture"} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          <img src={userProfile.avatar} alt={userProfile.name ? t('settings.profilePictureAlt', { name: userProfile.name }) : t('settings.profilePictureAltNone', 'Profile picture')} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         )}
       </div>
       <div className="flex justify-center -mt-8 relative">

@@ -10,7 +10,11 @@ vi.mock('lucide-react', () => ({
 
 import { ProfileHeaderCard } from './ProfileHeaderCard';
 
-const t = (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key);
+const t = (key: string, fallback?: string | Record<string, string>) => {
+  if (typeof fallback === 'string') return fallback;
+  if (fallback) return '{name} profile picture'.replace(/\{name\}/g, fallback.name ?? '');
+  return key;
+};
 
 const profile = {
   name: 'Alice Freeman',

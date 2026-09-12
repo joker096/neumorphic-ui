@@ -41,7 +41,7 @@ export function TransportIndicator({ status = 'disconnected' }: { status?: Statu
       {open && (
         <span
           role="tooltip"
-          className="absolute top-full right-0 mt-2 z-[100] w-72 rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-3 text-left shadow-xl"
+          className="absolute top-full right-0 mt-2 z-[var(--z-tooltip)] w-72 rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-3 text-left shadow-xl"
           style={{ whiteSpace: 'normal' }}
         >
           <span className="block text-xs font-semibold text-[var(--text-primary)]">
