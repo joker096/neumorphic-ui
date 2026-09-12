@@ -1314,6 +1314,7 @@
       "archive": "归档"
     },
     "folderFallback": "文件夹",
+    "newFolder": "New folder",
     "myIdentity": "我的身份",
     "profilePictureAlt": "{name}的个人资料照片",
     "profilePictureAltNone": "个人资料照片",
@@ -1330,6 +1331,7 @@
     "network": "代理和网络",
     "networkEnabled": "已启用",
     "networkUsage": "网络使用",
+    "networkSubtitle": "Relay, transport and connection",
     "never": "从不",
     "newAccountPlaceholder": "账户名称...",
     "newChat": "新建聊天",
@@ -1625,9 +1627,7 @@
     "densityMode": {
       "comfortable": "宽松",
       "compact": "紧凑"
-    },
-    "newFolder": "New folder",
-    "networkSubtitle": "Relay, transport and connection"
+    }
   },
   "gifSearch": {
     "searchPlaceholder": "搜索 GIF…",
@@ -2409,5 +2409,30 @@
     "meaningError": "连接失败——无法建立传输。",
     "current": "当前:",
     "allStatuses": "所有状态"
+  },
+  "mesh": {
+    "title": "LAN Mesh",
+    "hint": "Serverless peer-to-peer: two devices on the same network exchange an invite QR and an answer QR. No signaling server involved — the session is encrypted with an ephemeral ECDH (X25519) + AES-GCM key pair derived locally on both sides.",
+    "stepCaller": "Step 1 — Inviter",
+    "createInvite": "Create invite QR",
+    "invitePayload": "Invite payload",
+    "copy": "Copy",
+    "stepGuest": "Step 2 — Guest (same network only)",
+    "invitePlaceholder": "Paste the invite payload here…",
+    "inviteInput": "Invite payload input",
+    "generateAnswer": "Generate answer QR",
+    "answerPayload": "Answer payload",
+    "stepCallerFinal": "Step 3 — Inviter (finish)",
+    "answerPlaceholder": "Paste the answer payload here…",
+    "answerInput": "Answer payload input",
+    "connect": "Connect",
+    "session": "Session",
+    "connected": "Connected",
+    "idle": "Idle",
+    "peer": "Peer",
+    "sendTest": "Send test message",
+    "received": "Received",
+    "reset": "Disconnect / reset session",
+    "menuSubtitle": "Serverless pairing via QR"
   }
 }

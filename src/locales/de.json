@@ -1314,6 +1314,7 @@
       "archive": "Archiv"
     },
     "folderFallback": "Ordner",
+    "newFolder": "New folder",
     "myIdentity": "Meine Identität",
     "profilePictureAlt": "{name} Profilbild",
     "profilePictureAltNone": "Profilbild",
@@ -1330,6 +1331,7 @@
     "network": "Proxy und Netzwerk",
     "networkEnabled": "Aktiviert",
     "networkUsage": "Netzwerknutzung",
+    "networkSubtitle": "Relay, transport and connection",
     "never": "Nie",
     "newAccountPlaceholder": "Kontoname...",
     "newChat": "Neuer Chat",
@@ -1625,9 +1627,7 @@
     "densityMode": {
       "comfortable": "Bequem",
       "compact": "Kompakt"
-    },
-    "newFolder": "New folder",
-    "networkSubtitle": "Relay, transport and connection"
+    }
   },
   "gifSearch": {
     "searchPlaceholder": "GIFs suchen...",
@@ -2409,5 +2409,30 @@
     "meaningError": "Verbindung fehlgeschlagen – der Transport konnte nicht aufgebaut werden.",
     "current": "Aktuell:",
     "allStatuses": "Alle Zustände"
+  },
+  "mesh": {
+    "title": "LAN Mesh",
+    "hint": "Serverless peer-to-peer: two devices on the same network exchange an invite QR and an answer QR. No signaling server involved — the session is encrypted with an ephemeral ECDH (X25519) + AES-GCM key pair derived locally on both sides.",
+    "stepCaller": "Step 1 — Inviter",
+    "createInvite": "Create invite QR",
+    "invitePayload": "Invite payload",
+    "copy": "Copy",
+    "stepGuest": "Step 2 — Guest (same network only)",
+    "invitePlaceholder": "Paste the invite payload here…",
+    "inviteInput": "Invite payload input",
+    "generateAnswer": "Generate answer QR",
+    "answerPayload": "Answer payload",
+    "stepCallerFinal": "Step 3 — Inviter (finish)",
+    "answerPlaceholder": "Paste the answer payload here…",
+    "answerInput": "Answer payload input",
+    "connect": "Connect",
+    "session": "Session",
+    "connected": "Connected",
+    "idle": "Idle",
+    "peer": "Peer",
+    "sendTest": "Send test message",
+    "received": "Received",
+    "reset": "Disconnect / reset session",
+    "menuSubtitle": "Serverless pairing via QR"
   }
 }

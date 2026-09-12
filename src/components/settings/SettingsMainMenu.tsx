@@ -168,6 +168,13 @@ export function SettingsMainMenu({
       onClick: () => setActiveSection('systemStatus'),
     },
     {
+      icon: <Radar size={16} className={isDark ? "text-teal-400" : "text-teal-600"} />,
+      iconBg: isDark ? "bg-teal-500/10" : "bg-teal-100",
+      title: t('mesh.title', 'LAN Mesh'),
+      subtitle: t('mesh.menuSubtitle', 'Serverless pairing via QR'),
+      onClick: () => setActiveSection('mesh'),
+    },
+    {
       icon: <HelpCircle size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />,
       iconBg: isDark ? "bg-amber-500/10" : "bg-amber-100",
       title: t('settings.helpSupport'),

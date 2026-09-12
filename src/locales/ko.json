@@ -1314,6 +1314,7 @@
       "archive": "보관함"
     },
     "folderFallback": "폴더",
+    "newFolder": "New folder",
     "myIdentity": "내 아이덴티티",
     "profilePictureAlt": "{name}의 프로필 사진",
     "profilePictureAltNone": "프로필 사진",
@@ -1330,6 +1331,7 @@
     "network": "프록시 및 네트워크",
     "networkEnabled": "활성화됨",
     "networkUsage": "네트워크 사용량",
+    "networkSubtitle": "Relay, transport and connection",
     "never": "없음",
     "newAccountPlaceholder": "계정 이름...",
     "newChat": "새 채팅",
@@ -1625,9 +1627,7 @@
     "densityMode": {
       "comfortable": "여유",
       "compact": "컴팩트"
-    },
-    "newFolder": "New folder",
-    "networkSubtitle": "Relay, transport and connection"
+    }
   },
   "gifSearch": {
     "searchPlaceholder": "GIF 검색...",
@@ -2409,5 +2409,30 @@
     "meaningError": "연결에 실패했습니다. 트랜스포트를 확립할 수 없습니다.",
     "current": "현재:",
     "allStatuses": "모든 상태"
+  },
+  "mesh": {
+    "title": "LAN Mesh",
+    "hint": "Serverless peer-to-peer: two devices on the same network exchange an invite QR and an answer QR. No signaling server involved — the session is encrypted with an ephemeral ECDH (X25519) + AES-GCM key pair derived locally on both sides.",
+    "stepCaller": "Step 1 — Inviter",
+    "createInvite": "Create invite QR",
+    "invitePayload": "Invite payload",
+    "copy": "Copy",
+    "stepGuest": "Step 2 — Guest (same network only)",
+    "invitePlaceholder": "Paste the invite payload here…",
+    "inviteInput": "Invite payload input",
+    "generateAnswer": "Generate answer QR",
+    "answerPayload": "Answer payload",
+    "stepCallerFinal": "Step 3 — Inviter (finish)",
+    "answerPlaceholder": "Paste the answer payload here…",
+    "answerInput": "Answer payload input",
+    "connect": "Connect",
+    "session": "Session",
+    "connected": "Connected",
+    "idle": "Idle",
+    "peer": "Peer",
+    "sendTest": "Send test message",
+    "received": "Received",
+    "reset": "Disconnect / reset session",
+    "menuSubtitle": "Serverless pairing via QR"
   }
 }

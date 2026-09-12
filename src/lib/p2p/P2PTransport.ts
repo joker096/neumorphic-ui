@@ -36,6 +36,21 @@ interface P2PTransportConfig {
 
 export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'online-status' | 'read-receipt'
 
+/** Wire format for serverless LAN pairing: `mess-lan/1:` + JSON payload.
+ * Handed peer-to-peer via QR / copy-paste — no signaling server involved.
+ * The SDP + ephemeral ECDH pubkey travel through the payload; the session
+ * HMAC/AES-GCM keys are derived locally on both sides and never transmitted. */
+export const PAIRING_MAGIC = 'mess-lan/1:'
+
+export interface LanPairingPayload {
+  peerId: string
+  role: 'offer' | 'answer'
+  dhPub: string
+  identityPub?: string
+  dhSig?: string
+  sdp: RTCSessionDescriptionInit
+}
+
 export class P2PTransport {
   private peerConnection: RTCPeerConnection | null = null
   private dataChannel: RTCDataChannel | null = null
@@ -64,6 +79,9 @@ export class P2PTransport {
   private sessionAesKey: CryptoKey | null = null
   private identitySecretKey: Uint8Array | null = null
   private identityPublicKey: Uint8Array | null = null
+  private pairingMode = false
+  private localCandidates: RTCIceCandidateInit[] = []
+  private resolvePairingGather: (() => void) | null = null
 
   constructor(config: P2PTransportConfig) {
     this.signalingUrl = config.signalingUrl
@@ -344,6 +362,8 @@ export class P2PTransport {
     this.sessionAesKey = null
     this.localDhPrivateKey = null
     this.pendingCandidates = []
+    this.localCandidates = []
+    this.resolvePairingGather = null
     this.reconnectAttempts = 0
     this.outgoingStreams = [];
     this.pendingOutgoingTracks = [];
@@ -358,6 +378,193 @@ export class P2PTransport {
     this.iceServers = servers
   }
 
+  /**
+   * Serverless LAN-pairing mode. After calling this, `createPairingOffer` /
+   * `acceptPairingOffer` / `acceptPairingAnswer` exchange SDP + ephemeral keys
+   * as QR payloads instead of a signaling WebSocket. The resulting session
+   * uses the same HMAC + AES-GCM transport channel as the relayed path.
+   */
+  enablePairingMode(): void {
+    this.pairingMode = true
+  }
+
+  /**
+   * Caller side: create the pairing offer (a `mess-lan/1:` QR payload).
+   * Requires identity keys to be supplied at construction for authentication
+   * (without them the session is confidentiality-only, no identity pinning).
+   */
+  async createPairingOffer(): Promise<string> {
+    if (!this.pairingMode) throw new Error('[P2PTransport] enablePairingMode() required')
+    const kp = generateX25519KeyPair()
+    this.localDhPrivateKey = kp.secretKey
+    const dhPub = buf2hex(kp.publicKey)
+    this.peerPublicKey = this.localPublicKey
+
+    this.preparePairingSession()
+    this.createPeerConnection()
+    this.dataChannel = this.peerConnection!.createDataChannel('messenger', { ordered: true })
+    this.setupDataChannel()
+    this.callControlChannel = this.peerConnection!.createDataChannel('call-control', { ordered: true })
+    this.setupCallControlChannel()
+
+    const offer = await this.peerConnection!.createOffer()
+    await this.peerConnection!.setLocalDescription(offer)
+    await this.waitForGather()
+    const payload: LanPairingPayload = {
+      peerId: this.localPublicKey,
+      role: 'offer',
+      dhPub,
+      ...this.pairingIdentityFields(dhPub),
+      sdp: this.peerConnection!.localDescription ?? offer,
+    }
+    return PAIRING_MAGIC + JSON.stringify(payload)
+  }
+
+  /**
+   * Callee side: consume the caller's QR payload, derive shared keys, and
+   * produce the answer QR payload. Fails closed (keys + connection rolled
+   * back) on any malformed or unauthenticated payload.
+   */
+  async acceptPairingOffer(payloadStr: string): Promise<string> {
+    if (!this.pairingMode) throw new Error('[P2PTransport] enablePairingMode() required')
+    const payload = this.parsePairingPayload(payloadStr, 'offer')
+    this.peerPublicKey = payload.peerId
+
+    if (!payload.dhPub) throw this.failPairing('offer without dhPub (fail-closed)')
+
+    this.preparePairingSession()
+    this.createPeerConnection()
+    try {
+      await this.peerConnection!.setRemoteDescription(new RTCSessionDescription(payload.sdp))
+    } catch {
+      throw this.failPairing('invalid offer sdp')
+    }
+    const answer = await this.peerConnection!.createAnswer()
+    await this.peerConnection!.setLocalDescription(answer)
+
+    await this.authenticatePairing(payload)
+    const ownKp = generateX25519KeyPair()
+    this.localDhPrivateKey = ownKp.secretKey
+    const myDhPub = buf2hex(ownKp.publicKey)
+    const keyOk = await this.deriveSessionFromPeerDh(payload.dhPub)
+    if (!keyOk) throw this.failPairing('session key derivation failed')
+
+    await this.waitForGather()
+    const answerPayload: LanPairingPayload = {
+      peerId: this.localPublicKey,
+      role: 'answer',
+      dhPub: myDhPub,
+      ...this.pairingIdentityFields(myDhPub),
+      sdp: this.peerConnection!.localDescription ?? answer,
+    }
+    return PAIRING_MAGIC + JSON.stringify(answerPayload)
+  }
+
+  /** Caller side: consume the callee's answer QR payload to complete pairing. */
+  async acceptPairingAnswer(payloadStr: string): Promise<void> {
+    if (!this.pairingMode) throw new Error('[P2PTransport] enablePairingMode() required')
+    const payload = this.parsePairingPayload(payloadStr, 'answer')
+    this.peerPublicKey = payload.peerId
+
+    if (!payload.dhPub || !this.localDhPrivateKey) throw this.failPairing('answer without dhPub (fail-closed)')
+
+    await this.authenticatePairing(payload)
+    const keyOk = await this.deriveSessionFromPeerDh(payload.dhPub)
+    if (!keyOk) throw this.failPairing('session key derivation failed')
+    try {
+      await this.peerConnection!.setRemoteDescription(new RTCSessionDescription(payload.sdp))
+    } catch {
+      throw this.failPairing('invalid answer sdp')
+    }
+    for (const c of this.pendingCandidates) {
+      await this.peerConnection!.addIceCandidate(new RTCIceCandidate(c))
+    }
+    this.pendingCandidates = []
+  }
+
+  /** Identity of the local transport for the current session, if any. */
+  getSessionPeer(): string | null {
+    return this.peerPublicKey
+  }
+
+  hasSessionKeys(): boolean {
+    return Boolean(this.hmacKey && this.sessionAesKey)
+  }
+
+  private parsePairingPayload(payloadStr: string, expectedRole: 'offer' | 'answer'): LanPairingPayload {
+    if (typeof payloadStr !== 'string' || !payloadStr.startsWith(PAIRING_MAGIC)) {
+      throw new Error('[P2PTransport] invalid pairing payload: missing magic header')
+    }
+    let payload: any
+    try {
+      payload = JSON.parse(payloadStr.slice(PAIRING_MAGIC.length))
+    } catch {
+      throw new Error('[P2PTransport] invalid pairing payload: not JSON')
+    }
+    if (payload.role !== expectedRole) {
+      throw new Error(`[P2PTransport] invalid pairing payload: expected role "${expectedRole}"`)
+    }
+    if (
+      typeof payload.peerId !== 'string' ||
+      typeof payload.dhPub !== 'string' ||
+      !payload.sdp ||
+      typeof payload.sdp.type !== 'string'
+    ) {
+      throw new Error('[P2PTransport] malformed pairing payload')
+    }
+    return payload as LanPairingPayload
+  }
+
+  private async authenticatePairing(payload: LanPairingPayload): Promise<void> {
+    if (payload.identityPub && payload.dhSig) {
+      const ok = await verifyOrPinPeer(payload.peerId, payload.identityPub, payload.dhPub, payload.dhSig)
+      if (!ok) throw this.failPairing('peer identity authentication failed (TOFU)')
+    }
+  }
+
+  private pairingIdentityFields(dhPub: string): { identityPub?: string; dhSig?: string } {
+    if (this.identitySecretKey && this.identityPublicKey) {
+      return {
+        identityPub: buf2hex(this.identityPublicKey),
+        dhSig: signDh(this.identitySecretKey, dhPub),
+      }
+    }
+    return {}
+  }
+
+  private preparePairingSession(): void {
+    this.localCandidates = []
+    this.resolvePairingGather = null
+  }
+
+  private async waitForGather(): Promise<void> {
+    const pc = this.peerConnection
+    if (pc && pc.iceGatheringState === 'complete') {
+      return
+    }
+    await new Promise<void>((resolve) => {
+      this.resolvePairingGather = resolve
+      const safety = setTimeout(() => {
+        if (this.resolvePairingGather === resolve) {
+          this.resolvePairingGather = null
+          resolve()
+        }
+      }, 5000)
+      ;(safety as any).unref?.()
+    })
+  }
+
+  private failPairing(reason: string): Error {
+    this.peerPublicKey = null
+    this.peerConnection?.close()
+    this.peerConnection = null
+    this.localDhPrivateKey = null
+    this.hmacKey = null
+    this.sessionAesKey = null
+    this.pendingCandidates = []
+    return new Error(`[P2PTransport] pairing failed: ${reason}`)
+  }
+
   private createPeerConnection(): void {
     if (this.peerConnection) {
       this.peerConnection.close()
@@ -369,6 +576,16 @@ export class P2PTransport {
     })
 
     this.peerConnection.onicecandidate = (event) => {
+      if (this.pairingMode) {
+        // Serverless mode: collect candidates locally; the last (null)
+        // candidate marks the end of gathering and lets waitForGather() resolve.
+        if (event.candidate) {
+          this.localCandidates.push(event.candidate.toJSON())
+        } else if (this.pairingMode) {
+          this.resolvePairingGather?.()
+        }
+        return
+      }
       if (event.candidate && this.peerPublicKey) {
         this.sendSignaling({
           type: 'ice-candidate',

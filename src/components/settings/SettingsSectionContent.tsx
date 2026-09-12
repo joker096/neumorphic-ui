@@ -23,6 +23,7 @@ const PaymentsSection = React.lazy(() => import('./PaymentsSection').then(m => (
 const PaymentRequestsSection = React.lazy(() => import('./PaymentRequestsSection').then(m => ({ default: m.PaymentRequestsSection })));
 const CallsSection = React.lazy(() => import('./CallsSection').then(m => ({ default: m.CallsSection })));
 const PremiumSection = React.lazy(() => import('./PremiumSection').then(m => ({ default: m.PremiumSection })));
+const MeshSection = React.lazy(() => import('./MeshSection').then(m => ({ default: m.MeshSection })));
 
 export type SettingsSectionContentProps = {
   theme: 'light' | 'dark';
@@ -296,6 +297,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'paymentRequests' && <Suspense fallback={fallback}><PaymentRequestsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
       {activeSection === 'calls' && <Suspense fallback={fallback}><CallsSection isDark={isDark} onBack={() => setActiveSection('main')} setSubView={setSubView} /></Suspense>}
       {activeSection === 'premium' && <Suspense fallback={fallback}><PremiumSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'mesh' && <Suspense fallback={fallback}><MeshSection isDark={isDark} onBack={() => setActiveSection('main')} t={t} /></Suspense>}
     </AnimatePresence>
   );
 };
