@@ -59,6 +59,7 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
   }, []);
 
   const handleRestore = async () => {
+    setStep("restoring");
     setIsProcessing(true);
     setError("");
     try {
@@ -66,9 +67,11 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
       if (success) {
         setStep("set-pin");
       } else {
+        setStep("enter-phrase");
         setError(t("auth.login.invalidPhrase", "Invalid recovery phrase. Please check and try again."));
       }
     } catch (e) {
+      setStep("enter-phrase");
       setError(t("auth.login.restoreError", "An error occurred during restoration. Please try again."));
     } finally {
       setIsProcessing(false);

@@ -59,7 +59,7 @@ export function WorkplaceView({ isDark, channelId = "demo" }: WorkplaceViewProps
             <button
               key={tabItem.id}
               onClick={() => setTab(tabItem.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap ${
+              className={`flex items-center gap-1.5 min-h-11 px-3 rounded-lg text-sm font-medium whitespace-nowrap ${
                 active ? "bg-[var(--accent)] text-white" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-white border border-[var(--border-color)]"
               }`}
             >
@@ -118,7 +118,7 @@ function TasksTab({ isDark }: { isDark?: boolean }) {
           placeholder={t('workplace.newTask')}
           className="flex-1 px-3 py-2 rounded-xl border border-[var(--border-color)] bg-transparent"
         />
-        <button type="submit" className="px-3 py-2 rounded-xl bg-[var(--accent)] text-white" aria-label={t('workplace.add')}>
+        <button type="submit" className="min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-[var(--accent)] text-white" aria-label={t('workplace.add')}>
           <Plus size={18} />
         </button>
       </form>

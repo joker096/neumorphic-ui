@@ -147,8 +147,8 @@ export const PaymentRequestCard = ({
           onClick={handleCopy}
           aria-label={copied ? t('payments.copied') : t('payments.copy')}
           title={copied ? t('payments.copied') : t('payments.copy')}
-          className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
-            isDark ? 'bg-white/10 text-[var(--text-primary)' : 'bg-slate-100 text-slate-700'
+          className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform min-w-11 min-h-11 ${
+            isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'
           }`}
         >
           {copied ? <Check size={16} /> : <Copy size={16} />}

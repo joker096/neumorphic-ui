@@ -1,6 +1,7 @@
 import { useAppStore } from '../../store'
 import { X } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
+import { useEscapeKey } from '../../hooks/useEscapeKey'
 
 interface ChatPickerModalProps {
   open: boolean
@@ -12,6 +13,7 @@ interface ChatPickerModalProps {
 export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModalProps) => {
   const { t } = useI18n()
   const chats = useAppStore((s: any) => s.chats || [])
+  useEscapeKey(onClose, open)
 
   if (!open) return null
 
@@ -32,7 +34,7 @@ export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModa
   type="button"
   aria-label={t('common.close')}
   onClick={onClose}
-  className="p-1.5 rounded-lg text-[var(--text-primary)] opacity-70 hover:opacity-100 active:scale-95 transition-transform"
+  className="min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--text-primary)] opacity-70 hover:opacity-100 active:scale-95 transition-transform"
 >
   <X size={18} />
 </button>

@@ -50,7 +50,7 @@ const features = [
 export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) => {
   const { t } = useI18n();
   return (
-    <div className={`w-full min-h-[100dvh] overflow-x-hidden ${isDark ? "bg-[#050505]" : "bg-[#faf8f5]"}`}>
+    <div className="w-full min-h-[100dvh] overflow-x-hidden bg-[var(--landing-bg)]">
       {isDark && (
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute top-[-20vh] left-[10%] w-[40vw] h-[50vh] bg-orange-500/8 rounded-full blur-[120px]" />
@@ -122,7 +122,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           transition={{ delay: 0.8, duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
-          <div className={`w-5 h-8 rounded-full border-2 ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"} flex justify-center pt-2`}>
+          <div className={`w-5 h-8 rounded-full border-2 ${"border-[var(--border-color)]"} flex justify-center pt-2`}>
             <div className={`w-1 h-2 rounded-full animate-bounce ${isDark ? "bg-gray-400" : "bg-slate-500"}`} />
           </div>
         </motion.div>
@@ -156,9 +156,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                       : "border-black/[0.06] hover:border-black/[0.12]"
                   }`}
                 >
-                  <div className={`rounded-[calc(1.75rem-1px)] p-6 ${
-                    isDark ? "bg-[#0a0a0a]" : "bg-white"
-                  }`}>
+                  <div className="rounded-[calc(1.75rem-1px)] p-6 bg-[var(--landing-surface)]">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${
                       isDark ? "bg-orange-500/10" : "bg-orange-500/8"
                     }`}>
@@ -254,7 +252,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
       </section>
 
       <footer className={`relative z-10 border-t px-6 py-8 ${
-        isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"
+        "border-[var(--border-color)]"
       }`}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">

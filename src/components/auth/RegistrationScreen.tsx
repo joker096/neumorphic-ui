@@ -60,6 +60,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
   }, []);
 
   const handleGenerate = async () => {
+    setStep("generating");
     setIsProcessing(true);
     setError("");
     try {
@@ -67,6 +68,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
       setPhrase(result.phrase);
       setStep("show-phrase");
     } catch (e) {
+      setStep("welcome");
       setError(t("auth.registration.generateError", "Failed to generate identity. Please try again."));
     } finally {
       setIsProcessing(false);

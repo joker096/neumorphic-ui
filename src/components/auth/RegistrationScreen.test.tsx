@@ -136,6 +136,32 @@ describe("RegistrationScreen", () => {
     );
   });
 
+  it("reverts to welcome step after generation error", async () => {
+    recovery.generateRecoveryPhrase.mockRejectedValue(new Error("generate"));
+    render(<RegistrationScreen onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Create Identity" }));
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Create Your Identity" })).toBeInTheDocument(),
+    );
+    expect(
+      screen.getByRole("button", { name: "Create Identity" }),
+    ).not.toBeDisabled();
+  });
+
+  it("shows generating spinner while identity is pending", async () => {
+    let resolveGeneration: (value: { phrase: string }) => void = () => {};
+    recovery.generateRecoveryPhrase.mockImplementationOnce(
+      () => new Promise((resolve) => { resolveGeneration = resolve; }),
+    );
+    render(<RegistrationScreen onComplete={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Create Identity" }));
+    expect(screen.getByText("Generating secure keys...")).toBeInTheDocument();
+    resolveGeneration({ phrase });
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Recovery Phrase" })).toBeInTheDocument(),
+    );
+  });
+
   it("disables verify until 24 words are entered", async () => {
     await goToConfirmStep(vi.fn());
     const textarea = screen.getByPlaceholderText("word1 word2 word3 ...");

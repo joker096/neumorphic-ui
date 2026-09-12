@@ -14,6 +14,7 @@ import { StoryOptionsMenu } from './StoryOptionsMenu';
 import { StoryShareMenu } from './StoryShareMenu';
 import { ChatPickerModal } from '../payments/ChatPickerModal';
 import { useAppStore } from '../../store';
+import { useBodyScrollLock } from '../../lib/a11y';
 
 interface StoryViewerProps {
   activeUser: { id: number | string; name: string; color: string } | null;
@@ -25,6 +26,7 @@ interface StoryViewerProps {
 const PROGRESS_INCREMENT = 100 / (STORY_DURATION_MS / STORY_PROGRESS_TICK_MS);
 
 export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: StoryViewerProps) => {
+  useBodyScrollLock(true);
   const { t } = useI18n();
   const allUsers: StoryUser[] = [MY_STORY_USER, ...STORY_USERS];
 
@@ -188,7 +190,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/95"
           role="dialog"
           aria-modal="true"
         >
@@ -213,7 +215,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95"
+        className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/95"
         role="dialog"
         aria-modal="true"
         aria-label={user.name}

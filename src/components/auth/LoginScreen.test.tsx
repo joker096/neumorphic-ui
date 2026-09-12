@@ -144,6 +144,39 @@ describe("LoginScreen", () => {
     );
   });
 
+  it("shows restoring spinner while phrase is restored", async () => {
+    let resolveRestore!: (value: boolean) => void;
+    recovery.restoreFromPhrase.mockImplementationOnce(
+      () => new Promise<boolean>((resolve) => { resolveRestore = resolve; }),
+    );
+    render(<LoginScreen onComplete={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText("word1 word2 word3 ..."), {
+      target: { value: twelveWords },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Restore Identity" }));
+    expect(screen.getByText("Restoring...")).toBeInTheDocument();
+    resolveRestore!(true);
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Set App Lock PIN" })).toBeInTheDocument(),
+    );
+  });
+
+  it("returns to phrase entry when restore fails (not stuck on spinner)", async () => {
+    recovery.restoreFromPhrase.mockResolvedValue(false);
+    render(<LoginScreen onComplete={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText("word1 word2 word3 ..."), {
+      target: { value: twelveWords },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Restore Identity" }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Invalid recovery phrase. Please check and try again.",
+      ),
+    );
+    expect(screen.getByRole("heading", { name: "Restore Identity" })).toBeInTheDocument();
+    expect(screen.queryByText("Restoring...")).not.toBeInTheDocument();
+  });
+
   it("hashes PIN and stores app lock when PINs match", async () => {
     const onComplete = vi.fn();
     await goToPinStep(onComplete);

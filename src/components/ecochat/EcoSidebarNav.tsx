@@ -1,6 +1,7 @@
 import type { NavItem } from "../../config/navigation";
 import { NAV_ITEMS, isCompanyAdmin } from "../../config/navigation";
 import { useAppStore } from "../../store";
+import { AppIcon } from "../ui/AppIcon";
 
 const BADGE_ITEM_IDS = new Set(["chats", "company"]);
 
@@ -70,7 +71,7 @@ export const EcoSidebarNav = ({
               aria-label={label}
               title={label}
               onClick={() => onNavigate?.(item.id)}
-              className={`relative w-full flex flex-col items-center justify-center gap-1 min-h-12 rounded-xl py-2 px-1 transition-all duration-200 cursor-pointer ${
+              className={`relative w-full flex flex-col items-center justify-center gap-1 min-h-12 rounded-xl py-2 px-1 transition-all duration-200 active:scale-[0.94] cursor-pointer ${
                 isActive
                   ? "text-[var(--accent)]"
                   : `text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] ${hoverBg}`
@@ -80,7 +81,8 @@ export const EcoSidebarNav = ({
                   ? {
                       background:
                         "linear-gradient(135deg, rgba(var(--accent-rgb),0.15) 0%, rgba(var(--accent2-rgb),0.08) 100%)",
-                      boxShadow: "0 0 12px rgba(var(--accent-rgb),0.15)",
+                      boxShadow:
+                        "0 0 12px rgba(var(--accent-rgb),0.15), inset 0 1px 0 rgba(255,255,255,0.06)",
                     }
                   : undefined
               }
@@ -93,7 +95,7 @@ export const EcoSidebarNav = ({
                 />
               )}
               <span className="relative">
-                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                <AppIcon icon={Icon} size={20} active={isActive} />
                 {badgeCount > 0 && (
                   <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white text-xs font-semibold flex items-center justify-center shadow-md" style={{ boxShadow: "0 0 8px rgba(var(--accent-rgb),0.4)" }}>
                     {badgeCount > 99 ? "99+" : badgeCount}
@@ -111,7 +113,7 @@ export const EcoSidebarNav = ({
           type="button"
           aria-label={userProfile.name || (userProfile.username ? `@${userProfile.username}` : effectiveT("settings.defaultUserName", "User"))}
           onClick={handleProfileClick}
-          className={`w-full flex items-center justify-center min-h-11 rounded-xl py-2 ${hoverBg} transition-all cursor-pointer`}
+          className={`w-full flex items-center justify-center min-h-11 rounded-xl py-2 ${hoverBg} transition-all duration-200 active:scale-[0.96] cursor-pointer`}
         >
           <span className="relative inline-flex">
             {userProfile.avatar ? (

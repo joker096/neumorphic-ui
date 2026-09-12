@@ -107,7 +107,7 @@ export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProp
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="flex-1 flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform"
+          className="flex-1 flex items-center justify-center gap-1.5 text-sm font-medium min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform"
         >
           <ExternalLink size={16} /> {t('payments.pay')}
         </a>

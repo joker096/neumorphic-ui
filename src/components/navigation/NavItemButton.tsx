@@ -1,8 +1,7 @@
 import React from "react";
-import { motion } from "motion/react";
-import type { ComponentType } from "react";
+import { AppIcon, type AppIconSource } from "../ui/AppIcon";
 
-type NavIcon = ComponentType<{ className?: string; size?: number; strokeWidth?: number }>;
+type NavIcon = AppIconSource;
 
 type NavItemButtonProps = {
   active: boolean;
@@ -23,14 +22,10 @@ export const NavItemButton = React.memo(
       ? `relative flex h-full min-w-11 min-h-11 flex-1 flex-col items-center justify-center cursor-pointer
          transition-all duration-200 active:scale-[0.98] focus-visible:outline-none
          focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40
-         ${active
-           ? isDark
-             ? "text-[var(--accent)]"
-             : "text-[var(--accent)]"
-           : isDark
-             ? "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
-             : "text-slate-400 hover:text-slate-600"}`
-      : variant === "eco"
+${active
+           ? "text-[var(--accent)]"
+           : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"}`
+       : variant === "eco"
         ? `flex min-h-11 items-center gap-3 rounded-2xl px-3 py-3
            transition-all duration-300 cursor-pointer relative
            ${active
@@ -67,7 +62,7 @@ export const NavItemButton = React.memo(
         onClick={onClick}
         className={buttonClassName}
       >
-        <Icon size={20} className="flex-shrink-0" strokeWidth={active ? 2.5 : 2} />
+        <AppIcon icon={Icon} size={20} active={active} className="flex-shrink-0" />
         {variant === "eco" && (
           <span className="font-medium whitespace-nowrap">{label}</span>
         )}

@@ -16,6 +16,7 @@ export const LazyCrmView = lazy(() => import("../crm/CrmView").then(m => ({ defa
 export const LazyRecordingsScreen = lazy(() => import("../RecordingsScreen").then(m => ({ default: m.RecordingsScreen })));
 export const LazyMeshRadar = lazy(() => import("../MeshRadar").then(m => ({ default: m.MeshRadar })));
 export const LazyCallLogView = lazy(() => import("../call/CallLogView").then(m => ({ default: m.CallLogView })));
+export const LazyPremiumSection = lazy(() => import("../settings/PremiumSection").then(m => ({ default: m.PremiumSection })));
 
 type FeatureViewsProps = {
   view: string;
@@ -111,6 +112,13 @@ export const FeatureViews = ({
           </Suspense>
         );
       }
+      if (subView === 'premium') {
+        return (
+          <Suspense fallback={<Loader />}>
+            <LazyPremiumSection isDark={theme === 'dark'} onBack={() => setSubView?.(null)} />
+          </Suspense>
+        );
+      }
       return (
         <Suspense fallback={<Loader />}>
             <LazySettingsView theme={theme} setTheme={setTheme} setSubView={setSubView} fontSize={fontSize} setFontSize={setFontSize} />
@@ -148,6 +156,10 @@ export const FeatureViews = ({
             onMessage={(name, color) => {
               onMessage(name, color);
               onNavigate?.("chats");
+            }}
+            onOpenPremium={() => {
+              setSubView?.("premium");
+              setView("settings");
             }}
           />
         </Suspense>

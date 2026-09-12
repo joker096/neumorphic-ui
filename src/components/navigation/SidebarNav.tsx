@@ -22,7 +22,7 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
       className={`hidden md:flex flex-col w-16 h-[100dvh] shrink-0 border-r ${
         isDark ? "bg-[var(--bg-primary)] border-r-white/[0.05]" : "bg-[var(--bg-primary)] border-r-black/[0.05]"
       }`}
-      style={isDark ? {} : { background: "linear-gradient(180deg, #eef1f7 0%, #f5f7fa 100%)" }}
+      style={isDark ? {} : { background: "linear-gradient(180deg, var(--nav-sidebar-gradient-from) 0%, var(--nav-sidebar-gradient-to) 100%)" }}
     >
       {/* Logo / app mark */}
       <div className="flex items-center justify-center h-16 shrink-0 border-b border-transparent">
@@ -56,11 +56,7 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
               {/* Active pill indicator */}
               {isActive && (
                 <span
-                  className={`absolute left-0 inset-y-1.5 w-[3px] rounded-full ${
-                    isDark
-                      ? "bg-gradient-to-b from-[var(--accent)] to-[var(--accent2)]"
-                      : "bg-gradient-to-b from-[var(--accent)] to-[var(--accent2)]"
-                  }`}
+                  className="absolute left-0 inset-y-1.5 w-[3px] rounded-full bg-gradient-to-b from-[var(--accent)] to-[var(--accent2)]"
                   aria-hidden="true"
                 />
               )}

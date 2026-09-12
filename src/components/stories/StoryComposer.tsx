@@ -87,7 +87,7 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[210] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[var(--z-modal-nested)] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"
       aria-label={t('story.composer', 'New story')}
