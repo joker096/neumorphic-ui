@@ -1,9 +1,6 @@
-import { useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Apple, Download, Palette, Sparkles, Monitor } from 'lucide-react';
+import { Palette, Sparkles } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
-import { APP_INFO } from '../../config/settingsDefaults';
-import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
+import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 
 interface AppearanceSettingsProps {
@@ -14,8 +11,6 @@ interface AppearanceSettingsProps {
   setFontSize: (s: string) => void;
   uiAnimations: boolean;
   setUiAnimations: (v: boolean) => void;
-  showPwaBanner: boolean;
-  setShowPwaBanner: (v: boolean) => void;
   themeMode?: 'light' | 'dark' | 'system';
   setThemeMode?: (mode: 'light' | 'dark' | 'system') => void;
   accentColor?: string;
@@ -32,7 +27,7 @@ interface AppearanceSettingsProps {
 }
 
 export const AppearanceSettings = ({
-  isDark = false, theme, setTheme, fontSize, setFontSize, uiAnimations, setUiAnimations, themeMode, setThemeMode, accentColor, setAccentColor, chatBackground, setChatBackground, density, setDensity, messageRadius, setMessageRadius, animationIntensity, setAnimationIntensity, showPwaBanner, setShowPwaBanner, onBack
+  isDark = false, theme, setTheme, fontSize, setFontSize, themeMode, setThemeMode, accentColor, setAccentColor, chatBackground, setChatBackground, density, setDensity, messageRadius, setMessageRadius, animationIntensity, setAnimationIntensity, onBack
 }: AppearanceSettingsProps) => {
   const { t } = useI18n();
 
@@ -48,20 +43,11 @@ export const AppearanceSettings = ({
     }
   };
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (accentColor) {
-      root.style.setProperty('--accent', accentColor);
-      root.style.setProperty('--accent-bg', accentColor + '22');
-    }
-    if (chatBackground) root.setAttribute('data-chat-bg', chatBackground);
-    if (density) root.setAttribute('data-density', density);
-    if (typeof messageRadius === 'number') root.style.setProperty('--message-radius', messageRadius + 'px');
-    if (animationIntensity) {
-      root.setAttribute('data-anim-intensity', animationIntensity);
-      setUiAnimations?.(animationIntensity !== 'off');
-    }
-  }, [accentColor, chatBackground, density, messageRadius, animationIntensity, setUiAnimations]);
+  const fontSizeLabel = (v: string) =>
+    v === 'Small' ? t('settings.fontSizeSmall', 'Small')
+      : v === 'Medium' ? t('settings.fontSizeMedium', 'Medium')
+      : v === 'Large' ? t('settings.fontSizeLarge', 'Large')
+      : v;
 
   return (
     <SubView title={t('settings.appearance')} isDark={isDark} onBack={onBack}>
@@ -93,7 +79,7 @@ export const AppearanceSettings = ({
           title={t('settings.fontSize')}
           subtitle={t('settings.fontSizeSubtitle')}
           isDark={isDark}
-          value={fontSize}
+          value={fontSizeLabel(fontSize)}
           onClick={() => setFontSize(fontSize === 'Small' ? 'Medium' : fontSize === 'Medium' ? 'Large' : 'Small')}
         />
         <div className="flex items-center justify-between px-4 py-3">
@@ -193,54 +179,7 @@ export const AppearanceSettings = ({
             ))}
           </div>
         </div>
-        <SettingsToggleRow
-          icon={<Download size={16} />}
-          iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
-          iconColor={isDark ? "text-cyan-400" : "text-cyan-600"}
-          title={t('settings.pwaPrompt')}
-          subtitle={t('settings.pwaPromptSubtitle')}
-          isOn={showPwaBanner}
-          isDark={isDark}
-          onToggle={() => setShowPwaBanner(!showPwaBanner)}
-          toggleOnIcon={<Download size={14} />}
-          toggleOffIcon={<Download size={14} />}
-        />
       </SettingsGroup>
-
-      {showPwaBanner && (
-        <div className={`mt-4 rounded-xl border ${isDark ? "bg-emerald-500/10 border-emerald-500/20" : "bg-emerald-50 border-emerald-200"}`}>
-          <div className="flex items-center gap-3 px-4 pt-4 pb-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/20" : "bg-emerald-100"}`}>
-              <Monitor size={20} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
-            </div>
-            <div className="flex-1">
-              <div className={`text-sm font-semibold ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>{t('settings.installApp', { app: APP_INFO.NAME })}</div>
-              <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.pwaWorksOffline', 'Works offline')} • {t('settings.pwaFasterLoading', 'Faster loading')} • {t('settings.pwaAddToHomeScreen', 'Add to home screen')}</div>
-            </div>
-          </div>
-          <div className="px-4 pb-4">
-            <div className="flex items-center gap-3 py-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-gray-500/10" : "bg-gray-100"}`}>
-                <Apple size={16} className={isDark ? "text-gray-400" : "text-gray-600"} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.platformIos')}</div>
-                <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.installIosSteps')}</div>
-              </div>
-            </div>
-            <div className={`my-1 border-t ${isDark ? "border-emerald-500/10" : "border-emerald-200"}`} />
-            <div className="flex items-center gap-3 py-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-cyan-500/10" : "bg-cyan-100"}`}>
-                <Monitor size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.platformDesktop')}</div>
-                <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.installDesktopSteps')}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </SubView>
   );
 };

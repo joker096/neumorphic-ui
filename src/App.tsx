@@ -9,6 +9,7 @@ import { useUiStore } from "./store/uiStore";
 import { useAppConnection } from './hooks/useAppConnection';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { useAppSettings } from './hooks/useAppSettings';
+import { useAppearanceEffects } from './hooks/useAppearanceEffects';
 import { useScheduledMessages } from './hooks/useScheduledMessages';
 import { useRefMessageActions } from './hooks/useRefMessageActions';
 import { useActiveChatWorkspace } from './hooks/useActiveChatWorkspace';
@@ -32,6 +33,7 @@ const LazyCallOverlay = lazy(() => import("./components/app/CallOverlay").then((
 
 export default function App() {
   const { theme, setTheme, isDark, fontSize, setFontSize, t } = useAppSettings();
+  useAppearanceEffects();
 
   const chats = useAppStore(s => s.chats);
   const setChats = useAppStore(s => s.setChats);
@@ -134,8 +136,29 @@ export default function App() {
     if (activeChatIdRef.current !== id) {
       activeChatIdRef.current = id;
       setReplyTarget(null);
+      setMessageText(id ? (draftTextByChat[String(id)] ?? "") : "");
+      setShowStickerPicker(false);
+      setMorseMode(false);
     }
-  }, [activeChat?.id, setReplyTarget]);
+  }, [activeChat?.id, setReplyTarget, draftTextByChat, setMessageText, setShowStickerPicker, setMorseMode]);
+
+  // Persist draft text per chat §55
+  useEffect(() => {
+    if (!activeChat) return;
+    const chatId = String(activeChat.id);
+    setDraftTextByChat((prev) => {
+      if (messageText) {
+        if (prev[chatId] === messageText) return prev;
+        return { ...prev, [chatId]: messageText };
+      }
+      if (prev[chatId]) {
+        const next = { ...prev };
+        delete next[chatId];
+        return next;
+      }
+      return prev;
+    });
+  }, [messageText, activeChat?.id]);
   const { filteredChats, filteredChannels } = useFilteredChats(
     chats,
     chatSearchQuery,
@@ -329,7 +352,8 @@ export default function App() {
           t={t}
           showAddContactFromChat={showAddContactFromChat}
           setShowAddContactFromChat={setShowAddContactFromChat}
-           onAddContactFromChat={handleAddContactFromChat}
+onAddContactFromChat={handleAddContactFromChat}
+          draftTextByChat={draftTextByChat}
            activeBotId={activeBotId}
            setActiveBotId={setActiveBotId}
            miniAppBotId={miniAppBotId}

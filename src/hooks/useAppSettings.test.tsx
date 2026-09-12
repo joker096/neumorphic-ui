@@ -63,6 +63,15 @@ describe("useAppSettings", () => {
     expect(result.current.fontSize).toBe("Large");
   });
 
+  it("mirrors fontSize onto documentElement so the CSS override resolves", () => {
+    const { result } = renderHook(() => useAppSettings());
+    expect(document.documentElement.dataset.fontSize).toBe("Medium");
+    act(() => result.current.setFontSize("Small"));
+    expect(document.documentElement.dataset.fontSize).toBe("Small");
+    act(() => result.current.setFontSize("Large"));
+    expect(document.documentElement.dataset.fontSize).toBe("Large");
+  });
+
   it("reads a persisted fontSize and ignores invalid values", () => {
     localStorage.setItem("app_font_size", "Small");
     const { result } = renderHook(() => useAppSettings());

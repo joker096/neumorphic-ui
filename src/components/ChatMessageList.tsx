@@ -30,6 +30,7 @@ interface ChatMessageListProps {
   onAction?: (action: string) => void;
   onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
+  onRetry?: (msg: any) => void;
   selectionMode?: boolean;
   selectedIds?: Set<string | number>;
   onToggleSelect?: (id: string | number) => void;
@@ -46,6 +47,7 @@ export function ChatMessageList({
   onSetActivePostId,   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
   selectionMode, selectedIds, onToggleSelect, onSelect,
   onScrollPosition,
+  onRetry,
 }: ChatMessageListProps) {
   return (
     <VirtualizedMessageList
@@ -54,7 +56,7 @@ export function ChatMessageList({
       estimateSize={72}
       overscan={3}
       isDark={isDark}
-      className="p-4 sm:p-6"
+      className="p-[var(--message-list-pad,1rem)] sm:p-[var(--message-list-pad-sm,1.5rem)]"
       stickToBottom={isNearBottom}
       onScrollPosition={onScrollPosition}
     >
@@ -87,6 +89,7 @@ export function ChatMessageList({
           onAction={onAction}
           onForward={onForward}
           onDelete={onDelete}
+          onRetry={onRetry}
           selectionMode={selectionMode}
           selected={selectedIds ? selectedIds.has(msg.id) : false}
           onToggleSelect={onToggleSelect}

@@ -1,6 +1,6 @@
 import React, { useRef, useCallback } from "react";
 import { motion } from "motion/react";
-import { Archive, ArchiveRestore, Phone, Video, Bell, BellOff, Trash2, MessageSquare, Megaphone, Check, MapPin } from "lucide-react";
+import { Archive, ArchiveRestore, Phone, Video, Bell, BellOff, Trash2, MessageSquare, Megaphone, Check, MapPin, AlertTriangle, Paperclip } from "lucide-react";
 import { FormattedText } from "./FormattedText";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { useAppStore } from "../../store";
@@ -20,12 +20,13 @@ interface ChatListItemProps {
   archiveLabel?: string;
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
-  t: (key: string) => string;
+  t: (key: string, options?: any) => string;
   pinned?: boolean;
   selectMode?: boolean;
   selected?: boolean;
   onToggleSelect?: () => void;
   onMenuRequest?: (chat: any, anchor: { x: number; y: number } | null) => void;
+  draftText?: string;
 }
 
 const PRESS_DURATION = 500;
@@ -49,7 +50,8 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   selected = false,
   onToggleSelect,
   onMenuRequest,
-}) => {
+  draftText,
+}: ChatListItemProps) => {
   const isDark = theme === "dark";
   const stealthMode = useAppStore((state) => state.stealthMode);
   const typingIndicators = useAppStore((state) => state.typingIndicators);
@@ -186,7 +188,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           {onVideoCall && (
             <button
               onClick={() => handleSwipeAction("video")}
-              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${"bg-[var(--accent)] hover:brightness-110"}`}
               aria-label={t('chat.startVideoCall')}
             >
              <Video size={20} fill="currentColor" stroke="currentColor" />
@@ -213,7 +215,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         {onArchive && (
           <button
             onClick={() => handleSwipeAction("archive")}
-            className={`my-1.5 flex aspect-square w-[50px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isArchived ? (isDark ? "bg-[#38d69a] hover:bg-[#2fb985]" : "bg-emerald-500 hover:bg-emerald-600") : isDark ? "bg-[var(--accent)] hover:brightness-110" : "bg-[var(--accent)] hover:brightness-110"}`}
+            className={`my-1.5 flex aspect-square w-[50px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isArchived ? (isDark ? "bg-[var(--chat-online-dot)] hover:bg-[var(--chat-online-dot-hover)]" : "bg-emerald-500 hover:bg-emerald-600") : "bg-[var(--accent)] hover:brightness-110"}`}
             aria-label={archiveLabel}
           >
             {isArchived
@@ -277,14 +279,14 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         }}
         animate={{ x: targetX }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className={`relative z-10 w-full p-2.5 md:p-3 flex items-center gap-3 cursor-pointer transition-all duration-200 select-none min-h-[52px] ${
+          className={`relative z-10 w-full px-2.5 md:px-3 py-[var(--chat-item-pad-y,0.625rem)] md:py-[var(--chat-item-pad-y-md,0.75rem)] flex items-center gap-3 cursor-pointer transition-all duration-200 select-none min-h-[var(--chat-item-min-h,52px)] ${
            isDark
              ? active
-              ? "bg-[var(--accent-soft)] border border-[var(--accent)]/20"
-                : "bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] border border-transparent"
+              ? "bg-[var(--accent-soft)] border border-[var(--accent)]/20 active:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.25),inset_-2px_-2px_5px_rgba(255,255,255,0.02)]"
+                : "bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] border border-transparent hover:shadow-[var(--neo-shadow-out-sm),var(--neo-shadow-in-sm)] active:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.25),inset_-2px_-2px_5px_rgba(255,255,255,0.02)]"
              : active
-               ? "bg-[var(--bg-secondary)] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border border-[var(--border-color)]"
-               : "bg-[var(--bg-secondary)] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)] hover:bg-black/5"
+               ? "bg-[var(--bg-secondary)] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border border-[var(--border-color)] active:shadow-[inset_5px_5px_12px_rgba(165,175,190,0.5),inset_-3px_-3px_8px_rgba(255,255,255,1)]"
+               : "bg-[var(--bg-secondary)] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)] hover:bg-black/5 hover:shadow-[-8px_-8px_16px_rgba(255,255,255,1),_10px_10px_20px_rgba(165,175,190,0.45),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] active:shadow-[inset_3px_3px_8px_rgba(165,175,190,0.45)]"
          }`}
       >
         <div
@@ -299,7 +301,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               onAvatarClick(chat);
             }
           }}
-          className={`relative shrink-0 w-[39px] h-[39px] ${roundedClass} p-[2px] transition-transform duration-200 ${active ? "scale-95" : ""}`}
+          className={`relative shrink-0 w-10 h-10 ${roundedClass} p-[2px] transition-transform duration-200 ${active ? "scale-95" : ""}`}
         >
           {selectMode ? (
             <div
@@ -337,12 +339,12 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             <div
               role="img"
               aria-label={t("chat.filters.online")}
-              className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-2 z-10 ${isDark ? "bg-[#38d69a] border-[var(--bg-secondary)]" : "bg-emerald-500 border-[var(--bg-secondary)]"}`}
+              className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-2 z-10 ${isDark ? "bg-[var(--chat-online-dot)] border-[var(--bg-secondary)]" : "bg-emerald-500 border-[var(--bg-secondary)]"}`}
             />
           )}
           {type === "channel" && !selectMode && (
             <div
-              className={`absolute -bottom-0.5 -right-0.5 w-[15px] h-[15px] rounded-full border-2 z-10 flex items-center justify-center ${isDark ? "bg-[var(--accent)] border-[var(--bg-secondary)]" : "bg-[var(--accent)] border-[var(--bg-secondary)]"}`}
+              className={`absolute -bottom-0.5 -right-0.5 w-[15px] h-[15px] rounded-full border-2 z-10 flex items-center justify-center ${"bg-[var(--accent)] border-[var(--bg-secondary)]"}`}
             >
               <Megaphone size={12} className="text-white" />
             </div>
@@ -367,11 +369,26 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           </div>
           <div className="flex justify-between items-center">
             <span
-              className={`text-xs md:text-xs truncate pr-4 ${active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]"} ${chat.unread ? "font-medium" : ""}`}
+              className={`text-xs md:text-xs truncate pr-4 flex items-center gap-1 ${active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]"} ${chat.unread ? "font-medium" : ""}`}
             >
+                {(() => {
+                  const lastMsg = (chat.history || []).at(-1);
+                  const lastHasAttach = lastMsg && (lastMsg.type === "image" || lastMsg.type === "video" || lastMsg.type === "audio" || lastMsg.type === "file");
+                  const lastMustFail = lastMsg && lastMsg.sender === "me" && lastMsg.status === "failed";
+                  return (
+                    <span className="flex items-center gap-1 min-w-0">
+                      {lastHasAttach && <Paperclip size={12} className="shrink-0 opacity-70" />}
+                      {lastMustFail && <AlertTriangle size={12} className="shrink-0 text-red-500" />}
+                    </span>
+                  );
+                })()}
                 {typingIndicators && (chat.isTyping || remoteTyping) && type === "chat" ? (
                 <span className="font-bold tracking-wide italic text-[var(--accent)]">
                   {t("chat.typing")}
+                </span>
+              ) : draftText ? (
+                <span className="italic text-[var(--text-secondary)]">
+                  {t("chat.draft", "Draft")}: <FormattedText text={draftText} />
                 </span>
               ) : (
                 <FormattedText text={chat.message} />
@@ -388,7 +405,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             )}
             {(chat as any).hasMentions && (
               <div
-                className={`shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center shadow-sm bg-[#51d7ff] text-[#0f172a]`}
+                className={`shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center shadow-sm bg-[var(--chat-mention-bg)] text-[var(--chat-mention-text)]`}
               >
                 <span className="text-xs font-bold pb-[0.5px] leading-none">@</span>
               </div>

@@ -215,39 +215,65 @@ input[type="range"]:focus-visible {
 .t-accent { color: var(--accent); }
 .t-accent-bg { background: var(--accent-soft); }
 
-/* Flat surface utilities (shadcn-style: solid bg + hairline border + subtle shadow) */
+/* Flat surface utilities → neumorphic: dual-shadow raised / inset pressed.
+   These override flat shadcn surfaces app-wide with the neo design language.
+   Transition ensures smooth shadow swap on state changes. */
 .neu-raised {
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--neo-shadow-out-sm), var(--neo-shadow-in-sm);
+  transition: box-shadow 0.2s ease, background 0.2s ease;
 }
 .neu-inset {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
+  box-shadow: var(--neo-shadow-inset-sm);
 }
 
-/* Neu card inset utility */
+/* Neu card inset utility — pressed/inset neumorphic surface */
 .neu-card-inset {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--neo-shadow-inset-sm);
 }
 [data-theme="light"] .neu-card-inset {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
 }
 
-/* Neu input utility */
+/* Neu input utility — inset field with focus ring */
 .neu-input {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
+  box-shadow: var(--inset-field-shadow);
   outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .neu-input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-soft);
+  box-shadow: var(--inset-field-shadow), 0 0 0 2px var(--accent-soft);
 }
+
+/* Chat pane background pattern — settings → Appearance → Chat background: dots */
+[data-chat-bg="dots"] .chat-surface {
+  background-image: radial-gradient(rgba(127,127,140,0.22) 1px, transparent 1.6px);
+  background-size: 18px 18px;
+}
+
+/* Chat bubble corner radii — settings → Appearance → Message radius.
+   Overrides the fixed rounded-* utilities on the bubble so grouped-message
+   tails keep using the smaller radius token (0,2,0 beats the utility layer). */
+.msg-bubble.rounded-xl { border-radius: var(--message-radius, 0.75rem); }
+.msg-bubble.rounded-t-xl { border-top-left-radius: var(--message-radius, 0.75rem); border-top-right-radius: var(--message-radius, 0.75rem); }
+.msg-bubble.rounded-tl-xl { border-top-left-radius: var(--message-radius, 0.75rem); }
+.msg-bubble.rounded-tr-xl { border-top-right-radius: var(--message-radius, 0.75rem); }
+.msg-bubble.rounded-bl-xl { border-bottom-left-radius: var(--message-radius, 0.75rem); }
+.msg-bubble.rounded-br-xl { border-bottom-right-radius: var(--message-radius, 0.75rem); }
+.msg-bubble.rounded-l-xl { border-top-left-radius: var(--message-radius, 0.75rem); border-bottom-left-radius: var(--message-radius, 0.75rem); }
+.msg-bubble.rounded-r-xl { border-top-right-radius: var(--message-radius, 0.75rem); border-bottom-right-radius: var(--message-radius, 0.75rem); }
+.msg-bubble.rounded-br-sm { border-bottom-right-radius: var(--message-radius-sm, 0.25rem); }
+.msg-bubble.rounded-bl-sm { border-bottom-left-radius: var(--message-radius-sm, 0.25rem); }
 
 /* Screen-reader-only utility */
 .sr-only {
@@ -321,11 +347,11 @@ input[type="range"]:focus-visible {
   box-shadow: var(--shadow-material-thin);
 }
 
-/* Custom neumorphic-card-inset utility (flat) */
+/* Neumorphic card-inset — alias for .neu-card-inset (kept for compat) */
 .neumorphic-card-inset {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--neo-shadow-inset-sm);
 }
 [data-theme="light"] .neumorphic-card-inset {
   background: var(--bg-secondary);

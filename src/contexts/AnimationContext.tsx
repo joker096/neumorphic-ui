@@ -16,6 +16,7 @@ const AnimationContext = createContext<AnimationContextValue>({
 export function AnimationProvider({ children }: { children: ReactNode }) {
   const [reducedMotion, setReducedMotion] = useState(true);
   const uiAnimations = useAppStore(state => state.uiAnimations);
+  const animationIntensity = useAppStore(state => state.animationIntensity);
 
   useEffect(() => {
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -25,12 +26,12 @@ export function AnimationProvider({ children }: { children: ReactNode }) {
     return () => mql.removeEventListener('change', handler);
   }, []);
 
-  const enabled = uiAnimations;
+  const enabled = uiAnimations && animationIntensity !== 'off';
 
   const value: AnimationContextValue = {
     enabled,
     reducedMotion: reducedMotion || !enabled,
-    duration: reducedMotion || !enabled ? 0 : 0.3,
+    duration: reducedMotion || !enabled ? 0 : animationIntensity === 'low' ? 0.15 : 0.3,
   };
 
   return (

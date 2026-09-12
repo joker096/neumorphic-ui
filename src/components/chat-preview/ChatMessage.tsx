@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
+import { Clock } from "lucide-react";
 import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
 import { MessageReactions } from "./MessageReactions";
@@ -47,6 +48,7 @@ interface ChatMessageProps {
   onAction?: (action: string) => void;
   onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
+  onRetry?: (msg: any) => void;
   selectionMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string | number) => void;
@@ -63,10 +65,29 @@ function ChatMessageImpl({
   onSetVideoOpen, onSetShowComments, onSetActivePostId,
   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
   selectionMode = false, selected = false, onToggleSelect, onSelect,
+  onRetry,
 }: ChatMessageProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const { t } = useI18n();
   const { translate } = useServices();
+  const [expired, setExpired] = React.useState(
+    () => typeof msg.selfDestructAt === "number" && Date.now() > (msg.selfDestructAt as number),
+  );
+
+  React.useEffect(() => {
+    if (typeof msg.selfDestructAt !== "number") {
+      setExpired(false);
+      return;
+    }
+    const check = () => setExpired(Date.now() > (msg.selfDestructAt as number));
+    const remaining = (msg.selfDestructAt as number) - Date.now();
+    if (remaining <= 0) {
+      setExpired(true);
+      return;
+    }
+    const timer = window.setTimeout(check, Math.min(remaining + 50, 2_147_483_647));
+    return () => window.clearTimeout(timer);
+  }, [msg.selfDestructAt]);
 
   const {
     handleBubbleClick,
@@ -123,6 +144,19 @@ function ChatMessageImpl({
     );
   }
 
+  if (expired) {
+    return (
+      <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-2`}>
+        <div className={`flex items-center gap-2 rounded-xl border border-[var(--border-color)] px-3 py-2 text-xs italic ${
+          isDark ? "bg-[var(--bg-tertiary)] text-gray-500" : "bg-slate-100 text-slate-500"
+        }`}>
+          <Clock size={14} />
+          <span>{t("chat.messageExpired", "Message expired")}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       layout
@@ -152,7 +186,7 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`w-full max-w-full md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${
+          className={`msg-bubble max-w-[85%] md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${
             isMe
               ? isDark
                 ? "bg-[var(--accent-soft)] text-[var(--text-primary)] border border-[var(--accent-soft)] shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
@@ -190,7 +224,7 @@ function ChatMessageImpl({
                   : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border border-amber-500/30"
               }`}
             >
-              {morseDecoded ? "••• / −−−" : "AБВ"}
+              {morseDecoded ? "••• / −−−" : t("chat.morseSample", "AБВ")}
             </button>
           )}
           {linkPreview && (
@@ -224,6 +258,7 @@ function ChatMessageImpl({
               stealthMode={stealthMode}
               deliveryReceipts={deliveryReceipts}
               readReceipts={readReceipts}
+              onRetry={onRetry ? () => onRetry(msg) : undefined}
             />
           )}
           {!isChannel && (

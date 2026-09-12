@@ -84,7 +84,7 @@ const baseProps = (overrides: any = {}) => ({
   ...overrides,
 });
 
-const bubbleEl = () => document.querySelector('[class*="max-w-full md:max-w-[80%]"]') as HTMLElement;
+const bubbleEl = () => document.querySelector('[class*="max-w-[85%] md:max-w-[80%]"]') as HTMLElement;
 
 describe('ChatMessage', () => {
   beforeEach(() => {

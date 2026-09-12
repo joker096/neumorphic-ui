@@ -84,6 +84,21 @@ describe('ChatListItem', () => {
     expect(onClick).toHaveBeenCalled();
   });
 
+  it('shows attachment indicator when the last history message has an attachment', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, history: [{ id: 1, sender: 'me', text: 'photo', type: 'image', status: 'sent' }] }} />);
+    expect(document.querySelector('.lucide-paperclip')).toBeInTheDocument();
+  });
+
+  it('shows a failed indicator on my last message when it failed', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, history: [{ id: 1, sender: 'me', text: 'oops', status: 'failed' }] }} />);
+    expect(document.querySelector('svg.text-red-500')).toBeInTheDocument();
+  });
+
+  it('does not show a failed indicator on a delivered message', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, history: [{ id: 1, sender: 'me', text: 'ok', status: 'delivered' }] }} />);
+    expect(document.querySelector('svg.text-red-500')).not.toBeInTheDocument();
+  });
+
   it('applies active state class when active is true', () => {
     const { container } = render(<ChatListItem {...defaultProps} active={true} />);
     expect(container.querySelector('.chat-list-item-active')).toBeInTheDocument();
@@ -91,14 +106,14 @@ describe('ChatListItem', () => {
 
   it('shows online status indicator', () => {
     render(<ChatListItem {...defaultProps} />);
-    const avatar = document.querySelector('[class*="w-[39px]"]');
+    const avatar = document.querySelector('[class*="w-10 h-10"]');
     expect(avatar?.className).toContain('rounded-full');
     expect(avatar?.querySelector('[class*="w-[10px]"]')).toBeInTheDocument();
   });
 
   it('does not show online indicator when chat.online is false', () => {
     render(<ChatListItem {...defaultProps} chat={{ ...mockChat, online: false }} />);
-    const avatar = document.querySelector('[class*="w-[39px]"]');
+    const avatar = document.querySelector('[class*="w-10 h-10"]');
     expect(avatar?.querySelector('[class*="w-[10px]"]')).not.toBeInTheDocument();
   });
 

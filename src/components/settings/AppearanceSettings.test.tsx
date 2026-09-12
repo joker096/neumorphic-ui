@@ -5,7 +5,7 @@ import { AppearanceSettings } from './AppearanceSettings';
 
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({
-    t: (key: string) => key,
+    t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key),
     lang: 'en',
     setLang: vi.fn(),
   }),
@@ -19,15 +19,12 @@ describe('AppearanceSettings - additional tests', () => {
     setFontSize: vi.fn(),
     uiAnimations: true,
     setUiAnimations: vi.fn(),
-    showPwaBanner: false,
-    setShowPwaBanner: vi.fn(),
     onBack: vi.fn(),
   };
 
-  it('renders all toggle rows', () => {
+  it('renders segmented controls and rows', () => {
     render(<AppearanceSettings {...defaultProps} />);
-    const toggles = document.querySelectorAll('[role="switch"]');
-    expect(toggles.length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('button').length).toBeGreaterThan(0);
   });
 
   it('renders font size row value', () => {
@@ -63,11 +60,6 @@ describe('AppearanceSettings - additional tests', () => {
   it('renders animations subtitle', () => {
     render(<AppearanceSettings {...defaultProps} />);
     expect(screen.getByText('settings.animationsSubtitle')).toBeInTheDocument();
-  });
-
-  it('renders PWA subtitle', () => {
-    render(<AppearanceSettings {...defaultProps} />);
-    expect(screen.getByText('settings.pwaPromptSubtitle')).toBeInTheDocument();
   });
 
   it('accent swatches keep 44px hit zone and are labelled', () => {

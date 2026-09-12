@@ -20,7 +20,7 @@
      matches the text inside it instead of dwarfing it. */
   --text-2xs: 0.6875rem;   /* 11px — badges, micro labels */
   --text-xs: 0.75rem;      /* 12px — chips, captions */
-  --control-font-size: 0.75rem; /* 12px — default for filter/search/inputs */
+  --control-font-size: 12px; /* absolute 12px — inputs must not scale with --font-size-base */
   --text-sm: 0.875rem;     /* 14px — body, buttons */
   --text-base: 1rem;       /* 16px — default */
   --text-lg: 1.125rem;
@@ -170,6 +170,7 @@
 
   /* Canonical surface shadows (dark) */
   --shadow-btn-primary: 0 8px 24px -8px var(--accent);
+  --shadow-btn-primary-pressed: 0 2px 8px -4px var(--accent);
   --shadow-panel: 0 8px 24px rgba(0,0,0,0.25);
   --shadow-modal: 0 24px 60px -12px rgba(0,0,0,0.65);
 
@@ -219,6 +220,50 @@
   --gold-soft: rgba(201,169,110,0.14);
   --gold-soft-hover: rgba(201,169,110,0.07);
   --cream: #f0ece4;
+
+  /* Player palette (dark) */
+  --player-green: #5cc25c;
+  --player-green-dark: #45a045;
+  --player-green-deep: #256e25;
+  --player-green-bright: #64d064;
+  --player-orange: #c25c34;
+  --player-orange-dark: #8a3e21;
+  --player-orange-deep: #8a3e21;
+  --player-orange-bright: #d27546;
+  --player-eq-green: #2cab50;
+  --player-eq-orange: #e2845c;
+  --player-play-text: #3a1a0d;
+  --player-play-fill: #d27546;
+  --player-play-fill-glow: #64d064;
+  --player-inactive-dot: #404850;
+  --player-inactive-dot2: #353c43;
+  --player-eq-track: rgba(0,0,0,0.2);
+  --player-eq-fill: color-mix(in srgb, var(--player-orange) 70%, transparent);
+  --player-eq-radio: #5cc25c;
+  --player-eq-music: #e2845c;
+  --player-eq-bar: var(--bg-tertiary);
+  --player-bars-green: #183a18;
+  --player-bars-orange: #3a1a0d;
+  --player-panel-bg: #2a3036;
+  --player-list-active: #333a41;
+  --player-station-modal: #2a3036;
+  --player-station-modal-light: #e8ecf4;
+
+  /* Chat list item */
+  --chat-swipe-bg: #2b2f42;
+  --chat-swipe-bg-hover: #363b52;
+  --chat-online-dot: #38d69a;
+  --chat-online-dot-hover: #2fb985;
+  --chat-mention-bg: #51d7ff;
+  --chat-mention-text: #0f172a;
+
+  /* Nav sidebar */
+  --nav-sidebar-gradient-from: #eef1f7;
+  --nav-sidebar-gradient-to: #f5f7fa;
+
+  /* Landing */
+  --landing-bg: #050505;
+  --landing-surface: #0a0a0a;
 }
 
 [data-theme="light"] {
@@ -267,6 +312,7 @@
 
   /* Canonical surface shadows (light) */
   --shadow-btn-primary: 0 8px 24px -8px var(--accent);
+  --shadow-btn-primary-pressed: 0 2px 8px -4px var(--accent);
   --shadow-panel: 0 8px 24px rgba(15,23,42,0.05);
   --shadow-modal: 0 24px 60px -12px rgba(0,0,0,0.65);
 
@@ -306,6 +352,49 @@
 
   --player-progress-orange: #ea580c;
 
+  /* Player palette (light) */
+  --player-green: #45a045;
+  --player-green-dark: #256e25;
+  --player-green-deep: #256e25;
+  --player-green-bright: #45a045;
+  --player-orange: #c25c34;
+  --player-orange-dark: #8a3e21;
+  --player-orange-deep: #8a3e21;
+  --player-orange-bright: #c25c34;
+  --player-eq-orange: #ab502c;
+  --player-play-text: #3a1a0d;
+  --player-play-fill: #c25c34;
+  --player-play-fill-glow: #45a045;
+  --player-inactive-dot: #404850;
+  --player-inactive-dot2: #353c43;
+  --player-eq-track: rgba(0,0,0,0.1);
+  --player-eq-fill: color-mix(in srgb, var(--player-orange) 70%, transparent);
+  --player-eq-radio: #2cab50;
+  --player-eq-music: #ab502c;
+  --player-eq-bar: #cbd5e1;
+  --player-bars-green: #183a18;
+  --player-bars-orange: #3a1a0d;
+  --player-panel-bg: var(--bg-secondary);
+  --player-list-active: #d1d8e0;
+  --player-station-modal: #e8ecf4;
+  --player-station-modal-light: #e8ecf4;
+
+  /* Chat list item */
+  --chat-swipe-bg: #545b73;
+  --chat-swipe-bg-hover: #636b80;
+  --chat-online-dot: #38d69a;
+  --chat-online-dot-hover: #2fb985;
+  --chat-mention-bg: #51d7ff;
+  --chat-mention-text: #0f172a;
+
+  /* Nav sidebar */
+  --nav-sidebar-gradient-from: #eef1f7;
+  --nav-sidebar-gradient-to: #f5f7fa;
+
+  /* Landing */
+  --landing-bg: #faf8f5;
+  --landing-surface: #ffffff;
+
   --color-success: #16a04a;
   --color-success-soft: rgba(22,160,74,0.12);
   --color-warning: #d97c0f;
@@ -330,6 +419,22 @@
 [data-font-size="Large"] {
   --font-size-base: 18px;
   --font-size-scale: 1.125;
+}
+
+/* Chat pane surface (settings → Appearance → Chat background).
+   Consumed by `ChatPreviewLayer` via `--chat-bg`; `default` leaves it unset
+   so the panel falls back to `--bg-secondary`. */
+[data-chat-bg="light"] { --chat-bg: #eef1f7; }
+[data-chat-bg="dark"] { --chat-bg: #0c1118; }
+
+/* Chat list / message list spacing (settings → Appearance → Density).
+   `comfortable` is the inline fallback in the components. */
+[data-density="compact"] {
+  --chat-item-pad-y: 0.25rem;
+  --chat-item-pad-y-md: 0.25rem;
+  --chat-item-min-h: 48px;
+  --message-list-pad: 0.5rem;
+  --message-list-pad-sm: 0.75rem;
 }
 
 [data-theme="landing"] {

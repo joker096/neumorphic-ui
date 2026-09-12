@@ -1,0 +1,66 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import { useAppearanceEffects } from './useAppearanceEffects';
+import { useAppStore } from '../store';
+
+describe('useAppearanceEffects', () => {
+  beforeEach(() => {
+    const root = document.documentElement;
+    root.removeAttribute('data-chat-bg');
+    root.removeAttribute('data-density');
+    root.removeAttribute('data-anim-intensity');
+    root.style.cssText = '';
+    useAppStore.setState({
+      accentColor: '#10b981',
+      chatBackground: 'default',
+      density: 'comfortable',
+      messageRadius: 16,
+      animationIntensity: 'high',
+    });
+  });
+
+  it('applies persisted appearance values onto <html>', () => {
+    renderHook(() => useAppearanceEffects());
+    const root = document.documentElement;
+    expect(root.style.getPropertyValue('--accent')).toBe('#10b981');
+    expect(root.style.getPropertyValue('--accent-rgb')).toBe('16,185,129');
+    expect(root.getAttribute('data-chat-bg')).toBe('default');
+    expect(root.getAttribute('data-density')).toBe('comfortable');
+    expect(root.style.getPropertyValue('--message-radius')).toBe('16px');
+    expect(root.getAttribute('data-anim-intensity')).toBe('high');
+  });
+
+  it('re-applies on change: accent rgb, radius + tail, chat bg and density', () => {
+    const { rerender } = renderHook(() => useAppearanceEffects());
+
+    act(() => {
+      useAppStore.setState({
+        accentColor: '#3b82f6',
+        chatBackground: 'dots',
+        density: 'compact',
+        messageRadius: 24,
+        animationIntensity: 'low',
+      });
+    });
+    rerender();
+
+    const root = document.documentElement;
+    expect(root.style.getPropertyValue('--accent')).toBe('#3b82f6');
+    expect(root.style.getPropertyValue('--accent-rgb')).toBe('59,130,246');
+    expect(root.style.getPropertyValue('--accent-soft')).toBe('#3b82f624');
+    expect(root.getAttribute('data-chat-bg')).toBe('dots');
+    expect(root.getAttribute('data-density')).toBe('compact');
+    expect(root.style.getPropertyValue('--message-radius')).toBe('24px');
+    expect(root.style.getPropertyValue('--message-radius-sm')).toBe('6px');
+    expect(root.getAttribute('data-anim-intensity')).toBe('low');
+  });
+
+  it('ignores an invalid accent hex (does not write --accent-rgb)', () => {
+    act(() => {
+      useAppStore.setState({ accentColor: 'not-a-color' });
+    });
+    const { rerender } = renderHook(() => useAppearanceEffects());
+    rerender();
+    expect(document.documentElement.style.getPropertyValue('--accent-rgb')).toBe('');
+  });
+});

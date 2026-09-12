@@ -4,6 +4,7 @@ import { AppMainContent } from "./AppMainContent";
 import { BottomNav } from "../navigation";
 import { EcoSidebarNav } from "../ecochat/EcoSidebarNav";
 import { OfflineBanner } from "../status/OfflineBanner";
+import { InstallAppBanner } from "../status/InstallAppBanner";
 import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
@@ -66,6 +67,7 @@ export interface AppShellProps {
   setActiveBotId?: (id: string | null) => void;
   miniAppBotId?: string | null;
   setMiniAppBotId?: (id: string | null) => void;
+  draftTextByChat?: Record<string, string>;
 }
 
 function AppShellImpl({
@@ -125,6 +127,7 @@ function AppShellImpl({
   setActiveBotId,
   miniAppBotId,
   setMiniAppBotId,
+  draftTextByChat,
 }: AppShellProps) {
   const isMobile = useIsMobile();
   const [sideWidth, setSideWidth] = useLocalStorage<number>(STORAGE_KEYS.SIDE_PANEL_WIDTH, 320);
@@ -160,6 +163,7 @@ function AppShellImpl({
     setActiveChat,
     setView,
     setActiveStory,
+    onComposeStory,
     setShowCreateChannel,
     setShowCreateBot,
     setShowCreateGroup,
@@ -172,6 +176,7 @@ function AppShellImpl({
     showAddContactFromChat,
     setShowAddContactFromChat,
     onAddContactFromChat,
+    draftTextByChat,
     onOpenBot: (botId: string) => {
       setActiveBotId?.(botId);
       setView("bot");
@@ -213,9 +218,10 @@ function AppShellImpl({
   };
 
   return (
-    <div data-theme={theme} data-font-size={fontSize} className={`w-full h-[100dvh] flex flex-col font-sans select-none overflow-hidden relative ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-[var(--text-primary)]"}`}>
+    <div data-theme={theme} data-font-size={fontSize} className={`w-full h-[100dvh] flex flex-col font-sans select-none overflow-hidden relative ${"bg-[var(--bg-primary)] text-[var(--text-primary)]"}`}>
       <div id="sr-region" aria-live="polite" role="status" className="sr-only" />
       <OfflineBanner t={t} />
+      <InstallAppBanner t={t} />
       <div className="flex-1 min-h-0 flex">
 
       {/* 3-column desktop layout: rail (76px) + resizable side list (240–480px) + main (flexible) */}
@@ -246,7 +252,6 @@ function AppShellImpl({
             chatListProps={{
               ...chatListCoreProps,
               activeChatId: activeChat?.id,
-              onComposeStory,
             }}
             contacts={contacts}
             setContacts={setContacts}

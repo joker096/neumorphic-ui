@@ -181,6 +181,19 @@ describe("AppShell", () => {
     expect(captured.sideList.chatListProps.onOpenChat).toBe(baseProps.onOpenChat);
   });
 
+  it("wires onComposeStory into desktop chat list props", () => {
+    const onComposeStory = vi.fn();
+    render(<AppShell {...baseProps} onComposeStory={onComposeStory} />);
+    expect(captured.sideList.chatListProps.onComposeStory).toBe(onComposeStory);
+  });
+
+  it("wires onComposeStory into mobile chat list props (D5 regression)", () => {
+    mobileFlags.isMobile = true;
+    const onComposeStory = vi.fn();
+    render(<AppShell {...baseProps} onComposeStory={onComposeStory} />);
+    expect(captured.main.chatListProps.onComposeStory).toBe(onComposeStory);
+  });
+
   it("passes desktop main content props to AppMainContent", () => {
     render(<AppShell {...baseProps} />);
     expect(captured.main).toMatchObject({

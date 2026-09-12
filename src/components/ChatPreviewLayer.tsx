@@ -16,6 +16,9 @@ import { useChatPreviewState } from "../hooks/useChatPreviewState";
 import { useChatPreviewTyping } from "../hooks/useChatPreviewTyping";
 import { useChatMessageActions } from "../hooks/useChatMessageActions";
 import { useAppStore } from "../store";
+import { ConfirmDialog } from "./ui/ConfirmDialog";
+import { Trash2 } from "lucide-react";
+import { toast } from "./ui/Toast";
 
 interface ChatPreviewLayerProps {
   chat: any;
@@ -94,6 +97,21 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     handleDeleteSelected,
   } = useChatMessageActions({ chatId: chat.id, onForward, onDelete, onUpdateChat });
 
+  const [deleteConfirm, setDeleteConfirm] = React.useState<{ kind: "single" | "bulk"; msg?: any } | null>(null);
+
+  const confirmSingleDelete = (msg: any) => setDeleteConfirm({ kind: "single", msg });
+  const confirmBulkDelete = () => {
+    if (selectedIds.size === 0) return;
+    setDeleteConfirm({ kind: "bulk" });
+  };
+  const cancelDelete = () => setDeleteConfirm(null);
+  const confirmDelete = () => {
+    if (!deleteConfirm) return;
+    if (deleteConfirm.kind === "single") handleDeleteMessage(deleteConfirm.msg);
+    else handleDeleteSelected(chat.messages || []);
+    setDeleteConfirm(null);
+  };
+
   const handleJumpToPinned = (id: number) => {
     const messages = (chat.messages || []) as any[];
     const idx = messages.findIndex((m) => m.id === id);
@@ -138,6 +156,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     handleImageAttach,
     handleFileDrop,
     handleReactionMessage,
+    retryFailedMessage,
     mediaItems,
     chatSavedMessages,
     chatScheduledMessages,
@@ -199,6 +218,32 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     msgListRef.current?.scrollToBottom();
   };
 
+  const selectedMessages = (chat.messages || []).filter((m: any) => selectedIds.has(m.id));
+  const handleCopySelected = async () => {
+    const texts = selectedMessages
+      .map((m: any) => (typeof m.text === "string" ? m.text : ""))
+      .filter(Boolean)
+      .join("\n");
+    if (!texts) return;
+    try {
+      await navigator.clipboard.writeText(texts);
+      toast(t("chat.copied", "Copied"));
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
+  const handleSaveSelected = () => {
+    const savedKeys = new Set(chatSavedMessages.map((m: any) => m.messageId));
+    let added = 0;
+    for (const m of selectedMessages) {
+      if (!savedKeys.has(m.id)) {
+        onToggleSavedMessage?.(chat, m);
+        added += 1;
+      }
+    }
+    if (added > 0) toast(t("chat.saved", "Saved"));
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 40, scale: 0.95 }}
@@ -207,23 +252,25 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       onDragOver={canAttachFiles ? (e) => e.preventDefault() : undefined}
       onDrop={canAttachFiles ? (e) => { e.preventDefault(); handleFileDrop(e.dataTransfer?.files, chat, onUpdateChat); } : undefined}
-      className={`absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 ${
+      className={`chat-surface absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 ${
         isDark
-          ? "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] rounded-2xl"
-          : "bg-[var(--bg-secondary)] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] rounded-2xl"
+          ? "bg-[var(--chat-bg,var(--bg-secondary))] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] rounded-2xl"
+          : "bg-[var(--chat-bg,var(--bg-secondary))] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] rounded-2xl"
       }`}
     >
-      <ChatHeader
-        chat={chat}
-        isDark={isDark}
-        onClose={onClose}
-        onProfileClick={handleProfileClick}
-        t={t}
-        typing={isTyping}
-        onCall={onCall}
-        onVideoCall={onVideoCall}
-        onSearchToggle={() => setShowSearch(prev => !prev)}
-      />
+      {!selectionMode && (
+        <ChatHeader
+          chat={chat}
+          isDark={isDark}
+          onClose={onClose}
+          onProfileClick={handleProfileClick}
+          t={t}
+          typing={isTyping}
+          onCall={onCall}
+          onVideoCall={onVideoCall}
+          onSearchToggle={() => setShowSearch(prev => !prev)}
+        />
+      )}
 
       <SearchBar
         showSearch={showSearch}
@@ -265,7 +312,9 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
           onCancel={handleCancelSelection}
           onSelectAll={() => handleSelectAll(chat.messages || [])}
           onForward={() => handleForwardSelected(chat.messages || [])}
-          onDelete={() => handleDeleteSelected(chat.messages || [])}
+          onCopy={handleCopySelected}
+          onSave={handleSaveSelected}
+          onDelete={confirmBulkDelete}
         />
       )}
 
@@ -274,7 +323,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         messages={chat.messages || []}
         pinnedMessages={pinnedMessageList}
         isDark={isDark}
-        onUnpin={(id) => useAppStore.getState().removePinnedMessage(id)}
+        onUnpin={(id) => useAppStore.getState().removePinnedMessage(id, chat.id)}
         onJump={handleJumpToPinned}
       />
 
@@ -305,7 +354,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onReactionMessage={handleReactionMessage}
         onAction={onAction}
           onForward={handleForwardMessage}
-          onDelete={handleDeleteMessage}
+          onDelete={confirmSingleDelete}
+          onRetry={retryFailedMessage}
           selectionMode={selectionMode}
           selectedIds={selectedIds}
           onToggleSelect={handleToggleSelect}
@@ -413,6 +463,23 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         profileOpen={profileOpen}
         setProfileOpen={setProfileOpen}
         onClosePreview={onClose}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        title={
+          deleteConfirm?.kind === "bulk"
+            ? t("chat.bulkDeleteMessageConfirm", { count: selectedIds.size })
+            : t("chat.deleteMessageConfirm", "Delete this message?")
+        }
+        message={deleteConfirm?.kind === "bulk" ? "" : undefined}
+        variant="danger"
+        theme={theme}
+        confirmLabel={t("chat.delete")}
+        cancelLabel={t("common.cancel")}
+        confirmIcon={<Trash2 size={18} />}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
     </motion.div>
   );

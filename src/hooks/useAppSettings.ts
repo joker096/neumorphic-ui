@@ -30,5 +30,12 @@ export function useAppSettings() {
 
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.FONT_SIZE, fontSize); }, [fontSize]);
 
+  // Mirror the font size onto <html> so the `[data-font-size]` custom-property
+  // overrides actually reach the `html`/`body` rules that consume
+  // `--font-size-base` (inheritance flows down, not up from AppShell's div).
+  useEffect(() => {
+    document.documentElement.dataset.fontSize = fontSize;
+  }, [fontSize]);
+
   return { theme, setTheme, isDark, language, setLanguage, fontSize, setFontSize, t };
 }
