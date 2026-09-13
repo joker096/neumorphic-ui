@@ -100,6 +100,24 @@ const bootstrap = async () => {
       preloadICQSounds(),
     ]), 0);
   }
+
+  // Warm the post-boot lane: the two lazy chunks fetched right after the first
+  // paint are the auth screens (new/returning visitor) and the chat pane (the
+  // biggest UI chunk, ~26KB br). Prefetching them at idle removes a full network
+  // round-trip from first interactive. All three specifiers below resolve to
+  // existing lazy() chunks — safe to co-fetch here (deduped by the browser).
+  const warmPostBootLane = () => {
+    Promise.all([
+      import("./components/auth/RegistrationScreen"),
+      import("./components/auth/LoginScreen"),
+      import("./components/ChatPreviewLayer"),
+    ]).catch(() => {});
+  };
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(warmPostBootLane, { timeout: 6000 });
+  } else {
+    setTimeout(warmPostBootLane, 500);
+  }
 };
 
 bootstrap();
