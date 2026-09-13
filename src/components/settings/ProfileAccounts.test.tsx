@@ -8,6 +8,7 @@ vi.mock('lucide-react', () => ({
   Plus: (props: any) => <div data-testid="icon-plus" {...props} />,
   Trash2: (props: any) => <div data-testid="icon-trash" {...props} />,
   Pencil: (props: any) => <div data-testid="icon-pencil" {...props} />,
+  Crown: (props: any) => <div data-testid="icon-crown" {...props} />,
 }));
 vi.mock('./ConfirmModal', () => ({
   ConfirmModal: (props: any) => (
@@ -33,10 +34,12 @@ const baseProps = () => ({
   t,
   accounts,
   activeId: 1,
+  canAdd: true,
   onSelect: vi.fn(),
   onAddAccount: vi.fn(),
-  onRename: vi.fn(),
+  onUpdateAccount: vi.fn(),
   onDelete: vi.fn(),
+  onGetPremium: vi.fn(),
 });
 
 const renderAccounts = (overrides: Record<string, any> = {}) =>
@@ -64,34 +67,30 @@ describe('ProfileAccounts', () => {
     expect(screen.getAllByTestId('icon-check')).toHaveLength(1);
   });
 
-  it('edit flow renames via submit', () => {
+  it('edit flow updates richer account fields via submit', () => {
     const p = baseProps();
     renderAccounts(p);
     fireEvent.click(screen.getAllByLabelText('Edit account')[0]);
-    const input = screen.getByDisplayValue('Nexus Terminal');
-    fireEvent.change(input, { target: { value: 'Neo' } });
-    fireEvent.submit(input.closest('form')!);
-    expect(p.onRename).toHaveBeenCalledWith(1, 'Neo');
+    const nameInput = screen.getByDisplayValue('Nexus Terminal');
+    fireEvent.change(nameInput, { target: { value: 'Neo' } });
+    fireEvent.change(screen.getByPlaceholderText('@username'), { target: { value: 'neo' } });
+    fireEvent.change(screen.getByPlaceholderText('Bio'), { target: { value: 'Neo bio' } });
+    fireEvent.submit(nameInput.closest('form')!);
+    expect(p.onUpdateAccount).toHaveBeenCalledWith(1, expect.objectContaining({
+      name: 'Neo',
+      username: 'neo',
+      bio: 'Neo bio',
+    }));
   });
 
-  it('rename via blur commits trimmed value', () => {
-    const p = baseProps();
-    renderAccounts(p);
-    fireEvent.click(screen.getAllByLabelText('Edit account')[1]);
-    const input = screen.getByDisplayValue('Work Node');
-    fireEvent.change(input, { target: { value: '  Node X  ' } });
-    fireEvent.blur(input);
-    expect(p.onRename).toHaveBeenCalledWith(2, 'Node X');
-  });
-
-  it('empty rename does not call onRename', () => {
+  it('empty name does not call onUpdateAccount', () => {
     const p = baseProps();
     renderAccounts(p);
     fireEvent.click(screen.getAllByLabelText('Edit account')[1]);
     const input = screen.getByDisplayValue('Work Node');
     fireEvent.change(input, { target: { value: '   ' } });
     fireEvent.submit(input.closest('form')!);
-    expect(p.onRename).not.toHaveBeenCalled();
+    expect(p.onUpdateAccount).not.toHaveBeenCalled();
   });
 
   it('clicking editing row input does not select', () => {
@@ -126,16 +125,26 @@ describe('ProfileAccounts', () => {
     expect(screen.getAllByTestId('icon-check')).toHaveLength(1);
   });
 
-  it('add account flow submits trimmed name', () => {
+  it('add account flow submits trimmed name with optional fields', () => {
     const p = baseProps();
     renderAccounts(p);
     fireEvent.click(screen.getByText('Add Account'));
-    const input = screen.getByPlaceholderText('Account name...');
-    const submitBtn = input.closest('form')!.querySelector('button')!;
+    const nameInput = screen.getByPlaceholderText('Account name...');
+    const submitBtn = screen.getByLabelText('Add Account');
     expect(submitBtn).toBeDisabled();
-    fireEvent.change(input, { target: { value: '  ACME  ' } });
-    fireEvent.submit(input.closest('form')!);
-    expect(p.onAddAccount).toHaveBeenCalledWith('ACME');
+    fireEvent.change(nameInput, { target: { value: '  ACME  ' } });
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'Pack' } });
+    fireEvent.submit(nameInput.closest('form')!);
+    expect(p.onAddAccount).toHaveBeenCalledWith({ name: 'ACME', username: 'Pack', bio: '' });
     expect(screen.getByText('Add Account')).toBeInTheDocument();
+  });
+
+  it('when limit reached shows premium upsell instead of Add row', () => {
+    const p = baseProps();
+    renderAccounts({ ...p, canAdd: false });
+    expect(screen.queryByText('Add Account')).not.toBeInTheDocument();
+    expect(screen.getByText('Unlimited accounts with Premium')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Open Premium' }));
+    expect(p.onGetPremium).toHaveBeenCalled();
   });
 });

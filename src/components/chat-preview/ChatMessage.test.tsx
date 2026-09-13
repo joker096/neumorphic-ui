@@ -10,11 +10,20 @@ const t = (key: string, fallback?: string) => (typeof fallback === 'string' ? fa
 
 const h = vi.hoisted(() => ({
   menuArgs: null as any,
+  motionProps: null as any,
   detectLang: vi.fn(),
   translate: vi.fn(),
 }));
 
-vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
+vi.mock('motion/react', () => ({
+  motion: {
+    div: (props: any) => {
+      const { layout, initial, animate, exit, transition, drag, dragConstraints, dragElastic, ...rest } = props;
+      h.motionProps = props;
+      return React.createElement('div', rest);
+    },
+  },
+}));
 vi.mock('../../lib/icqEmojis', () => ({ getICQStickerSrc: () => 'sticker-url' }));
 vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t }) }));
 vi.mock('../../services', () => ({
@@ -265,5 +274,69 @@ describe('ChatMessage', () => {
     render(<ChatMessage {...baseProps()} />);
     await act(async () => { await h.menuArgs.onTranslate(); });
     await waitFor(() => expect(toast).toHaveBeenCalledWith('Перевод не подключён'));
+  });
+
+  it('incoming message swipes right to reply', () => {
+    const onReply = vi.fn();
+    const onSwipeReplyId = vi.fn();
+    render(<ChatMessage {...baseProps({ isMe: false, onReply, onSwipeReplyId })} />);
+    expect(h.motionProps.drag).toBe('x');
+    expect(h.motionProps.dragConstraints).toEqual({ left: 0, right: 80 });
+    act(() => { h.motionProps.onDrag(null, { offset: { x: 50, y: 0 } }); });
+    expect(onSwipeReplyId).toHaveBeenLastCalledWith(1);
+    act(() => { h.motionProps.onDrag(null, { offset: { x: 5, y: 0 } }); });
+    expect(onSwipeReplyId).toHaveBeenLastCalledWith(null);
+    act(() => { h.motionProps.onDragEnd(null, { offset: { x: 80, y: 0 } }); });
+    expect(onReply).toHaveBeenCalledWith({ id: 1, text: 'hello', _isLastInGroup: false });
+    expect(onSwipeReplyId).toHaveBeenLastCalledWith(null);
+  });
+
+  it('outgoing message swipes left to reply (mirrored)', () => {
+    const onReply = vi.fn();
+    const onSwipeReplyId = vi.fn();
+    render(<ChatMessage {...baseProps({ isMe: true, onReply, onSwipeReplyId })} />);
+    expect(h.motionProps.drag).toBe('x');
+    expect(h.motionProps.dragConstraints).toEqual({ left: -80, right: 0 });
+    act(() => { h.motionProps.onDrag(null, { offset: { x: -50, y: 0 } }); });
+    expect(onSwipeReplyId).toHaveBeenLastCalledWith(1);
+    act(() => { h.motionProps.onDrag(null, { offset: { x: 5, y: 0 } }); });
+    expect(onSwipeReplyId).toHaveBeenLastCalledWith(null);
+    act(() => { h.motionProps.onDragEnd(null, { offset: { x: -80, y: 0 } }); });
+    expect(onReply).toHaveBeenCalledWith({ id: 1, text: 'hello', _isLastInGroup: false });
+    expect(onSwipeReplyId).toHaveBeenLastCalledWith(null);
+  });
+
+  it('does not reply on short swipe', () => {
+    const onReply = vi.fn();
+    render(<ChatMessage {...baseProps({ isMe: true, onReply })} />);
+    act(() => { h.motionProps.onDragEnd(null, { offset: { x: -30, y: 0 } }); });
+    expect(onReply).not.toHaveBeenCalled();
+  });
+
+  it('disables drag in selection mode', () => {
+    render(<ChatMessage {...baseProps({ selectionMode: true })} />);
+    expect(h.motionProps.drag).toBe(false);
+  });
+
+  it('places swipe indicator on near edge (incoming left, outgoing right)', () => {
+    const { rerender } = render(<ChatMessage {...baseProps({ isMe: false, swipeReplyId: 1 })} />);
+    const left = Array.from(document.querySelectorAll('div')).find(
+      (el) => el.className.includes('absolute left-0') && el.className.includes('w-1.5'),
+    );
+    expect(left).toBeTruthy();
+    rerender(<ChatMessage {...baseProps({ isMe: true, swipeReplyId: 1 })} />);
+    const right = Array.from(document.querySelectorAll('div')).find(
+      (el) => el.className.includes('absolute right-0') && el.className.includes('w-1.5'),
+    );
+    expect(right).toBeTruthy();
+  });
+
+  it('hides swipe indicator when id does not match', () => {
+    render(<ChatMessage {...baseProps({ isMe: true, swipeReplyId: 999 })} />);
+    expect(
+      Array.from(document.querySelectorAll('div')).some(
+        (el) => (el.className.includes('absolute left-0') || el.className.includes('absolute right-0')) && el.className.includes('w-1.5'),
+      ),
+    ).toBe(false);
   });
 });

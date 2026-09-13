@@ -9,7 +9,7 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { AnimatePresence } from 'motion/react';
-import { ACCOUNT_COLORS, DEFAULT_AVATAR_COLOR } from '../../constants/settingsConstants';
+import { ACCOUNT_COLORS, DEFAULT_AVATAR_COLOR, FREE_ACCOUNTS_LIMIT } from '../../constants/settingsConstants';
 
 export type FieldVisibility = 'everyone' | 'contactsOnly';
 
@@ -25,17 +25,21 @@ interface Account {
   id: number;
   name: string;
   color: string;
+  username?: string;
+  bio?: string;
 }
 
 interface ProfileSectionProps {
   isDark?: boolean;
   onBack: () => void;
   t: (key: string, options?: any) => string;
+  onOpenPremium?: () => void;
 }
 
-export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProps) => {
+export const ProfileSection = ({ isDark = false, onBack, t, onOpenPremium }: ProfileSectionProps) => {
   const userProfile = useAppStore((s) => s.userProfile);
   const setUserProfile = useAppStore((s) => s.setUserProfile);
+  const premium = useAppStore((s) => s.premiumEntitlement.premium);
 
   const [accounts, setAccounts] = useLocalStorage<Account[]>("app_accounts", [
     { id: 1, name: "Nexus Terminal", color: "from-blue-500 to-cyan-500" },
@@ -70,9 +74,10 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
   };
 
   const handleSave = () => {
+    const sanitizedUsername = editUsername.replace(/^@/, '').trim();
     setUserProfile({
       name: editName,
-      username: editUsername.replace(/^@/, '').trim(),
+      username: sanitizedUsername,
       bio: editBio,
       avatar: editAvatar,
       status: editStatus,
@@ -84,6 +89,7 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
         visibleTo: f.visibility,
       })),
     });
+    setAccounts(accounts.map((acc) => (acc.id === activeId ? { ...acc, name: editName, username: sanitizedUsername, bio: editBio } : acc)));
     setEditing(false);
   };
 
@@ -125,24 +131,42 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
     setEditFields(editFields.map((f) => (f.id === id ? { ...f, ...updates } : f)));
   };
 
-  const handleAddAccount = (name: string) => {
-    const color = ACCOUNT_COLORS[accounts.length % ACCOUNT_COLORS.length];
-    const newAcc: Account = { id: Date.now(), name, color };
-    setAccounts([...accounts, newAcc]);
-    setActiveId(newAcc.id);
-  };
+const syncProfileToAccount = (acc: Account) => {
+  setUserProfile({
+    name: acc.name,
+    username: acc.username || '',
+    bio: acc.bio || '',
+    avatarColor: acc.color,
+  });
+};
 
-  const handleDeleteAccount = (id: number) => {
-    const remaining = accounts.filter((acc) => acc.id !== id);
-    setAccounts(remaining);
-    if (activeId === id && remaining.length > 0) {
-      setActiveId(remaining[0].id);
-    }
-  };
+const handleAddAccount = (draft: { name: string; username?: string; bio?: string }) => {
+  const color = ACCOUNT_COLORS[accounts.length % ACCOUNT_COLORS.length];
+  const newAcc: Account = { id: Date.now(), name: draft.name, color, username: draft.username, bio: draft.bio };
+  setAccounts([...accounts, newAcc]);
+  setActiveId(newAcc.id);
+  syncProfileToAccount(newAcc);
+};
 
-  const handleRenameAccount = (id: number, name: string) => {
-    setAccounts(accounts.map((acc) => (acc.id === id ? { ...acc, name } : acc)));
-  };
+const handleDeleteAccount = (id: number) => {
+  const remaining = accounts.filter((acc) => acc.id !== id);
+  setAccounts(remaining);
+  if (activeId === id && remaining.length > 0) {
+    const next = remaining[0];
+    setActiveId(next.id);
+    syncProfileToAccount(next);
+  }
+};
+
+const handleUpdateAccount = (id: number, partial: Partial<Account>) => {
+  setAccounts(accounts.map((acc) => (acc.id === id ? { ...acc, ...partial } : acc)));
+};
+
+const handleSelectAccount = (id: number) => {
+  setActiveId(id);
+  const acc = accounts.find((a) => a.id === id);
+  if (acc) syncProfileToAccount(acc);
+};
 
   const handleRestoreIdentity = () => {
     window.dispatchEvent(new CustomEvent('show-login'));
@@ -196,10 +220,12 @@ export const ProfileSection = ({ isDark = false, onBack, t }: ProfileSectionProp
               t={t}
               accounts={accounts}
               activeId={activeId}
-              onSelect={setActiveId}
+              onSelect={handleSelectAccount}
               onAddAccount={handleAddAccount}
-              onRename={handleRenameAccount}
+              onUpdateAccount={handleUpdateAccount}
               onDelete={handleDeleteAccount}
+              canAdd={premium || accounts.length < FREE_ACCOUNTS_LIMIT}
+              onGetPremium={onOpenPremium}
             />
 
             <div className={`rounded-xl overflow-hidden mt-4 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>

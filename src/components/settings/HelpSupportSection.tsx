@@ -13,29 +13,29 @@ interface HelpSupportSectionProps {
 
 const FAQ = [
   {
-    q: 'faqQ1', qFallback: 'How do I enable two-step verification?',
-    a: 'faqA1', aFallback: 'Open Settings → Privacy & Security → Two-step verification, then follow the setup.',
+    q: 'settings.faqQ1', qFallback: 'How do I enable two-step verification?',
+    a: 'settings.faqA1', aFallback: 'Open Settings → Privacy & Security → Two-step verification, then follow the setup.',
   },
   {
-    q: 'faqQ2', qFallback: 'Where are my archived chats?',
-    a: 'faqA2', aFallback: 'Open the Archive folder from the chat list, or swipe down on the chat list to reveal it.',
+    q: 'settings.faqQ2', qFallback: 'Where are my archived chats?',
+    a: 'settings.faqA2', aFallback: 'Open the Archive folder from the chat list, or swipe down on the chat list to reveal it.',
   },
   {
-    q: 'faqQ3', qFallback: 'How do I change the theme?',
-    a: 'faqA3', aFallback: 'Open Settings → Appearance and toggle Dark theme, or pick a different accent color.',
+    q: 'settings.faqQ3', qFallback: 'How do I change the theme?',
+    a: 'settings.faqA3', aFallback: 'Open Settings → Appearance and toggle Dark theme, or pick a different accent color.',
   },
   {
-    q: 'faqQ4', qFallback: 'Can I export my data?',
-    a: 'faqA4', aFallback: 'Yes. Go to Settings → Backup & Export to download your data as an encrypted file.',
+    q: 'settings.faqQ4', qFallback: 'Can I export my data?',
+    a: 'settings.faqA4', aFallback: 'Yes. Go to Settings → Backup & Export to download your data as an encrypted file.',
   },
 ];
 
 const CATEGORIES = [
-  { value: 'general', labelKey: 'contactCategoryGeneral', fallback: 'General question' },
-  { value: 'bug', labelKey: 'contactCategoryBug', fallback: 'Bug report' },
-  { value: 'account', labelKey: 'contactCategoryAccount', fallback: 'Account & login' },
-  { value: 'billing', labelKey: 'contactCategoryBilling', fallback: 'Billing' },
-  { value: 'suggest', labelKey: 'contactCategorySuggest', fallback: 'Suggestion' },
+  { value: 'general', labelKey: 'settings.contactCategoryGeneral', fallback: 'General question' },
+  { value: 'bug', labelKey: 'settings.contactCategoryBug', fallback: 'Bug report' },
+  { value: 'account', labelKey: 'settings.contactCategoryAccount', fallback: 'Account & login' },
+  { value: 'billing', labelKey: 'settings.contactCategoryBilling', fallback: 'Billing' },
+  { value: 'suggest', labelKey: 'settings.contactCategorySuggest', fallback: 'Suggestion' },
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,16 +57,16 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
 
   const submit = () => {
     if (!emailValid) {
-      setError(t('contactInvalidEmail', 'Please enter a valid email address.'));
+      setError(t('settings.contactInvalidEmail', 'Please enter a valid email address.'));
       return;
     }
     if (!messageValid) {
-      setError(t('contactRequired', 'Please enter your email and a message.'));
+      setError(t('settings.contactRequired', 'Please enter your email and a message.'));
       return;
     }
     setError(null);
     setSent(true);
-    toast(t('ticketSent', 'Request sent'), 'success');
+    toast(t('settings.ticketSent', 'Request sent'), 'success');
   };
 
   const reportBug = () => {
@@ -88,44 +88,44 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
   };
 
   return (
-    <SubView title={t('helpSupport', 'Help & Support')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('quickHelp', 'Quick help')} isDark={isDark} />
+    <SubView title={t('settings.helpSupport', 'Help & Support')} isDark={isDark} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.quickHelp', 'Quick help')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         <SettingsRow
           icon={<BookOpen size={16} />}
           iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
           iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
-          title={t('userGuide', 'User guide')}
-          subtitle={t('userGuideSub', 'Getting started')}
+          title={t('settings.userGuide', 'User guide')}
+          subtitle={t('settings.userGuideSub', 'Getting started')}
           isDark={isDark}
-          onClick={() => toast(t('opening', 'Opening guide…'), 'info')}
+          onClick={() => toast(t('settings.opening', 'Opening guide…'), 'info')}
         />
         <SettingsRow
           icon={<ShieldCheck size={16} />}
           iconBg="t-accent-bg"
           iconColor="t-accent"
-          title={t('safetyTips', 'Safety tips')}
-          subtitle={t('safetyTipsSub', 'Protect your account')}
+          title={t('settings.safetyTips', 'Safety tips')}
+          subtitle={t('settings.safetyTipsSub', 'Protect your account')}
           isDark={isDark}
-          onClick={() => toast(t('opening', 'Opening…'), 'info')}
+          onClick={() => toast(t('settings.opening', 'Opening…'), 'info')}
         />
         <SettingsRow
           icon={<ExternalLink size={16} />}
           iconBg={isDark ? "bg-purple-500/10" : "bg-purple-100"}
           iconColor={isDark ? "text-purple-400" : "text-purple-600"}
-          title={t('statusPage', 'Service status')}
-          subtitle={t('statusSub', 'All systems operational')}
+          title={t('settings.statusPage', 'Service status')}
+          subtitle={t('settings.statusSub', 'All systems operational')}
           isDark={isDark}
           rightElement={
             <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-500">
               <span className="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true" />
-              {t('allGood', 'Operational')}
+              {t('settings.allGood', 'Operational')}
             </span>
           }
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('faq', 'FAQ')} isDark={isDark} />
+      <SettingsSectionTitle title={t('settings.faq', 'FAQ')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         {FAQ.map((item, i) => (
           <div key={i}>
@@ -146,21 +146,21 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
         ))}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('contactUs', 'Contact us')} isDark={isDark} />
+      <SettingsSectionTitle title={t('settings.contactUs', 'Contact us')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         <div ref={formRef} className="p-4 flex flex-col gap-3">
           {sent ? (
             <EmptyState
               isDark={isDark}
               icon={<LifeBuoy size={32} />}
-              title={t('thanksTitle', 'Thanks for reaching out')}
-              description={t('thanksDesc', 'Our team usually replies within 24 hours.')}
-              action={{ label: t('sendAnother', 'Send another'), onClick: resetForm }}
+              title={t('settings.thanksTitle', 'Thanks for reaching out')}
+              description={t('settings.thanksDesc', 'Our team usually replies within 24 hours.')}
+              action={{ label: t('settings.sendAnother', 'Send another'), onClick: resetForm }}
             />
           ) : (
             <>
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-email">{t('contactEmailLabel', 'Email')}</label>
+                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-email">{t('settings.contactEmailLabel', 'Email')}</label>
                 <input
                   id="help-email"
                   type="email"
@@ -168,13 +168,13 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
                   autoComplete="email"
                   value={email}
                   onChange={e => { setEmail(e.target.value); if (error) setError(null); }}
-                  placeholder={t('contactEmailPlaceholder', 'you@example.com')}
+                  placeholder={t('settings.contactEmailPlaceholder', 'you@example.com')}
                   className={`w-full rounded-lg px-3 py-2 text-sm bg-[var(--input-bg)] text-[var(--input-text)] border outline-none focus:ring-2 focus:ring-[var(--accent)]/40 ${error && !emailValid ? "border-rose-500" : "border-[var(--border-color)]"}`}
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-category">{t('contactCategory', 'Category')}</label>
+                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-category">{t('settings.contactCategory', 'Category')}</label>
                 <div className="relative">
                   <select
                     id="help-category"
@@ -191,14 +191,14 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-message">{t('describeIssue', 'Describe your issue…')}</label>
+                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-message">{t('settings.describeIssue', 'Describe your issue…')}</label>
                 <textarea
                   id="help-message"
                   ref={messageRef}
                   value={message}
                   onChange={e => { setMessage(e.target.value); if (error) setError(null); }}
                   rows={4}
-                  placeholder={t('describeIssue', 'Describe your issue…')}
+                  placeholder={t('settings.describeIssue', 'Describe your issue…')}
                   className={`w-full rounded-lg px-3 py-2 text-sm bg-[var(--input-bg)] text-[var(--input-text)] border resize-none outline-none focus:ring-2 focus:ring-[var(--accent)]/40 ${error && !messageValid ? "border-rose-500" : "border-[var(--border-color)]"}`}
                 />
               </div>
@@ -209,12 +209,12 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
                 type="button"
                 disabled={!canSubmit}
                 onClick={submit}
-                aria-label={t('sendRequest', 'Send request')}
-                title={t('sendRequest', 'Send request')}
+                aria-label={t('settings.sendRequest', 'Send request')}
+                title={t('settings.sendRequest', 'Send request')}
                 className={`mt-1 w-full h-10 min-h-11 flex items-center justify-center gap-2 rounded-lg text-sm font-bold transition-colors active:scale-[0.99] ${canSubmit ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : "bg-[var(--bg-tertiary)] text-gray-400 cursor-not-allowed"}`}
               >
                 <MessageSquare size={16} aria-hidden="true" />
-                <span>{t('sendRequest', 'Send request')}</span>
+                <span>{t('settings.sendRequest', 'Send request')}</span>
               </button>
             </>
           )}
@@ -224,12 +224,12 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
       <button
         type="button"
         onClick={reportBug}
-        aria-label={t('reportBug', 'Report a bug')}
-        title={t('reportBug', 'Report a bug')}
+        aria-label={t('settings.reportBug', 'Report a bug')}
+        title={t('settings.reportBug', 'Report a bug')}
         className={`w-full h-10 min-h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-sm transition-colors active:scale-[0.99] ${isDark ? "bg-white/5 text-rose-300 hover:bg-white/10" : "bg-rose-50 text-rose-500 hover:bg-rose-100"}`}
       >
         <Bug size={16} aria-hidden="true" />
-        <span>{t('reportBug', 'Report a bug')}</span>
+        <span>{t('settings.reportBug', 'Report a bug')}</span>
       </button>
     </SubView>
   );

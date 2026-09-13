@@ -163,22 +163,22 @@ function ChatMessageImpl({
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      drag={!isMe ? "x" : false}
-      dragConstraints={!isMe ? { left: 0, right: 80 } : undefined}
-      dragElastic={!isMe ? 0.1 : undefined}
-      onDragEnd={!isMe ? (_: any, info: any) => {
-        if (info.offset.x > 60) onReply(msg);
+      drag={selectionMode ? false : "x"}
+      dragConstraints={isMe ? { left: -80, right: 0 } : { left: 0, right: 80 }}
+      dragElastic={0.1}
+      onDragEnd={(_: any, info: any) => {
+        if ((isMe && info.offset.x < -60) || (!isMe && info.offset.x > 60)) onReply(msg);
         onSwipeReplyId(null);
-      } : undefined}
-      onDrag={!isMe ? (_: any, info: any) => {
-        onSwipeReplyId(info.offset.x > 10 ? msg.id : null);
-      } : undefined}
+      }}
+      onDrag={(_: any, info: any) => {
+        onSwipeReplyId(isMe ? (info.offset.x < -10 ? msg.id : null) : (info.offset.x > 10 ? msg.id : null));
+      }}
       className={`flex flex-col w-full group relative ${isMe ? "items-end" : "items-start"} ${msg._isLastInGroup !== false ? "mb-2" : "mb-0.5"}`}
     >
-      {!isMe && swipeReplyId === msg.id && (
-        <div className="absolute left-0 top-2 bottom-2 w-1.5 rounded-r-full bg-[var(--accent)] z-10" />
+      {swipeReplyId === msg.id && (
+        <div className={`absolute ${isMe ? "right-0 rounded-l-full" : "left-0 rounded-r-full"} top-2 bottom-2 w-1.5 bg-[var(--accent)] z-10`} />
       )}
-      <div className={`flex items-center relative gap-2 max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
+      <div className={`flex items-center relative gap-2 w-full max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
         <div
           onClick={handleBubbleClick}
           onContextMenu={handleContextMenu}
@@ -186,7 +186,7 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`msg-bubble max-w-[85%] md:max-w-[80%] lg:max-w-[85%] ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${
+          className={`msg-bubble max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${
             isMe
               ? isDark
                 ? "bg-[var(--accent-soft)] text-[var(--text-primary)] border border-[var(--accent-soft)] shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
@@ -261,17 +261,6 @@ function ChatMessageImpl({
               onRetry={onRetry ? () => onRetry(msg) : undefined}
             />
           )}
-          {!isChannel && (
-            <BubbleActions
-              msg={msg}
-              isMe={isMe}
-              isDark={isDark}
-              chat={chat}
-              chatSavedMessages={chatSavedMessages}
-              onReply={onReply}
-              onToggleSavedMessage={onToggleSavedMessage}
-            />
-          )}
           {isChannel && (
             <ChannelCommentsRow
               msg={msg}
@@ -281,6 +270,17 @@ function ChatMessageImpl({
             />
           )}
         </div>
+        {!isChannel && (
+          <BubbleActions
+            msg={msg}
+            isMe={isMe}
+            isDark={isDark}
+            chat={chat}
+            chatSavedMessages={chatSavedMessages}
+            onReply={onReply}
+            onToggleSavedMessage={onToggleSavedMessage}
+          />
+        )}
         <MessageReactions
           msg={msg}
           isMe={isMe}

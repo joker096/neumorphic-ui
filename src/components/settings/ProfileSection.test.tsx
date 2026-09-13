@@ -28,6 +28,7 @@ vi.mock('../../store', () => ({
   useAppStore: (selector: any) => selector?.({
     userProfile: currentProfile,
     setUserProfile: vi.fn(),
+    premiumEntitlement: { premium: false, plan: null, expiresAt: null },
   }),
 }));
 

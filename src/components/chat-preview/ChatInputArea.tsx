@@ -307,7 +307,7 @@ function ChatInputAreaImpl({
                 }}
                 aria-label={t("chat.attachFile")}
               />
-              <div className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 ${
+              <div className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 relative z-0 active:scale-95 ${
                 isDark ? "bg-[var(--bg-secondary)] text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5" : "bg-[var(--bg-primary)] text-slate-500 hover:text-slate-800 hover:bg-slate-200"
               }`}>
                 <Plus size={16} />
@@ -317,7 +317,7 @@ function ChatInputAreaImpl({
             <button
               type="button"
               aria-label={t("chat.scheduleMessage")}
-              className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
+              className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 ${
                 eScheduleDateTime
                   ? isDark
                     ? "bg-[var(--accent)]/20 text-[var(--accent)]"
@@ -334,7 +334,7 @@ function ChatInputAreaImpl({
             <button
               type="button"
               aria-label={t("stickers.title")}
-              className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 ${
+              className={`min-w-11 min-h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center cursor-pointer transition-all flex-shrink-0 active:scale-95 ${
                 eShowStickerPicker
                   ? isDark
                     ? "bg-[var(--accent)]/20 text-[var(--accent)]"
@@ -389,15 +389,15 @@ function ChatInputAreaImpl({
               onClick={() => {
                 setSilentModeFn2(!eSilentMode);
               }}
-              className={`min-w-11 min-h-11 px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+              className={`min-w-11 min-h-11 px-1.5 py-1 rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 ${
                 eSilentMode
-                  ? "text-[var(--accent)]"
+                  ? "bg-amber-500 text-[var(--ink-on-saturate)]"
                   : isDark
-                    ? "text-gray-400 hover:text-gray-300"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "text-gray-400 hover:text-gray-300 hover:bg-white/10"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-black/5"
               }`}
             >
-              <BellOff size={12} />
+              <BellOff size={14} />
             </button>
             <button
               type="button"
@@ -407,7 +407,7 @@ function ChatInputAreaImpl({
               onClick={() => {
                 setMorseModeFn2(!eMorseMode);
               }}
-              className={`min-w-11 min-h-11 px-1.5 py-1 rounded-full text-xs font-mono font-bold cursor-pointer transition-colors flex items-center justify-center ${
+              className={`min-w-11 min-h-11 px-1.5 py-1 rounded-full text-xs font-mono font-bold cursor-pointer transition-all flex items-center justify-center active:scale-95 ${
                 eMorseMode
                   ? "bg-amber-500 text-[var(--ink-on-saturate)]"
                   : isDark

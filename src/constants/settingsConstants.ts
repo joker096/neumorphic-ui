@@ -21,6 +21,8 @@ export const ACCOUNT_COLORS = [
 
 export const DEFAULT_AVATAR_COLOR = AVATAR_COLORS[0];
 
+export const FREE_ACCOUNTS_LIMIT = 3;
+
 export interface ProfileFieldTypeOption {
   value: string;
   label: string;

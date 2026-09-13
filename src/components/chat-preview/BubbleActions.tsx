@@ -16,29 +16,33 @@ export function BubbleActions({
   onReply, onToggleSavedMessage,
 }: BubbleActionsProps) {
   const { t } = useI18n();
+  const saved = chatSavedMessages.some((savedMsg: any) => savedMsg.messageId === msg.id);
+  const chip = `${isDark
+    ? "bg-black/50 text-gray-300 hover:text-white border-white/10"
+    : "bg-white/95 text-slate-500 hover:text-slate-800 border-black/5"} border shadow-sm backdrop-blur-sm`;
   return (
-    <div className={`absolute top-1 ${isMe ? "left-1" : "right-1"} z-20 flex items-center gap-0.5 rounded-full px-1 py-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 ${isDark ? "bg-black/55" : "bg-white/85"} backdrop-blur-sm`}>
+    <div className="hidden sm:flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
       <button
         type="button"
         aria-label={t('chat.reply')}
         onClick={(e) => { e.stopPropagation(); onReply(msg); }}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
+        className="min-w-11 min-h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto"
       >
-        <Reply size={16} />
+        <span className={`w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-110 ${chip}`}>
+          <Reply size={14} />
+        </span>
       </button>
       <button
         type="button"
         aria-label={t('chat.save')}
         onClick={(e) => { e.stopPropagation(); onToggleSavedMessage(chat, msg); }}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto ${isDark ? "text-gray-200 hover:bg-white/20" : "text-slate-600 hover:bg-black/10"}`}
+        className="min-w-11 min-h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto"
       >
-        {chatSavedMessages.some((saved: any) => saved.messageId === msg.id) ? (
-          <Bookmark size={16} className="fill-current" />
-        ) : (
-          <Bookmark size={16} />
-        )}
+        <span className={`w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-110 ${chip}`}>
+          <Bookmark size={14} className={saved ? "fill-current" : ""} />
+        </span>
       </button>
     </div>
   );

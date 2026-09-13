@@ -174,6 +174,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     <ProfileSection
       isDark={isDark}
       onBack={() => setActiveSection('main')}
+      onOpenPremium={() => setActiveSection('premium')}
       t={t}
     />
   );
