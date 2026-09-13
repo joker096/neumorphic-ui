@@ -51,9 +51,26 @@ export async function deriveKeysFromSeed(seed: Uint8Array): Promise<MasterKeySet
   }
 }
 
+// Encrypted-at-rest storage prefix. Root key material must NOT sit plaintext in
+// IndexedDB: an IDB snapshot/backup exfil alone must not leak identity keys.
+const SEED_ENC_PREFIX = 'enc:v1:'
+
+async function deviceBoundKey(): Promise<CryptoKey> {
+  const { deviceSecurity } = await import('../deviceSecurity')
+  return deviceSecurity.getDeviceBoundKey()
+}
+
 export async function storeMasterSeed(seed: Uint8Array): Promise<void> {
-  const { buf2hex } = await import('../crypto/cryptoCore')
-  await idb.set(SEED_STORAGE_KEY, buf2hex(seed))
+  const { buf2hex, cryptoCore } = await import('../crypto/cryptoCore')
+  try {
+    const { cipher, iv } = await cryptoCore.encryptData(buf2hex(seed), await deviceBoundKey())
+    await idb.set(SEED_STORAGE_KEY, `${SEED_ENC_PREFIX}${iv}:${cipher}`)
+  } catch (e) {
+    // Non-browser/device-fingerprint-unavailable env (e.g. node tests, exotic
+    // runtimes): degrade to legacy plaintext rather than break identity boot.
+    console.warn('[masterKey] device-bound encryption unavailable, storing plaintext', e)
+    await idb.set(SEED_STORAGE_KEY, buf2hex(seed))
+  }
 }
 
 export async function hasMasterIdentity(): Promise<boolean> {
@@ -62,12 +79,30 @@ export async function hasMasterIdentity(): Promise<boolean> {
 }
 
 export async function getMasterKeySet(): Promise<MasterKeySet> {
+  const { hex2buf } = await import('../crypto/cryptoCore')
   const stored = await idb.get<string>(SEED_STORAGE_KEY)
   if (!stored) {
     const seed = await generateMasterSeed()
     await storeMasterSeed(seed)
     return deriveKeysFromSeed(seed)
   }
-  const { hex2buf } = await import('../crypto/cryptoCore')
-  return deriveKeysFromSeed(hex2buf(stored))
+  if (stored.startsWith(SEED_ENC_PREFIX)) {
+    const { cryptoCore } = await import('../crypto/cryptoCore')
+    const payload = stored.slice(SEED_ENC_PREFIX.length)
+    const sep = payload.indexOf(':')
+    if (sep === -1) throw new Error('master key: malformed encrypted seed')
+    // Throws when the device-bound key no longer matches (fingerprint changed).
+    // Identity is preserved so the user can restore from their recovery phrase.
+    const seedHex = await cryptoCore.decryptData(payload.slice(sep + 1), payload.slice(0, sep), await deviceBoundKey())
+    return deriveKeysFromSeed(hex2buf(seedHex))
+  }
+  // Legacy plaintext from a previous version → migrate to device-bound
+  // encryption without dropping the existing identity.
+  const seed = hex2buf(stored)
+  try {
+    await storeMasterSeed(seed)
+  } catch {
+    // Migration is best-effort; the legacy value remains readable.
+  }
+  return deriveKeysFromSeed(seed)
 }

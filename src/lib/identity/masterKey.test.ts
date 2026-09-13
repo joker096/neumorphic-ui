@@ -9,8 +9,12 @@ vi.mock('idb-keyval', () => {
   };
 });
 
+const deviceSecurityMock = vi.hoisted(() => ({ getDeviceBoundKey: vi.fn() }));
+vi.mock('../deviceSecurity', () => ({ deviceSecurity: deviceSecurityMock }));
+
 import * as nacl from 'tweetnacl';
 import { generateMasterSeed, deriveKeysFromSeed, storeMasterSeed, hasMasterIdentity, getMasterKeySet, SEED_STORAGE_KEY } from './masterKey';
+import * as idb from 'idb-keyval';
 
 function bufEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) return false;
@@ -56,5 +60,36 @@ describe('masterKey', () => {
     const set = await getMasterKeySet();
     expect(set.seed.length).toBe(32);
     expect(await hasMasterIdentity()).toBe(true);
+  });
+
+  it('encrypts the seed at rest when a device-bound key is available', async () => {
+    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+    deviceSecurityMock.getDeviceBoundKey.mockResolvedValue(key);
+
+    const seed = await generateMasterSeed();
+    await storeMasterSeed(seed);
+
+    const stored = (await idb.get(SEED_STORAGE_KEY)) as string;
+    expect(stored.startsWith('enc:v1:')).toBe(true);
+    expect(stored).not.toContain(Buffer.from(seed).toString('hex'));
+
+    const set = await getMasterKeySet();
+    expect(bufEqual(set.seed, seed)).toBe(true);
+  });
+
+  it('migrates a legacy plaintext seed to encrypted-at-rest without dropping identity', async () => {
+    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+    deviceSecurityMock.getDeviceBoundKey.mockResolvedValue(key);
+
+    const seed = await generateMasterSeed();
+    const { buf2hex } = await import('../crypto/cryptoCore');
+    await idb.set(SEED_STORAGE_KEY, buf2hex(seed));
+
+    const set = await getMasterKeySet();
+    expect(bufEqual(set.seed, seed)).toBe(true);
+
+    const stored = (await idb.get(SEED_STORAGE_KEY)) as string;
+    expect(stored.startsWith('enc:v1:')).toBe(true);
+    expect(stored).not.toContain(Buffer.from(seed).toString('hex'));
   });
 });

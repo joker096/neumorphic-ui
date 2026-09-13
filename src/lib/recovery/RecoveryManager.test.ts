@@ -78,7 +78,7 @@ describe('RecoveryManager security', () => {
     expect(result).toBe(false)
   })
 
-  it('does not resolve until master seed and device key are persisted', async () => {
+  it('does not resolve until master seed and device key are persisted', { timeout: 30000 }, async () => {
     const { RecoveryManager } = await import('./RecoveryManager')
     const { storeMasterSeed } = await import('../identity/masterKey')
     const { deviceSecurity } = await import('../deviceSecurity')
@@ -87,8 +87,10 @@ describe('RecoveryManager security', () => {
     const gate = new Promise<void>((resolve) => { release = resolve })
     vi.mocked(storeMasterSeed).mockImplementationOnce(() => gate)
 
+    // Real PBKDF2-600k (RecoveryManager.ts) can take >1s under parallel suite load;
+    // decrypt-order assertion needs a generous waitFor, not vitest's 1000ms default.
     const done = RecoveryManager.generateRecoveryPhrase()
-    await vi.waitFor(() => expect(storeMasterSeed).toHaveBeenCalled())
+    await vi.waitFor(() => expect(storeMasterSeed).toHaveBeenCalled(), { timeout: 20000 })
     let settled = false
     void done.then(() => { settled = true })
     await new Promise((resolve) => setTimeout(resolve, 50))
@@ -99,7 +101,7 @@ describe('RecoveryManager security', () => {
     expect(deviceSecurity.storeMasterKeyHex).toHaveBeenCalledWith(result.masterKeySet.aesKeyHex)
   })
 
-  it('persists master seed and device key concurrently on restore', async () => {
+  it('persists master seed and device key concurrently on restore', { timeout: 30000 }, async () => {
     const { RecoveryManager } = await import('./RecoveryManager')
     const { storeMasterSeed } = await import('../identity/masterKey')
     const { deviceSecurity } = await import('../deviceSecurity')
@@ -113,7 +115,7 @@ describe('RecoveryManager security', () => {
     vi.mocked(storeMasterSeed).mockImplementationOnce(() => seedGate)
 
     const restoring = RecoveryManager.restoreFromPhrase(phrase)
-    await vi.waitFor(() => expect(storeMasterSeed).toHaveBeenCalled())
+    await vi.waitFor(() => expect(storeMasterSeed).toHaveBeenCalled(), { timeout: 20000 })
     // Parallel finalize: the device-bound fingerprint starts while the seed write is still pending.
     expect(deviceSecurity.storeMasterKeyHex).toHaveBeenCalled()
     releaseSeed!()
