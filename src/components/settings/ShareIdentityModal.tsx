@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { X, Copy, Check, Share2 } from 'lucide-react';
 import QRCode from 'qrcode';
@@ -46,7 +47,7 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
     handleCopyId();
   };
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -98,6 +99,7 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 };

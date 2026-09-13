@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
@@ -184,7 +185,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
       : '';
 
   if (!story) {
-    return (
+    return createPortal(
       <AnimatePresence>
         <motion.div
           initial={{ opacity: 0 }}
@@ -205,11 +206,12 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
             </button>
           </div>
         </motion.div>
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
     );
   }
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -231,6 +233,9 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
             onTap={onTap}
             onPauseStart={() => setPaused(true)}
             onPauseEnd={() => setPaused(false)}
+            onSwipeNext={goNext}
+            onSwipePrev={goPrev}
+            onSwipeClose={onClose}
           />
 
           <StoryFooter
@@ -285,6 +290,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
           title={t('story.forwardToChat', 'Forward')}
         />
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

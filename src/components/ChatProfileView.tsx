@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, MessageCircle, Phone, Video, Users, Bell, BellOff, Image as ImageIcon, FileText,
@@ -161,7 +162,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
     </div>
   );
 
-  return (
+  return createPortal(
     <>
       <AnimatePresence>
       {open && (
@@ -422,7 +423,8 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
       )}
       </AnimatePresence>
       <InviteQRModal isOpen={showInvite} onClose={() => setShowInvite(false)} inviteText={channelInviteLink} isDark={isDark} t={t} />
-    </>
+    </>,
+    document.body
   );
 };
 

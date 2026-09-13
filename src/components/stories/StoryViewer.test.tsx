@@ -24,8 +24,8 @@ const EVE = { id: 5, name: 'Eve', color: 'from-teal-400 to-emerald-400' };
 const barWidths = () =>
   Array.from(document.querySelectorAll('div[class*="bg-white/30"] > div')).map((el) => (el as HTMLElement).style.width);
 
-const getContent = (container: HTMLElement) =>
-  container.querySelector('[class*="overflow-hidden"][class*="select-none"]') as HTMLElement;
+const getContent = () =>
+  document.body.querySelector('[class*="overflow-hidden"][class*="select-none"]') as HTMLElement;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -108,7 +108,7 @@ describe('StoryViewer', () => {
 
   it('left zone tap goes to previous story', () => {
     const { container } = render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
-    const content = getContent(container);
+    const content = getContent();
     content.getBoundingClientRect = () =>
       ({ width: 300, left: 0, top: 0, right: 300, bottom: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
     fireEvent.click(content, { clientX: 50 });
@@ -118,7 +118,7 @@ describe('StoryViewer', () => {
   it('right zone tap on last story of last user closes viewer', () => {
     const onClose = vi.fn();
     const { container } = render(<StoryViewer activeUser={EVE} onClose={onClose} />);
-    const content = getContent(container);
+    const content = getContent();
     content.getBoundingClientRect = () =>
       ({ width: 300, left: 0, top: 0, right: 300, bottom: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
     fireEvent.click(content, { clientX: 250 });
@@ -130,7 +130,7 @@ describe('StoryViewer', () => {
     const { container } = render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
     act(() => vi.advanceTimersByTime(50 * 2));
     expect(barWidths()[0]).toBe('2%');
-    const content = getContent(container);
+    const content = getContent();
     fireEvent.mouseDown(content);
     act(() => vi.advanceTimersByTime(50 * 10));
     expect(barWidths()[0]).toBe('2%');
@@ -233,5 +233,72 @@ describe('StoryViewer', () => {
     render(<StoryViewer activeUser={ALICE} onClose={onClose} />);
     fireEvent.click(screen.getByRole('button', { name: 'common.close' }));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('swipe left advances to the next story', () => {
+    vi.useFakeTimers();
+    const { container } = render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
+    expect(screen.getByText('Sunset hike with the team 🌄')).toBeInTheDocument();
+    const content = getContent();
+    content.getBoundingClientRect = () =>
+      ({ width: 300, left: 0, top: 0, right: 300, bottom: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    fireEvent.touchStart(content, { touches: [{ clientX: 250, clientY: 200 }] });
+    fireEvent.touchMove(content, { touches: [{ clientX: 120, clientY: 200 }] });
+    fireEvent.touchEnd(content, { changedTouches: [{ clientX: 120, clientY: 200 }] });
+    expect(screen.getByText('Coffee break ☕')).toBeInTheDocument();
+    vi.useRealTimers();
+    container.remove();
+  });
+
+  it('swipe right backs to the previous user last story', () => {
+    vi.useFakeTimers();
+    const { container } = render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
+    const content = getContent();
+    content.getBoundingClientRect = () =>
+      ({ width: 300, left: 0, top: 0, right: 300, bottom: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    fireEvent.touchStart(content, { touches: [{ clientX: 80, clientY: 200 }] });
+    fireEvent.touchMove(content, { touches: [{ clientX: 240, clientY: 200 }] });
+    fireEvent.touchEnd(content, { changedTouches: [{ clientX: 240, clientY: 200 }] });
+    expect(screen.getByText('You')).toBeInTheDocument();
+    vi.useRealTimers();
+    container.remove();
+  });
+
+  it('swipe down closes the viewer', () => {
+    vi.useFakeTimers();
+    const onClose = vi.fn();
+    const { container } = render(<StoryViewer activeUser={ALICE} onClose={onClose} />);
+    const content = getContent();
+    content.getBoundingClientRect = () =>
+      ({ width: 300, left: 0, top: 0, right: 300, bottom: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    fireEvent.touchStart(content, { touches: [{ clientX: 200, clientY: 80 }] });
+    fireEvent.touchMove(content, { touches: [{ clientX: 205, clientY: 260 }] });
+    fireEvent.touchEnd(content, { changedTouches: [{ clientX: 205, clientY: 260 }] });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    container.remove();
+  });
+
+  it('suppresses synthesized tap-nav after a swipe', () => {
+    vi.useFakeTimers();
+    const { container } = render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
+    const content = getContent();
+    content.getBoundingClientRect = () =>
+      ({ width: 300, left: 0, top: 0, right: 300, bottom: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    fireEvent.touchStart(content, { touches: [{ clientX: 250, clientY: 200 }] });
+    fireEvent.touchMove(content, { touches: [{ clientX: 120, clientY: 200 }] });
+    fireEvent.touchEnd(content, { changedTouches: [{ clientX: 120, clientY: 200 }] });
+    expect(screen.getByText('Coffee break ☕')).toBeInTheDocument();
+    fireEvent.click(content, { clientX: 250 });
+    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
+    vi.useRealTimers();
+    container.remove();
+  });
+
+  it('renders into the document body portal so a transformed ancestor cannot trap it (z-index fix)', () => {
+    const { container } = render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
+    const dialog = screen.getByRole('dialog', { name: 'Alice' });
+    expect(container).not.toContainElement(dialog);
+    expect(document.body).toContainElement(dialog);
   });
 });

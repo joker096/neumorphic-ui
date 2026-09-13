@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { Play, Pause, Download, Trash2, X, Volume2, VolumeX } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
@@ -51,7 +52,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
     if (audioRef.current) audioRef.current.playbackRate = next;
   };
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -144,7 +145,8 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }
 

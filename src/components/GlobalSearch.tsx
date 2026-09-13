@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Search, X, MessageCircle, Users, Hash, CornerDownLeft, Clock, FileText, Link2 } from "lucide-react";
 import { DataState } from "./ui/DataState";
 import { useBodyScrollLock } from "../lib/a11y";
@@ -302,7 +303,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[var(--z-drawer)] flex items-start justify-center p-3 sm:p-6 pt-[8vh]">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={close} />
       <div
@@ -544,7 +545,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
@@ -554,13 +556,17 @@ function FilterChip({ label, active, isDark, onClick }: { label: string; active:
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`min-h-11 px-3 rounded-full text-[12px] font-semibold transition-colors cursor-pointer border ${
-        active
-          ? `border-[var(--accent)] text-[var(--accent)] ${isDark ? "bg-white/10" : "bg-black/10"}`
-          : isDark ? "border-[var(--border-color)] text-[var(--text-tertiary)] bg-white/5 hover:bg-white/10" : "border-[var(--border-color)] text-slate-600 bg-black/5 hover:bg-black/10"
+      className={`group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95 ${
+        active ? (isDark ? "bg-white/10" : "bg-black/10") : ""
       }`}
     >
-      {label}
+      <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-semibold transition-colors border ${
+        active
+          ? `border-[var(--accent)] text-[var(--accent)]`
+          : isDark ? "border-[var(--border-color)] text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] group-hover:bg-white/10" : "border-[var(--border-color)] text-slate-600 group-hover:text-slate-800 group-hover:bg-black/10"
+      }`}>
+        {label}
+      </span>
     </button>
   );
 }

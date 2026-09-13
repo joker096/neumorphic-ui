@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { Image as ImageIcon, Type, Send, X } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
@@ -82,7 +83,7 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
     : 'bg-slate-100 text-slate-600';
   const activeChip = 'bg-[var(--accent)] text-[var(--button-primary-text)]';
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -207,6 +208,7 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
           </Button>
         </div>
       </div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 };

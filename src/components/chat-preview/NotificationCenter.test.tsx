@@ -25,3 +25,12 @@ test("shows unread notification in center", () => {
   fireEvent.click(screen.getByLabelText("Notifications"));
   expect(screen.getByText("Hi")).toBeInTheDocument();
 });
+
+test("portals the popover to body so a transformed ancestor cannot trap it (z-index fix)", () => {
+  const { container } = render(<NotificationCenter isDark={false} t={t} />);
+  fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
+  const dialog = screen.getByRole("dialog", { name: "Notifications" });
+  expect(container).not.toContainElement(dialog);
+  expect(document.body).toContainElement(dialog);
+  expect(screen.getByRole("button", { name: "Notifications" })).toBeInTheDocument();
+});

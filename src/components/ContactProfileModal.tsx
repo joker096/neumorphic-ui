@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Phone, Video, MessageSquare, Edit, Trash2, Ban, Mail, Send, Star, StarOff, MoreVertical, ShieldCheck, ShieldOff, Camera, Bell, BellOff, Flag } from 'lucide-react';
 import { useAppStore } from '../store';
@@ -59,12 +60,14 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const [confirmAction, setConfirmAction] = useState<'delete' | 'block' | null>(null);
   const [showActions, setShowActions] = useState(false);
   const [showSafetyNumber, setShowSafetyNumber] = useState(false);
+  const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const [localMuted, setLocalMuted] = useState(false);
 
   useEffect(() => {
     setShowActions(false);
     setConfirmAction(null);
     setShowSafetyNumber(false);
+    setPhotoMenuOpen(false);
   }, [contact?.id]);
 
   const overrideAvatar = contact ? contactAvatars[contact.name] : undefined;
@@ -89,7 +92,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const handleUnblock = () => { if (blockedContact) setContactBlocked(blockedContact.id, false); onUnblock?.(); onClose(); };
   const handleToggleFavorite = (id: string, currentStatus: boolean) => onToggleFavorite?.(id, !currentStatus);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <ConfirmDialog
         key="delete"
@@ -160,6 +163,15 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                         exit={{ opacity: 0, scale: 0.95, y: -10 }}
                         className={`absolute left-10 top-0 flex gap-2 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"} rounded-xl p-2 shadow-lg`}
                       >
+                        {onEdit && (
+                          <button
+                            onClick={() => { onEdit(); onClose(); setShowActions(false); }}
+                            className="w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-orange-500/15 hover:bg-orange-500/25 text-orange-500"
+                            aria-label={t('contacts.edit')}
+                          >
+                            <Edit size={16} />
+                          </button>
+                        )}
                         {onDelete && (
                           <button
                             onClick={() => { setConfirmAction('delete'); onRequestDelete?.(); }}
@@ -202,40 +214,58 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             )}
 
             <div className="flex w-full flex-col items-center max-h-[85vh] overflow-y-auto scrollbar-none">
-            <div className={`w-20 h-20 mt-4 rounded-full flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[32px] shadow-lg relative`}>
-              {overrideAvatar ? (
-                <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover rounded-full" loading="lazy" decoding="async" />
-              ) : (
-                contact.name.charAt(0)
-              )}
+<div className="relative mt-4">
+              <button
+                type="button"
+                onClick={() => setPhotoMenuOpen(o => !o)}
+                aria-haspopup="menu"
+                aria-expanded={photoMenuOpen}
+                aria-label={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
+                title={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
+                className={`group relative w-20 h-20 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[32px] shadow-lg`}
+              >
+                {overrideAvatar ? (
+                  <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                ) : (
+                  contact.name.charAt(0)
+                )}
+                <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-white opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
+                  <Camera size={18} aria-hidden="true" />
+                </span>
+              </button>
               {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
                 <div className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-[3px] ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < ACTIVE_NOW_THRESHOLD_MS) ? "bg-green-500" : "bg-gray-400"}`} />
               )}
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                 className={`absolute -bottom-1 -left-1 min-w-11 min-h-11 rounded-full flex items-center justify-center shadow-lg bg-[var(--accent)] hover:brightness-110 text-[var(--text-primary)]`}
-                aria-label={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
-                title={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
-              >
-                <Camera size={14} />
-              </button>
-              {overrideAvatar && (
-                <button
-                  onClick={() => removeContactAvatar(contact.name)}
-                   className={`absolute -top-1 -left-1 min-w-11 min-h-11 rounded-full flex items-center justify-center shadow-lg bg-red-500 hover:bg-red-600 text-white`}
-                  aria-label={t('contacts.removePhoto')}
-                  title={t('contacts.removePhoto')}
-                >
-                  <Trash2 size={12} />
-                </button>
+              {photoMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setPhotoMenuOpen(false)} aria-hidden="true" />
+                  <div
+                    role="menu"
+                    className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 z-20 rounded-xl shadow-lg border p-1.5 min-w-[200px] ${isDark ? "bg-[var(--bg-tertiary)] border-[var(--border-color)]" : "bg-white border-[var(--border-color)]"}`}
+                  >
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => { setPhotoMenuOpen(false); fileInputRef.current?.click(); }}
+                      className="w-full min-h-11 px-3 rounded-lg flex items-center gap-2 text-sm text-left hover:bg-[var(--list-item-hover-bg)] transition-colors"
+                    >
+                      <Camera size={16} aria-hidden="true" />
+                      {overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
+                    </button>
+                    {overrideAvatar && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => { setPhotoMenuOpen(false); removeContactAvatar(contact.name); }}
+                        className="w-full min-h-11 px-3 rounded-lg flex items-center gap-2 text-sm text-left text-red-500 hover:bg-red-500/10 transition-colors"
+                      >
+                        <Trash2 size={16} aria-hidden="true" />
+                        {t('contacts.removePhoto')}
+                      </button>
+                    )}
+                  </div>
+                </>
               )}
-              <button
-                onClick={() => { onEdit?.(); onClose(); }}
-                 className={`absolute -top-1 -right-1 min-w-11 min-h-11 rounded-full flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-lg`}
-                aria-label={t('contacts.edit')}
-              >
-                <Edit size={12} />
-              </button>
             </div>
             <input
               ref={fileInputRef}
@@ -370,7 +400,8 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
         theme={theme}
         onClose={() => setShowSafetyNumber(false)}
       />
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

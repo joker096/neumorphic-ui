@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { ComponentType } from "react";
 import { Pin, PinOff, BellOff, Bell, CheckCheck, Archive, ArchiveRestore, Trash2, CheckSquare } from "lucide-react";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
@@ -99,7 +100,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
     );
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[var(--z-drawer)] flex items-end justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div
@@ -132,7 +133,8 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
           );
         })}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

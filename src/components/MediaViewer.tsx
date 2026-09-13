@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ZoomIn, ZoomOut, Download, Share2, Forward, Trash2, Bookmark, Play, Pause, FileText, Music, Film, Image as ImageIcon, ChevronLeft, ChevronRight, Maximize, Minimize } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
@@ -47,7 +48,40 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
 
-  const touchStart = React.useRef<{ x: number; y: number } | null>(null);
+  type GestureMode = "idle" | "nav" | "pan" | "pinch" | "dismiss";
+
+  const gestureRef = React.useRef<{
+    mode: GestureMode;
+    startX: number;
+    startY: number;
+    startDist: number;
+    startScale: number;
+    startOffset: { x: number; y: number };
+    moved: boolean;
+  }>({ mode: "idle", startX: 0, startY: 0, startDist: 0, startScale: 1, startOffset: { x: 0, y: 0 }, moved: false });
+
+  const lastTapRef = React.useRef(0);
+  const scaleRef = React.useRef(1);
+  const [offset, setOffset] = React.useState({ x: 0, y: 0 });
+
+  const clamp = React.useCallback((v: number, min: number, max: number) => Math.min(Math.max(v, min), max), []);
+
+  const resetZoom = React.useCallback(() => {
+    scaleRef.current = 1;
+    setScale(1);
+    setOffset({ x: 0, y: 0 });
+  }, []);
+
+  const toggleZoom = React.useCallback(() => {
+    const next = scaleRef.current > 1 ? 1 : 2.5;
+    scaleRef.current = next;
+    setScale(next);
+    setOffset({ x: 0, y: 0 });
+  }, []);
+
+  React.useEffect(() => {
+    resetZoom();
+  }, [media?.url, resetZoom]);
 
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const [videoTime, setVideoTime] = React.useState(0);
@@ -60,20 +94,111 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
     else v.pause();
   }, []);
 
+  const dist = (a: { clientX: number; clientY: number }, b: { clientX: number; clientY: number }) =>
+    Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+
   const onTouchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0];
-    touchStart.current = { x: t.clientX, y: t.clientY };
+    const g = gestureRef.current;
+    const touches = e.touches;
+    if (touches.length === 2) {
+      g.mode = "pinch";
+      g.startDist = dist(touches[0], touches[1]);
+      g.startScale = scaleRef.current;
+      g.startOffset = offset;
+      return;
+    }
+    if (touches.length === 1) {
+      g.startX = touches[0].clientX;
+      g.startY = touches[0].clientY;
+      g.startOffset = offset;
+      g.moved = false;
+      g.mode = scaleRef.current > 1 ? "pan" : "nav";
+    }
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    const g = gestureRef.current;
+    if (g.mode === "pinch" && e.touches.length >= 2) {
+      const d = dist(e.touches[0], e.touches[1]);
+      if (g.startDist > 0) {
+        const next = clamp(g.startScale * (d / g.startDist), 1, 5);
+        scaleRef.current = next;
+        setScale(next);
+        setOffset(next === 1 ? { x: 0, y: 0 } : g.startOffset);
+      }
+      return;
+    }
+    if ((g.mode === "nav" || g.mode === "dismiss") && e.touches.length === 1) {
+      const dx = e.touches[0].clientX - g.startX;
+      const dy = e.touches[0].clientY - g.startY;
+      if (Math.hypot(dx, dy) > 8) g.moved = true;
+      if (!g.moved) return;
+      setOffset({ x: dx, y: dy });
+      if (Math.abs(dy) > 90 && Math.abs(dy) > Math.abs(dx) * 1.5) g.mode = "dismiss";
+      else if (Math.abs(dx) > 90 && Math.abs(dx) > Math.abs(dy) * 1.5) g.mode = "nav";
+    } else if (g.mode === "pan" && e.touches.length === 1) {
+      const dx = e.touches[0].clientX - g.startX;
+      const dy = e.touches[0].clientY - g.startY;
+      if (Math.hypot(dx, dy) > 8) g.moved = true;
+      if (!g.moved) return;
+      const maxX = Math.max(0, (window.innerWidth * scaleRef.current - window.innerWidth) / 2);
+      const maxY = Math.max(0, (window.innerHeight * scaleRef.current - window.innerHeight) / 2);
+      setOffset({
+        x: clamp(g.startOffset.x + dx, -maxX, maxX),
+        y: clamp(g.startOffset.y + dy, -maxY, maxY),
+      });
+    }
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
-    const start = touchStart.current;
-    touchStart.current = null;
-    if (!start || !e.changedTouches[0]) return;
-    const dx = e.changedTouches[0].clientX - start.x;
-    const dy = e.changedTouches[0].clientY - start.y;
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5 || scale !== 1) return;
-    if (dx < 0) onNext?.();
-    else onPrev?.();
+    const g = gestureRef.current;
+    const t0 = e.changedTouches[0] ?? e.touches[0];
+    if (!t0) {
+      g.mode = "idle";
+      return;
+    }
+    const dx = t0.clientX - g.startX;
+    const dy = t0.clientY - g.startY;
+    const now = Date.now();
+    const isTap = !g.moved && Math.hypot(dx, dy) < 12;
+
+    if (g.mode === "pinch") {
+      if (scaleRef.current === 1) setOffset({ x: 0, y: 0 });
+      g.mode = "idle";
+      return;
+    }
+
+    if (isTap) {
+      g.mode = "idle";
+      if (media.type === "photo") {
+        if (now - lastTapRef.current < 300) {
+          lastTapRef.current = 0;
+          toggleZoom();
+        } else {
+          lastTapRef.current = now;
+        }
+      } else {
+        lastTapRef.current = now;
+      }
+      return;
+    }
+
+    const prevMode = g.mode;
+    g.mode = "idle";
+    if (prevMode === "pan" || scaleRef.current > 1) {
+      setOffset((p) => ({ ...p }));
+      return;
+    }
+    setOffset({ x: 0, y: 0 });
+    const wasDismiss = prevMode === "dismiss";
+    if (wasDismiss && dy > 80) {
+      onClose();
+    } else if (Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) onNext?.();
+      else onPrev?.();
+    } else if (Math.abs(dy) > 110 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+      onClose();
+    }
   };
 
   React.useEffect(() => {
@@ -85,18 +210,6 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
     document.addEventListener('fullscreenchange', onChange);
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
-
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { onClose(); return; }
-      if (e.key === 'ArrowLeft') { onPrev?.(); return; }
-      if (e.key === 'ArrowRight') { onNext?.(); return; }
-      if (e.key === '+' || e.key === '=') { setScale(s => Math.min(4, s + 0.5)); return; }
-      if (e.key === '-' || e.key === '_') { setScale(s => Math.max(0.5, s - 0.5)); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose, onPrev, onNext]);
 
   const toggleFullscreen = () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -125,9 +238,26 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
   const m = meta(media);
   const typeLabel = media.type === 'video' ? t('media.video') : media.type === 'document' ? t('media.document') : media.type === 'audio' ? t('media.audio') : t('media.photo');
 
-  const zoom = (dir: 1 | -1) => setScale(s => Math.min(4, Math.max(0.5, s + dir * 0.5)));
+  const zoom = React.useCallback((dir: 1 | -1) => {
+    const next = clamp(scaleRef.current + dir * 0.5, 0.5, 4);
+    scaleRef.current = next;
+    setScale(next);
+    if (next === 1) setOffset({ x: 0, y: 0 });
+  }, [clamp]);
 
-  return (
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key === 'ArrowLeft') { onPrev?.(); return; }
+      if (e.key === 'ArrowRight') { onNext?.(); return; }
+      if (e.key === '+' || e.key === '=') { zoom(1); return; }
+      if (e.key === '-' || e.key === '_') { zoom(-1); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose, onPrev, onNext, zoom]);
+
+  return createPortal(
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -137,7 +267,9 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
         onClick={onClose}
         ref={containerRef}
         className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/92 backdrop-blur-xl touch-none"
+        data-zoom={scale.toFixed(1)}
         onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
         {/* Top toolbar */}
@@ -159,7 +291,7 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
                 </button>
               </>
             )}
-            <button onClick={(e) => { e.stopPropagation(); setScale(1); }} aria-label={t('media.resetZoom')} className="w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+            <button onClick={(e) => { e.stopPropagation(); resetZoom(); }} aria-label={t('media.resetZoom')} className="w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
               <ZoomOut size={18} />
             </button>
             <button onClick={(e) => { e.stopPropagation(); zoom(1); }} aria-label={t('media.zoomIn')} className="w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
@@ -172,9 +304,13 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
           </div>
         </div>
 
-        <div className="w-full h-full flex items-center justify-center p-8" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="w-full h-full flex items-center justify-center p-8"
+          style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}
+          onClick={(e) => e.stopPropagation()}
+        >
            {media.type === 'photo' && (
-             <div className="relative flex items-center justify-center">
+             <div className="relative flex items-center justify-center" onDoubleClick={(e) => { e.stopPropagation(); if (media.type === 'photo') toggleZoom(); }}>
                {imgStatus === 'loading' && (
                  <div className="absolute inset-0 flex items-center justify-center">
                    <span className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -186,10 +322,10 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
                    <span>{t('media.loadError', 'Failed to load')}</span>
                  </div>
                ) : (
-                 <motion.img
-                   src={media.url}
-                   alt={media.name || t('media.photo')}
-                   animate={{ scale }}
+<motion.img
+                    src={media.url}
+                    alt={media.name || t('media.photo')}
+                    animate={{ scale, x: scale > 1 ? offset.x : 0, y: scale > 1 ? offset.y : 0 }}
                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                    onLoad={() => setImgStatus('loaded')}
                    onError={() => setImgStatus('error')}
@@ -314,7 +450,8 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
           <ActionButton icon={<Trash2 size={18} />} label={t('media.delete')} danger onClick={() => { toast(t('media.deleted', 'Deleted'), 'success'); onClose(); }} />
         </div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

@@ -124,8 +124,11 @@ describe('ContactProfileModal', () => {
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
-  it('calls onEdit when Edit button clicked', () => {
+  it('calls onEdit when Edit button clicked', async () => {
     render(<ContactProfileModal {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /moreActions|More actions/ }));
+    await act(async () => { await new Promise(r => setTimeout(r, 50)); });
 
     const editBtn = screen.getByLabelText('contacts.edit');
     fireEvent.click(editBtn);
@@ -250,7 +253,7 @@ describe('ContactProfileModal', () => {
   it('uses provided color for avatar gradient', () => {
     render(<ContactProfileModal {...defaultProps} />);
 
-    const avatar = screen.getByText('T').closest('div[class*="from-teal-400"]');
+    const avatar = screen.getByText('T').closest('button[class*="from-teal-400"]');
     expect(avatar).toBeInTheDocument();
   });
 
@@ -258,8 +261,37 @@ describe('ContactProfileModal', () => {
     const noColorProps = { ...defaultProps, contact: { ...mockContact, color: undefined } };
     render(<ContactProfileModal {...noColorProps} />);
 
-    const avatar = screen.getByText('T').closest('div[class*="from-gray-500"]');
+    const avatar = screen.getByText('T').closest('button[class*="from-gray-500"]');
     expect(avatar).toBeInTheDocument();
+  });
+
+  it('opens Telegram-style photo menu on avatar click', async () => {
+    render(<ContactProfileModal {...defaultProps} />);
+
+    fireEvent.click(screen.getByLabelText('contacts.setPhoto'));
+    await act(async () => { await new Promise(r => setTimeout(r, 50)); });
+
+    expect(screen.getByRole('menuitem', { name: 'contacts.setPhoto' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'contacts.removePhoto' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('menuitem', { name: 'contacts.setPhoto' }));
+    await act(async () => { await new Promise(r => setTimeout(r, 50)); });
+
+    expect(screen.queryByRole('menuitem', { name: 'contacts.setPhoto' })).not.toBeInTheDocument();
+  });
+
+  it('removes contact avatar from photo menu', async () => {
+    useAppStore.getState().setContactAvatar('Test User', 'data:image/png;base64,xx');
+    render(<ContactProfileModal {...defaultProps} />);
+
+    fireEvent.click(screen.getByLabelText('contacts.changePhoto'));
+    await act(async () => { await new Promise(r => setTimeout(r, 50)); });
+
+    const removeItem = screen.getByRole('menuitem', { name: 'contacts.removePhoto' });
+    fireEvent.click(removeItem);
+    await act(async () => { await new Promise(r => setTimeout(r, 50)); });
+
+    expect(useAppStore.getState().contactAvatars['Test User']).toBeUndefined();
   });
 
   it('does not render when contact is null', () => {

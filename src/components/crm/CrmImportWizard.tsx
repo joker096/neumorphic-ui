@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Upload, Download, AlertTriangle, CheckCircle2, X, FileJson, FileSpreadsheet } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
@@ -144,7 +145,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
     }
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
@@ -335,6 +336,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

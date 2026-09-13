@@ -95,9 +95,9 @@ describe('ChatContextMenu', () => {
   it('renders bottom sheet when anchor is null', () => {
     const items = baseItems();
     const onClose = vi.fn();
-    const { container } = render(<ChatContextMenu anchor={null} items={items} onClose={onClose} />);
+    render(<ChatContextMenu anchor={null} items={items} onClose={onClose} />);
     expect(screen.getByRole('menu')).toBeInTheDocument();
-    const backdrop = container.querySelector('.absolute.inset-0');
+    const backdrop = document.body.querySelector('.absolute.inset-0');
     expect(backdrop).not.toBeNull();
     fireEvent.click(backdrop!);
     expect(onClose).toHaveBeenCalledTimes(1);

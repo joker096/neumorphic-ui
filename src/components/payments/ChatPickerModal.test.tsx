@@ -100,10 +100,8 @@ describe('ChatPickerModal', () => {
 
   it('calls onClose when the overlay is clicked', () => {
     const onClose = vi.fn();
-    const { container } = render(
-      <ChatPickerModal open onClose={onClose} onPick={() => {}} />,
-    );
-    const overlay = container.firstChild as HTMLElement;
+    render(<ChatPickerModal open onClose={onClose} onPick={() => {}} />);
+    const overlay = document.body.querySelector('.fixed.inset-0') as HTMLElement;
 
     fireEvent.click(overlay);
 
@@ -112,10 +110,8 @@ describe('ChatPickerModal', () => {
 
   it('does not close when the panel is clicked', () => {
     const onClose = vi.fn();
-    const { container } = render(
-      <ChatPickerModal open onClose={onClose} onPick={() => {}} />,
-    );
-    const panel = (container.firstChild as HTMLElement).firstElementChild as HTMLElement;
+    render(<ChatPickerModal open onClose={onClose} onPick={() => {}} />);
+    const panel = screen.getByText('payments.sendToChat').closest('.max-w-sm') as HTMLElement;
 
     fireEvent.click(panel);
 

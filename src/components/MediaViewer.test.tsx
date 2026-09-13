@@ -38,13 +38,65 @@ describe('MediaViewer - interactive gallery (UI/UX plan §13)', () => {
     expect(onPrev).toHaveBeenCalledTimes(1);
   });
 
-  it('ignores vertical swipes (scroll intent)', () => {
+  it('ignores horizontal nav on vertical swipe (dismisses instead)', () => {
     const onNext = vi.fn();
-    renderViewer({ onNext });
+    const onClose = vi.fn();
+    renderViewer({ onNext, onClose });
     const stage = document.querySelector('div[class*="fixed inset-0"]') as HTMLElement;
     fireEvent.touchStart(stage, { touches: [{ clientX: 300, clientY: 200 }] });
-    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 280, clientY: 500 }] });
+    fireEvent.touchMove(stage, { touches: [{ clientX: 305, clientY: 430 }] });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 305, clientY: 430 }] });
     expect(onNext).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('double-taps photo to zoom in and back', () => {
+    renderViewer();
+    const stage = document.querySelector('div[class*="fixed inset-0"]') as HTMLElement;
+    fireEvent.touchStart(stage, { touches: [{ clientX: 150, clientY: 200 }] });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 150, clientY: 200 }] });
+    fireEvent.touchStart(stage, { touches: [{ clientX: 160, clientY: 200 }] });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 160, clientY: 200 }] });
+    expect(stage).toHaveAttribute('data-zoom', '2.5');
+    fireEvent.touchStart(stage, { touches: [{ clientX: 150, clientY: 200 }] });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 150, clientY: 200 }] });
+    fireEvent.touchStart(stage, { touches: [{ clientX: 160, clientY: 200 }] });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 160, clientY: 200 }] });
+    expect(stage).toHaveAttribute('data-zoom', '1.0');
+  });
+
+  it('pinch-zooms photo from two-finger distance change', () => {
+    renderViewer();
+    const stage = document.querySelector('div[class*="fixed inset-0"]') as HTMLElement;
+    fireEvent.touchStart(stage, {
+      touches: [
+        { clientX: 100, clientY: 200 },
+        { clientX: 140, clientY: 200 },
+      ],
+    });
+    fireEvent.touchMove(stage, {
+      touches: [
+        { clientX: 40, clientY: 200 },
+        { clientX: 240, clientY: 200 },
+      ],
+    });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 40, clientY: 200 }] });
+    expect(Number(stage.getAttribute('data-zoom'))).toBeGreaterThan(1);
+  });
+
+  it('resets zoom when switching media', () => {
+    const { rerender } = renderViewer();
+    const stage = document.querySelector('div[class*="fixed inset-0"]') as HTMLElement;
+    fireEvent.touchStart(stage, { touches: [{ clientX: 150, clientY: 200 }] });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 150, clientY: 200 }] });
+    fireEvent.touchStart(stage, { touches: [{ clientX: 160, clientY: 200 }] });
+    fireEvent.touchEnd(stage, { changedTouches: [{ clientX: 160, clientY: 200 }] });
+    expect(stage).toHaveAttribute('data-zoom', '2.5');
+    rerender(
+      <MediaViewer media={{ type: 'photo', url: 'https://example.com/b.jpg', name: 'b.jpg' }} onClose={vi.fn()} />,
+    );
+    const nextStage = document.querySelector('div[class*="fixed inset-0"]') as HTMLElement;
+    expect(nextStage).toHaveAttribute('data-zoom', '1.0');
   });
 
   it('adds a seek control to video media after metadata loads', () => {

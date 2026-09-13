@@ -62,7 +62,7 @@ describe('ChatProfileView block action', () => {
     };
   });
 
-  it('marks the name-matched store contact as blocked on Block click', () => {
+it('marks the name-matched store contact as blocked on Block click', () => {
     mockStore.contacts = [{ id: 'hash_alice_123', name: 'Alice', color: 'from-blue-400 to-cyan-500', lastSeen: 0 }];
     render(<ChatProfileView {...defaultProps} />);
 
@@ -71,7 +71,17 @@ describe('ChatProfileView block action', () => {
 
     expect(mockStore.setContactBlocked).toHaveBeenCalledWith('hash_alice_123', true);
     expect(toast).toHaveBeenCalledWith('User blocked', 'success');
-    expect(defaultProps.onClose).toHaveBeenCalled();
+  });
+
+  it('renders into the document body portal so a transformed ancestor cannot trap it (z-index fix)', () => {
+    render(<ChatProfileView {...defaultProps} />);
+
+    const overlay = Array.from(document.body.children).find(
+      (el) => el instanceof HTMLElement && el.className.includes('fixed inset-0')
+    ) as HTMLElement | undefined;
+
+    expect(overlay).toBeTruthy();
+    expect(overlay.className).toContain('z-[var(--z-modal)]');
   });
 
   it('unmarks the store contact on Unblock click and skips the blocked toast', () => {

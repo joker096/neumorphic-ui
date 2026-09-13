@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { Bell, BellOff, Check, Trash2, X, MessageSquare, Phone, AtSign, Reply, Users, Megaphone, Info } from "lucide-react";
 import { useAppStore } from "../../store";
 import { useI18n } from "../../lib/i18n";
@@ -88,7 +89,8 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
         )}
       </button>
 
-      {open && (
+      {open &&
+        createPortal(
         <>
           <div className="fixed inset-0 z-[var(--z-tooltip)]" onClick={() => setOpen(false)} aria-hidden />
           <div
@@ -171,8 +173,9 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
               </div>
             )}
           </div>
-        </>
-      )}
+        </>,
+        document.body
+        )}
     </div>
   );
 }
