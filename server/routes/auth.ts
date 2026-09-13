@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
-import { randomUUID } from 'node:crypto'
+import { randomInt, randomUUID } from 'node:crypto'
 import bcrypt from 'bcrypt'
 import { getDb } from '../db.js'
 import { signToken, verifyToken, verifyTotp, createAdminSession, invalidateSession, signRelayToken } from '../auth.js'
@@ -107,19 +107,19 @@ let captchaSessions = new Map<string, { answer: number; expiresAt: number }>()
 
 export function generateCaptchaChallenge(): { challenge: string; answer: number; sessionId: string } {
   const ops = ['+', '-', '\u00d7']
-  const op = ops[Math.floor(Math.random() * ops.length)]
+  const op = ops[randomInt(ops.length)]
   let a = 0, b = 0, answer = 0
   if (op === '+') {
-    a = Math.floor(Math.random() * 50) + 1
-    b = Math.floor(Math.random() * 50) + 1
+    a = randomInt(1, 51)
+    b = randomInt(1, 51)
     answer = a + b
   } else if (op === '-') {
-    a = Math.floor(Math.random() * 50) + 10
-    b = Math.floor(Math.random() * Math.min(a, 50)) + 1
+    a = randomInt(10, 60)
+    b = randomInt(1, Math.min(a, 50) + 1)
     answer = a - b
   } else {
-    a = Math.floor(Math.random() * 12) + 1
-    b = Math.floor(Math.random() * 12) + 1
+    a = randomInt(1, 13)
+    b = randomInt(1, 13)
     answer = a * b
   }
   const sessionId = randomUUID()
@@ -166,6 +166,16 @@ async function handleLogin(req: IncomingMessage, res: ServerResponse): Promise<v
     if (!username || !password) {
       res.writeHead(400, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ error: 'Username and password required' }))
+      return
+    }
+
+    // Per-account limiter closes the distributed-botnet brute-force gap that
+    // the IP limiter above cannot (one attacker, many IPs). Applied for both
+    // known and unknown usernames so response timing does not enumerate users.
+    const userKey = 'user:' + String(username).trim().toLowerCase()
+    if (!checkRateLimit(userKey)) {
+      res.writeHead(429, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: 'Too many attempts for this account. Try again later.' }))
       return
     }
 

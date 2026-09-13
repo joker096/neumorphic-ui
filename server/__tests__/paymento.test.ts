@@ -225,7 +225,11 @@ describe('Paymento integration', () => {
   })
 
   it('verify: proxies Paymento verify endpoint and returns status', async () => {
-    const res = await fetch(`${base()}/api/paymento/verify/${MOCK_TOKEN}`, { method: 'GET' })
+    const res = await fetch(`${base()}/api/paymento/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: MOCK_TOKEN }),
+    })
     expect(res.status).toBe(200)
     const data = (await res.json()) as any
     expect(data.status).toBe(7)
@@ -238,13 +242,26 @@ describe('Paymento integration', () => {
     const token = `rl_${crypto.randomUUID()}`
     const statuses: number[] = []
     for (let i = 0; i < 31; i++) {
-      const res = await fetch(`${base()}/api/paymento/verify/${token}`, { method: 'GET' })
+      const res = await fetch(`${base()}/api/paymento/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      })
       statuses.push(res.status)
       if (res.status === 429) break
     }
     expect(statuses).toHaveLength(31)
     expect(statuses[30]).toBe(429)
     expect(statuses.slice(0, 30).every((s) => s === 200)).toBe(true)
+  })
+
+  it('verify: rejects missing token with 400', async () => {
+    const res = await fetch(`${base()}/api/paymento/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    })
+    expect(res.status).toBe(400)
   })
 })
 

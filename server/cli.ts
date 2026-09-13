@@ -30,10 +30,9 @@ async function createAdmin(username: string, password: string): Promise<void> {
     console.log('\nScan this QR code in Google Authenticator:\n')
     console.log(qr)
   } catch {
-    console.log(`QR generation failed. Use URI: ${uri}`)
+    console.log(`QR generation failed. Secret: ${secret.slice(0, 4)}...${secret.slice(-4)} (re-run to regenerate)` )
   }
 
-  console.log(`\nTOTP URI: ${uri}\n`)
   closeDb()
 }
 

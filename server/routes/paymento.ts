@@ -192,14 +192,8 @@ export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, p
     handleIpn(req, res)
     return true
   }
-  if (path.startsWith('/api/paymento/verify/') && req.method === 'GET') {
-    const ip = req.socket.remoteAddress || 'unknown'
-    const token = decodeURIComponent(path.replace('/api/paymento/verify/', '') || '')
-    if (!checkRateLimit(`paymento-verify:${ip}:${token}`, { windowMs: 60000, maxRequests: 30 }).allowed) {
-      sendJson(res, 429, { error: 'Too many requests. Try again later.' })
-      return true
-    }
-    handleVerify(req, res, path)
+  if (path === '/api/paymento/verify' && req.method === 'POST') {
+    handleVerify(req, res)
     return true
   }
   if (path === '/api/paymento/list' && req.method === 'GET') {
@@ -257,6 +251,13 @@ function handleEntitlement(req: IncomingMessage, res: ServerResponse): void {
     console.error('[Paymento] Entitlement error:', err)
     sendJson(res, 500, { error: 'Entitlement lookup failed' })
   }
+}
+
+// Store a non-reversible fingerprint of the merchant key, never the key itself:
+// a DB read yields no credential material, yet rows still record which merchant
+// signed the order for auditability.
+function apiKeyFingerprint(): string {
+  return crypto.createHash('sha256').update(ENV_API_KEY).digest('hex').slice(0, 16)
 }
 
 async function handleCreate(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -320,7 +321,7 @@ async function handleCreate(req: IncomingMessage, res: ServerResponse): Promise<
       token,
       paymentId: null,
       orderId,
-      apiKey: ENV_API_KEY,
+      apiKey: apiKeyFingerprint(),
       amount: String(amount),
       currency,
       status: 0,
@@ -380,7 +381,7 @@ async function handleIpn(req: IncomingMessage, res: ServerResponse): Promise<voi
         token: String(body.Token || ''),
         paymentId,
         orderId,
-        apiKey: ENV_API_KEY,
+        apiKey: apiKeyFingerprint(),
         amount: '',
         currency: '',
         status,
@@ -396,13 +397,25 @@ async function handleIpn(req: IncomingMessage, res: ServerResponse): Promise<voi
   }
 }
 
-async function handleVerify(req: IncomingMessage, res: ServerResponse, path: string): Promise<void> {
+async function handleVerify(req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
     if (!ENV_API_KEY) {
       sendJson(res, 503, { error: 'Paymento is not configured on the server' })
       return
     }
-    const token = decodeURIComponent(path.replace('/api/paymento/verify/', ''))
+    const body = await readJson<any>(req)
+    const token = typeof body.token === 'string' && body.token ? body.token : ''
+    // POST + body token (not a URL path segment) so the capability never lands
+    // in access/nginx/proxy logs.
+    if (!token || token.length > 512) {
+      sendJson(res, 400, { error: 'Missing or invalid token' })
+      return
+    }
+    const ip = req.socket.remoteAddress || 'unknown'
+    if (!checkRateLimit(`paymento-verify:${ip}:${token}`, { windowMs: 60000, maxRequests: 30 }).allowed) {
+      sendJson(res, 429, { error: 'Too many requests. Try again later.' })
+      return
+    }
     const payment = getPaymentByToken(token)
     const result = await callPaymentoVerify(ENV_API_KEY, token)
     const row = payment ?? (result.orderId ? getPaymentByOrderId(result.orderId) : null)

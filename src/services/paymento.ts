@@ -38,8 +38,13 @@ export async function createPaymentRequest(
 }
 
 // Query the current status of a payment (proxies Paymento verify with server-held secret).
+// POST + JSON body (not a URL path segment) keeps the payment token out of access logs.
 export async function verifyPayment(token: string): Promise<PaymentoVerifyResult> {
-  const res = await fetch(`${PAYMENTO_BACKEND_BASE}/verify/${encodeURIComponent(token)}`)
+  const res = await fetch(`${PAYMENTO_BACKEND_BASE}/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  })
   const text = await res.text()
   let data: any = {}
   if (text) {

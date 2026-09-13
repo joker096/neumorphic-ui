@@ -66,7 +66,7 @@ export function verifyTotp(secretBase32: string, token: string): boolean {
     digits: 6,
     period: 30,
   })
-  const delta = totp.validate({ token, window: 1 })
+  const delta = totp.validate({ token, window: 0 })
   return delta !== null
 }
 

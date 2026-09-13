@@ -88,7 +88,14 @@ describe('verifyPayment', () => {
       currency: 'USD',
       raw: { status: '7', orderId: 'o1', amount: '10', currency: 'USD' },
     });
-    expect(fetchMock).toHaveBeenCalledWith('/api/paymento/verify/tok%20en');
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/paymento/verify',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: 'tok en' }),
+      }),
+    );
   });
 
   it('rejects with the backend error message on failure', async () => {
