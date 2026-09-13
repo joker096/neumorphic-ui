@@ -15,6 +15,16 @@ const LANGS = {
 };
 const SUPPORTED = ['ru','en','de','fr','es','zh','ja','ko'];
 
+// Escape untrusted text before it reaches innerHTML / attribute values
+function escapeHtml(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Load translations for a language
 async function loadLang(lang) {
   if (T[lang]) return T[lang];
@@ -60,7 +70,7 @@ function applyLang(lang) {
       if (!dict[key]) return;
       const val = dict[key];
       if (val.includes('<') || val.includes('\n')) {
-        el.innerHTML = val.replace(/\n/g, '<br>');
+        el.innerHTML = escapeHtml(val).replace(/\n/g, '<br>');
       } else {
         el.textContent = val;
       }
@@ -115,7 +125,7 @@ window.addEventListener('scroll', () => nav.classList.toggle('s', scrollY > 60),
 // ════════════════════════════════════════════════════
 let _tickCache = {};
 function tickerHTML(items) {
-  return [...items, ...items].map(t => '<div class="ti">'+t+'</div>').join('');
+  return [...items, ...items].map(t => '<div class="ti">' + escapeHtml(t) + '</div>').join('');
 }
 function buildTicker(lang) {
   const render = () => {
@@ -352,23 +362,37 @@ document.querySelectorAll('.faq dt').forEach(dt => {
     android: 'Mobile · Android', ios: 'Mobile · iOS', web: 'Web · PWA'
   };
   const ORDER = ['windows', 'linux', 'macos', 'android', 'ios', 'web'];
+  const KINDNAME = { exe: 'EXE', msi: 'MSI', apk: 'APK', deb: 'DEB', appimage: 'AppImage', rpm: 'RPM', dmg: 'DMG', app: 'App', store: 'Google Play', pwa: 'PWA' };
   const files = manifest.files.slice().sort((a, b) => ORDER.indexOf(a.platform) - ORDER.indexOf(b.platform));
+  const byPlat = {};
+  for (const f of files) (byPlat[f.platform] = byPlat[f.platform] || []).push(f);
   grid.innerHTML = '';
-  for (const f of files) {
+  for (const p of ORDER) {
+    const list = byPlat[p];
+    if (!list) continue;
+    const present = list.filter(f => f.present);
+    const pending = list.filter(f => !f.present);
     const card = document.createElement('div');
-    card.className = 'card' + (f.platform === 'windows' ? ' mid' : '');
-    let body = '<h3>' + (LABELS[f.platform] || f.platform) + '</h3>';
-    if (f.present) {
+    card.className = 'card' + (p === 'windows' ? ' mid' : '');
+    let body = '<h3>' + escapeHtml(LABELS[p] || p) + '</h3>';
+    const btn = (label, href, download) =>
+      '<a class="btn" href="' + escapeHtml(href) + '"' +
+      (download ? ' download="' + escapeHtml(download) + '"' : ' target="_blank" rel="noopener"') +
+      '>' + escapeHtml(label) + '</a>';
+    for (const f of present) {
       const size = (f.size / 1048576).toFixed(2);
-      body += '<p>' + f.kind.toUpperCase() + ' · ' + size + ' MB</p>';
-      body += '<a class="btn" href="' + f.url + '" download="' + f.file + '">Download ' + f.kind.toUpperCase() + '</a>';
-      body += '<p style="margin-top:8px;font-size:10px;opacity:.5;word-break:break-all">SHA-256: ' + f.sha256.slice(0, 16) + '…</p>';
-    } else {
-      const storeLabel = f.platform === 'android' ? 'Google Play' : 'Get ' + f.kind.toUpperCase();
-      const link = f.url
-        ? '<a class="btn" href="' + f.url + '" target="_blank" rel="noopener">' + storeLabel + '</a>'
-        : '<span class="btn" style="opacity:.5">Pending</span>';
-      body += '<p>' + (f.note || 'Coming soon.') + '</p>' + link;
+      const kindLabel = KINDNAME[f.kind] || (f.kind || '').toUpperCase();
+      body += '<p>' + escapeHtml(kindLabel) + ' · ' + size + ' MB</p>';
+      body += btn('Download ' + kindLabel, f.url, f.file);
+      body += '<p style="margin-top:8px;font-size:10px;opacity:.5;word-break:break-all">SHA-256: ' + escapeHtml(f.sha256.slice(0, 16)) + '…</p>';
+    }
+    for (const f of pending) {
+      if (!f.url) {
+        body += '<p>' + escapeHtml(f.note || 'Coming soon.') + '</p><span class="btn" style="opacity:.5">Pending</span>';
+        continue;
+      }
+      const storeLabel = (f.platform === 'android' && f.kind === 'store') ? 'Google Play' : (KINDNAME[f.kind] ? 'Get ' + KINDNAME[f.kind] : 'Get ' + escapeHtml(f.kind || '').toUpperCase());
+      body += '<p>' + escapeHtml(f.note || 'Coming soon.') + '</p>' + btn(storeLabel, f.url);
     }
     card.innerHTML = body;
     grid.appendChild(card);
