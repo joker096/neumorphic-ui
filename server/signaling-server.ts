@@ -10,6 +10,7 @@ import { handleStatsRoute } from './routes/stats.js'
 import { handleAdsRoute } from './routes/ads.js'
 import { handlePaymentoRoute } from './routes/paymento.js'
 import { handleIntegrationsRoute } from './routes/integrations.js'
+import { handleAdminRoute } from './routes/admin.js'
 import { applyCSP } from './csp.js'
 
 const PORT = parseInt(process.env.PORT || '8765', 10)
@@ -17,6 +18,14 @@ const PORT = parseInt(process.env.PORT || '8765', 10)
 const JWT_SECRET = process.env.JWT_SECRET
 if (!JWT_SECRET) {
   console.error('FATAL: JWT_SECRET environment variable is required for signaling server')
+  process.exit(1)
+}
+// Reject known-placeholder/weak secrets. A guessable JWT_SECRET lets an attacker
+// mint relay tokens directly and, combined with a DB leak, forge admin JWTs.
+const weakJwtSecrets = new Set(['change_me', 'changeme', 'secret', 'password', 'admin', 'test', 'default', 'jwt_secret'])
+if (JWT_SECRET.length < 32 || weakJwtSecrets.has(JWT_SECRET.trim().toLowerCase())) {
+  console.error('FATAL: JWT_SECRET must be at least 32 characters and not a placeholder. Generate one:')
+  console.error("  node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"")
   process.exit(1)
 }
 
@@ -160,9 +169,24 @@ wss.on('connection', (ws, req) => {
     }
 
     switch (msg.type) {
-      case 'register':
+      case 'register': {
         if (typeof msg.publicKey !== 'string' || !msg.publicKey) {
           send({ type: 'error', message: 'Invalid publicKey' })
+          return
+        }
+        // Strict shape check: bounded length + no control/whitespace/metacharacters.
+        // Prevents junk keys, payload smuggling and path/log injection.
+        if (msg.publicKey.length > 128 || !/^[A-Za-z0-9+/=_:.-]+$/.test(msg.publicKey)) {
+          send({ type: 'error', message: 'Invalid publicKey format' })
+          return
+        }
+        const existing = clients.get(msg.publicKey)
+        if (existing && existing !== ws && existing.readyState === WebSocket.OPEN) {
+          // A key may only be bound to one live socket. Rejecting the NEW
+          // connection (never silently replacing the owner) defeats key hijack:
+          // an attacker cannot impersonate a victim who is already registered.
+          send({ type: 'error', message: 'Key already registered' })
+          ws.close(4001, 'Key already registered')
           return
         }
         registeredKey = msg.publicKey
@@ -170,6 +194,7 @@ wss.on('connection', (ws, req) => {
         logConnection(registeredKey, clientIp, clientUa)
         send({ type: 'registered', publicKey: registeredKey })
         break
+      }
 
       case 'offer':
       case 'answer': {
@@ -514,7 +539,8 @@ const restServer = createServer((req, res) => {
       handleStatsRoute(req, res, path) ||
       handleAdsRoute(req, res, path) ||
       handlePaymentoRoute(req, res, path) ||
-      handleIntegrationsRoute(req, res, path)
+      handleIntegrationsRoute(req, res, path) ||
+      handleAdminRoute(req, res, path)
 
     if (!handled) {
       res.writeHead(404)
