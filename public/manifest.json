@@ -7,7 +7,7 @@
   "display_override": ["window-controls-overlay"],
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "prefer_related_applications": false,
   "scope": "/",
   "edge_side_panel": {},
