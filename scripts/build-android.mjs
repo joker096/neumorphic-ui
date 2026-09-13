@@ -118,6 +118,29 @@ async function createProject(twaManifest) {
   log.info('Android project generated');
 }
 
+// Bubblewrap doesn't emit PiP / resizeableActivity / edge-to-edge attributes
+// into AndroidManifest.xml — patch them in post-generation. The generator
+// rewrites the manifest on every run, so this must run after createProject().
+function patchManifest() {
+  banner('Patching AndroidManifest for PiP + edge-to-edge');
+  const manifestPath = path.join(ANDROID_DIR, 'app', 'src', 'main', 'AndroidManifest.xml');
+  if (!fs.existsSync(manifestPath)) throw new Error(`manifest not found: ${manifestPath}`);
+  let xml = fs.readFileSync(manifestPath, 'utf-8');
+
+  xml = xml.replace(
+    '<application\n',
+    '<application\n        android:resizeableActivity="true"\n',
+  );
+
+  xml = xml.replace(
+    '<activity android:name="LauncherActivity"',
+    '<activity android:name="LauncherActivity"\n            android:supportsPictureInPicture="true"\n            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"',
+  );
+
+  fs.writeFileSync(manifestPath, xml);
+  log.info('AndroidManifest.xml patched');
+}
+
 async function buildAndroid() {
   banner('Building APK & AAB');
   const buildTools = findBuildTools();
@@ -231,6 +254,7 @@ async function main() {
       splashScreenFadeOutDuration: PUBLISH_CONFIG.splashScreenFadeOutDuration,
       fallbackType: PUBLISH_CONFIG.fallbackType,
       generatorApp: 'bubblewrap-cli',
+      displayOverride: ['edge-to-edge'],
       signingKey: { path: KEYSTORE, alias: PUBLISH_CONFIG.signingAlias },
       shortcuts: [], features: {}, additionalTrustedOrigins: [],
       fingerprints: [], retainedBundles: [],
@@ -240,6 +264,7 @@ async function main() {
 
     await createKeystore(await TwaManifest.fromFile(TWA_MANIFEST), config);
     await createProject(await TwaManifest.fromFile(TWA_MANIFEST));
+    patchManifest();
 
     // Keytool is on PATH here (JAVA_HOME/bin) only sometimes; generate-assetlinks
     // resolves keytool itself. Runs after keystore exists.

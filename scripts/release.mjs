@@ -53,6 +53,21 @@ function findArtifacts() {
       }
     }
   }
+  // Android: signed TWA APK (built locally via scripts/build-android.mjs). If present, publish the file directly.
+  const apkCandidates = [
+    path.join(ROOT, 'public', 'app-release-signed.apk'),
+    path.join(ROOT, 'dist', 'app-release-signed.apk'),
+    path.join(ROOT, 'app-release-signed.apk'),
+  ];
+  for (const apk of apkCandidates) {
+    if (fs.existsSync(apk) && fs.statSync(apk).isFile()) {
+      found.push({ platform: 'android', kind: 'apk', abs: apk });
+      break;
+    }
+  }
+
+  const foundPlatforms = new Set(found.map((a) => a.platform));
+  console.log(`  Android APK source: ${foundPlatforms.has('android') ? 'local signed APK found' : 'none (build via scripts/build-android.mjs)'}`);
   return found;
 }
 
@@ -84,7 +99,7 @@ function buildManifest(found) {
 
   // Expected-but-missing platform targets (built on their own OS or published to stores)
   const expected = [
-    { platform: 'android', kind: 'app', url: PLAY_STORE_URL, note: 'Available on Google Play' },
+    { platform: 'android', kind: 'store', url: PLAY_STORE_URL, note: 'Available on Google Play' },
     { platform: 'windows', kind: 'msi', note: 'MSI needs WiX UI extension — build with `tauri build` after installing WixToolset.UI.Extension, or ship the NSIS .exe' },
     { platform: 'linux', kind: 'deb', note: 'Build on Linux: npm run build:desktop:linux' },
     { platform: 'linux', kind: 'appimage', note: 'Build on Linux: npm run build:desktop:linux' },

@@ -33,6 +33,7 @@
     
 
     <application
+        android:resizeableActivity="true"
         android:name="Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -73,6 +74,8 @@
         
 
         <activity android:name="LauncherActivity"
+            android:supportsPictureInPicture="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:alwaysRetainTaskState="true"
             android:label="@string/launcherName"
             android:exported="true">
@@ -131,6 +134,10 @@
 
             
 
+            
+                <meta-data
+                    android:name="android.support.customtabs.trusted.DISPLAY_OVERRIDE"
+                    android:resource="@array/display_override" />
             
 
             
