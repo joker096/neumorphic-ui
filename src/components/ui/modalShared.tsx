@@ -23,7 +23,7 @@ export const modalOverlay = 'fixed inset-0 z-[var(--z-modal)] flex items-center 
 export const modalBackdrop = 'absolute inset-0 bg-black/60 backdrop-blur-sm';
 
 export const modalSurface = (_isDark: boolean, maxWidth = 'max-w-[420px]') =>
-  `relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card text-foreground p-6 shadow-[var(--shadow-modal)] ring-1 ring-black/5`;
+  `relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card text-foreground p-4 sm:p-6 shadow-[var(--shadow-modal)] ring-1 ring-black/5`;
 
 export const modalCloseClass = (_isDark: boolean) =>
   `min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors bg-muted hover:bg-muted text-foreground`;

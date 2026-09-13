@@ -49,9 +49,9 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
 
   return (
     <div className={`w-full h-[100dvh] flex flex-col items-center justify-center font-sans ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-slate-800"}`}>
-      <div className={`p-8 rounded-3xl flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl ${isDark ? "bg-[var(--bg-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}>
+      <div className={`p-6 sm:p-8 rounded-3xl flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl ${isDark ? "bg-[var(--bg-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}>
         <Lock size={48} className={`mb-6 ${isDark ? "text-orange-500" : "text-orange-600"}`} />
-        <h2 className="text-2xl font-bold mb-2 text-center">{t('lock.title')}</h2>
+        <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t('lock.title')}</h2>
         <p className={`text-sm mb-6 text-center ${isDark ? "text-gray-400" : "text-slate-500"}`}>
           {t('lock.description')}
         </p>
@@ -127,7 +127,7 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
               disabled={unlockBusy}
               aria-label={t('lock.unlock')}
               title={t('lock.unlock')}
-              className={`w-full min-h-11 min-w-11 flex items-center justify-center py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full h-11 flex items-center justify-center rounded-xl font-bold text-sm transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
                 isDark
                   ? "bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--text-primary)] shadow-lg"
                   : "bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] shadow-lg"
@@ -143,7 +143,7 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
                   onClick={handleUnlockBiometric}
                   disabled={biometricBusy}
                   aria-label={t('lock.biometric')}
-                  className={`mt-3 w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 border transition-transform active:scale-95 disabled:opacity-60 ${
+                  className={`mt-3 w-full h-11 rounded-xl font-medium flex items-center justify-center gap-2 border transition-transform active:scale-95 disabled:opacity-60 ${
                     isDark
                       ? "border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
                       : "border-slate-200 text-slate-800 hover:bg-slate-50"

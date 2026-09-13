@@ -18,27 +18,40 @@ vi.mock('../../lib/i18n', () => ({
 describe('TransportIndicator', () => {
   it('renders disconnected by default', () => {
     render(<TransportIndicator />);
-    expect(screen.getByText('Offline')).toBeInTheDocument();
+    expect(screen.getByLabelText('Connection: Offline')).toBeInTheDocument();
+    expect(screen.getByText('○')).toBeInTheDocument();
   });
 
   it('renders connected status', () => {
     render(<TransportIndicator status="connected" />);
-    expect(screen.getByText('Direct')).toBeInTheDocument();
+    expect(screen.getByLabelText('Connection: Direct')).toBeInTheDocument();
+    expect(screen.getByText('⚡')).toBeInTheDocument();
   });
 
   it('renders connecting status', () => {
     render(<TransportIndicator status="connecting" />);
-    expect(screen.getByText('Connecting...')).toBeInTheDocument();
+    expect(screen.getByLabelText('Connection: Connecting...')).toBeInTheDocument();
+    expect(screen.getByText('⟳')).toBeInTheDocument();
   });
 
   it('renders blocked status', () => {
     render(<TransportIndicator status="blocked" />);
-    expect(screen.getByText('Degraded')).toBeInTheDocument();
+    expect(screen.getByLabelText('Connection: Degraded')).toBeInTheDocument();
+    expect(screen.getByText('⚠')).toBeInTheDocument();
   });
 
   it('renders error status', () => {
     render(<TransportIndicator status="error" />);
-    expect(screen.getByText('Error')).toBeInTheDocument();
+    expect(screen.getByLabelText('Connection: Error')).toBeInTheDocument();
+    expect(screen.getByText('✕')).toBeInTheDocument();
+  });
+
+  it('shows icon only — title label appears only inside the hover tooltip', () => {
+    render(<TransportIndicator status="connected" />);
+    expect(screen.queryByText('Direct')).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByRole('status'));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Direct');
   });
 });
 

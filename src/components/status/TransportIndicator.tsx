@@ -31,12 +31,11 @@ export function TransportIndicator({ status = 'disconnected', detail }: { status
     <span
       role="status"
       aria-label={`Connection: ${label}`}
-      className="relative inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-white/5 cursor-help select-none"
+      className="relative inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-white/5 cursor-help select-none"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
       <span>{meta.icon}</span>
-      <span className="hidden sm:inline">{label}</span>
 
       {open && (
         <span

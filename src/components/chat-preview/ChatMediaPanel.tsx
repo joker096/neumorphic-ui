@@ -43,9 +43,11 @@ export const ChatMediaPanel = ({
           </button>
           {(filterBySender || filterStartDate || filterEndDate) && (
             <button onClick={() => { setFilterBySender(""); setFilterStartDate(""); setFilterEndDate(""); }}
-              className={`min-h-11 flex items-center px-2 sm:px-3 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isDark ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-500"}`}
+              className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
             >
-              {t('chat.filters.clear')}
+              <span className={`flex items-center px-2 sm:px-3 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${isDark ? "bg-red-500/20 text-red-400" : "bg-red-100 text-red-500"}`}>
+                {t('chat.filters.clear')}
+              </span>
             </button>
           )}
           <div className={`ml-auto text-xs font-bold uppercase tracking-widest ${isDark ? "text-gray-500" : "text-slate-400"}`}>
@@ -58,10 +60,12 @@ export const ChatMediaPanel = ({
             <div className="flex items-center gap-1 sm:gap-2">
               <span className={`text-xs font-bold uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.filters.from')}</span>
               {['', 'me', 'them'].map((v) => (
-                <button key={v} onClick={() => setFilterBySender(v)}
-                  className={`min-h-11 flex items-center px-3 rounded-full text-xs ${filterBySender === v ? "bg-green-500 text-[var(--ink-on-saturate)]" : isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}
+                <button key={v} onClick={() => setFilterBySender(v)} aria-pressed={filterBySender === v}
+                  className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
                 >
-                  {v === '' ? t('chat.filters.all') : v === 'me' ? t('chat.filters.me') : t('chat.filters.others')}
+                  <span className={`flex items-center px-3 py-0.5 rounded-full text-xs transition-colors ${filterBySender === v ? "bg-green-500 text-[var(--ink-on-saturate)]" : isDark ? "bg-white/5 text-gray-400 group-hover:bg-white/10" : "bg-black/5 text-slate-500 group-hover:bg-black/10"}`}>
+                    {v === '' ? t('chat.filters.all') : v === 'me' ? t('chat.filters.me') : t('chat.filters.others')}
+                  </span>
                 </button>
               ))}
             </div>
@@ -76,10 +80,12 @@ export const ChatMediaPanel = ({
 
         <div className="flex items-center gap-2">
           {['all', 'photos', 'audio', 'links'].map((tab) => (
-            <button key={tab} onClick={() => setMediaTab(tab)}
-              className={`min-h-11 flex items-center px-3 sm:px-4 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : isDark ? "bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "bg-black/5 text-slate-500 hover:text-slate-800"}`}
+            <button key={tab} onClick={() => setMediaTab(tab)} aria-pressed={mediaTab === tab}
+              className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
             >
-              {tab === 'all' ? t('chat.filters.mediaTabs.all') : tab === 'photos' ? t('chat.filters.mediaTabs.photos') : tab === 'audio' ? t('chat.filters.mediaTabs.audio') : t('chat.filters.mediaTabs.links')}
+              <span className={`flex items-center px-3 sm:px-4 py-0.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : isDark ? "bg-white/5 text-gray-400 group-hover:text-[var(--text-primary)] group-hover:bg-white/10" : "bg-black/5 text-slate-500 group-hover:text-slate-800 group-hover:bg-black/10"}`}>
+                {tab === 'all' ? t('chat.filters.mediaTabs.all') : tab === 'photos' ? t('chat.filters.mediaTabs.photos') : tab === 'audio' ? t('chat.filters.mediaTabs.audio') : t('chat.filters.mediaTabs.links')}
+              </span>
             </button>
           ))}
         </div>

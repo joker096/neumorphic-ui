@@ -130,7 +130,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mb-6 shadow-lg">
               <Shield size={40} />
             </div>
-            <h1 className="text-[32px] font-bold mb-3">{t("auth.registration.title", "Create Your Identity")}</h1>
+            <h1 className="text-[28px] sm:text-[32px] font-bold mb-3">{t("auth.registration.title", "Create Your Identity")}</h1>
             <p className="text-[var(--text-secondary)] mb-8 leading-relaxed">
               {t("auth.registration.welcome", "Mess&Anger is decentralized. Your identity lives only on your device. We'll generate a recovery phrase — write it down and keep it safe.")}
             </p>
@@ -139,7 +139,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
               disabled={isProcessing}
               aria-label={t("auth.registration.createIdentity", "Create Identity")}
               title={t("auth.registration.createIdentity", "Create Identity")}
-              className="w-full min-h-11 min-w-11 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <UserPlus size={20} />
               <span>{t("auth.registration.createIdentity", "Create Identity")}</span>
@@ -162,7 +162,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
 
         {step === "show-phrase" && (
           <div className="flex flex-col">
-            <h2 className="text-2xl font-bold mb-2 text-center">{t("auth.registration.recoveryPhrase", "Recovery Phrase")}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.registration.recoveryPhrase", "Recovery Phrase")}</h2>
             <p className="text-sm text-[var(--text-secondary)] mb-4 text-center">
               {t("auth.registration.writeDown", "Write these 24 words down in order. Never share them. This is the only way to recover your identity.")}
             </p>
@@ -182,7 +182,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
               }}
               aria-label={t("auth.registration.copyPhrase", "Copy to Clipboard")}
               title={t("auth.registration.copyPhrase", "Copy to Clipboard")}
-              className="w-full min-h-11 min-w-11 flex items-center justify-center gap-2 py-3 rounded-xl font-medium text-sm border border-[var(--border-color)] hover:bg-[var(--bg-secondary)] transition-colors mb-3"
+              className="w-full h-11 flex items-center justify-center gap-2 rounded-xl font-medium text-sm border border-[var(--border-color)] hover:bg-[var(--bg-secondary)] transition-colors mb-3"
             >
               <Copy size={18} />
               <span>{t("auth.registration.copyPhrase", "Copy to Clipboard")}</span>
@@ -191,7 +191,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
               onClick={handleShowPhraseContinue}
               aria-label={t("auth.registration.iveWrittenItDown", "I've Written It Down")}
               title={t("auth.registration.iveWrittenItDown", "I've Written It Down")}
-              className="w-full min-h-11 min-w-11 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
             >
               <Check size={20} />
               <span>{t("auth.registration.iveWrittenItDown", "I've Written It Down")}</span>
@@ -201,7 +201,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
 
         {step === "confirm-phrase" && (
           <div className="flex flex-col">
-            <h2 className="text-2xl font-bold mb-2 text-center">{t("auth.registration.confirmPhrase", "Confirm Recovery Phrase")}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.registration.confirmPhrase", "Confirm Recovery Phrase")}</h2>
             <p className="text-sm text-[var(--text-secondary)] mb-4 text-center">
               {t("auth.registration.typePhrase", "Type your 24-word recovery phrase to confirm you saved it.")}
             </p>
@@ -223,7 +223,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
               disabled={confirmInput.split(/\s+/).length !== 24}
               aria-label={t("auth.registration.verify", "Verify Phrase")}
               title={t("auth.registration.verify", "Verify Phrase")}
-              className="w-full min-h-11 min-w-11 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check size={20} />
               <span>{t("auth.registration.verify", "Verify Phrase")}</span>
@@ -233,7 +233,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
 
         {step === "set-pin" && (
           <div className="flex flex-col">
-            <h2 className="text-2xl font-bold mb-2 text-center">{t("auth.registration.setPin", "Set App Lock PIN")}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.registration.setPin", "Set App Lock PIN")}</h2>
             <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
               {t("auth.registration.pinDescription", "Optional but recommended. Adds a layer of protection when someone opens your device.")}
             </p>
@@ -282,7 +282,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
                   disabled={isProcessing || pin.length < 4}
                   aria-label={t("auth.registration.continue", "Continue")}
                   title={t("auth.registration.continue", "Continue")}
-              className="w-full min-h-11 min-w-11 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ArrowRight size={20} />
                   <span>{t("auth.registration.continue", "Continue")}</span>
@@ -294,7 +294,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
                   }}
                   aria-label={t("auth.registration.skipPin", "Skip PIN Setup")}
                   title={t("auth.registration.skipPin", "Skip PIN Setup")}
-                  className="w-full min-h-11 min-w-11 flex items-center justify-center gap-2 py-3 mt-3 rounded-xl font-medium text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  className="w-full h-11 flex items-center justify-center gap-2 mt-3 rounded-xl font-medium text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <ArrowRight size={18} />
                   <span>{t("auth.registration.skipPin", "Skip PIN Setup")}</span>
@@ -309,7 +309,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
               <Check size={32} strokeWidth={2.5} className="text-green-500" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">{t("auth.registration.identityCreated", "Identity Created")}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">{t("auth.registration.identityCreated", "Identity Created")}</h2>
             <p className="text-[var(--text-secondary)] mb-8">
               {t("auth.registration.ready", "Your secure identity is ready. Keep your recovery phrase safe — you'll need it if you switch devices.")}
             </p>
@@ -317,7 +317,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
               onClick={handleComplete}
               aria-label={t("auth.registration.enterApp", "Enter App")}
               title={t("auth.registration.enterApp", "Enter App")}
-              className="w-full min-h-11 min-w-11 flex items-center justify-center gap-3 py-4 rounded-xl font-bold text-lg transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
             >
               <LogIn size={20} />
               <span>{t("auth.registration.enterApp", "Enter App")}</span>

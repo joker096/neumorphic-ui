@@ -50,17 +50,26 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
               key={f.key}
               type="button"
               onClick={() => onSearchTypeChange(f.key)}
-              className={`shrink-0 min-h-11 px-3 rounded-full text-[12px] font-semibold transition-colors cursor-pointer ${
+              aria-pressed={active}
+              className={`group shrink-0 min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95 ${
                 active
                   ? isDark
-                    ? 'bg-orange-500/20 text-orange-300 border border-orange-500/40'
-                    : 'bg-orange-500/15 text-orange-600 border border-orange-500/40'
-                  : isDark
-                    ? 'bg-white/5 text-gray-300 border border-[var(--border-color)] hover:bg-white/10'
-                    : 'bg-black/5 text-slate-600 border border-[var(--border-color)] hover:bg-black/10'
+                    ? 'bg-orange-500/20'
+                    : 'bg-orange-500/15'
+                  : ''
               }`}
             >
-              {t(f.labelKey, f.fallback)}
+              <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-semibold transition-colors border ${
+                active
+                  ? isDark
+                    ? 'text-orange-300 border-orange-500/40'
+                    : 'text-orange-600 border-orange-500/40'
+                  : isDark
+                    ? 'text-gray-300 border-[var(--border-color)] group-hover:text-white group-hover:bg-white/10'
+                    : 'text-slate-600 border-[var(--border-color)] group-hover:text-slate-800 group-hover:bg-black/10'
+              }`}>
+                {t(f.labelKey, f.fallback)}
+              </span>
             </button>
           );
         })}

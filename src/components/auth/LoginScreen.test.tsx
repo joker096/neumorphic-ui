@@ -16,6 +16,16 @@ const store = vi.hoisted(() => ({
   setAppLock: vi.fn(),
 }));
 
+const backup = vi.hoisted(() => ({
+  applyBackup: vi.fn(),
+  decryptBackupFile: vi.fn(),
+  parseBackupFile: vi.fn(),
+}));
+
+const backupCrypto = vi.hoisted(() => ({
+  isEncryptedBackup: vi.fn(),
+}));
+
 vi.mock("lucide-react", () => ({
   ChevronLeft: () => null,
   Undo: () => null,
@@ -23,6 +33,9 @@ vi.mock("lucide-react", () => ({
   LogIn: () => null,
   Shield: () => null,
   Check: () => null,
+  X: () => null,
+  Upload: () => null,
+  Database: () => null,
 }));
 
 vi.mock("../../lib/i18n", () => ({
@@ -50,8 +63,38 @@ vi.mock("../../store", () => ({
     selector({ setAppLock: store.setAppLock }),
 }));
 
+vi.mock("../../lib/backup", () => ({
+  applyBackup: backup.applyBackup,
+  decryptBackupFile: backup.decryptBackupFile,
+  parseBackupFile: backup.parseBackupFile,
+}));
+
+vi.mock("../../lib/backupCrypto", () => ({
+  isEncryptedBackup: backupCrypto.isEncryptedBackup,
+}));
+
 import { LoginScreen } from "./LoginScreen";
 import { STORAGE_KEYS } from "../../constants/storage";
+
+const backupFixture = {
+  version: 1,
+  app: "neumorphic-ui",
+  createdAt: new Date().toISOString(),
+  chats: [],
+  contacts: [],
+  channels: [],
+  callHistory: [],
+  company: {
+    companyId: null,
+    companySettings: null,
+    companyMembers: [],
+    companyChannels: [],
+    companyMessages: [],
+    companyDepartments: [],
+    companyContacts: [],
+  },
+  crm: { contacts: [], departments: [], customRoles: [], deals: [], tasks: [] },
+};
 
 const twelveWords = Array.from({ length: 12 }, (_, i) => `word${i + 1}`).join(" ");
 
@@ -63,6 +106,10 @@ async function goToPinStep(onComplete: () => void) {
     target: { value: twelveWords },
   });
   fireEvent.click(screen.getByRole("button", { name: "Restore Identity" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "Restore your data" })).toBeInTheDocument(),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Start fresh" }));
   await waitFor(() =>
     expect(screen.getByRole("heading", { name: "Set App Lock PIN" })).toBeInTheDocument(),
   );
@@ -79,6 +126,12 @@ describe("LoginScreen", () => {
     store.setAppLock.mockClear();
     cryptoMock.buf2hex.mockReturnValue("salt-hex");
     cryptoMock.hashAppLockPIN.mockResolvedValue({ hash: "hashed", saltHex: "salt-hex" });
+    backup.applyBackup.mockReset();
+    backup.decryptBackupFile.mockReset();
+    backup.parseBackupFile.mockReset();
+    backup.applyBackup.mockResolvedValue(undefined);
+    backupCrypto.isEncryptedBackup.mockReset();
+    backupCrypto.isEncryptedBackup.mockReturnValue(true);
   });
 
   it("renders recovery phrase step", () => {
@@ -157,7 +210,7 @@ describe("LoginScreen", () => {
     expect(screen.getByText("Restoring...")).toBeInTheDocument();
     resolveRestore!(true);
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: "Set App Lock PIN" })).toBeInTheDocument(),
+      expect(screen.getByRole("heading", { name: "Restore your data" })).toBeInTheDocument(),
     );
   });
 
@@ -262,5 +315,133 @@ describe("LoginScreen", () => {
     expect(
       screen.queryByPlaceholderText("Enter PIN (4-6 digits)"),
     ).not.toBeInTheDocument();
+  });
+
+  it("shows phrase-only warning on the phrase step", async () => {
+    render(<LoginScreen onComplete={vi.fn()} />);
+    expect(
+      screen.getByText(
+        "Your recovery phrase restores your identity and keys. Chats and contacts come from a backup file — you'll be asked to import it on the next step.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("shows data import step with import and start fresh options after restore", async () => {
+    recovery.restoreFromPhrase.mockResolvedValue(true);
+    render(<LoginScreen onComplete={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText("word1 word2 word3 ..."), {
+      target: { value: twelveWords },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Restore Identity" }));
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Restore your data" })).toBeInTheDocument(),
+    );
+    expect(
+      screen.getByRole("button", { name: "Import from backup file" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start fresh" })).toBeInTheDocument();
+  });
+
+  it("imports encrypted backup after entering password", async () => {
+    backup.decryptBackupFile.mockResolvedValue(backupFixture);
+    recovery.restoreFromPhrase.mockResolvedValue(true);
+    render(<LoginScreen onComplete={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText("word1 word2 word3 ..."), {
+      target: { value: twelveWords },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Restore Identity" }));
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Restore your data" })).toBeInTheDocument(),
+    );
+    const file = new File(["encrypted"], "backup.enc");
+    const input = document.querySelector("input[type=file]") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [file] } });
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText("Enter backup password...")).toBeInTheDocument(),
+    );
+    fireEvent.change(screen.getByPlaceholderText("Enter backup password..."), {
+      target: { value: "pw" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    await waitFor(() =>
+      expect(backup.decryptBackupFile).toHaveBeenCalledWith(file, "pw"),
+    );
+    await waitFor(() => expect(backup.applyBackup).toHaveBeenCalledWith(backupFixture));
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Set App Lock PIN" })).toBeInTheDocument(),
+    );
+  });
+
+  it("imports plain JSON backup without password prompt", async () => {
+    backupCrypto.isEncryptedBackup.mockReturnValue(false);
+    backup.parseBackupFile.mockResolvedValue(backupFixture);
+    recovery.restoreFromPhrase.mockResolvedValue(true);
+    render(<LoginScreen onComplete={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText("word1 word2 word3 ..."), {
+      target: { value: twelveWords },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Restore Identity" }));
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Restore your data" })).toBeInTheDocument(),
+    );
+    const file = new File(["{...}"], "backup.json");
+    const input = document.querySelector("input[type=file]") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [file] } });
+    await waitFor(() => expect(backup.parseBackupFile).toHaveBeenCalledWith(file));
+    await waitFor(() => expect(backup.applyBackup).toHaveBeenCalledWith(backupFixture));
+    expect(
+      screen.queryByPlaceholderText("Enter backup password..."),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows import error when backup file fails to parse", async () => {
+    backupCrypto.isEncryptedBackup.mockReturnValue(false);
+    backup.parseBackupFile.mockRejectedValue(new Error("bad file"));
+    recovery.restoreFromPhrase.mockResolvedValue(true);
+    render(<LoginScreen onComplete={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText("word1 word2 word3 ..."), {
+      target: { value: twelveWords },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Restore Identity" }));
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Restore your data" })).toBeInTheDocument(),
+    );
+    const input = document.querySelector("input[type=file]") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [new File(["x"], "b.json")] } });
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Import failed. Check the password or file and try again.",
+      ),
+    );
+    expect(
+      screen.getByRole("button", { name: "Import from backup file" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows import error on wrong backup password", async () => {
+    backup.decryptBackupFile.mockRejectedValue(new Error("bad pw"));
+    recovery.restoreFromPhrase.mockResolvedValue(true);
+    render(<LoginScreen onComplete={vi.fn()} />);
+    fireEvent.change(screen.getByPlaceholderText("word1 word2 word3 ..."), {
+      target: { value: twelveWords },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Restore Identity" }));
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Restore your data" })).toBeInTheDocument(),
+    );
+    const input = document.querySelector("input[type=file]") as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [new File(["e"], "b.enc")] } });
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText("Enter backup password...")).toBeInTheDocument(),
+    );
+    fireEvent.change(screen.getByPlaceholderText("Enter backup password..."), {
+      target: { value: "wrong" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Import failed. Check the password or file and try again.",
+      ),
+    );
   });
 });

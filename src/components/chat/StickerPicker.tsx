@@ -49,13 +49,15 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`min-h-11 flex items-center px-3 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors shrink-0 ${
+            className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-all shrink-0 active:scale-95"
+          >
+            <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${
               activeTab === tab.id
                 ? 'bg-[var(--accent)] text-[var(--text-primary)]'
-                : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'
-            }`}
-          >
-            {tab.label}
+                : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:bg-white/10'
+            }`}>
+              {tab.label}
+            </span>
           </button>
         ))}
       </div>

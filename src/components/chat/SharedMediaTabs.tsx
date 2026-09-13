@@ -40,9 +40,11 @@ export const SharedMediaTabs = ({ messages, isDark, onOpenChat }: SharedMediaTab
           <button
             key={tab.id}
             onClick={() => setActive(tab.id)}
-            className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium min-h-11 whitespace-nowrap transition-colors ${active === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
+            className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-xl cursor-pointer shrink-0"
           >
-            {tab.icon} {t(tab.label, tab.fallback)}
+            <span className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[12px] font-medium whitespace-nowrap transition-colors ${active === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300 group-hover:bg-white/10" : "bg-slate-100 text-slate-600 group-hover:bg-slate-200")}`}>
+              {tab.icon} {t(tab.label, tab.fallback)}
+            </span>
           </button>
         ))}
       </div>

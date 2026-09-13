@@ -175,14 +175,20 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
         <div className={`flex rounded-full p-1 overflow-x-auto scrollbar-none ${isDark ? "bg-white/5" : "bg-black/5"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
           {tabs.map(tab => (
             <motion.button key={tab.key} whileTap={{ scale: 0.95 }}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 min-h-[var(--control-height-sm)] min-w-11 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${
+              onClick={() => setActiveTab(tab.key)} aria-pressed={activeTab === tab.key}
+              className={`group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full shrink-0 cursor-pointer ${
                 activeTab === tab.key
-                  ? (isDark ? 'bg-white/10 text-[var(--text-primary)] shadow-sm' : 'bg-white shadow-sm text-slate-800')
-                  : (isDark ? 'text-gray-400 hover:text-gray-300' : 'text-slate-500 hover:text-slate-700')
+                  ? (isDark ? 'bg-white/10 shadow-sm' : 'bg-white shadow-sm')
+                  : ''
               }`}>
-              {tab.icon}
-              {tab.label}
+              <span className={`flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
+                activeTab === tab.key
+                  ? (isDark ? 'text-[var(--text-primary)]' : 'text-slate-800')
+                  : (isDark ? 'text-gray-400 group-hover:text-gray-300' : 'text-slate-500 group-hover:text-slate-700')
+              }`}>
+                {tab.icon}
+                {tab.label}
+              </span>
             </motion.button>
           ))}
         </div>

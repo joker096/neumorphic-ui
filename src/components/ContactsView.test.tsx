@@ -163,7 +163,7 @@ describe('ContactsView', () => {
     expect(screen.getByRole('heading', { name: 'Alice' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /contacts.call/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /contacts.message/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /contacts.edit/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /contacts.setPhoto/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /contacts.moreActions/ })).toBeInTheDocument();
   });
 
@@ -209,6 +209,7 @@ describe('ContactsView', () => {
     render(<ContactsView {...defaultProps} />);
 
     fireEvent.click(screen.getByText('Alice'));
+    fireEvent.click(screen.getByRole('button', { name: /contacts.moreActions/ }));
     fireEvent.click(screen.getByRole('button', { name: 'contacts.edit' }));
   });
 
@@ -219,6 +220,7 @@ describe('ContactsView', () => {
     render(<ContactsView {...editProps} />);
 
     fireEvent.click(screen.getByText('Alice'));
+    fireEvent.click(screen.getByRole('button', { name: /contacts.moreActions/ }));
     fireEvent.click(screen.getByRole('button', { name: 'contacts.edit' }));
   });
 
