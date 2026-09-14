@@ -178,7 +178,7 @@ function ChatMessageImpl({
       {swipeReplyId === msg.id && (
         <div className={`absolute ${isMe ? "right-0 rounded-l-full" : "left-0 rounded-r-full"} top-2 bottom-2 w-1.5 bg-[var(--accent)] z-10`} />
       )}
-      <div className={`flex items-center relative gap-2 w-full max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
+      <div className={`flex flex-wrap items-center relative gap-2 w-full max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
         <div
           onClick={handleBubbleClick}
           onContextMenu={handleContextMenu}
@@ -186,7 +186,7 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`msg-bubble max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${
+          className={`msg-bubble max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit shrink-0 ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${
             isMe
               ? isDark
                 ? "bg-[var(--accent-soft)] text-[var(--text-primary)] border border-[var(--accent-soft)] shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
