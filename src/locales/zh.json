@@ -2452,5 +2452,8 @@
     "received": "Received",
     "reset": "Disconnect / reset session",
     "menuSubtitle": "Serverless pairing via QR"
+  },
+  "fileTransfer": {
+    "sendFailed": "文件传输失败"
   }
 }

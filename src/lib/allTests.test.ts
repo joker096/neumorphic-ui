@@ -781,4 +781,18 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
       }
     }
   });
+
+  describe('fileTransfer.* keys translations', () => {
+    const fileTransferKeys = ['fileTransfer.sendFailed'];
+
+    for (const lang of allLocales) {
+      for (const key of fileTransferKeys) {
+        it(`"${key}" translates in ${lang}`, () => {
+          const val = getTranslation(key, lang);
+          expect(val).not.toBe(key);
+          expect(val.length).toBeGreaterThan(0);
+        });
+      }
+    }
+  });
 });

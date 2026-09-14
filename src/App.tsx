@@ -11,6 +11,8 @@ import { useAppNavigation } from './hooks/useAppNavigation';
 import { useAppSettings } from './hooks/useAppSettings';
 import { useAppearanceEffects } from './hooks/useAppearanceEffects';
 import { useScheduledMessages } from './hooks/useScheduledMessages';
+import { useP2PBoot } from './hooks/useP2PBoot';
+import { useP2PMessages } from './hooks/useP2PMessages';
 import { useRefMessageActions } from './hooks/useRefMessageActions';
 import { useActiveChatWorkspace } from './hooks/useActiveChatWorkspace';
 import { useFilteredChats } from './hooks/useFilteredChats';
@@ -84,6 +86,8 @@ export default function App() {
   const { connectionStatus, connectionError } = useAppConnection();
 
   useScheduledMessages();
+  useP2PBoot();
+  useP2PMessages();
 
   useEffect(() => {
     let stopRetention: () => void = () => {};

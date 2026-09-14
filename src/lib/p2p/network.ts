@@ -305,6 +305,10 @@ export class P2PNetwork {
     return Array.from(this.peers.values());
   }
 
+  getPeerId(): string {
+    return this.peerId;
+  }
+
   getPeerCount(): number {
     return this.peers.size;
   }

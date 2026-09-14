@@ -4,10 +4,8 @@ import { groupMessages, formatDateLabel } from "../utils/chatUtils";
 import { useDebounce } from "./useDebounce";
 import { encodeMorse } from "../components/MorseDecoder";
 import { useI18n } from "../lib/i18n";
-import { getAttachmentLimit } from "../config/premium";
-import { isAllowedFileType } from "../config/allowedFileTypes";
-import { toast } from "../components/ui/Toast";
 import { queueMessage, getPendingMessages, markMessageSent } from "../lib/messageQueue";
+import { useFileSend } from "./useFileSend";
 import { SELF_DESTRUCT_MS } from "../constants/time";
 
 export function useChatPreviewState(
@@ -63,8 +61,8 @@ export function useChatPreviewState(
   const setChannels = useAppStore(s => s.setChannels);
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
-  const premium = useAppStore(s => s.premiumEntitlement.premium);
   const { t } = useI18n();
+  const { sendFile } = useFileSend(chat, { setChats: setChatsStore, onUpdateChat });
 
   const [videoOpen, setVideoOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
@@ -197,36 +195,8 @@ export function useChatPreviewState(
     setLocalSilentMode(false);
   };
 
-  const attachFile = (file: File, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
-    const limit = getAttachmentLimit(premium);
-    if (file.size > limit) {
-      toast(t("premium.fileTooLarge", { limit: `${Math.round(limit / (1024 * 1024))} MB` }), "error");
-      return;
-    }
-    if (!isAllowedFileType(file)) {
-      toast(t("premium.fileTypeInvalid", "File type not allowed"), "error");
-      return;
-    }
-    const mime = file.type || "";
-    const msgType: "image" | "file" = mime.startsWith("image/") ? "image" : "file";
-    const url = URL.createObjectURL(file);
-    const newMsg = {
-      id: Date.now(),
-      sender: "me",
-      text: "",
-      type: msgType,
-      attachment: url,
-      fileName: msgType === "file" ? file.name : undefined,
-      fileSize: file.size,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: navigator.onLine ? "sent" : "queued",
-      silent,
-    };
-    void queueMessage({ ...newMsg, chatId: chatData.id }).catch(() =>
-      updateMsgStatusInChat(chatData, newMsg.id, "failed"),
-    );
-    const updated = { ...chatData, history: [...(chatData.history || []), newMsg] };
-    if (onUpdChat) onUpdChat(updated);
+  const attachFile = (file: File, _chatData: any, _onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
+    void sendFile(file, { silent });
   };
 
   const handleImageAttach = (e: React.ChangeEvent<HTMLInputElement>, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
