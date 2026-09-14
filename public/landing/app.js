@@ -25,6 +25,20 @@ function escapeHtml(v) {
     .replace(/'/g, '&#39;');
 }
 
+// i18n values may contain intentional markup (<b>, <em>, <br>, <strong>).
+// Allowlist those tags, escape everything else, normalize \n escapes -> <br>.
+const I18N_ALLOWED = { b: true, em: true, strong: true, br: true };
+function i18nHtml(v) {
+  let s = String(v == null ? '' : v).replace(/\\n/g, '\n');
+  return s
+    .replace(/<\/?([a-zA-Z][\w-]*)(\s[^>]*)?\/?>/g, (m, tag, attrs) => {
+      const t = tag.toLowerCase();
+      if (I18N_ALLOWED[t] && !/on\w+=|javascript:|style=/i.test(m)) return m;
+      return escapeHtml(m);
+    })
+    .replace(/\n/g, '<br>');
+}
+
 // Load translations for a language
 async function loadLang(lang) {
   if (T[lang]) return T[lang];
@@ -68,12 +82,7 @@ function applyLang(lang) {
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
       if (!dict[key]) return;
-      const val = dict[key];
-      if (val.includes('<') || val.includes('\n')) {
-        el.innerHTML = escapeHtml(val).replace(/\n/g, '<br>');
-      } else {
-        el.textContent = val;
-      }
+      el.innerHTML = i18nHtml(dict[key]);
     });
 
     // Also update ticker
