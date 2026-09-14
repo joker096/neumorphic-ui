@@ -82,6 +82,17 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage, onOpe
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {!premium && onOpenPremium && (
+            <button
+              onClick={() => onOpenPremium()}
+              aria-label={t('premium.crmUnlock', 'Open Premium')}
+              title={t('premium.crmUnlock', 'Open Premium')}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--accent)] transition-all"
+            >
+              <Crown size={16} aria-hidden="true" />
+              <span className="sr-only">{t('premium.crmUnlock', 'Open Premium')}</span>
+            </button>
+          )}
           {premium && (
             <>
               <CrmExportMenu contacts={contacts} departments={departments} deals={deals} tasks={tasks} />
@@ -113,19 +124,6 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage, onOpe
       <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border-color)]">
         <CrmGlobalSearch contacts={contacts} deals={premium ? deals : []} tasks={premium ? tasks : []} onPick={handlePick} />
       </div>
-
-      {!premium && (
-        <div className="mx-3 mt-2 flex items-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-3 py-2">
-          <Crown size={14} className="shrink-0 text-[var(--accent)]" aria-hidden="true" />
-          <span className="flex-1 text-xs text-[var(--text-secondary)]">{t('premium.crmLocked', 'CRM deals, tasks and roles are available with Premium')}</span>
-          <button
-            onClick={() => onOpenPremium?.()}
-            className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
-          >
-            {t('premium.crmUnlock', 'Open Premium')}
-          </button>
-        </div>
-      )}
 
       <div className="flex gap-1.5 px-3 py-2 border-b border-[var(--border-color)] overflow-x-auto">
         {TABS.filter((tb) => availableTabs.includes(tb.id)).map((tb) => {

@@ -93,13 +93,13 @@ describe('CrmView', () => {
   });
 
   describe('free tier', () => {
-    it('renders only the People tab with upsell banner', () => {
-      render(<CrmView />);
+    it('renders only the People tab with premium icon in header', () => {
+      render(<CrmView onOpenPremium={() => {}} />);
       expect(screen.getByRole('button', { name: 'People' })).toBeTruthy();
       expect(screen.queryByRole('button', { name: 'Deals' })).toBeNull();
       expect(screen.queryByRole('button', { name: 'Tasks' })).toBeNull();
       expect(screen.queryByRole('button', { name: 'Roles' })).toBeNull();
-      expect(screen.getByText('CRM deals, tasks and roles are available with Premium')).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Open Premium' })).toBeTruthy();
     });
 
     it('hides export, import and invite controls', () => {
@@ -117,7 +117,7 @@ describe('CrmView', () => {
       expect(captured.people.onOpenRoles).toBeUndefined();
     });
 
-    it('opens premium via the banner button', () => {
+    it('opens premium via the header icon button', () => {
       const onOpenPremium = vi.fn();
       render(<CrmView onOpenPremium={onOpenPremium} />);
       fireEvent.click(screen.getByRole('button', { name: 'Open Premium' }));
