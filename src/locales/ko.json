@@ -2425,6 +2425,8 @@
     "meaningDegraded": "연결은 되어 있지만 제한된 경로로 라우팅됩니다.",
     "meaningOffline": "연결되지 않았습니다. 링크 확립을 기다리는 중입니다.",
     "meaningError": "연결에 실패했습니다. 트랜스포트를 확립할 수 없습니다.",
+    "relay": "릴레이",
+    "meaningRelay": "연결됨, 그러나 트래픽은 제3자 릴레이 서버를 통해 전달됩니다(직접 P2P 경로 없음).",
     "current": "현재:",
     "allStatuses": "모든 상태"
   },

@@ -2425,6 +2425,8 @@
     "meaningDegraded": "已连接，但通过降级/受限路径路由。",
     "meaningOffline": "未连接。等待建立链路。",
     "meaningError": "连接失败——无法建立传输。",
+    "relay": "中继",
+    "meaningRelay": "已连接，但流量通过第三方中继服务器传输（无直接 P2P 路径）。",
     "current": "当前:",
     "allStatuses": "所有状态"
   },

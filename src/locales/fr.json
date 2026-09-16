@@ -2425,6 +2425,8 @@
     "meaningDegraded": "Connecté, mais acheminé via un chemin dégradé ou restreint.",
     "meaningOffline": "Non connecté. En attente d'établissement du lien.",
     "meaningError": "Échec de la connexion — le transport n'a pas pu être établi.",
+    "relay": "Relais",
+    "meaningRelay": "Connecté, mais le trafic passe par un serveur relais tiers (pas de chemin P2P direct).",
     "current": "Actuel :",
     "allStatuses": "Tous les états"
   },

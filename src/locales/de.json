@@ -2425,6 +2425,8 @@
     "meaningDegraded": "Verbunden, aber über einen eingeschränkten Pfad geroutet.",
     "meaningOffline": "Nicht verbunden. Warten, bis eine Verbindung steht.",
     "meaningError": "Verbindung fehlgeschlagen – der Transport konnte nicht aufgebaut werden.",
+    "relay": "Relais",
+    "meaningRelay": "Verbunden, aber der Datenverkehr läuft über einen Drittanbieter-Relay-Server (kein direkter P2P-Pfad).",
     "current": "Aktuell:",
     "allStatuses": "Alle Zustände"
   },

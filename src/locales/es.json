@@ -2425,6 +2425,8 @@
     "meaningDegraded": "Conectado, pero enrutado por un camino degradado o restringido.",
     "meaningOffline": "Sin conexión. Esperando a establecer el enlace.",
     "meaningError": "La conexión falló: no se pudo establecer el transporte.",
+    "relay": "Retransmisión",
+    "meaningRelay": "Conectado, pero el tráfico pasa por un servidor relay de terceros (sin ruta P2P directa).",
     "current": "Actual:",
     "allStatuses": "Todos los estados"
   },

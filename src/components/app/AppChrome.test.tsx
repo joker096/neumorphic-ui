@@ -2,6 +2,7 @@ import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { AppChrome } from "./AppChrome";
+import { useAppStore } from "../../store";
 
 vi.mock("sonner", () => ({
   Toaster: (props: any) =>
@@ -18,7 +19,7 @@ vi.mock("../status/TransportIndicator", () => ({
     React.createElement(
       "div",
       { "data-testid": "transport-indicator" },
-      props.status,
+      `${props.status}${props.relayed ? ":relayed" : ""}`,
     ),
 }));
 
@@ -56,5 +57,18 @@ describe("AppChrome", () => {
     ).not.toBeNull();
     rerender(<AppChrome isDark={false} connectionStatus="connected" />);
     expect(container.querySelector(".bg-gradient-to-b")).toBeNull();
+  });
+
+  it("does not mark TransportIndicator relayed for direct backend", () => {
+    render(<AppChrome isDark connectionStatus="connected" />);
+    expect(screen.getByTestId("transport-indicator")).toHaveTextContent("connected");
+    expect(screen.getByTestId("transport-indicator")).not.toHaveTextContent("relayed");
+  });
+
+  it("marks TransportIndicator relayed when transportBackend is not direct", () => {
+    useAppStore.setState({ transportBackend: "cfworker" });
+    render(<AppChrome isDark connectionStatus="connected" />);
+    expect(screen.getByTestId("transport-indicator")).toHaveTextContent("connected:relayed");
+    useAppStore.setState({ transportBackend: "direct" });
   });
 });

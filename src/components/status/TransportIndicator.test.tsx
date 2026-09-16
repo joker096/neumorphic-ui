@@ -53,6 +53,25 @@ describe('TransportIndicator', () => {
     fireEvent.mouseEnter(screen.getByRole('status'));
     expect(screen.getByRole('tooltip')).toHaveTextContent('Direct');
   });
+it('renders the relay variant when connected through a relay', () => {
+    render(<TransportIndicator status="connected" relayed />);
+    expect(screen.getByLabelText('Connection: Relay')).toBeInTheDocument();
+    expect(screen.getByText('🔁')).toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByRole('status'));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Current: 🔁 Relay');
+  });
+
+  it('keeps the direct variant when connected without a relay', () => {
+    render(<TransportIndicator status="connected" relayed={false} />);
+    expect(screen.getByLabelText('Connection: Direct')).toBeInTheDocument();
+    expect(screen.getByText('⚡')).toBeInTheDocument();
+  });
+
+  it('does not treat connecting as relayed', () => {
+    render(<TransportIndicator status="connecting" relayed />);
+    expect(screen.getByLabelText('Connection: Connecting...')).toBeInTheDocument();
+  });
 });
 
 describe('TransportIndicator tooltip legend', () => {

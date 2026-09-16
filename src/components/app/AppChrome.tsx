@@ -1,6 +1,7 @@
 import React from "react";
 import { Toaster } from "sonner";
 import { TransportIndicator } from "../status/TransportIndicator";
+import { useAppStore } from "../../store";
 
 export interface AppChromeProps {
   isDark: boolean;
@@ -9,6 +10,8 @@ export interface AppChromeProps {
 }
 
 function AppChromeImpl({ isDark, connectionStatus, connectionError }: AppChromeProps) {
+  const transportBackend = useAppStore((s) => s.transportBackend);
+  const relayed = transportBackend !== undefined && transportBackend !== 'direct';
   return (
     <>
       <Toaster
@@ -17,10 +20,13 @@ function AppChromeImpl({ isDark, connectionStatus, connectionError }: AppChromeP
         theme={isDark ? 'dark' : 'light'}
         toastOptions={{
           style: {
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-color)',
-            color: 'var(--text-primary)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+            background: 'var(--msg-bg-panel)',
+            backdropFilter: 'blur(var(--msg-glass-blur)) saturate(var(--msg-glass-saturate))',
+            WebkitBackdropFilter: 'blur(var(--msg-glass-blur)) saturate(var(--msg-glass-saturate))',
+            border: '1px solid var(--msg-border)',
+            borderRadius: 'var(--msg-radius-md)',
+            color: 'var(--msg-text-primary)',
+            boxShadow: 'var(--msg-shadow-floating)',
           },
         }}
       />
@@ -28,7 +34,7 @@ function AppChromeImpl({ isDark, connectionStatus, connectionError }: AppChromeP
         <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[var(--accent)]/5 to-transparent pointer-events-none" />
       )}
       <div className="absolute top-2 right-2 z-50">
-        <TransportIndicator status={connectionStatus} detail={connectionError} />
+        <TransportIndicator status={connectionStatus} detail={connectionError} relayed={relayed} />
       </div>
     </>
   );

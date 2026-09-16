@@ -665,7 +665,7 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('transport indicator keys', () => {
-    const transportIndicatorKeys = ['transport.direct', 'transport.connecting', 'transport.degraded', 'transport.offline', 'transport.error', 'transport.meaningDirect', 'transport.meaningConnecting', 'transport.meaningDegraded', 'transport.meaningOffline', 'transport.meaningError', 'transport.current', 'transport.allStatuses'];
+    const transportIndicatorKeys = ['transport.direct', 'transport.connecting', 'transport.degraded', 'transport.offline', 'transport.error', 'transport.relay', 'transport.meaningDirect', 'transport.meaningConnecting', 'transport.meaningDegraded', 'transport.meaningOffline', 'transport.meaningError', 'transport.meaningRelay', 'transport.current', 'transport.allStatuses'];
 
     for (const lang of allLocales) {
       for (const key of transportIndicatorKeys) {

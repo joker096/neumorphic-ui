@@ -2423,6 +2423,8 @@
     "meaningDegraded": "Connected, but routed through a degraded / restricted path.",
     "meaningOffline": "Not connected. Waiting to establish a link.",
     "meaningError": "Connection failed — the transport could not be established.",
+    "relay": "Relay",
+    "meaningRelay": "Connected, but traffic is routed through a third-party relay server (no direct P2P path).",
     "current": "Current:",
     "allStatuses": "All statuses"
   },

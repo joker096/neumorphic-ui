@@ -19,12 +19,21 @@ const STATUS_META: Record<Status, StatusMeta> = {
   error: { icon: '✕', labelKey: 'transport.error', label: 'Error', meaningKey: 'transport.meaningError', meaning: 'Connection failed — the transport could not be established.' },
 };
 
+const RELAY_META: StatusMeta = {
+  icon: '🔁',
+  labelKey: 'transport.relay',
+  label: 'Relay',
+  meaningKey: 'transport.meaningRelay',
+  meaning: 'Connected, but traffic is routed through a third-party relay server (no direct P2P path).',
+};
+
 const STATUS_ORDER: Status[] = ['connected', 'connecting', 'blocked', 'disconnected', 'error'];
 
-export function TransportIndicator({ status = 'disconnected', detail }: { status?: Status; detail?: string | null }) {
+export function TransportIndicator({ status = 'disconnected', detail, relayed = false }: { status?: Status; detail?: string | null; relayed?: boolean }) {
   const [open, setOpen] = useState(false);
   const { t } = useI18n();
-  const meta = STATUS_META[status] || STATUS_META.disconnected;
+  const isRelayed = relayed && status === 'connected';
+  const meta = isRelayed ? RELAY_META : STATUS_META[status] || STATUS_META.disconnected;
   const label = t(meta.labelKey, meta.label);
 
   return (
@@ -59,6 +68,15 @@ export function TransportIndicator({ status = 'disconnected', detail }: { status
             {t('transport.allStatuses', 'All statuses')}
           </span>
           <ul className="mt-1.5 space-y-1 text-[11px] leading-snug">
+            {isRelayed && (
+              <li className="flex items-start gap-1.5 text-[var(--text-primary)]">
+                <span className="shrink-0">{RELAY_META.icon}</span>
+                <span>
+                  <span className="font-semibold">{t(RELAY_META.labelKey, RELAY_META.label)}</span>
+                  <span className="opacity-85"> — {t(RELAY_META.meaningKey, RELAY_META.meaning)}</span>
+                </span>
+              </li>
+            )}
             {STATUS_ORDER.map((s) => {
               const m = STATUS_META[s];
               const active = s === status;
