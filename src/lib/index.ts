@@ -25,7 +25,6 @@ export { b64encode, b64decode } from './cryptoCore';
 
 // Subdirectories with their own index.ts
 export * from './crypto';
-export * from './gestures';
 export * from './identity';
 export * from './recovery';
 export * from './sounds';
