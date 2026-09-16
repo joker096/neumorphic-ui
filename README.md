@@ -63,6 +63,6 @@ ALLOWED_ORIGINS=https://yourdomain.com
 
 ## Tests
 
-- **Unit:** ~5750+ tests across 330+ files (Vitest)
+- **Unit:** 5954 tests across 343 files (Vitest)
 - **E2E:** ~196 Playwright tests in `e2e/`
 - **Lint:** ESLint + TypeScript — 0 errors

@@ -17,7 +17,10 @@ src/main.tsx
               -> AppMainContent
                   -> ChatWorkspace | FeatureViews | ContentView
           -> AppOverlays
+      -> CallOverlay
 ```
+
+`CallOverlay` mounts as a sibling AFTER `AppAuthGate` (not inside it): the incoming-call ring must keep rendering above the app lock screen (`AppLockScreen`) so calls can be answered without unlocking (2026-09-15).
 
 ## State Ownership
 

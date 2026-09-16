@@ -21,9 +21,9 @@ pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipAdminCreate -SkipAndroid -Skip
 ```
 Script requires admin credentials. Two options:
 
-Option 1 — set env vars:
-$env:ADMIN_USER = "admin"
-$env:ADMIN_PASS = "fuckoff190"
+Option 1 — set env vars (rotate these before first real use — old value was committed to git history):
+$env:ADMIN_USER = "<admin-user>"
+$env:ADMIN_PASS = "<strong-random-password>"
 npm run deploy
 
 Option 2 — skip admin creation (if admin already exists):
