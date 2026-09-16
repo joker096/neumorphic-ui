@@ -1,25 +1,6 @@
 import { useState, useEffect, type RefObject } from 'react';
 
-// Accessibility - Announce events and manage focus
-
-export type AccessibilityPriority = 'polite' | 'assertive' | 'busy';
-
-export function announce(message: string, priority: AccessibilityPriority = 'polite'): void {
-  const region = document.getElementById('sr-region') || document.createElement('div');
-
-  if (!document.getElementById('sr-region')) {
-    region.id = 'sr-region';
-    region.setAttribute('aria-live', priority === 'assertive' ? 'assertive' : 'polite');
-    region.setAttribute('role', 'status');
-    region.style.cssText = 'position: absolute; left: -9999px;';
-    document.body.appendChild(region);
-  }
-
-  region.textContent = '';
-  setTimeout(() => {
-    region.textContent = message;
-  }, 100);
-}
+// Accessibility - manage focus
 
 const FOCUSABLE_SELECTOR = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
 

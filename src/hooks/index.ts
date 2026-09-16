@@ -1,12 +1,9 @@
 export { useAppLock } from './useAppLock';
 export { useDebounce } from './useDebounce';
-export { useGlobalErrorHandler } from './useGlobalErrorHandler';
 export { useLocalStorage } from './useLocalStorage';
 export { useScreenshotProtection } from './useScreenshotProtection';
-export { useUndoDelete } from './useUndoDelete';
 export { useAppConnection } from './useAppConnection';
 export { useDataSeeding, useScheduledMessages } from './useAppEffects';
-export { useAppView } from './useAppView';
 export { useKeyboardScroll } from './useKeyboardScroll';
 export { useChatPreviewState } from './useChatPreviewState';
 export { useChatMessageActions } from './useChatMessageActions';

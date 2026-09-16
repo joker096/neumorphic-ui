@@ -64,33 +64,3 @@ export async function retry<T>(
   opts.onError(lastError!);
   throw lastError!;
 }
-
-export function retrySync<T>(
-  fn: () => T,
-  options: RetryOptions = {}
-): T {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
-  let lastError: Error | null = null;
-
-  for (let attempt = 1; attempt <= opts.maxRetries; attempt++) {
-    try {
-      return fn();
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-
-      if (attempt < opts.maxRetries) {
-        const delay = getDelay(attempt, opts);
-        opts.onRetry(attempt, lastError);
-        console.warn(`[RetrySync] Attempt ${attempt}/${opts.maxRetries} failed. Retrying...`, error);
-        // Sync retry — use setTimeout but return immediately on last attempt
-        if (attempt < opts.maxRetries) {
-          // For sync, we can't truly wait, so just continue
-          // In practice, this means sync retries are instant
-        }
-      }
-    }
-  }
-
-  opts.onError(lastError!);
-  throw lastError!;
-}

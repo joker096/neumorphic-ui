@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { retry, retrySync } from './retry';
+import { retry } from './retry';
 
 describe('retry', () => {
   it('returns the result on first success', async () => {
@@ -41,16 +41,5 @@ describe('retry', () => {
     const fn = vi.fn(async () => { attempts++; if (attempts < 2) throw new Error('f'); return 'ok'; });
     const res = await retry(fn, { maxRetries: 3, baseDelay: 1, backoff: 'fixed' });
     expect(res).toBe('ok');
-  });
-
-  it('retrySync retries synchronously and succeeds', () => {
-    let attempts = 0;
-    const res = retrySync(() => { attempts++; if (attempts < 2) throw new Error('f'); return 'ok'; }, { maxRetries: 3, baseDelay: 1 });
-    expect(res).toBe('ok');
-    expect(attempts).toBe(2);
-  });
-
-  it('retrySync throws after maxRetries', () => {
-    expect(() => retrySync(() => { throw new Error('always'); }, { maxRetries: 2, baseDelay: 1 })).toThrow('always');
   });
 });

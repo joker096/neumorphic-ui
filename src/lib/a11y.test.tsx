@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, renderHook, act, fireEvent } from '@testing-library/react';
 import { useRef } from 'react';
-import { announce, useFocusTrap, useReducedMotion } from './a11y';
+import { useFocusTrap, useReducedMotion } from './a11y';
 
 function stubMatchMedia(matches: boolean) {
   const listeners: ((e: MediaQueryListEvent) => void)[] = [];
@@ -14,41 +14,6 @@ function stubMatchMedia(matches: boolean) {
   window.matchMedia = vi.fn(() => mql as any);
   return { mql, emit: (v: boolean) => listeners.forEach((cb) => cb({ matches: v } as any)) };
 }
-
-describe('announce', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    document.getElementById('sr-region')?.remove();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('creates an sr-region with aria-live and sets text after delay', () => {
-    announce('hello world');
-    const region = document.getElementById('sr-region');
-    expect(region).not.toBeNull();
-    expect(region!.getAttribute('aria-live')).toBe('polite');
-    expect(region!.getAttribute('role')).toBe('status');
-    expect(region!.textContent).toBe('');
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
-    expect(region!.textContent).toBe('hello world');
-  });
-
-  it('reuses existing sr-region', () => {
-    const pre = document.createElement('div');
-    pre.id = 'sr-region';
-    document.body.appendChild(pre);
-    announce('warning', 'assertive');
-    expect(document.querySelectorAll('#sr-region').length).toBe(1);
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
-    expect(pre.textContent).toBe('warning');
-  });
-});
 
 describe('useFocusTrap', () => {
   it('focuses first focusable and traps Tab cycling', () => {
