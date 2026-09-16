@@ -23,12 +23,18 @@ vi.mock('../config/premium', () => ({
   getAttachmentLimit: vi.fn(() => 50 * 1024 * 1024),
 }));
 vi.mock('../config/allowedFileTypes', () => ({ isAllowedFileType: vi.fn(() => true) }));
-vi.mock('../lib/p2p/network', () => ({
-  p2pNetwork: {
-    broadcast: vi.fn().mockResolvedValue(undefined),
-    getPeerId: () => 'peer-self',
-  },
-}));
+vi.mock('../lib/p2p/network', () => {
+  const broadcast = vi.fn().mockResolvedValue(undefined);
+  return {
+    p2pNetwork: {
+      broadcast,
+      sendAddressed: vi.fn(async (_target: unknown, data: unknown) => { await broadcast(data); return false; }),
+      getPeerId: () => 'peer-self',
+      peerForChat: () => undefined,
+      peerForChatName: () => undefined,
+    },
+  };
+});
 vi.mock('../store', () => ({
   useAppStore: {
     getState: () => ({
@@ -92,7 +98,7 @@ describe('useFileSend', () => {
     expect(chunkFrame.type).toBe('chunk');
     expect(chunkFrame.index).toBe(0);
     expect(chunkFrame.data).toBe(bytesToBase64(new Uint8Array([1, 2, 3])));
-    expect(endFrame).toEqual({ type: 'end', transferId: 'transfer-uuid-1' });
+    expect(endFrame).toEqual({ type: 'end', transferId: 'transfer-uuid-1', seq: 3 });
 
     expect(vi.mocked(saveTransferMeta).mock.calls[0][0]).toEqual(expect.objectContaining({ transferId: 'transfer-uuid-1', receivedChunks: 0 }));
     expect(vi.mocked(saveTransferMeta).mock.calls.at(-1)![0]).toEqual(expect.objectContaining({ transferId: 'transfer-uuid-1', completed: true, receivedChunks: 1 }));
@@ -102,7 +108,7 @@ describe('useFileSend', () => {
     expect(last.attachment).toBe(FTR_MAGIC + 'transfer-uuid-1');
     expect(last.fileName).toBe('pic.png');
     expect(last.type).toBe('image');
-    expect(last.status).toBe('delivered');
+    expect(last.status).toBe('sent');
   });
 
   it('keeps the message queued and skips broadcast when offline', async () => {

@@ -6,6 +6,17 @@ import type { P2PTransport } from './P2PTransport';
 import { MeshDHT, DHTBootstrapPeer } from './MeshDHT';
 import { MeshRouterCore, MeshRouterSingleton } from './MeshRouter';
 import { useAppStore } from '../../store';
+import { SIGNALING_SEED_URLS } from '../../config/signalling';
+import { buf2hex } from '../crypto/cryptoCore';
+
+const safeParseTyping = (raw: string): { isTyping?: boolean } | null => {
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
+  }
+};
 
 export interface PeerConnection {
   peerId: string;
@@ -48,6 +59,9 @@ export class P2PNetwork {
   private maxPeers: number;
   private router: MeshRouterCore;
   private dht: typeof MeshDHT;
+  private peerNames = new Map<string, string>();
+  private chatPeers = new Map<string, string>();
+  private chatNamePeers = new Map<string, string>();
 
   constructor(options: P2PNetworkOptions = {}) {
     this.peerId = options.peerId || DEFAULT_PEER_ID;
@@ -63,9 +77,15 @@ export class P2PNetwork {
 
     // Listen for new peer discoveries
     MeshDHT.onNewPeer((peer) => {
+      if (!peer || peer.peerId === this.peerId) return; // never dial ourselves
+      if (this.peers.has(peer.peerId) || this.transports.has(peer.peerId)) return; // already dialing/connected
       // Try to connect to this peer
       this.connectToPeer(peer.peerId).catch(() => {});
     });
+
+    // Incoming mesh-forward frames (multi-hop) are delivered to the same
+    // handlers as direct messages.
+    this.rebindRouterForward();
   }
 
   /**
@@ -79,11 +99,30 @@ export class P2PNetwork {
       if (options.peerId) {
         this.peerId = options.peerId;
         this.router = new MeshRouterCore(this.peerId);
+        this.rebindRouterForward();
       }
       if (options.maxPeers) {
         this.maxPeers = options.maxPeers;
       }
     }
+
+    // Bind the network node to the persistent Ed25519 identity so peers can
+    // route to us by a stable key: the signaling server registers clients by
+    // publicKey, so an ephemeral random peerId would make us unreachable.
+    try {
+      const { getMasterKeySet } = await import('../identity/masterKey');
+      const identity = await getMasterKeySet().catch(() => null);
+      if (identity?.ed25519Public) {
+        const idHex = buf2hex(identity.ed25519Public);
+        this.peerId = idHex;
+        this.peerPublicKey = idHex;
+        this.router = new MeshRouterCore(this.peerId);
+        this.rebindRouterForward();
+      }
+    } catch {
+      /* offline / first run — fall back to the random ephemeral peerId */
+    }
+
     this.isInitialized = true;
 
     // Start the mesh router
@@ -113,10 +152,34 @@ export class P2PNetwork {
     }
   }
 
+  private rebindRouterForward(): void {
+    this.router.onForward((fwd) => {
+      const msg: BroadcastMessage = {
+        senderId: fwd.senderId,
+        data: fwd.payload,
+        timestamp: Date.now(),
+        messageId: fwd.messageId,
+      };
+      this.messageHandlers.forEach((h) => h(msg));
+    });
+  }
+
   private broadcastRaw(data: string): void {
-    // This is called by the router when it needs to broadcast
-    // In a real Kadabra implementation, this would send data
-    // to all direct peers via WebRTC data channels.
+    // Fan out raw frames (e.g. mesh route advertisements) to every connected
+    // direct peer using the standard envelope — this is what makes router
+    // route propagation actually reach the mesh.
+    const msg: BroadcastMessage = {
+      senderId: this.peerId,
+      data,
+      timestamp: Date.now(),
+      messageId: crypto.randomUUID(),
+    };
+    const serialized = JSON.stringify(msg);
+    for (const [id, transport] of this.transports) {
+      if (this.isConnected(id)) {
+        transport.send(serialized).catch(() => {});
+      }
+    }
   }
 
   private handleNetworkChange(_online: boolean): void {
@@ -178,13 +241,32 @@ export class P2PNetwork {
     const { getMasterKeySet } = await import('../identity/masterKey');
     const identity = await getMasterKeySet().catch(() => null);
     const transport = new Transport({
-      signalingUrl: '', // No signaling URL needed in Kadabra
+      signalingUrl: SIGNALING_SEED_URLS[0] || '',
       localPublicKey: this.peerPublicKey,
       obfuscationEnabled,
       iceServers: iceServers.length ? iceServers : undefined,
       identitySecretKey: identity?.ed25519Secret,
       identityPublicKey: identity?.ed25519Public,
       onMessage: (data: string) => {
+        // Mesh router frames (route advertisements / multi-hop forwards) are
+        // consumed by the router, not delivered as chat messages.
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.type === 'mesh-route-advert') {
+              this.router.handleRouteAdvert(parsed);
+              return;
+            }
+            if (parsed.type === 'mesh-forward') {
+              this.router.handleForward(parsed, (nextHop: string, raw: string) => {
+                this.sendTo(nextHop, raw).catch(() => {});
+              });
+              return;
+            }
+          }
+        } catch {
+          /* not a router frame — treat as a chat message below */
+        }
         const msg: BroadcastMessage = {
           senderId: peerId,
           data,
@@ -212,8 +294,10 @@ export class P2PNetwork {
 
     transport.onMetadataSignal((type, data) => {
       if (type === 'typing-indicator') {
-        const name = typeof data?.name === 'string' ? data.name : String(data?.name ?? '');
-        if (name) this.typingHandlers.forEach((h) => h(name, !!data?.isTyping));
+        const parsed = typeof data === 'string' ? safeParseTyping(data) : '';
+        if (!parsed) return;
+        const name = this.getPeerName(peerId) || peerId.slice(0, 8);
+        this.typingHandlers.forEach((h) => h(name, parsed.isTyping === true));
       }
     });
 
@@ -252,18 +336,81 @@ export class P2PNetwork {
       messageId: crypto.randomUUID(),
     };
 
-    const promises = Array.from(this.transports.entries()).map(([peerId, transport]) => {
-      try {
-        return transport.send(JSON.stringify(msg));
-      } catch (err) {
-        console.error(`[P2PNetwork] Failed to send to ${peerId}:`, err);
-      }
-    });
-    await Promise.allSettled(promises);
+    const connected = Array.from(this.transports.entries()).filter(([peerId]) => this.isConnected(peerId));
+    if (connected.length === 0) throw new Error('No connected P2P peers');
+    await Promise.all(connected.map(([, transport]) => transport.send(JSON.stringify(msg))));
   }
 
   onMessage(handler: (msg: BroadcastMessage) => void): void {
     this.messageHandlers.add(handler);
+  }
+
+  /** True once `init()` completed (the network only operates after boot). */
+  isReady(): boolean {
+    return this.isInitialized;
+  }
+
+  /** Live transport for a peer, if one is established. */
+  getTransport(peerId: string): P2PTransport | null {
+    return this.transports.get(peerId) ?? null;
+  }
+
+  /** Addressed delivery: send to a single connected peer instead of broadcasting to the mesh. */
+  async sendTo(peerId: string, data: any): Promise<void> {
+    if (!this.isInitialized) {
+      throw new Error('Network not initialized. Call init() first.');
+    }
+    const transport = this.transports.get(peerId);
+    if (!transport || !this.isConnected(peerId)) {
+      throw new Error('No connected P2P transport for target peer');
+    }
+    const msg: BroadcastMessage = {
+      senderId: this.peerId,
+      data,
+      timestamp: Date.now(),
+      messageId: crypto.randomUUID(),
+    };
+    await transport.send(JSON.stringify(msg));
+  }
+
+  /** Map a transport peer id to a display name (learned from inbound chat frames). */
+  rememberPeer(peerId: string, name: string): void {
+    if (peerId && name) this.peerNames.set(peerId, name);
+  }
+
+  getPeerName(peerId: string): string | undefined {
+    return this.peerNames.get(peerId);
+  }
+
+  /** Learn the peer that owns a chat (chatId primary, chatName fallback). */
+  rememberChatPeer(chatId: string | number, chatName: string, peerId: string): void {
+    if (!peerId) return;
+    if (chatId !== undefined && chatId !== null && chatId !== "") this.chatPeers.set(String(chatId), peerId);
+    if (chatName) this.chatNamePeers.set(String(chatName), peerId);
+  }
+
+  /** Peer bound to a specific chat id (learned from inbound frames). */
+  peerForChat(chatId: string | number): string | undefined {
+    return this.chatPeers.get(String(chatId));
+  }
+
+  /** Peer bound to a chat name (last-learned wins; used when ids don't match). */
+  peerForChatName(chatName: string): string | undefined {
+    return chatName ? this.chatNamePeers.get(String(chatName)) : undefined;
+  }
+
+  /**
+   * Addressed delivery with broadcast fallback: when a target peer is known and
+   * connected the frame goes to that peer only; otherwise it fans out to the
+   * connected mesh (legacy behaviour). Returns true when addressed.
+   */
+  async sendAddressed(target: string | undefined, data: any): Promise<boolean> {
+    if (target && this.isConnected(target)) {
+      await this.sendTo(target, data);
+      return true;
+    }
+    await this.broadcast(data);
+    return false;
   }
 
   onConnection(callback: P2PConnectionCallback): () => void {
@@ -288,13 +435,15 @@ export class P2PNetwork {
 
   /**
    * Broadcast a typing-indicator signal to every connected peer.
-   * The local contact `name` is included so receivers can map it to a chat.
+   * Payload carries only `{isTyping}` — no display name (privacy; receivers
+   * resolve the name from their own chat↔peer binding).
    */
   sendTypingIndicator(name: string, isTyping: boolean): void {
     if (!name) return;
+    const payload = JSON.stringify({ isTyping });
     for (const transport of this.transports.values()) {
       try {
-        transport.sendMetadataSignal('typing-indicator', { isTyping, name });
+        transport.sendMetadataSignal('typing-indicator', payload);
       } catch {
         /* transport not ready — ignore */
       }

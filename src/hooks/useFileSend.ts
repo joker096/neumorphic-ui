@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useI18n } from "../lib/i18n";
 import { getAttachmentLimit } from "../config/premium";
 import { isAllowedFileType } from "../config/allowedFileTypes";
-import { FTR_MAGIC, encodeFrame, bytesToBase64, type FtrFrame } from "../lib/fileTransfer/frames";
+import { FTR_MAGIC, encodeFrame, nextFileSeq, bytesToBase64, type FtrFrame } from "../lib/fileTransfer/frames";
 import { chunkSizeForFileSize, sliceFileChunks } from "../lib/fileTransfer/chunker";
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { saveTransferMeta, saveChunk, type StoredTransfer } from "../lib/fileTransfer/fileStore";
@@ -94,18 +94,12 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       fileSize: file.size,
       fileTransferId: transferId,
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      status: online ? "sent" : "queued",
+      status: "queued",
       silent: opts.silent ?? false,
     };
     appendMessage(newMessage);
 
-    const safeBroadcast = async (frame: FtrFrame) => {
-      try {
-        await p2pNetwork.broadcast(encodeFrame(frame));
-      } catch {
-        /* network not initialized yet — best effort, message stays local */
-      }
-    };
+    const safeSend = (frame: FtrFrame) => p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeFrame(frame));
 
     try {
       const sha256 = await sha256Hex(await file.arrayBuffer());
@@ -123,15 +117,15 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       };
       await saveTransferMeta(meta);
       if (online) {
-        await safeBroadcast({ type: "meta", ...meta });
+        await safeSend({ type: "meta", seq: nextFileSeq(), ...meta });
         for await (const chunk of sliceFileChunks(file)) {
           await saveChunk(transferId, chunk.index, chunk.data);
-          await safeBroadcast({ type: "chunk", transferId, index: chunk.index, data: bytesToBase64(new Uint8Array(chunk.data)) });
+          await safeSend({ type: "chunk", seq: nextFileSeq(), transferId, index: chunk.index, data: bytesToBase64(new Uint8Array(chunk.data)) });
           setProgress({ transferId, percent: Math.round(((chunk.index + 1) / totalChunks) * 100) });
         }
-        await safeBroadcast({ type: "end", transferId });
+        await safeSend({ type: "end", seq: nextFileSeq(), transferId });
         await saveTransferMeta({ ...meta, receivedChunks: totalChunks, completed: true });
-        updateMessageStatus(msgId, "delivered");
+        updateMessageStatus(msgId, "sent");
       }
     } catch {
       updateMessageStatus(msgId, "failed");

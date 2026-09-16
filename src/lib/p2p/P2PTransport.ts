@@ -10,6 +10,9 @@ import {
 } from '../crypto/cryptoCore'
 import { signDh, verifyOrPinPeer } from './identityPin'
 
+/** Hard ceiling for a single messenger frame payload (64 KiB). */
+const MAX_PAYLOAD_BYTES = 65536
+
 export interface CallMediaHandlers {
   onRemoteTrack: (peerId: string, stream: MediaStream) => void;
   onCallClosed: (peerId: string) => void;
@@ -67,7 +70,7 @@ export class P2PTransport {
   private localDhPrivateKey: Uint8Array | null = null
   private isRelayOnly = false
   private reconnectAttempts = 0
-  private maxReconnectAttempts = 5
+  private maxReconnectAttempts = 10
   private pendingCandidates: RTCIceCandidateInit[] = []
   private metadataSignalHandlers: Set<(type: MetadataSignalType, data: any) => void> = new Set()
   private mediaHandlers: CallMediaHandlers | null = null
@@ -77,11 +80,22 @@ export class P2PTransport {
   private obfuscationEnabled = true
   private stopped = false
   private sessionAesKey: CryptoKey | null = null
+  private seenEncryptedPayloads = new Set<string>()
+  private receiveChain: Promise<void> = Promise.resolve()
+  private outgoingSequence = 0
+  private incomingSequence = 0
+  private outgoingControlSequence = 0
+  private incomingControlSequence = 0
+  private metadataSeq = 0
+  private seenMetadataSeqs = new Map<string, number>()
+  private signalingSeq = 0
+  private incomingSignalingSeqs = new Map<string, number>()
   private identitySecretKey: Uint8Array | null = null
   private identityPublicKey: Uint8Array | null = null
   private pairingMode = false
   private localCandidates: RTCIceCandidateInit[] = []
   private resolvePairingGather: (() => void) | null = null
+  private lastDhPubHex: string | null = null
 
   constructor(config: P2PTransportConfig) {
     this.signalingUrl = config.signalingUrl
@@ -200,15 +214,16 @@ export class P2PTransport {
     const kp = generateX25519KeyPair()
     this.localDhPrivateKey = kp.secretKey
     const dhPub = buf2hex(kp.publicKey)
+    this.lastDhPubHex = dhPub
 
     // Authenticate this session's DH public key with our persistent Ed25519
-    // identity so a signaling-layer MITM cannot substitute keys.
-    let identityPub: string | undefined
-    let dhSig: string | undefined
-    if (this.identitySecretKey && this.identityPublicKey) {
-      identityPub = buf2hex(this.identityPublicKey)
-      dhSig = signDh(this.identitySecretKey, dhPub)
+    // identity so a signaling-layer MITM cannot substitute keys. Mandatory:
+    // a handshake without a signed ephemeral DH key is refused outright.
+    if (!this.identitySecretKey || !this.identityPublicKey) {
+      throw new Error('[P2PTransport] identity keys required to initiate a call')
     }
+    const identityPub = buf2hex(this.identityPublicKey)
+    const dhSig = signDh(this.identitySecretKey, dhPub)
 
     this.createPeerConnection()
 
@@ -255,6 +270,9 @@ export class P2PTransport {
         false,
         ['encrypt', 'decrypt'],
       )
+      this.outgoingSequence = 0
+      this.incomingSequence = 0
+      this.seenEncryptedPayloads.clear()
       return true
     } catch {
       this.hmacKey = null
@@ -267,12 +285,68 @@ export class P2PTransport {
     if (!this.callControlChannel) return;
     this.callControlChannel.onmessage = (event) => {
       try {
-        const msg = JSON.parse(event.data);
-        this.handleCallControlMessage(msg);
+        void this.processCallControlMessage(event.data as string)
       } catch {
         // ignore
       }
     };
+  }
+
+  private async processCallControlMessage(raw: string): Promise<void> {
+    let data = raw
+    if (this.hmacKey) {
+      const pipeIdx = data.indexOf('|')
+      if (pipeIdx === -1) {
+        console.warn('[P2PTransport] Missing HMAC signature (call-control)')
+        return
+      }
+      const sigHex = data.slice(0, pipeIdx)
+      const payload = data.slice(pipeIdx + 1)
+      const valid = await HMACAuth.verify(this.hmacKey, payload, sigHex)
+      if (!valid) {
+        console.warn('[P2PTransport] Invalid HMAC signature (call-control)')
+        return
+      }
+      data = payload
+    }
+
+    const sequenceSeparator = data.indexOf('|')
+    if (sequenceSeparator <= 0) {
+      console.warn('[P2PTransport] Rejecting legacy call-control frame without sequence (strict mode)')
+      return
+    }
+    if (sequenceSeparator > 0) {
+      const sequence = Number(data.slice(0, sequenceSeparator))
+      if (Number.isSafeInteger(sequence) && sequence > 0) {
+        if (sequence <= this.incomingControlSequence) return
+        data = data.slice(sequenceSeparator + 1)
+        const senderSeparator = data.indexOf('|')
+        if (senderSeparator > 0) {
+          const senderPublicKey = data.slice(0, senderSeparator)
+          if (this.peerPublicKey && senderPublicKey !== this.peerPublicKey) return
+          data = data.slice(senderSeparator + 1)
+        }
+        this.incomingControlSequence = sequence
+      }
+    }
+
+    if (this.sessionAesKey) {
+      if (this.seenEncryptedPayloads.has(data)) return
+      this.seenEncryptedPayloads.add(data)
+      if (this.seenEncryptedPayloads.size > 2048) {
+        const oldest = this.seenEncryptedPayloads.values().next().value
+        if (oldest) this.seenEncryptedPayloads.delete(oldest)
+      }
+    }
+
+    if (this.obfuscationEnabled && this.sessionAesKey) {
+      const plain = await this.decryptPayload(data)
+      if (plain === null) return
+      data = plain
+    }
+
+    const msg = JSON.parse(data)
+    this.handleCallControlMessage(msg)
   }
 
   private handleCallControlMessage(msg: any): void {
@@ -290,8 +364,12 @@ export class P2PTransport {
 
   async send(data: string): Promise<void> {
     if (!this.dataChannel || this.dataChannel.readyState !== 'open') {
-      console.warn('[P2PTransport] Data channel not open')
-      return
+      throw new Error('P2P data channel is not open')
+    }
+
+    const dataBytes = new TextEncoder().encode(data).length
+    if (dataBytes > MAX_PAYLOAD_BYTES) {
+      throw new Error(`[P2PTransport] Payload exceeds 64KiB limit (${dataBytes} bytes)`)
     }
 
     let payload = data;
@@ -299,14 +377,13 @@ export class P2PTransport {
       payload = await this.encryptPayload(data);
     }
 
+    const sequence = ++this.outgoingSequence
+    const authenticatedPayload = `${sequence}|${this.localPublicKey}|${payload}`
     if (this.hmacKey) {
-      HMACAuth.sign(this.hmacKey, payload)
-        .then((sig) => {
-          this.dataChannel!.send(`${sig}|${payload}`)
-        })
-        .catch((e) => console.warn('[P2PTransport] HMAC sign failed', e))
+      const sig = await HMACAuth.sign(this.hmacKey, authenticatedPayload)
+      this.dataChannel.send(`${sig}|${authenticatedPayload}`)
     } else {
-      this.dataChannel.send(payload)
+      this.dataChannel.send(authenticatedPayload)
     }
   }
 
@@ -342,9 +419,20 @@ export class P2PTransport {
     }
   }
 
-  sendCallControl(data: any): void {
+  async sendCallControl(data: any): Promise<void> {
     if (!this.callControlChannel || this.callControlChannel.readyState !== 'open') return
-    this.callControlChannel.send(JSON.stringify(data));
+    let payload = JSON.stringify(data);
+    if (this.obfuscationEnabled && this.sessionAesKey) {
+      payload = await this.encryptPayload(payload);
+    }
+    const sequence = ++this.outgoingControlSequence
+    const authenticatedPayload = `${sequence}|${this.localPublicKey}|${payload}`
+    if (this.hmacKey) {
+      const sig = await HMACAuth.sign(this.hmacKey, authenticatedPayload)
+      this.callControlChannel.send(`${sig}|${authenticatedPayload}`)
+    } else {
+      this.callControlChannel.send(authenticatedPayload)
+    }
   }
 
   disconnect(): void {
@@ -360,6 +448,14 @@ export class P2PTransport {
     this.peerPublicKey = null
     this.hmacKey = null
     this.sessionAesKey = null
+    this.seenEncryptedPayloads.clear()
+    this.receiveChain = Promise.resolve()
+    this.outgoingSequence = 0
+    this.incomingSequence = 0
+    this.outgoingControlSequence = 0
+    this.incomingControlSequence = 0
+    this.metadataSeq = 0
+    this.seenMetadataSeqs.clear()
     this.localDhPrivateKey = null
     this.pendingCandidates = []
     this.localCandidates = []
@@ -368,6 +464,7 @@ export class P2PTransport {
     this.outgoingStreams = [];
     this.pendingOutgoingTracks = [];
     this.localHandlesTracks = false;
+    this.lastDhPubHex = null;
   }
 
   setRelayOnly(enabled: boolean): void {
@@ -390,11 +487,14 @@ export class P2PTransport {
 
   /**
    * Caller side: create the pairing offer (a `mess-lan/1:` QR payload).
-   * Requires identity keys to be supplied at construction for authentication
-   * (without them the session is confidentiality-only, no identity pinning).
+   * Identity keys are mandatory at construction — a pairing session without a
+   * signed ephemeral DH key is refused.
    */
   async createPairingOffer(): Promise<string> {
     if (!this.pairingMode) throw new Error('[P2PTransport] enablePairingMode() required')
+    if (!this.identitySecretKey || !this.identityPublicKey) {
+      throw new Error('[P2PTransport] identity keys required to pair')
+    }
     const kp = generateX25519KeyPair()
     this.localDhPrivateKey = kp.secretKey
     const dhPub = buf2hex(kp.publicKey)
@@ -516,20 +616,23 @@ export class P2PTransport {
   }
 
   private async authenticatePairing(payload: LanPairingPayload): Promise<void> {
-    if (payload.identityPub && payload.dhSig) {
-      const ok = await verifyOrPinPeer(payload.peerId, payload.identityPub, payload.dhPub, payload.dhSig)
-      if (!ok) throw this.failPairing('peer identity authentication failed (TOFU)')
+    // Mandatory identity — a pairing payload without a signed ephemeral DH
+    // key is refused outright (no confidentiality-only sessions anymore).
+    if (!payload.identityPub || !payload.dhSig) {
+      throw this.failPairing('offer without identity signature (fail-closed)')
     }
+    const ok = await verifyOrPinPeer(payload.peerId, payload.identityPub, payload.dhPub, payload.dhSig)
+    if (!ok) throw this.failPairing('peer identity authentication failed (TOFU)')
   }
 
-  private pairingIdentityFields(dhPub: string): { identityPub?: string; dhSig?: string } {
-    if (this.identitySecretKey && this.identityPublicKey) {
-      return {
-        identityPub: buf2hex(this.identityPublicKey),
-        dhSig: signDh(this.identitySecretKey, dhPub),
-      }
+  private pairingIdentityFields(dhPub: string): { identityPub: string; dhSig: string } {
+    if (!this.identitySecretKey || !this.identityPublicKey) {
+      throw new Error('[P2PTransport] identity keys required to pair')
     }
-    return {}
+    return {
+      identityPub: buf2hex(this.identityPublicKey),
+      dhSig: signDh(this.identitySecretKey, dhPub),
+    }
   }
 
   private preparePairingSession(): void {
@@ -610,6 +713,28 @@ export class P2PTransport {
       }
     }
 
+    // Media added after the initial offer (e.g. attaching a call stream to an
+    // already-established messenger session) requires renegotiation.
+    this.peerConnection.onnegotiationneeded = async () => {
+      const peer = this.peerPublicKey
+      if (!peer || !this.lastDhPubHex || !this.peerConnection) return
+      if (!this.identitySecretKey || !this.identityPublicKey) return // identity required
+      try {
+        const offer = await this.peerConnection.createOffer()
+        await this.peerConnection.setLocalDescription(offer)
+        this.sendSignaling({
+          type: 'offer',
+          target: peer,
+          sdp: offer,
+          dhPub: this.lastDhPubHex,
+          identityPub: buf2hex(this.identityPublicKey),
+          dhSig: signDh(this.identitySecretKey, this.lastDhPubHex),
+        })
+      } catch {
+        /* renegotiation failed — the session keeps working without the new media */
+      }
+    }
+
     this.peerConnection.ondatachannel = (event) => {
       if (event.channel.label === 'call-control') {
         this.callControlChannel = event.channel
@@ -653,7 +778,7 @@ export class P2PTransport {
       }
     }
 
-    this.dataChannel.onmessage = async (event) => {
+    const processMessage = async (event: MessageEvent) => {
       let data = event.data as string
 
       if (this.hmacKey) {
@@ -672,6 +797,33 @@ export class P2PTransport {
         data = payload
       }
 
+      const sequenceSeparator = data.indexOf('|')
+      if (sequenceSeparator > 0) {
+        const sequence = Number(data.slice(0, sequenceSeparator))
+        if (Number.isSafeInteger(sequence) && sequence > 0) {
+          if (sequence <= this.incomingSequence) return
+          data = data.slice(sequenceSeparator + 1)
+          const senderSeparator = data.indexOf('|')
+          if (senderSeparator > 0) {
+            const senderPublicKey = data.slice(0, senderSeparator)
+            if (this.peerPublicKey && senderPublicKey !== this.peerPublicKey) return
+            data = data.slice(senderSeparator + 1)
+          }
+          this.incomingSequence = sequence
+        }
+      }
+
+      // AES-GCM payloads use a fresh IV per send, so an identical authenticated
+      // payload is a replay of an already accepted frame.
+      if (this.sessionAesKey) {
+        if (this.seenEncryptedPayloads.has(data)) return
+        this.seenEncryptedPayloads.add(data)
+        if (this.seenEncryptedPayloads.size > 2048) {
+          const oldest = this.seenEncryptedPayloads.values().next().value
+          if (oldest) this.seenEncryptedPayloads.delete(oldest)
+        }
+      }
+
       if (this.obfuscationEnabled && this.sessionAesKey) {
         const plain = await this.decryptPayload(data)
         if (plain === null) return
@@ -679,6 +831,12 @@ export class P2PTransport {
       }
 
       this.onMessage(data)
+    }
+
+    this.dataChannel.onmessage = (event) => {
+      this.receiveChain = this.receiveChain
+        .then(() => processMessage(event))
+        .catch((error) => console.warn('[P2PTransport] Receive processing failed', error))
     }
 
     this.dataChannel.onerror = (err) => {
@@ -699,6 +857,22 @@ export class P2PTransport {
   }
 
   private async handleSignalingMessage(msg: any): Promise<void> {
+    // Anti-replay defense-in-depth (server enforces authoritatively). A fresh
+    // offer marks a new negotiation: reset the per-sender tracker (WebRTC
+    // renegotiation legitimately restarts sequencing). Answer/ICE frames must
+    // strictly increase within the negotiation; stale frames are dropped.
+    if (Number.isInteger(msg.seq) && msg.seq > 0) {
+      if (msg.type === 'offer') {
+        this.incomingSignalingSeqs.set(msg.from, msg.seq)
+      } else {
+        const last = this.incomingSignalingSeqs.get(msg.from) ?? 0
+        if (msg.seq <= last) {
+          console.warn('[P2PTransport] Dropping stale signaling frame (anti-replay)')
+          return
+        }
+        this.incomingSignalingSeqs.set(msg.from, msg.seq)
+      }
+    }
     switch (msg.type) {
       case 'offer':
         await this.handleOffer(msg)
@@ -709,6 +883,21 @@ export class P2PTransport {
       case 'ice-candidate':
         await this.handleIceCandidate(msg)
         break
+      case 'typing-indicator':
+      case 'delivery-receipt':
+      case 'online-status':
+      case 'read-receipt': {
+        if (Number.isInteger(msg.seq) && msg.seq > 0) {
+          const last = this.seenMetadataSeqs.get(msg.type) ?? 0
+          if (msg.seq <= last) {
+            console.warn('[P2PTransport] Dropping stale metadata frame (anti-replay)')
+            return
+          }
+          this.seenMetadataSeqs.set(msg.type, msg.seq)
+        }
+        this.handleMetadataSignal(msg.type, msg.data)
+        break
+      }
     }
   }
 
@@ -727,6 +916,53 @@ export class P2PTransport {
       return
     }
 
+    // Mandatory identity: refuse an unsigned ephemeral DH key (MITM could
+    // substitute its own key without admission). This closes the roadmap item
+    // «обязательная криптографическая identity-проверка».
+    if (!msg.identityPub || !msg.dhSig) {
+      console.warn('[P2PTransport] Rejecting offer without identity signature (fail-closed)')
+      this.peerPublicKey = null
+      this.peerConnection?.close()
+      this.peerConnection = null
+      this.localDhPrivateKey = null
+      this.hmacKey = null
+      this.sessionAesKey = null
+      this.pendingCandidates = []
+      return
+    }
+    if (!this.identitySecretKey || !this.identityPublicKey) {
+      console.warn('[P2PTransport] Rejecting offer: local identity keys missing (fail-closed)')
+      this.peerPublicKey = null
+      this.peerConnection?.close()
+      this.peerConnection = null
+      this.localDhPrivateKey = null
+      this.hmacKey = null
+      this.sessionAesKey = null
+      this.pendingCandidates = []
+      return
+    }
+
+    // Renegotiation (media added to an established session): handle before
+    // createPeerConnection — recreating the connection would tear down the data
+    // channel. Session keys are not re-derived; only the SDP is exchanged.
+    if (this.peerConnection && this.peerConnection.currentRemoteDescription) {
+      try {
+        await this.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
+        const answer = await this.peerConnection.createAnswer()
+        await this.peerConnection.setLocalDescription(answer)
+        this.sendSignaling({
+          type: 'answer',
+          target: msg.from,
+          sdp: answer,
+          dhPub: this.lastDhPubHex ?? undefined,
+          ...this.pairingIdentityFields(this.lastDhPubHex ?? ''),
+        })
+        return
+      } catch {
+        console.warn('[P2PTransport] Renegotiation failed; falling back to full offer handling')
+      }
+    }
+
     this.createPeerConnection()
 
     await this.peerConnection!.setRemoteDescription(new RTCSessionDescription(msg.sdp))
@@ -734,34 +970,28 @@ export class P2PTransport {
     const answer = await this.peerConnection!.createAnswer()
     await this.peerConnection!.setLocalDescription(answer)
 
-    // Derive the shared HMAC key from the caller's ephemeral DH public key.
-    // The HMAC key is derived locally and never transmitted.
     // Authenticate the caller's DH key against its pinned identity (TOFU).
-    if (msg.identityPub && msg.dhSig) {
-      const peerId = this.peerPublicKey ?? msg.from ?? ''
-      const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
-      if (!ok) {
-        console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting offer')
-        this.peerPublicKey = null
-        this.peerConnection?.close()
-        this.peerConnection = null
-        this.localDhPrivateKey = null
-        this.hmacKey = null
-        this.sessionAesKey = null
-        this.pendingCandidates = []
-        return
-      }
+    // The identity signature is now mandatory (checked above) — verify here.
+    const peerId = msg.from ?? ''
+    const idOk = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
+    if (!idOk) {
+      console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting offer')
+      this.peerPublicKey = null
+      this.peerConnection?.close()
+      this.peerConnection = null
+      this.localDhPrivateKey = null
+      this.hmacKey = null
+      this.sessionAesKey = null
+      this.pendingCandidates = []
+      return
     }
     const ownKp = generateX25519KeyPair()
     this.localDhPrivateKey = ownKp.secretKey
     const myDhPub = buf2hex(ownKp.publicKey)
+    this.lastDhPubHex = myDhPub
     await this.deriveSessionFromPeerDh(msg.dhPub)
-    let myIdentityPub: string | undefined
-    let myDhSig: string | undefined
-    if (this.identitySecretKey && this.identityPublicKey) {
-      myIdentityPub = buf2hex(this.identityPublicKey)
-      myDhSig = signDh(this.identitySecretKey, myDhPub)
-    }
+    const myIdentityPub = buf2hex(this.identityPublicKey)
+    const myDhSig = signDh(this.identitySecretKey, myDhPub)
     this.sendSignaling({
       type: 'answer',
       target: msg.from,
@@ -791,7 +1021,19 @@ export class P2PTransport {
     }
 
     // Authenticate the callee's DH key against its pinned identity (TOFU).
-    if (msg.identityPub && msg.dhSig) {
+    // Mandatory: an unsigned answer is refused (identity check closed).
+    if (!msg.identityPub || !msg.dhSig) {
+      console.warn('[P2PTransport] Rejecting answer without identity signature (fail-closed)')
+      this.peerPublicKey = null
+      this.peerConnection?.close()
+      this.peerConnection = null
+      this.localDhPrivateKey = null
+      this.hmacKey = null
+      this.sessionAesKey = null
+      this.pendingCandidates = []
+      return
+    }
+    {
       const peerId = this.peerPublicKey ?? ''
       const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
       if (!ok) {
@@ -837,14 +1079,21 @@ export class P2PTransport {
     }
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++
-      const delay = Math.min(1000 * this.reconnectAttempts, 5000)
+      // Exponential backoff capped at 30s (house pattern, matches
+      // signaling/manager.ts) — avoids reconnect thundering herds after a
+      // signaling outage instead of hammering the relay at fixed 1s intervals.
+      const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts - 1), 30000)
       setTimeout(() => this.connect(), delay)
     }
   }
 
   private sendSignaling(data: object): void {
     if (this.signalingWs?.readyState === WebSocket.OPEN) {
-      this.signalingWs.send(JSON.stringify(data))
+      this.signalingSeq++
+      this.signalingWs.send(JSON.stringify({
+        ...data,
+        seq: this.signalingSeq,
+      }))
     }
   }
 
@@ -854,6 +1103,7 @@ export class P2PTransport {
       type,
       target: this.peerPublicKey,
       data,
+      seq: ++this.metadataSeq,
     }))
   }
 

@@ -1,3 +1,5 @@
+import { persistEncryptedSetting } from './settingsSlice';
+
 export interface SyncSlice {
   syncStatus: 'idle' | 'requesting' | 'syncing' | 'live' | 'error';
   syncLastTimestamp: string;
@@ -16,6 +18,11 @@ export const createSyncSlice = (set: any, get: any): SyncSlice => ({
   pairingQrData: '',
   setSyncStatus: (status) => set({ syncStatus: status }),
   setSyncLastTimestamp: (ts) => set({ syncLastTimestamp: ts }),
-  setTotpSecret: (secret) => set({ totpSecret: secret }),
+  setTotpSecret: (secret) => {
+    set({ totpSecret: secret });
+    if (typeof secret === 'string' && secret) {
+      persistEncryptedSetting('totpSecret', secret);
+    }
+  },
   setPairingQrData: (data) => set({ pairingQrData: data }),
 });

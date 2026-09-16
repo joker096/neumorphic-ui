@@ -91,6 +91,8 @@ afterEach(() => {
 
 const flush = () => new Promise<void>((r) => setTimeout(r, 0));
 
+const stableIdentities = new Map<string, nacl.SignKeyPair>();
+
 function makeTransport(opts: {
   label: string;
   onMessage: ReturnType<typeof vi.fn>;
@@ -98,6 +100,10 @@ function makeTransport(opts: {
   onDisconnected: ReturnType<typeof vi.fn>;
   identity?: { secretKey: Uint8Array; publicKey: Uint8Array };
 }) {
+  // Stable identity per label — TOFU pins the first identity per peerId,
+  // so repeated pairings between the same peers must reuse the same key.
+  const stable = (stableIdentities[opts.label] ??= nacl.sign.keyPair());
+  const identity = opts.identity ?? stable;
   return new P2PTransport({
     signalingUrl: '',
     localPublicKey: `peer-${opts.label}`,
@@ -105,8 +111,8 @@ function makeTransport(opts: {
     onConnected: opts.onConnected,
     onDisconnected: opts.onDisconnected,
     obfuscationEnabled: false,
-    identitySecretKey: opts.identity?.secretKey,
-    identityPublicKey: opts.identity?.publicKey,
+    identitySecretKey: identity.secretKey,
+    identityPublicKey: identity.publicKey,
   } as any);
 }
 
@@ -204,8 +210,8 @@ describe('serverless LAN pairing (P2PTransport)', () => {
   it('authenticates peers via Ed25519 identity when identity keys are provided (TOFU pinning)', async () => {
     const idA = nacl.sign.keyPair();
     const idB = nacl.sign.keyPair();
-    const a = makeTransport({ label: 'A', onMessage: onMessageA, onConnected: onConnectedA, onDisconnected: onDisconnectedA, identity: { secretKey: idA.secretKey, publicKey: idA.publicKey } });
-    const b = makeTransport({ label: 'B', onMessage: onMessageB, onConnected: onConnectedB, onDisconnected: onDisconnectedB, identity: { secretKey: idB.secretKey, publicKey: idB.publicKey } });
+    const a = makeTransport({ label: 'C', onMessage: onMessageA, onConnected: onConnectedA, onDisconnected: onDisconnectedA, identity: { secretKey: idA.secretKey, publicKey: idA.publicKey } });
+    const b = makeTransport({ label: 'D', onMessage: onMessageB, onConnected: onConnectedB, onDisconnected: onDisconnectedB, identity: { secretKey: idB.secretKey, publicKey: idB.publicKey } });
     a.enablePairingMode();
     b.enablePairingMode();
 
@@ -259,5 +265,34 @@ describe('serverless LAN pairing (P2PTransport)', () => {
     await expect(a.createPairingOffer()).rejects.toThrow(/enablePairingMode/);
     await expect(a.acceptPairingOffer('x')).rejects.toThrow(/enablePairingMode/);
     await expect(a.acceptPairingAnswer('x')).rejects.toThrow(/enablePairingMode/);
+  });
+
+  it('createPairingOffer throws when identity keys are missing', async () => {
+    const a = new P2PTransport({
+      signalingUrl: '',
+      localPublicKey: 'peer-X',
+      onMessage: onMessageA as any,
+      onConnected: onConnectedA,
+      onDisconnected: onDisconnectedA,
+      obfuscationEnabled: false,
+    } as any);
+    a.enablePairingMode();
+
+    await expect(a.createPairingOffer()).rejects.toThrow(/identity keys required/);
+  });
+
+  it('rejects a pairing offer stripped of its identity signature', async () => {
+    const a = makeTransport({ label: 'A', onMessage: onMessageA, onConnected: onConnectedA, onDisconnected: onDisconnectedA });
+    const b = makeTransport({ label: 'B', onMessage: onMessageB, onConnected: onConnectedB, onDisconnected: onDisconnectedB });
+    a.enablePairingMode();
+    b.enablePairingMode();
+
+    const offerStr = await a.createPairingOffer();
+    const payload = JSON.parse(offerStr.slice(PAIRING_MAGIC.length));
+    delete payload.identityPub;
+    delete payload.dhSig;
+    const stripped = PAIRING_MAGIC + JSON.stringify(payload);
+
+    await expect(b.acceptPairingOffer(stripped)).rejects.toThrow(/identity signature/);
   });
 });

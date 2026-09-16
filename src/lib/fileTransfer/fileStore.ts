@@ -18,8 +18,10 @@ const memoryChunks = new Map<string, ArrayBuffer>();
 export interface StoredTransfer extends TransferMeta {
   receivedAt?: number;
   completed?: boolean;
-  /** Chunks persisted locally (0..totalChunks). Persisted only at start/end, not per-chunk. */
+  /** Chunks persisted locally (0..totalChunks). Persisted at start, per-chunk, and at end. */
   receivedChunks?: number;
+  /** Integrity check failed on reassembly (declared sha256 does not match). */
+  integrityError?: boolean;
 }
 
 function chunkKey(transferId: string, index: number): string {
@@ -82,6 +84,95 @@ export async function listTransfers(): Promise<StoredTransfer[]> {
     request.onsuccess = () => resolve((request.result || []) as StoredTransfer[]);
     request.onerror = () => reject(request.error);
   });
+}
+
+/**
+ * Age threshold: a transfer with no persisted activity for this long is abandoned.
+ */
+export const TRANSFER_ABANDON_TIMEOUT_MS = 30 * 60 * 1000;
+
+/**
+ * GC for incoming transfers: delete incomplete transfers that went silent more
+ * than maxAgeMs ago (receivedAt is touched on every chunk). Completed transfers
+ * are kept — their blob may still be assembled by the UI long after the frames.
+ */
+export async function pruneAbandonedTransfers(maxAgeMs = TRANSFER_ABANDON_TIMEOUT_MS): Promise<number> {
+  const now = Date.now();
+  const metas = await listTransfers();
+  let pruned = 0;
+  for (const meta of metas) {
+    if (!meta.completed && meta.receivedAt && now - meta.receivedAt > maxAgeMs) {
+      await deleteTransfer(meta.transferId);
+      pruned += 1;
+    }
+  }
+  return pruned;
+}
+
+/**
+ * Hard cap on total persisted transfer bytes (meta + chunks). When the store
+ * exceeds this, the oldest transfers are evicted (completed first, then oldest).
+ */
+export const FILE_TRANSFER_MAX_TOTAL_BYTES = 256 * 1024 * 1024;
+
+/** Completed transfers are kept this long after receipt, then garbage-collected. */
+export const FILE_TRANSFER_COMPLETED_RETENTION_MS = 24 * 60 * 60 * 1000;
+
+/** Maximum incoming transfers accepted concurrently (meta frames in flight). */
+export const MAX_CONCURRENT_INCOMING_TRANSFERS = 4;
+
+/**
+ * GC for completed transfers: delete completed transfers received more than
+ * maxAgeMs ago (their blob has been handed to the chat message long ago).
+ */
+export async function pruneCompletedTransfers(maxAgeMs: number = FILE_TRANSFER_COMPLETED_RETENTION_MS): Promise<number> {
+  const now = Date.now();
+  const metas = await listTransfers();
+  let pruned = 0;
+  for (const meta of metas) {
+    if (meta.completed && meta.receivedAt && now - meta.receivedAt > maxAgeMs) {
+      await deleteTransfer(meta.transferId);
+      pruned += 1;
+    }
+  }
+  return pruned;
+}
+
+/**
+ * Acceptance check: would persisting `size` more bytes (plus the new meta)
+ * keep the store under maxBytes? Errors (e.g. IDB unavailable mid-scan)
+ * fail open — a single transfer should not be rejected for store issues.
+ */
+export async function canAcceptFileTransfer(size: number, maxBytes: number = FILE_TRANSFER_MAX_TOTAL_BYTES): Promise<boolean> {
+  try {
+    const metas = await listTransfers();
+    const total = metas.reduce((sum, m) => sum + (m.size || 0), 0);
+    return total + size <= maxBytes;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Evict transfers until the persisted byte total fits under maxBytes.
+ * Completed transfers are evicted first (oldest receivedAt first); incomplete
+ * transfers are only evicted if no completed ones remain. Returns evicted count.
+ */
+export async function enforceFileTransferBudget(maxBytes: number = FILE_TRANSFER_MAX_TOTAL_BYTES): Promise<number> {
+  let metas = await listTransfers();
+  let evicted = 0;
+  const totalBytes = (list: StoredTransfer[]) => list.reduce((sum, m) => sum + (m.size || 0), 0);
+  while (totalBytes(metas) > maxBytes && metas.length > 0) {
+    const completed = metas.filter((m) => m.completed)
+      .sort((a, b) => (a.receivedAt || 0) - (b.receivedAt || 0));
+    const victim = completed[0] || metas.filter((m) => !m.completed)
+      .sort((a, b) => (a.receivedAt || 0) - (b.receivedAt || 0))[0];
+    if (!victim) break;
+    await deleteTransfer(victim.transferId);
+    evicted += 1;
+    metas = metas.filter((m) => m.transferId !== victim.transferId);
+  }
+  return evicted;
 }
 
 export async function saveChunk(transferId: string, index: number, data: ArrayBuffer): Promise<void> {

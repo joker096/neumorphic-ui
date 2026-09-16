@@ -89,6 +89,13 @@ class FakeStore {
     return this.requireTx().track(new FakeRequest());
   }
 
+  delete(key: unknown): FakeRequest {
+    this.data.delete(key);
+    const req = new FakeRequest();
+    req.result = undefined;
+    return this.requireTx().track(req);
+  }
+
   private requireTx(): FakeTx {
     if (!this.activeTx) throw new Error('store used outside transaction');
     return this.activeTx;
@@ -151,6 +158,8 @@ describe('messageQueue', () => {
   let markMessageSent: typeof import('./messageQueue').markMessageSent;
   let retryMessage: typeof import('./messageQueue').retryMessage;
   let clearPendingMessages: typeof import('./messageQueue').clearPendingMessages;
+  let removeQueuedMessage: typeof import('./messageQueue').removeQueuedMessage;
+  let pruneExpiredQueuedMessages: typeof import('./messageQueue').pruneExpiredQueuedMessages;
 
   beforeAll(async () => {
     vi.stubGlobal('indexedDB', fakeIdb);
@@ -160,6 +169,8 @@ describe('messageQueue', () => {
     markMessageSent = mod.markMessageSent;
     retryMessage = mod.retryMessage;
     clearPendingMessages = mod.clearPendingMessages;
+    removeQueuedMessage = mod.removeQueuedMessage;
+    pruneExpiredQueuedMessages = mod.pruneExpiredQueuedMessages;
   });
 
   afterAll(() => {
@@ -249,6 +260,44 @@ describe('messageQueue', () => {
     expect(await getPendingMessages()).toEqual([]);
   });
 
+  it('removeQueuedMessage deletes the record by id and keeps the rest', async () => {
+    await queueMessage({ text: 'keep-a' });
+    await queueMessage({ text: 'drop-b' });
+    await queueMessage({ text: 'keep-c' });
+    const dropId = rawValues()[1].id;
+    await removeQueuedMessage(dropId);
+    const all = rawValues();
+    expect(all).toHaveLength(2);
+    expect(all.find((m: any) => m.id === dropId)).toBeUndefined();
+    expect(all.filter((m: any) => m.sent === false)).toHaveLength(2);
+  });
+
+  it('removeQueuedMessage is a no-op for unknown id', async () => {
+    await queueMessage({ text: 'solo' });
+    await removeQueuedMessage('nonexistent');
+    expect(rawValues()).toHaveLength(1);
+  });
+
+  it('pruneExpiredQueuedMessages deletes stale unsent items and keeps recent', async () => {
+    await queueMessage({ text: 'fresh' });
+    // Inject a stale unsent record directly (timestamp 8 days ago).
+    const staleId = `msg_${Date.now()}_stale`;
+    rawStore().data.set(99, { id: staleId, data: { text: 'stale' }, timestamp: Date.now() - 8 * 24 * 60 * 60 * 1000, sent: false, retryCount: 0 });
+    const pruned = await pruneExpiredQueuedMessages();
+    expect(pruned).toBe(1);
+    const all = rawValues();
+    expect(all.filter((m: any) => m.id === staleId)).toHaveLength(0);
+    expect(all.some((m: any) => m.data.text === 'fresh')).toBe(true);
+  });
+
+  it('pruneExpiredQueuedMessages keeps old items inside the horizon', async () => {
+    await queueMessage({ text: 'two-days' });
+    rawStore().data.set(98, { id: 'msg_old', data: { text: 'two-days-old' }, timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000, sent: false, retryCount: 0 });
+    const pruned = await pruneExpiredQueuedMessages();
+    expect(pruned).toBe(0);
+    expect(rawValues()).toHaveLength(2);
+  });
+
   it('clearPendingMessages empties the store', async () => {
     await queueMessage({ text: 'c1' });
     await queueMessage({ text: 'c2' });
@@ -265,5 +314,25 @@ describe('messageQueue', () => {
     expect(rawValues()).toHaveLength(3);
     const pending = await getPendingMessages();
     expect(pending).toHaveLength(3);
+  });
+
+  it('queueMessage evicts the oldest unsent item when the cap is reached', async () => {
+    await queueMessage({ text: 'old-1' }, 2);
+    await queueMessage({ text: 'old-2' }, 2);
+    await queueMessage({ text: 'new-3' }, 2);
+    const all = rawValues();
+    expect(all).toHaveLength(2);
+    expect(all.map((m: any) => m.data.text)).toEqual(['old-2', 'new-3']);
+  });
+
+  it('queueMessage keeps sent items when evicting at the cap', async () => {
+    await queueMessage({ text: 'a' }, 2);
+    await queueMessage({ text: 'b' }, 2);
+    await markMessageSent(rawValues()[0].id);
+    await queueMessage({ text: 'c' }, 2);
+    const all = rawValues();
+    expect(all).toHaveLength(3);
+    expect(all.map((m: any) => m.data.text)).toEqual(['a', 'b', 'c']);
+    expect(all[0].sent).toBe(true);
   });
 });

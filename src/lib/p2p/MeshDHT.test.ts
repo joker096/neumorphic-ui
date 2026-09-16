@@ -1,5 +1,5 @@
 // src/lib/p2p/MeshDHT.test.ts
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { MeshDHT, DHTNode } from './MeshDHT'
 
 describe('MeshDHT', () => {
@@ -129,5 +129,16 @@ describe('MeshDHT', () => {
   it('should return table', () => {
     const table = MeshDHT.getTable()
     expect(table).toBeInstanceOf(Map)
+  })
+
+  it('notifies on new peer, not on refresh', async () => {
+    const cb = vi.fn();
+    MeshDHT.onNewPeer(cb);
+
+    await MeshDHT.addNode({ nodeId: 'n1', publicKey: 'n1', peerId: 'n1', lastSeen: Date.now(), path: ['n1'] });
+    expect(cb).toHaveBeenCalledTimes(1);
+
+    await MeshDHT.addNode({ nodeId: 'n1', publicKey: 'n1', peerId: 'n1', lastSeen: Date.now(), path: ['n1'] });
+    expect(cb).toHaveBeenCalledTimes(1);
   })
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { deleteTransfer, getChunk, getTransferBlob, getTransferMeta, listTransfers, saveChunk, saveTransferMeta } from './fileStore';
+import { canAcceptFileTransfer, deleteTransfer, enforceFileTransferBudget, getChunk, getTransferBlob, getTransferMeta, listTransfers, pruneAbandonedTransfers, pruneCompletedTransfers, saveChunk, saveTransferMeta } from './fileStore';
 import type { StoredTransfer } from './fileStore';
 
 function makeMeta(transferId: string): StoredTransfer {
@@ -19,6 +19,11 @@ function makeMeta(transferId: string): StoredTransfer {
 
 function bytesOf(...values: number[]): ArrayBuffer {
   return new Uint8Array(values).buffer as ArrayBuffer;
+}
+
+async function cleanSlate(): Promise<void> {
+  const metas = await listTransfers();
+  for (const m of metas) await deleteTransfer(m.transferId);
 }
 
 describe('fileStore (memory fallback without indexedDB)', () => {
@@ -57,5 +62,64 @@ describe('fileStore (memory fallback without indexedDB)', () => {
     await deleteTransfer('t5');
     expect(await getTransferMeta('t5')).toBeUndefined();
     expect(await getChunk('t5', 0)).toBeUndefined();
+  });
+
+  it('pruneAbandonedTransfers deletes stale incomplete transfers, keeps recent and completed ones', async () => {
+    const stale = { ...makeMeta('t-old'), receivedAt: Date.now() - 31 * 60 * 1000, completed: false };
+    const recent = { ...makeMeta('t-recent'), receivedAt: Date.now(), completed: false };
+    const done = { ...makeMeta('t-done'), receivedAt: Date.now() - 31 * 60 * 1000, completed: true };
+    await saveTransferMeta(stale);
+    await saveTransferMeta(recent);
+    await saveTransferMeta(done);
+    await saveChunk('t-old', 0, bytesOf(1));
+
+    expect(await pruneAbandonedTransfers()).toBe(1);
+    expect(await getTransferMeta('t-old')).toBeUndefined();
+    expect(await getChunk('t-old', 0)).toBeUndefined();
+    expect(await getTransferMeta('t-recent')).toBeDefined();
+    expect(await getTransferMeta('t-done')).toBeDefined();
+  });
+
+  it('pruneCompletedTransfers evicts stale completed transfers only', async () => {
+    await cleanSlate();
+    const staleDone = { ...makeMeta('pc-old'), receivedAt: Date.now() - 25 * 60 * 60 * 1000, completed: true };
+    const freshDone = { ...makeMeta('pc-new'), receivedAt: Date.now(), completed: true };
+    const open = { ...makeMeta('pc-open'), receivedAt: Date.now() - 25 * 60 * 60 * 1000, completed: false };
+    await saveTransferMeta(staleDone);
+    await saveChunk('pc-old', 0, bytesOf(1));
+    await saveTransferMeta(freshDone);
+    await saveTransferMeta(open);
+    expect(await pruneCompletedTransfers()).toBe(1);
+    expect(await getTransferMeta('pc-old')).toBeUndefined();
+    expect(await getChunk('pc-old', 0)).toBeUndefined();
+    expect(await getTransferMeta('pc-new')).toBeDefined();
+    expect(await getTransferMeta('pc-open')).toBeDefined();
+  });
+
+  it('canAcceptFileTransfer allows under budget, rejects over', async () => {
+    await cleanSlate();
+    await saveTransferMeta({ ...makeMeta('ca-1'), size: 100 });
+    expect(await canAcceptFileTransfer(50, 150)).toBe(true);
+    expect(await canAcceptFileTransfer(51, 150)).toBe(false);
+  });
+
+  it('enforceFileTransferBudget evicts completed first, then incomplete', async () => {
+    await cleanSlate();
+    await saveTransferMeta({ ...makeMeta('ef-open'), size: 100, receivedAt: Date.now() - 30 * 60 * 1000, completed: false });
+    await saveTransferMeta({ ...makeMeta('ef-done-old'), size: 100, receivedAt: Date.now() - 26 * 60 * 60 * 1000, completed: true });
+    await saveTransferMeta({ ...makeMeta('ef-done-new'), size: 100, receivedAt: Date.now() - 25 * 60 * 60 * 1000, completed: true });
+    expect(await enforceFileTransferBudget(150)).toBe(2);
+    expect(await getTransferMeta('ef-open')).toBeDefined();
+    expect(await getTransferMeta('ef-done-old')).toBeUndefined();
+    expect(await getTransferMeta('ef-done-new')).toBeUndefined();
+  });
+
+  it('enforceFileTransferBudget evicts oldest incomplete when no completed exist', async () => {
+    await cleanSlate();
+    await saveTransferMeta({ ...makeMeta('ei-old'), size: 100, receivedAt: Date.now() - 10 * 60 * 1000, completed: false });
+    await saveTransferMeta({ ...makeMeta('ei-new'), size: 100, receivedAt: Date.now(), completed: false });
+    expect(await enforceFileTransferBudget(150)).toBe(1);
+    expect(await getTransferMeta('ei-old')).toBeUndefined();
+    expect(await getTransferMeta('ei-new')).toBeDefined();
   });
 });

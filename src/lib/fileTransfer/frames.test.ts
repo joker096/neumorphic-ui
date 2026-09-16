@@ -4,6 +4,7 @@ import { FTR_MAGIC, base64ToBytes, bytesToBase64, encodeFrame, parseFrame } from
 
 const meta = {
   type: 'meta' as const,
+  seq: 1,
   transferId: 't1',
   name: 'notes.txt',
   mime: 'text/plain',
@@ -21,12 +22,12 @@ describe('encodeFrame / parseFrame', () => {
   });
 
   it('round-trips a chunk frame', () => {
-    const frame = { type: 'chunk' as const, transferId: 't1', index: 2, data: bytesToBase64(new Uint8Array([1, 2, 3])) };
+    const frame = { type: 'chunk' as const, seq: 2, transferId: 't1', index: 2, data: bytesToBase64(new Uint8Array([1, 2, 3])) };
     expect(parseFrame(encodeFrame(frame))).toEqual(frame);
   });
 
   it('round-trips an end frame', () => {
-    expect(parseFrame(encodeFrame({ type: 'end', transferId: 't1' }))).toEqual({ type: 'end', transferId: 't1' });
+    expect(parseFrame(encodeFrame({ type: 'end', seq: 3, transferId: 't1' }))).toEqual({ type: 'end', seq: 3, transferId: 't1' });
   });
 
   it('returns null for payloads without the magic prefix', () => {
@@ -40,6 +41,20 @@ describe('encodeFrame / parseFrame', () => {
 
   it('returns null for valid JSON with an unknown type', () => {
     expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'nope' }))).toBeNull();
+  });
+
+  it('rejects legacy frames without a sequence (strict mode)', () => {
+    expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'meta', transferId: 't1', name: 'n', mime: 'm', size: 1, chunkSize: 1, totalChunks: 1, sha256: 's', senderPeerId: 'p' }))).toBeNull();
+    expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'chunk', transferId: 't1', index: 0, data: 'AA==' }))).toBeNull();
+    expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'end', transferId: 't1' }))).toBeNull();
+  });
+
+  it('rejects frames with invalid fields', () => {
+    expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'meta', seq: -1, transferId: 't1', name: 'n', mime: 'm', size: 1, chunkSize: 1, totalChunks: 1, sha256: 's', senderPeerId: 'p' }))).toBeNull();
+    expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'chunk', seq: 1, transferId: 't1', index: -1, data: 'AA==' }))).toBeNull();
+    expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'chunk', seq: 1, transferId: 't1', index: 0, data: '' }))).toBeNull();
+    expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'end', seq: 1 }))).toBeNull();
+    expect(parseFrame(FTR_MAGIC + JSON.stringify({ type: 'meta', seq: 1, transferId: '', name: 'n', mime: 'm', size: 1, chunkSize: 1, totalChunks: 1, sha256: 's', senderPeerId: 'p' }))).toBeNull();
   });
 });
 

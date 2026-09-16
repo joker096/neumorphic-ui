@@ -5,7 +5,9 @@ import { parseMentions, isDNDEnabled, isPriorityContact } from "../constants";
 import { TOAST_DND_DURATION_MS } from "../constants/chatConstants";
 import { SELF_DESTRUCT_MS } from "../constants/time";
 import { useI18n } from "../lib/i18n";
-import { queueMessage, getPendingMessages, markMessageSent } from "../lib/messageQueue";
+import { getPendingMessages, markMessageSent, queueMessage, retryMessage, removeQueuedMessage, pruneExpiredQueuedMessages, MAX_QUEUE_RETRIES } from "../lib/messageQueue";
+import { encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
+import { p2pNetwork } from "../lib/p2p/network";
 import { useAppStore } from "../store";
 
 export function useMessageActions(
@@ -41,6 +43,23 @@ export function useMessageActions(
     });
   }, [setChats, setActiveChat]);
 
+  const sendTextOverP2P = useCallback(async (message: any, chat: any) => {
+    const sender = useAppStore.getState().userProfile;
+    const frame = encodeChatText({
+      type: "chat-text",
+      seq: nextFrameSeq(),
+      messageId: String(message.id),
+      chatId: String(chat.id),
+      chatName: String(chat.name || ""),
+      senderName: sender?.name || sender?.username || "User",
+      text: String(message.text || ""),
+      silent: !!message.silent,
+      timestamp: Number(message.id) || Date.now(),
+    });
+    await p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), frame);
+    updateMessageStatus(message.id, "sent");
+  }, [updateMessageStatus]);
+
   const buildNewMessage = useCallback((overrides: Record<string, any> = {}) => {
     const selfDestructDefault = useAppStore.getState().selfDestructDefault;
     const ttl = selfDestructDefault ? SELF_DESTRUCT_MS[selfDestructDefault] : undefined;
@@ -49,7 +68,7 @@ export function useMessageActions(
       id: Date.now(),
       sender: "me",
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: navigator.onLine ? "sent" : "queued",
+      status: "queued",
       silent: silentMode,
       replyTo: replyTarget ? {
         id: replyTarget.id,
@@ -83,7 +102,7 @@ export function useMessageActions(
     }
     const newMessage = buildNewMessage({ text: "", type: "audio", audioUrl, duration: durationStr });
     appendMessage(newMessage);
-    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => updateMessageStatus(newMessage.id, "failed"));
+    void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name }).catch(() => updateMessageStatus(newMessage.id, "failed"));
     setReplyTarget(null);
   }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t]);
 
@@ -95,7 +114,7 @@ export function useMessageActions(
     }
     const newMessage = buildNewMessage({ text: sticker, type: "sticker" });
     appendMessage(newMessage);
-    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => updateMessageStatus(newMessage.id, "failed"));
+    void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name }).catch(() => updateMessageStatus(newMessage.id, "failed"));
     setReplyTarget(null);
     setShowStickerPicker(false);
   }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, setShowStickerPicker, t]);
@@ -135,47 +154,72 @@ export function useMessageActions(
     });
 
     appendMessage(newMessage);
-    void queueMessage({ ...newMessage, chatId: activeChat.id }).catch(() => updateMessageStatus(newMessage.id, "failed"));
+    void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name }).catch(() => updateMessageStatus(newMessage.id, "failed"));
+    void sendTextOverP2P(newMessage, activeChat).catch(() => updateMessageStatus(newMessage.id, "queued"));
     setMessageText("");
     setSilentMode(false);
     setReplyTarget(null);
     setDraftTextByChat((prev: Record<string, string>) => ({ ...prev, [String(activeChat.id)]: "" }));
 
-    if (navigator.onLine) {
-      setTimeout(() => updateMessageStatus(newMessage.id, "delivered"), 1000);
-    }
   }, [
     messageText, morseMode, activeChat, scheduleDateTime, scheduledQueue,
     buildNewMessage, appendMessage, setMessageText, setScheduleDateTime,
-    setSilentMode, setReplyTarget, setDraftTextByChat, updateMessageStatus, t,
+    setSilentMode, setReplyTarget, setDraftTextByChat, updateMessageStatus, sendTextOverP2P, t,
   ]);
 
-  // Offline-first: flush queued messages to "sent" when the network is back.
   useEffect(() => {
-    const flush = async () => {
-      if (!navigator.onLine) return;
+    const attempt = async (item: any): Promise<boolean> => {
+      const retries = item.retryCount || 0;
+      // Exponential backoff between attempts (1s, 2s, 4s … capped at 60s).
+      const backoffMs = Math.min(60_000, 1_000 * 2 ** retries);
+      if (item.lastRetry && Date.now() - item.lastRetry < backoffMs) return true;
       try {
-        const pending = await getPendingMessages();
-        for (const item of pending) await markMessageSent(item.id);
-        if (pending.length > 0) {
-          setChats((prevChats: any[]) => prevChats.map((c: any) =>
-            c.history?.some((m: any) => m.status === "queued")
-              ? { ...c, history: c.history.map((m: any) => (m.status === "queued" ? { ...m, status: "sent" } : m)) }
-              : c
-          ));
-          setActiveChat((prev: any) => {
-            if (!prev || !prev.history?.some((m: any) => m.status === "queued")) return prev;
-            return { ...prev, history: prev.history.map((m: any) => (m.status === "queued" ? { ...m, status: "sent" } : m)) };
-          });
-        }
+        await sendTextOverP2P(item.data, { id: item.data.chatId, name: item.data.chatName });
+        await markMessageSent(item.id);
+        return true;
       } catch {
-        /* queue is best-effort */
+        if (retries + 1 >= MAX_QUEUE_RETRIES) {
+          // Exhausted the retry budget: evict from the queue and surface the
+          // failure in the chat instead of flushing forever.
+          await markMessageSent(item.id);
+          await updateMessageStatus(item.data.id, "failed");
+          await removeQueuedMessage(item.id);
+          return true;
+        }
+        await retryMessage(item);
+        return false;
       }
     };
-    void flush();
-    window.addEventListener("online", flush);
-    return () => window.removeEventListener("online", flush);
-  }, [setChats, setActiveChat]);
+
+    const flush = async () => {
+      if (!navigator.onLine) return;
+      const pending = await getPendingMessages().catch(() => []);
+      for (const item of pending) {
+        // Text and sticker messages have a text payload the chat frame can
+        // carry; media (audio/image/video) has no wire representation (blob
+        // URLs are local-only) and stays queued for its own sync path.
+        const isTextCapable = item.data?.type === undefined || item.data?.type === "sticker";
+        if (!isTextCapable) continue;
+        // One failed message must not abort the rest of the queue.
+        await attempt(item);
+      }
+    };
+
+    const prune = async () => {
+      if (!navigator.onLine) return;
+      await pruneExpiredQueuedMessages().catch(() => {});
+      await flush();
+    };
+
+    void prune();
+    window.addEventListener("online", prune);
+    // Periodic retry so queued messages recover without a connectivity toggle.
+    const retryTimer = window.setInterval(() => void flush(), 30_000);
+    return () => {
+      window.removeEventListener("online", prune);
+      window.clearInterval(retryTimer);
+    };
+  }, [sendTextOverP2P, updateMessageStatus]);
 
   const toggleSavedMessage = useCallback((chatContext: any, msg: any) => {
     if (!chatContext || !msg) return;

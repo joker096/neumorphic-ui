@@ -15,8 +15,7 @@ export class SignallingPool {
   constructor(initialSeeds: string[]) {
     // Load persisted seeds but ALWAYS reconcile against the current config so a
     // stale seed from an older bundle can never permanently override the intended
-    // signaling endpoints (e.g. old `signaling*.messanger.app` hosts surviving a
-    // deploy that moved to a new domain).
+    // signalling endpoints left over from an older configuration.
     this.load();
     this.reconcile(initialSeeds);
   }

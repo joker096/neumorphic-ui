@@ -1,13 +1,29 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useMessageActions } from './useMessageActions';
-import { queueMessage, getPendingMessages, markMessageSent } from '../lib/messageQueue';
+import { queueMessage } from '../lib/messageQueue';
 
 vi.mock('../lib/messageQueue', () => ({
   queueMessage: vi.fn().mockResolvedValue('queued-id'),
   getPendingMessages: vi.fn().mockResolvedValue([]),
   markMessageSent: vi.fn().mockResolvedValue(undefined),
+  retryMessage: vi.fn().mockResolvedValue(undefined),
+  removeQueuedMessage: vi.fn().mockResolvedValue(undefined),
+  pruneExpiredQueuedMessages: vi.fn().mockResolvedValue(0),
+  MAX_QUEUE_RETRIES: 5,
 }));
+
+vi.mock('../lib/p2p/network', () => {
+  const broadcast = vi.fn().mockResolvedValue(undefined);
+  return {
+    p2pNetwork: {
+      broadcast,
+      sendAddressed: vi.fn(async (_target: unknown, data: unknown) => { await broadcast(data); return false; }),
+      peerForChat: () => undefined,
+      peerForChatName: () => undefined,
+    },
+  };
+});
 
 function setOnLine(online: boolean) {
   Object.defineProperty(navigator, 'onLine', { value: online, configurable: true, writable: true });
@@ -56,7 +72,6 @@ function setup(activeChat: any, messageText: string) {
 describe('useMessageActions (offline-first queue)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getPendingMessages).mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -74,13 +89,13 @@ describe('useMessageActions (offline-first queue)', () => {
     expect(state.activeChat.history.at(-1).status).toBe('queued');
   });
 
-  it('marks the message sent when online', () => {
+  it('marks the message sent after the P2P broadcast succeeds', async () => {
     const { state, result } = setup({ id: 'dm-1', name: 'Bob', history: [] }, 'online hello');
 
-    act(() => result.current.handleSendMessage());
+    await act(async () => { result.current.handleSendMessage(); });
 
-    expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-1', status: 'sent' }));
-    expect(state.chats[0].history.at(-1).status).toBe('sent');
+    expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-1', status: 'queued' }));
+    await waitFor(() => expect(state.chats[0].history.at(-1).status).toBe('sent'));
   });
 
   it('queues voice and sticker sends when offline', () => {
@@ -96,8 +111,7 @@ describe('useMessageActions (offline-first queue)', () => {
     expect(state.activeChat.history.at(-1).status).toBe('queued');
   });
 
-  it('flushes queued messages to sent when the network returns', async () => {
-    vi.mocked(getPendingMessages).mockResolvedValueOnce([{ id: 'q1' }]);
+  it('keeps queued messages pending until a transport confirms delivery', async () => {
     const queuedChat = {
       id: 'dm-1',
       name: 'Bob',
@@ -105,18 +119,14 @@ describe('useMessageActions (offline-first queue)', () => {
     };
     const { state } = setup(queuedChat, '');
 
-    await act(async () => {
-      await vi.waitFor(() => expect(markMessageSent).toHaveBeenCalledWith('q1'));
-    });
+    await act(async () => { await Promise.resolve(); });
 
-    expect(getPendingMessages).toHaveBeenCalled();
-    expect(state.chats[0].history[0].status).toBe('sent');
-    expect(state.activeChat.history[0].status).toBe('sent');
+    expect(state.chats[0].history[0].status).toBe('queued');
+    expect(state.activeChat.history[0].status).toBe('queued');
   });
 
   it('keeps the queue while offline', async () => {
     setOnLine(false);
-    vi.mocked(getPendingMessages).mockResolvedValueOnce([{ id: 'q1' }]);
     setup({ id: 'dm-1', name: 'Bob', history: [{ id: 1, sender: 'me', text: 'x', time: '10:00', status: 'queued' }] }, '');
 
     await act(async () => {
@@ -124,6 +134,85 @@ describe('useMessageActions (offline-first queue)', () => {
       await Promise.resolve();
     });
 
-    expect(markMessageSent).not.toHaveBeenCalled();
+  });
+
+  it('flushes queued text and sticker over P2P on reconnect, keeps media queued', async () => {
+    const { getPendingMessages, markMessageSent } = await import('../lib/messageQueue');
+    const { p2pNetwork } = await import('../lib/p2p/network');
+    const sendAddressed = vi.mocked(p2pNetwork.sendAddressed);
+
+    vi.mocked(getPendingMessages).mockResolvedValue([]);
+    setup({ id: 'dm-1', name: 'Bob', history: [] }, '');
+    await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+
+    vi.mocked(getPendingMessages).mockResolvedValue([
+      { id: 'q1', data: { text: 'hello', chatId: 'dm-1', chatName: 'Bob', status: 'queued' }, sent: false },
+      { id: 'q2', data: { text: 'sticker-1', type: 'sticker', chatId: 'dm-1', chatName: 'Bob', status: 'queued' }, sent: false },
+      { id: 'q3', data: { text: '', type: 'audio', audioUrl: 'blob:a', duration: '0:05', chatId: 'dm-1', chatName: 'Bob', status: 'queued' }, sent: false },
+    ]);
+
+    await act(async () => { window.dispatchEvent(new Event('online')); });
+
+    await waitFor(() => expect(vi.mocked(markMessageSent)).toHaveBeenCalledTimes(2));
+    expect(sendAddressed).toHaveBeenCalledTimes(2);
+    expect(sendAddressed.mock.calls[0][1]).toContain('"text":"hello"');
+    expect(sendAddressed.mock.calls[1][1]).toContain('"text":"sticker-1"');
+    expect(sendAddressed.mock.calls.some((c) => String(c[1]).includes('audioUrl'))).toBe(false);
+  });
+
+  it('retries a failed flush item and continues the queue', async () => {
+    const { getPendingMessages, markMessageSent, retryMessage, removeQueuedMessage } = await import('../lib/messageQueue');
+    const { p2pNetwork } = await import('../lib/p2p/network');
+
+    vi.mocked(getPendingMessages).mockResolvedValue([
+      { id: 'q1', data: { id: 1, text: 'first', chatId: 'dm-1', chatName: 'Bob', status: 'queued' }, sent: false, retryCount: 0 },
+      { id: 'q2', data: { id: 2, text: 'second', chatId: 'dm-1', chatName: 'Bob', status: 'queued' }, sent: false, retryCount: 0 },
+    ]);
+
+    let calls = 0;
+    vi.mocked(p2pNetwork.sendAddressed).mockImplementation(async () => {
+      calls += 1;
+      if (calls === 1) throw new Error('temporary');
+      return false;
+    });
+
+    const { state } = setup({
+      id: 'dm-1',
+      name: 'Bob',
+      history: [
+        { id: 1, sender: 'me', text: 'first', time: '10:00', status: 'queued' },
+        { id: 2, sender: 'me', text: 'second', time: '10:00', status: 'queued' },
+      ],
+    }, '');
+
+    await waitFor(() => expect(vi.mocked(markMessageSent)).toHaveBeenCalledWith('q2'));
+    expect(vi.mocked(retryMessage)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(retryMessage).mock.calls[0][0].id).toBe('q1');
+    expect(vi.mocked(removeQueuedMessage)).not.toHaveBeenCalled();
+    expect(state.chats[0].history[0].status).toBe('queued');
+    expect(state.chats[0].history[1].status).toBe('sent');
+  });
+
+  it('evicts a message after max retries and marks it failed', async () => {
+    const { getPendingMessages, markMessageSent, retryMessage, removeQueuedMessage, MAX_QUEUE_RETRIES } = await import('../lib/messageQueue');
+    const { p2pNetwork } = await import('../lib/p2p/network');
+
+    vi.mocked(getPendingMessages).mockResolvedValue([
+      { id: 'q1', data: { id: 1, text: 'first', chatId: 'dm-1', chatName: 'Bob', status: 'queued' }, sent: false, retryCount: MAX_QUEUE_RETRIES },
+    ]);
+    vi.mocked(p2pNetwork.sendAddressed).mockImplementation(async () => {
+      throw new Error('permanent');
+    });
+
+    const { state } = setup({
+      id: 'dm-1',
+      name: 'Bob',
+      history: [{ id: 1, sender: 'me', text: 'first', time: '10:00', status: 'queued' }],
+    }, '');
+
+    await waitFor(() => expect(vi.mocked(removeQueuedMessage)).toHaveBeenCalledWith('q1'));
+    expect(vi.mocked(markMessageSent)).toHaveBeenCalledWith('q1');
+    expect(vi.mocked(retryMessage)).not.toHaveBeenCalled();
+    expect(state.chats[0].history[0].status).toBe('failed');
   });
 });

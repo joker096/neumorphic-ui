@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import * as nacl from 'tweetnacl';
 import { P2PTransport } from './P2PTransport';
 import { HMACAuth } from './HMACAuth';
 import { b64encode, b64decode } from '../crypto/cryptoCore';
+
+vi.mock('idb-keyval', () => ({
+  get: vi.fn().mockResolvedValue('{}'),
+  set: vi.fn().mockResolvedValue(undefined),
+}));
 
 let mockWs: any = null;
 let mockPc: any = null;
@@ -118,6 +124,7 @@ function makeTransport(opts: Partial<{
   iceServers: RTCIceServer[];
   obfuscationEnabled?: boolean;
 }> = {}) {
+  const identity = nacl.sign.keyPair();
   return new P2PTransport({
     signalingUrl: opts.signalingUrl ?? 'ws://localhost:8080',
     localPublicKey: opts.localPublicKey ?? 'local-pub-key',
@@ -126,6 +133,8 @@ function makeTransport(opts: Partial<{
     onConnected,
     onDisconnected,
     obfuscationEnabled: opts.obfuscationEnabled,
+    identitySecretKey: identity.secretKey,
+    identityPublicKey: identity.publicKey,
   } as any);
 }
 
@@ -368,7 +377,7 @@ it('sends data via data channel when hmacKey is not set', async () => {
 
        await transport.send('hello-world');
 
-       expect(dc.send).toHaveBeenCalledWith('hello-world');
+      expect(dc.send).toHaveBeenCalledWith('1|local-pub-key|hello-world');
      });
 
      it('uses HMAC signature when hmacKey is set', async () => {
@@ -380,8 +389,8 @@ it('sends data via data channel when hmacKey is not set', async () => {
        await transport.send('hello');
 
       await vi.waitFor(() => {
-        expect(HMACAuth.sign).toHaveBeenCalledWith('some-key', 'hello');
-        expect(dc.send).toHaveBeenCalledWith('mock-sig|hello');
+        expect(HMACAuth.sign).toHaveBeenCalledWith('some-key', '1|local-pub-key|hello');
+        expect(dc.send).toHaveBeenCalledWith('mock-sig|1|local-pub-key|hello');
       });
     });
 
@@ -401,7 +410,7 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
        });
        const sent = dc.send.mock.calls[0][0] as string;
        expect(sent.startsWith('mock-sig|')).toBe(true);
-       const payload = sent.slice('mock-sig|'.length);
+      const payload = sent.slice('mock-sig|'.length).replace(/^\d+\|[^|]+\|/, '');
        expect(payload).not.toContain('secret-data');
        const sep = payload.indexOf(':');
        const plain = await subtle.decrypt(
@@ -437,6 +446,30 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
        });
      });
 
+     it('drops an authenticated encrypted payload replay', async () => {
+       const subtle = await getSubtle();
+       const transport = makeTransport();
+       const dc: any = { readyState: 'open', send: vi.fn(), close: vi.fn(), onopen: null, onclose: null, onmessage: null, onerror: null };
+       (transport as any).dataChannel = dc;
+       (transport as any).setupDataChannel();
+       (transport as any).hmacKey = 'some-key';
+       const aesKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+       (transport as any).sessionAesKey = aesKey;
+
+       const iv = crypto.getRandomValues(new Uint8Array(12));
+       const cipher = new Uint8Array(await subtle.encrypt(
+         { name: 'AES-GCM', iv },
+         aesKey,
+         new TextEncoder().encode('once-only'),
+       ));
+       const payload = `mock-sig|${b64encode(iv)}:${b64encode(cipher)}`;
+
+       await dc.onmessage({ data: payload });
+       await dc.onmessage({ data: payload });
+
+       await vi.waitFor(() => expect(onMessage).toHaveBeenCalledTimes(1));
+     });
+
      it('drops payloads that a different session key cannot decrypt', async () => {
        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
        const subtle = await getSubtle();
@@ -463,36 +496,61 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
        warnSpy.mockRestore();
      });
 
-     it('warns and does not send when data channel is not open', async () => {
-       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    it('rejects when data channel is not open', async () => {
        const transport = makeTransport();
        (transport as any).dataChannel = null;
 
-       await transport.send('data');
-
-       expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Data channel not open');
-       warnSpy.mockRestore();
+      await expect(transport.send('data')).rejects.toThrow('P2P data channel is not open');
      });
   });
 
   describe('sendCallControl()', () => {
-    it('sends data via call-control channel', () => {
+    it('sends data via call-control channel', async () => {
       const transport = makeTransport();
       const ccDc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
       (transport as any).callControlChannel = ccDc;
 
-      transport.sendCallControl({ type: 'mute-toggled', kind: 'audio' });
+      await transport.sendCallControl({ type: 'mute-toggled', kind: 'audio' });
 
       expect(ccDc.send).toHaveBeenCalledWith(
-        JSON.stringify({ type: 'mute-toggled', kind: 'audio' }),
+        expect.stringMatching(/^1\|[^|]+\|{"type":"mute-toggled","kind":"audio"}$/),
       );
     });
 
-    it('does nothing if call-control channel is not open', () => {
+    it('does nothing if call-control channel is not open', async () => {
       const transport = makeTransport();
       (transport as any).callControlChannel = null;
 
-      expect(() => transport.sendCallControl({ test: true })).not.toThrow();
+      await expect(transport.sendCallControl({ test: true })).resolves.toBeUndefined();
+    });
+
+    it('rejects stale, mismatched and unsequenced call-control envelopes', async () => {
+      const transport = makeTransport();
+      (transport as any).hmacKey = null;
+      const ccDc = { readyState: 'open', send: vi.fn(), close: vi.fn() };
+      (transport as any).callControlChannel = ccDc;
+      (transport as any).peerPublicKey = 'peer';
+      const handler = { onMediaEnded: vi.fn() };
+      (transport as any).mediaHandlers = handler;
+
+      await (transport as any).processCallControlMessage(`1|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'audio' })}`);
+      expect(handler.onMediaEnded).toHaveBeenCalledWith('peer', 'audio');
+
+      // stale seq → dropped
+      await (transport as any).processCallControlMessage(`1|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
+      expect(handler.onMediaEnded).toHaveBeenCalledTimes(1);
+
+      // sender mismatch → dropped
+      await (transport as any).processCallControlMessage(`2|other|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
+      expect(handler.onMediaEnded).toHaveBeenCalledTimes(1);
+
+      // fresh seq → accepted
+      await (transport as any).processCallControlMessage(`2|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
+      expect(handler.onMediaEnded).toHaveBeenCalledTimes(2);
+
+      // missing seq (legacy bare JSON) → dropped
+      await (transport as any).processCallControlMessage(JSON.stringify({ type: 'mute-toggled', kind: 'video' }));
+      expect(handler.onMediaEnded).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -574,6 +632,7 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
           type: 'typing-indicator',
           target: 'peer-key',
           data: { isTyping: true },
+          seq: 1,
         }),
       );
     });
@@ -607,6 +666,20 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
 
       expect(handler1).toHaveBeenCalledWith('read-receipt', { messageId: '123' });
       expect(handler2).toHaveBeenCalledWith('read-receipt', { messageId: '123' });
+    });
+
+    it('drops stale metadata frames (anti-replay)', async () => {
+      const transport = makeTransport();
+      const handler = vi.fn();
+      transport.onMetadataSignal(handler);
+
+      await (transport as any).handleSignalingMessage({ type: 'typing-indicator', seq: 5, data: 'x' });
+      await (transport as any).handleSignalingMessage({ type: 'typing-indicator', seq: 4, data: 'y' });
+      await (transport as any).handleSignalingMessage({ type: 'online-status', seq: 6, data: 'z' });
+
+      expect(handler).toHaveBeenCalledTimes(2);
+      expect(handler).toHaveBeenNthCalledWith(1, 'typing-indicator', 'x');
+      expect(handler).toHaveBeenNthCalledWith(2, 'online-status', 'z');
     });
   });
 
@@ -773,5 +846,107 @@ describe('P2PTransport security regressions', () => {
     expect((transport as any).sessionAesKey).toBeNull();
     expect((transport as any).pendingCandidates).toEqual([]);
     warnSpy.mockRestore();
+  });
+
+  it('drops stale signaling frames (anti-replay)', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const transport = makeTransport();
+    const iceSpy = vi.spyOn(transport as any, 'handleIceCandidate').mockResolvedValue(undefined);
+    const frame = { type: 'ice-candidate', from: 'peer', seq: 4, candidate: { candidate: 'c' } };
+
+    await (transport as any).handleSignalingMessage(frame);
+    await (transport as any).handleSignalingMessage(frame);
+
+    expect(iceSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Dropping stale signaling frame (anti-replay)');
+    warnSpy.mockRestore();
+  });
+
+  it('accepts strictly increasing signaling frames and resets per-sender tracker on fresh offer', async () => {
+    const transport = makeTransport();
+    const iceSpy = vi.spyOn(transport as any, 'handleIceCandidate').mockResolvedValue(undefined);
+    const offerSpy = vi.spyOn(transport as any, 'handleOffer').mockResolvedValue(undefined);
+
+    await (transport as any).handleSignalingMessage({ type: 'ice-candidate', from: 'peer', seq: 5, candidate: { candidate: 'c' } });
+    await (transport as any).handleSignalingMessage({ type: 'offer', from: 'peer', seq: 3, dhPub: 'x' });
+    await (transport as any).handleSignalingMessage({ type: 'ice-candidate', from: 'peer', seq: 4, candidate: { candidate: 'c' } });
+
+    expect(offerSpy).toHaveBeenCalledTimes(1);
+    expect(iceSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('attaches a monotonic seq to every signaling frame', async () => {
+    const transport = makeTransport();
+    await connectTransport(transport);
+    (transport as any).signalingSeq = 0;
+    (transport as any).sendSignaling({ type: 'ping-probe', probe: true });
+    const sent = mockWs.send.mock.calls.map((c: any) => c[0]);
+    const parsed = sent.map((s: string) => JSON.parse(s));
+    const seqs = parsed.filter((m: any) => m.type === 'ping-probe').map((m: any) => m.seq);
+    expect(seqs).toEqual([1]);
+  });
+
+  it('fails closed for offer without identity signature', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const transport = makeTransport();
+    const closeMock = vi.fn();
+    (transport as any).peerConnection = { close: closeMock };
+    (transport as any).peerPublicKey = 'peer';
+    (transport as any).localDhPrivateKey = new Uint8Array(32);
+    (transport as any).hmacKey = 'key';
+    (transport as any).sessionAesKey = 'aes';
+    (transport as any).pendingCandidates = [{ candidate: 'candidate' } as any];
+
+    await (transport as any).handleOffer({ from: 'peer', sdp: { type: 'offer', sdp: 'sdp' }, dhPub: 'a'.repeat(64) });
+
+    expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting offer without identity signature (fail-closed)');
+    expect(closeMock).toHaveBeenCalled();
+    expect((transport as any).peerConnection).toBeNull();
+    expect((transport as any).peerPublicKey).toBeNull();
+    expect((transport as any).localDhPrivateKey).toBeNull();
+    expect((transport as any).hmacKey).toBeNull();
+    expect((transport as any).sessionAesKey).toBeNull();
+    expect((transport as any).pendingCandidates).toEqual([]);
+    warnSpy.mockRestore();
+  });
+
+  it('fails closed for answer without identity signature', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const transport = makeTransport();
+    const closeMock = vi.fn();
+    const setRemoteMock = vi.fn();
+    (transport as any).peerConnection = { close: closeMock, setRemoteDescription: setRemoteMock };
+    (transport as any).peerPublicKey = 'peer';
+    (transport as any).localDhPrivateKey = new Uint8Array(32);
+    (transport as any).hmacKey = 'key';
+    (transport as any).sessionAesKey = 'aes';
+    (transport as any).pendingCandidates = [{ candidate: 'candidate' } as any];
+
+    await (transport as any).handleAnswer({ sdp: { type: 'answer', sdp: 'sdp' }, dhPub: 'a'.repeat(64) });
+
+    expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting answer without identity signature (fail-closed)');
+    expect(closeMock).toHaveBeenCalled();
+    expect(setRemoteMock).not.toHaveBeenCalled();
+    expect((transport as any).peerConnection).toBeNull();
+    expect((transport as any).peerPublicKey).toBeNull();
+    expect((transport as any).localDhPrivateKey).toBeNull();
+    expect((transport as any).hmacKey).toBeNull();
+    expect((transport as any).sessionAesKey).toBeNull();
+    expect((transport as any).pendingCandidates).toEqual([]);
+    warnSpy.mockRestore();
+  });
+
+  it('call() throws when identity keys are missing', async () => {
+    const t = new P2PTransport({
+      signalingUrl: 'ws://localhost:8080',
+      localPublicKey: 'x',
+      onMessage: onMessage as any,
+      onConnected,
+      onDisconnected,
+      obfuscationEnabled: false,
+    } as any);
+
+    await expect(t.call('peer-x')).rejects.toThrow(/identity keys required/);
+    expect((t as any).peerConnection).toBeNull();
   });
 });

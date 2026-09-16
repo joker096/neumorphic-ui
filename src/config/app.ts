@@ -1,29 +1,25 @@
-// App-level URL configuration.
-// Centralized so public surface URLs can't drift across features.
+// App-level sharing configuration. Links identify content; they never point at
+// a hosted messenger instance. The receiving native client owns `nexus://`.
+const NEXUS_SCHEME = 'nexus://';
 
-const ENV_APP_URL = (import.meta.env.VITE_APP_URL as string | undefined) || '';
-
-// Main app home (also used by the CRM invite QR → short presentable host).
-export const APP_HOME_URL = (ENV_APP_URL || 'https://mess.cvr.name').replace(/\/+$/, '');
-
-// Public messenger domain used for channel invite links and the embed widget.
-export const MESSENGER_WEB_BASE = 'https://messanger.app';
-
-// URL-shortener base for group invites.
-export const INVITE_SHORT_BASE = 'https://ma.to';
-
-export const EMBED_WIDGET_URL = `${MESSENGER_WEB_BASE}/embed.js`;
+// Embeds are opt-in: an operator may self-host a widget and explicitly set this
+// build-time value. There is intentionally no public default.
+export const EMBED_WIDGET_URL = (import.meta.env.VITE_EMBED_WIDGET_URL as string | undefined)?.trim() || '';
 
 export function channelInviteLink(username: string | undefined, chatId: string): string {
   const name = typeof username === 'string' && username ? `@${username}` : chatId;
-  return `${MESSENGER_WEB_BASE}/channel/${name}`;
+  return `${NEXUS_SCHEME}channel/${encodeURIComponent(name)}`;
 }
 
 export function groupInviteUrl(token: string): string {
-  return `${INVITE_SHORT_BASE}/${token}`;
+  return `${NEXUS_SCHEME}group/invite/${encodeURIComponent(token)}`;
 }
 
-// Deep link that opens the story viewer on app mount (handled by `parseStoryDeepLink`).
+export function crmInviteLink(code: string): string {
+  return `${NEXUS_SCHEME}company/invite/${encodeURIComponent(code)}`;
+}
+
+// Deep link that opens the story viewer in a client that registered `nexus://`.
 export function storyShareLink(userId: number | string, storyId: number | string): string {
-  return `${APP_HOME_URL}#nexus://story/${userId}/${storyId}`;
+  return `${NEXUS_SCHEME}story/${encodeURIComponent(userId)}/${encodeURIComponent(storyId)}`;
 }

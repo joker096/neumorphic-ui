@@ -20,20 +20,57 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
-export async function queueMessage(message: any): Promise<string> {
+/** Cap on queued (unsent) messages: the oldest unsent item is evicted before a new one is added. */
+export const MAX_QUEUE_ITEMS = 100;
+
+export async function queueMessage(message: any, maxItems: number = MAX_QUEUE_ITEMS): Promise<string> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(QUEUE_STORE, 'readwrite');
     const store = transaction.objectStore(QUEUE_STORE);
-    const request = store.add({
-      id: `msg_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      data: message,
-      timestamp: Date.now(),
-      sent: false,
-      retryCount: 0,
-    });
-    request.onsuccess = () => resolve(request.result as string);
-    request.onerror = () => reject(request.error);
+    const valuesReq = store.getAll();
+    const keysReq = store.getAllKeys();
+    let valuesDone = false;
+    let keysDone = false;
+    let all: any[] = [];
+    let keys: unknown[] = [];
+    let done = false;
+    const finish = () => {
+      if (!valuesDone || !keysDone) return;
+      if (done) return;
+      done = true;
+      const limit = Math.max(1, maxItems);
+      const unsent: Array<{ item: any; key: IDBValidKey }> = [];
+      all.forEach((item: any, idx: number) => {
+        if (!item.sent) unsent.push({ item, key: keys[idx] as IDBValidKey });
+      });
+      unsent.sort((a, b) => (a.item.timestamp || 0) - (b.item.timestamp || 0));
+      while (unsent.length >= limit) {
+        const oldest = unsent.shift();
+        if (oldest) store.delete(oldest.key);
+      }
+      const request = store.add({
+        id: `msg_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        data: message,
+        timestamp: Date.now(),
+        sent: false,
+        retryCount: 0,
+      });
+      request.onsuccess = () => resolve(request.result as string);
+      request.onerror = () => reject(request.error);
+    };
+    valuesReq.onsuccess = () => {
+      all = valuesReq.result || [];
+      valuesDone = true;
+      finish();
+    };
+    keysReq.onsuccess = () => {
+      keys = keysReq.result || [];
+      keysDone = true;
+      finish();
+    };
+    valuesReq.onerror = () => reject(valuesReq.error);
+    keysReq.onerror = () => reject(keysReq.error);
   });
 }
 
@@ -69,6 +106,88 @@ export async function markMessageSent(id: string): Promise<void> {
         store.put({ ...all[idx], sent: true }, keys[idx] as IDBValidKey);
       }
       resolve();
+    };
+    valuesReq.onsuccess = () => {
+      all = valuesReq.result || [];
+      valuesDone = true;
+      tryFinish();
+    };
+    keysReq.onsuccess = () => {
+      keys = keysReq.result || [];
+      keysDone = true;
+      tryFinish();
+    };
+    valuesReq.onerror = () => reject(valuesReq.error);
+    keysReq.onerror = () => reject(keysReq.error);
+  });
+}
+
+export async function removeQueuedMessage(id: string): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(QUEUE_STORE, 'readwrite');
+    const store = transaction.objectStore(QUEUE_STORE);
+    const valuesReq = store.getAll();
+    const keysReq = store.getAllKeys();
+    let valuesDone = false;
+    let keysDone = false;
+    let all: any[] = [];
+    let keys: unknown[] = [];
+    const tryFinish = () => {
+      if (!valuesDone || !keysDone) return;
+      const idx = all.findIndex((m: any) => m.id === id);
+      if (idx !== -1) {
+        store.delete(keys[idx] as IDBValidKey);
+      }
+      resolve();
+    };
+    valuesReq.onsuccess = () => {
+      all = valuesReq.result || [];
+      valuesDone = true;
+      tryFinish();
+    };
+    keysReq.onsuccess = () => {
+      keys = keysReq.result || [];
+      keysDone = true;
+      tryFinish();
+    };
+    valuesReq.onerror = () => reject(valuesReq.error);
+    keysReq.onerror = () => reject(keysReq.error);
+  });
+}
+
+/**
+ * Unsent queue items older than this are considered abandoned (device was
+ * offline past the horizon, or the message was superseded) and are pruned
+ * instead of being flushed months later.
+ */
+export const QUEUE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Maximum number of retry attempts per queued message before it fails. */
+export const MAX_QUEUE_RETRIES = 5;
+
+export async function pruneExpiredQueuedMessages(maxAgeMs: number = QUEUE_MAX_AGE_MS): Promise<number> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(QUEUE_STORE, 'readwrite');
+    const store = transaction.objectStore(QUEUE_STORE);
+    const valuesReq = store.getAll();
+    const keysReq = store.getAllKeys();
+    let valuesDone = false;
+    let keysDone = false;
+    let all: any[] = [];
+    let keys: unknown[] = [];
+    let pruned = 0;
+    const tryFinish = () => {
+      if (!valuesDone || !keysDone) return;
+      const cutoff = Date.now() - maxAgeMs;
+      all.forEach((m: any, idx: number) => {
+        if (!m.sent && m.timestamp && m.timestamp < cutoff) {
+          store.delete(keys[idx] as IDBValidKey);
+          pruned += 1;
+        }
+      });
+      resolve(pruned);
     };
     valuesReq.onsuccess = () => {
       all = valuesReq.result || [];

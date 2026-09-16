@@ -85,8 +85,8 @@ export class MeshDHT {
       this.table.set(node.nodeId, { ...node, lastSeen: Date.now() })
     }
 
-    // Notify callback if this is a new peer
-    if (existing) {
+    // Notify callback if this is a NEW peer (existing nodes just refresh lastSeen)
+    if (!existing) {
       this.onNotify?.(node)
     }
   }

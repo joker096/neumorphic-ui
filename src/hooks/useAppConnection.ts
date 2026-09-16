@@ -15,6 +15,16 @@ export const useAppConnection = () => {
   const autoReconnect = useAppStore(state => state.autoReconnect);
 
   useEffect(() => {
+    // A relay is an explicit deployment choice. Do not probe a hard-coded host
+    // when this client has no user/operator-provided signalling endpoint.
+    if (SIGNALING_SEED_URLS.length === 0) {
+      setConnectionStatus('disconnected');
+      setConnectionError(null);
+      useAppStore.getState().setConnectionStatus('disconnected');
+      useAppStore.getState().setBlockedBackends([]);
+      return;
+    }
+
     const savedBackend = (relayBackend as TunnelBackend) || 'direct';
     const mgr = new SignallingManager(SIGNALING_SEED_URLS, savedBackend, autoReconnect);
     managerRef.current = mgr;

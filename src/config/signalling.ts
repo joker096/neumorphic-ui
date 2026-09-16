@@ -1,19 +1,14 @@
 /**
  * Signalling server seed URLs.
  *
- * `VITE_SIGNALING_SEED_URLS` can override the default seed list with a
- * comma-separated list of `wss://` endpoints. Invalid entries are dropped and
- * the default seed is restored when no valid override remains.
+ * `VITE_SIGNALING_SEED_URLS` explicitly opts a deployment into one or more
+ * comma-separated `wss://` endpoints. Invalid entries are dropped. With no
+ * valid setting, the client is serverless and makes no relay connection.
  *
  * Multi-seed = resilience: the SignallingPool rotates to the next host when the
- * first one fails (see `SignallingPool.getNextAvailable`), and the relay token
- * endpoint derives from `SIGNALING_SEED_URLS[0]`. For VPN / DNS-poisoning
- * resilience a free Cloudflare Workers proxy of the same origin is provided in
- * `server/signalling-proxy-worker.mjs` — add its URL as the second seed:
- *   VITE_SIGNALING_SEED_URLS="wss://mess.cvr.name/ws,wss://<worker>.workers.dev/ws"
+ * first one fails (see `SignallingPool.getNextAvailable`). The relay token
+ * endpoint derives from `SIGNALING_SEED_URLS[0]` when the operator opted in.
  */
-const DEFAULT_SIGNALING_SEED_URLS = ['wss://mess.cvr.name/ws'];
-
 const envSeedUrls = import.meta.env.VITE_SIGNALING_SEED_URLS as string | undefined;
 const parsedSeedUrls = typeof envSeedUrls === 'string'
   ? envSeedUrls
@@ -23,4 +18,4 @@ const parsedSeedUrls = typeof envSeedUrls === 'string'
   : [];
 
 export const SIGNALING_SEED_URLS: string[] =
-  parsedSeedUrls.length > 0 ? parsedSeedUrls : DEFAULT_SIGNALING_SEED_URLS;
+  parsedSeedUrls;
