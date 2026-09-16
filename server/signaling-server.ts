@@ -31,6 +31,19 @@ if (JWT_SECRET.length < 32 || weakJwtSecrets.has(JWT_SECRET.trim().toLowerCase()
 
 const clients = new Map<string, WebSocket>()
 
+// Anti-replay: per-sender monotonic sequence counter for signaling frames.
+// offer/answer/ice-candidate carry a `seq` field; the server rejects any
+// message whose seq is ≤ the last seen from that sender, preventing replay
+// of captured signaling frames.
+const senderSeqs = new Map<string, number>()
+
+// Maximum payload sizes for signaling frame validation (defense-in-depth).
+// SDP blobs are typically ≤ 64 KB but some ICE-heavy offers can reach 128 KB;
+// 256 KB is a generous cap. ICE candidate strings are ≤ 4 KB each.
+const MAX_SDP_SIZE = 256 * 1024
+const MAX_ICE_CANDIDATE_SIZE = 4 * 1024
+const MAX_BROADCAST_DATA_SIZE = 64 * 1024
+
 // Topic/room registry for group broadcast (company roster, presence, notifications).
 // A "room" is a topic string (e.g. `company:<id>`); members are subscribed WebSocket
 // connections. This is the only server-side state needed for serverless group sync —
@@ -206,6 +219,31 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'Invalid target' })
           return
         }
+        // Anti-replay: monotonic sequence per sender.
+        if (!Number.isInteger(msg.seq) || msg.seq < 1) {
+          send({ type: 'error', message: 'Missing or invalid seq' })
+          return
+        }
+        const lastSeq = senderSeqs.get(registeredKey) ?? 0
+        if (msg.seq <= lastSeq) {
+          send({ type: 'error', message: 'Stale message (anti-replay)' })
+          return
+        }
+        senderSeqs.set(registeredKey, msg.seq)
+
+        // Strict frame validation: SDP must be a valid RTCSessionDescriptionInit.
+        if (!msg.sdp || typeof msg.sdp !== 'object' || typeof msg.sdp.sdp !== 'string') {
+          send({ type: 'error', message: 'Invalid SDP frame' })
+          return
+        }
+        if (msg.sdp.type !== 'offer' && msg.sdp.type !== 'answer') {
+          send({ type: 'error', message: 'Invalid SDP type' })
+          return
+        }
+        if (msg.sdp.sdp.length > MAX_SDP_SIZE) {
+          send({ type: 'error', message: 'SDP payload too large' })
+          return
+        }
         const target = clients.get(msg.target)
         if (!target || target.readyState !== WebSocket.OPEN) {
           send({ type: 'error', message: 'Target not available' })
@@ -214,6 +252,7 @@ wss.on('connection', (ws, req) => {
         target.send(JSON.stringify({
           type: msg.type,
           from: registeredKey,
+          seq: msg.seq,
           sdp: msg.sdp,
           ...(msg.dhPub ? { dhPub: msg.dhPub } : {}),
           ...(msg.identityPub ? { identityPub: msg.identityPub } : {}),
@@ -231,6 +270,27 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'Invalid target' })
           return
         }
+        // Anti-replay: monotonic sequence per sender.
+        if (!Number.isInteger(msg.seq) || msg.seq < 1) {
+          send({ type: 'error', message: 'Missing or invalid seq' })
+          return
+        }
+        const lastSeq = senderSeqs.get(registeredKey) ?? 0
+        if (msg.seq <= lastSeq) {
+          send({ type: 'error', message: 'Stale message (anti-replay)' })
+          return
+        }
+        senderSeqs.set(registeredKey, msg.seq)
+
+        // Strict frame validation: candidate must be a compact object.
+        if (!msg.candidate || typeof msg.candidate !== 'object') {
+          send({ type: 'error', message: 'Invalid ICE candidate frame' })
+          return
+        }
+        if (typeof msg.candidate.candidate !== 'string' || msg.candidate.candidate.length > MAX_ICE_CANDIDATE_SIZE) {
+          send({ type: 'error', message: 'ICE candidate payload invalid or too large' })
+          return
+        }
         const target = clients.get(msg.target)
         if (!target || target.readyState !== WebSocket.OPEN) {
           send({ type: 'error', message: 'Target not available' })
@@ -239,6 +299,7 @@ wss.on('connection', (ws, req) => {
         target.send(JSON.stringify({
           type: 'ice-candidate',
           from: registeredKey,
+          seq: msg.seq,
           candidate: msg.candidate,
         }))
         break
@@ -267,6 +328,10 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'Invalid metadata payload type' })
           return
         }
+        if (!Number.isInteger(msg.seq) || msg.seq <= 0) {
+          send({ type: 'error', message: 'Invalid metadata seq' })
+          return
+        }
         const target = clients.get(msg.target)
         if (!target || target.readyState !== WebSocket.OPEN) {
           send({ type: 'error', message: 'Target not available' })
@@ -276,6 +341,7 @@ wss.on('connection', (ws, req) => {
           type: msg.type,
           from: registeredKey,
           data: msg.data,
+          seq: msg.seq,
         }))
         break
       }
@@ -322,6 +388,21 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'Invalid topic' })
           return
         }
+        if (msg.data === undefined || msg.data === null) {
+          send({ type: 'error', message: 'Missing data' })
+          return
+        }
+        let serializedData: string
+        try {
+          serializedData = JSON.stringify(msg.data)
+        } catch {
+          send({ type: 'error', message: 'Invalid data' })
+          return
+        }
+        if (serializedData.length > MAX_BROADCAST_DATA_SIZE) {
+          send({ type: 'error', message: 'Data too large' })
+          return
+        }
         const subscribers = rooms.get(topic)
         if (!subscribers) {
           send({ type: 'published', topic, delivered: 0 })
@@ -358,6 +439,7 @@ wss.on('connection', (ws, req) => {
       logDisconnection(registeredKey)
       if (clients.get(registeredKey) === ws) {
         clients.delete(registeredKey)
+        senderSeqs.delete(registeredKey)
       }
     }
     const topics = wsTopics.get(ws)
@@ -375,6 +457,7 @@ wss.on('connection', (ws, req) => {
       logDisconnection(registeredKey)
       if (clients.get(registeredKey) === ws) {
         clients.delete(registeredKey)
+        senderSeqs.delete(registeredKey)
       }
     }
     const topics = wsTopics.get(ws)
@@ -525,6 +608,23 @@ const restServer = createServer((req, res) => {
     if (path === '/health' && req.method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ status: 'ok', nodes: clients.size, uptime: process.uptime() }))
+      return
+    }
+
+    // Peer directory: single-key online lookup (REST, not WS, so a client can
+    // probe a peer before burning a WebSocket connection). Batch/list queries
+    // are intentionally not offered — enumerating online identities is an
+    // oracle an attacker could use for presence tracking.
+    if (path.startsWith('/api/peers/') && req.method === 'GET') {
+      const key = path.slice('/api/peers/'.length)
+      if (!key || key.length > 128 || !/^[A-Za-z0-9+/=_:.-]+$/.test(key)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Invalid key' }))
+        return
+      }
+      const sock = clients.get(key)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ key, online: !!sock && sock.readyState === WebSocket.OPEN }))
       return
     }
 

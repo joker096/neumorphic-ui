@@ -124,6 +124,24 @@
         navigator.clipboard?.writeText(text);
       }
 
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function safeDownloadUrl(value) {
+        try {
+          const url = new URL(String(value ?? ''), window.location.href);
+          return url.origin === window.location.origin || url.protocol === 'https:' ? url.href : '';
+        } catch {
+          return '';
+        }
+      }
+
       async function load() {
         let manifest;
         try {
@@ -137,25 +155,33 @@
         document.getElementById('ver').textContent =
           `Version ${manifest.version} · generated ${new Date(manifest.generatedAt).toLocaleString()}`;
         const order = ['windows', 'linux', 'macos', 'android', 'ios', 'web'];
-        const files = manifest.files.slice().sort((a, b) => order.indexOf(a.platform) - order.indexOf(b.platform));
+        const files = Array.isArray(manifest.files) ? manifest.files.slice() : [];
+        files.sort((a, b) => order.indexOf(a.platform) - order.indexOf(b.platform));
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         for (const f of files) {
-          const label = PLAT_LABEL[f.platform] || f.platform;
+          const label = PLAT_LABEL[f.platform] || String(f.platform ?? 'Unknown');
           const icon = PLAT_ICON[f.platform] || '';
+          const kind = String(f.kind ?? 'build').toUpperCase();
+          const checksum = String(f.sha256 ?? '');
+          const url = safeDownloadUrl(f.url);
           const card = document.createElement('div');
           card.className = 'card';
-          let body = `<h2>${icon}${label}</h2><div class="plat">${f.kind.toUpperCase()}</div>`;
+          let body = `<h2>${icon}${escapeHtml(label)}</h2><div class="plat">${escapeHtml(kind)}</div>`;
           if (f.present) {
-            body += `<div class="meta">Size: ${(f.size / 1048576).toFixed(2)} MB<br/>SHA-256:<br/><code>${f.sha256}</code></div>`;
-            body += `<a class="btn" href="${f.url}" download="${f.file}">Download ${f.kind.toUpperCase()}</a>`;
-            body += `<button class="btn ghost" style="margin-top:8px" onclick="copy('${f.sha256}')">Copy checksum</button>`;
+            const size = Number.isFinite(Number(f.size)) ? (Number(f.size) / 1048576).toFixed(2) : 'Unknown';
+            body += `<div class="meta">Size: ${size} MB<br/>SHA-256:<br/><code>${escapeHtml(checksum)}</code></div>`;
+            body += url
+              ? `<a class="btn" href="${escapeHtml(url)}" download="${escapeHtml(f.file)}">Download ${escapeHtml(kind)}</a>`
+              : '<span class="btn disabled">Unavailable</span>';
+            body += `<button class="btn ghost copy-checksum" style="margin-top:8px" data-checksum="${escapeHtml(checksum)}">Copy checksum</button>`;
           } else {
-            const link = f.url ? `<a class="btn" href="${f.url}" target="_blank" rel="noopener">${f.platform === 'android' ? 'Google Play' : 'Open'}</a>` : `<span class="btn disabled">Pending</span>`;
-            body += `<div class="pending">${f.note || 'Not built yet.'}</div>`;
+            const link = url ? `<a class="btn" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${f.platform === 'android' ? 'Google Play' : 'Open'}</a>` : `<span class="btn disabled">Pending</span>`;
+            body += `<div class="pending">${escapeHtml(f.note || 'Not built yet.')}</div>`;
             body += link;
           }
           card.innerHTML = body;
+          card.querySelector('.copy-checksum')?.addEventListener('click', () => copy(checksum));
           grid.appendChild(card);
         }
       }

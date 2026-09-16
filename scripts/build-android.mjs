@@ -134,7 +134,7 @@ function patchManifest() {
 
   xml = xml.replace(
     '<activity android:name="LauncherActivity"',
-    '<activity android:name="LauncherActivity"\n            android:supportsPictureInPicture="true"\n            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"',
+    '<activity android:name="LauncherActivity"\n            android:supportsPictureInPicture="true"\n            android:windowSoftInputMode="adjustResize"\n            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard"',
   );
 
   fs.writeFileSync(manifestPath, xml);

@@ -22,7 +22,7 @@ test.describe('Settings', () => {
       'Language',
       'Notifications',
       'Sound',
-      'Cloud sync',
+      'Local data snapshot',
       'Security',
       'Privacy',
       'Data and Storage',

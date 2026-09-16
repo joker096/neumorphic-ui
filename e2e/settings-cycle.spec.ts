@@ -73,10 +73,10 @@ test.describe('Settings cycle', () => {
     }
   });
 
-  test('main menu toggles (Notifications / Sound / Cloud sync) flip and revert', async ({ page }) => {
+  test('main menu toggles (Notifications / Sound / Local data snapshot) flip and revert', async ({ page }) => {
     await gotoSettings(page);
 
-    for (const name of ['Notifications', 'Sound', 'Cloud sync']) {
+    for (const name of ['Notifications', 'Sound', 'Local data snapshot']) {
       const toggle = page.getByRole('switch', { name });
       await expect(toggle).toBeVisible();
       const before = await toggle.getAttribute('aria-checked');

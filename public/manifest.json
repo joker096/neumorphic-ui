@@ -4,7 +4,7 @@
   "description": "End-to-end encrypted P2P messenger with X25519 + Ed25519 + HMAC. No server, no phone required.",
   "start_url": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay"],
+  "display_override": ["edge-to-edge", "window-controls-overlay"],
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
   "orientation": "any",

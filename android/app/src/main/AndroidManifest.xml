@@ -75,7 +75,8 @@
 
         <activity android:name="LauncherActivity"
             android:supportsPictureInPicture="true"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard"
             android:alwaysRetainTaskState="true"
             android:label="@string/launcherName"
             android:exported="true">
