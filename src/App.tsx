@@ -208,6 +208,27 @@ export default function App() {
     setActiveChat(null);
   }, [chatReturnContext, setView, setSubView, setActiveChat]);
 
+  // Cross-view drill-downs (CRM→premium, list→bot, bot→miniApp) remember their
+  // origin so the in-app Back button always returns to the previous screen.
+  const [navOrigin, setNavOrigin] = useState<{ view: string; subView: string | null } | null>(null);
+
+  const pushView = useCallback((v: string, sv: string | null = null) => {
+    setNavOrigin({ view, subView });
+    setView(v as any);
+    setSubView(sv);
+  }, [view, subView, setView, setSubView]);
+
+  const goBack = useCallback(() => {
+    if (navOrigin) {
+      setView(navOrigin.view as any);
+      setSubView(navOrigin.subView);
+      setNavOrigin(null);
+    } else {
+      setView("chats");
+      setSubView(null);
+    }
+  }, [navOrigin, setView, setSubView]);
+
   const {
     sendVoiceMessage, sendStickerMessage, handleSendMessage, toggleSavedMessage,
   } = useMessageActions(
@@ -227,13 +248,19 @@ export default function App() {
   }, [chats, channels, archivedChats]);
 
   const {
-    handleNavigate,
+    handleNavigate: baseHandleNavigate,
     handlePreviewCall,
     handlePreviewMessage,
     isChatListRoute,
   } = useAppNavigation(
     view, chats, activeChat, setView, setSubView, setActiveChat, setChats, setActiveCall, openChat,
   );
+
+  // Top-level navigation is explicit (not drill-down): drop any recorded origin.
+  const handleNavigate = useCallback((target: string) => {
+    setNavOrigin(null);
+    baseHandleNavigate(target);
+  }, [baseHandleNavigate, setNavOrigin]);
 
   const {
     handleProfileCall,
@@ -344,6 +371,8 @@ export default function App() {
           chats={chats}
           setChats={setChats}
           setView={setView}
+          goBack={goBack}
+          pushView={pushView}
           setGlobalSelectedContact={setGlobalSelectedContact}
           setShowCreateChannel={setShowCreateChannel}
           setShowCreateBot={setShowCreateBot}
@@ -399,7 +428,6 @@ onAddContactFromChat={handleAddContactFromChat}
            onProfileToggleFavorite={handleProfileToggleFavorite}
         />
 
-        <Suspense fallback={null}><LazyCallOverlay /></Suspense>
         {pendingInvite && (
           <AcceptInviteModal
             code={pendingInvite}
@@ -418,6 +446,7 @@ onAddContactFromChat={handleAddContactFromChat}
         )}
       </ThemeContext.Provider>
     </AppAuthGate>
+    <Suspense fallback={null}><LazyCallOverlay /></Suspense>
     </ServicesProvider>
   );
 }

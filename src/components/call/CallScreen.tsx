@@ -12,6 +12,18 @@ import {
   CALL_STATUS_LABEL_KEYS,
 } from '../../constants/callConstants';
 
+const SPEAKER_OUTPUT_RE = /speaker|external|loudspeaker|hands ?free/i;
+
+async function pickSpeakerSinkId(): Promise<string> {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const speaker = devices.find((d) => d.kind === 'audiooutput' && SPEAKER_OUTPUT_RE.test(d.label));
+    return speaker?.deviceId || 'default';
+  } catch {
+    return 'default';
+  }
+}
+
 interface CallScreenProps {
   call: ActiveCall;
   onEnd: () => void;
@@ -48,6 +60,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
   const [showControls, setShowControls] = React.useState(true);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [elapsed, setElapsed] = React.useState(0);
+  const [deviceChangeTick, setDeviceChangeTick] = React.useState(0);
   const hideTimer = React.useRef<number | null>(null);
 
   const isVideo = !!call && (call.callType === 'video' || call.callType === 'screen');
@@ -96,20 +109,28 @@ export const CallScreen: React.FC<CallScreenProps> = ({
   }, []);
 
   React.useEffect(() => {
-    const applySink = (el: HTMLMediaElement | null) => {
-      const anyEl = el as any;
-      if (!anyEl || typeof anyEl.setSinkId !== 'function') return;
+    const mediaDevices = navigator.mediaDevices;
+    if (!mediaDevices?.addEventListener) return;
+    const onChange = () => setDeviceChangeTick((t) => t + 1);
+    mediaDevices.addEventListener('devicechange', onChange);
+    return () => mediaDevices.removeEventListener('devicechange', onChange);
+  }, []);
+
+  React.useEffect(() => {
+    const els = [remoteAudioRef.current, remoteVideoRef.current].filter(
+      (el): el is HTMLMediaElement => !!el && typeof (el as any).setSinkId === 'function',
+    );
+    if (els.length === 0) return;
+    const applySink = async (el: HTMLMediaElement) => {
       try {
-        if (call?.isSpeaker) {
-          anyEl.setSinkId('default');
-        }
+        const sinkId = call?.isSpeaker ? await pickSpeakerSinkId() : 'default';
+        await (el as any).setSinkId(sinkId);
       } catch {
         /* setSinkId not supported / no permission */
       }
     };
-    applySink(remoteAudioRef.current);
-    applySink(remoteVideoRef.current);
-  }, [call?.isSpeaker]);
+    els.forEach(applySink);
+  }, [call?.isSpeaker, deviceChangeTick]);
 
   if (!call) return null;
 

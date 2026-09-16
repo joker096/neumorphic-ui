@@ -12,7 +12,7 @@ const baseCall = {
   isSpeaker: false,
   screenStream: null,
   isRecording: false,
-  localStream: null,
+  localStream: {},
   isPreview: false,
 };
 
@@ -118,6 +118,19 @@ describe('CallControlBar', () => {
       />,
     );
     expect(screen.queryByRole('button', { name: 'call.flipCamera' })).not.toBeInTheDocument();
+  });
+
+  it('hides media controls for preview calls without a live stream', () => {
+    render(
+      <CallControlBar
+        {...makeProps()}
+        call={{ ...baseCall, localStream: null, isPreview: true }}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'call.mute' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'call.shareScreen' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'call.record' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'call.endCall' })).toBeInTheDocument();
   });
 
   it('shows speaker toggle only when handler provided and tracks active state', () => {

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { CallScreen } from './CallScreen';
 import type { ActiveCall } from '../../lib/call/types';
@@ -30,7 +30,7 @@ const mockAudioCall: ActiveCall = {
   status: 'connecting',
   callType: 'audio',
   remotePeer: { peerId: 'peer-1', displayName: 'Test' },
-  localStream: null,
+  localStream: {} as MediaStream,
   screenStream: null,
   isMuted: false,
   isSpeaker: false,
@@ -47,7 +47,7 @@ const mockVideoCall: ActiveCall = {
   status: 'connected',
   callType: 'video',
   remotePeer: { peerId: 'peer-2', displayName: 'Test' },
-  localStream: null,
+  localStream: {} as MediaStream,
   screenStream: null,
   isMuted: false,
   isSpeaker: false,
@@ -116,7 +116,7 @@ describe('CallScreen - additional tests', () => {
   });
 
   it('renders initial avatar when no stream', () => {
-    const { container } = render(<CallScreen call={mockAudioCall} onEnd={() => {}} toggleMute={() => {}} toggleVideo={() => {}} toggleScreenShare={() => {}} toggleRecording={() => {}} setActiveCall={() => {}} />);
+    const { container } = render(<CallScreen call={{ ...mockAudioCall, localStream: null }} onEnd={() => {}} toggleMute={() => {}} toggleVideo={() => {}} toggleScreenShare={() => {}} toggleRecording={() => {}} setActiveCall={() => {}} />);
     expect(container.querySelector('[class*="neo-raised"]')).toBeInTheDocument();
   });
 
@@ -160,5 +160,92 @@ describe('CallScreen - additional tests', () => {
     const root = container.querySelector('div[style*="radial-gradient"]');
     expect(root).toBeInTheDocument();
     expect(root?.getAttribute('style') ?? '').toContain('var(--bg-primary)');
+  });
+});
+
+describe('CallScreen - speaker routing', () => {
+  let setSinkId: ReturnType<typeof vi.fn>;
+
+  const props = (isSpeaker: boolean) => ({
+    call: { ...mockAudioCall, isSpeaker },
+    onEnd: () => {},
+    toggleMute: () => {},
+    toggleVideo: () => {},
+    toggleScreenShare: () => {},
+    toggleRecording: () => {},
+    setActiveCall: () => {},
+  });
+
+  beforeEach(() => {
+    setSinkId = vi.fn().mockResolvedValue(undefined);
+    (HTMLMediaElement.prototype as any).setSinkId = setSinkId;
+  });
+
+  afterEach(() => {
+    delete (HTMLMediaElement.prototype as any).setSinkId;
+    delete (window.navigator as any).mediaDevices;
+  });
+
+  const stubDevices = (labels: Array<[string, string]>) => {
+    Object.defineProperty(window.navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        enumerateDevices: vi.fn().mockResolvedValue(
+          labels.map(([deviceId, label]) => ({ deviceId, kind: 'audiooutput', label, groupId: '' })),
+        ),
+      },
+    });
+  };
+
+  it('routes remote audio to the default output while speaker is off', async () => {
+    render(<CallScreen {...props(false)} />);
+    await waitFor(() => expect(setSinkId).toHaveBeenLastCalledWith('default'));
+  });
+
+  it('routes remote audio to the speaker output when speaker is on', async () => {
+    stubDevices([
+      ['default', 'Default'],
+      ['spk-1', 'Speaker'],
+    ]);
+    const { rerender } = render(<CallScreen {...props(false)} />);
+    await waitFor(() => expect(setSinkId).toHaveBeenLastCalledWith('default'));
+    rerender(<CallScreen {...props(true)} />);
+    await waitFor(() => expect(setSinkId).toHaveBeenLastCalledWith('spk-1'));
+  });
+
+  it('falls back to the default output when no speaker device is labelled', async () => {
+    stubDevices([
+      ['default', ''],
+      ['rec-1', ''],
+    ]);
+    render(<CallScreen {...props(true)} />);
+    await waitFor(() => expect(setSinkId).toHaveBeenLastCalledWith('default'));
+  });
+
+  it('re-routes audio when the device set changes mid-call', async () => {
+    const listeners = new Map<string, () => void>();
+    Object.defineProperty(window.navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        enumerateDevices: vi.fn().mockResolvedValue([
+          { deviceId: 'default', kind: 'audiooutput', label: 'Default', groupId: '' },
+          { deviceId: 'spk-1', kind: 'audiooutput', label: 'Speaker', groupId: '' },
+        ]),
+        addEventListener: vi.fn().mockImplementation((type: string, cb: () => void) => {
+          listeners.set(type, cb);
+        }),
+        removeEventListener: vi.fn().mockImplementation((type: string) => {
+          listeners.delete(type);
+        }),
+      },
+    });
+    const { rerender } = render(<CallScreen {...props(false)} />);
+    await waitFor(() => expect(setSinkId).toHaveBeenLastCalledWith('default'));
+    rerender(<CallScreen {...props(true)} />);
+    await waitFor(() => expect(setSinkId).toHaveBeenLastCalledWith('spk-1'));
+
+    setSinkId.mockClear();
+    listeners.get('devicechange')?.();
+    await waitFor(() => expect(setSinkId).toHaveBeenLastCalledWith('spk-1'));
   });
 });

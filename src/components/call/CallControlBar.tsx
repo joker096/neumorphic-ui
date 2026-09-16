@@ -27,7 +27,8 @@ export const CallControlBar: React.FC<CallControlBarProps> = ({
   toggleScreenShare, toggleRecording, onFlipCamera, onChangeCallType, onEnd,
 }) => {
   const isVideo = !!call && (call.callType === 'video' || call.callType === 'screen');
-  const canFlip = isVideo && !!call.localStream && !call.isPreview && !!onFlipCamera;
+  const hasLiveMedia = !!call.localStream && !call.isPreview;
+  const canFlip = isVideo && hasLiveMedia && !!onFlipCamera;
 
   return (
   <AnimatePresence>
@@ -40,22 +41,24 @@ export const CallControlBar: React.FC<CallControlBarProps> = ({
         className="absolute bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 w-[calc(100vw-1.5rem)] max-w-[640px] px-1"
       >
         <div className="neo-raised rounded-[2rem] px-3 sm:px-4 py-3 flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto scrollbar-none">
-          <ControlButton
-            active={call.isMuted}
-            activeColor={CALL_CONTROL_ACTIVE_COLORS.danger}
-            icon={call.isMuted ? MicOff : Mic}
-            label={call.isMuted ? t('call.unmute') : t('call.mute')}
-            onClick={toggleMute}
-          />
+          {hasLiveMedia && <>
+            <ControlButton
+              active={call.isMuted}
+              activeColor={CALL_CONTROL_ACTIVE_COLORS.danger}
+              icon={call.isMuted ? MicOff : Mic}
+              label={call.isMuted ? t('call.unmute') : t('call.mute')}
+              onClick={toggleMute}
+            />
 
-          <ControlButton
-            active={!call.isVideoEnabled}
-            activeColor={CALL_CONTROL_ACTIVE_COLORS.danger}
-            icon={call.isVideoEnabled ? Video : VideoOff}
-            label={call.isVideoEnabled ? t('call.turnOffVideo') : t('call.turnOnVideo')}
-            onClick={toggleVideo}
-            size="sm"
-          />
+            <ControlButton
+              active={!call.isVideoEnabled}
+              activeColor={CALL_CONTROL_ACTIVE_COLORS.danger}
+              icon={call.isVideoEnabled ? Video : VideoOff}
+              label={call.isVideoEnabled ? t('call.turnOffVideo') : t('call.turnOnVideo')}
+              onClick={toggleVideo}
+              size="sm"
+            />
+          </>}
 
           {canFlip && (
             <ControlButton
@@ -66,7 +69,7 @@ export const CallControlBar: React.FC<CallControlBarProps> = ({
             />
           )}
 
-          {toggleSpeaker && (
+          {toggleSpeaker && hasLiveMedia && (
             <ControlButton
               active={call.isSpeaker}
               activeColor={CALL_CONTROL_ACTIVE_COLORS.info}
@@ -77,23 +80,25 @@ export const CallControlBar: React.FC<CallControlBarProps> = ({
             />
           )}
 
-          <ControlButton
-            active={!!call.screenStream}
-            activeColor={CALL_CONTROL_ACTIVE_COLORS.info}
-            icon={Monitor}
-            label={t('call.shareScreen')}
-            onClick={toggleScreenShare}
-            size="sm"
-          />
+          {hasLiveMedia && <>
+            <ControlButton
+              active={!!call.screenStream}
+              activeColor={CALL_CONTROL_ACTIVE_COLORS.info}
+              icon={Monitor}
+              label={t('call.shareScreen')}
+              onClick={toggleScreenShare}
+              size="sm"
+            />
 
-          <ControlButton
-            active={call.isRecording}
-            activeColor={CALL_CONTROL_ACTIVE_COLORS.danger}
-            icon={Square}
-            label={call.isRecording ? t('call.stopRecording') : t('call.record')}
-            onClick={toggleRecording}
-            size="sm"
-          />
+            <ControlButton
+              active={call.isRecording}
+              activeColor={CALL_CONTROL_ACTIVE_COLORS.danger}
+              icon={Square}
+              label={call.isRecording ? t('call.stopRecording') : t('call.record')}
+              onClick={toggleRecording}
+              size="sm"
+            />
+          </>}
 
           <ControlButton
             active={call.callType === 'video'}
