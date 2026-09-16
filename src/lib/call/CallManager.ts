@@ -2,6 +2,9 @@ import { nanoid } from 'nanoid';
 import { callRecorderService } from '../../lib/callRecorderService';
 import { useAppStore } from '../../store';
 import { CALL_NETWORK_QUALITY_MS } from '../../constants/callConstants';
+import { p2pNetwork } from '../p2p/network';
+import { encodeCallSignal, nextFrameSeq, type CallSignalFrame } from '../p2p/chatFrame';
+import type { P2PTransport } from '../p2p/P2PTransport';
 import type { CallPeer, CallEventType, CallEventHandler, ActiveCall, CallType, CallErrorReason, DeviceCheckResult, IncomingCall } from './types';
 
 class CallManager {
@@ -230,6 +233,119 @@ class CallManager {
     }, CallManager.CONNECT_DELAY_MS);
   }
 
+  /** Wire-level peer ids are 64/128-char hex Ed25519 keys; uuid chat ids stay simulated. */
+  private isRealPeer(peerId: string): boolean {
+    return /^[0-9a-f]{64,128}$/i.test(peerId);
+  }
+
+  private async realTransportFor(peerId: string): Promise<P2PTransport | null> {
+    if (!this.isRealPeer(peerId) || !p2pNetwork.isReady()) return null;
+    let transport = p2pNetwork.getTransport(peerId);
+    if (!transport) {
+      try {
+        await p2pNetwork.connect(peerId);
+      } catch {
+        return null;
+      }
+      transport = p2pNetwork.getTransport(peerId);
+    }
+    return transport && p2pNetwork.isConnected(peerId) ? transport : null;
+  }
+
+  private attachMediaHandlers(transport: P2PTransport) {
+    transport.attachMediaHandlers({
+      onRemoteTrack: (peerId, stream) => this.handleRemoteTrack(peerId, stream),
+      onCallClosed: (peerId) => this.handleRemoteCallSignal(peerId, { type: 'call-end', seq: nextFrameSeq(), callId: '', timestamp: Date.now() }),
+      onMediaEnded: () => {},
+    });
+  }
+
+  /**
+   * Establishes a real WebRTC leg for an outgoing call when the peer id is a
+   * wire identity key: connects/attaches the P2P transport, sends local media
+   * tracks and rings the peer over the messenger data channel. Best-effort —
+   * any failure leaves the simulated handshake in place.
+   */
+  private async tryStartRealTransport(peerId: string, callId: string, callType: CallType) {
+    try {
+      const transport = await this.realTransportFor(peerId);
+      if (!transport) return;
+      this.attachMediaHandlers(transport);
+      if (this.localStream) await transport.addOutgoingStream(this.localStream);
+      const wireType: 'audio' | 'video' = callType === 'screen' ? 'video' : callType;
+      await p2pNetwork.sendTo(peerId, encodeCallSignal({ type: 'call-ring', seq: nextFrameSeq(), callId, callType: wireType, timestamp: Date.now() }));
+    } catch {
+      /* no transport — keep the simulated call path */
+    }
+  }
+
+  /** Mirrors `tryStartRealTransport` for an answered incoming call. */
+  private async tryAcceptRealTransport(peerId: string, callId: string, callType: CallType) {
+    try {
+      const transport = await this.realTransportFor(peerId);
+      if (!transport) return;
+      this.attachMediaHandlers(transport);
+      if (this.localStream) await transport.addOutgoingStream(this.localStream);
+      const wireType: 'audio' | 'video' = callType === 'screen' ? 'video' : callType;
+      await p2pNetwork.sendTo(peerId, encodeCallSignal({ type: 'call-accept', seq: nextFrameSeq(), callId, callType: wireType, timestamp: Date.now() }));
+    } catch {
+      /* no transport — keep the simulated call path */
+    }
+  }
+
+  /** Attaches an inbound remote media stream to the matching live call. */
+  private handleRemoteTrack(peerKey: string, stream: MediaStream) {
+    const call = this.activeCall;
+    if (call && call.remotePeer.peerId === peerKey) {
+      const participants = call.participants.map((p) =>
+        p.peerId === peerKey ? { ...p, stream } : p,
+      );
+      this.activeCall = {
+        ...call,
+        status: call.status === 'connecting' ? 'connected' : call.status,
+        remotePeer: { ...call.remotePeer, stream },
+        participants,
+      };
+      this.updateStore(this.activeCall);
+      if (call.status === 'connecting') {
+        this.emit('call:accepted', { call: this.activeCall });
+        void this.maybeAutoStartRecording();
+      } else {
+        this.emit('call:peer-joined', { call: this.activeCall });
+      }
+      return;
+    }
+    this.pendingPeerStreams.set(peerKey, stream);
+  }
+
+  /** Handles `call1:` ring/accept/end frames routed to the call manager. */
+  handleRemoteCallSignal(peerId: string, frame: CallSignalFrame) {
+    if (frame.type === 'call-ring') {
+      const current = this.activeCall;
+      if (current) {
+        p2pNetwork.sendTo(peerId, encodeCallSignal({ type: 'call-end', seq: nextFrameSeq(), callId: frame.callId, timestamp: Date.now() })).catch(() => {});
+        return;
+      }
+      const name = p2pNetwork.getPeerName(peerId) ?? peerId.slice(0, 8);
+      this.startIncomingCall(peerId, name, frame.callType ?? 'audio');
+      return;
+    }
+    if (frame.type === 'call-accept') {
+      const call = this.activeCall;
+      if (!call || call.remotePeer.peerId !== peerId || call.status !== 'connecting') return;
+      this.activeCall = { ...call, status: 'connected' };
+      this.updateStore(this.activeCall);
+      this.emit('call:accepted', { call: this.activeCall });
+      void this.maybeAutoStartRecording();
+      return;
+    }
+    if (frame.type === 'call-end') {
+      const call = this.activeCall;
+      if (call && call.remotePeer.peerId === peerId) void this.endCall();
+      else useAppStore.getState().setIncomingCall(null);
+    }
+  }
+
   /**
    * Auto-starts recording once a call is connected when the "Record calls
    * automatically" setting is on and the matching save-recording toggle is
@@ -287,6 +403,7 @@ class CallManager {
     this.updateStore(call);
     this.scheduleConnected(callId);
     this.emit('call:accepted', { call });
+    void this.tryStartRealTransport(peerId, callId, callType);
     return call;
   }
 
@@ -355,10 +472,17 @@ class CallManager {
     this.updateStore(call);
     this.scheduleConnected(callId);
     this.emit('call:accepted', { call });
+    void this.tryAcceptRealTransport(peerId, callId, callType);
     return call;
   }
 
   async endCall(): Promise<void> {
+    const prev = this.activeCall;
+    if (prev && this.isRealPeer(prev.remotePeer.peerId)) {
+      p2pNetwork
+        .sendTo(prev.remotePeer.peerId, encodeCallSignal({ type: 'call-end', seq: nextFrameSeq(), callId: prev.callId, timestamp: Date.now() }))
+        .catch(() => {});
+    }
     if (this.activeCall?.isRecording && this.activeCall?.recordingId) {
       callRecorderService.stopRecording();
     }
@@ -374,7 +498,6 @@ class CallManager {
       this.screenStream = null;
     }
     this.isScreenSharing = false;
-    const prev = this.activeCall;
     this.updateStore(null);
     this.pendingPeerStreams.clear();
     if (prev) {
@@ -433,6 +556,11 @@ class CallManager {
     if (!incoming) return;
     useAppStore.getState().setIncomingCall(null);
     useAppStore.getState().addCallToHistory({ name: incoming.displayName, type: 'declined' });
+    if (this.isRealPeer(incoming.peerId)) {
+      p2pNetwork
+        .sendTo(incoming.peerId, encodeCallSignal({ type: 'call-end', seq: nextFrameSeq(), callId: '', timestamp: Date.now() }))
+        .catch(() => {});
+    }
     this.emit('call:rejected', { peerId: incoming.peerId });
   }
 
