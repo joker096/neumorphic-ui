@@ -4,6 +4,7 @@
  */
 
 import type { TransferMeta } from './frames';
+import { sha256Hex } from './integrity';
 
 const DB_NAME = 'messanger-filetransfers';
 const DB_VERSION = 1;
@@ -209,6 +210,41 @@ export async function getTransferBlob(transferId: string, totalChunks: number): 
   }
   return new Blob(parts);
 }
+
+/**
+ * Page-level blob URL cache for `ftr1:` P2P transfers (shared across
+ * thumbnails and the chat message row). URLs are intentionally never revoked.
+ */
+const ftrBlobCache = new Map<string, { url: string; shaOk: boolean }>();
+
+/**
+ * Resolve a completed `ftr1:` transfer to a cached blob URL.
+ * Returns null while the transfer is incomplete or missing — callers poll.
+ * Integrity mismatch is reported via `shaOk` (thumbnail may still render).
+ */
+export async function resolveFtrBlobUrl(transferId: string): Promise<{ url: string; shaOk: boolean } | null> {
+  const cached = ftrBlobCache.get(transferId);
+  if (cached) return cached;
+  const meta = await getTransferMeta(transferId);
+  if (!meta || !meta.completed) return null;
+  const blob = await getTransferBlob(transferId, meta.totalChunks);
+  if (!blob) return null;
+  let shaOk = true;
+  if (meta.sha256) {
+    try {
+      shaOk = (await sha256Hex(await blob.arrayBuffer())) === meta.sha256;
+    } catch {
+      shaOk = false;
+    }
+  }
+  const entry = { url: URL.createObjectURL(blob), shaOk };
+  ftrBlobCache.set(transferId, entry);
+  return entry;
+}
+
+/** Polling cadence for `ftr1:` transfers still assembling (cf. AttachmentMedia). */
+export const FTR_POLL_MS = 500;
+export const FTR_POLL_MAX = 60;
 
 /** Remove a transfer's meta and all its chunks. */
 export async function deleteTransfer(transferId: string): Promise<void> {

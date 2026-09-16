@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Image as ImageIcon, FileText, Link as LinkIcon, Mic } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import { FTR_MAGIC } from '../../lib/fileTransfer/frames';
+import { useFtrBlobUrl } from '../../hooks/useFtrBlobUrl';
 import { DataState } from '../ui/DataState';
 
 interface SharedMediaTabsProps {
@@ -55,18 +57,9 @@ export const SharedMediaTabs = ({ messages, isDark, onOpenChat }: SharedMediaTab
             <DataState status="empty" isDark={isDark} title={t('profile.noMedia', 'No media yet')} action={onOpenChat ? { label: t('chat.openChat', 'Open chat'), onClick: onOpenChat } : undefined} />
           ) : (
             <div className="grid grid-cols-3 gap-2">
-              {media.map((m: any) => {
-                const src = m.attachment || m.url || m.thumb;
-                return (
-                  <div key={String(m.id)} className="aspect-square rounded-xl overflow-hidden border border-[var(--border-color)]">
-                    {src ? (
-                      <img src={src} alt={m.text || t('profile.tab.media', 'Media')} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className={`w-full h-full ${iconBoxClass}`} />
-                    )}
-                  </div>
-                );
-              })}
+              {media.map((m: any) => (
+                <MediaTile key={String(m.id)} msg={m} isDark={isDark} iconBoxClass={iconBoxClass} />
+              ))}
             </div>
           )
         )}
@@ -105,6 +98,25 @@ export const SharedMediaTabs = ({ messages, isDark, onOpenChat }: SharedMediaTab
         )}
       </div>
     </>
+  );
+};
+
+const MediaTile = ({ msg, isDark, iconBoxClass }: { msg: any; isDark: boolean; iconBoxClass: string }) => {
+  const { t } = useI18n();
+  const ftrId =
+    typeof msg.attachment === 'string' && msg.attachment.startsWith(FTR_MAGIC)
+      ? (typeof msg.fileTransferId === 'string' ? msg.fileTransferId : msg.attachment.slice(FTR_MAGIC.length))
+      : null;
+  const ftrUrl = useFtrBlobUrl(ftrId);
+  const src = ftrId ? ftrUrl : (msg.attachment || msg.url || msg.thumb);
+  return (
+    <div className="aspect-square rounded-xl overflow-hidden border border-[var(--border-color)]">
+      {src ? (
+        <img src={src} alt={msg.text || t('profile.tab.media', 'Media')} className="w-full h-full object-cover" />
+      ) : (
+        <div className={`w-full h-full ${iconBoxClass}`} />
+      )}
+    </div>
   );
 };
 

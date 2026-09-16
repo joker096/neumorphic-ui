@@ -1,6 +1,8 @@
 import React from "react";
 import { ListFilter, Mic } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
+import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
+import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
 
 interface ChatMediaPanelProps {
   isDark: boolean;
@@ -28,6 +30,8 @@ export const ChatMediaPanel = ({
   mediaItems, setActivePhotoUrl, setPhotoOpen, t,
 }: ChatMediaPanelProps) => {
   if (!showMediaPanel) return null;
+
+  const openImage = (url: string) => { setActivePhotoUrl(url); setPhotoOpen(true); };
 
   return (
     <>
@@ -94,24 +98,31 @@ export const ChatMediaPanel = ({
       {mediaItems.length > 0 && (
         <div className="px-3 sm:px-5 pb-2 sm:pb-3 overflow-x-auto scrollbar-none" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
           <div className="flex gap-3">
-            {mediaItems.slice(0, 6).map((msg: any) => (
+{mediaItems.slice(0, 6).map((msg: any) => {
+              if (msg.type === 'image') {
+                return (
+                  <MediaImageTile
+                    key={msg.id}
+                    msg={msg}
+                    onOpen={openImage}
+                  />
+                );
+              }
+              return (
               <div key={msg.id}
                 role="button"
                 tabIndex={0}
-                aria-label={msg.type === 'image' ? t('chat.filters.openImage') : t('chat.filters.openItem')}
+                aria-label={t('chat.filters.openItem')}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    if (msg.type === 'image') setActivePhotoUrl(msg.attachment || msg.url);
                     setPhotoOpen(true);
                   }
                 }}
                 className={`w-[90px] h-[64px] sm:w-[110px] sm:h-[78px] md:w-[120px] md:h-[84px] rounded-2xl overflow-hidden flex-shrink-0 relative cursor-pointer border focus:outline-none focus:ring-2 focus:ring-[var(--accent)] ${isDark ? "border-[var(--border-color)] bg-white/5" : "border-[var(--border-color)] bg-white"}`}
-                onClick={() => { if (msg.type === 'image') setActivePhotoUrl(msg.attachment || msg.url); setPhotoOpen(true); }}
+                onClick={() => setPhotoOpen(true)}
               >
-                {msg.type === 'image' ? (
-                   <img src={msg.attachment || msg.url} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-full object-cover" />
-                ) : msg.type === 'audio' ? (
+                {msg.type === 'audio' ? (
                   <div className={`w-full h-full flex flex-col items-start justify-between p-3 ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-50"}`}>
                      <Mic size={18} className={"text-[var(--accent)]"} />
                     <div className={`text-xs font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('chat.filters.voiceNote')}</div>
@@ -123,11 +134,43 @@ export const ChatMediaPanel = ({
                   </div>
                 )}
               </div>
-            ))}
+);
+            })}
           </div>
         </div>
       )}
     </>
+  );
+};
+
+const MediaImageTile = ({ msg, onOpen }: { msg: any; onOpen: (url: string) => void }) => {
+  const { t } = useI18n();
+  const ftrId =
+    typeof msg.attachment === 'string' && msg.attachment.startsWith(FTR_MAGIC)
+      ? (typeof msg.fileTransferId === 'string' ? msg.fileTransferId : msg.attachment.slice(FTR_MAGIC.length))
+      : null;
+  const ftrUrl = useFtrBlobUrl(ftrId);
+  const src = ftrId ? ftrUrl : (msg.attachment || msg.url);
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={t('chat.filters.openImage')}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (src) onOpen(src);
+        }
+      }}
+      className="w-[90px] h-[64px] sm:w-[110px] sm:h-[78px] md:w-[120px] md:h-[84px] rounded-2xl overflow-hidden flex-shrink-0 relative cursor-pointer border focus:outline-none focus:ring-2 focus:ring-[var(--accent)] border-[var(--border-color)]"
+      onClick={() => { if (src) onOpen(src); }}
+    >
+      {src ? (
+        <img src={src} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-full object-cover" />
+      ) : (
+        <div className="w-full h-full animate-pulse bg-white/10" />
+      )}
+    </div>
   );
 };
 
