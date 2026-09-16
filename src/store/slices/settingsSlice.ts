@@ -13,20 +13,31 @@ const savedPrivacySettings = (() => {
   return {};
 })();
 
+/**
+ * Atomic encrypted persistence: encrypt BEFORE the first write; a failure
+ * cancels the save (fail-closed) — the plaintext value never touches storage.
+ */
+export function persistEncryptedSetting(key: string, value: string) {
+  void encryptPersistValue(value)
+    .then((enc) => {
+      try {
+        const prev = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
+        prev[key] = enc;
+        localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(prev));
+      } catch { /* storage unavailable — state-only */ }
+    })
+    .catch(() => { /* session key unavailable — save aborted, nothing persisted */ });
+}
+
 function persistSetting(key: string, value: unknown) {
   try {
+    if (ENCRYPTED_KEYS.has(key) && typeof value === 'string' && value) {
+      persistEncryptedSetting(key, value);
+      return;
+    }
     const prev = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
     prev[key] = value;
     localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(prev));
-    if (ENCRYPTED_KEYS.has(key) && typeof value === 'string' && value) {
-      encryptPersistValue(value)
-        .then((enc) => {
-          const current = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
-          current[key] = enc;
-          localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(current));
-        })
-        .catch(() => { /* key not ready — plaintext fallback stays */ });
-    }
   } catch {}
 }
 
@@ -428,18 +439,27 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
     try {
       const prev = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
       const next = { ...prev, ...allowed };
-      localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(next));
-      for (const [key, value] of Object.entries(allowed)) {
-        if (ENCRYPTED_KEYS.has(key) && typeof value === 'string' && value) {
-          encryptPersistValue(value)
-            .then((enc) => {
-              const current = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
-              current[key] = enc;
-              localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(current));
-            })
-            .catch(() => { /* key not ready — plaintext fallback stays */ });
-        }
+      const toEncrypt = Object.entries(next).filter(
+        ([k, v]) => ENCRYPTED_KEYS.has(k) && typeof v === 'string' && v,
+      );
+      if (toEncrypt.length > 0) {
+        // Atomic: encrypt BEFORE the first write; a failure cancels the whole
+        // save (fail-closed) — plaintext secrets never touch localStorage.
+        (async () => {
+          const enc: Record<string, string> = {};
+          for (const [k, v] of toEncrypt) {
+            try {
+              enc[k] = await encryptPersistValue(v as string);
+            } catch {
+              return;
+            }
+          }
+          const current = JSON.parse(localStorage.getItem(PRIVACY_STORAGE_KEY) || '{}');
+          localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify({ ...current, ...allowed, ...enc }));
+        })().catch(() => {});
+        return;
       }
+      localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(next));
     } catch {}
   },
   setOnlineStatus: (status) => set({ onlineStatus: status, isOnline: status }),

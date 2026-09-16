@@ -62,15 +62,16 @@ async function deviceBoundKey(): Promise<CryptoKey> {
 
 export async function storeMasterSeed(seed: Uint8Array): Promise<void> {
   const { buf2hex, cryptoCore } = await import('../crypto/cryptoCore')
-  try {
-    const { cipher, iv } = await cryptoCore.encryptData(buf2hex(seed), await deviceBoundKey())
-    await idb.set(SEED_STORAGE_KEY, `${SEED_ENC_PREFIX}${iv}:${cipher}`)
-  } catch (e) {
-    // Non-browser/device-fingerprint-unavailable env (e.g. node tests, exotic
-    // runtimes): degrade to legacy plaintext rather than break identity boot.
-    console.warn('[masterKey] device-bound encryption unavailable, storing plaintext', e)
-    await idb.set(SEED_STORAGE_KEY, buf2hex(seed))
+  const key = await deviceBoundKey()
+  if (!key) {
+    // Fail closed: never persist root key material in plaintext. A missing
+    // device-bound key only happens outside real browsers (JS runtimes without
+    // navigator/window); browsers always derive a fingerprint key, so identity
+    // boot is unaffected there. Tests/exotic runtimes must provide a bound key.
+    throw new Error('master key: device-bound encryption unavailable, refusing to persist plaintext seed')
   }
+  const { cipher, iv } = await cryptoCore.encryptData(buf2hex(seed), key)
+  await idb.set(SEED_STORAGE_KEY, `${SEED_ENC_PREFIX}${iv}:${cipher}`)
 }
 
 export async function hasMasterIdentity(): Promise<boolean> {

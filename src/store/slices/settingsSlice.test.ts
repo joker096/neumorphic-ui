@@ -113,4 +113,38 @@ describe('settingsSlice', () => {
     const { slice } = mk(createSettingsSlice);
     expect(slice.customChatBackground).toBe('data:image/jpeg;base64,BBBB');
   });
+
+  it('persists encrypted keys atomically: no plaintext, ENC:v1: only, fail-closed without key', async () => {
+    const { createSettingsSlice } = await import('./settingsSlice');
+    const { slice, get } = mk(createSettingsSlice);
+
+    // 1) No session key → save aborted, plaintext never written (fail-closed).
+    slice.setTotpSecret('SECRET-NO-KEY');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(JSON.parse(localStorage.getItem(PRIVACY_KEY) || '{}').totpSecret).toBeUndefined();
+
+    // 2) With session key → only the encrypted bundle is stored.
+    const { setSessionPersistKey, decryptPersistValue } = await import('../../lib/securePersist');
+    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+    setSessionPersistKey(key);
+
+    slice.setTotpSecret('SECRET-WITH-KEY');
+    const stored = await vi.waitFor(() => {
+      const value = JSON.parse(localStorage.getItem(PRIVACY_KEY) || '{}').totpSecret;
+      expect(typeof value).toBe('string');
+      return value as string;
+    });
+    expect(stored.startsWith('ENC:v1:')).toBe(true);
+    expect(stored).not.toContain('SECRET-WITH-KEY');
+    expect(await decryptPersistValue(stored)).toBe('SECRET-WITH-KEY');
+
+    // 3) Hydration (fresh module = boot-time snapshot) restores the decrypted value into state.
+    vi.resetModules();
+    const { setSessionPersistKey: resetKey } = await import('../../lib/securePersist');
+    resetKey(key);
+    const { hydrateSecurePrivacyFields } = await import('./settingsSlice');
+    const setLocal = vi.fn();
+    await hydrateSecurePrivacyFields(get, setLocal);
+    expect(setLocal).toHaveBeenCalledWith(expect.objectContaining({ totpSecret: 'SECRET-WITH-KEY' }));
+  });
 });

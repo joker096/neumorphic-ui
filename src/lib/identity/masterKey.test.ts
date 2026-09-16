@@ -1,11 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const idbStore = vi.hoisted(() => new Map<string, unknown>());
 vi.mock('idb-keyval', () => {
-  const store = new Map<string, unknown>();
   return {
-    set: vi.fn(async (k: string, v: unknown) => { store.set(k, v); }),
-    get: vi.fn(async (k: string) => (store.has(k) ? store.get(k) : null)),
+    set: vi.fn(async (k: string, v: unknown) => { idbStore.set(k, v); }),
+    get: vi.fn(async (k: string) => (idbStore.has(k) ? idbStore.get(k) : null)),
   };
 });
 
@@ -22,8 +22,13 @@ function bufEqual(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 describe('masterKey', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    idbStore.clear();
+    // Real browser flow: one stable device-bound key per test run so the
+    // encrypt (store) and decrypt (read) paths use the same key.
+    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+    deviceSecurityMock.getDeviceBoundKey.mockResolvedValue(key);
   });
 
   it('generateMasterSeed returns 32 random bytes', async () => {
@@ -75,6 +80,14 @@ describe('masterKey', () => {
 
     const set = await getMasterKeySet();
     expect(bufEqual(set.seed, seed)).toBe(true);
+  });
+
+  it('fails closed (no plaintext write) when device-bound key unavailable', async () => {
+    deviceSecurityMock.getDeviceBoundKey.mockResolvedValue(undefined as any);
+
+    const seed = await generateMasterSeed();
+    await expect(storeMasterSeed(seed)).rejects.toThrow(/refusing to persist plaintext/);
+    expect(await idb.get(SEED_STORAGE_KEY)).toBeNull();
   });
 
   it('migrates a legacy plaintext seed to encrypted-at-rest without dropping identity', async () => {

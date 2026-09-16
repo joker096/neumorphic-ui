@@ -115,6 +115,20 @@ describe('deviceSecurity', () => {
     );
   });
 
+  it('imports the device-bound wrapping key as non-extractable (WebCrypto OS-backing analog)', async () => {
+    idbGet.mockResolvedValue(undefined);
+
+    await deviceSecurity.getDeviceBoundKey();
+
+    expect(mockSubtle.importKey).toHaveBeenCalledWith(
+      'raw',
+      expect.anything(),
+      'AES-GCM',
+      false,
+      ['encrypt', 'decrypt'],
+    );
+  });
+
   it('getDeviceBoundKeyRaw() caches the effective raw key across calls', async () => {
     idbGet.mockResolvedValue(undefined);
 

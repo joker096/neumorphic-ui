@@ -11,7 +11,7 @@ const OVERRIDE_KEY_ID = '__nexus_device_key_override';
 const KEY_ITERATIONS = 600000;
 
 async function importRawKey(raw: Uint8Array): Promise<CryptoKey> {
-  return crypto.subtle.importKey('raw', raw, 'AES-GCM', true, ['encrypt', 'decrypt']);
+  return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']);
 }
 
 export const deviceSecurity = {
