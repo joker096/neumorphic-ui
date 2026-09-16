@@ -4,7 +4,9 @@ import { groupMessages, formatDateLabel } from "../utils/chatUtils";
 import { useDebounce } from "./useDebounce";
 import { encodeMorse } from "../components/MorseDecoder";
 import { useI18n } from "../lib/i18n";
-import { queueMessage, getPendingMessages, markMessageSent } from "../lib/messageQueue";
+import { queueMessage } from "../lib/messageQueue";
+import { encodeChatReadReceipt, encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
+import { p2pNetwork } from "../lib/p2p/network";
 import { useFileSend } from "./useFileSend";
 import { SELF_DESTRUCT_MS } from "../constants/time";
 
@@ -85,6 +87,13 @@ export function useChatPreviewState(
   const [bounceMsgId, setBounceMsgId] = useState<string | number | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [unreadSinceScroll, setUnreadSinceScroll] = useState(0);
+  const lastReadReceiptRef = useRef<string | null>(null);
+  const [tabVisible, setTabVisible] = useState(() => document.visibilityState === "visible");
+  useEffect(() => {
+    const onVisibilityChange = () => setTabVisible(document.visibilityState === "visible");
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
 
   const updateMsgStatusInChat = useCallback((chatArg: any, msgId: string | number, status: string) => {
     const updatedChat = {
@@ -140,6 +149,22 @@ export function useChatPreviewState(
     prevHistoryLen.current = curLen;
   }, [chat.history?.length, isNearBottom]);
 
+  useEffect(() => {
+    if (!readReceipts || !isNearBottom || !tabVisible || chat.isChannel) return;
+    const lastIncoming = [...(chat.history || [])].reverse().find((message: any) => message.sender !== "me");
+    if (!lastIncoming) return;
+    const messageId = String(lastIncoming.id);
+    if (lastReadReceiptRef.current === messageId) return;
+    lastReadReceiptRef.current = messageId;
+    void p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeChatReadReceipt({
+      type: "chat-read",
+      seq: nextFrameSeq(),
+      messageId,
+      chatId: String(chat.id),
+      timestamp: Date.now(),
+    })).catch(() => {});
+  }, [chat.id, chat.history, chat.isChannel, isNearBottom, readReceipts, tabVisible]);
+
   const sendMessage = (attachment?: { url: string; type: 'image' | 'video' }) => {
     const textToSend = eMorseMode ? encodeMorse(eMsgText) : eMsgText.trim();
     const hasAttachment = !!attachment;
@@ -150,7 +175,7 @@ export function useChatPreviewState(
       sender: "me",
       text: textToSend,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: navigator.onLine ? "sent" : "queued",
+      status: "queued",
       silent: eSilentMode,
     };
     const selfDestructDefault = useAppStore.getState().selfDestructDefault;
@@ -169,7 +194,7 @@ export function useChatPreviewState(
         duration: eReplyTarget.duration
       } : undefined;
     }
-    void queueMessage({ ...newMessage, chatId: chat.id }).catch(() =>
+    void queueMessage({ ...newMessage, chatId: chat.id, chatName: chat.name }).catch(() =>
       updateMsgStatusInChat(chat, newMessage.id, "failed"),
     );
     const updatedChat = {
@@ -188,6 +213,20 @@ export function useChatPreviewState(
             : c
         )
       );
+    }
+    if (!newMessage.type) {
+      const sender = useAppStore.getState().userProfile;
+      void p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeChatText({
+        type: "chat-text",
+        seq: nextFrameSeq(),
+        messageId: String(newMessage.id),
+        chatId: String(chat.id),
+        chatName: String(chat.name || ""),
+        senderName: sender?.name || sender?.username || "User",
+        text: String(newMessage.text || ""),
+        silent: !!newMessage.silent,
+        timestamp: Number(newMessage.id) || Date.now(),
+      })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
     }
     setMsgTextFn("");
     setReplyTargetFn2(null);
@@ -218,7 +257,12 @@ export function useChatPreviewState(
       .then(() => {
         if (navigator.onLine) {
           updateMsgStatusInChat(chat, msg.id, "sent");
-          setTimeout(() => updateMsgStatusInChat(chat, msg.id, "delivered"), 1000);
+          // 'delivered' is simulated locally only for non-wire chats (mock /
+          // uuid peers). For a real P2P peer the wire chat-ack (handled by
+          // useP2PMessages) drives the transition — no guessing here.
+          const isWirePeer = p2pNetwork.peerForChat(String(chat.id)) !== undefined
+            || /^[0-9a-f]{64}$/.test(String(chat.id));
+          if (!isWirePeer) setTimeout(() => updateMsgStatusInChat(chat, msg.id, "delivered"), 1000);
         }
       })
       .catch(() => updateMsgStatusInChat(chat, msg.id, "failed"));
@@ -244,6 +288,11 @@ export function useChatPreviewState(
 
   useEffect(() => {
     if (!chat || !chat.history) return;
+    // Real P2P chats: 'read' must come from the peer's wire chat-read frame
+    // (useP2PMessages), never from a local timer. Simulation only.
+    const isWirePeer = p2pNetwork.peerForChat(String(chat.id)) !== undefined
+      || /^[0-9a-f]{64}$/.test(String(chat.id));
+    if (isWirePeer) return;
     const hasDelivered = chat.history.some((m: any) => m.sender === "me" && m.status === "delivered");
     if (!hasDelivered) return;
     const timer = setTimeout(() => {
@@ -256,30 +305,6 @@ export function useChatPreviewState(
       setChatsStore(prev => prev.map(c => c.id === chat.id ? updatedChat : c));
     }, 1500);
     return () => clearTimeout(timer);
-  }, [chat, onUpdateChat, setChatsStore]);
-
-  // Offline-first (§23): flush queued messages to "sent" when the network is back.
-  useEffect(() => {
-    const flush = async () => {
-      if (!navigator.onLine) return;
-      try {
-        const pending = await getPendingMessages();
-        for (const item of pending) await markMessageSent(item.id);
-        if (pending.length > 0 && (chat.history || []).some((m: any) => m.status === "queued")) {
-          const updatedChat = {
-            ...chat,
-            history: (chat.history || []).map((m: any) => (m.status === "queued" ? { ...m, status: "sent" } : m)),
-          };
-          if (onUpdateChat) onUpdateChat(updatedChat);
-          setChatsStore(prev => prev.map(c => (c.id === chat.id ? updatedChat : c)));
-        }
-      } catch {
-        /* queue is best-effort */
-      }
-    };
-    flush();
-    window.addEventListener("online", flush);
-    return () => window.removeEventListener("online", flush);
   }, [chat, onUpdateChat, setChatsStore]);
 
   const debouncedSearch = useDebounce(searchQuery, 200);

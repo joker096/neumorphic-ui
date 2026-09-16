@@ -1,13 +1,25 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useChatPreviewState } from './useChatPreviewState';
 import { useAppStore } from '../store';
-import { queueMessage, getPendingMessages, markMessageSent } from '../lib/messageQueue';
+import { queueMessage } from '../lib/messageQueue';
+import { p2pNetwork } from '../lib/p2p/network';
+import { parseChatReadReceipt } from '../lib/p2p/chatFrame';
+
+vi.mock('../lib/p2p/network', () => {
+  const broadcast = vi.fn().mockResolvedValue(undefined);
+  return {
+    p2pNetwork: {
+      broadcast,
+      sendAddressed: vi.fn(async (_target: unknown, data: unknown) => { await broadcast(data); return false; }),
+      peerForChat: vi.fn().mockReturnValue(undefined),
+      peerForChatName: vi.fn().mockReturnValue(undefined),
+    },
+  };
+});
 
 vi.mock('../lib/messageQueue', () => ({
   queueMessage: vi.fn().mockResolvedValue('queued-id'),
-  getPendingMessages: vi.fn().mockResolvedValue([]),
-  markMessageSent: vi.fn().mockResolvedValue(undefined),
 }));
 
 function setOnLine(online: boolean) {
@@ -66,7 +78,6 @@ describe('useChatPreviewState (offline-first queue)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getPendingMessages).mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -86,20 +97,19 @@ describe('useChatPreviewState (offline-first queue)', () => {
     expect(onUpdateChat.mock.calls[0][0].history.at(-1).status).toBe('queued');
   });
 
-  it('marks the message sent when online', () => {
+  it('marks the message sent after the P2P broadcast succeeds', async () => {
     const onUpdateChat = vi.fn();
     const { result } = renderHook(() =>
       useChatPreviewState(dmChat, onUpdateChat, undefined, [], undefined, true, true, 'online hello', vi.fn())
     );
 
-    act(() => result.current.sendMessage());
+    await act(async () => { result.current.sendMessage(); });
 
-    expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-2', status: 'sent' }));
-    expect(onUpdateChat.mock.calls[0][0].history.at(-1).status).toBe('sent');
+    expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-2', status: 'queued' }));
+    await waitFor(() => expect(onUpdateChat.mock.calls.at(-1)?.[0].history.at(-1).status).toBe('sent'));
   });
 
-  it('flushes queued messages to sent when the network returns', async () => {
-    vi.mocked(getPendingMessages).mockResolvedValueOnce([{ id: 'q1' }]);
+  it('keeps queued messages pending until a transport confirms delivery', async () => {
     const queuedChat = {
       id: 'dm-2',
       name: 'Bob',
@@ -108,17 +118,13 @@ describe('useChatPreviewState (offline-first queue)', () => {
     const onUpdateChat = vi.fn();
     renderHook(() => useChatPreviewState(queuedChat, onUpdateChat, undefined, [], undefined, true, true, '', vi.fn()));
 
-    await act(async () => {
-      await vi.waitFor(() => expect(onUpdateChat).toHaveBeenCalled());
-    });
+    await act(async () => { await Promise.resolve(); });
 
-    expect(markMessageSent).toHaveBeenCalledWith('q1');
-    expect(onUpdateChat.mock.calls[0][0].history[0].status).toBe('sent');
+    expect(onUpdateChat).not.toHaveBeenCalled();
   });
 
   it('keeps the queue while offline', async () => {
     setOnLine(false);
-    vi.mocked(getPendingMessages).mockResolvedValueOnce([{ id: 'q1' }]);
     renderHook(() =>
       useChatPreviewState(
         { id: 'dm-2', name: 'Bob', history: [{ id: 1, sender: 'me', text: 'x', time: '10:00', status: 'queued' }] },
@@ -131,6 +137,106 @@ describe('useChatPreviewState (offline-first queue)', () => {
       await Promise.resolve();
     });
 
-    expect(markMessageSent).not.toHaveBeenCalled();
+  });
+});
+
+describe('useChatPreviewState (real-P2P status gates)', () => {
+  const msg = { id: 1, sender: 'me', text: 'hello', time: '10:00', status: 'failed' };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('simulates delivered for non-wire chats after retry', async () => {
+    setOnLine(true);
+    const chat = { id: 'dm-1', name: 'Bob', history: [{ ...msg }] };
+    const onUpdateChat = vi.fn();
+    const { result } = renderHook(() =>
+      useChatPreviewState(chat, onUpdateChat, undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    act(() => result.current.retryFailedMessage({ ...msg }));
+
+    await waitFor(() => expect(onUpdateChat.mock.calls.at(-1)?.[0].history.at(-1).status).toBe('delivered'), { timeout: 2500 });
+  });
+
+  it('does not simulate delivered for wire chats', async () => {
+    setOnLine(true);
+    vi.mocked(p2pNetwork.peerForChat).mockReturnValue({} as any);
+    const chat = { id: 'wire-1', name: 'Bob', history: [{ ...msg }] };
+    const onUpdateChat = vi.fn();
+    const { result } = renderHook(() =>
+      useChatPreviewState(chat, onUpdateChat, undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    act(() => result.current.retryFailedMessage({ ...msg }));
+
+    await waitFor(() => expect(onUpdateChat.mock.calls.at(-1)?.[0].history.at(-1).status).toBe('sent'));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 1200)); });
+    const statuses = onUpdateChat.mock.calls.map((call: any) => call[0].history.at(-1).status);
+    expect(statuses).not.toContain('delivered');
+  });
+});
+
+describe('useChatPreviewState (read receipts)', () => {
+  const incomingChat = {
+    id: 'dm-4',
+    name: 'Bob',
+    isChannel: false,
+    history: [{ id: 9, sender: 'them', text: 'hi', time: '10:00', status: 'sent' }],
+  };
+
+  function setTabVisible(visible: boolean) {
+    Object.defineProperty(document, 'visibilityState', {
+      value: visible ? 'visible' : 'hidden',
+      configurable: true,
+    });
+  }
+
+  function readReceiptFrames() {
+    return vi.mocked(p2pNetwork.sendAddressed).mock.calls
+      .map((call: any) => call[1])
+      .filter((payload: unknown) => typeof payload === 'string' && parseChatReadReceipt(payload) !== null);
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setTabVisible(true);
+  });
+
+  afterEach(() => {
+    setTabVisible(true);
+  });
+
+  it('sends a read receipt for the last incoming message when the tab is visible', () => {
+    renderHook(() =>
+      useChatPreviewState(incomingChat, vi.fn(), undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    expect(readReceiptFrames()).toHaveLength(1);
+  });
+
+  it('does not send a read receipt while the tab is hidden', () => {
+    setTabVisible(false);
+    renderHook(() =>
+      useChatPreviewState(incomingChat, vi.fn(), undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    expect(readReceiptFrames()).toHaveLength(0);
+  });
+
+  it('sends the read receipt once the tab becomes visible again', () => {
+    setTabVisible(false);
+    renderHook(() =>
+      useChatPreviewState(incomingChat, vi.fn(), undefined, [], undefined, true, true, '', vi.fn())
+    );
+    expect(readReceiptFrames()).toHaveLength(0);
+
+    act(() => {
+      setTabVisible(true);
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    expect(readReceiptFrames()).toHaveLength(1);
   });
 });

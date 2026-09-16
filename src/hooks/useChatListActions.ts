@@ -60,6 +60,10 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
   const handleMenuMarkRead = (chat: any) => {
     setChats(prev => prev.map((c: any) => c.id === chat.id ? { ...c, unread: 0 } : c));
   };
+  const handleChatOpen = (chat: any) => {
+    if (chat?.unread) handleMenuMarkRead(chat);
+    setActiveChat(chat);
+  };
   const handleMenuDelete = (chat: any) => {
     setChats(prev => prev.filter((c: any) => c.id !== chat.id));
     if (activeChatId != null && activeChatId === chat.id) setActiveChat(null);
@@ -150,6 +154,7 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     closeMenu,
     menuItems,
     handleMenuMute,
+    handleChatOpen,
     handleMenuDelete,
     deleteConfirm,
     requestMenuDelete,
