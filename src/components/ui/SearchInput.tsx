@@ -32,7 +32,6 @@ export function SearchInput({
   value,
   onChange,
   placeholder,
-  isDark = true,
   shape = 'rounded',
   showSearchIcon = true,
   centered = false,
@@ -78,14 +77,11 @@ export function SearchInput({
   // Inputs are borderless: the cursor/placeholder is enough affordance.
   // Do NOT add a border or focus border here (see message composer style).
   if (isPill) {
-    const wrapperVariant = isDark
-      ? `bg-card`
-      : `bg-background`
-    const wrapperBase = `w-full flex items-center gap-2 transition-all duration-300 cursor-text rounded-full ${large ? 'h-12 px-[var(--spacing-24)]' : 'h-[var(--control-height-md)] px-[var(--spacing-16)]'}`
+    const wrapperBase = `w-full flex items-center gap-2 transition-all duration-300 cursor-text rounded-full bg-[var(--msg-bg-input)] ring-1 ring-inset ring-[var(--msg-border-soft)] ${large ? 'h-12 px-[var(--spacing-24)]' : 'h-[var(--control-height-md)] px-[var(--spacing-16)]'}`
 
     return (
       <div
-        className={`${wrapperBase} ${wrapperVariant} ${className}`}
+        className={`${wrapperBase} ${className}`}
         onClick={handleWrapperClick}
       >
         {showSearchIcon && (
@@ -152,11 +148,7 @@ export function SearchInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={resolvedPlaceholder}
-          className={`w-full h-[var(--control-height-md)] leading-[var(--control-height-md)] rounded-[var(--radius-control)] text-[length:var(--text-body-small)] focus:outline-none transition-colors ${
-            isDark
-              ? 'bg-muted text-foreground placeholder:text-muted-foreground'
-              : 'bg-background text-foreground placeholder:text-muted-foreground'
-          } ${showSearchIcon ? 'pl-10' : 'pl-[var(--spacing-16)]'} ${hasValue || rightElement ? 'pr-12' : 'pr-[var(--spacing-16)]'}`}
+          className={`w-full h-[var(--control-height-md)] leading-[var(--control-height-md)] rounded-[var(--radius-control)] text-[length:var(--text-body-small)] focus:outline-none transition-colors box-border bg-[var(--msg-bg-input)] text-[var(--msg-text-primary)] placeholder:text-[var(--msg-text-muted)] border border-[var(--msg-border-soft)] ${showSearchIcon ? 'pl-10' : 'pl-[var(--spacing-16)]'} ${hasValue || rightElement ? 'pr-12' : 'pr-[var(--spacing-16)]'}`}
           aria-label={resolvedPlaceholder}
         />
         {(hasValue || rightElement) && (

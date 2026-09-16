@@ -33,9 +33,6 @@ export const EcoSidebarNav = ({
     (item) => !(item.id === "company" && hideCompany) && (!item.adminOnly || admin),
   );
 
-  const surfaceBg = isDark
-    ? "linear-gradient(180deg, rgba(7,10,15,0.98) 0%, rgba(13,18,25,0.98) 100%)"
-    : "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,246,249,0.98) 100%)";
   const hoverBg = isDark ? "hover:bg-white/[0.04]" : "hover:bg-black/[0.04]";
   const footerStatusRing = isDark ? "#070a0f" : "#ffffff";
 
@@ -43,15 +40,10 @@ export const EcoSidebarNav = ({
 
   return (
     <aside
-      className="hidden md:flex flex-col w-[76px] h-[100dvh] shrink-0 relative z-40 border-r border-[var(--border-color)]"
-      style={{
-        background: surfaceBg,
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-      }}
+      className="hidden md:flex ds-sidebar w-[76px] h-[100dvh] shrink-0 relative z-40"
     >
       {/* Navigation */}
-      <nav className="flex flex-1 flex-col px-2 space-y-2 overflow-y-auto">
+      <nav className="flex w-full flex-1 flex-col px-2 space-y-2 overflow-y-auto">
         {items.map((item: NavItem) => {
           const isActive = activeView === item.id;
           const badgeCount = BADGE_ITEM_IDS.has(item.id)
@@ -108,7 +100,7 @@ export const EcoSidebarNav = ({
       </nav>
 
       {/* Footer - Profile */}
-      <div className="p-2 border-t border-[var(--border-color)] space-y-1">
+      <div className="w-full p-2 border-t border-[var(--border-color)] space-y-1">
         <button
           type="button"
           aria-label={userProfile.name || (userProfile.username ? `@${userProfile.username}` : effectiveT("settings.defaultUserName", "User"))}

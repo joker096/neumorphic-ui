@@ -86,16 +86,10 @@ describe('SearchInput', () => {
     expect(container.querySelector('[class*="rounded-full"]')).toBeInTheDocument();
   });
 
-  it('renders in dark mode', () => {
-    const { container } = render(<SearchInput value="" onChange={() => {}} isDark={true} />);
+  it('uses design-system glass input surface (theme-agnostic)', () => {
+    const { container } = render(<SearchInput value="" onChange={() => {}} />);
     const input = container.querySelector('input');
-    expect(input?.className).toContain('bg-muted');
-  });
-
-  it('renders in light mode', () => {
-    const { container } = render(<SearchInput value="" onChange={() => {}} isDark={false} />);
-    const input = container.querySelector('input');
-    expect(input?.className).toContain('bg-background');
+    expect(input?.className).toContain('msg-bg-input');
   });
 
   it('renders with rightElement', () => {

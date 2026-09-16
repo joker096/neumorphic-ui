@@ -70,7 +70,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
         ref={ref}
         role="menu"
         style={{ position: "fixed", top: Math.max(8, y), left: Math.max(8, x), width }}
-        className="z-[var(--z-tooltip)] rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] shadow-2xl p-1 animate-fade-in"
+        className="z-[var(--z-tooltip)] glass-menu rounded-xl p-1 animate-fade-in"
       >
         {items.map((it) => {
           const Icon = it.icon;
@@ -106,7 +106,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, items,
       <div
         ref={ref}
         role="menu"
-        className="relative w-full max-w-[420px] rounded-t-2xl bg-[var(--bg-primary)] border-t border-[var(--border-color)] shadow-2xl p-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] animate-fade-in"
+        className="glass-menu relative w-full max-w-[420px] rounded-t-2xl p-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] animate-fade-in"
       >
         {items.map((it) => {
           const Icon = it.icon;

@@ -36,7 +36,9 @@ vi.mock('../crm/CrmView', () => ({ CrmView: ({ onOpenPremium }: any) => { captur
 vi.mock('../settings/PremiumSection', () => ({ PremiumSection: ({ onBack }: any) => { capturedPremiumBack = onBack; return <div data-testid="premium-section">PremiumSection</div>; } }));
 
 let capturedOnStart: ((botName: string) => void) | undefined;
-vi.mock('./bot/BotProfileView', () => ({ BotProfileView: ({ onStart }: any) => { capturedOnStart = onStart; return <div data-testid="bot-profile">BotProfileView</div>; } }));
+let capturedBotBack: (() => void) | undefined;
+let capturedOnOpenMiniApp: ((id: string) => void) | undefined;
+vi.mock('./bot/BotProfileView', () => ({ BotProfileView: ({ onStart, onBack, onOpenMiniApp }: any) => { capturedOnStart = onStart; capturedBotBack = onBack; capturedOnOpenMiniApp = onOpenMiniApp; return <div data-testid="bot-profile">BotProfileView</div>; } }));
 let capturedPremiumBack: (() => void) | undefined;
 
 import { FeatureViews } from './FeatureViews';
@@ -80,6 +82,42 @@ describe('FeatureViews', () => {
     capturedOnOpenPremium?.();
     expect(setSubView).toHaveBeenCalledWith('premium');
     expect(setView).toHaveBeenCalledWith('settings');
+  });
+
+  it('premium back restores origin via goBack when provided', async () => {
+    const goBack = vi.fn();
+    capturedPremiumBack = undefined;
+    render(<FeatureViews {...defaultProps} view="settings" subView="premium" goBack={goBack} />);
+    expect(await screen.findByTestId('premium-section')).toBeInTheDocument();
+    capturedPremiumBack?.();
+    expect(goBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('company onOpenPremium pushes origin via pushView when provided', async () => {
+    const pushView = vi.fn();
+    capturedOnOpenPremium = undefined;
+    render(<FeatureViews {...defaultProps} view="company" pushView={pushView} />);
+    expect(await screen.findByTestId('crm-view')).toBeInTheDocument();
+    capturedOnOpenPremium?.();
+    expect(pushView).toHaveBeenCalledWith('settings', 'premium');
+  });
+
+  it('bot back restores origin via goBack when provided', async () => {
+    const goBack = vi.fn();
+    capturedBotBack = undefined;
+    render(<FeatureViews {...defaultProps} view="bot" goBack={goBack} />);
+    expect(await screen.findByTestId('bot-profile')).toBeInTheDocument();
+    capturedBotBack?.();
+    expect(goBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('bot onOpenMiniApp pushes origin via pushView when provided', async () => {
+    const pushView = vi.fn();
+    capturedOnOpenMiniApp = undefined;
+    render(<FeatureViews {...defaultProps} view="bot" pushView={pushView} />);
+    expect(await screen.findByTestId('bot-profile')).toBeInTheDocument();
+    capturedOnOpenMiniApp?.('mini_bot_1');
+    expect(pushView).toHaveBeenCalledWith('miniApp');
   });
 
   it('returns null for unknown view', () => {

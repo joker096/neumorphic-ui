@@ -31,7 +31,7 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
   const hasMatches = matchCount > 0;
 
   return (
-    <div className={`px-5 relative z-10 overflow-hidden ${isDark ? 'bg-[var(--bg-tertiary)]/90 border-b border-[var(--border-color)] backdrop-blur-md' : 'bg-[var(--bg-primary)]/90 border-b border-[var(--border-color)] backdrop-blur-md'}`}>
+    <div className="px-5 relative z-10 overflow-hidden bg-[var(--msg-bg-panel)]/80 border-b border-[var(--msg-border-soft)] backdrop-blur-[var(--msg-glass-blur)]">
       <div className="py-2.5">
         <SearchInput
           value={searchQuery}

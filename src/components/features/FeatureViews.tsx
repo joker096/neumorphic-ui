@@ -32,6 +32,7 @@ type FeatureViewsProps = {
   setActiveChat: (chat: any) => void;
   setView: (view: string) => void;
   goBack?: () => void;
+  pushView?: (view: string, subView?: string | null) => void;
   onNavigate?: (view: string) => void;
   onCall: (name: string, color?: string) => void;
   onVideoCall: (name: string, color?: string) => void;
@@ -66,6 +67,7 @@ export const FeatureViews = ({
   setActiveChat,
   setView,
   goBack,
+  pushView,
   onNavigate,
   onCall,
   onVideoCall,
@@ -115,7 +117,7 @@ export const FeatureViews = ({
       if (subView === 'premium') {
         return (
           <Suspense fallback={<Loader />}>
-            <LazyPremiumSection isDark={theme === 'dark'} onBack={() => setSubView?.(null)} />
+            <LazyPremiumSection isDark={theme === 'dark'} onBack={() => { if (goBack) goBack(); else setSubView?.(null); }} />
           </Suspense>
         );
       }
@@ -158,8 +160,8 @@ export const FeatureViews = ({
               onNavigate?.("chats");
             }}
             onOpenPremium={() => {
-              setSubView?.("premium");
-              setView("settings");
+              if (pushView) pushView("settings", "premium");
+              else { setSubView?.("premium"); setView("settings"); }
             }}
           />
         </Suspense>
@@ -172,11 +174,11 @@ export const FeatureViews = ({
             isDark={theme === "dark"}
             onBack={() => {
               setActiveBotId?.(null);
-              setView("bots");
+              if (goBack) goBack(); else setView("bots");
             }}
             onOpenMiniApp={(id) => {
               setMiniAppBotId?.(id);
-              setView("miniApp");
+              if (pushView) pushView("miniApp"); else setView("miniApp");
             }}
             onStart={(botName) => {
               onMessage(botName);
@@ -192,7 +194,7 @@ export const FeatureViews = ({
           <LazyMiniApp
             botId={miniAppBotId ?? ""}
             isDark={theme === "dark"}
-            onClose={() => setView("bot")}
+            onClose={() => { if (goBack) goBack(); else setView("bot") }}
           />
         </Suspense>
       );

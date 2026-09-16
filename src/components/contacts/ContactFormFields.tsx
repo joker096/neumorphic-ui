@@ -79,7 +79,7 @@ export const ContactCRMFields = ({ company, setCompany, position, setPosition, t
           </span>
         </button>
         {showTags && (
-          <div className="absolute top-full left-0 right-0 z-20 mt-1 p-2 rounded-2xl bg-popover border border-border shadow-2xl">
+          <div className="glass-menu absolute top-full left-0 right-0 z-20 mt-1 p-2 rounded-2xl">
             <div className="grid grid-cols-2 gap-2">
               {allTags.map(tag => (
                 <button

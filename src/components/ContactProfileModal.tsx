@@ -12,6 +12,9 @@ import { CONTACT_FALLBACK_GRADIENT, CONTACT_MAX_DAYS } from '../constants/contac
 import { MINUTE_MS, HOUR_MS, DAY_MS, ACTIVE_NOW_THRESHOLD_MS } from '../constants/time';
 import { SharedMediaTabs } from './chat/SharedMediaTabs';
 import { ToggleSwitch } from './ui/ToggleSwitch';
+import { getMasterKeySet } from '../lib/identity/masterKey';
+import { getPinnedIdentity } from '../lib/p2p/identityPin';
+import { buf2hex } from '../lib/crypto/cryptoCore';
 
 export type ContactProfile = {
   id: string;
@@ -62,6 +65,29 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const [showSafetyNumber, setShowSafetyNumber] = useState(false);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const [localMuted, setLocalMuted] = useState(false);
+  const [identityHex, setIdentityHex] = useState<string | undefined>(undefined);
+  const [peerPinned, setPeerPinned] = useState<string | undefined>(undefined);
+
+  // Resolve the REAL identity keys, not chat ids: the local Ed25519 public key
+  // (master identity) and the peer's pinned identity (TOFU-pinned at first
+  // verified signaling session). Without both, the safety number cannot be
+  // computed and the modal shows an honest "not yet verified" state.
+  useEffect(() => {
+    let alive = true
+    getMasterKeySet()
+      .then((keys) => { if (alive) setIdentityHex(buf2hex(keys.ed25519Public)) })
+      .catch(() => { /* no master identity yet — modal stays unverified */ })
+    return () => { alive = false }
+  }, []);
+
+  useEffect(() => {
+    let alive = true
+    if (!contact?.id) { setPeerPinned(undefined); return }
+    getPinnedIdentity(contact.id)
+      .then((pinned) => { if (alive) setPeerPinned(pinned) })
+      .catch(() => { if (alive) setPeerPinned(undefined) })
+    return () => { alive = false }
+  }, [contact?.id]);
 
   useEffect(() => {
     setShowActions(false);
@@ -134,7 +160,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
- className={`w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 shadow-2xl relative flex flex-col items-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
+ className={`glass-panel w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 relative flex flex-col items-center`}
           >
             <button
               className={`absolute top-4 right-4 z-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-black/5 hover:bg-black/10 text-slate-800'}`}
@@ -396,7 +422,8 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
         open={showSafetyNumber}
         contactId={contact?.id || ''}
         contactName={contact?.name || ''}
-        myPeerId={myPeerId}
+        myPeerId={myPeerId ?? identityHex}
+        theirPublicKey={peerPinned}
         theme={theme}
         onClose={() => setShowSafetyNumber(false)}
       />

@@ -18,7 +18,7 @@ export function MessageTimestamp({
 }: MessageTimestampProps) {
   const { t } = useI18n();
   return (
-    <div className={`flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide opacity-70 ${isMe && !isDark ? "text-orange-100" : ""} ${msg.type ? "px-2" : ""}`}>
+    <div className={`message-meta flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide ${isMe && !isDark ? "text-orange-100" : ""} ${msg.type ? "px-2" : ""}`}>
       {msg.silent && <BellOff size={12} className="mr-0.5 opacity-60" />}
       {stealthMode ? fuzzTime(msg.time, msg.id) : msg.time}
       {isMe && (

@@ -227,21 +227,11 @@ describe('ContactProfileModal', () => {
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 
-  it('applies dark theme styles', () => {
+  it('applies glass-panel surface', () => {
     render(<ContactProfileModal {...defaultProps} />);
 
-    const modal = screen.getByText('Test User').closest('[class*="bg-[var(--bg-tertiary)]"]');
+    const modal = screen.getByText('Test User').closest('[class*="glass-panel"]');
     expect(modal).toBeInTheDocument();
-    expect(modal).toHaveClass('border-[var(--border-color)]');
-  });
-
-  it('applies light theme styles', () => {
-    const lightProps = { ...defaultProps, theme: 'light' as const };
-    render(<ContactProfileModal {...lightProps} />);
-
-    const modal = screen.getByText('Test User').closest('[class*="bg-white"]');
-    expect(modal).toBeInTheDocument();
-    expect(modal).toHaveClass('border-[var(--border-color)]');
   });
 
   it('shows first letter of name in avatar', () => {

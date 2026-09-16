@@ -5,7 +5,6 @@ import { FormattedText } from "./FormattedText";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { useAppStore } from "../../store";
 import { p2pNetwork } from "../../lib/p2p/network";
-import { CHAT_SEND_GRADIENT } from "../../constants/chatConstants";
 
 interface ChatListItemProps {
   chat: any;
@@ -153,7 +152,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
 
   return (
     <div
-      className={`relative mb-4 last:mb-0 overflow-hidden chat-list-item group ${active ? "chat-list-item-active" : ""}`}
+      className={`relative mb-1 last:mb-0 overflow-hidden chat-list-item group ${active ? "chat-list-item-active" : ""}`}
       role="listitem"
       onContextMenu={(e) => {
         e.preventDefault();
@@ -279,15 +278,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         }}
         animate={{ x: targetX }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className={`relative z-10 w-full px-2.5 md:px-3 py-[var(--chat-item-pad-y,0.625rem)] md:py-[var(--chat-item-pad-y-md,0.75rem)] flex items-center gap-3 cursor-pointer transition-all duration-200 select-none min-h-[var(--chat-item-min-h,52px)] ${
-           isDark
-             ? active
-              ? "bg-[var(--accent-soft)] border border-[var(--accent)]/20 active:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.25),inset_-2px_-2px_5px_rgba(255,255,255,0.02)]"
-                : "bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] border border-transparent hover:shadow-[var(--neo-shadow-out-sm),var(--neo-shadow-in-sm)] active:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.25),inset_-2px_-2px_5px_rgba(255,255,255,0.02)]"
-             : active
-               ? "bg-[var(--bg-secondary)] shadow-[inset_4px_4px_10px_rgba(165,175,190,0.4),_inset_-2px_-2px_6px_rgba(255,255,255,1)] border border-[var(--border-color)] active:shadow-[inset_5px_5px_12px_rgba(165,175,190,0.5),inset_-3px_-3px_8px_rgba(255,255,255,1)]"
-               : "bg-[var(--bg-secondary)] shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_8px_8px_16px_rgba(165,175,190,0.4),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] border border-[var(--border-color)] hover:bg-black/5 hover:shadow-[-8px_-8px_16px_rgba(255,255,255,1),_10px_10px_20px_rgba(165,175,190,0.45),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] active:shadow-[inset_3px_3px_8px_rgba(165,175,190,0.45)]"
-         }`}
+          className={`relative z-10 w-full px-2.5 md:px-3 py-[var(--chat-item-pad-y,0.625rem)] md:py-[var(--chat-item-pad-y-md,0.75rem)] flex items-center gap-3 cursor-pointer transition-all duration-200 select-none min-h-[var(--chat-item-min-h,68px)] chat-item ${active ? "active" : ""}`}
       >
         <div
           onClick={(e) => {
@@ -301,7 +292,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               onAvatarClick(chat);
             }
           }}
-          className={`relative shrink-0 w-10 h-10 ${roundedClass} p-[2px] transition-transform duration-200 ${active ? "scale-95" : ""}`}
+          className={`relative shrink-0 ${roundedClass} avatar transition-transform duration-200 ${active ? "scale-95" : ""}`}
         >
           {selectMode ? (
             <div
@@ -339,7 +330,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             <div
               role="img"
               aria-label={t("chat.filters.online")}
-              className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-2 z-10 ${isDark ? "bg-[var(--chat-online-dot)] border-[var(--bg-secondary)]" : "bg-emerald-500 border-[var(--bg-secondary)]"}`}
+              className="avatar-status"
             />
           )}
           {type === "channel" && !selectMode && (
@@ -354,7 +345,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
           <div className="flex justify-between items-center mb-[2px]">
             <span
-              className={`font-bold text-[13px] md:text-sm truncate pr-2 flex items-center gap-1 text-[var(--text-primary)]`}
+              className={`chat-item-title truncate pr-2 flex items-center gap-1`}
             >
               {chat.pinned && (
                 <MapPin size={12} className="shrink-0 opacity-60 rotate-45" />
@@ -362,14 +353,14 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
               {chat.name}
             </span>
             <span
-              className={`text-xs md:text-xs font-medium tracking-wide shrink-0 text-[var(--text-tertiary)]`}
+              className={`chat-item-time shrink-0`}
             >
               {fuzzedTime}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span
-              className={`text-xs md:text-xs truncate pr-4 flex items-center gap-1 ${active ? "text-[var(--accent)]" : "text-[var(--text-secondary)]"} ${chat.unread ? "font-medium" : ""}`}
+              className={`chat-item-subtitle truncate pr-4 flex items-center gap-1 ${active ? "text-[var(--accent)]" : ""} ${chat.unread ? "font-medium" : ""}`}
             >
                 {(() => {
                   const lastMsg = (chat.history || []).at(-1);
@@ -396,7 +387,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
             </span>
             {chat.unread > 0 && (
               <div
-                className={`shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center shadow-sm ${CHAT_SEND_GRADIENT} text-[var(--text-primary)]`}
+                className={`badge unread shrink-0`}
               >
                 <span className="text-xs font-bold pb-[0.5px] leading-none">
                   {chat.unread}

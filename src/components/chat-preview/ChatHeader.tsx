@@ -214,9 +214,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             <>
               <div className="fixed inset-0 z-40" onClick={() => setMoreOpen(false)} aria-hidden="true" />
               <div
-                className={`absolute right-0 top-full mt-2 z-50 min-w-[200px] rounded-xl border border-[var(--border-color)] p-1 shadow-xl overflow-hidden ${
-                  isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]" : "bg-white text-slate-800"
-                }`}
+                className="glass-menu absolute right-0 top-full mt-2 z-50 min-w-[200px] rounded-xl p-1 overflow-hidden"
                 role="menu"
               >
                 {secondaryActions.map((action) => (

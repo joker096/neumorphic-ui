@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "motion/react";
+import { motion, type PanInfo } from "motion/react";
 import { Clock } from "lucide-react";
 import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
@@ -166,11 +166,11 @@ function ChatMessageImpl({
       drag={selectionMode ? false : "x"}
       dragConstraints={isMe ? { left: -80, right: 0 } : { left: 0, right: 80 }}
       dragElastic={0.1}
-      onDragEnd={(_: any, info: any) => {
+      onDragEnd={(_: unknown, info: PanInfo) => {
         if ((isMe && info.offset.x < -60) || (!isMe && info.offset.x > 60)) onReply(msg);
         onSwipeReplyId(null);
       }}
-      onDrag={(_: any, info: any) => {
+      onDrag={(_: unknown, info: PanInfo) => {
         onSwipeReplyId(isMe ? (info.offset.x < -10 ? msg.id : null) : (info.offset.x > 10 ? msg.id : null));
       }}
       className={`flex flex-col w-full group relative ${isMe ? "items-end" : "items-start"} ${msg._isLastInGroup !== false ? "mb-2" : "mb-0.5"}`}
@@ -186,15 +186,7 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`msg-bubble max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit shrink-0 ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${
-            isMe
-              ? isDark
-                ? "bg-[var(--accent-soft)] text-[var(--text-primary)] border border-[var(--accent-soft)] shadow-[0_2px_4px_rgba(0,0,0,0.15),_inset_0_1px_0_rgba(255,255,255,0.08)]"
-                : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-[0_2px_4px_rgba(249,115,22,0.2),_inset_0_1px_0_rgba(255,255,255,0.2)]"
-              : isDark
-                ? "bg-[var(--bg-tertiary)] text-gray-300 border border-[var(--border-color)] shadow-[0_2px_4px_rgba(0,0,0,0.2),_inset_0_1px_0_rgba(255,255,255,0.03)]"
-                : "bg-white text-slate-700 border border-[var(--border-color)] shadow-[0_2px_4px_rgba(165,175,190,0.15)]"
-          }`}
+          className={`msg-bubble message max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit shrink-0 ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
         >
           <AttachmentMedia
             msg={msg}

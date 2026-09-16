@@ -359,9 +359,8 @@ describe('SettingsView', () => {
     </ThemeContext.Provider>
   );
 
-    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="rounded-2xl"]');
+    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="glass-panel"]');
     expect(container).toBeInTheDocument();
-    expect(container?.className).toContain('bg-[var(--bg-secondary)]');
   });
 
   it('applies light theme styles', () => {
@@ -371,8 +370,7 @@ describe('SettingsView', () => {
       </ThemeContext.Provider>
     );
 
-    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="rounded-2xl"]');
+    const container = screen.getByPlaceholderText('Search settings...').closest('[class*="glass-panel"]');
     expect(container).toBeInTheDocument();
-    expect(container?.className).toContain('bg-white');
   });
 });

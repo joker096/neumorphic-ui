@@ -48,6 +48,8 @@ export interface AppShellProps {
   chats: any[];
   setChats: (updater: any) => void;
   setView: (view: any) => void;
+  goBack?: () => void;
+  pushView?: (view: string, subView?: string | null) => void;
   setGlobalSelectedContact: (contact: any) => void;
   setShowCreateChannel: (show: boolean) => void;
   setShowCreateBot: (show: boolean) => void;
@@ -108,6 +110,8 @@ function AppShellImpl({
   chats,
   setChats,
   setView,
+  goBack,
+  pushView,
   setGlobalSelectedContact,
   setShowCreateChannel,
   setShowCreateBot,
@@ -179,7 +183,8 @@ function AppShellImpl({
     draftTextByChat,
     onOpenBot: (botId: string) => {
       setActiveBotId?.(botId);
-      setView("bot");
+      if (pushView) pushView("bot");
+      else setView("bot");
     },
   };
 
@@ -215,6 +220,8 @@ function AppShellImpl({
     setActiveBotId,
     miniAppBotId,
     setMiniAppBotId,
+    goBack,
+    pushView,
   };
 
   return (
@@ -227,7 +234,7 @@ function AppShellImpl({
       {/* 3-column desktop layout: rail (76px) + resizable side list (240–480px) + main (flexible) */}
       {!isMobile && (
         <div
-          className="hidden md:grid md:grid-rows-[minmax(0,1fr)] w-full h-full min-h-0 overflow-hidden"
+          className="ds-shell hidden md:grid md:grid-rows-[minmax(0,1fr)] w-full h-full min-h-0 overflow-hidden"
           style={{ gridTemplateColumns: `76px ${clampSideWidth(sideWidth)}px 4px 1fr` }}
         >
           {/* Icon Rail */}
@@ -258,7 +265,10 @@ function AppShellImpl({
             handlePreviewCall={handlePreviewCall}
             handlePreviewMessage={handlePreviewMessage}
             setView={setView}
-            onOpenPremium={() => { setSubView('premium'); setView('settings'); }}
+            onOpenPremium={() => {
+              if (pushView) pushView("settings", "premium");
+              else { setSubView('premium'); setView('settings'); }
+            }}
           />
 
           {/* Drag to resize the side list; double-click resets to 320px */}

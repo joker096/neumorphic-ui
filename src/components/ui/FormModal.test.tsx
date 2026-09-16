@@ -74,15 +74,14 @@ describe('FormModal', () => {
 
   it('renders with dark theme by default', () => {
     render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const modal = document.querySelector('[class*="rounded-2xl"]');
-    expect(modal?.className).toContain('bg-card');
+    const modal = document.querySelector('[class*="glass-modal"]');
+    expect(modal?.className).toContain('glass-modal');
   });
 
   it('renders in light theme', () => {
     render(<FormModal isOpen={true} onClose={() => {}} theme="light">Content</FormModal>);
-    const modal = document.querySelector('[class*="rounded-2xl"]');
-    expect(modal?.className).toContain('bg-card');
-    expect(modal?.className).toContain('border-border');
+    const modal = document.querySelector('[class*="glass-modal"]');
+    expect(modal?.className).toContain('glass-modal');
   });
 
   it('renders with maxWidth prop', () => {
@@ -117,7 +116,7 @@ describe('FormModal', () => {
 
   it('renders with a prominent shadow', () => {
     render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const modal = document.querySelector('[class*="shadow-"]');
+    const modal = document.querySelector('[class*="glass-modal"]');
     expect(modal).toBeInTheDocument();
   });
 
@@ -133,46 +132,11 @@ describe('FormModal', () => {
     expect(modal).toHaveClass('max-h-[90vh]');
   });
 
-  it('renders close button with min-w-11', () => {
+  it('renders close button with design-system icon-button styling', () => {
     render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
     const closeBtn = document.querySelector('button');
-    expect(closeBtn?.className).toContain('min-w-11');
-  });
-
-  it('renders close button with min-h-11', () => {
-    render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const closeBtn = document.querySelector('button');
-    expect(closeBtn?.className).toContain('min-h-11');
-  });
-
-  it('renders close button with cursor-pointer', () => {
-    render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const closeBtn = document.querySelector('button');
+    expect(closeBtn?.className).toContain('icon-button');
     expect(closeBtn?.className).toContain('cursor-pointer');
-  });
-
-  it('renders close button with rounded-full', () => {
-    render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const closeBtn = document.querySelector('button');
-    expect(closeBtn?.className).toContain('rounded-full');
-  });
-
-  it('renders close button with transition-colors', () => {
-    render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const closeBtn = document.querySelector('button');
-    expect(closeBtn?.className).toContain('transition-colors');
-  });
-
-  it('renders close button with text-[var(--text-primary)] in dark theme', () => {
-    render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const closeBtn = document.querySelector('button');
-    expect(closeBtn?.className).toContain('text-foreground');
-  });
-
-  it('renders close button with hover state', () => {
-    render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const closeBtn = document.querySelector('button');
-    expect(closeBtn?.className).toContain('hover:bg-muted');
   });
 
   it('renders close button with absolute positioning', () => {
@@ -190,16 +154,16 @@ describe('FormModal', () => {
     expect(modalContent).toBeInTheDocument();
   });
 
-  it('renders border-[var(--border-color)] in dark theme', () => {
+  it('renders glass-modal surface in dark theme', () => {
     render(<FormModal isOpen={true} onClose={() => {}}>Content</FormModal>);
-    const modal = document.querySelector('[class*="border"]');
-    expect(modal?.className).toContain('border-border');
+    const modal = document.querySelector('[class*="glass-modal"]');
+    expect(modal?.className).toContain('glass-modal');
   });
 
-  it('renders border-[var(--border-color)] in light theme', () => {
+  it('renders glass-modal surface in light theme', () => {
     render(<FormModal isOpen={true} onClose={() => {}} theme="light">Content</FormModal>);
-    const modal = document.querySelector('[class*="border"]');
-    expect(modal?.className).toContain('border-border');
+    const modal = document.querySelector('[class*="glass-modal"]');
+    expect(modal?.className).toContain('glass-modal');
   });
 
   it('renders with backdrop blur-sm', () => {

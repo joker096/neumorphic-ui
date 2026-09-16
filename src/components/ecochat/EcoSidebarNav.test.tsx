@@ -173,17 +173,10 @@ describe("EcoSidebarNav", () => {
     fireEvent.click(screen.getByRole("button", { name: "Alice" }));
   });
 
-  it("applies dark surface gradient by default", () => {
+  it("uses glass ds-sidebar surface (theme-agnostic tokens)", () => {
     const { container } = render(<EcoSidebarNav activeView="chats" t={t} />);
     const aside = container.firstElementChild as HTMLElement;
-    expect(aside.style.background).toMatch(/rgba\(7,\s*10,\s*15/);
-  });
-
-  it("applies light surface gradient when isDark=false", () => {
-    const { container } = render(
-      <EcoSidebarNav activeView="chats" isDark={false} t={t} />,
-    );
-    const aside = container.firstElementChild as HTMLElement;
-    expect(aside.style.background).toMatch(/rgba\(255,\s*255,\s*255/);
+    expect(aside.className).toContain("ds-sidebar");
+    expect(aside.style.background).toBe("");
   });
 });

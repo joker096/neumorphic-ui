@@ -106,15 +106,15 @@ describe('ChatListItem', () => {
 
   it('shows online status indicator', () => {
     render(<ChatListItem {...defaultProps} />);
-    const avatar = document.querySelector('[class*="w-10 h-10"]');
+    const avatar = document.querySelector('[class*=" avatar"]');
     expect(avatar?.className).toContain('rounded-full');
-    expect(avatar?.querySelector('[class*="w-[10px]"]')).toBeInTheDocument();
+    expect(avatar?.querySelector('.avatar-status')).toBeInTheDocument();
   });
 
   it('does not show online indicator when chat.online is false', () => {
     render(<ChatListItem {...defaultProps} chat={{ ...mockChat, online: false }} />);
-    const avatar = document.querySelector('[class*="w-10 h-10"]');
-    expect(avatar?.querySelector('[class*="w-[10px]"]')).not.toBeInTheDocument();
+    const avatar = document.querySelector('[class*=" avatar"]');
+    expect(avatar?.querySelector('.avatar-status')).not.toBeInTheDocument();
   });
 
   it('calls onArchive when archive action is triggered', () => {

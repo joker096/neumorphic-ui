@@ -157,7 +157,7 @@ describe('StoryViewer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
     expect(await screen.findByText('Share story')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /copy link/i }));
-    await waitFor(() => expect(writeText).toHaveBeenCalledWith('https://mess.cvr.name#nexus://story/1/11'));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('nexus://story/1/11'));
     expect(toast).toHaveBeenCalledWith('Link copied', 'success');
   });
 
@@ -201,7 +201,7 @@ describe('StoryViewer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'common.more' }));
     expect(screen.getByRole('dialog', { name: 'Story options' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
-    await waitFor(() => expect(writeText).toHaveBeenCalledWith('https://mess.cvr.name#nexus://story/1/11'));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('nexus://story/1/11'));
     expect(screen.queryByRole('dialog', { name: 'Story options' })).toBeNull();
   });
 

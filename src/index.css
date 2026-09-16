@@ -1,6 +1,7 @@
 @import "./styles/tokens.css";
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./styles/messenger.css";
 
 /* Dark mode follows the app's [data-theme] attribute (set on <html>),
    not the system media query. */

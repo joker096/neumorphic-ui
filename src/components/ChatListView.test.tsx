@@ -63,6 +63,7 @@ const hookWith = vi.hoisted(() => (overrides: Record<string, any> = {}) => ({
   closeMenu: vi.fn(),
   menuItems: [],
   handleMenuMute: vi.fn(),
+  handleChatOpen: vi.fn(),
   handleMenuDelete: vi.fn(),
   deleteConfirm: null,
   requestMenuDelete: vi.fn(),

@@ -79,7 +79,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
         aria-label={t("notif.title", "Notifications")}
         title={t("notif.title", "Notifications")}
         onClick={() => setOpen((o) => !o)}
-        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5 text-[var(--text-secondary)]" : "bg-white border border-[var(--border-color)] hover:bg-black/5 text-slate-600 shadow-sm"}`}
+        className={`icon-button relative flex-shrink-0 ${isDark ? "text-[var(--text-secondary)]" : "text-slate-600"}`}
       >
         <Bell size={16} />
         {unreadCount > 0 && (
@@ -94,7 +94,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
         <>
           <div className="fixed inset-0 z-[var(--z-tooltip)]" onClick={() => setOpen(false)} aria-hidden />
           <div
-            className={`fixed z-[var(--z-toast)] w-[320px] max-w-[90vw] rounded-2xl shadow-2xl border border-black/10 ${isDark ? "bg-[var(--bg-secondary)] text-gray-100" : "bg-white text-slate-800"}`}
+            className={`glass-panel fixed z-[var(--z-toast)] w-[320px] max-w-[90vw] rounded-2xl overflow-hidden ${isDark ? "text-gray-100" : "text-slate-800"}`}
             style={{ top: pos?.top, right: pos?.right, transform: pos?.flip ? "translateY(-100%)" : undefined }}
             role="dialog"
             aria-label={t("notif.title", "Notifications")}

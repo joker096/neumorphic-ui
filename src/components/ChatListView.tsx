@@ -119,6 +119,7 @@ export const ChatListView = ({
     closeMenu,
     menuItems,
     handleMenuMute,
+    handleChatOpen,
     handleMenuDelete,
     deleteConfirm,
     requestMenuDelete,
@@ -183,7 +184,10 @@ export const ChatListView = ({
       theme={theme}
       type={type}
       active={activeChatId === chat.id}
-      onClick={() => (onOpenChat ? onOpenChat(chat) : setActiveChat(chat))}
+      onClick={() => {
+        handleChatOpen(chat);
+        onOpenChat?.(chat);
+      }}
       onArchive={() => toggleArchive(chat.id)}
       onMute={type === "chat" ? () => handleMenuMute({ id: chat.id }) : undefined}
       onDelete={type === "chat" ? () => handleMenuDelete({ id: chat.id }) : undefined}
@@ -260,7 +264,7 @@ export const ChatListView = ({
         />
       )}
 
-      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+      <div ref={scrollRef} className="chat-list flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {rows.length > 0 && (
           <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
             {virtualizer.getVirtualItems().map((vi) => {
@@ -277,7 +281,7 @@ export const ChatListView = ({
                         ? "py-4"
                         : vi.index === rows.length - 1
                           ? undefined
-                          : "pb-4"
+                          : "pb-1"
                   }
                   style={{
                     position: "absolute",
@@ -371,7 +375,10 @@ export const ChatListView = ({
             channels={filteredChannels}
             contacts={contacts}
             onClose={() => setGlobalSearchOpen(false)}
-            onOpenChat={(c) => (onOpenChat ? onOpenChat(c) : setActiveChat(c))}
+            onOpenChat={(c) => {
+              handleChatOpen(c);
+              onOpenChat?.(c);
+            }}
             onOpenContact={(c) => setGlobalSelectedContact(c)}
             t={t}
           />

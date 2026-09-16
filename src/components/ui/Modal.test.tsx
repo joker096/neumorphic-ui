@@ -49,7 +49,7 @@ describe('Modal - additional tests', () => {
 
   it('renders with animation', () => {
     render(<Modal isOpen={true} onClose={vi.fn()}>{/* @ts-ignore */}<p data-testid="child">Child</p></Modal>);
-    expect(document.querySelector('[class*="rounded-lg"]') || document.querySelector('[class*="shadow-2xl"]') || document.querySelector('[class*="border"]')).toBeInTheDocument();
+    expect(document.querySelector('[class*="glass-modal"]')).toBeInTheDocument();
   });
 });
 

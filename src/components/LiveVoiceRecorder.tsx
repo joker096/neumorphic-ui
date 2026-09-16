@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
+import { motion, type PanInfo } from 'motion/react';
 import { Mic, Square, Trash2, Send, Pause, Play, RotateCcw } from 'lucide-react';
 import { VoiceWaveform } from './chat-preview/VoiceWaveform';
 import { useI18n } from '../lib/i18n';
@@ -188,11 +188,11 @@ return (
                drag="y"
                dragConstraints={{ top: -120, bottom: 0 }}
                dragElastic={0.2}
-               onDragEnd={(_: any, info: any) => {
-                 if (info.offset.y < -60 || info.velocity.y < -300) {
-                   handleCancel()
-                 }
-               }}
+onDragEnd={(_: unknown, info: PanInfo) => {
+                  if (info.offset.y < -60 || info.velocity.y < -300) {
+                    handleCancel()
+                  }
+                }}
                className="flex items-center justify-between gap-3 h-10"
              >
               <div 

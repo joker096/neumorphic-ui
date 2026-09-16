@@ -23,10 +23,10 @@ export const modalOverlay = 'fixed inset-0 z-[var(--z-modal)] flex items-center 
 export const modalBackdrop = 'absolute inset-0 bg-black/60 backdrop-blur-sm';
 
 export const modalSurface = (_isDark: boolean, maxWidth = 'max-w-[420px]') =>
-  `relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card text-foreground p-4 sm:p-6 shadow-[var(--shadow-modal)] ring-1 ring-black/5`;
+  `glass-modal relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto p-4 sm:p-6`;
 
 export const modalCloseClass = (_isDark: boolean) =>
-  `min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors bg-muted hover:bg-muted text-foreground`;
+  `icon-button shrink-0 cursor-pointer`;
 
 export const modalTitleClass = (_isDark: boolean) => `text-lg font-bold text-foreground`;
 
@@ -98,20 +98,16 @@ export const sheetOverlay = 'fixed inset-0 z-[var(--z-drawer)] flex items-end ju
 export const sheetOverlayAbsolute = 'absolute inset-0 z-[var(--z-dropdown)] flex items-end justify-center';
 export const sheetBackdrop = 'absolute inset-0 bg-black/45 backdrop-blur-[2px]';
 export const sheetSurface = (_isDark: boolean, extra = '') =>
-  `relative w-full max-w-md mx-auto rounded-t-2xl p-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-2xl neu-raised bg-popover border-t border-border max-h-[80vh] overflow-y-auto ${extra}`;
+  `glass-menu relative w-full max-w-md mx-auto rounded-t-2xl p-2 pb-[max(8px,env(safe-area-inset-bottom))] max-h-[80vh] overflow-y-auto ${extra}`;
 
 export const sheetTitleClass = (_isDark: boolean) =>
   `px-4 py-2 text-xs font-semibold text-muted-foreground`;
 
 export const sheetActionClass = (_isDark: boolean, danger = false, compact = false) =>
-  `flex items-center gap-[var(--spacing-12)] w-full min-h-[var(--control-height-md)] ${compact ? 'px-[var(--spacing-12)] py-[var(--spacing-06)] text-[length:var(--text-body-small)]' : 'px-[var(--spacing-16)] py-[var(--spacing-10)] text-[length:var(--text-button)]'} text-left font-medium rounded-[var(--radius-card)] transition-colors cursor-pointer active:scale-[0.99] ${
-    danger
-      ? 'text-[var(--danger)] hover:bg-[var(--danger-soft)]'
-      : 'text-foreground hover:bg-muted'
-  }`;
+  `glass-menu-item w-full ${compact ? 'px-3 text-[length:var(--text-body-small)]' : 'px-4 text-[length:var(--text-button)]'} cursor-pointer ${danger ? 'danger' : ''}`;
 
 export const sheetCancelClass = (_isDark: boolean, compact = false) =>
-  `mt-[var(--spacing-04)] w-full min-h-[var(--control-height-md)] ${compact ? 'py-[var(--spacing-06)] text-[length:var(--text-body-small)]' : 'py-[var(--spacing-10)] text-[length:var(--text-button)]'} rounded-[var(--radius-card)] font-bold transition-colors cursor-pointer text-foreground hover:bg-muted`;
+  `glass-menu-item w-full justify-center mt-1 mb-1 ${compact ? 'text-[length:var(--text-body-small)]' : 'font-bold text-[length:var(--text-button)]'} text-center cursor-pointer`;
 
 /* ---- Shared modal content primitives (theme-token based, match Story composer look) ---- */
 

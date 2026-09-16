@@ -309,11 +309,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
       <div
         role="dialog"
         aria-label={t("search.title", "Search")}
-        className={`relative w-full max-w-[560px] rounded-2xl border shadow-2xl flex flex-col max-h-[80vh] ${
-          isDark
-            ? "bg-[var(--bg-primary)] border-[var(--border-color)]"
-            : "bg-white border-[var(--border-color)]"
-        }`}
+        className="glass-panel relative w-full max-w-[560px] rounded-2xl shadow-2xl flex flex-col max-h-[80vh]"
       >
         <div className={`flex items-center gap-2 px-4 py-3 border-b ${isDark ? "border-[var(--border-color)]" : "border-black/10"}`}>
           <Search size={18} className={isDark ? "text-[var(--text-tertiary)]" : "text-slate-400"} />
@@ -607,7 +603,7 @@ function Row({
           : isDark ? "hover:bg-white/[0.05]" : "hover:bg-black/5"
       }`}
     >
-      <div className={`shrink-0 w-9 h-9 rounded-full bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold text-sm`}>
+      <div className={`shrink-0 avatar avatar-sm bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold text-sm`}>
         {title.charAt(0).toUpperCase()}
       </div>
       <div className="flex-1 min-w-0">

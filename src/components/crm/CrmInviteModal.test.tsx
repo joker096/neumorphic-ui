@@ -19,7 +19,7 @@ describe('CrmInviteModal (visual)', () => {
   it('shows the invite link inline with a copy button', async () => {
     render(<CrmInviteModal onClose={() => {}} />);
     await screen.findByText('INV-TEST123', { exact: true });
-    const link = screen.getByText((c) => c.includes('INV-TEST123') && c.includes('mess.cvr.name'));
+    const link = screen.getByText((c) => c.includes('INV-TEST123') && c.includes('nexus://company/invite'));
     expect(link).toBeTruthy();
     expect(screen.getByLabelText('Copy invite link')).toBeTruthy();
   });

@@ -33,9 +33,7 @@ export const ProfileView: ComponentType<ProfileViewProps> = ({
 
   return (
     <div
-      className={`w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8 rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-panel)] ${
-        isDark ? "bg-[var(--bg-secondary)]" : "bg-white"
-      }`}
+      className={`glass-panel w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8 rounded-2xl`}
     >
       <Suspense fallback={<Loader />}>
         <ProfileSection isDark={isDark} onBack={handleBack} t={tFn} />

@@ -123,7 +123,8 @@ describe('ChatMessage', () => {
     const wrapper = screen.getByText('hello').closest('.items-end') as HTMLElement;
     expect(wrapper).not.toBeNull();
     const bubble = bubbleEl();
-    expect(bubble.className).toContain('bg-gradient-to-br');
+    expect(bubble.className).toContain('message');
+    expect(bubble.className).toContain('outgoing');
   });
 
   it('renders date separator without bubble', () => {

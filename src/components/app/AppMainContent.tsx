@@ -27,6 +27,8 @@ export interface AppMainContentProps {
   setChats: (updater: any) => void;
   setActiveChat: (chat: any) => void;
   setView: (view: any) => void;
+  goBack?: () => void;
+  pushView?: (view: string, subView?: string | null) => void;
   handlePreviewCall: (name: string, color?: string, callType?: "audio" | "video") => void;
   handlePreviewMessage: (name: string, color?: string) => void;
   fontSize: string;
@@ -63,6 +65,8 @@ export function AppMainContent({
   setChats,
   setActiveChat,
   setView,
+  goBack,
+  pushView,
   handlePreviewCall,
   handlePreviewMessage,
   fontSize,
@@ -106,6 +110,8 @@ export function AppMainContent({
           setChats={setChats}
           setActiveChat={setActiveChat}
           setView={setView as any}
+          goBack={goBack}
+          pushView={pushView}
           onCall={handlePreviewCall}
           onVideoCall={(name: string, color?: string) => handlePreviewCall(name, color, "video")}
           onMessage={handlePreviewMessage}

@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "motion/react";
+import { motion, type PanInfo } from "motion/react";
 import { useI18n } from "../lib/i18n";
 import { ChatMessageList } from "./ChatMessageList";
 import { PinnedMessagesBar } from "./chat-preview/PinnedMessagesBar";
@@ -13,6 +13,7 @@ import { JumpToBottomButton } from "./chat-preview/JumpToBottomButton";
 import { ChatPreviewOverlays } from "./ChatPreviewOverlays";
 import type { ContactProfile } from "./ContactProfileModal";
 import { useChatPreviewState } from "../hooks/useChatPreviewState";
+import { useIsMobile } from "../hooks/useMediaQuery";
 import { useChatPreviewTyping } from "../hooks/useChatPreviewTyping";
 import { useChatMessageActions } from "../hooks/useChatMessageActions";
 import { useAppStore } from "../store";
@@ -77,6 +78,7 @@ interface ChatPreviewLayerProps {
 export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onHoldRecord, onReRecord, onPermissionDenied,   onSendVoice, onToggleStickerPicker, onForward, onDelete }: ChatPreviewLayerProps) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
+  const isMobile = useIsMobile();
   const isTyping = useChatPreviewTyping(chat.id, chat.name, chat.online, chat.type);
   const [profileOpen, setProfileOpen] = React.useState(false);
   const pinnedMessageList = useAppStore((s) => s.pinnedMessageList);
@@ -140,7 +142,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     showSavedPanel, setShowSavedPanel,
     bounceMsgId, setBounceMsgId,
     isNearBottom, setIsNearBottom,
-    unreadSinceScroll,
+    unreadSinceScroll, setUnreadSinceScroll,
     eMsgText, setMsgTextFn,
     eMorseMode, setMorseModeFn2,
     eSilentMode, setSilentModeFn2,
@@ -250,13 +252,15 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 40, scale: 0.95 }}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      drag={isMobile && !selectionMode && !showStickerPicker && !showMediaPanel ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={{ left: 0, right: 0.35 }}
+      onDragEnd={(_: unknown, info: PanInfo) => {
+        if (info.offset.x > 90 || info.velocity.x > 600) onClose?.();
+      }}
       onDragOver={canAttachFiles ? (e) => e.preventDefault() : undefined}
       onDrop={canAttachFiles ? (e) => { e.preventDefault(); handleFileDrop(e.dataTransfer?.files, chat, onUpdateChat); } : undefined}
-      className={`chat-surface absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 ${
-        isDark
-          ? "bg-[var(--chat-bg,var(--bg-secondary))] shadow-[0_32px_64px_rgba(0,0,0,0.8),_inset_0_1.5px_2px_rgba(255,255,255,0.05),_inset_0_-2px_4px_rgba(0,0,0,0.9)] rounded-2xl"
-          : "bg-[var(--chat-bg,var(--bg-secondary))] shadow-[0_32px_64px_rgba(165,175,190,0.8),_inset_1.5px_1.5px_3px_rgba(255,255,255,1)] rounded-2xl"
-      }`}
+      className={`chat-surface glass-panel absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 rounded-2xl`}
     >
       {!selectionMode && (
         <ChatHeader
@@ -367,7 +371,10 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         isNearBottom={isNearBottom}
         unreadSinceScroll={unreadSinceScroll}
         isDark={isDark}
-        onScrollToBottom={handleScrollToBottom}
+        onScrollToBottom={() => {
+          handleScrollToBottom();
+          setUnreadSinceScroll(0);
+        }}
       />
 
       <ScheduledMessages

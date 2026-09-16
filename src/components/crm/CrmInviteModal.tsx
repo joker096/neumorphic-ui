@@ -6,7 +6,7 @@ import * as idb from '../../lib/idb';
 import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
 import { CrmModal } from './CrmModal';
-import { APP_HOME_URL } from '../../config/app';
+import { crmInviteLink } from '../../config/app';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -25,7 +25,7 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
   useEffect(() => {
     if (!code) return undefined;
     let cancelled = false;
-    QRCode.toDataURL(`${APP_HOME_URL}/?invite=${code}`, {
+    QRCode.toDataURL(crmInviteLink(code), {
       margin: 1, width: 256, color: { dark: '#0f172a', light: '#ffffff' },
     })
       .then((url) => { if (!cancelled) setQrUrl(url); })
@@ -44,7 +44,7 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
     })();
   }, [code, companyId]);
 
-  const link = code ? `${APP_HOME_URL}/?invite=${code}` : '';
+  const link = code ? crmInviteLink(code) : '';
 
   const copy = async () => {
     try {

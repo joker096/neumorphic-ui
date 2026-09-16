@@ -43,10 +43,7 @@ ${active
                : "text-slate-500 hover:text-slate-800 hover:bg-black/[0.04] active:bg-black/[0.07]"}`;
 
     const badgeClassName = isBottom
-           ? `absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center
-         ${isDark
-           ? "bg-[var(--accent)] shadow-[0_0_8px_rgba(var(--accent-rgb),0.6)]"
-           : "bg-[var(--accent)] shadow-[0_2px_4px_rgba(var(--accent-rgb),0.4)]"}`
+           ? `absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center bg-[var(--accent)] shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]`
        : variant === "eco"
          ? `absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center bg-emerald-500`
          : `absolute top-[6px] right-[6px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center
