@@ -5,6 +5,7 @@ import type { CompanyChannel, CompanyMessage, CompanyMember } from '../constants
 import type { InviteQRPayload } from '../lib/company/types';
 import type { Contact, UserProfile } from '../types/contact';
 import * as idb from '../lib/idb';
+import { setSessionPersistKey } from '../lib/securePersist';
 import { DEFAULT_BOT_PERMISSIONS } from './defaults';
 import type {
   BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage,
@@ -60,7 +61,6 @@ export const setSessionMasterKey = (key: CryptoKey | null): void => {
 
 export const initAppStorage = async () => {
   const { deviceSecurity } = await import('../lib/deviceSecurity');
-  const { setSessionPersistKey } = await import('../lib/securePersist');
   try {
     sessionMasterKey = await deviceSecurity.initSessionMasterKey();
     setSessionPersistKey(sessionMasterKey);

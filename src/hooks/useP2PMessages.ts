@@ -8,7 +8,6 @@ import {
 } from "../lib/fileTransfer/fileStore";
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { p2pNetwork, type BroadcastMessage } from "../lib/p2p/network";
-import { callManager } from "../lib/call/CallManager";
 import { useAppStore } from "../store";
 
 /**
@@ -188,7 +187,7 @@ export function useP2PMessages() {
       const raw = typeof msg.data === "string" ? msg.data : "";
       if (raw.startsWith(CALL_MAGIC)) {
         const callSig = parseCallSignal(raw);
-        if (callSig) callManager.handleRemoteCallSignal(msg.senderId, callSig);
+        if (callSig) void import("../lib/call/CallManager").then(({ callManager }) => callManager.handleRemoteCallSignal(msg.senderId, callSig));
         return;
       }
       if (raw.startsWith(FTR_MAGIC)) {

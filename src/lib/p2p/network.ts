@@ -7,7 +7,6 @@ import { MeshDHT, DHTBootstrapPeer } from './MeshDHT';
 import { MeshRouterCore, MeshRouterSingleton } from './MeshRouter';
 import { useAppStore } from '../../store';
 import { SIGNALING_SEED_URLS } from '../../config/signalling';
-import { buf2hex } from '../crypto/cryptoCore';
 
 const safeParseTyping = (raw: string): { isTyping?: boolean } | null => {
   try {
@@ -113,6 +112,7 @@ export class P2PNetwork {
       const { getMasterKeySet } = await import('../identity/masterKey');
       const identity = await getMasterKeySet().catch(() => null);
       if (identity?.ed25519Public) {
+        const { buf2hex } = await import('../crypto/cryptoCore');
         const idHex = buf2hex(identity.ed25519Public);
         this.peerId = idHex;
         this.peerPublicKey = idHex;

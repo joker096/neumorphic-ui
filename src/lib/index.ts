@@ -3,8 +3,6 @@ export { announce, useFocusTrap, useReducedMotion } from './a11y';
 export type { AccessibilityPriority } from './a11y';
 export { AccountManager, accountManager } from './accountManager';
 export type { Account } from './accountManager';
-export { callRecorderService } from './callRecorderService';
-export type { CallRecording } from './callRecorderService';
 export { deviceSecurity } from './deviceSecurity';
 export { ErrorSeverity, generateErrorId, classifyError, logError, getErrorLog, clearErrorLog, subscribeToErrors } from './errorHandling';
 export type { ErrorRecord } from './errorHandling';

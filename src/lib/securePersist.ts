@@ -8,7 +8,10 @@
  * (early hydration) or for values written before this module existed.
  */
 
-import { buf2hex, hex2buf } from './crypto/cryptoCore';
+/** Lazy loader keeps tweetnacl cryptoCore out of the initial bundle. */
+async function loadHexHelpers() {
+  return import('./crypto/cryptoCore');
+}
 
 let _sessionKey: CryptoKey | null = null;
 
@@ -26,6 +29,7 @@ export function isEncrypted(value: unknown): boolean {
 /** Encrypt a single value. Throws when the session key is not initialised. */
 export async function encryptPersistValue(plaintext: string): Promise<string> {
   if (!_sessionKey) throw new Error('securePersist: key not initialised');
+  const { buf2hex } = await loadHexHelpers();
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const buf = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
@@ -38,6 +42,7 @@ export async function encryptPersistValue(plaintext: string): Promise<string> {
 /** Decrypt a value previously returned by `encryptPersistValue`. */
 export async function decryptPersistValue(bundle: string): Promise<string> {
   if (!_sessionKey) throw new Error('securePersist: key not initialised');
+  const { hex2buf } = await loadHexHelpers();
   const payload = bundle.slice(ENC_PREFIX.length);
   const dot = payload.indexOf('.');
   if (dot === -1) throw new Error('securePersist: invalid bundle');

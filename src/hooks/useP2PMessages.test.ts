@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useP2PMessages } from './useP2PMessages';
 import { FTR_MAGIC, encodeFrame, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
 import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeCallSignal } from '../lib/p2p/chatFrame';
@@ -378,7 +378,7 @@ describe('useP2PMessages', () => {
     expect(mocks.setChats).toHaveBeenCalledTimes(1);
   });
 
-  it('routes call-ring frames to the call manager and skips chat/file handling', () => {
+  it('routes call-ring frames to the call manager and skips chat/file handling', async () => {
     const { handle } = setup();
     const ring: BroadcastMessage = {
       senderId: 'peer-remote',
@@ -389,7 +389,7 @@ describe('useP2PMessages', () => {
 
     act(() => handle(ring));
 
-    expect(mocks.handleRemoteCallSignal).toHaveBeenCalledWith('peer-remote', expect.objectContaining({ type: 'call-ring', callId: 'c-1', callType: 'video' }));
+    await waitFor(() => expect(mocks.handleRemoteCallSignal).toHaveBeenCalledWith('peer-remote', expect.objectContaining({ type: 'call-ring', callId: 'c-1', callType: 'video' })));
     expect(mocks.setChats).not.toHaveBeenCalled();
     expect(vi.mocked(saveTransferMeta)).not.toHaveBeenCalled();
   });
