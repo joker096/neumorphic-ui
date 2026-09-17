@@ -54,7 +54,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
         <>
           {/* Left swipe (call) - only visible when swiped left */}
           <div
-            aria-hidden={swipedOpen === "left" ? undefined : true}
+            inert={swipedOpen !== "left"}
             className="absolute left-0 top-0 flex items-center h-[64px] z-10 pointer-events-none"
             style={{
               opacity: swipedOpen === "left" ? 1 : 0,
@@ -66,7 +66,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
 
           {/* Right swipe (video) - only visible when swiped right */}
           <div
-            aria-hidden={swipedOpen === "right" ? undefined : true}
+            inert={swipedOpen !== "right"}
             className="absolute right-0 top-0 flex items-center justify-end h-[64px] z-10 pointer-events-none"
             style={{
               opacity: swipedOpen === "right" ? 1 : 0,

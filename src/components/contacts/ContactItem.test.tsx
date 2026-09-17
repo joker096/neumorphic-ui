@@ -77,4 +77,14 @@ describe('ContactItem - additional tests', () => {
     const { container } = render(<ContactItem contact={mockContact} theme="dark" isDark={true} onClick={() => {}} onToggleFavorite={vi.fn()} t={(k: string) => k} />);
     expect(container.querySelector('[class*="rounded-2xl"]') || container.querySelector('[class*="rounded-3xl"]') || container.querySelector('[class*="rounded-xl"]')).toBeInTheDocument();
   });
+
+  it('marks closed swipe-action buckets inert (not aria-hidden) so swipe buttons cannot trap focus', () => {
+    const { container } = render(
+      <ContactItem contact={mockContact} theme="dark" isDark={true} onClick={() => {}} onToggleFavorite={vi.fn()} onCall={vi.fn()} onVideoCall={vi.fn()} t={(k: string) => k} />,
+    );
+    expect(container.querySelectorAll('[inert]').length).toBe(2);
+    container.querySelectorAll('[inert]').forEach((el) => {
+      expect(el.hasAttribute('aria-hidden')).toBe(false);
+    });
+  });
 });

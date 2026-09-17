@@ -140,4 +140,14 @@ describe('ChatListItem', () => {
     fireEvent.click(screen.getByText('chat.delete'));
     expect(onDelete).toHaveBeenCalledWith(1);
   });
+
+  it('marks closed swipe-action buckets inert (not aria-hidden) so swipe buttons cannot trap focus', () => {
+    const { container } = render(
+      <ChatListItem {...defaultProps} onMute={vi.fn()} onArchive={vi.fn()} onDelete={vi.fn()} />,
+    );
+    expect(container.querySelectorAll('[inert]').length).toBe(2);
+    container.querySelectorAll('[inert]').forEach((el) => {
+      expect(el.hasAttribute('aria-hidden')).toBe(false);
+    });
+  });
 });

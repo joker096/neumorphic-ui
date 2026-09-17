@@ -164,7 +164,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           className={`absolute inset-0 flex items-stretch justify-start gap-1 overflow-hidden rounded-2xl bg-[var(--bg-tertiary)] px-2 transition-opacity duration-200 ${
             swipedOpen === "right" ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
           }`}
-          aria-hidden={swipedOpen !== "right"}
+          inert={swipedOpen !== "right"}
         >
           {onClick && (
             <button
@@ -200,7 +200,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         className={`absolute inset-0 flex items-stretch justify-end gap-1 overflow-hidden rounded-2xl bg-[var(--bg-tertiary)] px-2 transition-opacity duration-200 ${
           swipedOpen === "left" ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
-        aria-hidden={swipedOpen !== "left"}
+        inert={swipedOpen !== "left"}
       >
         {onMute && (
           <button
