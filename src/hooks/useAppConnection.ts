@@ -15,8 +15,8 @@ export const useAppConnection = () => {
   const autoReconnect = useAppStore(state => state.autoReconnect);
 
   useEffect(() => {
-    // A relay is an explicit deployment choice. Do not probe a hard-coded host
-    // when this client has no user/operator-provided signalling endpoint.
+    // Seeds resolve to env URLs, else the page origin (`/ws`). An empty list
+    // means a non-DOM context (SSR/Node) with no origin — treat as serverless.
     if (SIGNALING_SEED_URLS.length === 0) {
       setConnectionStatus('disconnected');
       setConnectionError(null);
