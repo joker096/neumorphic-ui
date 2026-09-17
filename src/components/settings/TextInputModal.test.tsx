@@ -53,4 +53,39 @@ describe('TextInputModal', () => {
     fireEvent.click(screen.getByText('Cancel'));
     expect(onCancel).toHaveBeenCalled();
   });
+
+  it('keeps typed value across re-renders (no async reset clobber)', () => {
+    const onConfirm = vi.fn();
+    const { rerender } = render(
+      <TextInputModal isOpen={true} title="Test" confirmLabel="Save" cancelLabel="Cancel" onConfirm={onConfirm} onCancel={vi.fn()} />
+    );
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'pw' } });
+    rerender(
+      <TextInputModal isOpen={true} title="Test" confirmLabel="Save" cancelLabel="Cancel" onConfirm={onConfirm} onCancel={vi.fn()} />
+    );
+    expect(input.value).toBe('pw');
+    fireEvent.click(screen.getByText('Save'));
+    expect(onConfirm).toHaveBeenCalledWith('pw');
+  });
+
+  it('resets to initial on reopen transition', () => {
+    const onConfirm = vi.fn();
+    const { rerender } = render(
+      <TextInputModal isOpen={false} title="Test" initial="seed" confirmLabel="Save" cancelLabel="Cancel" onConfirm={onConfirm} onCancel={vi.fn()} />
+    );
+    rerender(
+      <TextInputModal isOpen={true} title="Test" initial="seed" confirmLabel="Save" cancelLabel="Cancel" onConfirm={onConfirm} onCancel={vi.fn()} />
+    );
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    expect(input.value).toBe('seed');
+    fireEvent.change(input, { target: { value: 'changed' } });
+    rerender(
+      <TextInputModal isOpen={false} title="Test" initial="seed" confirmLabel="Save" cancelLabel="Cancel" onConfirm={onConfirm} onCancel={vi.fn()} />
+    );
+    rerender(
+      <TextInputModal isOpen={true} title="Test" initial="seed" confirmLabel="Save" cancelLabel="Cancel" onConfirm={onConfirm} onCancel={vi.fn()} />
+    );
+    expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe('seed');
+  });
 });

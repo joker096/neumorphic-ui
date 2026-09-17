@@ -29,13 +29,20 @@ export const TextInputModal = ({
   const [value, setValue] = useState(initial);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const prevOpen = useRef(isOpen);
+  const prevInitial = useRef(initial);
+
+  if (isOpen && (prevInitial.current !== initial || !prevOpen.current)) {
+    setValue(initial);
+  }
+  prevInitial.current = initial;
+  prevOpen.current = isOpen;
 
   useEffect(() => {
     if (isOpen) {
-      setValue(initial);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [isOpen, initial]);
+  }, [isOpen]);
 
   const handleSubmit = () => {
     onConfirm(value);

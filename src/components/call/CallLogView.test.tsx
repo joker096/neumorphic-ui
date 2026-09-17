@@ -71,7 +71,9 @@ vi.mock('lucide-react', () => ({
   Search: () => null,
   Trash2: () => null,
   Play: () => null,
+  Pause: () => null,
   X: () => null,
+  Headphones: () => null,
 }));
 
 const alice = { id: '1', name: 'Alice', type: 'incoming', time: '10:00' };
