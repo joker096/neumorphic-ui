@@ -16,6 +16,29 @@ type TeamInboxProps = {
 const uid = () =>
   `cm_${typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10)}`;
 
+/** Extract a normalized domain from a page URL, e.g. 'https://Shop.Example.com/x' → 'shop.example.com'. */
+function domainFromPageUrl(url?: string): string {
+  if (!url) return '';
+  try {
+    return new URL(url).hostname.toLowerCase();
+  } catch {
+    return url.toLowerCase().replace(/^https?:\/\//, '').split('/')[0].split('?')[0];
+  }
+}
+
+/** Shape of the typed contact envelope sealed by the widget (see EmbedWidget). */
+interface ContactEnvelope {
+  v: 1;
+  kind: 'contact';
+  name?: string;
+  email?: string;
+  phone?: string;
+  pageUrl?: string;
+  pageTitle?: string;
+  referrer?: string;
+  ts?: number;
+}
+
 export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
   const { t } = useI18n();
   const companyChannels = useAppStore((s) => s.companyChannels);
@@ -28,6 +51,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
   const companyId = useAppStore((s) => s.companyId);
   const siteChats = useAppStore((s) => s.siteChats);
   const channelKeys = useAppStore((s) => s.channelKeys);
+  const ingestWebsiteContact = useAppStore((s) => s.ingestWebsiteContact);
   const [draft, setDraft] = useState('');
   const [syncing, setSyncing] = useState(false);
 
@@ -46,6 +70,31 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
         const secret = channelKeys[active.id]?.secretKeyB64;
         if (!secret) return;
         const text = await openFromChannel(secret, sealed);
+        // Typed contact envelope (sealed JSON from the widget's pre-chat form) —
+        // import to CRM + website-contacts list, never renders as a bubble.
+        try {
+          const parsed = JSON.parse(text) as Partial<ContactEnvelope>;
+          if (parsed?.v === 1 && parsed.kind === 'contact') {
+            const domain = domainFromPageUrl(parsed.pageUrl);
+            const rec = ingestWebsiteContact({
+              siteChatId: active.id,
+              domain: domain || parsed.pageTitle || 'unknown',
+              name: parsed.name || '',
+              email: parsed.email,
+              phone: parsed.phone,
+              pageUrl: parsed.pageUrl,
+              pageTitle: parsed.pageTitle,
+              referrer: parsed.referrer,
+              ts: parsed.ts,
+            });
+            if (rec && rec.name && rec.name !== 'Website visitor') {
+              toast.success(`${t('company.websiteContactImported')}: ${rec.name}`);
+            }
+            return;
+          }
+        } catch {
+          /* not an envelope — treat as plain chat message */
+        }
         addCompanyMessage({
           id: uid(),
           channelId: active.id,

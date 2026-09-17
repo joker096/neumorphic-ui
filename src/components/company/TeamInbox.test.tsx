@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { TeamInbox } from "./TeamInbox";
 import type { CompanyChannel, CompanyMessage } from "../../types/constants";
@@ -19,6 +19,7 @@ const store = vi.hoisted(() => ({
   setActiveChannel: vi.fn(),
   addCompanyMessage: vi.fn(),
   syncCrmOutbound: vi.fn(),
+  ingestWebsiteContact: vi.fn(),
 }));
 
 vi.mock("../../store", () => ({
@@ -42,6 +43,16 @@ vi.mock("../../lib/company/relayClient", () => ({
   RelayClient: relayClientMock,
 }));
 
+const openFromChannel = vi.hoisted(() => vi.fn(async () => "reply from company"));
+const sealToChannel = vi.hoisted(() => vi.fn(async () => ({})));
+
+vi.mock("../../lib/embed/embedCrypto", () => ({
+  openFromChannel,
+  sealToChannel,
+  openFromChannelAsGuest: vi.fn(),
+  type: {},
+}));
+
 const channel: CompanyChannel = {
   id: "ch1",
   companyId: "org_1",
@@ -63,6 +74,8 @@ describe("TeamInbox", () => {
     store.setActiveChannel.mockReset();
     store.addCompanyMessage.mockReset();
     store.syncCrmOutbound.mockReset();
+    store.ingestWebsiteContact.mockReset();
+    store.ingestWebsiteContact.mockReturnValue({ id: "wc1", name: "Jane" });
     relayClientMock.mockImplementation(function () {
       return { onMessage: vi.fn(), start: vi.fn(), stop: vi.fn(), publish: vi.fn() };
     });
@@ -220,5 +233,63 @@ describe("TeamInbox", () => {
 
     expect(screen.getByText("Website embed · E2E encrypted")).toBeInTheDocument();
     expect(relayClientMock).toHaveBeenCalledWith("company:org_1:channel:sc1");
+  });
+
+  it("intercepts contact envelopes and imports them via ingestWebsiteContact without creating a bubble", async () => {
+    const siteChannel: CompanyChannel = {
+      id: "sc1",
+      companyId: "org_1",
+      name: "Sales Chat",
+      description: "",
+      unread: 0,
+      memberCount: 1,
+      createdAt: 0,
+    };
+    store.companyChannels = [siteChannel];
+    store.activeChannelId = "sc1";
+    store.companyId = "org_1";
+    store.siteChats = [{ id: "sc1", name: "Sales Chat", snippet: "", config: { collectContact: true } }];
+    store.channelKeys = { sc1: { publicKeyB64: "pk", secretKeyB64: "sk" } };
+
+    let capturedCb: any = null;
+    relayClientMock.mockImplementation(function () {
+      return {
+        onMessage: (cb: any) => { capturedCb = cb; },
+        start: vi.fn(),
+        stop: vi.fn(),
+        publish: vi.fn(),
+      };
+    });
+
+    // Set up openFromChannel to return a valid contact envelope on the first call
+    const envelope = JSON.stringify({
+      v: 1,
+      kind: "contact",
+      name: "Jane",
+      email: "jane@test.com",
+      phone: "+1234567890",
+      pageUrl: "https://shop.example.com/product",
+      pageTitle: "Product",
+      referrer: "https://google.com",
+      ts: 1700000000000,
+    });
+    (openFromChannel as any).mockResolvedValueOnce(envelope);
+
+    render(<TeamInbox />);
+    expect(capturedCb).toBeTruthy();
+
+    await act(async () => {
+      capturedCb({ senderPubKey: "guest1", cipher: "c1", iv: "i1" });
+    });
+
+    expect(store.ingestWebsiteContact).toHaveBeenCalledWith(
+      expect.objectContaining({
+        siteChatId: "sc1",
+        name: "Jane",
+        email: "jane@test.com",
+        phone: "+1234567890",
+      }),
+    );
+    expect(store.addCompanyMessage).not.toHaveBeenCalled();
   });
 });

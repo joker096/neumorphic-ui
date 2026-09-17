@@ -9,6 +9,7 @@ const savedCompanyHide = (() => {
 import type { CompanyChannel, CompanyMessage, CompanyMember, CompanyDepartment, CompanyContact } from '../../types/constants';
 import type { InviteQRPayload, CompanyEnvelope } from '../../lib/company/types';
 import type { CrmContact, Deal, CrmTask } from '../../lib/crm/types';
+import { siteContactTag } from '../../lib/crm/types';
 import * as idb from '../../lib/idb';
 import type { CompanyRosterSync, RosterMember, CompanyRosterHandlers } from '../../lib/company/relayRoster';
 import { toast } from 'sonner';
@@ -16,13 +17,46 @@ import { toast } from 'sonner';
 // Active serverless roster/presence sync connection (one per store instance).
 let activeRoster: CompanyRosterSync | null = null;
 
+/** Widget visual config — rides inside the embed token (public material). */
+export interface SiteChatWidgetConfig {
+  accent: string;
+  position: 'bottom-right' | 'bottom-left';
+  greeting: string;
+  collectContact: boolean;
+}
+
+/** A visitor contact captured from an embedded site chat (E2E envelope). */
+export interface WebsiteContactRecord {
+  id: string;
+  siteChatId: string;
+  domain: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  pageUrl?: string;
+  pageTitle?: string;
+  referrer?: string;
+  ts: number;
+  visitCount: number;
+  /** Linked CRM contact userId once imported. */
+  crmUserId?: string;
+}
+
 export interface SiteChat {
   id: string;
   name: string;
   token: string;
   snippet: string;
   createdAt: number;
+  config: SiteChatWidgetConfig;
 }
+
+export const DEFAULT_SITE_CHAT_CONFIG: SiteChatWidgetConfig = {
+  accent: '#6C5CE7',
+  position: 'bottom-right',
+  greeting: 'Hello! How can we help?',
+  collectContact: true,
+};
 
 export interface CompanySlice {
   companyId: string | null;
@@ -90,6 +124,23 @@ export interface CompanySlice {
   siteChats: SiteChat[];
   channelKeys: Record<string, { publicKeyB64: string; secretKeyB64: string }>;
   createSiteChat: (name: string) => Promise<{ channelId: string; token: string; snippet: string } | null>;
+  updateSiteChatConfig: (
+    id: string,
+    patch: Partial<SiteChatWidgetConfig>,
+  ) => Promise<{ token: string; snippet: string } | null>;
+  websiteContacts: WebsiteContactRecord[];
+  ingestWebsiteContact: (data: {
+    siteChatId: string;
+    domain: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    pageUrl?: string;
+    pageTitle?: string;
+    referrer?: string;
+    ts?: number;
+  }) => WebsiteContactRecord | null;
+  removeWebsiteContact: (id: string) => void;
   pushCrmSyncEnvelope: (env: CompanyEnvelope) => void;
   syncCrmOutbound: () => Promise<{ ok: boolean }>;
   applyCrmEnvelope: (env: CompanyEnvelope) => Promise<void>;
@@ -105,6 +156,7 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
   companyCrmEnvelopes: [],
   companyChannels: [],
   siteChats: [],
+  websiteContacts: [],
   channelKeys: {},
   companyMessages: [],
   companyMembers: [],
@@ -186,13 +238,15 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
       set({ companyMembers: storedMembers });
     }
     if (storedId) {
-      const [raw, chans, envs, ck, sc] = await Promise.all([
+      const [raw, chans, envs, ck, sc, wc] = await Promise.all([
         idb.getCompanyGroupKey(storedId),
         idb.getCompanyChannels(),
         idb.getCompanyCrmEnvelopes(),
         idb.getCompanyChannelKeys(),
         idb.getCompanySiteChats(),
+        idb.getCompanyWebsiteContacts(),
       ]);
+      if (wc && wc.length) set({ websiteContacts: wc as WebsiteContactRecord[] });
       if (raw) {
         try {
           const { importRawKey } = await import('../../lib/company/groupKey');
@@ -405,9 +459,22 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     const { createEmbedToken, generateEmbedSnippet } = await import('../../lib/embed/token');
     const kp = generateChannelKeyPair();
     const channelKeys = { ...get().channelKeys, [channelId]: kp };
-    const token = createEmbedToken({ companyId, channelId, channelPubKeyB64: kp.publicKeyB64, label: name });
+    const token = createEmbedToken({
+      companyId,
+      channelId,
+      channelPubKeyB64: kp.publicKeyB64,
+      label: name,
+      config: { ...DEFAULT_SITE_CHAT_CONFIG, greeting: `Hello! Welcome to ${name}.` },
+    });
     const snippet = generateEmbedSnippet(token);
-    const siteChat: SiteChat = { id: channelId, name, token, snippet, createdAt: Date.now() };
+    const siteChat: SiteChat = {
+      id: channelId,
+      name,
+      token,
+      snippet,
+      createdAt: Date.now(),
+      config: { ...DEFAULT_SITE_CHAT_CONFIG, greeting: `Hello! Welcome to ${name}.` },
+    };
     const siteChats = [...get().siteChats, siteChat];
     set((s: any) => ({
       companyChannels: [...s.companyChannels, channel],
@@ -420,6 +487,91 @@ export const createCompanySlice = (set: any, get: any): CompanySlice => ({
     await idb.saveCompanySiteChats(siteChats);
     get().joinCompanyChannel();
     return { channelId, token, snippet };
+  },
+  updateSiteChatConfig: async (id, patch) => {
+    const sc = get().siteChats.find((x: SiteChat) => x.id === id);
+    if (!sc) return null;
+    const { createEmbedToken, generateEmbedSnippet } = await import('../../lib/embed/token');
+    const config: SiteChatWidgetConfig = { ...sc.config, ...patch };
+    const token = createEmbedToken({
+      companyId: get().companyId!,
+      channelId: sc.id,
+      channelPubKeyB64: get().channelKeys[sc.id].publicKeyB64,
+      label: sc.name,
+      config,
+    });
+    const snippet = generateEmbedSnippet(token);
+    const siteChats = get().siteChats.map((x: SiteChat) => (x.id === id ? { ...x, token, snippet, config } : x));
+    set({ siteChats });
+    await idb.saveCompanySiteChats(siteChats);
+    return { token, snippet };
+  },
+  ingestWebsiteContact: (data) => {
+    const domain = String(data.domain || '')
+      .toLowerCase()
+      .replace(/^https?:\/\//, '')
+      .replace(/\/$/, '');
+    if (!domain) return null;
+    const contacts = [...get().websiteContacts];
+    const existing = contacts.find(
+      (c: WebsiteContactRecord) =>
+        c.siteChatId === data.siteChatId &&
+        (Boolean(data.email && data.email === c.email) ||
+          Boolean(data.phone && data.phone === c.phone) ||
+          (Boolean(data.name) && data.name === c.name)),
+    );
+    let record: WebsiteContactRecord;
+    if (existing) {
+      record = { ...existing, visitCount: existing.visitCount + 1, ts: data.ts ?? Date.now() };
+      contacts[contacts.indexOf(existing)] = record;
+    } else {
+      record = {
+        id: `wc_${Math.random().toString(36).slice(2, 10)}`,
+        siteChatId: data.siteChatId,
+        domain,
+        name: data.name || 'Website visitor',
+        email: data.email,
+        phone: data.phone,
+        pageUrl: data.pageUrl,
+        pageTitle: data.pageTitle,
+        referrer: data.referrer,
+        ts: data.ts ?? Date.now(),
+        visitCount: 1,
+      };
+      contacts.push(record);
+      // Mirror into CRM as a website-sourced lead (merge by userId on re-import).
+      const tag = siteContactTag(domain);
+      const crmId = record.id;
+      record.crmUserId = crmId;
+      get().importBatch({
+        contacts: [],
+        deals: [],
+        tasks: [],
+        mergedContacts: [
+          {
+            userId: crmId,
+            displayName: record.name,
+            role: 'member',
+            email: record.email,
+            phone: record.phone,
+            tags: [tag, 'lead'],
+            status: 'lead',
+            source: 'website',
+            websiteDomain: domain,
+            lastActive: record.ts,
+            joinedAt: record.ts,
+          } as CrmContact,
+        ],
+      });
+    }
+    set({ websiteContacts: contacts });
+    idb.saveCompanyWebsiteContacts(contacts).catch(() => {});
+    return record;
+  },
+  removeWebsiteContact: (id) => {
+    const contacts = get().websiteContacts.filter((c: WebsiteContactRecord) => c.id !== id);
+    set({ websiteContacts: contacts });
+    idb.saveCompanyWebsiteContacts(contacts).catch(() => {});
   },
   pushCrmSyncEnvelope: (env) => {
     set((s: any) => ({ companyCrmEnvelopes: [...s.companyCrmEnvelopes, env] }));

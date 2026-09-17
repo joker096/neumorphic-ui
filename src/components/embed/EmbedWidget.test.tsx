@@ -54,6 +54,7 @@ describe('EmbedWidget', () => {
   beforeEach(() => {
     lastClient = null;
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   it('renders bubble, opens, sends and receives', async () => {
@@ -90,5 +91,49 @@ describe('EmbedWidget', () => {
     const input = await screen.findByPlaceholderText('embed.typeMessage');
     const sendBtn = within(input.parentElement as HTMLElement).getByRole('button');
     expect(sendBtn.className).toContain('min-h-11');
+  });
+
+  it('shows contact form on open and skips on skip click', async () => {
+    render(<EmbedWidget token={token} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+
+    expect(await screen.findByText('embed.contactTitle')).toBeTruthy();
+    const skipBtn = screen.getByText('embed.contactSkip');
+    await act(async () => {
+      fireEvent.click(skipBtn);
+    });
+
+    // After skip, contact form should be gone
+    expect(screen.queryByText('embed.contactTitle')).toBeNull();
+  });
+
+  it('sends contact envelope when form submitted', async () => {
+    render(<EmbedWidget token={token} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+
+    const nameInput = await screen.findByPlaceholderText('embed.contactName');
+    await act(async () => {
+      fireEvent.change(nameInput, { target: { value: 'Alice' } });
+    });
+
+    // Click the "Start chat" button in the contact form
+    const startBtn = screen.getByText('embed.contactStart');
+    await act(async () => {
+      fireEvent.click(startBtn);
+    });
+
+    // sealToChannel should have been called (contact envelope)
+    const { sealToChannel } = await import('../../lib/embed/embedCrypto');
+    expect(sealToChannel).toHaveBeenCalled();
+    expect(lastClient.published.length).toBe(1);
+
+    // Contact form should be gone after submission
+    expect(screen.queryByText('embed.contactTitle')).toBeNull();
   });
 });

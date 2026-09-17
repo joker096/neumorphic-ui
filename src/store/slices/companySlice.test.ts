@@ -7,6 +7,8 @@ vi.mock('../../lib/idb', () => {
     saveCompanyContacts: vi.fn(() => Promise.resolve()),
     getCompanyDepartments: vi.fn(() => Promise.resolve(null)),
     getCompanyContacts: vi.fn(() => Promise.resolve(null)),
+    saveCompanyWebsiteContacts: vi.fn(() => Promise.resolve()),
+    getCompanyWebsiteContacts: vi.fn(() => Promise.resolve(null)),
     get: vi.fn((k: string) => Promise.resolve(store[k] ?? null)),
     set: vi.fn((k: string, v: any) => {
       store[k] = v;
@@ -114,5 +116,77 @@ describe('acceptInvite', () => {
     const ok = await slice.acceptInvite('INV-1');
     expect(ok).toBe(true);
     expect(get().companyId).toBe('org_1');
+  });
+});
+
+describe('ingestWebsiteContact', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('imports a new website contact and mirrors it into CRM with site tag', () => {
+    const { slice, get } = makeSlice();
+    const importBatch = vi.fn();
+    (get() as any).importBatch = importBatch;
+    slice.ingestWebsiteContact({
+      siteChatId: 'sc1',
+      domain: 'https://Shop.Example.com/',
+      name: 'Jane',
+      email: 'jane@test.com',
+      phone: '+123',
+      pageUrl: 'https://shop.example.com/p',
+      ts: 1000,
+    });
+
+    const contacts = get().websiteContacts;
+    expect(contacts).toHaveLength(1);
+    expect(contacts[0]).toMatchObject({
+      siteChatId: 'sc1',
+      domain: 'shop.example.com',
+      name: 'Jane',
+      email: 'jane@test.com',
+      visitCount: 1,
+      crmUserId: contacts[0].id,
+    });
+    expect(importBatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mergedContacts: [
+          expect.objectContaining({
+            displayName: 'Jane',
+            email: 'jane@test.com',
+            tags: ['site:shop.example.com', 'lead'],
+            status: 'lead',
+            source: 'website',
+            websiteDomain: 'shop.example.com',
+          }),
+        ],
+      }),
+    );
+  });
+
+  it('dedupes by email and bumps visitCount', () => {
+    const { slice, get } = makeSlice();
+    (get() as any).importBatch = vi.fn();
+    slice.ingestWebsiteContact({ siteChatId: 'sc1', domain: 'example.com', name: 'Jane', email: 'jane@test.com', ts: 1 });
+    slice.ingestWebsiteContact({ siteChatId: 'sc1', domain: 'example.com', name: 'Jane', email: 'jane@test.com', ts: 2 });
+
+    const contacts = get().websiteContacts;
+    expect(contacts).toHaveLength(1);
+    expect(contacts[0].visitCount).toBe(2);
+    expect(contacts[0].ts).toBe(2);
+  });
+
+  it('dedupes by name when no email/phone match across chats separately', () => {
+    const { slice, get } = makeSlice();
+    (get() as any).importBatch = vi.fn();
+    slice.ingestWebsiteContact({ siteChatId: 'sc1', domain: 'a.com', name: 'Bob', ts: 1 });
+    slice.ingestWebsiteContact({ siteChatId: 'sc2', domain: 'b.com', name: 'Bob', ts: 2 });
+
+    expect(get().websiteContacts).toHaveLength(2);
+  });
+
+  it('ignores empty domain', () => {
+    const { slice, get } = makeSlice();
+    const rec = slice.ingestWebsiteContact({ siteChatId: 'sc1', domain: '', name: 'Jane' });
+    expect(rec).toBeNull();
+    expect(get().websiteContacts).toHaveLength(0);
   });
 });

@@ -10,6 +10,13 @@
 import { b64encode, b64decode } from '../crypto/cryptoCore';
 import { EMBED_WIDGET_URL } from '../../config/app';
 
+export interface EmbedWidgetConfig {
+  accent: string;
+  position: 'bottom-right' | 'bottom-left';
+  greeting: string;
+  collectContact: boolean;
+}
+
 export interface EmbedConfig {
   v: 1;
   companyId: string;
@@ -17,6 +24,8 @@ export interface EmbedConfig {
   relayUrl?: string;
   channelPubKeyB64: string;
   label?: string;
+  /** Public widget look/behavior config — rides inside the token. */
+  config?: EmbedWidgetConfig;
 }
 
 function b64urlEncode(s: string): string {
@@ -47,7 +56,8 @@ export function parseEmbedToken(token: string): EmbedConfig {
 
 export function generateEmbedSnippet(
   token: string,
-  widgetUrl = EMBED_WIDGET_URL,
+  widgetUrl: string = EMBED_WIDGET_URL ||
+    (typeof window !== 'undefined' ? `${window.location.origin}/embed.js` : ''),
 ): string {
   return `<script src="${widgetUrl}" data-messanger-token="${token}" async></script>`;
 }

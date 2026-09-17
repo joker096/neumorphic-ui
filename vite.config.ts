@@ -110,7 +110,13 @@ export default defineConfig({
     minify: 'esbuild',
     modulePreload: { polyfill: true },
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        embed: path.resolve(__dirname, 'src/embed-entry.tsx'),
+      },
       output: {
+        entryFileNames: (chunk) =>
+          chunk.name === 'embed' ? 'embed.js' : 'assets/[name]-[hash].js',
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-dom/client'],
           state: ['zustand'],

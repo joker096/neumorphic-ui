@@ -358,6 +358,14 @@ export async function getCompanySiteChats(): Promise<any[] | null> {
   return decBlob<any[]>(await get('company_site_chats'));
 }
 
+export async function saveCompanyWebsiteContacts(contacts: any[]): Promise<void> {
+  await set('company_website_contacts', await encBlob(contacts));
+}
+
+export async function getCompanyWebsiteContacts(): Promise<any[] | null> {
+  return decBlob<any[]>(await get('company_website_contacts'));
+}
+
 // --- Bulk reset ---
 
 export async function clearAll(): Promise<void> {

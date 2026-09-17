@@ -26,6 +26,16 @@ export type CrmContactStatus =
   | 'internal'
   | 'vip';
 
+/** Origin of a CRM contact — 'website' = imported from an embedded site chat. */
+export type CrmContactSource = 'personal' | 'business' | 'website';
+
+/** Tag prefix attached to website-imported contacts (e.g. `site:example.com`). */
+export const SITE_CONTACT_TAG_PREFIX = 'site:';
+
+export function siteContactTag(domain: string): string {
+  return `${SITE_CONTACT_TAG_PREFIX}${domain.toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '')}`;
+}
+
 export interface Department {
   id: string;
   name: string;
@@ -56,6 +66,9 @@ export interface CrmContact {
   avatarColor?: string;
   joinedAt?: number;
   lastActive?: number;
+  /** 'website' = visitor imported from an embedded site chat. */
+  source?: CrmContactSource;
+  websiteDomain?: string;
 }
 
 export type DealStage =

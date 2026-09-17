@@ -1,6 +1,8 @@
 export type FieldType = 'phone' | 'email' | 'telegram' | 'whatsapp' | 'signal' | 'signalv2v' | 'custom';
 export type PhoneSubtype = 'mobile' | 'work' | 'home' | 'main';
 export type ContactTag = 'client' | 'lead' | 'partner' | 'vendor' | 'internal' | 'vip';
+/** Origin of a contact — personal, business (CRM/company) or website embed. */
+export type ContactSource = 'personal' | 'business' | 'website';
 
 export interface ContactField {
   id: string;
@@ -34,6 +36,10 @@ export interface Contact {
   } | string;
   channelId?: string;
   channelIds?: string[];
+  /** Where this contact came from — specifically 'website' marks embed-imported visitors. */
+  source?: ContactSource;
+  /** Origin domain of the website that submitted this visitor (e.g. 'example.com'). */
+  websiteDomain?: string;
 }
 
 export interface UserProfile {
