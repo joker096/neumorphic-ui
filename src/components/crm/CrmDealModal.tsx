@@ -71,7 +71,7 @@ export const DealModal: React.FC<Props> = ({ deal, onClose }) => {
         )
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <div>
           <label className={labelCls}>{t('crm.dealTitle', CRM_FALLBACKS.dealTitle)}</label>
           <input value={form.title} disabled={!editable} onChange={(e) => set('title', e.target.value)} className={inputCls} />

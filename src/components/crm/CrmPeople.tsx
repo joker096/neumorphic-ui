@@ -31,10 +31,13 @@ type Props = {
   onMessage?: (name: string, color?: string) => void;
   focusContactId?: string | null;
   onFocusHandled?: () => void;
+  filtersOpen?: boolean;
+  onToggleFilters?: () => void;
 };
 
 export const CrmPeople: React.FC<Props> = ({
   onOpenRoles, onCall, onVideoCall, onMessage, focusContactId, onFocusHandled,
+  filtersOpen, onToggleFilters,
 }) => {
   const { t } = useI18n();
   const contacts = useAppStore((s) => s.crmContacts);
@@ -162,8 +165,8 @@ export const CrmPeople: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto px-3 py-3">
-      <div className="flex items-center justify-between px-2 mb-2">
+    <div className="flex-1 flex flex-col overflow-y-auto px-2 py-2">
+      <div className="flex items-center justify-between px-1 mb-1.5">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
           <Users size={14} /> {filtered.length}
         </div>
@@ -196,7 +199,7 @@ export const CrmPeople: React.FC<Props> = ({
         </div>
       </div>
 
-      <CrmFilterBar onOpenRoles={onOpenRoles} />
+      <CrmFilterBar onOpenRoles={onOpenRoles} open={filtersOpen} onToggle={onToggleFilters} />
 
       {grouped.length === 0 && (
         <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noContacts', CRM_FALLBACKS.noContacts)}</div>
@@ -206,12 +209,12 @@ export const CrmPeople: React.FC<Props> = ({
         const isCollapsed = collapsedGroups.includes(group.key);
         const stats = deptStats(group.key);
         return (
-        <div key={group.key} className="mb-4">
+        <div key={group.key} className="mb-2">
           <button
             type="button"
             aria-expanded={!isCollapsed}
             onClick={() => toggleCrmGroup(group.key)}
-            className="w-full flex items-center gap-2 px-2 py-1.5 mb-1 min-h-11 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-1 mb-1 min-h-11 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <ChevronDown size={14} className={`transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
             {group.key === 'clients' ? <Building2 size={14} /> : <Users size={14} />}
@@ -224,7 +227,7 @@ export const CrmPeople: React.FC<Props> = ({
               </span>
             )}
           </button>
-          {!isCollapsed && <div className="flex flex-col gap-2">
+          {!isCollapsed && <div className="flex flex-col gap-1.5">
             {group.items.map((c, i) => (
               <motion.button
                 key={c.userId}
@@ -233,7 +236,7 @@ export const CrmPeople: React.FC<Props> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
                 onClick={() => (selectMode ? toggleSelect(c.userId) : setSelected(c))}
-                className={`w-full flex items-center gap-3 p-3 rounded-2xl text-left cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)] min-h-[60px] ${
+                className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl text-left cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)] min-h-11 ${
                   highlightId === c.userId ? 'ring-2 ring-[var(--accent)]' : ''
                 }`}
               >
@@ -263,9 +266,9 @@ export const CrmPeople: React.FC<Props> = ({
                     <span className={`text-xs font-bold uppercase px-1.5 py-0.5 rounded-full ${statusColor[c.status]}`}>
                       {statusLabel(c.status, t)}
                     </span>
+                    {c.title && <span className="text-xs text-[var(--text-secondary)] truncate max-w-[180px]">{c.title}</span>}
                   </div>
-                  {c.title && <div className="text-xs text-[var(--text-secondary)] truncate">{c.title}</div>}
-                  <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--text-secondary)] flex-wrap">
+                  <div className="flex items-center gap-2 mt-0.5 text-xs text-[var(--text-secondary)] flex-wrap">
                     {c.assignedManagerId && c.assignedManagerId !== c.userId && (
                       <span>👤 {managerName(c.assignedManagerId)}</span>
                     )}
@@ -290,7 +293,7 @@ export const CrmPeople: React.FC<Props> = ({
       })}
 
       {selectMode && (
-        <div className="sticky bottom-2 mt-2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-3 flex flex-wrap items-center gap-2">
+        <div className="sticky bottom-2 mt-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-2.5 flex flex-wrap items-center gap-2">
           <span className="text-xs font-bold text-[var(--text-primary)]">
             {t('crm.selectedCount', { count: selectedIds.length })}
           </span>

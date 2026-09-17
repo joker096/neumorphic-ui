@@ -128,7 +128,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
         </div>
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         {isNew && (
           <p className="text-xs leading-relaxed text-[var(--text-secondary)]">
             {t('crm.demoNote', CRM_FALLBACKS.demoNote)}
@@ -137,7 +137,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
         {contact && (
           <>
             <div className="flex items-center gap-3">
-              <div className={`w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-xl shrink-0 ${contact.avatarColor ? `bg-gradient-to-br ${contact.avatarColor}` : 'bg-[var(--accent)]'}`}>
+              <div className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-lg shrink-0 ${contact.avatarColor ? `bg-gradient-to-br ${contact.avatarColor}` : 'bg-[var(--accent)]'}`}>
                 {overrideAvatar ? (
                   <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 ) : (

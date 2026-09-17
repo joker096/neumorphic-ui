@@ -8,9 +8,17 @@ import type { CrmContactStatus, SystemRole } from '../../lib/crm/types';
 const selectCls =
   'min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
 
-export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRoles }) => {
+type Props = {
+  onOpenRoles?: () => void;
+  open?: boolean;
+  onToggle?: () => void;
+};
+
+export const CrmFilterBar: React.FC<Props> = ({ onOpenRoles, open: controlledOpen, onToggle }) => {
   const { t } = useI18n();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const toggleOpen = onToggle ?? (() => setInternalOpen((prev) => !prev));
   const filters = useAppStore((s) => s.crmFilters);
   const setFilter = useAppStore((s) => s.setCrmFilter);
   const resetFilters = useAppStore((s) => s.resetCrmFilters);
@@ -64,11 +72,12 @@ export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRol
   };
 
   return (
-    <div className="flex flex-col gap-2 px-2 mb-3">
-      {/* Toggle button — always visible */}
+    <div className="flex flex-col gap-1.5 px-1.5 mb-2">
+      {/* Toggle button — hidden when parent provides onToggle */}
+      {!onToggle && (
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => toggleOpen()}
         aria-label={t('crm.filters', CRM_FALLBACKS.filters)}
         className="flex items-center gap-2 min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] cursor-pointer"
       >
@@ -80,6 +89,7 @@ export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRol
           </span>
         )}
       </button>
+      )}
 
       {/* Desktop: inline selects */}
       {open && (
@@ -126,14 +136,14 @@ export const CrmFilterBar: React.FC<{ onOpenRoles?: () => void }> = ({ onOpenRol
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => { resetFilters(); setOpen(false); }}
+              onClick={() => { resetFilters(); toggleOpen(); }}
               className="flex-1 min-h-11 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] text-xs font-bold cursor-pointer"
             >
               {t('crm.resetFilters', CRM_FALLBACKS.resetFilters)}
             </button>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => toggleOpen()}
               className="flex-1 min-h-11 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] text-xs font-bold cursor-pointer"
             >
               {t('crm.done', CRM_FALLBACKS.done)}

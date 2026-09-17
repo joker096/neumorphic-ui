@@ -67,7 +67,7 @@ const TaskModal: React.FC<Props> = ({ task, onClose }) => {
         ) : <div className="text-center text-xs text-[var(--text-secondary)] py-2">{t('crm.readOnly', 'Read only')}</div>
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <div>
           <label className={labelCls}>{t('crm.taskTitle', CRM_FALLBACKS.taskTitle)}</label>
           <input value={form.title} disabled={!editable} onChange={(e) => set('title', e.target.value)} className={inputCls} />
@@ -153,8 +153,8 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
   const sorted = [...visibleTasks].sort((a, b) => Number(a.done) - Number(b.done) || (a.dueAt ?? 0) - (b.dueAt ?? 0));
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto px-3 py-3">
-      <div className="flex items-center justify-between px-2 mb-3">
+    <div className="flex-1 flex flex-col overflow-y-auto px-2 py-2">
+      <div className="flex items-center justify-between px-1 mb-2">
         <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
           {visibleTasks.filter((x) => !x.done).length} {t('crm.open', 'open')}
         </span>
@@ -168,13 +168,13 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
 
       {visibleTasks.length === 0 && <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noTasks', CRM_FALLBACKS.noTasks)}</div>}
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         {sorted.map((task) => (
           <div
             key={task.id}
             id={`crm-task-${task.id}`}
             onClick={() => setEditTaskId(task.id)}
-            className={`flex items-center gap-3 p-3 rounded-2xl border border-[var(--border-color)] cursor-pointer ${task.done ? 'opacity-60' : ''} ${highlightId === task.id ? 'ring-2 ring-[var(--accent)]' : ''}`}
+            className={`flex items-center gap-2 p-2.5 rounded-xl border border-[var(--border-color)] cursor-pointer ${task.done ? 'opacity-60' : ''} ${highlightId === task.id ? 'ring-2 ring-[var(--accent)]' : ''}`}
           >
             <button
               onClick={(e) => {

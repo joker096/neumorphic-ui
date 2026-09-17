@@ -63,8 +63,8 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto px-3 py-3">
-      <div className="flex items-center justify-between px-2 mb-3">
+    <div className="flex-1 flex flex-col overflow-y-auto px-2 py-2">
+      <div className="flex items-center justify-between px-1 mb-2">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
           <TrendingUp size={14} /> {fmt(total, 'RUB')}
         </div>
@@ -80,7 +80,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
         <DataState status="empty" title={t('crm.noDeals', CRM_FALLBACKS.noDeals)} />
       )}
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         {DEAL_STAGES.map((stage) => {
           const stageDeals = visibleDeals.filter((d) => d.stage === stage.id);
           const isOver = dragOverStage === stage.id;
@@ -109,7 +109,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                   toast.success(t('crm.stageChanged', 'Stage updated'));
                 }
               }}
-              className={`w-full flex flex-col gap-2 rounded-2xl border p-2 transition-all ${
+              className={`w-full flex flex-col gap-1.5 rounded-xl border p-1.5 transition-all ${
                 isOver ? 'border-[var(--accent)] bg-[var(--accent)]/10' : 'border-[var(--border-color)] bg-[var(--bg-secondary)]/40'
               }`}
             >
@@ -137,11 +137,11 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
               </button>
               {!isCollapsed && (
                 stageDeals.length === 0 ? (
-                  <div className="min-h-[60px] rounded-xl border border-dashed border-[var(--border-color)] flex items-center justify-center text-[11px] text-[var(--text-secondary)]">
+                  <div className="min-h-11 rounded-lg border border-dashed border-[var(--border-color)] flex items-center justify-center text-[11px] text-[var(--text-secondary)]">
                     {t('crm.noDeals', CRM_FALLBACKS.noDeals)}
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1.5">
                     {stageDeals.map((d, i) => (
                       <div
                         key={d.id}
@@ -157,7 +157,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                             setSelected(d);
                           }
                         }}
-                        className={`p-3 rounded-2xl border border-[var(--border-color)] cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)] ${
+                        className={`p-2.5 rounded-xl border border-[var(--border-color)] cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)] ${
                           highlightId === d.id ? 'ring-2 ring-[var(--accent)]' : ''
                         }`}
                       >
@@ -169,7 +169,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                           </span>
                           <span className="font-bold text-sm text-[var(--text-primary)] shrink-0">{fmt(d.amount, d.currency)}</span>
                         </div>
-                        <div className="text-xs text-[var(--text-secondary)] mt-1">{contactName(d.contactId)}</div>
+                        <div className="text-xs text-[var(--text-secondary)] mt-0.5">{contactName(d.contactId)}</div>
                         <select
                           value={d.stage}
                           disabled={!can('manageDeals')}
@@ -178,7 +178,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                             setDealStage(d.id, e.target.value as DealStage);
                             toast.success(t('crm.stageChanged', 'Stage updated'));
                           }}
-                          className="w-full min-h-11 mt-2 px-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-[11px] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] disabled:opacity-40"
+                          className="w-full min-h-11 mt-1.5 px-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-[11px] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] disabled:opacity-40"
                         >
                           {DEAL_STAGES.map((s) => (
                             <option key={s.id} value={s.id}>{stageLabel(s.id)}</option>

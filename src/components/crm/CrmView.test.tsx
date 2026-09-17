@@ -15,6 +15,7 @@ const { state, useAppStore, perms, captured } = vi.hoisted(() => {
     crmDepartments: [] as any[],
     crmDeals: [] as any[],
     crmTasks: [] as any[],
+    crmFilters: { search: '', role: 'all', departmentId: 'all', status: 'all', tag: 'all', assignedToMe: false },
   };
   const useAppStore = vi.fn((selector?: (s: any) => any) => (selector ? selector(state) : state));
   const perms: any = { me: null, permissions: [] as string[], can: vi.fn(() => false) };
@@ -77,6 +78,7 @@ describe('CrmView', () => {
   beforeEach(() => {
     state.ensureCrmSeed.mockClear();
     state.premiumEntitlement = { premium: false, plan: null, expiresAt: null };
+    state.crmFilters = { search: '', role: 'all', departmentId: 'all', status: 'all', tag: 'all', assignedToMe: false };
     perms.me = null;
     perms.permissions = [];
     perms.can.mockReset();
@@ -144,6 +146,23 @@ describe('CrmView', () => {
       });
       expect(captured.people.focusContactId).toBeNull();
     });
+
+    it('renders filter button in header on people tab', () => {
+      render(<CrmView />);
+      expect(screen.getByRole('button', { name: 'Filters' })).toBeTruthy();
+    });
+
+    it('shows badge with active filter count', () => {
+      state.crmFilters = { search: '', role: 'manager', departmentId: 'dep1', status: 'all', tag: 'all', assignedToMe: false };
+      render(<CrmView />);
+      expect(screen.getByTestId('crm-filter-badge')).toHaveTextContent('2');
+    });
+
+    it('passes filtersOpen and onToggleFilters to CrmPeople', () => {
+      render(<CrmView />);
+      expect(captured.people.filtersOpen).toBe(false);
+      expect(typeof captured.people.onToggleFilters).toBe('function');
+    });
   });
 
   describe('premium tier', () => {
@@ -203,6 +222,13 @@ describe('CrmView', () => {
       render(<CrmView />);
       fireEvent.click(screen.getByRole('button', { name: 'Import CRM data' }));
       expect(screen.getByTestId('import-wizard')).toBeTruthy();
+    });
+
+    it('hides filter button on non-people tabs', () => {
+      render(<CrmView />);
+      expect(screen.getByRole('button', { name: 'Filters' })).toBeTruthy();
+      fireEvent.click(screen.getByRole('button', { name: 'Deals' }));
+      expect(screen.queryByRole('button', { name: 'Filters' })).toBeNull();
     });
 
     it('global search pick switches tab and passes focus id', () => {
