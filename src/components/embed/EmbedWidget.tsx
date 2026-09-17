@@ -152,30 +152,28 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const position = cfgRef.current?.config?.position || 'bottom-right';
   const greeting = cfgRef.current?.config?.greeting;
   const isDark = theme === 'dark';
-  const panelBg = isDark ? 'bg-[var(--bg-tertiary)] text-white' : 'bg-white text-slate-900';
-  const bubbleBg = 'bg-[var(--accent)] text-[var(--button-primary-text)]';
   const showContactForm = collectContact && !contactSent && open;
 
   return (
     <div
-      className={`fixed bottom-4 font-sans z-[var(--z-critical)] flex flex-col pointer-events-auto ${
-        position === 'bottom-left' ? 'left-4 items-start' : 'right-4 items-end'
-      }`}
+      data-ew-theme={isDark ? 'dark' : 'light'}
+      data-ew-pos={position}
+      className={`ew-root ${position === 'bottom-left' ? 'ew-bot-left' : 'ew-bot-right'}`}
     >
       {open && (
-        <div className={`w-[320px] max-w-[90vw] h-[440px] max-h-[80vh] rounded-2xl shadow-2xl border border-[var(--border-color)] flex flex-col overflow-hidden ${panelBg}`}>
+        <div className="ew-panel">
           <div
-            className={`px-4 py-3 flex items-center justify-between border-b border-[var(--border-color)]`}
+            className="ew-header"
             style={{ backgroundColor: accent, color: '#ffffff' }}
           >
-            <span className="font-bold text-sm">{cfgRef.current?.label || t('embed.chat')}</span>
-            <button onClick={() => setOpen(false)} aria-label={t('embed.close')} title={t('embed.close')} className="min-w-11 min-h-11 flex items-center justify-center rounded-xl cursor-pointer hover:bg-white/10 transition-colors text-white">
+            <span className="ew-header-title">{cfgRef.current?.label || t('embed.chat')}</span>
+            <button onClick={() => setOpen(false)} aria-label={t('embed.close')} title={t('embed.close')} className="ew-close">
               <X size={18} />
             </button>
           </div>
           {showContactForm && (
-            <div className="px-3 py-3 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/50">
-              <div className="flex items-center gap-2 text-xs font-bold mb-2">
+            <div className="ew-contact">
+              <div className="ew-contact-head">
                 <UserRound size={13} />
                 <span>{t('embed.contactTitle')}</span>
               </div>
@@ -183,64 +181,64 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
                 value={contact.name}
                 onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))}
                 placeholder={t('embed.contactName')}
-                className="w-full min-h-10 rounded-lg px-3 mb-1.5 bg-[var(--input-bg)] text-[var(--text-primary)] text-sm outline-none"
+                className="ew-field"
               />
               <input
                 value={contact.email}
                 onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))}
                 placeholder={t('embed.contactEmail')}
                 type="email"
-                className="w-full min-h-10 rounded-lg px-3 mb-1.5 bg-[var(--input-bg)] text-[var(--text-primary)] text-sm outline-none"
+                className="ew-field"
               />
               <input
                 value={contact.phone}
                 onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))}
                 placeholder={t('embed.contactPhone')}
                 type="tel"
-                className="w-full min-h-10 rounded-lg px-3 mb-2 bg-[var(--input-bg)] text-[var(--text-primary)] text-sm outline-none"
+                className="ew-field"
               />
-              <div className="flex gap-2">
+              <div className="ew-contact-actions">
                 <button
                   onClick={() => void sendContact()}
                   disabled={sendingContact}
-                  className="flex-1 min-h-11 rounded-lg text-sm font-bold cursor-pointer text-white disabled:opacity-60"
+                  className="ew-btn-primary"
                   style={{ backgroundColor: accent }}
                 >
                   {t('embed.contactStart')}
                 </button>
                 <button
                   onClick={() => void sendContact()}
-                  className="min-h-11 px-3 rounded-lg text-xs cursor-pointer opacity-70 hover:opacity-100"
+                  className="ew-btn-ghost"
                 >
                   {t('embed.contactSkip')}
                 </button>
               </div>
             </div>
           )}
-          <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-2">
+          <div className="ew-messages">
             {offline && (
-              <div className="text-[11px] text-amber-500 text-center">{t('embed.offline')}</div>
+              <div className="ew-offline-note">{t('embed.offline')}</div>
             )}
             {greeting && messages.length === 0 && (
-              <div className="self-start items-start flex flex-col max-w-[80%]">
-                <div className="px-3 py-2 rounded-2xl text-sm bg-[var(--list-item-hover-bg)] text-[var(--text-primary)]">
+              <div className="ew-msg-row ew-msg-other">
+                <div className="ew-msg">
                   {greeting}
                 </div>
               </div>
             )}
             {messages.length === 0 && !greeting ? (
-              <div className="text-center text-xs opacity-60 py-6">{t('embed.start')}</div>
+              <div className="ew-empty">{t('embed.start')}</div>
             ) : (
               messages.map((m) => (
-                <div key={m.id} className={`flex flex-col max-w-[80%] ${m.own ? 'self-end items-end' : 'self-start items-start'}`}>
-                  <div className={`px-3 py-2 rounded-2xl text-sm ${m.own ? bubbleBg : 'bg-[var(--list-item-hover-bg)] text-[var(--text-primary)]'}`}>
+                <div key={m.id} className={`ew-msg-row ${m.own ? 'ew-msg-own' : 'ew-msg-other'}`}>
+                  <div className={`ew-msg ${m.own ? 'ew-msg-own-bubble' : ''}`}>
                     {m.text}
                   </div>
                 </div>
               ))
             )}
           </div>
-          <div className="p-3 border-t border-[var(--border-color)] flex items-center gap-2">
+          <div className="ew-composer">
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -251,11 +249,11 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
                 }
               }}
               placeholder={t('embed.typeMessage')}
-              className="flex-1 min-h-11 rounded-xl px-3 bg-[var(--input-bg)] text-[var(--text-primary)] outline-none"
+              className="ew-input"
             />
             <button
               onClick={() => void send()}
-              className="min-w-11 min-h-11 rounded-xl flex items-center justify-center cursor-pointer text-white"
+              className="ew-send"
               style={{ backgroundColor: accent }}
             >
               <Send size={16} />
@@ -266,7 +264,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={t('embed.openChat')}
-        className="mt-3 w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-pointer text-white"
+        className="ew-fab"
         style={{ backgroundColor: accent }}
       >
         {open ? <X size={24} /> : <MessageSquare size={24} />}
@@ -276,11 +274,15 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
 };
 
 /** Mount helper used by the embed script: `mountEmbedWidget(el, token)`. */
-export function mountEmbedWidget(el: HTMLElement, token: string): { unmount: () => void } {
+export function mountEmbedWidget(
+  el: HTMLElement,
+  token: string,
+  theme?: 'light' | 'dark',
+): { unmount: () => void } {
   const root = createRoot(el);
   root.render(
     <I18nProvider>
-      <EmbedWidget token={token} />
+      <EmbedWidget token={token} theme={theme} />
     </I18nProvider>,
   );
   return { unmount: () => root.unmount() };

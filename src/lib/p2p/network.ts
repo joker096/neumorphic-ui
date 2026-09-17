@@ -17,6 +17,15 @@ const safeParseTyping = (raw: string): { isTyping?: boolean } | null => {
   }
 };
 
+const safeParsePresence = (raw: string): { online?: boolean } | null => {
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
 export interface PeerConnection {
   peerId: string;
   nodeId: string;
@@ -52,6 +61,7 @@ export class P2PNetwork {
   private transports: Map<string, P2PTransport> = new Map();
   private messageHandlers: Set<(msg: BroadcastMessage) => void> = new Set();
   private typingHandlers: Set<(name: string, isTyping: boolean) => void> = new Set();
+  private presenceObservers: Set<(peerId: string, online: boolean) => void> = new Set();
   private connectionCallbacks: Set<(peerId: string) => void> = new Set();
   private disconnectionCallbacks: Set<(peerId: string) => void> = new Set();
   private isInitialized = false;
@@ -298,6 +308,10 @@ export class P2PNetwork {
         if (!parsed) return;
         const name = this.getPeerName(peerId) || peerId.slice(0, 8);
         this.typingHandlers.forEach((h) => h(name, parsed.isTyping === true));
+      } else if (type === 'online-status') {
+        const parsed = typeof data === 'string' ? safeParsePresence(data) : null;
+        if (!parsed) return;
+        this.presenceObservers.forEach((h) => h(peerId, parsed.online !== false));
       }
     });
 
@@ -448,6 +462,33 @@ export class P2PNetwork {
         /* transport not ready — ignore */
       }
     }
+  }
+
+  /**
+   * Broadcast our online status to every connected peer. Presence is symmetric:
+   * each side derives the other's liveness from its own transport events too, so
+   * this signal is a best-effort extra that also wakes peers whose transport
+   * event window was missed (e.g. backgrounded tabs).
+   */
+  sendPresenceSignal(online: boolean): void {
+    const payload = JSON.stringify({ online });
+    for (const transport of this.transports.values()) {
+      try {
+        transport.sendMetadataSignal('online-status', payload);
+      } catch {
+        /* transport not ready — ignore */
+      }
+    }
+  }
+
+  /**
+   * Subscribe to incoming `online-status` metadata signals from peers.
+   * Handler receives the peer id and whether they reported online.
+   * Returns an unsubscribe function.
+   */
+  onPresence(callback: (peerId: string, online: boolean) => void): () => void {
+    this.presenceObservers.add(callback);
+    return () => this.presenceObservers.delete(callback);
   }
 
   getPeers(): PeerConnection[] {

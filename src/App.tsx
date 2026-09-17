@@ -12,6 +12,7 @@ import { useAppSettings } from './hooks/useAppSettings';
 import { useAppearanceEffects } from './hooks/useAppearanceEffects';
 import { useScheduledMessages } from './hooks/useScheduledMessages';
 import { useP2PBoot } from './hooks/useP2PBoot';
+import { useChatPresence } from './hooks/useChatPresence';
 import { useP2PMessages } from './hooks/useP2PMessages';
 import { useRefMessageActions } from './hooks/useRefMessageActions';
 import { useActiveChatWorkspace } from './hooks/useActiveChatWorkspace';
@@ -87,6 +88,7 @@ export default function App() {
 
   useScheduledMessages();
   useP2PBoot();
+  useChatPresence();
   useP2PMessages();
 
   useEffect(() => {

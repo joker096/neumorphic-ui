@@ -7,12 +7,29 @@
  * MUST stay dependency-light and side-effect driven: no app store, no router.
  */
 
+import embedStyles from './embed.css?inline';
 import { mountEmbedWidget } from './components/embed/EmbedWidget';
+
+function ensureStyles(): void {
+  if (typeof document === 'undefined') return;
+  if (document.getElementById('messanger-embed-style')) return;
+  const style = document.createElement('style');
+  style.id = 'messanger-embed-style';
+  style.textContent = embedStyles;
+  document.head.appendChild(style);
+}
+
+function detectTheme(): 'light' | 'dark' {
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
 
 function boot(): void {
   const script = document.currentScript as HTMLScriptElement | null;
   const token = script?.dataset?.messangerToken;
   if (!token) return;
+
+  ensureStyles();
 
   const host = document.createElement('div');
   host.setAttribute('data-messanger-widget', '');
@@ -23,7 +40,7 @@ function boot(): void {
   host.style.pointerEvents = 'none';
   document.body.appendChild(host);
 
-  mountEmbedWidget(host, token);
+  mountEmbedWidget(host, token, detectTheme());
 }
 
 if (typeof document !== 'undefined') {

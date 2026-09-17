@@ -90,7 +90,7 @@ describe('EmbedWidget', () => {
 
     const input = await screen.findByPlaceholderText('embed.typeMessage');
     const sendBtn = within(input.parentElement as HTMLElement).getByRole('button');
-    expect(sendBtn.className).toContain('min-h-11');
+    expect(sendBtn.className).toContain('ew-send');
   });
 
   it('shows contact form on open and skips on skip click', async () => {
