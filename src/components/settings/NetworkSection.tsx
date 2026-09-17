@@ -1,6 +1,7 @@
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import type { TunnelBackend } from '../../lib/transport/wsTunnel';
+import { IS_RELAY_PROXY_CONFIGURED } from '../../config/signalling';
 import { RefreshCw, Radio } from 'lucide-react';
 
 interface NetworkSectionProps {
@@ -44,16 +45,18 @@ export const NetworkSection = ({
           onToggle={() => setObfuscationEnabled(!obfuscationEnabled)}
           isDark={isDark}
         />
-        <SettingsRow
-          title={t('settings.relayBackend')}
-          subtitle={relayBackend}
-          value={relayBackend}
-          icon={<Radio size={16} />}
-          iconBg="t-accent-bg"
-          iconColor="t-accent"
-          isDark={isDark}
-          onClick={cycleRelayBackend}
-        />
+        {IS_RELAY_PROXY_CONFIGURED && (
+          <SettingsRow
+            title={t('settings.relayBackend')}
+            subtitle={relayBackend}
+            value={relayBackend}
+            icon={<Radio size={16} />}
+            iconBg="t-accent-bg"
+            iconColor="t-accent"
+            isDark={isDark}
+            onClick={cycleRelayBackend}
+          />
+        )}
       </SettingsGroup>
 
       <SettingsSectionTitle title={t('settings.transportOptions')} isDark={isDark} />

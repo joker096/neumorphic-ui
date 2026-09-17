@@ -46,10 +46,28 @@ export function resolveSeedUrls(
   return [];
 }
 
+/**
+ * Relay-proxy (Cloudflare Worker / domain front) endpoint, if the operator
+ * baked one into the build.
+ *
+ * Only a deployment with a relay proxy has anywhere for the non-`direct`
+ * transport backends to dial. Without it the choice reroutes nothing: the
+ * socket still opens straight to the signalling origin, while the status pill
+ * would claim "Relay" for a direct connection.
+ */
+export function resolveRelayProxyUrl(envValue: string | undefined): string {
+  return typeof envValue === 'string' ? envValue.trim() : '';
+}
+
 const envSeedUrls = import.meta.env.VITE_SIGNALING_SEED_URLS as string | undefined;
+const envRelayProxyUrl = import.meta.env.VITE_RELAY_PROXY_URL as string | undefined;
 const browserLocation: SeedLocation | null =
   typeof window !== 'undefined' && window.location
     ? { protocol: window.location.protocol, host: window.location.host }
     : null;
 
 export const SIGNALING_SEED_URLS: string[] = resolveSeedUrls(envSeedUrls, browserLocation);
+
+/** `true` when this build has a relay endpoint for the non-direct backends. */
+export const RELAY_PROXY_URL: string = resolveRelayProxyUrl(envRelayProxyUrl);
+export const IS_RELAY_PROXY_CONFIGURED: boolean = RELAY_PROXY_URL.length > 0;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveSeedUrls } from './signalling';
+import { resolveRelayProxyUrl, resolveSeedUrls } from './signalling';
 
 describe('resolveSeedUrls', () => {
   it('prefers explicit wss:// env seeds and drops invalid entries', () => {
@@ -36,5 +36,21 @@ describe('resolveSeedUrls', () => {
   it('ignores non-http(s) origins', () => {
     expect(resolveSeedUrls(undefined, { protocol: 'file:', host: '' })).toEqual([]);
     expect(resolveSeedUrls(undefined, { protocol: 'tauri:', host: 'localhost' })).toEqual([]);
+  });
+});
+
+describe('resolveRelayProxyUrl', () => {
+  it('keeps an operator-provided relay endpoint', () => {
+    expect(resolveRelayProxyUrl('wss://relay.example/ws')).toBe('wss://relay.example/ws');
+  });
+
+  it('trims surrounding whitespace', () => {
+    expect(resolveRelayProxyUrl('  wss://relay.example/ws  ')).toBe('wss://relay.example/ws');
+  });
+
+  it('treats unset/empty/whitespace as no relay proxy', () => {
+    expect(resolveRelayProxyUrl(undefined)).toBe('');
+    expect(resolveRelayProxyUrl('')).toBe('');
+    expect(resolveRelayProxyUrl('   ')).toBe('');
   });
 });

@@ -1,7 +1,15 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { NetworkSection } from './NetworkSection';
+
+const { relayProxy } = vi.hoisted(() => ({ relayProxy: { enabled: true } }));
+
+vi.mock('../../config/signalling', () => ({
+ get IS_RELAY_PROXY_CONFIGURED() {
+  return relayProxy.enabled;
+ },
+}));
 
 vi.mock('../../lib/i18n', () => ({
  useI18n: () => ({
@@ -83,4 +91,14 @@ it('renders obfuscation toggle row', () => {
     fireEvent.click(screen.getByRole('button', { name: /settings\.relayBackend/i }));
     expect(setRelayBackend).toHaveBeenCalledWith('cfworker');
    });
+
+  it('hides the relay backend row when no relay proxy is configured', () => {
+    relayProxy.enabled = false;
+    render(<NetworkSection {...defaultProps} />);
+    expect(screen.queryByText(/settings\.relayBackend/)).not.toBeInTheDocument();
+  });
+});
+
+afterEach(() => {
+  relayProxy.enabled = true;
 });

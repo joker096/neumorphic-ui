@@ -117,6 +117,9 @@ if (-not $SkipRelayProxy) {
       Write-Host "  ⚠ CLOUDFLARE_API_TOKEN not set — skipping worker deploy. Seeds will reference $RelayProxyHost; deploy the worker manually first." -ForegroundColor Yellow
     }
     $env:VITE_SIGNALING_SEED_URLS = $relaySeeds
+    # Tells the SPA a relay endpoint exists (settings: relay-backend row +
+    # persisted non-direct backends are only honoured when this is set).
+    $env:VITE_RELAY_PROXY_URL = "wss://$RelayProxyHost/ws"
     Write-Host "  ✓ Signalling seeds for SPA build:" -ForegroundColor Green
     Write-Host "      $relaySeeds" -ForegroundColor Gray
   } else {

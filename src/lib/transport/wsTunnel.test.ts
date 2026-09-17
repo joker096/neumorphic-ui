@@ -18,6 +18,12 @@ describe('WsTunnel v2', () => {
     const formatted = tunnel.formatRelayUrl('my-worker.example.workers.dev');
     expect(formatted).toContain('wss://my-worker.example.workers.dev/ws');
   });
+
+  it('accepts an absolute wss seed without mangling it', () => {
+    const tunnel = createWsTunnel('wss://mess.cvr.name/ws', 'cfworker');
+    const formatted = tunnel.formatRelayUrl('wss://mess.cvr.name/ws');
+    expect(formatted.startsWith('wss://mess.cvr.name/ws?transport=cfworker')).toBe(true);
+  });
 });
 
 describe('WsTunnel heartbeat', () => {

@@ -38,7 +38,9 @@ export class WsTunnel {
   }
 
   formatRelayUrl(baseUrl: string): string {
-    if (!/^https?:\/\//i.test(baseUrl)) {
+    // Seeds are absolute (`wss://host/ws`) and bare hosts are still accepted;
+    // only the latter need the protocol + path reconstructed.
+    if (!/^(?:https?|wss?):\/\//i.test(baseUrl)) {
       const pathMatch = this.originalUrl.match(/\/\/[^/]+(\/.*)/);
       const path = pathMatch ? pathMatch[1] : '';
       baseUrl = `wss://${baseUrl}${path}`;

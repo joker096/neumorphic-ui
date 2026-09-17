@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "../store";
-import { SIGNALING_SEED_URLS } from "../config/signalling";
+import { SIGNALING_SEED_URLS, IS_RELAY_PROXY_CONFIGURED } from "../config/signalling";
 import { SignallingManager } from "../lib/signaling/manager";
 import type { TunnelBackend } from "../lib/transport/wsTunnel";
 
@@ -25,7 +25,12 @@ export const useAppConnection = () => {
       return;
     }
 
-    const savedBackend = (relayBackend as TunnelBackend) || 'direct';
+    // A relay backend only has somewhere to dial when this build carries a
+    // relay-proxy endpoint. Otherwise a stale persisted selection would claim
+    // "Relay" in the status pill while the socket still goes to the origin.
+    const savedBackend: TunnelBackend = IS_RELAY_PROXY_CONFIGURED
+      ? ((relayBackend as TunnelBackend) || 'direct')
+      : 'direct';
     const mgr = new SignallingManager(SIGNALING_SEED_URLS, savedBackend, autoReconnect);
     managerRef.current = mgr;
 

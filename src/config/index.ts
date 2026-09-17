@@ -1,4 +1,4 @@
-export { SIGNALING_SEED_URLS } from './signalling';
+export { SIGNALING_SEED_URLS, RELAY_PROXY_URL, IS_RELAY_PROXY_CONFIGURED } from './signalling';
 export { DEFAULTS, KEYS } from './settingsDefaults';
 export { LOCK_BACKOFF, getLockBlockDuration } from './lockBackoff';
 export { NAV_ITEMS, NAV_IDS } from './navigation';
