@@ -288,18 +288,23 @@ function ChatInputAreaImpl({
               <input
                 type="file"
                 accept="image/*"
-                className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                id="dm-media-input"
+                className="hidden"
                 onChange={(e) => {
                   handleImageAttach(e, chat, onUpdateChat, eSilentMode);
                   e.target.value = "";
                 }}
                 aria-label={t("chat.attachFile")}
               />
-              <div className={`icon-button relative z-0 ${
-                isDark ? "text-gray-400" : "text-slate-500 hover:text-slate-800"
-              }`}>
+              <label
+                htmlFor="dm-media-input"
+                aria-label={t("chat.attachFile")}
+                className={`icon-button block cursor-pointer ${
+                  isDark ? "text-gray-400" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
                 <Plus size={16} />
-              </div>
+              </label>
             </div>
 
             <button

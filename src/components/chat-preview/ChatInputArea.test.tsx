@@ -96,6 +96,20 @@ describe('ChatInputArea (channel)', () => {
     expect(sendMessage).not.toHaveBeenCalled();
   });
 
+  it('hides the DM file input behind a label (no raw "No file chosen" control on mobile)', () => {
+    const handleImageAttach = vi.fn();
+    render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} handleImageAttach={handleImageAttach} />);
+    const input = document.getElementById('dm-media-input') as HTMLInputElement;
+    expect(input).toBeTruthy();
+    expect(input.className).toContain('hidden');
+    expect(input.className).not.toContain('opacity-0');
+    const label = document.querySelector('label[for="dm-media-input"]') as HTMLLabelElement;
+    expect(label).toBeTruthy();
+    expect(label.getAttribute('aria-label')).toBe('chat.attachFile');
+    fireEvent.change(input, { target: { files: [] } });
+    expect(handleImageAttach).toHaveBeenCalledTimes(1);
+  });
+
   it('attaches media and sends a post with attachment when owner selects a file', () => {
     const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     const sendMessage = vi.fn();
