@@ -16,7 +16,7 @@ Artifacts, store listing, Data Safety answers, rating guidance, and the upload r
 | App icon | `public/icons/pwa-512x512.png` | 512×512 PNG, no alpha in corners |
 | Feature graphic | `android/feature-graphic.png` (gen: `node scripts/generate-feature-graphic.mjs`) | 1024×500 PNG, < 1 MB |
 | Phone screenshots | `android/screenshots/phone-1-chat-list.png`, `phone-2-conversation.png`, `phone-3-contacts.png`, `phone-4-calls.png` (gen: `node scripts/phone-screenshots.mjs`) | 1080×1920 (9:16) PNG, each < 1 MB |
-| AAB | `app-release-bundle.aab` | versionCode 1, minSdk 21, targetSdk 36 |
+| AAB | `app-release-bundle.aab` | versionCode 4, minSdk 21, targetSdk 36 |
 
 Regenerate screenshots after any UI change: `node scripts/phone-screenshots.mjs`
 (vite boots on port 5199 with `VITE_USE_MOCK=true`; no state left behind).
@@ -65,10 +65,11 @@ Mess&Anger is free to use with first-party in-app ads. Premium is an optional
 subscription.
 ```
 
-**What's new (v1.0.0):**
+**What's new (v1.0.3):**
 
 ```
-Initial release.
+Media rendering polish: adaptive voice notes, natural-aspect photos, 16:9 video
+thumbnails, and per-type document icons. Bug fixes and stability improvements.
 ```
 
 **App URL:** `https://mess.cvr.name`
@@ -156,7 +157,7 @@ reached/deployed before submission (run `scripts/deploy-all.ps1` first).
    7. **Ads declaration** → §5.
 5. **Release:**
    1. **Create new release** (production track) → upload `app-release-bundle.aab`
-      (versionCode 1 — first upload, Play App Signing will re-sign for production;
+      (versionCode 4 — bump per release; Play App Signing will re-sign for production;
       keep the upload key, i.e. this keystore, for every future release).
    2. Staged rollout: **10%** for 24 h → promote to **100%**.
    3. Release notes: "Initial release."
