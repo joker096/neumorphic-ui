@@ -94,7 +94,7 @@ export const ContactList = ({
                   className="w-full text-left p-3 rounded-2xl flex items-center gap-3 cursor-pointer transition-all bg-[var(--bg-tertiary)] hover:brightness-110"
                 >
                   <div className="w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-teal-400 to-cyan-500 text-white font-bold">
-                    {contact.name.slice(0, 2).toUpperCase()}
+                    {String(contact.name || '').slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-sm text-[var(--text-primary)] truncate">{contact.name}</div>

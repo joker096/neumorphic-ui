@@ -253,7 +253,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 {overrideAvatar ? (
                   <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 ) : (
-                  contact.name.charAt(0)
+                  String(contact.name || '').charAt(0)
                 )}
                 <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-white opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
                   <Camera size={18} aria-hidden="true" />

@@ -40,6 +40,17 @@ describe('SafetyNumberModal', () => {
     await waitFor(() => expect(idBlocks()[0].textContent).toContain('hash_chat_999'))
   })
 
+  it('renders without throwing for numeric (legacy chat) contact id', async () => {
+    render(<SafetyNumberModal {...baseProps} myPeerId={MY_KEY} contactId={5 as unknown as string} />)
+    await waitFor(() => expect(groups().length).toBe(0))
+    expect(idBlocks()[0].textContent).toContain('5')
+  })
+
+  it('renders without throwing for numeric myPeerId', async () => {
+    render(<SafetyNumberModal {...baseProps} myPeerId={7 as unknown as string} />)
+    await waitFor(() => expect(groups().length).toBe(0))
+  })
+
   it('theirId row shows the pinned identity key when available', async () => {
     render(<SafetyNumberModal {...baseProps} myPeerId={MY_KEY} theirPublicKey={THEIR_KEY} />)
     await waitFor(() => expect(idBlocks()[0].textContent).toContain(THEIR_KEY.slice(0, 16)))
