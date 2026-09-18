@@ -20,8 +20,8 @@
     "path": "F:\\AISTUDIO\\neumorphic-ui\\messandanger-keystore.jks",
     "alias": "messandanger"
   },
-  "appVersionName": "1.0.3",
-  "appVersionCode": 4,
+  "appVersionName": "1.0.4",
+  "appVersionCode": 5,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "fallbackType": "customtabs",
@@ -40,5 +40,5 @@
   "displayOverride": [
     "edge-to-edge"
   ],
-  "appVersion": "1.0.3"
+  "appVersion": "1.0.4"
 }
