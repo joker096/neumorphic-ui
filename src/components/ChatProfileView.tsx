@@ -130,16 +130,16 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
 
   const actions = (
     <div className="flex items-center gap-2 mt-3">
-      <button onClick={() => { onMessage?.(); onClose(); }} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-[var(--accent)] text-[var(--button-primary-text)] font-medium min-h-10 active:scale-95 transition-transform">
+      <button onClick={() => { onMessage?.(); onClose(); }} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-[var(--accent)] text-[var(--button-primary-text)] font-medium min-h-11 active:scale-95 transition-transform">
         <MessageCircle size={16} /> {t('profile.message', 'Message')}
       </button>
       {kind !== 'channel' && (
-        <button onClick={() => { onCall?.(); onClose(); }} aria-label={t('profile.call')} className="shrink-0 w-10 h-10 min-w-10 min-h-10 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
+        <button onClick={() => { onCall?.(); onClose(); }} aria-label={t('profile.call')} className="shrink-0 w-10 h-10 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
           <Phone size={16} />
         </button>
       )}
       {kind === 'user' || kind === 'bot' ? (
-        <button onClick={() => { onVideoCall?.(); onClose(); }} aria-label={t('profile.video')} className="shrink-0 w-10 h-10 min-w-10 min-h-10 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
+        <button onClick={() => { onVideoCall?.(); onClose(); }} aria-label={t('profile.video')} className="shrink-0 w-10 h-10 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
           <Video size={16} />
         </button>
       ) : (
@@ -149,13 +149,13 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
             toast(t('profile.notificationsOff', 'Muted for this chat'), 'info');
           }}
           aria-label={t('profile.mute')}
-          className="shrink-0 w-10 h-10 min-w-10 min-h-10 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform"
+          className="shrink-0 w-10 h-10 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform"
         >
           {isChatMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </button>
       )}
       {kind === 'channel' && (
-        <button onClick={() => setShowInvite(true)} aria-label={t('invite')} className="shrink-0 w-10 h-10 min-w-10 min-h-10 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
+        <button onClick={() => setShowInvite(true)} aria-label={t('invite')} className="shrink-0 w-10 h-10 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
           <UserPlus size={16} />
         </button>
       )}
@@ -191,15 +191,15 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   {chat.name}
                   {chat.verified && <BadgeCheck size={18} className="text-[var(--accent)]" />}
                 </div>
-                <div className={`text-[13px] ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle()}</div>
-                {chat.username && <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>@{chat.username}</div>}
+                <div className={`text-[13px] ${isDark ? "text-[var(--text-secondary)]" : "text-slate-500"}`}>{subtitle()}</div>
+                {chat.username && <div className={`text-[11px] mt-0.5 ${isDark ? "text-[var(--text-secondary)]" : "text-slate-400"}`}>@{chat.username}</div>}
                 {kind === 'channel' && (
-                  <div className={`flex items-center gap-1 text-[11px] mt-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+                  <div className={`flex items-center gap-1 text-[11px] mt-1 ${isDark ? "text-[var(--text-secondary)]" : "text-slate-400"}`}>
                     {chat.isPublic ? <Globe size={12} /> : <Lock size={12} />}
                     <span>{chat.isPublic ? t('profile.channelPublic', 'Public channel') : t('profile.channelPrivate', 'Private channel')}</span>
                   </div>
                 )}
-                {chat.description && <div className={`mt-1.5 text-[11px] leading-relaxed ${isDark ? "text-gray-500" : "text-slate-400"}`}>{chat.description}</div>}
+                {chat.description && <div className={`mt-1.5 text-[11px] leading-relaxed ${isDark ? "text-[var(--text-secondary)]" : "text-slate-400"}`}>{chat.description}</div>}
                 {actions}
               </div>
 
@@ -266,9 +266,11 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium min-h-7 whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}
+                        className={`group flex items-center justify-center min-w-11 min-h-11 p-1 rounded-full transition-colors ${activeTab === tab.id ? "" : (isDark ? "hover:bg-white/5" : "hover:bg-slate-100")}`}
                       >
-                        {tab.icon} {t(tab.label, tab.fallback)}
+                        <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}>
+                          {tab.icon} {t(tab.label, tab.fallback)}
+                        </span>
                       </button>
                     ))}
                   </div>

@@ -148,7 +148,7 @@ function ChatMessageImpl({
     return (
       <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-2`}>
         <div className={`flex items-center gap-2 rounded-xl border border-[var(--border-color)] px-3 py-2 text-xs italic ${
-          isDark ? "bg-[var(--bg-tertiary)] text-gray-500" : "bg-slate-100 text-slate-500"
+          isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]" : "bg-slate-100 text-slate-500"
         }`}>
           <Clock size={14} />
           <span>{t("chat.messageExpired", "Message expired")}</span>
@@ -233,7 +233,7 @@ function ChatMessageImpl({
                     <button
                       key={j}
                       onClick={() => { if (onAction) onAction(btn.action || btn.text); }}
-                                             className={`flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[#2a2d36] hover:bg-[#343842] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[var(--bg-primary)] hover:bg-slate-200 text-slate-700 border border-[var(--border-color)]"}`}
+                                             className={`flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[var(--bg-tertiary)] hover:bg-[var(--hover-bg-dark)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[var(--bg-primary)] hover:bg-slate-200 text-slate-700 border border-[var(--border-color)]"}`}
                     >
                       {btn.text}
                     </button>

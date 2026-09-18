@@ -40,7 +40,7 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
       )}
       {!isMe && (
         <div
-          className={`opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-[var(--accent)] transition-opacity cursor-pointer ${isDark ? "bg-[#2a2d36] text-gray-400 hover:text-[var(--text-primary)]" : "bg-white text-slate-400 hover:text-slate-800"} w-11 h-11 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]`}
+          className={`opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-[var(--accent)] transition-opacity cursor-pointer ${isDark ? "bg-[var(--bg-tertiary)] text-gray-400 hover:text-[var(--text-primary)]" : "bg-white text-slate-400 hover:text-slate-800"} w-11 h-11 rounded-full flex items-center justify-center shadow-md z-10 shrink-0 border border-[var(--border-color)]`}
           onClick={() => onSetActiveReactionPicker(activeReactionPicker === msg.id ? null : msg.id)}
           aria-label={t("chat.reactions")}
           role="button"

@@ -169,7 +169,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           {onClick && (
             <button
               onClick={() => handleSwipeAction("message")}
-              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 bg-[var(--chat-swipe-bg)] hover:bg-[var(--chat-swipe-bg-hover)]`}
               aria-label={t('chat.openChat')}
             >
              <MessageSquare size={20} fill="currentColor" stroke="currentColor" />
@@ -178,7 +178,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           {onCall && (
             <button
               onClick={() => handleSwipeAction("call")}
-              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isDark ? "bg-[#2b2f42] hover:bg-[#363b52]" : "bg-slate-500 hover:bg-slate-600"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 bg-[var(--chat-swipe-bg)] hover:bg-[var(--chat-swipe-bg-hover)]`}
               aria-label={t('chat.startCall')}
             >
              <Phone size={20} fill="currentColor" stroke="currentColor" />
@@ -187,7 +187,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           {onVideoCall && (
             <button
               onClick={() => handleSwipeAction("video")}
-              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${"bg-[var(--accent)] hover:brightness-110"}`}
+              className={`my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 bg-[var(--accent)] hover:brightness-110`}
               aria-label={t('chat.startVideoCall')}
             >
              <Video size={20} fill="currentColor" stroke="currentColor" />
@@ -335,7 +335,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
           )}
           {type === "channel" && !selectMode && (
             <div
-              className={`absolute -bottom-0.5 -right-0.5 w-[15px] h-[15px] rounded-full border-2 z-10 flex items-center justify-center ${"bg-[var(--accent)] border-[var(--bg-secondary)]"}`}
+              className={`absolute -bottom-0.5 -right-0.5 w-[15px] h-[15px] rounded-full border-2 z-10 flex items-center justify-center bg-[var(--accent)] border-[var(--bg-secondary)]`}
             >
               <Megaphone size={12} className="text-white" />
             </div>

@@ -84,7 +84,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
     }
   };
 
-  const inputClass = `w-full min-w-0 rounded-lg px-3 py-2 text-sm outline-none border transition-colors focus:ring-2 focus:ring-[var(--accent)]/40 bg-[var(--input-bg)] text-[var(--input-text)] border-[var(--border-color)] ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"} placeholder:text-[var(--text-muted)]`;
+  const inputClass = `w-full min-w-0 rounded-lg px-3 py-2 text-sm outline-none border transition-colors focus:ring-2 focus:ring-[var(--accent)]/40 bg-[var(--input-bg)] text-[var(--input-text)] border-[var(--border-color)] ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"} placeholder:text-[var(--text-secondary)]`;
   const labelClass = `text-xs font-medium mb-1 block ${isDark ? "text-gray-400" : "text-slate-500"}`;
 
   return (
@@ -148,8 +148,10 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                             e.stopPropagation();
                             setEditColor(c);
                           }}
-                          className={`w-8 h-8 rounded-full bg-gradient-to-br ${c} transition-transform active:scale-90 ${editColor === c ? "ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-secondary)]" : "opacity-70 hover:opacity-100"}`}
-                        />
+                          className={`flex items-center justify-center min-w-11 min-h-11 p-1 rounded-full transition-transform active:scale-90`}
+                        >
+                          <span className={`w-8 h-8 rounded-full bg-gradient-to-br ${c} ${editColor === c ? "ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-secondary)]" : "opacity-70 hover:opacity-100"}`} />
+                        </button>
                       ))}
                     </div>
                   </div>

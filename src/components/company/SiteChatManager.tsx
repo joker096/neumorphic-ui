@@ -90,9 +90,13 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                       key={c}
                       onClick={() => saveConfig(sc.id, { accent: c })}
                       aria-label={c}
-                      className={`w-6 h-6 rounded-full cursor-pointer transition-transform ${sc.config.accent === c ? 'ring-2 ring-[var(--accent)] scale-110' : 'hover:scale-110'}`}
-                      style={{ backgroundColor: c }}
-                    />
+                      className="flex items-center justify-center min-w-11 min-h-11 p-1 rounded-full cursor-pointer"
+                    >
+                      <span
+                        className={`w-6 h-6 rounded-full transition-transform ${sc.config.accent === c ? 'ring-2 ring-[var(--accent)] scale-110' : 'hover:scale-110'}`}
+                        style={{ backgroundColor: c }}
+                      />
+                    </button>
                   ))}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -102,7 +106,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                       key={p}
                       onClick={() => saveConfig(sc.id, { position: p })}
                       aria-pressed={sc.config.position === p}
-                      className={`min-h-9 px-3 rounded-lg text-xs cursor-pointer ${
+                      className={`min-w-11 min-h-11 px-3 rounded-lg text-xs cursor-pointer ${
                         sc.config.position === p
                           ? 'bg-[var(--accent)] text-[var(--button-primary-text)]'
                           : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'
@@ -127,10 +131,10 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                     value={sc.config.greeting}
                     onChange={(e) => saveConfig(sc.id, { greeting: e.target.value })}
                     placeholder={t('company.greeting', 'Greeting message')}
-                    className="flex-1 min-h-10 rounded-lg px-3 bg-[var(--input-bg)] text-[var(--text-primary)] text-sm outline-none"
+                    className="flex-1 min-h-11 rounded-lg px-3 bg-[var(--input-bg)] text-[var(--text-primary)] text-sm outline-none"
                   />
                 </div>
-                <div className="text-[10px] opacity-60">{t('company.widgetHint', 'Change settings → the embed snippet updates. Re-paste it into your site.')}</div>
+                <div className="text-[11px] text-[var(--text-secondary)]">{t('company.widgetHint', 'Change settings → the embed snippet updates. Re-paste it into your site.')}</div>
               </div>
 
               <textarea
@@ -149,7 +153,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
               <div className="flex flex-col gap-1.5">
                 <div className="text-xs font-bold flex items-center gap-2">
                   {t('company.websiteContacts', 'Website contacts')}
-                  <span className="text-[10px] opacity-60">
+                  <span className="text-[11px] text-[var(--text-secondary)]">
                     {t('company.websiteContactCount', '{{n}} contact(s) from this site').replace('{{n}}', String(chatContacts.length))}
                   </span>
                 </div>
@@ -161,11 +165,11 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                       <span className="font-bold">{c.name}</span>
                       {c.email && <span className="opacity-60">· {c.email}</span>}
                       {c.phone && <span className="opacity-60">· {c.phone}</span>}
-                      <span className="ml-auto text-[10px] opacity-50">{new Date(c.ts).toLocaleDateString()}</span>
+                      <span className="ml-auto text-[11px] text-[var(--text-secondary)]">{new Date(c.ts).toLocaleDateString()}</span>
                       <button
                         onClick={() => removeWebsiteContact(c.id)}
                         aria-label={t('company.removeWebsiteContact', 'Remove contact')}
-                        className="min-w-8 min-h-8 flex items-center justify-center rounded-lg text-[var(--danger)] cursor-pointer hover:bg-[var(--danger)]/10"
+                        className="min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--danger)] cursor-pointer hover:bg-[var(--danger)]/10"
                       >
                         <Trash2 size={13} />
                       </button>
