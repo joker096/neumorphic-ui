@@ -139,32 +139,8 @@
     border-right: 1px solid var(--msg-border-soft);
   }
 
-  .ds-pane {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .ds-profile-pane {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    overflow: hidden;
-    background: var(--msg-bg-panel);
-    backdrop-filter: blur(var(--msg-glass-blur)) saturate(var(--msg-glass-saturate));
-    -webkit-backdrop-filter: blur(var(--msg-glass-blur)) saturate(var(--msg-glass-saturate));
-    border-left: 1px solid var(--msg-border-soft);
-  }
-
   @media (max-width: 1024px) {
     .ds-shell { grid-template-columns: 72px 1fr; }
-    .ds-profile-pane {
-      position: fixed;
-      inset: 0 0 0 72px;
-      z-index: 40;
-    }
   }
 
   @media (max-width: 640px) {
@@ -180,7 +156,6 @@
       border-top: 1px solid var(--msg-border-soft);
       z-index: 30;
     }
-    .ds-profile-pane { inset: 0; }
   }
 
   /* -----------------------------------------------------------------
@@ -193,34 +168,6 @@
     border: 1px solid var(--msg-border);
     border-radius: var(--msg-radius-xl);
     box-shadow: var(--msg-shadow-panel);
-  }
-
-  /* -----------------------------------------------------------------
-     Glass input
-     ----------------------------------------------------------------- */
-  .glass-input {
-    width: 100%;
-    box-sizing: border-box;
-    background: var(--msg-bg-input);
-    border: 1px solid var(--msg-border-soft);
-    border-radius: var(--msg-radius-sm);
-    color: var(--msg-text-primary);
-    font-size: var(--control-font-size, 0.75rem);
-    padding: 0 14px;
-    min-height: 44px;
-    outline: none;
-    transition:
-      border-color var(--msg-duration-normal) var(--msg-ease),
-      background var(--msg-duration-normal) var(--msg-ease);
-  }
-
-  .glass-input::placeholder {
-    color: var(--msg-text-muted);
-  }
-
-  .glass-input:focus {
-    border-color: var(--msg-accent);
-    background: var(--msg-bg-input);
   }
 
   /* -----------------------------------------------------------------
@@ -315,12 +262,6 @@
     width: 36px;
     height: 36px;
     flex-basis: 36px;
-  }
-
-  .avatar-lg {
-    width: 64px;
-    height: 64px;
-    flex-basis: 64px;
   }
 
   .avatar-status {
@@ -487,7 +428,8 @@
     transition:
       background var(--msg-duration-normal) var(--msg-ease),
       color var(--msg-duration-normal) var(--msg-ease),
-      transform var(--msg-duration-fast) var(--msg-ease);
+      transform var(--msg-duration-fast) var(--msg-ease),
+      filter var(--msg-duration-fast) var(--msg-ease);
   }
 
   .icon-button:hover {
@@ -513,6 +455,13 @@
   .icon-button.primary:hover {
     background: linear-gradient(135deg, var(--msg-accent), var(--msg-accent-dark));
     color: var(--msg-on-accent);
+    filter: brightness(1.15);
+    box-shadow: var(--msg-shadow-accent);
+  }
+
+  .icon-button.primary:active {
+    transform: scale(0.92);
+    filter: brightness(0.9);
   }
 
   /* -----------------------------------------------------------------
@@ -545,22 +494,27 @@
     font-size: 14px;
     text-align: left;
     cursor: pointer;
-    transition: background var(--msg-duration-fast) var(--msg-ease);
+    transition:
+      background var(--msg-duration-fast) var(--msg-ease),
+      transform var(--msg-duration-fast) var(--msg-ease);
   }
 
   .glass-menu-item:hover {
     background: var(--msg-bg-panel-hover);
   }
 
-  .glass-menu-item.danger {
-    color: var(--msg-danger);
+  .glass-menu-item:active {
+    transform: scale(0.99);
+    background: var(--msg-bg-input);
   }
 
-  .glass-menu-separator {
-    height: 1px;
-    margin: 6px 8px;
-    box-sizing: border-box;
-    background: var(--msg-border-soft);
+  .glass-menu-item:focus-visible {
+    outline: 2px solid var(--msg-accent);
+    outline-offset: -2px;
+  }
+
+  .glass-menu-item.danger {
+    color: var(--msg-danger);
   }
 
   /* -----------------------------------------------------------------
@@ -579,104 +533,5 @@
     border: 1px solid var(--msg-border);
     border-radius: var(--msg-radius-lg);
     box-shadow: var(--msg-shadow-panel);
-  }
-
-  .glass-modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--msg-border-soft);
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .glass-modal-body {
-    padding: 16px 20px;
-    overflow-y: auto;
-    box-sizing: border-box;
-  }
-
-  .glass-modal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 12px 20px;
-    border-top: 1px solid var(--msg-border-soft);
-  }
-
-  /* -----------------------------------------------------------------
-     Notification / toast
-     ----------------------------------------------------------------- */
-  .glass-notification {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    min-width: 260px;
-    max-width: 360px;
-    box-sizing: border-box;
-    padding: 12px 16px;
-    background: var(--msg-bg-panel);
-    backdrop-filter: blur(var(--msg-glass-blur)) saturate(var(--msg-glass-saturate));
-    -webkit-backdrop-filter: blur(var(--msg-glass-blur)) saturate(var(--msg-glass-saturate));
-    border: 1px solid var(--msg-border);
-    border-radius: var(--msg-radius-md);
-    box-shadow: var(--msg-shadow-floating);
-    color: var(--msg-text-primary);
-  }
-
-  .glass-notification-title {
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .glass-notification-body {
-    margin-top: 2px;
-    font-size: 13px;
-    color: var(--msg-text-secondary);
-  }
-
-  /* -----------------------------------------------------------------
-     Animations
-     ----------------------------------------------------------------- */
-  @keyframes msg-pop {
-    from {
-      opacity: 0;
-      transform: scale(0.96) translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  @keyframes msg-rise {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes msg-fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .ds-anim-pop {
-    animation: msg-pop var(--msg-duration-normal) var(--msg-ease);
-  }
-
-  .ds-anim-rise {
-    animation: msg-rise var(--msg-duration-normal) var(--msg-ease);
-  }
-
-  .ds-anim-fade {
-    animation: msg-fade var(--msg-duration-normal) var(--msg-ease);
   }
 }
