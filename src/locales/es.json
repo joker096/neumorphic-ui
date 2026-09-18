@@ -2385,7 +2385,8 @@
     "contactEmail": "Correo electrónico",
     "contactPhone": "Teléfono",
     "contactStart": "Iniciar chat",
-    "contactSkip": "Omitir"
+    "contactSkip": "Omitir",
+    "send": "Enviar"
   },
   "bot": {
     "profileTitle": "Perfil",

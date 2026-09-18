@@ -171,7 +171,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                         aria-label={t('company.removeWebsiteContact', 'Remove contact')}
                         className="min-w-11 min-h-11 flex items-center justify-center rounded-lg text-[var(--danger)] cursor-pointer hover:bg-[var(--danger)]/10"
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   ))

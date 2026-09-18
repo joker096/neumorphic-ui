@@ -2385,7 +2385,8 @@
     "contactEmail": "이메일",
     "contactPhone": "전화번호",
     "contactStart": "채팅 시작",
-    "contactSkip": "건너뛰기"
+    "contactSkip": "건너뛰기",
+    "send": "보내기"
   },
   "bot": {
     "profileTitle": "프로필",

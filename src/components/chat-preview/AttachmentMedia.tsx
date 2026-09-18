@@ -239,7 +239,7 @@ export function AttachmentMedia({
         />
         <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/20">
           <div className="w-12 h-12 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
-            <Play size={22} className="text-white fill-white ml-1" />
+            <Play size={24} className="text-white fill-white ml-1" />
           </div>
         </div>
         <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-semibold text-white tracking-wider">{msg.duration}</div>

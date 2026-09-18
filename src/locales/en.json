@@ -2383,7 +2383,8 @@
     "contactEmail": "Email",
     "contactPhone": "Phone",
     "contactStart": "Start chat",
-    "contactSkip": "Skip"
+    "contactSkip": "Skip",
+    "send": "Send"
   },
   "bot": {
     "profileTitle": "Profile",

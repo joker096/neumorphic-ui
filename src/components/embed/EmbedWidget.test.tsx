@@ -136,4 +136,52 @@ describe('EmbedWidget', () => {
     // Contact form should be gone after submission
     expect(screen.queryByText('embed.contactTitle')).toBeNull();
   });
+
+  it('send button is disabled when draft is empty', async () => {
+    render(<EmbedWidget token={token} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+
+    const input = await screen.findByPlaceholderText('embed.typeMessage');
+    const sendBtn = within(input.parentElement as HTMLElement).getByRole('button');
+    expect(sendBtn).toBeDisabled();
+
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'hello' } });
+    });
+    expect(sendBtn).not.toBeDisabled();
+  });
+
+  it('Escape key closes the panel', async () => {
+    render(<EmbedWidget token={token} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+    expect(await screen.findByPlaceholderText('embed.typeMessage')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'Escape' });
+    });
+    expect(screen.queryByPlaceholderText('embed.typeMessage')).toBeNull();
+  });
+
+  it('FAB aria-label toggles between open and close', async () => {
+    render(<EmbedWidget token={token} />);
+    const fab = screen.getByLabelText('embed.openChat');
+
+    await act(async () => {
+      fireEvent.click(fab);
+    });
+    // header close button + FAB both labeled close while open
+    expect(screen.getAllByLabelText('embed.close').length).toBe(2);
+    expect(document.querySelector('.ew-fab')?.getAttribute('aria-label')).toBe('embed.close');
+
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'Escape' });
+    });
+    expect(document.querySelector('.ew-fab')?.getAttribute('aria-label')).toBe('embed.openChat');
+  });
 });

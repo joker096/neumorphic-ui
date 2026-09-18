@@ -2385,7 +2385,8 @@
     "contactEmail": "邮箱",
     "contactPhone": "电话",
     "contactStart": "开始聊天",
-    "contactSkip": "跳过"
+    "contactSkip": "跳过",
+    "send": "发送"
   },
   "bot": {
     "profileTitle": "资料",

@@ -328,7 +328,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
               type="button"
               aria-label={t("search.clear", "Clear")}
               onClick={() => setQuery("")}
-              className="min-w-11 min-h-11 flex items-center justify-center rounded-full hover:bg-black/10 cursor-pointer"
+              className={`min-w-11 min-h-11 flex items-center justify-center rounded-full cursor-pointer transition-colors ${
+                isDark ? "hover:bg-white/10" : "hover:bg-black/10"
+              }`}
             >
               <X size={16} />
             </button>

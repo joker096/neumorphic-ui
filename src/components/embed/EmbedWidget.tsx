@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Send, X, MessageSquare, UserRound } from 'lucide-react';
 import { RelayClient } from '../../lib/company/relayClient';
@@ -54,6 +54,17 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const [sendingContact, setSendingContact] = useState(false);
   const relayRef = useRef<RelayClient | null>(null);
   const cfgRef = useRef<EmbedConfig | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    inputRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   useEffect(() => {
     let cfg: EmbedConfig;
@@ -159,6 +170,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
       data-ew-theme={isDark ? 'dark' : 'light'}
       data-ew-pos={position}
       className={`ew-root ${position === 'bottom-left' ? 'ew-bot-left' : 'ew-bot-right'}`}
+      style={{ '--ew-accent': accent } as CSSProperties}
     >
       {open && (
         <div className="ew-panel">
@@ -172,9 +184,15 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
             </button>
           </div>
           {showContactForm && (
-            <div className="ew-contact">
+            <form
+              className="ew-contact"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void sendContact();
+              }}
+            >
               <div className="ew-contact-head">
-                <UserRound size={13} />
+                <UserRound size={14} />
                 <span>{t('embed.contactTitle')}</span>
               </div>
               <input
@@ -199,7 +217,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
               />
               <div className="ew-contact-actions">
                 <button
-                  onClick={() => void sendContact()}
+                  type="submit"
                   disabled={sendingContact}
                   className="ew-btn-primary"
                   style={{ backgroundColor: accent }}
@@ -207,13 +225,14 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
                   {t('embed.contactStart')}
                 </button>
                 <button
+                  type="button"
                   onClick={() => void sendContact()}
                   className="ew-btn-ghost"
                 >
                   {t('embed.contactSkip')}
                 </button>
               </div>
-            </div>
+            </form>
           )}
           <div className="ew-messages">
             {offline && (
@@ -240,6 +259,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
           </div>
           <div className="ew-composer">
             <input
+              ref={inputRef}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
@@ -253,6 +273,9 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
             />
             <button
               onClick={() => void send()}
+              disabled={!draft.trim()}
+              aria-label={t('embed.send', 'Send')}
+              title={t('embed.send', 'Send')}
               className="ew-send"
               style={{ backgroundColor: accent }}
             >
@@ -263,7 +286,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
       )}
       <button
         onClick={() => setOpen((v) => !v)}
-        aria-label={t('embed.openChat')}
+        aria-label={open ? t('embed.close') : t('embed.openChat')}
         className="ew-fab"
         style={{ backgroundColor: accent }}
       >
