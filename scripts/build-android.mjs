@@ -141,6 +141,41 @@ function patchManifest() {
   log.info('AndroidManifest.xml patched');
 }
 
+// TwaGenerator emits a pristine bubblewrap build.gradle whose release
+// buildType is only `minifyEnabled true`. Play's R8 recommendation needs
+// resource shrinking + the optimize proguard pipeline. Like the manifest
+// patch, this must run after createProject() because the generator rewrites
+// the whole android/ dir on every run.
+function patchBuildGradle() {
+  banner('Patching build.gradle for R8 (shrinkResources + optimize)');
+  const gradlePath = path.join(ANDROID_DIR, 'app', 'build.gradle');
+  if (!fs.existsSync(gradlePath)) throw new Error(`build.gradle not found: ${gradlePath}`);
+  let gradle = fs.readFileSync(gradlePath, 'utf-8');
+
+  gradle = gradle.replace(
+    /(\brelease\s*\{\s*)(minifyEnabled\s+true)/,
+    '$1minifyEnabled true\n            shrinkResources true\n            proguardFiles getDefaultProguardFile(\'proguard-android-optimize.txt\'), \'proguard-rules.pro\'',
+  );
+
+  // R8 with optimize mode can strip reflection- / manifest-meta-data-driven
+  // custom-tabs classes; bubblewrap's DelegationService & trusted components
+  // must survive. The generator wipes the android/ dir each run, so recreate
+  // the rules file only when it is gone (checked-in copy has richer keeps).
+  const rulesPath = path.join(ANDROID_DIR, 'app', 'proguard-rules.pro');
+  if (!fs.existsSync(rulesPath)) {
+    const rules = [
+      '# Mess&Anger TWA: bubblewrap / custom-tabs trusted components',
+      '-keep class com.google.androidbrowserhelper.** { *; }',
+      '-keep class androidx.browser.** { *; }',
+      '',
+    ].join('\n');
+    fs.writeFileSync(rulesPath, rules);
+  }
+
+  fs.writeFileSync(gradlePath, gradle);
+  log.info('build.gradle patched (shrinkResources + proguardFiles), proguard-rules.pro written');
+}
+
 async function buildAndroid() {
   banner('Building APK & AAB');
   const buildTools = findBuildTools();
@@ -265,6 +300,7 @@ async function main() {
     await createKeystore(await TwaManifest.fromFile(TWA_MANIFEST), config);
     await createProject(await TwaManifest.fromFile(TWA_MANIFEST));
     patchManifest();
+    patchBuildGradle();
 
     // Keytool is on PATH here (JAVA_HOME/bin) only sometimes; generate-assetlinks
     // resolves keytool itself. Runs after keystore exists.
