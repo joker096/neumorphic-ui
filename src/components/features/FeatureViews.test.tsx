@@ -31,6 +31,8 @@ vi.mock('../SettingsView', () => ({ SettingsView: ({ theme }: any) => <div data-
 vi.mock('../SystemPulsePlayer/SystemPulsePlayer', () => ({ SystemPulsePlayer: ({ theme }: any) => <div data-testid="system-pulse-player">SystemPulsePlayer</div> }));
 vi.mock('../RecordingsScreen', () => ({ RecordingsScreen: ({ theme }: any) => <div data-testid="recordings-screen">RecordingsScreen</div> }));
 vi.mock('../MeshRadar', () => ({ MeshRadar: ({ theme }: any) => <div data-testid="mesh-radar">MeshRadar</div> }));
+let capturedCallLogOpenContacts: (() => void) | undefined;
+vi.mock('../call/CallLogView', () => ({ CallLogView: ({ onBack, onOpenContacts }: any) => { capturedCallLogOpenContacts = onOpenContacts; return <div data-testid="call-log-view">CallLogView</div>; } }));
 let capturedOnOpenPremium: (() => void) | undefined;
 vi.mock('../crm/CrmView', () => ({ CrmView: ({ onOpenPremium }: any) => { capturedOnOpenPremium = onOpenPremium; return <div data-testid="crm-view">CrmView</div>; } }));
 vi.mock('../settings/PremiumSection', () => ({ PremiumSection: ({ onBack }: any) => { capturedPremiumBack = onBack; return <div data-testid="premium-section">PremiumSection</div>; } }));
@@ -135,5 +137,26 @@ describe('FeatureViews', () => {
     capturedOnStart?.('HelperBot');
     expect(onMessage).toHaveBeenCalledWith('HelperBot');
     expect(setView).toHaveBeenCalledWith('chats');
+  });
+
+  it('calls view View contacts navigates via setView (D5 mobile regress)', async () => {
+    const setView = vi.fn();
+    capturedCallLogOpenContacts = undefined;
+    render(<FeatureViews {...defaultProps} view="calls" setView={setView} />);
+    expect(await screen.findByTestId('call-log-view')).toBeInTheDocument();
+    expect(capturedCallLogOpenContacts).toBeTypeOf('function');
+    capturedCallLogOpenContacts?.();
+    expect(setView).toHaveBeenCalledWith('contacts');
+  });
+
+  it('settings callLog subview View contacts closes subview and navigates (D5 mobile regress)', async () => {
+    const setView = vi.fn();
+    const setSubView = vi.fn();
+    capturedCallLogOpenContacts = undefined;
+    render(<FeatureViews {...defaultProps} view="settings" subView="callLog" setView={setView} setSubView={setSubView} />);
+    expect(await screen.findByTestId('call-log-view')).toBeInTheDocument();
+    capturedCallLogOpenContacts?.();
+    expect(setSubView).toHaveBeenCalledWith(null);
+    expect(setView).toHaveBeenCalledWith('contacts');
   });
 });

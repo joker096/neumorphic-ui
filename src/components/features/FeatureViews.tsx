@@ -33,7 +33,6 @@ type FeatureViewsProps = {
   setView: (view: string) => void;
   goBack?: () => void;
   pushView?: (view: string, subView?: string | null) => void;
-  onNavigate?: (view: string) => void;
   onCall: (name: string, color?: string) => void;
   onVideoCall: (name: string, color?: string) => void;
   onMessage: (name: string, color?: string) => void;
@@ -68,7 +67,6 @@ export const FeatureViews = ({
   setView,
   goBack,
   pushView,
-  onNavigate,
   onCall,
   onVideoCall,
   onMessage,
@@ -103,7 +101,7 @@ export const FeatureViews = ({
       if (subView === 'callLog') {
         return (
           <Suspense fallback={<Loader />}>
-            <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} onOpenContacts={() => { setSubView?.(null); onNavigate?.('contacts'); }} />
+            <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} onOpenContacts={() => { setSubView?.(null); setView('contacts'); }} />
           </Suspense>
         );
       }
@@ -137,7 +135,7 @@ export const FeatureViews = ({
             onVideoCall={(name, color) => onVideoCall(name, color)}
             onMessage={(name, color) => {
               onMessage(name, color);
-              onNavigate?.("chats");
+              setView("chats");
             }}
           />
         </Suspense>
@@ -145,7 +143,7 @@ export const FeatureViews = ({
     case "calls":
       return (
         <Suspense fallback={<Loader />}>
-          <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} onOpenContacts={() => onNavigate?.('contacts')} />
+          <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} onOpenContacts={() => setView('contacts')} />
         </Suspense>
       );
     case "company":
@@ -157,7 +155,7 @@ export const FeatureViews = ({
             onVideoCall={(name, color) => onVideoCall(name, color)}
             onMessage={(name, color) => {
               onMessage(name, color);
-              onNavigate?.("chats");
+              setView("chats");
             }}
             onOpenPremium={() => {
               if (pushView) pushView("settings", "premium");

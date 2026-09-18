@@ -71,4 +71,12 @@ describe("AppChrome", () => {
     expect(screen.getByTestId("transport-indicator")).toHaveTextContent("connected:relayed");
     useAppStore.setState({ transportBackend: "direct" });
   });
+
+  it("indicator wrapper is touch-transparent (pointer-events-none) so header taps pass through (D4/D5 overlap regress)", () => {
+    render(<AppChrome isDark connectionStatus="connected" />);
+    const indicator = screen.getByTestId("transport-indicator");
+    const wrapper = indicator.parentElement as HTMLElement;
+    expect(wrapper.className).toContain("pointer-events-none");
+    expect(wrapper.className).toContain("[@media(hover:hover)]:pointer-events-auto");
+  });
 });
