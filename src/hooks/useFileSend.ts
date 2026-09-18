@@ -93,6 +93,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       fileName: file.name,
       fileSize: file.size,
       fileTransferId: transferId,
+      ts: Date.now(),
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       status: "queued",
       silent: opts.silent ?? false,

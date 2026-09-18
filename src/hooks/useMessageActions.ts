@@ -8,6 +8,7 @@ import { useI18n } from "../lib/i18n";
 import { getPendingMessages, markMessageSent, queueMessage, retryMessage, removeQueuedMessage, pruneExpiredQueuedMessages, MAX_QUEUE_RETRIES } from "../lib/messageQueue";
 import { encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
+import { persistVoiceBlob } from "../lib/voiceStore";
 import { useAppStore } from "../store";
 
 export function useMessageActions(
@@ -67,6 +68,7 @@ export function useMessageActions(
     const msg: any = {
       id: Date.now(),
       sender: "me",
+      ts: Date.now(),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       status: "queued",
       silent: silentMode,
@@ -94,14 +96,16 @@ export function useMessageActions(
     });
   }, [activeChat, setChats, setActiveChat]);
 
-  const sendVoiceMessage = useCallback((audioUrl: string, durationStr: string) => {
+  const sendVoiceMessage = useCallback((audioUrl: string, durationStr: string, blob?: Blob) => {
     if (!activeChat) return;
     if (isDNDEnabled() && !isPriorityContact(activeChat?.name || "")) {
       toast(t("chat.dndBlockedVoice", "Voice message blocked - DND is active. Priority contacts can bypass."), { duration: TOAST_DND_DURATION_MS });
       return;
     }
     const newMessage = buildNewMessage({ text: "", type: "audio", audioUrl, duration: durationStr });
+    newMessage.voiceId = String(newMessage.id);
     appendMessage(newMessage);
+    void persistVoiceBlob(newMessage.voiceId, blob ?? audioUrl);
     void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name }).catch(() => updateMessageStatus(newMessage.id, "failed"));
     setReplyTarget(null);
   }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t]);

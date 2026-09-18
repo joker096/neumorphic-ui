@@ -30,7 +30,7 @@ export interface ActiveChatWorkspaceArgs {
   savedMessages: any[];
   toggleSavedMessage?: (chat: any, message: any) => void;
   handleSendMessage: () => void;
-  sendVoiceMessage: (url: string, duration: string) => void;
+  sendVoiceMessage: (url: string, duration: string, blob?: Blob) => void;
   sendStickerMessage: (sticker: string) => void;
   handlePreviewCall: (name: string, color?: string, type?: string) => void;
   handlePreviewMessage: (name: string, color?: string) => void;
@@ -91,22 +91,6 @@ export function useActiveChatWorkspace(args: ActiveChatWorkspaceArgs) {
     onAttachImage: (newMessage: any) => {
       setChats((prevChats: any[]) => prevChats.map((chat: any) => chat.id === activeChat?.id ? { ...chat, history: [...(chat.history || []), newMessage] } : chat));
       setActiveChat((prev: any) => prev ? ({ ...prev, history: [...(prev.history || []), newMessage] }) : null);
-    },
-    onHoldRecord: () => {
-      if (!messageText) {
-        setVoiceNoteError("");
-        setIsRecordingVoice(true);
-      }
-    },
-    onReRecord: () => setIsRecordingVoice(true),
-    onPermissionDenied: (message: string) => {
-      setIsRecordingVoice(false);
-      setVoiceNoteError(message);
-    },
-    onSendVoice: (url: string, duration: string) => {
-      setIsRecordingVoice(false);
-      sendVoiceMessage(url, duration);
-      setVoiceNoteError("");
     },
     onToggleSchedulePopup: () => setShowSchedulePopup(!showSchedulePopup),
     onToggleSilent: () => setSilentMode(!silentMode),

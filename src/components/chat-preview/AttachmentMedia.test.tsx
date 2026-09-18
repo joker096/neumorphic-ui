@@ -125,3 +125,37 @@ describe('AttachmentMedia ftr1: receive path', () => {
     expect(await screen.findByText('Attachment unavailable')).toBeTruthy();
   });
 });
+
+describe('AttachmentMedia media layout', () => {
+  it('renders a plain image without the photo status chip', () => {
+    render(
+      <AttachmentMedia {...baseProps({ msg: { type: 'image', attachment: 'data:image/png;base64,x', text: '' } })} />,
+    );
+    const img = screen.getByAltText('chat.sharedImage');
+    expect(img.className).toContain('object-contain');
+    expect(img.className).not.toContain('object-cover');
+    expect(screen.queryByText('chat.filters.photo')).toBeNull();
+  });
+
+  it('renders a responsive 16:9 video thumbnail with a duration badge', () => {
+    render(
+      <AttachmentMedia {...baseProps({ msg: { type: 'video', thumb: 'data:image/png;base64,x', duration: '1:05' } })} />,
+    );
+    const thumb = screen.getByAltText('a11y.videoThumbnail');
+    expect(thumb.className).toContain('aspect-video');
+    expect(screen.getByText('1:05')).toBeTruthy();
+  });
+
+  it('tints the file tile by file kind', () => {
+    const { container, unmount } = render(
+      <AttachmentMedia {...baseProps({ msg: { type: 'file', attachment: '/x.xlsx', fileName: 'book.xlsx', fileSize: 100 } })} />,
+    );
+    expect(container.querySelector('[class*="bg-emerald-500/15"]')).not.toBeNull();
+    unmount();
+
+    const { container: pdfContainer } = render(
+      <AttachmentMedia {...baseProps({ msg: { type: 'file', attachment: '/x.pdf', fileName: 'report.pdf', fileSize: 100 } })} />,
+    );
+    expect(pdfContainer.querySelector('[class*="bg-rose-500/15"]')).not.toBeNull();
+  });
+});

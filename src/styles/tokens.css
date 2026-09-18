@@ -147,6 +147,8 @@
   --amber: #ffc85b;
   --waveform-played-self: #f0f2f5;
   --waveform-played-other: #6f7fff;
+  --waveform-unplayed-self: rgba(240,242,245,0.35);
+  --waveform-unplayed-other: rgba(111,127,255,0.45);
 
   --button-primary-bg: #6f7fff;
   --button-primary-text: #ffffff;
@@ -289,6 +291,8 @@
 
   --waveform-played-self: #0f172a;
   --waveform-played-other: #ea580c;
+  --waveform-unplayed-self: rgba(15,23,42,0.3);
+  --waveform-unplayed-other: rgba(234,88,12,0.35);
 
   --button-primary-bg: #ea580c;
   --button-primary-text: #ffffff;

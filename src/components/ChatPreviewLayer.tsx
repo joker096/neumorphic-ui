@@ -57,7 +57,7 @@ interface ChatPreviewLayerProps {
   draftTextByChat?: Record<string, string>;
   setDraftTextByChat?: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setChats?: (updater: any[] | ((prev: any[]) => any[])) => void;
-  sendVoiceMessage?: (audioUrl: string, durationStr: string) => void;
+  sendVoiceMessage?: (audioUrl: string, durationStr: string, blob?: Blob) => void;
   sendStickerMessage?: (sticker: string) => void;
   handleSendMessage?: () => void;
   onScheduleChange?: (value: string) => void;
@@ -66,16 +66,12 @@ interface ChatPreviewLayerProps {
   onToggleSchedulePopup?: () => void;
   onToggleSilent?: () => void;
   onToggleMorse?: () => void;
-  onHoldRecord?: () => void;
-  onReRecord?: () => void;
-  onPermissionDenied?: (message: string) => void;
-  onSendVoice?: (url: string, duration: string) => void;
   onToggleStickerPicker?: () => void;
   onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
 }
 
-export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onHoldRecord, onReRecord, onPermissionDenied,   onSendVoice, onToggleStickerPicker, onForward, onDelete }: ChatPreviewLayerProps) => {
+export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onToggleStickerPicker, onForward, onDelete }: ChatPreviewLayerProps) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const isMobile = useIsMobile();

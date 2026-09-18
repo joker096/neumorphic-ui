@@ -33,7 +33,7 @@ interface ChatInputAreaProps {
   eReplyTarget: any;
   setLocalReplyTarget: (v: any) => void;
   sendMessage: (attachment?: { url: string; type: 'image' | 'video' }) => void;
-  sendVoiceMessage?: (url: string, dur: string) => void;
+  sendVoiceMessage?: (url: string, dur: string, blob?: Blob) => void;
   sendStickerMessage?: (sticker: string) => void;
   handleImageAttach: (e: React.ChangeEvent<HTMLInputElement>, chat: any, onUpdateChat: any, silent: boolean) => void;
   onUpdateChat?: (chat: any) => void;
@@ -230,7 +230,7 @@ function ChatInputAreaImpl({
             enterKeyHint="send"
             spellCheck={!eMorseMode}
             className={`flex-1 min-w-0 bg-transparent outline-none border-none resize-none text-sm px-2 py-1.5 max-h-[120px] overflow-y-auto ${
-              isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-muted)]" : "text-slate-800 placeholder:text-slate-400"
+              isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]" : "text-slate-800 placeholder:text-slate-400"
             } ${eMorseMode ? "font-mono" : ""}`}
             style={inputStyle}
           />
@@ -266,16 +266,15 @@ function ChatInputAreaImpl({
             <LazyLiveVoiceRecorder
               isDark={isDark}
               onCancel={() => setIsRecordingVoiceFn2(false)}
-              onReRecord={() => setIsRecordingVoiceFn2(true)}
-              onPermissionDenied={(msg: string) => {
-                setIsRecordingVoiceFn2(false);
-                setVoiceNoteErrFn2(msg);
-              }}
-              onSend={(url, dur) => {
-                setIsRecordingVoiceFn2(false);
-                if (sendVoiceMessage) sendVoiceMessage(url, dur);
-                else setVoiceNoteErrFn2("");
-              }}
+               onPermissionDenied={(msg: string) => {
+                 setIsRecordingVoiceFn2(false);
+                 setVoiceNoteErrFn2(msg);
+               }}
+               onSend={(url, dur, blob) => {
+                 setIsRecordingVoiceFn2(false);
+                 if (sendVoiceMessage) sendVoiceMessage(url, dur, blob);
+                 else setVoiceNoteErrFn2("");
+               }}
               holdToRecord
             />
           </Suspense>

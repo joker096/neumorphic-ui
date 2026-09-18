@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { AlertTriangle, BellOff, Check, CheckCheck, Clock } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
-import { fuzzTime } from "../../utils/chatUtils";
+import { formatShortDate, fuzzTime } from "../../utils/chatUtils";
 
 interface MessageTimestampProps {
   msg: any;
@@ -17,10 +17,13 @@ export function MessageTimestamp({
   msg, isMe, isDark, stealthMode, deliveryReceipts, readReceipts, onRetry,
 }: MessageTimestampProps) {
   const { t } = useI18n();
+  const shortDate = typeof msg.ts === "number" ? formatShortDate(msg.ts) : "";
+  const timeLabel = stealthMode ? fuzzTime(msg.time, msg.id) : msg.time;
   return (
-    <div className={`message-meta flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide ${isMe && !isDark ? "text-orange-100" : ""} ${msg.type ? "px-2" : ""}`}>
+    <div className={`message-meta flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide ${msg.type ? "px-2" : ""}`}>
+      {shortDate && <span className="opacity-70">{shortDate === 'Yesterday' ? t('chat.yesterday', 'Yesterday') : shortDate}</span>}
       {msg.silent && <BellOff size={12} className="mr-0.5 opacity-60" />}
-      {stealthMode ? fuzzTime(msg.time, msg.id) : msg.time}
+      {timeLabel}
       {isMe && (
         <span className="inline-flex items-center">
           <AnimatePresence mode="wait">
@@ -36,7 +39,7 @@ export function MessageTimestamp({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.5 }}
                   transition={{ duration: 0.15 }}
-                  className="inline-flex items-center justify-center min-w-5 min-h-5 rounded-full text-[var(--danger)]"
+                  className="inline-flex items-center justify-center min-w-8 min-h-8 rounded-full text-[var(--danger)]"
                 >
                   <AlertTriangle size={12} strokeWidth={2.5} />
                 </motion.button>

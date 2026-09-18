@@ -36,7 +36,6 @@ export function useChatPreviewState(
   setShowSchedulePopup?: (show: boolean) => void,
   replyTarget?: any,
   setReplyTargetProp?: (target: any) => void,
-  sendVoiceMessage?: (audioUrl: string, durationStr: string) => void,
   sendStickerMessage?: (sticker: string) => void,
   handleSendMessageProp?: () => void,
   onScheduleChange?: (value: string) => void,
@@ -45,10 +44,6 @@ export function useChatPreviewState(
   onToggleSchedulePopup?: () => void,
   onToggleSilent?: () => void,
   onToggleMorse?: () => void,
-  onHoldRecord?: () => void,
-  onReRecord?: () => void,
-  onPermissionDenied?: (message: string) => void,
-  onSendVoice?: (url: string, duration: string) => void,
   onToggleStickerPicker?: () => void,
   setChats?: (updater: any[] | ((prev: any[]) => any[])) => void,
   setEditingContact?: (contact: any) => void,
@@ -174,6 +169,7 @@ export function useChatPreviewState(
       id: Date.now(),
       sender: "me",
       text: textToSend,
+      ts: Date.now(),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       status: "queued",
       silent: eSilentMode,
@@ -359,7 +355,7 @@ export function useChatPreviewState(
     let lastDateLabel = '';
     for (const group of groups) {
       const firstMsg = group.messages[0];
-      const dateLabel = formatDateLabel(firstMsg.time);
+      const dateLabel = formatDateLabel(firstMsg.time, firstMsg.ts);
       if (dateLabel !== lastDateLabel && items.length > 0) {
         items.push({ id: `sep-${dateLabel}`, _isDateSeparator: true, _dateLabel: dateLabel });
       }

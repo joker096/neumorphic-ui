@@ -4,11 +4,17 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { LiveVoiceRecorder } from './LiveVoiceRecorder';
 
+// jsdom lacks URL.createObjectURL; provide a deterministic stand-in.
+if (typeof URL.createObjectURL !== 'function') {
+  Object.defineProperty(URL, 'createObjectURL', {
+    value: () => 'blob:mock-voice',
+  });
+}
+
 const defaultProps = {
   isDark: true,
   onCancel: vi.fn(),
   onSend: vi.fn(),
-  onReRecord: vi.fn(),
   onPermissionDenied: vi.fn(),
   holdToRecord: true,
 };
@@ -132,31 +138,20 @@ describe('LiveVoiceRecorder', () => {
     expect(screen.getByTitle('Discard')).toBeInTheDocument();
   });
 
-  it('shows preview with Send, Re-record, Discard buttons', async () => {
-    const mockOnstop = vi.fn();
-    
+  it('sends the live blob with url and duration on stop', async () => {
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-voice');
     const MediaRecorderMock = vi.fn().mockImplementation(function(this: any, stream: MediaStream | null) {
-      Object.assign(this, {
-        start: vi.fn(),
-        stop: vi.fn(),
-        state: 'recording',
-        ondataavailable: null,
-        onstop: mockOnstop,
-        stream: stream || { getTracks: () => [{ stop: vi.fn() }] },
+      this.state = 'recording';
+      this.ondataavailable = null;
+      this.onstop = null;
+      this.stream = stream || { getTracks: () => [{ stop: vi.fn() }] };
+      this.start = vi.fn();
+      this.pause = vi.fn();
+      this.resume = vi.fn();
+      this.stop = vi.fn(function(this: any) {
+        const cb = this.onstop;
+        if (typeof cb === 'function') cb();
       });
-    });
-    Object.assign(MediaRecorderMock.prototype, {
-      start: vi.fn(),
-      stop: vi.fn(),
-      state: 'recording',
-      ondataavailable: null,
-      onstop: null,
-    });
-    
-    Object.defineProperty(navigator, 'mediaDevices', {
-      value: { getUserMedia: vi.fn().mockResolvedValue({ getTracks: () => [{ stop: vi.fn() }] }) },
-      writable: true,
-      configurable: true,
     });
     (window as any).MediaRecorder = MediaRecorderMock;
 
@@ -167,143 +162,20 @@ describe('LiveVoiceRecorder', () => {
     });
 
     fireEvent.click(screen.getByTitle('Stop and Send'));
-    
-    await waitFor(() => {
-      expect(screen.getByText('Send')).toBeInTheDocument();
-      expect(screen.getByText('Re-record')).toBeInTheDocument();
-      expect(screen.getByText('Discard')).toBeInTheDocument();
-    });
-  });
-
-  it('calls onSend when Send clicked in preview', async () => {
-    const mockOnstop = vi.fn();
-    
-    const MediaRecorderMock = vi.fn().mockImplementation(function(this: any, stream: MediaStream | null) {
-      Object.assign(this, {
-        start: vi.fn(),
-        stop: vi.fn(),
-        state: 'recording',
-        ondataavailable: null,
-        onstop: mockOnstop,
-        stream: stream || { getTracks: () => [{ stop: vi.fn() }] },
-      });
-    });
-    Object.assign(MediaRecorderMock.prototype, {
-      start: vi.fn(),
-      stop: vi.fn(),
-      state: 'recording',
-      ondataavailable: null,
-      onstop: null,
-    });
-    
-    Object.defineProperty(navigator, 'mediaDevices', {
-      value: { getUserMedia: vi.fn().mockResolvedValue({ getTracks: () => [{ stop: vi.fn() }] }) },
-      writable: true,
-      configurable: true,
-    });
-    (window as any).MediaRecorder = MediaRecorderMock;
-
-    render(<LiveVoiceRecorder {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
+      expect(defaultProps.onSend).toHaveBeenCalledWith('blob:mock-voice', '0:00', expect.any(Blob));
     });
-
-    fireEvent.click(screen.getByTitle('Stop and Send'));
-    
-    await waitFor(() => {
-      expect(screen.getByText('Send')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByText('Send'));
-    expect(defaultProps.onSend).toHaveBeenCalled();
-  });
-
-  it('calls onReRecord when Re-record clicked', async () => {
-    const mockOnstop = vi.fn();
-    
-    const MediaRecorderMock = vi.fn().mockImplementation(function(this: any, stream: MediaStream | null) {
-      Object.assign(this, {
-        start: vi.fn(),
-        stop: vi.fn(),
-        state: 'recording',
-        ondataavailable: null,
-        onstop: mockOnstop,
-        stream: stream || { getTracks: () => [{ stop: vi.fn() }] },
-      });
-    });
-    Object.assign(MediaRecorderMock.prototype, {
-      start: vi.fn(),
-      stop: vi.fn(),
-      state: 'recording',
-      ondataavailable: null,
-      onstop: null,
-    });
-    
-    Object.defineProperty(navigator, 'mediaDevices', {
-      value: { getUserMedia: vi.fn().mockResolvedValue({ getTracks: () => [{ stop: vi.fn() }] }) },
-      writable: true,
-      configurable: true,
-    });
-    (window as any).MediaRecorder = MediaRecorderMock;
-
-    render(<LiveVoiceRecorder {...defaultProps} />);
-
-    await waitFor(() => {
-      expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTitle('Stop and Send'));
-    
-    await waitFor(() => {
-      expect(screen.getByText('Re-record')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByText('Re-record'));
-    expect(defaultProps.onReRecord).toHaveBeenCalled();
   });
 
   it('calls onCancel when Discard clicked', async () => {
-    const mockOnstop = vi.fn();
-    
-    const MediaRecorderMock = vi.fn().mockImplementation(function(this: any, stream: MediaStream | null) {
-      Object.assign(this, {
-        start: vi.fn(),
-        stop: vi.fn(),
-        state: 'recording',
-        ondataavailable: null,
-        onstop: mockOnstop,
-        stream: stream || { getTracks: () => [{ stop: vi.fn() }] },
-      });
-    });
-    Object.assign(MediaRecorderMock.prototype, {
-      start: vi.fn(),
-      stop: vi.fn(),
-      state: 'recording',
-      ondataavailable: null,
-      onstop: null,
-    });
-    
-    Object.defineProperty(navigator, 'mediaDevices', {
-      value: { getUserMedia: vi.fn().mockResolvedValue({ getTracks: () => [{ stop: vi.fn() }] }) },
-      writable: true,
-      configurable: true,
-    });
-    (window as any).MediaRecorder = MediaRecorderMock;
-
     render(<LiveVoiceRecorder {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
+      expect(screen.getByTitle('Discard')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTitle('Stop and Send'));
-    
-    await waitFor(() => {
-      expect(screen.getByText('Discard')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByText('Discard'));
+    fireEvent.click(screen.getByTitle('Discard'));
     expect(defaultProps.onCancel).toHaveBeenCalled();
   });
 

@@ -1,13 +1,31 @@
 import { useEffect, useState } from "react";
-import { Play, FileText, ImageOff, VideoOff, Download } from "lucide-react";
+import {
+  Play, FileText, FileSpreadsheet, FileArchive, FileCode,
+  Image as ImageIcon, Music, Film, ImageOff, VideoOff, Download,
+  type LucideIcon,
+} from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { useAppStore } from "../../store";
 import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
 import { getTransferMeta, getTransferBlob } from "../../lib/fileTransfer/fileStore";
 import { sha256Hex } from "../../lib/fileTransfer/integrity";
 import { VoiceWaveform } from "./VoiceWaveform";
+import { useVoiceBlobUrl } from "../../hooks/useVoiceBlobUrl";
 import { formatSize } from "../../utils/formatSize";
+import { getFileKind, type FileKind } from "../../utils/fileType";
 import { StoryCard } from "../stories/StoryCard";
+
+const FILE_KIND_STYLE: Record<FileKind, { Icon: LucideIcon; tint: string }> = {
+  pdf: { Icon: FileText, tint: "bg-rose-500/15 text-rose-500" },
+  doc: { Icon: FileText, tint: "bg-sky-500/15 text-sky-500" },
+  sheet: { Icon: FileSpreadsheet, tint: "bg-emerald-500/15 text-emerald-500" },
+  image: { Icon: ImageIcon, tint: "bg-violet-500/15 text-violet-500" },
+  audio: { Icon: Music, tint: "bg-amber-500/15 text-amber-500" },
+  video: { Icon: Film, tint: "bg-fuchsia-500/15 text-fuchsia-500" },
+  archive: { Icon: FileArchive, tint: "bg-orange-500/15 text-orange-500" },
+  code: { Icon: FileCode, tint: "bg-cyan-500/15 text-cyan-500" },
+  other: { Icon: FileText, tint: "bg-slate-500/15 text-slate-400" },
+};
 
 /**
  * Page-level blob URL cache for `ftr1:` P2P transfers. The blob is assembled
@@ -39,6 +57,7 @@ export function AttachmentMedia({
   const [revealed, setRevealed] = useState(false);
   const [ftrReady, setFtrReady] = useState(false);
   const [ftrUrl, setFtrUrl] = useState<string | null>(null);
+  const voiceUrl = useVoiceBlobUrl(msg.voiceId, msg.audioUrl);
 
   const ftrId = typeof msg.attachment === "string" && msg.attachment.startsWith(FTR_MAGIC)
     ? (typeof msg.fileTransferId === "string" ? msg.fileTransferId : msg.attachment.slice(FTR_MAGIC.length))
@@ -124,7 +143,7 @@ export function AttachmentMedia({
   }
 
   if (msg.type === "audio") {
-    return <VoiceWaveform duration={msg.duration} isMe={isMe} isDark={isDark} audioUrl={msg.audioUrl} />;
+    return <VoiceWaveform duration={msg.duration} isMe={isMe} isDark={isDark} audioUrl={voiceUrl} />;
   }
 
   if (msg.type === "sticker") {
@@ -160,18 +179,17 @@ export function AttachmentMedia({
       );
     }
     return (
-      <>
-        <div
-          className="rounded-xl overflow-hidden mb-1 relative border border-[var(--border-color)] cursor-pointer"
-          onClick={() => { onSetActivePhotoUrl(src); onSetPhotoOpen(true); }}
-        >
-          <img src={src} alt={msg.text ? t("chat.sharedImageText", { text: msg.text }) : t("chat.sharedImage")} className="w-full h-auto object-cover max-h-[240px] sm:max-h-[280px] md:max-h-[320px]" onError={() => setMediaErr(true)} />
-        </div>
-        <div className={`mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}>
-          <span>{t('chat.filters.photo')}</span>
-          {src && <span className="opacity-70">{t('chat.filters.ready')}</span>}
-        </div>
-      </>
+      <div
+        className="rounded-[var(--message-radius)] overflow-hidden mb-1 relative border border-[var(--border-color)] cursor-pointer inline-block max-w-full"
+        onClick={() => { onSetActivePhotoUrl(src); onSetPhotoOpen(true); }}
+      >
+        <img
+          src={src}
+          alt={msg.text ? t("chat.sharedImageText", { text: msg.text }) : t("chat.sharedImage")}
+          className="block w-auto h-auto max-w-[320px] sm:max-w-[360px] md:max-w-[420px] max-h-[240px] sm:max-h-[300px] md:max-h-[360px] object-contain"
+          onError={() => setMediaErr(true)}
+        />
+      </div>
     );
   }
 
@@ -179,8 +197,14 @@ export function AttachmentMedia({
     if (ftrPending && !autoLoadBlocked) return ftrPendingRow;
     if (ftrReadyUrl) {
       return (
-        <div className="rounded-[12px] overflow-hidden mb-1 border border-[var(--border-color)]">
-          <video src={ftrUrl || undefined} controls playsInline className="w-full h-auto max-h-[240px] sm:max-h-[280px] md:max-h-[320px]" onError={() => setMediaErr(true)} />
+        <div className="rounded-[var(--message-radius)] overflow-hidden mb-1 border border-[var(--border-color)] inline-block max-w-full">
+          <video
+            src={ftrUrl || undefined}
+            controls
+            playsInline
+            className="block w-[320px] sm:w-[400px] max-w-full h-auto max-h-[240px] sm:max-h-[300px] md:max-h-[360px] bg-black"
+            onError={() => setMediaErr(true)}
+          />
         </div>
       );
     }
@@ -204,16 +228,21 @@ export function AttachmentMedia({
     }
     return (
       <div
-        className="rounded-[12px] overflow-hidden mb-1 relative border border-[var(--border-color)] group cursor-pointer"
+        className="rounded-[var(--message-radius)] overflow-hidden mb-1 relative border border-[var(--border-color)] group cursor-pointer inline-block max-w-full"
         onClick={() => onSetVideoOpen(true)}
       >
-        <img src={thumb} alt={t("a11y.videoThumbnail")} className="w-full h-auto sm:w-[180px] sm:h-[100px] md:w-[200px] md:h-[120px] object-cover opacity-80" onError={() => setMediaErr(true)} />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform">
-            <Play size={20} className="text-[var(--text-primary)] fill-white ml-1" />
+        <img
+          src={thumb}
+          alt={t("a11y.videoThumbnail")}
+          className="block aspect-video object-cover w-[240px] sm:w-[300px] md:w-[360px] max-w-full"
+          onError={() => setMediaErr(true)}
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/20">
+          <div className="w-12 h-12 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+            <Play size={22} className="text-white fill-white ml-1" />
           </div>
         </div>
-        <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded text-xs font-bold text-[var(--text-primary)] tracking-wider">{msg.duration}</div>
+        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-semibold text-white tracking-wider">{msg.duration}</div>
       </div>
     );
   }
@@ -222,10 +251,11 @@ export function AttachmentMedia({
     const size = typeof msg.fileSize === "number" && msg.fileSize > 0 ? formatSize(msg.fileSize) : null;
     const sub = [msg.text, size].filter(Boolean).join("  ·  ");
     const ftrUnavailable = Boolean(ftrId) && !ftrReadyUrl && !ftrPending;
+    const { Icon: KindIcon, tint: kindTint } = FILE_KIND_STYLE[getFileKind(msg.fileName, msg.mime)];
     return (
       <div className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 ${isDark ? "bg-white/5 border-[var(--border-color)]" : "bg-slate-100 border-[var(--border-color)]"}`}>
-        <div className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center ${isDark ? "bg-white/10 text-gray-300" : "bg-white text-slate-500"}`}>
-          <FileText size={18} />
+        <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${kindTint}`}>
+          <KindIcon size={20} />
         </div>
         <div className="min-w-0">
           <div className="text-sm font-medium truncate">{msg.fileName || t("chat.file")}</div>

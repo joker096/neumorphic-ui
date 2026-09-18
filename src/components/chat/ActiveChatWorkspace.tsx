@@ -37,7 +37,7 @@ type ActiveChatWorkspaceProps = {
   setSilentMode: (enabled: boolean) => void;
   setMorseMode: (enabled: boolean) => void;
   handleSendMessage: () => void;
-  sendVoiceMessage: (audioUrl: string, durationStr: string) => void;
+  sendVoiceMessage: (audioUrl: string, durationStr: string, blob?: Blob) => void;
   sendStickerMessage: (sticker: string) => void;
   savedMessages: any[];
   onToggleSavedMessage: (chatContext: any, message: any) => void;
@@ -47,10 +47,6 @@ type ActiveChatWorkspaceProps = {
   setEditingContact: (contact: any | null) => void;
   onToggleMute: () => void;
   onAttachImage: (message: any) => void;
-  onHoldRecord: () => void;
-  onReRecord: () => void;
-  onPermissionDenied: (message: string) => void;
-  onSendVoice: (url: string, duration: string) => void;
   onToggleSchedulePopup: () => void;
   onToggleSilent: () => void;
   onToggleMorse: () => void;
@@ -93,10 +89,6 @@ export const ActiveChatWorkspace = ({
   setEditingContact,
   onToggleMute,
   onAttachImage,
-  onHoldRecord,
-  onReRecord,
-  onPermissionDenied,
-  onSendVoice,
   onToggleSchedulePopup,
   onToggleSilent,
   onToggleMorse,
@@ -150,10 +142,6 @@ export const ActiveChatWorkspace = ({
       onToggleSchedulePopup={onToggleSchedulePopup}
       onToggleSilent={onToggleSilent}
       onToggleMorse={onToggleMorse}
-      onHoldRecord={onHoldRecord}
-      onReRecord={onReRecord}
-      onPermissionDenied={onPermissionDenied}
-      onSendVoice={onSendVoice}
         onToggleStickerPicker={() => setShowStickerPicker(!showStickerPicker)}
       />
     </Suspense>

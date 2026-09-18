@@ -15,11 +15,20 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
   const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const durationSec = duration ? duration.split(':').reduce((acc, time) => (60 * acc) + +time, 0) : 0;
+  const widthClass = stream
+    ? 'w-full'
+    : durationSec < 15
+      ? 'w-[170px]'
+      : durationSec < 45
+        ? 'w-[220px]'
+        : durationSec < 120
+          ? 'w-[280px]'
+          : 'w-[320px]';
 
   const {
-    isPlaying, progress, isReady, staticWave,
+    isPlaying, progress, isReady, loadError, staticWave,
     analyserRef, audioCtxRef, startTimeRef, animationRef,
-    togglePlayback, handleSeek, updateProgress,
+    togglePlayback, handleSeek,
   } = useVoiceWaveformAudio(audioUrl, stream, durationSec);
 
   useEffect(() => {
@@ -38,7 +47,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
     const height = rect.height;
     const gap = 2;
     const playedColor = isMe ? 'var(--waveform-played-self)' : 'var(--waveform-played-other)';
-    const unplayedColor = isMe ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)';
+    const unplayedColor = isMe ? 'var(--waveform-unplayed-self)' : 'var(--waveform-unplayed-other)';
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
@@ -84,7 +93,6 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
         if (isPlaying && audioCtxRef.current) {
           currentProgress = ((audioCtxRef.current.currentTime - startTimeRef.current) % durationSec) / durationSec;
         }
-        updateProgress();
 
         const bars = staticWave.length || 40;
         const barWidth = width / bars;
@@ -134,13 +142,26 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
     };
   }, [isMe, progress, isPlaying, staticWave, durationSec]);
 
+  const elapsedSec = Math.round((progress || 0) * durationSec);
+  const formatClock = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+  const timeLabel = isPlaying || progress > 0.001 ? formatClock(elapsedSec) : duration;
+
   return (
-    <div className={`flex items-center gap-3 ${stream ? 'w-full' : 'w-[160px] sm:w-[220px]'}`}>
+    <div className={`flex items-center gap-3 max-w-full ${widthClass}`}>
       {!stream && (
-        <div
-          onClick={(e) => { e.stopPropagation(); togglePlayback(); }}
-          title={isPlaying ? t('systemPlayer.pause') : t('systemPlayer.play')}
-          className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer flex-shrink-0 transition-transform active:scale-95 ${
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); if (isReady) togglePlayback(); }}
+          disabled={!isReady}
+          aria-label={loadError ? t('chat.voiceUnavailable', 'Voice message unavailable') : isPlaying ? t('systemPlayer.pause') : t('systemPlayer.play')}
+          title={loadError ? t('chat.voiceUnavailable', 'Voice message unavailable') : isPlaying ? t('systemPlayer.pause') : t('systemPlayer.play')}
+          className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-transform active:scale-95 ${
+            isReady ? 'cursor-pointer' : 'cursor-default opacity-50'
+          } ${
               isMe
               ? "bg-white/20 hover:bg-white/30 text-[var(--text-primary)]"
               : "bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-[0_0_15px_rgba(249,115,22,0.4)]"
@@ -151,7 +172,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
           ) : (
              <Play size={18} className="ml-1 fill-current" />
           )}
-        </div>
+        </button>
       )}
 
       <div className="flex-1 flex flex-col justify-center">
@@ -160,11 +181,14 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
            className="w-full h-8 block"
          />
          {!stream && (
-           <div className={`text-xs font-bold mt-1 tracking-wider ${isMe ? "text-orange-200" : "text-gray-500"}`}>
-             {duration}
+           <div className={`text-xs font-bold mt-1 tracking-wider tabular-nums ${isMe ? "text-orange-200" : isDark ? "text-gray-400" : "text-slate-500"}`}>
+             {timeLabel}
            </div>
          )}
-         {!stream && audioUrl && (
+         {!stream && loadError && (
+           <div className="text-xs font-medium mt-1 text-rose-400">{t('chat.voiceUnavailable', 'Voice message unavailable')}</div>
+         )}
+         {!stream && !loadError && audioUrl && (
             <input
                data-testid="seek-slider"
                aria-label={t("a11y.seekVoiceNote")}

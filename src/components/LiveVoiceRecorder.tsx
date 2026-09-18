@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, type PanInfo } from 'motion/react';
-import { Mic, Square, Trash2, Send, Pause, Play, RotateCcw } from 'lucide-react';
+import { Mic, Square, Trash2, Send, Pause, Play } from 'lucide-react';
 import { VoiceWaveform } from './chat-preview/VoiceWaveform';
 import { useI18n } from '../lib/i18n';
 
 interface LiveVoiceRecorderProps {
    onCancel: () => void;
-   onSend: (audioUrl: string, durationStr: string) => void;
-   onReRecord: () => void;
+   onSend: (audioUrl: string, durationStr: string, blob: Blob) => void;
    onPermissionDenied?: (message: string) => void;
    holdToRecord?: boolean;
    isDark?: boolean;
   }
 
-export const LiveVoiceRecorder = ({ onCancel, onSend, onReRecord, onPermissionDenied, holdToRecord = true }: LiveVoiceRecorderProps) => {
+export const LiveVoiceRecorder = ({ onCancel, onSend, onPermissionDenied, holdToRecord = true }: LiveVoiceRecorderProps) => {
     const { t } = useI18n();
     const label = (key: string, fallback: string) => {
       const translated = t(key);
@@ -23,8 +22,6 @@ export const LiveVoiceRecorder = ({ onCancel, onSend, onReRecord, onPermissionDe
     const [duration, setDuration] = useState(0);
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [isPaused, setIsPaused] = useState(false);
-    const [showPreview, setShowPreview] = useState(false);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<BlobPart[]>([]);
@@ -72,20 +69,6 @@ const removeStopListeners = () => {
         }
      };
 
-     const handleStopRecording = () => {
-        removeStopListeners();
-        setIsRecording(false);
-        if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
-           mediaRecorderRef.current.stop();
-           // Use chunksRef which collects the recorded audio data
-           const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-           const url = URL.createObjectURL(blob);
-           setPreviewUrl(url);
-           setShowPreview(true);
-           mediaRecorderRef.current.stream?.getTracks().forEach(t => t.stop());
-        }
-     };
-
     const startRecording = async () => {
        try {
           const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -100,13 +83,14 @@ const removeStopListeners = () => {
              if (e.data.size > 0) chunksRef.current.push(e.data);
           };
           
-          mr.onstop = () => {
-             const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-             const url = URL.createObjectURL(blob);
-             const m = Math.floor(durationRef.current / 60);
-             const s = durationRef.current % 60;
-             onSend(url, `${m}:${s.toString().padStart(2, '0')}`);
-          };
+           mr.onstop = () => {
+              // Use chunksRef which collects the recorded audio data
+              const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+              const url = URL.createObjectURL(blob);
+              const m = Math.floor(durationRef.current / 60);
+              const s = durationRef.current % 60;
+              onSend(url, `${m}:${s.toString().padStart(2, '0')}`, blob);
+           };
 
           mr.start(100);
           setIsRecording(true);
@@ -145,44 +129,9 @@ const removeStopListeners = () => {
        return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
-return (
-       showPreview && previewUrl ? (
-          // Preview mode after recording
-          <div className={`w-full flex flex-col gap-3 bg-[var(--bg-primary)] rounded-md px-2 py-3`}>
-             <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)]">{label('voiceRecorder.preview', 'PREVIEW')}</span>
-             </div>
-             <div className="flex items-center gap-2">
-                <VoiceWaveform audioUrl={previewUrl} isMe={true} />
-             </div>
-             <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                    <button onClick={onReRecord} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full text-xs font-bold bg-red-500/20 text-red-400 hover:bg-red-500/30`} title={label('voiceRecorder.rerecord', 'Re-record')} aria-label={label('voiceRecorder.rerecord', 'Re-record')}>
-                         <RotateCcw size={18} />
-                         <span className="sr-only">{label('voiceRecorder.rerecord', 'Re-record')}</span>
-                     </button>
-                     <button onClick={onCancel} className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full text-xs font-bold neu-button`} title={label('voiceRecorder.discard', 'Discard')} aria-label={label('voiceRecorder.discard', 'Discard')}>
-                        <Trash2 size={18} />
-                        <span className="sr-only">{label('voiceRecorder.discard', 'Discard')}</span>
-                     </button>
-                </div>
-                <button 
-                   onClick={() => {
-                      const m = Math.floor(duration / 60);
-                      const s = duration % 60;
-                      const url = previewUrl;
-                      onSend(url, `${m}:${s.toString().padStart(2, '0')}`);
-                   }}
-                    className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full text-xs font-bold bg-orange-500 text-[var(--text-primary)] shadow-md"
-                      title={label('voiceRecorder.send', 'Send')} aria-label={label('voiceRecorder.send', 'Send')}
-                   >
-                      <Send size={18} />
-                      <span className="sr-only">{label('voiceRecorder.send', 'Send')}</span>
-                    </button>
-             </div>
-          </div>
-        ) : (
-           // Recording mode with swipe-to-cancel
+ return (
+        (
+            // Recording mode with swipe-to-cancel
            <div className={`w-full bg-[var(--bg-primary)] rounded-md px-1 relative overflow-hidden`}>
              <motion.div
                drag="y"
@@ -224,16 +173,16 @@ onDragEnd={(_: unknown, info: PanInfo) => {
                           {isPaused ? <Play size={16} /> : <Pause size={16} />}
                        </button>
                   )}
-                 <button 
-                     onClick={handleStopRecording}
+                  <button 
+                      onClick={handleStopAndSend}
                      className="w-10 h-10 min-w-11 min-h-11 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[0_0_10px_rgba(249,115,22,0.5)]"
                      title={label('voiceRecorder.stopAndSend', 'Stop and Send')}
                   >
                      <Send size={18} className="-ml-0.5" />
                   </button>
               </div>
-             </motion.div>
-           </div>
+              </motion.div>
+            </div>
         )
     );
 };

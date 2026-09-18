@@ -58,6 +58,7 @@ describe('VoiceWaveform', () => {
     
     (window as any).AudioContext = MockAudioContextClass;
     (window as any).webkitAudioContext = MockAudioContextClass;
+    mockAudioContext.currentTime = 0;
     
     // Mock fetch
     vi.spyOn(window, 'fetch').mockImplementation((url: any) => {
@@ -150,12 +151,27 @@ describe('VoiceWaveform', () => {
     });
   });
 
-  it('uses fallback waveform when no audioUrl or stream', async () => {
+  it('does not synthesize audio when no source is available', async () => {
     render(<VoiceWaveform isDark={true} duration="0:12" />);
 
     await waitFor(() => {
-      expect(mockAudioContext.createBuffer).toHaveBeenCalled();
+      expect(screen.getByText('0:12')).toBeInTheDocument();
     });
+    expect(mockAudioContext.createBuffer).not.toHaveBeenCalled();
+    expect(screen.getByRole('button')).toBeDisabled();
+  });
+
+  it('surfaces an unavailable voice note instead of playing noise', async () => {
+    mockAudioContext.decodeAudioData.mockRejectedValueOnce(new Error('decode failed'));
+
+    render(<VoiceWaveform isDark={true} audioUrl="blob:dead" duration="0:05" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('chat.voiceUnavailable')).toBeInTheDocument();
+    });
+    expect(mockAudioContext.createBuffer).not.toHaveBeenCalled();
+    expect(screen.getByRole('button')).toBeDisabled();
+    expect(screen.queryByTestId('seek-slider')).not.toBeInTheDocument();
   });
 
   it('cleans up audio context on unmount', () => {
@@ -201,6 +217,40 @@ describe('VoiceWaveform', () => {
     // Wait for the slider to appear
     await waitFor(() => {
       expect(screen.getByTestId('seek-slider')).toBeInTheDocument();
+    });
+  });
+
+  it('scales the waveform width with the clip duration', () => {
+    const cases: Array<[string, string]> = [
+      ['0:12', 'w-[170px]'],
+      ['0:30', 'w-[220px]'],
+      ['1:30', 'w-[280px]'],
+      ['3:00', 'w-[320px]'],
+    ];
+    for (const [duration, width] of cases) {
+      const { container, unmount } = render(<VoiceWaveform isDark={true} duration={duration} />);
+      expect(container.firstChild).toHaveClass(width);
+      unmount();
+    }
+  });
+
+  it('keeps live stream waveforms full width', () => {
+    const { container } = render(<VoiceWaveform isDark={true} stream={mockStream as any} />);
+    expect(container.firstChild).toHaveClass('w-full');
+  });
+
+  it('switches the duration label to an elapsed clock once progress advances', async () => {
+    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button')).toBeEnabled();
+    });
+    expect(screen.getByText('0:12')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId('seek-slider'), { target: { value: '50' } });
+
+    await waitFor(() => {
+      expect(screen.getByText('0:06')).toBeInTheDocument();
     });
   });
 });

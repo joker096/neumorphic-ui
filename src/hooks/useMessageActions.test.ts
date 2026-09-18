@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useMessageActions } from './useMessageActions';
 import { queueMessage } from '../lib/messageQueue';
+import { persistVoiceBlob } from '../lib/voiceStore';
+
+vi.mock('../lib/voiceStore', () => ({
+  persistVoiceBlob: vi.fn().mockResolvedValue(undefined),
+}));
 
 vi.mock('../lib/messageQueue', () => ({
   queueMessage: vi.fn().mockResolvedValue('queued-id'),
@@ -98,16 +103,19 @@ describe('useMessageActions (offline-first queue)', () => {
     await waitFor(() => expect(state.chats[0].history.at(-1).status).toBe('sent'));
   });
 
-  it('queues voice and sticker sends when offline', () => {
+  it('queues voice and sticker sends when offline and persists the live blob', () => {
     setOnLine(false);
     const { state, result } = setup({ id: 'dm-1', name: 'Bob', history: [] }, '');
+    const liveBlob = new Blob(['voice-bytes'], { type: 'audio/webm' });
 
-    act(() => result.current.sendVoiceMessage('blob:audio', '0:05'));
+    act(() => result.current.sendVoiceMessage('blob:audio', '0:05', liveBlob));
     act(() => result.current.sendStickerMessage('sticker-1'));
 
     expect(queueMessage).toHaveBeenNthCalledWith(1, expect.objectContaining({ chatId: 'dm-1', status: 'queued', type: 'audio' }));
     expect(queueMessage).toHaveBeenNthCalledWith(2, expect.objectContaining({ chatId: 'dm-1', status: 'queued', type: 'sticker' }));
     expect(state.activeChat.history.at(-2).status).toBe('queued');
+    expect(state.activeChat.history.at(-2).voiceId).toEqual(expect.any(String));
+    expect(persistVoiceBlob).toHaveBeenCalledWith(state.activeChat.history.at(-2).voiceId, liveBlob);
     expect(state.activeChat.history.at(-1).status).toBe('queued');
   });
 

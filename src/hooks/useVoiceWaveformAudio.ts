@@ -4,6 +4,7 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isReady, setIsReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [staticWave, setStaticWave] = useState<number[]>([]);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -45,36 +46,12 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
           bufferRef.current = await ctx.decodeAudioData(arrayBuffer);
           setIsReady(true);
         } catch {
-          const sampleRate = ctx.sampleRate;
-          const length = Math.max(1, sampleRate * (durationSec || 1));
-          const fallbackBuffer = ctx.createBuffer(1, length, sampleRate);
-          const data = fallbackBuffer.getChannelData(0);
-          let lastOut = 0;
-          for (let i = 0; i < length; i++) {
-            const white = (Math.random() * 2 - 1) * 0.5;
-            lastOut = lastOut + (0.05 * (white - lastOut));
-            let envelope = Math.abs(Math.sin((i / sampleRate) * 2));
-            if (Math.sin((i / sampleRate) * 5) < -0.5) envelope = 0.05;
-            data[i] = lastOut * envelope;
-          }
-          bufferRef.current = fallbackBuffer;
-          setIsReady(true);
+          // Never synthesize audio: unavailable source must stay silent and be
+          // surfaced as unavailable instead of playing noise.
+          if (!active) return;
+          setLoadError(true);
+          setIsReady(false);
         }
-      } else {
-        const sampleRate = ctx.sampleRate;
-        const length = Math.max(1, sampleRate * (durationSec || 1));
-        const buffer = ctx.createBuffer(1, length, sampleRate);
-        const data = buffer.getChannelData(0);
-        let lastOut = 0;
-        for (let i = 0; i < length; i++) {
-          const white = (Math.random() * 2 - 1) * 0.5;
-          lastOut = lastOut + (0.05 * (white - lastOut));
-          let envelope = Math.abs(Math.sin((i / sampleRate) * 2));
-          if (Math.sin((i / sampleRate) * 5) < -0.5) envelope = 0.05;
-          data[i] = lastOut * envelope;
-        }
-        bufferRef.current = buffer;
-        setIsReady(true);
       }
     };
 
@@ -171,10 +148,26 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
     setProgress(p);
   };
 
+  useEffect(() => {
+    if (!isPlaying || stream || !durationSec) return;
+    const tick = () => {
+      if (!seekingRef.current && audioCtxRef.current) {
+        const p = ((audioCtxRef.current.currentTime - startTimeRef.current) % durationSec) / durationSec;
+        setProgress(p);
+      }
+      animationRef.current = requestAnimationFrame(tick);
+    };
+    animationRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [isPlaying, stream, durationSec]);
+
   return {
     isPlaying,
     progress,
     isReady,
+    loadError,
     staticWave,
     analyserRef,
     audioCtxRef,

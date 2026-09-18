@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback } from "react";
 
 export interface MessageActions {
   handleSendMessage: () => void;
-  sendVoiceMessage: (url: string, duration: string) => void;
+  sendVoiceMessage: (url: string, duration: string, blob?: Blob) => void;
   sendStickerMessage: (sticker: string) => void;
   handlePreviewCall: (name: string, color?: string, type?: string) => void;
   handlePreviewMessage: (name: string, color?: string) => void;
@@ -23,7 +23,7 @@ export function useRefMessageActions(actions: MessageActions) {
 
   return {
     handleSendMessageRef: useCallback(() => handleSendMessageRef.current(), [handleSendMessageRef]) as () => void,
-    sendVoiceMessageRef: useCallback((url: string, duration: string) => sendVoiceMessageRef.current(url, duration), [sendVoiceMessageRef]) as (url: string, duration: string) => void,
+    sendVoiceMessageRef: useCallback((url: string, duration: string, blob?: Blob) => sendVoiceMessageRef.current(url, duration, blob), [sendVoiceMessageRef]) as (url: string, duration: string, blob?: Blob) => void,
     sendStickerMessageRef: useCallback((sticker: string) => sendStickerMessageRef.current(sticker), [sendStickerMessageRef]) as (sticker: string) => void,
     handlePreviewCallRef: useCallback((name: string, color?: string, type?: string) => handlePreviewCallRef.current(name, color, type), [handlePreviewCallRef]) as (name: string, color?: string, type?: string) => void,
     handlePreviewMessageRef: useCallback((name: string, color?: string) => handlePreviewMessageRef.current(name, color), [handlePreviewMessageRef]) as (name: string, color?: string) => void,

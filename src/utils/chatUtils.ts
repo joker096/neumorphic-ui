@@ -25,7 +25,21 @@ export function groupMessages(history: any[]): { messages: any[]; groupPositions
   return groups
 }
 
-export function formatDateLabel(timeStr: string): string {
+export function dayDiffFromNow(ts: number): number {
+  const now = new Date()
+  const startOfDay = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime()
+  return Math.round((startOfDay(now) - startOfDay(new Date(ts))) / (1000 * 60 * 60 * 24))
+}
+
+export function formatDateLabel(timeStr: string, ts?: number): string {
+  if (typeof ts === 'number') {
+    const now = new Date()
+    const diffDays = dayDiffFromNow(ts)
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    const d = new Date(ts)
+    return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: now.getFullYear() !== d.getFullYear() ? 'numeric' : undefined })
+  }
   const match = timeStr.match(/(\d{1,2}):(\d{2})/)
   if (!match) return timeStr
   const now = new Date()
@@ -34,6 +48,13 @@ export function formatDateLabel(timeStr: string): string {
   if (diffDays === 0) return 'Today'
   if (diffDays === 1) return 'Yesterday'
   return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: now.getFullYear() !== d.getFullYear() ? 'numeric' : undefined })
+}
+
+export function formatShortDate(ts: number): string {
+  const diffDays = dayDiffFromNow(ts)
+  if (diffDays === 0) return ''
+  if (diffDays === 1) return 'Yesterday'
+  return new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
 }
 
 export function fuzzTime(timeStr: string, id: number): string {
