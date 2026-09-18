@@ -137,6 +137,10 @@ function patchManifest() {
     '<activity android:name="LauncherActivity"\n            android:supportsPictureInPicture="true"\n            android:windowSoftInputMode="adjustResize"\n            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard"',
   );
 
+  // AGP 9 errors on the legacy manifest package attribute (namespace is the
+  // single source of truth in build.gradle). Bubblewrap still emits it.
+  xml = xml.replace(/package="[^"]+"\s*/, '');
+
   fs.writeFileSync(manifestPath, xml);
   log.info('AndroidManifest.xml patched');
 }
@@ -154,7 +158,7 @@ function patchBuildGradle() {
 
   gradle = gradle.replace(
     /(\brelease\s*\{\s*)(minifyEnabled\s+true)/,
-    '$1minifyEnabled true\n            shrinkResources true\n            proguardFiles getDefaultProguardFile(\'proguard-android-optimize.txt\'), \'proguard-rules.pro\'',
+    '$1minifyEnabled = true\n            shrinkResources = true\n            proguardFiles getDefaultProguardFile(\'proguard-android-optimize.txt\'), \'proguard-rules.pro\'',
   );
 
   // R8 with optimize mode can strip reflection- / manifest-meta-data-driven
@@ -174,6 +178,41 @@ function patchBuildGradle() {
 
   fs.writeFileSync(gradlePath, gradle);
   log.info('build.gradle patched (shrinkResources + proguardFiles), proguard-rules.pro written');
+}
+
+// Play pre-launch recommendations require Android Gradle Plugin 9.0+ (and the
+// androidbrowserhelper 2.7.x line fixes the deprecated status/nav-bar APIs).
+// Bubblewrap still emits AGP 8.9 + jcenter + wrapper 8.11 + browserhelper 2.6.
+// The generator rewrites android/ each run, so all of this lives here.
+function patchGradleDeps() {
+  banner('Patching Gradle deps for AGP 9 + androidbrowserhelper 2.7.3');
+
+  const rootGradlePath = path.join(ANDROID_DIR, 'build.gradle');
+  let rootGradle = fs.readFileSync(rootGradlePath, 'utf-8');
+  rootGradle = rootGradle
+    .replace(/com\.android\.tools\.build:gradle:\d+\.\d+\.\d+/, 'com.android.tools.build:gradle:9.0.1')
+    .replaceAll('jcenter()', 'mavenCentral()');
+  fs.writeFileSync(rootGradlePath, rootGradle);
+
+  const appGradlePath = path.join(ANDROID_DIR, 'app', 'build.gradle');
+  let appGradle = fs.readFileSync(appGradlePath, 'utf-8');
+  appGradle = appGradle
+    // 2.7.3 declares minSdkVersion 23 and fixes deprecated Window bar-color APIs
+    .replace(/com\.google\.androidbrowserhelper:androidbrowserhelper:\d+\.\d+\.\d+/, 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.3')
+    .replace(/\bminSdkVersion \d+/, 'minSdkVersion 23')
+    // AGP 9 gates resValue behind an opt-in build feature
+    .replace(/(\bcompileOptions\s*\{)/, 'buildFeatures {\n            resValues = true\n        }\n    $1')
+    // Gradle 9 deprecates the Groovy space-assignment syntax (removed in 10)
+    .replace(/namespace "com\.messanger\.e2e"/, 'namespace = "com.messanger.e2e"')
+    .replace(/\bcheckReleaseBuilds\s+false/, 'checkReleaseBuilds = false');
+  fs.writeFileSync(appGradlePath, appGradle);
+
+  const wrapperPath = path.join(ANDROID_DIR, 'gradle', 'wrapper', 'gradle-wrapper.properties');
+  let wrapper = fs.readFileSync(wrapperPath, 'utf-8');
+  wrapper = wrapper.replace(/gradle-\d+\.\d+(?:\.\d+)?-bin\.zip/, 'gradle-9.1.0-bin.zip');
+  fs.writeFileSync(wrapperPath, wrapper);
+
+  log.info('Gradle deps patched (AGP 9.0.1, browserhelper 2.7.3, minSdk 23, resValues, wrapper 9.1.0)');
 }
 
 async function buildAndroid() {
@@ -301,6 +340,7 @@ async function main() {
     await createProject(await TwaManifest.fromFile(TWA_MANIFEST));
     patchManifest();
     patchBuildGradle();
+    patchGradleDeps();
 
     // Keytool is on PATH here (JAVA_HOME/bin) only sometimes; generate-assetlinks
     // resolves keytool itself. Runs after keystore exists.

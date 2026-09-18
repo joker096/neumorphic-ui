@@ -52,10 +52,10 @@ def twaManifest = [
 
 android {
     compileSdkVersion 36
-    namespace "com.messanger.e2e"
+    namespace = "com.messanger.e2e"
     defaultConfig {
         applicationId "com.messanger.e2e"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 36
         versionCode 5
         versionName "1.0.4"
@@ -144,17 +144,20 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    buildFeatures {
+        resValues = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     lintOptions {
-        checkReleaseBuilds false
+        checkReleaseBuilds = false
     }
 }
 
@@ -202,6 +205,6 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     
-        implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
+        implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.3'
     
 }
