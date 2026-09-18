@@ -15,11 +15,6 @@
     "justNow": "ahora mismo",
     "minutesAgo": "min"
   },
-  "pwa": {
-    "installHint": "Instala la app para abrirla a pantalla completa sin la barra del navegador",
-    "installButton": "Instalar",
-    "dismiss": "Descartar"
-  },
   "notif": {
     "blockedHint": "Bloqueado en la configuración del navegador. Habilita las notificaciones de este sitio allí y recarga la página.",
     "blocked": "Bloqueado",
@@ -258,6 +253,7 @@
     "photoAttachment": "Adjunto de foto",
     "attachment": "Adjunto",
     "attachmentUnavailable": "Adjunto no disponible",
+    "voiceUnavailable": "Mensaje de voz no disponible",
     "loadAttachment": "Cargar",
     "messageExpired": "Mensaje caducado",
     "save": "Guardar",

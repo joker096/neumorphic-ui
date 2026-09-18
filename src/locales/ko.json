@@ -15,11 +15,6 @@
     "justNow": "방금",
     "minutesAgo": "분 전"
   },
-  "pwa": {
-    "installHint": "앱을 설치하면 브라우저 주소 표시줄 없이 전체 화면으로 열립니다",
-    "installButton": "설치",
-    "dismiss": "힌트 닫기"
-  },
   "notif": {
     "blockedHint": "브라우저 설정에서 차단되었습니다. 해당 사이트의 알림을 허용한 뒤 새로고침하세요.",
     "blocked": "차단됨",
@@ -258,6 +253,7 @@
     "photoAttachment": "사진 첨부",
     "attachment": "첨부 파일",
     "attachmentUnavailable": "Attachment unavailable",
+    "voiceUnavailable": "음성 메시지를 사용할 수 없습니다",
     "loadAttachment": "불러오기",
     "messageExpired": "메시지가 만료됨",
     "save": "저장",

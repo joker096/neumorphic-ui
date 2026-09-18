@@ -15,11 +15,6 @@
     "justNow": "刚刚",
     "minutesAgo": "分钟前"
   },
-  "pwa": {
-    "installHint": "安装应用后，可全屏打开并隐藏浏览器地址栏",
-    "installButton": "安装",
-    "dismiss": "关闭提示"
-  },
   "notif": {
     "blockedHint": "已在浏览器设置中阻止。请允许此站点的通知，然后重新加载。",
     "blocked": "已屏蔽",
@@ -258,6 +253,7 @@
     "photoAttachment": "照片附件",
     "attachment": "附件",
     "attachmentUnavailable": "Attachment unavailable",
+    "voiceUnavailable": "语音消息不可用",
     "loadAttachment": "加载",
     "messageExpired": "消息已过期",
     "save": "保存",

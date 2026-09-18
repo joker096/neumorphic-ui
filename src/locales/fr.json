@@ -15,11 +15,6 @@
     "justNow": "à l'instant",
     "minutesAgo": "min"
   },
-  "pwa": {
-    "installHint": "Installez l'application pour l'ouvrir en plein écran sans la barre du navigateur",
-    "installButton": "Installer",
-    "dismiss": "Masquer"
-  },
   "notif": {
     "blockedHint": "Bloqué dans les paramètres du navigateur. Autorisez les notifications pour ce site, puis rechargez la page.",
     "blocked": "Bloqué",
@@ -258,6 +253,7 @@
     "photoAttachment": "Pièce jointe photo",
     "attachment": "Pièce jointe",
     "attachmentUnavailable": "Pièce jointe indisponible",
+    "voiceUnavailable": "Message vocal indisponible",
     "loadAttachment": "Charger",
     "messageExpired": "Message expiré",
     "save": "Enregistrer",

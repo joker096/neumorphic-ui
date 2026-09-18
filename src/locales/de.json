@@ -15,11 +15,6 @@
     "justNow": "gerade eben",
     "minutesAgo": "Min. ago"
   },
-  "pwa": {
-    "installHint": "Installiere die App, um sie ohne Browserleiste im Vollbildmodus zu öffnen",
-    "installButton": "Installieren",
-    "dismiss": "Hinweis ausblenden"
-  },
   "notif": {
     "blockedHint": "In den Browser-Einstellungen blockiert. Erlaube Benachrichtigungen für diese Seite dort, dann lade die Seite neu.",
     "blocked": "Blockiert",
@@ -258,6 +253,7 @@
     "photoAttachment": "Fotoanhang",
     "attachment": "Anhang",
     "attachmentUnavailable": "Anhang nicht verfügbar",
+    "voiceUnavailable": "Sprachnachricht nicht verfügbar",
     "loadAttachment": "Laden",
     "messageExpired": "Nachricht abgelaufen",
     "save": "Speichern",

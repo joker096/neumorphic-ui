@@ -15,11 +15,6 @@
     "justNow": "たった今",
     "minutesAgo": "分前"
   },
-  "pwa": {
-    "installHint": "アプリをインストールすると、ブラウザのバーなしでフルスクリーン表示できます",
-    "installButton": "インストール",
-    "dismiss": "ヒントを閉じる"
-  },
   "notif": {
     "blockedHint": "ブラウザ設定でブロックされています。サイトの通知を許可してから、ページを再読み込みしてください。",
     "blocked": "ブロック済み",
@@ -258,6 +253,7 @@
     "photoAttachment": "写真添付",
     "attachment": "添付ファイル",
     "attachmentUnavailable": "添付ファイルは利用できません",
+    "voiceUnavailable": "ボイスメッセージを再生できません",
     "loadAttachment": "読み込む",
     "messageExpired": "メッセージが失効しました",
     "save": "保存",

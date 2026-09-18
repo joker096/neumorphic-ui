@@ -4,7 +4,6 @@ import { AppMainContent } from "./AppMainContent";
 import { BottomNav } from "../navigation";
 import { EcoSidebarNav } from "../ecochat/EcoSidebarNav";
 import { OfflineBanner } from "../status/OfflineBanner";
-import { InstallAppBanner } from "../status/InstallAppBanner";
 import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
@@ -228,7 +227,6 @@ function AppShellImpl({
     <div data-theme={theme} data-font-size={fontSize} className={`w-full h-[100dvh] flex flex-col font-sans select-none overflow-hidden relative ${"bg-[var(--bg-primary)] text-[var(--text-primary)]"}`}>
       <div id="sr-region" aria-live="polite" role="status" className="sr-only" />
       <OfflineBanner t={t} />
-      <InstallAppBanner t={t} />
       <div className="flex-1 min-h-0 flex">
 
       {/* 3-column desktop layout: rail (76px) + resizable side list (240–480px) + main (flexible) */}

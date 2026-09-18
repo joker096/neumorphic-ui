@@ -15,11 +15,6 @@
     "justNow": "just now",
     "minutesAgo": "min ago"
   },
-  "pwa": {
-    "installHint": "Install the app to open it full-screen without the browser bar",
-    "installButton": "Install",
-    "dismiss": "Dismiss install hint"
-  },
   "notif": {
     "blockedHint": "Blocked in browser settings. Enable notifications for this site there, then reload.",
     "blocked": "Blocked",
@@ -258,6 +253,7 @@
     "photoAttachment": "Photo attachment",
     "attachment": "Attachment",
     "attachmentUnavailable": "Attachment unavailable",
+    "voiceUnavailable": "Voice message unavailable",
     "loadAttachment": "Load",
     "messageExpired": "Message expired",
     "save": "Save",
