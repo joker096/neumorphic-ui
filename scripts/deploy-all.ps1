@@ -17,7 +17,10 @@ param(
   [switch]$SkipDesktop,
   [string]$RelayProxyName = "signalling-relay-fallback",
   [string]$RelayProxyHost = "",
-  [switch]$SkipRelayProxy
+  [switch]$SkipRelayProxy,
+  [switch]$SkipVersionBump,
+  [string]$AndroidVersion = "",
+  [int]$AndroidVersionCode = 0
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,6 +56,9 @@ OPTIONS:
                    Falls back to $RelayProxyName.$env:CLOUDFLARE_ACCOUNT_ID.workers.dev when set.
                    Deploy via wrangler when CLOUDFLARE_API_TOKEN is set.
     -SkipRelayProxy Skip the Cloudflare relay-proxy seed step entirely
+   -SkipVersionBump Skip automatic Android version bump in config/android-publish.json
+   -AndroidVersion  Explicit appVersion for this deploy (default: auto patch bump, e.g. 1.0.5 → 1.0.6)
+   -AndroidVersionCode Explicit versionCode for this deploy (default: current + 1)
      -AdminUser     Admin username (or ADMIN_USER env)
     -AdminPass      Admin password (or ADMIN_PASS env, never logged)
    -Help          Show this help
@@ -127,6 +133,43 @@ if (-not $SkipRelayProxy) {
   }
 } else {
   Write-Host "`n━━━ Cloudflare relay proxy skipped (-SkipRelayProxy) ━━━" -ForegroundColor Yellow
+}
+
+# ────────────────────────────────────────────────────────────
+# Phase 0.5: Android version auto-bump
+# ────────────────────────────────────────────────────────────
+# config/android-publish.json is the single source of truth for the AAB/APK
+# version (docs/google-play.md). Bump it on every deploy so the Android
+# artifact always gets a fresh versionCode — Play rejects duplicate
+# versionCodes. Override with -AndroidVersion/-AndroidVersionCode,
+# disable entirely with -SkipVersionBump.
+if (-not $SkipVersionBump) {
+  if (-not $SkipAndroid) {
+    Write-Host "`n━━━ [0.5/5] Android Version Auto-Bump ━━━" -ForegroundColor Cyan
+    $PubConfigPath = "$RootDir/config/android-publish.json"
+    $pubConfig = Get-Content -LiteralPath $PubConfigPath | ConvertFrom-Json
+    $oldVer = $pubConfig.appVersion
+    $oldCode = [int]$pubConfig.appVersionCode
+    if ($AndroidVersion) {
+      $newVer = $AndroidVersion
+    } else {
+      $vParts = ($oldVer -split '\.')
+      if ($vParts.Count -lt 3 -or $vParts[2] -notmatch '^\d+$') {
+        throw "Cannot auto-bump appVersion '$oldVer': expected major.minor.patch. Set -AndroidVersion explicitly or use -SkipVersionBump."
+      }
+      $vParts[2] = [string]([int]$vParts[2] + 1)
+      $newVer = $vParts -join '.'
+    }
+    $newCode = if ($AndroidVersionCode -gt 0) { $AndroidVersionCode } else { $oldCode + 1 }
+    $pubConfig.appVersion = $newVer
+    $pubConfig.appVersionCode = $newCode
+    $pubConfig | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $PubConfigPath -Encoding utf8
+    Write-Host "  ✓ Android version $oldVer (code $oldCode) → $newVer (code $newCode)" -ForegroundColor Green
+  } else {
+    Write-Host "`n━━━ Android version bump skipped (-SkipAndroid) ━━━" -ForegroundColor Yellow
+  }
+} else {
+  Write-Host "`n━━━ Android version bump skipped (-SkipVersionBump) ━━━" -ForegroundColor Yellow
 }
 
 # ────────────────────────────────────────────────────────────

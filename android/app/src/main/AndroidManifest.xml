@@ -19,8 +19,8 @@
      to an Activity by ".MyActivity" instead of the full name. If more Activities are added to the
      application, the package attribute will need to reflect the correct path in order to use
      the abbreviated format. -->
-<!-- AGP 9: package attribute removed — namespace in app/build.gradle is source of truth. -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    >
 
     
         <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
