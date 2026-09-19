@@ -33,7 +33,7 @@ test.describe('Group management', () => {
 
     // Invite link card
     await expect(page.getByText('Invite link')).toBeVisible();
-    await expect(page.getByText(/ma\.to\//)).toBeVisible();
+    await expect(page.getByText(/nexus:\/\/group\/invite\//)).toBeVisible();
 
     // Slow mode control
     await expect(page.getByLabel('Slow mode')).toBeVisible();
@@ -133,7 +133,7 @@ test.describe('Group management', () => {
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFc83AAAAJklEQVQYpWOQkHb8L2BoKChhWAFQAABZ5QiAeJqyCAAAAABJRU5ErkJggg==',
       'base64',
     );
-    await page.getByLabel('Attach file').setInputFiles({ name: 'shot.png', mimeType: 'image/png', buffer: tinyPng });
+    await page.locator('#dm-media-input').setInputFiles({ name: 'shot.png', mimeType: 'image/png', buffer: tinyPng });
     await expect(page.locator('span.pb-1', { hasText: 'Look https://example.com' })).toBeVisible();
 
     // Group profile: shared media section reflects the history
@@ -154,7 +154,8 @@ test.describe('Group management', () => {
     await expect(page.getByText('Group info')).toBeVisible();
     await expect(page.getByText('Created', { exact: true })).toBeVisible();
     await expect(page.getByText('No description')).toBeVisible();
-    await expect(page.getByLabel('Main content').getByText('You', { exact: true })).toBeVisible();
+    // Owner info row is present; its value is the owner's profile name (Telegram-style, not a literal 'You').
+    await expect(page.getByText('Owner', { exact: true }).last()).toBeVisible();
   });
 
   test('group mute toggle is store-backed and persists across profile reopens', async ({ page }) => {

@@ -33,7 +33,7 @@ const SECTIONS: SectionDef[] = [
   { menu: 'Call settings', anchor: 'Call settings', rows: ['Record calls automatically', 'Call History'] },
   { menu: 'Mesh Radar', anchor: 'Mesh Radar' },
   { menu: 'Payments & Billing', anchor: 'Payments & Billing' },
-  { menu: 'Proxy and Network', anchor: 'Proxy and Network', rows: ['Obfuscation', 'Relay Backend'] },
+  { menu: 'Proxy and Network', anchor: 'Proxy and Network', rows: ['Obfuscation'] },
   { menu: 'System Status', anchor: 'System Status' },
   { menu: 'Help & Support', anchor: 'Help & Support' },
 ];

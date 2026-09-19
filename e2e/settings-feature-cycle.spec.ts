@@ -187,7 +187,10 @@ test.describe('Settings feature cycle', () => {
     await gotoSettings(page);
     await openSection(page, 'Proxy and Network');
     await auditSwitches(page, 'Proxy and Network');
-    await auditCycleRow(page, 'Relay Backend');
+    // Relay Backend row is rendered only when VITE_RELAY_PROXY_URL is set.
+    if (await main(page).getByRole('button').filter({ hasText: 'Relay Backend' }).count()) {
+      await auditCycleRow(page, 'Relay Backend');
+    }
 
     // Part D: TURN server input (always visible).
     const turn = main(page).getByPlaceholder('turn:example.com:3478');
