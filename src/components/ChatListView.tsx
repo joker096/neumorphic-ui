@@ -156,7 +156,7 @@ export const ChatListView = ({
       list.push({
         kind: "header",
         text: t("chat.sectionChannels"),
-        innerClass: `text-xs sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] ${isDark ? "text-[var(--accent2)]" : "text-purple-600"}`,
+        innerClass: `text-xs sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[var(--accent2)]`,
         wrapperClass: "pb-3 sm:pb-4",
       });
       filteredChannels.forEach((c: any) => list.push({ kind: "channel", chat: c }));

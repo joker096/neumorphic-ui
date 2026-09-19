@@ -134,11 +134,11 @@
   --text-secondary: #a6adba;
   --text-tertiary: #8b94a6;
   --border-color: rgba(255,255,255,0.08);
-  --accent: #6f7fff;
-  --accent-rgb: 111,127,255;
-  --accent-soft: rgba(111,127,255,0.12);
-  --accent2: #965dff;
-  --accent2-rgb: 150,93,255;
+  --accent: #4ede63;
+  --accent-rgb: 78,222,99;
+  --accent-soft: rgba(78,222,99,0.12);
+  --accent2: #10b981;
+  --accent2-rgb: 16,185,129;
   --success: #38d69a;
   --success-soft: rgba(56,214,154,0.12);
   --danger: #ff607d;
@@ -146,16 +146,16 @@
   --cyan: #51d7ff;
   --amber: #ffc85b;
   --waveform-played-self: #f0f2f5;
-  --waveform-played-other: #6f7fff;
+  --waveform-played-other: #4ede63;
   --waveform-unplayed-self: rgba(240,242,245,0.35);
-  --waveform-unplayed-other: rgba(111,127,255,0.45);
+  --waveform-unplayed-other: rgba(78,222,99,0.45);
 
-  --button-primary-bg: #6f7fff;
-  --button-primary-text: #ffffff;
+  --button-primary-bg: #4ede63;
+  --button-primary-text: #0d1017;
   --button-secondary-bg: transparent;
   --button-secondary-text: #9ca3af;
-  --button-secondary-hover-bg: rgba(111,127,255,0.15);
-  --button-secondary-border: rgba(111,127,255,0.3);
+  --button-secondary-hover-bg: rgba(78,222,99,0.15);
+  --button-secondary-border: rgba(78,222,99,0.3);
 
   --card-raised-bg: #22262e;
   --card-flat-bg: #1a1d24;
@@ -206,12 +206,12 @@
   --separator: rgba(255,255,255,0.08);
 
   --list-item-hover-bg: rgba(255,255,255,0.04);
-  --toggle-active-bg: #6f7fff;
+  --toggle-active-bg: #4ede63;
   --toggle-inactive-bg: rgba(255,255,255,0.1);
   --toggle-inactive-border: rgba(255,255,255,0.2);
   --toggle-thumb-bg: #ffffff;
 
-  --player-progress-orange: #6f7fff;
+  --player-progress-orange: #4ede63;
 
   --color-success: #38d69a;
   --color-success-soft: rgba(56,214,154,0.12);
@@ -278,11 +278,11 @@
   --text-secondary: #475569;
   --text-tertiary: #64748b;
   --border-color: rgba(0,0,0,0.08);
-  --accent: #ea580c;
-  --accent-rgb: 234,88,12;
-  --accent2: #d97706;
-  --accent2-rgb: 217,119,6;
-  --accent-soft: rgba(234,88,12,0.1);
+  --accent: #059669;
+  --accent-rgb: 5,150,102;
+  --accent2: #047857;
+  --accent2-rgb: 4,120,87;
+  --accent-soft: rgba(5,150,102,0.12);
   --accent-warm: #ea580c;
   --accent-warm-soft: rgba(234,88,12,0.15);
   --accent-warm-highlight: #d97706;
@@ -290,16 +290,16 @@
   --danger-soft: rgba(220,32,35,0.1);
 
   --waveform-played-self: #0f172a;
-  --waveform-played-other: #ea580c;
+  --waveform-played-other: #059669;
   --waveform-unplayed-self: rgba(15,23,42,0.3);
-  --waveform-unplayed-other: rgba(234,88,12,0.35);
+  --waveform-unplayed-other: rgba(5,150,102,0.35);
 
-  --button-primary-bg: #ea580c;
+  --button-primary-bg: #047857;
   --button-primary-text: #ffffff;
   --button-secondary-bg: transparent;
-  --button-secondary-text: #ea580c;
-  --button-secondary-hover-bg: rgba(234,88,12,0.1);
-  --button-secondary-border: rgba(234,88,12,0.3);
+  --button-secondary-text: #047857;
+  --button-secondary-hover-bg: rgba(5,150,102,0.12);
+  --button-secondary-border: rgba(5,150,102,0.3);
 
   --card-raised-bg: #ffffff;
   --card-flat-bg: #f1f5f9;
@@ -349,12 +349,12 @@
   --separator: rgba(0,0,0,0.08);
 
   --list-item-hover-bg: rgba(0,0,0,0.03);
-  --toggle-active-bg: #ea580c;
+  --toggle-active-bg: #047857;
   --toggle-inactive-bg: rgba(0,0,0,0.12);
   --toggle-inactive-border: rgba(0,0,0,0.2);
   --toggle-thumb-bg: #ffffff;
 
-  --player-progress-orange: #ea580c;
+  --player-progress-orange: #059669;
 
   /* Player palette (light) */
   --player-green: #45a045;

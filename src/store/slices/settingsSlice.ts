@@ -254,7 +254,7 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   visActivity: savedPrivacySettings.visActivity ?? 'My contacts',
   uiAnimations: savedPrivacySettings.uiAnimations ?? true,
   themeMode: savedPrivacySettings.themeMode ?? 'system',
-  accentColor: savedPrivacySettings.accentColor ?? '#10b981',
+  accentColor: savedPrivacySettings.accentColor ?? '#4ede63',
   chatBackground: savedPrivacySettings.chatBackground ?? 'default',
   customChatBackground: savedPrivacySettings.customChatBackground ?? '',
   density: savedPrivacySettings.density ?? 'comfortable',

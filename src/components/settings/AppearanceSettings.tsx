@@ -153,11 +153,11 @@ export const AppearanceSettings = ({
             </div>
           </div>
           <div className="flex gap-1.5">
-            {['#10b981','#3b82f6','#8b5cf6','#ec4899','#f59e0b','#ef4444','#14b8a6','#6366f1'].map((c) => (
+            {['#4ede63','#3b82f6','#8b5cf6','#ec4899','#f59e0b','#ef4444','#14b8a6','#6366f1'].map((c) => (
               <button key={c} type="button" aria-label={c} onClick={() => setAccentColor?.(c)}
-                aria-pressed={(accentColor ?? '#10b981') === c}
-                className={`group flex items-center justify-center min-w-11 min-h-11 w-6 h-6 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/60 ${ (accentColor ?? '#10b981') === c ? 'ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-tertiary)]' : '' }`}>
-                <span className={`block w-6 h-6 rounded-full border-2 transition-transform group-hover:scale-110 ${ (accentColor ?? '#10b981') === c ? 'border-white' : 'border-transparent' }`}
+                aria-pressed={(accentColor ?? '#4ede63') === c}
+                className={`group flex items-center justify-center min-w-11 min-h-11 w-6 h-6 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/60 ${ (accentColor ?? '#4ede63') === c ? 'ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-tertiary)]' : '' }`}>
+                <span className={`block w-6 h-6 rounded-full border-2 transition-transform group-hover:scale-110 ${ (accentColor ?? '#4ede63') === c ? 'border-white' : 'border-transparent' }`}
                   style={{ background: c }} />
               </button>
             ))}

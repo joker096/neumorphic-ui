@@ -89,8 +89,8 @@ body {
   padding: 0;
   min-height: 100%;
   background:
-    radial-gradient(ellipse at 15% 10%, rgba(var(--accent-rgb, 111,127,255), 0.07), transparent 45%),
-    radial-gradient(ellipse at 85% 90%, rgba(var(--accent2-rgb, 150,93,255), 0.05), transparent 45%),
+    radial-gradient(ellipse at 15% 10%, rgba(var(--accent-rgb, 78,222,99), 0.07), transparent 45%),
+    radial-gradient(ellipse at 85% 90%, rgba(var(--accent2-rgb, 16,185,129), 0.05), transparent 45%),
     var(--bg-primary, #070a0f);
   color: var(--text-primary, #f5f7fb);
   line-height: var(--leading-normal);
@@ -146,12 +146,12 @@ select:focus-visible,
 input[type="checkbox"]:focus-visible,
 input[type="radio"]:focus-visible,
 input[type="range"]:focus-visible {
-  outline: 2px solid var(--accent, #6f7fff);
+  outline: 2px solid var(--accent, #4ede63);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: rgba(var(--accent-rgb, 111,127,255), 0.28);
+  background: rgba(var(--accent-rgb, 78,222,99), 0.28);
   color: inherit;
 }
 
