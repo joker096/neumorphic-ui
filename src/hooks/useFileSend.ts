@@ -22,9 +22,10 @@ export interface UseFileSendDeps {
 }
 
 /**
- * P2P file send: hashes the file, persists chunks locally (so the sender's own
- * `ftr:` message can render) and streams meta/chunk/end frames over `p2pNetwork.broadcast()`.
- * Offline send keeps the message "queued" and skips broadcast (best-effort, accepted limitation).
+ * P2P file send: hashes the file, persists chunks + completed meta locally always
+ * (so the sender's own `ftr:` message renders without waiting for a peer), then streams
+ * meta/chunk/end frames over `p2pNetwork.broadcast()` when online (best-effort: a failed
+ * broadcast flips the message to "failed"; offline sends stay "queued").
  */
 export function useFileSend(chat: any, deps: UseFileSendDeps) {
   const { setChats, setActiveChat, onUpdateChat } = deps;
@@ -41,8 +42,9 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
         if (!prev) return prev;
         return { ...prev, history: [...(prev.history || []), newMessage] };
       });
+    } else if (onUpdateChat) {
+      onUpdateChat({ ...chat, history: [...(chat.history || []), newMessage] });
     }
-    if (onUpdateChat) onUpdateChat({ ...chat, history: [...(chat.history || []), newMessage] });
   }, [chat, setChats, setActiveChat, onUpdateChat]);
 
   const updateMessageStatus = useCallback((msgId: number, status: string) => {
@@ -56,6 +58,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
         if (!prev) return prev;
         return { ...prev, history: (prev.history || []).map((m: any) => (m.id === msgId ? { ...m, status } : m)) };
       });
+      return;
     }
     if (onUpdateChat) {
       onUpdateChat({ ...chat, history: (chat.history || []).map((m: any) => (m.id === msgId ? { ...m, status } : m)) });
@@ -95,7 +98,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       fileTransferId: transferId,
       ts: Date.now(),
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      status: "queued",
+      status: online ? "sent" : "queued",
       silent: opts.silent ?? false,
     };
     appendMessage(newMessage);
@@ -117,15 +120,17 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
         receivedChunks: 0,
       };
       await saveTransferMeta(meta);
+      for await (const chunk of sliceFileChunks(file)) {
+        await saveChunk(transferId, chunk.index, chunk.data);
+        setProgress({ transferId, percent: Math.round(((chunk.index + 1) / totalChunks) * 100) });
+      }
+      await saveTransferMeta({ ...meta, receivedChunks: totalChunks, completed: true });
       if (online) {
         await safeSend({ type: "meta", seq: nextFileSeq(), ...meta });
         for await (const chunk of sliceFileChunks(file)) {
-          await saveChunk(transferId, chunk.index, chunk.data);
           await safeSend({ type: "chunk", seq: nextFileSeq(), transferId, index: chunk.index, data: bytesToBase64(new Uint8Array(chunk.data)) });
-          setProgress({ transferId, percent: Math.round(((chunk.index + 1) / totalChunks) * 100) });
         }
         await safeSend({ type: "end", seq: nextFileSeq(), transferId });
-        await saveTransferMeta({ ...meta, receivedChunks: totalChunks, completed: true });
         updateMessageStatus(msgId, "sent");
       }
     } catch {

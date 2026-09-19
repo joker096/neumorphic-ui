@@ -59,7 +59,7 @@ export function useChatPreviewState(
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
   const { t } = useI18n();
-  const { sendFile } = useFileSend(chat, { setChats: setChatsStore, onUpdateChat });
+  const { sendFile } = useFileSend(chat, { setChats: setChatsStore, setActiveChat: onUpdateChat });
 
   const [videoOpen, setVideoOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
@@ -171,7 +171,7 @@ export function useChatPreviewState(
       text: textToSend,
       ts: Date.now(),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: "queued",
+      status: navigator.onLine ? "sent" : "queued",
       silent: eSilentMode,
     };
     const selfDestructDefault = useAppStore.getState().selfDestructDefault;

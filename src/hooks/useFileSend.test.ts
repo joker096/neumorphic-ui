@@ -121,8 +121,9 @@ describe('useFileSend', () => {
     });
 
     expect(p2pNetwork.broadcast).not.toHaveBeenCalled();
-    expect(vi.mocked(saveTransferMeta)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(saveTransferMeta)).toHaveBeenCalledTimes(2);
     expect(vi.mocked(saveTransferMeta).mock.calls[0][0]).toEqual(expect.objectContaining({ transferId: 'transfer-uuid-1', receivedChunks: 0 }));
+    expect(vi.mocked(saveTransferMeta).mock.calls.at(-1)![0]).toEqual(expect.objectContaining({ transferId: 'transfer-uuid-1', completed: true, receivedChunks: 1 }));
     expect(state.activeChat.history.at(-1).status).toBe('queued');
   });
 

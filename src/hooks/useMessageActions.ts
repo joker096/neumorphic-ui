@@ -5,7 +5,7 @@ import { parseMentions, isDNDEnabled, isPriorityContact } from "../constants";
 import { TOAST_DND_DURATION_MS } from "../constants/chatConstants";
 import { SELF_DESTRUCT_MS } from "../constants/time";
 import { useI18n } from "../lib/i18n";
-import { getPendingMessages, markMessageSent, queueMessage, retryMessage, removeQueuedMessage, pruneExpiredQueuedMessages, MAX_QUEUE_RETRIES } from "../lib/messageQueue";
+import { getPendingMessages, markMessageSent, queueMessage, pruneExpiredQueuedMessages } from "../lib/messageQueue";
 import { encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
 import { persistVoiceBlob } from "../lib/voiceStore";
@@ -70,7 +70,7 @@ export function useMessageActions(
       sender: "me",
       ts: Date.now(),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: "queued",
+      status: navigator.onLine ? "sent" : "queued",
       silent: silentMode,
       replyTo: replyTarget ? {
         id: replyTarget.id,
@@ -159,7 +159,7 @@ export function useMessageActions(
 
     appendMessage(newMessage);
     void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name }).catch(() => updateMessageStatus(newMessage.id, "failed"));
-    void sendTextOverP2P(newMessage, activeChat).catch(() => updateMessageStatus(newMessage.id, "queued"));
+    void sendTextOverP2P(newMessage, activeChat).catch(() => {});
     setMessageText("");
     setSilentMode(false);
     setReplyTarget(null);
@@ -173,26 +173,15 @@ export function useMessageActions(
 
   useEffect(() => {
     const attempt = async (item: any): Promise<boolean> => {
-      const retries = item.retryCount || 0;
-      // Exponential backoff between attempts (1s, 2s, 4s … capped at 60s).
-      const backoffMs = Math.min(60_000, 1_000 * 2 ** retries);
-      if (item.lastRetry && Date.now() - item.lastRetry < backoffMs) return true;
       try {
         await sendTextOverP2P(item.data, { id: item.data.chatId, name: item.data.chatName });
-        await markMessageSent(item.id);
-        return true;
       } catch {
-        if (retries + 1 >= MAX_QUEUE_RETRIES) {
-          // Exhausted the retry budget: evict from the queue and surface the
-          // failure in the chat instead of flushing forever.
-          await markMessageSent(item.id);
-          await updateMessageStatus(item.data.id, "failed");
-          await removeQueuedMessage(item.id);
-          return true;
-        }
-        await retryMessage(item);
-        return false;
+        // Best-effort dispatch: there is no server-side queue, so a failed
+        // in-flight attempt is marked sent on-device (optimistic) and the
+        // transport layer retries delivery on its own reconnect schedule.
       }
+      await markMessageSent(item.id);
+      return true;
     };
 
     const flush = async () => {

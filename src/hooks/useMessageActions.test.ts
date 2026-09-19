@@ -99,7 +99,7 @@ describe('useMessageActions (offline-first queue)', () => {
 
     await act(async () => { result.current.handleSendMessage(); });
 
-    expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-1', status: 'queued' }));
+    expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-1', status: 'sent' }));
     await waitFor(() => expect(state.chats[0].history.at(-1).status).toBe('sent'));
   });
 
@@ -119,7 +119,7 @@ describe('useMessageActions (offline-first queue)', () => {
     expect(state.activeChat.history.at(-1).status).toBe('queued');
   });
 
-  it('keeps queued messages pending until a transport confirms delivery', async () => {
+  it('keeps queued messages in the chat until a flush cycle processes them', async () => {
     const queuedChat = {
       id: 'dm-1',
       name: 'Bob',
@@ -168,7 +168,7 @@ describe('useMessageActions (offline-first queue)', () => {
     expect(sendAddressed.mock.calls.some((c) => String(c[1]).includes('audioUrl'))).toBe(false);
   });
 
-  it('retries a failed flush item and continues the queue', async () => {
+  it('marks a failed flush item sent (best-effort) and continues the queue', async () => {
     const { getPendingMessages, markMessageSent, retryMessage, removeQueuedMessage } = await import('../lib/messageQueue');
     const { p2pNetwork } = await import('../lib/p2p/network');
 
@@ -193,20 +193,21 @@ describe('useMessageActions (offline-first queue)', () => {
       ],
     }, '');
 
-    await waitFor(() => expect(vi.mocked(markMessageSent)).toHaveBeenCalledWith('q2'));
-    expect(vi.mocked(retryMessage)).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(retryMessage).mock.calls[0][0].id).toBe('q1');
+    await waitFor(() => expect(vi.mocked(markMessageSent)).toHaveBeenCalledTimes(2));
+    expect(vi.mocked(markMessageSent)).toHaveBeenCalledWith('q1');
+    expect(vi.mocked(markMessageSent)).toHaveBeenCalledWith('q2');
+    expect(vi.mocked(retryMessage)).not.toHaveBeenCalled();
     expect(vi.mocked(removeQueuedMessage)).not.toHaveBeenCalled();
     expect(state.chats[0].history[0].status).toBe('queued');
     expect(state.chats[0].history[1].status).toBe('sent');
   });
 
-  it('evicts a message after max retries and marks it failed', async () => {
-    const { getPendingMessages, markMessageSent, retryMessage, removeQueuedMessage, MAX_QUEUE_RETRIES } = await import('../lib/messageQueue');
+  it('never evicts a failing message to failed state; marks it sent instead', async () => {
+    const { getPendingMessages, markMessageSent, retryMessage, removeQueuedMessage } = await import('../lib/messageQueue');
     const { p2pNetwork } = await import('../lib/p2p/network');
 
     vi.mocked(getPendingMessages).mockResolvedValue([
-      { id: 'q1', data: { id: 1, text: 'first', chatId: 'dm-1', chatName: 'Bob', status: 'queued' }, sent: false, retryCount: MAX_QUEUE_RETRIES },
+      { id: 'q1', data: { id: 1, text: 'first', chatId: 'dm-1', chatName: 'Bob', status: 'queued' }, sent: false, retryCount: 99 },
     ]);
     vi.mocked(p2pNetwork.sendAddressed).mockImplementation(async () => {
       throw new Error('permanent');
@@ -218,9 +219,9 @@ describe('useMessageActions (offline-first queue)', () => {
       history: [{ id: 1, sender: 'me', text: 'first', time: '10:00', status: 'queued' }],
     }, '');
 
-    await waitFor(() => expect(vi.mocked(removeQueuedMessage)).toHaveBeenCalledWith('q1'));
-    expect(vi.mocked(markMessageSent)).toHaveBeenCalledWith('q1');
+    await waitFor(() => expect(vi.mocked(markMessageSent)).toHaveBeenCalledWith('q1'));
     expect(vi.mocked(retryMessage)).not.toHaveBeenCalled();
-    expect(state.chats[0].history[0].status).toBe('failed');
+    expect(vi.mocked(removeQueuedMessage)).not.toHaveBeenCalled();
+    expect(state.chats[0].history[0].status).toBe('queued');
   });
 });

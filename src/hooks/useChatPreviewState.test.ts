@@ -105,7 +105,7 @@ describe('useChatPreviewState (offline-first queue)', () => {
 
     await act(async () => { result.current.sendMessage(); });
 
-    expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-2', status: 'queued' }));
+    expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-2', status: 'sent' }));
     await waitFor(() => expect(onUpdateChat.mock.calls.at(-1)?.[0].history.at(-1).status).toBe('sent'));
   });
 
