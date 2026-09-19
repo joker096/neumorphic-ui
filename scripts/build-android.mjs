@@ -2,6 +2,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import fs from 'fs';
 import http from 'http';
+import https from 'https';
 import { spawn, execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -215,6 +216,132 @@ function patchGradleDeps() {
   log.info('Gradle deps patched (AGP 9.0.1, browserhelper 2.7.3, minSdk 23, resValues, wrapper 9.1.0)');
 }
 
+// Recursive glob for a single file name (used to find the cached browserhelper AAR).
+function findNamedFile(dir, name) {
+  if (!fs.existsSync(dir)) return null;
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) {
+      const hit = findNamedFile(full, name);
+      if (hit) return hit;
+    } else if (e.name === name) {
+      return full;
+    }
+  }
+  return null;
+}
+
+function downloadFile(url, dest) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, res => {
+      if (res.statusCode !== 200) {
+        res.resume();
+        reject(new Error(`HTTP ${res.statusCode} while downloading ${url}`));
+        return;
+      }
+      const out = fs.createWriteStream(dest);
+      res.pipe(out);
+      out.on('finish', () => out.close(resolve));
+      out.on('error', reject);
+    });
+    req.on('error', reject);
+  });
+}
+
+// Google Play pre-launch flags deprecated Android system APIs in the published
+// androidbrowserhelper 2.7.3 AAR: Window.setStatusBarColor/setNavigationBarColor
+// are still called by LauncherActivity, Utils, WebViewFallbackActivity and
+// splashscreens/{EdgeToEdgeController,PwaWrapperSplashScreenStrategy} — even on
+// the latest upstream release. Fix: vendor the upstream main-branch versions of
+// those 5 classes (edge-to-edge via WindowCompat.enableEdgeToEdge + androidx
+// ColorProtection/ProtectionLayout) into the generated app module and rebuild a
+// local AAR with the deprecated .class entries removed. The remaining AAR classes
+// (SystemBarColorPredictor, SplashScreenStrategy, SplashImageTransferTask, …) are
+// untouched. Depend on the local AAR + explicit transitive coordinates.
+async function vendorBrowserhelper() {
+  banner('Vendoring androidbrowserhelper edge-to-edge classes');
+
+  const aarVersion = '2.7.3';
+  const aarName = `androidbrowserhelper-${aarVersion}.aar`;
+  const vendorJava = path.join(ROOT, 'scripts', 'android-vendor', 'browserhelper', 'src', 'main', 'java');
+  const moduleSrc = path.join(ANDROID_DIR, 'app', 'src', 'main', 'java');
+
+  const stripEntries = [
+    'com/google/androidbrowserhelper/trusted/LauncherActivity.class',
+    'com/google/androidbrowserhelper/trusted/Utils.class',
+    'com/google/androidbrowserhelper/trusted/WebViewFallbackActivity.class',
+    'com/google/androidbrowserhelper/trusted/WebViewFallbackActivity$1.class',
+    'com/google/androidbrowserhelper/trusted/WebViewFallbackActivity$2.class',
+    'com/google/androidbrowserhelper/trusted/splashscreens/EdgeToEdgeController.class',
+    'com/google/androidbrowserhelper/trusted/splashscreens/PwaWrapperSplashScreenStrategy.class',
+  ];
+
+  const jar = path.join(JAVA_HOME, 'bin', 'jar.exe');
+  const work = path.join(ANDROID_DIR, '.vendor-work');
+  fs.rmSync(work, { recursive: true, force: true });
+  fs.mkdirSync(work, { recursive: true });
+
+  // 1. Locate the pristine AAR in the gradle cache, else Google Maven.
+  const gradleRoot = path.join(process.env.USERPROFILE || process.env.HOME, '.gradle', 'caches', 'modules-2', 'files-2.1');
+  let srcAar = findNamedFile(gradleRoot, aarName);
+  if (!srcAar) {
+    log.info('AAR not in gradle cache — downloading from Google Maven');
+    const downloaded = path.join(work, aarName);
+    await downloadFile(
+      `https://dl.google.com/dl/android/maven2/com/google/androidbrowserhelper/androidbrowserhelper/${aarVersion}/${aarName}`,
+      downloaded,
+    );
+    srcAar = downloaded;
+  }
+  log.info(`Using AAR: ${srcAar}`);
+
+  // 2. Extract AAR, strip offending classes.jar entries, reassemble classes.jar.
+  const aarDir = path.join(work, 'aar');
+  fs.mkdirSync(aarDir, { recursive: true });
+  execSync(`"${jar}" -xf "${srcAar}"`, { cwd: aarDir, stdio: 'inherit' });
+
+  const classesJar = path.join(aarDir, 'classes.jar');
+  const classesDir = path.join(work, 'classes');
+  fs.mkdirSync(classesDir, { recursive: true });
+  execSync(`"${jar}" -xf "${classesJar}"`, { cwd: classesDir, stdio: 'inherit' });
+  for (const entry of stripEntries) {
+    const p = path.join(classesDir, ...entry.split('/'));
+    if (fs.existsSync(p)) {
+      fs.unlinkSync(p);
+      log.info(`stripped ${entry}`);
+    }
+  }
+  execSync(`"${jar}" -cf "${classesJar}" .`, { cwd: classesDir, stdio: 'inherit' });
+
+  // 3. Reassemble the local AAR with the cleaned classes.jar.
+  const libsDir = path.join(ANDROID_DIR, 'app', 'libs');
+  fs.mkdirSync(libsDir, { recursive: true });
+  const dstAar = path.join(libsDir, `androidbrowserhelper-${aarVersion}-e2e.aar`);
+  execSync(`"${jar}" -cf "${dstAar}" .`, { cwd: aarDir, stdio: 'inherit' });
+
+  // 4. Copy the vendored replacements into the app module source set.
+  fs.cpSync(path.join(vendorJava, 'com'), path.join(moduleSrc, 'com'), { recursive: true });
+  log.info('vendor sources copied to app/src/main/java/com/google/androidbrowserhelper/trusted/**');
+
+  // 5. Switch the dependency from the maven coordinate to the local stripped AAR.
+  const appGradlePath = path.join(ANDROID_DIR, 'app', 'build.gradle');
+  let appGradle = fs.readFileSync(appGradlePath, 'utf-8');
+  appGradle = appGradle.replace(
+    /implementation ['"]com\.google\.androidbrowserhelper:androidbrowserhelper:[^'"]+['"]/,
+    [
+      `implementation files('libs/androidbrowserhelper-${aarVersion}-e2e.aar')`,
+      "implementation 'androidx.annotation:annotation:1.9.1'",
+      "implementation 'androidx.core:core:1.17.0'",
+      "implementation 'androidx.appcompat:appcompat:1.7.0'",
+      "implementation 'androidx.browser:browser:1.10.0'",
+      "implementation 'com.google.guava:guava:33.4.8-android'",
+    ].join('\n    '),
+  );
+  fs.writeFileSync(appGradlePath, appGradle);
+
+  log.info('browserhelper vendored (deprecated Window API callers removed, local AAR + explicit deps)');
+}
+
 async function buildAndroid() {
   banner('Building APK & AAB');
   const buildTools = findBuildTools();
@@ -341,6 +468,7 @@ async function main() {
     patchManifest();
     patchBuildGradle();
     patchGradleDeps();
+    await vendorBrowserhelper();
 
     // Keytool is on PATH here (JAVA_HOME/bin) only sometimes; generate-assetlinks
     // resolves keytool itself. Runs after keystore exists.
