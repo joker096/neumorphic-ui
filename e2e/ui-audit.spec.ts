@@ -163,7 +163,11 @@ const auditInPage = (): { findings: Omit<Finding, 'viewport' | 'view'>[]; totals
     const INTERACTIVE =
       'button:not([disabled]),a[href],input,select,textarea,[role="button"],[role="switch"],[role="tab"],[role="checkbox"],[role="menuitem"],[role="option"],[role="link"]';
     const interactives = Array.from(document.querySelectorAll(INTERACTIVE)).filter(
-      (el) => el.checkVisibility && el.checkVisibility() && !el.closest('[aria-hidden="true"]'),
+      (el) =>
+        el.checkVisibility &&
+        el.checkVisibility() &&
+        !el.closest('[aria-hidden="true"]') &&
+        !el.closest('[inert]'),
     );
     const innermost = interactives.filter((el) => !interactives.some((o) => o !== el && o.contains(el)));
     // Detect elements inside a fixed bottom bar (e.g. the bottom nav). The bar is
