@@ -2,10 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useMessageActions } from './useMessageActions';
 import { queueMessage } from '../lib/messageQueue';
-import { persistVoiceBlob } from '../lib/voiceStore';
+import { persistVoiceBlob, getVoiceBlob } from '../lib/voiceStore';
 
 vi.mock('../lib/voiceStore', () => ({
   persistVoiceBlob: vi.fn().mockResolvedValue(undefined),
+  getVoiceBlob: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('../lib/messageQueue', () => ({
@@ -103,12 +104,12 @@ describe('useMessageActions (offline-first queue)', () => {
     await waitFor(() => expect(state.chats[0].history.at(-1).status).toBe('sent'));
   });
 
-  it('queues voice and sticker sends when offline and persists the live blob', () => {
+  it('queues voice and sticker sends when offline and persists the live blob', async () => {
     setOnLine(false);
     const { state, result } = setup({ id: 'dm-1', name: 'Bob', history: [] }, '');
     const liveBlob = new Blob(['voice-bytes'], { type: 'audio/webm' });
 
-    act(() => result.current.sendVoiceMessage('blob:audio', '0:05', liveBlob));
+    await act(async () => { result.current.sendVoiceMessage('blob:audio', '0:05', liveBlob); });
     act(() => result.current.sendStickerMessage('sticker-1'));
 
     expect(queueMessage).toHaveBeenNthCalledWith(1, expect.objectContaining({ chatId: 'dm-1', status: 'queued', type: 'audio' }));
@@ -144,7 +145,7 @@ describe('useMessageActions (offline-first queue)', () => {
 
   });
 
-  it('flushes queued text and sticker over P2P on reconnect, keeps media queued', async () => {
+  it('flushes queued text and sticker over P2P on reconnect, best-effort voice', async () => {
     const { getPendingMessages, markMessageSent } = await import('../lib/messageQueue');
     const { p2pNetwork } = await import('../lib/p2p/network');
     const sendAddressed = vi.mocked(p2pNetwork.sendAddressed);
@@ -161,11 +162,12 @@ describe('useMessageActions (offline-first queue)', () => {
 
     await act(async () => { window.dispatchEvent(new Event('online')); });
 
-    await waitFor(() => expect(vi.mocked(markMessageSent)).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(vi.mocked(markMessageSent)).toHaveBeenCalledTimes(3));
     expect(sendAddressed).toHaveBeenCalledTimes(2);
     expect(sendAddressed.mock.calls[0][1]).toContain('"text":"hello"');
     expect(sendAddressed.mock.calls[1][1]).toContain('"text":"sticker-1"');
     expect(sendAddressed.mock.calls.some((c) => String(c[1]).includes('audioUrl'))).toBe(false);
+    expect(getVoiceBlob).toHaveBeenCalled();
   });
 
   it('marks a failed flush item sent (best-effort) and continues the queue', async () => {

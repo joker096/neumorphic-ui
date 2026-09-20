@@ -9,6 +9,14 @@ import {
   parseChatDeliveryAck,
   encodeChatReadReceipt,
   parseChatReadReceipt,
+  encodeChatAudioMeta,
+  parseChatAudioMeta,
+  encodeChatAudioChunk,
+  parseChatAudioChunk,
+  encodeChatAudioEnd,
+  parseChatAudioEnd,
+  formatDurationStr,
+  parseDurationStr,
   encodeCallSignal,
   parseCallSignal,
   nextFrameSeq,
@@ -98,5 +106,65 @@ describe('nextFrameSeq', () => {
     const second = nextFrameSeq();
     expect(Number.isSafeInteger(first)).toBe(true);
     expect(second).toBe(first + 1);
+  });
+});
+
+describe('chat audio frames', () => {
+  it('round-trips chat-audio-meta, chat-audio-chunk, and chat-audio-end frames', () => {
+    const meta = {
+      type: 'chat-audio-meta' as const,
+      seq: 7,
+      messageId: 'voice-1',
+      chatId: 'dm-1',
+      chatName: 'Bob',
+      senderName: 'Me',
+      duration: 5,
+      mime: 'audio/webm',
+      size: 10,
+      chunkSize: 2,
+      totalChunks: 5,
+      sha256: 'abc',
+      timestamp: 12,
+    };
+    expect(parseChatAudioMeta(encodeChatAudioMeta(meta))).toEqual(meta);
+
+    const chunk = { type: 'chat-audio-chunk' as const, seq: 8, messageId: 'voice-1', index: 0, data: 'AA==' };
+    expect(parseChatAudioChunk(encodeChatAudioChunk(chunk))).toEqual(chunk);
+
+    const end = { type: 'chat-audio-end' as const, seq: 9, messageId: 'voice-1' };
+    expect(parseChatAudioEnd(encodeChatAudioEnd(end))).toEqual(end);
+  });
+
+  it('rejects legacy, invalid, or non-audio payloads', () => {
+    const legacy = { type: 'chat-audio-meta', messageId: 'voice-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Me', duration: 5, mime: 'audio/webm', size: 10, chunkSize: 2, totalChunks: 5, sha256: 'abc', timestamp: 12 };
+    expect(parseChatAudioMeta(MSG_MAGIC + JSON.stringify(legacy))).toBeNull();
+
+    const noChunks = { type: 'chat-audio-meta', seq: 1, messageId: 'voice-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Me', duration: 5, mime: 'audio/webm', size: 10, chunkSize: 0, totalChunks: 1, sha256: 'abc', timestamp: 12 };
+    expect(parseChatAudioMeta(MSG_MAGIC + JSON.stringify(noChunks))).toBeNull();
+
+    const badChunk = { type: 'chat-audio-chunk', seq: 1, messageId: 'voice-1' };
+    expect(parseChatAudioChunk(MSG_MAGIC + JSON.stringify(badChunk))).toBeNull();
+
+    expect(parseChatAudioEnd(MSG_MAGIC + JSON.stringify({ type: 'chat-audio-end' }))).toBeNull();
+    expect(parseChatAudioMeta(`${MSG_MAGIC}{broken`)).toBeNull();
+  });
+});
+
+describe('voice duration helpers', () => {
+  it('parses m:ss strings into seconds', () => {
+    expect(parseDurationStr('0:00')).toBe(0);
+    expect(parseDurationStr('0:05')).toBe(5);
+    expect(parseDurationStr('1:05')).toBe(65);
+    expect(parseDurationStr('10')).toBe(10);
+    expect(parseDurationStr('')).toBe(0);
+    expect(parseDurationStr('bad')).toBe(0);
+  });
+
+  it('formats seconds as m:ss', () => {
+    expect(formatDurationStr(0)).toBe('0:00');
+    expect(formatDurationStr(5)).toBe('0:05');
+    expect(formatDurationStr(65)).toBe('1:05');
+    expect(formatDurationStr(-1)).toBe('0:00');
+    expect(formatDurationStr(Number.NaN)).toBe('0:00');
   });
 });

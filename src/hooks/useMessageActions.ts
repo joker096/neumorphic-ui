@@ -6,9 +6,11 @@ import { TOAST_DND_DURATION_MS } from "../constants/chatConstants";
 import { SELF_DESTRUCT_MS } from "../constants/time";
 import { useI18n } from "../lib/i18n";
 import { getPendingMessages, markMessageSent, queueMessage, pruneExpiredQueuedMessages } from "../lib/messageQueue";
-import { encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
+import { encodeChatAudioChunk, encodeChatAudioEnd, encodeChatAudioMeta, encodeChatText, nextFrameSeq, parseDurationStr, VOICE_P2P_CHUNK_SIZE, VOICE_P2P_MAX_CHUNKS, VOICE_P2P_MAX_SIZE } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
-import { persistVoiceBlob } from "../lib/voiceStore";
+import { getVoiceBlob, persistVoiceBlob } from "../lib/voiceStore";
+import { sha256Hex } from "../lib/fileTransfer/integrity";
+import { bytesToBase64 } from "../lib/fileTransfer/frames";
 import { useAppStore } from "../store";
 
 export function useMessageActions(
@@ -61,6 +63,60 @@ export function useMessageActions(
     updateMessageStatus(message.id, "sent");
   }, [updateMessageStatus]);
 
+  const sendVoiceOverP2P = useCallback(async (message: any, chat: any) => {
+    const sender = useAppStore.getState().userProfile;
+    const voiceId = String(message.voiceId ?? message.id);
+    const blob = await getVoiceBlob(voiceId);
+    if (!blob) throw new Error("Voice blob unavailable");
+    if (blob.size > VOICE_P2P_MAX_SIZE) throw new Error("Voice message too large");
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    if (bytes.length > VOICE_P2P_MAX_SIZE) throw new Error("Voice message too large");
+
+    const totalChunks = Math.max(1, Math.ceil(bytes.length / VOICE_P2P_CHUNK_SIZE));
+    if (totalChunks > VOICE_P2P_MAX_CHUNKS) throw new Error("Voice message too large");
+
+    const duration = parseDurationStr(String(message.duration || "0:00"));
+    const sha256 = await sha256Hex(bytes);
+    const target = p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name);
+
+    const metaFrame = encodeChatAudioMeta({
+      type: "chat-audio-meta",
+      seq: nextFrameSeq(),
+      messageId: voiceId,
+      chatId: String(chat.id),
+      chatName: String(chat.name || ""),
+      senderName: sender?.name || sender?.username || "User",
+      duration,
+      mime: blob.type || "audio/webm",
+      size: bytes.length,
+      chunkSize: VOICE_P2P_CHUNK_SIZE,
+      totalChunks,
+      sha256,
+      timestamp: Number(message.id) || Date.now(),
+    });
+    await p2pNetwork.sendAddressed(target, metaFrame);
+
+    for (let index = 0; index < totalChunks; index++) {
+      const slice = bytes.subarray(index * VOICE_P2P_CHUNK_SIZE, (index + 1) * VOICE_P2P_CHUNK_SIZE);
+      const chunkFrame = encodeChatAudioChunk({
+        type: "chat-audio-chunk",
+        seq: nextFrameSeq(),
+        messageId: voiceId,
+        index,
+        data: bytesToBase64(slice),
+      });
+      await p2pNetwork.sendAddressed(target, chunkFrame);
+    }
+
+    const endFrame = encodeChatAudioEnd({
+      type: "chat-audio-end",
+      seq: nextFrameSeq(),
+      messageId: voiceId,
+    });
+    await p2pNetwork.sendAddressed(target, endFrame);
+    updateMessageStatus(message.id, "sent");
+  }, [updateMessageStatus]);
+
   const buildNewMessage = useCallback((overrides: Record<string, any> = {}) => {
     const selfDestructDefault = useAppStore.getState().selfDestructDefault;
     const ttl = selfDestructDefault ? SELF_DESTRUCT_MS[selfDestructDefault] : undefined;
@@ -105,10 +161,25 @@ export function useMessageActions(
     const newMessage = buildNewMessage({ text: "", type: "audio", audioUrl, duration: durationStr });
     newMessage.voiceId = String(newMessage.id);
     appendMessage(newMessage);
-    void persistVoiceBlob(newMessage.voiceId, blob ?? audioUrl);
-    void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name }).catch(() => updateMessageStatus(newMessage.id, "failed"));
     setReplyTarget(null);
-  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t]);
+
+    void (async () => {
+      try {
+        await persistVoiceBlob(newMessage.voiceId, blob ?? audioUrl);
+      } catch {
+        updateMessageStatus(newMessage.id, "failed");
+        return;
+      }
+
+      void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name })
+        .catch(() => updateMessageStatus(newMessage.id, "failed"));
+
+      if (navigator.onLine) {
+        await sendVoiceOverP2P(newMessage, activeChat)
+          .catch(() => updateMessageStatus(newMessage.id, "failed"));
+      }
+    })();
+  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t, updateMessageStatus, sendVoiceOverP2P]);
 
   const sendStickerMessage = useCallback((sticker: string) => {
     if (!activeChat || !sticker) return;
@@ -174,7 +245,12 @@ export function useMessageActions(
   useEffect(() => {
     const attempt = async (item: any): Promise<boolean> => {
       try {
-        await sendTextOverP2P(item.data, { id: item.data.chatId, name: item.data.chatName });
+        const chatContext = { id: item.data.chatId, name: item.data.chatName };
+        if (item.data?.type === "audio") {
+          await sendVoiceOverP2P(item.data, chatContext);
+        } else {
+          await sendTextOverP2P(item.data, chatContext);
+        }
       } catch {
         // Best-effort dispatch: there is no server-side queue, so a failed
         // in-flight attempt is marked sent on-device (optimistic) and the
@@ -188,11 +264,11 @@ export function useMessageActions(
       if (!navigator.onLine) return;
       const pending = await getPendingMessages().catch(() => []);
       for (const item of pending) {
-        // Text and sticker messages have a text payload the chat frame can
-        // carry; media (audio/image/video) has no wire representation (blob
-        // URLs are local-only) and stays queued for its own sync path.
-        const isTextCapable = item.data?.type === undefined || item.data?.type === "sticker";
-        if (!isTextCapable) continue;
+        // Text, sticker, and audio messages have wire representations; image
+        // and video media still use their own local-only sync path.
+        const type = item.data?.type;
+        const isDeliverable = type === undefined || type === "sticker" || type === "audio";
+        if (!isDeliverable) continue;
         // One failed message must not abort the rest of the queue.
         await attempt(item);
       }
@@ -212,7 +288,7 @@ export function useMessageActions(
       window.removeEventListener("online", prune);
       window.clearInterval(retryTimer);
     };
-  }, [sendTextOverP2P, updateMessageStatus]);
+  }, [sendTextOverP2P, sendVoiceOverP2P, updateMessageStatus]);
 
   const toggleSavedMessage = useCallback((chatContext: any, msg: any) => {
     if (!chatContext || !msg) return;

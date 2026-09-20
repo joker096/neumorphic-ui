@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FTR_MAGIC, parseFrame, base64ToBytes, type FtrFrame, type TransferMeta } from "../lib/fileTransfer/frames";
-import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatText } from "../lib/p2p/chatFrame";
+import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
+import { saveVoiceBlob } from "../lib/voiceStore";
 import {
   saveTransferMeta, saveChunk, getTransferBlob, pruneAbandonedTransfers,
   pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer,
@@ -21,6 +22,8 @@ const PROCESSED_ID_LIMIT = 1000;
 /** In-memory transfer state for incoming files (meta → received chunk indices). */
 const incomingMetas = new Map<string, TransferMeta>();
 const incomingChunkIndices = new Map<string, Set<number>>();
+const incomingAudioMetas = new Map<string, ChatAudioMetaFrame>();
+const incomingAudioChunks = new Map<string, Map<number, Uint8Array>>();
 
 function mimeToType(mime: string): "image" | "video" | "file" {
   return mime.startsWith("image/") ? "image" : mime.startsWith("video/") ? "video" : "file";
@@ -180,6 +183,90 @@ export function useP2PMessages() {
       })).catch(() => {});
     };
 
+    const handleAudioMeta = (frame: ChatAudioMetaFrame, senderId: string) => {
+      if (!frame) return;
+      p2pNetwork.rememberPeer(senderId, frame.senderName);
+      p2pNetwork.rememberChatPeer(frame.chatId, frame.chatName, senderId);
+      // Fail closed on oversized/oversharded voice payloads.
+      if (frame.size <= 0 || frame.size > VOICE_P2P_MAX_SIZE) return;
+      if (frame.totalChunks < 1 || frame.totalChunks > VOICE_P2P_MAX_CHUNKS) return;
+      if (frame.chunkSize * frame.totalChunks < frame.size) return;
+      if (incomingAudioMetas.has(frame.messageId)) return;
+      incomingAudioMetas.set(frame.messageId, frame);
+      incomingAudioChunks.set(frame.messageId, new Map());
+    };
+
+    const handleAudioChunk = async (frame: ReturnType<typeof parseChatAudioChunk>) => {
+      if (!frame) return;
+      const meta = incomingAudioMetas.get(frame.messageId);
+      if (!meta) return;
+      if (frame.index < 0 || frame.index >= meta.totalChunks) return;
+      const chunks = incomingAudioChunks.get(frame.messageId);
+      if (!chunks || chunks.has(frame.index)) return;
+      chunks.set(frame.index, base64ToBytes(frame.data));
+    };
+
+    const handleAudioEnd = async (frame: ReturnType<typeof parseChatAudioEnd>) => {
+      if (!frame) return;
+      const meta = incomingAudioMetas.get(frame.messageId);
+      const chunks = incomingAudioChunks.get(frame.messageId);
+      if (!meta || !chunks) return;
+      try {
+        if (chunks.size !== meta.totalChunks) return;
+        const bytes = new Uint8Array(meta.size);
+        let offset = 0;
+        for (let index = 0; index < meta.totalChunks; index++) {
+          const chunk = chunks.get(index);
+          if (!chunk) return;
+          bytes.set(chunk, offset);
+          offset += chunk.length;
+        }
+        if (offset !== meta.size) return;
+        const digest = await sha256Hex(bytes);
+        if (digest.toLowerCase() !== meta.sha256.toLowerCase()) return;
+        const blob = new Blob([bytes.buffer], { type: meta.mime });
+        await saveVoiceBlob(meta.messageId, blob);
+        let audioUrl = "";
+        try {
+          audioUrl = URL.createObjectURL(blob);
+        } catch {
+          // jsdom/undici lack createObjectURL; UI falls back to the IDB-blob URL.
+        }
+        const messageId = meta.messageId;
+        appendIncomingToDmChat(meta.chatId, meta.chatName, {
+          id: messageId,
+          sender: meta.senderName,
+          text: "",
+          type: "audio",
+          voiceId: meta.messageId,
+          audioUrl: audioUrl || undefined,
+          duration: formatDurationStr(meta.duration),
+          mime: meta.mime,
+          ts: meta.timestamp,
+          time: new Date(meta.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          status: "delivered",
+          silent: false,
+        });
+        try {
+          await p2pNetwork.sendAddressed(
+            p2pNetwork.peerForChat(meta.chatId) ?? p2pNetwork.peerForChatName(meta.chatName),
+            encodeChatDeliveryAck({
+              type: "chat-ack",
+              seq: nextFrameSeq(),
+              messageId,
+              chatId: meta.chatId,
+              timestamp: Date.now(),
+            }),
+          );
+        } catch {
+          // Ack is best-effort; the message is already delivered.
+        }
+      } finally {
+        incomingAudioMetas.delete(frame.messageId);
+        incomingAudioChunks.delete(frame.messageId);
+      }
+    };
+
     const handleMessage = (msg: BroadcastMessage) => {
       if (msg.senderId === p2pNetwork.getPeerId()) return;
       if (processedMessageIds.has(msg.messageId)) return;
@@ -203,6 +290,21 @@ export function useP2PMessages() {
         if (ack) markOutgoingStatus(ack, "delivered");
         else if (read) markOutgoingStatus(read, "read");
         else {
+          const audioMeta = parseChatAudioMeta(raw);
+          if (audioMeta) {
+            handleAudioMeta(audioMeta, msg.senderId);
+            return;
+          }
+          const audioChunk = parseChatAudioChunk(raw);
+          if (audioChunk) {
+            void handleAudioChunk(audioChunk).catch(() => {});
+            return;
+          }
+          const audioEnd = parseChatAudioEnd(raw);
+          if (audioEnd) {
+            void handleAudioEnd(audioEnd).catch(() => {});
+            return;
+          }
           const text = parseChatText(raw);
           if (text) {
             p2pNetwork.rememberPeer(msg.senderId, text.senderName);

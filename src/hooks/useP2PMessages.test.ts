@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useP2PMessages } from './useP2PMessages';
 import { FTR_MAGIC, encodeFrame, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
-import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeCallSignal } from '../lib/p2p/chatFrame';
+import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
 import { saveTransferMeta, saveChunk, pruneAbandonedTransfers, pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer, listTransfers, type StoredTransfer } from '../lib/fileTransfer/fileStore';
 import { p2pNetwork, type BroadcastMessage } from '../lib/p2p/network';
 
@@ -12,6 +12,11 @@ const mocks = vi.hoisted(() => ({
   handleRemoteCallSignal: vi.fn(),
   sha256Hex: vi.fn(),
 }));
+
+vi.mock('../lib/voiceStore', () => ({
+  saveVoiceBlob: vi.fn().mockResolvedValue(undefined),
+}));
+import { saveVoiceBlob } from '../lib/voiceStore';
 
 vi.mock('../lib/call/CallManager', () => ({
   callManager: { handleRemoteCallSignal: mocks.handleRemoteCallSignal },
@@ -590,6 +595,215 @@ describe('useP2PMessages', () => {
       await settle();
     });
     expect(vi.mocked(saveTransferMeta)).not.toHaveBeenCalled();
+    expect(mocks.setChats).not.toHaveBeenCalled();
+  });
+
+  it('reassembles an incoming voice message from meta/chunk/end and acks', async () => {
+    vi.mocked(mocks.sha256Hex).mockResolvedValue('aabb');
+    const { handle } = setup();
+    const meta: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v1-meta',
+      timestamp: 11,
+      data: encodeChatAudioMeta({
+        type: 'chat-audio-meta',
+        seq: 1,
+        messageId: 'voice-1',
+        chatId: 'dm-1',
+        chatName: 'Bob',
+        senderName: 'Bob',
+        duration: 5,
+        mime: 'audio/webm',
+        size: 3,
+        chunkSize: 46080,
+        totalChunks: 1,
+        sha256: 'aabb',
+        timestamp: 11,
+      }),
+    };
+    const chunk: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v1-chunk-0',
+      timestamp: 12,
+      data: encodeChatAudioChunk({
+        type: 'chat-audio-chunk',
+        seq: 2,
+        messageId: 'voice-1',
+        index: 0,
+        data: bytesToBase64(new Uint8Array([1, 2, 3])),
+      }),
+    };
+    const end: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v1-end',
+      timestamp: 13,
+      data: encodeChatAudioEnd({ type: 'chat-audio-end', seq: 3, messageId: 'voice-1' }),
+    };
+
+    await act(async () => {
+      handle(meta);
+      await settle();
+      handle(chunk);
+      await settle();
+      handle(end);
+      await settle();
+    });
+
+    expect(vi.mocked(saveVoiceBlob)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(saveVoiceBlob).mock.calls[0][0]).toBe('voice-1');
+    expect(vi.mocked(saveVoiceBlob).mock.calls[0][1]).toBeInstanceOf(Blob);
+    expect(vi.mocked(p2pNetwork.rememberChatPeer)).toHaveBeenCalledWith('dm-1', 'Bob', 'peer-remote');
+    expect(vi.mocked(p2pNetwork.sendAddressed)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(p2pNetwork.sendAddressed).mock.calls[0][1]).toContain('chat-ack');
+
+    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const last = chats[0].history.at(-1);
+    expect(last.id).toBe('voice-1');
+    expect(last.type).toBe('audio');
+    expect(last.sender).toBe('Bob');
+    expect(last.voiceId).toBe('voice-1');
+    expect(last.duration).toBe('0:05');
+    expect(last.status).toBe('delivered');
+  });
+
+  it('drops voice data when the declared hash does not match', async () => {
+    vi.mocked(mocks.sha256Hex).mockResolvedValue('deadbeef');
+    const { handle } = setup();
+    const meta: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v2-meta',
+      timestamp: 21,
+      data: encodeChatAudioMeta({
+        type: 'chat-audio-meta',
+        seq: 1,
+        messageId: 'voice-2',
+        chatId: 'dm-1',
+        chatName: 'Bob',
+        senderName: 'Bob',
+        duration: 2,
+        mime: 'audio/webm',
+        size: 2,
+        chunkSize: 46080,
+        totalChunks: 1,
+        sha256: 'aabb',
+        timestamp: 21,
+      }),
+    };
+    const chunk: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v2-chunk-0',
+      timestamp: 22,
+      data: encodeChatAudioChunk({
+        type: 'chat-audio-chunk',
+        seq: 2,
+        messageId: 'voice-2',
+        index: 0,
+        data: bytesToBase64(new Uint8Array([7, 8])),
+      }),
+    };
+    const end: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v2-end',
+      timestamp: 23,
+      data: encodeChatAudioEnd({ type: 'chat-audio-end', seq: 3, messageId: 'voice-2' }),
+    };
+
+    await act(async () => {
+      handle(meta);
+      await settle();
+      handle(chunk);
+      await settle();
+      handle(end);
+      await settle();
+    });
+
+    expect(vi.mocked(saveVoiceBlob)).not.toHaveBeenCalled();
+    expect(mocks.setChats).not.toHaveBeenCalled();
+  });
+
+  it('fails closed on oversized voice meta and ignores its chunks', async () => {
+    const { handle } = setup();
+    const meta: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v3-meta',
+      timestamp: 31,
+      data: encodeChatAudioMeta({
+        type: 'chat-audio-meta',
+        seq: 1,
+        messageId: 'voice-3',
+        chatId: 'dm-1',
+        chatName: 'Bob',
+        senderName: 'Bob',
+        duration: 2,
+        mime: 'audio/webm',
+        size: VOICE_P2P_MAX_SIZE + 1,
+        chunkSize: 46080,
+        totalChunks: 1,
+        sha256: 'aabb',
+        timestamp: 31,
+      }),
+    };
+    const chunk: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v3-chunk-0',
+      timestamp: 32,
+      data: encodeChatAudioChunk({
+        type: 'chat-audio-chunk',
+        seq: 2,
+        messageId: 'voice-3',
+        index: 0,
+        data: bytesToBase64(new Uint8Array([1])),
+      }),
+    };
+
+    await act(async () => {
+      handle(meta);
+      await settle();
+      handle(chunk);
+      await settle();
+    });
+
+    expect(mocks.setChats).not.toHaveBeenCalled();
+    expect(vi.mocked(saveVoiceBlob)).not.toHaveBeenCalled();
+  });
+
+  it('ignores an audio end frame that arrives before its chunks', async () => {
+    const { handle } = setup();
+    const meta: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v4-meta',
+      timestamp: 41,
+      data: encodeChatAudioMeta({
+        type: 'chat-audio-meta',
+        seq: 1,
+        messageId: 'voice-4',
+        chatId: 'dm-1',
+        chatName: 'Bob',
+        senderName: 'Bob',
+        duration: 1,
+        mime: 'audio/webm',
+        size: 5,
+        chunkSize: 46080,
+        totalChunks: 1,
+        sha256: 'aabb',
+        timestamp: 41,
+      }),
+    };
+    const end: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'audio-v4-end',
+      timestamp: 42,
+      data: encodeChatAudioEnd({ type: 'chat-audio-end', seq: 2, messageId: 'voice-4' }),
+    };
+
+    await act(async () => {
+      handle(meta);
+      await settle();
+      handle(end);
+      await settle();
+    });
+
+    expect(vi.mocked(saveVoiceBlob)).not.toHaveBeenCalled();
     expect(mocks.setChats).not.toHaveBeenCalled();
   });
 });
