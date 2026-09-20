@@ -65,6 +65,15 @@ vi.mock('../payments/PaymentChatBubble', () => ({
   PaymentChatBubble: ({ isDark }: any) => <div data-testid="payment-bubble" data-dark={String(isDark)} />,
 }));
 
+const storeState = vi.hoisted(() => ({
+  contactAvatars: {} as Record<string, string>,
+  userProfile: {} as any,
+}));
+
+vi.mock('../../store', () => ({
+  useAppStore: (sel?: any) => (sel ? sel(storeState) : storeState),
+}));
+
 const baseProps = (overrides: any = {}) => ({
   msg: { id: 1, text: 'hello', _isLastInGroup: false },
   isMe: false,
@@ -98,6 +107,8 @@ const bubbleEl = () => document.querySelector('[class*="max-w-[85%] md:max-w-[80
 describe('ChatMessage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    storeState.contactAvatars = {};
+    storeState.userProfile = {};
   });
 
   afterEach(() => {
@@ -137,6 +148,28 @@ describe('ChatMessage', () => {
     render(<ChatMessage {...baseProps({ msg: { id: 2, type: 'sticker', text: 'smile', _isLastInGroup: true } })} />);
     expect(screen.getByTestId('attachment-media')).toHaveAttribute('data-sticker', 'sticker-url');
     expect(screen.queryByTestId('formatted-text')).not.toBeInTheDocument();
+  });
+
+  it('renders sender avatar initials on first message in group', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'first' } })} />);
+    expect(screen.getByText('B')).toBeInTheDocument();
+  });
+
+  it('renders contact avatar image when contactAvatars has the sender', () => {
+    storeState.contactAvatars = { Bob: 'data:image/png;base64,xxx' };
+    render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'single' } })} />);
+    expect(screen.getByAltText('Bob avatar')).toHaveAttribute('src', 'data:image/png;base64,xxx');
+  });
+
+  it('renders own avatar image from user profile for outgoing group-first', () => {
+    storeState.userProfile = { name: 'Alice', avatar: 'https://cdn.example/me.png' };
+    render(<ChatMessage {...baseProps({ isMe: true, msg: { id: 1, text: 'hi', sender: 'me', _groupPosition: 'first' } })} />);
+    expect(screen.getByAltText('me avatar')).toHaveAttribute('src', 'https://cdn.example/me.png');
+  });
+
+  it('renders spacer instead of avatar on non-first messages', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'middle' } })} />);
+    expect(screen.queryByText('B')).not.toBeInTheDocument();
   });
 
   it('renders payment bubble for payment messages', () => {

@@ -19,6 +19,8 @@ import { ChannelCommentsRow } from "./ChannelCommentsRow";
 import { ReplyQuote } from "./ReplyQuote";
 import { PaymentChatBubble } from "../payments/PaymentChatBubble";
 import { isMorseCode, decodeMorse } from "../MorseDecoder";
+import { Avatar } from "../ui/Avatar";
+import { useAppStore } from "../../store";
 
 interface ChatMessageProps {
   msg: any;
@@ -70,6 +72,17 @@ function ChatMessageImpl({
   const [menuOpen, setMenuOpen] = React.useState(false);
   const { t } = useI18n();
   const { translate } = useServices();
+  const contactAvatars = useAppStore((s) => s.contactAvatars);
+  const userProfile = useAppStore((s) => s.userProfile);
+  const isGroupFirst =
+    msg._groupPosition === "first" || msg._groupPosition === "single";
+  const displayName = String(msg.sender || chat?.name || "");
+  const avatarSrc = isMe
+    ? userProfile?.avatar
+    : isChannel || !displayName
+      ? undefined
+      : contactAvatars?.[displayName];
+  const avatarColor = isMe ? undefined : chat?.color;
   const [expired, setExpired] = React.useState(
     () => typeof msg.selfDestructAt === "number" && Date.now() > (msg.selfDestructAt as number),
   );
@@ -188,6 +201,15 @@ function ChatMessageImpl({
           onPointerCancel={handlePointerCancel}
           className={`msg-bubble message max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit shrink-0 ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
         >
+          {!isChannel && isGroupFirst && (!msg.type || msg.type === "text") && (
+            <Avatar
+              name={displayName || (isMe ? userProfile?.name || "Me" : "?")}
+              src={avatarSrc}
+              color={avatarColor}
+              size="sm"
+              className="msg-inline-avatar"
+            />
+          )}
           <AttachmentMedia
             msg={msg}
             isMe={isMe}
