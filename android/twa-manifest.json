@@ -13,15 +13,15 @@
   "backgroundColor": "#0A0A0A",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "http://localhost:11132/icons/pwa-512x512.png",
-  "maskableIconUrl": "http://localhost:11132/icons/pwa-512x512.png",
+  "iconUrl": "http://localhost:7763/icons/pwa-512x512.png",
+  "maskableIconUrl": "http://localhost:7763/icons/pwa-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "F:\\AISTUDIO\\neumorphic-ui\\messandanger-keystore.jks",
     "alias": "messandanger"
   },
-  "appVersionName": "1.0.7",
-  "appVersionCode": 8,
+  "appVersionName": "1.0.8",
+  "appVersionCode": 9,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "fallbackType": "customtabs",
@@ -40,5 +40,5 @@
   "displayOverride": [
     "edge-to-edge"
   ],
-  "appVersion": "1.0.7"
+  "appVersion": "1.0.8"
 }
