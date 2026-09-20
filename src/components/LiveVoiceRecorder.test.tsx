@@ -180,26 +180,83 @@ describe('LiveVoiceRecorder', () => {
   });
 
   it('adds window event listeners for hold-to-record', async () => {
-    const addListenerSpy = vi.spyOn(window, 'addEventListener').mockImplementation(() => {});
+    const addListenerSpy = vi.spyOn(window, 'addEventListener');
     render(<LiveVoiceRecorder {...defaultProps} holdToRecord={true} />);
 
     await waitFor(() => {
-      expect(addListenerSpy).toHaveBeenCalledWith('pointerup', expect.any(Function), { once: true });
-      expect(addListenerSpy).toHaveBeenCalledWith('mouseup', expect.any(Function), { once: true });
-      expect(addListenerSpy).toHaveBeenCalledWith('touchend', expect.any(Function), { once: true });
-      expect(addListenerSpy).toHaveBeenCalledWith('touchcancel', expect.any(Function), { once: true });
+      expect(addListenerSpy).toHaveBeenCalledWith('pointerup', expect.any(Function));
+      expect(addListenerSpy).toHaveBeenCalledWith('mouseup', expect.any(Function));
+      expect(addListenerSpy).toHaveBeenCalledWith('touchend', expect.any(Function));
+      expect(addListenerSpy).toHaveBeenCalledWith('touchcancel', expect.any(Function));
     });
   });
 
   it('does not add hold-to-record window event listeners when holdToRecord is false', async () => {
-    const addListenerSpy = vi.spyOn(window, 'addEventListener').mockImplementation(() => {});
+    const addListenerSpy = vi.spyOn(window, 'addEventListener');
     render(<LiveVoiceRecorder {...defaultProps} holdToRecord={false} />);
 
     await waitFor(() => {
-      expect(addListenerSpy).not.toHaveBeenCalledWith('pointerup', expect.any(Function), { once: true });
-      expect(addListenerSpy).not.toHaveBeenCalledWith('mouseup', expect.any(Function), { once: true });
-      expect(addListenerSpy).not.toHaveBeenCalledWith('touchend', expect.any(Function), { once: true });
-      expect(addListenerSpy).not.toHaveBeenCalledWith('touchcancel', expect.any(Function), { once: true });
+      expect(screen.getByTitle('Discard')).toBeInTheDocument();
+    });
+
+    expect(addListenerSpy).not.toHaveBeenCalledWith('pointerup', expect.any(Function));
+    expect(addListenerSpy).not.toHaveBeenCalledWith('mouseup', expect.any(Function));
+    expect(addListenerSpy).not.toHaveBeenCalledWith('touchend', expect.any(Function));
+    expect(addListenerSpy).not.toHaveBeenCalledWith('touchcancel', expect.any(Function));
+  });
+
+  it('cancels when released before getUserMedia resolves', async () => {
+    let resolveStream!: (s: MediaStream) => void;
+    const streamPromise = new Promise<MediaStream>((resolve) => {
+      resolveStream = resolve;
+    });
+    const getUserMedia = vi.fn(() => streamPromise);
+
+    Object.defineProperty(navigator, 'mediaDevices', {
+      value: { getUserMedia },
+      writable: true,
+      configurable: true,
+    });
+
+    render(<LiveVoiceRecorder {...defaultProps} />);
+
+    await waitFor(() => {
+      expect(getUserMedia).toHaveBeenCalled();
+    });
+
+    fireEvent.pointerUp(window);
+    resolveStream({ getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream);
+
+    await waitFor(() => {
+      expect(defaultProps.onCancel).toHaveBeenCalled();
+    });
+    expect(defaultProps.onSend).not.toHaveBeenCalled();
+  });
+
+  it('sends when released while recording', async () => {
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-voice');
+    const MediaRecorderMock = vi.fn().mockImplementation(function(this: any, stream: any) {
+      this.state = 'recording';
+      this.stream = stream || { getTracks: () => [{ stop: vi.fn() }] };
+      this.start = vi.fn();
+      this.stop = vi.fn(function(this: any) {
+        this.state = 'inactive';
+        const cb = this.onstop;
+        if (typeof cb === 'function') cb();
+      });
+    });
+    (window as any).MediaRecorder = MediaRecorderMock;
+
+    render(<LiveVoiceRecorder {...defaultProps} />);
+
+    await waitFor(() => {
+      expect(MediaRecorderMock).toHaveBeenCalled();
+    });
+
+    fireEvent.pointerUp(window);
+
+    await waitFor(() => {
+      expect(defaultProps.onSend).toHaveBeenCalledWith('blob:mock-voice', '0:00', expect.any(Blob));
     });
   });
 });

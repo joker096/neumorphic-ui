@@ -26,9 +26,18 @@ export const LiveVoiceRecorder = ({ onCancel, onSend, onPermissionDenied, holdTo
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<BlobPart[]>([]);
     const durationRef = useRef(0);
+    const releasedRef = useRef(false);
     
     useEffect(() => {
        startRecording();
+
+       if (holdToRecord) {
+          window.addEventListener("pointerup", handleRelease);
+          window.addEventListener("mouseup", handleRelease);
+          window.addEventListener("touchend", handleRelease);
+          window.addEventListener("touchcancel", handleCancel);
+       }
+
        return () => {
           removeStopListeners();
           cleanup();
@@ -52,10 +61,19 @@ export const LiveVoiceRecorder = ({ onCancel, onSend, onPermissionDenied, holdTo
     };
 
 const removeStopListeners = () => {
-        window.removeEventListener("pointerup", handleStopAndSend);
-        window.removeEventListener("mouseup", handleStopAndSend);
-        window.removeEventListener("touchend", handleStopAndSend);
+        window.removeEventListener("pointerup", handleRelease);
+        window.removeEventListener("mouseup", handleRelease);
+        window.removeEventListener("touchend", handleRelease);
         window.removeEventListener("touchcancel", handleCancel);
+     };
+
+     const handleRelease = () => {
+        removeStopListeners();
+        if (mediaRecorderRef.current?.state === "recording") {
+          handleStopAndSend();
+        } else {
+          releasedRef.current = true;
+        }
      };
 
      const handlePauseResume = () => {
@@ -71,8 +89,14 @@ const removeStopListeners = () => {
 
     const startRecording = async () => {
        try {
-          const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          setStream(mediaStream);
+           const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+           if (releasedRef.current) {
+              mediaStream.getTracks().forEach(t => t.stop());
+              removeStopListeners();
+              onCancel();
+              return;
+           }
+           setStream(mediaStream);
           const mr = new MediaRecorder(mediaStream);
           mediaRecorderRef.current = mr;
           chunksRef.current = [];
@@ -92,16 +116,10 @@ const removeStopListeners = () => {
               onSend(url, `${m}:${s.toString().padStart(2, '0')}`, blob);
            };
 
-          mr.start(100);
-          setIsRecording(true);
-          if (holdToRecord) {
-             window.addEventListener("pointerup", handleStopAndSend, { once: true });
-             window.addEventListener("mouseup", handleStopAndSend, { once: true });
-             window.addEventListener("touchend", handleStopAndSend, { once: true });
-             window.addEventListener("touchcancel", handleCancel, { once: true });
-          }
+           mr.start(100);
+           setIsRecording(true);
 
-       } catch (err) {
+        } catch (err) {
           console.error("Mic access denied", err);
            onPermissionDenied?.(label('voiceRecorder.permissionDenied', 'Microphone access is blocked. Please allow microphone permissions and try again.'));
           onCancel(); // exit immediately if no mic
