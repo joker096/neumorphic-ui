@@ -218,6 +218,17 @@ export function logDisconnection(pk: string): void {
   ).run(pk)
 }
 
+// Connection log retention: purge rows older than `retentionDays`. Bounds the
+// metadata we keep (public_key + IP + UA) and gives the operator a documented
+// tail. SQLite `datetime('now', '-N days')` accepts the modifier string as a
+// bound parameter.
+export function purgeOldConnections(retentionDays: number): number {
+  const r = getDb()
+    .prepare("DELETE FROM connections WHERE connected_at < datetime('now', ?)")
+    .run(`-${Math.max(1, Math.floor(retentionDays))} days`)
+  return r.changes
+}
+
 export function closeDb(): void {
   if (db) {
     db.close()

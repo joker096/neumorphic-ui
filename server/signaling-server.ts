@@ -4,7 +4,7 @@ import { readFileSync, existsSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import jwt from 'jsonwebtoken'
-import { logConnection, logDisconnection, closeDb } from './db.js'
+import { logConnection, logDisconnection, purgeOldConnections, closeDb } from './db.js'
 import { handleAuthRoute } from './routes/auth.js'
 import { handleStatsRoute } from './routes/stats.js'
 import { handleAdsRoute } from './routes/ads.js'
@@ -607,7 +607,10 @@ const restServer = createServer((req, res) => {
 
     if (path === '/health' && req.method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ status: 'ok', nodes: clients.size, uptime: process.uptime() }))
+      // Live client count is intentionally not exposed publicly — an unauthed
+      // presence oracle. Ops get counts via the auth-gated /api/stats/overview;
+      // clients.size stays an internal presence tracker for WS routing.
+      res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }))
       return
     }
 
@@ -667,6 +670,21 @@ restServer.listen(REST_PORT, () => {
 
 server.listen(PORT, () => {
   console.log(`[Mess&Anger] Signaling server listening on port ${PORT}`)
+
+  // Connection-log retention: purge rows older than the configured window on
+  // boot, then once daily. Bounds how long public_key + IP + UA metadata is
+  // kept server-side (default 30 days).
+  const retentionDays = parseInt(process.env.CONNECTION_LOG_RETENTION_DAYS || '30', 10)
+  const runPurge = () => {
+    try {
+      const purged = purgeOldConnections(retentionDays)
+      if (purged > 0) console.log(`[Mess&Anger] Purged ${purged} stale connection${purged === 1 ? '' : 's'} (>${retentionDays}d)`)
+    } catch (e) {
+      console.error('[Mess&Anger] Connection retention purge failed:', e)
+    }
+  }
+  runPurge()
+  setInterval(runPurge, 24 * 60 * 60 * 1000).unref()
 })
 
 process.on('SIGINT', () => {

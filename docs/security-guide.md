@@ -184,6 +184,31 @@ The HMAC key is established via X25519 Diffie-Hellman key exchange during WebRTC
 
 The codebase does not transmit HMAC keys in plaintext. The DH key exchange path is the primary mechanism. The legacy fallback (`msg.hmacKey` in `handleAnswer`) exists only for backward compatibility and should not be relied upon.
 
+## Signaling Visibility
+
+What the signaling server (`server/signaling-server.ts`) observes when relaying P2P traffic:
+
+- **Registration:** only the peer's `publicKey` (a pseudo-anonymous key hash) plus the connection IP/User-Agent, persisted in the `connections` table (see `server/db.ts`).
+- **SDP offer/answer + ICE candidates:** sent in full plaintext. SDP and ICE necessarily contain LAN/public IP addresses of both peers — the server must relay them for the WebRTC handshake to complete. End-to-end encryption of the signaling channel is not implemented; this is a documented limitation, not a data-path exposure (messages later flow over the DTLS/encrypted data channel).
+- **Metadata frames** (`typing-indicator`, `online-status`, `delivery-receipt`, `read-receipt`): the server sees the message types, sender and target (an A→B social graph) but the payload is minimized to primitives only — `{ isTyping }` or `{ online }`. Display names are never transmitted in metadata; the client resolves names via `getPeerName()` locally.
+- **Topic pub/sub** (`company:*` rooms): the server sees the topic, the sender and the plaintext envelope — this is server-readable by design (serverless room registry for company presence/notify).
+- **Peer enumeration:** `/api/peers/:key` only answers single-key online lookups. Batch/list enumeration endpoints are intentionally absent.
+- **Public `/health`:** reports `{ status, uptime }` only. The live connected-client count is deliberately not exposed publicly (it was an unauthenticated presence oracle); operators get counts via the auth-gated `/api/stats/overview`.
+
+### Connection Log Retention
+
+`connections` rows accumulate metadata (public key + IP + User-Agent + timestamps) indefinitely unless pruned. The server prunes them automatically:
+
+- Env `CONNECTION_LOG_RETENTION_DAYS` (default `30`) sets the retention window.
+- On boot and then every 24h, `purgeOldConnections(retentionDays)` deletes rows whose `connected_at` is older than the window; the purged count is logged.
+
+### Documented Relay-Only Mode
+
+Relay routing is optional and opt-in:
+
+- Configure `VITE_RELAY_PROXY_URL` on the client and choose a `relayBackend` setting in Network settings (the relay-backend row is hidden when no relay proxy is configured).
+- A relay peer sees only the signaling it forwards plus addressed payload forwarding. The data plane remains end-to-end encrypted over the WebRTC data channel — relay does not decrypt message content.
+
 ## TOTP Two-Factor Authentication
 
 Implementation in `server/auth.ts` using the `otpauth` library.

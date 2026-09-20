@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import path from 'node:path'
 import fs from 'node:fs'
-import { getDb, closeDb, resetDbForTests } from '../db'
+import { getDb, closeDb, resetDbForTests, purgeOldConnections } from '../db'
 
 const TEST_DB = path.join(process.cwd(), 'data', 'test-admin.db')
 
@@ -59,5 +59,21 @@ describe('Database Layer', () => {
       'SELECT COUNT(*) as count FROM connections WHERE disconnected_at IS NULL'
     ).get() as { count: number }
     expect(count.count).toBeGreaterThanOrEqual(0)
+  })
+
+  it('should purge stale connection logs beyond the retention window', () => {
+    const db = getDb()
+    db.prepare(
+      "INSERT INTO connections (public_key, ip, user_agent, connected_at) VALUES (?, ?, ?, datetime('now', '-90 days'))"
+    ).run('pk_old', '9.9.9.9', 'StaleAgent')
+    db.prepare(
+      'INSERT INTO connections (public_key, ip, user_agent, connected_at) VALUES (?, ?, ?, datetime(\'now\'))'
+    ).run('pk_fresh', '1.1.1.1', 'FreshAgent')
+    const purged = purgeOldConnections(30)
+    expect(purged).toBeGreaterThanOrEqual(1)
+    const stale = db.prepare('SELECT * FROM connections WHERE public_key = ?').get('pk_old')
+    const fresh = db.prepare('SELECT * FROM connections WHERE public_key = ?').get('pk_fresh')
+    expect(stale).toBeUndefined()
+    expect(fresh).not.toBeUndefined()
   })
 })

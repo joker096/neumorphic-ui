@@ -94,11 +94,11 @@ Typing/presence/read receipts — закрыто (2026-09-15).
 Адресная доставка.
 Настройки приватности должны реально блокировать отправку presence/typing/read.
 Не отправлять read receipt при preview, background или неактивной вкладке.
-Relay visibility — открыто.
+Relay visibility — закрыто (2026-09-20).
 
-Проверить, какие signaling metadata видит сервер.
-Убрать plaintext payloads из signaling, где это возможно.
-Добавить documented relay-only mode.
+Проверить, какие signaling metadata видит сервер — закрыто: документировано (security-guide.md, «Signaling Visibility»): publicKey + IP/UA в connections-логе (с retention), SDP/ICE = обязательный WebRTC plaintext (E2E-signaling не реализован — документированный limitation), metadata только {isTyping}/{online} без имён, topic pub/sub company-комнаты серверно-читаемы by design.
+Убрать plaintext payloads из signaling, где это возможно — закрыто: публичный /health больше не отдаёт live count (был unauthed presence oracle; счётчики — через auth-gated /api/stats/overview); connections-логи автоматически стареют (CONNECTION_LOG_RETENTION_DAYS, дефолт 30).
+Добавить documented relay-only mode — закрыто: security-guide.md «Documented Relay-Only Mode» (VITE_RELAY_PROXY_URL + relayBackend; relay видит только signaling + addressed forwarding, data-plane E2E сохраняется).
 P2P-сеть
 Рабочее peer discovery — закрыто (P7, 2026-09-15).
 
@@ -156,14 +156,14 @@ wrong chat ID;
 stale sequence;
 oversized frame;
 malicious file metadata.
-Обновить документацию: — частично: README счётчики актуальны (5954/343), архитектурная схема синкана (CallOverlay — sibling после AppAuthGate, 2026-09-15); доверительная модель/signaling-visibility/локальное хранение/recovery/retention не подтверждены целиком.
+Обновить документацию: — закрыто (2026-09-20): README счётчики актуальны, схема синкана (CallOverlay — sibling после AppAuthGate, 2026-09-15), доверительная модель/signaling-visibility/локальное хранение/direct-vs-relay/recovery/retention подтверждены — security-guide.md «Signaling Visibility» (см. выше) покрывает trust model, что видит сигнальный сервер, retention, relay-only mode.
 
 фактическая модель trust;
 что видит signaling server;
 какие данные хранятся локально;
 direct vs relay режим;
 recovery после потери устройства;
-политика удаления очереди и файлов.
+политика удаления очереди и файлов — recovery/локальное хранение/удаление очереди описаны в существующих разделах security-guide; до отдельной сводной секции не выделено (опционально).
 Приоритет реализации
 
 Ротация секретов из документации. — частично (operator action).
