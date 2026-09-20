@@ -82,6 +82,54 @@ export function parseFrame(raw: string): FtrFrame | null {
   }
 }
 
+/** Album group: a multi-file message assembled from N individual FTR transfers.
+ * Sender streams each file as its own meta/chunk/end sequence, then emits ONE
+ * album manifest AFTER the last `end` so the receiver already holds every transfer
+ * before the album bubble is rendered. Each manifest `entry.transferId` maps to a
+ * completed (or completing) transfer; per-tile blob URLs resolve via useFtrBlobUrl.
+ */
+export const ALBUM_MAGIC = 'abm1:';
+
+export interface AlbumEntry {
+  transferId: string;
+  name: string;
+  mime: string;
+  size: number;
+}
+
+export interface AlbumManifest {
+  albumId: string;
+  messageId: number;
+  chatId: string;
+  chatName: string;
+  senderName: string;
+  timestamp: number;
+  silent?: boolean;
+  entries: AlbumEntry[];
+}
+
+/** Encode an album manifest (magic prefix + JSON). */
+export function encodeAlbumManifest(manifest: AlbumManifest): string {
+  return ALBUM_MAGIC + JSON.stringify(manifest);
+}
+
+/** Parse a wire payload into an album manifest; null when invalid/legacy. */
+export function parseAlbumManifest(raw: string): AlbumManifest | null {
+  if (!raw.startsWith(ALBUM_MAGIC)) return null;
+  try {
+    const p = JSON.parse(raw.slice(ALBUM_MAGIC.length)) as AlbumManifest;
+    if (!isStr(p.albumId) || !isStr(p.chatId) || !isStr(p.chatName) || !isStr(p.senderName)) return null;
+    if (!Number.isSafeInteger(p.messageId) || !isNum(p.timestamp)) return null;
+    if (!Array.isArray(p.entries) || p.entries.length < 2) return null;
+    for (const e of p.entries) {
+      if (!isStr(e?.transferId) || !isStr(e?.name) || !isStr(e?.mime) || !isNum(e?.size) || (e?.size as number) < 0) return null;
+    }
+    return p;
+  } catch {
+    return null;
+  }
+}
+
 /** Encode binary chunk data as a base64 payload (btoa is not binary-safe per-call). */
 export function bytesToBase64(bytes: Uint8Array): string {
   let binary = '';

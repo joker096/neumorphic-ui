@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Play, FileText, FileSpreadsheet, FileArchive, FileCode,
+  Play, Loader2, FileText, FileSpreadsheet, FileArchive, FileCode,
   Image as ImageIcon, Music, Film, ImageOff, VideoOff, Download,
   type LucideIcon,
 } from "lucide-react";
@@ -11,6 +11,7 @@ import { getTransferMeta, getTransferBlob } from "../../lib/fileTransfer/fileSto
 import { sha256Hex } from "../../lib/fileTransfer/integrity";
 import { VoiceWaveform } from "./VoiceWaveform";
 import { useVoiceBlobUrl } from "../../hooks/useVoiceBlobUrl";
+import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
 import { formatSize } from "../../utils/formatSize";
 import { getFileKind, type FileKind } from "../../utils/fileType";
 import { StoryCard } from "../stories/StoryCard";
@@ -45,6 +46,37 @@ interface AttachmentMediaProps {
   onSetActivePhotoUrl: (url: string) => void;
   onSetPhotoOpen: (open: boolean) => void;
   onSetVideoOpen: (open: boolean) => void;
+}
+
+interface AlbumTileProps {
+  url: string;
+  alt: string;
+  onError: () => void;
+  className?: string;
+}
+
+function AlbumTile({ url, alt, onError, className }: AlbumTileProps) {
+  const isFtr = typeof url === "string" && url.startsWith(FTR_MAGIC);
+  const ftrId = isFtr ? url.slice(FTR_MAGIC.length) : null;
+  const ftrUrl = useFtrBlobUrl(ftrId);
+  const src = ftrId ? ftrUrl : url;
+  if (!src) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]">
+        <Loader2 size={18} className="animate-spin text-[var(--text-tertiary)]" />
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      loading="lazy"
+      decoding="async"
+      onError={onError}
+    />
+  );
 }
 
 export function AttachmentMedia({
@@ -194,12 +226,10 @@ export function AttachmentMedia({
             return (
               <div key={`${it.url}-${i}`} className="relative aspect-square overflow-hidden">
                 {!isFailed ? (
-                  <img
-                    src={it.url}
+                  <AlbumTile
+                    url={it.url}
                     alt={msg.text ? t("chat.sharedImageText", { text: msg.text }) : t("chat.sharedImage")}
                     className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
                     onError={() => setAlbumFailed((prev) => (prev.includes(i) ? prev : [...prev, i]))}
                   />
                 ) : (

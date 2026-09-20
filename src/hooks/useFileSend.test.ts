@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { toast } from 'sonner';
 import { useFileSend } from './useFileSend';
-import { FTR_MAGIC, parseFrame, bytesToBase64 } from '../lib/fileTransfer/frames';
+import { FTR_MAGIC, ALBUM_MAGIC, parseFrame, parseAlbumManifest, bytesToBase64 } from '../lib/fileTransfer/frames';
 import { saveTransferMeta, saveChunk } from '../lib/fileTransfer/fileStore';
 import { sha256Hex } from '../lib/fileTransfer/integrity';
 import { getAttachmentLimit } from '../config/premium';
@@ -167,5 +167,81 @@ describe('useFileSend', () => {
     expect(p2pNetwork.broadcast).not.toHaveBeenCalled();
     expect(vi.mocked(saveTransferMeta)).not.toHaveBeenCalled();
     expect(state.activeChat.history.at(-1).status).toBe('failed');
+  });
+});
+
+describe('useFileSend.sendFiles', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(sha256Hex).mockResolvedValue('sha-abc');
+    vi.mocked(getAttachmentLimit).mockReturnValue(50 * 1024 * 1024);
+    vi.mocked(isAllowedFileType).mockReturnValue(true);
+    let n = 0;
+    vi.stubGlobal('crypto', { randomUUID: () => `album-${++n}` });
+  });
+
+  it('sends an album manifest first, then per-file meta/chunk/end, inserting one album message', async () => {
+    const { state, result } = setup();
+    const f1 = new File([new Uint8Array([1, 2, 3])], 'a.png', { type: 'image/png' });
+    const f2 = new File([new Uint8Array([4])], 'b.png', { type: 'image/png' });
+
+    await act(async () => {
+      await result.current.sendFiles([f1, f2]);
+    });
+
+    expect(p2pNetwork.broadcast).toHaveBeenCalledTimes(7);
+    const raws = (vi.mocked(p2pNetwork.broadcast) as any).mock.calls.map((c: any) => c[0] as string);
+    expect(raws[0]!.startsWith(ALBUM_MAGIC)).toBe(true);
+    const manifest = parseAlbumManifest(raws[0]!);
+    expect(manifest).not.toBeNull();
+    expect(manifest!.entries).toHaveLength(2);
+    expect(manifest!.entries[0]!.size).toBe(3);
+    expect(manifest!.entries[1]!.size).toBe(1);
+    expect(manifest!.chatId).toBe('dm-1');
+    expect(manifest!.senderName).toBe('Me');
+    expect(manifest!.messageId).toBe(Number(manifest!.albumId));
+
+    const frameTypes = raws.slice(1).map((raw) => parseFrame(raw)?.type);
+    expect(frameTypes).toEqual(['meta', 'chunk', 'end', 'meta', 'chunk', 'end']);
+
+    expect(vi.mocked(saveTransferMeta)).toHaveBeenCalledTimes(4);
+    expect(state.activeChat.history).toHaveLength(1);
+    const last = state.activeChat.history.at(-1);
+    expect(last.type).toBe('image');
+    expect(last.album).toHaveLength(2);
+    expect(last.album![0]!.url).toBe(FTR_MAGIC + 'album-1');
+    expect(last.album![1]!.url).toBe(FTR_MAGIC + 'album-2');
+    expect(last.attachment).toBe(FTR_MAGIC + 'album-1');
+    expect(last.fileName).toBe('a.png');
+    expect(last.status).toBe('sent');
+  });
+
+  it('delegates to sendFile for a single file', async () => {
+    const { state, result } = setup();
+    const file = new File([new Uint8Array([1])], 'solo.png', { type: 'image/png' });
+
+    await act(async () => {
+      await result.current.sendFiles([file]);
+    });
+
+    expect(p2pNetwork.broadcast).toHaveBeenCalledTimes(3);
+    expect(state.activeChat.history).toHaveLength(1);
+    const last = state.activeChat.history.at(-1);
+    expect(last.album).toBeUndefined();
+    expect(last.attachment).toBe(FTR_MAGIC + 'album-1');
+    expect(last.status).toBe('sent');
+  });
+
+  it('caps the album at 10 files', async () => {
+    const { state, result } = setup();
+    const files = Array.from({ length: 12 }, (_, i) => new File([new Uint8Array([1])], `f${i}.png`, { type: 'image/png' }));
+
+    await act(async () => {
+      await result.current.sendFiles(files);
+    });
+
+    const last = state.activeChat.history.at(-1);
+    expect(last.album).toHaveLength(10);
+    expect(p2pNetwork.broadcast).toHaveBeenCalledTimes(1 + 10 * 3);
   });
 });

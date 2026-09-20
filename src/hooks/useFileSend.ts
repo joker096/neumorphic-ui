@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useI18n } from "../lib/i18n";
 import { getAttachmentLimit } from "../config/premium";
 import { isAllowedFileType } from "../config/allowedFileTypes";
-import { FTR_MAGIC, encodeFrame, nextFileSeq, bytesToBase64, type FtrFrame } from "../lib/fileTransfer/frames";
+import { FTR_MAGIC, encodeFrame, encodeAlbumManifest, nextFileSeq, bytesToBase64, type FtrFrame, type AlbumManifest } from "../lib/fileTransfer/frames";
 import { chunkSizeForFileSize, sliceFileChunks } from "../lib/fileTransfer/chunker";
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { saveTransferMeta, saveChunk, type StoredTransfer } from "../lib/fileTransfer/fileStore";
@@ -142,5 +142,114 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
     }
   }, [chat, appendMessage, updateMessageStatus, t]);
 
-  return { sendFile, progress };
+  const sendFiles = useCallback(async (files: File[], opts: { silent?: boolean } = {}) => {
+    if (!chat || !files || files.length === 0 || sendingRef.current) return;
+    if (files.length === 1) {
+      await sendFile(files[0], opts);
+      return;
+    }
+
+    const premium = useAppStore.getState().premiumEntitlement?.premium ?? false;
+    const limit = getAttachmentLimit(premium);
+    const usable = files.slice(0, 10).filter((f) => {
+      if (f.size > limit) {
+        toast(t("premium.fileTooLarge", { limit: `${Math.round(limit / (1024 * 1024))} MB` }));
+        return false;
+      }
+      if (!isAllowedFileType(f)) {
+        toast(t("premium.fileTypeInvalid", "File type not allowed"));
+        return false;
+      }
+      return true;
+    });
+    if (usable.length === 0) return;
+
+    sendingRef.current = true;
+    const profile = useAppStore.getState().userProfile;
+    const senderName = profile?.name || (profile?.username ? `@${profile.username}` : "User");
+    const entries = usable.map((f) => {
+      const mime = f.type || "application/octet-stream";
+      return { file: f, name: f.name, size: f.size, mime, transferId: crypto.randomUUID() };
+    });
+    const online = navigator.onLine;
+    const msgId = Date.now();
+    const newMessage: any = {
+      id: msgId,
+      sender: "me",
+      text: "",
+      type: "image",
+      attachment: FTR_MAGIC + entries[0].transferId,
+      fileName: entries[0].name,
+      fileSize: entries[0].size,
+      fileTransferId: entries[0].transferId,
+      album: entries.map((e) => ({ url: FTR_MAGIC + e.transferId, fileName: e.name, fileSize: e.size })),
+      ts: Date.now(),
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      status: online ? "sent" : "queued",
+      silent: opts.silent ?? false,
+    };
+    appendMessage(newMessage);
+
+    const safeSend = (frame: FtrFrame) => p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeFrame(frame));
+    const safeSendRaw = (payload: string) => p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), payload);
+
+    try {
+      if (online) {
+        const manifest: AlbumManifest = {
+          albumId: String(msgId),
+          messageId: msgId,
+          chatId: chat.id,
+          chatName: chat.name,
+          senderName,
+          timestamp: Date.now(),
+          silent: opts.silent ?? false,
+          entries: entries.map((e) => ({ transferId: e.transferId, name: e.name, mime: e.mime, size: e.size })),
+        };
+        // Manifest FIRST: the receiver marks these transferIds as album entries so
+        // the per-file meta frames do not render duplicate single-file bubbles.
+        await safeSendRaw(encodeAlbumManifest(manifest));
+      }
+      for (const e of entries) {
+        const sha256 = await sha256Hex(await e.file.arrayBuffer());
+        const chunkSize = chunkSizeForFileSize(e.size);
+        const totalChunks = Math.max(1, Math.ceil(e.size / chunkSize));
+        const meta: StoredTransfer = {
+          transferId: e.transferId,
+          name: e.name,
+          mime: e.mime,
+          size: e.size,
+          chunkSize,
+          totalChunks,
+          sha256,
+          senderPeerId: p2pNetwork.getPeerId(),
+          senderName,
+          receivedChunks: 0,
+        };
+        await saveTransferMeta(meta);
+        for await (const chunk of sliceFileChunks(e.file)) {
+          await saveChunk(e.transferId, chunk.index, chunk.data);
+          setProgress({ transferId: e.transferId, percent: Math.round(((chunk.index + 1) / totalChunks) * 100) });
+        }
+        await saveTransferMeta({ ...meta, receivedChunks: totalChunks, completed: true });
+        if (online) {
+          await safeSend({ type: "meta", seq: nextFileSeq(), ...meta });
+          for await (const chunk of sliceFileChunks(e.file)) {
+            await safeSend({ type: "chunk", seq: nextFileSeq(), transferId: e.transferId, index: chunk.index, data: bytesToBase64(new Uint8Array(chunk.data)) });
+          }
+          await safeSend({ type: "end", seq: nextFileSeq(), transferId: e.transferId });
+        }
+      }
+      if (online) {
+        updateMessageStatus(msgId, "sent");
+      }
+    } catch {
+      updateMessageStatus(msgId, "failed");
+      toast(t("fileTransfer.sendFailed", "File transfer failed"));
+    } finally {
+      sendingRef.current = false;
+      setProgress(null);
+    }
+  }, [chat, sendFile, appendMessage, updateMessageStatus, t]);
+
+  return { sendFile, sendFiles, progress };
 }

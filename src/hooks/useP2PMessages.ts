@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FTR_MAGIC, parseFrame, base64ToBytes, type FtrFrame, type TransferMeta } from "../lib/fileTransfer/frames";
+import { FTR_MAGIC, ALBUM_MAGIC, parseFrame, parseAlbumManifest, base64ToBytes, type FtrFrame, type TransferMeta, type AlbumManifest } from "../lib/fileTransfer/frames";
 import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
 import { saveVoiceBlob } from "../lib/voiceStore";
 import {
@@ -24,6 +24,11 @@ const incomingMetas = new Map<string, TransferMeta>();
 const incomingChunkIndices = new Map<string, Set<number>>();
 const incomingAudioMetas = new Map<string, ChatAudioMetaFrame>();
 const incomingAudioChunks = new Map<string, Map<number, Uint8Array>>();
+/** Album state: manifest per albumId + the set of transferIds that belong to an album
+ * (their per-file meta frames must NOT render as separate single-file bubbles). */
+const incomingAlbums = new Map<string, AlbumManifest>();
+const albumTransferIds = new Set<string>();
+const ALBUM_STATE_LIMIT = 500;
 
 function mimeToType(mime: string): "image" | "video" | "file" {
   return mime.startsWith("image/") ? "image" : mime.startsWith("video/") ? "video" : "file";
@@ -113,6 +118,7 @@ export function useP2PMessages() {
         setReceiveProgress((prev) => ({ ...prev, [frame.transferId]: 0 }));
         // receivedAt is touched on every chunk so abandoned transfers can be pruned by inactivity.
         await saveTransferMeta({ ...meta, receivedAt: Date.now(), receivedChunks: 0 });
+        if (albumTransferIds.has(frame.transferId)) return;
         appendIncomingToDmChat("", meta.senderName, {
           id: Date.now(),
           sender: meta.senderName,
@@ -159,6 +165,38 @@ export function useP2PMessages() {
         incomingChunkIndices.delete(frame.transferId);
         setReceiveProgress((prev) => ({ ...prev, [frame.transferId]: completed ? 100 : 0 }));
       }
+    };
+
+    const handleAlbumManifest = (manifest: AlbumManifest, senderId: string) => {
+      p2pNetwork.rememberPeer(senderId, manifest.senderName);
+      p2pNetwork.rememberChatPeer(manifest.chatId, manifest.chatName, senderId);
+      if (incomingAlbums.has(manifest.albumId)) return;
+      for (const e of manifest.entries) albumTransferIds.add(e.transferId);
+      incomingAlbums.set(manifest.albumId, manifest);
+      if (incomingAlbums.size > ALBUM_STATE_LIMIT) incomingAlbums.clear();
+      if (albumTransferIds.size > ALBUM_STATE_LIMIT) albumTransferIds.clear();
+      appendIncomingToDmChat(manifest.chatId, manifest.chatName, {
+        id: manifest.messageId,
+        sender: manifest.senderName,
+        text: "",
+        type: "image",
+        attachment: FTR_MAGIC + manifest.entries[0].transferId,
+        fileName: manifest.entries[0].name,
+        fileSize: manifest.entries[0].size,
+        fileTransferId: manifest.entries[0].transferId,
+        album: manifest.entries.map((e) => ({ url: FTR_MAGIC + e.transferId, fileName: e.name, fileSize: e.size })),
+        ts: manifest.timestamp,
+        time: new Date(manifest.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        status: "delivered",
+        silent: manifest.silent ?? false,
+      });
+      void p2pNetwork.sendAddressed(senderId, encodeChatDeliveryAck({
+        type: "chat-ack",
+        seq: nextFrameSeq(),
+        messageId: String(manifest.messageId),
+        chatId: manifest.chatId,
+        timestamp: Date.now(),
+      })).catch(() => {});
     };
 
     const handleChatText = (frame: ReturnType<typeof parseChatText>, senderId: string) => {
@@ -282,6 +320,11 @@ export function useP2PMessages() {
       if (raw.startsWith(FTR_MAGIC)) {
         const frame = parseFrame(raw);
         if (frame) void handleFileFrame(frame).catch(() => {});
+        return;
+      }
+      if (raw.startsWith(ALBUM_MAGIC)) {
+        const manifest = parseAlbumManifest(raw);
+        if (manifest) handleAlbumManifest(manifest, msg.senderId);
         return;
       }
       if (raw.startsWith(MSG_MAGIC)) {

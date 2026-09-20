@@ -296,6 +296,7 @@ function ChatInputAreaImpl({
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 id="dm-media-input"
                 className="hidden"
                 onChange={(e) => {

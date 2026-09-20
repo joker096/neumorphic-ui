@@ -59,7 +59,7 @@ export function useChatPreviewState(
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
   const { t } = useI18n();
-  const { sendFile } = useFileSend(chat, { setChats: setChatsStore, setActiveChat: onUpdateChat });
+  const { sendFile, sendFiles } = useFileSend(chat, { setChats: setChatsStore, setActiveChat: onUpdateChat });
 
   const [videoOpen, setVideoOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
@@ -234,20 +234,24 @@ export function useChatPreviewState(
     setLocalSilentMode(false);
   };
 
-  const attachFile = (file: File, _chatData: any, _onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
-    void sendFile(file, { silent });
+  const attachFiles = (files: File[], _chatData: any, _onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
+    if (files.length === 1) {
+      void sendFile(files[0], { silent });
+    } else if (files.length > 1) {
+      void sendFiles(files, { silent });
+    }
   };
 
   const handleImageAttach = (e: React.ChangeEvent<HTMLInputElement>, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    attachFile(file, chatData, onUpdChat, silent);
+    const files = e.target.files ? [...e.target.files] : [];
+    if (files.length === 0) return;
+    attachFiles(files, chatData, onUpdChat, silent);
   };
 
   const handleFileDrop = (files: FileList | null | undefined, chatData: any, onUpdChat: ((c: any) => void) | undefined) => {
-    const file = files?.[0];
-    if (!file) return;
-    attachFile(file, chatData, onUpdChat, false);
+    const arr = files ? [...files] : [];
+    if (arr.length === 0) return;
+    attachFiles(arr, chatData, onUpdChat, false);
   };
 
   const retryFailedMessage = useCallback((msg: any) => {

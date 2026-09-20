@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useP2PMessages } from './useP2PMessages';
-import { FTR_MAGIC, encodeFrame, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
+import { FTR_MAGIC, encodeFrame, encodeAlbumManifest, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
 import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
 import { saveTransferMeta, saveChunk, pruneAbandonedTransfers, pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer, listTransfers, type StoredTransfer } from '../lib/fileTransfer/fileStore';
 import { p2pNetwork, type BroadcastMessage } from '../lib/p2p/network';
@@ -805,5 +805,83 @@ describe('useP2PMessages', () => {
 
     expect(vi.mocked(saveVoiceBlob)).not.toHaveBeenCalled();
     expect(mocks.setChats).not.toHaveBeenCalled();
+  });
+
+  it('builds an album bubble from the manifest and suppresses duplicate single-file bubbles for its transfers', async () => {
+    const { handle } = setup();
+    const manifestMsg: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'album-1-manif',
+      timestamp: 50,
+      data: encodeAlbumManifest({
+        albumId: 'album-1',
+        messageId: 500,
+        chatId: 'dm-1',
+        chatName: 'Bob',
+        senderName: 'Bob',
+        silent: false,
+        timestamp: 100,
+        entries: [
+          { transferId: 'a-1', name: 'm.png', mime: 'image/png', size: 2 },
+          { transferId: 'a-2', name: 'n.png', mime: 'image/png', size: 3 },
+        ],
+      }),
+    };
+    const metaForAlbumEntry: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'album-1-meta-a1',
+      timestamp: 51,
+      data: encodeFrame({
+        type: 'meta',
+        seq: 1,
+        transferId: 'a-1',
+        name: 'm.png',
+        mime: 'image/png',
+        size: 2,
+        chunkSize: 2,
+        totalChunks: 1,
+        sha256: 'fff',
+        senderPeerId: 'peer-remote',
+        senderName: 'Bob',
+      } as FtrFrame),
+    };
+
+    await act(async () => {
+      handle(manifestMsg);
+      await settle();
+      handle(metaForAlbumEntry);
+      await settle();
+    });
+
+    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    expect(chats[0].history).toHaveLength(1);
+    const album = chats[0].history[0];
+    expect(album.id).toBe(500);
+    expect(album.type).toBe('image');
+    expect(album.sender).toBe('Bob');
+    expect(album.attachment).toBe(FTR_MAGIC + 'a-1');
+    expect(album.fileTransferId).toBe('a-1');
+    expect(album.album).toHaveLength(2);
+    expect(album.album[0].url).toBe(FTR_MAGIC + 'a-1');
+    expect(album.album[1].url).toBe(FTR_MAGIC + 'a-2');
+    expect(album.status).toBe('delivered');
+    expect(vi.mocked(saveTransferMeta)).toHaveBeenCalled();
+    expect(vi.mocked(p2pNetwork.rememberChatPeer)).toHaveBeenCalledWith('dm-1', 'Bob', 'peer-remote');
+    expect(vi.mocked(p2pNetwork.sendAddressed)).toHaveBeenCalledWith('peer-remote', expect.stringContaining('chat-ack'));
+  });
+
+  it('rejects an album manifest whose raw payload is not ALBUM_MAGIC-prefixed', async () => {
+    const { handle } = setup();
+    const msg: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'album-bad',
+      timestamp: 60,
+      data: 'not-an-album',
+    };
+
+    act(() => handle(msg));
+
+    expect(mocks.setChats).not.toHaveBeenCalled();
+    expect(vi.mocked(saveTransferMeta)).not.toHaveBeenCalled();
   });
 });

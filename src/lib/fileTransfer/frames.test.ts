@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { FTR_MAGIC, base64ToBytes, bytesToBase64, encodeFrame, parseFrame } from './frames';
+import { ALBUM_MAGIC, FTR_MAGIC, base64ToBytes, bytesToBase64, encodeAlbumManifest, encodeFrame, parseAlbumManifest, parseFrame } from './frames';
 
 const meta = {
   type: 'meta' as const,
@@ -66,5 +66,68 @@ describe('bytesToBase64 / base64ToBytes', () => {
 
   it('handles the empty buffer', () => {
     expect(base64ToBytes(bytesToBase64(new Uint8Array(0)))).toHaveLength(0);
+  });
+});
+
+describe('album manifest encode/parse', () => {
+  const manifest = {
+    albumId: 'a1',
+    messageId: 42,
+    chatId: 'chat-1',
+    chatName: 'Room',
+    senderName: 'Alice',
+    timestamp: 1720000000000,
+    entries: [
+      { transferId: 't1', name: 'one.png', mime: 'image/png', size: 100 },
+      { transferId: 't2', name: 'two.jpg', mime: 'image/jpeg', size: 200 },
+    ],
+  };
+
+  const valid = () => ({ ...manifest, entries: manifest.entries.map((e) => ({ ...e })) });
+
+  it('round-trips a valid manifest with silent flag', () => {
+    const full = { ...valid(), silent: true };
+    expect(parseAlbumManifest(encodeAlbumManifest(full))).toEqual(full);
+  });
+
+  it('round-trips a valid manifest without silent', () => {
+    expect(parseAlbumManifest(encodeAlbumManifest(manifest))).toEqual(manifest);
+  });
+
+  it('returns null without the album magic prefix', () => {
+    expect(parseAlbumManifest('')).toBeNull();
+    expect(parseAlbumManifest('{"albumId":"a"}')).toBeNull();
+    expect(parseAlbumManifest(encodeAlbumManifest(manifest).slice(1))).toBeNull();
+  });
+
+  it('returns null for malformed JSON after the magic prefix', () => {
+    expect(parseAlbumManifest(`${ALBUM_MAGIC}{broken`)).toBeNull();
+  });
+
+  it('rejects manifests with fewer than 2 entries', () => {
+    const one = valid();
+    one.entries = [one.entries[0]!];
+    expect(parseAlbumManifest(encodeAlbumManifest(one))).toBeNull();
+  });
+
+  it('rejects manifests with invalid entry fields', () => {
+    const bad = valid();
+    bad.entries = [{ ...bad.entries[0]!, transferId: '' }];
+    expect(parseAlbumManifest(encodeAlbumManifest(bad))).toBeNull();
+    const neg = valid();
+    neg.entries[1]!.size = -1;
+    expect(parseAlbumManifest(encodeAlbumManifest(neg))).toBeNull();
+  });
+
+  it('rejects manifests with missing scalar fields', () => {
+    const m = valid() as any;
+    delete m.timestamp;
+    expect(parseAlbumManifest(encodeAlbumManifest(m))).toBeNull();
+    const m2 = valid() as any;
+    m2.messageId = 1.5;
+    expect(parseAlbumManifest(encodeAlbumManifest(m2))).toBeNull();
+    const m3 = valid() as any;
+    m3.chatId = '';
+    expect(parseAlbumManifest(encodeAlbumManifest(m3))).toBeNull();
   });
 });
