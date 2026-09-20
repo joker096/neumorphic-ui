@@ -20,3 +20,4 @@ android/.vendor-work/
 src-tauri/target/
 test-results/
 screen/
+BundleConfig.pb
