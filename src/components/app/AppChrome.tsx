@@ -1,17 +1,11 @@
 import React from "react";
 import { Toaster } from "sonner";
-import { TransportIndicator } from "../status/TransportIndicator";
-import { useAppStore } from "../../store";
 
 export interface AppChromeProps {
   isDark: boolean;
-  connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
-  connectionError?: string | null;
 }
 
-function AppChromeImpl({ isDark, connectionStatus, connectionError }: AppChromeProps) {
-  const transportBackend = useAppStore((s) => s.transportBackend);
-  const relayed = transportBackend !== undefined && transportBackend !== 'direct';
+function AppChromeImpl({ isDark }: AppChromeProps) {
   return (
     <>
       <Toaster
@@ -33,9 +27,6 @@ function AppChromeImpl({ isDark, connectionStatus, connectionError }: AppChromeP
       {isDark && (
         <div className="absolute top-0 left-0 w-full h-[40vh] bg-gradient-to-b from-[var(--accent)]/5 to-transparent pointer-events-none" />
       )}
-      <div className="absolute top-2 right-2 z-50 pointer-events-none [@media(hover:hover)]:pointer-events-auto">
-        <TransportIndicator status={connectionStatus} detail={connectionError} relayed={relayed} />
-      </div>
     </>
   );
 }

@@ -2,6 +2,7 @@ import type { NavItem } from "../../config/navigation";
 import { NAV_ITEMS, isCompanyAdmin } from "../../config/navigation";
 import { useAppStore } from "../../store";
 import { AppIcon } from "../ui/AppIcon";
+import { TransportIndicator } from "../status/TransportIndicator";
 
 const BADGE_ITEM_IDS = new Set(["chats", "company"]);
 
@@ -15,6 +16,8 @@ export const EcoSidebarNav = ({
   companyUnreadCount = 0,
   onNavigate,
   hideCompany = false,
+  connectionStatus = "disconnected",
+  connectionError = null,
   t,
 }: {
   activeView: string;
@@ -23,11 +26,15 @@ export const EcoSidebarNav = ({
   companyUnreadCount?: number;
   onNavigate?: (view: string) => void;
   hideCompany?: boolean;
+  connectionStatus?: "disconnected" | "connecting" | "connected" | "blocked" | "error";
+  connectionError?: string | null;
   t?: (key: string, fallback?: string) => string;
 }) => {
   const effectiveT = t || ((key: string, fallback?: string) => key);
   const userProfile = useAppStore((s) => s.userProfile);
   const companyMembers = useAppStore((s) => s.companyMembers);
+  const transportBackend = useAppStore((s) => s.transportBackend);
+  const relayed = transportBackend !== undefined && transportBackend !== "direct";
   const admin = isCompanyAdmin(companyMembers, userProfile.id);
   const items = NAV_ITEMS.filter(
     (item) => !(item.id === "company" && hideCompany) && (!item.adminOnly || admin),
@@ -99,8 +106,11 @@ export const EcoSidebarNav = ({
         })}
       </nav>
 
-      {/* Footer - Profile */}
+      {/* Footer - Status + Profile */}
       <div className="w-full p-2 border-t border-[var(--border-color)] space-y-1">
+        <div className="w-full flex justify-center">
+          <TransportIndicator status={connectionStatus} detail={connectionError} relayed={relayed} />
+        </div>
         <button
           type="button"
           aria-label={userProfile.name || (userProfile.username ? `@${userProfile.username}` : effectiveT("settings.defaultUserName", "User"))}

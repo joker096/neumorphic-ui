@@ -5,12 +5,20 @@ import '@testing-library/jest-dom/vitest';
 
 let currentMembers: any[] = [];
 let currentProfile: any = { name: 'Test User', username: 'tester', avatar: '' };
+let currentBackend: string | undefined = 'direct';
 
 vi.mock('../../store', () => ({
   useAppStore: (selector: any) => selector?.({
     companyMembers: currentMembers,
     userProfile: currentProfile,
+    transportBackend: currentBackend,
   }),
+}));
+
+vi.mock('../status/TransportIndicator', () => ({
+  TransportIndicator: ({ status, relayed }: { status?: string; relayed?: boolean }) => (
+    <div data-testid="transport-indicator">{`${status ?? ''}${relayed ? ':relayed' : ''}`}</div>
+  ),
 }));
 
 import { BottomNav } from './BottomNav';
@@ -21,6 +29,7 @@ describe('BottomNav', () => {
   beforeEach(() => {
     currentMembers = [{ userId: 'current', role: 'admin' }];
     currentProfile = { id: 'current', name: 'Test User', username: 'tester', avatar: '' };
+    currentBackend = 'direct';
   });
 
   it('renders all five primary menu items', () => {
@@ -92,5 +101,21 @@ describe('BottomNav', () => {
     currentProfile = { name: '', username: '', avatar: '' };
     rerender(<BottomNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={(k) => (k === 'settings.defaultUserName' ? 'Anonymous' : k)} />);
     expect(screen.getByRole('button', { name: 'Anonymous' })).toBeInTheDocument();
+  });
+
+  it('renders the connection indicator with the passed status', () => {
+    render(<BottomNav activeView="chats" connectionStatus="connected" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByTestId('transport-indicator')).toHaveTextContent('connected');
+  });
+
+  it('marks the indicator relayed when transport backend is not direct', () => {
+    currentBackend = 'domainfront';
+    render(<BottomNav activeView="chats" connectionStatus="connected" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByTestId('transport-indicator')).toHaveTextContent(':relayed');
+  });
+
+  it('keeps the indicator non-relayed for direct transport', () => {
+    render(<BottomNav activeView="chats" connectionStatus="connected" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    expect(screen.getByTestId('transport-indicator')).not.toHaveTextContent('relayed');
   });
 });

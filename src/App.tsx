@@ -332,10 +332,12 @@ export default function App() {
     <ServicesProvider services={createLocalServices()}>
     <AppAuthGate>
       <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
-        <AppChrome isDark={isDark} connectionStatus={connectionStatus} connectionError={connectionError} />
+        <AppChrome isDark={isDark} />
         <AppShell
           theme={theme}
           isDark={isDark}
+          connectionStatus={connectionStatus}
+          connectionError={connectionError}
           fontSize={fontSize}
           view={view}
           subView={subView}

@@ -10,11 +10,22 @@ const state = vi.hoisted(() => ({
     avatar: undefined as string | undefined,
   },
   companyMembers: [{ userId: "u-1", role: "admin" }],
+  transportBackend: "direct" as string | undefined,
 }));
 
 vi.mock("../../store", () => ({
   useAppStore: (selector?: (s: typeof state) => unknown) =>
     selector ? selector(state) : state,
+}));
+
+vi.mock("../status/TransportIndicator", () => ({
+  TransportIndicator: ({
+    status,
+    relayed,
+  }: {
+    status?: string;
+    relayed?: boolean;
+  }) => <div data-testid="transport-indicator">{`${status ?? ""}${relayed ? ":relayed" : ""}`}</div>,
 }));
 
 const LABELS: Record<string, string> = {
@@ -31,6 +42,7 @@ const t = (key: string, fallback?: string) => LABELS[key] ?? fallback ?? key;
 const resetState = () => {
   state.userProfile = { id: "u-1", name: "Alice", username: "alice", avatar: undefined };
   state.companyMembers = [{ userId: "u-1", role: "admin" }];
+  state.transportBackend = "direct";
 };
 
 describe("EcoSidebarNav", () => {
@@ -178,5 +190,21 @@ describe("EcoSidebarNav", () => {
     const aside = container.firstElementChild as HTMLElement;
     expect(aside.className).toContain("ds-sidebar");
     expect(aside.style.background).toBe("");
+  });
+
+  it("renders the connection indicator with the passed status", () => {
+    render(<EcoSidebarNav activeView="chats" connectionStatus="connected" t={t} />);
+    expect(screen.getByTestId("transport-indicator")).toHaveTextContent("connected");
+  });
+
+  it("marks the indicator relayed when transport backend is not direct", () => {
+    state.transportBackend = "cfworker";
+    render(<EcoSidebarNav activeView="chats" connectionStatus="connected" t={t} />);
+    expect(screen.getByTestId("transport-indicator")).toHaveTextContent(":relayed");
+  });
+
+  it("keeps the indicator non-relayed for direct transport", () => {
+    render(<EcoSidebarNav activeView="chats" connectionStatus="connected" t={t} />);
+    expect(screen.getByTestId("transport-indicator")).not.toHaveTextContent("relayed");
   });
 });

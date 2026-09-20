@@ -2,7 +2,6 @@ import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { AppChrome } from "./AppChrome";
-import { useAppStore } from "../../store";
 
 vi.mock("sonner", () => ({
   Toaster: (props: any) =>
@@ -14,18 +13,9 @@ vi.mock("sonner", () => ({
     }),
 }));
 
-vi.mock("../status/TransportIndicator", () => ({
-  TransportIndicator: (props: any) =>
-    React.createElement(
-      "div",
-      { "data-testid": "transport-indicator" },
-      `${props.status}${props.relayed ? ":relayed" : ""}`,
-    ),
-}));
-
 describe("AppChrome", () => {
   it("renders toaster with dark theme and top-right position", () => {
-    render(<AppChrome isDark connectionStatus="connected" />);
+    render(<AppChrome isDark />);
     const toaster = screen.getByTestId("toaster");
     expect(toaster).toHaveAttribute("data-theme", "dark");
     expect(toaster).toHaveAttribute("data-position", "top-right");
@@ -33,50 +23,14 @@ describe("AppChrome", () => {
   });
 
   it("renders toaster with light theme when not dark", () => {
-    render(<AppChrome isDark={false} connectionStatus="connected" />);
+    render(<AppChrome isDark={false} />);
     expect(screen.getByTestId("toaster")).toHaveAttribute("data-theme", "light");
   });
 
-  it.each([
-    ["disconnected"],
-    ["connecting"],
-    ["connected"],
-    ["blocked"],
-    ["error"],
-  ] as const)("passes %s status to TransportIndicator", (status) => {
-    render(<AppChrome isDark connectionStatus={status} />);
-    expect(screen.getByTestId("transport-indicator")).toHaveTextContent(status);
-  });
-
   it("renders dark glow gradient only in dark mode", () => {
-    const { container, rerender } = render(
-      <AppChrome isDark connectionStatus="connected" />,
-    );
-    expect(
-      container.querySelector(".bg-gradient-to-b"),
-    ).not.toBeNull();
-    rerender(<AppChrome isDark={false} connectionStatus="connected" />);
+    const { container, rerender } = render(<AppChrome isDark />);
+    expect(container.querySelector(".bg-gradient-to-b")).not.toBeNull();
+    rerender(<AppChrome isDark={false} />);
     expect(container.querySelector(".bg-gradient-to-b")).toBeNull();
-  });
-
-  it("does not mark TransportIndicator relayed for direct backend", () => {
-    render(<AppChrome isDark connectionStatus="connected" />);
-    expect(screen.getByTestId("transport-indicator")).toHaveTextContent("connected");
-    expect(screen.getByTestId("transport-indicator")).not.toHaveTextContent("relayed");
-  });
-
-  it("marks TransportIndicator relayed when transportBackend is not direct", () => {
-    useAppStore.setState({ transportBackend: "cfworker" });
-    render(<AppChrome isDark connectionStatus="connected" />);
-    expect(screen.getByTestId("transport-indicator")).toHaveTextContent("connected:relayed");
-    useAppStore.setState({ transportBackend: "direct" });
-  });
-
-  it("indicator wrapper is touch-transparent (pointer-events-none) so header taps pass through (D4/D5 overlap regress)", () => {
-    render(<AppChrome isDark connectionStatus="connected" />);
-    const indicator = screen.getByTestId("transport-indicator");
-    const wrapper = indicator.parentElement as HTMLElement;
-    expect(wrapper.className).toContain("pointer-events-none");
-    expect(wrapper.className).toContain("[@media(hover:hover)]:pointer-events-auto");
   });
 });

@@ -2,6 +2,7 @@ import React from "react";
 import { NAV_ITEMS, isCompanyAdmin } from "../../config/navigation";
 import { useAppStore } from "../../store";
 import { NavItemButton } from "./NavItemButton";
+import { TransportIndicator } from "../status/TransportIndicator";
 
 type BottomNavProps = {
   activeView: string;
@@ -11,13 +12,17 @@ type BottomNavProps = {
   onNavigate: (view: string) => void;
   t: (key: string) => string;
   hideCompany?: boolean;
+  connectionStatus?: "disconnected" | "connecting" | "connected" | "blocked" | "error";
+  connectionError?: string | null;
 };
 
 const BADGE_ITEM_IDS = new Set(["chats", "company"]);
 
-export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, companyUnreadCount, onNavigate, t, hideCompany = false }: BottomNavProps) => {
+export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, companyUnreadCount, onNavigate, t, hideCompany = false, connectionStatus = "disconnected", connectionError = null }: BottomNavProps) => {
   const companyMembers = useAppStore((s) => s.companyMembers);
   const userProfile = useAppStore((s) => s.userProfile);
+  const transportBackend = useAppStore((s) => s.transportBackend);
+  const relayed = transportBackend !== undefined && transportBackend !== "direct";
   const admin = isCompanyAdmin(companyMembers, userProfile.id);
   const filteredItems = NAV_ITEMS.filter(
     item => !(item.id === "company" && hideCompany) && (!item.adminOnly || admin),
@@ -50,6 +55,7 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
           />
         );
       })}
+      <TransportIndicator status={connectionStatus} detail={connectionError} relayed={relayed} />
       <button
         type="button"
         aria-label={profileLabel}

@@ -12,6 +12,8 @@ import { STORAGE_KEYS } from "../../constants/storage";
 export interface AppShellProps {
   theme: "light" | "dark";
   isDark: boolean;
+  connectionStatus?: "disconnected" | "connecting" | "connected" | "blocked" | "error";
+  connectionError?: string | null;
   fontSize: string;
   view: string;
   subView: string | null;
@@ -74,6 +76,8 @@ export interface AppShellProps {
 function AppShellImpl({
   theme,
   isDark,
+  connectionStatus = "disconnected",
+  connectionError = null,
   fontSize,
   view,
   subView,
@@ -244,6 +248,8 @@ function AppShellImpl({
               companyUnreadCount={companyUnread}
               onNavigate={handleNavigate}
               hideCompany={hideWhenOfficeOnly}
+              connectionStatus={connectionStatus}
+              connectionError={connectionError}
               t={t}
             />
           </aside>
@@ -298,6 +304,8 @@ function AppShellImpl({
           onNavigate={handleNavigate}
           t={t}
           hideCompany={hideWhenOfficeOnly}
+          connectionStatus={connectionStatus}
+          connectionError={connectionError}
         />
       </footer>
     </div>
