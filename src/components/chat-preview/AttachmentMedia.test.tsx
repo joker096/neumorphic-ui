@@ -74,6 +74,18 @@ describe('AttachmentMedia story handling', () => {
   });
 });
 
+describe('AttachmentMedia image size pill', () => {
+  it('shows a size overlay on image when fileSize is present', () => {
+    render(<AttachmentMedia {...baseProps({ msg: { type: 'image', url: 'http://x/pic.png', fileName: 'pic.png', fileSize: 204800, text: '' } })} />);
+    expect(screen.getByText('200 KB')).toBeTruthy();
+  });
+
+  it('hides the size pill on image without fileSize', () => {
+    render(<AttachmentMedia {...baseProps({ msg: { type: 'image', url: 'http://x/pic.png', fileName: 'pic.png', text: '' } })} />);
+    expect(screen.queryByText(/KB|MB|GB/)).toBeNull();
+  });
+});
+
 describe('AttachmentMedia ftr1: receive path', () => {
   beforeEach(() => {
     (getTransferMeta as any).mockReset();

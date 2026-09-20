@@ -143,7 +143,7 @@ export function AttachmentMedia({
   }
 
   if (msg.type === "audio") {
-    return <VoiceWaveform duration={msg.duration} isMe={isMe} isDark={isDark} audioUrl={voiceUrl} />;
+    return <VoiceWaveform duration={msg.duration} isMe={isMe} isDark={isDark} audioUrl={voiceUrl} name={String(msg.sender || "")} />;
   }
 
   if (msg.type === "sticker") {
@@ -189,6 +189,11 @@ export function AttachmentMedia({
           className="block w-auto h-auto max-w-[320px] sm:max-w-[360px] md:max-w-[420px] max-h-[240px] sm:max-h-[300px] md:max-h-[360px] object-contain"
           onError={() => setMediaErr(true)}
         />
+        {ftrSize && (
+          <div className="pointer-events-none absolute bottom-2 right-2 bg-[rgba(0,0,0,0.45)] backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-semibold text-white tracking-wider">
+            {ftrSize}
+          </div>
+        )}
       </div>
     );
   }

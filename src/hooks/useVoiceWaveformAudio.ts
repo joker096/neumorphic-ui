@@ -15,6 +15,8 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
   const pausedAtRef = useRef<number>(0);
   const animationRef = useRef<number | null>(null);
   const seekingRef = useRef(false);
+  const [speed, setSpeedState] = useState(1);
+  const speedRef = useRef(1);
 
   useEffect(() => {
     let active = true;
@@ -96,6 +98,11 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
     }
     const source = ctx.createBufferSource();
     source.buffer = bufferRef.current;
+    if (source.playbackRate && typeof source.playbackRate === 'object') {
+      source.playbackRate.value = speedRef.current;
+    } else {
+      (source as any).playbackRate = speedRef.current;
+    }
     source.connect(analyserRef.current);
     analyserRef.current.connect(ctx.destination);
     source.start(0, offset);
@@ -141,6 +148,20 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
     }
   };
 
+  const changeSpeed = (next: number) => {
+    const clamped = next > 0 ? next : 1;
+    speedRef.current = clamped;
+    setSpeedState(clamped);
+    if (sourceRef.current && 'playbackRate' in sourceRef.current) {
+      const active = sourceRef.current as any;
+      if (active.playbackRate && typeof active.playbackRate === 'object') {
+        active.playbackRate.value = clamped;
+      } else {
+        active.playbackRate = clamped;
+      }
+    }
+  };
+
   const updateProgress = () => {
     if (seekingRef.current) return;
     if (!isPlaying || !audioCtxRef.current) return;
@@ -177,5 +198,7 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
     handleSeek,
     updateProgress,
     durationSec,
+    speed,
+    changeSpeed,
   };
 }

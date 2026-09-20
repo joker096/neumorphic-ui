@@ -253,6 +253,7 @@
     "photoAttachment": "照片附件",
     "attachment": "附件",
     "attachmentUnavailable": "Attachment unavailable",
+    "voiceLoading": "加载中",
     "voiceUnavailable": "语音消息不可用",
     "loadAttachment": "加载",
     "messageExpired": "消息已过期",
@@ -2348,7 +2349,8 @@
     "videoThumbnail": "视频缩略图",
     "seek": "定位",
     "volume": "音量",
-    "seekVoiceNote": "定位语音消息"
+    "seekVoiceNote": "定位语音消息",
+    "playbackSpeed": "播放速度"
   },
   "payments": {
     "request": "付款请求",

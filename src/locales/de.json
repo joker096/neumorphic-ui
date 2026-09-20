@@ -253,6 +253,7 @@
     "photoAttachment": "Fotoanhang",
     "attachment": "Anhang",
     "attachmentUnavailable": "Anhang nicht verfügbar",
+    "voiceLoading": "Wird geladen",
     "voiceUnavailable": "Sprachnachricht nicht verfügbar",
     "loadAttachment": "Laden",
     "messageExpired": "Nachricht abgelaufen",
@@ -2348,7 +2349,8 @@
     "videoThumbnail": "Video-Vorschau",
     "seek": "Überspringen",
     "volume": "Lautstärke",
-    "seekVoiceNote": "Sprachnachricht überspringen"
+    "seekVoiceNote": "Sprachnachricht überspringen",
+    "playbackSpeed": "Wiedergabegeschwindigkeit"
   },
   "payments": {
     "request": "Zahlungsanfrage",

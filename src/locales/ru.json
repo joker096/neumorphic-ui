@@ -253,6 +253,7 @@
     "photoAttachment": "Вложение фото",
     "attachment": "Вложение",
     "attachmentUnavailable": "Вложение недоступно",
+    "voiceLoading": "Загрузка",
     "voiceUnavailable": "Голосовое сообщение недоступно",
     "loadAttachment": "Загрузить",
     "messageExpired": "Сообщение истекло",
@@ -2348,7 +2349,8 @@
     "videoThumbnail": "Миниатюра видео",
     "seek": "Перемотка",
     "volume": "Громкость",
-    "seekVoiceNote": "Перемотка голосового сообщения"
+    "seekVoiceNote": "Перемотка голосового сообщения",
+    "playbackSpeed": "Скорость воспроизведения"
   },
   "payments": {
     "request": "Запрос платежа",

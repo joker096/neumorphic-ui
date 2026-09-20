@@ -253,6 +253,7 @@
     "photoAttachment": "Adjunto de foto",
     "attachment": "Adjunto",
     "attachmentUnavailable": "Adjunto no disponible",
+    "voiceLoading": "Cargando",
     "voiceUnavailable": "Mensaje de voz no disponible",
     "loadAttachment": "Cargar",
     "messageExpired": "Mensaje caducado",
@@ -2348,7 +2349,8 @@
     "videoThumbnail": "Miniatura de vídeo",
     "seek": "Buscar",
     "volume": "Volumen",
-    "seekVoiceNote": "Buscar nota de voz"
+    "seekVoiceNote": "Buscar nota de voz",
+    "playbackSpeed": "Velocidad de reproducción"
   },
   "payments": {
     "request": "Solicitud de pago",

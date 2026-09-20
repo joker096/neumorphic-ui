@@ -239,11 +239,11 @@ describe('VoiceWaveform', () => {
     expect(container.firstChild).toHaveClass('w-full');
   });
 
-  it('switches the duration label to an elapsed clock once progress advances', async () => {
+  it('switches the duration label to a remaining countdown once progress advances', async () => {
     render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
-      expect(screen.getByRole('button')).toBeEnabled();
+      expect(screen.getAllByRole('button')[0]).toBeEnabled();
     });
     expect(screen.getByText('0:12')).toBeInTheDocument();
 

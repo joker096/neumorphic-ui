@@ -253,6 +253,7 @@
     "photoAttachment": "写真添付",
     "attachment": "添付ファイル",
     "attachmentUnavailable": "添付ファイルは利用できません",
+    "voiceLoading": "読み込み中",
     "voiceUnavailable": "ボイスメッセージを再生できません",
     "loadAttachment": "読み込む",
     "messageExpired": "メッセージが失効しました",
@@ -2348,7 +2349,8 @@
     "videoThumbnail": "動画サムネイル",
     "seek": "シーク",
     "volume": "音量",
-    "seekVoiceNote": "ボイスメモをシーク"
+    "seekVoiceNote": "ボイスメモをシーク",
+    "playbackSpeed": "再生速度"
   },
   "payments": {
     "request": "支払いリクエスト",

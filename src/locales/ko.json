@@ -253,6 +253,7 @@
     "photoAttachment": "사진 첨부",
     "attachment": "첨부 파일",
     "attachmentUnavailable": "Attachment unavailable",
+    "voiceLoading": "불러오는 중",
     "voiceUnavailable": "음성 메시지를 사용할 수 없습니다",
     "loadAttachment": "불러오기",
     "messageExpired": "메시지가 만료됨",
@@ -2348,7 +2349,8 @@
     "videoThumbnail": "동영상 썸네일",
     "seek": "탐색",
     "volume": "볼륨",
-    "seekVoiceNote": "음성 메모 탐색"
+    "seekVoiceNote": "음성 메모 탐색",
+    "playbackSpeed": "재생 속도"
   },
   "payments": {
     "request": "결제 요청",

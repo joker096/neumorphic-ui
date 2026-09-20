@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Loader2 } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { useVoiceWaveformAudio } from '../../hooks/useVoiceWaveformAudio';
+import { useAppStore } from '../../store';
+import { Avatar } from '../ui/Avatar';
 
 interface VoiceWaveformProps {
   duration?: string;
@@ -9,10 +11,13 @@ interface VoiceWaveformProps {
   audioUrl?: string;
   stream?: MediaStream | null;
   isDark?: boolean;
+  name?: string;
 }
 
-export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDark }: VoiceWaveformProps) => {
+export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDark, name }: VoiceWaveformProps) => {
   const { t } = useI18n();
+  const contactAvatars = useAppStore((s) => s.contactAvatars);
+  const userProfile = useAppStore((s) => s.userProfile);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const durationSec = duration ? duration.split(':').reduce((acc, time) => (60 * acc) + +time, 0) : 0;
   const widthClass = stream
@@ -28,7 +33,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
   const {
     isPlaying, progress, isReady, loadError, staticWave,
     analyserRef, audioCtxRef, startTimeRef, animationRef,
-    togglePlayback, handleSeek,
+    togglePlayback, handleSeek, speed, changeSpeed,
   } = useVoiceWaveformAudio(audioUrl, stream, durationSec);
 
   useEffect(() => {
@@ -142,32 +147,45 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
     };
   }, [isMe, progress, isPlaying, staticWave, durationSec]);
 
-  const elapsedSec = Math.round((progress || 0) * durationSec);
+  const remainingSec = Math.max(0, Math.floor(durationSec - (progress || 0) * durationSec));
   const formatClock = (sec: number) => {
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
-  const timeLabel = isPlaying || progress > 0.001 ? formatClock(elapsedSec) : duration;
+  const timeLabel = isPlaying || progress > 0.001 ? formatClock(remainingSec) : duration;
+  const colorCls = isMe ? (isDark ? "text-emerald-200" : "text-emerald-600") : isDark ? "text-gray-400" : "text-slate-500";
+  const avatarSrc = isMe ? userProfile?.avatar : contactAvatars?.[String(name ?? "")];
+  const nextSpeed = speed >= 2 ? 1 : speed >= 1.5 ? 2 : 1.5;
+  const handleCanvasSeek = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width > 0 && isReady) void handleSeek((e.clientX - rect.left) / rect.width);
+  };
 
   return (
     <div className={`flex items-center gap-3 max-w-full ${widthClass}`}>
+      {!stream && name && (
+        <Avatar name={name} src={avatarSrc} size="sm" className="shrink-0" />
+      )}
       {!stream && (
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); if (isReady) togglePlayback(); }}
           disabled={!isReady}
-          aria-label={loadError ? t('chat.voiceUnavailable', 'Voice message unavailable') : isPlaying ? t('systemPlayer.pause') : t('systemPlayer.play')}
-          title={loadError ? t('chat.voiceUnavailable', 'Voice message unavailable') : isPlaying ? t('systemPlayer.pause') : t('systemPlayer.play')}
-          className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-transform active:scale-95 ${
+          aria-label={loadError ? t('chat.voiceUnavailable', 'Voice message unavailable') : !isReady ? t('chat.voiceLoading', 'Loading') : isPlaying ? t('systemPlayer.pause') : t('systemPlayer.play')}
+          title={loadError ? t('chat.voiceUnavailable', 'Voice message unavailable') : !isReady ? t('chat.voiceLoading', 'Loading') : isPlaying ? t('systemPlayer.pause') : t('systemPlayer.play')}
+          className={`min-w-11 min-h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-transform active:scale-95 ${
             isReady ? 'cursor-pointer' : 'cursor-default opacity-50'
           } ${
               isMe
               ? "bg-white/20 hover:bg-white/30 text-[var(--text-primary)]"
-              : "bg-orange-500 hover:bg-orange-600 text-[var(--text-primary)] shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+              : "bg-[var(--accent)] hover:brightness-110 text-[var(--ink-on-saturate)] shadow-[0_0_15px_rgba(var(--accent-rgb),0.4)]"
           }`}
         >
-          {isPlaying ? (
+          {!isReady && !loadError ? (
+            <Loader2 className="animate-spin" size={18} />
+          ) : isPlaying ? (
              <Pause size={18} className="fill-current" />
           ) : (
              <Play size={18} className="ml-1 fill-current" />
@@ -178,11 +196,29 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
       <div className="flex-1 flex flex-col justify-center">
          <canvas
            ref={canvasRef}
-           className="w-full h-8 block"
+           className={`w-full h-8 block${!stream && isReady ? ' cursor-pointer' : ''}`}
+           onClick={!stream && isReady ? handleCanvasSeek : undefined}
          />
          {!stream && (
-           <div className={`text-xs font-bold mt-1 tracking-wider tabular-nums ${isMe ? "text-orange-200" : isDark ? "text-gray-400" : "text-slate-500"}`}>
-             {timeLabel}
+           <div className="flex items-center gap-2 mt-1">
+             {!isMe && (progress || 0) < 0.001 && !isPlaying && (
+               <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[var(--accent)]" />
+             )}
+             <div className={`text-xs font-bold tracking-wider tabular-nums ${colorCls}`}>
+               {timeLabel}
+             </div>
+             <span className="flex-1" />
+             {isReady && !loadError && (
+               <button
+                 type="button"
+                 onClick={(e) => { e.stopPropagation(); changeSpeed(nextSpeed); }}
+                 aria-label={t('a11y.playbackSpeed', 'Playback speed')}
+                 title={t('a11y.playbackSpeed', 'Playback speed')}
+                 className="min-w-11 min-h-11 px-2 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:bg-white/10 flex items-center justify-center"
+               >
+                 {Number.isInteger(speed) ? `${speed}×` : `${speed.toFixed(1)}×`}
+               </button>
+             )}
            </div>
          )}
          {!stream && loadError && (

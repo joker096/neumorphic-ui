@@ -253,6 +253,7 @@
     "photoAttachment": "Pièce jointe photo",
     "attachment": "Pièce jointe",
     "attachmentUnavailable": "Pièce jointe indisponible",
+    "voiceLoading": "Chargement",
     "voiceUnavailable": "Message vocal indisponible",
     "loadAttachment": "Charger",
     "messageExpired": "Message expiré",
@@ -2348,7 +2349,8 @@
     "videoThumbnail": "Vignette vidéo",
     "seek": "Rechercher",
     "volume": "Volume",
-    "seekVoiceNote": "Rechercher dans le message vocal"
+    "seekVoiceNote": "Rechercher dans le message vocal",
+    "playbackSpeed": "Vitesse de lecture"
   },
   "payments": {
     "request": "Demande de paiement",

@@ -253,6 +253,7 @@
     "photoAttachment": "Photo attachment",
     "attachment": "Attachment",
     "attachmentUnavailable": "Attachment unavailable",
+    "voiceLoading": "Loading",
     "voiceUnavailable": "Voice message unavailable",
     "loadAttachment": "Load",
     "messageExpired": "Message expired",
@@ -2346,7 +2347,8 @@
     "videoThumbnail": "Video thumbnail",
     "seek": "Seek",
     "volume": "Volume",
-    "seekVoiceNote": "Seek voice note"
+    "seekVoiceNote": "Seek voice note",
+    "playbackSpeed": "Playback speed"
   },
   "payments": {
     "request": "Payment Request",
