@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { AttachmentMedia } from './AttachmentMedia';
 import { getTransferMeta, getTransferBlob } from '../../lib/fileTransfer/fileStore';
 import { sha256Hex } from '../../lib/fileTransfer/integrity';
@@ -83,6 +83,39 @@ describe('AttachmentMedia image size pill', () => {
   it('hides the size pill on image without fileSize', () => {
     render(<AttachmentMedia {...baseProps({ msg: { type: 'image', url: 'http://x/pic.png', fileName: 'pic.png', text: '' } })} />);
     expect(screen.queryByText(/KB|MB|GB/)).toBeNull();
+  });
+});
+
+describe('AttachmentMedia album grid', () => {
+  function albumMsg(items: Array<{ url: string }>) {
+    return {
+      type: 'image',
+      attachment: items[0]!.url,
+      text: '',
+      album: items,
+    };
+  }
+
+  it('renders a 4-tile grid with a +1 overlay for a 5-photo album', () => {
+    const items = Array.from({ length: 5 }, (_, i) => ({ url: `http://x/pic${i}.png` }));
+    render(<AttachmentMedia {...baseProps({ msg: albumMsg(items) })} />);
+    expect(screen.getAllByAltText('chat.sharedImage').length).toBe(4);
+    expect(screen.getByText('+1')).toBeTruthy();
+  });
+
+  it('renders a plain 2-tile grid without any overlay', () => {
+    const items = Array.from({ length: 2 }, (_, i) => ({ url: `http://x/pic${i}.png` }));
+    render(<AttachmentMedia {...baseProps({ msg: albumMsg(items) })} />);
+    expect(screen.getAllByAltText('chat.sharedImage').length).toBe(2);
+    expect(screen.queryByText(/^\+\d+$/)).toBeNull();
+  });
+
+  it('opens the photo viewer with the first album item on grid click', () => {
+    const props = baseProps({ msg: albumMsg([{ url: 'http://x/a.png' }, { url: 'http://x/b.png' }]) });
+    render(<AttachmentMedia {...props} />);
+    fireEvent.click(screen.getAllByAltText('chat.sharedImage')[0]!);
+    expect(props.onSetActivePhotoUrl).toHaveBeenCalledWith('http://x/a.png');
+    expect(props.onSetPhotoOpen).toHaveBeenCalledWith(true);
   });
 });
 

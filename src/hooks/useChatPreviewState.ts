@@ -160,9 +160,10 @@ export function useChatPreviewState(
     })).catch(() => {});
   }, [chat.id, chat.history, chat.isChannel, isNearBottom, readReceipts, tabVisible]);
 
-  const sendMessage = (attachment?: { url: string; type: 'image' | 'video' }) => {
+  const sendMessage = (attachment?: { url: string; type: 'image' | 'video' } | Array<{ url: string; type: 'image' | 'video' }>) => {
     const textToSend = eMorseMode ? encodeMorse(eMsgText) : eMsgText.trim();
-    const hasAttachment = !!attachment;
+    const attachments = Array.isArray(attachment) ? attachment : attachment ? [attachment] : [];
+    const hasAttachment = attachments.length > 0;
     if (!textToSend && !hasAttachment) return;
     if (textToSend && textToSend.length > 20000) return;
     const newMessage: any = {
@@ -178,8 +179,11 @@ export function useChatPreviewState(
     const ttl = selfDestructDefault ? SELF_DESTRUCT_MS[selfDestructDefault] : undefined;
     if (ttl) newMessage.selfDestructAt = Date.now() + ttl;
     if (hasAttachment) {
-      newMessage.type = attachment!.type;
-      newMessage.attachment = attachment!.url;
+      newMessage.type = attachments[0]!.type;
+      newMessage.attachment = attachments[0]!.url;
+      if (attachments.length > 1) {
+        newMessage.album = attachments.map((a) => ({ url: a.url, type: a.type }));
+      }
     } else {
       newMessage.type = eMorseMode ? "morse" : undefined;
       newMessage.replyTo = eReplyTarget ? {

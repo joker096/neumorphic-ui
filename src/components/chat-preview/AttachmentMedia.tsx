@@ -58,6 +58,7 @@ export function AttachmentMedia({
   const [ftrReady, setFtrReady] = useState(false);
   const [ftrUrl, setFtrUrl] = useState<string | null>(null);
   const voiceUrl = useVoiceBlobUrl(msg.voiceId, msg.audioUrl);
+  const [albumFailed, setAlbumFailed] = useState<number[]>([]);
 
   const ftrId = typeof msg.attachment === "string" && msg.attachment.startsWith(FTR_MAGIC)
     ? (typeof msg.fileTransferId === "string" ? msg.fileTransferId : msg.attachment.slice(FTR_MAGIC.length))
@@ -68,6 +69,7 @@ export function AttachmentMedia({
     setRevealed(false);
     setFtrReady(false);
     setFtrUrl(null);
+    setAlbumFailed([]);
   }, [msg.attachment, msg.url, msg.thumb]);
 
   const autoLoadBlocked =
@@ -159,6 +161,63 @@ export function AttachmentMedia({
   }
 
   if (msg.type === "image") {
+    const albumItems = Array.isArray(msg.album) && msg.album.length > 1
+      ? (msg.album.filter((it: any) => it && typeof it.url === "string") as Array<{ url: string }>)
+      : null;
+    if (albumItems && albumItems.length > 1) {
+      if (!shouldShowMedia) {
+        return (
+          <div className={`flex items-center justify-center gap-2 rounded-xl border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <ImageOff size={18} />
+            <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
+            {autoLoadBlocked && (
+              <button
+                type="button"
+                onClick={() => setRevealed(true)}
+                className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
+              >
+                {t("chat.loadAttachment", "Load")}
+              </button>
+            )}
+          </div>
+        );
+      }
+      const shown = albumItems.slice(0, 4);
+      const remaining = albumItems.length - shown.length;
+      return (
+        <div
+          className="grid grid-cols-2 gap-1 rounded-[var(--message-radius)] overflow-hidden mb-1 border border-[var(--border-color)] inline-block max-w-full cursor-pointer w-[260px] sm:w-[300px]"
+          onClick={() => { onSetActivePhotoUrl(shown[0]!.url); onSetPhotoOpen(true); }}
+        >
+          {shown.map((it: any, i: number) => {
+            const isFailed = albumFailed.includes(i);
+            return (
+              <div key={`${it.url}-${i}`} className="relative aspect-square overflow-hidden">
+                {!isFailed ? (
+                  <img
+                    src={it.url}
+                    alt={msg.text ? t("chat.sharedImageText", { text: msg.text }) : t("chat.sharedImage")}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    onError={() => setAlbumFailed((prev) => (prev.includes(i) ? prev : [...prev, i]))}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]">
+                    <ImageOff size={18} className="text-[var(--text-tertiary)]" />
+                  </div>
+                )}
+                {i === shown.length - 1 && remaining > 0 && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-white">+{remaining}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
     if (ftrPending && !autoLoadBlocked) return ftrPendingRow;
     const src = ftrId ? (ftrReadyUrl ? ftrUrl : null) : (msg.attachment || msg.url);
     if (!src || mediaErr || !shouldShowMedia) {

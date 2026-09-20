@@ -32,7 +32,7 @@ interface ChatInputAreaProps {
   setShowSchedulePopupFn2: (v: boolean) => void;
   eReplyTarget: any;
   setLocalReplyTarget: (v: any) => void;
-  sendMessage: (attachment?: { url: string; type: 'image' | 'video' }) => void;
+  sendMessage: (attachment?: { url: string; type: 'image' | 'video' } | Array<{ url: string; type: 'image' | 'video' }>) => void;
   sendVoiceMessage?: (url: string, dur: string, blob?: Blob) => void;
   sendStickerMessage?: (sticker: string) => void;
   handleImageAttach: (e: React.ChangeEvent<HTMLInputElement>, chat: any, onUpdateChat: any, silent: boolean) => void;
@@ -82,7 +82,7 @@ function ChatInputAreaImpl({
   const userProfile = useAppStore((state) => state.userProfile);
   const typingActiveRef = React.useRef(false);
   const idleTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [pendingMedia, setPendingMedia] = React.useState<{ url: string; type: 'image' | 'video' } | null>(null);
+  const [pendingMedia, setPendingMedia] = React.useState<Array<{ url: string; type: 'image' | 'video' }>>([]);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   const growTextarea = (el: HTMLTextAreaElement) => {
@@ -162,39 +162,47 @@ function ChatInputAreaImpl({
       );
     }
     const sendPost = () => {
-      if (!eMsgText.trim() && !pendingMedia) return;
-      sendMessage(pendingMedia ?? undefined);
-      setPendingMedia(null);
+      if (!eMsgText.trim() && pendingMedia.length === 0) return;
+      sendMessage(pendingMedia.length ? pendingMedia : undefined);
+      setPendingMedia([]);
     };
     return (
       <div className="px-4 pb-3 pt-1">
-        {pendingMedia && (
-          <div className="relative w-fit mb-2">
-            {pendingMedia.type === 'image' ? (
-              <img src={pendingMedia.url} alt="" className="h-20 w-20 object-cover rounded-lg" />
-            ) : (
-              <video src={pendingMedia.url} className="h-20 w-20 object-cover rounded-lg" />
-            )}
-            <button
-              type="button"
-              onClick={() => setPendingMedia(null)}
-              aria-label={t('chat.removeMedia')}
-              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center"
-            >
-              <X size={12} />
-            </button>
+        {pendingMedia.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-2">
+            {pendingMedia.map((media, i) => (
+              <div key={`${media.url}-${i}`} className="relative w-fit">
+                {media.type === 'image' ? (
+                  <img src={media.url} alt="" className="h-20 w-20 object-cover rounded-lg" />
+                ) : (
+                  <video src={media.url} className="h-20 w-20 object-cover rounded-lg" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => setPendingMedia((prev) => prev.filter((_, idx) => idx !== i))}
+                  aria-label={t('chat.removeMedia')}
+                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
           </div>
         )}
         <div className="message-composer w-full flex-shrink-0 min-h-11 max-h-[132px] flex items-center gap-1">
           <input
             type="file"
             accept="image/*,video/*"
+            multiple
             className="hidden"
             id="channel-post-media-input"
             onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                setPendingMedia({ url: URL.createObjectURL(file), type: file.type.startsWith('video') ? 'video' : 'image' });
+              const files = [...(e.target.files || [])].slice(0, 10);
+              if (files.length) {
+                setPendingMedia((prev) => [
+                  ...prev,
+                  ...files.map((f) => ({ url: URL.createObjectURL(f), type: (f.type.startsWith('video') ? 'video' : 'image') as 'image' | 'video' })),
+                ]);
               }
               e.target.value = "";
             }}
@@ -237,10 +245,10 @@ function ChatInputAreaImpl({
           <button
             type="button"
             onClick={sendPost}
-            disabled={!eMsgText.trim() && !pendingMedia}
+            disabled={!eMsgText.trim() && pendingMedia.length === 0}
             aria-label={t("channelComposer.send")}
             title={t("channelComposer.send")}
-            className={`icon-button ${((eMsgText.trim() || pendingMedia)) ? "primary" : ""}`}
+            className={`icon-button ${((eMsgText.trim() || pendingMedia.length > 0)) ? "primary" : ""}`}
           >
             <ChevronRight size={16} />
           </button>

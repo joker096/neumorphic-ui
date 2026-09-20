@@ -120,7 +120,43 @@ describe('ChatInputArea (channel)', () => {
     fireEvent.change(input, { target: { files: [file] } });
     expect(document.querySelector('img')).toBeTruthy();
     fireEvent.keyDown(screen.getByLabelText('channelComposer.placeholder'), { key: 'Enter' });
-    expect(sendMessage).toHaveBeenCalledWith(expect.objectContaining({ url: 'blob:mock', type: 'image' }));
+    expect(sendMessage).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ url: 'blob:mock', type: 'image' })]),
+    );
+    createObjectURL.mockRestore();
+  });
+
+  it('attaches multiple files and removes one thumbnail', () => {
+    const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
+    const sendMessage = vi.fn();
+    render(<Wrapper ownerId={OWNER_ID} sendMessage={sendMessage} />);
+    const input = document.getElementById('channel-post-media-input') as HTMLInputElement;
+    fireEvent.change(input, {
+      target: { files: [new File(['a'], 'a.png', { type: 'image/png' }), new File(['b'], 'b.png', { type: 'image/png' })] },
+    });
+    expect(document.querySelectorAll('img')).toHaveLength(2);
+    fireEvent.click(screen.getAllByLabelText('chat.removeMedia')[1]!);
+    expect(document.querySelectorAll('img')).toHaveLength(1);
+    fireEvent.keyDown(screen.getByLabelText('channelComposer.placeholder'), { key: 'Enter' });
+    expect(sendMessage).toHaveBeenCalledTimes(1);
+    expect((sendMessage.mock.calls[0]![0] as Array<unknown>)).toHaveLength(1);
+    createObjectURL.mockRestore();
+  });
+
+  it('sends an album post with multiple images', () => {
+    const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
+    const sendMessage = vi.fn();
+    render(<Wrapper ownerId={OWNER_ID} sendMessage={sendMessage} />);
+    const input = document.getElementById('channel-post-media-input') as HTMLInputElement;
+    fireEvent.change(input, {
+      target: { files: [new File(['a'], 'a.png', { type: 'image/png' }), new File(['b'], 'b.png', { type: 'image/png' })] },
+    });
+    fireEvent.keyDown(screen.getByLabelText('channelComposer.placeholder'), { key: 'Enter' });
+    expect(sendMessage).toHaveBeenCalledTimes(1);
+    const arg = sendMessage.mock.calls[0]![0] as Array<{ url: string; type: string }>;
+    expect(arg).toHaveLength(2);
+    expect(arg[0]!.type).toBe('image');
+    expect(arg[1]!.url).toBe('blob:mock');
     createObjectURL.mockRestore();
   });
 });
