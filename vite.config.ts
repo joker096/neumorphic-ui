@@ -75,6 +75,11 @@ export default defineConfig({
         target: process.env.VITE_PROXY_TARGET || 'http://localhost:8766',
         changeOrigin: true,
       },
+      '/ws': {
+        target: process.env.VITE_SIGNALING_WS_TARGET || 'ws://127.0.0.1:8971',
+        ws: true,
+        changeOrigin: true,
+      },
     },
   },
   preview: {
