@@ -120,4 +120,24 @@ describe('MediaViewer - interactive gallery (UI/UX plan §13)', () => {
     expect(img).not.toBeNull();
     expect(img!.style.transform || getComputedStyle(img!).transform).not.toContain('0.5');
   });
+
+  it('keeps loaded photo visible when parent re-renders with a fresh media object (stale-key regression)', () => {
+    const { rerender } = renderViewer();
+    const img = document.querySelector('img') as HTMLImageElement;
+    expect(img).not.toBeNull();
+    fireEvent.load(img);
+    expect(img).toHaveClass('opacity-100');
+    expect(document.querySelector('.animate-spin')).not.toBeInTheDocument();
+    rerender(
+      <MediaViewer media={{ type: 'photo', url: 'https://example.com/a.jpg', name: 'a.jpg' }} onClose={vi.fn()} />,
+    );
+    expect(document.querySelector('img')).toHaveClass('opacity-100');
+    expect(document.querySelector('.animate-spin')).not.toBeInTheDocument();
+  });
+
+  it('shows error state for a photo without url instead of spinning forever', () => {
+    renderViewer({ media: { type: 'photo' } });
+    expect(document.querySelector('.animate-spin')).not.toBeInTheDocument();
+    expect(document.querySelector('img')).not.toBeInTheDocument();
+  });
 });

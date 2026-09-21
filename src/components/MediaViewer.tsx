@@ -46,6 +46,7 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
   const [progress, setProgress] = useState(34);
   const [imgStatus, setImgStatus] = useState<'loading' | 'loaded' | 'error'>(media?.type === 'photo' ? 'loading' : 'loaded');
   const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const imgRef = React.useRef<HTMLImageElement | null>(null);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
 
   type GestureMode = "idle" | "nav" | "pan" | "pinch" | "dismiss";
@@ -202,8 +203,21 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
   };
 
   React.useEffect(() => {
-    setImgStatus(media?.type === 'photo' ? 'loading' : 'loaded');
-  }, [media]);
+    if (media?.type !== 'photo') {
+      setImgStatus('loaded');
+      return;
+    }
+    if (!media?.url) {
+      setImgStatus('error');
+      return;
+    }
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth > 0) {
+      setImgStatus('loaded');
+    } else {
+      setImgStatus('loading');
+    }
+  }, [media?.url, media?.type]);
 
   React.useEffect(() => {
     const onChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -323,8 +337,9 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
                  </div>
                ) : (
 <motion.img
-                    src={media.url}
-                    alt={media.name || t('media.photo')}
+                     ref={imgRef}
+                     src={media.url}
+                     alt={media.name || t('media.photo')}
                     animate={{ scale, x: scale > 1 ? offset.x : 0, y: scale > 1 ? offset.y : 0 }}
                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                    onLoad={() => setImgStatus('loaded')}
