@@ -151,6 +151,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     swipeReplyId, setSwipeReplyId,
     msgListRef,
     sendMessage,
+    sendGeoMessage,
+    sendArticleMessage,
     handleImageAttach,
     handleFileDrop,
     handleReactionMessage,
@@ -428,6 +430,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         eReplyTarget={eReplyTarget}
         setLocalReplyTarget={setReplyTargetFn2}
         sendMessage={sendMessage}
+        sendGeoMessage={sendGeoMessage}
+        sendArticleMessage={sendArticleMessage}
         sendVoiceMessage={sendVoiceMessage}
         sendStickerMessage={sendStickerMessage}
         handleImageAttach={handleImageAttach}

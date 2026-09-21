@@ -5,7 +5,7 @@ import { useDebounce } from "./useDebounce";
 import { encodeMorse } from "../components/MorseDecoder";
 import { useI18n } from "../lib/i18n";
 import { queueMessage } from "../lib/messageQueue";
-import { encodeChatReadReceipt, encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
+import { encodeChatLocation, encodeChatArticle, encodeChatReadReceipt, encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
 import { useFileSend } from "./useFileSend";
 import { SELF_DESTRUCT_MS } from "../constants/time";
@@ -234,6 +234,81 @@ export function useChatPreviewState(
     setLocalSilentMode(false);
   };
 
+  const sendGeoMessage = (lat: number, lng: number) => {
+    if (typeof lat !== "number" || typeof lng !== "number" || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const newMessage: any = {
+      id: Date.now(),
+      sender: "me",
+      type: "location",
+      lat,
+      lng,
+      text: "",
+      ts: Date.now(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: navigator.onLine ? "sent" : "queued",
+      silent: eSilentMode,
+    };
+    void queueMessage({ ...newMessage, chatId: chat.id, chatName: chat.name }).catch(() =>
+      updateMsgStatusInChat(chat, newMessage.id, "failed"),
+    );
+    const updatedChat = {
+      ...chat,
+      history: [...(chat.history || []), newMessage],
+    };
+    if (onUpdateChat) onUpdateChat(updatedChat);
+    const sender = useAppStore.getState().userProfile;
+    void p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeChatLocation({
+      type: "chat-location",
+      seq: nextFrameSeq(),
+      messageId: String(newMessage.id),
+      chatId: String(chat.id),
+      chatName: String(chat.name || ""),
+      senderName: sender?.name || sender?.username || "User",
+      lat,
+      lng,
+      silent: !!newMessage.silent,
+      timestamp: Number(newMessage.id) || Date.now(),
+    })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
+  };
+
+  const sendArticleMessage = (url: string, title?: string) => {
+    const trimmed = String(url || "").trim();
+    if (!/^https?:\/\//i.test(trimmed)) return;
+    const newMessage: any = {
+      id: Date.now(),
+      sender: "me",
+      type: "article",
+      url: trimmed,
+      title: typeof title === "string" ? title.trim() : "",
+      text: "",
+      ts: Date.now(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: navigator.onLine ? "sent" : "queued",
+      silent: eSilentMode,
+    };
+    void queueMessage({ ...newMessage, chatId: chat.id, chatName: chat.name }).catch(() =>
+      updateMsgStatusInChat(chat, newMessage.id, "failed"),
+    );
+    const updatedChat = {
+      ...chat,
+      history: [...(chat.history || []), newMessage],
+    };
+    if (onUpdateChat) onUpdateChat(updatedChat);
+    const sender = useAppStore.getState().userProfile;
+    void p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeChatArticle({
+      type: "chat-article",
+      seq: nextFrameSeq(),
+      messageId: String(newMessage.id),
+      chatId: String(chat.id),
+      chatName: String(chat.name || ""),
+      senderName: sender?.name || sender?.username || "User",
+      url: trimmed,
+      title: newMessage.title || undefined,
+      silent: !!newMessage.silent,
+      timestamp: Number(newMessage.id) || Date.now(),
+    })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
+  };
+
   const attachFiles = (files: File[], _chatData: any, _onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
     if (files.length === 1) {
       void sendFile(files[0], { silent });
@@ -440,6 +515,8 @@ export function useChatPreviewState(
     swipeReplyId, setSwipeReplyId,
     msgListRef,
     sendMessage,
+    sendGeoMessage,
+    sendArticleMessage,
     handleImageAttach,
     handleFileDrop,
     handleReactionMessage,

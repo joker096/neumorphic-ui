@@ -114,6 +114,14 @@ describe('TransportIndicator tooltip legend', () => {
     render(<TransportIndicator status="blocked" />);
     expect(screen.getByLabelText('Connection: Degraded')).toBeInTheDocument();
   });
+
+  it('ports the tooltip into document.body so the sidebar cannot clip it', () => {
+    render(<TransportIndicator status="connected" />);
+    fireEvent.mouseEnter(screen.getByRole('status'));
+    const tooltip = screen.getByRole('tooltip');
+    expect(document.body).toContainElement(tooltip);
+    expect(screen.getByRole('status')).not.toContainElement(tooltip);
+  });
 });
 
 describe('TransportIndicator error detail', () => {

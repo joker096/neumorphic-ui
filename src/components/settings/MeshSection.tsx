@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
 import { QrCode } from '../QrCode';
 import { P2PTransport } from '../../lib/p2p/P2PTransport';
+import { buf2hex } from '../../lib/crypto/cryptoCore';
+import { generateEd25519KeyPair } from '../../lib/crypto/ed25519';
 import { SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { Check, Copy, Send, Unplug } from 'lucide-react';
@@ -18,17 +20,21 @@ interface MeshSectionProps {
  * direct WebRTC data channel WITHOUT any signaling server. Session keys are
  * derived locally on both sides from an ephemeral ECDH (X25519) exchange.
  *
- * Strings use `t(key, enFallback)` on purpose: the mesh.* keys intentionally
- * live only in the fallback layer for the PoC (missing keys fall back to the
- * English fallback in every locale, keeping the x8 locale gate green).
+ * Identity: each mount generates a fresh caller + guest ed25519 keypair so
+ * the transport's TOFU identity check (identitySecretKey/identityPublicKey in
+ * the P2PTransport config) has a real key to pair against — without it
+ * createPairingOffer() throws and the session shows "failed".
+ *
+ * Strings use `t(key, enFallback)`: all mesh.* keys are localized (en/ru);
+ * the fallback only guards against missing translations.
  */
 export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?: string) => fallback ?? k }: MeshSectionProps) => {
   const callerRef = useRef<P2PTransport | null>(null);
   const guestRef = useRef<P2PTransport | null>(null);
-  const [deviceKeys] = useState(() => {
-    const suffix = (crypto.randomUUID ? crypto.randomUUID() : `lan-${Date.now()}`).slice(0, 8);
-    return { caller: `caller-${suffix}`, guest: `guest-${suffix}` };
-  });
+  const [identities] = useState(() => ({
+    caller: generateEd25519KeyPair(),
+    guest: generateEd25519KeyPair(),
+  }));
   const [offer, setOffer] = useState('');
   const [answer, setAnswer] = useState('');
   const [guestOfferDraft, setGuestOfferDraft] = useState('');
@@ -50,11 +56,14 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
 
   useEffect(() => destroy, []);
 
-  const makeTransport = (ref: MutableRefObject<P2PTransport | null>, localPublicKey: string): P2PTransport => {
+  const makeTransport = (
+    ref: MutableRefObject<P2PTransport | null>,
+    identity: { publicKey: Uint8Array; secretKey: Uint8Array },
+  ): P2PTransport => {
     ref.current?.disconnect();
     const tr = new P2PTransport({
       signalingUrl: '',
-      localPublicKey,
+      localPublicKey: buf2hex(identity.publicKey),
       onMessage: (data) => setLastIncoming(data),
       onConnected: (peerId) => {
         setConnected(true);
@@ -62,7 +71,9 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
       },
       onDisconnected: () => setConnected(false),
       obfuscationEnabled: true,
-    } as any);
+      identitySecretKey: identity.secretKey,
+      identityPublicKey: identity.publicKey,
+    });
     tr.enablePairingMode();
     ref.current = tr;
     return tr;
@@ -82,7 +93,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
     setInviteBusy(true);
     setLastIncoming(null);
     try {
-      const payload = await makeTransport(callerRef, deviceKeys.caller).createPairingOffer();
+      const payload = await makeTransport(callerRef, identities.caller).createPairingOffer();
       setOffer(payload);
     } catch {
       setOffer('');
@@ -96,7 +107,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
     setAnswerBusy(true);
     setLastIncoming(null);
     try {
-      const payload = await makeTransport(guestRef, deviceKeys.guest).acceptPairingOffer(guestOfferDraft.trim());
+      const payload = await makeTransport(guestRef, identities.guest).acceptPairingOffer(guestOfferDraft.trim());
       setAnswer(payload);
     } catch {
       setAnswer('');

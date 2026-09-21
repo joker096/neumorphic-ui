@@ -28,6 +28,8 @@ describe('MeshSection (LAN pairing UI)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     h.P2PTransport.mockClear();
+    h.pair.mockImplementation(() => Promise.resolve('offer-payload'));
+    h.accept.mockImplementation(() => Promise.resolve('answer-payload'));
   });
 
   const renderMesh = () =>
@@ -87,5 +89,24 @@ describe('MeshSection (LAN pairing UI)', () => {
     fireEvent.click(screen.getByRole('button', { name: /mesh\.createInvite/i }));
     unmount();
     expect(h.disconnect).toHaveBeenCalled();
+  });
+
+  it('constructs both transports with real ed25519 identities (no "failed" pairing)', async () => {
+    renderMesh();
+    fireEvent.click(screen.getByRole('button', { name: /mesh\.createInvite/i }));
+    await screen.findByDisplayValue('offer-payload');
+    const callerConfig = (h.P2PTransport.mock.calls[0] as any[])[0];
+    expect(callerConfig.localPublicKey).toMatch(/^[0-9a-f]{64}$/);
+    expect(callerConfig.identityPublicKey).toBeInstanceOf(Uint8Array);
+    expect(callerConfig.identityPublicKey.length).toBe(32);
+    expect(callerConfig.identitySecretKey).toBeInstanceOf(Uint8Array);
+    expect(callerConfig.identitySecretKey.length).toBe(64);
+    expect(callerConfig.obfuscationEnabled).toBe(true);
+    fireEvent.change(screen.getByPlaceholderText('mesh.invitePlaceholder'), { target: { value: 'offer-payload' } });
+    fireEvent.click(screen.getByRole('button', { name: /mesh\.generateAnswer/i }));
+    await screen.findByDisplayValue('answer-payload');
+    const guestConfig = (h.P2PTransport.mock.calls[1] as any[])[0];
+    expect(guestConfig.localPublicKey).toMatch(/^[0-9a-f]{64}$/);
+    expect(guestConfig.localPublicKey).not.toBe(callerConfig.localPublicKey);
   });
 });

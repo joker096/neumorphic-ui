@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react";
-import { BellOff, ChevronRight, Clock, Mic, Smile, Plus, VolumeX, Volume2, Radio, X } from "lucide-react";
+import { BellOff, ChevronRight, Clock, FileText, Image as ImageIcon, Link2, MapPin, Mic, Music, Plus, Smile, VolumeX, Volume2, Radio, X } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 const LazyLiveVoiceRecorder = lazy(() => import("../LiveVoiceRecorder").then(m => ({ default: m.LiveVoiceRecorder })));
 import { StickerPicker } from "../chat/StickerPicker";
 import { ChatInputSchedulePopup } from "./ChatInputSchedulePopup";
@@ -36,6 +37,8 @@ interface ChatInputAreaProps {
   sendVoiceMessage?: (url: string, dur: string, blob?: Blob) => void;
   sendStickerMessage?: (sticker: string) => void;
   handleImageAttach: (e: React.ChangeEvent<HTMLInputElement>, chat: any, onUpdateChat: any, silent: boolean) => void;
+  sendGeoMessage?: (lat: number, lng: number) => void;
+  sendArticleMessage?: (url: string, title?: string) => void;
   onUpdateChat?: (chat: any) => void;
   onPasteFiles?: (files: FileList | null) => void;
   onAction?: (action: string) => void;
@@ -69,6 +72,8 @@ function ChatInputAreaImpl({
   sendMessage,
   sendVoiceMessage,
   sendStickerMessage,
+  sendGeoMessage,
+  sendArticleMessage,
     handleImageAttach,
     onUpdateChat,
     onPasteFiles,
@@ -84,10 +89,52 @@ function ChatInputAreaImpl({
   const idleTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [pendingMedia, setPendingMedia] = React.useState<Array<{ url: string; type: 'image' | 'video' }>>([]);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
+  const [showAttachMenu, setShowAttachMenu] = React.useState(false);
+  const dmMediaInputRef = React.useRef<HTMLInputElement>(null);
+  const dmDocInputRef = React.useRef<HTMLInputElement>(null);
+  const dmAudioInputRef = React.useRef<HTMLInputElement>(null);
+  const articleInputRef = React.useRef<HTMLInputElement>(null);
+  const [showArticleInput, setShowArticleInput] = React.useState(false);
+  const [articleUrl, setArticleUrl] = React.useState("");
+  const [attachError, setAttachError] = React.useState("");
+  useEscapeKey(() => {
+    setShowAttachMenu(false);
+    setShowArticleInput(false);
+  }, showAttachMenu || showArticleInput);
 
   const growTextarea = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  };
+
+  React.useEffect(() => {
+    if (showArticleInput) articleInputRef.current?.focus();
+  }, [showArticleInput]);
+
+  const handleGeoRequest = () => {
+    setAttachError("");
+    if (!("geolocation" in navigator)) {
+      setAttachError(t("chat.locationDenied", "Location access denied"));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => sendGeoMessage?.(pos.coords.latitude, pos.coords.longitude),
+      () => setAttachError(t("chat.locationDenied", "Location access denied")),
+      { timeout: 10000, maximumAge: 60000 },
+    );
+  };
+
+  const submitArticle = () => {
+    const url = articleUrl.trim();
+    if (!/^https?:\/\//i.test(url)) {
+      setAttachError(t("chat.articleInvalid", "Enter a valid URL (https://…)"));
+      return;
+    }
+    setAttachError("");
+    setShowAttachMenu(false);
+    setShowArticleInput(false);
+    setArticleUrl("");
+    sendArticleMessage?.(url);
   };
 
   React.useEffect(() => {
@@ -289,13 +336,129 @@ function ChatInputAreaImpl({
         </div>
       ) : null}
 
+      {showAttachMenu && (
+        <div className={`mx-2 sm:mx-3 mb-2 p-1.5 sm:p-2 rounded-xl flex flex-col gap-0.5 ${
+          isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"
+        }`}>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)] px-3 py-1.5">
+            {t("chat.attachFile")}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAttachMenu(false);
+              dmMediaInputRef.current?.click();
+            }}
+            className={`min-w-11 min-h-11 w-full flex items-center gap-3 px-3 rounded-lg text-sm cursor-pointer transition-colors ${
+              isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-slate-700 hover:bg-black/5"
+            }`}
+          >
+            <ImageIcon size={18} className="text-[var(--accent)] flex-shrink-0" />
+            {t("chat.photo")} / {t("chat.video")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAttachMenu(false);
+              dmDocInputRef.current?.click();
+            }}
+            className={`min-w-11 min-h-11 w-full flex items-center gap-3 px-3 rounded-lg text-sm cursor-pointer transition-colors ${
+              isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-slate-700 hover:bg-black/5"
+            }`}
+          >
+            <FileText size={18} className="text-[var(--accent)] flex-shrink-0" />
+            {t("media.document")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAttachMenu(false);
+              dmAudioInputRef.current?.click();
+            }}
+            className={`min-w-11 min-h-11 w-full flex items-center gap-3 px-3 rounded-lg text-sm cursor-pointer transition-colors ${
+              isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-slate-700 hover:bg-black/5"
+            }`}
+          >
+            <Music size={18} className="text-[var(--accent)] flex-shrink-0" />
+            {t("media.audio")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAttachMenu(false);
+              handleGeoRequest();
+            }}
+            className={`min-w-11 min-h-11 w-full flex items-center gap-3 px-3 rounded-lg text-sm cursor-pointer transition-colors ${
+              isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-slate-700 hover:bg-black/5"
+            }`}
+          >
+            <MapPin size={18} className="text-[var(--accent)] flex-shrink-0" />
+            {t("chat.location")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAttachError("");
+              setArticleUrl("");
+              setShowArticleInput((v) => !v);
+            }}
+            aria-expanded={showArticleInput}
+            className={`min-w-11 min-h-11 w-full flex items-center gap-3 px-3 rounded-lg text-sm cursor-pointer transition-colors ${
+              isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-slate-700 hover:bg-black/5"
+            }`}
+          >
+            <Link2 size={18} className="text-[var(--accent)] flex-shrink-0" />
+            {t("chat.article")}
+          </button>
+          {showArticleInput && (
+            <div className="flex items-center gap-1.5 px-2 py-1.5">
+              <input
+                ref={articleInputRef}
+                value={articleUrl}
+                onChange={(e) => setArticleUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitArticle();
+                  }
+                }}
+                placeholder={t("chat.articleUrl", "https://…")}
+                className={`min-h-11 flex-1 min-w-0 px-3 rounded-lg text-sm outline-none transition-colors ${
+                  isDark
+                    ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+                    : "bg-slate-100 text-slate-800 placeholder:text-slate-400"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={submitArticle}
+                aria-label={t("chat.sendMessage")}
+                className={`icon-button primary cursor-pointer ${
+                  isDark ? "" : ""
+                }`}
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {attachError && (
+        <div className="mx-2 sm:mx-3 mb-2 px-3 py-2 rounded-lg text-xs border border-rose-500/40 bg-rose-500/10 text-rose-500 flex items-center gap-2">
+          <X size={14} className="flex-shrink-0 cursor-pointer min-h-11 min-w-11 -my-1 -mx-2 p-3" onClick={() => setAttachError("")} aria-label="Dismiss" />
+          <span>{attachError}</span>
+        </div>
+      )}
+
       <div className="message-composer shrink-0 mx-2 sm:mx-3 mb-3 mt-1 flex flex-wrap sm:flex-nowrap">
         {!eIsRecordingVoice && (
           <>
             <div className="relative group">
               <input
+                ref={dmMediaInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
                 id="dm-media-input"
                 className="hidden"
@@ -305,15 +468,42 @@ function ChatInputAreaImpl({
                 }}
                 aria-label={t("chat.attachFile")}
               />
-              <label
-                htmlFor="dm-media-input"
+              <input
+                ref={dmDocInputRef}
+                type="file"
+                accept="application/*,text/*"
+                id="dm-doc-input"
+                className="hidden"
+                onChange={(e) => {
+                  handleImageAttach(e, chat, onUpdateChat, eSilentMode);
+                  e.target.value = "";
+                }}
+                aria-label={t("media.document")}
+              />
+              <input
+                ref={dmAudioInputRef}
+                type="file"
+                accept="audio/*"
+                id="dm-audio-input"
+                className="hidden"
+                onChange={(e) => {
+                  handleImageAttach(e, chat, onUpdateChat, eSilentMode);
+                  e.target.value = "";
+                }}
+                aria-label={t("media.audio")}
+              />
+              <button
+                type="button"
                 aria-label={t("chat.attachFile")}
-                className={`icon-button block cursor-pointer ${
+                aria-haspopup="menu"
+                aria-expanded={showAttachMenu}
+                onClick={() => setShowAttachMenu((v) => !v)}
+                className={`icon-button cursor-pointer ${
                   isDark ? "text-gray-400" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 <Plus size={16} />
-              </label>
+              </button>
             </div>
 
             <button

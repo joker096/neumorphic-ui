@@ -135,6 +135,7 @@ export interface ChatAudioEndFrame {
 
 const isPositiveInt = (n: unknown): n is number => Number.isSafeInteger(n) && (n as number) > 0;
 const isNonNegativeInt = (n: unknown): n is number => Number.isSafeInteger(n) && (n as number) >= 0;
+const isFiniteNum = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n);
 
 export function encodeChatAudioMeta(frame: ChatAudioMetaFrame): string {
   return MSG_MAGIC + JSON.stringify(frame);
@@ -192,6 +193,82 @@ export function parseChatAudioEnd(raw: string): ChatAudioEndFrame | null {
     const parsed = JSON.parse(raw.slice(MSG_MAGIC.length)) as ChatAudioEndFrame;
     return parsed.type === 'chat-audio-end' && isSeq(parsed.seq)
       && typeof parsed.messageId === 'string'
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Geolocation share carried as a single text-wire frame (no bytes). */
+export interface ChatLocationFrame {
+  type: 'chat-location';
+  seq: number;
+  messageId: string;
+  chatId: string;
+  chatName: string;
+  senderName: string;
+  lat: number;
+  lng: number;
+  silent: boolean;
+  timestamp: number;
+}
+
+/** Article/site-link share carried as a single text-wire frame. */
+export interface ChatArticleFrame {
+  type: 'chat-article';
+  seq: number;
+  messageId: string;
+  chatId: string;
+  chatName: string;
+  senderName: string;
+  url: string;
+  title?: string;
+  silent: boolean;
+  timestamp: number;
+}
+
+export function encodeChatLocation(frame: ChatLocationFrame): string {
+  return MSG_MAGIC + JSON.stringify(frame);
+}
+
+export function parseChatLocation(raw: string): ChatLocationFrame | null {
+  if (!raw.startsWith(MSG_MAGIC)) return null;
+  try {
+    const parsed = JSON.parse(raw.slice(MSG_MAGIC.length)) as ChatLocationFrame;
+    return parsed.type === 'chat-location' && isSeq(parsed.seq)
+      && typeof parsed.messageId === 'string'
+      && typeof parsed.chatId === 'string'
+      && typeof parsed.chatName === 'string'
+      && typeof parsed.senderName === 'string'
+      && isFiniteNum(parsed.lat)
+      && isFiniteNum(parsed.lng)
+      && typeof parsed.silent === 'boolean'
+      && isNonNegativeInt(parsed.timestamp)
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export function encodeChatArticle(frame: ChatArticleFrame): string {
+  return MSG_MAGIC + JSON.stringify(frame);
+}
+
+export function parseChatArticle(raw: string): ChatArticleFrame | null {
+  if (!raw.startsWith(MSG_MAGIC)) return null;
+  try {
+    const parsed = JSON.parse(raw.slice(MSG_MAGIC.length)) as ChatArticleFrame;
+    return parsed.type === 'chat-article' && isSeq(parsed.seq)
+      && typeof parsed.messageId === 'string'
+      && typeof parsed.chatId === 'string'
+      && typeof parsed.chatName === 'string'
+      && typeof parsed.senderName === 'string'
+      && typeof parsed.url === 'string'
+      && (parsed.title === undefined || typeof parsed.title === 'string')
+      && typeof parsed.silent === 'boolean'
+      && isNonNegativeInt(parsed.timestamp)
       ? parsed
       : null;
   } catch {

@@ -24,8 +24,9 @@ export interface UseFileSendDeps {
 /**
  * P2P file send: hashes the file, persists chunks + completed meta locally always
  * (so the sender's own `ftr:` message renders without waiting for a peer), then streams
- * meta/chunk/end frames over `p2pNetwork.broadcast()` when online (best-effort: a failed
- * broadcast flips the message to "failed"; offline sends stay "queued").
+ * meta/chunk/end frames over `p2pNetwork.sendAddressed()` when online. Wire delivery is
+ * best-effort — errors (e.g. no connected peer) are swallowed, the locally-persisted
+ * message stays "sent"; offline sends remain "queued".
  */
 export function useFileSend(chat: any, deps: UseFileSendDeps) {
   const { setChats, setActiveChat, onUpdateChat } = deps;
@@ -103,7 +104,10 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
     };
     appendMessage(newMessage);
 
-    const safeSend = (frame: FtrFrame) => p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeFrame(frame));
+    const safeSend = (frame: FtrFrame) =>
+      p2pNetwork
+        .sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeFrame(frame))
+        .catch(() => false);
 
     try {
       const sha256 = await sha256Hex(await file.arrayBuffer());
@@ -190,8 +194,14 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
     };
     appendMessage(newMessage);
 
-    const safeSend = (frame: FtrFrame) => p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeFrame(frame));
-    const safeSendRaw = (payload: string) => p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), payload);
+    const safeSend = (frame: FtrFrame) =>
+      p2pNetwork
+        .sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), encodeFrame(frame))
+        .catch(() => false);
+    const safeSendRaw = (payload: string) =>
+      p2pNetwork
+        .sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), payload)
+        .catch(() => false);
 
     try {
       if (online) {

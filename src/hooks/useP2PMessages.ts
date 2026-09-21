@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FTR_MAGIC, ALBUM_MAGIC, parseFrame, parseAlbumManifest, base64ToBytes, type FtrFrame, type TransferMeta, type AlbumManifest } from "../lib/fileTransfer/frames";
-import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
+import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, parseChatLocation, parseChatArticle, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
 import { saveVoiceBlob } from "../lib/voiceStore";
 import {
   saveTransferMeta, saveChunk, getTransferBlob, pruneAbandonedTransfers,
@@ -346,6 +346,56 @@ export function useP2PMessages() {
           const audioEnd = parseChatAudioEnd(raw);
           if (audioEnd) {
             void handleAudioEnd(audioEnd).catch(() => {});
+            return;
+          }
+          const location = parseChatLocation(raw);
+          if (location) {
+            p2pNetwork.rememberPeer(msg.senderId, location.senderName);
+            p2pNetwork.rememberChatPeer(location.chatId, location.chatName, msg.senderId);
+            appendIncomingToDmChat(location.chatId, location.chatName, {
+              id: location.messageId,
+              sender: location.senderName,
+              type: "location",
+              lat: location.lat,
+              lng: location.lng,
+              text: "",
+              ts: location.timestamp,
+              time: new Date(location.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              status: "delivered",
+              silent: location.silent,
+            });
+            void p2pNetwork.sendAddressed(msg.senderId, encodeChatDeliveryAck({
+              type: "chat-ack",
+              seq: nextFrameSeq(),
+              messageId: location.messageId,
+              chatId: location.chatId,
+              timestamp: Date.now(),
+            })).catch(() => {});
+            return;
+          }
+          const article = parseChatArticle(raw);
+          if (article) {
+            p2pNetwork.rememberPeer(msg.senderId, article.senderName);
+            p2pNetwork.rememberChatPeer(article.chatId, article.chatName, msg.senderId);
+            appendIncomingToDmChat(article.chatId, article.chatName, {
+              id: article.messageId,
+              sender: article.senderName,
+              type: "article",
+              url: article.url,
+              title: article.title || "",
+              text: "",
+              ts: article.timestamp,
+              time: new Date(article.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              status: "delivered",
+              silent: article.silent,
+            });
+            void p2pNetwork.sendAddressed(msg.senderId, encodeChatDeliveryAck({
+              type: "chat-ack",
+              seq: nextFrameSeq(),
+              messageId: article.messageId,
+              chatId: article.chatId,
+              timestamp: Date.now(),
+            })).catch(() => {});
             return;
           }
           const text = parseChatText(raw);

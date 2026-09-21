@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Play, Loader2, FileText, FileSpreadsheet, FileArchive, FileCode,
-  Image as ImageIcon, Music, Film, ImageOff, VideoOff, Download,
+  Image as ImageIcon, Music, Film, ImageOff, VideoOff, Download, MapPin, Link2,
   type LucideIcon,
 } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
@@ -374,5 +374,74 @@ export function AttachmentMedia({
     );
   }
 
+  if (msg.type === "location") {
+    return <GeoMessageCard msg={msg} t={t} />;
+  }
+
+  if (msg.type === "article") {
+    return <ArticleMessageCard msg={msg} />;
+  }
+
   return null;
+}
+
+interface GeoMessageCardProps {
+  msg: any;
+  t: (key: string, fallback?: string) => string;
+}
+
+function GeoMessageCard({ msg, t }: GeoMessageCardProps) {
+  const lat = Number(msg.lat);
+  const lng = Number(msg.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const coords = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}`;
+  const iconStyle = "bg-rose-500/15 text-rose-500";
+  return (
+    <div className="flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2">
+      <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${iconStyle}`}>
+        <MapPin size={20} />
+      </div>
+      <div className="min-w-0">
+        <div className="text-sm font-medium truncate">{coords}</div>
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-[var(--accent)] underline hover:opacity-80 break-all"
+        >
+          {t("chat.openInMap", "Open in map")}
+        </a>
+      </div>
+    </div>
+  );
+}
+
+interface ArticleMessageCardProps {
+  msg: any;
+}
+
+function ArticleMessageCard({ msg }: ArticleMessageCardProps) {
+  const url = typeof msg.url === "string" ? msg.url : "";
+  if (!url) return null;
+  let host = "";
+  try {
+    host = new URL(url).host;
+  } catch {
+    host = url;
+  }
+  const title = typeof msg.title === "string" && msg.title.trim() ? msg.title.trim() : host;
+  return (
+    <div className="rounded-xl border mb-2 overflow-hidden">
+      <a href={url} target="_blank" rel="noopener noreferrer" className="block p-3 hover:opacity-90">
+        <div className="text-sm font-semibold break-words mb-1">{title}</div>
+        <div className="text-xs break-all flex items-center gap-1 opacity-70">
+          <Link2 size={12} className="flex-shrink-0" /> {host}
+        </div>
+        {msg.text && (
+          <div className="mt-1 text-xs break-words opacity-80">{String(msg.text)}</div>
+        )}
+      </a>
+    </div>
+  );
 }

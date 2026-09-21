@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { ChatInputArea } from './ChatInputArea';
 import { useAppStore } from '../../store';
@@ -96,17 +96,59 @@ describe('ChatInputArea (channel)', () => {
     expect(sendMessage).not.toHaveBeenCalled();
   });
 
-  it('hides the DM file input behind a label (no raw "No file chosen" control on mobile)', () => {
+  it('hides DM file inputs behind hidden classes (no raw "No file chosen" control on mobile)', () => {
     const handleImageAttach = vi.fn();
     render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} handleImageAttach={handleImageAttach} />);
+    for (const id of ['dm-media-input', 'dm-doc-input', 'dm-audio-input']) {
+      const input = document.getElementById(id) as HTMLInputElement;
+      expect(input).toBeTruthy();
+      expect(input.className).toContain('hidden');
+      expect(input.className).not.toContain('opacity-0');
+    }
+  });
+
+  it('opens the attach menu on plus click and closes it on Escape', () => {
+    render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} handleImageAttach={vi.fn()} />);
+    const plus = screen.getByRole('button', { name: 'chat.attachFile' });
+    fireEvent.click(plus);
+    expect(screen.getByText('chat.photo / chat.video')).toBeInTheDocument();
+    expect(screen.getByText('media.document')).toBeInTheDocument();
+    expect(screen.getByText('media.audio')).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByText('chat.photo / chat.video')).not.toBeInTheDocument();
+  });
+
+  it('photo/video item opens media input with image+video accept and passes files through', () => {
+    const handleImageAttach = vi.fn();
+    render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} handleImageAttach={handleImageAttach} />);
+    fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
+    fireEvent.click(screen.getByText('chat.photo / chat.video'));
     const input = document.getElementById('dm-media-input') as HTMLInputElement;
-    expect(input).toBeTruthy();
-    expect(input.className).toContain('hidden');
-    expect(input.className).not.toContain('opacity-0');
-    const label = document.querySelector('label[for="dm-media-input"]') as HTMLLabelElement;
-    expect(label).toBeTruthy();
-    expect(label.getAttribute('aria-label')).toBe('chat.attachFile');
-    fireEvent.change(input, { target: { files: [] } });
+    expect(input.accept).toBe('image/*,video/*');
+    expect(screen.queryByText('chat.photo / chat.video')).not.toBeInTheDocument();
+    fireEvent.change(input, { target: { files: [new File(['x'], 'a.png', { type: 'image/png' })] } });
+    expect(handleImageAttach).toHaveBeenCalledTimes(1);
+  });
+
+  it('document item opens doc input restricted to application/text mimes', () => {
+    const handleImageAttach = vi.fn();
+    render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} handleImageAttach={handleImageAttach} />);
+    fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
+    fireEvent.click(screen.getByText('media.document'));
+    const input = document.getElementById('dm-doc-input') as HTMLInputElement;
+    expect(input.accept).toBe('application/*,text/*');
+    fireEvent.change(input, { target: { files: [new File(['x'], 'a.pdf', { type: 'application/pdf' })] } });
+    expect(handleImageAttach).toHaveBeenCalledTimes(1);
+  });
+
+  it('music item opens audio input restricted to audio mimes', () => {
+    const handleImageAttach = vi.fn();
+    render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} handleImageAttach={handleImageAttach} />);
+    fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
+    fireEvent.click(screen.getByText('media.audio'));
+    const input = document.getElementById('dm-audio-input') as HTMLInputElement;
+    expect(input.accept).toBe('audio/*');
+    fireEvent.change(input, { target: { files: [new File(['x'], 'a.mp3', { type: 'audio/mpeg' })] } });
     expect(handleImageAttach).toHaveBeenCalledTimes(1);
   });
 
@@ -158,5 +200,75 @@ describe('ChatInputArea (channel)', () => {
     expect(arg[0]!.type).toBe('image');
     expect(arg[1]!.url).toBe('blob:mock');
     createObjectURL.mockRestore();
+  });
+
+  describe('ChatInputArea geo/article (DM)', () => {
+    afterEach(() => {
+      Reflect.deleteProperty(navigator, 'geolocation');
+    });
+
+    it('location item requests geolocation and sends coords when granted', () => {
+      const getCurrentPosition = vi.fn();
+      Object.defineProperty(navigator, 'geolocation', {
+        configurable: true,
+        value: { getCurrentPosition },
+      });
+      const sendGeoMessage = vi.fn();
+      render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} sendGeoMessage={sendGeoMessage} />);
+      fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
+      fireEvent.click(screen.getByText('chat.location'));
+      expect(getCurrentPosition).toHaveBeenCalledTimes(1);
+      getCurrentPosition.mock.calls[0]![0]({ coords: { latitude: 55.7558, longitude: 37.6173 } });
+      expect(sendGeoMessage).toHaveBeenCalledWith(55.7558, 37.6173);
+      expect(screen.queryByText('chat.photo / chat.video')).not.toBeInTheDocument();
+    });
+
+    it('shows an error row when geolocation is denied', () => {
+      const getCurrentPosition = vi.fn();
+      Object.defineProperty(navigator, 'geolocation', {
+        configurable: true,
+        value: { getCurrentPosition },
+      });
+      const sendGeoMessage = vi.fn();
+      render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} sendGeoMessage={sendGeoMessage} />);
+      fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
+      fireEvent.click(screen.getByText('chat.location'));
+      act(() => getCurrentPosition.mock.calls[0]![1]({ code: 1, message: 'denied' }));
+      expect(screen.getByText('chat.locationDenied')).toBeInTheDocument();
+      expect(sendGeoMessage).not.toHaveBeenCalled();
+    });
+
+    it('shows an error when geolocation API is unavailable', () => {
+      const sendGeoMessage = vi.fn();
+      render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} sendGeoMessage={sendGeoMessage} />);
+      fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
+      fireEvent.click(screen.getByText('chat.location'));
+      expect(screen.getByText('chat.locationDenied')).toBeInTheDocument();
+      expect(sendGeoMessage).not.toHaveBeenCalled();
+    });
+
+    it('article item opens a URL input and sends the article on Enter', () => {
+      const sendArticleMessage = vi.fn();
+      render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} sendArticleMessage={sendArticleMessage} />);
+      fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
+      fireEvent.click(screen.getByText('chat.article'));
+      const input = screen.getByPlaceholderText('chat.articleUrl') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'https://example.com/post' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(sendArticleMessage).toHaveBeenCalledWith('https://example.com/post');
+      expect(input).not.toBeInTheDocument();
+    });
+
+    it('rejects a non-URL article with an error row', () => {
+      const sendArticleMessage = vi.fn();
+      render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} sendArticleMessage={sendArticleMessage} />);
+      fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
+      fireEvent.click(screen.getByText('chat.article'));
+      const input = screen.getByPlaceholderText('chat.articleUrl') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'not-a-url' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(sendArticleMessage).not.toHaveBeenCalled();
+      expect(screen.getByText('chat.articleInvalid')).toBeInTheDocument();
+    });
   });
 });

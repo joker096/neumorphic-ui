@@ -204,3 +204,41 @@ describe('AttachmentMedia media layout', () => {
     expect(pdfContainer.querySelector('[class*="bg-rose-500/15"]')).not.toBeNull();
   });
 });
+
+describe('AttachmentMedia geo/article cards', () => {
+  it('renders a location card with coordinates and an external map link', () => {
+    render(
+      <AttachmentMedia {...baseProps({ msg: { type: 'location', lat: 55.7558, lng: 37.6173 } })} />,
+    );
+    expect(screen.getByText('55.75580, 37.61730')).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: 'Open in map' });
+    expect(link.getAttribute('href')).toContain('google.com/maps/search');
+    expect(link.getAttribute('href')).toContain('query=');
+    expect(link.getAttribute('href')).toContain('55.75580');
+    expect(link.getAttribute('target')).toBe('_blank');
+  });
+
+  it('renders nothing for a location with non-finite coordinates', () => {
+    render(
+      <AttachmentMedia {...baseProps({ msg: { type: 'location', lat: NaN, lng: 37.6173 } })} />,
+    );
+    expect(screen.queryByRole('link', { name: 'Open in map' })).toBeNull();
+  });
+
+  it('renders an article card with title and host link', () => {
+    render(
+      <AttachmentMedia {...baseProps({ msg: { type: 'article', url: 'https://example.com/article', title: 'My Article' } })} />,
+    );
+    expect(screen.getByText('My Article')).toBeInTheDocument();
+    expect(screen.getByText('example.com')).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: /My Article/ });
+    expect(link.getAttribute('href')).toBe('https://example.com/article');
+  });
+
+  it('falls back to the host as the article title when title is missing', () => {
+    render(
+      <AttachmentMedia {...baseProps({ msg: { type: 'article', url: 'https://example.com/article' } })} />,
+    );
+    expect(screen.getAllByText('example.com').length).toBeGreaterThanOrEqual(2);
+  });
+});

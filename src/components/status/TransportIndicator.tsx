@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useI18n } from '../../lib/i18n';
 
 type Status = 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
@@ -31,68 +32,101 @@ const STATUS_ORDER: Status[] = ['connected', 'connecting', 'blocked', 'disconnec
 
 export function TransportIndicator({ status = 'disconnected', detail, relayed = false }: { status?: Status; detail?: string | null; relayed?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  const anchorRef = useRef<HTMLSpanElement>(null);
+  const tipRef = useRef<HTMLSpanElement>(null);
   const { t } = useI18n();
   const isRelayed = relayed && status === 'connected';
   const meta = isRelayed ? RELAY_META : STATUS_META[status] || STATUS_META.disconnected;
   const label = t(meta.labelKey, meta.label);
 
+  // Fixed-position tooltip portaled to <body> so the sidebar (76px) and the
+  // fixed bottom nav can never clip it. Prefer the right of the pill, flip left
+  // when short on room, clamp inside the viewport.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const anchor = anchorRef.current;
+    const tip = tipRef.current;
+    if (!anchor || !tip) return;
+    const r = anchor.getBoundingClientRect();
+    const width = tip.offsetWidth || 288;
+    const height = tip.offsetHeight || 200;
+    const margin = 8;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let left = r.right + margin;
+    if (left + width > vw - margin) left = r.left - width - margin;
+    left = Math.max(margin, Math.min(left, vw - width - margin));
+    let top = r.top + (r.height - height) / 2;
+    top = Math.max(margin, Math.min(top, vh - height - margin));
+    setPos({ left, top });
+  }, [open]);
+
+  const tooltip =
+    open &&
+    createPortal(
+      <span
+        ref={tipRef}
+        role="tooltip"
+        className="fixed z-[var(--z-tooltip)] w-72 rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-3 text-left shadow-xl"
+        style={{ left: pos?.left ?? 0, top: pos?.top ?? 0, whiteSpace: 'normal' }}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+      >
+        <span className="block text-xs font-semibold text-[var(--text-primary)]">
+          {t('transport.current', 'Current:')} {meta.icon} {label}
+        </span>
+        <span className="mt-1 block text-[11px] leading-snug text-[var(--text-secondary)]">
+          {t(meta.meaningKey, meta.meaning)}
+        </span>
+        {(status === 'blocked' || status === 'error') && detail && (
+          <span className="mt-1.5 block text-[11px] font-medium leading-snug text-[var(--danger)] break-words">
+            {detail}
+          </span>
+        )}
+
+        <span className="mt-2.5 block border-t border-[var(--border-color)] pt-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+          {t('transport.allStatuses', 'All statuses')}
+        </span>
+        <ul className="mt-1.5 space-y-1 text-[11px] leading-snug">
+          {isRelayed && (
+            <li className="flex items-start gap-1.5 text-[var(--text-primary)]">
+              <span className="shrink-0">{RELAY_META.icon}</span>
+              <span>
+                <span className="font-semibold">{t(RELAY_META.labelKey, RELAY_META.label)}</span>
+                <span className="opacity-85"> — {t(RELAY_META.meaningKey, RELAY_META.meaning)}</span>
+              </span>
+            </li>
+          )}
+          {STATUS_ORDER.map((s) => {
+            const m = STATUS_META[s];
+            const active = s === status;
+            return (
+              <li key={s} className={`flex items-start gap-1.5 ${active ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
+                <span className="shrink-0">{m.icon}</span>
+                <span>
+                  <span className={active ? 'font-semibold' : 'font-medium'}>{t(m.labelKey, m.label)}</span>
+                  <span className="opacity-85"> — {t(m.meaningKey, m.meaning)}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </span>,
+      document.body,
+    );
+
   return (
     <span
+      ref={anchorRef}
       role="status"
       aria-label={`Connection: ${label}`}
-      className="relative inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-white/5 cursor-help select-none"
+      className="inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-white/5 cursor-help select-none"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
       <span>{meta.icon}</span>
-
-      {open && (
-        <span
-          role="tooltip"
-          className="absolute top-full right-0 mt-2 z-[var(--z-tooltip)] w-72 rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] p-3 text-left shadow-xl"
-          style={{ whiteSpace: 'normal' }}
-        >
-          <span className="block text-xs font-semibold text-[var(--text-primary)]">
-            {t('transport.current', 'Current:')} {meta.icon} {label}
-          </span>
-          <span className="mt-1 block text-[11px] leading-snug text-[var(--text-secondary)]">
-            {t(meta.meaningKey, meta.meaning)}
-          </span>
-          {(status === 'blocked' || status === 'error') && detail && (
-            <span className="mt-1.5 block text-[11px] font-medium leading-snug text-[var(--danger)] break-words">
-              {detail}
-            </span>
-          )}
-
-          <span className="mt-2.5 block border-t border-[var(--border-color)] pt-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
-            {t('transport.allStatuses', 'All statuses')}
-          </span>
-          <ul className="mt-1.5 space-y-1 text-[11px] leading-snug">
-            {isRelayed && (
-              <li className="flex items-start gap-1.5 text-[var(--text-primary)]">
-                <span className="shrink-0">{RELAY_META.icon}</span>
-                <span>
-                  <span className="font-semibold">{t(RELAY_META.labelKey, RELAY_META.label)}</span>
-                  <span className="opacity-85"> — {t(RELAY_META.meaningKey, RELAY_META.meaning)}</span>
-                </span>
-              </li>
-            )}
-            {STATUS_ORDER.map((s) => {
-              const m = STATUS_META[s];
-              const active = s === status;
-              return (
-                <li key={s} className={`flex items-start gap-1.5 ${active ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                  <span className="shrink-0">{m.icon}</span>
-                  <span>
-                    <span className={active ? 'font-semibold' : 'font-medium'}>{t(m.labelKey, m.label)}</span>
-                    <span className="opacity-85"> — {t(m.meaningKey, m.meaning)}</span>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </span>
-      )}
+      {tooltip}
     </span>
   );
 }

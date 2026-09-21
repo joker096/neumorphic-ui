@@ -88,7 +88,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <span
-              className={`font-bold text-[13px] sm:text-[14px] tracking-tight truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}
+              className={`font-bold text-[16px] tracking-tight truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}
             >
               {chat.name}
             </span>
@@ -125,17 +125,17 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
               <>
                 <Users size={12} className={`shrink-0 ${"text-[var(--accent)]"}`} />
                 <span
-                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${"text-[var(--accent)]/90"}`}
+                  className={`text-xs sm:text-xs font-semibold shrink-0 ${"text-[var(--accent)]/90"}`}
                 >
                   {t("chat.subscribers", { count: subscriberCount })}
                 </span>
                 <span
-                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${"text-[var(--accent)]/90"}`}
+                  className={`text-xs sm:text-xs font-semibold shrink-0 ${"text-[var(--accent)]/90"}`}
                 >
                   ·
                 </span>
                 <span
-                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${"text-[var(--accent)]/90"}`}
+                  className={`text-xs sm:text-xs font-semibold shrink-0 ${"text-[var(--accent)]/90"}`}
                 >
                   {t("chat.posts", { count: chat.postCount ?? chat.history?.length ?? 0 })}
                 </span>
@@ -146,7 +146,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
                   className={`w-1.5 h-1.5 rounded-full shrink-0 ${chat.online ? "bg-[var(--success)]" : "bg-gray-500"}`}
                 />
                 <span
-                  className={`text-xs sm:text-xs font-semibold tracking-wider uppercase shrink-0 ${"text-[var(--accent)]/90"}`}
+                  className={`text-xs sm:text-xs font-semibold shrink-0 ${"text-[var(--accent)]/90"}`}
                 >
                   {chat.online ? t("chat.filters.online") : t("chat.filters.offline")}
                 </span>

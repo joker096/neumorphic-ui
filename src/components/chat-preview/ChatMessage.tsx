@@ -121,7 +121,7 @@ function ChatMessageImpl({
   const [translation, setTranslation] = React.useState<string | null>(null);
   const [translating, setTranslating] = React.useState(false);
   const [morseDecoded, setMorseDecoded] = React.useState(false);
-  const isMorse = typeof msg.text === "string" && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && isMorseCode(msg.text);
+  const isMorse = typeof msg.text === "string" && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && isMorseCode(msg.text);
   const stickerSrc = React.useMemo(
     () => (msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null),
     [msg.text, msg.type, theme],
@@ -221,7 +221,7 @@ function ChatMessageImpl({
           />
           {msg.type === "payment" && <PaymentChatBubble msg={msg} isDark={isDark} />}
           {msg.replyTo && <ReplyQuote replyTo={msg.replyTo} isDark={isDark} />}
-          {msg.text && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && (
+          {msg.text && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && (
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
             </span>

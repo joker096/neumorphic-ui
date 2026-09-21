@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "../store";
 import { SIGNALING_SEED_URLS, IS_RELAY_PROXY_CONFIGURED } from "../config/signalling";
+import { p2pNetwork } from "../lib/p2p/network";
 import { SignallingManager } from "../lib/signaling/manager";
 import type { TunnelBackend } from "../lib/transport/wsTunnel";
 
@@ -101,9 +102,7 @@ export const useAppConnection = () => {
     mgr.connect().then(() => {
       mgr.onMessage((msg) => {
         if (msg && typeof msg === 'object' && msg.type === 'offer' && typeof msg.from === 'string') {
-          import('../lib/p2p/network.ts')
-            .then((m) => m.p2pNetwork.acceptInboundOffer(msg.from, msg))
-            .catch(() => {});
+          void p2pNetwork.acceptInboundOffer(msg.from, msg);
         }
       });
       void registerMainIdentity(mgr);
