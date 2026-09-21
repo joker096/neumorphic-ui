@@ -123,10 +123,7 @@ All shadow values defined as CSS custom properties in `src/styles/tokens.css` (d
 | `.neo-raised-sm` | Small neumorphic raised | `--neo-shadow-out-sm` + `--neo-shadow-in-sm` |
 | `.neo-pressed` | True neumorphic pressed | `--neo-shadow-inset` |
 | `.neo-circle` | Circular call buttons | `--neo-shadow-out-sm` + `--neo-shadow-in-sm` |
-| `.neu-raised` | App-wide raised surface (panels, cards, modals) | `--neo-shadow-out-sm` + `--neo-shadow-in-sm` |
-| `.neu-inset` | App-wide inset surface | `--neo-shadow-inset-sm` |
 | `.neu-card-inset` | Card/section inset | `--neo-shadow-inset-sm` |
-| `.neu-input` | Input fields | `--inset-field-shadow` (+ ring on focus) |
 
 ## Accessibility
 

@@ -28,17 +28,10 @@
   --shadow-drop-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
   --shadow-drop-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 
-  /* Custom ring offset */
-  --ring-offset-sm: 2px;
-  --ring-offset-md: 4px;
-
   /* Custom tracking sizes */
   --tracking-wide: -0.01em;
   --tracking-wider: -0.02em;
   --tracking-widest: -0.03em;
-
-  /* Custom material thin shadow */
-  --shadow-material-thin: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.06);
 }
 
 /* shadcn/ui semantic token layer — maps existing palette to Tailwind utilities
@@ -205,31 +198,8 @@ input[type="range"]:focus-visible {
 }
 
 /* Token utility shortcuts */
-.t-bg-primary { background: var(--bg-primary); }
-.t-bg-secondary { background: var(--bg-secondary); }
-.t-bg-tertiary { background: var(--bg-tertiary); }
-.t-bg-elevated { background: var(--bg-elevated); }
-.t-text-primary { color: var(--text-primary); }
-.t-text-secondary { color: var(--text-secondary); }
-.t-text-tertiary { color: var(--text-tertiary); }
-.t-border { border-color: var(--border-color); }
 .t-accent { color: var(--accent); }
 .t-accent-bg { background: var(--accent-soft); }
-
-/* Flat surface utilities → neumorphic: dual-shadow raised / inset pressed.
-   These override flat shadcn surfaces app-wide with the neo design language.
-   Transition ensures smooth shadow swap on state changes. */
-.neu-raised {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--neo-shadow-out-sm), var(--neo-shadow-in-sm);
-  transition: box-shadow 0.2s ease, background 0.2s ease;
-}
-.neu-inset {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--neo-shadow-inset-sm);
-}
 
 /* Neu card inset utility — pressed/inset neumorphic surface */
 .neu-card-inset {
@@ -240,20 +210,6 @@ input[type="range"]:focus-visible {
 [data-theme="light"] .neu-card-inset {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-}
-
-/* Neu input utility — inset field with focus ring */
-.neu-input {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--inset-field-shadow);
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.neu-input:focus {
-  border-color: var(--accent);
-  box-shadow: var(--inset-field-shadow), 0 0 0 2px var(--accent-soft);
 }
 
 /* Chat pane background pattern — settings → Appearance → Chat background: dots */
@@ -295,12 +251,6 @@ input[type="range"]:focus-visible {
   clip: rect(0,0,0,0);
   white-space: nowrap;
   border: 0;
-}
-
-/* Focus ring utility */
-.focus-ring:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 /* Ensure dark theme overrides any light colors on the root */
@@ -347,25 +297,6 @@ input[type="range"]:focus-visible {
 .drop-shadow-lg {
   text-shadow: var(--shadow-drop-md);
 }
-.drop-shadow-sm {
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-}
-
-/* Custom material-thin shadow */
-.material-thin {
-  box-shadow: var(--shadow-material-thin);
-}
-
-/* Neumorphic card-inset — alias for .neu-card-inset (kept for compat) */
-.neumorphic-card-inset {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--neo-shadow-inset-sm);
-}
-[data-theme="light"] .neumorphic-card-inset {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-}
 
 /* Neumorphic surface utilities — theme-aware raised / pressed states.
    Used by the call & video-call screens to match the app's neumorphic language. */
@@ -384,11 +315,6 @@ input[type="range"]:focus-visible {
   border: 1px solid var(--border-color);
   box-shadow: var(--neo-shadow-inset);
 }
-.neo-pressed-sm {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--neo-shadow-inset-sm);
-}
 /* Circular variant for call control buttons */
 .neo-circle {
   background: var(--neo-surface);
@@ -404,14 +330,6 @@ input[type="range"]:focus-visible {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   box-shadow: var(--neo-shadow-inset-sm);
-}
-
-/* Custom ring-offset utilities */
-.ring-offset-sm {
-  outline-offset: var(--ring-offset-sm);
-}
-.ring-offset-md {
-  outline-offset: var(--ring-offset-md);
 }
 
 /* Custom tracking utilities for wide/wider/widest */

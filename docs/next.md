@@ -1,6 +1,6 @@
 # Что дальше (roadmap)
 
-> Статус-аннотация 2026-09-15 (сверено с `CHANGELOG.md`).
+> Статус-аннотация 2026-09-21 (сверено с `CHANGELOG.md`).
 > «закрыто» = есть подтверждающая запись в CHANGELOG; «частично» / «открыто» = подтверждения нет либо остаётся остаток.
 
 Критично
@@ -138,9 +138,9 @@ Background/foreground.
 Медленная сеть и потеря peer.
 Тесты и эксплуатация
 
-E2E-тесты для: — частично: security-векторы покрыты unit-набором (P8), браузерный dual-peer e2e = documented limitation.
+E2E-тесты для: — частично: security-векторы покрыты unit-набором (P8); браузерный dual-peer e2e закрыт (см. ниже), остальные браузерные векторы открыты.
 
-два браузера/два peer;
+два браузера/два peer — закрыто (2026-09-21): `e2e/dual-peer.spec.ts` спавнит реальный signaling-сервер (tsx, WS 8971/REST 8766, temp `data/e2e-dual-peer.db`), два независимых browser context'а доходят до `Connection: Direct` через Vite `/ws` proxy (token fetch → JWT-guarded WS → origin check); Playwright `beforeAll` без timeout-аргумента → `test.setTimeout(90_000)` в хуках; Vite-прокси `/ws` добавлен в `vite.config.ts`. Транспорт-только: Direct = WS открыт, полный P2P data channel не проверяется.
 message ACK;
 read receipt;
 reconnect;
@@ -173,4 +173,4 @@ recovery после потери устройства;
 Strict frame validation и anti-replay для всех каналов. — закрыто (P5).
 Безопасное хранение master seed/TOTP/TURN. — закрыто (H1/S3/P6).
 Production peer discovery/reconnect. — закрыто (P7).
-Полный E2E/security тестовый контур. — частично (security unit-набор P8; браузерный dual-peer e2e открыт).
+Полный E2E/security тестовый контур. — частично (security unit-набор P8; браузерный dual-peer e2e закрыт 2026-09-21, остальные браузерные векторы — ACK/read receipt/reconnect/replay/out-of-order/file corruption/call — открыты).
