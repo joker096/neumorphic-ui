@@ -20,6 +20,7 @@ interface ChatMediaPanelProps {
   mediaItems: any[];
   setActivePhotoUrl: (v: any) => void;
   setPhotoOpen: (v: any) => void;
+  setActiveMediaMsg?: (msg: any) => void;
   t: (key: string, options?: any) => string;
 }
 
@@ -27,11 +28,11 @@ export const ChatMediaPanel = ({
   isDark, showMediaPanel, showFilterMenu, setShowFilterMenu,
   filterBySender, setFilterBySender, filterStartDate, setFilterStartDate,
   filterEndDate, setFilterEndDate, mediaTab, setMediaTab,
-  mediaItems, setActivePhotoUrl, setPhotoOpen, t,
+  mediaItems, setActivePhotoUrl, setPhotoOpen, setActiveMediaMsg, t,
 }: ChatMediaPanelProps) => {
   if (!showMediaPanel) return null;
 
-  const openImage = (url: string) => { setActivePhotoUrl(url); setPhotoOpen(true); };
+  const openImage = (msg: any, url: string) => { setActiveMediaMsg?.(msg); setActivePhotoUrl(url); setPhotoOpen(true); };
 
   return (
     <>
@@ -143,7 +144,7 @@ export const ChatMediaPanel = ({
   );
 };
 
-const MediaImageTile = ({ msg, onOpen }: { msg: any; onOpen: (url: string) => void }) => {
+const MediaImageTile = ({ msg, onOpen }: { msg: any; onOpen: (msg: any, url: string) => void }) => {
   const { t } = useI18n();
   const ftrId =
     typeof msg.attachment === 'string' && msg.attachment.startsWith(FTR_MAGIC)
@@ -159,11 +160,11 @@ const MediaImageTile = ({ msg, onOpen }: { msg: any; onOpen: (url: string) => vo
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          if (src) onOpen(src);
+          if (src) onOpen(msg, src);
         }
       }}
       className="w-[90px] h-[64px] sm:w-[110px] sm:h-[78px] md:w-[120px] md:h-[84px] rounded-2xl overflow-hidden flex-shrink-0 relative cursor-pointer border focus:outline-none focus:ring-2 focus:ring-[var(--accent)] border-[var(--border-color)]"
-      onClick={() => { if (src) onOpen(src); }}
+      onClick={() => { if (src) onOpen(msg, src); }}
     >
       {src ? (
         <img src={src} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-full object-cover" />

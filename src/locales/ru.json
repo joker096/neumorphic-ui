@@ -2251,6 +2251,8 @@
     "fullscreen": "Во весь экран",
     "loadError": "Не удалось загрузить",
     "downloadFailed": "Не удалось скачать",
+    "shareCopied": "Ссылка скопирована",
+    "shareFailed": "Не удалось поделиться",
     "video": "Видео",
     "position": "Позиция",
     "document": "Документ",

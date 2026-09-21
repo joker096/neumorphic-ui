@@ -2251,6 +2251,8 @@
     "fullscreen": "Pantalla completa",
     "loadError": "Error de carga",
     "downloadFailed": "Error al descargar",
+    "shareCopied": "Enlace copiado",
+    "shareFailed": "Error al compartir",
     "video": "Vídeo",
     "position": "Posición",
     "document": "Documento",

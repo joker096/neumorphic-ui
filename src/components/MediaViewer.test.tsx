@@ -140,4 +140,83 @@ describe('MediaViewer - interactive gallery (UI/UX plan §13)', () => {
     expect(document.querySelector('.animate-spin')).not.toBeInTheDocument();
     expect(document.querySelector('img')).not.toBeInTheDocument();
   });
+
+  it('hides Save/Forward/Delete when no message/callbacks (no dead controls)', () => {
+    renderViewer();
+    expect(screen.getByRole('button', { name: /media.share/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /media.download/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /media.save/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /media.forward/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /media.delete/ })).not.toBeInTheDocument();
+  });
+
+  it('shows Save/Forward/Delete and wires them when message + callbacks are provided', () => {
+    const msg = { id: 7, fileName: 'photo', mime: 'image/png' };
+    const onToggleSave = vi.fn();
+    const onForward = vi.fn();
+    const onDelete = vi.fn();
+    const onClose = vi.fn();
+    renderViewer({ message: msg, onToggleSave, onForward, onDelete, onClose });
+
+    fireEvent.click(screen.getByRole('button', { name: /media.save/ }));
+    expect(onToggleSave).toHaveBeenCalledWith(msg);
+
+    fireEvent.click(screen.getByRole('button', { name: /media.forward/ }));
+    expect(onForward).toHaveBeenCalledWith(msg);
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    onClose.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: /media.delete/ }));
+    expect(onDelete).toHaveBeenCalledWith(msg);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('share without Web Share API falls back to download with extension (no .txt save)', async () => {
+    const origShare = (navigator as any).share;
+    const origCanShare = (navigator as any).canShare;
+    const origClipboard = (navigator as any).clipboard;
+    Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+    Object.defineProperty(navigator, 'canShare', { value: undefined, configurable: true });
+    Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+    const origCreate = URL.createObjectURL;
+    URL.createObjectURL = vi.fn(() => 'blob:mock');
+    let lastDownload: string | null = null;
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      lastDownload = this.getAttribute('download') || (this as any).download;
+    });
+    try {
+      renderViewer({ media: { type: 'photo', url: 'data:image/png;base64,AAAA' }, message: { fileName: 'photo', mime: 'image/png' } });
+      fireEvent.click(screen.getByRole('button', { name: /media.share/ }));
+      await vi.waitFor(() => expect(lastDownload).toBe('photo.png'));
+    } finally {
+      clickSpy.mockRestore();
+      URL.createObjectURL = origCreate;
+      Object.defineProperty(navigator, 'share', { value: origShare, configurable: true });
+      Object.defineProperty(navigator, 'canShare', { value: origCanShare, configurable: true });
+      Object.defineProperty(navigator, 'clipboard', { value: origClipboard, configurable: true });
+    }
+  });
+
+  it('download appends extension from message mime (fixes .txt save)', async () => {
+    const origCreate = URL.createObjectURL;
+    URL.createObjectURL = vi.fn(() => 'blob:mock');
+    let blobMime: string | null = null;
+    let lastDownload: string | null = null;
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      lastDownload = this.getAttribute('download') || (this as any).download;
+    });
+    try {
+      renderViewer({ media: { type: 'photo', url: 'data:image/png;base64,AAAA' }, message: { fileName: 'photo', mime: 'image/png' } });
+      fireEvent.click(screen.getByRole('button', { name: /media.download/ }));
+      await vi.waitFor(() => {
+        expect(lastDownload).toBe('photo.png');
+        const call = (URL.createObjectURL as any).mock.calls[0];
+        blobMime = call && call[0] && call[0].type;
+      });
+      expect(blobMime).toBe('image/png');
+    } finally {
+      clickSpy.mockRestore();
+      URL.createObjectURL = origCreate;
+    }
+  });
 });

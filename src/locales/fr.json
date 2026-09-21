@@ -2251,6 +2251,8 @@
     "fullscreen": "Plein écran",
     "loadError": "Échec du chargement",
     "downloadFailed": "Échec du téléchargement",
+    "shareCopied": "Lien copié",
+    "shareFailed": "Échec du partage",
     "video": "Vidéo",
     "position": "Position",
     "document": "Document",

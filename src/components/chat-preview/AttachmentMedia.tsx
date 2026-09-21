@@ -46,6 +46,7 @@ interface AttachmentMediaProps {
   onSetActivePhotoUrl: (url: string) => void;
   onSetPhotoOpen: (open: boolean) => void;
   onSetVideoOpen: (open: boolean) => void;
+  onSetActiveMediaMsg?: (msg: any) => void;
 }
 
 interface AlbumTileProps {
@@ -81,7 +82,7 @@ function AlbumTile({ url, alt, onError, className }: AlbumTileProps) {
 
 export function AttachmentMedia({
   msg, isMe, isDark, stickerSrc,
-  onSetActivePhotoUrl, onSetPhotoOpen, onSetVideoOpen,
+  onSetActivePhotoUrl, onSetPhotoOpen, onSetVideoOpen, onSetActiveMediaMsg,
 }: AttachmentMediaProps) {
   const { t } = useI18n();
   const mediaAutoLoad = useAppStore((s) => s.mediaAutoLoad);
@@ -131,7 +132,7 @@ export function AttachmentMedia({
           if (attempts < FTR_POLL_MAX) timer = window.setTimeout(() => { void assemble(); }, FTR_POLL_MS);
           return;
         }
-        const blob = await getTransferBlob(ftrId, meta.totalChunks);
+        const blob = await getTransferBlob(ftrId, meta.totalChunks, meta.mime);
         if (!blob || cancelled) return;
         let shaOk = true;
         if (meta.sha256) {
@@ -219,7 +220,7 @@ export function AttachmentMedia({
       return (
         <div
           className="grid grid-cols-2 gap-1 rounded-[var(--message-radius)] overflow-hidden mb-1 border border-[var(--border-color)] inline-block max-w-full cursor-pointer w-[260px] sm:w-[300px]"
-          onClick={() => { onSetActivePhotoUrl(shown[0]!.url); onSetPhotoOpen(true); }}
+          onClick={() => { onSetActiveMediaMsg?.(msg); onSetActivePhotoUrl(shown[0]!.url); onSetPhotoOpen(true); }}
         >
           {shown.map((it: any, i: number) => {
             const isFailed = albumFailed.includes(i);
@@ -270,7 +271,7 @@ export function AttachmentMedia({
     return (
       <div
         className="rounded-[var(--message-radius)] overflow-hidden mb-1 relative border border-[var(--border-color)] cursor-pointer inline-block max-w-full"
-        onClick={() => { onSetActivePhotoUrl(src); onSetPhotoOpen(true); }}
+        onClick={() => { onSetActiveMediaMsg?.(msg); onSetActivePhotoUrl(src); onSetPhotoOpen(true); }}
       >
         <img
           src={src}
@@ -323,7 +324,7 @@ export function AttachmentMedia({
     return (
       <div
         className="rounded-[var(--message-radius)] overflow-hidden mb-1 relative border border-[var(--border-color)] group cursor-pointer inline-block max-w-full"
-        onClick={() => onSetVideoOpen(true)}
+        onClick={() => { onSetActiveMediaMsg?.(msg); onSetVideoOpen(true); }}
       >
         <img
           src={thumb}

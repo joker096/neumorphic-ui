@@ -40,6 +40,7 @@ interface ChatMessageProps {
   onToggleSavedMessage: (chat: any, msg: any) => void;
   onSetActivePhotoUrl: (url: string) => void;
   onSetPhotoOpen: (open: boolean) => void;
+  onSetActiveMediaMsg?: (msg: any) => void;
   onSetActiveReactionPicker: (id: string | number | null) => void;
   onSwipeReplyId: (id: string | number | null) => void;
   onSetVideoOpen: (open: boolean) => void;
@@ -63,6 +64,7 @@ function ChatMessageImpl({
   swipeReplyId, activeReactionPicker, theme,
   onReply, onToggleSavedMessage,
   onSetActivePhotoUrl, onSetPhotoOpen,
+  onSetActiveMediaMsg,
   onSetActiveReactionPicker, onSwipeReplyId,
   onSetVideoOpen, onSetShowComments, onSetActivePostId,
   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
@@ -218,6 +220,7 @@ function ChatMessageImpl({
             onSetActivePhotoUrl={onSetActivePhotoUrl}
             onSetPhotoOpen={onSetPhotoOpen}
             onSetVideoOpen={onSetVideoOpen}
+            onSetActiveMediaMsg={onSetActiveMediaMsg}
           />
           {msg.type === "payment" && <PaymentChatBubble msg={msg} isDark={isDark} />}
           {msg.replyTo && <ReplyQuote replyTo={msg.replyTo} isDark={isDark} />}

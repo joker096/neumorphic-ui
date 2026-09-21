@@ -200,15 +200,20 @@ export async function getChunk(transferId: string, index: number): Promise<Array
   });
 }
 
-/** Assemble the full blob from stored chunks; null when a chunk is missing. */
-export async function getTransferBlob(transferId: string, totalChunks: number): Promise<Blob | null> {
+/**
+ * Assemble the full blob from stored chunks; null when a chunk is missing.
+ * The declared `mime` (transfer meta) is attached so blob URLs carry a real
+ * content-type — without it the browser sniffs a type-less blob as text/plain
+ * and a download with a bare filename is offered as `.txt`.
+ */
+export async function getTransferBlob(transferId: string, totalChunks: number, mime?: string): Promise<Blob | null> {
   const parts: BlobPart[] = [];
   for (let i = 0; i < totalChunks; i += 1) {
     const chunk = await getChunk(transferId, i);
     if (!chunk) return null;
     parts.push(chunk);
   }
-  return new Blob(parts);
+  return new Blob(parts, { type: mime || "application/octet-stream" });
 }
 
 /**
@@ -227,7 +232,7 @@ export async function resolveFtrBlobUrl(transferId: string): Promise<{ url: stri
   if (cached) return cached;
   const meta = await getTransferMeta(transferId);
   if (!meta || !meta.completed) return null;
-  const blob = await getTransferBlob(transferId, meta.totalChunks);
+  const blob = await getTransferBlob(transferId, meta.totalChunks, meta.mime);
   if (!blob) return null;
   let shaOk = true;
   if (meta.sha256) {

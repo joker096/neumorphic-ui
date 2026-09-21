@@ -2251,6 +2251,8 @@
     "fullscreen": "全画面",
     "loadError": "読み込みに失敗",
     "downloadFailed": "ダウンロードに失敗しました",
+    "shareCopied": "リンクをコピーしました",
+    "shareFailed": "共有に失敗しました",
     "video": "動画",
     "position": "位置",
     "document": "ドキュメント",

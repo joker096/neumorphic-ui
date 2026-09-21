@@ -64,6 +64,7 @@ export function useChatPreviewState(
   const [videoOpen, setVideoOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [activePhotoUrl, setActivePhotoUrl] = useState<string | null>(null);
+  const [activeMediaMsg, setActiveMediaMsg] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [showMediaPanel, setShowMediaPanel] = useState(false);
@@ -143,6 +144,10 @@ export function useChatPreviewState(
     }
     prevHistoryLen.current = curLen;
   }, [chat.history?.length, isNearBottom]);
+
+  useEffect(() => {
+    setActiveMediaMsg(null);
+  }, [chat.id]);
 
   useEffect(() => {
     if (!readReceipts || !isNearBottom || !tabVisible || chat.isChannel) return;
@@ -484,6 +489,7 @@ export function useChatPreviewState(
     videoOpen, setVideoOpen,
     photoOpen, setPhotoOpen,
     activePhotoUrl, setActivePhotoUrl,
+    activeMediaMsg, setActiveMediaMsg,
     searchQuery, setSearchQuery,
     showSearch, setShowSearch,
     showMediaPanel, setShowMediaPanel,

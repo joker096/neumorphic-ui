@@ -122,6 +122,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     videoOpen, setVideoOpen,
     photoOpen, setPhotoOpen,
     activePhotoUrl, setActivePhotoUrl,
+    activeMediaMsg, setActiveMediaMsg,
     searchQuery, setSearchQuery,
     showSearch, setShowSearch,
     showMediaPanel, setShowMediaPanel,
@@ -304,6 +305,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         mediaItems={mediaItems}
         setActivePhotoUrl={setActivePhotoUrl}
         setPhotoOpen={setPhotoOpen}
+        setActiveMediaMsg={setActiveMediaMsg}
         t={t}
       />
 
@@ -347,6 +349,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onToggleSavedMessage={(c, m) => onToggleSavedMessage?.(c, m)}
         onSetActivePhotoUrl={setActivePhotoUrl}
         onSetPhotoOpen={setPhotoOpen}
+        onSetActiveMediaMsg={setActiveMediaMsg}
         onSetActiveReactionPicker={setActiveReactionPicker}
         onSwipeReplyId={setSwipeReplyId}
         onSetVideoOpen={setVideoOpen}
@@ -450,6 +453,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         photoOpen={photoOpen}
         videoOpen={videoOpen}
         activePhotoUrl={activePhotoUrl}
+        activeMediaMsg={activeMediaMsg}
+        setActiveMediaMsg={setActiveMediaMsg}
         setPhotoOpen={setPhotoOpen}
         setVideoOpen={setVideoOpen}
         showComments={showComments}
@@ -459,6 +464,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         setShowSavedPanel={setShowSavedPanel}
         chatSavedMessages={chatSavedMessages}
         onToggleSavedMessage={onToggleSavedMessage}
+        onForward={handleForwardMessage}
+        onDelete={confirmSingleDelete}
         t={t}
         selectedContact={selectedContact}
         setSelectedContact={setSelectedContact as React.Dispatch<React.SetStateAction<ContactProfile | null>>}

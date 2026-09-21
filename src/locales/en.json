@@ -2249,6 +2249,8 @@
     "fullscreen": "Fullscreen",
     "loadError": "Failed to load",
     "downloadFailed": "Download failed",
+    "shareCopied": "Link copied",
+    "shareFailed": "Share failed",
     "video": "Video",
     "position": "Position",
     "document": "Document",

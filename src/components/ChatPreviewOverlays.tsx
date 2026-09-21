@@ -3,6 +3,7 @@ import { useAppStore } from "../store";
 import { ChannelCommentsView } from "./ChannelCommentsView";
 import { SavedMessagesPanel } from "./chat-preview/SavedMessagesPanel";
 import type { ContactProfile } from "./ContactProfileModal";
+import { formatSize } from "../utils/formatSize";
 const LazyMediaViewer = React.lazy(() => import("./MediaViewer").then((m) => ({ default: m.MediaViewer })));
 const LazyChatProfileView = React.lazy(() => import("./ChatProfileView").then((m) => ({ default: m.ChatProfileView })));
 const LazyContactProfileModal = React.lazy(() => import("./ContactProfileModal").then((m) => ({ default: m.ContactProfileModal })));
@@ -16,8 +17,12 @@ interface ChatPreviewOverlaysProps {
   photoOpen: boolean;
   videoOpen: boolean;
   activePhotoUrl: string | null;
+  activeMediaMsg?: any;
+  setActiveMediaMsg?: (msg: any) => void;
   setPhotoOpen: (open: boolean) => void;
   setVideoOpen: (open: boolean) => void;
+  onForward?: (msg: any) => void;
+  onDelete?: (msg: any) => void;
   showComments: boolean;
   activePostId: number | null;
   setShowComments: (show: boolean) => void;
@@ -41,6 +46,7 @@ interface ChatPreviewOverlaysProps {
 export function ChatPreviewOverlays({
   chat, isDark, theme,
   photoOpen, videoOpen, activePhotoUrl,
+  activeMediaMsg, setActiveMediaMsg,
   setPhotoOpen, setVideoOpen,
   showComments, activePostId, setShowComments,
   showSavedPanel, setShowSavedPanel, chatSavedMessages, onToggleSavedMessage,
@@ -49,6 +55,7 @@ export function ChatPreviewOverlays({
   onUpdateChat, onCall, onVideoCall, onMessage,
   profileOpen, setProfileOpen,
   onClosePreview,
+  onForward, onDelete,
 }: ChatPreviewOverlaysProps) {
   const handleCall = () => {
     if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
@@ -101,11 +108,23 @@ export function ChatPreviewOverlays({
           <LazyMediaViewer
             media={
               photoOpen
-                ? { type: 'photo', url: activePhotoUrl ?? undefined, caption: chat.name }
-                : { type: 'video', caption: chat.name }
+                ? {
+                    type: 'photo',
+                    url: activePhotoUrl ?? undefined,
+                    caption: chat.name,
+                    name: activeMediaMsg?.fileName,
+                    size: typeof activeMediaMsg?.fileSize === "number" ? formatSize(activeMediaMsg.fileSize) : undefined,
+                  }
+                : { type: 'video', caption: chat.name, name: activeMediaMsg?.fileName }
             }
-            onClose={() => { setPhotoOpen(false); setVideoOpen(false); }}
+            message={activeMediaMsg}
+            prev={undefined}
+            next={undefined}
+            onClose={() => { setPhotoOpen(false); setVideoOpen(false); setActiveMediaMsg?.(null); }}
             isDark={isDark}
+            onToggleSave={onToggleSavedMessage ? (m: any) => onToggleSavedMessage(chat, m) : undefined}
+            onForward={onForward}
+            onDelete={onDelete}
           />
         </React.Suspense>
       )}

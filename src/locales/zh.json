@@ -2251,6 +2251,8 @@
     "fullscreen": "全屏",
     "loadError": "加载失败",
     "downloadFailed": "Download failed",
+    "shareCopied": "链接已复制",
+    "shareFailed": "分享失败",
     "video": "视频",
     "position": "位置",
     "document": "文档",

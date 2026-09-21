@@ -2251,6 +2251,8 @@
     "fullscreen": "Vollbild",
     "loadError": "Fehler beim Laden",
     "downloadFailed": "Download fehlgeschlagen",
+    "shareCopied": "Link kopiert",
+    "shareFailed": "Teilen fehlgeschlagen",
     "video": "Video",
     "position": "Position",
     "document": "Dokument",

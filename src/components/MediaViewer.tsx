@@ -27,7 +27,80 @@ interface MediaViewerProps {
   onNext?: () => void;
   total?: number;
   index?: number;
+  message?: any;
+  onToggleSave?: (msg: any) => void;
+  onForward?: (msg: any) => void;
+  onDelete?: (msg: any) => void;
 }
+
+const MIME_EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/svg+xml': 'svg',
+  'image/bmp': 'bmp',
+  'image/avif': 'avif',
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'video/quicktime': 'mov',
+  'video/x-matroska': 'mkv',
+  'audio/mpeg': 'mp3',
+  'audio/ogg': 'ogg',
+  'audio/wav': 'wav',
+  'audio/webm': 'weba',
+  'audio/aac': 'aac',
+  'audio/opus': 'opus',
+  'application/pdf': 'pdf',
+  'application/zip': 'zip',
+  'text/plain': 'txt',
+  'text/csv': 'csv',
+  'application/json': 'json',
+};
+
+const EXT_MIME: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  gif: 'image/gif',
+  svg: 'image/svg+xml',
+  bmp: 'image/bmp',
+  avif: 'image/avif',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
+  mkv: 'video/x-matroska',
+  mp3: 'audio/mpeg',
+  ogg: 'audio/ogg',
+  wav: 'audio/wav',
+  weba: 'audio/webm',
+  aac: 'audio/aac',
+  pdf: 'application/pdf',
+  zip: 'application/zip',
+  txt: 'text/plain',
+  csv: 'text/csv',
+  json: 'application/json',
+};
+
+const extForMime = (mime: string): string => {
+  const base = String(mime || '').split(';')[0].trim().toLowerCase();
+  return MIME_EXT[base] || '';
+};
+
+const mimeFromName = (name?: string): string => {
+  const dot = String(name || '').lastIndexOf('.');
+  if (dot <= 0) return '';
+  return EXT_MIME[String(name).slice(dot + 1).toLowerCase()] || '';
+};
+
+/** Filename that always carries a recogniseable extension (fixes "save as .txt"). */
+const buildFileName = (name: string | undefined, mime: string | undefined): string => {
+  const base = String(name || '').trim().replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_') || 'media';
+  if (/\.[a-z0-9]{1,6}$/i.test(base)) return base;
+  const ext = extForMime(mime || '') || mimeFromName(name) || (mime ? extForMime(mime) : '');
+  return `${base}${ext ? `.${ext}` : ''}`;
+};
 
 const meta = (m: MediaItem): { icon: React.ReactNode } => {
   switch (m.type) {
@@ -38,7 +111,7 @@ const meta = (m: MediaItem): { icon: React.ReactNode } => {
   }
 };
 
-export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev, onNext, total, index }: MediaViewerProps) => {
+export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev, onNext, total, index, message, onToggleSave, onForward, onDelete }: MediaViewerProps) => {
   useBodyScrollLock(true);
   const { t } = useI18n();
   const [scale, setScale] = useState(1);
@@ -230,23 +303,103 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
     else containerRef.current?.requestFullscreen().catch(() => {});
   };
 
-  const downloadMedia = React.useCallback((item: MediaItem) => {
+  const downloadMedia = React.useCallback(async (item: MediaItem) => {
     const url = item.url;
     if (!url) {
       toast(t("media.downloadFailed", "Download failed"), "error");
       return;
     }
+    const preferredName = buildFileName(item.name || message?.fileName, message?.mime || mimeFromName(item.name));
     try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("fetch failed");
+      const blob = await res.blob();
+      const mime = blob.type || message?.mime || mimeFromName(preferredName) || "application/octet-stream";
+      const objUrl = URL.createObjectURL(new Blob([blob], { type: mime }));
       const a = document.createElement("a");
-      a.href = url;
-      a.download = item.name || "download";
+      a.href = objUrl;
+      a.download = buildFileName(preferredName, mime);
       document.body.appendChild(a);
       a.click();
       a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objUrl), 0);
     } catch {
-      toast(t("media.downloadFailed", "Download failed"), "error");
+      // Cross-origin / non-fetchable URL (e.g. external photo): plain anchor fallback.
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = preferredName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
-  }, [t]);
+  }, [t, message?.fileName, message?.mime]);
+
+  const shareMedia = React.useCallback(async (item: MediaItem) => {
+    const url = item.url;
+    if (!url) {
+      toast(t("media.downloadFailed", "Download failed"), "error");
+      return;
+    }
+    const name = buildFileName(item.name || message?.fileName, message?.mime || mimeFromName(item.name));
+    if (typeof navigator.share !== "function") {
+      // No Web Share API (unsupported/desktop in dev): export instead of pretending.
+      if (/^https?:/i.test(url)) {
+        try {
+          await navigator.clipboard.writeText(url);
+          toast(t("media.shareCopied", "Link copied"), "success");
+        } catch {
+          await downloadMedia(item);
+        }
+      } else {
+        await downloadMedia(item);
+      }
+      return;
+    }
+    try {
+      let files: File[] | undefined;
+      if (typeof navigator.canShare === "function") {
+        try {
+          const blob = await (await fetch(url)).blob();
+          const mime = blob.type || message?.mime || mimeFromName(name) || "application/octet-stream";
+          const file = new File([blob], name || "media", { type: mime });
+          if (navigator.canShare({ files: [file] })) files = [file];
+        } catch {
+          /* fetch failed — fall back to text share below */
+        }
+      }
+      if (files && files.length > 0) {
+        await navigator.share({ files, title: name || t("media.photo") });
+      } else {
+        await navigator.share({
+          title: name || item.caption || t("media.photo"),
+          text: item.caption || "",
+          url: /^https?:/i.test(url) ? url : undefined,
+        });
+      }
+      toast(t("media.shared", "Shared"), "success");
+    } catch (e) {
+      if ((e as any)?.name === "AbortError" || (e as any)?.name === "NotAllowedError") return;
+      toast(t("media.shareFailed", "Share failed"), "error");
+    }
+  }, [t, message?.fileName, message?.mime, downloadMedia]);
+
+  const handleSave = () => {
+    if (!message) return;
+    onToggleSave?.(message);
+    toast(t("media.saved", "Saved to collection"), "success");
+  };
+
+  const handleForward = () => {
+    if (!message || !onForward) return;
+    onForward(message);
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (!message || !onDelete) return;
+    onDelete(message);
+    onClose();
+  };
 
   if (!media) return null;
   const m = meta(media);
@@ -457,12 +610,18 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
         )}
 
         {/* Bottom actions */}
-        <div className="absolute bottom-0 w-full p-4 flex items-center justify-center gap-3 z-10 bg-gradient-to-t from-black/70 to-transparent">
-          <ActionButton icon={<Bookmark size={18} />} label={t('media.save')} onClick={() => toast(t('media.saved', 'Saved to collection'), 'success')} />
-          <ActionButton icon={<Share2 size={18} />} label={t('media.share')} onClick={() => toast(t('media.shared', 'Shared'), 'info')} />
-          <ActionButton icon={<Forward size={18} />} label={t('media.forward')} onClick={() => toast(t('media.forwarded', 'Forwarded'), 'info')} />
-          <ActionButton icon={<Download size={18} />} label={t('media.download')} onClick={() => downloadMedia(media)} />
-          <ActionButton icon={<Trash2 size={18} />} label={t('media.delete')} danger onClick={() => { toast(t('media.deleted', 'Deleted'), 'success'); onClose(); }} />
+        <div className="absolute bottom-0 w-full p-4 flex items-center justify-center gap-3 z-10 bg-gradient-to-t from-black/70 to-transparent" onClick={(e) => e.stopPropagation()}>
+          {onToggleSave && message && (
+            <ActionButton icon={<Bookmark size={18} />} label={t('media.save')} onClick={handleSave} />
+          )}
+          <ActionButton icon={<Share2 size={18} />} label={t('media.share')} onClick={() => void shareMedia(media)} />
+          {onForward && message && (
+            <ActionButton icon={<Forward size={18} />} label={t('media.forward')} onClick={handleForward} />
+          )}
+          <ActionButton icon={<Download size={18} />} label={t('media.download')} onClick={() => void downloadMedia(media)} />
+          {onDelete && message && (
+            <ActionButton icon={<Trash2 size={18} />} label={t('media.delete')} danger onClick={handleDelete} />
+          )}
         </div>
       </motion.div>
     </AnimatePresence>,

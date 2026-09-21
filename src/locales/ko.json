@@ -2251,6 +2251,8 @@
     "fullscreen": "전체 화면",
     "loadError": "로드 실패",
     "downloadFailed": "Download failed",
+    "shareCopied": "링크가 복사되었습니다",
+    "shareFailed": "공유에 실패했습니다",
     "video": "동영상",
     "position": "위치",
     "document": "문서",

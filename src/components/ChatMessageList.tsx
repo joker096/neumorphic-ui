@@ -20,6 +20,7 @@ interface ChatMessageListProps {
   onToggleSavedMessage: (chat: any, msg: any) => void;
   onSetActivePhotoUrl: (url: string) => void;
   onSetPhotoOpen: (open: boolean) => void;
+  onSetActiveMediaMsg?: (msg: any) => void;
   onSetActiveReactionPicker: (id: string | number | null) => void;
   onSwipeReplyId: (id: string | number | null) => void;
   onSetVideoOpen: (open: boolean) => void;
@@ -43,6 +44,7 @@ export function ChatMessageList({
   deliveryReceipts, readReceipts, chatSavedMessages, searchQuery,
   swipeReplyId, activeReactionPicker, theme,
   onReply, onToggleSavedMessage, onSetActivePhotoUrl, onSetPhotoOpen,
+  onSetActiveMediaMsg,
   onSetActiveReactionPicker, onSwipeReplyId, onSetVideoOpen, onSetShowComments,
   onSetActivePostId,   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
   selectionMode, selectedIds, onToggleSelect, onSelect,
@@ -79,6 +81,7 @@ export function ChatMessageList({
           onToggleSavedMessage={(c, m) => onToggleSavedMessage?.(c, m)}
           onSetActivePhotoUrl={onSetActivePhotoUrl}
           onSetPhotoOpen={onSetPhotoOpen}
+          onSetActiveMediaMsg={onSetActiveMediaMsg}
           onSetActiveReactionPicker={onSetActiveReactionPicker}
           onSwipeReplyId={onSwipeReplyId}
           onSetVideoOpen={onSetVideoOpen}
