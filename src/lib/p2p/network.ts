@@ -59,6 +59,9 @@ export class P2PNetwork {
   private peerPublicKey: string;
   private peers: Map<string, PeerConnection> = new Map();
   private transports: Map<string, P2PTransport> = new Map();
+  // In-flight inbound dial-backs: dedupes duplicate offers (main WS + transport
+  // both deliver the same frame while the dial-back transport is being created).
+  private dialingInbound: Set<string> = new Set();
   private messageHandlers: Set<(msg: BroadcastMessage) => void> = new Set();
   private typingHandlers: Set<(name: string, isTyping: boolean) => void> = new Set();
   private presenceObservers: Set<(peerId: string, online: boolean) => void> = new Set();
@@ -216,6 +219,46 @@ export class P2PNetwork {
       throw new Error(`Max peers (${this.maxPeers}) reached`);
     }
 
+    const transport = await this.createTransport(peerId);
+
+    try {
+      await transport.connect();
+      await transport.call(peerId);
+      this.transports.set(peerId, transport);
+    } catch (err) {
+      this.peers.delete(peerId);
+      this.router.removeDirectPeer(peerId);
+      transport.disconnect();
+      throw err;
+    }
+  }
+
+  /** Inbound dial-back: an offer for us arrived on the main signaling WS. Create
+   * and connect a transport under our identity key (ownership-challenge register
+   * when our main WS already holds the key), then answer the received offer —
+   * no new offer, so no glare. Silently ignores peers we already dialed/own. */
+  async acceptInboundOffer(peerId: string, frame: any): Promise<void> {
+    if (this.transports.has(peerId)) return;
+    if (this.dialingInbound.has(peerId)) return;
+    this.dialingInbound.add(peerId);
+    try {
+      if (this.peers.size >= this.maxPeers) return;
+      const transport = await this.createTransport(peerId);
+      try {
+        await transport.connect();
+        await transport.acceptOffer(peerId, frame);
+        this.transports.set(peerId, transport);
+      } catch (err) {
+        this.peers.delete(peerId);
+        this.router.removeDirectPeer(peerId);
+        transport.disconnect();
+      }
+    } finally {
+      this.dialingInbound.delete(peerId);
+    }
+  }
+
+  private async createTransport(peerId: string): Promise<P2PTransport> {
     // Register peer in our local table
     this.peers.set(peerId, {
       peerId,
@@ -315,16 +358,7 @@ export class P2PNetwork {
       }
     });
 
-    try {
-      await transport.connect();
-      await transport.call(peerId);
-      this.transports.set(peerId, transport);
-    } catch (err) {
-      this.peers.delete(peerId);
-      this.router.removeDirectPeer(peerId);
-      transport.disconnect();
-      throw err;
-    }
+    return transport;
   }
 
   disconnect(peerId: string): void {

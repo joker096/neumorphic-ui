@@ -3,6 +3,12 @@ import { createServer, RequestListener } from 'node:http'
 import { readFileSync, existsSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { randomBytes } from 'node:crypto'
+import * as naclNS from 'tweetnacl'
+// Node ESM (tsx) puts the CJS module.exports behind `.default`; Vite exposes
+// named exports directly. Resolve both so signature verification actually runs
+// (a namespace-only import silently left `nacl.sign` undefined in Node).
+const nacl = ((naclNS as unknown as { default?: typeof naclNS }).default ?? naclNS) as typeof naclNS
 import jwt from 'jsonwebtoken'
 import { logConnection, logDisconnection, purgeOldConnections, closeDb } from './db.js'
 import { handleAuthRoute } from './routes/auth.js'
@@ -29,13 +35,48 @@ if (JWT_SECRET.length < 32 || weakJwtSecrets.has(JWT_SECRET.trim().toLowerCase()
   process.exit(1)
 }
 
-const clients = new Map<string, WebSocket>()
+// Identity-key registry: key → set of live authenticated sockets. One identity
+// may hold several sockets at once (main signaling WS + per-dial P2P transport),
+// so a single-WS map would 4001-clash and break inbound dial-back. All sockets
+// in the set have proven ownership of the key via challenge-response.
+const clients = new Map<string, Set<WebSocket>>()
+
+// Ownership challenges: a socket claiming an already-bound key must prove it
+// holds the corresponding private key by signing a fresh server nonce (ed25519
+// detached signature over the nonce string's UTF-8 bytes).
+const pendingChallenges = new Map<WebSocket, { publicKey: string; nonce: string }>()
+const CHALLENGE_TIMEOUT_MS = 15000
 
 // Anti-replay: per-sender monotonic sequence counter for signaling frames.
 // offer/answer/ice-candidate carry a `seq` field; the server rejects any
 // message whose seq is ≤ the last seen from that sender, preventing replay
 // of captured signaling frames.
 const senderSeqs = new Map<string, number>()
+
+function openSocketsForKey(key: string): WebSocket[] {
+  const set = clients.get(key)
+  if (!set) return []
+  const out: WebSocket[] = []
+  for (const s of set) if (s.readyState === WebSocket.OPEN) out.push(s)
+  return out
+}
+
+function bindKeyBinding(sock: WebSocket, key: string, reply: (data: object) => void): void {
+  let set = clients.get(key)
+  if (!set) {
+    set = new Set()
+    clients.set(key, set)
+  }
+  set.add(sock)
+  reply({ type: 'registered', publicKey: key })
+}
+
+function hexToBytes(hex: string): Uint8Array | null {
+  if (hex.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(hex)) return null
+  const out = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16)
+  return out
+}
 
 // Maximum payload sizes for signaling frame validation (defense-in-depth).
 // SDP blobs are typically ≤ 64 KB but some ICE-heavy offers can reach 128 KB;
@@ -193,19 +234,74 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'Invalid publicKey format' })
           return
         }
-        const existing = clients.get(msg.publicKey)
-        if (existing && existing !== ws && existing.readyState === WebSocket.OPEN) {
-          // A key may only be bound to one live socket. Rejecting the NEW
-          // connection (never silently replacing the owner) defeats key hijack:
-          // an attacker cannot impersonate a victim who is already registered.
-          send({ type: 'error', message: 'Key already registered' })
-          ws.close(4001, 'Key already registered')
+        const conflicted = openSocketsForKey(msg.publicKey).find((s) => s !== ws)
+        if (conflicted) {
+          // Key already held by another live socket. Instead of rejecting, ask the
+          // NEW connection to prove ownership by signing a fresh nonce. This lets
+          // one identity hold main-WS + transport-WS simultaneously (inbound
+          // dial-back) while defeating key hijack — an attacker cannot sign.
+          // Legacy clients that never answer are timed out and closed.
+          const nonce = randomBytes(32).toString('hex')
+          pendingChallenges.set(ws, { publicKey: msg.publicKey, nonce })
+          send({ type: 'challenge', nonce, publicKey: msg.publicKey })
+          const timer = setTimeout(() => {
+            if (pendingChallenges.has(ws)) {
+              pendingChallenges.delete(ws)
+              send({ type: 'error', message: 'Challenge timeout' })
+              ws.close(4001, 'Challenge timeout')
+            }
+          }, CHALLENGE_TIMEOUT_MS)
+          timer.unref?.()
+          ;(ws as any).challengeTimer = timer
           return
         }
         registeredKey = msg.publicKey
-        clients.set(registeredKey, ws)
+        bindKeyBinding(ws, registeredKey, send)
         logConnection(registeredKey, clientIp, clientUa)
-        send({ type: 'registered', publicKey: registeredKey })
+        break
+      }
+
+      case 'register-challenge': {
+        const pending = pendingChallenges.get(ws)
+        if (!pending || pending.publicKey !== msg.publicKey || pending.nonce !== msg.nonce) {
+          send({ type: 'error', message: 'Invalid or expired challenge' })
+          return
+        }
+        if (typeof msg.publicKey !== 'string' || msg.publicKey.length > 128 || !/^[A-Za-z0-9+/=_:.-]+$/.test(msg.publicKey)) {
+          send({ type: 'error', message: 'Invalid publicKey format' })
+          return
+        }
+        if (typeof msg.nonce !== 'string' || !/^[0-9a-fA-F]+$/.test(msg.nonce) || msg.nonce.length !== 64) {
+          send({ type: 'error', message: 'Invalid nonce' })
+          return
+        }
+        if (typeof msg.signature !== 'string' || msg.signature.length > 256 || !/^[0-9a-fA-F]+$/.test(msg.signature)) {
+          send({ type: 'error', message: 'Invalid signature' })
+          return
+        }
+        // Signature is over the nonce string's UTF-8 bytes (same encoding the
+        // client's ed25519_sign uses for string messages).
+        const pk = hexToBytes(msg.publicKey)
+        const sig = hexToBytes(msg.signature)
+        let verified = false
+        try {
+          verified = !!pk && !!sig && pk.length === 32 && sig.length === 64 &&
+            nacl.sign.detached.verify(new TextEncoder().encode(pending.nonce), sig, pk)
+        } catch {
+          verified = false
+        }
+        if (!verified) {
+          pendingChallenges.delete(ws)
+          clearTimeout((ws as any).challengeTimer)
+          send({ type: 'error', message: 'Signature verification failed' })
+          ws.close(4001, 'Signature verification failed')
+          return
+        }
+        pendingChallenges.delete(ws)
+        clearTimeout((ws as any).challengeTimer)
+        registeredKey = msg.publicKey
+        bindKeyBinding(ws, registeredKey, send)
+        logConnection(registeredKey, clientIp, clientUa)
         break
       }
 
@@ -244,12 +340,12 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'SDP payload too large' })
           return
         }
-        const target = clients.get(msg.target)
-        if (!target || target.readyState !== WebSocket.OPEN) {
+        const targets = openSocketsForKey(msg.target)
+        if (targets.length === 0) {
           send({ type: 'error', message: 'Target not available' })
           return
         }
-        target.send(JSON.stringify({
+        const frame = JSON.stringify({
           type: msg.type,
           from: registeredKey,
           seq: msg.seq,
@@ -257,7 +353,8 @@ wss.on('connection', (ws, req) => {
           ...(msg.dhPub ? { dhPub: msg.dhPub } : {}),
           ...(msg.identityPub ? { identityPub: msg.identityPub } : {}),
           ...(msg.dhSig ? { dhSig: msg.dhSig } : {}),
-        }))
+        })
+        for (const t of targets) t.send(frame)
         break
       }
 
@@ -291,17 +388,18 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'ICE candidate payload invalid or too large' })
           return
         }
-        const target = clients.get(msg.target)
-        if (!target || target.readyState !== WebSocket.OPEN) {
+        const iceTargets = openSocketsForKey(msg.target)
+        if (iceTargets.length === 0) {
           send({ type: 'error', message: 'Target not available' })
           return
         }
-        target.send(JSON.stringify({
+        const iceFrame = JSON.stringify({
           type: 'ice-candidate',
           from: registeredKey,
           seq: msg.seq,
           candidate: msg.candidate,
-        }))
+        })
+        for (const t of iceTargets) t.send(iceFrame)
         break
       }
 
@@ -332,17 +430,18 @@ wss.on('connection', (ws, req) => {
           send({ type: 'error', message: 'Invalid metadata seq' })
           return
         }
-        const target = clients.get(msg.target)
-        if (!target || target.readyState !== WebSocket.OPEN) {
+        const metaTargets = openSocketsForKey(msg.target)
+        if (metaTargets.length === 0) {
           send({ type: 'error', message: 'Target not available' })
           return
         }
-        target.send(JSON.stringify({
+        const metaFrame = JSON.stringify({
           type: msg.type,
           from: registeredKey,
           data: msg.data,
           seq: msg.seq,
-        }))
+        })
+        for (const t of metaTargets) t.send(metaFrame)
         break
       }
 
@@ -437,11 +536,17 @@ wss.on('connection', (ws, req) => {
   ws.on('close', () => {
     if (registeredKey) {
       logDisconnection(registeredKey)
-      if (clients.get(registeredKey) === ws) {
-        clients.delete(registeredKey)
-        senderSeqs.delete(registeredKey)
+      const set = clients.get(registeredKey)
+      if (set) {
+        set.delete(ws)
+        if (set.size === 0) {
+          clients.delete(registeredKey)
+          senderSeqs.delete(registeredKey)
+        }
       }
     }
+    clearTimeout((ws as any).challengeTimer)
+    pendingChallenges.delete(ws)
     const topics = wsTopics.get(ws)
     if (topics) {
       for (const topic of topics) {
@@ -455,11 +560,17 @@ wss.on('connection', (ws, req) => {
   ws.on('error', () => {
     if (registeredKey) {
       logDisconnection(registeredKey)
-      if (clients.get(registeredKey) === ws) {
-        clients.delete(registeredKey)
-        senderSeqs.delete(registeredKey)
+      const set = clients.get(registeredKey)
+      if (set) {
+        set.delete(ws)
+        if (set.size === 0) {
+          clients.delete(registeredKey)
+          senderSeqs.delete(registeredKey)
+        }
       }
     }
+    clearTimeout((ws as any).challengeTimer)
+    pendingChallenges.delete(ws)
     const topics = wsTopics.get(ws)
     if (topics) {
       for (const topic of topics) {
@@ -625,9 +736,9 @@ const restServer = createServer((req, res) => {
         res.end(JSON.stringify({ error: 'Invalid key' }))
         return
       }
-      const sock = clients.get(key)
+      const socks = openSocketsForKey(key)
       res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ key, online: !!sock && sock.readyState === WebSocket.OPEN }))
+      res.end(JSON.stringify({ key, online: socks.length > 0 }))
       return
     }
 

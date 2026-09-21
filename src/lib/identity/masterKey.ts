@@ -79,7 +79,23 @@ export async function hasMasterIdentity(): Promise<boolean> {
   return !!stored
 }
 
-export async function getMasterKeySet(): Promise<MasterKeySet> {
+// Single-flight resolver: parallel cold-boot callers (network init, main-WS
+// registration, identity seeding) must derive from the SAME seed. Without this,
+// two concurrent getMasterKeySet() on an empty IDB each generate+persist their
+// own seed — the last writer wins in IDB while earlier callers keep a stale
+// keypair, so the network signs with a key the identity store no longer holds.
+let masterSetPromise: Promise<MasterKeySet> | null = null
+
+export function getMasterKeySet(): Promise<MasterKeySet> {
+  if (!masterSetPromise) {
+    masterSetPromise = readMasterKeySet().finally(() => {
+      masterSetPromise = null
+    })
+  }
+  return masterSetPromise
+}
+
+async function readMasterKeySet(): Promise<MasterKeySet> {
   const { hex2buf } = await import('../crypto/cryptoCore')
   const stored = await idb.get<string>(SEED_STORAGE_KEY)
   if (!stored) {

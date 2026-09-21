@@ -147,3 +147,98 @@ test('two independent browser contexts both reach Connection: Direct via local s
   await contextA.close();
   await contextB.close();
 });
+
+test('idle B answers an inbound offer over a dial-back transport (M021)', async ({ browser }) => {
+  test.setTimeout(90_000);
+
+  const contextA = await browser.newContext();
+  const pageA = await contextA.newPage();
+  await ensureAppReady(pageA);
+
+  const contextB = await browser.newContext();
+  const pageB = await contextB.newPage();
+  await ensureAppReady(pageB);
+
+  const hex = (bytes: Uint8Array) => Array.from(bytes).map((x) => x.toString(16).padStart(2, '0')).join('');
+
+  // Seed each context with an identity seed and reload — the main WS then
+  // registers the identity key (registerMainIdentity runs on connect).
+  const seedIdentity = (page: import('@playwright/test').Page) =>
+    page.evaluate(async () => {
+      const { getMasterKeySet, hasMasterIdentity } = await import('/src/lib/identity/masterKey.ts');
+      const ks = await getMasterKeySet();
+      const hex = (bytes: Uint8Array) =>
+        Array.from(bytes).map((x) => x.toString(16).padStart(2, '0')).join('');
+      return { pub: hex(ks.ed25519Public), has: await hasMasterIdentity() };
+    });
+
+  const a = await seedIdentity(pageA);
+  const b = await seedIdentity(pageB);
+  expect(a.has).toBe(true);
+  expect(b.has).toBe(true);
+
+  await pageA.reload();
+  await pageB.reload();
+  await expect(pageA.locator('[role="status"][aria-label^="Connection:"]').first()).toBeVisible({
+    timeout: 20_000,
+  });
+  await expect(pageB.locator('[role="status"][aria-label^="Connection:"]').first()).toBeVisible({
+    timeout: 20_000,
+  });
+
+  // Server sees both identity keys online (bound on the main WS). Registration
+  // is best-effort async after the WS opens — poll instead of one-shot fetch.
+  for (const pub of [a.pub, b.pub]) {
+    await expect
+      .poll(async () => {
+        const res = await fetch(`http://127.0.0.1:${REST_PORT}/api/peers/${pub}`).then((r) => r.json());
+        return res.online === true;
+      }, { timeout: 15_000 })
+      .toBe(true);
+  }
+
+  // A dials B with a real WebRTC transport. B is idle — its transport is
+  // created on demand when the offer lands on the main WS (dial-back).
+  await pageA.evaluate(async (target) => {
+    const { p2pNetwork } = await import('/src/lib/p2p/network.ts');
+    await p2pNetwork.connect(target);
+  }, b.pub);
+
+  // B must end up with a connected transport for A — the inbound dial-back
+  // path: main-WS offer → acceptInboundOffer → fresh transport → answer.
+  let stateB: any = null;
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    stateB = await pageB.evaluate(async (caller) => {
+      const { p2pNetwork } = await import('/src/lib/p2p/network.ts');
+      const t = (p2pNetwork as any)['transports'].get(caller);
+      const pc = t?.peerConnection;
+      return {
+        hasTransport: !!t,
+        connected: !!p2pNetwork['peers'].get(caller)?.connected,
+        pcState: pc?.connectionState ?? null,
+        sigState: pc?.signalingState ?? null,
+        iceState: pc?.iceConnectionState ?? null,
+        keys: t ? Object.keys(t).join(',') : null,
+      };
+    }, a.pub);
+    if (stateB.connected) break;
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  expect(stateB.connected).toBe(true);
+
+  // A sees B connected as well.
+  await expect
+    .poll(
+      async () =>
+        pageA.evaluate(async (target) => {
+          const { p2pNetwork } = await import('/src/lib/p2p/network.ts');
+          return !!p2pNetwork['peers'].get(target)?.connected;
+        }, b.pub),
+      { timeout: 30_000 },
+    )
+    .toBe(true);
+
+  await contextA.close();
+  await contextB.close();
+});

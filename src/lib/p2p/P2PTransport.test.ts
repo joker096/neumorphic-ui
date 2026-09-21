@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as nacl from 'tweetnacl';
 import { P2PTransport } from './P2PTransport';
 import { HMACAuth } from './HMACAuth';
-import { b64encode, b64decode } from '../crypto/cryptoCore';
+import { signDh } from './identityPin';
+import { b64encode, b64decode, buf2hex } from '../crypto/cryptoCore';
 
 vi.mock('idb-keyval', () => ({
   get: vi.fn().mockResolvedValue('{}'),
@@ -247,6 +248,45 @@ describe('P2PTransport', () => {
       await transport.connect();
       expect(mockWs).toBeNull();
     });
+
+    it('answers an ownership challenge before resolving on registered (M021)', async () => {
+      const transport = makeTransport();
+
+      const p = transport.connect();
+      await flush();
+      mockWs.onopen();
+
+      mockWs.onmessage({ data: JSON.stringify({ type: 'challenge', nonce: 'ab'.repeat(32) }) });
+      await flush();
+
+      const sent = mockWs.send.mock.calls.map((c: any) => c[0]).map((s: string) => JSON.parse(s));
+      const challenge = sent.find((m: any) => m.type === 'register-challenge');
+      expect(challenge).toBeDefined();
+      expect(challenge!.publicKey).toBe('local-pub-key');
+      expect(challenge!.nonce).toBe('ab'.repeat(32));
+      expect(challenge!.signature).toMatch(/^[0-9a-f]{128}$/);
+
+      mockWs.onmessage({ data: JSON.stringify({ type: 'registered' }) });
+      await expect(p).resolves.toBeUndefined();
+    });
+
+    it('rejects the challenge when identity keys are missing (fail-closed)', async () => {
+      const t = new P2PTransport({
+        signalingUrl: 'ws://localhost:8080',
+        localPublicKey: 'x',
+        onMessage,
+        onConnected,
+        onDisconnected,
+        obfuscationEnabled: false,
+      } as any);
+
+      const p = t.connect();
+      await flush();
+      mockWs.onopen();
+      mockWs.onmessage({ data: JSON.stringify({ type: 'challenge', nonce: 'ab'.repeat(32) }) });
+
+      await expect(p).rejects.toThrow('Ownership challenge requires identity keys');
+    });
   });
 
   describe('call()', () => {
@@ -365,6 +405,55 @@ describe('P2PTransport', () => {
       expect(answerMsg.hmacKey).toBeUndefined();
       expect(offerMsg.dhPub).toMatch(/^[0-9a-f]{64}$/);
       expect(answerMsg.dhPub).toMatch(/^[0-9a-f]{64}$/);
+    });
+  });
+
+  describe('acceptOffer() (M021 inbound dial-back)', () => {
+    function inboundOfferFrame(id: nacl.SignKeyPair) {
+      const dhPub = 'ab'.repeat(32);
+      return {
+        sdp: { type: 'offer', sdp: 'inbound-sdp' },
+        dhPub,
+        identityPub: buf2hex(id.publicKey),
+        dhSig: signDh(id.secretKey, dhPub),
+        seq: 1,
+      };
+    }
+
+    it('answers an inbound offer after connecting the dial-back transport', async () => {
+      const transport = makeTransport();
+      await connectTransport(transport);
+      const id = nacl.sign.keyPair();
+
+      await transport.acceptOffer('caller-pub', inboundOfferFrame(id) as any);
+
+      expect(mockPc.setRemoteDescription).toHaveBeenCalled();
+      const sent = mockWs.send.mock.calls.map((c: any) => JSON.parse(c[0]));
+      expect(sent.some((m: any) => m.type === 'answer' && m.target === 'caller-pub')).toBe(true);
+      expect((transport as any).peerPublicKey).toBe('caller-pub');
+    });
+
+    it('fails closed when local identity keys are missing', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const t = new P2PTransport({
+        signalingUrl: 'ws://localhost:8080',
+        localPublicKey: 'x',
+        onMessage,
+        onConnected,
+        onDisconnected,
+        obfuscationEnabled: false,
+      } as any);
+      await connectTransport(t);
+      const id = nacl.sign.keyPair();
+
+      await t.acceptOffer('caller-pub', inboundOfferFrame(id) as any);
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('identity keys missing'),
+      );
+      expect((t as any).peerPublicKey).toBeNull();
+      expect((t as any).peerConnection).toBeNull();
+      warnSpy.mockRestore();
     });
   });
 

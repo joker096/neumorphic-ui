@@ -177,7 +177,21 @@ export class SignallingManager {
   }
 
   send(data: any): void { this.tunnel?.send(data); }
-  onMessage(callback: (data: any) => void): void { this.tunnel?.onMessage(callback); }
+  onMessage(callback: (data: any) => void): () => void {
+    // wsTunnel dispatches raw string payloads; app handlers (registerMainIdentity,
+    // inbound offer-forward) expect parsed objects. Parse once here so both work.
+    return this.tunnel?.onMessage((data) => {
+      if (typeof data === 'string') {
+        try {
+          callback(JSON.parse(data));
+          return;
+        } catch {
+          /* non-JSON payload: pass through raw */
+        }
+      }
+      callback(data);
+    }) ?? (() => {});
+  }
 
   onStateChange(callback: (state: MgrState) => void): () => void {
     this.stateChangeCallbacks.add(callback);

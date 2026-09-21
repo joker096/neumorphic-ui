@@ -98,6 +98,41 @@ describe('SignallingManager connection lifecycle', () => {
     mgr.disconnect();
   });
 
+  it('parses raw-string frames into objects for onMessage handlers', async () => {
+    const mgr = new SignallingManager(['wss://s1.test/ws']);
+    const p = mgr.connect().catch(() => {});
+    const ws = await openSocket(mgr);
+    await p;
+
+    const seen: any[] = [];
+    mgr.onMessage((msg) => seen.push(msg));
+
+    // wsTunnel dispatches event.data which is a raw JSON string; the manager
+    // must parse it before app handlers (offer-forward, registerMainIdentity).
+    ws.onmessage({ data: JSON.stringify({ type: 'offer', from: 'peerA', seq: 1 }) });
+
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toEqual({ type: 'offer', from: 'peerA', seq: 1 });
+    expect(typeof seen[0]).toBe('object');
+    mgr.disconnect();
+  });
+
+  it('passes non-JSON messages through unparsed', async () => {
+    const mgr = new SignallingManager(['wss://s1.test/ws']);
+    const p = mgr.connect().catch(() => {});
+    const ws = await openSocket(mgr);
+    await p;
+
+    const seen: any[] = [];
+    mgr.onMessage((msg) => seen.push(msg));
+
+    // Binary/raw frames (e.g. pong keepalive) must not throw or be mangled.
+    ws.onmessage({ data: 'raw-bytes' });
+
+    expect(seen).toEqual(['raw-bytes']);
+    mgr.disconnect();
+  });
+
   it('treats abrupt closes (1006) as transient and reconnects with backoff', async () => {
     const mgr = new SignallingManager(['wss://s1.test/ws']);
     const p = mgr.connect().catch(() => {});

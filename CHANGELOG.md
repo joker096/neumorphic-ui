@@ -551,3 +551,6 @@
 - All hardcoded theme branches replaced with CSS variables
 - Empty `.gitkeep` files
 - Barrels/index re-exports (replaced with direct imports)
+
+### Fixed
+- **M021 inbound dial-back (P2P)**: idle peer can now receive an inbound P2P dial — `useAppConnection` subscribes to `SignallingManager.onMessage` and forwards offers to `p2pNetwork.acceptInboundOffer` (dedup by peerId). Root cause of two bugs that blocked it: (1) server-side challenge verify always failed — `import * as nacl from 'tweetnacl'` under Node ESM (tsx) places the CJS `module.exports` on `.default`, so `nacl.sign` was `undefined`; fixed with a runtime default-fallback; (2) `wsTunnel.onMessage` dispatches raw string frames while app handlers (`registerMainIdentity`, offer-forward) expect objects — fixed by parsing JSON in `SignallingManager.onMessage` (non-JSON frames pass through unparsed). E2E `e2e/dual-peer.spec.ts` "idle B answers an inbound offer over a dial-back transport" now green (both contexts Direct, B dial-back transport, `pcState=connected`). Regression: `manager.test.ts` +2 (raw-string frame parsed to object, non-JSON pass-through). Server debug logs (`[WS] register/challenge/offer`, VERIFY FAIL block with altVerify/selfCheck) and client debug warns (`[main-ws] rx`, `[offer-forward]`, `[offer-accept]`) removed.

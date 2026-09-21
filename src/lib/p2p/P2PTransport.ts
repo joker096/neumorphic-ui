@@ -187,6 +187,29 @@ export class P2PTransport {
           this.signalingWs!.onmessage = this.handleSignalingEvent
           this.reconnectAttempts = 0
           resolve()
+        } else if (msg.type === 'challenge') {
+          // The key is already bound to another live socket (same identity:
+          // main signaling WS + this transport). Prove ownership by signing the
+          // server nonce — an attacker cannot sign, so hijack stays impossible.
+          if (!this.identitySecretKey || !this.identityPublicKey) {
+            settle()
+            reject(new Error('Ownership challenge requires identity keys'))
+            return
+          }
+          const nonce = typeof msg.nonce === 'string' ? msg.nonce : ''
+          if (!nonce) {
+            settle()
+            reject(new Error('Invalid challenge nonce'))
+            return
+          }
+          ws.send(
+            JSON.stringify({
+              type: 'register-challenge',
+              publicKey: this.localPublicKey,
+              nonce,
+              signature: signDh(this.identitySecretKey, nonce),
+            }),
+          )
         } else if (msg.type === 'error') {
           settle()
           reject(new Error(msg.message))
@@ -203,6 +226,16 @@ export class P2PTransport {
         this.handleWsClose()
       }
     })
+  }
+
+  /** Answer an offer that arrived out-of-band (inbound dial-back): the offer
+   * was received on the main signaling WS; this transport connects under the
+   * same identity key (ownership-challenge register) and processes it as its
+   * own negotiation. No new offer is created, so no glare occurs. */
+  async acceptOffer(peerPublicKey: string, frame: any): Promise<void> {
+    this.peerPublicKey = peerPublicKey
+    await this.connect()
+    await this.handleSignalingMessage({ ...frame, type: 'offer', from: peerPublicKey })
   }
 
   async call(peerPublicKey: string): Promise<void> {

@@ -17,7 +17,7 @@ export class WsTunnel {
   private backend: TunnelBackend;
   private frontDomain: string;
   private status: TunnelStatus = 'disconnected';
-  private onMessageCallback?: (data: any) => void;
+  private onMessageCallbacks: Set<(data: any) => void> = new Set();
   private onOpenCallback?: () => void;
   private onCloseCallback?: (info: { code: number; reason: string } | null) => void;
   private onErrorCallback?: (err: Error) => void;
@@ -130,7 +130,7 @@ export class WsTunnel {
               /* fall through and dispatch raw payload */
             }
           }
-          if (this.onMessageCallback) this.onMessageCallback(event.data);
+          this.onMessageCallbacks.forEach((cb) => cb(event.data));
         };
         this.ws.onclose = (event) => {
           clearTimeout(timer);
@@ -163,7 +163,10 @@ export class WsTunnel {
     }
   }
 
-  onMessage(callback: (data: any) => void): void { this.onMessageCallback = callback; }
+  onMessage(callback: (data: any) => void): () => void {
+    this.onMessageCallbacks.add(callback);
+    return () => this.onMessageCallbacks.delete(callback);
+  }
   onOpen(callback: () => void): void { this.onOpenCallback = callback; }
   onClose(callback: (info: { code: number; reason: string } | null) => void): void { this.onCloseCallback = callback; }
   onError(callback: (err: Error) => void): void { this.onErrorCallback = callback; }

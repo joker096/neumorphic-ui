@@ -6,6 +6,53 @@ import type { TunnelBackend } from "../lib/transport/wsTunnel";
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'blocked' | 'error';
 
+/** Register the persistent identity key on the main signaling WS so inbound
+ * dial-backs (M021) can reach us while idle. First bind → `registered`; if the
+ * key is already held (e.g. our own transport or another tab) the server sends
+ * an ownership challenge we answer by signing the nonce. Best-effort: a
+ * registration failure must never break the plain connection. */
+const registerMainIdentity = async (mgr: SignallingManager): Promise<void> => {
+  try {
+    const { hasMasterIdentity, getMasterKeySet } = await import('../lib/identity/masterKey');
+    if (!(await hasMasterIdentity())) return;
+    const identity = await getMasterKeySet();
+    const { buf2hex } = await import('../lib/crypto/cryptoCore');
+    const pubHex = buf2hex(identity.ed25519Public);
+
+    const waitFor = (types: string[], send: () => void, timeoutMs = 10000): Promise<any | null> =>
+      new Promise((resolve) => {
+        const timer = setTimeout(() => {
+          off();
+          resolve(null);
+        }, timeoutMs);
+        const off = mgr.onMessage((msg) => {
+          if (msg && typeof msg === 'object' && types.includes(msg.type)) {
+            off();
+            clearTimeout(timer);
+            resolve(msg);
+          }
+        });
+        send();
+      });
+
+    const first = await waitFor(['challenge', 'registered', 'error'], () =>
+      mgr.send({ type: 'register', publicKey: pubHex }),
+    );
+    if (!first || first.type === 'registered' || first.type === 'error' || !first.nonce) return;
+    const { signDh } = await import('../lib/p2p/identityPin');
+    await waitFor(['registered', 'error'], () =>
+      mgr.send({
+        type: 'register-challenge',
+        publicKey: pubHex,
+        nonce: first.nonce,
+        signature: signDh(identity.ed25519Secret, first.nonce),
+      }),
+    );
+  } catch {
+    /* registration is best-effort; anonymous operation continues */
+  }
+};
+
 export const useAppConnection = () => {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionState>('disconnected');
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -45,6 +92,21 @@ export const useAppConnection = () => {
       setConnectionError(mgr.getLastError());
       useAppStore.getState().setConnectionStatus('error');
       useAppStore.getState().setBlockedBackends(['all']);
+    });
+
+    // Inbound dial-back: an offer targeted at our identity key arrives on the
+    // main WS (we are idle — no transport exists yet). Dial back with a
+    // dedicated transport and answer it. Duplicate offers are deduped inside
+    // the network layer.
+    mgr.connect().then(() => {
+      mgr.onMessage((msg) => {
+        if (msg && typeof msg === 'object' && msg.type === 'offer' && typeof msg.from === 'string') {
+          import('../lib/p2p/network.ts')
+            .then((m) => m.p2pNetwork.acceptInboundOffer(msg.from, msg))
+            .catch(() => {});
+        }
+      });
+      void registerMainIdentity(mgr);
     });
 
     const unsub1 = mgr.onStateChange((state) => {
