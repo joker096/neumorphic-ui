@@ -1,7 +1,4 @@
 import { useCallback, type Dispatch, type SetStateAction } from "react";
-import { toast } from "sonner";
-import { useAppStore } from "../store";
-import { registerRiskSession, getLastActionDebugId } from "../utils/riskShell";
 import type { ContactProfile } from "../components/ContactProfileModal";
 
 export function useProfileActions(
@@ -18,41 +15,26 @@ export function useProfileActions(
   handlePreviewMessage: (name: string, color?: string) => void,
 ) {
 
-  const guard = useCallback(() => {
-    if (!globalSelectedContact) return false;
-    if (useAppStore.getState().riskShellActive) {
-      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
-      toast.warning('Paused by risk shell');
-      return true;
-    }
-    return false;
-  }, [globalSelectedContact]);
-
   const handleProfileCall = useCallback(() => {
-    if (!globalSelectedContact || guard()) return;
+    if (!globalSelectedContact) return;
     handlePreviewCall(globalSelectedContact.name, globalSelectedContact.color, 'audio');
     setGlobalSelectedContact(null);
-  }, [globalSelectedContact, guard, handlePreviewCall, setGlobalSelectedContact]);
+  }, [globalSelectedContact, handlePreviewCall, setGlobalSelectedContact]);
 
   const handleProfileVideoCall = useCallback(() => {
-    if (!globalSelectedContact || guard()) return;
+    if (!globalSelectedContact) return;
     handlePreviewCall(globalSelectedContact.name, globalSelectedContact.color, 'video');
     setGlobalSelectedContact(null);
-  }, [globalSelectedContact, guard, handlePreviewCall, setGlobalSelectedContact]);
+  }, [globalSelectedContact, handlePreviewCall, setGlobalSelectedContact]);
 
   const handleProfileMessage = useCallback(() => {
-    if (!globalSelectedContact || guard()) return;
+    if (!globalSelectedContact) return;
     handlePreviewMessage(globalSelectedContact.name, globalSelectedContact.color);
     setGlobalSelectedContact(null);
-  }, [globalSelectedContact, guard, handlePreviewMessage, setGlobalSelectedContact]);
+  }, [globalSelectedContact, handlePreviewMessage, setGlobalSelectedContact]);
 
   const handleProfileDelete = useCallback(() => {
     if (!globalSelectedContact) return;
-    if (useAppStore.getState().riskShellActive) {
-      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
-      toast.warning('Paused by risk shell');
-      return;
-    }
     if (activeChat && activeChat.name === globalSelectedContact.name) setActiveChat(null);
     setChats((prev: any[]) => prev.filter((contact: any) => contact.name !== globalSelectedContact.name));
     setContacts((prev: any[]) => (prev || []).filter((c: any) => c.name !== globalSelectedContact.name));
@@ -60,18 +42,13 @@ export function useProfileActions(
   }, [globalSelectedContact, activeChat, setActiveChat, setChats, setContacts, setGlobalSelectedContact]);
 
   const handleProfileEdit = useCallback(() => {
-    if (!globalSelectedContact || guard()) return;
+    if (!globalSelectedContact) return;
     setEditingContact(globalSelectedContact as any);
     setGlobalSelectedContact(null);
-  }, [globalSelectedContact, guard, setEditingContact, setGlobalSelectedContact]);
+  }, [globalSelectedContact, setEditingContact, setGlobalSelectedContact]);
 
   const handleProfileBlock = useCallback(() => {
     if (!globalSelectedContact) return;
-    if (useAppStore.getState().riskShellActive) {
-      registerRiskSession(globalSelectedContact.id, getLastActionDebugId(globalSelectedContact.id));
-      toast.warning('Paused by risk shell');
-      return;
-    }
     setGlobalSelectedContact(null);
   }, [globalSelectedContact, setGlobalSelectedContact]);
 
