@@ -681,8 +681,11 @@
     "liked": "Реакция добавлена ❤",
     "unliked": "Реакция удалена",
     "replyPlaceholder": "Отправить ответ…",
+    "sendReply": "Отправить",
     "repliesOff": "Ответы к вашей истории отключены",
     "replySent": "Ответ отправлен",
+    "saveFailed": "Не удалось сохранить историю",
+    "characters": "Символы",
     "share": "Поделиться",
     "shareText": "Посмотрите эту историю",
     "verified": "Подтверждено",
@@ -910,6 +913,7 @@
     "copied": "Скопировано!",
     "copyLink": "Копировать ссылку",
     "myStory": "Моя история",
+    "newStories": "Новые истории",
     "scanQR": "Сканировать QR",
     "stories": "P2P Истории"
   },
@@ -1498,6 +1502,7 @@
     "signalPlaceholder": "Signal V2V ID",
     "sound": "Звук",
     "soundOption": "Звук уведомления",
+    "soundVolume": "Громкость",
     "spamActive": "Активна",
     "spamDisabled": "Отключена",
     "spamFilter": "Фильтр спама",
@@ -1552,12 +1557,16 @@
     "transportModeXorShroud": "XOR Shroud (базовый)",
     "transportOptions": "Опции транспорта",
     "turnServer": "TURN-сервер",
+    "turnServerUserLabel": "Логин TURN",
+    "turnServerPassLabel": "Пароль TURN",
     "turnServerExample": "turn:example.com:3478",
     "twoFactor": "Двухфакторная аутентификация",
     "twoFactorAuth": "Двухфакторная аутентификация",
     "twoFactorSubtitle": "Добавить второй шаг для входа",
     "typingIndicators": "Индикаторы набора",
     "typingIndicatorsSubtitle": "Показывать, когда собеседник печатает",
+    "uiAnimations": "UI-анимации",
+    "uiAnimationsSubtitle": "Включить анимации интерфейса",
     "useProxy": "Использовать прокси",
     "useProxySubtitle": "SOCKS5 / HTTP",
     "userGuide": "Руководство пользователя",
@@ -1638,7 +1647,9 @@
     "densityMode": {
       "comfortable": "Просторно",
       "compact": "Компактно"
-    }
+    },
+    "forwardAnonymization": "Anonymize forwarded messages",
+    "forwardAnonymizationSubtitle": "Remove your identity from forwarded messages"
   },
   "gifSearch": {
     "searchPlaceholder": "Поиск GIF...",

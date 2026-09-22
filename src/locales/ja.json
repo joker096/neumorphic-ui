@@ -681,8 +681,11 @@
     "liked": "リアクション済み ❤",
     "unliked": "リアクションを削除しました",
     "replyPlaceholder": "返信を送信…",
+    "sendReply": "送信",
     "repliesOff": "あなたのストーリーの返信はオフです",
     "replySent": "返信を送信しました",
+    "saveFailed": "ストーリーを保存できませんでした",
+    "characters": "文字数",
     "share": "共有",
     "shareText": "このストーリーを見てください",
     "verified": "認証済み",
@@ -910,6 +913,7 @@
     "copied": "コピーしました！",
     "copyLink": "リンクをコピー",
     "myStory": "マイストーリー",
+    "newStories": "新しいストーリー",
     "scanQR": "QRをスキャン",
     "stories": "P2Pストーリー"
   },
@@ -1498,6 +1502,7 @@
     "signalPlaceholder": "Signal V2V ID",
     "sound": "音",
     "soundOption": "通知音",
+    "soundVolume": "音量",
     "spamActive": "有効",
     "spamDisabled": "無効",
     "spamFilter": "スパムフィルター",
@@ -1552,12 +1557,16 @@
     "transportModeXorShroud": "XORシースウド（本基）",
     "transportOptions": "トランスポートオプション",
     "turnServer": "TURNサーバー",
+    "turnServerUserLabel": "TURNユーザー名",
+    "turnServerPassLabel": "TURNパスワード",
     "turnServerExample": "turn:example.com:3478",
     "twoFactor": "二要素認証",
     "twoFactorAuth": "二段階認証",
     "twoFactorSubtitle": "サインインに2段階目を追加",
     "typingIndicators": "入力中インジケーター",
     "typingIndicatorsSubtitle": "相手が入力中のときに表示",
+    "uiAnimations": "UIアニメーション",
+    "uiAnimationsSubtitle": "インターフェースのモーション効果を有効にする",
     "useProxy": "プロキシを使用",
     "useProxySubtitle": "SOCKS5 / HTTP",
     "userGuide": "ユーザーガイド",
@@ -1638,7 +1647,9 @@
     "densityMode": {
       "comfortable": "快適",
       "compact": "コンパクト"
-    }
+    },
+    "forwardAnonymization": "Anonymize forwarded messages",
+    "forwardAnonymizationSubtitle": "Remove your identity from forwarded messages"
   },
   "gifSearch": {
     "searchPlaceholder": "GIFを検索...",

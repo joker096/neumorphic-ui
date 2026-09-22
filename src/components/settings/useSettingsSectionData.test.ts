@@ -50,16 +50,17 @@ const mkState = () => ({
   saveVideoRecordings: true, setSaveVideoRecordings: vi.fn(),
   recordingsRetentionDays: 30, setRecordingsRetentionDays: vi.fn(),
   premiumEntitlement: { premium: false },
-  stealthMode: false, anonymousMode: false, readReceipts: true,
+  stealthMode: false, readReceipts: true,
   deliveryReceipts: true, typingIndicators: true,
-  turnServerUrl: '', allowForwarding: true, allowMetadata: true,
-  forwardCountLimit: 10, forwardAnonymization: false,
-  onlineStatus: true, ghostViewMode: false, contactReadReceipts: true,
+  turnServerUrl: '', turnServerUser: '', turnServerPass: '',
+  forwardAnonymization: false,
+  soundVolume: 1, setSoundVolume: vi.fn(),
+  onlineStatus: true, ghostViewMode: false,
   devices: [], currentSession: null,
   cloudSync: { enabled: false, status: 'idle', pendingChanges: 0, lastSync: null },
   locationShares: [],
   addDevice: vi.fn(), removeDevice: vi.fn(),
-  updateSettings: vi.fn(), toggleContactReadReceipt: vi.fn(),
+  updateSettings: vi.fn(),
   setCloudSyncEnabled: vi.fn(), triggerCloudSync: vi.fn(),
   stopLiveLocation: vi.fn(), removeLocationShare: vi.fn(),
   bots: [], setBots: vi.fn(),
@@ -113,8 +114,8 @@ describe('useSettingsSectionData', () => {
 
   it('exposes updateSettings and triggers store update', () => {
     const { result } = renderHook(() => useSettingsSectionData());
-    act(() => result.current.updateSettings({ allowForwarding: false }));
-    expect(state.updateSettings).toHaveBeenCalledWith({ allowForwarding: false });
+    act(() => result.current.updateSettings({ stealthMode: true }));
+    expect(state.updateSettings).toHaveBeenCalledWith({ stealthMode: true });
   });
 
   it('exposes custom chat background value and setter', () => {

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { ImagePlus, Palette, Sparkles, X } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
-import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
+import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 
 const MAX_BG_DIMENSION = 960;
@@ -34,7 +34,7 @@ interface AppearanceSettingsProps {
 }
 
 export const AppearanceSettings = ({
-  isDark = false, theme, setTheme, fontSize, setFontSize, themeMode, setThemeMode, accentColor, setAccentColor, chatBackground, setChatBackground, premium = false, customChatBackground, setCustomChatBackground, density, setDensity, messageRadius, setMessageRadius, animationIntensity, setAnimationIntensity, onBack
+  isDark = false, theme, setTheme, fontSize, setFontSize, uiAnimations, setUiAnimations, themeMode, setThemeMode, accentColor, setAccentColor, chatBackground, setChatBackground, premium = false, customChatBackground, setCustomChatBackground, density, setDensity, messageRadius, setMessageRadius, animationIntensity, setAnimationIntensity, onBack
 }: AppearanceSettingsProps) => {
   const { t } = useI18n();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -141,6 +141,18 @@ export const AppearanceSettings = ({
               </button>
             ))}
           </div>
+        </div>
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--accent-soft)]`}>
+              <Sparkles size={16} className="t-accent" />
+            </div>
+            <div>
+              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.uiAnimations')}</div>
+              <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.uiAnimationsSubtitle')}</div>
+            </div>
+          </div>
+          <ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations?.(!uiAnimations)} isDark={isDark} ariaLabel={t('settings.uiAnimations')} />
         </div>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">

@@ -681,8 +681,11 @@
     "liked": "Reagiert ❤",
     "unliked": "Reaktion entfernt",
     "replyPlaceholder": "Antwort senden…",
+    "sendReply": "Senden",
     "repliesOff": "Antworten sind für deine Story deaktiviert",
     "replySent": "Antwort gesendet",
+    "saveFailed": "Story konnte nicht gespeichert werden",
+    "characters": "Zeichen",
     "share": "Teilen",
     "shareText": "Schau dir diese Story an",
     "verified": "Verifiziert",
@@ -910,6 +913,7 @@
     "copied": "Kopiert!",
     "copyLink": "Link kopieren",
     "myStory": "Meine Story",
+    "newStories": "Neue Stories",
     "scanQR": "QR scannen",
     "stories": "P2P-Stories"
   },
@@ -1498,6 +1502,7 @@
     "signalPlaceholder": "Signal V2V ID",
     "sound": "Ton",
     "soundOption": "Benachrichtigungston",
+    "soundVolume": "Lautstärke",
     "spamActive": "Aktiv",
     "spamDisabled": "Deaktiviert",
     "spamFilter": "Spam-Filter",
@@ -1552,12 +1557,16 @@
     "transportModeXorShroud": "XOR-Shroud (grundlegend)",
     "transportOptions": "Transport-Optionen",
     "turnServer": "TURN-Server",
+    "turnServerUserLabel": "TURN-Benutzername",
+    "turnServerPassLabel": "TURN-Passwort",
     "turnServerExample": "turn:example.com:3478",
     "twoFactor": "Zwei-Faktor-Authentifizierung",
     "twoFactorAuth": "Zwei-Faktor-Authentifizierung",
     "twoFactorSubtitle": "Einen zweiten Schritt zum Anmelden hinzufügen",
     "typingIndicators": "Tippindikatoren",
     "typingIndicatorsSubtitle": "Anzeigen, wenn die andere Seite tippt",
+    "uiAnimations": "UI-Animationen",
+    "uiAnimationsSubtitle": "Motiveffekte der Oberfläche aktivieren",
     "useProxy": "Proxy verwenden",
     "useProxySubtitle": "SOCKS5 / HTTP",
     "userGuide": "Benutzerhandbuch",
@@ -1638,7 +1647,9 @@
     "densityMode": {
       "comfortable": "Bequem",
       "compact": "Kompakt"
-    }
+    },
+    "forwardAnonymization": "Anonymize forwarded messages",
+    "forwardAnonymizationSubtitle": "Remove your identity from forwarded messages"
   },
   "gifSearch": {
     "searchPlaceholder": "GIFs suchen...",

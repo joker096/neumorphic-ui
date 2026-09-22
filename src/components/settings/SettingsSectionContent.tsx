@@ -48,6 +48,8 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     setNotificationsEnabled,
     soundEnabled,
     setSoundEnabled,
+    soundVolume,
+    setSoundVolume,
     mediaAutoLoad,
     setMediaAutoLoad,
     selfDestructDefault,
@@ -55,6 +57,8 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     obfuscationEnabled,
     setObfuscationEnabled,
     turnServerUrl,
+    turnServerUser,
+    turnServerPass,
     relayBackend,
     setRelayBackend,
     autoReconnectEnabled,
@@ -82,16 +86,12 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     priorityContacts,
     setPriorityContacts,
     stealthMode,
-    anonymousMode,
     readReceipts,
     deliveryReceipts,
     typingIndicators,
     ghostViewMode,
     forwardAnonymization,
     onlineStatus,
-    allowForwarding,
-    allowMetadata,
-    forwardCountLimit,
     cloudSync,
     setCloudSyncEnabled,
     updateSettings,
@@ -125,6 +125,8 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setNotificationsEnabled={setNotificationsEnabled}
       soundEnabled={soundEnabled}
       setSoundEnabled={setSoundEnabled}
+      soundVolume={soundVolume}
+      setSoundVolume={setSoundVolume}
       cloudSync={cloudSync}
       setCloudSyncEnabled={setCloudSyncEnabled}
       language={language}
@@ -200,19 +202,13 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       priorityContacts={priorityContacts}
       setPriorityContacts={setPriorityContacts}
       stealthMode={stealthMode}
-      anonymousMode={anonymousMode}
       deliveryReceipts={deliveryReceipts}
       readReceipts={readReceipts}
       typingIndicators={typingIndicators}
       ghostViewMode={ghostViewMode}
       forwardAnonymization={forwardAnonymization}
+      setForwardAnonymization={(v) => updateSettings({ forwardAnonymization: v })}
       onlineStatus={onlineStatus}
-      allowForwarding={allowForwarding}
-      setAllowForwarding={(v) => updateSettings({ allowForwarding: v })}
-      allowMetadata={allowMetadata}
-      setAllowMetadata={(v) => updateSettings({ allowMetadata: v })}
-      forwardCountLimit={forwardCountLimit}
-      setForwardCountLimit={(v) => updateSettings({ forwardCountLimit: v })}
       mediaAutoLoad={mediaAutoLoad}
       setMediaAutoLoad={setMediaAutoLoad}
       selfDestructDefault={selfDestructDefault}
@@ -229,6 +225,8 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       obfuscationEnabled={obfuscationEnabled}
       setObfuscationEnabled={setObfuscationEnabled}
       turnServerUrl={turnServerUrl}
+      turnServerUser={turnServerUser}
+      turnServerPass={turnServerPass}
       relayBackend={relayBackend}
       setRelayBackend={setRelayBackend}
       autoReconnectEnabled={autoReconnectEnabled}

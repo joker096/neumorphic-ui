@@ -13,6 +13,7 @@ const netMock = vi.hoisted(() => ({
 
 const stateMock = vi.hoisted(() => ({
   chats: [] as any[],
+  onlineStatus: true,
   setChats: vi.fn(),
 }));
 
@@ -100,6 +101,18 @@ describe("useChatPresence", () => {
     netMock.getPeers.mockReturnValue([{ peerId: "peer1", connected: true }]);
     renderHook(() => useChatPresence());
 
+    expect(stateMock.chats[0]).toMatchObject({ id: 1, online: true });
+  });
+
+  it("skips broadcasting own presence when onlineStatus is off", () => {
+    stateMock.onlineStatus = false;
+    netMock.peerForChat.mockReturnValue("peer1");
+    const connCbs = captureCallback(netMock.onConnection);
+    renderHook(() => useChatPresence());
+
+    actCall(connCbs[0], "peer1");
+
+    expect(netMock.sendPresenceSignal).not.toHaveBeenCalled();
     expect(stateMock.chats[0]).toMatchObject({ id: 1, online: true });
   });
 

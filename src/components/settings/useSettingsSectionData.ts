@@ -12,6 +12,8 @@ export const useSettingsSectionData = () => {
   const setNotificationsEnabled = useAppStore(state => state.setNotifications);
   const soundEnabled = useAppStore(state => state.soundEnabled);
   const setSoundEnabled = useAppStore(state => state.setSoundEnabled);
+  const soundVolume = useAppStore(state => state.soundVolume);
+  const setSoundVolume = useAppStore(state => state.setSoundVolume);
   const twoFactorEnabled = useAppStore(state => state.twoFactor);
   const setTwoFactorEnabled = useAppStore(state => state.setTwoFactor);
   const proxyEnabled = useAppStore(state => state.proxyEnabled);
@@ -84,18 +86,15 @@ export const useSettingsSectionData = () => {
 
   const {
     stealthMode,
-    anonymousMode,
     readReceipts,
     deliveryReceipts,
     typingIndicators,
     turnServerUrl,
-    allowForwarding,
-    allowMetadata,
-    forwardCountLimit,
+    turnServerUser,
+    turnServerPass,
     forwardAnonymization,
     onlineStatus,
     ghostViewMode,
-    contactReadReceipts,
     devices,
     currentSession,
     cloudSync,
@@ -103,7 +102,6 @@ export const useSettingsSectionData = () => {
     addDevice,
     removeDevice,
     updateSettings,
-    toggleContactReadReceipt,
     setCloudSyncEnabled,
     triggerCloudSync,
     stopLiveLocation,
@@ -129,6 +127,8 @@ export const useSettingsSectionData = () => {
     setNotificationsEnabled,
     soundEnabled,
     setSoundEnabled,
+    soundVolume,
+    setSoundVolume,
     twoFactorEnabled,
     setTwoFactorEnabled,
     proxyEnabled,
@@ -199,18 +199,15 @@ export const useSettingsSectionData = () => {
     setRecordingsRetentionDays,
     premiumEntitlement,
     stealthMode,
-    anonymousMode,
     readReceipts,
     deliveryReceipts,
     typingIndicators,
     turnServerUrl,
-    allowForwarding,
-    allowMetadata,
-    forwardCountLimit,
+    turnServerUser,
+    turnServerPass,
     forwardAnonymization,
     onlineStatus,
     ghostViewMode,
-    contactReadReceipts,
     devices,
     currentSession,
     cloudSync,
@@ -218,7 +215,6 @@ export const useSettingsSectionData = () => {
     addDevice,
     removeDevice,
     updateSettings,
-    toggleContactReadReceipt,
     setCloudSyncEnabled,
     triggerCloudSync,
     stopLiveLocation,

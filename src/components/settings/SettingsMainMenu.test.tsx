@@ -48,6 +48,8 @@ const baseProps = {
   setNotificationsEnabled: vi.fn(),
   soundEnabled: false,
   setSoundEnabled: vi.fn(),
+  soundVolume: 0.7,
+  setSoundVolume: vi.fn(),
   cloudSync: {
     enabled: false, status: 'idle', pendingChanges: 0, lastSync: null,
     errorMessage: null, provider: 'local',

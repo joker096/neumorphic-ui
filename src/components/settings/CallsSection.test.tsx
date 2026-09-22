@@ -16,12 +16,10 @@ const h = vi.hoisted(() => ({
   premium: false as boolean,
   saveAudio: true as boolean,
   saveVideo: true as boolean,
-  share: true as boolean,
   retention: 30 as number,
   autoRecord: true as boolean,
   setSaveAudio: vi.fn(),
   setSaveVideo: vi.fn(),
-  setShare: vi.fn(),
   setRetention: vi.fn(),
   setAutoRecord: vi.fn(),
   startIncomingCall: vi.fn(),
@@ -35,8 +33,6 @@ vi.mock('../../store', () => ({
       setSaveAudioRecordings: h.setSaveAudio,
       saveVideoRecordings: h.saveVideo,
       setSaveVideoRecordings: h.setSaveVideo,
-      shareRecording: h.share,
-      setShareRecording: h.setShare,
       recordingsRetentionDays: h.retention,
       setRecordingsRetentionDays: h.setRetention,
       autoRecordCalls: h.autoRecord,
@@ -74,7 +70,6 @@ describe('CallsSection', () => {
     h.premium = false;
     h.saveAudio = true;
     h.saveVideo = true;
-    h.share = true;
     h.retention = 30;
     h.autoRecord = true;
   });
@@ -133,13 +128,6 @@ describe('CallsSection', () => {
     renderSection();
     fireEvent.click(screen.getByRole('switch', { name: t('settings.saveVideoCalls', 'Save video calls') }));
     expect(h.setSaveVideo).toHaveBeenCalledWith(false);
-  });
-
-  it('toggles share recordings', () => {
-    h.share = false;
-    renderSection();
-    fireEvent.click(screen.getByRole('switch', { name: t('settings.shareRecording', 'Share recordings') }));
-    expect(h.setShare).toHaveBeenCalledWith(true);
   });
 
   it('cycles retention days for non-premium (30 -> 90)', () => {

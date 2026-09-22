@@ -22,18 +22,11 @@ describe('PrivacySection - additional tests', () => {
   dndTo: '08:00',
   setDndTo: vi.fn(),
   stealthMode: false,
-  anonymousMode: false,
   deliveryReceipts: true,
   readReceipts: true,
   typingIndicators: true,
   ghostViewMode: false,
   onlineStatus: true,
-  allowForwarding: true,
-  setAllowForwarding: vi.fn(),
-  allowMetadata: true,
-  setAllowMetadata: vi.fn(),
-  forwardCountLimit: 3,
-  setForwardCountLimit: vi.fn(),
   onUpdateSettings: mockUpdateSettings,
   onBack: vi.fn(),
   t: (key: string) => key,
@@ -73,18 +66,13 @@ describe('PrivacySection - additional tests', () => {
 
  it('renders privacy cycle rows', () => {
   render(<PrivacySection {...defaultProps} />);
-  expect(screen.getByText('settings.ghostViewMode') || screen.getByText('settings.onlineStatus') || screen.getByText(/stealthMode|anonymousMode/)).toBeInTheDocument();
+  expect(screen.getByText('settings.ghostViewMode') || screen.getByText('settings.onlineStatus') || screen.getByText('settings.stealthMode')).toBeInTheDocument();
  });
 
  it('renders DND time values', () => {
   render(<PrivacySection {...defaultProps} />);
   expect(screen.getByText('22:00')).toBeInTheDocument();
   expect(screen.getByText('08:00')).toBeInTheDocument();
- });
-
- it('renders forward count value', () => {
-  render(<PrivacySection {...defaultProps} />);
-  expect(screen.getByText('3')).toBeInTheDocument();
  });
 
  it('renders DND from when set', () => {

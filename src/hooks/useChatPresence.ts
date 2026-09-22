@@ -54,7 +54,9 @@ const markChatsForPeer = (peerId: string, online: boolean) => {
 export function useChatPresence() {
   useEffect(() => {
     const onConn = (peerId: string) => {
-      p2pNetwork.sendPresenceSignal(true);
+      if (useAppStore.getState().onlineStatus) {
+        p2pNetwork.sendPresenceSignal(true);
+      }
       markChatsForPeer(peerId, true);
     };
     const onDisconn = (peerId: string) => markChatsForPeer(peerId, false);

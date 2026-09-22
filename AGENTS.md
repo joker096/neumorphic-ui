@@ -358,6 +358,99 @@ npx vitest run
 | Убирать `stopPropagation` «упростить» | D4 вернётся |
 | Чинить один компонент, не просканировав остальные | Тот же паттерн живёт в других модалках/секциях |
 
+---
+
+## 🔄 Settings Cycle (S1–S6)
+
+> Детальное раскрытие ЭТАПА 1.3/§1.1 (настройки) и 6.1 (работоспособность). Срабатывает на каждом проходе общего цикла и отдельно по команде «проверь настройки». Машиночитаемый гейт — `node scripts/settings-audit.mjs` (exit 0 = findings 0); фиксы фиксируются под `### Fixed` в `CHANGELOG.md`.
+
+**Золотое правило:**
+> *Настройка, которая персистится, но не влияет на приложение (нет consumer) ИЛИ не управляется из UI (нет контрола) — баг. Исправить и просканировать заново. Цикл завершён только при 0 findings в трёх подряд прогонах.*
+
+### КЛАССЫ ДЕФЕКТОВ (что искать)
+
+| Код | Класс | Сигнал | Диагностика |
+|-----|-------|--------|-------------|
+| `S1` | Нет UI-контрола | сеттер/`updateSettings` не вызывается в `src/components/settings/*` | настройка недостижима для пользователя |
+| `S2` | Нет consumer | значение не читается вне `store/config/tests/settings` | настройка сохраняется, но не применяется |
+| `S3` | Нет persist | setter/`updateSettings`-путь не пишет localStorage/IndexedDB | значение теряется после перезапуска |
+| `S4` | Рассинхрон ключа | init-ключ (`savedPrivacySettings.X`) ≠ ключ persist (`persistSetting('Y')`) | значение пишется под одним ключом, читается под другим |
+| `S5` | Echo/no-op | setter пишет текущее значение (`setX(id, isX)`), не инверсию | действие не меняет состояние |
+| `S6` | Мёртвое поле | нет UI И нет consumer | кандидат на удаление (slize-поле + persist + barrel) |
+
+### ЭТАП 0: БАЗОВАЯ ПРОВЕРКА (baseline)
+
+```
+node scripts/settings-audit.mjs   # аудит S1–S6
+npm run lint
+npx tsc --noEmit
+npx vitest run
+```
+
+- [ ] `node scripts/settings-audit.mjs` — exit 0 (или таблица findings + задокументированные accepted).
+- [ ] `npm run lint` — 0 ошибок.
+- [ ] `npx tsc --noEmit` — 0 ошибок.
+- [ ] `npx vitest run` — 0 падений.
+
+### ЭТАП 1: СКАН
+
+Скрипт `scripts/settings-audit.mjs` статически сканирует `settingsSlice.ts` (init-ключи, сеттеры, `persistSetting/persistEncryptedSetting`) и реестр ~69 полей. Для каждого поля трассировать 3 ортогональных факта:
+
+1. **UI-контрол?** `setField(`, `setFieldEnabled(`, `setField?.(`, `updateSettings({ field: `, `onUpdateSettings({ field: ` в `src/components/settings/*` → `S1`.
+2. **Consumer?** значение читается вне `store/config/tests/settings` (напр. `useAppearanceEffects`, `CallManager`, `P2PTransport`, `useChatPresence`) → `S2`.
+3. **Persist?** `persistSetting('field')`/`persistEncryptedSetting('field')` в slice → `S3`; ключ init (`savedPrivacySettings.X`) совпадает с persist-ключом → `S4`.
+
+Hidden-поля (документированное скрытие 09-10: proxy*/torBridge/obfuscationMode/p2pMesh/spamFilter/deadMansSwitch/vis*/callsVisibility/messagesFrom/draftsEnabled/offlineMode/pwaBanner) помечаются **H** — решение об удалении или возврате UI за пользователем; без решения они НЕ считаются дефектом.
+
+> **🔴 Критерий перехода:** таблица findings полная: `поле | файл:строка | код (S1..S6) | эффект`. Пустая таблица → Этап 3.
+
+### ЭТАП 2: ФИКСЫ (по приоритету)
+
+Порядок: `S4` → `S3` → `S1` → `S2` → `S5` → `S6`.
+
+- **S4** — выровнять ключ: единый ключ в `savedPrivacySettings.X` и `persistSetting('X')`. Для миграции старых ключей — читать оба, писать новый.
+- **S3** — добавить `persistSetting('field', value)`/`persistEncryptedSetting` в сеттер; init `savedPrivacySettings.field ?? default`.
+- **S1** — либо добавить контрол (row/toggle/slider) на место, либо — если внутренняя/системная — скрыть намеренно (не удалять, см. H).
+- **S2** — проваять реальный consumer: подписка store в `App.tsx`/хуке, гейт в логике, параметр в вызове. Не делать сеттер-「заглушку」.
+- **S5** — писать противоположное значение `setX(!isX)`.
+- **S6** — удалить: slize-поле + сеттер + persist-строку + init-строку + тесты + barrel-экспорт. Внимание к `savedPrivacySettings`-схеме (старые стейты без поля безопасны — `?? default`).
+
+**Правило фикса:** каждый фикс = регрессионный тест рядом (клик контрола → assert изменения store/localStorage) + строка в `CHANGELOG.md` под `### Fixed`.
+
+> **🔴 Критерий перехода:** все findings закрыты, каждый с тестом или задокументирован (H/accepted). Если остался — вернуться к Этапу 2.
+
+### ЭТАП 3: ПОВТОРНЫЙ ПРОГОН
+
+```
+node scripts/settings-audit.mjs
+npm run lint
+npx tsc --noEmit
+npx vitest run
+```
+
+- [ ] Перескан (Этап 1) — 0 findings.
+- [ ] `node scripts/settings-audit.mjs` — exit 0.
+- [ ] `npm run lint` — 0 ошибок.
+- [ ] `npx tsc --noEmit` — 0 ошибок.
+- [ ] `npx vitest run` — зелёный.
+
+**Условие завершения цикла:** findings 0 + три последовательных зелёных прогона + строки про фиксы в `CHANGELOG.md` (если были). Любой новый finding → счётчик = 0.
+
+### АНТИПАТТЕРНЫ
+
+| Антипаттерн | Почему |
+|-------------|--------|
+| `disabled` на настройке без эффекта | S2 остаётся, UI вводит в заблуждение |
+| Добавить persist «чтобы сохранялось» без consumer | S2-настройка сохраняется, но продолжает ничего не делать |
+| Синтетический ключ в init не совпадает с persist | S4, значение теряется |
+| Скрыть настройку-UI без решения | Hidden-поля = H только с явной меткой и решением |
+| Сеттер без инверсии «для контракта» | S5 echo, D2-паттерн вернётся |
+
+### Settings audit pass log
+
+| Дата | Findings | Фиксы | Гейты |
+|------|----------|-------|-------|
+
 ### Pass log
 
 | Дата | Findings | Фиксы | Гейты |
@@ -633,4 +726,6 @@ npx vitest run
 | 2026-09-19 | 0 (D1–D5) + Play pre-launch: androidbrowserhelper deprecated-API вынесен (release 8 / 1.0.7) | Play Console pre-launch (release 7 / 1.0.6) флагнул deprecated-апи: `android.view.Window.setStatusBarColor/setNavigationBarColor` из `LauncherActivity.onCreate` + `splashscreens/PwaWrapperSplashScreenStrategy.customizeStatusAndNavBarDuringSplashScreen` (в androidbrowserhelper 2.7.3 AAR — НЕ в app-коде; 2.7.3 = последний релиз, но всё ещё зовёт deprecated: AAR byte-scan + dexdump AAB подтвердили). Верх main (GoogleChrome/android-browser-helper) уже переписал 5 классов на `WindowCompat.enableEdgeToEdge()` + `androidx.core.view.insets.ColorProtection`/`ProtectionLayout`. Фикс: 5 upstream-main классов завендорены в `scripts/android-vendor/browserhelper/src/main/java/...` (источник правды; `Utils`/`WebViewFallbackActivity` нейтрализованы — deprecated-методы и `getWindow().set*Color` блоки вырезаны, `LauncherActivity.configureIntentBuilder` инлайнен — API отсутствует в 2.7.3-метаданных, builder-схемы собраны напрямую), новый `vendorBrowserhelper()` в `build-android.mjs` (после patchGradleDeps): pristine AAR из gradle-кэша/Google Maven → strip 7 `.class` через `jar` → `android/app/libs/androidbrowserhelper-2.7.3-e2e.aar` → копия vendored java в модуль → gradle-зависимость `files('libs/...')` + explicit transitives (androidx.annotation 1.9.1 / core 1.17.0 / appcompat 1.7.0 / browser 1.10.0 / guava 33.4.8-android). Сборка: assembleRelease + bundleRelease OK (JDK 22, AGP 9.0.1, SDK 36), `aapt badging` → versionCode 8 / versionName 1.0.7; dexdump AAB: единственные остаточные `Window.set*Color` invokes сидят в `androidx.core.WindowCompat.enableEdgeToEdge` (рекомендованный API, Play их не флаget и до фикса), `configureIntentBuilder` в dex отсутствует. Android-only, app-код не тронут. CHANGELOG `### Fixed`. D1–D5 перескан: UI-контролов нет | lint 0, tsc clean, vitest 5930/5930 (339 файлов, не перезапускался — android-only), build artifacts 2/2, CHANGELOG `### Fixed` |
 | 2026-09-19 | 0 (D1–D5) + ui-audit: `inert`-фильтр (9 ложных overlap-падений) | Цикл «доработка всего приложения» (m0162): baseline зелёный (lint 0, tsc clean, vitest 5942/5942, button-audit 0 234/413, icon-font 0 468, l10n PASS, audit prod 0). D1–D5 перескан: 0 findings (`hash_` app-code только `ChatPreviewLayer.tsx:205`). E2E ui-audit **9 падений** (regression): `no horizontal overflow` × все вьюпорты + audit: mobile/desktop/tablet + zoom — overlap-находки `[overlap] button "Start Call" x "Mute": 62%`, contacts `"Video call" x "Remove from favorites": 100%`. Root cause: a11y-фикс 09-17 заменил `aria-hidden` на `inert` на закрытых свайп-бакетах (`ChatListItem`/`ContactItem`; левая полоса ~176px + правая ~164px на 320px геометрически пересекаются), но аудит-фильтр исключал только `[aria-hidden="true"]` → закрытые бакеты считались интерактивами. Фикс: `e2e/ui-audit.spec.ts` фильтр `&& !el.closest('[inert]')` (закрытые inert-бакеты исключены, открытые аудируются; прецедент 09-07 inFixedBottomBar). App-код не тронут. Результат: ui-audit 14/14. D1–D5: 0 findings. CHANGELOG `### Fixed` | lint 0, tsc clean, vitest 5942/5942 (341 файл), ui-audit 14/14 |
 | 2026-09-19 | 0 (D1–D5) + унифицированный акцент: design-system зелёный (dark `#4ede63`/light `#059669`) | По дизайн-доку 19.09.26 акцент переведён на green-family; root-cause жалобы 09-13 «все кнопки фиолетовые» = рассинхрон: `messenger.css` (`--msg-*`) уже зелёный, app-токены держали фиолет dark `#6f7fff`/оранж light `#ea580c`. **`tokens.css`**: dark `--accent #6f7fff→#4ede63` (rgb 78,222,99), `--accent2 #965dff→#10b981`, `--accent-soft rgba(78,222,99,0.12)`, производные (`--waveform-played-other`, `--waveform-unplayed-other`, `--button-primary-bg`, `--button-secondary-hover-bg`/`-border`, `--toggle-active-bg`, `--player-progress-orange`) → green; light `--accent #ea580c→#059669`, `--accent2 #d97706→#047857`, производные → emerald; dark `--button-primary-text → #0d1017` (тёмные чернила на ярком зелёном), light остался `#ffffff` (#047857 ≈4.9:1 AA). **`index.css`** хардкод-fallbacks (radial-gradient/:focus-visible/::selection) → 78,222,99/16,185,129/`#4ede63`. **`useAppearanceEffects.ts`** переписан (55→~140): зеркалит производные при accentColor — `--accent2` (PAIRED_ACCENT2-карта 9 пар + darken 0.78), `--accent2-rgb`, `--button-primary-bg`/`--toggle-active-bg`/`--player-progress-orange`/`--waveform-played-other` = акцент, `--button-primary-text` по WCAG-luminance (lum>0.4 → `#0d1017`). **Стор**: `settingsSlice.ts:257` дефолт `#10b981→#4ede63` + `AppearanceSettings` swatch-list/3 fallback'а; `ChatListView.tsx:159` лёгкий branch `text-purple-600` → `text-[var(--accent2)]` (единственный хардкод-пурпур в компонентах). Скан подтвердил: фиолетовый был только в tokens.css (12) + index.css fallbacks (4), компоненты всё через `var(--accent)`/`var(--accent2)` — глобальный реколор. Регрессия: `useAppearanceEffects.test.tsx` +5 ассертов производных + новый тест дефолт-`#4ede63`; 4 целевых файла 41/41, полный 5942/5942. D1–D5: 0 findings (хендлеры не тронуты). CHANGELOG `### Fixed` | lint 0, tsc clean, vitest 5942/5942 (341 файл) |
+| 2026-09-21 | 0 (D1–D5) + WIP-батч MediaViewer (D5-фикс) | Аудит «неработающих элементов»: baseline зелёный (lint 0, tsc clean, vitest 6008/6008, 341 файл; button-audit 0 234/422, icon-font 0 468, l10n PASS, audit prod 0). D1–D5 перескан: 0 findings (empty handlers только test mocks; `hash_` app-code только `ChatPreviewLayer.tsx:208`; console.* 0; D2 echo 0). WIP-батч (не закоммичен) = D5-фикс `MediaViewer.tsx`: Save/Share/Forward/Delete были toast-only мёртвыми контролами → реальная провязка: Save→`onToggleSave(chat,msg)` (saved-коллекция), Forward→`handleForwardMessage`, Delete→`confirmSingleDelete`→`ConfirmDialog`→`handleDeleteMessage`, Share→Web Share API+File/clipboard/download-fallback, Download→fetch→blob с сохранённым MIME+`buildFileName` (фикс «сохранялось .txt», `getTransferBlob` теперь принимает `mime`); кнопки скрываются без колбэков (house-style); D4: `stopPropagation` на action-баре (клик по кнопке закрывал вьювер через root onClick). Коммиты: `4bcfb63` fix(media), `c982ea6` chore(android) TWA 1.0.13/SW v75. | lint 0, tsc clean, vitest 6008/6008 (341 файл) |
 | 2026-09-19 | 1 (D-class stale-closure clobber) + 0 (D1–D5 рескан) + e2e close-out | Финал m0162: baseline зелёный (lint 0, tsc clean, vitest 5942/5942). **Корень e2e-флейка** `groups.spec.ts` «shared media tab shows image…» (изображение не рендерилось, профиль «No media yet»): **stale-closure clobber в `useFileSend`** — `appendMessage` добавлял image в zustand (функциональный `setChats` — выживал) и в display-чат через `onUpdateChat`, но broadcast `safeSend` бросал без пира → `catch` → `updateMessageStatus('failed')` перевызывал `onUpdateChat({...chat})` из СТАРОГО closure `chat` (до-image объект 1 сообщения) → затирал display `activeChat.history` до текста-только (store сохранял image). Фикс (2 файла): `useChatPreviewState.ts:62` → `setActiveChat: onUpdateChat` (App setActiveChat принимает functional updaters); `useFileSend.ts` `appendMessage`/`updateMessageStatus` → `if (setActiveChat) { функциональный prev } else if (onUpdateChat) { closure }` — display-обновление мержит на новейший `prev`, не снапшот. Расширение фикса: file-send качает local chunks + пишет `completed:true` meta БЕЗУСЛОВНО (не только offline) — sender-локальная ftr-резолюция не ждёт пира (offline test `saveTransferMeta` ×2, completed snapshot). **Offline-queue оптимизм** (`useMessageActions`/`useChatPreviewState` status `queued`→`navigator.onLine?'sent':'queued'`; flush упрощён — failed in-flight = best-effort `markMessageSent` (retry/backoff/evict упорядочены, транспорт сам ретраит); `MAX_QUEUE_RETRIES`/`retryMessage`/`removeQueuedMessage` импорты убраны). **E2E re-targets**: groups owner-row → `Owner` exact .last (профиль группа-модал порталится в document.body — Main-content скоуп ломал), invite regex `ma.to/`→`nexus://group/invite/`, attach `getByLabel('Attach file')`→`#dm-media-input`; settings relay-conditional (3 spec: Relay Backend row только при `VITE_RELAY_PROXY_URL`); navigation CRM заголовок → `\d+ perms` meta-line; вижуал-снапшоты re-recorded (3 PNG) + SEO CRM-скриншоты (11 PNG, green accent). Итог: e2e 207/207 (groups 11/11), ui-audit 14/14. CHANGELOG `### Fixed` | lint 0, tsc clean, vitest 5942/5942 (341 файл), e2e 207/207, ui-audit 14/14 |
+| 2026-09-22 | 0 (D1–D5) + Settings Cycle: 12 мёртвых настроек удалены, useAppSettings store-истина, 3 wires (sound/uiAnimations/TURN) | Аудит S1–S6 (`settings-audit.mjs` exit 0, 57 полей, H=15). Удалены (S6): `allowForwarding`/`allowMetadata`/`forwardCountLimit` (name-collision с `channel.allowForwarding` = модель канала, не настройка), `anonymousMode` (S2 — `useConnectionStatus` живёт на `transportBackend`), `radialDnd` (vert-рендер), `contactReadReceipts` (S2) — сеттеры/persist/init/тесты + `defaultSettings` синканы. `useAppSettings` переписан: `themeMode` в store, re-resolve только на смену mode (ref-guard: сохранённый applied-theme на mount побеждает), live-OS-track на `system`. `useSoundSettingsSync` (store→volume, mount в `App.tsx`) + slider `soundVolume` в `SettingsMainMenu`; `AnimationProvider` (main.tsx) читает store `uiAnimations` напрямую, `enabled = uiAnimations && animationIntensity !== 'off'`, консьюмеры ContentView/IncomingCallSheet; тумблер в `AppearanceSettings`; TURN url/user/pass (pass — persistEncryptedSetting) → `saveIceServerCredentials`→`P2PTransport` ICE; `forwardAnonymization` реальный consumer в `chatSlice`. i18n ×8 (5 keys). Аудит-скрипт: `SETTER_OVERRIDES` (appLock combined), `CONSUMER_OVERRIDES` (forwardAnonymization), hidden≠S2/S6. Регрессии: `useAppSettings.test.tsx` переписан (8), `useChatPresence.test.tsx` +1 (onlineStatus-гейт), тестовые mockи почищены от dead-полей. D1–D5 перескан: 0 findings (empty handlers только в test mocks; `hash_` app-code только документированный fallback). CHANGELOG `### Fixed` | lint 0, tsc clean, vitest 6027/6027 (344 файла), l10n PASS (0 errors), settings-audit exit 0 |

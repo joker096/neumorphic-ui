@@ -681,8 +681,11 @@
     "liked": "Réagi ❤",
     "unliked": "Réaction retirée",
     "replyPlaceholder": "Envoyer une réponse…",
+    "sendReply": "Envoyer",
     "repliesOff": "Les réponses sont désactivées pour votre histoire",
     "replySent": "Réponse envoyée",
+    "saveFailed": "Impossible d'enregistrer l'histoire",
+    "characters": "Caractères",
     "share": "Partager",
     "shareText": "Découvrez cette histoire",
     "verified": "Vérifié",
@@ -910,6 +913,7 @@
     "copied": "Copié !",
     "copyLink": "Copier le lien",
     "myStory": "Mon histoire",
+    "newStories": "Nouvelles histoires",
     "scanQR": "Scanner QR",
     "stories": "Histoires P2P"
   },
@@ -1498,6 +1502,7 @@
     "signalPlaceholder": "ID Signal V2V",
     "sound": "Son",
     "soundOption": "Son de notification",
+    "soundVolume": "Volume",
     "spamActive": "Actif",
     "spamDisabled": "Désactivée",
     "spamFilter": "Filtre anti-spam",
@@ -1552,12 +1557,16 @@
     "transportModeXorShroud": "XOR Shroud (basique)",
     "transportOptions": "Options de transport",
     "turnServer": "Serveur TURN",
+    "turnServerUserLabel": "Nom d'utilisateur TURN",
+    "turnServerPassLabel": "Mot de passe TURN",
     "turnServerExample": "turn:example.com:3478",
     "twoFactor": "Authentification à deux facteurs",
     "twoFactorAuth": "Authentification à deux facteurs",
     "twoFactorSubtitle": "Ajouter une deuxième étape pour la connexion",
     "typingIndicators": "Indicateurs de saisie",
     "typingIndicatorsSubtitle": "Afficher quand l'autre partie saisit",
+    "uiAnimations": "Animations de l'interface",
+    "uiAnimationsSubtitle": "Activer les effets de mouvement de l'interface",
     "useProxy": "Utiliser un proxy",
     "useProxySubtitle": "SOCKS5 / HTTP",
     "userGuide": "Guide de l'utilisateur",
@@ -1638,7 +1647,9 @@
     "densityMode": {
       "comfortable": "Confortable",
       "compact": "Compacte"
-    }
+    },
+    "forwardAnonymization": "Anonymize forwarded messages",
+    "forwardAnonymizationSubtitle": "Remove your identity from forwarded messages"
   },
   "gifSearch": {
     "searchPlaceholder": "Rechercher des GIF...",

@@ -25,6 +25,8 @@ interface SettingsMainMenuProps {
   setNotificationsEnabled: (v: boolean) => void;
   soundEnabled: boolean;
   setSoundEnabled: (v: boolean) => void;
+  soundVolume: number;
+  setSoundVolume: (v: number) => void;
   cloudSync: CloudSyncState;
   setCloudSyncEnabled: (v: boolean) => void;
   language: string;
@@ -32,7 +34,7 @@ interface SettingsMainMenuProps {
 
 export function SettingsMainMenu({
   isDark, searchQuery, setSearchQuery, t, setActiveSection, setSubView,
-  notificationsEnabled, setNotificationsEnabled, soundEnabled, setSoundEnabled,
+  notificationsEnabled, setNotificationsEnabled, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
   cloudSync, setCloudSyncEnabled, language,
 }: SettingsMainMenuProps) {
   useEffect(() => {
@@ -234,6 +236,27 @@ export function SettingsMainMenu({
                 </div>
               </div>
               <ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} ariaLabel={t('settings.sound')} />
+            </div>
+            <SettingsDivider isDark={isDark} />
+            <div className="flex items-center justify-between px-4 py-3 min-h-11">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-amber-500/10" : "bg-amber-100"}`}>
+                  <Bell size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.soundVolume', 'Volume')}</div>
+                </div>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={soundVolume}
+                onChange={(e) => setSoundVolume(Number(e.target.value))}
+                aria-label={t('settings.soundVolume', 'Volume')}
+                className="w-32 accent-[var(--accent)]"
+              />
             </div>
             <SettingsDivider isDark={isDark} />
             <div className="flex items-center justify-between px-4 py-3">

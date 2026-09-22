@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
-import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, Check, X, MessageSquare, Wifi, WifiOff, Share, FileText, Download, Clock } from 'lucide-react';
+import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, Check, X, MessageSquare, Wifi, WifiOff, Share, Download, Clock } from 'lucide-react';
 import { TextInputModal } from '../settings/TextInputModal';
 
 interface PrivacySectionProps {
@@ -15,19 +15,13 @@ interface PrivacySectionProps {
   priorityContacts?: string;
   setPriorityContacts?: (v: string) => void;
   stealthMode: boolean;
-  anonymousMode: boolean;
   deliveryReceipts: boolean;
   readReceipts: boolean;
   typingIndicators: boolean;
   ghostViewMode?: boolean;
   forwardAnonymization?: boolean;
+  setForwardAnonymization?: (v: boolean) => void;
   onlineStatus?: boolean;
-  allowForwarding?: boolean;
-  setAllowForwarding?: (v: boolean) => void;
-  allowMetadata?: boolean;
-  setAllowMetadata?: (v: boolean) => void;
-  forwardCountLimit?: number;
-  setForwardCountLimit?: (v: number) => void;
   onUpdateSettings: (settings: Record<string, unknown>) => void;
   onBack: () => void;
   t: (key: string, fallback?: string) => string;
@@ -42,9 +36,8 @@ export const PrivacySection = ({
   isDark = false,
   dndEnabled, setDndEnabled, dndFrom, setDndFrom, dndTo, setDndTo,
   priorityContacts, setPriorityContacts,
-  stealthMode, anonymousMode, deliveryReceipts, readReceipts, typingIndicators,
-  ghostViewMode, forwardAnonymization, onlineStatus, allowForwarding, setAllowForwarding,
-  allowMetadata, setAllowMetadata, forwardCountLimit, setForwardCountLimit,
+  stealthMode, deliveryReceipts, readReceipts, typingIndicators,
+  ghostViewMode, forwardAnonymization, setForwardAnonymization, onlineStatus,
   onUpdateSettings, onBack, t, mediaAutoLoad, setMediaAutoLoad, selfDestructDefault, setSelfDestructDefault,
   premium
 }: PrivacySectionProps) => {
@@ -170,16 +163,6 @@ export const PrivacySection = ({
           onClick={() => onUpdateSettings({ stealthMode: !stealthMode })}
         />
         <SettingsRow
-          title={t("settings.anonymousMode")}
-          subtitle={t('settings.anonymousModeSubtitle')}
-          isDark={isDark}
-          icon={<EyeOff size={16} />}
-          iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-          iconColor={isDark ? "text-red-400" : "text-red-600"}
-          rightElement={<ToggleSwitch isOn={anonymousMode} onToggle={() => onUpdateSettings({ anonymousMode: !anonymousMode })} isDark={isDark} onIcon={<EyeOff size={14} />} offIcon={<Eye size={14} />} ariaLabel={t('settings.anonymousMode')} />}
-          onClick={() => onUpdateSettings({ anonymousMode: !anonymousMode })}
-        />
-        <SettingsRow
           title={t('settings.deliveryReceipts')}
           subtitle={t('settings.deliveryReceiptsSubtitle')}
           isDark={isDark}
@@ -209,30 +192,13 @@ export const PrivacySection = ({
             onClick={() => onUpdateSettings({ onlineStatus: !onlineStatus })}
           />
         )}
-        {allowForwarding !== undefined && setAllowForwarding && (
+        {forwardAnonymization !== undefined && setForwardAnonymization && (
           <SettingsRow
-            title={t('settings.forwardAllow')}
-            subtitle={t('settings.forwardAllowSubtitle')}
+            title={t('settings.forwardAnonymization')}
+            subtitle={t('settings.forwardAnonymizationSubtitle')}
             isDark={isDark}
-            rightElement={<ToggleSwitch isOn={allowForwarding} onToggle={() => setAllowForwarding(!allowForwarding)} isDark={isDark} onIcon={<Share size={14} />} offIcon={<Share size={14} />} ariaLabel={t('settings.forwardAllow')} />}
-            onClick={() => setAllowForwarding(!allowForwarding)}
-          />
-        )}
-        {allowMetadata !== undefined && setAllowMetadata && (
-          <SettingsRow
-            title={t('settings.allowMetadata')}
-            subtitle={t('settings.allowMetadataSubtitle')}
-            isDark={isDark}
-            rightElement={<ToggleSwitch isOn={allowMetadata} onToggle={() => setAllowMetadata(!allowMetadata)} isDark={isDark} onIcon={<FileText size={14} />} offIcon={<FileText size={14} />} ariaLabel={t('settings.allowMetadata')} />}
-            onClick={() => setAllowMetadata(!allowMetadata)}
-          />
-        )}
-        {forwardCountLimit !== undefined && setForwardCountLimit && (
-          <SettingsRow
-            title={t('settings.forwardLimit')}
-            value={String(forwardCountLimit)}
-            isDark={isDark}
-            onClick={() => setForwardCountLimit(forwardCountLimit === 3 ? 5 : forwardCountLimit === 5 ? 10 : 3)}
+            rightElement={<ToggleSwitch isOn={forwardAnonymization} onToggle={() => setForwardAnonymization(!forwardAnonymization)} isDark={isDark} onIcon={<Share size={14} />} offIcon={<Share size={14} />} ariaLabel={t('settings.forwardAnonymization')} />}
+            onClick={() => setForwardAnonymization(!forwardAnonymization)}
           />
         )}
       </SettingsGroup>

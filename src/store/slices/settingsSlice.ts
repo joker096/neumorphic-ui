@@ -43,9 +43,9 @@ function persistSetting(key: string, value: unknown) {
 
 /** Set of keys `updateSettings` is allowed to change (mitigates S3). */
 const UPDATE_ALLOWLIST = new Set([
-  'currentLanguage', 'soundEnabled', 'ghostViewMode', 'stealthMode',
-  'anonymousMode', 'deliveryReceipts', 'readReceipts', 'typingIndicators',
-  'onlineStatus', 'allowForwarding', 'allowMetadata', 'forwardCountLimit',
+  'soundEnabled', 'ghostViewMode', 'stealthMode',
+  'deliveryReceipts', 'readReceipts', 'typingIndicators',
+  'onlineStatus', 'forwardAnonymization',
   'turnServerUrl', 'turnServerUser', 'turnServerPass',
 ]);
 
@@ -80,7 +80,6 @@ export interface SettingsSlice {
   turnServerUrl: string;
   turnServerUser: string;
   turnServerPass: string;
-  anonymousMode: boolean;
   ghostViewMode: boolean;
   readReceipts: boolean;
   typingIndicators: boolean;
@@ -94,17 +93,8 @@ export interface SettingsSlice {
   setDraftsEnabled: (enabled: boolean) => void;
   offlineMode: boolean;
   setOfflineMode: (enabled: boolean) => void;
-  currentLanguage: string;
   soundEnabled: boolean;
   soundVolume: number;
-  radialDnd: boolean;
-  radialProxy: boolean;
-  radialEnergy: boolean;
-  allowForwarding: boolean;
-  allowMetadata: boolean;
-  forwardCountLimit: number;
-  contactReadReceipts: Record<string, boolean>;
-  toggleContactReadReceipt: (chatId: string | number, enabled: boolean) => void;
   notifications: boolean;
   twoFactor: boolean;
   totpSecret: string | null;
@@ -151,9 +141,6 @@ export interface SettingsSlice {
   priorityContacts: string;
   setSoundEnabled: (enabled: boolean) => void;
   setSoundVolume: (volume: number) => void;
-  setRadialDnd: (dnd: boolean) => void;
-  setRadialProxy: (proxy: boolean) => void;
-  setRadialEnergy: (energy: boolean) => void;
   setAppLock: (hash: string, salt: string) => void;
   setAppLockBiometric: (enabled: boolean, credentialId: string | null) => void;
   setAppLockAutoLock: (onBackground: boolean, idleSeconds: number) => void;
@@ -183,10 +170,6 @@ export interface SettingsSlice {
   setDndFrom: (v: string) => void;
   setDndTo: (v: string) => void;
   setPriorityContacts: (v: string) => void;
-  riskShellActive: boolean;
-  setRiskShellActive: (active: boolean) => void;
-  shareRecording: boolean;
-  setShareRecording: (enabled: boolean) => void;
   saveAudioRecordings: boolean;
   saveVideoRecordings: boolean;
   autoRecordCalls: boolean;
@@ -195,8 +178,6 @@ export interface SettingsSlice {
   setSaveVideoRecordings: (enabled: boolean) => void;
   setAutoRecordCalls: (enabled: boolean) => void;
   setRecordingsRetentionDays: (days: number) => void;
-  adminPausedAt: number | null;
-  setAdminPausedAt: (ts: number | null) => void;
 }
 
 export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
@@ -210,7 +191,6 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   turnServerUrl: isEncrypted(savedPrivacySettings.turnServerUrl) ? '' : (savedPrivacySettings.turnServerUrl ?? ''),
   turnServerUser: isEncrypted(savedPrivacySettings.turnServerUser) ? '' : (savedPrivacySettings.turnServerUser ?? ''),
   turnServerPass: isEncrypted(savedPrivacySettings.turnServerPass) ? '' : (savedPrivacySettings.turnServerPass ?? ''),
-  anonymousMode: savedPrivacySettings.anonymousMode ?? false,
   draftsEnabled: savedPrivacySettings.draftsEnabled ?? true,
   offlineMode: savedPrivacySettings.offlineMode ?? true,
   ghostViewMode: savedPrivacySettings.ghostViewMode ?? false,
@@ -221,23 +201,12 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   onlineStatus: savedPrivacySettings.onlineStatus ?? true,
   isOnline: true,
   forwardAnonymization: savedPrivacySettings.forwardAnonymization ?? false,
-  currentLanguage: savedPrivacySettings.currentLanguage ?? 'en',
   soundEnabled: savedPrivacySettings.soundEnabled ?? true,
   soundVolume: savedPrivacySettings.soundVolume ?? 0.7,
-  radialDnd: false,
-  radialProxy: true,
-  radialEnergy: false,
-  allowForwarding: savedPrivacySettings.allowForwarding ?? true,
-  allowMetadata: savedPrivacySettings.allowMetadata ?? true,
-  forwardCountLimit: savedPrivacySettings.forwardCountLimit ?? 3,
-  contactReadReceipts: {},
-  toggleContactReadReceipt: (chatId, enabled) => set((state: any) => ({
-    contactReadReceipts: { ...state.contactReadReceipts, [String(chatId)]: enabled }
-  })),
   notifications: savedPrivacySettings.notifications ?? true,
   twoFactor: savedPrivacySettings.twoFactor ?? false,
   totpSecret: isEncrypted(savedPrivacySettings.totpSecret) ? null : (savedPrivacySettings.totpSecret ?? null),
-  proxyEnabled: savedPrivacySettings.proxy ?? false,
+  proxyEnabled: savedPrivacySettings.proxyEnabled ?? savedPrivacySettings.proxy ?? false,
   spamFilter: savedPrivacySettings.spamFilter ?? true,
   pwaBanner: savedPrivacySettings.pwaBanner ?? true,
   deadMansSwitch: savedPrivacySettings.deadMansSwitch ?? '6 months',
@@ -407,9 +376,6 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
     set({ priorityContacts: v });
     persistSetting('priorityContacts', v);
   },
-  setRadialDnd: (dnd) => set({ radialDnd: dnd }),
-  setRadialProxy: (proxy) => set({ radialProxy: proxy }),
-  setRadialEnergy: (energy) => set({ radialEnergy: energy }),
   setAppLock: (hash, salt) => {
     set({ appLockHashedPIN: hash, appLockSalt: salt });
     persistSetting('appLockHashedPIN', hash);
@@ -462,11 +428,10 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
       localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(next));
     } catch {}
   },
-  setOnlineStatus: (status) => set({ onlineStatus: status, isOnline: status }),
-  riskShellActive: false,
-  setRiskShellActive: (active) => set({ riskShellActive: active }),
-  shareRecording: false,
-  setShareRecording: (enabled) => set({ shareRecording: enabled }),
+  setOnlineStatus: (status) => {
+    set({ onlineStatus: status, isOnline: status });
+    persistSetting('onlineStatus', status);
+  },
   setDraftsEnabled: (enabled) => { set({ draftsEnabled: enabled }); persistSetting('draftsEnabled', enabled); },
   setOfflineMode: (enabled) => { set({ offlineMode: enabled }); persistSetting('offlineMode', enabled); },
     saveAudioRecordings: savedPrivacySettings.saveAudioRecordings ?? true,
@@ -489,6 +454,4 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
     set({ recordingsRetentionDays: days });
     persistSetting('recordingsRetentionDays', days);
   },
-  adminPausedAt: null,
-  setAdminPausedAt: (ts) => set({ adminPausedAt: ts }),
 });

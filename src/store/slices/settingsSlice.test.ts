@@ -24,7 +24,6 @@ describe('settingsSlice', () => {
     const { createSettingsSlice } = await import('./settingsSlice');
     const { slice } = mk(createSettingsSlice);
     expect(slice.readReceipts).toBe(true);
-    expect(slice.currentLanguage).toBe('en');
     expect(slice.soundVolume).toBe(0.7);
     expect(slice.saveAudioRecordings).toBe(true);
     expect(slice.saveVideoRecordings).toBe(true);
@@ -32,11 +31,11 @@ describe('settingsSlice', () => {
   });
 
   it('loads persisted settings from localStorage', async () => {
-    localStorage.setItem(PRIVACY_KEY, JSON.stringify({ readReceipts: false, currentLanguage: 'ru' }));
+    localStorage.setItem(PRIVACY_KEY, JSON.stringify({ readReceipts: false, soundVolume: 0.3 }));
     const { createSettingsSlice } = await import('./settingsSlice');
     const { slice } = mk(createSettingsSlice);
     expect(slice.readReceipts).toBe(false);
-    expect(slice.currentLanguage).toBe('ru');
+    expect(slice.soundVolume).toBe(0.3);
   });
 
   it('setSoundEnabled updates state and persists', async () => {

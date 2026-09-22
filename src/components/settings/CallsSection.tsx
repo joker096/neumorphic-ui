@@ -1,4 +1,4 @@
-import { Video, Phone, Clock, Trash2, Share2, History, FolderOpen, PhoneIncoming, Mic } from 'lucide-react';
+import { Video, Phone, Clock, Trash2, History, FolderOpen, PhoneIncoming, Mic } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
@@ -25,8 +25,6 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
   const setSaveVideoRecordings = useAppStore((s) => s.setSaveVideoRecordings);
   const autoRecordCalls = useAppStore((s) => s.autoRecordCalls);
   const setAutoRecordCalls = useAppStore((s) => s.setAutoRecordCalls);
-  const shareRecording = useAppStore((s) => s.shareRecording);
-  const setShareRecording = useAppStore((s) => s.setShareRecording);
   const recordingsRetentionDays = useAppStore((s) => s.recordingsRetentionDays);
   const setRecordingsRetentionDays = useAppStore((s) => s.setRecordingsRetentionDays);
 
@@ -116,16 +114,6 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
           isOn={saveVideoRecordings}
           isDark={isDark}
           onToggle={() => setSaveVideoRecordings(!saveVideoRecordings)}
-        />
-        <SettingsToggleRow
-          icon={<Share2 size={16} />}
-          iconBg={isDark ? 'bg-violet-500/10' : 'bg-violet-100'}
-          iconColor={isDark ? 'text-violet-400' : 'text-violet-600'}
-          title={t('settings.shareRecording', 'Share recordings')}
-          subtitle={t('settings.shareRecordingSubtitle', 'Allow sharing saved call recordings')}
-          isOn={shareRecording}
-          isDark={isDark}
-          onToggle={() => setShareRecording(!shareRecording)}
         />
       </SettingsGroup>
 

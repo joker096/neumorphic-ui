@@ -681,8 +681,11 @@
     "liked": "반응함 ❤",
     "unliked": "반응 제거됨",
     "replyPlaceholder": "답글 보내기…",
+    "sendReply": "보내기",
     "repliesOff": "스토리 답글이 꺼져 있습니다",
     "replySent": "답글 전송됨",
+    "saveFailed": "스토리를 저장할 수 없습니다",
+    "characters": "문자 수",
     "share": "공유",
     "shareText": "이 스토리를 확인하세요",
     "verified": "인증됨",
@@ -910,6 +913,7 @@
     "copied": "복사됨!",
     "copyLink": "링크 복사",
     "myStory": "내 스토리",
+    "newStories": "새 스토리",
     "scanQR": "QR 스캔",
     "stories": "P2P 스토리"
   },
@@ -1498,6 +1502,7 @@
     "signalPlaceholder": "Signal V2V ID",
     "sound": "소리",
     "soundOption": "알림 사운드",
+    "soundVolume": "음량",
     "spamActive": "활성",
     "spamDisabled": "비활성",
     "spamFilter": "Spam-Filter",
@@ -1552,12 +1557,16 @@
     "transportModeXorShroud": "settings.transportModeXorShroud",
     "transportOptions": "settings.transportOptions",
     "turnServer": "TURN 서버",
+    "turnServerUserLabel": "TURN 사용자 이름",
+    "turnServerPassLabel": "TURN 비밀번호",
     "turnServerExample": "settings.turnServerExample",
     "twoFactor": "2단계 인증",
     "twoFactorAuth": "settings.twoFactorAuth",
     "twoFactorSubtitle": "로그인에 두 번째 단계 추가",
     "typingIndicators": "입력 표시기",
     "typingIndicatorsSubtitle": "상대방이 입력 중일 때 표시",
+    "uiAnimations": "UI 애니메이션",
+    "uiAnimationsSubtitle": "인터페이스 모션 효과 활성화",
     "useProxy": "프록시 사용",
     "useProxySubtitle": "SOCKS5 / HTTP",
     "userGuide": "사용자 가이드",
@@ -1638,7 +1647,9 @@
     "densityMode": {
       "comfortable": "여유",
       "compact": "컴팩트"
-    }
+    },
+    "forwardAnonymization": "Anonymize forwarded messages",
+    "forwardAnonymizationSubtitle": "Remove your identity from forwarded messages"
   },
   "gifSearch": {
     "searchPlaceholder": "GIF 검색...",

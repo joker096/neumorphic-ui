@@ -25,7 +25,7 @@ const RELAY_BACKENDS: TunnelBackend[] = ['direct', 'cfworker', 'domainfront', 'p
 export const NetworkSection = ({
   isDark = false,
   obfuscationEnabled, setObfuscationEnabled,
-  turnServerUrl, onUpdateSettings, onBack, t,
+  turnServerUrl, turnServerUser, turnServerPass, onUpdateSettings, onBack, t,
   relayBackend, setRelayBackend, autoReconnectEnabled, setAutoReconnectEnabled,
 }: NetworkSectionProps) => {
   const cycleRelayBackend = () => {
@@ -80,6 +80,33 @@ export const NetworkSection = ({
           onChange={(e) => onUpdateSettings({ turnServerUrl: e.target.value })}
           className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-800"}`}
         />
+        <div className="mt-4 flex flex-col gap-3">
+          <label className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            {t('settings.turnServerUserLabel', 'TURN username')}
+          </label>
+          <input
+            aria-label={t('settings.turnServerUserLabel', 'TURN username')}
+            autoComplete="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            value={turnServerUser || ''}
+            onChange={(e) => onUpdateSettings({ turnServerUser: e.target.value })}
+            className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-800"}`}
+          />
+          <label className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            {t('settings.turnServerPassLabel', 'TURN password')}
+          </label>
+          <input
+            aria-label={t('settings.turnServerPassLabel', 'TURN password')}
+            type="password"
+            autoComplete="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            value={turnServerPass || ''}
+            onChange={(e) => onUpdateSettings({ turnServerPass: e.target.value })}
+            className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-800"}`}
+          />
+        </div>
       </SettingsGroup>
     </SubView>
   );

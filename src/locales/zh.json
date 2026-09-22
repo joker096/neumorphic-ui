@@ -681,8 +681,11 @@
     "liked": "已回应 ❤",
     "unliked": "已移除回应",
     "replyPlaceholder": "发送回复…",
+    "sendReply": "发送",
     "repliesOff": "你的故事已关闭回复",
     "replySent": "回复已发送",
+    "saveFailed": "无法保存故事",
+    "characters": "字符数",
     "share": "分享",
     "shareText": "看看这个故事",
     "verified": "已验证",
@@ -910,6 +913,7 @@
     "copied": "已复制！",
     "copyLink": "复制链接",
     "myStory": "我的故事",
+    "newStories": "新故事",
     "scanQR": "扫描二维码",
     "stories": "P2P故事"
   },
@@ -1498,6 +1502,7 @@
     "signalPlaceholder": "Signal V2V ID",
     "sound": "声音",
     "soundOption": "通知声音",
+    "soundVolume": "音量",
     "spamActive": "已启用",
     "spamDisabled": "已禁用",
     "spamFilter": "Spam-Filter",
@@ -1552,12 +1557,16 @@
     "transportModeXorShroud": "settings.transportModeXorShroud",
     "transportOptions": "settings.transportOptions",
     "turnServer": "TURN 服务器",
+    "turnServerUserLabel": "TURN 用户名",
+    "turnServerPassLabel": "TURN 密码",
     "turnServerExample": "settings.turnServerExample",
     "twoFactor": "双因素身份验证",
     "twoFactorAuth": "settings.twoFactorAuth",
     "twoFactorSubtitle": "添加第二步以登录",
     "typingIndicators": "正在输入提示",
     "typingIndicatorsSubtitle": "当对方正在输入时显示",
+    "uiAnimations": "界面动画",
+    "uiAnimationsSubtitle": "启用界面动效",
     "useProxy": "使用代理",
     "useProxySubtitle": "SOCKS5 / HTTP",
     "userGuide": "用户指南",
@@ -1638,7 +1647,9 @@
     "densityMode": {
       "comfortable": "宽松",
       "compact": "紧凑"
-    }
+    },
+    "forwardAnonymization": "Anonymize forwarded messages",
+    "forwardAnonymizationSubtitle": "Remove your identity from forwarded messages"
   },
   "gifSearch": {
     "searchPlaceholder": "搜索 GIF…",

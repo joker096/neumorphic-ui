@@ -54,14 +54,13 @@ describe('App Store', () => {
       expect(state.connectionStatus).toBe('disconnected');
       expect(state.activeCall).toBeNull();
       expect(state.isOnline).toBe(true);
-      expect(state.currentLanguage).toBe('en');
     });
   });
 
   describe('settings updates', () => {
-    it('should update theme via updateSettings', () => {
-      useAppStore.getState().updateSettings({ currentLanguage: 'de' });
-      expect(useAppStore.getState().currentLanguage).toBe('de');
+    it('should update privacy settings via updateSettings', () => {
+      useAppStore.getState().updateSettings({ readReceipts: false });
+      expect(useAppStore.getState().readReceipts).toBe(false);
     });
 
     it('should toggle sound', () => {
@@ -74,11 +73,6 @@ describe('App Store', () => {
       expect(useAppStore.getState().soundVolume).toBe(0.5);
     });
 
-    it('should toggle radial dnd', () => {
-      useAppStore.getState().setRadialDnd(true);
-      expect(useAppStore.getState().radialDnd).toBe(true);
-    });
-
     it('should set app lock', () => {
       useAppStore.getState().setAppLock('hash123', 'salt456');
       expect(useAppStore.getState().appLockHashedPIN).toBe('hash123');
@@ -87,14 +81,14 @@ describe('App Store', () => {
 
     it('should update multiple settings at once', () => {
       useAppStore.getState().updateSettings({
-        currentLanguage: 'fr',
+        readReceipts: false,
         soundEnabled: false,
-        anonymousMode: true,
+        stealthMode: true,
       });
       const state = useAppStore.getState();
-      expect(state.currentLanguage).toBe('fr');
+      expect(state.readReceipts).toBe(false);
       expect(state.soundEnabled).toBe(false);
-      expect(state.anonymousMode).toBe(true);
+      expect(state.stealthMode).toBe(true);
     });
   });
 
@@ -307,14 +301,9 @@ describe('App Store', () => {
 
   describe('persistence and helpers', () => {
     it('should persist privacy settings to localStorage on change', () => {
-      useAppStore.getState().updateSettings({ currentLanguage: 'es' });
+      useAppStore.getState().updateSettings({ stealthMode: true });
       const stored = JSON.parse(localStorage.getItem('mess_privacy_settings_v2') || '{}');
-      expect(stored.currentLanguage).toBe('es');
-    });
-
-    it('should toggle contact read receipts', () => {
-      useAppStore.getState().toggleContactReadReceipt('chat-1', true);
-      expect(useAppStore.getState().contactReadReceipts['chat-1']).toBe(true);
+      expect(stored.stealthMode).toBe(true);
     });
 
     it('should toggle archive chat', () => {
