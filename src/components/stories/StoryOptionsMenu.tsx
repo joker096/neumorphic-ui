@@ -8,11 +8,13 @@ interface StoryOptionsMenuProps {
   open: boolean;
   onClose: () => void;
   isMe: boolean;
+  savable: boolean;
   onCopyLink: () => void;
   onDelete: () => void;
+  onSave: () => void;
 }
 
-export const StoryOptionsMenu: React.FC<StoryOptionsMenuProps> = ({ open, onClose, isMe, onCopyLink, onDelete }) => {
+export const StoryOptionsMenu: React.FC<StoryOptionsMenuProps> = ({ open, onClose, isMe, savable, onCopyLink, onDelete, onSave }) => {
   const { t } = useI18n();
 
   const actions = [
@@ -22,12 +24,16 @@ export const StoryOptionsMenu: React.FC<StoryOptionsMenuProps> = ({ open, onClos
       icon: <Link2 size={18} />,
       onClick: onCopyLink,
     },
-    {
-      key: 'save',
-      label: t('story.saveStory', 'Save story'),
-      icon: <Bookmark size={18} />,
-      onClick: () => toast(t('story.storySaved', 'Story saved'), 'success'),
-    },
+    ...(savable
+      ? [
+          {
+            key: 'save',
+            label: t('story.saveStory', 'Save story'),
+            icon: <Bookmark size={18} />,
+            onClick: onSave,
+          },
+        ]
+      : []),
     isMe
       ? {
           key: 'delete',

@@ -20,6 +20,8 @@ const ORIGINAL_STORIES = MY_STORY_USER.stories.map((s) => ({ ...s }));
 const ALICE = { id: 1, name: 'Alice', color: 'from-rose-400 to-red-500' };
 const ME = { id: 0, name: 'You', color: 'from-[var(--accent)] to-purple-500' };
 const EVE = { id: 5, name: 'Eve', color: 'from-teal-400 to-emerald-400' };
+const BOB = { id: 2, name: 'Bob', color: 'from-blue-400 to-indigo-400' };
+const CHARLIE = { id: 3, name: 'Charlie', color: 'from-amber-400 to-orange-400' };
 
 const barWidths = () =>
   Array.from(document.querySelectorAll('div[class*="bg-white/30"] > div')).map((el) => (el as HTMLElement).style.width);
@@ -48,6 +50,19 @@ describe('StoryViewer', () => {
     expect(screen.getByRole('dialog', { name: 'Alice' })).toBeInTheDocument();
     expect(screen.getByText('Alice')).toBeInTheDocument();
     expect(screen.getByText('14m')).toBeInTheDocument();
+  });
+
+  it('follows a changed activeUser: clicking another user shows their stories (stale userIndex regression)', () => {
+    const { rerender } = render(<StoryViewer activeUser={ME} onClose={vi.fn()} />);
+    expect(screen.getByRole('dialog', { name: 'You' })).toBeInTheDocument();
+
+    rerender(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
+    expect(screen.getByRole('dialog', { name: 'Alice' })).toBeInTheDocument();
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+
+    rerender(<StoryViewer activeUser={EVE} onClose={vi.fn()} />);
+    expect(screen.getByRole('dialog', { name: 'Eve' })).toBeInTheDocument();
+    expect(screen.getByText('Eve')).toBeInTheDocument();
   });
 
   it('shows story views label by default', () => {
@@ -300,5 +315,47 @@ describe('StoryViewer', () => {
     const dialog = screen.getByRole('dialog', { name: 'Alice' });
     expect(container).not.toContainElement(dialog);
     expect(document.body).toContainElement(dialog);
+  });
+
+  it('marks opened stories as seen', () => {
+    render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
+    const seen = JSON.parse(localStorage.getItem('nm_stories_seen_v1') || '[]');
+    expect(seen).toContain('1:11');
+    expect(seen).toContain('1:12');
+  });
+
+  it('does not mark anything when the viewer is closed (activeUser null)', () => {
+    render(<StoryViewer activeUser={null} onClose={vi.fn()} />);
+    expect(localStorage.getItem('nm_stories_seen_v1')).toBeNull();
+  });
+
+  it('arrow right advances to the next user on their last story', () => {
+    render(<StoryViewer activeUser={BOB} onClose={vi.fn()} />);
+    expect(screen.getByRole('dialog', { name: 'Bob' })).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.getByRole('dialog', { name: 'Charlie' })).toBeInTheDocument();
+  });
+
+  it('arrow left goes back to the previous user last story', () => {
+    render(<StoryViewer activeUser={CHARLIE} onClose={vi.fn()} />);
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(screen.getByRole('dialog', { name: 'Bob' })).toBeInTheDocument();
+  });
+
+  it('Escape closes the viewer', () => {
+    const onClose = vi.fn();
+    render(<StoryViewer activeUser={ALICE} onClose={onClose} />);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not hijack typing inside the reply input', () => {
+    const onClose = vi.fn();
+    render(<StoryViewer activeUser={ALICE} onClose={onClose} />);
+    const input = screen.getByLabelText('Send a reply…');
+    fireEvent.keyDown(input, { key: 'Escape' });
+    fireEvent.keyDown(input, { key: ' ' });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog', { name: 'Alice' })).toBeInTheDocument();
   });
 });

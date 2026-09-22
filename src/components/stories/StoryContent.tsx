@@ -107,7 +107,7 @@ export const StoryContent: React.FC<StoryContentProps> = ({
         </div>
       )}
       {story.caption && (
-        <div className="relative z-10 px-6 text-center text-white text-lg font-medium drop-shadow-lg max-w-[80%] break-words">
+        <div className="absolute bottom-36 left-0 right-0 z-10 px-6 text-center text-white text-lg font-medium drop-shadow-lg break-words max-h-40 overflow-hidden">
           {story.caption}
         </div>
       )}

@@ -7,6 +7,8 @@ import { toast } from '../ui/Toast';
 import { STORY_DURATION_MS, STORY_PROGRESS_TICK_MS, STORY_MINUTES_DIVISOR } from '../../constants/storyConstants';
 import { storyShareLink } from '../../config/app';
 import { STORY_USERS, MY_STORY_USER, getVisibleStories, deleteMyStory, type StoryUser } from './storiesData';
+import { markStoriesSeen } from '../../lib/stories/storySeen';
+import { saveStoryMedia, storyFileName } from '../../lib/stories/storySave';
 import { StoryProgressBar } from './StoryProgressBar';
 import { StoryHeader } from './StoryHeader';
 import { StoryContent } from './StoryContent';
@@ -42,12 +44,14 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
   const [shareOpen, setShareOpen] = useState(false);
   const [forwardPicker, setForwardPicker] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const prevUserIdRef = useRef<number | string | undefined>(undefined);
 
   const user = allUsers[userIndex] ?? MY_STORY_USER;
   const stories = getVisibleStories(user);
   const story = stories[storyIndex] ?? stories[0];
 
   const shareUrl = story ? storyShareLink(user.id, story.id) : '';
+  const savable = !!story?.image || !!story?.video;
 
   const copyLink = async () => {
     if (!shareUrl) return;
@@ -116,6 +120,14 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
     toast(t('story.storyDeleted', 'Story deleted'), 'success');
   };
 
+  const handleSave = () => {
+    if (!story) return;
+    const url = story.image || story.video;
+    void saveStoryMedia(url, storyFileName(user.name, story.id)).then((ok) => {
+      toast(ok ? t('story.storySaved', 'Story saved') : t('story.saveFailed', 'Could not save story'), ok ? 'success' : 'error');
+    });
+  };
+
   const resetStory = useCallback((u: number, s: number) => {
     setUserIndex(u);
     setStoryIndex(s);
@@ -123,6 +135,22 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
     setReply('');
     setLiked(false);
   }, []);
+
+  useEffect(() => {
+    const id = activeUser?.id;
+    if (id === undefined || id === prevUserIdRef.current) return;
+    prevUserIdRef.current = id;
+    const idx = [MY_STORY_USER, ...STORY_USERS].findIndex((u) => u.id === id);
+    resetStory(idx === -1 ? 0 : idx, 0);
+  }, [activeUser?.id, resetStory]);
+
+  const activeId = activeUser?.id;
+
+  useEffect(() => {
+    if (activeId === undefined) return;
+    const target = [MY_STORY_USER, ...STORY_USERS].find((u) => u.id === activeId);
+    if (target) markStoriesSeen(target);
+  }, [activeId]);
 
   const goNext = useCallback(() => {
     if (storyIndex < stories.length - 1) {
@@ -144,6 +172,29 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
       setProgress(0);
     }
   }, [storyIndex, userIndex, resetStory, allUsers]);
+
+  useEffect(() => {
+    if (activeId === undefined) return;
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goPrev();
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        setPaused((p) => !p);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeId, onClose, goNext, goPrev]);
 
   useEffect(() => {
     if (paused) return;
@@ -266,8 +317,10 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
           isMe={!!user.isMe}
+          savable={savable}
           onCopyLink={copyLink}
           onDelete={handleDelete}
+          onSave={handleSave}
         />
 
         <StoryShareMenu

@@ -14,8 +14,10 @@ const makeProps = (overrides: Record<string, unknown> = {}) => ({
   open: true,
   onClose: vi.fn(),
   isMe: false,
+  savable: false,
   onCopyLink: vi.fn(),
   onDelete: vi.fn(),
+  onSave: vi.fn(),
   ...overrides,
 });
 
@@ -34,8 +36,13 @@ describe('StoryOptionsMenu', () => {
     expect(screen.getByRole('dialog', { name: 'Story options' })).toBeInTheDocument();
   });
 
-  it('shows copy, save and report for other users', () => {
-    render(<StoryOptionsMenu {...makeProps({ isMe: false })} />);
+  it('hides Save for gradient-only (unsavable) stories', () => {
+    render(<StoryOptionsMenu {...makeProps({ savable: false })} />);
+    expect(screen.queryByRole('button', { name: 'Save story' })).toBeNull();
+  });
+
+  it('shows copy, save and report for other users on a savable story', () => {
+    render(<StoryOptionsMenu {...makeProps({ isMe: false, savable: true })} />);
     expect(screen.getByRole('button', { name: 'Copy link' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save story' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Report' })).toBeInTheDocument();
@@ -43,7 +50,7 @@ describe('StoryOptionsMenu', () => {
   });
 
   it('shows delete instead of report for own story', () => {
-    render(<StoryOptionsMenu {...makeProps({ isMe: true })} />);
+    render(<StoryOptionsMenu {...makeProps({ isMe: true, savable: true })} />);
     expect(screen.getByRole('button', { name: 'Delete story' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Report' })).toBeNull();
   });
@@ -57,15 +64,16 @@ describe('StoryOptionsMenu', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('save shows success toast and closes', () => {
-    render(<StoryOptionsMenu {...makeProps()} />);
+  it('save calls onSave for savable stories', () => {
+    const onSave = vi.fn();
+    render(<StoryOptionsMenu {...makeProps({ savable: true, onSave })} />);
     fireEvent.click(screen.getByRole('button', { name: 'Save story' }));
-    expect(toast).toHaveBeenCalledWith('Story saved', 'success');
+    expect(onSave).toHaveBeenCalledTimes(1);
   });
 
   it('delete calls onDelete for own story', () => {
     const onDelete = vi.fn();
-    render(<StoryOptionsMenu {...makeProps({ isMe: true, onDelete })} />);
+    render(<StoryOptionsMenu {...makeProps({ isMe: true, savable: true, onDelete })} />);
     fireEvent.click(screen.getByRole('button', { name: 'Delete story' }));
     expect(onDelete).toHaveBeenCalledTimes(1);
   });

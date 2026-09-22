@@ -70,7 +70,6 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
       media?.kind === 'video' ? media.url : undefined,
     );
     toast(t('story.published', 'Story published'), 'success');
-    if (media) URL.revokeObjectURL(media.url);
     onClose();
   };
 
@@ -126,6 +125,9 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
               maxLength={STORY_CAPTION_MAX_LENGTH}
               className="absolute inset-0 w-full h-full bg-transparent text-white text-center font-medium p-6 resize-none outline-none placeholder-white/70"
             />
+            <span className="absolute bottom-2 right-3 z-20 text-[11px] text-white/60 bg-black/35 rounded-full px-2 py-0.5" aria-label={t('story.characters')}>
+              {caption.length}/{STORY_CAPTION_MAX_LENGTH}
+            </span>
           </div>
 
           <div className="mt-4">

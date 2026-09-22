@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Share2, MoreVertical } from 'lucide-react';
+import { Heart, Send, Share2, MoreVertical } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { toast } from '../ui/Toast';
 import { STORY_REPLY_MAX_LENGTH } from '../../constants/storyConstants';
@@ -56,6 +56,17 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
           className={`w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 transition-colors active:scale-95 ${liked ? 'bg-rose-500 text-white' : 'bg-white/15 text-white hover:bg-white/25'}`}
         >
           <Heart size={18} fill={liked ? 'currentColor' : 'none'} aria-hidden="true" />
+        </button>
+      )}
+      {!user.isMe && (
+        <button
+          type="button"
+          onClick={onSendReply}
+          disabled={!reply.trim()}
+          aria-label={t('story.sendReply', 'Send')}
+          className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-[var(--accent)] text-[var(--button-primary-text)] transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Send size={18} aria-hidden="true" />
         </button>
       )}
       <button
