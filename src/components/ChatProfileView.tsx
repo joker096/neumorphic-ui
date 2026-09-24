@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, MessageCircle, Phone, Video, Users, Bell, BellOff, Image as ImageIcon, FileText,
-  Link as LinkIcon, Mic, Shield, Crown, Flag, UserX, LogOut, Volume2, VolumeX, Info,
+  Link as LinkIcon, Mic, Shield, Crown, UserX, LogOut, Volume2, VolumeX, Info,
   Bot as BotIcon, AtSign, Globe, Lock, Trash2, Pin, UserPlus, BadgeCheck,
 } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
@@ -377,13 +377,6 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   <LogOut size={18} /> {t('profile.leave', 'Leave')}
                 </button>
               )}
-              <button
-                onClick={() => { toast(t('profile.reported', 'Report submitted'), 'info'); }}
-                aria-label={t('profile.report', 'Report')}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-amber-500 bg-amber-500/10 font-medium min-w-11 min-h-11 active:scale-95 transition-transform"
-              >
-                <Flag size={18} /> <span className="hidden sm:inline">{t('profile.report', 'Report')}</span>
-              </button>
               {canDeleteGroup && (
                 <button
                   onClick={() => setDeleteOpen(true)}

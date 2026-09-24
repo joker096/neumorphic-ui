@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link2, Bookmark, Trash2, Flag } from 'lucide-react';
+import { Link2, Bookmark, Trash2 } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
-import { toast } from '../ui/Toast';
 import { MessageContextMenu } from '../chat-preview/MessageContextMenu';
 
 interface StoryOptionsMenuProps {
@@ -34,21 +33,17 @@ export const StoryOptionsMenu: React.FC<StoryOptionsMenuProps> = ({ open, onClos
           },
         ]
       : []),
-    isMe
-      ? {
-          key: 'delete',
-          label: t('story.deleteStory', 'Delete story'),
-          icon: <Trash2 size={18} />,
-          danger: true,
-          onClick: onDelete,
-        }
-      : {
-          key: 'report',
-          label: t('story.reportStory', 'Report'),
-          icon: <Flag size={18} />,
-          danger: true,
-          onClick: () => toast(t('story.reported', 'Reported'), 'success'),
-        },
+    ...(isMe
+      ? [
+          {
+            key: 'delete',
+            label: t('story.deleteStory', 'Delete story'),
+            icon: <Trash2 size={18} />,
+            danger: true,
+            onClick: onDelete,
+          },
+        ]
+      : []),
   ];
 
   return (

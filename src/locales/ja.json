@@ -369,7 +369,10 @@
     "chatName": "チャット {{id}}",
     "dndBlockedMessage": "メッセージはブロックされました - DNDが有効です。優先連絡先は許可されます。",
     "dndBlockedSticker": "スタンプはブロックされました - DNDが有効です。優先連絡先は許可されます。",
-    "dndBlockedVoice": "音声メッセージはブロックされました - DNDが有効です。優先連絡先は許可されます。"
+    "dndBlockedVoice": "音声メッセージはブロックされました - DNDが有効です。優先連絡先は許可されます。",
+    "edit": "Edit",
+    "editMessage": "Edit message",
+    "edited": "edited"
   },
   "time": {
     "justNow": "たった今",

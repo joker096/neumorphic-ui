@@ -369,7 +369,10 @@
     "chatName": "Chat {{id}}",
     "dndBlockedMessage": "Message blocked - DND is active. Priority contacts can bypass.",
     "dndBlockedSticker": "Sticker blocked - DND is active. Priority contacts can bypass.",
-    "dndBlockedVoice": "Voice message blocked - DND is active. Priority contacts can bypass."
+    "dndBlockedVoice": "Voice message blocked - DND is active. Priority contacts can bypass.",
+    "edit": "Edit",
+    "editMessage": "Edit message",
+    "edited": "edited"
   },
   "time": {
     "justNow": "Just now",

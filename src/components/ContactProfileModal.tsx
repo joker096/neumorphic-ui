@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Phone, Video, MessageSquare, Edit, Trash2, Ban, Mail, Send, Star, StarOff, MoreVertical, ShieldCheck, ShieldOff, Camera, Bell, BellOff, Flag } from 'lucide-react';
+import { X, Phone, Video, MessageSquare, Edit, Trash2, Ban, Mail, Send, Star, StarOff, MoreVertical, ShieldCheck, ShieldOff, Camera, Bell, BellOff } from 'lucide-react';
 import { useAppStore } from '../store';
 import { useI18n } from '../lib/i18n';
 import { ConfirmDialog } from './ui/ConfirmDialog';
-import { toast } from './ui/Toast';
 import { SafetyNumberModal } from './SafetyNumberModal';
 import type { ContactField } from '../types/contact';
 import { CONTACT_FALLBACK_GRADIENT, CONTACT_MAX_DAYS } from '../constants/contactConstants';
@@ -225,13 +224,6 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                             <ShieldOff size={16} />
                           </button>
                         )}
-                        <button
-                          onClick={() => { toast(t('profile.reported', 'Report submitted'), 'info'); setShowActions(false); }}
-                          className="w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-amber-500/10 hover:bg-amber-500/20 text-amber-500"
-                          aria-label={t('profile.report', 'Report')}
-                        >
-                          <Flag size={16} />
-                        </button>
                       </motion.div>
                     )}
                   </AnimatePresence>

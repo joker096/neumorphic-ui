@@ -1,5 +1,5 @@
 import {
-  Check, Reply, Copy, Languages, Bookmark, Pin, Forward, Trash2, Flag,
+  Check, Reply, Copy, Languages, Bookmark, Pin, Forward, Trash2, Pencil,
 } from "lucide-react";
 import { toast } from "../ui/Toast";
 import { useAppStore } from "../../store";
@@ -18,11 +18,12 @@ interface BuildMessageMenuArgs {
   onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
   onTranslate: () => void;
+  onEdit?: (msg: any) => void;
 }
 
 export function buildMessageMenuActions({
   msg, isMe, t, isChannel, chat, chatSavedMessages,
-  onSelect, onReply, onToggleSavedMessage, onForward, onDelete, onTranslate,
+  onSelect, onReply, onToggleSavedMessage, onForward, onDelete, onTranslate, onEdit,
 }: BuildMessageMenuArgs): MessageContextAction[] {
   const isPinned = useAppStore.getState().pinnedMessageList.some(
     (p: any) => p.id === msg.id && p.chatId === chat.id,
@@ -92,6 +93,14 @@ export function buildMessageMenuActions({
       icon: <Forward size={16} />,
       onClick: () => (onForward ? onForward(msg) : toast(t("chat.forwardUnavailable", "Forward not available"))),
     },
+    ...(isMe && typeof msg.text === "string" && msg.text && onEdit
+      ? [{
+          key: "edit",
+          label: t("chat.edit", "Edit"),
+          icon: <Pencil size={16} />,
+          onClick: () => onEdit(msg),
+        }]
+      : []),
     ...(isMe
       ? [{
           key: "delete",
@@ -100,12 +109,6 @@ export function buildMessageMenuActions({
           danger: true,
           onClick: () => (onDelete ? onDelete(msg) : toast(t("chat.deleteUnavailable", "Delete not available"))),
         }]
-      : [{
-          key: "report",
-          label: t("chat.report", "Report"),
-          icon: <Flag size={16} />,
-          danger: true,
-          onClick: () => toast(t("chat.reported", "Reported")),
-        }]),
+      : []),
   ];
 }

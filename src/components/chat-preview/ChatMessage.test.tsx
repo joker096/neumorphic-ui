@@ -13,6 +13,11 @@ const h = vi.hoisted(() => ({
   motionProps: null as any,
   detectLang: vi.fn(),
   translate: vi.fn(),
+  executeEditMessage: vi.fn(),
+}));
+
+vi.mock('../../hooks/useMessageActions', () => ({
+  executeEditMessage: h.executeEditMessage,
 }));
 
 vi.mock('motion/react', () => ({
@@ -372,5 +377,35 @@ describe('ChatMessage', () => {
         (el) => (el.className.includes('absolute left-0') || el.className.includes('absolute right-0')) && el.className.includes('w-1.5'),
       ),
     ).toBe(false);
+  });
+
+  it('own text message exposes an edit action that starts the inline editor', () => {
+    render(<ChatMessage {...baseProps({ isMe: true })} />);
+    expect(typeof h.menuArgs.onEdit).toBe('function');
+    act(() => { h.menuArgs.onEdit(); });
+    expect(screen.getByRole('textbox')).toHaveValue('hello');
+  });
+
+  it('saving an edited message calls executeEditMessage with chat context', () => {
+    render(<ChatMessage {...baseProps({ isMe: true })} />);
+    act(() => { h.menuArgs.onEdit(); });
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'revised' } });
+    fireEvent.click(screen.getByText('Save'));
+    expect(h.executeEditMessage).toHaveBeenCalledWith(1, 'revised', { id: 'c1' });
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('cancelling edit closes editor without persisting', () => {
+    render(<ChatMessage {...baseProps({ isMe: true })} />);
+    act(() => { h.menuArgs.onEdit(); });
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'unwanted' } });
+    fireEvent.click(screen.getByText('Cancel'));
+    expect(h.executeEditMessage).not.toHaveBeenCalled();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('foreign messages expose no edit action', () => {
+    render(<ChatMessage {...baseProps({ isMe: false })} />);
+    expect(h.menuArgs.onEdit).toBeUndefined();
   });
 });

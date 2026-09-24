@@ -20,19 +20,11 @@ const defaultProps = {
 };
 
 describe('DevicesSection', () => {
-  it('renders this device and empty other-devices state', () => {
+  it('renders this device without mock other-devices section', () => {
     render(<DevicesSection {...defaultProps} />);
     expect(screen.getAllByText('This device').length).toBeGreaterThan(1);
-    expect(screen.getByText('No other devices')).toBeInTheDocument();
-    expect(screen.getByText('Only this device is connected')).toBeInTheDocument();
-  });
-
-  it('opens terminate-all confirm modal (honest: no other sessions)', () => {
-    render(<DevicesSection {...defaultProps} />);
-    fireEvent.click(screen.getByText('Terminate all other sessions'));
-    expect(screen.getByText('End all other sessions? They will lose access.')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Terminate all' }));
-    expect(toast.info).toHaveBeenCalledWith('No other active sessions');
+    expect(screen.queryByText('No other devices')).not.toBeInTheDocument();
+    expect(screen.queryByText('Terminate all other sessions')).not.toBeInTheDocument();
   });
 
   it('terminates current session via confirm modal', async () => {

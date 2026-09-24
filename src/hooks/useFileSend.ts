@@ -66,7 +66,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
     }
   }, [chat, setChats, setActiveChat, onUpdateChat]);
 
-  const sendFile = useCallback(async (file: File, opts: { silent?: boolean } = {}) => {
+  const sendFile = useCallback(async (file: File, opts: { silent?: boolean; videoNote?: boolean } = {}) => {
     if (!chat || !file || sendingRef.current) return;
     const premium = useAppStore.getState().premiumEntitlement?.premium ?? false;
     if (file.size > getAttachmentLimit(premium)) {
@@ -97,6 +97,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       fileName: file.name,
       fileSize: file.size,
       fileTransferId: transferId,
+      videoNote: opts.videoNote ?? false,
       ts: Date.now(),
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       status: online ? "sent" : "queued",
@@ -122,6 +123,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
         senderPeerId: p2pNetwork.getPeerId(),
         senderName,
         receivedChunks: 0,
+        videoNote: opts.videoNote,
       };
       await saveTransferMeta(meta);
       for await (const chunk of sliceFileChunks(file)) {

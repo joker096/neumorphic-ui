@@ -5,11 +5,6 @@ import '@testing-library/jest-dom/vitest';
 import { act } from 'react';
 import { ContactProfileModal } from './ContactProfileModal';
 import { useAppStore } from '../store';
-import { toast } from './ui/Toast';
-
-vi.mock('./ui/Toast', () => ({
-  toast: vi.fn(),
-}));
 
 vi.mock('../lib/i18n', () => ({
   useI18n: () => ({
@@ -407,21 +402,6 @@ describe('ContactProfileModal', () => {
       await act(async () => { await new Promise(r => setTimeout(r, 100)); });
 
       expect(document.querySelector('[class*="lucide-ban"]')).toBeNull();
-    });
-  });
-
-  describe('report', () => {
-    it('submits a report when Report is clicked from the More menu', async () => {
-      render(<ContactProfileModal {...defaultProps} />);
-
-      const moreBtn = screen.getByRole('button', { name: /moreActions|More actions/ });
-      fireEvent.click(moreBtn!);
-      await act(async () => { await new Promise(r => setTimeout(r, 100)); });
-
-      const reportBtn = screen.getByRole('button', { name: 'profile.report' });
-      fireEvent.click(reportBtn);
-
-      expect(toast).toHaveBeenCalledWith('profile.reported', 'info');
     });
   });
 

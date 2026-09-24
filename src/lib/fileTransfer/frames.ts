@@ -32,6 +32,8 @@ export interface TransferMeta {
   sha256: string;
   senderPeerId: string;
   senderName: string;
+  /** Round video-note bubble marker (Telegram-parity video notes). */
+  videoNote?: boolean;
 }
 
 export type FtrFrame =

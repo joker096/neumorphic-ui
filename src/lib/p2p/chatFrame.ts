@@ -45,6 +45,40 @@ export interface ChatDeliveryAckFrame {
   timestamp: number;
 }
 
+export interface ChatEditFrame {
+  type: 'chat-edit';
+  seq: number;
+  messageId: string;
+  chatId: string;
+  chatName: string;
+  senderName: string;
+  text: string;
+  timestamp: number;
+}
+
+export function encodeChatEdit(frame: ChatEditFrame): string {
+  return MSG_MAGIC + JSON.stringify(frame);
+}
+
+/** Parse an edit frame; null when the payload is not a valid edit frame. */
+export function parseChatEdit(raw: string): ChatEditFrame | null {
+  if (!raw.startsWith(MSG_MAGIC)) return null;
+  try {
+    const parsed = JSON.parse(raw.slice(MSG_MAGIC.length)) as ChatEditFrame;
+    return parsed.type === 'chat-edit' && isSeq(parsed.seq)
+      && typeof parsed.messageId === 'string'
+      && typeof parsed.chatId === 'string'
+      && typeof parsed.chatName === 'string'
+      && typeof parsed.senderName === 'string'
+      && typeof parsed.text === 'string'
+      && isNonNegativeInt(parsed.timestamp)
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export interface ChatReadReceiptFrame {
   type: 'chat-read';
   seq: number;

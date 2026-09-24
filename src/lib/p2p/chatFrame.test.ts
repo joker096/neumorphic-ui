@@ -9,6 +9,8 @@ import {
   parseChatDeliveryAck,
   encodeChatReadReceipt,
   parseChatReadReceipt,
+  encodeChatEdit,
+  parseChatEdit,
   encodeChatAudioMeta,
   parseChatAudioMeta,
   encodeChatAudioChunk,
@@ -76,6 +78,30 @@ describe('chat read receipt frames', () => {
   it('rejects legacy receipts without seq', () => {
     const frame = { type: 'chat-read', messageId: '42', chatId: 'dm-1', timestamp: 6 };
     expect(parseChatReadReceipt(MSG_MAGIC + JSON.stringify(frame))).toBeNull();
+  });
+});
+
+describe('chat edit frames', () => {
+  it('round-trips a chat-edit frame', () => {
+    const frame = {
+      type: 'chat-edit' as const,
+      seq: 7,
+      messageId: 'm-1',
+      chatId: 'dm-1',
+      chatName: 'Bob',
+      senderName: 'Bob',
+      text: 'edited text',
+      timestamp: 12,
+    };
+    expect(parseChatEdit(encodeChatEdit(frame))).toEqual(frame);
+  });
+
+  it('rejects legacy edits without seq and non-edit payloads', () => {
+    const frame = { type: 'chat-edit', messageId: 'm-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', text: 'x', timestamp: 12 };
+    expect(parseChatEdit(MSG_MAGIC + JSON.stringify(frame))).toBeNull();
+
+    const text = { type: 'chat-text' as const, seq: 7, messageId: 'm-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', text: 'x', silent: false, timestamp: 12 };
+    expect(parseChatEdit(encodeChatText(text))).toBeNull();
   });
 });
 

@@ -21,6 +21,7 @@ import { PaymentChatBubble } from "../payments/PaymentChatBubble";
 import { isMorseCode, decodeMorse } from "../MorseDecoder";
 import { Avatar } from "../ui/Avatar";
 import { useAppStore } from "../../store";
+import { executeEditMessage } from "../../hooks/useMessageActions";
 
 interface ChatMessageProps {
   msg: any;
@@ -72,6 +73,8 @@ function ChatMessageImpl({
   onRetry,
 }: ChatMessageProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
+  const [draftText, setDraftText] = React.useState("");
   const { t } = useI18n();
   const { translate } = useServices();
   const contactAvatars = useAppStore((s) => s.contactAvatars);
@@ -145,6 +148,19 @@ function ChatMessageImpl({
     } finally {
       setTranslating(false);
     }
+  };
+
+  const startEditing = () => {
+    setDraftText(typeof msg.text === "string" ? msg.text : "");
+    setEditing(true);
+    setMenuOpen(false);
+  };
+
+  const commitEdit = () => {
+    const trimmed = draftText.trim();
+    if (trimmed && trimmed !== msg.text) executeEditMessage(msg.id, trimmed, chat);
+    setEditing(false);
+    setDraftText("");
   };
 
   if (msg._isDateSeparator) {
@@ -225,9 +241,48 @@ function ChatMessageImpl({
           {msg.type === "payment" && <PaymentChatBubble msg={msg} isDark={isDark} />}
           {msg.replyTo && <ReplyQuote replyTo={msg.replyTo} isDark={isDark} />}
           {msg.text && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && (
+            editing ? (
+              <div className="pb-1 flex flex-col gap-1.5 min-w-[220px]">
+                <textarea
+                  value={draftText}
+                  onChange={(e) => setDraftText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") { setEditing(false); setDraftText(""); }
+                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); commitEdit(); }
+                  }}
+                  autoFocus
+                  rows={2}
+                  className="glass-input w-full resize-none rounded-lg px-2 py-1.5 text-[14px] leading-relaxed outline-none"
+                  aria-label={t("chat.editMessage", "Edit message")}
+                />
+                <div className="flex gap-1.5">
+                  <button
+                    type="button"
+                    onClick={commitEdit}
+                    disabled={!draftText.trim() || draftText.trim() === msg.text}
+                    className="min-h-11 px-3 rounded-lg text-xs font-bold bg-[var(--accent)] text-[var(--button-primary-text)] hover:brightness-110 active:scale-95 transition-all"
+                  >
+                    {t("chat.save", "Save")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setEditing(false); setDraftText(""); }}
+                    className="min-h-11 px-3 rounded-lg text-xs font-bold bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:brightness-110 active:scale-95 transition-all"
+                  >
+                    {t("chat.cancel", "Cancel")}
+                  </button>
+                </div>
+              </div>
+            ) : (
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
+              {msg.edited && (
+                <span className={`ml-1 align-middle text-[10px] uppercase tracking-wide ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+                  {t("chat.edited", "edited")}
+                </span>
+              )}
             </span>
+            )
           )}
           {isMorse && (
             <button
@@ -343,6 +398,7 @@ function ChatMessageImpl({
           onForward,
           onDelete,
           onTranslate: handleTranslate,
+          onEdit: isMe ? startEditing : undefined,
         })}
       />
     </motion.div>

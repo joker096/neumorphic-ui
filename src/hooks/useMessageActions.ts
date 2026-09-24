@@ -6,12 +6,47 @@ import { TOAST_DND_DURATION_MS } from "../constants/chatConstants";
 import { SELF_DESTRUCT_MS } from "../constants/time";
 import { useI18n } from "../lib/i18n";
 import { getPendingMessages, markMessageSent, queueMessage, pruneExpiredQueuedMessages } from "../lib/messageQueue";
-import { encodeChatAudioChunk, encodeChatAudioEnd, encodeChatAudioMeta, encodeChatText, nextFrameSeq, parseDurationStr, VOICE_P2P_CHUNK_SIZE, VOICE_P2P_MAX_CHUNKS, VOICE_P2P_MAX_SIZE } from "../lib/p2p/chatFrame";
+import { encodeChatAudioChunk, encodeChatAudioEnd, encodeChatAudioMeta, encodeChatEdit, encodeChatText, nextFrameSeq, parseDurationStr, VOICE_P2P_CHUNK_SIZE, VOICE_P2P_MAX_CHUNKS, VOICE_P2P_MAX_SIZE } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
 import { getVoiceBlob, persistVoiceBlob } from "../lib/voiceStore";
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { bytesToBase64 } from "../lib/fileTransfer/frames";
 import { useAppStore } from "../store";
+
+export function executeEditMessage(messageId: number, newText: string, chatContext: any = null) {
+  const trimmed = newText.trim();
+  if (!trimmed) return;
+
+  const { text: parsedText, mentions } = parseMentions(trimmed);
+  const patch = (m: any) => m.id === messageId
+    ? { ...m, text: parsedText, edited: true, mentions: mentions.length > 0 ? mentions : undefined }
+    : m;
+
+  const st = useAppStore.getState();
+  const setChats = st.setChats;
+
+  if (typeof setChats === "function") {
+    setChats((prevChats: any[]) => (prevChats || []).map((c: any) =>
+      c.id === (chatContext ? chatContext.id : undefined)
+        ? { ...c, history: (c.history || []).map(patch) }
+        : c,
+    ));
+  }
+
+  const sender = st.userProfile;
+  const frame = encodeChatEdit({
+    type: "chat-edit",
+    seq: nextFrameSeq(),
+    messageId: String(messageId),
+    chatId: String(chatContext ? chatContext.id : ""),
+    chatName: String(chatContext?.name || ""),
+    senderName: sender?.name || sender?.username || "User",
+    text: parsedText,
+    timestamp: Date.now(),
+  });
+  void p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chatContext?.id) ?? p2pNetwork.peerForChatName(chatContext?.name), frame)
+    .catch(() => {});
+}
 
 export function useMessageActions(
   activeChat: any,
@@ -290,6 +325,10 @@ export function useMessageActions(
     };
   }, [sendTextOverP2P, sendVoiceOverP2P, updateMessageStatus]);
 
+  const editMessage = useCallback((messageId: number, newText: string) => {
+    executeEditMessage(messageId, newText, activeChat);
+  }, [activeChat]);
+
   const toggleSavedMessage = useCallback((chatContext: any, msg: any) => {
     if (!chatContext || !msg) return;
     setSavedMessages((prev: any[]) => {
@@ -318,5 +357,6 @@ export function useMessageActions(
     handleSendMessage,
     toggleSavedMessage,
     updateMessageStatus,
+    editMessage,
   };
 }

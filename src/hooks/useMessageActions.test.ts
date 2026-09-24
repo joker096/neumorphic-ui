@@ -4,6 +4,20 @@ import { useMessageActions } from './useMessageActions';
 import { queueMessage } from '../lib/messageQueue';
 import { persistVoiceBlob, getVoiceBlob } from '../lib/voiceStore';
 
+const storeMocks = vi.hoisted(() => ({
+  setChats: vi.fn(),
+  setActiveChat: vi.fn(),
+}));
+
+vi.mock('../store', () => ({
+  useAppStore: { getState: () => ({
+    setChats: storeMocks.setChats,
+    setActiveChat: storeMocks.setActiveChat,
+    userProfile: undefined,
+    selfDestructDefault: undefined,
+  }) },
+}));
+
 vi.mock('../lib/voiceStore', () => ({
   persistVoiceBlob: vi.fn().mockResolvedValue(undefined),
   getVoiceBlob: vi.fn().mockResolvedValue(undefined),
@@ -225,5 +239,41 @@ describe('useMessageActions (offline-first queue)', () => {
     expect(vi.mocked(retryMessage)).not.toHaveBeenCalled();
     expect(vi.mocked(removeQueuedMessage)).not.toHaveBeenCalled();
     expect(state.chats[0].history[0].status).toBe('queued');
+  });
+
+  it('edits a message locally and sends a chat-edit frame over P2P', async () => {
+    const { p2pNetwork } = await import('../lib/p2p/network');
+    const initial = {
+      id: 'dm-1',
+      name: 'Bob',
+      history: [{ id: 42, sender: 'me', text: 'original', time: '10:00', status: 'sent' }],
+    };
+    const { result } = setup(initial, '');
+
+    let chats: any[] = [initial];
+    storeMocks.setChats.mockImplementation((updater: any) => { chats = updater(chats); });
+    act(() => result.current.editMessage(42, 'revised text'));
+
+    expect(chats[0].history[0]).toMatchObject({ id: 42, text: 'revised text', edited: true });
+    expect(vi.mocked(p2pNetwork.sendAddressed)).toHaveBeenCalledWith(
+      undefined,
+      expect.stringContaining('"type":"chat-edit"'),
+    );
+  });
+
+  it('ignores blank edits and keeps the original text', () => {
+    const initial = {
+      id: 'dm-1',
+      name: 'Bob',
+      history: [{ id: 42, sender: 'me', text: 'original', time: '10:00', status: 'sent' }],
+    };
+    const { result } = setup(initial, '');
+
+    let chats: any[] = [initial];
+    storeMocks.setChats.mockImplementation((updater: any) => { chats = updater(chats); });
+    act(() => result.current.editMessage(42, '   '));
+
+    expect(chats[0].history[0]).toMatchObject({ id: 42, text: 'original' });
+    expect(chats[0].history[0].edited).toBeUndefined();
   });
 });

@@ -222,4 +222,32 @@ describe('useFilteredChats', () => {
     expect(result.current.mentionCounts[1]).toBe(1);
     expect(result.current.mentionCounts[2]).toBeUndefined();
   });
+
+  it('filters personal chats by type (dm/direct) instead of hardcoded name', () => {
+    const chats = [
+      { id: 1, name: 'Alice', message: 'Hello', type: 'dm', history: [], unread: 0 },
+      { id: 2, name: 'Bob', message: 'Hi', type: 'direct', history: [], unread: 0 },
+      { id: 3, name: 'Team', message: 'Hey', type: 'group', history: [], unread: 0 },
+    ];
+    const channels = [];
+    const { result } = renderHook(() =>
+      useFilteredChats(chats, '', 'personal', [], { hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false }, channels),
+    );
+
+    expect(result.current.filteredChats.map(c => c.name)).toEqual(['Alice', 'Bob']);
+  });
+
+  it('filters work chats by type (group) instead of hardcoded name', () => {
+    const chats = [
+      { id: 1, name: 'Alice', message: 'Hello', type: 'dm', history: [], unread: 0 },
+      { id: 2, name: 'Team', message: 'Hey', type: 'group', history: [], unread: 0 },
+      { id: 3, name: 'Channel', message: 'Yo', type: 'channel', history: [], unread: 0 },
+    ];
+    const channels = [];
+    const { result } = renderHook(() =>
+      useFilteredChats(chats, '', 'work', [], { hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false }, channels),
+    );
+
+    expect(result.current.filteredChats.map(c => c.name)).toEqual(['Team']);
+  });
 });

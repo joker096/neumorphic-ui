@@ -1,8 +1,9 @@
 import React, { lazy, Suspense } from "react";
-import { BellOff, ChevronRight, Clock, FileText, Image as ImageIcon, Link2, MapPin, Mic, Music, Plus, Smile, VolumeX, Volume2, Radio, X } from "lucide-react";
+import { BellOff, ChevronRight, Clock, FileText, Image as ImageIcon, Link2, MapPin, Mic, Music, Plus, Smile, Video as VideoIcon, VolumeX, Volume2, Radio, X } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 const LazyLiveVoiceRecorder = lazy(() => import("../LiveVoiceRecorder").then(m => ({ default: m.LiveVoiceRecorder })));
+const LazyLiveVideoRecorder = lazy(() => import("../LiveVideoRecorder").then(m => ({ default: m.LiveVideoRecorder })));
 import { StickerPicker } from "../chat/StickerPicker";
 import { ChatInputSchedulePopup } from "./ChatInputSchedulePopup";
 import { ChatInputReplyBar } from "./ChatInputReplyBar";
@@ -37,6 +38,7 @@ interface ChatInputAreaProps {
   sendVoiceMessage?: (url: string, dur: string, blob?: Blob) => void;
   sendStickerMessage?: (sticker: string) => void;
   handleImageAttach: (e: React.ChangeEvent<HTMLInputElement>, chat: any, onUpdateChat: any, silent: boolean) => void;
+  sendVideoNote?: (file: File) => void;
   sendGeoMessage?: (lat: number, lng: number) => void;
   sendArticleMessage?: (url: string, title?: string) => void;
   onUpdateChat?: (chat: any) => void;
@@ -78,6 +80,7 @@ function ChatInputAreaImpl({
     onUpdateChat,
     onPasteFiles,
     onAction,
+    sendVideoNote,
   setChannels,
   theme,
   t,
@@ -90,6 +93,7 @@ function ChatInputAreaImpl({
   const [pendingMedia, setPendingMedia] = React.useState<Array<{ url: string; type: 'image' | 'video' }>>([]);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
   const [showAttachMenu, setShowAttachMenu] = React.useState(false);
+  const [showVideoRecorder, setShowVideoRecorder] = React.useState(false);
   const dmMediaInputRef = React.useRef<HTMLInputElement>(null);
   const dmDocInputRef = React.useRef<HTMLInputElement>(null);
   const dmAudioInputRef = React.useRef<HTMLInputElement>(null);
@@ -100,7 +104,8 @@ function ChatInputAreaImpl({
   useEscapeKey(() => {
     setShowAttachMenu(false);
     setShowArticleInput(false);
-  }, showAttachMenu || showArticleInput);
+    setShowVideoRecorder(false);
+  }, showAttachMenu || showArticleInput || showVideoRecorder);
 
   const growTextarea = (el: HTMLTextAreaElement) => {
     el.style.height = "auto";
@@ -315,6 +320,28 @@ function ChatInputAreaImpl({
         t={t}
       />
 
+      {showVideoRecorder ? (
+        <div className="px-3 pb-2">
+          <Suspense fallback={null}>
+            <LazyLiveVideoRecorder
+              onCancel={() => setShowVideoRecorder(false)}
+              onPermissionDenied={(msg: string) => {
+                setShowVideoRecorder(false);
+                setVoiceNoteErrFn2(msg);
+              }}
+              onSend={(url, _dur, blob) => {
+                setShowVideoRecorder(false);
+                if (sendVideoNote) {
+                  const file = new File([blob], "video-note.webm", { type: blob.type || "video/webm" });
+                  sendVideoNote(file);
+                }
+                URL.revokeObjectURL(url);
+              }}
+            />
+          </Suspense>
+        </div>
+      ) : null}
+
       {eIsRecordingVoice ? (
         <div className="px-3 pb-2">
           <Suspense fallback={null}>
@@ -381,6 +408,19 @@ function ChatInputAreaImpl({
           >
             <Music size={18} className="text-[var(--accent)] flex-shrink-0" />
             {t("media.audio")}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAttachMenu(false);
+              setShowVideoRecorder(true);
+            }}
+            className={`min-w-11 min-h-11 w-full flex items-center gap-3 px-3 rounded-lg text-sm cursor-pointer transition-colors ${
+              isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-slate-700 hover:bg-black/5"
+            }`}
+          >
+            <VideoIcon size={18} className="text-[var(--accent)] flex-shrink-0" />
+            {t("chat.videoNote", "Video note")}
           </button>
           <button
             type="button"

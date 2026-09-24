@@ -369,7 +369,10 @@
     "chatName": "채팅 {{id}}",
     "dndBlockedMessage": "메시지 차단됨 - DND 활성. 우선 연락처는 우회할 수 있습니다.",
     "dndBlockedSticker": "스티커 차단됨 - DND 활성. 우선 연락처는 우회할 수 있습니다.",
-    "dndBlockedVoice": "음성 메시지 차단됨 - DND 활성. 우선 연락처는 우회할 수 있습니다."
+    "dndBlockedVoice": "음성 메시지 차단됨 - DND 활성. 우선 연락처는 우회할 수 있습니다.",
+    "edit": "Edit",
+    "editMessage": "Edit message",
+    "edited": "edited"
   },
   "time": {
     "justNow": "방금",

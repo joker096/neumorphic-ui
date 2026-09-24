@@ -289,6 +289,59 @@ export function AttachmentMedia({
   }
 
   if (msg.type === "video") {
+    if (msg.videoNote) {
+      if (ftrPending && !autoLoadBlocked) return ftrPendingRow;
+      if (ftrReadyUrl) {
+        return (
+          <div className="rounded-full overflow-hidden mb-1 border border-[var(--border-color)] inline-block">
+            <video
+              src={ftrUrl || undefined}
+              controls
+              playsInline
+              loop
+              className="block w-48 sm:w-56 aspect-square object-cover bg-black rounded-full"
+              onError={() => setMediaErr(true)}
+            />
+          </div>
+        );
+      }
+      if (mediaErr || !shouldShowMedia) {
+        return (
+          <div className={`flex items-center justify-center gap-2 rounded-full border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <VideoOff size={18} />
+            <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
+            {autoLoadBlocked && (
+              <button
+                type="button"
+                onClick={() => setRevealed(true)}
+                className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
+              >
+                {t("chat.loadAttachment", "Load")}
+              </button>
+            )}
+          </div>
+        );
+      }
+      return (
+        <div
+          className="rounded-full overflow-hidden mb-1 relative border border-[var(--border-color)] group cursor-pointer inline-block"
+          onClick={() => { onSetActiveMediaMsg?.(msg); onSetVideoOpen(true); }}
+        >
+          <img
+            src={msg.thumb || ftrUrl || undefined}
+            alt={t("a11y.videoThumbnail")}
+            className="block w-48 sm:w-56 aspect-square object-cover max-w-full"
+            onError={() => setMediaErr(true)}
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/20">
+            <div className="w-12 h-12 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+              <Play size={24} className="text-white fill-white ml-1" />
+            </div>
+          </div>
+          <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-semibold text-white tracking-wider">{msg.duration}</div>
+        </div>
+      );
+    }
     if (ftrPending && !autoLoadBlocked) return ftrPendingRow;
     if (ftrReadyUrl) {
       return (

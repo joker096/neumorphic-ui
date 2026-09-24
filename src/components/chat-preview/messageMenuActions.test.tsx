@@ -43,11 +43,10 @@ describe('buildMessageMenuActions', () => {
     h.pinned = [];
   });
 
-  it('builds reply/copy/translate/save/pin/forward/report without select', () => {
+  it('builds reply/copy/translate/save/pin/forward without select', () => {
     const actions = buildMessageMenuActions(baseArgs());
-    expect(actions.map(a => a.key)).toEqual(['reply', 'copy', 'translate', 'save', 'pin', 'forward', 'report']);
+    expect(actions.map(a => a.key)).toEqual(['reply', 'copy', 'translate', 'save', 'pin', 'forward']);
     expect(actions.find(a => a.key === 'reply')!.label).toBe('chat.reply');
-    expect(actions.find(a => a.key === 'report')!.danger).toBe(true);
   });
 
   it('prepends select action when onSelect given', () => {
@@ -163,10 +162,25 @@ describe('buildMessageMenuActions', () => {
     expect(toast).toHaveBeenCalledWith('Delete not available');
   });
 
-  it('report action replaces delete for foreign messages', () => {
+  it('foreign messages show no delete and no report stub', () => {
     const actions = buildMessageMenuActions(baseArgs());
     expect(actions.map(a => a.key)).not.toContain('delete');
-    actions.find(a => a.key === 'report')!.onClick();
-    expect(toast).toHaveBeenCalledWith('Reported');
+    expect(actions.map(a => a.key)).not.toContain('report');
+  });
+
+  it('edit action appears for own text messages when onEdit given', () => {
+    const onEdit = vi.fn();
+    const actions = buildMessageMenuActions(baseArgs({ isMe: true, onEdit }));
+    expect(actions.map(a => a.key)).toContain('edit');
+    actions.find(a => a.key === 'edit')!.onClick();
+    expect(onEdit).toHaveBeenCalledWith({ id: 1, text: 'hello' });
+  });
+
+  it('omits edit action when onEdit is missing or message is not editable text', () => {
+    expect(buildMessageMenuActions(baseArgs({ isMe: true })).map(a => a.key)).not.toContain('edit');
+    const noText = buildMessageMenuActions(baseArgs({ isMe: true, onEdit: vi.fn(), msg: { id: 1, type: 'image' } }));
+    expect(noText.map(a => a.key)).not.toContain('edit');
+    const foreign = buildMessageMenuActions(baseArgs({ onEdit: vi.fn() }));
+    expect(foreign.map(a => a.key)).not.toContain('edit');
   });
 });

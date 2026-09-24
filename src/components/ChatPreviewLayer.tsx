@@ -156,6 +156,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     sendArticleMessage,
     handleImageAttach,
     handleFileDrop,
+    sendVideoNote,
     handleReactionMessage,
     retryFailedMessage,
     mediaItems,
@@ -438,6 +439,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         sendVoiceMessage={sendVoiceMessage}
         sendStickerMessage={sendStickerMessage}
         handleImageAttach={handleImageAttach}
+        sendVideoNote={sendVideoNote}
         onUpdateChat={onUpdateChat}
         onPasteFiles={(files) => handleFileDrop(files, chat, onUpdateChat)}
         onAction={onAction}

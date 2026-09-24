@@ -369,7 +369,10 @@
     "chatName": "Chat {{id}}",
     "dndBlockedMessage": "Mensaje bloqueado - DND está activo. Los contactos prioritarios pueden omitirlo.",
     "dndBlockedSticker": "Sticker bloqueado - DND está activo. Los contactos prioritarios pueden omitirlo.",
-    "dndBlockedVoice": "Mensaje de voz bloqueado - DND está activo. Los contactos prioritarios pueden omitirlo."
+    "dndBlockedVoice": "Mensaje de voz bloqueado - DND está activo. Los contactos prioritarios pueden omitirlo.",
+    "edit": "Edit",
+    "editMessage": "Edit message",
+    "edited": "edited"
   },
   "time": {
     "justNow": "Ahora mismo",

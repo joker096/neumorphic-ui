@@ -369,7 +369,10 @@
     "chatName": "聊天 {{id}}",
     "dndBlockedMessage": "消息已被阻止 - DND已开启。优先联系人可以绕过。",
     "dndBlockedSticker": "贴纸已被阻止 - DND已开启。优先联系人可以绕过。",
-    "dndBlockedVoice": "语音消息已被阻止 - DND已开启。优先联系人可以绕过。"
+    "dndBlockedVoice": "语音消息已被阻止 - DND已开启。优先联系人可以绕过。",
+    "edit": "Edit",
+    "editMessage": "Edit message",
+    "edited": "edited"
   },
   "time": {
     "justNow": "刚刚",

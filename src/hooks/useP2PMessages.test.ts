@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useP2PMessages } from './useP2PMessages';
 import { FTR_MAGIC, encodeFrame, encodeAlbumManifest, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
-import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
+import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeChatEdit, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
 import { saveTransferMeta, saveChunk, pruneAbandonedTransfers, pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer, listTransfers, type StoredTransfer } from '../lib/fileTransfer/fileStore';
 import { p2pNetwork, type BroadcastMessage } from '../lib/p2p/network';
 
@@ -240,6 +240,77 @@ describe('useP2PMessages', () => {
     expect(last.text).toBe('hi there');
     expect(last.type).toBe('text');
     expect(vi.mocked(saveTransferMeta)).not.toHaveBeenCalled();
+  });
+
+  it('applies an incoming chat-edit frame to the matching DM message', () => {
+    const { handle } = setup();
+    const textMsg: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'edit-t-text',
+      timestamp: 3,
+      data: encodeChatText({
+        type: 'chat-text',
+        seq: 1,
+        messageId: 'wire-msg-1',
+        chatId: 'dm-1',
+        chatName: 'Bob',
+        senderName: 'Bob',
+        text: 'original',
+        silent: false,
+        timestamp: 3,
+      }),
+    };
+    const editMsg: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'edit-t-edit',
+      timestamp: 4,
+      data: encodeChatEdit({
+        type: 'chat-edit',
+        seq: 2,
+        messageId: 'wire-msg-1',
+        chatId: 'dm-1',
+        chatName: 'Bob',
+        senderName: 'Bob',
+        text: 'revised',
+        timestamp: 4,
+      }),
+    };
+
+    act(() => {
+      handle(textMsg);
+      handle(editMsg);
+    });
+
+    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const edited = chats[0].history.find((m: any) => m.id === 'wire-msg-1');
+    expect(edited).toMatchObject({ text: 'revised', edited: true });
+    expect(chats[0].history).toHaveLength(1);
+  });
+
+  it('ignores chat-edit frames for unknown chats and unknown message ids', () => {
+    const { handle } = setup();
+    const noChatEdit: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'msg-3',
+      timestamp: 5,
+      data: encodeChatEdit({
+        type: 'chat-edit',
+        seq: 3,
+        messageId: 'wire-msg-x',
+        chatId: 'unknown-chat',
+        chatName: 'Unknown',
+        senderName: 'Bob',
+        text: 'nowhere',
+        timestamp: 5,
+      }),
+    };
+
+    act(() => {
+      handle(noChatEdit);
+    });
+
+    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    expect(chats[0].history).toHaveLength(0);
   });
 
   it('inserts late-arriving frames in send-time order (not arrival order)', () => {

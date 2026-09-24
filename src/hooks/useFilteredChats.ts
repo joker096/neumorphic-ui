@@ -56,8 +56,8 @@ export function useFilteredChats(
     if (activeFolder === ARCHIVED) return isArchived;
     if (isArchived) return false;
     if (activeFolder === UNREAD) return chat.unread > 0;
-    if (activeFolder === PERSONAL) return chat.name === 'Alice Freeman';
-    if (activeFolder === WORK) return chat.name === 'Design Team';
+    if (activeFolder === PERSONAL) return chat.type === 'dm' || chat.type === 'direct';
+    if (activeFolder === WORK) return chat.type === 'group';
     if (activeFolder === GROUPS) return chat.type === 'group';
     return true;
   }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters]);

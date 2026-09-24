@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FTR_MAGIC, ALBUM_MAGIC, parseFrame, parseAlbumManifest, base64ToBytes, type FtrFrame, type TransferMeta, type AlbumManifest } from "../lib/fileTransfer/frames";
-import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, parseChatLocation, parseChatArticle, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
+import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatEdit, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, parseChatLocation, parseChatArticle, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
 import { saveVoiceBlob } from "../lib/voiceStore";
 import {
   saveTransferMeta, saveChunk, getTransferBlob, pruneAbandonedTransfers,
@@ -128,6 +128,7 @@ export function useP2PMessages() {
           fileName: meta.name,
           fileSize: meta.size,
           fileTransferId: frame.transferId,
+          videoNote: frame.videoNote ?? false,
           ts: Date.now(),
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           status: "delivered",
@@ -219,6 +220,27 @@ export function useP2PMessages() {
         chatId: frame.chatId,
         timestamp: Date.now(),
       })).catch(() => {});
+    };
+
+    const handleChatEdit = (frame: ReturnType<typeof parseChatEdit>) => {
+      if (!frame) return;
+      const { setChats } = useAppStore.getState();
+      setChats((prevChats: any[]) => {
+        const chats = prevChats || [];
+        const chat = chats.find((c: any) => String(c.id) === frame.chatId && c.type === "direct")
+          || chats.find((c: any) => c.name === frame.chatName && c.type === "direct");
+        if (!chat) return chats;
+        return chats.map((c: any) =>
+          c.id === chat.id
+            ? {
+                ...c,
+                history: (c.history || []).map((m: any) =>
+                  String(m.id) === frame.messageId ? { ...m, text: frame.text, edited: true } : m,
+                ),
+              }
+            : c,
+        );
+      });
     };
 
     const handleAudioMeta = (frame: ChatAudioMetaFrame, senderId: string) => {
@@ -402,6 +424,13 @@ export function useP2PMessages() {
           if (text) {
             p2pNetwork.rememberPeer(msg.senderId, text.senderName);
             p2pNetwork.rememberChatPeer(text.chatId, text.chatName, msg.senderId);
+          }
+          const edit = parseChatEdit(raw);
+          if (edit) {
+            p2pNetwork.rememberPeer(msg.senderId, edit.senderName);
+            p2pNetwork.rememberChatPeer(edit.chatId, edit.chatName, msg.senderId);
+            handleChatEdit(edit);
+            return;
           }
           handleChatText(text, msg.senderId);
         }

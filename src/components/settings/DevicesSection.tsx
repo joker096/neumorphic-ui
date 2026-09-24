@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Clock, Monitor, Smartphone, X } from 'lucide-react';
+import { Clock, Monitor, X } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from 'sonner';
@@ -23,14 +23,8 @@ interface DevicesSectionProps {
 }
 
 export const DevicesSection = ({ isDark = false, onBack, t }: DevicesSectionProps) => {
-  const [showTerminateAll, setShowTerminateAll] = useState(false);
   const [showTerminateCurrent, setShowTerminateCurrent] = useState(false);
   const deviceInfo = useMemo(() => `${detectBrowser()} • ${navigator.platform || 'Web'}`, []);
-
-  const handleTerminateAll = () => {
-    setShowTerminateAll(false);
-    toast.info(t('settings.noOtherSessions', 'No other active sessions'));
-  };
 
   const handleTerminateCurrent = async () => {
     setShowTerminateCurrent(false);
@@ -72,39 +66,6 @@ export const DevicesSection = ({ isDark = false, onBack, t }: DevicesSectionProp
           onClick={() => setShowTerminateCurrent(true)}
         />
       </SettingsGroup>
-
-      <SettingsSectionTitle title={t('settings.otherDevices', 'Other devices')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
-        <SettingsRow
-          icon={<Smartphone size={16} />}
-          iconBg={isDark ? "bg-gray-500/10" : "bg-gray-100"}
-          iconColor={isDark ? "text-gray-400" : "text-gray-500"}
-          title={t('settings.noOtherDevices', 'No other devices')}
-          subtitle={t('settings.noOtherDevicesSubtitle', 'Only this device is connected')}
-          isDark={isDark}
-        />
-        <SettingsRow
-          icon={<X size={16} />}
-          iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-          iconColor={isDark ? "text-red-400" : "text-red-600"}
-          title={t('settings.terminateAllOther', 'Terminate all other sessions')}
-          subtitle={t('settings.noOtherSessions', 'No other active sessions')}
-          isDark={isDark}
-          onClick={() => setShowTerminateAll(true)}
-        />
-      </SettingsGroup>
-
-      <ConfirmModal
-        isOpen={showTerminateAll}
-        title={t('settings.terminateAllOther', 'Terminate all other sessions')}
-        message={t('settings.confirmTerminateAll', 'End all other sessions? They will lose access.')}
-        confirmLabel={t('settings.terminateAll', 'Terminate all')}
-        cancelLabel={t('common.cancel')}
-        variant="default"
-        isDark={isDark}
-        onConfirm={handleTerminateAll}
-        onCancel={() => setShowTerminateAll(false)}
-      />
 
       <ConfirmModal
         isOpen={showTerminateCurrent}

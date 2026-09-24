@@ -3,12 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { StoryOptionsMenu } from './StoryOptionsMenu';
-import { toast } from '../ui/Toast';
 
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
 }));
-vi.mock('../ui/Toast', () => ({ toast: vi.fn() }));
 
 const makeProps = (overrides: Record<string, unknown> = {}) => ({
   open: true,
@@ -41,15 +39,15 @@ describe('StoryOptionsMenu', () => {
     expect(screen.queryByRole('button', { name: 'Save story' })).toBeNull();
   });
 
-  it('shows copy, save and report for other users on a savable story', () => {
+  it('shows copy and save for other users on a savable story', () => {
     render(<StoryOptionsMenu {...makeProps({ isMe: false, savable: true })} />);
     expect(screen.getByRole('button', { name: 'Copy link' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save story' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Report' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Delete story' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Report' })).toBeNull();
   });
 
-  it('shows delete instead of report for own story', () => {
+  it('shows delete for own story', () => {
     render(<StoryOptionsMenu {...makeProps({ isMe: true, savable: true })} />);
     expect(screen.getByRole('button', { name: 'Delete story' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Report' })).toBeNull();
@@ -78,10 +76,10 @@ describe('StoryOptionsMenu', () => {
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
-  it('report shows success toast for other users', () => {
+  it('foreign stories show no report stub and no delete', () => {
     render(<StoryOptionsMenu {...makeProps({ isMe: false })} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Report' }));
-    expect(toast).toHaveBeenCalledWith('Reported', 'success');
+    expect(screen.queryByRole('button', { name: 'Report' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Delete story' })).toBeNull();
   });
 
   it('closes on Escape', () => {

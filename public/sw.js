@@ -11,7 +11,7 @@
  * - Online/Offline status tracking
  */
 
-const CACHE_VERSION = 'v76';
+const CACHE_VERSION = 'v77';
 const APP_CACHE = `messanger-app-${CACHE_VERSION}`;
 const DATA_CACHE = `messanger-data-${CACHE_VERSION}`;
 const QUEUE_IDB = 'messanger-queue-v2';

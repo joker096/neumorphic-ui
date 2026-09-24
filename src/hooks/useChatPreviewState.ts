@@ -322,6 +322,10 @@ export function useChatPreviewState(
     }
   };
 
+  const sendVideoNote = (file: File) => {
+    void sendFile(file, { silent: false, videoNote: true });
+  };
+
   const handleImageAttach = (e: React.ChangeEvent<HTMLInputElement>, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
     const files = e.target.files ? [...e.target.files] : [];
     if (files.length === 0) return;
@@ -525,6 +529,7 @@ export function useChatPreviewState(
     sendArticleMessage,
     handleImageAttach,
     handleFileDrop,
+    sendVideoNote,
     handleReactionMessage,
     retryFailedMessage,
     filteredHistory,
