@@ -214,7 +214,9 @@ This plan addresses three focus areas:
   - "Unread" (chats with unread messages)
   - "Recent" (last 7 days)
   - "Other" (everything else)
-- Use the existing `callFolders` pattern from the store as a model
+- Grouping state stays local to the chat list (a `GroupKey` union keyed by
+  folder id, same shape as the pinned/archived/folder lists) — no store field
+  is needed until folders become user-editable.
 
 ### 3.2 Chat Header & Navigation
 

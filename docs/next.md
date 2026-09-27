@@ -80,6 +80,7 @@ Android Keystore.
 iOS Keychain.
 Windows Credential Manager/DPAPI для desktop.
 Ротация секретов — частично (operator action, P1/C1).
+Device-bound KDF как не-public fingerprint — открыто, нужен продуктовый выбор (P1-3 partial, 2026-09-26): `deviceSecurity.getDeviceBoundKey()` выводит wrapping key из публичного browser fingerprint (canvas/WebGL/shape/мобильные сигнатуры), поэтому он защищает от случайного чтения IndexedDB, но не от целенаправленного локального сбора этой же телеметрии. Схема «PIN → KEK» (Argon2id/scrypt по PIN с солью на устройстве) сделала бы ключи невыводимыми из fingerprint, но **забытый PIN = необратимая потеря локальной идентичности и данных** (recovery-phrase восстанавливает identity, но не at-rest данные). Требуется решение владельца продукта; до него — см. `docs/security-guide.md` и threat model §3.4.1.
 
 В DEPLOY.md присутствуют реальные/похожие административные credentials.
 Их нужно немедленно ротировать, удалить из документации и истории, заменить placeholders.
@@ -94,6 +95,8 @@ Typing/presence/read receipts — закрыто (2026-09-15).
 Адресная доставка.
 Настройки приватности должны реально блокировать отправку presence/typing/read.
 Не отправлять read receipt при preview, background или неактивной вкладке.
+Self-destruct: таймер самоуничтожения только скрывал пузырь — закрыто (2026-09-26): `useSelfDestructSweep` реально удаляет сообщение из `chats`/`channels` (и из персист-снимка), из активного открытого чата, из saved-messages, стирает голосовой blob и file-transfer chunks/metas и вычищает текстовую копию из `replyTo` цитат. Дедлайны, истёкшие при закрытом приложении, снимаются при старте.
+Self-destruct по wire — закрыто (2026-09-26): все message-creating фреймы (`chat-text`, `chat-location`, `chat-article`, `chat-audio-meta`, `ftr1:` meta, `abm1:` manifest) несут опциональный `ttlMs` = остаток duration (не абсолютный дедлайн — рассинхрон часов иначе убивает или делает вечным сообщение у получателя). Приём клампится в [1s, 24h] (`wireSelfDestructTtl`/`resolveInboundSelfDestruct`), истёкший outbound-дедлайн клампится вверх, мусорный TTL → «без таймера» (сообщение не теряется). Покрытие таймера расширено с текста на geo/article/file/album. Остаток: legacy-peer без `ttlMs` → сообщение без дедлайна (старые клиенты не форсируются), plaintext-копия в offline-очереди живёт до flush/eviction (`QUEUE_MAX_AGE_MS`).
 Relay visibility — закрыто (2026-09-20).
 
 Проверить, какие signaling metadata видит сервер — закрыто: документировано (security-guide.md, «Signaling Visibility»): publicKey + IP/UA в connections-логе (с retention), SDP/ICE = обязательный WebRTC plaintext (E2E-signaling не реализован — документированный limitation), metadata только {isTyping}/{online} без имён, topic pub/sub company-комнаты серверно-читаемы by design.

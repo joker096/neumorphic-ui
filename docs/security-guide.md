@@ -140,9 +140,38 @@ Sensitive data is stored in IndexedDB encrypted with AES-256-GCM. See `src/lib/d
 
 ### Key Derivation
 
-- Device-bound master key derived from browser fingerprint via PBKDF2-SHA256 with 600,000 iterations
-- Master key is encrypted with the device-bound key and stored in IndexedDB under `__nexus_key_storage`
-- On each app launch, the encrypted master key is decrypted and imported as a CryptoKey for `encrypt`/`decrypt` operations
+- A **device-bound** wrapping key is derived from the browser fingerprint
+  (`userAgent | hardwareConcurrency | platform | screen resolution`) with
+  PBKDF2-SHA256, 600,000 iterations, and a fixed salt
+- The master key is encrypted with that wrapping key and stored in IndexedDB
+  under `__nexus_key_storage`; the identity seed is sealed the same way under
+  `mess_master_seed`
+- On each app launch, the encrypted master key is decrypted and imported as a
+  CryptoKey for `encrypt`/`decrypt` operations
+
+> **Limitation (documented, not fixed).** The wrapping key is derived from
+> public values, so it is *not* a secret: anyone who can read this origin's
+> IndexedDB (XSS, malicious extension, stolen device profile) can reproduce it
+> and recover the master key. It provides device binding and keeps raw store
+> contents unreadable, not protection from same-origin code execution. A real
+> fix needs a user-held secret (app-lock PIN or data passphrase) or a platform
+> keystore — see `docs/superpowers/threat-model/threat-model.md` §3.4.1.
+
+### Encryption Flow
+
+```
+Device fingerprint (public)
+    -> PBKDF2-SHA256 (600k iterations)
+    -> Device-Bound Key (AES-GCM)
+    -> Encrypted Master Key (stored in IndexedDB)
+    -> Decrypted Master Key (AES-GCM)
+    -> Encrypted Application Data (IndexedDB)
+```
+
+Separately, the **app-lock PIN** is an access gate only: it is verified with
+PBKDF2-SHA256 (600k) against a stored hash and does not participate in any key
+derivation. The backup/recovery passphrase does wrap the device key
+(`deviceSecurity.exportEncryptedKey` / `importEncryptedKey`).
 
 ### Recovery Phrase
 
@@ -150,17 +179,6 @@ Sensitive data is stored in IndexedDB encrypted with AES-256-GCM. See `src/lib/d
 - Implementation in `src/lib/recovery/RecoveryManager.ts`
 - PBKDF2-SHA256 (600,000 iterations) to derive key material from the phrase
 - The phrase itself is never stored -- only the derived key material
-
-### Encryption Flow
-
-```
-User PIN/Password
-    -> PBKDF2-SHA256 (600k iterations)
-    -> Device-Bound Key (AES-GCM)
-    -> Encrypted Master Key (stored in IndexedDB)
-    -> Decrypted Master Key (AES-GCM)
-    -> Encrypted Application Data (IndexedDB)
-```
 
 ## P2P Security
 

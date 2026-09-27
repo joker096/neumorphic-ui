@@ -1,7 +1,7 @@
 # Mess&Anger — Threat Model
 
-> **Version:** 1.0
-> **Date:** 2026-06-10
+> **Version:** 1.2
+> **Date:** 2026-09-26
 > **Classification:** Internal
 > **Status:** Draft
 
@@ -92,8 +92,32 @@ This document describes the threat model for Mess&Anger, a P2P end-to-end encryp
 | TURN server observes message content | Zero | N/A | WebRTC media streams use DTLS-SRTP; data channels use DTLS; payload encrypted with AES-GCM | Implemented |
 | Network observer infers peer identity | Low | Medium | Tor bridge + relay-only ICE; peer IPs hidden behind TURN | Implemented with Tor |
 | Metadata leakage (typing, online status) | Medium | High | Metadata killswitches in settings; disables all presence signaling | Implemented |
-| IndexedDB data exposure (device theft) | Low | High | Master key derived from device fingerprint + PBKDF2 (600k iterations); recovery phrase required | Implemented |
+| IndexedDB data exposure (device theft) | Low | High | Ciphertext is AES-256-GCM, but the wrapping key is derived from a *public* fingerprint (UA/platform/screen) — see the limitation below. Recovery phrase is required to restore the identity on another device. | **Partial — see §3.4.1** |
 | Timing side-channel (message timing) | Low | Low | Timestamp fuzzing ±5 min randomization | Implemented |
+| Self-destruct message content recovered after the timer | Medium | High | `useSelfDestructSweep` erases the expired message from the store, the persisted snapshot, the open-chat view and the saved-messages list, scrubs quoted copies out of replies, and deletes the voice blob / file-transfer chunks; deadlines missed while the app was closed are swept on the next start. Every message-creating wire frame (`chat-text`, `chat-location`, `chat-article`, `chat-audio-meta`, `ftr1:` meta, `abm1:` manifest) additionally carries an optional `ttlMs` = **remaining duration**, so the receiver applies the same deadline on its own clock; the value is clamped to `[1s, 24h]` on both ends and junk degrades to "no timer" instead of dropping the message. | Implemented end-to-end; **legacy peers that omit `ttlMs` still produce an untimed message** (protocol floor, old clients cannot be forced) |
+
+#### 3.4.1 Known limitation: the "device-bound" key is not a secret
+
+`src/lib/deviceSecurity.ts` derives the wrapping key for the local master key
+(and for the identity seed in `src/lib/identity/masterKey.ts`) with
+`PBKDF2-SHA256(600k, userAgent | hardwareConcurrency | platform | screen, static salt)`.
+Every input is public: an attacker holding an IndexedDB snapshot (stolen device
+profile, cloud backup of the browser profile) can reproduce the wrapping key and
+recover the master key, hence the identity seed and every at-rest ciphertext.
+
+What this **does** buy: device binding (a copied profile that changes UA, core
+count, platform or screen resolution stops decrypting) and protection against
+casual inspection of raw store contents.
+
+What it does **not** protect against: any attacker who can read the origin's
+IndexedDB — same-origin script execution (XSS), a malicious extension, or full
+profile theft. PBKDF2 iteration count is irrelevant when the input is public.
+
+Closing this requires a **user-held secret** as the key-encryption key (app-lock
+PIN or a data passphrase) or a platform keystore-backed key. Both are product
+decisions (see `next.md`); the app-lock PIN is currently only an access gate and
+is not part of any key derivation, so wiring it in would make a forgotten PIN
+destructive for local data.
 
 ### 3.5 Denial of Service
 
@@ -279,3 +303,5 @@ Social Engineering
 | Date | Version | Changes |
 |------|---------|----------|
 | 2026-06-10 | 1.0 | Initial threat model created |
+| 2026-09-26 | 1.1 | §3.4 self-destruct erasure row (local erasure implemented; wire TTL documented as a protocol gap) |
+| 2026-09-26 | 1.2 | §3.4 self-destruct row: optional `ttlMs` on every message-creating frame, clamped to [1s, 24h], junk degrades to "no timer"; gap downgraded to legacy-peer limitation |
