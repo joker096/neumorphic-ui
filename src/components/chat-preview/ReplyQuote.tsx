@@ -1,4 +1,5 @@
 import { useI18n } from "../../lib/i18n";
+import { EXPIRED_QUOTE_TYPE } from "../../lib/selfDestruct";
 import { decodeIfMorse } from "../MorseDecoder";
 
 interface ReplyQuoteProps {
@@ -14,7 +15,9 @@ export function ReplyQuote({ replyTo, isDark }: ReplyQuoteProps) {
         {t('chat.replyingTo')} {replyTo.sender === "me" ? t('chat.yourMessage') : replyTo.sender}
       </div>
       <div className="line-clamp-2">
-        {replyTo.text ? (
+        {replyTo.type === EXPIRED_QUOTE_TYPE ? (
+          t("chat.messageExpired", "Message expired")
+        ) : replyTo.text ? (
           decodeIfMorse(replyTo.text)
         ) : replyTo.type === "audio" ? (
           `${t('chat.voiceNote')}${replyTo.duration || ""}`
