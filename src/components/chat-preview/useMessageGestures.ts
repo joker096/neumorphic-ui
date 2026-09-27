@@ -1,4 +1,5 @@
 import React from "react";
+import { toMenuAnchorRect, type MenuAnchorRect } from "./menuPosition";
 
 interface UseMessageGesturesArgs {
   msgId: string | number;
@@ -7,7 +8,8 @@ interface UseMessageGesturesArgs {
   onReply: (msg: any) => void;
   onReactionMessage: (id: string | number, emoji: string) => void;
   onSetBounceMsgId: (id: string | number | null) => void;
-  onOpenMenu: () => void;
+  /** Receives the pressed bubble's rect so the menu can anchor next to it. */
+  onOpenMenu: (anchorRect: MenuAnchorRect | null) => void;
 }
 
 /**
@@ -58,16 +60,17 @@ export function useMessageGestures({
   const handleContextMenu = (e: React.MouseEvent) => {
     if (selectionMode) return;
     e.preventDefault();
-    onOpenMenu();
+    onOpenMenu(toMenuAnchorRect(e.currentTarget.getBoundingClientRect()));
   };
 
-  const handlePointerDown = () => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (selectionMode) return;
     longPressed.current = false;
     clearLongPress();
+    const anchorRect = toMenuAnchorRect(e.currentTarget.getBoundingClientRect());
     longPressTimer.current = window.setTimeout(() => {
       longPressed.current = true;
-      onOpenMenu();
+      onOpenMenu(anchorRect);
     }, 480);
   };
 

@@ -118,6 +118,50 @@ describe('ChatContextMenu', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('anchors to the long-pressed row rect instead of falling back to a bottom sheet', () => {
+    const onClose = vi.fn();
+    render(
+      <ChatContextMenu
+        anchor={null}
+        anchorRect={{ left: 24, top: 300, right: 324, bottom: 364, width: 300, height: 64 }}
+        items={baseItems()}
+        onClose={onClose}
+      />,
+    );
+    // No backdrop/sheet: the popup is placed next to the pressed row instead.
+    expect(document.body.querySelector('.absolute.inset-0')).toBeNull();
+    const menu = screen.getByRole('menu');
+    expect(menu.style.left).toBe('32px');
+    expect(menu.style.top).toBe('300px');
+    expect(menu.parentElement).toBe(document.body);
+    fireEvent.click(screen.getByText('Pin'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps 44px rows on coarse pointers and 36px on mouse', () => {
+    const original = window.matchMedia;
+    const setCoarse = (matches: boolean) => {
+      window.matchMedia = vi.fn().mockReturnValue({
+        matches,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }) as any;
+    };
+
+    try {
+      setCoarse(true);
+      const { unmount } = render(<ChatContextMenu anchor={{ x: 10, y: 10 }} items={baseItems()} onClose={vi.fn()} />);
+      expect(screen.getByRole('menuitem', { name: 'Pin' }).className).toContain('min-h-11');
+      unmount();
+
+      setCoarse(false);
+      render(<ChatContextMenu anchor={{ x: 10, y: 10 }} items={baseItems()} onClose={vi.fn()} />);
+      expect(screen.getByRole('menuitem', { name: 'Pin' }).className).toContain('min-h-9');
+    } finally {
+      window.matchMedia = original;
+    }
+  });
 });
 
 describe('buildMenuIcon', () => {

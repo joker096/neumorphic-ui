@@ -9,14 +9,20 @@ interface ChatPickerModalProps {
   onClose: () => void
   onPick: (chat: any) => void
   title?: string
+  /** Chat that cannot be picked, e.g. the source chat of a forward. */
+  excludeChatId?: string | number | null
 }
 
-export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModalProps) => {
+export const ChatPickerModal = ({ open, onClose, onPick, title, excludeChatId }: ChatPickerModalProps) => {
   const { t } = useI18n()
   const chats = useAppStore((s: any) => s.chats || [])
   useEscapeKey(onClose, open)
 
   if (!open) return null
+
+  const pickableChats = excludeChatId == null
+    ? chats
+    : chats.filter((c: any) => String(c.id) !== String(excludeChatId))
 
   return createPortal(
     <div
@@ -41,12 +47,12 @@ export const ChatPickerModal = ({ open, onClose, onPick, title }: ChatPickerModa
 </button>
         </div>
         <div className="max-h-[60vh] overflow-y-auto">
-          {chats.length === 0 && (
+          {pickableChats.length === 0 && (
             <div className="p-4 text-center text-sm text-[var(--text-primary)] opacity-60">
               {t('chat.noChats')}
             </div>
           )}
-          {chats.map((chat: any) => (
+          {pickableChats.map((chat: any) => (
             <button
               key={chat.id}
               onClick={() => onPick(chat)}

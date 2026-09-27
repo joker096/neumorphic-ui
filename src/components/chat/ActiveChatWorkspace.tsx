@@ -51,6 +51,8 @@ type ActiveChatWorkspaceProps = {
   onToggleSilent: () => void;
   onToggleMorse: () => void;
   onCloseChat?: () => void;
+  /** Locked sticker-pack upsell target (Settings → Premium). */
+  onOpenPremium?: () => void;
 };
 
 export const ActiveChatWorkspace = ({
@@ -93,6 +95,7 @@ export const ActiveChatWorkspace = ({
   onToggleSilent,
   onToggleMorse,
   onCloseChat,
+  onOpenPremium,
 }: ActiveChatWorkspaceProps) => (
  <div className="w-full max-w-full sm:max-w-[600px] md:max-w-[640px] lg:max-w-[800px] h-full md:h-[calc(100%-0.5rem)] relative z-10 md:z-10 animate-fade-in md:mt-2 max-h-[calc(100vh-2rem)]">
     <Suspense fallback={<ChatPreviewFallback />}>
@@ -143,6 +146,7 @@ export const ActiveChatWorkspace = ({
       onToggleSilent={onToggleSilent}
       onToggleMorse={onToggleMorse}
         onToggleStickerPicker={() => setShowStickerPicker(!showStickerPicker)}
+        onOpenPremium={onOpenPremium}
       />
     </Suspense>
    </div>

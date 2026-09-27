@@ -117,4 +117,27 @@ describe('ChatPickerModal', () => {
 
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  it('hides the excluded chat (forward source) and keeps the rest', () => {
+    chats.push({ id: 7, name: 'Source' }, { id: 8, name: 'Target' });
+    render(<ChatPickerModal open onClose={() => {}} onPick={() => {}} excludeChatId={7} />);
+
+    expect(screen.queryByText('Source')).not.toBeInTheDocument();
+    expect(screen.getByText('Target')).toBeInTheDocument();
+  });
+
+  it('matches the excluded id by string so numeric and string ids both work', () => {
+    chats.push({ id: '9', name: 'Numeric source' });
+    render(<ChatPickerModal open onClose={() => {}} onPick={() => {}} excludeChatId={9} />);
+
+    expect(screen.queryByText('Numeric source')).not.toBeInTheDocument();
+  });
+
+  it('shows the empty state when only the source chat exists', () => {
+    chats.push({ id: 10, name: 'Only chat' });
+    render(<ChatPickerModal open onClose={() => {}} onPick={() => {}} excludeChatId={10} />);
+
+    expect(screen.getByText('chat.noChats')).toBeInTheDocument();
+    expect(screen.queryByText('Only chat')).not.toBeInTheDocument();
+  });
 });

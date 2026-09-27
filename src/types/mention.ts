@@ -25,3 +25,15 @@ export interface MentionToken {
 
 /** A mention ready to be suggested/inserted — alias over the candidate shape. */
 export type MentionSuggestion = MentionCandidate;
+
+export const MENTION_BODY_SOURCE = String.raw`[\p{L}\p{M}\p{N}\p{Pc}]+`;
+const MENTION_BODY_CHAR = /[\p{L}\p{M}\p{N}\p{Pc}]/u;
+
+export const isMentionBodyChar = (char: string): boolean => MENTION_BODY_CHAR.test(char);
+
+export const createMentionHandle = (name: string): string =>
+  name
+    .normalize("NFKC")
+    .trim()
+    .replace(/[^\p{L}\p{M}\p{N}\p{Pc}]+/gu, "_")
+    .replace(/^_+|_+$/gu, "");

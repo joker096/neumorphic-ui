@@ -56,5 +56,31 @@ describe('FormattedText', () => {
     render(<FormattedText text="Hello @username" searchTerm="Hello" />);
     const mention = screen.getByText('@username');
     expect(mention).toBeInTheDocument();
+    expect(mention).toHaveClass('bg-amber-400/20');
+  });
+
+  it('renders Unicode mentions', () => {
+    render(<FormattedText text="Привет @Анна_Иванова!" />);
+    const mention = screen.getByText('@Анна_Иванова');
+    expect(mention).toHaveClass('bg-amber-400/20');
+  });
+
+  it('does not render email as mention', () => {
+    const { container } = render(<FormattedText text="test@gmail.com" />);
+    expect(container.textContent).toBe('test@gmail.com');
+    expect(container.querySelector('.bg-amber-400\\/20')).toBeNull();
+  });
+
+  it('highlights every occurrence of the search term and nothing else', () => {
+    const { container } = render(<FormattedText text="foo bar foo baz foo" searchTerm="foo" />);
+    const marks = Array.from(container.querySelectorAll('.bg-yellow-400\\/40'));
+    expect(marks).toHaveLength(3);
+    expect(marks.map((m) => m.textContent)).toEqual(['foo', 'foo', 'foo']);
+  });
+
+  it('keeps highlight spans stable across a case-insensitive term', () => {
+    const { container } = render(<FormattedText text="Alpha alpha ALPHA" searchTerm="alpha" />);
+    const marks = Array.from(container.querySelectorAll('.bg-yellow-400\\/40'));
+    expect(marks.map((m) => m.textContent)).toEqual(['Alpha', 'alpha', 'ALPHA']);
   });
 });

@@ -172,9 +172,43 @@ describe('ChatMessage', () => {
     expect(screen.getByAltText('me avatar')).toHaveAttribute('src', 'https://cdn.example/me.png');
   });
 
-  it('renders spacer instead of avatar on non-first messages', () => {
-    render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'middle' } })} />);
+  it('keeps the avatar in the gutter for every message position, not just group-first text', () => {
+    const { rerender } = render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'middle' } })} />);
+    expect(screen.getByText('B')).toBeInTheDocument();
+
+    rerender(<ChatMessage {...baseProps({ msg: { id: 1, type: 'image', sender: 'Bob', _groupPosition: 'last' } })} />);
+    expect(screen.getByText('B')).toBeInTheDocument();
+  });
+
+  it('renders the avatar outside the bubble as a sibling, not inside it', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'first' } })} />);
+    const bubble = bubbleEl();
+    expect(bubble).toBeInTheDocument();
+    expect(bubble.querySelector('[class*="msg-gutter-avatar"]')).toBeNull();
+    expect(bubble.parentElement?.querySelector('[class*="msg-gutter-avatar"]')).not.toBeNull();
+  });
+
+  it('hides the avatar in channels', () => {
+    render(<ChatMessage {...baseProps({ isChannel: true, msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'first' } })} />);
     expect(screen.queryByText('B')).not.toBeInTheDocument();
+  });
+
+  it('shows the sender name above the bubble for the first message of a run in a group', () => {
+    const groupChat = { id: 'c1', type: 'group', members: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] };
+    const { rerender } = render(<ChatMessage {...baseProps({ chat: groupChat, msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'first' } })} />);
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+
+    rerender(<ChatMessage {...baseProps({ chat: groupChat, msg: { id: 2, text: 'again', sender: 'Bob', _groupPosition: 'middle' } })} />);
+    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
+  });
+
+  it('omits the sender name for outgoing and non-group chats', () => {
+    const groupChat = { id: 'c1', type: 'group', members: [{ id: 'a' }, { id: 'b' }] };
+    const { rerender } = render(<ChatMessage {...baseProps({ chat: groupChat, isMe: true, msg: { id: 1, text: 'mine', sender: 'me', _groupPosition: 'first' } })} />);
+    expect(screen.queryByText('me')).not.toBeInTheDocument();
+
+    rerender(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'first' } })} />);
+    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
   });
 
   it('renders payment bubble for payment messages', () => {
@@ -287,6 +321,33 @@ describe('ChatMessage', () => {
     act(() => { vi.advanceTimersByTime(500); });
     const lastCall = MCMMock.mock.calls[MCMMock.mock.calls.length - 1][0];
     expect(lastCall.open).toBe(true);
+  });
+
+  it('passes the pressed bubble rect to the context menu so it anchors to the message', () => {
+    const MCMMock = MessageContextMenu as any as ReturnType<typeof vi.fn>;
+    render(<ChatMessage {...baseProps()} />);
+    const bubble = bubbleEl();
+    bubble.getBoundingClientRect = () =>
+      ({ left: 16, top: 180, right: 206, bottom: 260, width: 190, height: 80 }) as DOMRect;
+
+    fireEvent.contextMenu(bubble);
+    const lastCall = MCMMock.mock.calls[MCMMock.mock.calls.length - 1][0];
+    expect(lastCall.anchorRect).toEqual({ left: 16, top: 180, right: 206, bottom: 260, width: 190, height: 80 });
+  });
+
+  it('passes the long-pressed bubble rect to the context menu', () => {
+    vi.useFakeTimers();
+    const MCMMock = MessageContextMenu as any as ReturnType<typeof vi.fn>;
+    render(<ChatMessage {...baseProps()} />);
+    const bubble = bubbleEl();
+    bubble.getBoundingClientRect = () =>
+      ({ left: 16, top: 180, right: 206, bottom: 260, width: 190, height: 80 }) as DOMRect;
+
+    fireEvent.pointerDown(bubble);
+    act(() => { vi.advanceTimersByTime(500); });
+    const lastCall = MCMMock.mock.calls[MCMMock.mock.calls.length - 1][0];
+    expect(lastCall.open).toBe(true);
+    expect(lastCall.anchorRect).toEqual({ left: 16, top: 180, right: 206, bottom: 260, width: 190, height: 80 });
   });
 
   it('forwards reply through built menu actions', () => {

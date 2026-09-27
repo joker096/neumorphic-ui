@@ -12,9 +12,34 @@ export function useFilteredChats(
   activeFolder: string,
   archivedChats: any[],
   advancedFilters: any,
-  channels: any[]
+  channels: any[],
+  contacts: any[] = [],
+  spamFilter = false
 ) {
   const MENTIONED_USER = "user";
+
+  /**
+   * settings.spamFilter: a direct chat with somebody who is not in the contact
+   * list and that we never wrote to is unsolicited — hide it from the list until
+   * the user answers. Anything the user engaged in (or a known contact) stays
+   * visible, and blocked contacts are hidden unconditionally.
+   */
+  const isSpamChat = useMemo(() => {
+    if (!spamFilter) return () => false;
+    const known = new Set<string>(contacts.map((c: any) => String(c.id)));
+    const knownNames = new Set<string>(contacts.map((c: any) => String(c.name)));
+    // Blocked contacts are hidden unconditionally — including the ones that are
+    // in the contact list, so their ids/names are matched before `known`.
+    const blocked = new Set<string>(contacts.filter((c: any) => c.isBlocked).map((c: any) => String(c.id)));
+    const blockedNames = new Set<string>(contacts.filter((c: any) => c.isBlocked).map((c: any) => String(c.name)));
+    return (chat: any) => {
+      if (chat.type === 'group' || chat.type === 'bot' || chat.type === 'channel') return false;
+      if (blocked.has(String(chat.id)) || blockedNames.has(String(chat.name))) return true;
+      if (known.has(String(chat.id)) || knownNames.has(String(chat.name))) return false;
+      return (chat.history || []).every((m: any) => m.sender !== "me");
+    };
+  }, [spamFilter, contacts]);
+
   const mentionCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     const allChats = [...currentChatList, ...channels] as any[];
@@ -36,6 +61,7 @@ export function useFilteredChats(
   }, [currentChatList, channels]);
 
   const filteredChats = useMemo(() => currentChatList.filter(chat => {
+    if (isSpamChat(chat)) return false;
     const query = chatSearchQuery.toLowerCase().trim();
     const historyText = (chat.history || [])
       .flatMap((m: any) => [m.text, m.replyTo?.text, m.duration, m.sender].filter(Boolean))
@@ -60,7 +86,7 @@ export function useFilteredChats(
     if (activeFolder === WORK) return chat.type === 'group';
     if (activeFolder === GROUPS) return chat.type === 'group';
     return true;
-  }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters]);
+  }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters, isSpamChat]);
 
   const filteredChannels = useMemo(() => channels.filter(channel => {
     const query = chatSearchQuery.toLowerCase().trim();

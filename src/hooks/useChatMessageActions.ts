@@ -5,7 +5,8 @@ import { toast } from '../components/ui/Toast'
 
 interface UseChatMessageActionsArgs {
   chatId: string | number
-  onForward?: (msg: any) => void
+  /** Receives a single message or a batch; the host decides the target chat. */
+  onForward?: (payload: any) => void
   onDelete?: (msg: any) => void
   onUpdateChat?: (chat: any) => void
 }
@@ -21,34 +22,9 @@ export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateCha
 
   const handleForwardMessage = useCallback(
     (msg: any) => {
-      if (onForward) {
-        onForward(msg)
-        return
-      }
-      const chats = useAppStore.getState().chats as any[]
-      const target =
-        chats.find((c) => c.id !== chatId && c.type === 'saved') ||
-        chats.find((c) => c.id !== chatId)
-      if (!target) {
-        toast(t('chat.forwardUnavailable', 'Forward not available'))
-        return
-      }
-      useAppStore.setState({
-        chats: chats.map((c) =>
-          c.id === target.id
-            ? {
-                ...c,
-                messages: [
-                  ...(c.messages || []),
-                  { ...msg, id: `${msg.id}-fwd-${Date.now()}`, sender: 'me', forwarded: true, time: 'now' },
-                ],
-              }
-            : c,
-        ),
-      })
-      toast(t('chat.forwarded', 'Forwarded'))
+      onForward?.(msg)
     },
-    [chatId, onForward, t],
+    [onForward],
   )
 
   const handleDeleteMessage = useCallback(
@@ -103,38 +79,11 @@ export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateCha
 
   const handleForwardSelected = useCallback(
     (messages: any[]) => {
-      const chats = useAppStore.getState().chats as any[]
       const msgs = messages.filter((m: any) => selectedIds.has(m.id))
-      const target =
-        chats.find((c) => c.id !== chatId && c.type === 'saved') ||
-        chats.find((c) => c.id !== chatId)
-      if (target && msgs.length) {
-        useAppStore.setState({
-          chats: chats.map((c) =>
-            c.id === target.id
-              ? {
-                  ...c,
-                  messages: [
-                    ...(c.messages || []),
-                    ...msgs.map((m: any) => ({
-                      ...m,
-                      id: `${m.id}-fwd-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-                      sender: 'me',
-                      forwarded: true,
-                      time: 'now',
-                    })),
-                  ],
-                }
-              : c,
-          ),
-        })
-        toast(t('chat.forwarded', 'Forwarded'))
-      } else {
-        toast(t('chat.forwardUnavailable', 'Forward not available'))
-      }
+      if (msgs.length) onForward?.(msgs)
       handleCancelSelection()
     },
-    [chatId, selectedIds, t, handleCancelSelection],
+    [onForward, selectedIds, handleCancelSelection],
   )
 
   const handleDeleteSelected = useCallback(

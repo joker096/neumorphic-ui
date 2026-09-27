@@ -1,4 +1,5 @@
 import { ICQ_EMOJI_MAP as ICQ_EMOJI_DATA } from '../data/emojis/icq';
+import { ICQ_FREE_STICKER_COUNT } from '../config/premium';
 import { preloadICQTheme, getCachedEmoji } from './emojiCache';
 
 export interface ICQEmoji {
@@ -25,8 +26,9 @@ export function getICQEmojiUrl(emoji: ICQEmoji, theme: 'light' | 'dark'): string
   return getICQEmojiPath(emoji.file.replace('.gif', ''), theme);
 }
 
-export function getIcqStickerIds(_premium: boolean): string[] {
-  return ICQ_EMOJI_DATA.map(e => e.id);
+export function getIcqStickerIds(premium: boolean): string[] {
+  const ids = ICQ_EMOJI_DATA.map(e => e.id);
+  return premium ? ids : ids.slice(0, ICQ_FREE_STICKER_COUNT);
 }
 
 export { ICQ_EMOJI_DATA as ICQ_EMOJI_MAP };

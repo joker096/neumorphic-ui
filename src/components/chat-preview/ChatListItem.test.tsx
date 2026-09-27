@@ -150,4 +150,47 @@ describe('ChatListItem', () => {
       expect(el.hasAttribute('aria-hidden')).toBe(false);
     });
   });
+
+  it('long press requests the menu with the row rect so it anchors to the row', async () => {
+    vi.useFakeTimers();
+    try {
+      const onMenuRequest = vi.fn();
+      const { container } = render(<ChatListItem {...defaultProps} onMenuRequest={onMenuRequest} />);
+      const listitem = container.querySelector('[role="listitem"]') as HTMLElement;
+      const row = Array.from(listitem.children).at(-1) as HTMLElement;
+      row.getBoundingClientRect = () =>
+        ({ left: 12, top: 240, right: 372, bottom: 304, width: 360, height: 64 }) as DOMRect;
+
+      fireEvent.pointerDown(row, { bubbles: true });
+      vi.advanceTimersByTime(600);
+
+      expect(onMenuRequest).toHaveBeenCalledTimes(1);
+      expect(onMenuRequest.mock.calls[0][1]).toBeNull();
+      expect(onMenuRequest.mock.calls[0][2]).toEqual({
+        left: 12,
+        top: 240,
+        right: 372,
+        bottom: 304,
+        width: 360,
+        height: 64,
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not request a menu on long press in select mode', () => {
+    vi.useFakeTimers();
+    try {
+      const onMenuRequest = vi.fn();
+      const { container } = render(<ChatListItem {...defaultProps} onMenuRequest={onMenuRequest} selectMode />);
+      const listitem = container.querySelector('[role="listitem"]') as HTMLElement;
+      const row = Array.from(listitem.children).at(-1) as HTMLElement;
+      fireEvent.pointerDown(row, { bubbles: true });
+      vi.advanceTimersByTime(600);
+      expect(onMenuRequest).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

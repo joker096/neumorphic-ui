@@ -5,6 +5,7 @@ import { FormattedText } from "./FormattedText";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { useAppStore } from "../../store";
 import { p2pNetwork } from "../../lib/p2p/network";
+import type { MenuAnchorRect } from "./ChatContextMenu";
 
 interface ChatListItemProps {
   chat: any;
@@ -24,7 +25,7 @@ interface ChatListItemProps {
   selectMode?: boolean;
   selected?: boolean;
   onToggleSelect?: () => void;
-  onMenuRequest?: (chat: any, anchor: { x: number; y: number } | null) => void;
+  onMenuRequest?: (chat: any, anchor: { x: number; y: number } | null, anchorRect?: MenuAnchorRect | null) => void;
   draftText?: string;
 }
 
@@ -80,12 +81,13 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
     setIsPressing(false);
   }, []);
 
-  const handlePointerDown = useCallback(() => {
+  const handlePointerDown = useCallback((e?: React.PointerEvent) => {
     if (!selectMode && onMenuRequest) {
       setIsPressing(true);
+      const rect = e?.currentTarget.getBoundingClientRect?.() ?? null;
       pressTimer.current = setTimeout(() => {
         setIsPressing(false);
-        onMenuRequest?.(chat, null);
+        onMenuRequest?.(chat, null, rect);
         navigator.vibrate?.(50);
       }, PRESS_DURATION);
     }

@@ -35,6 +35,8 @@ export interface ActiveChatWorkspaceArgs {
   handlePreviewCall: (name: string, color?: string, type?: string) => void;
   handlePreviewMessage: (name: string, color?: string) => void;
   setEditingContact: (contact: Contact | null) => void;
+  /** Locked sticker-pack upsell target (Settings → Premium). */
+  onOpenPremium?: () => void;
 }
 
 export function useActiveChatWorkspace(args: ActiveChatWorkspaceArgs) {
@@ -46,7 +48,7 @@ export function useActiveChatWorkspace(args: ActiveChatWorkspaceArgs) {
     draftTextByChat, setDraftTextByChat, setChats, setChannels, setVoiceNoteError,
     setSilentMode, setMorseMode, savedMessages, toggleSavedMessage,
     handleSendMessage, sendVoiceMessage, sendStickerMessage,
-    handlePreviewCall, handlePreviewMessage, setEditingContact,
+    handlePreviewCall, handlePreviewMessage, setEditingContact, onOpenPremium,
   } = args;
 
   const activeChatWorkspaceProps = useMemo(() => ({
@@ -84,6 +86,7 @@ export function useActiveChatWorkspace(args: ActiveChatWorkspaceArgs) {
     onPreviewVideoCall: (name: string, color?: string) => handlePreviewCall(name, color, 'video'),
     onPreviewMessage: handlePreviewMessage,
     setEditingContact,
+    onOpenPremium,
     onToggleMute: () => {
       setActiveChat((prev: any) => prev ? { ...prev, isMuted: !prev.isMuted } : null);
       setChannels((prev: any[]) => prev.map((channel: any) => channel.id === activeChat?.id ? { ...channel, isMuted: !activeChat?.isMuted } : channel) as any);
@@ -103,6 +106,7 @@ export function useActiveChatWorkspace(args: ActiveChatWorkspaceArgs) {
     setDraftTextByChat, setChats, setChannels, setVoiceNoteError, setSilentMode,
     setMorseMode, toggleSavedMessage, savedMessages, activeChat?.isMuted, setEditingContact,
     handleSendMessage, sendVoiceMessage, sendStickerMessage, handlePreviewCall, handlePreviewMessage,
+    onOpenPremium,
   ]);
 
   return activeChatWorkspaceProps;

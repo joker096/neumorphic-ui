@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getICQStickerSrc, ICQ_EMOJI_MAP, getIcqStickerIds } from './icqEmojis';
+import { ICQ_FREE_STICKER_COUNT } from '../config/premium';
 
 describe('getICQStickerSrc', () => {
   it('returns an ICQ sticker path for stored ICQ sticker codes', () => {
@@ -19,8 +20,11 @@ describe('ICQ_EMOJI_MAP', () => {
 });
 
 describe('getIcqStickerIds', () => {
-  it('returns the full ICQ pack for every tier (ICQ is free)', () => {
-    expect(getIcqStickerIds(false)).toHaveLength(ICQ_EMOJI_MAP.length);
+  it('limits the free tier to the first ICQ_FREE_STICKER_COUNT stickers', () => {
+    expect(getIcqStickerIds(false)).toHaveLength(Math.min(ICQ_FREE_STICKER_COUNT, ICQ_EMOJI_MAP.length));
+  });
+
+  it('unlocks the full ICQ pack for premium', () => {
     expect(getIcqStickerIds(true)).toHaveLength(ICQ_EMOJI_MAP.length);
   });
 });

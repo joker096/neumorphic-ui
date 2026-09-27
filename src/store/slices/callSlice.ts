@@ -1,12 +1,18 @@
 import type { ActiveCall, IncomingCall } from '../../lib/call/types';
-import type { CallFolder } from '../types';
 
 export type CallHistoryType = 'missed' | 'incoming' | 'outgoing' | 'declined';
 
 export interface CallHistoryEntry {
   id: string;
   name: string;
-  time: string;
+  /**
+   * Legacy display string produced by an older build (host-runtime locale).
+   * Kept for entries already persisted in IDB / backups; new rows carry `at`
+   * and the call log formats that with the selected UI language.
+   */
+  time?: string;
+  /** Epoch ms of the call — rendered through `formatTime(value, lang)`. */
+  at?: number;
   type: CallHistoryType;
   duration?: string;
   recordingId?: string;
@@ -23,10 +29,6 @@ export interface CallSlice {
   setCallHistory: (updater: CallHistoryEntry[] | ((prev: CallHistoryEntry[]) => CallHistoryEntry[])) => void;
   addCallToHistory: (entry: { name: string; type: CallHistoryType; duration?: string; recordingId?: string }) => void;
   clearCallHistory: () => void;
-  callFolders: CallFolder[];
-  addCallFolder: (folder: Omit<CallFolder, 'id'>) => void;
-  removeCallFolder: (id: string) => void;
-  setCallFolderFilter: (id: string, filter: CallFolder['filter']) => void;
   recordings: any[];
   setRecordings: (list: any[]) => void;
   recordingsSearchQuery: string;
@@ -49,23 +51,9 @@ export const createCallSlice = (set: any, get: any): CallSlice => ({
     callHistory: typeof updater === 'function' ? updater(state.callHistory) : updater
   })),
   addCallToHistory: (entry) => set((state: any) => ({
-    callHistory: [{ id: String(Date.now()), time: new Date().toLocaleTimeString(), ...entry }, ...state.callHistory]
+    callHistory: [{ id: String(Date.now()), at: Date.now(), ...entry }, ...state.callHistory]
   })),
   clearCallHistory: () => set({ callHistory: [] }),
-  callFolders: [
-    { id: 'all', name: 'All', filter: 'all' },
-    { id: 'recent', name: 'Recent', filter: 'all' },
-    { id: 'missed', name: 'Missed', filter: 'missed' },
-  ],
-  addCallFolder: (folder) => set((state: any) => ({
-    callFolders: [...state.callFolders, { ...folder, id: `folder_${Date.now()}` }]
-  })),
-  removeCallFolder: (id) => set((state: any) => ({
-    callFolders: state.callFolders.filter((f: CallFolder) => f.id !== id)
-  })),
-  setCallFolderFilter: (id, filter) => set((state: any) => ({
-    callFolders: state.callFolders.map((f: CallFolder) => f.id === id ? { ...f, filter } : f)
-  })),
   recordings: [],
   setRecordings: (list) => set({ recordings: list }),
   recordingsSearchQuery: '',

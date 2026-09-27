@@ -129,6 +129,17 @@ describe('StickerPicker', () => {
     expect(mockOnSelect).not.toHaveBeenCalled();
   });
 
+  it('navigates to Premium and closes instead of toasting when onOpenPremium is wired (D5)', () => {
+    const onOpenPremium = vi.fn();
+    render(<StickerPicker {...defaultProps} onOpenPremium={onOpenPremium} />);
+    const teasers = screen.getAllByLabelText('premium.stickerLocked');
+    fireEvent.click(teasers[0]);
+    expect(onOpenPremium).toHaveBeenCalledTimes(1);
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+    expect(mockToast).not.toHaveBeenCalled();
+    expect(mockOnSelect).not.toHaveBeenCalled();
+  });
+
   it('hides the teaser for premium', () => {
     mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
     render(<StickerPicker {...defaultProps} />);

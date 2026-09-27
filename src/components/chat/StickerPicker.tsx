@@ -22,9 +22,11 @@ interface StickerPickerProps {
   theme: 'light' | 'dark';
   onSelect: (emoji: string) => void;
   onClose: () => void;
+  /** Navigates to Settings → Premium (locked-pack upsell). Falls back to a toast when absent. */
+  onOpenPremium?: () => void;
 }
 
-export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) => {
+export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: StickerPickerProps) => {
   const { t } = useI18n();
   const premium = useAppStore(s => s.premiumEntitlement.premium);
   const isDark = theme === 'dark';
@@ -92,7 +94,14 @@ export const StickerPicker = ({ theme, onSelect, onClose }: StickerPickerProps) 
               })}
               {pack.id !== 'icq' && !premium && (
                 <button
-                  onClick={() => toast(t('premium.stickerLocked', 'This sticker pack is available with Premium'))}
+                  onClick={() => {
+                    if (onOpenPremium) {
+                      onOpenPremium();
+                      onClose();
+                      return;
+                    }
+                    toast(t('premium.stickerLocked', 'This sticker pack is available with Premium'));
+                  }}
                   aria-label={t('premium.stickerLocked', 'This sticker pack is available with Premium')}
                   className="min-w-11 min-h-11 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
                 >

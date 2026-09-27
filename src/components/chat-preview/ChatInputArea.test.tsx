@@ -271,4 +271,122 @@ describe('ChatInputArea (channel)', () => {
       expect(screen.getByText('chat.articleInvalid')).toBeInTheDocument();
     });
   });
+
+  describe('ChatInputArea mention autocomplete', () => {
+    const activeDmChat = {
+      id: 'dm-alice',
+      name: 'Alice Smith',
+      type: 'dm',
+      history: [],
+    };
+    const groupChat = {
+      id: 'group-design',
+      name: 'Design Team',
+      type: 'group',
+      history: [],
+      memberIds: ['c-alice', 'c-bob'],
+      members: [
+        { id: 'c-alice', name: 'Alice Smith', color: '#fff', role: 'member' },
+        { id: 'c-bob', name: 'Bob', color: '#000', role: 'member' },
+      ],
+    };
+    const cyrillicGroupChat = {
+      id: 'group-anna',
+      name: 'Команда',
+      type: 'group',
+      history: [],
+      memberIds: ['c-anna'],
+      members: [{ id: 'c-anna', name: 'Анна Иванова', color: '#0f0', role: 'member' }],
+    };
+    const MentionWrapper: React.FC<{ sendMessage?: any; chat?: any }> = ({ sendMessage, chat }) => {
+      const [text, setText] = useState('');
+      return (
+        <ChatInputArea
+          {...channelProps(OWNER_ID)}
+          chat={chat ?? activeDmChat}
+          isChannel={false}
+          eMsgText={text}
+          setMsgTextFn={setText}
+          sendMessage={sendMessage ?? vi.fn()}
+          handleImageAttach={vi.fn()}
+        />
+      );
+    };
+
+    const typeInto = (input: HTMLTextAreaElement, value: string) => {
+      fireEvent.change(input, { target: { value } });
+      input.setSelectionRange(value.length, value.length);
+      fireEvent.select(input);
+    };
+
+    beforeEach(() => {
+      useAppStore.setState({
+        contacts: [
+          { id: 'c-alice', name: 'Alice Smith', color: '#fff', lastSeen: 0 },
+          { id: 'c-bob', name: 'Bob', color: '#000', lastSeen: 0 },
+          { id: 'c-anna', name: 'Анна Иванова', color: '#0f0', lastSeen: 0 },
+        ] as any,
+      });
+    });
+
+    it('opens the mention menu for the active DM peer only', () => {
+      render(<MentionWrapper />);
+      const input = screen.getByLabelText('chat.messagePlaceholder') as HTMLTextAreaElement;
+      typeInto(input, '@a');
+      expect(screen.getByRole('menu', { name: 'notif.settings.mentions' })).toBeInTheDocument();
+      expect(screen.getAllByRole('menuitem')).toHaveLength(1);
+      expect(screen.getByText('@Alice_Smith')).toBeInTheDocument();
+      expect(input).toHaveAttribute('aria-activedescendant', 'chat-mention-menu-0');
+      typeInto(input, '@b');
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    it('inserts the picked mention on click and closes the menu', () => {
+      render(<MentionWrapper />);
+      const input = screen.getByLabelText('chat.messagePlaceholder') as HTMLTextAreaElement;
+      typeInto(input, '@a');
+      fireEvent.click(screen.getByText('@Alice_Smith'));
+      expect(input).toHaveValue('@Alice_Smith ');
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    it('uses only active group members for suggestions', () => {
+      render(<MentionWrapper chat={groupChat} />);
+      const input = screen.getByLabelText('chat.messagePlaceholder') as HTMLTextAreaElement;
+      typeInto(input, '@');
+      expect(screen.getAllByRole('menuitem')).toHaveLength(2);
+      expect(screen.queryByText('@Анна_Иванова')).not.toBeInTheDocument();
+    });
+
+    it('navigates rows with arrows and inserts with Enter', () => {
+      render(<MentionWrapper chat={groupChat} />);
+      const input = screen.getByLabelText('chat.messagePlaceholder') as HTMLTextAreaElement;
+      typeInto(input, '@');
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(input).toHaveValue('@Bob ');
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    it('inserts Unicode handles for group members', () => {
+      render(<MentionWrapper chat={cyrillicGroupChat} />);
+      const input = screen.getByLabelText('chat.messagePlaceholder') as HTMLTextAreaElement;
+      typeInto(input, '@ан');
+      fireEvent.click(screen.getByText('@Анна_Иванова'));
+      expect(input).toHaveValue('@Анна_Иванова ');
+    });
+
+    it('Escape closes the menu without inserting, Enter still sends', () => {
+      const sendMessage = vi.fn();
+      render(<MentionWrapper sendMessage={sendMessage} />);
+      const input = screen.getByLabelText('chat.messagePlaceholder') as HTMLTextAreaElement;
+      typeInto(input, '@a');
+      fireEvent.keyDown(input, { key: 'Escape' });
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      expect(input).toHaveValue('@a');
+      expect(sendMessage).not.toHaveBeenCalled();
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(sendMessage).toHaveBeenCalledTimes(1);
+    });
+  });
 });

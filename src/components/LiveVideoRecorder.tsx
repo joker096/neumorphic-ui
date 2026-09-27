@@ -115,7 +115,7 @@ export const LiveVideoRecorder = ({ onCancel, onSend, onPermissionDenied }: Live
 
         <div className="relative w-11 h-11 rounded-full overflow-hidden ring-2 ring-[var(--accent)] shrink-0">
           <video ref={videoRef} muted playsInline className="w-full h-full object-cover" />
-          {!isRecording && <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-[10px] text-white">{label('videoRecorder.preparing', 'Preparing…')}</div>}
+          {!isRecording && <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-[11px] text-white">{label('videoRecorder.preparing', 'Preparing…')}</div>}
         </div>
 
         <div className="flex-1 flex items-center gap-2 overflow-hidden">

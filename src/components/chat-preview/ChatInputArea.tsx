@@ -11,6 +11,36 @@ import { ChatInputVoiceError } from "./ChatInputVoiceError";
 import { MorsePreview } from "./MorsePreview";
 import { p2pNetwork } from "../../lib/p2p/network";
 import { useAppStore } from "../../store";
+import { useMentionAutocomplete } from "../../hooks/useMentionAutocomplete";
+import type { MentionCandidate, MentionSuggestion } from "../../types";
+import { createMentionHandle } from "../../types/mention";
+
+const MENTION_MENU_ID = "chat-mention-menu";
+
+type MentionSource = {
+  id?: string | number;
+  name?: string;
+  username?: string;
+  telegram?: string;
+  avatar?: string;
+};
+
+const toMentionCandidate = (source: MentionSource | null | undefined): MentionCandidate | null => {
+  const name = typeof source?.name === "string" ? source.name.trim() : "";
+  const suppliedUsername = typeof source?.username === "string"
+    ? source.username.trim()
+    : typeof source?.telegram === "string"
+      ? source.telegram.trim()
+      : "";
+  const username = createMentionHandle((suppliedUsername || name).replace(/^@/, ""));
+  if (!name || !username) return null;
+  return {
+    id: String(source?.id ?? username),
+    name,
+    username,
+    avatar: typeof source?.avatar === "string" ? source.avatar : undefined,
+  };
+};
 
 interface ChatInputAreaProps {
   isDark: boolean;
@@ -47,6 +77,8 @@ interface ChatInputAreaProps {
   setChannels?: (updater: any) => void;
   theme: "light" | "dark";
   t: (key: string, opts?: any) => string;
+  /** Locked sticker-pack upsell target (Settings → Premium). */
+  onOpenPremium?: () => void;
 }
 
 function ChatInputAreaImpl({
@@ -81,9 +113,10 @@ function ChatInputAreaImpl({
     onPasteFiles,
     onAction,
     sendVideoNote,
-  setChannels,
+    setChannels,
   theme,
   t,
+  onOpenPremium,
 }: ChatInputAreaProps) {
   const { t: translate } = useI18n();
   const showTyping = useAppStore((state) => state.typingIndicators);
@@ -92,6 +125,97 @@ function ChatInputAreaImpl({
   const idleTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [pendingMedia, setPendingMedia] = React.useState<Array<{ url: string; type: 'image' | 'video' }>>([]);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
+  const contacts = useAppStore((state) => state.contacts);
+  const [mentionCaret, setMentionCaret] = React.useState(0);
+  const [mentionIndex, setMentionIndex] = React.useState(0);
+  const [mentionDismissed, setMentionDismissed] = React.useState(false);
+  // Lookup indexes built once per contacts change. Scanning the array per lookup
+  // re-normalized every contact's handle (NFKC + two regex passes) for each
+  // candidate examined; here each contact is indexed exactly once.
+  const { byId, byName, byUsername } = React.useMemo(() => {
+    const id = new Map<string, MentionSource>();
+    const name = new Map<string, MentionSource>();
+    const username = new Map<string, MentionSource>();
+    for (const contact of (contacts ?? []) as MentionSource[]) {
+      const idKey = String(contact?.id ?? "");
+      if (idKey && !id.has(idKey)) id.set(idKey, contact);
+      const nameKey = typeof contact?.name === "string" ? contact.name.trim().toLowerCase() : "";
+      if (nameKey && !name.has(nameKey)) name.set(nameKey, contact);
+      const handle = toMentionCandidate(contact)?.username.toLowerCase();
+      if (handle && !username.has(handle)) username.set(handle, contact);
+    }
+    return { byId: id, byName: name, byUsername: username };
+  }, [contacts]);
+  const mentionCandidates = React.useMemo<MentionCandidate[]>(() => {
+    if (isChannel) return [];
+    const selfId = String(userProfile.id);
+
+    const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
+    if (isGroup) {
+      const memberIds = Array.isArray(chat?.memberIds) ? chat.memberIds : undefined;
+      const members: MentionSource[] = Array.isArray(chat?.members) && chat.members.length > 0
+        ? chat.members
+        : memberIds
+          ? memberIds.map((id: string) => byId.get(String(id))).filter(Boolean) as MentionSource[]
+          : [];
+      // Single pass with a seen-set: the previous `all.findIndex(...)` filter was
+      // quadratic in the member count (a 500-member group did 250k comparisons).
+      const seen = new Set<string>();
+      const candidates: MentionCandidate[] = [];
+      for (const member of members) {
+        const candidate = toMentionCandidate(member);
+        if (!candidate || candidate.id === selfId || seen.has(candidate.id)) continue;
+        seen.add(candidate.id);
+        candidates.push(candidate);
+      }
+      return candidates;
+    }
+
+    const chatName = typeof chat?.name === "string" ? chat.name.trim() : "";
+    const peerId = chat?.contactId ?? chat?.peerId ?? chat?.memberIds?.[0];
+    const chatUsername = typeof chat?.username === "string"
+      ? createMentionHandle(chat.username.replace(/^@/, "")).toLowerCase()
+      : "";
+    const peer = (peerId !== undefined && peerId !== null ? byId.get(String(peerId)) : undefined)
+      ?? (chatUsername ? byUsername.get(chatUsername) : undefined)
+      ?? (chatName !== "" ? byName.get(chatName.toLowerCase()) : undefined);
+    const candidate = toMentionCandidate(peer ?? (chatName
+      ? { id: chat?.id ?? chatName, name: chatName, username: chat?.username }
+      : null));
+    return candidate && candidate.id !== selfId ? [candidate] : [];
+  }, [byId, byName, byUsername, chat, isChannel, userProfile.id]);
+  const {
+    token: mentionToken,
+    suggestions: mentionSuggestions,
+    replace: replaceMention,
+  } = useMentionAutocomplete(eMsgText, mentionCaret, { contacts: mentionCandidates });
+  const mentionOpen = !mentionDismissed && !!mentionToken && mentionSuggestions.length > 0;
+  const activeMentionIndex = mentionSuggestions.length > 0
+    ? Math.min(mentionIndex, mentionSuggestions.length - 1)
+    : 0;
+
+  React.useEffect(() => {
+    setMentionCaret(0);
+    setMentionIndex(0);
+    setMentionDismissed(false);
+  }, [chat?.id]);
+
+  const applyMention = (suggestion: MentionSuggestion) => {
+    const next = replaceMention(suggestion.username);
+    if (next === null || !mentionToken) return;
+    const suffix = eMsgText.slice(mentionToken.end);
+    const caret = next.length - suffix.length;
+    setMsgTextFn(next);
+    setMentionCaret(caret);
+    setMentionIndex(0);
+    setMentionDismissed(true);
+    requestAnimationFrame(() => {
+      const el = inputRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(caret, caret);
+    });
+  };
   const [showAttachMenu, setShowAttachMenu] = React.useState(false);
   const [showVideoRecorder, setShowVideoRecorder] = React.useState(false);
   const dmMediaInputRef = React.useRef<HTMLInputElement>(null);
@@ -491,7 +615,31 @@ function ChatInputAreaImpl({
         </div>
       )}
 
-      <div className="message-composer shrink-0 mx-2 sm:mx-3 mb-3 mt-1 flex flex-wrap sm:flex-nowrap">
+      <div className="message-composer relative shrink-0 mx-2 sm:mx-3 mb-3 mt-1 flex flex-wrap sm:flex-nowrap">
+        {mentionOpen && (
+          <div
+            id={MENTION_MENU_ID}
+            role="menu"
+            aria-label={t("notif.settings.mentions")}
+            className="glass-menu absolute bottom-full left-0 right-0 mb-2 z-50 max-h-56 overflow-y-auto"
+          >
+            {mentionSuggestions.map((suggestion, index) => (
+              <button
+                id={`${MENTION_MENU_ID}-${index}`}
+                key={suggestion.id}
+                type="button"
+                role="menuitem"
+                aria-selected={index === activeMentionIndex}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => applyMention(suggestion)}
+                className={`glass-menu-item ${index === activeMentionIndex ? "bg-[var(--msg-bg-panel-hover)]" : ""}`}
+              >
+                <span className="min-w-0 flex-1 truncate">{suggestion.name}</span>
+                <span className="text-xs text-[var(--msg-text-muted)] truncate">@{suggestion.username}</span>
+              </button>
+            ))}
+          </div>
+        )}
         {!eIsRecordingVoice && (
           <>
             <div className="relative group">
@@ -583,8 +731,12 @@ function ChatInputAreaImpl({
             value={eMsgText}
             onChange={(e) => {
               setMsgTextFn(e.target.value);
+              setMentionCaret(e.target.selectionStart ?? e.target.value.length);
+              setMentionIndex(0);
+              setMentionDismissed(false);
               growTextarea(e.target);
             }}
+            onSelect={(e) => setMentionCaret(e.currentTarget.selectionStart ?? 0)}
             onPaste={(e) => {
               const files = e.clipboardData?.files;
               if (files && files.length) {
@@ -592,9 +744,37 @@ function ChatInputAreaImpl({
                 onPasteFiles?.(files);
               }
             }}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+            onKeyDown={(e) => {
+              if (mentionOpen) {
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setMentionIndex((i) => (i + 1) % mentionSuggestions.length);
+                  return;
+                }
+                if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setMentionIndex((i) => (i - 1 + mentionSuggestions.length) % mentionSuggestions.length);
+                  return;
+                }
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  const picked = mentionSuggestions[activeMentionIndex];
+                  if (picked) applyMention(picked);
+                  return;
+                }
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  setMentionDismissed(true);
+                  return;
+                }
+              }
+              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            }}
             placeholder={messagePlaceholder}
             aria-label={messagePlaceholder}
+            aria-autocomplete="list"
+            aria-controls={mentionOpen ? MENTION_MENU_ID : undefined}
+            aria-activedescendant={mentionOpen ? `${MENTION_MENU_ID}-${activeMentionIndex}` : undefined}
             autoComplete="off"
             inputMode="text"
             enterKeyHint="send"
@@ -687,6 +867,7 @@ function ChatInputAreaImpl({
               setShowStickerPickerFn2(false);
             }}
             onClose={() => setShowStickerPickerFn2(false)}
+            onOpenPremium={onOpenPremium}
           />
         </div>
       )}

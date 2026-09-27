@@ -12,6 +12,7 @@ import { InlineKeyboard } from "../features/bot/InlineKeyboard";
 import { toast } from "../ui/Toast";
 import { getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
 import { useMessageGestures } from "./useMessageGestures";
+import type { MenuAnchorRect } from "./menuPosition";
 import { AttachmentMedia } from "./AttachmentMedia";
 import { MessageTimestamp } from "./MessageTimestamp";
 import { BubbleActions } from "./BubbleActions";
@@ -73,6 +74,11 @@ function ChatMessageImpl({
   onRetry,
 }: ChatMessageProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [menuAnchorRect, setMenuAnchorRect] = React.useState<MenuAnchorRect | null>(null);
+  const openMessageMenu = React.useCallback((anchorRect: MenuAnchorRect | null) => {
+    setMenuAnchorRect(anchorRect);
+    setMenuOpen(true);
+  }, []);
   const [editing, setEditing] = React.useState(false);
   const [draftText, setDraftText] = React.useState("");
   const { t } = useI18n();
@@ -88,8 +94,15 @@ function ChatMessageImpl({
       ? undefined
       : contactAvatars?.[displayName];
   const avatarColor = isMe ? undefined : chat?.color;
+  // Avatars live in the outer gutter for every non-channel message, so identity
+  // stays readable for media, stickers and edits too — not just plain text.
+  const showAvatar = !isChannel;
+  const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
+  const showSenderName = showAvatar && isGroup && isGroupFirst && !isMe && !!displayName;
+  // Render-side guarantee: expired content is never shown, even if the central
+  // sweep (useSelfDestructSweep) is late — it also erases the stored message.
   const [expired, setExpired] = React.useState(
-    () => typeof msg.selfDestructAt === "number" && Date.now() > (msg.selfDestructAt as number),
+    () => typeof msg.selfDestructAt === "number" && Date.now() >= (msg.selfDestructAt as number),
   );
 
   React.useEffect(() => {
@@ -97,7 +110,7 @@ function ChatMessageImpl({
       setExpired(false);
       return;
     }
-    const check = () => setExpired(Date.now() > (msg.selfDestructAt as number));
+    const check = () => setExpired(Date.now() >= (msg.selfDestructAt as number));
     const remaining = (msg.selfDestructAt as number) - Date.now();
     if (remaining <= 0) {
       setExpired(true);
@@ -121,7 +134,7 @@ function ChatMessageImpl({
     onReply,
     onReactionMessage,
     onSetBounceMsgId,
-    onOpenMenu: () => setMenuOpen(true),
+    onOpenMenu: openMessageMenu,
   });
   const [translation, setTranslation] = React.useState<string | null>(null);
   const [translating, setTranslating] = React.useState(false);
@@ -210,6 +223,15 @@ function ChatMessageImpl({
         <div className={`absolute ${isMe ? "right-0 rounded-l-full" : "left-0 rounded-r-full"} top-2 bottom-2 w-1.5 bg-[var(--accent)] z-10`} />
       )}
       <div className={`flex flex-wrap items-center relative gap-2 w-full max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
+        {showAvatar && (
+          <Avatar
+            name={displayName || (isMe ? userProfile?.name || "Me" : "?")}
+            src={avatarSrc}
+            color={avatarColor}
+            size="sm"
+            className="msg-gutter-avatar"
+          />
+        )}
         <div
           onClick={handleBubbleClick}
           onContextMenu={handleContextMenu}
@@ -217,16 +239,12 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`msg-bubble message max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit shrink-0 ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
+          className={`msg-bubble message max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit ${showAvatar ? "min-w-0" : "shrink-0"} ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
         >
-          {!isChannel && isGroupFirst && (!msg.type || msg.type === "text") && (
-            <Avatar
-              name={displayName || (isMe ? userProfile?.name || "Me" : "?")}
-              src={avatarSrc}
-              color={avatarColor}
-              size="sm"
-              className="msg-inline-avatar"
-            />
+          {showSenderName && (
+            <div className="mb-1 text-[12px] font-semibold leading-tight text-[var(--accent)]">
+              {displayName}
+            </div>
           )}
           <AttachmentMedia
             msg={msg}
@@ -277,7 +295,7 @@ function ChatMessageImpl({
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
               {msg.edited && (
-                <span className={`ml-1 align-middle text-[10px] uppercase tracking-wide ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+                <span className={`ml-1 align-middle text-[11px] uppercase tracking-wide ${isDark ? "text-gray-500" : "text-slate-400"}`}>
                   {t("chat.edited", "edited")}
                 </span>
               )}
@@ -383,6 +401,7 @@ function ChatMessageImpl({
       <MessageContextMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
+        anchorRect={menuAnchorRect}
         title={typeof msg.text === "string" ? msg.text.slice(0, 48) : t("chat.message")}
         isDark={isDark}
         actions={buildMessageMenuActions({

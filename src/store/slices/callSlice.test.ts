@@ -38,20 +38,21 @@ describe('callSlice', () => {
     expect(h[0].id).toBeTruthy();
   });
 
+  it('addCallToHistory stores a machine timestamp, not a host-locale string', () => {
+    const { slice, get } = makeSlice();
+    const before = Date.now();
+    slice.addCallToHistory({ name: 'Alice', type: 'missed' });
+    const entry = get().callHistory[0];
+    expect(typeof entry.at).toBe('number');
+    expect(entry.at).toBeGreaterThanOrEqual(before);
+    expect(entry.time).toBeUndefined();
+  });
+
   it('clearCallHistory empties history', () => {
     const { slice, get } = makeSlice();
     slice.addCallToHistory({ name: 'A', type: 'incoming' });
     slice.clearCallHistory();
     expect(get().callHistory).toEqual([]);
-  });
-
-  it('addCallFolder and removeCallFolder', () => {
-    const { slice, get } = makeSlice();
-    slice.addCallFolder({ name: 'Work', filter: 'all' });
-    const id = get().callFolders[get().callFolders.length - 1].id;
-    expect(get().callFolders.some((f: any) => f.id === id)).toBe(true);
-    slice.removeCallFolder(id);
-    expect(get().callFolders.some((f: any) => f.id === id)).toBe(false);
   });
 
   it('toggleFavorite flips isFavorite', () => {

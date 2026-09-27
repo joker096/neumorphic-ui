@@ -1,43 +1,30 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { MentionCandidate, MentionToken, MentionSuggestion } from "../types";
+import { isMentionBodyChar } from "../types/mention";
 
-const tokenChars = "@\w'.@-";
+export const MENTION_QUERY_LIMIT = 8;
 
 export function findMentionToken(
   text: string,
   caret: number
 ): MentionToken | null {
-  if (caret <= 0) return null;
-  const before = text.slice(0, Math.max(0, caret));
-  const at = before.lastIndexOf("@");
-  if (at < 0) return null;
-  const prev = at > 0 ? before[at - 1] : "";
-  if (prev && !/\s/.test(prev)) return null;
-  const body = before.slice(at + 1);
-  if (/\s/.test(body)) return null;
-  return { start: at, end: caret, body };
+  const safeCaret = Math.max(0, Math.min(caret, text.length));
+  let end = safeCaret;
+  while (end > 0 && isMentionBodyChar(text[end - 1] ?? "")) end -= 1;
+  const start = end - 1;
+  if (start < 0 || text[start] !== "@") return null;
+  if (start > 0 && isMentionBodyChar(text[start - 1] ?? "")) return null;
+  return { start, end: safeCaret, body: text.slice(start + 1, safeCaret) };
 }
-
-export function mentionTokenFor(
-  text: string,
-  caret: number
-): { at: number; len: number; raw: string } | null {
-  const t = findMentionToken(text, caret);
-  if (!t) return null;
-  return { at: t.start, len: t.body.length + 1, raw: text.slice(t.start, t.end) };
-}
-
-const isCandidateTokenChar = (c: string) => /[\w'.]/.test(c);
 
 export function filterMentionContacts(
   contacts: MentionCandidate[],
   query: string
 ): MentionSuggestion[] {
-  if (!query) return contacts.map((c) => ({ id: c.id, username: c.username, name: c.name, avatar: c.avatar }));
   const q = query.toLowerCase();
   return contacts
-    .filter((c) => c.name.toLowerCase().includes(q) || (c.username && c.username.toLowerCase().includes(q)))
-    .map((c) => ({ id: c.id, username: c.username, name: c.name, avatar: c.avatar }));
+    .filter((contact) => !q || contact.username.toLowerCase().startsWith(q) || contact.name.toLowerCase().includes(q))
+    .slice(0, MENTION_QUERY_LIMIT);
 }
 
 export function applyMentionInsert(
@@ -46,10 +33,19 @@ export function applyMentionInsert(
   username: string,
   literal?: string
 ): { text: string; caret: number } {
-  const tok = findMentionToken(text, caret);
-  const start = tok ? tok.start : caret;
-  const insert = "@" + (literal || username) + " ";
-  return { text: text.slice(0, start) + insert + text.slice(caret), caret: start + insert.length };
+  const safeCaret = Math.max(0, Math.min(caret, text.length));
+  const token = findMentionToken(text, safeCaret);
+  const start = token?.start ?? safeCaret;
+  const suffixStart = token?.end ?? safeCaret;
+  const nextChar = text[safeCaret] ?? "";
+  const separator = /[\p{P}\p{S}\s]/u.test(nextChar) ? "" : " ";
+  const handle = literal ?? username;
+  if (!handle) return { text, caret: safeCaret };
+  const insert = `@${handle}${separator}`;
+  return {
+    text: text.slice(0, start) + insert + text.slice(suffixStart),
+    caret: start + insert.length,
+  };
 }
 
 export type MentionAutocompleteState = {
@@ -78,5 +74,3 @@ export function useMentionAutocomplete(
   );
   return { token, suggestions, replace };
 }
-
-export const mentionTokenForDebug = mentionTokenFor;

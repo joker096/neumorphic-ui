@@ -128,13 +128,6 @@ export interface LocationShare {
   isLive: boolean;
 }
 
-// --- Call Folders ---
-export interface CallFolder {
-  id: string;
-  name: string;
-  filter?: 'all' | 'incoming' | 'outgoing' | 'missed';
-}
-
 // --- Scheduled Messages ---
 export interface ScheduledMessage {
   id: string;

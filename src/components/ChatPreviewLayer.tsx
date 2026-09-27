@@ -16,7 +16,9 @@ import { useChatPreviewState } from "../hooks/useChatPreviewState";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useChatPreviewTyping } from "../hooks/useChatPreviewTyping";
 import { useChatMessageActions } from "../hooks/useChatMessageActions";
+import { useMessageForward } from "../hooks/useMessageForward";
 import { useAppStore } from "../store";
+import { ChatPickerModal } from "./payments/ChatPickerModal";
 import { ConfirmDialog } from "./ui/ConfirmDialog";
 import { Trash2 } from "lucide-react";
 import { toast } from "./ui/Toast";
@@ -67,11 +69,12 @@ interface ChatPreviewLayerProps {
   onToggleSilent?: () => void;
   onToggleMorse?: () => void;
   onToggleStickerPicker?: () => void;
-  onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
+  /** Locked sticker-pack upsell target (Settings → Premium). */
+  onOpenPremium?: () => void;
 }
 
-export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onToggleStickerPicker, onForward, onDelete }: ChatPreviewLayerProps) => {
+export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onToggleStickerPicker, onDelete, onOpenPremium }: ChatPreviewLayerProps) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const isMobile = useIsMobile();
@@ -81,6 +84,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const userProfile = useAppStore((s) => s.userProfile);
   // File drag & drop: same posting rights as the composer (channels — owner only).
   const canAttachFiles = !chat.isChannel || (!!chat.ownerId && chat.ownerId === userProfile?.id);
+  const { forwardOpen, openForward, closeForward, forwardTo } = useMessageForward(chat);
 
   const {
     selectionMode,
@@ -93,7 +97,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     handleCancelSelection,
     handleForwardSelected,
     handleDeleteSelected,
-  } = useChatMessageActions({ chatId: chat.id, onForward, onDelete, onUpdateChat });
+  } = useChatMessageActions({ chatId: chat.id, onForward: openForward, onDelete, onUpdateChat });
 
   const [deleteConfirm, setDeleteConfirm] = React.useState<{ kind: "single" | "bulk"; msg?: any } | null>(null);
 
@@ -315,8 +319,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
           isDark={isDark}
           count={selectedIds.size}
           onCancel={handleCancelSelection}
-          onSelectAll={() => handleSelectAll(chat.messages || [])}
-          onForward={() => handleForwardSelected(chat.messages || [])}
+          onSelectAll={() => handleSelectAll(chat.history || [])}
+          onForward={() => handleForwardSelected(chat.history || [])}
           onCopy={handleCopySelected}
           onSave={handleSaveSelected}
           onDelete={confirmBulkDelete}
@@ -325,7 +329,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
 
       <PinnedMessagesBar
         chatId={chat.id}
-        messages={chat.messages || []}
+        messages={chat.history || []}
         pinnedMessages={pinnedMessageList}
         isDark={isDark}
         onUnpin={(id) => useAppStore.getState().removePinnedMessage(id, chat.id)}
@@ -446,6 +450,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         setChannels={setChannels}
         theme={theme}
         t={t}
+        onOpenPremium={onOpenPremium}
       />
 
       <ChatPreviewOverlays
@@ -496,6 +501,14 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         confirmIcon={<Trash2 size={18} />}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+      />
+
+      <ChatPickerModal
+        open={forwardOpen}
+        onClose={closeForward}
+        onPick={forwardTo}
+        title={t("chat.forward", "Forward")}
+        excludeChatId={chat.id}
       />
     </motion.div>
   );

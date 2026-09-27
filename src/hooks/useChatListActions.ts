@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useAppStore } from "../store";
-import { buildMenuIcon, type ContextMenuItem } from "../components/chat-preview/ChatContextMenu";
+import { buildMenuIcon, type ContextMenuItem, type MenuAnchorRect } from "../components/chat-preview/ChatContextMenu";
 
 interface UseChatListActionsArgs {
   t: (key: string, options?: any) => string;
@@ -14,7 +14,7 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
   const { setChats } = useAppStore();
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
-  const [menu, setMenu] = useState<{ chat: any; anchor: { x: number; y: number } | null } | null>(null);
+  const [menu, setMenu] = useState<{ chat: any; anchor: { x: number; y: number } | null; anchorRect: MenuAnchorRect | null } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ kind: "single"; chat: any } | { kind: "bulk" } | null>(null);
 
   const handleToggleSelect = (chatId: string | number) => {
@@ -90,8 +90,8 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     setDeleteConfirm(null);
   };
 
-  const openMenu = (chat: any, anchor: { x: number; y: number } | null) => {
-    setMenu({ chat, anchor });
+  const openMenu = (chat: any, anchor: { x: number; y: number } | null, anchorRect: MenuAnchorRect | null = null) => {
+    setMenu({ chat, anchor, anchorRect });
   };
 
   const closeMenu = () => setMenu(null);

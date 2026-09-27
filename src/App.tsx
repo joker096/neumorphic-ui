@@ -15,6 +15,7 @@ import { useP2PBoot } from './hooks/useP2PBoot';
 import { useChatPresence } from './hooks/useChatPresence';
 import { useSoundSettingsSync } from './hooks/useSoundSettingsSync';
 import { useP2PMessages } from './hooks/useP2PMessages';
+import { useSelfDestructSweep } from './hooks/useSelfDestructSweep';
 import { useRefMessageActions } from './hooks/useRefMessageActions';
 import { useActiveChatWorkspace } from './hooks/useActiveChatWorkspace';
 import { useFilteredChats } from './hooks/useFilteredChats';
@@ -49,6 +50,8 @@ export default function App() {
   const setBots = useAppStore(s => s.setBots);
   const scheduledQueue = useAppStore(s => s.scheduledQueue);
   const archivedChats = useAppStore(s => s.archivedChats);
+  const draftsEnabled = useAppStore(s => s.draftsEnabled);
+  const spamFilter = useAppStore(s => s.spamFilter);
   const toggleArchive = useAppStore(s => s.toggleArchive);
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
@@ -137,6 +140,11 @@ export default function App() {
   const [chatSearchQuery, setChatSearchQuery] = useState("");
   const [pendingInvite, setPendingInvite] = useState<string | null>(null);
 
+  // Self-destruct deadlines actually erase the message (store list + saved
+  // messages + voice/file blobs) — the bubble component only hides expired
+  // content, so without this the plaintext would live forever.
+  useSelfDestructSweep({ activeChat, setActiveChat, setSavedMessages });
+
   // Clear any pending reply when switching to a different contact/chat
   const activeChatIdRef = useRef(activeChat?.id ?? null);
   useEffect(() => {
@@ -150,9 +158,10 @@ export default function App() {
     }
   }, [activeChat?.id, setReplyTarget, draftTextByChat, setMessageText, setShowStickerPicker, setMorseMode]);
 
-  // Persist draft text per chat §55
+  // Persist draft text per chat §55 — gated by settings.draftsEnabled
   useEffect(() => {
     if (!activeChat) return;
+    if (!draftsEnabled) return;
     const chatId = String(activeChat.id);
     setDraftTextByChat((prev) => {
       if (messageText) {
@@ -166,7 +175,14 @@ export default function App() {
       }
       return prev;
     });
-  }, [messageText, activeChat?.id]);
+  }, [messageText, activeChat?.id, draftsEnabled]);
+
+  // Switching drafts off wipes everything already kept on disk — the setting
+  // promises nothing is retained, so stale drafts must not survive the toggle.
+  useEffect(() => {
+    if (draftsEnabled) return;
+    setDraftTextByChat((prev) => (Object.keys(prev).length ? {} : prev));
+  }, [draftsEnabled]);
   const { filteredChats, filteredChannels } = useFilteredChats(
     chats,
     chatSearchQuery,
@@ -174,6 +190,8 @@ export default function App() {
     archivedChats,
     advancedFilters,
     channels,
+    contacts,
+    spamFilter,
   );
 
   useBrowserBackNavigation({
@@ -232,6 +250,11 @@ export default function App() {
       setSubView(null);
     }
   }, [navOrigin, setView, setSubView]);
+
+  // Single house upsell target for every premium gate (side list, CRM, profile, locked stickers).
+  const openPremium = useCallback(() => {
+    pushView("settings", "premium");
+  }, [pushView]);
 
   const {
     sendVoiceMessage, sendStickerMessage, handleSendMessage, toggleSavedMessage,
@@ -328,6 +351,7 @@ export default function App() {
     handlePreviewCall: refActions.handlePreviewCallRef,
     handlePreviewMessage: refActions.handlePreviewMessageRef,
     setEditingContact,
+    onOpenPremium: openPremium,
   });
 
   return (

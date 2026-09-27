@@ -64,4 +64,36 @@ describe('MessageContextMenu', () => {
     fireEvent.click(backdrop as HTMLElement);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('anchors next to the pressed bubble instead of using the bottom sheet', () => {
+    const onClose = vi.fn();
+    renderMenu({
+      open: true,
+      onClose,
+      actions: baseActions,
+      anchorRect: { left: 10, top: 220, right: 200, bottom: 300, width: 190, height: 80 },
+    });
+    const menu = screen.getByRole('menu');
+    expect(menu).toBeInTheDocument();
+    expect(menu.style.position).toBe('fixed');
+    expect(menu.style.left).toBe('18px');
+    expect(menu.style.top).toBe('220px');
+    // Sheet-only affordances are gone in anchored mode.
+    expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
+    expect(document.querySelector('.fixed.inset-0 > div')).toBeNull();
+    fireEvent.click(screen.getByText('Copy'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the anchored menu on outside mousedown', () => {
+    const onClose = vi.fn();
+    renderMenu({
+      open: true,
+      onClose,
+      actions: baseActions,
+      anchorRect: { left: 10, top: 220, right: 200, bottom: 300, width: 190, height: 80 },
+    });
+    fireEvent.mouseDown(document.body);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });

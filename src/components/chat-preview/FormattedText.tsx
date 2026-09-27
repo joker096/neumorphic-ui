@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import { MENTION_BODY_SOURCE } from '../../types/mention';
+
+const MENTION_RENDER_PATTERN = new RegExp(
+  `(^|[^\\p{L}\\p{M}\\p{N}\\p{Pc}])(@${MENTION_BODY_SOURCE})`,
+  'gu',
+);
+const MENTION_EXACT_PATTERN = new RegExp(`^@${MENTION_BODY_SOURCE}$`, 'u');
 
 // Very simple recursive formatter for basic markdown-like syntax
 export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchTerm?: string }) => {
@@ -29,9 +36,9 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
   };
 
   const renderMentions = (content: string) => {
-    const mentionParts = content.split(/(@[a-zA-Z0-9_]+)/g);
+    const mentionParts = content.split(MENTION_RENDER_PATTERN);
     return mentionParts.map((chunk, index) => {
-      if (/^@[a-zA-Z0-9_]+$/.test(chunk)) {
+      if (MENTION_EXACT_PATTERN.test(chunk)) {
         return (
           <span key={index} className="bg-amber-400/20 text-amber-700 dark:text-amber-300 dark:bg-amber-500/20 rounded px-1 font-semibold">
             {chunk}
@@ -43,9 +50,12 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
   };
 
   const renderHighlight = (content: string) => {
-    if (!searchTerm) return content;
+    if (!searchTerm) return renderMentions(content);
     const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const regex = new RegExp(`(${escaped})`, 'gi');
+    // No `g` flag: `test` on a global regex advances `lastIndex`, so alternating
+    // chunks were matched against a moving offset and the highlight landed on
+    // the wrong spans. `split` still splits on every occurrence without it.
+    const regex = new RegExp(`(${escaped})`, 'i');
     const splitContent = content.split(regex);
     return splitContent.map((chunk, index) => 
       regex.test(chunk) ? (

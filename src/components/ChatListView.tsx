@@ -343,11 +343,13 @@ export const ChatListView = ({
       </div>
 
       {menu && (
-        <ChatContextMenu
-          anchor={menu.anchor}
-          items={menuItems}
-          onClose={closeMenu}
-        />
+            <ChatContextMenu
+              anchor={menu.anchor}
+              anchorRect={menu.anchorRect}
+              items={menuItems}
+              onClose={closeMenu}
+            />
+
       )}
 
       <ConfirmDialog

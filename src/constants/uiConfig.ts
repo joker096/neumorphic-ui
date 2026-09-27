@@ -1,3 +1,6 @@
+import { useAppStore } from '../store';
+import { MENTION_BODY_SOURCE } from '../types/mention';
+
 /**
  * UI configuration and settings constants
  */
@@ -21,19 +24,20 @@ export const STICKER_PACKS = [
 
 export const STICKER_EMOJI = ['😀', '😂', '🤣', '🤔', '😍', '😎', '🤖', '🥺', '😱', '🤯', '🫡', '🥳'];
 
-export const MENTION_PATTERN = /@(\w+)/g;
+export const MENTION_PATTERN = new RegExp(
+  `(^|[^\\p{L}\\p{M}\\p{N}\\p{Pc}])@(${MENTION_BODY_SOURCE})`,
+  'gu',
+);
 
 export const parseMentions = (text: string): { text: string; mentions: { name: string; index: number }[] } => {
   const mentions: { name: string; index: number }[] = [];
   let match;
   const regex = new RegExp(MENTION_PATTERN);
   while ((match = regex.exec(text)) !== null) {
-    mentions.push({ name: match[1], index: match.index });
+    mentions.push({ name: match[2], index: match.index + match[1].length });
   }
   return { text, mentions };
 };
-
-import { useAppStore } from '../store';
 
 /**
  * Check if DND mode is active based on store settings
