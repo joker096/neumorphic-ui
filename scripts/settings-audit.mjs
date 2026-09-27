@@ -239,22 +239,9 @@ const REGISTRY = [
   ['messageRadius', 'appearance', false, 'Радиус сообщений'],
   ['animationIntensity', 'appearance', false, 'Интенсивность анимаций'],
   ['uiAnimations', 'appearance', false, 'UI анимации'],
-  // hidden 09-10 — документированное скрытие строк (slice+persist остались)
-  ['proxyEnabled', 'network', true, 'Скрыто 09-10'],
-  ['proxyUrl', 'network', true, 'Скрыто 09-10'],
-  ['torBridge', 'network', true, 'Скрыто 09-10'],
-  ['obfuscationMode', 'network', true, 'Скрыто 09-10'],
-  ['p2pMesh', 'network', true, 'Скрыто 09-10'],
-  ['spamFilter', 'privacy', true, 'Скрыто 09-10'],
-  ['deadMansSwitch', 'security', true, 'Скрыто 09-10'],
-  ['visNumber', 'privacy', true, 'Скрыто 09-10'],
-  ['visActivity', 'privacy', true, 'Скрыто 09-10'],
-  ['profilePhotoVisibility', 'privacy', true, 'Скрыто 09-10'],
-  ['callsVisibility', 'privacy', true, 'Скрыто 09-10'],
-  ['messagesFrom', 'privacy', true, 'Скрыто 09-10'],
-  ['draftsEnabled', 'storage', true, 'Скрыто 09-10'],
-  ['offlineMode', 'storage', true, 'Скрыто 09-10'],
-  ['pwaBanner', 'appearance', true, 'Скрыто; InstallAppBanner/useInstallPrompt отсутствуют'],
+  ['spamFilter', 'privacy', false, 'Скрывает чаты не-контактов (useFilteredChats)'],
+  ['draftsEnabled', 'storage', false, 'Гейт сохранения черновиков (App.tsx)'],
+  ['offlineMode', 'storage', false, 'Гейт офлайн-очереди (useOfflineQueue)'],
 ];
 
 // ---- main ------------------------------------------------------------------
@@ -294,7 +281,8 @@ for (const [field, section, hidden, note] of REGISTRY) {
 
 console.log('\n=== SETTINGS AUDIT ===');
 console.log(`Settings scanned: ${REGISTRY.length}`);
-console.log(`Findings: ${FINDINGS.length} (OK/H отдельно: ${INFO.length})`);
+const hiddenFields = INFO.filter(r => r.hidden).map(r => r.field);
+console.log(`Findings: ${FINDINGS.length} (OK/H отдельно: ${INFO.length}, hidden: ${hiddenFields.length})`);
 
 const byClass = new Map();
 for (const f of FINDINGS) {
@@ -315,6 +303,6 @@ for (const cls of [...byClass.keys()].sort((a, b) => {
     if (f.consumer) for (const c of f.consumers.slice(0,3)) console.log(`      consumer: ${c}`);
   }
 }
-console.log(`\nHidden (09-10, решение за пользователем): ${INFO.filter(r=>r.hidden).map(r=>r.field).join(', ')}`);
+console.log(`\nHidden (09-10, решение за пользователем): ${hiddenFields.join(', ') || 'нет — все поля имеют UI или consumer'}`);
 
 process.exit(FINDINGS.filter((f) => f.cls.includes('S3') || f.cls.includes('S4') || f.cls.includes('S1+S2') || f.cls.includes('S1') || f.cls.includes('S2') && !f.hidden).length > 0 ? 2 : 0);

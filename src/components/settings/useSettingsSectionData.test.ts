@@ -16,21 +16,11 @@ const mkState = () => ({
   notifications: false, setNotifications: vi.fn(),
   soundEnabled: false, setSoundEnabled: vi.fn(),
   twoFactor: false, setTwoFactor: vi.fn(),
-  proxyEnabled: false, setProxyEnabled: vi.fn(),
-  spamFilter: true, setSpamFilter: vi.fn(),
-  pwaBanner: false, setPwaBanner: vi.fn(),
-  deadMansSwitch: false, setDeadMansSwitch: vi.fn(),
   mediaAutoLoad: false, setMediaAutoLoad: vi.fn(),
   selfDestructDefault: true, setSelfDestructDefault: vi.fn(),
-  obfuscationMode: 'default', setObfuscationMode: vi.fn(),
   obfuscationEnabled: false, setObfuscationEnabled: vi.fn(),
-  proxyUrl: '', setProxyUrl: vi.fn(),
-  torBridge: false, setTorBridge: vi.fn(),
   relayBackend: 'relay-1', setRelayBackend: vi.fn(),
   autoReconnect: true, setAutoReconnect: vi.fn(),
-  p2pMesh: true, setP2pMesh: vi.fn(),
-  visNumber: false, setVisNumber: vi.fn(),
-  visActivity: false, setVisActivity: vi.fn(),
   uiAnimations: true, setUiAnimations: vi.fn(),
   themeMode: 'system', setThemeMode: vi.fn(),
   accentColor: '#6366f1', setAccentColor: vi.fn(),
@@ -39,9 +29,6 @@ const mkState = () => ({
   density: 'comfortable', setDensity: vi.fn(),
   messageRadius: 12, setMessageRadius: vi.fn(),
   animationIntensity: 'medium', setAnimationIntensity: vi.fn(),
-  profilePhotoVisibility: 'contacts', setProfilePhotoVisibility: vi.fn(),
-  callsVisibility: 'contacts', setCallsVisibility: vi.fn(),
-  messagesFrom: 'everyone', setMessagesFrom: vi.fn(),
   dndEnabled: false, setDndEnabled: vi.fn(),
   dndFrom: '22:00', setDndFrom: vi.fn(),
   dndTo: '08:00', setDndTo: vi.fn(),
@@ -79,8 +66,6 @@ describe('useSettingsSectionData', () => {
     expect(result.current.lang).toBe('en');
     expect(result.current.notificationsEnabled).toBe(false);
     expect(result.current.soundEnabled).toBe(false);
-    expect(result.current.spamFilterEnabled).toBe(true);
-    expect(result.current.proxyEnabled).toBe(false);
     expect(result.current.premiumEntitlement.premium).toBe(false);
   });
 
@@ -104,10 +89,6 @@ describe('useSettingsSectionData', () => {
     expect(state.setNotifications).toHaveBeenCalledWith(true);
     act(() => result.current.setSoundEnabled(true));
     expect(state.setSoundEnabled).toHaveBeenCalledWith(true);
-    act(() => result.current.setProxyEnabled(true));
-    expect(state.setProxyEnabled).toHaveBeenCalledWith(true);
-    act(() => result.current.setSpamFilterEnabled(false));
-    expect(state.setSpamFilter).toHaveBeenCalledWith(false);
     act(() => result.current.setCloudSyncEnabled(true));
     expect(state.setCloudSyncEnabled).toHaveBeenCalledWith(true);
   });

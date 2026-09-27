@@ -130,6 +130,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       cloudSync={cloudSync}
       setCloudSyncEnabled={setCloudSyncEnabled}
       language={language}
+      lang={lang}
     />
   );
 

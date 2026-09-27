@@ -38,6 +38,36 @@ describe('settingsSlice', () => {
     expect(slice.soundVolume).toBe(0.3);
   });
 
+  it('strips legacy persisted keys on boot and rewrites storage', async () => {
+    localStorage.setItem(PRIVACY_KEY, JSON.stringify({
+      readReceipts: false,
+      soundVolume: 0.3,
+      anonymousMode: true,
+      currentLanguage: 'ru',
+      allowForwarding: false,
+      allowMetadata: true,
+      forwardCountLimit: 5,
+      proxy: 'http://proxy',
+      pwaBanner: false,
+      deadMansSwitch: true,
+      obfuscationMode: 'aesgcm',
+      proxyUrl: 'http://proxy',
+      torBridge: true,
+      p2pMesh: false,
+      visNumber: true,
+      visActivity: false,
+      profilePhotoVisibility: 'contacts',
+      callsVisibility: 'everyone',
+      messagesFrom: 'everyone',
+    }));
+    const { createSettingsSlice } = await import('./settingsSlice');
+    mk(createSettingsSlice);
+    const stored = JSON.parse(localStorage.getItem(PRIVACY_KEY)!);
+    expect(stored.readReceipts).toBe(false);
+    expect(stored.soundVolume).toBe(0.3);
+    expect(Object.keys(stored)).toEqual(['readReceipts', 'soundVolume']);
+  });
+
   it('setSoundEnabled updates state and persists', async () => {
     const { createSettingsSlice } = await import('./settingsSlice');
     const { slice, get } = mk(createSettingsSlice);

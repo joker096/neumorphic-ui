@@ -100,7 +100,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
             </div>
             <div>
-              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.darkTheme')}</div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.darkTheme')}</div>
               <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.themeModeSubtitle')}</div>
             </div>
           </div>
@@ -129,7 +129,7 @@ export const AppearanceSettings = ({
               <Sparkles size={16} className={isDark ? "text-purple-400" : "text-purple-600"} />
             </div>
             <div>
-              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.animations')}</div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.animations')}</div>
               <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.animationsSubtitle')}</div>
             </div>
           </div>
@@ -148,7 +148,7 @@ export const AppearanceSettings = ({
               <Sparkles size={16} className="t-accent" />
             </div>
             <div>
-              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.uiAnimations')}</div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.uiAnimations')}</div>
               <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.uiAnimationsSubtitle')}</div>
             </div>
           </div>
@@ -160,7 +160,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
             </div>
             <div>
-              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.accentColor')}</div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.accentColor')}</div>
               <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.accentColorSubtitle')}</div>
             </div>
           </div>
@@ -181,7 +181,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />
             </div>
             <div>
-              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.chatBackground')}</div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.chatBackground')}</div>
               <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.chatBackgroundSubtitle')}</div>
             </div>
           </div>
@@ -229,7 +229,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />
             </div>
             <div>
-              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.density')}</div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.density')}</div>
               <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.densitySubtitle')}</div>
             </div>
           </div>
@@ -248,7 +248,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className={isDark ? "text-rose-400" : "text-rose-600"} />
             </div>
             <div>
-              <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.messageRadius')}</div>
+              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.messageRadius')}</div>
               <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.messageRadiusSubtitle')}</div>
             </div>
           </div>

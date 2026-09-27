@@ -193,14 +193,6 @@ describe('App Store', () => {
       useAppStore.getState().clearCallHistory();
       expect(useAppStore.getState().callHistory).toHaveLength(0);
     });
-
-    it('should add and remove call folders', () => {
-      useAppStore.getState().addCallFolder({ name: 'Work', filter: 'all' });
-      expect(useAppStore.getState().callFolders).toHaveLength(4);
-      const folderId = useAppStore.getState().callFolders[3].id;
-      useAppStore.getState().removeCallFolder(folderId);
-      expect(useAppStore.getState().callFolders).toHaveLength(3);
-    });
   });
 
   describe('company member management', () => {

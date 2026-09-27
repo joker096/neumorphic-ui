@@ -5,8 +5,13 @@ import '@testing-library/jest-dom/vitest';
 
 vi.mock('lucide-react', () => ({
   Trash2: 'div', Shield: 'div', ChevronLeft: 'div', ChevronRight: 'div',
+  CloudOff: 'div', FileText: 'div', X: 'div',
 }));
-vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
+vi.mock('motion/react', () => ({
+  motion: { div: 'div' },
+  useReducedMotion: () => false,
+  AnimatePresence: (props: { children?: React.ReactNode }) => props.children ?? null,
+}));
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
 }));
@@ -38,8 +43,9 @@ describe('StorageSection', () => {
 
   it('clear cache row does not throw without caches API', () => {
     renderSection();
-    fireEvent.click(screen.getByText(t('settings.clearCache', 'Clear cache')));
-    expect(screen.getByText(t('settings.clearCache', 'Clear cache'))).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Clear cache/ }));
+    expect(screen.getByRole('button', { name: t('common.confirm', 'Confirm') })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Clear cache/ })).toBeInTheDocument();
   });
 
   it('calls onBack when back button clicked', () => {

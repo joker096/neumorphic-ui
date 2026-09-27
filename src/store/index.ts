@@ -9,7 +9,7 @@ import { setSessionPersistKey } from '../lib/securePersist';
 import { DEFAULT_BOT_PERMISSIONS } from './defaults';
 import type {
   BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage,
-  CloudSyncState, LocationShare, CallFolder, ScheduledMessage,
+  CloudSyncState, LocationShare, ScheduledMessage,
   ConnectionState, P2PChannel,
 } from './types';
 import type { SettingsSlice } from './slices/settingsSlice';
@@ -48,7 +48,7 @@ import { createWalletSlice } from './slices/walletSlice';
 // Re-export types for consumers
 export type {
   BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage,
-  CloudSyncState, LocationShare, CallFolder, ScheduledMessage,
+  CloudSyncState, LocationShare, ScheduledMessage,
   ConnectionState, P2PChannel,
 } from './types';
 

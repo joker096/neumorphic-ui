@@ -5,10 +5,74 @@ const PRIVACY_STORAGE_KEY = 'mess_privacy_settings_v2';
 /** Keys whose values must be encrypted before persisting to localStorage. */
 const ENCRYPTED_KEYS = new Set(['totpSecret', 'turnServerUrl', 'turnServerUser', 'turnServerPass']);
 
+/** Keys currently read by this slice. Any other key is legacy and stripped. */
+const PERSISTED_KEYS = new Set([
+  'appLockBiometricEnabled',
+  'appLockBiometricCredentialId',
+  'appLockAutoLockOnBackground',
+  'appLockIdleSeconds',
+  'appLockHashedPIN',
+  'appLockSalt',
+  'turnServerUrl',
+  'turnServerUser',
+  'turnServerPass',
+  'draftsEnabled',
+  'offlineMode',
+  'ghostViewMode',
+  'readReceipts',
+  'typingIndicators',
+  'stealthMode',
+  'deliveryReceipts',
+  'onlineStatus',
+  'forwardAnonymization',
+  'soundEnabled',
+  'soundVolume',
+  'notifications',
+  'twoFactor',
+  'totpSecret',
+  'spamFilter',
+  'mediaAutoLoad',
+  'selfDestructDefault',
+  'obfuscationEnabled',
+  'relayBackend',
+  'autoReconnect',
+  'uiAnimations',
+  'themeMode',
+  'accentColor',
+  'chatBackground',
+  'customChatBackground',
+  'density',
+  'messageRadius',
+  'animationIntensity',
+  'dndEnabled',
+  'dndFrom',
+  'dndTo',
+  'priorityContacts',
+  'saveAudioRecordings',
+  'saveVideoRecordings',
+  'autoRecordCalls',
+  'recordingsRetentionDays',
+]);
+
 const savedPrivacySettings = (() => {
   try {
     const raw = localStorage.getItem(PRIVACY_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    let migrated = false;
+    for (const key of Object.keys(parsed)) {
+      if (!PERSISTED_KEYS.has(key)) {
+        delete parsed[key];
+        migrated = true;
+      }
+    }
+    if (migrated) {
+      try {
+        localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(parsed));
+      } catch { /* storage unavailable — in-memory migration only */ }
+    }
+    return parsed;
   } catch { /* ignore */ }
   return {};
 })();
@@ -99,21 +163,12 @@ export interface SettingsSlice {
   twoFactor: boolean;
   totpSecret: string | null;
   setTotpSecret: (secret: string | null) => void;
-  proxyEnabled: boolean;
   spamFilter: boolean;
-  pwaBanner: boolean;
-  deadMansSwitch: string;
   mediaAutoLoad: string;
   selfDestructDefault: string;
-  obfuscationMode: string;
   obfuscationEnabled: boolean;
-  proxyUrl: string;
-  torBridge: string;
   relayBackend: string;
   autoReconnect: boolean;
-  p2pMesh: boolean;
-  visNumber: string;
-  visActivity: string;
   uiAnimations: boolean;
   themeMode: 'light' | 'dark' | 'system';
   setThemeMode: (mode: 'light' | 'dark' | 'system') => void;
@@ -129,12 +184,6 @@ export interface SettingsSlice {
   setMessageRadius: (r: number) => void;
   animationIntensity: 'off' | 'low' | 'high';
   setAnimationIntensity: (i: 'off' | 'low' | 'high') => void;
-  profilePhotoVisibility: string;
-  setProfilePhotoVisibility: (v: string) => void;
-  callsVisibility: string;
-  setCallsVisibility: (v: string) => void;
-  messagesFrom: string;
-  setMessagesFrom: (v: string) => void;
   dndEnabled: boolean;
   dndFrom: string;
   dndTo: string;
@@ -150,21 +199,12 @@ export interface SettingsSlice {
   updateSettings: (settings: Record<string, any>) => void;
   setNotifications: (v: boolean) => void;
   setTwoFactor: (v: boolean) => void;
-  setProxyEnabled: (v: boolean) => void;
   setSpamFilter: (v: boolean) => void;
-  setPwaBanner: (v: boolean) => void;
-  setDeadMansSwitch: (v: string) => void;
   setMediaAutoLoad: (v: string) => void;
   setSelfDestructDefault: (v: string) => void;
-  setObfuscationMode: (v: string) => void;
   setObfuscationEnabled: (v: boolean) => void;
-  setProxyUrl: (v: string) => void;
-  setTorBridge: (v: string) => void;
   setRelayBackend: (v: string) => void;
   setAutoReconnect: (v: boolean) => void;
-  setP2pMesh: (v: boolean) => void;
-  setVisNumber: (v: string) => void;
-  setVisActivity: (v: string) => void;
   setUiAnimations: (v: boolean) => void;
   setDndEnabled: (v: boolean) => void;
   setDndFrom: (v: string) => void;
@@ -206,21 +246,12 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   notifications: savedPrivacySettings.notifications ?? true,
   twoFactor: savedPrivacySettings.twoFactor ?? false,
   totpSecret: isEncrypted(savedPrivacySettings.totpSecret) ? null : (savedPrivacySettings.totpSecret ?? null),
-  proxyEnabled: savedPrivacySettings.proxyEnabled ?? savedPrivacySettings.proxy ?? false,
   spamFilter: savedPrivacySettings.spamFilter ?? true,
-  pwaBanner: savedPrivacySettings.pwaBanner ?? true,
-  deadMansSwitch: savedPrivacySettings.deadMansSwitch ?? '6 months',
   mediaAutoLoad: savedPrivacySettings.mediaAutoLoad ?? 'Wi-Fi',
   selfDestructDefault: savedPrivacySettings.selfDestructDefault ?? 'Off',
-  obfuscationMode: savedPrivacySettings.obfuscationMode ?? 'aesgcm',
   obfuscationEnabled: savedPrivacySettings.obfuscationEnabled ?? true,
-  proxyUrl: savedPrivacySettings.proxyUrl ?? '',
-  torBridge: savedPrivacySettings.torBridge ?? 'None',
   relayBackend: savedPrivacySettings.relayBackend ?? 'direct',
   autoReconnect: savedPrivacySettings.autoReconnect ?? true,
-  p2pMesh: savedPrivacySettings.p2pMesh ?? true,
-  visNumber: savedPrivacySettings.visNumber ?? 'Nobody',
-  visActivity: savedPrivacySettings.visActivity ?? 'My contacts',
   uiAnimations: savedPrivacySettings.uiAnimations ?? true,
   themeMode: savedPrivacySettings.themeMode ?? 'system',
   accentColor: savedPrivacySettings.accentColor ?? '#4ede63',
@@ -229,9 +260,6 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   density: savedPrivacySettings.density ?? 'comfortable',
   messageRadius: savedPrivacySettings.messageRadius ?? 16,
   animationIntensity: savedPrivacySettings.animationIntensity ?? 'high',
-  profilePhotoVisibility: savedPrivacySettings.profilePhotoVisibility ?? 'everyone',
-  callsVisibility: savedPrivacySettings.callsVisibility ?? 'everyone',
-  messagesFrom: savedPrivacySettings.messagesFrom ?? 'everyone',
   dndEnabled: savedPrivacySettings.dndEnabled ?? false,
   dndFrom: savedPrivacySettings.dndFrom ?? '22:00',
   dndTo: savedPrivacySettings.dndTo ?? '08:00',
@@ -256,21 +284,9 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
     set({ totpSecret: secret });
     persistSetting('totpSecret', secret);
   },
-  setProxyEnabled: (v) => {
-    set({ proxyEnabled: v });
-    persistSetting('proxyEnabled', v);
-  },
   setSpamFilter: (v) => {
     set({ spamFilter: v });
     persistSetting('spamFilter', v);
-  },
-  setPwaBanner: (v) => {
-    set({ pwaBanner: v });
-    persistSetting('pwaBanner', v);
-  },
-  setDeadMansSwitch: (v) => {
-    set({ deadMansSwitch: v });
-    persistSetting('deadMansSwitch', v);
   },
   setMediaAutoLoad: (v) => {
     set({ mediaAutoLoad: v });
@@ -280,21 +296,9 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
     set({ selfDestructDefault: v });
     persistSetting('selfDestructDefault', v);
   },
-  setObfuscationMode: (v) => {
-    set({ obfuscationMode: v });
-    persistSetting('obfuscationMode', v);
-  },
   setObfuscationEnabled: (v) => {
     set({ obfuscationEnabled: v });
     persistSetting('obfuscationEnabled', v);
-  },
-  setProxyUrl: (v) => {
-    set({ proxyUrl: v });
-    persistSetting('proxyUrl', v);
-  },
-  setTorBridge: (v) => {
-    set({ torBridge: v });
-    persistSetting('torBridge', v);
   },
   setRelayBackend: (v) => {
     set({ relayBackend: v });
@@ -303,18 +307,6 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setAutoReconnect: (v) => {
     set({ autoReconnect: v });
     persistSetting('autoReconnect', v);
-  },
-  setP2pMesh: (v) => {
-    set({ p2pMesh: v });
-    persistSetting('p2pMesh', v);
-  },
-  setVisNumber: (v) => {
-    set({ visNumber: v });
-    persistSetting('visNumber', v);
-  },
-  setVisActivity: (v) => {
-    set({ visActivity: v });
-    persistSetting('visActivity', v);
   },
   setUiAnimations: (v) => {
     set({ uiAnimations: v });
@@ -347,18 +339,6 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setAnimationIntensity: (i) => {
     set({ animationIntensity: i });
     persistSetting('animationIntensity', i);
-  },
-  setProfilePhotoVisibility: (v) => {
-    set({ profilePhotoVisibility: v });
-    persistSetting('profilePhotoVisibility', v);
-  },
-  setCallsVisibility: (v) => {
-    set({ callsVisibility: v });
-    persistSetting('callsVisibility', v);
-  },
-  setMessagesFrom: (v) => {
-    set({ messagesFrom: v });
-    persistSetting('messagesFrom', v);
   },
   setDndEnabled: (v) => {
     set({ dndEnabled: v });

@@ -3,7 +3,6 @@ export { useDebounce } from './useDebounce';
 export { useLocalStorage } from './useLocalStorage';
 export { useScreenshotProtection } from './useScreenshotProtection';
 export { useAppConnection } from './useAppConnection';
-export { useDataSeeding, useScheduledMessages } from './useAppEffects';
 export { useKeyboardScroll } from './useKeyboardScroll';
 export { useChatPreviewState } from './useChatPreviewState';
 export { useChatMessageActions } from './useChatMessageActions';

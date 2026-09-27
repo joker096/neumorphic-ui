@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
-import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, Check, X, MessageSquare, Wifi, WifiOff, Share, Download, Clock } from 'lucide-react';
+import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, Check, X, MessageSquare, Wifi, WifiOff, Share, Download, Clock, UserX } from 'lucide-react';
 import { TextInputModal } from '../settings/TextInputModal';
+import { Modal } from '../ui/Modal';
+import { useAppStore } from '../../store';
+
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 interface PrivacySectionProps {
   isDark?: boolean;
@@ -24,7 +28,7 @@ interface PrivacySectionProps {
   onlineStatus?: boolean;
   onUpdateSettings: (settings: Record<string, unknown>) => void;
   onBack: () => void;
-  t: (key: string, fallback?: string) => string;
+  t: (key: string, fallback?: string | Record<string, string | number>) => string;
   mediaAutoLoad?: string;
   setMediaAutoLoad?: (v: string) => void;
   selfDestructDefault?: string;
@@ -42,12 +46,14 @@ export const PrivacySection = ({
   premium
 }: PrivacySectionProps) => {
   const [showPriorityModal, setShowPriorityModal] = useState(false);
-  const handlePrioritySave = (name: string) => {
-    if (setPriorityContacts && name.trim()) {
-      setPriorityContacts(name.trim());
-    }
-    setShowPriorityModal(false);
-  };
+  const [timePrompt, setTimePrompt] = useState<'from' | 'to' | null>(null);
+  const [showBlacklist, setShowBlacklist] = useState(false);
+  const spamFilter = useAppStore((s) => s.spamFilter);
+  const setSpamFilter = useAppStore((s) => s.setSpamFilter);
+  const setContactBlocked = useAppStore((s) => s.setContactBlocked);
+  const contacts = useAppStore((s) => s.contacts);
+  const blockedContacts = contacts.filter((c: any) => c.isBlocked);
+  const blockedCount = blockedContacts.length;
 
   const cycleMediaAutoLoad = () => {
     const options = ['Off', 'Wi-Fi', 'Always'];
@@ -87,7 +93,29 @@ export const PrivacySection = ({
           rightElement={<ToggleSwitch isOn={ghostViewMode || false} onToggle={() => onUpdateSettings({ ghostViewMode: !ghostViewMode })} isDark={isDark} onIcon={<Eye size={14} />} offIcon={<EyeOff size={14} />} ariaLabel={t('settings.ghostViewMode')} />}
           onClick={() => onUpdateSettings({ ghostViewMode: !ghostViewMode })}
         />
-        <SettingsRow title={t('settings.blacklist')} value="0 users" isDark={isDark} />
+        <SettingsRow
+          icon={<UserX size={16} />}
+          iconBg={isDark ? "bg-rose-500/10" : "bg-rose-100"}
+          iconColor={isDark ? "text-rose-400" : "text-rose-600"}
+          title={t('settings.blacklist')}
+          value={blockedCount > 0 ? t('settings.blacklistCount', { n: blockedCount }) : t('settings.blacklistEmpty', 'Empty')}
+          isDark={isDark}
+          onClick={blockedCount > 0 ? () => setShowBlacklist(true) : undefined}
+        />
+      </SettingsGroup>
+
+      <SettingsSectionTitle title={t('settings.spamProtection', 'Spam Protection')} isDark={isDark} />
+      <SettingsGroup isDark={isDark} className="mb-6">
+        <SettingsRow
+          icon={<ShieldOff size={16} />}
+          iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
+          iconColor={isDark ? "text-amber-400" : "text-amber-600"}
+          title={t('settings.spamFilter')}
+          subtitle={t('settings.spamFilterSubtitle')}
+          isDark={isDark}
+          rightElement={<ToggleSwitch isOn={spamFilter} onToggle={() => setSpamFilter(!spamFilter)} isDark={isDark} onIcon={<Shield size={14} />} offIcon={<ShieldOff size={14} />} ariaLabel={t('settings.spamFilter')} />}
+          onClick={() => setSpamFilter(!spamFilter)}
+        />
       </SettingsGroup>
 
       <SettingsSectionTitle title={t('settings.dndMode')} isDark={isDark} />
@@ -105,13 +133,13 @@ export const PrivacySection = ({
               title={t('settings.dndFrom')}
               value={dndFrom}
               isDark={isDark}
-              onClick={() => setDndFrom(dndFrom === '22:00' ? '21:00' : '22:00')}
+              onClick={() => setTimePrompt('from')}
             />
             <SettingsRow
               title={t('settings.dndTo')}
               value={dndTo}
               isDark={isDark}
-              onClick={() => setDndTo(dndTo === '08:00' ? '09:00' : '08:00')}
+              onClick={() => setTimePrompt('to')}
             />
           </>
         )}
@@ -203,7 +231,7 @@ export const PrivacySection = ({
         )}
       </SettingsGroup>
 
-<TextInputModal
+        <TextInputModal
           isOpen={showPriorityModal}
           title={t('settings.priorityContacts')}
           placeholder={t('settings.enterPriorityContacts')}
@@ -215,6 +243,47 @@ export const PrivacySection = ({
           confirmLabel={t('common.confirm')}
           cancelLabel={t('common.cancel')}
         />
+
+        <TextInputModal
+          isOpen={timePrompt !== null}
+          title={timePrompt === 'from' ? t('settings.dndFrom') : t('settings.dndTo')}
+          placeholder="22:00"
+          initial={timePrompt === 'from' ? dndFrom : dndTo}
+          onConfirm={(value) => {
+            const next = value.trim();
+            if (TIME_RE.test(next)) {
+              if (timePrompt === 'from') setDndFrom?.(next);
+              else setDndTo?.(next);
+            }
+            setTimePrompt(null);
+          }}
+          onCancel={() => setTimePrompt(null)}
+          confirmLabel={t('common.confirm')}
+          cancelLabel={t('common.cancel')}
+        />
+
+        <Modal
+          isOpen={showBlacklist}
+          onClose={() => setShowBlacklist(false)}
+          title={t('settings.blacklist')}
+          isDark={isDark}
+          size="sm"
+        >
+          <ul className="flex flex-col divide-y divide-[var(--border-color)]">
+            {blockedContacts.map((c: any) => (
+              <li key={c.id} className="flex items-center gap-3 py-2 min-h-11">
+                <span className="flex-1 min-w-0 truncate text-sm text-foreground">{c.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setContactBlocked(c.id, false)}
+                  className="min-w-11 min-h-11 px-3 rounded-full text-xs font-medium text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors"
+                >
+                  {t('settings.unblock', 'Unblock')}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Modal>
     </SubView>
   );
 };

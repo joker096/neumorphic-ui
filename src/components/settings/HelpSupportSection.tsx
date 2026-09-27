@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { HelpCircle, BookOpen, MessageSquare, Bug, LifeBuoy, ShieldCheck, ExternalLink, ChevronDown } from 'lucide-react';
+import { HelpCircle, MessageSquare, Bug, LifeBuoy, ExternalLink, ChevronDown } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsSectionTitle, SettingsRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
@@ -91,24 +91,6 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
     <SubView title={t('settings.helpSupport', 'Help & Support')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('settings.quickHelp', 'Quick help')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
-        <SettingsRow
-          icon={<BookOpen size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
-          title={t('settings.userGuide', 'User guide')}
-          subtitle={t('settings.userGuideSub', 'Getting started')}
-          isDark={isDark}
-          onClick={() => toast(t('settings.opening', 'Opening guide…'), 'info')}
-        />
-        <SettingsRow
-          icon={<ShieldCheck size={16} />}
-          iconBg="t-accent-bg"
-          iconColor="t-accent"
-          title={t('settings.safetyTips', 'Safety tips')}
-          subtitle={t('settings.safetyTipsSub', 'Protect your account')}
-          isDark={isDark}
-          onClick={() => toast(t('settings.opening', 'Opening…'), 'info')}
-        />
         <SettingsRow
           icon={<ExternalLink size={16} />}
           iconBg={isDark ? "bg-purple-500/10" : "bg-purple-100"}
