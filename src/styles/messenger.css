@@ -317,6 +317,17 @@
   /* -----------------------------------------------------------------
      Messages
      ----------------------------------------------------------------- */
+  /* Keep the avatar and bubble on one row: the bubble must be allowed to
+     shrink inside the leftover width (avatar column + gap) instead of being
+     pushed onto a second line. No max-width here on purpose - the width cap
+     stays owned by .message / the max-w-* utilities, and a calc(100% - 2.5rem)
+     cap in this more specific selector silently widens every bubble. */
+  .msg-message-row.has-gutter > .msg-bubble {
+    box-sizing: border-box;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
   .message {
     align-self: flex-start;
     max-width: 75%;

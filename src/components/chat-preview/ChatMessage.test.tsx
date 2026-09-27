@@ -74,9 +74,14 @@ const storeState = vi.hoisted(() => ({
   contactAvatars: {} as Record<string, string>,
   userProfile: {} as any,
 }));
+const storeSelectors = vi.hoisted(() => [] as Array<(state: any) => unknown>);
 
 vi.mock('../../store', () => ({
-  useAppStore: (sel?: any) => (sel ? sel(storeState) : storeState),
+  useAppStore: (sel?: any) => {
+    if (!sel) return storeState;
+    storeSelectors.push(sel);
+    return sel(storeState);
+  },
 }));
 
 const baseProps = (overrides: any = {}) => ({
@@ -114,6 +119,7 @@ describe('ChatMessage', () => {
     vi.clearAllMocks();
     storeState.contactAvatars = {};
     storeState.userProfile = {};
+    storeSelectors.length = 0;
   });
 
   afterEach(() => {
@@ -166,6 +172,23 @@ describe('ChatMessage', () => {
     expect(screen.getByAltText('Bob avatar')).toHaveAttribute('src', 'data:image/png;base64,xxx');
   });
 
+  it('does not select whole avatar maps or profiles for an incoming message', () => {
+    storeState.contactAvatars = { Bob: 'bob.png', Alice: 'alice.png' };
+    storeState.userProfile = { name: 'Me', avatar: 'me.png' };
+    render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob' } })} />);
+
+    const nextState = {
+      ...storeState,
+      contactAvatars: { ...storeState.contactAvatars, Alice: 'alice-new.png' },
+      userProfile: { name: 'Updated Me', avatar: 'me-new.png' },
+    };
+    const selectedBefore = storeSelectors.map((select) => select(storeState));
+    const selectedAfter = storeSelectors.map((select) => select(nextState));
+
+    expect(selectedBefore).toContain('bob.png');
+    expect(selectedAfter).toEqual(selectedBefore);
+  });
+
   it('renders own avatar image from user profile for outgoing group-first', () => {
     storeState.userProfile = { name: 'Alice', avatar: 'https://cdn.example/me.png' };
     render(<ChatMessage {...baseProps({ isMe: true, msg: { id: 1, text: 'hi', sender: 'me', _groupPosition: 'first' } })} />);
@@ -186,6 +209,13 @@ describe('ChatMessage', () => {
     expect(bubble).toBeInTheDocument();
     expect(bubble.querySelector('[class*="msg-gutter-avatar"]')).toBeNull();
     expect(bubble.parentElement?.querySelector('[class*="msg-gutter-avatar"]')).not.toBeNull();
+  });
+
+  it('keeps avatar and bubble in a non-wrapping row with gutter-aware width', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 1, text: 'hi', sender: 'Bob', _groupPosition: 'single' } })} />);
+    const row = document.querySelector('.msg-message-row');
+    expect(row).toHaveClass('flex-nowrap', 'has-gutter');
+    expect(bubbleEl()).toBeInTheDocument();
   });
 
   it('hides the avatar in channels', () => {

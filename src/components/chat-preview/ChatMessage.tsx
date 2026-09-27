@@ -83,20 +83,22 @@ function ChatMessageImpl({
   const [draftText, setDraftText] = React.useState("");
   const { t } = useI18n();
   const { translate } = useServices();
-  const contactAvatars = useAppStore((s) => s.contactAvatars);
-  const userProfile = useAppStore((s) => s.userProfile);
   const isGroupFirst =
     msg._groupPosition === "first" || msg._groupPosition === "single";
   const displayName = String(msg.sender || chat?.name || "");
-  const avatarSrc = isMe
-    ? userProfile?.avatar
-    : isChannel || !displayName
-      ? undefined
-      : contactAvatars?.[displayName];
+  const showAvatar = !isChannel;
+  const avatarSrc = useAppStore((s) => {
+    if (!showAvatar) return undefined;
+    return isMe
+      ? s.userProfile?.avatar
+      : displayName
+        ? s.contactAvatars?.[displayName]
+        : undefined;
+  });
+  const ownName = useAppStore((s) => (showAvatar && isMe ? s.userProfile?.name : undefined));
   const avatarColor = isMe ? undefined : chat?.color;
   // Avatars live in the outer gutter for every non-channel message, so identity
   // stays readable for media, stickers and edits too — not just plain text.
-  const showAvatar = !isChannel;
   const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
   const showSenderName = showAvatar && isGroup && isGroupFirst && !isMe && !!displayName;
   // Render-side guarantee: expired content is never shown, even if the central
@@ -222,10 +224,10 @@ function ChatMessageImpl({
       {swipeReplyId === msg.id && (
         <div className={`absolute ${isMe ? "right-0 rounded-l-full" : "left-0 rounded-r-full"} top-2 bottom-2 w-1.5 bg-[var(--accent)] z-10`} />
       )}
-      <div className={`flex flex-wrap items-center relative gap-2 w-full max-w-[100%] ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
+      <div className={`msg-message-row flex flex-nowrap items-center relative gap-2 w-full max-w-[100%] ${showAvatar ? "has-gutter" : ""} ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
         {showAvatar && (
           <Avatar
-            name={displayName || (isMe ? userProfile?.name || "Me" : "?")}
+            name={displayName || (isMe ? ownName || "Me" : "?")}
             src={avatarSrc}
             color={avatarColor}
             size="sm"
