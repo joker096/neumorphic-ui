@@ -12,6 +12,7 @@ import {
 } from '../../lib/backup';
 import { isEncryptedBackup } from '../../lib/backupCrypto';
 import type { BackupData } from '../../lib/backup';
+import { formatDateTime } from '../../utils/dateTime';
 
 interface BackupExportSectionProps {
   isDark?: boolean;
@@ -29,7 +30,7 @@ const readLastBackup = (): string | null => {
 };
 
 export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSectionProps) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [lastBackup, setLastBackup] = useState<string | null>(readLastBackup);
   const [busy, setBusy] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<PromptMode>(null);
@@ -41,7 +42,7 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
   const formatLastBackup = (value: string | null): string => {
     if (!value) return t('settings.never', 'Never');
     try {
-      return new Date(value).toLocaleString();
+      return formatDateTime(value, lang);
     } catch {
       return value;
     }
@@ -143,7 +144,7 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
     try {
       await clearLocalCache();
       setLastBackup(null);
-      toast(t('settings.cacheCleared', 'Cache cleared'), 'success');
+      toast(t('settings.dataErased', 'All local data erased'), 'success');
     } catch {
       toast(t('settings.cacheClearFailed', 'Failed to clear cache'), 'error');
     } finally {
@@ -225,8 +226,8 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
           icon={<Trash2 size={16} />}
           iconBg={isDark ? 'bg-rose-500/10' : 'bg-rose-100'}
           iconColor={isDark ? 'text-rose-400' : 'text-rose-600'}
-          title={t('settings.clearCache', 'Clear cache')}
-          subtitle={t('settings.clearCacheSubtitle', 'Clear temporary files and cache data')}
+          title={t('settings.eraseAllData', 'Erase all local data')}
+          subtitle={t('settings.eraseAllDataSubtitle', 'Deletes chats, contacts, company and CRM data from this device')}
           isDark={isDark}
           onClick={() => setClearPending(true)}
         />
@@ -257,9 +258,9 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
       />
       <ConfirmDialog
         isOpen={clearPending}
-        title={t('settings.clearCache', 'Clear cache')}
-        message={t('settings.confirmClearCache', 'Are you sure you want to clear all cache data?')}
-        confirmLabel={t('common.confirm', 'Confirm')}
+        title={t('settings.eraseAllData', 'Erase all local data')}
+        message={t('settings.confirmEraseAllData', 'This permanently deletes all chats, contacts, company and CRM data stored on this device. This cannot be undone.')}
+        confirmLabel={t('settings.erase', 'Erase')}
         cancelLabel={t('common.cancel', 'Cancel')}
         confirmIcon={<Trash2 />}
         cancelIcon={<X />}

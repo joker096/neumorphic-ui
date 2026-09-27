@@ -409,6 +409,20 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
     }
   });
 
+  describe('chat relative-day keys', () => {
+    const dayKeys = ['chat.today', 'chat.yesterday'];
+
+    for (const lang of allLocales) {
+      for (const key of dayKeys) {
+        it(`"${key}" translates in ${lang}`, () => {
+          const val = getTranslation(key, lang);
+          expect(val).not.toBe(key);
+          expect(val.length).toBeGreaterThan(0);
+        });
+      }
+    }
+  });
+
   describe('nav.* keys translations', () => {
     const navKeys = ['nav.chats', 'nav.contacts', 'nav.settings', 'nav.company'];
 

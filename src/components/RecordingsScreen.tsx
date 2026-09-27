@@ -16,7 +16,7 @@ function formatSize(bytes: number) {
 }
 
 export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean; onBack?: () => void }) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const recordings = useAppStore(s => s.recordings);
   const setRecordings = useAppStore(s => s.setRecordings);
   const deleteRecording = useAppStore(s => s.deleteRecording);
@@ -145,7 +145,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
                       {r.title || t('recordings.untitled')}
                     </p>
                     <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                      {formatDate(r.createdAt)}
+                      {formatDate(r.createdAt, lang)}
                       {r.fileSize > 0 && ` · ${formatSize(r.fileSize)}`}
                     </p>
                   </div>

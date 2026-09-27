@@ -10,7 +10,7 @@ vi.mock('lucide-react', () => ({
 }));
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 vi.mock('../../lib/i18n', () => ({
-  useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
+  useI18n: () => ({ lang: 'en-US', t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
 }));
 vi.mock('../ui/Toast', () => ({ toast: vi.fn() }));
 
@@ -86,7 +86,7 @@ describe('PaymentsSection', () => {
     expect(screen.getByRole('button', { name: t('common.back') })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: t('settings.payments', 'Payments & Billing') })).toBeInTheDocument();
     expect(screen.getByText(t('wallet.balance', 'Balance'))).toBeInTheDocument();
-    expect(screen.getByText('0.00 USD')).toBeInTheDocument();
+    expect(screen.getByText('$0.00')).toBeInTheDocument();
     expect(screen.getByText(t('wallet.empty', 'No transactions yet'))).toBeInTheDocument();
   });
 
@@ -185,8 +185,8 @@ describe('PaymentsSection', () => {
     ];
     renderSection();
     expect(screen.getByText(t('wallet.transactions', 'Transactions'))).toBeInTheDocument();
-    expect(screen.getByText('+12.00')).toBeInTheDocument();
-    expect(screen.getByText('-5.00')).toBeInTheDocument();
+    expect(screen.getByText('+$12.00')).toBeInTheDocument();
+    expect(screen.getByText('-$5.00')).toBeInTheDocument();
     expect(screen.getByText(t('wallet.pending', 'Pending'))).toBeInTheDocument();
   });
 

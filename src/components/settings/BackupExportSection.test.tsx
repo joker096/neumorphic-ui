@@ -9,7 +9,7 @@ vi.mock('lucide-react', () => ({
 }));
 vi.mock('motion/react', () => ({ motion: { div: 'div' } }));
 vi.mock('../../lib/i18n', () => ({
-  useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
+  useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key), lang: 'en-US' }),
 }));
 vi.mock('../ui/Toast', () => ({ toast: vi.fn() }));
 vi.mock('./TextInputModal', () => ({
@@ -44,6 +44,7 @@ import { BackupExportSection } from './BackupExportSection';
 import { toast } from '../ui/Toast';
 import { downloadBackup, downloadChatsExport, clearLocalCache, applyBackup, decryptBackupFile, parseBackupFile, LAST_BACKUP_KEY } from '../../lib/backup';
 import { isEncryptedBackup } from '../../lib/backupCrypto';
+import { formatDateTime } from '../../utils/dateTime';
 
 const t = (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key);
 
@@ -70,11 +71,11 @@ describe('BackupExportSection', () => {
     expect(screen.getByText(t('settings.never', 'Never'))).toBeInTheDocument();
   });
 
-  it('formats existing last backup timestamp', () => {
+  it('formats existing last backup timestamp in the selected UI locale', () => {
     const ts = '2026-08-01T00:00:00.000Z';
     localStorage.setItem(LAST_BACKUP_KEY, ts);
     renderSection();
-    expect(screen.getByText(new Date(ts).toLocaleString())).toBeInTheDocument();
+    expect(screen.getByText(formatDateTime(ts, 'en-US'))).toBeInTheDocument();
   });
 
   it('creates encrypted backup with password and updates last backup', async () => {
@@ -132,13 +133,13 @@ describe('BackupExportSection', () => {
     await waitFor(() => expect(applyBackup).toHaveBeenCalledWith({ chats: [] }));
   });
 
-  it('clears cache through danger zone confirm dialog', async () => {
+  it('erases local data through danger zone confirm dialog', async () => {
     renderSection();
-    fireEvent.click(screen.getByText(t('settings.clearCacheSubtitle', 'Clear temporary files and cache data')));
+    fireEvent.click(screen.getByText(t('settings.eraseAllData', 'Erase all local data')));
     expect(openDialog()).toBeTruthy();
     fireEvent.click(openDialog().querySelector('[data-testid="cfrm-ok"]')!);
     await waitFor(() => expect(clearLocalCache).toHaveBeenCalled());
-    await waitFor(() => expect(toast).toHaveBeenCalledWith(t('settings.cacheCleared', 'Cache cleared'), 'success'));
+    await waitFor(() => expect(toast).toHaveBeenCalledWith(t('settings.dataErased', 'All local data erased'), 'success'));
     expect(screen.getByText(t('settings.never', 'Never'))).toBeInTheDocument();
   });
 

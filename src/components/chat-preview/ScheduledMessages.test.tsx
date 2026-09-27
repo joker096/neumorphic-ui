@@ -48,11 +48,14 @@ describe('ScheduledMessages', () => {
     expect(screen.getByText('Reminder: call John')).toBeInTheDocument();
   });
 
-  it('shows formatted time for each message', () => {
+  it('shows the time in the UI language, not the host runtime', () => {
     render(<ScheduledMessages {...defaultProps} />);
-    // 15:00 should appear in 24h format
-    expect(screen.getByText(/15:00/)).toBeInTheDocument();
-    expect(screen.getByText(/10:30/)).toBeInTheDocument();
+    // The i18n mock reports lang: 'en', so the stamps follow that locale
+    // (12-hour) instead of whatever the host runtime prefers.
+    const clock = (iso: string) =>
+      new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+    expect(screen.getByText(clock('2025-01-15T15:00:00'))).toBeInTheDocument();
+    expect(screen.getByText(clock('2025-01-16T10:30:00'))).toBeInTheDocument();
   });
 
   it('shows cancel/remove button for each message', () => {

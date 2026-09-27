@@ -9,7 +9,7 @@ const writeText = vi.hoisted(() => vi.fn());
 
 vi.mock('../../services/paymento', () => ({ verifyPayment }));
 vi.mock('../../lib/i18n', () => ({
-  useI18n: () => ({ t: (key: string) => key }),
+  useI18n: () => ({ lang: 'en-US', t: (key: string) => key }),
 }));
 vi.mock('../ui/Toast', () => ({ toast: vi.fn() }));
 vi.mock('lucide-react', () => ({
@@ -70,7 +70,7 @@ describe('PaymentChatBubble', () => {
     );
 
     expect(screen.getByText('Lunch')).toBeInTheDocument();
-    expect(screen.getByText(/10\.5 USD/)).toBeInTheDocument();
+    expect(screen.getByText(/\$10\.50/)).toBeInTheDocument();
     expect(screen.getByText(url)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'payments.pay' })).toHaveAttribute('href', url);
     expect(screen.getByRole('button', { name: 'payments.copy' })).toBeInTheDocument();

@@ -9,9 +9,11 @@ import type { Deal, DealStage } from '../../lib/crm/types';
 import { DealModal } from './CrmDealModal';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { DataState } from '../ui/DataState';
+import { formatCurrency } from '../../utils/currency';
 
-const fmt = (amount: number, currency: string) =>
-  new Intl.NumberFormat('ru-RU', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+// Amount + currency both arrive from imported CRM records, so the formatter is
+// memoized and fail-soft (see utils/currency).
+const fmt = (amount: number, currency: string, lang: string) => formatCurrency(amount, currency, lang, 0);
 
 type Props = {
   focusDealId?: string | null;
@@ -19,7 +21,7 @@ type Props = {
 };
 
 export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const deals = useAppStore((s) => s.crmDeals);
   const contacts = useAppStore((s) => s.crmContacts);
   const filters = useAppStore((s) => s.crmFilters);
@@ -66,7 +68,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
     <div className="flex-1 flex flex-col overflow-y-auto px-2 py-2">
       <div className="flex items-center justify-between px-1 mb-2">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
-          <TrendingUp size={14} /> {fmt(total, 'RUB')}
+          <TrendingUp size={14} /> {fmt(total, 'RUB', lang)}
         </div>
         {can('manageDeals') && (
           <button onClick={() => setShowAdd(true)} aria-label={t('crm.addDeal', CRM_FALLBACKS.addDeal)} title={t('crm.addDeal', CRM_FALLBACKS.addDeal)} className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center">
@@ -126,7 +128,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                       {t(stage.labelKey, (CRM_FALLBACKS as any)[stage.labelKey.replace('crm.', '')])} ({stageDeals.length})
                     </span>
                   </span>
-                  <span className="text-[11px] text-[var(--text-secondary)] shrink-0">{fmt(stageSum, 'RUB')}</span>
+                  <span className="text-[11px] text-[var(--text-secondary)] shrink-0">{fmt(stageSum, 'RUB', lang)}</span>
                 </div>
                 <div className="h-1 w-full rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
                   <div
@@ -167,7 +169,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                             <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-br ${stage.gradient} shrink-0`} />
                             <span className="font-bold text-sm text-[var(--text-primary)] break-words">{d.title}</span>
                           </span>
-                          <span className="font-bold text-sm text-[var(--text-primary)] shrink-0">{fmt(d.amount, d.currency)}</span>
+                          <span className="font-bold text-sm text-[var(--text-primary)] shrink-0">{fmt(d.amount, d.currency, lang)}</span>
                         </div>
                         <div className="text-xs text-[var(--text-secondary)] mt-0.5">{contactName(d.contactId)}</div>
                         <select

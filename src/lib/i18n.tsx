@@ -49,6 +49,27 @@ function getRawTranslation(key: string, lang: string): any {
   return key;
 }
 
+/**
+ * `Intl.PluralRules` construction is far from free and `t(key, { count })` runs
+ * on every list row that carries a counter, so the rules object is memoized per
+ * language. An unsupported tag (`Intl` throws `RangeError` for it) degrades to
+ * the `other` category the lookup below already falls back to.
+ */
+const PLURAL_RULES = new Map<string, Intl.PluralRules>();
+
+function pluralCategory(lang: string, count: number): string {
+  let rules = PLURAL_RULES.get(lang);
+  if (!rules) {
+    try {
+      rules = new Intl.PluralRules(lang);
+    } catch {
+      return 'other';
+    }
+    PLURAL_RULES.set(lang, rules);
+  }
+  return rules.select(count);
+}
+
 export function getTranslation(key: string, lang: string): string {
   const raw = getRawTranslation(key, lang);
   if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
@@ -113,11 +134,7 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const count = hasCount ? Number((fallback as any).count) : 0;
       let cat = 'other';
       if (hasCount) {
-        try {
-          cat = new Intl.PluralRules(lang).select(Number.isFinite(count) ? count : 0);
-        } catch {
-          cat = 'other';
-        }
+        cat = pluralCategory(lang, Number.isFinite(count) ? count : 0);
       }
       const form = (raw as any)[cat] ?? (raw as any).other ?? (raw as any)[Object.keys(raw)[0]];
       text = typeof form === 'string' ? form : String(form ?? '');

@@ -9,6 +9,7 @@ import { CrmModal } from './CrmModal';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
+import { formatDate } from '../../utils/dateTime';
 
 const priorityColor: Record<TaskPriority, string> = {
   low: 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]',
@@ -112,7 +113,7 @@ type CrmTasksProps = {
 };
 
 export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled }) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { isDark } = useTheme();
   const tasks = useAppStore((s) => s.crmTasks);
   const contacts = useAppStore((s) => s.crmContacts);
@@ -191,7 +192,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
               <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-[var(--text-secondary)]">
                 <span className={`px-1.5 py-0.5 rounded-full ${priorityColor[task.priority]}`}><Flag size={12} className="inline mr-0.5" />{task.priority}</span>
                 {name(task.assigneeId) && <span>👤 {name(task.assigneeId)}</span>}
-                {task.dueAt && <span>⏰ {new Date(task.dueAt).toLocaleDateString()}</span>}
+                {task.dueAt && <span>⏰ {formatDate(task.dueAt, lang)}</span>}
                 {name(task.contactId) && <span>🔗 {name(task.contactId)}</span>}
               </div>
             </div>

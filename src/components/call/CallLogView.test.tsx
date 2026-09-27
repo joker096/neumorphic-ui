@@ -3,9 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { CallLogView } from './CallLogView';
+import { formatTime } from '../../utils/dateTime';
 
 const storeState = vi.hoisted(() => ({
-  callHistory: [] as Array<{ id: string; name: string; type: string; time: string; duration?: string; recordingId?: string }>,
+  callHistory: [] as Array<{ id: string; name: string; type: string; time: string; at?: number; duration?: string; recordingId?: string }>,
   clearCallHistory: vi.fn(),
 }));
 
@@ -26,7 +27,7 @@ vi.mock('../../lib/call/CallManager', () => ({ callManager: callManagerMock }));
 vi.mock('../../lib/callRecorderService', () => ({ callRecorderService: recorderServiceMock }));
 
 vi.mock('../../lib/i18n', () => ({
-  useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
+  useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key), lang: 'en-US' }),
 }));
 
 const subViewRef: { current: { title: string; onBack?: () => void } | null } = { current: null };
@@ -113,6 +114,19 @@ describe('CallLogView', () => {
     expect(screen.getByText('Alice')).toBeInTheDocument();
     expect(screen.getByText('10:00 · 5 min')).toBeInTheDocument();
     expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.getByText('09:30')).toBeInTheDocument();
+  });
+
+  it('renders a machine timestamp in the UI locale, falling back to the legacy string', () => {
+    const at = Date.UTC(2026, 7, 12, 14, 7);
+    storeState.callHistory = [
+      // New rows carry `at` (written by addCallToHistory) — rendered through the locale-aware formatter.
+      { id: '1', name: 'Alice', type: 'incoming', time: '', at },
+      // Rows persisted by an older build only have the host-locale `time` string.
+      bob,
+    ];
+    render(<CallLogView />);
+    expect(screen.getByText(formatTime(at, 'en-US'))).toBeInTheDocument();
     expect(screen.getByText('09:30')).toBeInTheDocument();
   });
 

@@ -321,6 +321,43 @@ describe('SettingsMainMenu — advanced group', () => {
   });
 });
 
+describe('SettingsMainMenu — filtering', () => {
+  it('shows matching top-level section and hides unrelated sections', () => {
+    renderMenu({ searchQuery: 'profile' });
+
+    expect(screen.getByText('Profile & Accounts')).toBeInTheDocument();
+    expect(screen.queryByText('settings.dataStorage')).not.toBeInTheDocument();
+    expect(screen.queryByText('settings.notifications')).not.toBeInTheDocument();
+    expect(screen.queryByText('settings.company')).not.toBeInTheDocument();
+  });
+
+  it('shows a matching row inside the notifications card', () => {
+    renderMenu({ searchQuery: 'volume' });
+
+    expect(screen.getByText('Volume')).toBeInTheDocument();
+    expect(screen.getByRole('slider', { name: 'Volume' })).toBeInTheDocument();
+    expect(screen.queryByText('settings.notifications')).not.toBeInTheDocument();
+    expect(screen.queryByText('settings.sound')).not.toBeInTheDocument();
+    expect(screen.queryByText('settings.cloudSyncOption')).not.toBeInTheDocument();
+  });
+
+  it('shows empty state for non-matching query', () => {
+    renderMenu({ searchQuery: 'zzz-nomatch' });
+
+    expect(screen.getByText('settings.noSearchResults')).toBeInTheDocument();
+    expect(screen.queryByText('Profile & Accounts')).not.toBeInTheDocument();
+    expect(screen.queryByText('settings.dataStorage')).not.toBeInTheDocument();
+    expect(screen.queryByText('settings.notifications')).not.toBeInTheDocument();
+  });
+
+  it('treats whitespace-only query as no search', () => {
+    renderMenu({ searchQuery: '   ' });
+
+    expect(screen.getByText('Profile & Accounts')).toBeInTheDocument();
+    expect(screen.queryByText('settings.noSearchResults')).not.toBeInTheDocument();
+  });
+});
+
 describe('SettingsMainMenu — footer', () => {
   it('renders build date', () => {
     renderMenu();

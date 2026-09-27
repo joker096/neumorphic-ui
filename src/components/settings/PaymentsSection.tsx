@@ -10,7 +10,8 @@ import { createPaymentRequest, buildPaymentMessage } from '../../services/paymen
 import { generateOrderId, buildGatewayUrl } from '../../config/paymento';
 import { isPaymentSuccessful } from '../../types/paymento';
 import { useAppStore, selectWalletBalance } from '../../store';
-
+import { formatCurrency } from '../../utils/currency';
+import { formatDate } from '../../utils/dateTime';
 interface PaymentsSectionProps {
   isDark?: boolean;
   onBack: () => void;
@@ -33,7 +34,7 @@ const STATUS_ICON = {
 };
 
 export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const transactions = useAppStore((s) => s.transactions);
   const walletCurrency = useAppStore((s) => s.walletCurrency);
   const walletEnabled = useAppStore((s) => s.walletEnabled);
@@ -129,7 +130,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
       <SettingsSectionTitle title={t('wallet.title', 'Wallet')} isDark={isDark} />
       <div className={`rounded-2xl p-5 mb-2 ${isDark ? "bg-gradient-to-br from-[var(--accent)]/20 to-transparent border border-[var(--border-color)]" : "bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20"}`}>
         <div className={`text-xs uppercase tracking-widest font-bold opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`}>{t('wallet.balance', 'Balance')}</div>
-        <div className={`text-[32px] font-bold mt-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{balance.toFixed(2)} {walletCurrency}</div>
+        <div className={`text-[32px] font-bold mt-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{formatCurrency(balance, walletCurrency, lang, 2)}</div>
         <div className="flex gap-2 mt-4">
           <button onClick={() => openForm('topup')} aria-label={t('wallet.topUp', 'Top up')} title={t('wallet.topUp', 'Top up')} className="min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
             <Plus size={16} />
@@ -251,11 +252,11 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
                 <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{tx.title}</div>
                 <div className={`text-xs flex items-center gap-1 ${tx.status === 'failed' ? 'text-red-500' : (isDark ? 'text-gray-500' : 'text-slate-400')}`}>
                   {STATUS_ICON[tx.status]}
-                  {tx.status === 'pending' ? t('wallet.pending', 'Pending') : tx.status === 'failed' ? t('wallet.failed', 'Payment failed') : new Date(tx.date).toLocaleDateString()}
+                  {tx.status === 'pending' ? t('wallet.pending', 'Pending') : tx.status === 'failed' ? t('wallet.failed', 'Payment failed') : formatDate(tx.date, lang)}
                 </div>
               </div>
               <span className={`text-sm font-semibold ${tx.amount >= 0 ? "text-emerald-400" : (isDark ? "text-[var(--text-primary)]" : "text-slate-800")}`}>
-                {tx.amount >= 0 ? '+' : ''}{tx.amount.toFixed(2)}
+                {tx.amount >= 0 ? '+' : '-'}{formatCurrency(Math.abs(tx.amount), walletCurrency, lang, 2)}
               </span>
             </div>
           </div>

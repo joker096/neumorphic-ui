@@ -11,6 +11,8 @@ import type { PremiumPlan } from '../../config/premium'
 import { createPaymentRequest } from '../../services/paymento'
 import { isPaymentSuccessful } from '../../types/paymento'
 import { useAppStore } from '../../store'
+import { formatDate } from '../../utils/dateTime'
+import { formatCurrency } from '../../utils/currency'
 
 interface PremiumSectionProps {
   isDark?: boolean
@@ -23,7 +25,7 @@ interface ActivePayment {
 }
 
 export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) => {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const premiumEntitlement = useAppStore((s) => s.premiumEntitlement)
   const refreshPremiumEntitlement = useAppStore((s) => s.refreshPremiumEntitlement)
   const [paying, setPaying] = useState(false)
@@ -57,7 +59,7 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
 
   const expiresLabel =
     premiumEntitlement.premium && premiumEntitlement.expiresAt
-      ? t('premium.expiresAt', { date: new Date(premiumEntitlement.expiresAt).toLocaleDateString() })
+      ? t('premium.expiresAt', { date: formatDate(premiumEntitlement.expiresAt, lang) })
       : undefined
 
   return (
@@ -115,7 +117,7 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
             iconBg={isDark ? 'bg-amber-500/10' : 'bg-amber-100'}
             iconColor={isDark ? 'text-amber-400' : 'text-amber-600'}
             title={plan.id === 'premium90' ? t('premium.plan90', 'Premium · 90 days') : t('premium.plan30', 'Premium · 30 days')}
-            value={paying ? t('premium.paying', 'Creating payment…') : t('premium.pay', { amount: `$${plan.price}` })}
+            value={paying ? t('premium.paying', 'Creating payment…') : t('premium.pay', { amount: formatCurrency(plan.price, plan.currency, lang) })}
             isDark={isDark}
             onClick={() => void handlePay(plan.id)}
           />

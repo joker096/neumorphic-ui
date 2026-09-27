@@ -16,7 +16,7 @@ const { state, can } = vi.hoisted(() => ({
 
 vi.mock('../../store', () => ({ useAppStore: (selector: any) => selector(state) }));
 vi.mock('../../lib/i18n', () => ({
-  useI18n: () => ({ t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
+  useI18n: () => ({ lang: 'en-US', t: (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key) }),
 }));
 vi.mock('../../lib/crm/permissions', () => ({ useCrmPermissions: () => ({ can }) }));
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
@@ -70,5 +70,23 @@ describe('CrmDeals', () => {
     render(<CrmDeals />);
     expect(screen.getByText('Deal 1')).toBeTruthy();
     expect(screen.queryByText('Other')).toBeNull();
+  });
+
+  it('renders the amount in the UI locale, not a hardcoded one', () => {
+    render(<CrmDeals />);
+    // en-US: "RUB 100" (code prefix) on the board total and the card. ru-RU — the
+    // old hardcode — was "100 ₽" for every locale.
+    expect(screen.getAllByText('RUB 100').length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('survives a malformed imported currency code instead of blanking the board', () => {
+    // `new Intl.NumberFormat(..., { currency: 'RU' })` throws RangeError.
+    state.crmDeals = [
+      { id: 'd1', title: 'Broken', contactId: 'c1', stage: 'new', amount: 250, currency: 'RU', ownerId: 'u1', expectedClose: null, createdAt: 0, notes: '' },
+      { id: 'd2', title: 'No currency', contactId: 'c1', stage: 'new', amount: 40, currency: '', ownerId: 'u1', expectedClose: null, createdAt: 0, notes: '' },
+    ];
+    expect(() => render(<CrmDeals />)).not.toThrow();
+    expect(screen.getByText('250')).toBeTruthy();
+    expect(screen.getByText('40')).toBeTruthy();
   });
 });

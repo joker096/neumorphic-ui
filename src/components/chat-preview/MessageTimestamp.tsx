@@ -16,12 +16,18 @@ interface MessageTimestampProps {
 export function MessageTimestamp({
   msg, isMe, isDark, stealthMode, deliveryReceipts, readReceipts, onRetry,
 }: MessageTimestampProps) {
-  const { t } = useI18n();
-  const shortDate = typeof msg.ts === "number" ? formatShortDate(msg.ts) : "";
+  const { t, lang } = useI18n();
+  const shortDate = typeof msg.ts === "number"
+    ? formatShortDate(msg.ts, {
+        lang,
+        today: t('chat.today', 'Today'),
+        yesterday: t('chat.yesterday', 'Yesterday'),
+      })
+    : "";
   const timeLabel = stealthMode ? fuzzTime(msg.time, msg.id) : msg.time;
   return (
     <div className={`message-meta flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide ${msg.type ? "px-2" : ""}`}>
-      {shortDate && <span className="opacity-70">{shortDate === 'Yesterday' ? t('chat.yesterday', 'Yesterday') : shortDate}</span>}
+      {shortDate && <span className="opacity-70">{shortDate}</span>}
       {msg.silent && <BellOff size={12} className="mr-0.5 opacity-60" />}
       {timeLabel}
       {isMe && (

@@ -4,6 +4,7 @@ import { ChevronLeft, Send, MessageSquare } from 'lucide-react';
 import { FormattedText } from './chat-preview/FormattedText';
 import { useI18n } from '../lib/i18n';
 import { get, set } from '../lib/idb';
+import { formatClockTime } from '../utils/chatUtils';
 import {
   CURRENT_USER_SENDER,
   getCommentBubbleClass,
@@ -27,8 +28,7 @@ interface ChannelCommentsProps {
   theme?: 'dark' | 'light';
 }
 
-const formatCurrentTime = (): string =>
-  new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const formatCurrentTime = (): string => formatClockTime(Date.now());
 
 const CommentBubble = ({
   comment,

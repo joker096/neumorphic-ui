@@ -11,6 +11,7 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { useI18n } from "../../../lib/i18n";
+import { formatCurrency } from "../../../utils/currency";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
 import { Skeleton } from "../../ui/Skeleton";
@@ -280,7 +281,7 @@ export interface PaymentCardProps {
 }
 
 export function PaymentCard({ invoice, isDark, onPay }: PaymentCardProps) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <div className={`p-4 rounded-2xl border border-[var(--border-color)] ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-white"}`}>
       <div className="flex items-center gap-2 mb-1">
@@ -290,7 +291,7 @@ export function PaymentCard({ invoice, isDark, onPay }: PaymentCardProps) {
       {invoice.description && <p className="text-xs opacity-70 mb-2">{invoice.description}</p>}
       <div className="flex items-center justify-between">
         <span className="text-lg font-bold">
-          {invoice.amount} {invoice.currency}
+          {formatCurrency(Number(invoice.amount), invoice.currency, lang, 2)}
         </span>
         {invoice.status === "paid" ? (
           <span className="text-green-500 text-sm font-semibold">{t('workplace.paid')}</span>

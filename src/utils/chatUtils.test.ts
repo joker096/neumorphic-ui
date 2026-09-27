@@ -1,5 +1,25 @@
 import { describe, it, expect } from 'vitest';
-import { groupMessages, formatDateLabel, fuzzTime, getBubbleCornerClass } from './chatUtils';
+import { groupMessages, formatDateLabel, formatShortDate, formatClockTime, fuzzTime, getBubbleCornerClass } from './chatUtils';
+
+describe('formatClockTime', () => {
+  it('matches the previous toLocaleTimeString call it replaces', () => {
+    const ts = new Date(2026, 0, 2, 9, 5).getTime();
+    expect(formatClockTime(ts)).toBe(new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    expect(formatClockTime(new Date(ts))).toBe(new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  });
+
+  it('renders nothing instead of throwing on a sender-asserted junk timestamp', () => {
+    expect(formatClockTime(Number.NaN)).toBe('');
+    expect(formatClockTime(new Date('nope'))).toBe('');
+    expect(formatClockTime(undefined as unknown as number)).toBe('');
+  });
+
+  it('follows the UI language for the 12/24-hour clock', () => {
+    const ts = new Date(2026, 0, 2, 14, 5).getTime();
+    expect(formatClockTime(ts, 'ru-RU')).toContain('14:05');
+    expect(formatClockTime(ts, 'en-US')).toMatch(/0?2:05/);
+  });
+});
 
 describe('groupMessages', () => {
   it('groups messages by sender', () => {
@@ -72,6 +92,68 @@ describe('formatDateLabel', () => {
 
   it('returns input unchanged for invalid time strings', () => {
     expect(formatDateLabel('not-a-time')).toBe('not-a-time');
+  });
+
+  it('renders the injected relative labels instead of the English literals', () => {
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    expect(formatDateLabel(timeStr, undefined, { today: 'Сегодня', yesterday: 'Вчера' })).toBe('Сегодня');
+
+    const yesterday = Date.now() - 24 * 60 * 60 * 1000;
+    expect(formatDateLabel('', yesterday, { today: 'Сегодня', yesterday: 'Вчера' })).toBe('Вчера');
+  });
+
+  it('resolves a clock-only label to the current day (no timestamp to anchor it)', () => {
+    // The string path rebuilds the time on TODAY's date, so a bare "14:05" can
+    // never be a day old — it is either today or the next date boundary.
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    expect(formatDateLabel(timeStr, undefined, { today: 'Сегодня' })).toBe('Сегодня');
+  });
+
+  it('formats the separator date in the UI language, not the host runtime', () => {
+    const older = Date.now() - 40 * 24 * 60 * 60 * 1000;
+    const ru = formatDateLabel('', older, { lang: 'ru-RU' });
+    const de = formatDateLabel('', older, { lang: 'de-DE' });
+    expect(ru).not.toBe(de);
+    // 40 days back lands inside the current year → no year in the label.
+    expect(ru).not.toMatch(/\d{4}/);
+  });
+
+  it('adds the year once the message is from an earlier year', () => {
+    const lastYear = new Date();
+    lastYear.setFullYear(lastYear.getFullYear() - 1);
+    const label = formatDateLabel('', lastYear.getTime(), { lang: 'en-US' });
+    expect(label).toMatch(/\d{4}/);
+  });
+
+  it('renders nothing for a sender-asserted junk timestamp', () => {
+    expect(formatDateLabel('', Number.NaN)).toBe('');
+  });
+});
+
+describe('formatShortDate', () => {
+  it('prints no date stamp for today, whatever the labels say', () => {
+    expect(formatShortDate(Date.now())).toBe('');
+    expect(formatShortDate(Date.now(), { today: 'Сегодня', yesterday: 'Вчера' })).toBe('');
+  });
+
+  it('prints the injected Yesterday label', () => {
+    const yesterday = Date.now() - 24 * 60 * 60 * 1000;
+    expect(formatShortDate(yesterday)).toBe('Yesterday');
+    expect(formatShortDate(yesterday, { today: 'Сегодня', yesterday: 'Вчера' })).toBe('Вчера');
+  });
+
+  it('formats older stamps in the UI language without a year', () => {
+    const older = Date.now() - 40 * 24 * 60 * 60 * 1000;
+    const ru = formatShortDate(older, { lang: 'ru-RU' });
+    const de = formatShortDate(older, { lang: 'de-DE' });
+    expect(ru).not.toBe(de);
+    expect(ru).not.toMatch(/\d{4}/);
+  });
+
+  it('renders nothing for a sender-asserted junk timestamp', () => {
+    expect(formatShortDate(Number.NaN)).toBe('');
   });
 });
 

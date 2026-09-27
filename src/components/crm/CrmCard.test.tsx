@@ -55,4 +55,20 @@ describe('CrmCard', () => {
     render(<CrmCard contact={{ ...contact, tags: [] }} />);
     expect(screen.getByText('crm.statusClient')).toBeTruthy();
   });
+
+  it('never labels a mixed-currency pipeline with one currency (no FX table exists)', () => {
+    render(
+      <CrmCard
+        contact={contact}
+        deals={[
+          { ...deals[0], amount: 500, currency: 'USD' },
+          { ...deals[0], id: 'd3', amount: 700, currency: 'RUB', stage: 'negotiation' },
+        ]}
+        tasks={[]}
+      />,
+    );
+    // Sum is rendered locale-grouped but unlabelled; the old code printed "$1200".
+    expect(screen.getByText('1,200')).toBeTruthy();
+    expect(screen.queryByText(/\$/)).toBeNull();
+  });
 });

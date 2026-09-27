@@ -8,6 +8,7 @@ import { RelayClient } from '../../lib/company/relayClient';
 import { openFromChannel, sealToChannel, type SealedMessage } from '../../lib/embed/embedCrypto';
 import { b64decode } from '../../lib/crypto/cryptoCore';
 import type { X25519KeyPair } from '../../lib/crypto/types';
+import { formatClockTime } from '../../utils/chatUtils';
 
 type TeamInboxProps = {
   isDark?: boolean;
@@ -40,7 +41,7 @@ interface ContactEnvelope {
 }
 
 export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const companyChannels = useAppStore((s) => s.companyChannels);
   const activeChannelId = useAppStore((s) => s.activeChannelId);
   const setActiveChannel = useAppStore((s) => s.setActiveChannel);
@@ -226,7 +227,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
                     {m.text}
                   </div>
                   <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">
-                    {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatClockTime(m.timestamp, lang)}
                   </div>
                 </div>
               );

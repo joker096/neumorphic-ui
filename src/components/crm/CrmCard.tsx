@@ -2,6 +2,7 @@ import React from 'react';
 import { UserCircle2, Briefcase, CheckSquare, AlertTriangle, ArrowUpRight } from 'lucide-react';
 import type { CrmContact, Deal, CrmTask } from '../../lib/crm/types';
 import { useI18n } from '../../lib/i18n';
+import { formatCurrency } from '../../utils/currency';
 import { isOpenDealStage } from '../../constants/crmConstants';
 
 interface CrmCardProps {
@@ -22,7 +23,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [], onOpen, isDark }) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const STATUS_LABEL: Record<string, string> = {
     lead: t('crm.statusLead'),
     client: t('crm.statusClient'),
@@ -34,6 +35,13 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
   const myDeals = deals.filter((d) => d.contactId === contact.userId);
   const openDeals = myDeals.filter((d) => isOpenDealStage(d.stage));
   const dealValue = openDeals.reduce((sum, d) => sum + d.amount, 0);
+  // The pipeline is a sum over deals that may carry different currencies, and
+  // no FX table exists — so only label it when every open deal agrees, instead
+  // of the old hardcoded `$` that mislabelled every non-dollar pipeline.
+  const dealCurrencies = new Set(
+    openDeals.map((d) => (typeof d.currency === 'string' ? d.currency.trim().toUpperCase() : '')).filter(Boolean),
+  );
+  const pipelineCurrency = dealCurrencies.size === 1 ? [...dealCurrencies][0] : '';
   const myTasks = tasks.filter((t) => t.contactId === contact.userId);
   const openTasks = myTasks.filter((t) => !t.done);
 
@@ -80,7 +88,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
 
         <div className="grid grid-cols-3 gap-2 pt-1">
           <Metric label={t('crm.tabDeals')} value={String(openDeals.length)} />
-          <Metric label={t('crm.pipeline')} value={dealValue > 0 ? `$${dealValue.toLocaleString()}` : '—'} />
+          <Metric label={t('crm.pipeline')} value={dealValue > 0 ? formatCurrency(dealValue, pipelineCurrency, lang, 0) : '—'} />
           <Metric label={t('crm.tabTasks')} value={String(openTasks.length)} highlight={openTasks.length > 0} />
         </div>
 

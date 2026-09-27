@@ -4,6 +4,7 @@ import { verifyPayment } from '../../services/paymento'
 import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPending } from '../../types/paymento'
 import { toast } from '../ui/Toast'
 import { useI18n } from '../../lib/i18n'
+import { formatCurrency } from '../../utils/currency'
 
 interface PaymentChatBubbleProps {
   msg: any
@@ -11,7 +12,7 @@ interface PaymentChatBubbleProps {
 }
 
 export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProps) => {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const token = msg?.paymentToken as string | undefined
   const url = (msg?.paymentUrl as string) || ''
   const amount = msg?.amount
@@ -97,7 +98,7 @@ export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProp
       {description && <div className="text-sm font-medium">{description}</div>}
       {amount != null && amount !== '' && (
         <div className="text-2xl font-bold mt-0.5">
-          {amount} {currency}
+          {formatCurrency(Number(amount), currency, lang, 2)}
         </div>
       )}
       <div className="mt-1 truncate text-xs opacity-60">{url}</div>

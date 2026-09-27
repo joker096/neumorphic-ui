@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useAppStore } from "../store";
+import { formatClockTime } from "../utils/chatUtils";
 import type { ScheduledMessage } from "../store/types";
 
 export function useScheduledMessages() {
@@ -26,7 +27,7 @@ export function useScheduledMessages() {
                 sender: "me",
                 status: "delivered"
               }];
-              updatedChats[chatIndex] = { ...chat, history: newHistory, message: msg.text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+              updatedChats[chatIndex] = { ...chat, history: newHistory, message: msg.text, time: formatClockTime(Date.now()) };
             }
           }
           return updatedChats;

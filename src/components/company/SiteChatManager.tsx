@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Globe, Copy, Plus, Trash2 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
+import { formatDate } from '../../utils/dateTime';
 import { toast } from 'sonner';
 
 const ACCENT_PRESETS = ['#6C5CE7', '#2563EB', '#16A34A', '#EA580C', '#DC2626', '#0F172A'];
@@ -11,7 +12,7 @@ type SiteChatManagerProps = {
 };
 
 export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const siteChats = useAppStore((s) => s.siteChats);
   const websiteContacts = useAppStore((s) => s.websiteContacts);
   const createSiteChat = useAppStore((s) => s.createSiteChat);
@@ -165,7 +166,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                       <span className="font-bold">{c.name}</span>
                       {c.email && <span className="opacity-60">· {c.email}</span>}
                       {c.phone && <span className="opacity-60">· {c.phone}</span>}
-                      <span className="ml-auto text-[11px] text-[var(--text-secondary)]">{new Date(c.ts).toLocaleDateString()}</span>
+                      <span className="ml-auto text-[11px] text-[var(--text-secondary)]">{formatDate(c.ts, lang)}</span>
                       <button
                         onClick={() => removeWebsiteContact(c.id)}
                         aria-label={t('company.removeWebsiteContact', 'Remove contact')}

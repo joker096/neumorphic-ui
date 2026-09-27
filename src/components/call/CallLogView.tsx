@@ -6,9 +6,10 @@ import { PhoneIncoming, PhoneOutgoing, PhoneMissed, PhoneOff, Phone, Search, Tra
 import { useAppStore } from '../../store';
 import { callManager } from '../../lib/call/CallManager';
 import { callRecorderService } from '../../lib/callRecorderService';
+import { formatTime } from '../../utils/dateTime';
 
 export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark?: boolean; onBack?: () => void; onOpenContacts?: () => void }) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const callHistory = useAppStore(s => s.callHistory);
   const clearCallHistory = useAppStore(s => s.clearCallHistory);
   const [query, setQuery] = useState('');
@@ -100,7 +101,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
                       {call.name}
                     </p>
                     <p className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
-                      <span>{call.time}{call.duration && ` · ${call.duration}`}</span>
+                      <span>{call.at != null ? formatTime(call.at, lang) : call.time}{call.duration && ` · ${call.duration}`}</span>
                       {call.recordingId && (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-400">
                           <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" aria-hidden="true" />

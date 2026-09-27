@@ -28,6 +28,7 @@ import {
   CHAT_PROFILE_DEFAULT_SUBSCRIBERS,
   CHAT_PROFILE_DEFAULT_MEMBERS,
 } from '../constants/chatConstants';
+import { formatLongDate } from '../utils/dateTime';
 
 export type ChatProfileKind = 'user' | 'group' | 'channel' | 'bot';
 
@@ -49,7 +50,7 @@ const TABS = [
 ];
 
 export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage, onCall, onVideoCall }: ChatProfileViewProps) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const kind: ChatProfileKind = chat.type ?? (chat.isChannel ? 'channel' : 'user');
   const channelInviteLink = buildChannelInviteLink(chat.username, chat.id);
   const [activeTab, setActiveTab] = useState('media');
@@ -230,7 +231,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   <SectionTitle icon={<Info size={16} />} title={t('profile.groupInfo', 'Group info')} isDark={isDark} />
                   <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
                     <InfoRow label={t('profile.owner', 'Owner')} value={ownerName ?? '—'} isDark={isDark} />
-                    {groupCreatedAt ? <InfoRow label={t('profile.created', 'Created')} value={new Date(groupCreatedAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })} isDark={isDark} /> : null}
+                    {groupCreatedAt ? <InfoRow label={t('profile.created', 'Created')} value={formatLongDate(groupCreatedAt, lang)} isDark={isDark} /> : null}
                     <InfoRow label={t('profile.description', 'Description')} value={groupDescription || t('profile.noDescription', 'No description')} isDark={isDark} />
                   </div>
                 </div>

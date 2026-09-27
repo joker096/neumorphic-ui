@@ -19,7 +19,7 @@ vi.mock('../../services/paymento', () => ({
   sharePaymentLink,
 }));
 vi.mock('../../lib/i18n', () => ({
-  useI18n: () => ({ t: (key: string) => key }),
+  useI18n: () => ({ lang: 'en-US', t: (key: string) => key }),
 }));
 vi.mock('../ui/Toast', () => ({ toast: vi.fn() }));
 vi.mock('lucide-react', () => ({
@@ -90,7 +90,7 @@ describe('PaymentRequestCard', () => {
       'data:image/png;base64,qr',
     );
     expect(screen.getByText('Lunch')).toBeInTheDocument();
-    expect(screen.getByText(/10\.5 USD/)).toBeInTheDocument();
+    expect(screen.getByText(/\$10\.50/)).toBeInTheDocument();
     expect(screen.getByText('https://gateway.example?token=tok')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'payments.open' })).toHaveAttribute(
       'href',

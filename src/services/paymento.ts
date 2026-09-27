@@ -1,4 +1,5 @@
 import { PAYMENTO_BACKEND_BASE, buildGatewayUrl } from '../config/paymento'
+import { formatClockTime } from '../utils/chatUtils'
 import type {
   PaymentoCreateInput,
   PaymentoCreateResult,
@@ -108,7 +109,7 @@ export function buildPaymentMessage(input: PaymentMessageInput): any {
     type: 'payment',
     sender: 'me',
     text: label,
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    time: formatClockTime(Date.now()),
     status: 'sent',
     silent: false,
     paymentToken: input.token,

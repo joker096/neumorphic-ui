@@ -1,10 +1,17 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { MessageTimestamp } from './MessageTimestamp';
 
-vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t: (k: string, fallback?: string) => fallback ?? k }) }));
+const { state } = vi.hoisted(() => ({ state: { lang: 'en-US', yesterday: 'Yesterday' } }));
+
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    lang: state.lang,
+    t: (k: string, fallback?: string) => (k === 'chat.yesterday' ? state.yesterday : (fallback ?? k)),
+  }),
+}));
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -24,6 +31,8 @@ function renderAt(ts: number, overrides: Record<string, unknown> = {}, stealthMo
 describe('MessageTimestamp', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    state.lang = 'en-US';
+    state.yesterday = 'Yesterday';
   });
 
   it('renders only the clock time for messages sent today', () => {
@@ -51,6 +60,25 @@ describe('MessageTimestamp', () => {
   it('fuzzes the clock time in stealth mode', () => {
     renderAt(Date.now(), {}, true);
     expect(screen.getByText('14:01')).toBeInTheDocument();
+  });
+
+  it('stamps the date in the UI language, not the English literal', () => {
+    state.lang = 'ru-RU';
+    state.yesterday = 'Вчера';
+    renderAt(Date.now() - DAY_MS);
+    expect(screen.getByText('Вчера')).toBeInTheDocument();
+    expect(screen.queryByText('Yesterday')).not.toBeInTheDocument();
+  });
+
+  it('renders the older date stamp through the UI locale', () => {
+    const ts = Date.now() - 5 * DAY_MS;
+    const en = (renderAt(ts).container.textContent || '').trim();
+    cleanup();
+    state.lang = 'ru-RU';
+    state.yesterday = 'Вчера';
+    const ru = (renderAt(ts).container.textContent || '').trim();
+    expect(ru).not.toBe(en);
+    expect(ru.endsWith('14:05')).toBe(true);
   });
 
   it('renders delivery status icons for own messages', () => {

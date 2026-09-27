@@ -5,6 +5,7 @@ import { toast } from '../ui/Toast'
 import { gatewayUrl, verifyPayment, sharePaymentLink } from '../../services/paymento'
 import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPending } from '../../types/paymento'
 import { useI18n } from '../../lib/i18n'
+import { formatCurrency } from '../../utils/currency'
 
 interface PaymentRequestCardProps {
   token: string
@@ -27,7 +28,7 @@ export const PaymentRequestCard = ({
   onStatus,
   onSendToChat,
 }: PaymentRequestCardProps) => {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const url = useMemo(() => gatewayUrl(token), [token])
   const [qr, setQr] = useState<string>('')
   const [status, setStatus] = useState<number | null>(null)
@@ -127,7 +128,7 @@ export const PaymentRequestCard = ({
           )}
           {amount != null && (
             <div className={`text-2xl font-bold mt-0.5 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>
-              {amount} {currency}
+              {formatCurrency(Number(amount), currency, lang, 2)}
             </div>
           )}
           <div className="mt-1 truncate text-xs opacity-60">{url}</div>

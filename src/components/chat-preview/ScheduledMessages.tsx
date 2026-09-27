@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Clock, X } from "lucide-react";
 import { FormattedText } from "./FormattedText";
 import { useI18n } from "../../lib/i18n";
+import { formatClockTime } from "../../utils/chatUtils";
 
 export interface ScheduledMessage {
   id: string | number;
@@ -28,7 +29,7 @@ export const ScheduledMessages: React.FC<ScheduledMessagesProps> = ({
   chatScheduledMessages,
   scheduledQueue,
 }) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   if (chatScheduledMessages.length === 0) return null;
 
   return (
@@ -49,7 +50,7 @@ export const ScheduledMessages: React.FC<ScheduledMessagesProps> = ({
               <FormattedText text={msg.type === "morse" && msg.originalText ? msg.originalText : msg.text} searchTerm="" />
               <div className="flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide opacity-50">
                 <Clock size={12} className="inline mr-1" />
-                {new Date(msg.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {formatClockTime(msg.scheduledAt, lang)}
                 <button onClick={() => scheduledQueue.removeMessage(msg.id)} className="cursor-pointer ml-2 hover:text-red-500 flex items-center justify-center w-9 h-9 min-w-11 min-h-11" aria-label={t("chat.removeScheduledMessage")} title={t("chat.removeScheduled")}>
                   <X size={12} />
                   <span className="sr-only">{t("chat.removeScheduled")}</span>
