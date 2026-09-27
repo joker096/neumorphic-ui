@@ -159,14 +159,17 @@ test.describe('Contacts & identity', () => {
     }
   });
 
-  test('report contact from profile modal submits a report', async ({ page }) => {
+  test('profile modal exposes no report stub (dead control removed)', async ({ page }) => {
     await gotoContacts(page);
     await page.getByText('Alice Freeman').first().click();
     const more = page.getByLabel('More actions').first();
     if (!(await more.count())) return;
     await more.click();
-    await page.getByLabel('Report').first().click();
-    await expect(page.getByText('Report submitted')).toBeVisible();
+    // The Report row was a toast-only stub with no backend behind it (D5), so
+    // the popover must not offer it any more.
+    await expect(page.getByLabel('Report')).toHaveCount(0);
+    // The live control next to it stays.
+    await expect(page.getByLabel('Block Spammer')).toBeVisible();
   });
 
   test('block contact from profile modal marks the contact blocked', async ({ page }) => {

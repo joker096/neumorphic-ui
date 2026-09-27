@@ -71,7 +71,9 @@ test.describe('Navigation & chrome', () => {
 
   test('transport indicator is present with a connection label', async ({ page }) => {
     await gotoApp(page);
-    await expect(page.locator('[role="status"][aria-label^="Connection:"]')).toBeVisible();
+    // Rendered in both nav surfaces (desktop sidebar footer + mobile bottom
+    // nav), so the locator is ambiguous by design — take the first match.
+    await expect(page.locator('[role="status"][aria-label^="Connection:"]').first()).toBeVisible();
   });
 
   test('skip link targets main content', async ({ page }) => {

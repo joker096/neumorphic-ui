@@ -92,9 +92,11 @@ test.describe('Group management', () => {
     await input.fill('Pin me');
     await page.getByLabel('Send Message').first().click();
 
-    // Context menu on the bubble -> Pin (hover overlay blocks real right-click, dispatch directly)
+    // Context menu on the bubble -> Pin (hover overlay blocks real right-click, dispatch directly).
+    // The menu anchors to the bubble rect and exposes ARIA `menu`/`menuitem` (both the anchored
+    // popup and the bottom-sheet fallback), so the action is queried as a menuitem, not a button.
     await page.locator('span.pb-1', { hasText: 'Pin me' }).dispatchEvent('contextmenu');
-    await page.getByRole('button', { name: 'Pin', exact: true }).click();
+    await page.getByRole('menuitem', { name: 'Pin', exact: true }).click();
 
     // Pinned bar appears in the chat
     await expect(page.getByRole('button', { name: 'Pinned messages' })).toBeVisible();
