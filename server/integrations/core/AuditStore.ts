@@ -12,7 +12,7 @@ export interface AuditEntry {
   status: string
   errorCode: string | null
   errorMessage: string | null
-  metadata: Record<string, unknown>
+  metadata: Record<string, unknown> | string | null
 }
 
 export class AuditStore {
@@ -36,7 +36,11 @@ export class AuditStore {
   insert(e: AuditEntry): void {
     this.db.prepare(`INSERT INTO integration_audit_logs
       (id, organization_id, integration_id, actor, action, entity_type, external_id, status, error_code, error_message, metadata)
-      VALUES (@id, @organizationId, @integrationId, @actor, @action, @entityType, @externalId, @status, @errorCode, @errorMessage, @metadata)`).run(e)
+      VALUES (@id, @organizationId, @integrationId, @actor, @action, @entityType, @externalId, @status, @errorCode, @errorMessage, @metadata)`)
+      // `metadata` is a TEXT column. Binding the raw object made node:sqlite
+      // throw ("can only bind numbers, strings, bigints, buffers, and null"),
+      // which aborted every audited action — including integration creation.
+      .run({ ...e, metadata: typeof e.metadata === 'string' ? e.metadata : JSON.stringify(e.metadata ?? {}) })
   }
 
   list(integrationId?: string, limit = 100): AuditEntry[] {

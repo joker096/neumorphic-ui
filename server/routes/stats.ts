@@ -1,6 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 import { getDb } from '../db.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
+import { resolveClientIp } from '../middleware/clientIp.js'
 
 const statsRateLimit = new Map<string, { count: number; resetAt: number }>()
 
@@ -24,7 +25,7 @@ setInterval(() => {
 }, 300000)
 
 export function handleStatsRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
-  const ip = req.socket.remoteAddress || 'unknown'
+  const ip = resolveClientIp(req)
   if (!checkStatsRateLimit(ip)) {
     res.writeHead(429, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ error: 'Too many requests' }))

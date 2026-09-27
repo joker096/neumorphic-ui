@@ -3,6 +3,8 @@
 
 import { IncomingMessage, ServerResponse } from 'node:http'
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js'
+import { checkRateLimit } from '../middleware/rateLimit.js'
+import { resolveClientIp } from '../middleware/clientIp.js'
 import { integrationManager, StaticCredentialHandle, integrationQueue } from '../integrations/core/IntegrationManager.js'
 import { IntegrationError } from '../integrations/core/Connector.js'
 import { ConflictEngine } from '../integrations/conflict/ConflictEngine.js'
@@ -18,6 +20,9 @@ const reconciliationService = new ReconciliationService()
 
 const MAX_BODY = 1024 * 256
 
+// Unauthenticated endpoint: allow a provider a burst of retries, not a flood.
+const WEBHOOK_RATE_LIMIT_PER_MIN = 60
+
 function readBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     let body = ''
@@ -32,6 +37,40 @@ function readBody(req: IncomingMessage): Promise<any> {
     })
     req.on('error', reject)
   })
+}
+
+/**
+ * Raw body reader for signature verification: the provider signs the exact
+ * bytes it sent, so re-serialising a parsed object (whitespace, escapes, key
+ * order) would make every signature check fail — or, worse, invite a caller to
+ * rely on a re-serialised form.
+ */
+function readRawBody(req: IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let body = ''
+    let size = 0
+    let overLimit = false
+    req.on('data', (chunk: Buffer) => {
+      size += chunk.length
+      if (size > MAX_BODY) {
+        // Stop accumulating but keep draining: destroying the socket here would
+        // drop the 413 response the caller needs to see.
+        overLimit = true
+        body = ''
+        return
+      }
+      body += chunk.toString('utf8')
+    })
+    req.on('end', () => (overLimit ? reject(new BodyTooLargeError()) : resolve(body)))
+    req.on('error', reject)
+  })
+}
+
+class BodyTooLargeError extends Error {
+  constructor() {
+    super('Request body too large')
+    this.name = 'BodyTooLargeError'
+  }
 }
 
 function json(res: ServerResponse, status: number, obj: unknown): boolean {
@@ -131,19 +170,28 @@ export function handleIntegrationsRoute(req: IncomingMessage, res: ServerRespons
     return true
   }
 
+  // Providers cannot hold an admin session, so this endpoint is open to the
+  // internet by necessity — the body is authenticated by signature instead
+  // (§37) and throttled per client IP.
   const webhookMatch = path.match(/^\/api\/v1\/integrations\/webhooks\/([^/]+)\/([^/]+)$/)
   if (webhookMatch && req.method === 'POST') {
-    readBody(req).then((data) => {
+    if (!checkRateLimit(`integrations:webhook:${resolveClientIp(req)}`, { windowMs: 60_000, maxRequests: WEBHOOK_RATE_LIMIT_PER_MIN }).allowed) {
+      json(res, 429, { code: 'RATE_LIMIT', message: 'Too many webhook requests', retryable: true })
+      return true
+    }
+    readRawBody(req).then((rawBody) => {
       try {
         const r = receiveWebhook({
           provider: webhookMatch[1], integrationId: webhookMatch[2],
-          rawBody: JSON.stringify(data),
+          rawBody,
           signature: req.headers['x-signature'] as string | undefined,
           timestamp: req.headers['x-timestamp'] as string | undefined,
         })
         return json(res, 202, r)
       } catch (e) { return errJson(res, e) }
-    }).catch(() => json(res, 400, { error: 'Invalid JSON' }))
+    }).catch((e) => json(res, e instanceof BodyTooLargeError ? 413 : 400, {
+      error: e instanceof Error ? e.message : 'Invalid request body',
+    }))
     return true
   }
 

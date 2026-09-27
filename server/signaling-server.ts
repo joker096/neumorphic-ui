@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws'
-import { createServer, RequestListener } from 'node:http'
+import { createServer, RequestListener, IncomingMessage } from 'node:http'
 import { readFileSync, existsSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -9,8 +9,8 @@ import * as naclNS from 'tweetnacl'
 // named exports directly. Resolve both so signature verification actually runs
 // (a namespace-only import silently left `nacl.sign` undefined in Node).
 const nacl = ((naclNS as unknown as { default?: typeof naclNS }).default ?? naclNS) as typeof naclNS
-import jwt from 'jsonwebtoken'
 import { logConnection, logDisconnection, purgeOldConnections, closeDb } from './db.js'
+import { verifyRelayToken } from './auth.js'
 import { handleAuthRoute } from './routes/auth.js'
 import { handleStatsRoute } from './routes/stats.js'
 import { handleAdsRoute } from './routes/ads.js'
@@ -18,6 +18,7 @@ import { handlePaymentoRoute } from './routes/paymento.js'
 import { handleIntegrationsRoute } from './routes/integrations.js'
 import { handleAdminRoute } from './routes/admin.js'
 import { applyCSP } from './csp.js'
+import { resolveClientIp } from './middleware/clientIp.js'
 
 const PORT = parseInt(process.env.PORT || '8765', 10)
 
@@ -92,12 +93,14 @@ const MAX_BROADCAST_DATA_SIZE = 64 * 1024
 const rooms = new Map<string, Set<WebSocket>>()
 const wsTopics = new Map<WebSocket, Set<string>>()
 
-// Rate limit per IP: track connection attempts
+// Rate limit per client IP (proxy-aware, see middleware/clientIp.ts).
 const connectionAttempts = new Map<string, { count: number; resetAt: number }>()
-// 60/min per IP. 10 was too aggressive for shared-VPN egress IPs (many app
-// users behind one provider IP) and, combined with the old client reconnect
-// storm, produced self-sustaining 1008 "Too many connections" denials.
-const MAX_CONNECTIONS_PER_MINUTE = 60
+// 240/min per *real* client IP. This used to be 60/min keyed on the raw socket
+// peer, which behind nginx is 127.0.0.1 for every user on the internet — 60
+// connects/min fleet-wide, and any burst past it produced self-sustaining 1008
+// "Too many connections" denials. Carrier-grade NAT puts many users on one
+// public IP, so the ceiling has to cover a shared egress, not a single socket.
+const MAX_CONNECTIONS_PER_MINUTE = 240
 
 function checkConnectionRateLimit(ip: string): boolean {
   const now = Date.now()
@@ -120,15 +123,23 @@ setInterval(() => {
 }, 300000)
 
 function getClientIp(ws: WebSocket): string {
-  const req = (ws as any).request
-  if (req && req.socket && req.socket.remoteAddress) return req.socket.remoteAddress
+  const req = (ws as any).request as IncomingMessage | undefined
+  // Proxy-aware: behind nginx the socket peer is loopback, so a socket-only key
+  // would funnel every client in the world into one 60/min bucket.
+  if (req) return resolveClientIp(req)
   return 'unknown'
 }
 
+/**
+ * Relay-only handshake auth. An admin session token is NOT a relay credential:
+ * it is minted for the admin panel, lives for 24h, and must not double as a
+ * mesh bearer token. `verifyRelayToken` enforces the derived relay key and the
+ * `relay` audience, so admin tokens fail on both.
+ */
 function verifyWsToken(authHeader: string): boolean {
   try {
     const token = authHeader.slice(7) // remove 'Bearer '
-    jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] })
+    verifyRelayToken(token)
     return true
   } catch {
     return false
@@ -210,7 +221,7 @@ wss.on('connection', (ws, req) => {
   }
 
   // Capture IP and User-Agent for connection logging
-  const clientIp = req.socket.remoteAddress || 'unknown'
+  const clientIp = getClientIp(ws)
   const clientUa = req.headers?.['user-agent'] || ''
 
   ws.on('message', (raw) => {

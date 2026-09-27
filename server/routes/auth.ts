@@ -2,8 +2,9 @@ import { IncomingMessage, ServerResponse } from 'node:http'
 import { randomInt, randomUUID } from 'node:crypto'
 import bcrypt from 'bcrypt'
 import { getDb } from '../db.js'
-import { signToken, verifyToken, verifyTotp, createAdminSession, invalidateSession, signRelayToken } from '../auth.js'
+import { signToken, verifyAdminToken, verifyTotp, createAdminSession, invalidateSession, signRelayToken } from '../auth.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
+import { resolveClientIp } from '../middleware/clientIp.js'
 
 interface RateLimitEntry {
   count: number
@@ -38,8 +39,13 @@ function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 60000): boolean 
   return true
 }
 
+/**
+ * Client IP for rate limiting. Must be proxy-aware: behind nginx every peer is
+ * loopback, so a socket-only key turns every per-IP limit into one global
+ * bucket (3 requests to /verify-2fa would lock 2FA for the whole internet).
+ */
 function getRemoteAddress(req: IncomingMessage): string {
-  return req.socket.remoteAddress || 'unknown'
+  return resolveClientIp(req)
 }
 
 export function handleAuthRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
@@ -53,12 +59,14 @@ export function handleAuthRoute(req: IncomingMessage, res: ServerResponse, path:
 /**
  * Public, self-service relay token issuance. The signaling WebSocket requires a
  * valid JWT in `?token=`; this endpoint lets any client mint one. Rate-limited
- * to curb abuse. Message secrecy is E2E (recipient public-key encrypted), so a
- * public token endpoint only gates connection, not content.
+ * per client IP to curb abuse. Message secrecy is E2E (recipient public-key
+ * encrypted), so a public token endpoint only gates connection, not content.
  */
 async function handleToken(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const ip = getRemoteAddress(req)
-  if (!checkRateLimit(ip, 30, 60000)) {
+  // 60/min per real client IP. Carrier NAT shares one public address across many
+  // users, so the ceiling has to survive a cold start of a whole cohort.
+  if (!checkRateLimit(ip, 60, 60000)) {
     res.writeHead(429, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ error: 'Too many requests. Try again later.' }))
     return
@@ -219,7 +227,9 @@ async function handleVerify2FA(req: IncomingMessage, res: ServerResponse): Promi
 
     let payload: { adminId: number; username: string }
     try {
-      payload = verifyToken(sessionToken)
+      // Admin-audience only: a relay token (publicly mintable) is rejected here
+      // instead of relying on `adminId` happening to be absent.
+      payload = verifyAdminToken(sessionToken)
     } catch {
       res.writeHead(401, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ error: 'Invalid or expired session token' }))

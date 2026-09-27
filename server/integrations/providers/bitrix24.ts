@@ -4,6 +4,7 @@ import type {
   IntegrationContext, ListOptions, PageResult, CanonicalEntity, EntityType,
 } from '../core/Connector.js'
 import { IntegrationError } from '../core/Connector.js'
+import { timingSafeEqual } from 'node:crypto'
 
 const METHOD: Record<string, string> = {
   contact: 'crm.contact', company: 'crm.company', lead: 'crm.lead', deal: 'crm.deal',
@@ -84,11 +85,16 @@ export class Bitrix24Connector implements Connector {
     return { externalId: String(json.result ?? externalId), data: json.result ?? data.fields }
   }
 
-  // §37 best-effort: Bitrix24 inbound webhooks carry the `auth` token; the route
-  // passes it as the signature header. Accept when none present (defer enforcement).
-  verifyWebhookSignature(rawBody: string, signature: string, ctx: IntegrationContext): boolean {
+  // §37 Bitrix24 inbound webhooks carry the integration `auth` token; the route
+  // passes it as the signature header. Fail-closed: no configured token means
+  // nothing to compare against, so the request is rejected.
+  verifyWebhookSignature(_rawBody: string, signature: string, ctx: IntegrationContext): boolean {
     if (!signature) return false
-    const token = ctx.credentials.get<string>('apiKey')
-    return token === signature
+    const token = (ctx.config['webhookSecret'] as string | undefined) ?? ctx.credentials.get<string>('apiKey')
+    if (!token) return false
+    const a = Buffer.from(token, 'utf8')
+    const b = Buffer.from(signature, 'utf8')
+    if (a.length !== b.length) return false
+    return timingSafeEqual(a, b)
   }
 }

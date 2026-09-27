@@ -1,6 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 import { getDb } from '../db.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
+import { resolveClientIp } from '../middleware/clientIp.js'
 
 const adsRateLimit = new Map<string, { count: number; resetAt: number }>()
 
@@ -25,7 +26,7 @@ setInterval(() => {
 
 export function handleAdsRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
   // Rate limit for client endpoints
-  const ip = req.socket.remoteAddress || 'unknown'
+  const ip = resolveClientIp(req)
   if (!checkAdsRateLimit(ip)) {
     res.writeHead(429, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ error: 'Too many requests' }))

@@ -11,5 +11,10 @@ export interface QueueJob {
 }
 
 export interface QueueProvider {
-  enqueue(job: QueueJob): Promise<void>
+  /**
+   * Accepts a job. Synchronous so back-pressure is visible to the caller
+   * (a bounded queue rejects with `IntegrationError('RATE_LIMIT')`); the
+   * processing itself is asynchronous.
+   */
+  enqueue(job: QueueJob): void
 }

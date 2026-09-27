@@ -154,7 +154,7 @@ export class IntegrationManager {
     const rec = this.store.get(id)
     if (!rec) throw new IntegrationError('NOT_FOUND', 'Integration not found')
     const jobId = nanoid()
-    void integrationQueue.enqueue({ jobId, integrationId: id, entityType, records })
+    integrationQueue.enqueue({ jobId, integrationId: id, entityType, records })
     metrics.inc('imports_enqueued')
     return { jobId }
   }

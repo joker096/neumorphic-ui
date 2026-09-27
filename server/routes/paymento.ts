@@ -10,6 +10,7 @@ import {
   recordSubscriptionGrant,
   listPayments,
 } from '../db.js'
+import { resolveClientIp } from '../middleware/clientIp.js'
 import { getPlan } from '../plans.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 import { checkRateLimit } from '../middleware/rateLimit.js'
@@ -180,7 +181,7 @@ async function callPaymentoVerify(
 // --- Route handler ---
 export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
   if (path === '/api/paymento/create' && req.method === 'POST') {
-    const ip = req.socket.remoteAddress || 'unknown'
+    const ip = resolveClientIp(req)
     if (!checkCreateRateLimit(ip)) {
       sendJson(res, 429, { error: 'Too many requests. Try again later.' })
       return true
@@ -230,7 +231,7 @@ setInterval(() => {
 
 function handleEntitlement(req: IncomingMessage, res: ServerResponse): void {
   try {
-    const ip = req.socket.remoteAddress || 'unknown'
+    const ip = resolveClientIp(req)
     if (!checkEntitlementRateLimit(ip)) {
       sendJson(res, 429, { error: 'Too many requests. Try again later.' })
       return
@@ -411,7 +412,7 @@ async function handleVerify(req: IncomingMessage, res: ServerResponse): Promise<
       sendJson(res, 400, { error: 'Missing or invalid token' })
       return
     }
-    const ip = req.socket.remoteAddress || 'unknown'
+    const ip = resolveClientIp(req)
     if (!checkRateLimit(`paymento-verify:${ip}:${token}`, { windowMs: 60000, maxRequests: 30 }).allowed) {
       sendJson(res, 429, { error: 'Too many requests. Try again later.' })
       return

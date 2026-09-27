@@ -5,7 +5,7 @@ import type {
   Connector, ConnectorCapabilities, ConnectionTestResult, ExternalRecord,
   IntegrationContext, ListOptions, PageResult, CanonicalEntity, EntityType,
 } from '../core/Connector.js'
-import { createHmac } from 'node:crypto'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import { IntegrationError } from '../core/Connector.js'
 
 const PLURAL: Record<string, string> = {
@@ -104,16 +104,18 @@ export class AmoConnector implements Connector {
     return { externalId: String(json.id ?? externalId), data: json }
   }
 
-  // §37 best-effort HMAC-SHA256 verification. Real amoCRM uses a URL secret;
-  // scaffold accepts when no signature header is present (defer full enforcement).
+  // §37 HMAC-SHA256 over the raw body. Fail-closed: without a secret there is
+  // nothing to verify against, so the request is rejected — accepting here would
+  // turn the unauthenticated webhook endpoint into an open import API.
+  // Constant-time compare, `sha256=` prefix optional.
   verifyWebhookSignature(rawBody: string, signature: string, ctx: IntegrationContext): boolean {
     if (!signature) return false
-    const secret = ctx.credentials.get<string>('apiKey') ?? (ctx.config['webhookSecret'] as string | undefined)
-    if (!secret) return true
+    const secret = (ctx.config['webhookSecret'] as string | undefined) ?? ctx.credentials.get<string>('webhookSecret')
+    if (!secret) return false
     const expected = createHmac('sha256', secret).update(rawBody).digest('hex')
-    const a = Buffer.from(expected)
-    const b = Buffer.from(signature)
+    const a = Buffer.from(expected, 'utf8')
+    const b = Buffer.from(signature.startsWith('sha256=') ? signature.slice(7) : signature, 'utf8')
     if (a.length !== b.length) return false
-    return a.every((v, i) => v === b[i])
+    return timingSafeEqual(a, b)
   }
 }
