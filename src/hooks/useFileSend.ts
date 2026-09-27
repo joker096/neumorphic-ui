@@ -8,11 +8,22 @@ import { chunkSizeForFileSize, sliceFileChunks } from "../lib/fileTransfer/chunk
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { saveTransferMeta, saveChunk, type StoredTransfer } from "../lib/fileTransfer/fileStore";
 import { p2pNetwork } from "../lib/p2p/network";
+import { applyDefaultSelfDestruct, wireSelfDestructTtl } from "../lib/selfDestruct";
+import { formatClockTime } from "../utils/chatUtils";
 import { useAppStore } from "../store";
 
 export interface FileSendProgress {
   transferId: string;
   percent: number;
+}
+
+/**
+ * Stamp the user's default self-destruct timer onto an outgoing attachment.
+ * The wire frames carry the remaining duration, so the receiver expires the
+ * message (and its blobs) on its own schedule too.
+ */
+function applySelfDestruct(msg: any): void {
+  applyDefaultSelfDestruct(msg, useAppStore.getState().selfDestructDefault);
 }
 
 export interface UseFileSendDeps {
@@ -99,10 +110,11 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       fileTransferId: transferId,
       videoNote: opts.videoNote ?? false,
       ts: Date.now(),
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      time: formatClockTime(Date.now()),
       status: online ? "sent" : "queued",
       silent: opts.silent ?? false,
     };
+    applySelfDestruct(newMessage);
     appendMessage(newMessage);
 
     const safeSend = (frame: FtrFrame) =>
@@ -125,6 +137,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
         receivedChunks: 0,
         videoNote: opts.videoNote,
       };
+      const ttlMs = wireSelfDestructTtl(newMessage.selfDestructAt);
       await saveTransferMeta(meta);
       for await (const chunk of sliceFileChunks(file)) {
         await saveChunk(transferId, chunk.index, chunk.data);
@@ -132,7 +145,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       }
       await saveTransferMeta({ ...meta, receivedChunks: totalChunks, completed: true });
       if (online) {
-        await safeSend({ type: "meta", seq: nextFileSeq(), ...meta });
+        await safeSend({ type: "meta", seq: nextFileSeq(), ...meta, ttlMs });
         for await (const chunk of sliceFileChunks(file)) {
           await safeSend({ type: "chunk", seq: nextFileSeq(), transferId, index: chunk.index, data: bytesToBase64(new Uint8Array(chunk.data)) });
         }
@@ -190,10 +203,11 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       fileTransferId: entries[0].transferId,
       album: entries.map((e) => ({ url: FTR_MAGIC + e.transferId, fileName: e.name, fileSize: e.size })),
       ts: Date.now(),
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      time: formatClockTime(Date.now()),
       status: online ? "sent" : "queued",
       silent: opts.silent ?? false,
     };
+    applySelfDestruct(newMessage);
     appendMessage(newMessage);
 
     const safeSend = (frame: FtrFrame) =>
@@ -206,6 +220,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
         .catch(() => false);
 
     try {
+      const ttlMs = wireSelfDestructTtl(newMessage.selfDestructAt);
       if (online) {
         const manifest: AlbumManifest = {
           albumId: String(msgId),
@@ -216,6 +231,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
           timestamp: Date.now(),
           silent: opts.silent ?? false,
           entries: entries.map((e) => ({ transferId: e.transferId, name: e.name, mime: e.mime, size: e.size })),
+          ttlMs,
         };
         // Manifest FIRST: the receiver marks these transferIds as album entries so
         // the per-file meta frames do not render duplicate single-file bubbles.
@@ -244,7 +260,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
         }
         await saveTransferMeta({ ...meta, receivedChunks: totalChunks, completed: true });
         if (online) {
-          await safeSend({ type: "meta", seq: nextFileSeq(), ...meta });
+          await safeSend({ type: "meta", seq: nextFileSeq(), ...meta, ttlMs });
           for await (const chunk of sliceFileChunks(e.file)) {
             await safeSend({ type: "chunk", seq: nextFileSeq(), transferId: e.transferId, index: chunk.index, data: bytesToBase64(new Uint8Array(chunk.data)) });
           }

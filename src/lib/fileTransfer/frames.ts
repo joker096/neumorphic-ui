@@ -34,6 +34,11 @@ export interface TransferMeta {
   senderName: string;
   /** Round video-note bubble marker (Telegram-parity video notes). */
   videoNote?: boolean;
+  /**
+   * Remaining self-destruct duration for the receiver (ms). Omitted when the
+   * message never expires; validated on receipt by `resolveInboundSelfDestruct`.
+   */
+  ttlMs?: number;
 }
 
 export type FtrFrame =
@@ -108,6 +113,8 @@ export interface AlbumManifest {
   timestamp: number;
   silent?: boolean;
   entries: AlbumEntry[];
+  /** Remaining self-destruct duration for the receiver (ms); see `TransferMeta.ttlMs`. */
+  ttlMs?: number;
 }
 
 /** Encode an album manifest (magic prefix + JSON). */

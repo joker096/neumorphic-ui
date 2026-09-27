@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { ALBUM_MAGIC, FTR_MAGIC, base64ToBytes, bytesToBase64, encodeAlbumManifest, encodeFrame, parseAlbumManifest, parseFrame } from './frames';
+import { ALBUM_MAGIC, FTR_MAGIC, base64ToBytes, bytesToBase64, encodeAlbumManifest, encodeFrame, parseAlbumManifest, parseFrame, type AlbumManifest, type FtrFrame } from './frames';
 
 const meta = {
   type: 'meta' as const,
@@ -129,5 +129,31 @@ describe('album manifest encode/parse', () => {
     const m3 = valid() as any;
     m3.chatId = '';
     expect(parseAlbumManifest(encodeAlbumManifest(m3))).toBeNull();
+  });
+
+  it('carries the self-destruct TTL on a manifest and stays optional', () => {
+    const timed: AlbumManifest = { ...valid(), ttlMs: 60_000 };
+    expect(parseAlbumManifest(encodeAlbumManifest(timed))!.ttlMs).toBe(60_000);
+    // Legacy senders omit the field entirely.
+    expect(parseAlbumManifest(encodeAlbumManifest(valid()))!.ttlMs).toBeUndefined();
+  });
+});
+
+describe('self-destruct TTL on file frames', () => {
+  function metaTtl(payload: unknown): number | undefined {
+    const frame = parseFrame(encodeFrame(payload as FtrFrame));
+    return frame && frame.type === 'meta' ? frame.ttlMs : undefined;
+  }
+
+  it('round-trips a meta frame TTL', () => {
+    expect(metaTtl({ ...meta, ttlMs: 30_000 })).toBe(30_000);
+    expect(metaTtl(meta)).toBeUndefined();
+  });
+
+  it('keeps a malformed TTL parseable — it degrades to "no timer", not a dropped file', () => {
+    const junk = { ...meta, ttlMs: 'soon' };
+    const parsed = parseFrame(encodeFrame(junk as unknown as FtrFrame));
+    expect(parsed).not.toBeNull();
+    expect(parsed!.type).toBe('meta');
   });
 });

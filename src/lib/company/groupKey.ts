@@ -10,7 +10,7 @@
  * All crypto is Web Crypto (SubtleCrypto). No network, no telemetry.
  */
 
-import { generateX25519KeyPair, x25519DH, b64encode, b64decode } from '../../lib/crypto/cryptoCore';
+import { generateX25519KeyPair, x25519DH, x25519PublicFromPrivate, b64encode, b64decode } from '../../lib/crypto/cryptoCore';
 import type { CompanyEnvelope, WrappedKey } from './types';
 
 function randomBytes(n: number): Uint8Array {
@@ -21,6 +21,34 @@ function randomBytes(n: number): Uint8Array {
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();
+
+/**
+ * KEK derivation for group-key wrapping (v2).
+ *
+ * The raw X25519 secret is never used as key material directly: it is run
+ * through HKDF-SHA256 with a domain separator plus *both* public keys in the
+ * `info`, so the wrapping key is unique per (member, ephemeral) pair. That
+ * binds the blob to the member it was created for — a substituted member key
+ * or ephemeral key yields a different KEK and fails the AES-GCM tag — and keeps
+ * the algebraic structure of the DH output out of the AES key.
+ */
+const WRAP_INFO_PREFIX = 'messanger/groupkey-wrap/v2';
+
+async function deriveWrapKek(shared: Uint8Array, memberPubB64: string, ephemeralPubB64: string): Promise<CryptoKey> {
+  const base = await crypto.subtle.importKey('raw', shared as unknown as ArrayBuffer, 'HKDF', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {
+      name: 'HKDF',
+      hash: 'SHA-256',
+      salt: new Uint8Array(32),
+      info: enc.encode(`${WRAP_INFO_PREFIX}|${memberPubB64}|${ephemeralPubB64}`),
+    },
+    base,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  );
+}
 
 /** Generate a fresh extractable AES-256-GCM group key. */
 export async function generateGroupKey(): Promise<CryptoKey> {
@@ -41,7 +69,9 @@ export async function importRawKey(b64: string): Promise<CryptoKey> {
 
 /**
  * Wrap a group key for a single member using an ephemeral X25519 keypair.
- * Only that member's X25519 secret can unwrap it.
+ * Only that member's X25519 secret can unwrap it. The KEK is HKDF-derived and
+ * bound to both public keys, and the recipient is recorded in the blob so
+ * `unwrapGroupKey` can refuse a blob that was not addressed to it.
  */
 export async function wrapGroupKeyForMember(
   groupKey: CryptoKey,
@@ -50,50 +80,109 @@ export async function wrapGroupKeyForMember(
   const ephemeral = generateX25519KeyPair();
   const memberPub = b64decode(memberX25519PubB64);
   const shared = x25519DH(ephemeral.secretKey, memberPub);
-  const aesKey = await crypto.subtle.importKey('raw', shared.slice(0, 32), 'AES-GCM', false, ['encrypt']);
+  const ephemeralPubB64 = b64encode(ephemeral.publicKey);
+  const aesKey = await deriveWrapKek(shared, memberX25519PubB64, ephemeralPubB64);
   const rawGroup = await crypto.subtle.exportKey('raw', groupKey);
   const iv = randomBytes(12);
   const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, new Uint8Array(rawGroup));
   return {
+    v: 2,
     memberPublicKey: memberX25519PubB64,
-    ephemeralPublicKey: b64encode(ephemeral.publicKey),
+    ephemeralPublicKey: ephemeralPubB64,
     ciphertext: b64encode(new Uint8Array(ct)),
     nonce: b64encode(iv),
   };
 }
 
-/** Recover a group key from a wrapped blob using the member's X25519 secret. */
+/**
+ * Recover a group key from a wrapped blob using the member's X25519 secret.
+ * v2 blobs must be addressed to the caller (the blob's member key is compared
+ * against the public key derived from `myX25519Secret`) and are opened with the
+ * bound HKDF KEK. Legacy v1 blobs keep the raw-DH path so existing installs
+ * still recover their group key.
+ */
 export async function unwrapGroupKey(wrapped: WrappedKey, myX25519Secret: Uint8Array): Promise<CryptoKey> {
   const ephemeralPub = b64decode(wrapped.ephemeralPublicKey);
   const shared = x25519DH(myX25519Secret, ephemeralPub);
-  const aesKey = await crypto.subtle.importKey('raw', shared.slice(0, 32), 'AES-GCM', false, ['decrypt']);
   const iv = b64decode(wrapped.nonce);
   const ct = b64decode(wrapped.ciphertext);
+
+  if (wrapped.v === 2) {
+    const myPubB64 = b64encode(x25519PublicFromPrivate(myX25519Secret));
+    if (wrapped.memberPublicKey !== myPubB64) {
+      throw new Error('unwrapGroupKey: wrapped key is addressed to a different member');
+    }
+    const aesKey = await deriveWrapKek(shared, myPubB64, wrapped.ephemeralPublicKey);
+    const rawGroup = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, ct);
+    return importRawKey(b64encode(new Uint8Array(rawGroup)));
+  }
+
+  const aesKey = await crypto.subtle.importKey('raw', shared.slice(0, 32), 'AES-GCM', false, ['decrypt']);
   const rawGroup = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, ct);
   return importRawKey(b64encode(new Uint8Array(rawGroup)));
 }
 
-/** Encrypt an arbitrary string into a signed-for-team CompanyEnvelope. */
+/**
+ * Canonical serialisation of the envelope header. The same bytes are fed to
+ * AES-GCM as additional authenticated data, so a relay cannot swap the sender,
+ * the company, the key version or the timestamp without breaking the tag.
+ */
+function headerAad(env: Pick<CompanyEnvelope, 'companyId' | 'senderPubKey' | 'groupKeyVersion' | 'timestamp'>): Uint8Array {
+  return enc.encode(
+    JSON.stringify({
+      v: 2,
+      companyId: env.companyId,
+      senderPubKey: env.senderPubKey,
+      groupKeyVersion: env.groupKeyVersion,
+      timestamp: env.timestamp,
+    }),
+  );
+}
+
+/** Encrypt an arbitrary string into a team-bound CompanyEnvelope (header authenticated). */
 export async function sealEnvelope(
   groupKey: CryptoKey,
   meta: { companyId: string; senderPubKey: string; groupKeyVersion: number; text: string },
 ): Promise<CompanyEnvelope> {
   const iv = randomBytes(12);
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, groupKey, enc.encode(meta.text));
-  return {
-    iv: b64encode(iv),
-    ciphertext: b64encode(new Uint8Array(ct)),
-    senderPubKey: meta.senderPubKey,
+  const header = {
     companyId: meta.companyId,
+    senderPubKey: meta.senderPubKey,
     groupKeyVersion: meta.groupKeyVersion,
     timestamp: Date.now(),
   };
+  const ct = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv, additionalData: headerAad(header) },
+    groupKey,
+    enc.encode(meta.text),
+  );
+  return {
+    v: 2,
+    iv: b64encode(iv),
+    ciphertext: b64encode(new Uint8Array(ct)),
+    senderPubKey: header.senderPubKey,
+    companyId: header.companyId,
+    groupKeyVersion: header.groupKeyVersion,
+    timestamp: header.timestamp,
+  };
 }
 
-/** Decrypt a CompanyEnvelope back into its plaintext string. */
+/**
+ * Decrypt a CompanyEnvelope back into its plaintext string.
+ * v2 envelopes authenticate their header (tamper ⇒ AES-GCM failure). Legacy v1
+ * envelopes have no bound header and are decrypted as before.
+ */
 export async function openEnvelope(groupKey: CryptoKey, env: CompanyEnvelope): Promise<string> {
   const iv = b64decode(env.iv);
   const ct = b64decode(env.ciphertext);
+  if (env.v === 2) {
+    const plain = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv, additionalData: headerAad(env) },
+      groupKey,
+      ct,
+    );
+    return dec.decode(plain);
+  }
   const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, groupKey, ct);
   return dec.decode(plain);
 }

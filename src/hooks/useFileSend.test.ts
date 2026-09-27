@@ -9,6 +9,7 @@ import { getAttachmentLimit } from '../config/premium';
 import { isAllowedFileType } from '../config/allowedFileTypes';
 import { p2pNetwork } from '../lib/p2p/network';
 import { useAppStore } from '../store';
+import { MINUTE_MS } from '../constants/time';
 
 vi.mock('sonner', () => ({ toast: vi.fn() }));
 vi.mock('../lib/i18n', () => ({
@@ -40,11 +41,14 @@ vi.mock('../store', () => ({
     getState: () => ({
       premiumEntitlement: null,
       userProfile: { name: 'Me' },
+      get selfDestructDefault() { return storeMocks.selfDestructDefault; },
     }),
   },
 }));
 
 vi.stubGlobal('crypto', { randomUUID: () => 'transfer-uuid-1' });
+
+const storeMocks = vi.hoisted(() => ({ selfDestructDefault: undefined as string | undefined }));
 
 function setOnLine(online: boolean) {
   Object.defineProperty(navigator, 'onLine', { value: online, configurable: true, writable: true });
@@ -71,6 +75,7 @@ describe('useFileSend', () => {
     vi.mocked(sha256Hex).mockResolvedValue('sha-abc');
     vi.mocked(getAttachmentLimit).mockReturnValue(50 * 1024 * 1024);
     vi.mocked(isAllowedFileType).mockReturnValue(true);
+    storeMocks.selfDestructDefault = undefined;
   });
 
   afterEach(() => {
@@ -109,6 +114,46 @@ describe('useFileSend', () => {
     expect(last.fileName).toBe('pic.png');
     expect(last.type).toBe('image');
     expect(last.status).toBe('sent');
+  });
+
+  it('announces the self-destruct TTL on the meta frame and the album manifest', async () => {
+    storeMocks.selfDestructDefault = '1 min';
+    const { state, result } = setup();
+    const file = new File([new Uint8Array([1, 2, 3])], 'pic.png', { type: 'image/png' });
+
+    await act(async () => {
+      await result.current.sendFile(file);
+    });
+
+    const meta = parseFrame(vi.mocked(p2pNetwork.broadcast).mock.calls[0][0] as string) as any;
+    expect(meta.type).toBe('meta');
+    expect(meta.ttlMs).toBeGreaterThan(0);
+    expect(meta.ttlMs).toBeLessThanOrEqual(MINUTE_MS);
+    expect(state.activeChat.history.at(-1).selfDestructAt).toBeGreaterThan(Date.now());
+
+    vi.mocked(p2pNetwork.broadcast).mockClear();
+    const { state: albumState, result: albumResult } = setup();
+    await act(async () => {
+      await albumResult.current.sendFiles([
+        new File([new Uint8Array([1])], 'a.png', { type: 'image/png' }),
+        new File([new Uint8Array([2])], 'b.png', { type: 'image/png' }),
+      ]);
+    });
+
+    const manifest = parseAlbumManifest(vi.mocked(p2pNetwork.broadcast).mock.calls[0][0] as string)!;
+    expect(manifest.ttlMs).toBeGreaterThan(0);
+    expect(manifest.ttlMs).toBeLessThanOrEqual(MINUTE_MS);
+    expect(albumState.activeChat.history.at(-1).selfDestructAt).toBeGreaterThan(Date.now());
+  });
+
+  it('sends no TTL when no self-destruct timer is configured', async () => {
+    const { result } = setup();
+
+    await act(async () => {
+      await result.current.sendFile(new File([new Uint8Array([1])], 'a.png', { type: 'image/png' }));
+    });
+
+    expect((parseFrame(vi.mocked(p2pNetwork.broadcast).mock.calls[0][0] as string) as any).ttlMs).toBeUndefined();
   });
 
   it('keeps the message queued and skips broadcast when offline', async () => {

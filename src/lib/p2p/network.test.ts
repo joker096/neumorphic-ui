@@ -199,3 +199,48 @@ describe('P2PNetwork inbound dial-back (M021)', () => {
     expect((net as any).dialingInbound.has('peer-caller')).toBe(false);
   });
 });
+
+describe('P2PNetwork chat→peer binding', () => {
+  it('binds a chat id and name to the first peer that claims it', () => {
+    const net = new P2PNetwork({ peerId: 'net-self', peerPublicKey: 'net-self' });
+
+    expect(net.rememberChatPeer('dm-1', 'Bob', 'peer-bob')).toBe(true);
+    expect(net.peerForChat('dm-1')).toBe('peer-bob');
+    expect(net.peerForChatName('Bob')).toBe('peer-bob');
+  });
+
+  it('refuses a rebind of a chat id to another peer', () => {
+    const net = new P2PNetwork({ peerId: 'net-self', peerPublicKey: 'net-self' });
+    net.rememberChatPeer('dm-1', 'Bob', 'peer-bob');
+
+    expect(net.rememberChatPeer('dm-1', 'Bob', 'peer-attacker')).toBe(false);
+    expect(net.peerForChat('dm-1')).toBe('peer-bob');
+  });
+
+  it('refuses a rebind of a chat name to another peer', () => {
+    const net = new P2PNetwork({ peerId: 'net-self', peerPublicKey: 'net-self' });
+    net.rememberChatPeer('dm-1', 'Bob', 'peer-bob');
+
+    expect(net.rememberChatPeer('dm-9', 'Bob', 'peer-attacker')).toBe(false);
+    expect(net.peerForChatName('Bob')).toBe('peer-bob');
+    // The conflicting claim must not leave a half-applied id binding behind.
+    expect(net.peerForChat('dm-9')).toBeUndefined();
+  });
+
+  it('is idempotent for the same peer and accepts a second chat from it', () => {
+    const net = new P2PNetwork({ peerId: 'net-self', peerPublicKey: 'net-self' });
+
+    expect(net.rememberChatPeer('dm-1', 'Bob', 'peer-bob')).toBe(true);
+    expect(net.rememberChatPeer('dm-1', 'Bob', 'peer-bob')).toBe(true);
+    expect(net.rememberChatPeer('dm-2', 'Alice', 'peer-bob')).toBe(true);
+    expect(net.peerForChat('dm-2')).toBe('peer-bob');
+  });
+
+  it('rejects an empty claim instead of recording a bogus binding', () => {
+    const net = new P2PNetwork({ peerId: 'net-self', peerPublicKey: 'net-self' });
+
+    expect(net.rememberChatPeer('', '', 'peer-x')).toBe(false);
+    expect(net.rememberChatPeer('dm-1', 'Bob', '')).toBe(false);
+    expect(net.peerForChat('dm-1')).toBeUndefined();
+  });
+});

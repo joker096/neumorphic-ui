@@ -19,6 +19,10 @@ import {
   parseChatAudioEnd,
   formatDurationStr,
   parseDurationStr,
+  encodeChatLocation,
+  parseChatLocation,
+  encodeChatArticle,
+  parseChatArticle,
   encodeCallSignal,
   parseCallSignal,
   nextFrameSeq,
@@ -54,6 +58,37 @@ describe('chat text frames', () => {
     expect(parseChatText('')).toBeNull();
     expect(parseChatText(`${MSG_MAGIC}{broken`)).toBeNull();
     expect(parseChatText(MSG_MAGIC + JSON.stringify({ type: 'nope' }))).toBeNull();
+  });
+});
+
+describe('self-destruct TTL on message frames', () => {
+  it('round-trips a TTL on text, geo, article and voice frames', () => {
+    const timed = { ...textFrame, ttlMs: 60_000 };
+    expect(parseChatText(encodeChatText(timed))!.ttlMs).toBe(60_000);
+
+    const location = { type: 'chat-location' as const, seq: 4, messageId: 'geo-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', lat: 1.5, lng: 2.5, silent: false, timestamp: 20, ttlMs: 15_000 };
+    expect(parseChatLocation(encodeChatLocation(location))!.ttlMs).toBe(15_000);
+
+    const article = { type: 'chat-article' as const, seq: 5, messageId: 'art-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', url: 'https://example.com', title: 'Ex', silent: false, timestamp: 21, ttlMs: 5_000 };
+    expect(parseChatArticle(encodeChatArticle(article))!.ttlMs).toBe(5_000);
+
+    const voice = { type: 'chat-audio-meta' as const, seq: 6, messageId: 'voice-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', duration: 5, mime: 'audio/webm', size: 10, chunkSize: 2, totalChunks: 5, sha256: 'abc', timestamp: 22, ttlMs: 45_000 };
+    expect(parseChatAudioMeta(encodeChatAudioMeta(voice))!.ttlMs).toBe(45_000);
+  });
+
+  it('keeps the field optional so legacy peers stay compatible', () => {
+    expect(parseChatText(encodeChatText(textFrame))!.ttlMs).toBeUndefined();
+    expect(parseChatAudioMeta(encodeChatAudioMeta({
+      type: 'chat-audio-meta', seq: 7, messageId: 'voice-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Me',
+      duration: 5, mime: 'audio/webm', size: 10, chunkSize: 2, totalChunks: 5, sha256: 'abc', timestamp: 12,
+    }))!.ttlMs).toBeUndefined();
+  });
+
+  it('passes a malformed TTL through for the receiver to reject, never dropping the message', () => {
+    const junk = { ...textFrame, ttlMs: 'soon' } as any;
+    const parsed = parseChatText(encodeChatText(junk));
+    expect(parsed).not.toBeNull();
+    expect(parsed!.text).toBe('hello');
   });
 });
 

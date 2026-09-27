@@ -236,13 +236,15 @@ export async function getAllCompanyMessages(): Promise<any[]> {
 
 // --- Company metadata: encrypted at rest (device-bound AES-256-GCM) ---
 
+/**
+ * Company metadata is encrypted at rest. Fail **closed**: if the device-bound
+ * key or the cipher is unavailable, the write must fail rather than silently
+ * downgrade to plaintext (the previous `catch { return value }` wrote the
+ * plaintext company settings/members/contacts/deals straight into IndexedDB).
+ */
 async function encBlob(value: unknown): Promise<unknown> {
-  try {
-    const { encryptCrmData } = await import('./crm/atRest');
-    return await encryptCrmData(JSON.stringify(value));
-  } catch {
-    return value;
-  }
+  const { encryptCrmData } = await import('./crm/atRest');
+  return encryptCrmData(JSON.stringify(value));
 }
 
 async function decBlob<T>(raw: unknown): Promise<T | null> {

@@ -3,10 +3,14 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useMessageActions } from './useMessageActions';
 import { queueMessage } from '../lib/messageQueue';
 import { persistVoiceBlob, getVoiceBlob } from '../lib/voiceStore';
+import { parseChatText, parseChatAudioMeta } from '../lib/p2p/chatFrame';
+import { MINUTE_MS } from '../constants/time';
 
 const storeMocks = vi.hoisted(() => ({
   setChats: vi.fn(),
   setActiveChat: vi.fn(),
+  offlineMode: true,
+  selfDestructDefault: undefined as string | undefined,
 }));
 
 vi.mock('../store', () => ({
@@ -14,13 +18,18 @@ vi.mock('../store', () => ({
     setChats: storeMocks.setChats,
     setActiveChat: storeMocks.setActiveChat,
     userProfile: undefined,
-    selfDestructDefault: undefined,
+    get offlineMode() { return storeMocks.offlineMode; },
+    get selfDestructDefault() { return storeMocks.selfDestructDefault; },
   }) },
 }));
 
 vi.mock('../lib/voiceStore', () => ({
   persistVoiceBlob: vi.fn().mockResolvedValue(undefined),
   getVoiceBlob: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../lib/fileTransfer/integrity', () => ({
+  sha256Hex: vi.fn().mockResolvedValue('abc'),
 }));
 
 vi.mock('../lib/messageQueue', () => ({
@@ -92,10 +101,14 @@ function setup(activeChat: any, messageText: string) {
 describe('useMessageActions (offline-first queue)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    storeMocks.selfDestructDefault = undefined;
+    storeMocks.offlineMode = true;
   });
 
   afterEach(() => {
     setOnLine(true);
+    // Voice-over-P2P needs a stored blob; without one the flush is a no-op.
+    vi.mocked(getVoiceBlob).mockResolvedValue(undefined);
   });
 
   it('marks the message queued and stores it when offline', () => {
@@ -109,6 +122,17 @@ describe('useMessageActions (offline-first queue)', () => {
     expect(state.activeChat.history.at(-1).status).toBe('queued');
   });
 
+  it('does not queue when offline queueing is disabled and marks the send failed', () => {
+    setOnLine(false);
+    storeMocks.offlineMode = false;
+    const { state, result } = setup({ id: 'dm-1', name: 'Bob', history: [] }, 'hello');
+
+    act(() => result.current.handleSendMessage());
+
+    expect(queueMessage).not.toHaveBeenCalled();
+    expect(state.chats[0].history.at(-1).status).toBe('failed');
+  });
+
   it('marks the message sent after the P2P broadcast succeeds', async () => {
     const { state, result } = setup({ id: 'dm-1', name: 'Bob', history: [] }, 'online hello');
 
@@ -116,6 +140,38 @@ describe('useMessageActions (offline-first queue)', () => {
 
     expect(queueMessage).toHaveBeenCalledWith(expect.objectContaining({ chatId: 'dm-1', status: 'sent' }));
     await waitFor(() => expect(state.chats[0].history.at(-1).status).toBe('sent'));
+  });
+
+  it('announces the self-destruct TTL on the wire for text and voice', async () => {
+    const { p2pNetwork } = await import('../lib/p2p/network');
+    vi.mocked(getVoiceBlob).mockResolvedValue(new Blob(['voice-bytes'], { type: 'audio/webm' }));
+    const { state, result } = setup({ id: 'dm-1', name: 'Bob', history: [] }, 'burns after a minute');
+    storeMocks.selfDestructDefault = '1 min';
+
+    await act(async () => { result.current.handleSendMessage(); });
+    await act(async () => { result.current.sendVoiceMessage('blob:audio', '0:05', new Blob(['v'], { type: 'audio/webm' })); });
+
+    const payloads = vi.mocked(p2pNetwork.sendAddressed).mock.calls.map((c) => String(c[1]));
+    const text = parseChatText(payloads.find((p) => p.includes('chat-text'))!);
+    const audio = parseChatAudioMeta(payloads.find((p) => p.includes('chat-audio-meta'))!);
+
+    // Duration, not the absolute deadline: the receiver applies its own clock.
+    expect(text!.ttlMs).toBeGreaterThan(0);
+    expect(text!.ttlMs).toBeLessThanOrEqual(MINUTE_MS);
+    expect(audio!.ttlMs).toBeGreaterThan(0);
+    expect(audio!.ttlMs).toBeLessThanOrEqual(MINUTE_MS);
+    // Local copy keeps the absolute deadline for the sweeper.
+    expect(state.chats[0].history.at(-1).selfDestructAt).toBeGreaterThan(Date.now());
+  });
+
+  it('omits the wire TTL when no self-destruct timer is configured', async () => {
+    const { p2pNetwork } = await import('../lib/p2p/network');
+    const { result } = setup({ id: 'dm-1', name: 'Bob', history: [] }, 'plain text');
+
+    await act(async () => { result.current.handleSendMessage(); });
+
+    const payload = vi.mocked(p2pNetwork.sendAddressed).mock.calls.map((c) => String(c[1])).find((p) => p.includes('chat-text'))!;
+    expect(parseChatText(payload)!.ttlMs).toBeUndefined();
   });
 
   it('queues voice and sticker sends when offline and persists the live blob', async () => {

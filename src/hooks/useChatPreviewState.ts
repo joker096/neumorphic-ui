@@ -1,14 +1,24 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useAppStore } from "../store";
-import { groupMessages, formatDateLabel } from "../utils/chatUtils";
+import { groupMessages, formatClockTime, formatDateLabel } from "../utils/chatUtils";
 import { useDebounce } from "./useDebounce";
 import { encodeMorse } from "../components/MorseDecoder";
 import { useI18n } from "../lib/i18n";
 import { queueMessage } from "../lib/messageQueue";
+import { useOfflineQueue } from "./useOfflineQueue";
 import { encodeChatLocation, encodeChatArticle, encodeChatReadReceipt, encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
 import { useFileSend } from "./useFileSend";
-import { SELF_DESTRUCT_MS } from "../constants/time";
+import { applyDefaultSelfDestruct, wireSelfDestructTtl } from "../lib/selfDestruct";
+
+/**
+ * Stamp the user's default self-destruct timer onto an outgoing message. Every
+ * send path uses it, so the timer covers text, geo, article and attachments
+ * alike instead of text only.
+ */
+function applySelfDestruct(msg: any): void {
+  applyDefaultSelfDestruct(msg, useAppStore.getState().selfDestructDefault);
+}
 
 export function useChatPreviewState(
   chat: any,
@@ -58,7 +68,8 @@ export function useChatPreviewState(
   const setChannels = useAppStore(s => s.setChannels);
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const queueOffline = useOfflineQueue();
   const { sendFile, sendFiles } = useFileSend(chat, { setChats: setChatsStore, setActiveChat: onUpdateChat });
 
   const [videoOpen, setVideoOpen] = useState(false);
@@ -176,13 +187,11 @@ export function useChatPreviewState(
       sender: "me",
       text: textToSend,
       ts: Date.now(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: formatClockTime(Date.now()),
       status: navigator.onLine ? "sent" : "queued",
       silent: eSilentMode,
     };
-    const selfDestructDefault = useAppStore.getState().selfDestructDefault;
-    const ttl = selfDestructDefault ? SELF_DESTRUCT_MS[selfDestructDefault] : undefined;
-    if (ttl) newMessage.selfDestructAt = Date.now() + ttl;
+    applySelfDestruct(newMessage);
     if (hasAttachment) {
       newMessage.type = attachments[0]!.type;
       newMessage.attachment = attachments[0]!.url;
@@ -199,7 +208,7 @@ export function useChatPreviewState(
         duration: eReplyTarget.duration
       } : undefined;
     }
-    void queueMessage({ ...newMessage, chatId: chat.id, chatName: chat.name }).catch(() =>
+    queueOffline({ ...newMessage, chatId: chat.id, chatName: chat.name }, () =>
       updateMsgStatusInChat(chat, newMessage.id, "failed"),
     );
     const updatedChat = {
@@ -231,6 +240,7 @@ export function useChatPreviewState(
         text: String(newMessage.text || ""),
         silent: !!newMessage.silent,
         timestamp: Number(newMessage.id) || Date.now(),
+        ttlMs: wireSelfDestructTtl(newMessage.selfDestructAt),
       })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
     }
     setMsgTextFn("");
@@ -249,11 +259,12 @@ export function useChatPreviewState(
       lng,
       text: "",
       ts: Date.now(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: formatClockTime(Date.now()),
       status: navigator.onLine ? "sent" : "queued",
       silent: eSilentMode,
     };
-    void queueMessage({ ...newMessage, chatId: chat.id, chatName: chat.name }).catch(() =>
+    applySelfDestruct(newMessage);
+    queueOffline({ ...newMessage, chatId: chat.id, chatName: chat.name }, () =>
       updateMsgStatusInChat(chat, newMessage.id, "failed"),
     );
     const updatedChat = {
@@ -273,6 +284,7 @@ export function useChatPreviewState(
       lng,
       silent: !!newMessage.silent,
       timestamp: Number(newMessage.id) || Date.now(),
+      ttlMs: wireSelfDestructTtl(newMessage.selfDestructAt),
     })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
   };
 
@@ -287,11 +299,12 @@ export function useChatPreviewState(
       title: typeof title === "string" ? title.trim() : "",
       text: "",
       ts: Date.now(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: formatClockTime(Date.now()),
       status: navigator.onLine ? "sent" : "queued",
       silent: eSilentMode,
     };
-    void queueMessage({ ...newMessage, chatId: chat.id, chatName: chat.name }).catch(() =>
+    applySelfDestruct(newMessage);
+    queueOffline({ ...newMessage, chatId: chat.id, chatName: chat.name }, () =>
       updateMsgStatusInChat(chat, newMessage.id, "failed"),
     );
     const updatedChat = {
@@ -311,6 +324,7 @@ export function useChatPreviewState(
       title: newMessage.title || undefined,
       silent: !!newMessage.silent,
       timestamp: Number(newMessage.id) || Date.now(),
+      ttlMs: wireSelfDestructTtl(newMessage.selfDestructAt),
     })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
   };
 
@@ -340,20 +354,29 @@ export function useChatPreviewState(
 
   const retryFailedMessage = useCallback((msg: any) => {
     if (!chat || !msg) return;
+    const deliver = () => {
+      void queueMessage({ ...msg, chatId: chat.id })
+        .then(() => {
+          if (navigator.onLine) {
+            updateMsgStatusInChat(chat, msg.id, "sent");
+            // 'delivered' is simulated locally only for non-wire chats (mock /
+            // uuid peers). For a real P2P peer the wire chat-ack (handled by
+            // useP2PMessages) drives the transition — no guessing here.
+            const isWirePeer = p2pNetwork.peerForChat(String(chat.id)) !== undefined
+              || /^[0-9a-f]{64}$/.test(String(chat.id));
+            if (!isWirePeer) setTimeout(() => updateMsgStatusInChat(chat, msg.id, "delivered"), 1000);
+          }
+        })
+        .catch(() => updateMsgStatusInChat(chat, msg.id, "failed"));
+    };
     updateMsgStatusInChat(chat, msg.id, "queued");
-    void queueMessage({ ...msg, chatId: chat.id })
-      .then(() => {
-        if (navigator.onLine) {
-          updateMsgStatusInChat(chat, msg.id, "sent");
-          // 'delivered' is simulated locally only for non-wire chats (mock /
-          // uuid peers). For a real P2P peer the wire chat-ack (handled by
-          // useP2PMessages) drives the transition — no guessing here.
-          const isWirePeer = p2pNetwork.peerForChat(String(chat.id)) !== undefined
-            || /^[0-9a-f]{64}$/.test(String(chat.id));
-          if (!isWirePeer) setTimeout(() => updateMsgStatusInChat(chat, msg.id, "delivered"), 1000);
-        }
-      })
-      .catch(() => updateMsgStatusInChat(chat, msg.id, "failed"));
+    // settings.offlineMode: retrying into a disabled queue would leave the
+    // bubble spinning forever, so report the failure straight away.
+    if (!useAppStore.getState().offlineMode) {
+      updateMsgStatusInChat(chat, msg.id, "failed");
+      return;
+    }
+    deliver();
   }, [chat, updateMsgStatusInChat]);
 
   const handleReactionMessage = (msgId: string | number, emoji: string) => {
@@ -444,10 +467,15 @@ export function useChatPreviewState(
   const flatItems = useMemo(() => {
     const groups = groupMessages(filteredHistory);
     const items: any[] = [];
+    const dayLabels = {
+      lang,
+      today: t('chat.today', 'Today'),
+      yesterday: t('chat.yesterday', 'Yesterday'),
+    };
     let lastDateLabel = '';
     for (const group of groups) {
       const firstMsg = group.messages[0];
-      const dateLabel = formatDateLabel(firstMsg.time, firstMsg.ts);
+      const dateLabel = formatDateLabel(firstMsg.time, firstMsg.ts, dayLabels);
       if (dateLabel !== lastDateLabel && items.length > 0) {
         items.push({ id: `sep-${dateLabel}`, _isDateSeparator: true, _dateLabel: dateLabel });
       }
@@ -457,7 +485,7 @@ export function useChatPreviewState(
       });
     }
     return items;
-  }, [filteredHistory]);
+  }, [filteredHistory, lang, t]);
 
   // In-chat search: match navigation (бриф §5.4 "переход к сообщению")
   const matchIndices = useMemo(() => {

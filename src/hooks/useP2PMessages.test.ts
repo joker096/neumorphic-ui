@@ -4,6 +4,7 @@ import { useP2PMessages } from './useP2PMessages';
 import { FTR_MAGIC, encodeFrame, encodeAlbumManifest, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
 import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeChatEdit, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
 import { saveTransferMeta, saveChunk, pruneAbandonedTransfers, pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer, listTransfers, type StoredTransfer } from '../lib/fileTransfer/fileStore';
+import { SELF_DESTRUCT_WIRE_MAX_MS } from '../lib/selfDestruct';
 import { p2pNetwork, type BroadcastMessage } from '../lib/p2p/network';
 
 const mocks = vi.hoisted(() => ({
@@ -11,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   onMessage: vi.fn(),
   handleRemoteCallSignal: vi.fn(),
   sha256Hex: vi.fn(),
+  store: { chats: [] as any[] },
 }));
 
 vi.mock('../lib/voiceStore', () => ({
@@ -45,7 +47,9 @@ vi.mock('../lib/p2p/network', () => {
       sendAddressed: vi.fn(async (_target: unknown, data: unknown) => { await broadcast(data); return false; }),
       getPeerId: () => 'peer-self',
       rememberPeer: vi.fn(),
-      rememberChatPeer: vi.fn(),
+      // First-write-wins binding: the hook drops a frame when the chat is
+      // already bound to a different peer (mock returns false for that case).
+      rememberChatPeer: vi.fn(() => true),
       peerForChat: () => undefined,
       peerForChatName: () => undefined,
       getPeerName: vi.fn(),
@@ -53,7 +57,15 @@ vi.mock('../lib/p2p/network', () => {
   };
 });
 vi.mock('../store', () => ({
-  useAppStore: { getState: () => ({ setChats: mocks.setChats }) },
+  useAppStore: {
+    getState: () => ({
+      setChats: (updater: any) => {
+        mocks.setChats(updater);
+        mocks.store.chats = typeof updater === 'function' ? updater(mocks.store.chats) : updater;
+      },
+      chats: mocks.store.chats,
+    }),
+  },
 }));
 
 function setup() {
@@ -80,12 +92,13 @@ function busyMeta(transferId: string): StoredTransfer {
   };
 }
 
-function chatsFromCalls(initial: any[]): any[] {
-  let chats = initial;
-  for (const [updater] of mocks.setChats.mock.calls) {
-    chats = typeof updater === 'function' ? updater(chats) : updater;
-  }
-  return chats;
+/** Seed the store chat list (inbound frames are authorized against real chats). */
+function seedChats(chats: any[]): void {
+  mocks.store.chats = JSON.parse(JSON.stringify(chats));
+}
+
+function currentChats(): any[] {
+  return mocks.store.chats;
 }
 
 const INITIAL_CHATS = [{ id: 'dm-1', name: 'Bob', type: 'direct', history: [] }];
@@ -95,6 +108,9 @@ describe('useP2PMessages', () => {
     vi.clearAllMocks();
     // Default: reassembled blob hash matches the declared sha256 (t-3 uses 'fff').
     vi.mocked(mocks.sha256Hex).mockResolvedValue('fff');
+    // Default: the chat is unbound, so the first authenticated claim wins.
+    vi.mocked(p2pNetwork.rememberChatPeer).mockReturnValue(true);
+    seedChats(INITIAL_CHATS);
   });
 
   it('persists incoming meta, appends the ftr message to the name-matched DM, and reports progress 0', async () => {
@@ -124,13 +140,45 @@ describe('useP2PMessages', () => {
     });
 
     expect(vi.mocked(saveTransferMeta).mock.calls[0][0]).toEqual(expect.objectContaining({ transferId: 't-1', receivedChunks: 0 }));
-    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const chats = currentChats();
     const last = chats[0].history.at(-1);
     expect(last.attachment).toBe(FTR_MAGIC + 't-1');
     expect(last.fileName).toBe('pic.png');
     expect(last.fileTransferId).toBe('t-1');
     expect(last.status).toBe('delivered');
     expect(result.current.receiveProgress['t-1']).toBe(0);
+  });
+
+  it('applies a file meta TTL so an incoming self-destruct attachment expires locally', async () => {
+    const { handle } = setup();
+    const before = Date.now();
+
+    await act(async () => {
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'ftr-ttl-meta',
+        timestamp: 1,
+        data: encodeFrame({
+          type: 'meta',
+          seq: 1,
+          transferId: 't-ttl',
+          name: 'secret.txt',
+          mime: 'text/plain',
+          size: 3,
+          chunkSize: 64 * 1024,
+          totalChunks: 1,
+          sha256: 'abc',
+          senderPeerId: 'peer-remote',
+          senderName: 'Bob',
+          ttlMs: 30_000,
+        } as FtrFrame),
+      });
+      await settle();
+    });
+
+    const last = currentChats()[0].history.at(-1);
+    expect(last.fileTransferId).toBe('t-ttl');
+    expect(last.selfDestructAt).toBeGreaterThanOrEqual(before + 30_000);
   });
 
   it('stores incoming chunks and tracks progress against the meta totalChunks', async () => {
@@ -235,11 +283,82 @@ describe('useP2PMessages', () => {
       handle(msg);
     });
 
-    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const chats = currentChats();
     const last = chats[0].history.at(-1);
     expect(last.text).toBe('hi there');
     expect(last.type).toBe('text');
     expect(vi.mocked(saveTransferMeta)).not.toHaveBeenCalled();
+  });
+
+  it('carries a self-destruct TTL from the wire into the inbound bubble', () => {
+    const { handle } = setup();
+    const before = Date.now();
+
+    act(() => {
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'msg-ttl',
+        timestamp: 3,
+        data: encodeChatText({
+          type: 'chat-text',
+          seq: 1,
+          messageId: 'wire-msg-ttl',
+          chatId: 'dm-1',
+          chatName: 'Bob',
+          senderName: 'Bob',
+          text: 'burns',
+          silent: false,
+          timestamp: 3,
+          ttlMs: 60_000,
+        }),
+      });
+    });
+
+    const last = currentChats()[0].history.at(-1);
+    expect(last.selfDestructAt).toBeGreaterThanOrEqual(before + 60_000);
+    expect(last.selfDestructAt).toBeLessThanOrEqual(Date.now() + 60_000);
+  });
+
+  it('clamps an absurd inbound TTL and leaves a legacy frame without one untimed', () => {
+    const { handle } = setup();
+    const before = Date.now();
+
+    act(() => {
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'msg-ttl-max',
+        timestamp: 4,
+        data: encodeChatText({
+          type: 'chat-text', seq: 2, messageId: 'wire-ttl-max', chatId: 'dm-1', chatName: 'Bob',
+          senderName: 'Bob', text: 'forever', silent: false, timestamp: 4, ttlMs: 365 * 24 * 3600 * 1000,
+        }),
+      });
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'msg-ttl-junk',
+        timestamp: 5,
+        data: encodeChatText({
+          type: 'chat-text', seq: 3, messageId: 'wire-ttl-junk', chatId: 'dm-1', chatName: 'Bob',
+          senderName: 'Bob', text: 'junk', silent: false, timestamp: 5, ttlMs: 'soon' as unknown as number,
+        }),
+      });
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'msg-ttl-legacy',
+        timestamp: 6,
+        data: encodeChatText({
+          type: 'chat-text', seq: 4, messageId: 'wire-ttl-legacy', chatId: 'dm-1', chatName: 'Bob',
+          senderName: 'Bob', text: 'legacy', silent: false, timestamp: 6,
+        }),
+      });
+    });
+
+    const history = currentChats()[0].history;
+    const clamped = history.find((m: any) => m.text === 'forever');
+    expect(clamped.selfDestructAt).toBeGreaterThanOrEqual(before + SELF_DESTRUCT_WIRE_MAX_MS);
+    // Junk TTL and a legacy peer both degrade to "no timer" — the message stays.
+    expect(history.find((m: any) => m.text === 'junk').selfDestructAt).toBeUndefined();
+    expect(history.find((m: any) => m.text === 'legacy').selfDestructAt).toBeUndefined();
   });
 
   it('applies an incoming chat-edit frame to the matching DM message', () => {
@@ -281,7 +400,7 @@ describe('useP2PMessages', () => {
       handle(editMsg);
     });
 
-    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const chats = currentChats();
     const edited = chats[0].history.find((m: any) => m.id === 'wire-msg-1');
     expect(edited).toMatchObject({ text: 'revised', edited: true });
     expect(chats[0].history).toHaveLength(1);
@@ -309,7 +428,7 @@ describe('useP2PMessages', () => {
       handle(noChatEdit);
     });
 
-    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const chats = currentChats();
     expect(chats[0].history).toHaveLength(0);
   });
 
@@ -337,7 +456,7 @@ describe('useP2PMessages', () => {
       handle(frame('100', 'older', 100));
     });
 
-    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const chats = currentChats();
     expect(chats[0].history.map((m: any) => m.id)).toEqual(['100', '200']);
     expect(chats[0].history.map((m: any) => m.text)).toEqual(['older', 'newer']);
   });
@@ -387,12 +506,14 @@ describe('useP2PMessages', () => {
       }),
     };
 
-    act(() => handle(msg));
-
-    const chats = chatsFromCalls([
+    seedChats([
       { id: 'dm-1', name: 'Bob', type: 'direct', history: [] },
       { id: 'dm-2', name: 'Bob', type: 'direct', history: [] },
     ]);
+
+    act(() => handle(msg));
+
+    const chats = currentChats();
     expect(chats[0].history).toHaveLength(0);
     expect(chats[1].history[0].text).toBe('exact chat');
   });
@@ -406,9 +527,11 @@ describe('useP2PMessages', () => {
       data: encodeChatDeliveryAck({ type: 'chat-ack', seq: 1, messageId: '42', chatId: 'dm-1', timestamp: 5 }),
     };
 
+    seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [{ id: 42, sender: 'me', text: 'hello', status: 'sent' }] }]);
+
     act(() => handle(ack));
 
-    const chats = chatsFromCalls([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [{ id: 42, sender: 'me', text: 'hello', status: 'sent' }] }]);
+    const chats = currentChats();
     expect(chats[0].history[0].status).toBe('delivered');
   });
 
@@ -421,9 +544,11 @@ describe('useP2PMessages', () => {
       data: encodeChatReadReceipt({ type: 'chat-read', seq: 1, messageId: '42', chatId: 'dm-1', timestamp: 6 }),
     };
 
+    seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [{ id: 42, sender: 'me', text: 'hello', status: 'delivered' }] }]);
+
     act(() => handle(receipt));
 
-    const chats = chatsFromCalls([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [{ id: 42, sender: 'me', text: 'hello', status: 'delivered' }] }]);
+    const chats = currentChats();
     expect(chats[0].history[0].status).toBe('read');
   });
 
@@ -727,7 +852,7 @@ describe('useP2PMessages', () => {
     expect(vi.mocked(p2pNetwork.sendAddressed)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(p2pNetwork.sendAddressed).mock.calls[0][1]).toContain('chat-ack');
 
-    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const chats = currentChats();
     const last = chats[0].history.at(-1);
     expect(last.id).toBe('voice-1');
     expect(last.type).toBe('audio');
@@ -924,7 +1049,7 @@ describe('useP2PMessages', () => {
       await settle();
     });
 
-    const chats = chatsFromCalls(JSON.parse(JSON.stringify(INITIAL_CHATS)));
+    const chats = currentChats();
     expect(chats[0].history).toHaveLength(1);
     const album = chats[0].history[0];
     expect(album.id).toBe(500);
@@ -954,5 +1079,210 @@ describe('useP2PMessages', () => {
 
     expect(mocks.setChats).not.toHaveBeenCalled();
     expect(vi.mocked(saveTransferMeta)).not.toHaveBeenCalled();
+  });
+
+  // ── inbound authorization (P1-5: sender-asserted chatId/chatName/senderName) ──
+
+  it('drops a chat-text frame whose asserted chatId and chatName disagree', () => {
+    const { handle } = setup();
+    seedChats([
+      { id: 'dm-1', name: 'Bob', type: 'direct', history: [] },
+      { id: 'dm-2', name: 'Alice', type: 'direct', history: [] },
+    ]);
+
+    act(() =>
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'msg-mix',
+        timestamp: 1,
+        data: encodeChatText({
+          type: 'chat-text',
+          seq: 1,
+          messageId: 'wire-mix',
+          chatId: 'dm-1',
+          chatName: 'Alice',
+          senderName: 'Alice',
+          text: 'spoofed',
+          silent: false,
+          timestamp: 1,
+        }),
+      }),
+    );
+
+    expect(currentChats()[0].history).toHaveLength(0);
+    expect(currentChats()[1].history).toHaveLength(0);
+    expect(vi.mocked(p2pNetwork.rememberChatPeer)).not.toHaveBeenCalled();
+  });
+
+  it('drops a chat-text frame for a chat the victim does not have', () => {
+    const { handle } = setup();
+
+    act(() =>
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'msg-ghost',
+        timestamp: 1,
+        data: encodeChatText({
+          type: 'chat-text',
+          seq: 1,
+          messageId: 'wire-ghost',
+          chatId: 'dm-999',
+          chatName: 'Ghost',
+          senderName: 'Ghost',
+          text: 'who am I',
+          silent: false,
+          timestamp: 1,
+        }),
+      }),
+    );
+
+    expect(mocks.setChats).not.toHaveBeenCalled();
+    expect(vi.mocked(p2pNetwork.rememberChatPeer)).not.toHaveBeenCalled();
+  });
+
+  it('drops a chat-text frame once the chat is bound to a different peer', () => {
+    const { handle } = setup();
+    // rememberChatPeer refuses the conflicting claim (first-write-wins).
+    vi.mocked(p2pNetwork.rememberChatPeer).mockReturnValue(false);
+
+    act(() =>
+      handle({
+        senderId: 'peer-attacker',
+        messageId: 'msg-rebind',
+        timestamp: 1,
+        data: encodeChatText({
+          type: 'chat-text',
+          seq: 1,
+          messageId: 'wire-rebind',
+          chatId: 'dm-1',
+          chatName: 'Bob',
+          senderName: 'Bob',
+          text: 'hijack',
+          silent: false,
+          timestamp: 1,
+        }),
+      }),
+    );
+
+    expect(mocks.setChats).not.toHaveBeenCalled();
+  });
+
+  it('stamps the local contact name on an inbound bubble, not the asserted senderName', () => {
+    const { handle } = setup();
+    seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [] }]);
+    // The frame claims to be from "bob" (case differs) and asserts a bogus
+    // display name; authorization only requires the chat to match, and the
+    // rendered bubble must use the local name.
+    vi.mocked(p2pNetwork.rememberChatPeer).mockReturnValue(true);
+
+    act(() =>
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'msg-name',
+        timestamp: 1,
+        data: encodeChatText({
+          type: 'chat-text',
+          seq: 1,
+          messageId: 'wire-name',
+          chatId: 'dm-1',
+          chatName: 'Bob',
+          senderName: 'Totally Different Name',
+          text: 'hi',
+          silent: false,
+          timestamp: 1,
+        }),
+      }),
+    );
+
+    const last = currentChats()[0].history.at(-1);
+    expect(last.text).toBe('hi');
+    expect(last.sender).toBe('Bob');
+  });
+
+  it('never inserts a frame into a group chat (direct-only surface)', () => {
+    const { handle } = setup();
+    seedChats([{ id: 'grp-1', name: 'Team', type: 'group', history: [] }]);
+
+    act(() =>
+      handle({
+        senderId: 'peer-remote',
+        messageId: 'msg-group',
+        timestamp: 1,
+        data: encodeChatText({
+          type: 'chat-text',
+          seq: 1,
+          messageId: 'wire-group',
+          chatId: 'grp-1',
+          chatName: 'Team',
+          senderName: 'Mallory',
+          text: 'into the group',
+          silent: false,
+          timestamp: 1,
+        }),
+      }),
+    );
+
+    expect(mocks.setChats).not.toHaveBeenCalled();
+  });
+
+  it('drops a file meta frame from a peer that does not own the named chat (no state, no persist)', async () => {
+    const { result, handle } = setup();
+    vi.mocked(p2pNetwork.rememberChatPeer).mockReturnValue(false);
+
+    await act(async () => {
+      handle({
+        senderId: 'peer-attacker',
+        messageId: 'ftr-x-meta',
+        timestamp: 1,
+        data: encodeFrame({
+          type: 'meta',
+          seq: 1,
+          transferId: 't-x',
+          name: 'evil.bin',
+          mime: 'application/octet-stream',
+          size: 1,
+          chunkSize: 1,
+          totalChunks: 1,
+          sha256: 'x',
+          senderPeerId: 'peer-attacker',
+          senderName: 'Bob',
+        } as FtrFrame),
+      });
+      await settle();
+    });
+
+    expect(vi.mocked(saveTransferMeta)).not.toHaveBeenCalled();
+    expect(mocks.setChats).not.toHaveBeenCalled();
+    expect(result.current.receiveProgress['t-x']).toBeUndefined();
+  });
+
+  it('persists the transport-authenticated sender id, not the asserted one', async () => {
+    const { handle } = setup();
+
+    await act(async () => {
+      handle({
+        senderId: 'peer-transport',
+        messageId: 'ftr-y-meta',
+        timestamp: 1,
+        data: encodeFrame({
+          type: 'meta',
+          seq: 1,
+          transferId: 't-y',
+          name: 'ok.bin',
+          mime: 'application/octet-stream',
+          size: 1,
+          chunkSize: 1,
+          totalChunks: 1,
+          sha256: 'x',
+          senderPeerId: 'peer-forged',
+          senderName: 'Bob',
+        } as FtrFrame),
+      });
+      await settle();
+    });
+
+    expect(vi.mocked(saveTransferMeta).mock.calls[0][0]).toEqual(
+      expect.objectContaining({ senderPeerId: 'peer-transport', senderName: 'Bob' }),
+    );
   });
 });

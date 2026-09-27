@@ -23,6 +23,20 @@ export const deviceSecurity = {
     return `${ua}|${coreCount}|${platform}|${screen}`;
   },
 
+  /**
+   * Legacy device-bound KDF.
+   *
+   * SECURITY NOTE: every input here is public (user agent, core count,
+   * platform, screen size) and the salt is fixed, so this key is *not* a
+   * secret — anyone who can read this origin's IndexedDB can reproduce it and
+   * unwrap the master key and the identity seed. It still provides device
+   * binding (a copied profile stops decrypting when these values change) and
+   * keeps raw store contents unreadable. It must not be described as
+   * protection against profile theft or same-origin script execution: see
+   * docs/superpowers/threat-model/threat-model.md §3.4.1. Closing that gap
+   * needs a user-held secret (app-lock PIN / data passphrase) or a platform
+   * keystore, both of which are product decisions.
+   */
   async _deriveFingerprintRaw(): Promise<Uint8Array> {
     const fingerprint = await this.getDeviceFingerprint();
     const passKey = await crypto.subtle.importKey(

@@ -256,4 +256,24 @@ describe('idb', () => {
   it('getCompanyMembers returns null when empty', async () => {
     expect(await idb.getCompanyMembers()).toBeNull();
   });
+
+  // --- Fail-closed encryption (regression: silent plaintext downgrade) ---
+
+  it('saveCompanySettings rejects instead of storing plaintext when the cipher is unavailable', async () => {
+    // Regression: encBlob used to `catch { return value }`, writing company
+    // settings/members/contacts/deals unencrypted into IndexedDB whenever the
+    // device-bound key was unavailable.
+    const atRest = await import('./crm/atRest');
+    vi.mocked(atRest.encryptCrmData).mockRejectedValueOnce(new Error('no device key'));
+    await expect(idb.saveCompanySettings({ theme: 'dark' })).rejects.toThrow('no device key');
+    const raw = kvStore.get('company_settings');
+    expect(raw).toBeUndefined();
+  });
+
+  it('saveCompanyMembers rejects instead of storing plaintext when the cipher is unavailable', async () => {
+    const atRest = await import('./crm/atRest');
+    vi.mocked(atRest.encryptCrmData).mockRejectedValueOnce(new Error('no device key'));
+    await expect(idb.saveCompanyMembers([{ id: 'm1' } as any])).rejects.toThrow('no device key');
+    expect(kvStore.get('company_members')).toBeUndefined();
+  });
 });

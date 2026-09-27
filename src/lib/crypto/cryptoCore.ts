@@ -64,6 +64,15 @@ export function x25519DH(privateKey: Uint8Array, publicKey: Uint8Array): Uint8Ar
 }
 
 /**
+ * Recompute the X25519 public key that belongs to a private key.
+ * `nacl.box.keyPair()` derives the public key from the clamped secret, so this
+ * is exact and needs no stored counterpart.
+ */
+export function x25519PublicFromPrivate(privateKey: Uint8Array): Uint8Array {
+  return nacl.box.keyPair.fromSecretKey(privateKey).publicKey
+}
+
+/**
  * Derive a shared HMAC key from an X25519 ECDH exchange.
  * The raw ECDH shared secret is run through a KDF (SHA-512 via tweetnacl) so the
  * resulting key has no residual algebraic structure. Both peers derive the same

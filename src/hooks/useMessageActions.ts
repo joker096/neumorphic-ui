@@ -3,14 +3,16 @@ import { toast } from "sonner";
 import { encodeMorse } from "../components/MorseDecoder";
 import { parseMentions, isDNDEnabled, isPriorityContact } from "../constants";
 import { TOAST_DND_DURATION_MS } from "../constants/chatConstants";
-import { SELF_DESTRUCT_MS } from "../constants/time";
 import { useI18n } from "../lib/i18n";
-import { getPendingMessages, markMessageSent, queueMessage, pruneExpiredQueuedMessages } from "../lib/messageQueue";
+import { getPendingMessages, markMessageSent, pruneExpiredQueuedMessages } from "../lib/messageQueue";
+import { useOfflineQueue } from "./useOfflineQueue";
 import { encodeChatAudioChunk, encodeChatAudioEnd, encodeChatAudioMeta, encodeChatEdit, encodeChatText, nextFrameSeq, parseDurationStr, VOICE_P2P_CHUNK_SIZE, VOICE_P2P_MAX_CHUNKS, VOICE_P2P_MAX_SIZE } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
+import { applyDefaultSelfDestruct, wireSelfDestructTtl } from "../lib/selfDestruct";
 import { getVoiceBlob, persistVoiceBlob } from "../lib/voiceStore";
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { bytesToBase64 } from "../lib/fileTransfer/frames";
+import { formatClockTime } from "../utils/chatUtils";
 import { useAppStore } from "../store";
 
 export function executeEditMessage(messageId: number, newText: string, chatContext: any = null) {
@@ -69,6 +71,7 @@ export function useMessageActions(
 ) {
 
   const { t } = useI18n();
+  const queueOffline = useOfflineQueue();
 
   const updateMessageStatus = useCallback((msgId: number, status: string) => {
     setChats((prevChats: any[]) => prevChats.map((c: any) => {
@@ -93,6 +96,7 @@ export function useMessageActions(
       text: String(message.text || ""),
       silent: !!message.silent,
       timestamp: Number(message.id) || Date.now(),
+      ttlMs: wireSelfDestructTtl(message.selfDestructAt),
     });
     await p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), frame);
     updateMessageStatus(message.id, "sent");
@@ -128,6 +132,7 @@ export function useMessageActions(
       totalChunks,
       sha256,
       timestamp: Number(message.id) || Date.now(),
+      ttlMs: wireSelfDestructTtl(message.selfDestructAt),
     });
     await p2pNetwork.sendAddressed(target, metaFrame);
 
@@ -153,14 +158,11 @@ export function useMessageActions(
   }, [updateMessageStatus]);
 
   const buildNewMessage = useCallback((overrides: Record<string, any> = {}) => {
-    const selfDestructDefault = useAppStore.getState().selfDestructDefault;
-    const ttl = selfDestructDefault ? SELF_DESTRUCT_MS[selfDestructDefault] : undefined;
-    const selfDestructAt = ttl ? Date.now() + ttl : undefined;
     const msg: any = {
       id: Date.now(),
       sender: "me",
       ts: Date.now(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: formatClockTime(Date.now()),
       status: navigator.onLine ? "sent" : "queued",
       silent: silentMode,
       replyTo: replyTarget ? {
@@ -171,7 +173,7 @@ export function useMessageActions(
         duration: replyTarget.duration,
       } : undefined,
     };
-    if (selfDestructAt) msg.selfDestructAt = selfDestructAt;
+    applyDefaultSelfDestruct(msg, useAppStore.getState().selfDestructDefault);
     return { ...msg, ...overrides };
   }, [silentMode, replyTarget]);
 
@@ -206,15 +208,15 @@ export function useMessageActions(
         return;
       }
 
-      void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name })
-        .catch(() => updateMessageStatus(newMessage.id, "failed"));
+      queueOffline({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name },
+        () => updateMessageStatus(newMessage.id, "failed"));
 
       if (navigator.onLine) {
         await sendVoiceOverP2P(newMessage, activeChat)
           .catch(() => updateMessageStatus(newMessage.id, "failed"));
       }
     })();
-  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t, updateMessageStatus, sendVoiceOverP2P]);
+  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t, updateMessageStatus, sendVoiceOverP2P, queueOffline]);
 
   const sendStickerMessage = useCallback((sticker: string) => {
     if (!activeChat || !sticker) return;
@@ -224,10 +226,11 @@ export function useMessageActions(
     }
     const newMessage = buildNewMessage({ text: sticker, type: "sticker" });
     appendMessage(newMessage);
-    void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name }).catch(() => updateMessageStatus(newMessage.id, "failed"));
+    queueOffline({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name },
+      () => updateMessageStatus(newMessage.id, "failed"));
     setReplyTarget(null);
     setShowStickerPicker(false);
-  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, setShowStickerPicker, t]);
+  }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, setShowStickerPicker, t, queueOffline]);
 
   const handleSendMessage = useCallback(() => {
     if (!messageText.trim() && !morseMode) return;
@@ -264,7 +267,8 @@ export function useMessageActions(
     });
 
     appendMessage(newMessage);
-    void queueMessage({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name }).catch(() => updateMessageStatus(newMessage.id, "failed"));
+    queueOffline({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name },
+      () => updateMessageStatus(newMessage.id, "failed"));
     void sendTextOverP2P(newMessage, activeChat).catch(() => {});
     setMessageText("");
     setSilentMode(false);
@@ -275,6 +279,7 @@ export function useMessageActions(
     messageText, morseMode, activeChat, scheduleDateTime, scheduledQueue,
     buildNewMessage, appendMessage, setMessageText, setScheduleDateTime,
     setSilentMode, setReplyTarget, setDraftTextByChat, updateMessageStatus, sendTextOverP2P, t,
+    queueOffline,
   ]);
 
   useEffect(() => {
@@ -346,7 +351,7 @@ export function useMessageActions(
         messageId: msg.id,
         sourceLabel: chatContext.name,
         preview: typeof preview === "string" ? preview.slice(0, 180) : "Message",
-        time: msg.time || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        time: msg.time || formatClockTime(Date.now()),
       }];
     });
   }, [setSavedMessages]);

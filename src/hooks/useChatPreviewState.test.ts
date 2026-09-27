@@ -4,7 +4,8 @@ import { useChatPreviewState } from './useChatPreviewState';
 import { useAppStore } from '../store';
 import { queueMessage } from '../lib/messageQueue';
 import { p2pNetwork } from '../lib/p2p/network';
-import { parseChatReadReceipt } from '../lib/p2p/chatFrame';
+import { parseChatReadReceipt, parseChatLocation, parseChatArticle } from '../lib/p2p/chatFrame';
+import { MINUTE_MS } from '../constants/time';
 
 vi.mock('../lib/p2p/network', () => {
   const broadcast = vi.fn().mockResolvedValue(undefined);
@@ -225,7 +226,7 @@ describe('useChatPreviewState (read receipts)', () => {
     expect(readReceiptFrames()).toHaveLength(0);
   });
 
-  it('sends the read receipt once the tab becomes visible again', () => {
+  it('sends a read receipt once the tab becomes visible again', () => {
     setTabVisible(false);
     renderHook(() =>
       useChatPreviewState(incomingChat, vi.fn(), undefined, [], undefined, true, true, '', vi.fn())
@@ -238,5 +239,57 @@ describe('useChatPreviewState (read receipts)', () => {
     });
 
     expect(readReceiptFrames()).toHaveLength(1);
+  });
+});
+
+describe('useChatPreviewState (self-destruct coverage)', () => {
+  const geoChat = { id: 'dm-3', name: 'Bob', history: [] };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useAppStore.setState({ selfDestructDefault: '1 min' });
+  });
+
+  afterEach(() => {
+    useAppStore.setState({ selfDestructDefault: undefined });
+  });
+
+  it('stamps and announces a TTL for geo and article messages, not just text', async () => {
+    const onUpdateChat = vi.fn();
+    const { result } = renderHook(() =>
+      useChatPreviewState(geoChat, onUpdateChat, undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    act(() => result.current.sendGeoMessage(52.37, 4.89));
+    await act(async () => { result.current.sendArticleMessage('https://example.com', 'Example'); });
+
+    const frames = vi.mocked(p2pNetwork.broadcast).mock.calls.map((c) => String(c[0]));
+    const geo = parseChatLocation(frames.find((f) => f.includes('chat-location'))!);
+    const article = parseChatArticle(frames.find((f) => f.includes('chat-article'))!);
+
+    expect(geo!.ttlMs).toBeGreaterThan(0);
+    expect(article!.ttlMs).toBeGreaterThan(0);
+    for (const ttl of [geo!.ttlMs, article!.ttlMs]) {
+      expect(ttl!).toBeLessThanOrEqual(MINUTE_MS);
+    }
+    // Each send path reports its own stamped message (the hook builds history
+    // from the chat prop, which the caller re-renders with).
+    for (const call of onUpdateChat.mock.calls) {
+      expect(call[0].history.at(-1).selfDestructAt).toBeGreaterThan(Date.now());
+    }
+  });
+
+  it('leaves TTLs off when no timer is configured', () => {
+    useAppStore.setState({ selfDestructDefault: undefined });
+    const onUpdateChat = vi.fn();
+    const { result } = renderHook(() =>
+      useChatPreviewState(geoChat, onUpdateChat, undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    act(() => result.current.sendGeoMessage(52.37, 4.89));
+
+    const frames = vi.mocked(p2pNetwork.broadcast).mock.calls.map((c) => String(c[0]));
+    expect(parseChatLocation(frames.find((f) => f.includes('chat-location'))!)!.ttlMs).toBeUndefined();
+    expect(onUpdateChat.mock.calls[0][0].history.at(-1).selfDestructAt).toBeUndefined();
   });
 });

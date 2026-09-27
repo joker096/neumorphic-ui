@@ -7,6 +7,12 @@
  * Strict mode: every frame carries a payload-level `seq` (per-sender
  * monotonic counter). Frames without a valid `seq`/`messageId` are legacy
  * and always rejected — parsers return `null` for them.
+ *
+ * Self-destruct: message-creating frames may carry `ttlMs`, the *remaining*
+ * duration in ms — never an absolute deadline, so a skewed clock can neither
+ * delete the message on arrival nor make it immortal. The field is optional
+ * (legacy peers omit it) and validated on receipt by `resolveInboundSelfDestruct`,
+ * so junk degrades to "no timer" instead of dropping the message.
  */
 
 export const MSG_MAGIC = 'msg1:';
@@ -35,6 +41,8 @@ export interface ChatTextFrame {
   text: string;
   silent: boolean;
   timestamp: number;
+  /** Remaining self-destruct duration; omitted when the message never expires. */
+  ttlMs?: number;
 }
 
 export interface ChatDeliveryAckFrame {
@@ -151,6 +159,8 @@ export interface ChatAudioMetaFrame {
   totalChunks: number;
   sha256: string;
   timestamp: number;
+  /** Remaining self-destruct duration; omitted when the message never expires. */
+  ttlMs?: number;
 }
 
 export interface ChatAudioChunkFrame {
@@ -246,6 +256,8 @@ export interface ChatLocationFrame {
   lng: number;
   silent: boolean;
   timestamp: number;
+  /** Remaining self-destruct duration; omitted when the message never expires. */
+  ttlMs?: number;
 }
 
 /** Article/site-link share carried as a single text-wire frame. */
@@ -260,6 +272,8 @@ export interface ChatArticleFrame {
   title?: string;
   silent: boolean;
   timestamp: number;
+  /** Remaining self-destruct duration; omitted when the message never expires. */
+  ttlMs?: number;
 }
 
 export function encodeChatLocation(frame: ChatLocationFrame): string {

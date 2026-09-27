@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FTR_MAGIC, ALBUM_MAGIC, parseFrame, parseAlbumManifest, base64ToBytes, type FtrFrame, type TransferMeta, type AlbumManifest } from "../lib/fileTransfer/frames";
 import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatEdit, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, parseChatLocation, parseChatArticle, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
 import { saveVoiceBlob } from "../lib/voiceStore";
+import { resolveInboundSelfDestruct } from "../lib/selfDestruct";
 import {
   saveTransferMeta, saveChunk, getTransferBlob, pruneAbandonedTransfers,
   pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer,
@@ -10,6 +11,7 @@ import {
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { p2pNetwork, type BroadcastMessage } from "../lib/p2p/network";
 import { useAppStore } from "../store";
+import { formatClockTime } from "../utils/chatUtils";
 
 /**
  * Module-level dedupe: `p2pNetwork.onMessage` has no unsubscribe, so StrictMode
@@ -24,23 +26,66 @@ const incomingMetas = new Map<string, TransferMeta>();
 const incomingChunkIndices = new Map<string, Set<number>>();
 const incomingAudioMetas = new Map<string, ChatAudioMetaFrame>();
 const incomingAudioChunks = new Map<string, Map<number, Uint8Array>>();
-/** Album state: manifest per albumId + the set of transferIds that belong to an album
- * (their per-file meta frames must NOT render as separate single-file bubbles). */
+/** Album state: manifest per albumId + the chat each album transferId belongs to
+ * (their per-file meta frames must NOT render as separate single-file bubbles, and
+ * they are authorized against the same chat the manifest was authorized for). */
 const incomingAlbums = new Map<string, AlbumManifest>();
-const albumTransferIds = new Set<string>();
+const albumChatByTransferId = new Map<string, any>();
 const ALBUM_STATE_LIMIT = 500;
 
 function mimeToType(mime: string): "image" | "video" | "file" {
   return mime.startsWith("image/") ? "image" : mime.startsWith("video/") ? "video" : "file";
 }
 
-function appendIncomingToDmChat(chatId: string, chatName: string, newMessage: any) {
+/** Resolve the local direct chat an inbound frame is addressed to, if any. */
+function resolveInboundDirectChat(chatId: string, chatName: string): any | null {
+  const { chats } = useAppStore.getState();
+  const list = (chats || []) as any[];
+  const byId = list.find((c: any) => String(c.id) === String(chatId) && c.type === "direct");
+  if (byId) return byId;
+  if (!chatName) return null;
+  return list.find((c: any) => c.name === chatName && c.type === "direct") || null;
+}
+
+const normName = (v: unknown): string => String(v ?? "").trim().toLowerCase();
+
+/**
+ * Authorization gate for every inbound chat frame.
+ *
+ * A frame's `chatId`, `chatName` and `senderName` are asserted by the sender.
+ * Without this check a peer could (a) insert a message into any of the
+ * victim's direct chats, (b) have it displayed under a name the victim never
+ * associated with that peer, and (c) poison the chat→peer map so the victim's
+ * *outgoing* messages get addressed to the attacker (`sendAddressed` resolves
+ * its target through `peerForChat`).
+ *
+ * Rules: the frame must resolve to a local direct chat; the asserted name must
+ * agree with the resolved chat (no id/name mixing); and the chat must not
+ * already be bound to a different peer. Returns the resolved chat, or null when
+ * the frame must be dropped.
+ */
+function authorizeInboundChatFrame(
+  chatId: string,
+  chatName: string,
+  senderId: string,
+  kind: string,
+): any | null {
+  const chat = resolveInboundDirectChat(chatId, chatName);
+  if (!chat) return null;
+  if (chatName && normName(chat.name) !== normName(chatName)) return null;
+  if (!p2pNetwork.rememberChatPeer(chat.id, chat.name, senderId)) {
+    console.warn(`[p2p] dropped ${kind} frame: chat "${chat.name}" is already bound to another peer`);
+    return null;
+  }
+  p2pNetwork.rememberPeer(senderId, chat.name);
+  return chat;
+}
+
+function appendIncomingToDmChat(chat: any, newMessage: any) {
   const { setChats } = useAppStore.getState();
   setChats((prevChats: any[]) => {
     const chats = prevChats || [];
-    const chat = chats.find((c: any) => String(c.id) === chatId && c.type === "direct")
-      || chats.find((c: any) => c.name === chatName && c.type === "direct");
-    if (!chat) return chats;
+    if (!chats.some((c: any) => c.id === chat.id)) return chats;
     return chats.map((c: any) =>
       c.id === chat.id ? { ...c, history: insertBySendTime(c.history || [], newMessage) } : c,
     );
@@ -92,7 +137,7 @@ export function useP2PMessages() {
       await enforceFileTransferBudget();
     })().catch(() => {});
 
-    const handleFileFrame = async (frame: FtrFrame) => {
+    const handleFileFrame = async (frame: FtrFrame, senderId: string) => {
       if (frame.type === "meta") {
         // Reject incoming files when too many transfers are in flight or the
         // persisted byte budget would be exceeded (fail closed on scan errors).
@@ -102,6 +147,14 @@ export function useP2PMessages() {
         ]);
         if (incompleteMetas.filter((m) => !m.completed).length >= MAX_CONCURRENT_INCOMING_TRANSFERS) return;
         if (!withinBudget) return;
+        // File frames carry no chat id, only a sender name, so the chat is
+        // resolved by name and the transport-authenticated peer (not the
+        // sender-asserted `senderPeerId`) must own it. Album entries inherit the
+        // chat their manifest was authorized for. Authorization happens before
+        // any state is touched, so a foreign peer cannot persist transfer state.
+        const albumChat = albumChatByTransferId.get(frame.transferId);
+        const chat = albumChat ?? authorizeInboundChatFrame("", frame.senderName, senderId, "file");
+        if (!chat) return;
         const meta: TransferMeta = {
           transferId: frame.transferId,
           name: frame.name,
@@ -110,18 +163,19 @@ export function useP2PMessages() {
           chunkSize: frame.chunkSize,
           totalChunks: frame.totalChunks,
           sha256: frame.sha256,
-          senderPeerId: frame.senderPeerId,
-          senderName: frame.senderName,
+          senderPeerId: senderId,
+          senderName: chat.name,
         };
+        const selfDestructAt = resolveInboundSelfDestruct(frame.ttlMs);
         incomingMetas.set(frame.transferId, meta);
         incomingChunkIndices.set(frame.transferId, new Set());
         setReceiveProgress((prev) => ({ ...prev, [frame.transferId]: 0 }));
         // receivedAt is touched on every chunk so abandoned transfers can be pruned by inactivity.
         await saveTransferMeta({ ...meta, receivedAt: Date.now(), receivedChunks: 0 });
-        if (albumTransferIds.has(frame.transferId)) return;
-        appendIncomingToDmChat("", meta.senderName, {
+        if (albumChat) return;
+        appendIncomingToDmChat(chat, {
           id: Date.now(),
-          sender: meta.senderName,
+          sender: chat.name,
           text: "",
           type: mimeToType(meta.mime),
           attachment: FTR_MAGIC + frame.transferId,
@@ -130,9 +184,10 @@ export function useP2PMessages() {
           fileTransferId: frame.transferId,
           videoNote: frame.videoNote ?? false,
           ts: Date.now(),
-          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          time: formatClockTime(Date.now()),
           status: "delivered",
           silent: false,
+          selfDestructAt,
         });
       } else if (frame.type === "chunk") {
         const transferId = frame.transferId;
@@ -169,16 +224,16 @@ export function useP2PMessages() {
     };
 
     const handleAlbumManifest = (manifest: AlbumManifest, senderId: string) => {
-      p2pNetwork.rememberPeer(senderId, manifest.senderName);
-      p2pNetwork.rememberChatPeer(manifest.chatId, manifest.chatName, senderId);
+      const chat = authorizeInboundChatFrame(manifest.chatId, manifest.chatName, senderId, "album");
+      if (!chat) return;
       if (incomingAlbums.has(manifest.albumId)) return;
-      for (const e of manifest.entries) albumTransferIds.add(e.transferId);
+      for (const e of manifest.entries) albumChatByTransferId.set(e.transferId, chat);
       incomingAlbums.set(manifest.albumId, manifest);
       if (incomingAlbums.size > ALBUM_STATE_LIMIT) incomingAlbums.clear();
-      if (albumTransferIds.size > ALBUM_STATE_LIMIT) albumTransferIds.clear();
-      appendIncomingToDmChat(manifest.chatId, manifest.chatName, {
+      if (albumChatByTransferId.size > ALBUM_STATE_LIMIT) albumChatByTransferId.clear();
+      appendIncomingToDmChat(chat, {
         id: manifest.messageId,
-        sender: manifest.senderName,
+        sender: chat.name,
         text: "",
         type: "image",
         attachment: FTR_MAGIC + manifest.entries[0].transferId,
@@ -187,9 +242,10 @@ export function useP2PMessages() {
         fileTransferId: manifest.entries[0].transferId,
         album: manifest.entries.map((e) => ({ url: FTR_MAGIC + e.transferId, fileName: e.name, fileSize: e.size })),
         ts: manifest.timestamp,
-        time: new Date(manifest.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        time: formatClockTime(manifest.timestamp),
         status: "delivered",
         silent: manifest.silent ?? false,
+        selfDestructAt: resolveInboundSelfDestruct(manifest.ttlMs),
       });
       void p2pNetwork.sendAddressed(senderId, encodeChatDeliveryAck({
         type: "chat-ack",
@@ -203,15 +259,19 @@ export function useP2PMessages() {
     const handleChatText = (frame: ReturnType<typeof parseChatText>, senderId: string) => {
       if (!frame) return;
       const messageId = frame.messageId || String(frame.timestamp);
-      appendIncomingToDmChat(frame.chatId, frame.chatName, {
+      // `sender` is the local contact name, never the sender-asserted one.
+      const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "chat-text");
+      if (!chat) return;
+      appendIncomingToDmChat(chat, {
         id: messageId,
-        sender: frame.senderName,
+        sender: chat.name,
         text: frame.text,
         type: "text",
         ts: frame.timestamp,
-        time: new Date(frame.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        time: formatClockTime(frame.timestamp),
         status: "delivered",
         silent: frame.silent,
+        selfDestructAt: resolveInboundSelfDestruct(frame.ttlMs),
       });
       void p2pNetwork.sendAddressed(senderId, encodeChatDeliveryAck({
         type: "chat-ack",
@@ -222,14 +282,14 @@ export function useP2PMessages() {
       })).catch(() => {});
     };
 
-    const handleChatEdit = (frame: ReturnType<typeof parseChatEdit>) => {
+    const handleChatEdit = (frame: ReturnType<typeof parseChatEdit>, senderId: string) => {
       if (!frame) return;
+      const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "chat-edit");
+      if (!chat) return;
       const { setChats } = useAppStore.getState();
       setChats((prevChats: any[]) => {
         const chats = prevChats || [];
-        const chat = chats.find((c: any) => String(c.id) === frame.chatId && c.type === "direct")
-          || chats.find((c: any) => c.name === frame.chatName && c.type === "direct");
-        if (!chat) return chats;
+        if (!chats.some((c: any) => c.id === chat.id)) return chats;
         return chats.map((c: any) =>
           c.id === chat.id
             ? {
@@ -245,8 +305,7 @@ export function useP2PMessages() {
 
     const handleAudioMeta = (frame: ChatAudioMetaFrame, senderId: string) => {
       if (!frame) return;
-      p2pNetwork.rememberPeer(senderId, frame.senderName);
-      p2pNetwork.rememberChatPeer(frame.chatId, frame.chatName, senderId);
+      if (!authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "voice")) return;
       // Fail closed on oversized/oversharded voice payloads.
       if (frame.size <= 0 || frame.size > VOICE_P2P_MAX_SIZE) return;
       if (frame.totalChunks < 1 || frame.totalChunks > VOICE_P2P_MAX_CHUNKS) return;
@@ -293,9 +352,14 @@ export function useP2PMessages() {
           // jsdom/undici lack createObjectURL; UI falls back to the IDB-blob URL.
         }
         const messageId = meta.messageId;
-        appendIncomingToDmChat(meta.chatId, meta.chatName, {
+        // The meta frame was authorized on arrival; re-resolve (and re-check the
+        // asserted name) so the appended bubble carries the local contact name.
+        const chat = resolveInboundDirectChat(meta.chatId, meta.chatName);
+        if (!chat) return;
+        if (normName(chat.name) !== normName(meta.chatName)) return;
+        appendIncomingToDmChat(chat, {
           id: messageId,
-          sender: meta.senderName,
+          sender: chat.name,
           text: "",
           type: "audio",
           voiceId: meta.messageId,
@@ -303,9 +367,13 @@ export function useP2PMessages() {
           duration: formatDurationStr(meta.duration),
           mime: meta.mime,
           ts: meta.timestamp,
-          time: new Date(meta.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          time: formatClockTime(meta.timestamp),
           status: "delivered",
           silent: false,
+          // Timer starts when the note is playable, not when the meta frame
+          // arrived: charging the transfer against the TTL would make long
+          // voice notes expire before they ever render.
+          selfDestructAt: resolveInboundSelfDestruct(meta.ttlMs),
         });
         try {
           await p2pNetwork.sendAddressed(
@@ -341,7 +409,7 @@ export function useP2PMessages() {
       }
       if (raw.startsWith(FTR_MAGIC)) {
         const frame = parseFrame(raw);
-        if (frame) void handleFileFrame(frame).catch(() => {});
+        if (frame) void handleFileFrame(frame, msg.senderId).catch(() => {});
         return;
       }
       if (raw.startsWith(ALBUM_MAGIC)) {
@@ -372,19 +440,20 @@ export function useP2PMessages() {
           }
           const location = parseChatLocation(raw);
           if (location) {
-            p2pNetwork.rememberPeer(msg.senderId, location.senderName);
-            p2pNetwork.rememberChatPeer(location.chatId, location.chatName, msg.senderId);
-            appendIncomingToDmChat(location.chatId, location.chatName, {
+            const chat = authorizeInboundChatFrame(location.chatId, location.chatName, msg.senderId, "location");
+            if (!chat) return;
+            appendIncomingToDmChat(chat, {
               id: location.messageId,
-              sender: location.senderName,
+              sender: chat.name,
               type: "location",
               lat: location.lat,
               lng: location.lng,
               text: "",
               ts: location.timestamp,
-              time: new Date(location.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              time: formatClockTime(location.timestamp),
               status: "delivered",
               silent: location.silent,
+              selfDestructAt: resolveInboundSelfDestruct(location.ttlMs),
             });
             void p2pNetwork.sendAddressed(msg.senderId, encodeChatDeliveryAck({
               type: "chat-ack",
@@ -397,19 +466,20 @@ export function useP2PMessages() {
           }
           const article = parseChatArticle(raw);
           if (article) {
-            p2pNetwork.rememberPeer(msg.senderId, article.senderName);
-            p2pNetwork.rememberChatPeer(article.chatId, article.chatName, msg.senderId);
-            appendIncomingToDmChat(article.chatId, article.chatName, {
+            const chat = authorizeInboundChatFrame(article.chatId, article.chatName, msg.senderId, "article");
+            if (!chat) return;
+            appendIncomingToDmChat(chat, {
               id: article.messageId,
-              sender: article.senderName,
+              sender: chat.name,
               type: "article",
               url: article.url,
               title: article.title || "",
               text: "",
               ts: article.timestamp,
-              time: new Date(article.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              time: formatClockTime(article.timestamp),
               status: "delivered",
               silent: article.silent,
+              selfDestructAt: resolveInboundSelfDestruct(article.ttlMs),
             });
             void p2pNetwork.sendAddressed(msg.senderId, encodeChatDeliveryAck({
               type: "chat-ack",
@@ -421,15 +491,9 @@ export function useP2PMessages() {
             return;
           }
           const text = parseChatText(raw);
-          if (text) {
-            p2pNetwork.rememberPeer(msg.senderId, text.senderName);
-            p2pNetwork.rememberChatPeer(text.chatId, text.chatName, msg.senderId);
-          }
           const edit = parseChatEdit(raw);
           if (edit) {
-            p2pNetwork.rememberPeer(msg.senderId, edit.senderName);
-            p2pNetwork.rememberChatPeer(edit.chatId, edit.chatName, msg.senderId);
-            handleChatEdit(edit);
+            handleChatEdit(edit, msg.senderId);
             return;
           }
           handleChatText(text, msg.senderId);

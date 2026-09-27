@@ -21,6 +21,15 @@ export interface DeviceRecord {
 }
 
 export interface WrappedKey {
+  /**
+   * Wire format version. `2` = the wrapping KEK is HKDF-derived from the X25519
+   * exchange and bound to (memberPublicKey, ephemeralPublicKey), and the
+   * recipient's identity is checked on unwrap. Absent = legacy v1, where the
+   * raw ECDH secret was used directly as the AES key. v1 blobs are still
+   * readable so existing installs keep their group key; nothing new is written
+   * in that format.
+   */
+  v?: 2
   memberPublicKey: string;
   ephemeralPublicKey: string;
   ciphertext: string;
@@ -37,6 +46,14 @@ export interface GroupKeyMaterial {
 }
 
 export interface CompanyEnvelope {
+  /**
+   * Wire format version. `2` = the header fields below are bound into the
+   * AES-GCM tag as additional authenticated data, so `senderPubKey`,
+   * `companyId`, `groupKeyVersion` and `timestamp` cannot be swapped or
+   * downgraded by a relay. Absent = legacy v1 (unauthenticated header, kept
+   * readable for envelopes already in storage/sync).
+   */
+  v?: 2
   iv: string
   ciphertext: string
   senderPubKey: string

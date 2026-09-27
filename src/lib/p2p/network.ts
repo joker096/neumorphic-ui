@@ -430,11 +430,38 @@ export class P2PNetwork {
     return this.peerNames.get(peerId);
   }
 
-  /** Learn the peer that owns a chat (chatId primary, chatName fallback). */
-  rememberChatPeer(chatId: string | number, chatName: string, peerId: string): void {
-    if (!peerId) return;
-    if (chatId !== undefined && chatId !== null && chatId !== "") this.chatPeers.set(String(chatId), peerId);
-    if (chatName) this.chatNamePeers.set(String(chatName), peerId);
+  /**
+   * Learn the peer that owns a chat (chatId primary, chatName fallback).
+   *
+   * Bindings are **first-write-wins**. `chatId`/`chatName` inside an inbound
+   * frame are sender-asserted, and every outbound send resolves its target
+   * through `peerForChat`/`peerForChatName`, so an unconditional overwrite let a
+   * malicious peer re-point the victim's delivery at itself just by sending a
+   * frame with someone else's chat id. A conflicting claim is refused instead
+   * (returns false) so the caller can drop the frame.
+   *
+   * The check is atomic: both keys are validated before either is written, so a
+   * claim that conflicts on the name cannot leave a half-applied id binding.
+   */
+  rememberChatPeer(chatId: string | number, chatName: string, peerId: string): boolean {
+    if (!peerId) return false;
+    const idKey =
+      chatId !== undefined && chatId !== null && chatId !== '' ? String(chatId) : undefined;
+    const nameKey = chatName ? String(chatName) : undefined;
+    if (!idKey && !nameKey) return false;
+
+    if (idKey !== undefined) {
+      const existing = this.chatPeers.get(idKey);
+      if (existing !== undefined && existing !== peerId) return false;
+    }
+    if (nameKey !== undefined) {
+      const existing = this.chatNamePeers.get(nameKey);
+      if (existing !== undefined && existing !== peerId) return false;
+    }
+
+    if (idKey !== undefined) this.chatPeers.set(idKey, peerId);
+    if (nameKey !== undefined) this.chatNamePeers.set(nameKey, peerId);
+    return true;
   }
 
   /** Peer bound to a specific chat id (learned from inbound frames). */
@@ -451,6 +478,14 @@ export class P2PNetwork {
    * Addressed delivery with broadcast fallback: when a target peer is known and
    * connected the frame goes to that peer only; otherwise it fans out to the
    * connected mesh (legacy behaviour). Returns true when addressed.
+   *
+   * The fallback is required to bootstrap a first contact — before any inbound
+   * frame has been seen, `peerForChat`/`peerForChatName` are empty, so a
+   * strict send would silently drop the very first message. It is not a
+   * confidentiality leak: `P2PTransport.send` encrypts per-peer with an ECDH
+   * session key, so only the intended peer can decrypt the payload. Inbound
+   * authorization (`rememberChatPeer`, first-write-wins) is what prevents a
+   * foreign peer from re-pointing this routing.
    */
   async sendAddressed(target: string | undefined, data: any): Promise<boolean> {
     if (target && this.isConnected(target)) {
