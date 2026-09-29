@@ -10,7 +10,8 @@ export interface VideoPlaybackState {
 }
 
 export interface VideoPlaybackActions {
-  setVideoUrl: (v: string | null) => void;
+  /** Create, track and show a video blob URL — the only way to open one. */
+  openVideoUrl: (blob: Blob) => void;
   setIsVideoPlaying: (v: boolean) => void;
   setShowVideo: (v: boolean) => void;
   handleVideoFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -32,22 +33,34 @@ export const useVideoPlayback = (): VideoPlaybackState & VideoPlaybackActions =>
     };
   }, []);
 
+  // Every blob URL is registered so it is revoked exactly once — on close, when
+  // replaced, or on unmount. Creating one here is the only supported way in.
+  const openVideoUrl = useCallback((blob: Blob) => {
+    const objUrl = URL.createObjectURL(blob);
+    setVideoUrl(prev => {
+      if (prev) {
+        URL.revokeObjectURL(prev);
+        objectURLsRef.current.delete(prev);
+      }
+      return objUrl;
+    });
+    objectURLsRef.current.add(objUrl);
+    setShowVideo(true);
+    setIsVideoPlaying(true);
+  }, []);
+
   const handleVideoFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (isVideoFile(file)) {
-        const objUrl = URL.createObjectURL(file);
-        objectURLsRef.current.add(objUrl);
-        setVideoUrl(objUrl);
-        setShowVideo(true);
-        setIsVideoPlaying(true);
+        openVideoUrl(file);
         toast.success("Video loaded", { description: file.name });
       } else {
         toast.error("Invalid file", { description: "Please select a video file" });
       }
     }
     e.target.value = "";
-  }, []);
+  }, [openVideoUrl]);
 
   const toggleVideoPlayback = useCallback(() => {
     if (videoRef.current) {
@@ -71,7 +84,8 @@ export const useVideoPlayback = (): VideoPlaybackState & VideoPlaybackActions =>
   }, [videoUrl]);
 
   return {
-    videoUrl, setVideoUrl,
+    videoUrl,
+    openVideoUrl,
     isVideoPlaying, setIsVideoPlaying,
     showVideo, setShowVideo,
     handleVideoFileSelect,

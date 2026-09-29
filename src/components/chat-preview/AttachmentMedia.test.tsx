@@ -1,19 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { AttachmentMedia } from './AttachmentMedia';
-import { getTransferMeta, getTransferBlob } from '../../lib/fileTransfer/fileStore';
-import { sha256Hex } from '../../lib/fileTransfer/integrity';
+import { resolveFtrBlobUrl } from '../../lib/fileTransfer/fileStore';
 
 vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t: (k: string, fallback?: string) => fallback ?? k }) }));
 vi.mock('../stories/StoryCard', () => ({
   StoryCard: (p: any) => <div data-testid="mock-story-card" data-story={JSON.stringify(p.story)} />,
 }));
+// the component resolves transfers through the shared fileStore cache (useFtrBlobUrl)
 vi.mock('../../lib/fileTransfer/fileStore', () => ({
-  getTransferMeta: vi.fn(),
-  getTransferBlob: vi.fn(),
-}));
-vi.mock('../../lib/fileTransfer/integrity', () => ({
-  sha256Hex: vi.fn(async () => 'abc'),
+  resolveFtrBlobUrl: vi.fn(),
+  FTR_POLL_MS: 5,
+  FTR_POLL_MAX: 2,
 }));
 
 // jsdom may lack URL.createObjectURL; provide a deterministic stand-in.
@@ -120,23 +118,20 @@ describe('AttachmentMedia album grid', () => {
 });
 
 describe('AttachmentMedia ftr1: receive path', () => {
+  const done = { url: 'blob:mock-1', shaOk: true };
   beforeEach(() => {
-    (getTransferMeta as any).mockReset();
-    (getTransferBlob as any).mockReset();
-    (sha256Hex as any).mockReset();
-    (sha256Hex as any).mockResolvedValue('abc');
+    (resolveFtrBlobUrl as any).mockReset();
+    (resolveFtrBlobUrl as any).mockResolvedValue(done);
   });
 
   it('shows a pending row without download while the transfer is incomplete', async () => {
-    (getTransferMeta as any).mockResolvedValue({ transferId: 't-pending', totalChunks: 1, completed: false });
+    (resolveFtrBlobUrl as any).mockResolvedValue(null);
     render(<AttachmentMedia {...baseProps({ msg: ftrMsg({ transferId: 't-pending' }) })} />);
     expect(screen.getByText('report.pdf')).toBeTruthy();
     expect(screen.queryByRole('link', { name: 'Download' })).toBeNull();
   });
 
   it('renders a download link once the file transfer completes', async () => {
-    (getTransferMeta as any).mockResolvedValue({ transferId: 't-file', totalChunks: 1, completed: true });
-    (getTransferBlob as any).mockResolvedValue(new Blob(['x']));
     render(<AttachmentMedia {...baseProps({ msg: ftrMsg({ transferId: 't-file' }) })} />);
     const link = await screen.findByRole('link', { name: 'Download' });
     expect(link.getAttribute('href')).toMatch(/^blob:/);
@@ -144,16 +139,12 @@ describe('AttachmentMedia ftr1: receive path', () => {
   });
 
   it('renders the assembled blob as an image once the transfer completes', async () => {
-    (getTransferMeta as any).mockResolvedValue({ transferId: 't-img', totalChunks: 1, completed: true });
-    (getTransferBlob as any).mockResolvedValue(new Blob(['x']));
     render(<AttachmentMedia {...baseProps({ msg: ftrMsg({ transferId: 't-img', type: 'image' }) })} />);
     const img = await screen.findByAltText('chat.sharedImage');
     expect(img.getAttribute('src')).toMatch(/^blob:/);
   });
 
   it('renders an inline playable video once the transfer completes', async () => {
-    (getTransferMeta as any).mockResolvedValue({ transferId: 't-vid', totalChunks: 1, completed: true });
-    (getTransferBlob as any).mockResolvedValue(new Blob(['x']));
     const { container } = render(<AttachmentMedia {...baseProps({ msg: ftrMsg({ transferId: 't-vid', type: 'video' }) })} />);
     await waitFor(() => {
       const video = container.querySelector('video');
@@ -163,9 +154,7 @@ describe('AttachmentMedia ftr1: receive path', () => {
   });
 
   it('shows unavailable when the received sha256 does not match', async () => {
-    (getTransferMeta as any).mockResolvedValue({ transferId: 't-sha', totalChunks: 1, completed: true, sha256: 'bad' });
-    (getTransferBlob as any).mockResolvedValue(new Blob(['x']));
-    (sha256Hex as any).mockResolvedValueOnce('abc');
+    (resolveFtrBlobUrl as any).mockResolvedValue({ url: 'blob:mock-1', shaOk: false });
     render(<AttachmentMedia {...baseProps({ msg: ftrMsg({ transferId: 't-sha' }) })} />);
     expect(await screen.findByText('Attachment unavailable')).toBeTruthy();
   });

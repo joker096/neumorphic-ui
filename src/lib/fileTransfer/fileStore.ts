@@ -251,8 +251,21 @@ export async function resolveFtrBlobUrl(transferId: string): Promise<{ url: stri
 export const FTR_POLL_MS = 500;
 export const FTR_POLL_MAX = 60;
 
+/**
+ * Drop a transfer's cached blob URL. Without this the `ftrBlobCache` entry (and
+ * the browser-side blob behind its `blob:` URL) outlives the transfer it
+ * describes — deleting a message would leak memory for the rest of the session.
+ */
+export function evictFtrBlobUrl(transferId: string): void {
+  const entry = ftrBlobCache.get(transferId);
+  if (!entry) return;
+  ftrBlobCache.delete(transferId);
+  URL.revokeObjectURL(entry.url);
+}
+
 /** Remove a transfer's meta and all its chunks. */
 export async function deleteTransfer(transferId: string): Promise<void> {
+  evictFtrBlobUrl(transferId);
   if (!hasIdb) {
     memoryMetas.delete(transferId);
     for (const key of Array.from(memoryChunks.keys())) {

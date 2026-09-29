@@ -51,7 +51,7 @@ const defaultProps = {
   radioStations: [],
   setRadioStations: vi.fn(),
   videoUrl: null,
-  setVideoUrl: vi.fn(),
+  openVideoUrl: vi.fn(),
   setShowVideo: vi.fn(),
   setIsVideoPlaying: vi.fn(),
   setShowAddStationModal: vi.fn(),

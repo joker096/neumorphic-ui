@@ -33,7 +33,7 @@ type PlaylistViewProps = {
   radioStations: Track[];
   setRadioStations: (v: Track[] | ((prev: Track[]) => Track[])) => void;
   videoUrl: string | null;
-  setVideoUrl: (v: string | null) => void;
+  openVideoUrl: (blob: Blob) => void;
   setShowVideo: (v: boolean) => void;
   setIsVideoPlaying: (v: boolean) => void;
   textColor?: string;
@@ -51,7 +51,7 @@ export const PlaylistView = ({
   isDark = false, isRadioMode, isPlaying, setIsPlaying, showPlaylist, setShowPlaylist, activeList, activeIndex,
   confirmDeleteIndex, setConfirmDeleteIndex, confirmDeleteMode, setConfirmDeleteMode,
   currentTrackIndex, setCurrentTrackIndex, radioStationIndex, setRadioStationIndex,
-  playlist, setPlaylist, radioStations, setRadioStations, videoUrl, setVideoUrl, setShowVideo, setIsVideoPlaying,
+  playlist, setPlaylist, radioStations, setRadioStations, openVideoUrl, setShowVideo, setIsVideoPlaying,
   textColor, setShowAddStationModal, stationName, setStationName, stationUrl, setStationUrl, stationAddError, setStationAddError, handleFileSelect
 }: PlaylistViewProps) => {
   const { t } = useI18n();
@@ -62,10 +62,7 @@ export const PlaylistView = ({
       setCurrentTrackIndex(i);
       const t = playlist[i];
       if (t && t.file && t.file.type.startsWith('video/')) {
-        const url = URL.createObjectURL(t.file);
-        setVideoUrl(url);
-        setShowVideo(true);
-        setIsVideoPlaying(true);
+        openVideoUrl(t.file);
       }
     }
     if (!isPlaying) setIsPlaying(true);

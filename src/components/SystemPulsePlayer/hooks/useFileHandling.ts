@@ -8,15 +8,23 @@ export interface FileHandlingActions {
   handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const useFileHandling = (
-  setPlaylist: (v: Track[] | ((prev: Track[]) => Track[])) => void,
-  setVideoUrl: (v: string | null) => void,
-  setShowVideo: (v: boolean) => void,
-  setIsVideoPlaying: (v: boolean) => void,
-  setCurrentTrackIndex: (v: number) => void,
-  setIsPlaying: (v: boolean) => void,
-  playlist: Track[]
-): FileHandlingActions => {
+export interface FileHandlingDeps {
+  setPlaylist: (v: Track[] | ((prev: Track[]) => Track[])) => void;
+  /** Tracks + shows the blob URL and handles revoking the previous one. */
+  openVideoUrl: (blob: Blob) => void;
+  setCurrentTrackIndex: (v: number) => void;
+  setIsPlaying: (v: boolean) => void;
+  playlist: Track[];
+}
+
+export const useFileHandling = ({
+  setPlaylist,
+  openVideoUrl,
+  setCurrentTrackIndex,
+  setIsPlaying,
+  playlist,
+}: FileHandlingDeps): FileHandlingActions => {
+  // audio-track URLs only; video URLs are owned and revoked by useVideoPlayback
   const objectURLsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -42,11 +50,7 @@ export const useFileHandling = (
       }
       if (videoFiles.length > 0) {
         const firstVideo = videoFiles[0];
-        const objUrl = URL.createObjectURL(firstVideo);
-        objectURLsRef.current.add(objUrl);
-        setVideoUrl(objUrl);
-        setShowVideo(true);
-        setIsVideoPlaying(true);
+        openVideoUrl(firstVideo);
         toast.success("Video loaded", { description: firstVideo.name });
       }
       const audioCount = audioFiles.length;
@@ -65,17 +69,13 @@ export const useFileHandling = (
       }
     }
     e.target.value = "";
-  }, [playlist.length, setPlaylist, setVideoUrl, setShowVideo, setIsVideoPlaying, setCurrentTrackIndex, setIsPlaying]);
+  }, [playlist.length, setPlaylist, openVideoUrl, setCurrentTrackIndex, setIsPlaying]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (isVideoFile(file)) {
-        const objUrl = URL.createObjectURL(file);
-        objectURLsRef.current.add(objUrl);
-        setVideoUrl(objUrl);
-        setShowVideo(true);
-        setIsVideoPlaying(true);
+        openVideoUrl(file);
         toast.success("Video loaded", { description: file.name });
       } else {
         loadAudioFiles([file], (f) => {
@@ -89,7 +89,7 @@ export const useFileHandling = (
       }
     }
     e.target.value = "";
-  }, [playlist.length, setPlaylist, setVideoUrl, setShowVideo, setIsVideoPlaying, setCurrentTrackIndex, setIsPlaying]);
+  }, [playlist.length, setPlaylist, openVideoUrl, setCurrentTrackIndex, setIsPlaying]);
 
   return {
     handleFolderSelect,

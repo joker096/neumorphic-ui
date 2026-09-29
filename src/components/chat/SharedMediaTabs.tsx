@@ -107,8 +107,8 @@ const MediaTile = ({ msg, isDark, iconBoxClass }: { msg: any; isDark: boolean; i
     typeof msg.attachment === 'string' && msg.attachment.startsWith(FTR_MAGIC)
       ? (typeof msg.fileTransferId === 'string' ? msg.fileTransferId : msg.attachment.slice(FTR_MAGIC.length))
       : null;
-  const ftrUrl = useFtrBlobUrl(ftrId);
-  const src = ftrId ? ftrUrl : (msg.attachment || msg.url || msg.thumb);
+  const ftrEntry = useFtrBlobUrl(ftrId);
+  const src = ftrId ? ftrEntry?.url : (msg.attachment || msg.url || msg.thumb);
   return (
     <div className="aspect-square rounded-xl overflow-hidden border border-[var(--border-color)]">
       {src ? (

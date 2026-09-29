@@ -76,9 +76,9 @@ export const ChatMediaPanel = ({
             </div>
             <div className="flex items-center gap-2 mt-1">
               <span className={`text-xs font-bold uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.filters.from')}</span>
-              <input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className={`text-xs ${isDark ? "text-[var(--text-primary)] bg-transparent" : "text-slate-700 bg-transparent"} outline-none`} />
+              <input aria-label={t('chat.filters.from', 'From')} type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className={`text-xs ${isDark ? "text-[var(--text-primary)] bg-transparent" : "text-slate-700 bg-transparent"} outline-none`} />
               <span className={`text-xs ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('chat.filters.to')}</span>
-              <input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className={`text-xs ${isDark ? "text-[var(--text-primary)] bg-transparent" : "text-slate-700 bg-transparent"} outline-none`} />
+              <input aria-label={t('chat.filters.to', 'To')} type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className={`text-xs ${isDark ? "text-[var(--text-primary)] bg-transparent" : "text-slate-700 bg-transparent"} outline-none`} />
             </div>
           </div>
         )}
@@ -150,8 +150,8 @@ const MediaImageTile = ({ msg, onOpen }: { msg: any; onOpen: (msg: any, url: str
     typeof msg.attachment === 'string' && msg.attachment.startsWith(FTR_MAGIC)
       ? (typeof msg.fileTransferId === 'string' ? msg.fileTransferId : msg.attachment.slice(FTR_MAGIC.length))
       : null;
-  const ftrUrl = useFtrBlobUrl(ftrId);
-  const src = ftrId ? ftrUrl : (msg.attachment || msg.url);
+      const ftrEntry = useFtrBlobUrl(ftrId);
+      const src = ftrId ? ftrEntry?.url : (msg.attachment || msg.url);
   return (
     <div
       role="button"

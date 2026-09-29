@@ -113,7 +113,7 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
             radioStations={state.radioStations}
             setRadioStations={state.setRadioStations}
             videoUrl={state.videoUrl}
-            setVideoUrl={state.setVideoUrl}
+            openVideoUrl={state.openVideoUrl}
             setShowVideo={state.setShowVideo}
             setIsVideoPlaying={state.setIsVideoPlaying}
             textColor={textColor}

@@ -7,8 +7,6 @@ import {
 import { useI18n } from "../../lib/i18n";
 import { useAppStore } from "../../store";
 import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
-import { getTransferMeta, getTransferBlob } from "../../lib/fileTransfer/fileStore";
-import { sha256Hex } from "../../lib/fileTransfer/integrity";
 import { VoiceWaveform } from "./VoiceWaveform";
 import { useVoiceBlobUrl } from "../../hooks/useVoiceBlobUrl";
 import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
@@ -27,16 +25,6 @@ const FILE_KIND_STYLE: Record<FileKind, { Icon: LucideIcon; tint: string }> = {
   code: { Icon: FileCode, tint: "bg-cyan-500/15 text-cyan-500" },
   other: { Icon: FileText, tint: "bg-slate-500/15 text-slate-400" },
 };
-
-/**
- * Page-level blob URL cache for `ftr1:` P2P transfers. The blob is assembled
- * from IndexedDB once per page; URLs are intentionally not revoked on unmount
- * (the media viewer may outlive the message row).
- */
-const ftrBlobCache = new Map<string, { url: string; shaOk: boolean }>();
-
-const FTR_POLL_MS = 500;
-const FTR_POLL_MAX = 60;
 
 interface AttachmentMediaProps {
   msg: any;
@@ -59,8 +47,8 @@ interface AlbumTileProps {
 function AlbumTile({ url, alt, onError, className }: AlbumTileProps) {
   const isFtr = typeof url === "string" && url.startsWith(FTR_MAGIC);
   const ftrId = isFtr ? url.slice(FTR_MAGIC.length) : null;
-  const ftrUrl = useFtrBlobUrl(ftrId);
-  const src = ftrId ? ftrUrl : url;
+  const ftrEntry = useFtrBlobUrl(ftrId);
+  const src = ftrId ? ftrEntry?.url : url;
   if (!src) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]">
@@ -88,8 +76,6 @@ export function AttachmentMedia({
   const mediaAutoLoad = useAppStore((s) => s.mediaAutoLoad);
   const [mediaErr, setMediaErr] = useState(false);
   const [revealed, setRevealed] = useState(false);
-  const [ftrReady, setFtrReady] = useState(false);
-  const [ftrUrl, setFtrUrl] = useState<string | null>(null);
   const voiceUrl = useVoiceBlobUrl(msg.voiceId, msg.audioUrl);
   const [albumFailed, setAlbumFailed] = useState<number[]>([]);
 
@@ -97,67 +83,25 @@ export function AttachmentMedia({
     ? (typeof msg.fileTransferId === "string" ? msg.fileTransferId : msg.attachment.slice(FTR_MAGIC.length))
     : null;
 
-  useEffect(() => {
-    setMediaErr(false);
-    setRevealed(false);
-    setFtrReady(false);
-    setFtrUrl(null);
-    setAlbumFailed([]);
-  }, [msg.attachment, msg.url, msg.thumb]);
-
   const autoLoadBlocked =
     mediaAutoLoad === "Off" || (mediaAutoLoad === "Wi-Fi" && !navigator.onLine);
   const shouldShowMedia = !autoLoadBlocked || revealed;
 
-  const ftrActive = Boolean(ftrId) && (!autoLoadBlocked || revealed);
+  // one shared cache (fileStore) serves every consumer, so the blob behind a
+  // resolved transfer is assembled once per page instead of once per call site
+  const ftrEntry = useFtrBlobUrl(ftrId, Boolean(ftrId) && (!autoLoadBlocked || revealed));
+  const ftrReady = ftrEntry !== null;
+  const ftrUrl = ftrEntry?.url ?? null;
 
   useEffect(() => {
-    if (!ftrId || !ftrActive) return;
-    const cached = ftrBlobCache.get(ftrId);
-    if (cached) {
-      setFtrReady(true);
-      setFtrUrl(cached.url);
-      if (!cached.shaOk) setMediaErr(true);
-      return;
-    }
-    let cancelled = false;
-    let timer: number | undefined;
-    let attempts = 0;
-    const assemble = async () => {
-      try {
-        const meta = await getTransferMeta(ftrId);
-        if (cancelled || !meta) return;
-        if (!meta.completed) {
-          attempts += 1;
-          if (attempts < FTR_POLL_MAX) timer = window.setTimeout(() => { void assemble(); }, FTR_POLL_MS);
-          return;
-        }
-        const blob = await getTransferBlob(ftrId, meta.totalChunks, meta.mime);
-        if (!blob || cancelled) return;
-        let shaOk = true;
-        if (meta.sha256) {
-          try {
-            shaOk = (await sha256Hex(await blob.arrayBuffer())) === meta.sha256;
-          } catch {
-            shaOk = false;
-          }
-        }
-        const entry = { url: URL.createObjectURL(blob), shaOk };
-        ftrBlobCache.set(ftrId, entry);
-        if (cancelled) return;
-        setFtrReady(true);
-        setFtrUrl(entry.url);
-        if (!shaOk) setMediaErr(true);
-      } catch {
-        if (!cancelled) setMediaErr(true);
-      }
-    };
-    void assemble();
-    return () => {
-      cancelled = true;
-      if (timer !== undefined) window.clearTimeout(timer);
-    };
-  }, [ftrId, ftrActive]);
+    if (ftrEntry && !ftrEntry.shaOk) setMediaErr(true);
+  }, [ftrEntry]);
+
+  useEffect(() => {
+    setMediaErr(false);
+    setRevealed(false);
+    setAlbumFailed([]);
+  }, [msg.attachment, msg.url, msg.thumb]);
 
   const ftrSize = typeof msg.fileSize === "number" && msg.fileSize > 0 ? formatSize(msg.fileSize) : null;
   const ftrPendingRow = (

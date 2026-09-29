@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { canAcceptFileTransfer, deleteTransfer, enforceFileTransferBudget, getChunk, getTransferBlob, getTransferMeta, listTransfers, pruneAbandonedTransfers, pruneCompletedTransfers, saveChunk, saveTransferMeta } from './fileStore';
+import { canAcceptFileTransfer, deleteTransfer, enforceFileTransferBudget, evictFtrBlobUrl, getChunk, getTransferBlob, getTransferMeta, listTransfers, pruneAbandonedTransfers, pruneCompletedTransfers, resolveFtrBlobUrl, saveChunk, saveTransferMeta } from './fileStore';
 import type { StoredTransfer } from './fileStore';
 
 function makeMeta(transferId: string): StoredTransfer {
@@ -121,5 +121,50 @@ describe('fileStore (memory fallback without indexedDB)', () => {
     expect(await enforceFileTransferBudget(150)).toBe(1);
     expect(await getTransferMeta('ei-old')).toBeUndefined();
     expect(await getTransferMeta('ei-new')).toBeDefined();
+  });
+});
+
+describe('ftr blob URL cache', () => {
+  it('evicts and revokes the cached URL when a transfer is deleted', async () => {
+    const created: string[] = [];
+    const revoked: string[] = [];
+    const realCreate = URL.createObjectURL;
+    const realRevoke = URL.revokeObjectURL;
+    URL.createObjectURL = ((b: Blob) => { const u = `blob:t-${created.length}`; created.push(u); void b; return u; }) as any;
+    URL.revokeObjectURL = ((u: string) => { revoked.push(u); }) as any;
+
+    try {
+      await saveTransferMeta({ ...makeMeta('t-cache'), completed: true, sha256: undefined, totalChunks: 1 });
+      await saveChunk('t-cache', 0, bytesOf(1, 2, 3));
+
+      const first = await resolveFtrBlobUrl('t-cache');
+      expect(first?.url).toBe('blob:t-0');
+      // a second resolve is served from the cache — no extra URL is minted
+      expect(await resolveFtrBlobUrl('t-cache')).toBe(first);
+      expect(created).toHaveLength(1);
+
+      evictFtrBlobUrl('t-cache');
+      expect(revoked).toEqual(['blob:t-0']);
+
+      await deleteTransfer('t-cache');
+      // the cache entry is gone, so resolving again must not hand back a revoked URL
+      expect(revoked.filter((u) => u === 'blob:t-0')).toHaveLength(1);
+      expect(await getTransferMeta('t-cache')).toBeUndefined();
+    } finally {
+      URL.createObjectURL = realCreate;
+      URL.revokeObjectURL = realRevoke;
+    }
+  });
+
+  it('evictFtrBlobUrl is a no-op for an unknown transfer', () => {
+    let calls = 0;
+    const real = URL.revokeObjectURL;
+    URL.revokeObjectURL = (() => { calls += 1; }) as any;
+    try {
+      evictFtrBlobUrl('never-resolved');
+      expect(calls).toBe(0);
+    } finally {
+      URL.revokeObjectURL = real;
+    }
   });
 });

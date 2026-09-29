@@ -66,7 +66,7 @@ export type PlayerActions = {
   setStationAddError: (v: string) => void;
   setPlaylist: (v: Track[] | ((prev: Track[]) => Track[])) => void;
   setRadioStations: (v: Track[] | ((prev: Track[]) => Track[])) => void;
-  setVideoUrl: (v: string | null) => void;
+  openVideoUrl: (blob: Blob) => void;
   setIsVideoPlaying: (v: boolean) => void;
   setShowVideo: (v: boolean) => void;
   setVolume: (v: number) => void;
@@ -106,15 +106,13 @@ export const usePlayerState = (theme: "light" | "dark"): PlayerState & PlayerAct
   const video = useVideoPlayback();
   const eq = useEQSettings(audio.audioRef, audioCtxRef);
   const devices = useMediaDevices(audioCtxRef);
-  const files = useFileHandling(
-    audio.setPlaylist,
-    video.setVideoUrl,
-    video.setShowVideo,
-    video.setIsVideoPlaying,
-    audio.setCurrentTrackIndex,
-    audio.setIsPlaying,
-    audio.playlist
-  );
+  const files = useFileHandling({
+    setPlaylist: audio.setPlaylist,
+    openVideoUrl: video.openVideoUrl,
+    setCurrentTrackIndex: audio.setCurrentTrackIndex,
+    setIsPlaying: audio.setIsPlaying,
+    playlist: audio.playlist,
+  });
   const ripple = useRippleEffect();
 
   const [confirmDeleteIndex, setConfirmDeleteIndex] = React.useState<number | null>(null);
@@ -169,7 +167,7 @@ export const usePlayerState = (theme: "light" | "dark"): PlayerState & PlayerAct
     setStationAddError: audio.setStationAddError,
     setPlaylist: audio.setPlaylist,
     setRadioStations: audio.setRadioStations,
-    setVideoUrl: video.setVideoUrl,
+    openVideoUrl: video.openVideoUrl,
     setIsVideoPlaying: video.setIsVideoPlaying,
     setShowVideo: video.setShowVideo,
     setVolume: eq.setVolume,
