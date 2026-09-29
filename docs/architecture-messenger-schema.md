@@ -45,9 +45,8 @@ Static, app-wide values live outside components so they are not hardcoded in JSX
 - `src/config/app.ts` — public-surface URLs (`APP_HOME_URL`, `MESSENGER_WEB_BASE`, `INVITE_SHORT_BASE`, `EMBED_WIDGET_URL`, `channelInviteLink`, `groupInviteUrl`)
 - `src/config/paymento.ts` — payments backend base + gateway URLs
 - `src/config/signalling.ts` — signalling seed URLs
-- `src/config/integrations.ts` — `/api/v1/integrations` path builder
 - `src/constants/*` — UI/font/company/crm/landing/chat/settings constants and deadline-stage tables
-- `src/constants.ts` — barrel re-exporting storage keys, mock data, language/sticker tables, DND/priority helpers
+- `src/constants.ts` — compat shim re-exporting only what is still imported through the bare `../constants` specifier: `STORAGE_KEYS`, the `MOCK_*` chat/contact/channel tables, `parseMentions`/`isDNDEnabled`/`isPriorityContact`, and the `Company*` types. Everything else is imported from `src/constants/*` directly.
 
 ### `src/store/index.ts`
 
@@ -159,10 +158,6 @@ Embeddable widget.
 ### `src/components/huddle/*`
 
 Huddle widget.
-
-### `src/components/integrations/*`
-
-Integrations panels: connect form, health, logs, mapping, conflicts.
 
 ### `src/components/landing/*`
 
