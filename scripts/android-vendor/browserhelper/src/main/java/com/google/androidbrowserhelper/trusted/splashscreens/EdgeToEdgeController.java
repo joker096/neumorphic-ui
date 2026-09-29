@@ -46,11 +46,11 @@ public class EdgeToEdgeController {
         mProtectionLayout.addView(originalView);
     }
 
-    public void setStatusBarColor(@ColorInt int color) {
+    public void setStatusBarProtectionColor(@ColorInt int color) {
         mStatusBarProtection.setColor(color);
     }
 
-    public void setNavigationBarColor(@ColorInt int color) {
+    public void setNavigationBarProtectionColor(@ColorInt int color) {
         mNavigationBarProtection.setColor(color);
     }
 }

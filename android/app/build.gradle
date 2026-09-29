@@ -57,8 +57,8 @@ android {
         applicationId "com.messanger.e2e"
         minSdkVersion 23
         targetSdkVersion 36
-        versionCode 18
-        versionName "1.0.17"
+        versionCode 20
+        versionName "1.0.19"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name

@@ -89,9 +89,11 @@ public class WebViewFallbackActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Edge-to-edge is the default on Android 15+ (targetSdk 35+); enable it across the
-        // supported range and stop touching window system-bar colors directly (deprecated).
-        WindowCompat.enableEdgeToEdge(getWindow());
+        // Edge-to-edge is the default on Android 15+ (targetSdk 35+); on older releases opt in
+        // through the supported APIs and leave the bar colours to the translucent theme —
+        // Window.setStatusBarColor / setNavigationBarColor are deprecated in Android 15 and the
+        // Play pre-launch report rejects builds that still reference them.
+        applyEdgeToEdge();
 
         this.mLaunchUrl = this.getIntent().getParcelableExtra(KEY_LAUNCH_URI);
         if (!"https".equals(this.mLaunchUrl.getScheme())) {
@@ -138,6 +140,23 @@ public class WebViewFallbackActivity extends Activity {
         Map<String, String> headers = new HashMap<>();
         headers.put("Referer", "android-app://" + getPackageName() + "/");
         mWebView.loadUrl(mLaunchUrl.toString(), headers);
+    }
+
+    /**
+     * Draws the activity window behind the system bars.
+     *
+     * <p>See {@link LauncherActivity#applyEdgeToEdge()} — the fallback WebView needs the same
+     * treatment, and the same two deprecated bar-colour APIs must stay out of the dex.
+     */
+    private void applyEdgeToEdge() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        }
     }
 
     @Override

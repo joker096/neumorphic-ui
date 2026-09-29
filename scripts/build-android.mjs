@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import { spawn, execSync } from 'child_process';
+import { spawn, execSync, execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
@@ -253,11 +253,14 @@ function downloadFile(url, dest) {
 // are still called by LauncherActivity, Utils, WebViewFallbackActivity and
 // splashscreens/{EdgeToEdgeController,PwaWrapperSplashScreenStrategy} — even on
 // the latest upstream release. Fix: vendor the upstream main-branch versions of
-// those 5 classes (edge-to-edge via WindowCompat.enableEdgeToEdge + androidx
-// ColorProtection/ProtectionLayout) into the generated app module and rebuild a
-// local AAR with the deprecated .class entries removed. The remaining AAR classes
-// (SystemBarColorPredictor, SplashScreenStrategy, SplashImageTransferTask, …) are
-// untouched. Depend on the local AAR + explicit transitive coordinates.
+// those 5 classes (edge-to-edge via WindowCompat.setDecorFitsSystemWindows + the
+// androidx legacy layout flags, bar colours via androidx ColorProtection/
+// ProtectionLayout — and under *ProtectionColor names so no method in the dex
+// carries a deprecated Window API signature) into the generated app module and
+// rebuild a local AAR with the deprecated .class entries removed. The remaining
+// AAR classes (SystemBarColorPredictor, SplashScreenStrategy,
+// SplashImageTransferTask, …) are untouched. Depend on the local AAR + explicit
+// transitive coordinates.
 async function vendorBrowserhelper() {
   banner('Vendoring androidbrowserhelper edge-to-edge classes');
 
@@ -342,6 +345,107 @@ async function vendorBrowserhelper() {
   log.info('browserhelper vendored (deprecated Window API callers removed, local AAR + explicit deps)');
 }
 
+// Google Play's pre-launch report rejects Window.setStatusBarColor /
+// Window.setNavigationBarColor (deprecated in Android 15) and used to attribute
+// them to the browser-helper splash wrappers as well. These two gates fail the
+// build instead of shipping a bundle that comes back with the same warning.
+const DEPRECATED_WINDOW_API_PATTERNS = [
+  /WindowCompat\.enableEdgeToEdge/,
+  /\.setStatusBarColor\(/,
+  /getWindow\(\)\.setNavigationBarColor\(/,
+  /void setNavigationBarColor\(/,
+];
+
+// The vendored sources document the deprecated APIs in their javadoc, so match
+// against code only: drop block comments plus every line that is a whole-line
+// comment (a Java statement never starts with `//` or `*`).
+function javaCodeOnly(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .split(/\r?\n/)
+    .filter(line => !/^\s*(\/\/|\*)/.test(line))
+    .join('\n');
+}
+
+function walkJavaFiles(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...walkJavaFiles(full));
+    else if (entry.name.endsWith('.java')) out.push(full);
+  }
+  return out;
+}
+
+function assertVendorSourcesEdgeToEdgeClean() {
+  const roots = [
+    path.join(ROOT, 'scripts', 'android-vendor', 'browserhelper', 'src', 'main', 'java'),
+    path.join(ANDROID_DIR, 'app', 'src', 'main', 'java'),
+  ];
+  const offenders = [];
+  for (const file of roots.flatMap(walkJavaFiles)) {
+    const src = javaCodeOnly(fs.readFileSync(file, 'utf-8'));
+    for (const re of DEPRECATED_WINDOW_API_PATTERNS) {
+      if (re.test(src)) offenders.push(`${path.relative(ROOT, file)} → ${re}`);
+    }
+  }
+  if (offenders.length > 0) {
+    throw new Error(
+      'Deprecated Window bar-colour / enableEdgeToEdge API referenced in Android sources:\n  '
+      + offenders.join('\n  '),
+    );
+  }
+  log.info('edge-to-edge source guard clean (no deprecated Window bar-colour APIs)');
+}
+
+function findApkanalyzer() {
+  const base = path.join(ANDROID_HOME, 'cmdline-tools');
+  if (!fs.existsSync(base)) return null;
+  const dirs = [];
+  for (const entry of fs.readdirSync(base, { withFileTypes: true })) {
+    if (entry.isDirectory()) dirs.push(path.join(base, entry.name, 'bin'));
+  }
+  dirs.push(path.join(base, 'latest', 'bin'));
+  for (const dir of dirs) {
+    for (const name of ['apkanalyzer.bat', 'apkanalyzer']) {
+      const candidate = path.join(dir, name);
+      if (fs.existsSync(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
+function assertDexHasNoDeprecatedWindowApis(apk) {
+  const tool = findApkanalyzer();
+  if (!tool) {
+    log.info('apkanalyzer not found — skipping deprecated Window API dex check');
+    return;
+  }
+  // .bat needs cmd; pass args as an array so no path quoting is involved.
+  const isBat = tool.endsWith('.bat');
+  const out = execFileSync(
+    isBat ? (process.env.COMSPEC || 'cmd.exe') : tool,
+    isBat ? ['/c', tool, 'dex', 'packages', apk] : ['dex', 'packages', apk],
+    { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] },
+  );
+  const listing = out;
+  const offenders = listing.split(/\r?\n/).filter(line =>
+    /set(Status|Navigation)BarColor/.test(line)
+    && (/android\.view\.Window\b/.test(line) || /EdgeToEdgeController\b/.test(line)),
+  );
+  if (offenders.length > 0) {
+    throw new Error(
+      'Deprecated Window bar-colour API present in the release dex (Play pre-launch would flag it):\n  '
+      + offenders.join('\n  '),
+    );
+  }
+  if (!/EdgeToEdgeController .*setStatusBarProtectionColor/.test(listing)) {
+    log.info('note: EdgeToEdgeController.setStatusBarProtectionColor not found in dex listing (possibly stripped)');
+  }
+  log.info('dex guard clean: no Window/EdgeToEdgeController set*BarColor references');
+}
+
 async function buildAndroid() {
   banner('Building APK & AAB');
   const buildTools = findBuildTools();
@@ -376,6 +480,8 @@ async function buildAndroid() {
   log.info('→ gradle bundleRelease');
   await runCmd(gradlew, ['bundleRelease'], { cwd: ANDROID_DIR, env });
   const unsignedAab = path.join(ANDROID_DIR, 'app', 'build', 'outputs', 'bundle', 'release', 'app-release.aab');
+
+  assertDexHasNoDeprecatedWindowApis(signedApk);
 
   // jarsigner for AAB
   log.info('→ jarsigner');
@@ -469,6 +575,7 @@ async function main() {
     patchBuildGradle();
     patchGradleDeps();
     await vendorBrowserhelper();
+    assertVendorSourcesEdgeToEdgeClean();
 
     // Keytool is on PATH here (JAVA_HOME/bin) only sometimes; generate-assetlinks
     // resolves keytool itself. Runs after keystore exists.

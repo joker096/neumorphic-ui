@@ -174,13 +174,13 @@ public class PwaWrapperSplashScreenStrategy implements SplashScreenStrategy {
         Integer navbarColor = sSystemBarColorPredictor.getExpectedNavbarColor(mActivity,
                 providerPackage, builder);
         if (navbarColor != null) {
-            mEdgeToEdgeController.setNavigationBarColor(navbarColor);
+            mEdgeToEdgeController.setNavigationBarProtectionColor(navbarColor);
         }
 
         Integer statusBarColor = sSystemBarColorPredictor.getExpectedStatusBarColor(mActivity,
                 providerPackage, builder);
         if (statusBarColor != null) {
-            mEdgeToEdgeController.setStatusBarColor(statusBarColor);
+            mEdgeToEdgeController.setStatusBarProtectionColor(statusBarColor);
         }
     }
 

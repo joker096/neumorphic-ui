@@ -19,9 +19,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
@@ -133,7 +135,7 @@ public class LauncherActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        WindowCompat.enableEdgeToEdge(getWindow());
+        applyEdgeToEdge();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         mStartupUptimeMillis = SystemClock.uptimeMillis();
@@ -183,6 +185,27 @@ public class LauncherActivity extends Activity {
 
         if (shouldLaunchImmediately()) {
             launchTwa();
+        }
+    }
+
+    /**
+     * Draws the activity window behind the system bars.
+     *
+     * <p>Android 15 (SDK 35) enforces edge-to-edge for apps targeting SDK 35+, so nothing has to be
+     * opted into there. On older releases this reproduces the layout half of
+     * {@code WindowCompat.enableEdgeToEdge()} using APIs that are not deprecated: the bar
+     * <em>colours</em> are left to the theme (the activity theme is translucent), because
+     * {@code Window.setStatusBarColor} / {@code Window.setNavigationBarColor} are deprecated in
+     * Android 15 and Google Play's pre-launch report rejects builds that still reference them.
+     */
+    private void applyEdgeToEdge() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         }
     }
 
