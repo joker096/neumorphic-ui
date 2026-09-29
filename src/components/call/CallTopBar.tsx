@@ -32,7 +32,7 @@ export const CallTopBar: React.FC<CallTopBarProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -12 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="absolute top-0 left-0 right-0 p-3 sm:p-4 pointer-events-none flex items-start justify-between gap-3"
+        className="absolute top-0 left-0 right-0 p-3 sm:p-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] sm:pt-[calc(1rem+env(safe-area-inset-top,0px))] pl-[calc(0.75rem+env(safe-area-inset-left,0px))] pr-[calc(0.75rem+env(safe-area-inset-right,0px))] pointer-events-none flex items-start justify-between gap-3"
       >
         <div className="pointer-events-auto flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-black/30 backdrop-blur-xl border border-white/10">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg shadow-[var(--accent)]/30 shrink-0">

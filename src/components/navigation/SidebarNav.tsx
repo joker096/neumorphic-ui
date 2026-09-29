@@ -19,7 +19,7 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
 
   return (
     <aside
-      className={`hidden md:flex flex-col w-16 h-[100dvh] shrink-0 border-r ${
+      className={`hidden md:flex flex-col w-16 h-full shrink-0 border-r ${
         isDark ? "bg-[var(--bg-primary)] border-r-white/[0.05]" : "bg-[var(--bg-primary)] border-r-black/[0.05]"
       }`}
       style={isDark ? {} : { background: "linear-gradient(180deg, var(--nav-sidebar-gradient-from) 0%, var(--nav-sidebar-gradient-to) 100%)" }}

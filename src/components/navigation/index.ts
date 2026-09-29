@@ -1,2 +1,1 @@
-export { BottomNav } from "./BottomNav";
-export { SidebarNav } from "./SidebarNav";
+export { BottomNav } from './BottomNav';

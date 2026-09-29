@@ -228,7 +228,11 @@ function AppShellImpl({
   };
 
   return (
-    <div data-theme={theme} data-font-size={fontSize} className={`w-full h-[100dvh] flex flex-col font-sans select-none overflow-hidden relative ${"bg-[var(--bg-primary)] text-[var(--text-primary)]"}`}>
+    // Edge-to-edge (Android 15+ / viewport-fit=cover): the app draws behind the status bar
+    // and, in landscape, behind the display cutout — so keep the shell clear of those insets.
+    // Box-sizing is border-box, so h-[100dvh] shrinks by the insets and the fixed bottom nav
+    // (which adds its own bottom inset) stays flush with the navigation bar.
+    <div data-theme={theme} data-font-size={fontSize} className={`w-full h-[100dvh] flex flex-col font-sans select-none overflow-hidden relative pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] ${"bg-[var(--bg-primary)] text-[var(--text-primary)]"}`}>
       <div id="sr-region" aria-live="polite" role="status" className="sr-only" />
       <OfflineBanner t={t} />
       <div className="flex-1 min-h-0 flex">

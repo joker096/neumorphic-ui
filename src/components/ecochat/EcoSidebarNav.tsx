@@ -47,7 +47,7 @@ export const EcoSidebarNav = ({
 
   return (
     <aside
-      className="hidden md:flex ds-sidebar w-[76px] h-[100dvh] shrink-0 relative z-40"
+        className="hidden md:flex ds-sidebar w-[76px] h-full shrink-0 relative z-40"
     >
       {/* Navigation */}
       <nav className="flex w-full flex-1 flex-col px-2 space-y-2 overflow-y-auto">

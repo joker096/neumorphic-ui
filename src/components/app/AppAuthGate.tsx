@@ -34,7 +34,7 @@ export const AppAuthGate = ({ children }: AppAuthGateProps) => {
 
   if (identityStatus === "loading") {
     return (
-      <div className="w-full h-[100dvh] flex items-center justify-center bg-[var(--bg-primary)]">
+      <div className="w-full h-[100dvh] flex items-center justify-center bg-[var(--bg-primary)] pt-[env(safe-area-inset-top,0px)]">
         <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );

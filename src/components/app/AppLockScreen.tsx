@@ -48,7 +48,7 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
   const isBlockedTemporarily = lockBlockTimer > 0;
 
   return (
-    <div className={`w-full h-[100dvh] flex flex-col items-center justify-center font-sans ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-slate-800"}`}>
+    <div className={`w-full h-[100dvh] flex flex-col items-center justify-center font-sans pt-[env(safe-area-inset-top,0px)] ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-slate-800"}`}>
       <div className={`p-6 sm:p-8 rounded-3xl flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl ${isDark ? "bg-[var(--bg-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}>
         <Lock size={48} className={`mb-6 ${isDark ? "text-orange-500" : "text-orange-600"}`} />
         <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t('lock.title')}</h2>

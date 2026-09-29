@@ -78,39 +78,7 @@ export interface OnlineContact {
 /**
  * Company types
  */
-export interface CompanyMember {
-  userId: string;
-  displayName: string;
-  role: 'admin' | 'manager' | 'member';
-  publicKey: string;
-  joinedAt: number;
-  lastActive: number;
-  online: boolean;
-  office?: string;
-}
-
-export interface CompanyChannel {
-  id: string;
-  companyId: string;
-  officeId?: string;
-  name: string;
-  description: string;
-  unread: number;
-  memberCount: number;
-  createdAt: number;
-}
-
-export interface CompanyMessage {
-  id: string;
-  channelId: string;
-  senderId: string;
-  senderName: string;
-  text: string;
-  timestamp: number;
-  status: 'sent' | 'delivered' | 'read';
-  reactions?: Record<string, string[]>;
-  replyTo?: { id: string; senderName: string; text: string };
-}
+export type { CompanyMember, CompanyChannel, CompanyMessage, CompanyRole } from '../lib/company/types';
 
 export interface CompanyDepartment {
   id: string;

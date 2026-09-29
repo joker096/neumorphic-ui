@@ -50,7 +50,7 @@ const features = [
 export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) => {
   const { t } = useI18n();
   return (
-    <div className="w-full min-h-[100dvh] overflow-x-hidden bg-[var(--landing-bg)]">
+    <div className="w-full min-h-[100dvh] overflow-x-hidden bg-[var(--landing-bg)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)]">
       {isDark && (
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute top-[-20vh] left-[10%] w-[40vw] h-[50vh] bg-orange-500/8 rounded-full blur-[120px]" />
@@ -59,7 +59,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
         </div>
       )}
 
-      <section className="relative z-10 min-h-[100dvh] flex flex-col items-center justify-center px-6 py-16">
+      <section className="relative z-10 min-h-[100dvh] flex flex-col items-center justify-center px-6 pt-[calc(4rem+env(safe-area-inset-top,0px))] pb-16">
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}

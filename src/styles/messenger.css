@@ -535,6 +535,10 @@
     box-sizing: border-box;
     width: min(92vw, 420px);
     max-height: 85dvh;
+    /* Edge-to-edge: the dialog is centred, but in landscape a display cutout
+       eats one side of the viewport — keep the sheet clear of it. */
+    margin-left: env(safe-area-inset-left, 0px);
+    margin-right: env(safe-area-inset-right, 0px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
