@@ -912,7 +912,10 @@
     "profile": "プロフィール",
     "removeField": "フィールドを削除",
     "fieldLabelPlaceholder": "ラベル",
-    "shareQrAlt": "あなたのアイデンティティQRコード"
+    "shareQrAlt": "あなたのアイデンティティQRコード",
+    "fieldTypeLabel": "種類",
+    "fieldSubtypeLabel": "サブタイプ",
+    "fieldValue": "値"
   },
   "header": {
     "copied": "コピーしました！",
@@ -1665,7 +1668,9 @@
     "blacklistCount": "{{n}} 人",
     "blacklistEmpty": "空",
     "unblock": "ブロック解除",
-    "cacheAlreadyEmpty": "削除するものがありません"
+    "cacheAlreadyEmpty": "削除するものがありません",
+    "fieldTypeLabel": "種類",
+    "fieldVisibility": "公開範囲"
   },
   "gifSearch": {
     "searchPlaceholder": "GIFを検索...",
@@ -1856,7 +1861,8 @@
     "websiteContactImported": "新しいウェブサイトコンタクト",
     "syncCrm": "CRM → チームに同期",
     "typeMessage": "メッセージを入力…",
-    "e2eAnonymous": "E2E暗号化・匿名訪問者"
+    "e2eAnonymous": "E2E暗号化・匿名訪問者",
+    "embedSnippet": "埋め込みコード"
   },
   "login": {
     "title": "ログイン",
@@ -2173,20 +2179,7 @@
   },
   "integrations": {
     "notConnected": "連携が未接続です",
-    "notConnectedDesc": "サービス「{{feature}}」にはバックエンドアダプターが必要です。アプリケーションのエントリーポイントで configureServices() を通じて接続してください。",
-    "title": "統合",
-    "conflicts": "競合",
-    "connect": "接続",
-    "health": "状態",
-    "import": "インポート",
-    "runImport": "インポートを実行",
-    "logs": "ログ",
-    "mappings": "マッピング",
-    "provider": "プロバイダー",
-    "name": "名前",
-    "baseUrl": "ベースURL",
-    "apiKey": "APIキー",
-    "entity": "エンティティ"
+    "notConnectedDesc": "サービス「{{feature}}」にはバックエンドアダプターが必要です。アプリケーションのエントリーポイントで configureServices() を通じて接続してください。"
   },
   "workplace": {
     "tabTasks": "タスク",
@@ -2297,7 +2290,9 @@
     "create": "支払いリクエストを作成",
     "sendToChat": "支払いをチャットに送信",
     "menuTitle": "支払いリクエスト",
-    "menuSubtitle": "暗号資産の支払いの作成と追跡"
+    "menuSubtitle": "暗号資産の支払いの作成と追跡",
+    "amount": "金額",
+    "currency": "通貨"
   },
   "premium": {
     "title": "プレミアム",
@@ -2374,7 +2369,9 @@
     "linkShared": "支払いリンクを共有しました",
     "completePayment": "支払いを完了",
     "copied": "コピーしました",
-    "copy": "コピー"
+    "copy": "コピー",
+    "amount": "金額",
+    "currency": "通貨"
   },
   "dataState": {
     "partial": "一部のデータが利用できません",

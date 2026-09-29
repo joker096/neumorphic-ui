@@ -60,6 +60,7 @@ export const AddStationModal = ({
         <div className="mb-3">
           <label className={`text-xs font-medium ${textColor} opacity-70`}>{t('systemPlayer.stationName')}</label>
           <input
+            aria-label={t('systemPlayer.stationNamePlaceholder')}
             type="text"
             value={stationName}
             onChange={(e) => setStationName(e.target.value)}
@@ -71,6 +72,7 @@ export const AddStationModal = ({
         <div className="mb-3">
           <label className={`text-xs font-medium ${textColor} opacity-70`}>{t('systemPlayer.streamUrl')}</label>
           <input
+            aria-label={t('systemPlayer.streamUrlPlaceholder')}
             type="text"
             value={stationUrl}
             onChange={(e) => setStationUrl(e.target.value)}

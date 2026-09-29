@@ -97,6 +97,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
             <div>
               <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 block">{t('company.orgName', 'Company')}</label>
               <input
+                aria-label={t('company.namePlaceholder', 'Acme Inc.')}
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
                 placeholder={t('company.namePlaceholder', 'Acme Inc.')}
@@ -106,6 +107,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
             <div>
               <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 block">{t('company.yourName', 'Your Name')}</label>
               <input
+                aria-label={t('company.displayNamePlaceholder', 'John Doe')}
                 value={yourName}
                 onChange={(e) => setYourName(e.target.value)}
                 placeholder={t('company.displayNamePlaceholder', 'John Doe')}

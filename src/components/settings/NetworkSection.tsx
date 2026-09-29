@@ -74,7 +74,8 @@ export const NetworkSection = ({
       
       <SettingsSectionTitle title={t('settings.turnServer')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
-        <input 
+        <input
+          aria-label={t('settings.turnServerExample')}
           placeholder={t('settings.turnServerExample')}
           value={turnServerUrl}
           onChange={(e) => onUpdateSettings({ turnServerUrl: e.target.value })}

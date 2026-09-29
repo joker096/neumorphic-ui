@@ -189,6 +189,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
         {mode === 'text' ? (
           <div className="space-y-3">
             <textarea
+              aria-label={t('crm.import.placeholder', 'Paste CSV or JSON here…')}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={t('crm.import.placeholder', 'Paste CSV or JSON here…')}

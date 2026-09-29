@@ -139,6 +139,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
               {t('company.contactDepartment', 'Department')}
             </label>
             <select
+              aria-label={t('company.contactDepartment', 'Department')}
               value={departmentId ?? ''}
               onChange={(e) => setDepartmentId(e.target.value || null)}
               className="w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-sm"
@@ -155,6 +156,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
               {t('company.contactNotes', 'Notes')}
             </label>
             <textarea
+              aria-label={t('company.contactNotesPlaceholder', 'Any extra details...')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder={t('company.contactNotesPlaceholder', 'Any extra details...')}

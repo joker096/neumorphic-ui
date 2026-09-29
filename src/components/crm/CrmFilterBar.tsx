@@ -43,25 +43,25 @@ export const CrmFilterBar: React.FC<Props> = ({ onOpenRoles, open: controlledOpe
     const cls = fullWidth ? `${selectCls} w-full` : selectCls;
     return (
       <>
-        <select value={filters.role} onChange={(e) => setFilter('role', e.target.value as SystemRole | 'all')} className={cls}>
+        <select aria-label={t('crm.role', CRM_FALLBACKS.role)} value={filters.role} onChange={(e) => setFilter('role', e.target.value as SystemRole | 'all')} className={cls}>
           <option value="all">{t('crm.role', CRM_FALLBACKS.role)}: {t('crm.all', CRM_FALLBACKS.all)}</option>
           {SYSTEM_ROLES.map((r) => (
             <option key={r.id} value={r.id}>{t(r.labelKey, (CRM_FALLBACKS as any)[r.labelKey.replace('crm.', '')])}</option>
           ))}
         </select>
-        <select value={filters.departmentId} onChange={(e) => setFilter('departmentId', e.target.value)} className={cls}>
+        <select aria-label={t('crm.department', CRM_FALLBACKS.department)} value={filters.departmentId} onChange={(e) => setFilter('departmentId', e.target.value)} className={cls}>
           <option value="all">{t('crm.department', CRM_FALLBACKS.department)}: {t('crm.all', CRM_FALLBACKS.all)}</option>
           {departments.map((d) => (
             <option key={d.id} value={d.id}>{d.name}</option>
           ))}
         </select>
-        <select value={filters.status} onChange={(e) => setFilter('status', e.target.value as CrmContactStatus | 'all')} className={cls}>
+        <select aria-label={t('crm.status', CRM_FALLBACKS.status)} value={filters.status} onChange={(e) => setFilter('status', e.target.value as CrmContactStatus | 'all')} className={cls}>
           <option value="all">{t('crm.status', CRM_FALLBACKS.status)}: {t('crm.all', CRM_FALLBACKS.all)}</option>
           {CONTACT_STATUSES.map((s) => (
             <option key={s.id} value={s.id}>{t(s.labelKey, (CRM_FALLBACKS as any)[s.labelKey.replace('crm.', '')])}</option>
           ))}
         </select>
-        <select value={filters.tag} onChange={(e) => setFilter('tag', e.target.value)} className={cls}>
+        <select aria-label={t('crm.tag', CRM_FALLBACKS.tag)} value={filters.tag} onChange={(e) => setFilter('tag', e.target.value)} className={cls}>
           <option value="all">{t('crm.tag', CRM_FALLBACKS.tag)}: {t('crm.all', CRM_FALLBACKS.all)}</option>
           {allTags.map((tag) => (
             <option key={tag} value={tag}>{tag}</option>

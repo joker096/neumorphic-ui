@@ -163,7 +163,7 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
   const isLocked = lockBlockedUntil > Date.now();
 
   return (
-    <div className="relative w-full h-[100dvh] flex flex-col items-center justify-center font-sans bg-[var(--bg-primary)] text-[var(--text-primary)] p-4">
+    <div className="relative w-full h-[100dvh] flex flex-col items-center justify-center font-sans bg-[var(--bg-primary)] text-[var(--text-primary)] pt-[calc(1rem+env(safe-area-inset-top,0px))] pb-4 pl-[calc(1rem+env(safe-area-inset-left,0px))] pr-[calc(1rem+env(safe-area-inset-right,0px))]">
       {onBack && step !== "restoring" && (
         <button
           type="button"
@@ -191,6 +191,7 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
               </p>
             </div>
             <textarea
+              aria-label={t("auth.login.phrasePlaceholder", "word1 word2 word3 ...")}
               value={phrase}
               onChange={(e) => setPhrase(e.target.value)}
               placeholder={t("auth.login.phrasePlaceholder", "word1 word2 word3 ...")}
@@ -284,6 +285,7 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
               <>
                 <div className="space-y-3 mb-4">
                   <input
+                    aria-label={t("auth.login.pinPlaceholder", "Enter PIN (4-6 digits)")}
                     type="password"
                     inputMode="numeric"
                     autoComplete="off"
@@ -297,6 +299,7 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
                     className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-2 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors bg-[var(--bg-secondary)] border-[var(--border-color)] ${pinError ? "border-red-500 text-red-500" : ""}`}
                   />
                   <input
+                    aria-label={t("auth.login.confirmPinPlaceholder", "Confirm PIN")}
                     type="password"
                     inputMode="numeric"
                     autoComplete="off"

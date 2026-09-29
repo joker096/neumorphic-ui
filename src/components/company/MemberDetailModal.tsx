@@ -97,6 +97,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                 {t('company.name', 'Name')}
               </label>
               <input
+                aria-label={t('company.renamePlaceholder', COMPANY_EDIT_FALLBACKS.renamePlaceholder)}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t('company.renamePlaceholder', COMPANY_EDIT_FALLBACKS.renamePlaceholder)}

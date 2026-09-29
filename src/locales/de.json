@@ -912,7 +912,10 @@
     "profile": "Profil",
     "removeField": "Feld entfernen",
     "fieldLabelPlaceholder": "Beschriftung",
-    "shareQrAlt": "Dein Identitäts-QR-Code"
+    "shareQrAlt": "Dein Identitäts-QR-Code",
+    "fieldTypeLabel": "Typ",
+    "fieldSubtypeLabel": "Untertyp",
+    "fieldValue": "Wert"
   },
   "header": {
     "copied": "Kopiert!",
@@ -1665,7 +1668,9 @@
     "blacklistCount": "{{n}} Benutzer",
     "blacklistEmpty": "Leer",
     "unblock": "Entsperren",
-    "cacheAlreadyEmpty": "Nichts zu löschen"
+    "cacheAlreadyEmpty": "Nichts zu löschen",
+    "fieldTypeLabel": "Typ",
+    "fieldVisibility": "Sichtbarkeit"
   },
   "gifSearch": {
     "searchPlaceholder": "GIFs suchen...",
@@ -1856,7 +1861,8 @@
     "websiteContactImported": "Neuer Website-Kontakt",
     "syncCrm": "CRM → Team synchronisieren",
     "typeMessage": "Nachricht eingeben…",
-    "e2eAnonymous": "E2E-verschlüsselt · anonyme Besucher"
+    "e2eAnonymous": "E2E-verschlüsselt · anonyme Besucher",
+    "embedSnippet": "Einbettungs-Snippet"
   },
   "login": {
     "title": "Anmelden",
@@ -2173,20 +2179,7 @@
   },
   "integrations": {
     "notConnected": "Integration nicht verbunden",
-    "notConnectedDesc": "Dienst «{{feature}}» erfordert einen Backend-Adapter. Verbinde ihn über configureServices() am Anwendungseinstiegspunkt.",
-    "title": "Integrationen",
-    "conflicts": "Konflikte",
-    "connect": "Verbinden",
-    "health": "Status",
-    "import": "Importieren",
-    "runImport": "Import ausführen",
-    "logs": "Protokoll",
-    "mappings": "Zuordnungen",
-    "provider": "Anbieter",
-    "name": "Name",
-    "baseUrl": "Basis-URL",
-    "apiKey": "API-Schlüssel",
-    "entity": "Entität"
+    "notConnectedDesc": "Dienst «{{feature}}» erfordert einen Backend-Adapter. Verbinde ihn über configureServices() am Anwendungseinstiegspunkt."
   },
   "workplace": {
     "tabTasks": "Aufgaben",
@@ -2297,7 +2290,9 @@
     "create": "Zahlungsanfrage erstellen",
     "sendToChat": "Zahlung an Chat senden",
     "menuTitle": "Zahlungsanfragen",
-    "menuSubtitle": "Crypto-Zahlungen erstellen und verfolgen"
+    "menuSubtitle": "Crypto-Zahlungen erstellen und verfolgen",
+    "amount": "Betrag",
+    "currency": "Währung"
   },
   "premium": {
     "title": "Premium",
@@ -2374,7 +2369,9 @@
     "linkShared": "Zahlungslink geteilt",
     "completePayment": "Zahlung abschließen",
     "copied": "Kopiert",
-    "copy": "Kopieren"
+    "copy": "Kopieren",
+    "amount": "Betrag",
+    "currency": "Währung"
   },
   "dataState": {
     "partial": "Einige Daten nicht verfügbar",

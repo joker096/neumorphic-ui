@@ -123,7 +123,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
   const isLocked = lockBlockedUntil > Date.now();
 
   return (
-    <div className="w-full h-[100dvh] flex flex-col items-center justify-center font-sans bg-[var(--bg-primary)] text-[var(--text-primary)] p-4">
+    <div className="w-full h-[100dvh] flex flex-col items-center justify-center font-sans bg-[var(--bg-primary)] text-[var(--text-primary)] pt-[calc(1rem+env(safe-area-inset-top,0px))] pb-4 pl-[calc(1rem+env(safe-area-inset-left,0px))] pr-[calc(1rem+env(safe-area-inset-right,0px))]">
       <div className="w-full max-w-md mx-auto">
         {step === "welcome" && (
           <div className="flex flex-col items-center text-center">
@@ -206,6 +206,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
               {t("auth.registration.typePhrase", "Type your 24-word recovery phrase to confirm you saved it.")}
             </p>
             <textarea
+              aria-label={t("auth.registration.phrasePlaceholder", "word1 word2 word3 ...")}
               value={confirmInput}
               onChange={(e) => setConfirmInput(e.target.value)}
               placeholder={t("auth.registration.phrasePlaceholder", "word1 word2 word3 ...")}
@@ -246,6 +247,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
               <>
                 <div className="space-y-3 mb-4">
                   <input
+                    aria-label={t("auth.registration.pinPlaceholder", "Enter PIN (4-6 digits)")}
                     type="password"
                     inputMode="numeric"
                     autoComplete="off"
@@ -259,6 +261,7 @@ export function RegistrationScreen({ onComplete }: RegistrationScreenProps) {
                     className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-2 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors bg-[var(--bg-secondary)] border-[var(--border-color)] ${pinError ? "border-red-500 text-red-500" : ""}`}
                   />
                   <input
+                    aria-label={t("auth.registration.confirmPinPlaceholder", "Confirm PIN")}
                     type="password"
                     inputMode="numeric"
                     autoComplete="off"

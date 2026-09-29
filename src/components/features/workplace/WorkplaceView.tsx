@@ -114,6 +114,7 @@ function TasksTab({ isDark }: { isDark?: boolean }) {
         }}
       >
         <input
+          aria-label={t('workplace.newTask')}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t('workplace.newTask')}
@@ -250,6 +251,7 @@ function KbTab({ isDark }: { isDark?: boolean }) {
       <div className="flex items-center gap-2 px-3 rounded-xl border border-[var(--border-color)]">
         <Search size={16} className="opacity-60" />
         <input
+          aria-label={t('workplace.searchKb')}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={t('workplace.searchKb')}

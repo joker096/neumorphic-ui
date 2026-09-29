@@ -74,6 +74,7 @@ export const ProfileEditForm = ({
       <div className="flex flex-col gap-1">
         <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.displayName', 'Display Name')}</label>
         <input
+          aria-label={t('settings.enterName', 'Enter your name')}
           type="text"
           value={editName}
           onChange={(e) => setEditName(e.target.value)}
@@ -85,6 +86,7 @@ export const ProfileEditForm = ({
       <div className="flex flex-col gap-1">
         <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.username', 'Username')}</label>
         <input
+          aria-label={t('settings.usernamePlaceholder', '@username')}
           type="text"
           value={editUsername}
           onChange={(e) => setEditUsername(e.target.value.replace(/[^a-zA-Z0-9._]/g, '').slice(0, 32))}
@@ -99,6 +101,7 @@ export const ProfileEditForm = ({
       <div className="flex flex-col gap-1">
         <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.status', 'Status')}</label>
         <input
+          aria-label={t('settings.statusPlaceholder', "What's on your mind?")}
           type="text"
           value={editStatus}
           onChange={(e) => setEditStatus(e.target.value)}
@@ -113,6 +116,7 @@ export const ProfileEditForm = ({
       <div className="flex flex-col gap-1">
         <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.bio', 'Bio')}</label>
         <textarea
+          aria-label={t('settings.bioPlaceholder', 'Tell others about yourself')}
           value={editBio}
           onChange={(e) => setEditBio(e.target.value)}
           placeholder={t('settings.bioPlaceholder', 'Tell others about yourself')}

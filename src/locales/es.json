@@ -912,7 +912,10 @@
     "profile": "Perfil",
     "removeField": "Eliminar campo",
     "fieldLabelPlaceholder": "Etiqueta",
-    "shareQrAlt": "Tu código QR de identidad"
+    "shareQrAlt": "Tu código QR de identidad",
+    "fieldTypeLabel": "Tipo",
+    "fieldSubtypeLabel": "Subtipo",
+    "fieldValue": "Valor"
   },
   "header": {
     "copied": "¡Copiado!",
@@ -1665,7 +1668,9 @@
     "blacklistCount": "{{n}} usuarios",
     "blacklistEmpty": "Vacía",
     "unblock": "Desbloquear",
-    "cacheAlreadyEmpty": "Nada que borrar"
+    "cacheAlreadyEmpty": "Nada que borrar",
+    "fieldTypeLabel": "Tipo",
+    "fieldVisibility": "Visibilidad"
   },
   "gifSearch": {
     "searchPlaceholder": "Buscar GIFs...",
@@ -1856,7 +1861,8 @@
     "websiteContactImported": "Nuevo contacto del sitio",
     "syncCrm": "Sincronizar CRM → equipo",
     "typeMessage": "Escribe un mensaje…",
-    "e2eAnonymous": "Cifrado E2E · visitantes anónimos"
+    "e2eAnonymous": "Cifrado E2E · visitantes anónimos",
+    "embedSnippet": "Fragmento para insertar"
   },
   "login": {
     "title": "Iniciar sesión",
@@ -2173,20 +2179,7 @@
   },
   "integrations": {
     "notConnected": "Integración no conectada",
-    "notConnectedDesc": "El servicio «{{feature}}» requiere un adaptador de backend. Conéctalo mediante configureServices() en el punto de entrada de la aplicación.",
-    "title": "Integraciones",
-    "conflicts": "Conflictos",
-    "connect": "Conectar",
-    "health": "Estado",
-    "import": "Importar",
-    "runImport": "Ejecutar importación",
-    "logs": "Registros",
-    "mappings": "Asignaciones",
-    "provider": "Proveedor",
-    "name": "Nombre",
-    "baseUrl": "URL base",
-    "apiKey": "Clave API",
-    "entity": "Entidad"
+    "notConnectedDesc": "El servicio «{{feature}}» requiere un adaptador de backend. Conéctalo mediante configureServices() en el punto de entrada de la aplicación."
   },
   "workplace": {
     "tabTasks": "Tareas",
@@ -2297,7 +2290,9 @@
     "create": "Crear solicitud de pago",
     "sendToChat": "Enviar pago al chat",
     "menuTitle": "Solicitudes de pago",
-    "menuSubtitle": "Crea y sigue pagos cripto"
+    "menuSubtitle": "Crea y sigue pagos cripto",
+    "amount": "Importe",
+    "currency": "Moneda"
   },
   "premium": {
     "title": "Premium",
@@ -2374,7 +2369,9 @@
     "linkShared": "Enlace de pago compartido",
     "completePayment": "Completa tu pago",
     "copied": "Copiado",
-    "copy": "Copiar"
+    "copy": "Copiar",
+    "amount": "Importe",
+    "currency": "Moneda"
   },
   "dataState": {
     "partial": "Algunos datos no disponibles",

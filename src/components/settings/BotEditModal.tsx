@@ -34,6 +34,7 @@ export const BotEditModal = ({ bot, theme = 'dark', onSave, onClose }: BotEditMo
         <div className="flex flex-col gap-2">
           <label className={modalLabelClass}>{t('bot.nameLabel')}</label>
           <input
+            aria-label={t('bot.nameLabel')}
             autoFocus
             value={name}
             onChange={e => setName(e.target.value)}
@@ -46,6 +47,7 @@ export const BotEditModal = ({ bot, theme = 'dark', onSave, onClose }: BotEditMo
         <div className="flex flex-col gap-2">
           <label className={modalLabelClass}>{t('bot.descriptionLabel')}</label>
           <input
+            aria-label={t('bot.descriptionPlaceholder')}
             value={description}
             onChange={e => setDescription(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') handleSave(); }}

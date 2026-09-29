@@ -31,7 +31,7 @@ export const CreateGroupModal = ({ theme = 'dark', onClose }: { theme?: 'dark' |
     <AppModal isOpen={true} onClose={onClose} isDark={isDark} title={t('createGroup.title')} maxWidth="max-w-sm">
       <div className="flex flex-col gap-2">
         <label className={modalLabelClass}>{t('createGroup.nameLabel')}</label>
-        <input autoFocus value={name} onChange={e => setName(e.target.value)} type="text" className={modalFieldClass} placeholder={t('createGroup.namePlaceholder')} />
+        <input aria-label={t('createGroup.namePlaceholder')} autoFocus value={name} onChange={e => setName(e.target.value)} type="text" className={modalFieldClass} placeholder={t('createGroup.namePlaceholder')} />
       </div>
 
       <div className="flex flex-col gap-2">

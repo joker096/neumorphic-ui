@@ -218,13 +218,13 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>{t('crm.role', CRM_FALLBACKS.role)}</label>
-              <select value={form.role} onChange={(e) => set('role', e.target.value as SystemRole)} className={selectCls}>
+              <select aria-label={t('crm.role', CRM_FALLBACKS.role)} value={form.role} onChange={(e) => set('role', e.target.value as SystemRole)} className={selectCls}>
                 {SYSTEM_ROLES.map((r) => <option key={r.id} value={r.id}>{t(r.labelKey, (CRM_FALLBACKS as any)[r.labelKey.replace('crm.', '')])}</option>)}
               </select>
             </div>
             <div>
               <label className={labelCls}>{t('crm.department', CRM_FALLBACKS.department)}</label>
-              <select value={form.departmentId} onChange={(e) => set('departmentId', e.target.value)} className={selectCls}>
+              <select aria-label={t('crm.department', CRM_FALLBACKS.department)} value={form.departmentId} onChange={(e) => set('departmentId', e.target.value)} className={selectCls}>
                 <option value="">—</option>
                 {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
@@ -235,14 +235,14 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>{t('crm.manager', CRM_FALLBACKS.manager)}</label>
-              <select value={form.assignedManagerId} onChange={(e) => set('assignedManagerId', e.target.value)} className={selectCls}>
+              <select aria-label={t('crm.manager', CRM_FALLBACKS.manager)} value={form.assignedManagerId} onChange={(e) => set('assignedManagerId', e.target.value)} className={selectCls}>
                 <option value="">—</option>
                 {contacts.filter((c) => c.role === 'manager' || c.role === 'admin').map((c) => <option key={c.userId} value={c.userId}>{c.displayName}</option>)}
               </select>
             </div>
             <div>
               <label className={labelCls}>{t('crm.customRole', 'Custom role')}</label>
-              <select value={form.customRoleId} onChange={(e) => set('customRoleId', e.target.value)} className={selectCls}>
+              <select aria-label={t('crm.customRole', 'Custom role')} value={form.customRoleId} onChange={(e) => set('customRoleId', e.target.value)} className={selectCls}>
                 <option value="">—</option>
                 {customRoles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
               </select>

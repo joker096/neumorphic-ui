@@ -47,6 +47,7 @@ export const ContactCRMFields = ({ company, setCompany, position, setPosition, t
       <div className={fieldBoxClass}>
         <Building size={14} className={fieldIconClass} />
         <input
+          aria-label={t('contacts.companyPlaceholder', 'Company')}
           type="text"
           placeholder={t('contacts.companyPlaceholder', 'Company')}
           value={company}
@@ -58,6 +59,7 @@ export const ContactCRMFields = ({ company, setCompany, position, setPosition, t
       <div className={fieldBoxClass}>
         <User size={14} className={fieldIconClass} />
         <input
+          aria-label={t('contacts.positionPlaceholder', 'Position (e.g. CEO, Manager)')}
           type="text"
           placeholder={t('contacts.positionPlaceholder', 'Position (e.g. CEO, Manager)')}
           value={position}
@@ -128,6 +130,7 @@ export const ContactCustomField = ({ field, updateField, removeField, t }: Conta
     <div className="p-3 rounded-xl flex flex-col gap-2 bg-input-bg border border-border">
       <div className="flex items-center gap-2">
         <select
+          aria-label={t('contacts.fieldTypeLabel', 'Type')}
           value={field.type}
           onChange={(e) => {
             const newType = e.target.value as FieldType;
@@ -152,6 +155,7 @@ export const ContactCustomField = ({ field, updateField, removeField, t }: Conta
       </div>
       {field.type === 'phone' && (
         <select
+          aria-label={t('contacts.fieldSubtypeLabel', 'Subtype')}
           value={field.phoneSubtype || 'mobile'}
           onChange={(e) => updateField(field.id, { phoneSubtype: e.target.value as PhoneSubtype })}
           className={fieldControlClass}
@@ -166,6 +170,7 @@ export const ContactCustomField = ({ field, updateField, removeField, t }: Conta
         <div className="relative">
           <Plus size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
+            aria-label={t('contacts.fieldLabelPlaceholder', 'Label')}
             type="text"
             placeholder={t('contacts.fieldLabelPlaceholder', 'Label')}
             value={field.label}
@@ -175,6 +180,7 @@ export const ContactCustomField = ({ field, updateField, removeField, t }: Conta
         </div>
       )}
       <input
+        aria-label={t('contacts.fieldValue', 'Value')}
         type={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'}
         inputMode={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : undefined}
         autoComplete={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : undefined}

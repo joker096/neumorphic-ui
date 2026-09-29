@@ -912,7 +912,10 @@
     "profile": "Профиль",
     "removeField": "Удалить поле",
     "fieldLabelPlaceholder": "Название",
-    "shareQrAlt": "Ваш QR-код личности"
+    "shareQrAlt": "Ваш QR-код личности",
+    "fieldTypeLabel": "Тип",
+    "fieldSubtypeLabel": "Подтип",
+    "fieldValue": "Значение"
   },
   "header": {
     "copied": "Скопировано!",
@@ -1665,7 +1668,9 @@
     "blacklistCount": "{{n}} пользователей",
     "blacklistEmpty": "Пусто",
     "unblock": "Разблокировать",
-    "cacheAlreadyEmpty": "Нечего очищать"
+    "cacheAlreadyEmpty": "Нечего очищать",
+    "fieldTypeLabel": "Тип",
+    "fieldVisibility": "Видимость"
   },
   "gifSearch": {
     "searchPlaceholder": "Поиск GIF...",
@@ -1856,7 +1861,8 @@
     "websiteContactImported": "Новый веб-контакт",
     "syncCrm": "Синхронизировать CRM → с командой",
     "typeMessage": "Введите сообщение…",
-    "e2eAnonymous": "E2E шифрование · анонимные посетители"
+    "e2eAnonymous": "E2E шифрование · анонимные посетители",
+    "embedSnippet": "Код для встраивания"
   },
   "login": {
     "title": "Вод",
@@ -2173,20 +2179,7 @@
   },
   "integrations": {
     "notConnected": "Интеграция не подключена",
-    "notConnectedDesc": "Сервис «{{feature}}» требует бэкенд-адаптер. Подключите его через configureServices() в точке входа приложения.",
-    "title": "Интеграции",
-    "conflicts": "Конфликты",
-    "connect": "Подключить",
-    "health": "Состояние",
-    "import": "Импорт",
-    "runImport": "Запустить импорт",
-    "logs": "Журнал",
-    "mappings": "Сопоставления",
-    "provider": "Провайдер",
-    "name": "Название",
-    "baseUrl": "Базовый URL",
-    "apiKey": "API-ключ",
-    "entity": "Сущность"
+    "notConnectedDesc": "Сервис «{{feature}}» требует бэкенд-адаптер. Подключите его через configureServices() в точке входа приложения."
   },
   "workplace": {
     "tabTasks": "Задачи",
@@ -2297,7 +2290,9 @@
     "create": "Создать заявку на оплату",
     "sendToChat": "Отправить оплату в чат",
     "menuTitle": "Заявки на оплату",
-    "menuSubtitle": "Создание и отслеживание криптооплаты"
+    "menuSubtitle": "Создание и отслеживание криптооплаты",
+    "amount": "Сумма",
+    "currency": "Валюта"
   },
   "premium": {
     "title": "Премиум",
@@ -2374,7 +2369,9 @@
     "linkShared": "Ссылка на оплату отправлена",
     "completePayment": "Завершите оплату",
     "copied": "Скопировано",
-    "copy": "Копировать"
+    "copy": "Копировать",
+    "amount": "Сумма",
+    "currency": "Валюта"
   },
   "dataState": {
     "partial": "Часть данных недоступна",

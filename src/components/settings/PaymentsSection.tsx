@@ -152,6 +152,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
               </div>
               <div className="flex gap-2 mb-2">
                 <input
+                  aria-label={t('payments.amount', 'Amount')}
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
@@ -159,6 +160,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
                   className={`flex-1 min-w-0 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-slate-300 text-slate-900'}`}
                 />
                 <input
+                  aria-label={t('payments.currency', 'Currency')}
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value.toUpperCase())}
                   maxLength={6}

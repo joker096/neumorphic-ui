@@ -31,6 +31,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
       </div>
 
       <select
+        aria-label={t('settings.fieldVisibility', 'Visibility')}
         value={newFieldVisibility}
         onChange={(e) => onVisibilityChange(e.target.value as FieldVisibility)}
          className="w-full min-h-11 rounded-lg text-xs outline-none px-3 bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-color)]"
@@ -44,6 +45,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
         <div key={field.id} className="p-3 rounded-lg flex flex-col gap-2 bg-[var(--bg-secondary)] border border-[var(--border-color)]">
           <div className="flex items-center gap-2">
             <select
+              aria-label={t('settings.fieldTypeLabel', 'Type')}
               value={field.type}
               onChange={(e) => onUpdate(field.id, { type: e.target.value as ProfileField['type'] })}
               className="min-h-11 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
@@ -53,6 +55,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
               ))}
             </select>
             <select
+              aria-label={t('settings.fieldVisibility', 'Visibility')}
               value={field.visibility}
               onChange={(e) => onUpdate(field.id, { visibility: e.target.value as FieldVisibility })}
               className="min-h-11 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
@@ -73,6 +76,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
           </div>
           {field.type === 'custom' && (
             <input
+              aria-label={t('settings.customLabelPlaceholder', 'Label')}
               type="text"
               placeholder={t('settings.customLabelPlaceholder', 'Label')}
               value={field.label}
@@ -81,6 +85,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
             />
           )}
           <input
+            aria-label={t('settings.genericValuePlaceholder', 'Value')}
             type="text"
             placeholder={
               field.type === 'phone' ? t('settings.phonePlaceholder', '+7 999 123-45-67') :

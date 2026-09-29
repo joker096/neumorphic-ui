@@ -43,6 +43,7 @@ export const CreateBotModal = ({ theme = 'dark', onClose, onCreated }: CreateBot
       <div className="flex flex-col gap-2">
           <label className={modalLabelClass}>{t('createBot.nameLabel')}</label>
          <input
+           aria-label={t('createBot.namePlaceholder')}
           autoFocus
           value={name}
           onChange={e => setName(e.target.value)}

@@ -912,7 +912,10 @@
     "profile": "资料",
     "removeField": "删除字段",
     "fieldLabelPlaceholder": "标签",
-    "shareQrAlt": "Your identity QR code"
+    "shareQrAlt": "Your identity QR code",
+    "fieldTypeLabel": "类型",
+    "fieldSubtypeLabel": "子类型",
+    "fieldValue": "值"
   },
   "header": {
     "copied": "已复制！",
@@ -1665,7 +1668,9 @@
     "blacklistCount": "{{n}} 位用户",
     "blacklistEmpty": "空",
     "unblock": "解除屏蔽",
-    "cacheAlreadyEmpty": "无需清理"
+    "cacheAlreadyEmpty": "无需清理",
+    "fieldTypeLabel": "类型",
+    "fieldVisibility": "可见性"
   },
   "gifSearch": {
     "searchPlaceholder": "搜索 GIF…",
@@ -1856,7 +1861,8 @@
     "websiteContactImported": "新网站联系人",
     "syncCrm": "同步 CRM 至团队",
     "typeMessage": "输入消息…",
-    "e2eAnonymous": "E2E 加密 · 匿名访客"
+    "e2eAnonymous": "E2E 加密 · 匿名访客",
+    "embedSnippet": "嵌入代码"
   },
   "login": {
     "title": "登录",
@@ -2173,20 +2179,7 @@
   },
   "integrations": {
     "notConnected": "集成未连接",
-    "notConnectedDesc": "服务 «{{feature}}» 需要后端适配器。请在应用入口通过 configureServices() 连接。",
-    "title": "集成",
-    "conflicts": "冲突",
-    "connect": "连接",
-    "health": "状态",
-    "import": "导入",
-    "runImport": "运行导入",
-    "logs": "日志",
-    "mappings": "映射",
-    "provider": "提供商",
-    "name": "名称",
-    "baseUrl": "基础 URL",
-    "apiKey": "API 密钥",
-    "entity": "实体"
+    "notConnectedDesc": "服务 «{{feature}}» 需要后端适配器。请在应用入口通过 configureServices() 连接。"
   },
   "workplace": {
     "tabTasks": "任务",
@@ -2297,7 +2290,9 @@
     "create": "Create payment request",
     "sendToChat": "Send payment to chat",
     "menuTitle": "Payment Requests",
-    "menuSubtitle": "Create & track crypto payments"
+    "menuSubtitle": "Create & track crypto payments",
+    "amount": "金额",
+    "currency": "货币"
   },
   "premium": {
     "title": "高级版",
@@ -2374,7 +2369,9 @@
     "linkShared": "付款链接已分享",
     "completePayment": "完成您的付款",
     "copied": "已复制",
-    "copy": "复制"
+    "copy": "复制",
+    "amount": "金额",
+    "currency": "货币"
   },
   "dataState": {
     "partial": "部分数据不可用",

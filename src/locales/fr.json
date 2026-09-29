@@ -912,7 +912,10 @@
     "profile": "Profil",
     "removeField": "Supprimer le champ",
     "fieldLabelPlaceholder": "Étiquette",
-    "shareQrAlt": "Votre code QR d'identité"
+    "shareQrAlt": "Votre code QR d'identité",
+    "fieldTypeLabel": "Type",
+    "fieldSubtypeLabel": "Sous-type",
+    "fieldValue": "Valeur"
   },
   "header": {
     "copied": "Copié !",
@@ -1665,7 +1668,9 @@
     "blacklistCount": "{{n}} utilisateurs",
     "blacklistEmpty": "Vide",
     "unblock": "Débloquer",
-    "cacheAlreadyEmpty": "Rien à vider"
+    "cacheAlreadyEmpty": "Rien à vider",
+    "fieldTypeLabel": "Type",
+    "fieldVisibility": "Visibilité"
   },
   "gifSearch": {
     "searchPlaceholder": "Rechercher des GIF...",
@@ -1856,7 +1861,8 @@
     "websiteContactImported": "Nouveau contact du site",
     "syncCrm": "Synchroniser CRM → équipe",
     "typeMessage": "Écrivez un message…",
-    "e2eAnonymous": "Chiffré E2E · visiteurs anonymes"
+    "e2eAnonymous": "Chiffré E2E · visiteurs anonymes",
+    "embedSnippet": "Extrait d’intégration"
   },
   "login": {
     "title": "Connexion",
@@ -2173,20 +2179,7 @@
   },
   "integrations": {
     "notConnected": "Intégration non connectée",
-    "notConnectedDesc": "Le service «{{feature}}» nécessite un adaptateur backend. Connectez-le via configureServices() au point d'entrée de l'application.",
-    "title": "Intégrations",
-    "conflicts": "Conflits",
-    "connect": "Connecter",
-    "health": "Santé",
-    "import": "Importer",
-    "runImport": "Lancer l'import",
-    "logs": "Journaux",
-    "mappings": "Correspondances",
-    "provider": "Fournisseur",
-    "name": "Nom",
-    "baseUrl": "URL de base",
-    "apiKey": "Clé API",
-    "entity": "Entité"
+    "notConnectedDesc": "Le service «{{feature}}» nécessite un adaptateur backend. Connectez-le via configureServices() au point d'entrée de l'application."
   },
   "workplace": {
     "tabTasks": "Tâches",
@@ -2297,7 +2290,9 @@
     "create": "Créer une demande de paiement",
     "sendToChat": "Envoyer le paiement dans le chat",
     "menuTitle": "Demandes de paiement",
-    "menuSubtitle": "Créer et suivre les paiements crypto"
+    "menuSubtitle": "Créer et suivre les paiements crypto",
+    "amount": "Montant",
+    "currency": "Devise"
   },
   "premium": {
     "title": "Premium",
@@ -2374,7 +2369,9 @@
     "linkShared": "Lien de paiement partagé",
     "completePayment": "Terminez votre paiement",
     "copied": "Copié",
-    "copy": "Copier"
+    "copy": "Copier",
+    "amount": "Montant",
+    "currency": "Devise"
   },
   "dataState": {
     "partial": "Certaines données indisponibles",

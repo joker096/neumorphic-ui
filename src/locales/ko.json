@@ -912,7 +912,10 @@
     "profile": "프로필",
     "removeField": "필드 삭제",
     "fieldLabelPlaceholder": "레이블",
-    "shareQrAlt": "Your identity QR code"
+    "shareQrAlt": "Your identity QR code",
+    "fieldTypeLabel": "유형",
+    "fieldSubtypeLabel": "하위 유형",
+    "fieldValue": "값"
   },
   "header": {
     "copied": "복사됨!",
@@ -1665,7 +1668,9 @@
     "blacklistCount": "{{n}}명",
     "blacklistEmpty": "비어 있음",
     "unblock": "차단 해제",
-    "cacheAlreadyEmpty": "지울 항목 없음"
+    "cacheAlreadyEmpty": "지울 항목 없음",
+    "fieldTypeLabel": "유형",
+    "fieldVisibility": "공개 범위"
   },
   "gifSearch": {
     "searchPlaceholder": "GIF 검색...",
@@ -1856,7 +1861,8 @@
     "websiteContactImported": "새 웹사이트 연락처",
     "syncCrm": "CRM → 팀 동기화",
     "typeMessage": "메시지 입력…",
-    "e2eAnonymous": "E2E 암호화 · 익명 방문자"
+    "e2eAnonymous": "E2E 암호화 · 익명 방문자",
+    "embedSnippet": "임베드 코드"
   },
   "login": {
     "title": "로그인",
@@ -2173,20 +2179,7 @@
   },
   "integrations": {
     "notConnected": "연동 연결 안 됨",
-    "notConnectedDesc": "서비스 «{{feature}}»는 백엔드 어댑터가 필요합니다. 애플리케이션 진입점에서 configureServices()를 통해 연결하세요.",
-    "title": "통합",
-    "conflicts": "충돌",
-    "connect": "연결",
-    "health": "상태",
-    "import": "가져오기",
-    "runImport": "가져오기 실행",
-    "logs": "로그",
-    "mappings": "매핑",
-    "provider": "제공자",
-    "name": "이름",
-    "baseUrl": "기본 URL",
-    "apiKey": "API 키",
-    "entity": "엔티티"
+    "notConnectedDesc": "서비스 «{{feature}}»는 백엔드 어댑터가 필요합니다. 애플리케이션 진입점에서 configureServices()를 통해 연결하세요."
   },
   "workplace": {
     "tabTasks": "작업",
@@ -2297,7 +2290,9 @@
     "create": "Create payment request",
     "sendToChat": "Send payment to chat",
     "menuTitle": "Payment Requests",
-    "menuSubtitle": "Create & track crypto payments"
+    "menuSubtitle": "Create & track crypto payments",
+    "amount": "금액",
+    "currency": "통화"
   },
   "premium": {
     "title": "프리미엄",
@@ -2374,7 +2369,9 @@
     "linkShared": "결제 링크 공유됨",
     "completePayment": "결제를 완료하세요",
     "copied": "복사됨",
-    "copy": "복사"
+    "copy": "복사",
+    "amount": "금액",
+    "currency": "통화"
   },
   "dataState": {
     "partial": "일부 데이터를 사용할 수 없음",

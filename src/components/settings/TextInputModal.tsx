@@ -60,6 +60,7 @@ export const TextInputModal = ({
             }`}
           >
           <input
+            aria-label={placeholder}
             ref={inputRef as any}
             type={type}
             value={value}

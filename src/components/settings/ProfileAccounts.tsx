@@ -103,6 +103,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                       {editDraft.name.charAt(0) || '?'}
                     </div>
                     <input
+                      aria-label={t('settings.newAccountPlaceholder', 'Account name...')}
                       autoFocus
                       type="text"
                       value={editDraft.name}
@@ -115,6 +116,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                   <div className="grid gap-2">
                     <label className={labelClass}>{t('settings.accountUsername', 'Username')}</label>
                     <input
+                      aria-label={t('settings.accountUsername', 'Username')}
                       type="text"
                       value={editDraft.username || ''}
                       onChange={(e) => setEditDraft((d) => ({ ...d, username: e.target.value }))}
@@ -126,6 +128,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                   <div className="grid gap-2">
                     <label className={labelClass}>{t('settings.accountBio', 'Bio')}</label>
                     <input
+                      aria-label={t('settings.accountBio', 'Bio')}
                       type="text"
                       value={editDraft.bio || ''}
                       onChange={(e) => setEditDraft((d) => ({ ...d, bio: e.target.value }))}
@@ -230,6 +233,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
           {showAddForm ? (
             <form onSubmit={handleSubmit} className={`p-3 rounded-2xl flex flex-col gap-2.5 border border-dashed ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`}>
               <input
+                aria-label={t('settings.newAccountPlaceholder', 'Account name...')}
                 autoFocus
                 type="text"
                 value={addDraft.name}
@@ -238,6 +242,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                 className={inputClass}
               />
               <input
+                aria-label={t('settings.accountUsername', 'Username')}
                 type="text"
                 value={addDraft.username || ''}
                 onChange={(e) => setAddDraft((d) => ({ ...d, username: e.target.value }))}
@@ -245,6 +250,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                 className={inputClass}
               />
               <input
+                aria-label={t('settings.accountBio', 'Bio')}
                 type="text"
                 value={addDraft.bio || ''}
                 onChange={(e) => setAddDraft((d) => ({ ...d, bio: e.target.value }))}

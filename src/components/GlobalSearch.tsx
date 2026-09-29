@@ -314,6 +314,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
         <div className={`flex items-center gap-2 px-4 py-3 border-b ${isDark ? "border-[var(--border-color)]" : "border-black/10"}`}>
           <Search size={18} className={isDark ? "text-[var(--text-tertiary)]" : "text-slate-400"} />
           <input
+            aria-label={t("search.placeholder", "Search chats, messages, contacts…")}
             ref={inputRef}
             value={query}
             onChange={(e) => { setQuery(e.target.value); setActiveIndex(-1); }}

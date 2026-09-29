@@ -299,6 +299,7 @@ export const CrmPeople: React.FC<Props> = ({
           </span>
           {can('assignManagers') && (
             <select
+              aria-label={t('crm.bulkAssign', CRM_FALLBACKS.bulkAssign)}
               value={bulkManager}
               onChange={(e) => setBulkManager(e.target.value)}
               className="min-h-11 px-2 rounded-xl bg-[var(--bg-primary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs"
@@ -324,6 +325,7 @@ export const CrmPeople: React.FC<Props> = ({
           {can('manageMembers') && (
             <div className="flex items-center gap-1.5">
               <input
+                aria-label={t('crm.bulkTagPlaceholder', CRM_FALLBACKS.bulkTagPlaceholder)}
                 value={bulkTag}
                 onChange={(e) => setBulkTag(e.target.value)}
                 placeholder={t('crm.bulkTagPlaceholder', CRM_FALLBACKS.bulkTagPlaceholder)}

@@ -79,6 +79,7 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
       >
         <div className="flex gap-2 mb-2">
           <input
+            aria-label={t('payRequests.amount', 'Amount')}
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -88,6 +89,7 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
             }`}
           />
           <input
+            aria-label={t('payRequests.currency', 'Currency')}
             value={currency}
             onChange={(e) => setCurrency(e.target.value.toUpperCase())}
             maxLength={6}
@@ -97,6 +99,7 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
           />
         </div>
         <input
+          aria-label={t('payRequests.descPlaceholder', 'Description (optional)')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t('payRequests.descPlaceholder', 'Description (optional)')}

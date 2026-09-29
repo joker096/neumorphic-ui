@@ -168,6 +168,7 @@ export const ChannelCommentsView = ({
               className={`flex items-center w-full h-12 rounded-full px-4 relative ${isDark ? 'bg-[var(--bg-secondary)] border border-[var(--border-color)]' : 'bg-white border border-[var(--border-color)] shadow-[inset_1px_1px_3px_rgba(165,175,190,0.1)]'}`}
             >
               <input
+                aria-label={t('channelComments.placeholder')}
                 type="text"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}

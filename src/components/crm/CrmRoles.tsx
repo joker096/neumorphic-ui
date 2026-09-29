@@ -46,7 +46,7 @@ export const CrmRoles: React.FC = () => {
         </div>
         {can('manageDepartments') && (
           <div className="flex gap-2 mb-2 px-1">
-            <input value={depName} onChange={(e) => setDepName(e.target.value)} placeholder={t('crm.departmentName', 'Department name')} className={inputCls} />
+            <input aria-label={t('crm.departmentName', 'Department name')} value={depName} onChange={(e) => setDepName(e.target.value)} placeholder={t('crm.departmentName', 'Department name')} className={inputCls} />
             <button onClick={() => { if (depName.trim()) { addDepartment(depName.trim(), DEP_COLORS[departments.length % DEP_COLORS.length]); setDepName(''); toast.success(t('crm.departmentCreated', 'Department created')); } }} className="min-h-11 px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer">
               <Plus size={16} />
             </button>
@@ -62,12 +62,13 @@ export const CrmRoles: React.FC = () => {
             <div key={d.id} className="flex items-center gap-2 p-2.5 rounded-xl border border-[var(--border-color)]">
               <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${d.color} shrink-0`} />
               {can('manageDepartments') ? (
-                <input value={d.name} onChange={(e) => updateDepartment(d.id, { name: e.target.value })} className={`${inputCls} flex-1`} />
+                <input aria-label={t('crm.departmentName', 'Department name')} value={d.name} onChange={(e) => updateDepartment(d.id, { name: e.target.value })} className={`${inputCls} flex-1`} />
               ) : (
                 <span className="flex-1 font-bold text-sm text-[var(--text-primary)]">{d.name}</span>
               )}
               {can('manageDepartments') && (
                 <select
+                  aria-label={t('crm.departmentLead', CRM_FALLBACKS.departmentLead)}
                   value={d.leadId ?? ''}
                   onChange={(e) => updateDepartment(d.id, { leadId: e.target.value || null })}
                   className={inputCls}
@@ -93,7 +94,7 @@ export const CrmRoles: React.FC = () => {
         </div>
         {can('manageRoles') && (
           <div className="flex gap-2 mb-2 px-1">
-            <input value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder={t('crm.roleName', CRM_FALLBACKS.roleName)} className={inputCls} />
+            <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder={t('crm.roleName', CRM_FALLBACKS.roleName)} className={inputCls} />
             <button onClick={() => { if (roleName.trim()) { addCustomRole(roleName.trim()); setRoleName(''); toast.success(t('crm.roleCreated', 'Role created')); } }} className="min-h-11 px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer">
               <Plus size={16} />
             </button>
@@ -109,7 +110,7 @@ export const CrmRoles: React.FC = () => {
             <div key={r.id} className="p-2.5 rounded-xl border border-[var(--border-color)]">
               <div className="flex items-center gap-2 mb-2">
                 {can('manageRoles') ? (
-                  <input value={r.name} onChange={(e) => updateCustomRole(r.id, { name: e.target.value })} className={`${inputCls} flex-1`} />
+                  <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={r.name} onChange={(e) => updateCustomRole(r.id, { name: e.target.value })} className={`${inputCls} flex-1`} />
                 ) : (
                   <span className="flex-1 font-bold text-sm text-[var(--text-primary)]">{r.name}</span>
                 )}

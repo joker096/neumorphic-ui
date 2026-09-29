@@ -79,12 +79,12 @@ export const CreateChannelModal = ({ theme = 'dark', onClose }: { theme?: 'dark'
     <AppModal isOpen={true} onClose={onClose} isDark={isDark} title={t('createChannel.title')} maxWidth="max-w-sm">
       <div className="flex flex-col gap-2">
          <label className={modalLabelClass}>{t('createChannel.nameLabel')}</label>
-         <input autoFocus value={name} onChange={e => setName(e.target.value)} type="text" className={modalFieldClass} placeholder={t('createChannel.namePlaceholder')} />
+         <input aria-label={t('createChannel.namePlaceholder')} autoFocus value={name} onChange={e => setName(e.target.value)} type="text" className={modalFieldClass} placeholder={t('createChannel.namePlaceholder')} />
       </div>
 
       <div className="flex flex-col gap-2">
          <label className={modalLabelClass}>{t('createChannel.descriptionLabel')}</label>
-         <input value={desc} onChange={e => setDesc(e.target.value)} type="text" className={modalFieldClass} placeholder={t('createChannel.descriptionPlaceholder')} />
+         <input aria-label={t('createChannel.descriptionPlaceholder')} value={desc} onChange={e => setDesc(e.target.value)} type="text" className={modalFieldClass} placeholder={t('createChannel.descriptionPlaceholder')} />
       </div>
 
       <div className="flex gap-3 mt-2">

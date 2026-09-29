@@ -910,7 +910,10 @@
     "profile": "Profile",
     "removeField": "Remove field",
     "fieldLabelPlaceholder": "Label",
-    "shareQrAlt": "Your identity QR code"
+    "shareQrAlt": "Your identity QR code",
+    "fieldTypeLabel": "Type",
+    "fieldSubtypeLabel": "Subtype",
+    "fieldValue": "Value"
   },
   "header": {
     "copied": "Copied!",
@@ -1663,7 +1666,9 @@
     "blacklistCount": "{{n}} users",
     "blacklistEmpty": "Empty",
     "unblock": "Unblock",
-    "cacheAlreadyEmpty": "Nothing to clear"
+    "cacheAlreadyEmpty": "Nothing to clear",
+    "fieldTypeLabel": "Type",
+    "fieldVisibility": "Visibility"
   },
   "gifSearch": {
     "searchPlaceholder": "Search GIFs...",
@@ -1854,7 +1859,8 @@
     "websiteContactImported": "New website contact",
     "syncCrm": "Sync CRM → team",
     "typeMessage": "Type a message…",
-    "e2eAnonymous": "E2E encrypted · anonymous visitors"
+    "e2eAnonymous": "E2E encrypted · anonymous visitors",
+    "embedSnippet": "Embed snippet"
   },
   "login": {
     "title": "Login",
@@ -2171,20 +2177,7 @@
   },
   "integrations": {
     "notConnected": "Integration not connected",
-    "notConnectedDesc": "Service «{{feature}}» requires a backend adapter. Connect it via configureServices() at the application entry point.",
-    "title": "Integrations",
-    "conflicts": "Conflicts",
-    "connect": "Connect",
-    "health": "Health",
-    "import": "Import",
-    "runImport": "Run import",
-    "logs": "Logs",
-    "mappings": "Mappings",
-    "provider": "Provider",
-    "name": "Name",
-    "baseUrl": "Base URL",
-    "apiKey": "API key",
-    "entity": "Entity"
+    "notConnectedDesc": "Service «{{feature}}» requires a backend adapter. Connect it via configureServices() at the application entry point."
   },
   "workplace": {
     "tabTasks": "Tasks",
@@ -2295,7 +2288,9 @@
     "create": "Create payment request",
     "sendToChat": "Send payment to chat",
     "menuTitle": "Payment Requests",
-    "menuSubtitle": "Create & track crypto payments"
+    "menuSubtitle": "Create & track crypto payments",
+    "amount": "Amount",
+    "currency": "Currency"
   },
   "premium": {
     "title": "Premium",
@@ -2372,7 +2367,9 @@
     "linkShared": "Payment link shared",
     "completePayment": "Complete your payment",
     "copied": "Copied",
-    "copy": "Copy"
+    "copy": "Copy",
+    "amount": "Amount",
+    "currency": "Currency"
   },
   "dataState": {
     "partial": "Some data unavailable",

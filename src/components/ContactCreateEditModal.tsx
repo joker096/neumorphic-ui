@@ -88,6 +88,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
               {t('contacts.contactName')}
             </label>
             <input
+              aria-label={t('contacts.contactName')}
               type="text"
               autoFocus
               autoComplete="name"
@@ -102,6 +103,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
               {t('contacts.networkId')}
             </label>
             <input
+              aria-label={t('contacts.networkId')}
               type="text"
               autoComplete="off"
               placeholder={t('contacts.networkId')}

@@ -113,6 +113,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
               {t('company.departmentDescription', 'Description')}
             </label>
             <textarea
+              aria-label={t('company.departmentDescriptionPlaceholder', 'What does this department do?')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t('company.departmentDescriptionPlaceholder', 'What does this department do?')}
