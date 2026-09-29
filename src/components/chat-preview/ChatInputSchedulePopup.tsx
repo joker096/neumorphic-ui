@@ -32,6 +32,7 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
         </button>
       </div>
       <input
+        aria-label={t('chat.scheduleSend', 'Schedule send')}
         type="datetime-local"
         value={scheduleDateTime}
         onChange={(e) => setScheduleDateTime(e.target.value)}
