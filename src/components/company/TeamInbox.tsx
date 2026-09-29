@@ -237,6 +237,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
 
         <div className="p-3 border-t border-[var(--border-color)] flex items-center gap-2">
           <input
+            aria-label={t('company.typeMessage', 'Type a message…')}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => {

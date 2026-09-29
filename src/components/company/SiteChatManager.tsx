@@ -52,6 +52,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
     <div className="w-full flex flex-col gap-4">
       <div className="flex items-center gap-2">
         <input
+          aria-label={t('company.siteChatName', 'Site chat name (e.g. Sales)')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t('company.siteChatName', 'Site chat name (e.g. Sales)')}
@@ -129,6 +130,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold whitespace-nowrap">{t('company.greeting', 'Greeting message')}</span>
                   <input
+                    aria-label={t('company.greeting', 'Greeting message')}
                     value={sc.config.greeting}
                     onChange={(e) => saveConfig(sc.id, { greeting: e.target.value })}
                     placeholder={t('company.greeting', 'Greeting message')}
@@ -139,6 +141,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
               </div>
 
               <textarea
+                aria-label={t('company.embedSnippet', 'Embed snippet')}
                 readOnly
                 value={sc.snippet}
                 className="w-full h-20 rounded-xl p-2 text-xs bg-[var(--input-bg)] text-[var(--text-primary)] outline-none font-mono"

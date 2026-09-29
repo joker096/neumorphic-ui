@@ -196,12 +196,14 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
                 <span>{t('embed.contactTitle')}</span>
               </div>
               <input
+                aria-label={t('embed.contactName')}
                 value={contact.name}
                 onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))}
                 placeholder={t('embed.contactName')}
                 className="ew-field"
               />
               <input
+                aria-label={t('embed.contactEmail')}
                 value={contact.email}
                 onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))}
                 placeholder={t('embed.contactEmail')}
@@ -209,6 +211,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
                 className="ew-field"
               />
               <input
+                aria-label={t('embed.contactPhone')}
                 value={contact.phone}
                 onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))}
                 placeholder={t('embed.contactPhone')}
@@ -259,6 +262,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
           </div>
           <div className="ew-composer">
             <input
+              aria-label={t('embed.typeMessage')}
               ref={inputRef}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
