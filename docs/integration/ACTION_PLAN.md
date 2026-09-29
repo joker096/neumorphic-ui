@@ -5,9 +5,8 @@
 
 ## Immediate (this session started)
 
-1. **Frontend UI (sub-doc 16)** — additive, fits current app (`src/components`, NOT blueprint's `src/app`).
-   - Seed: `src/components/integrations/IntegrationsPanel.tsx` (lists `/api/v1/integrations`).
-   - Follow: connector list, connect wizard, mapping editor (preview via `POST /mappings/preview`), import run, conflicts resolve UI, logs view.
+1. **Frontend UI (sub-doc 16)** — NOT STARTED. The earlier `src/components/integrations/*` prototype panels (connect form, health, logs, mapping, conflicts, import) and `src/config/integrations.ts` were unconnected, unstyled scaffolding and were **deleted on 2026-09-28**; nothing in the app imported them. The server route `/api/v1/integrations` and `server/integrations/**` are untouched and still live. Rebuilding the UI means starting from the spec, not from the removed prototypes.
+   - Spec: `docs/integration/16_frontend_integrations_ui.md`; backend contract: `server/routes/integrations.ts`; path builder must be re-created (`/api/v1/integrations` + per-id subroutes).
 
 ## Blocking gate
 
