@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useAppStore } from '../store'
 import { useI18n } from '../lib/i18n'
+import { releaseMessageMedia } from '../lib/messageMedia'
 import { toast } from '../components/ui/Toast'
 
 interface UseChatMessageActionsArgs {
@@ -30,9 +31,13 @@ export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateCha
   const handleDeleteMessage = useCallback(
     (msg: any) => {
       if (onDelete) {
+        // A delegated host owns the whole removal, media included — releasing here
+        // would be a guess about what it does with the message.
         onDelete(msg);
         return;
       }
+      // Drop the bytes/URLs the bubble owned before the store no longer knows about it.
+      void releaseMessageMedia([msg]);
       const chats = useAppStore.getState().chats as any[]
       const nextChats = chats.map((c) =>
         c.id === chatId
@@ -87,8 +92,14 @@ export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateCha
   )
 
   const handleDeleteSelected = useCallback(
-    (messages: any[]) => {
+    (_messages: any[]) => {
       const chats = useAppStore.getState().chats as any[]
+      // Read the doomed bubbles from the same source the removal below filters,
+      // so the erased set can never drift from the removed set.
+      const doomed = (chats.find((c) => c.id === chatId)?.history ?? []).filter((m: any) =>
+        selectedIds.has(m.id),
+      )
+      void releaseMessageMedia(doomed)
       const nextChats = chats.map((c) =>
         c.id === chatId
           ? {

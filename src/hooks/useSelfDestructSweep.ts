@@ -1,13 +1,10 @@
 import { useEffect } from "react";
 import { useAppStore } from "../store";
-import { deleteVoiceBlob } from "../lib/voiceStore";
-import { deleteTransfer } from "../lib/fileTransfer/fileStore";
+import { releaseMessageMedia } from "../lib/messageMedia";
 import {
-  mergeExpiredMedia,
   nextSelfDestructDeadlineInLists,
   purgeExpiredLists,
   purgeExpiredSaved,
-  type ExpiredMedia,
 } from "../lib/selfDestruct";
 
 export interface SelfDestructSweepArgs {
@@ -15,26 +12,6 @@ export interface SelfDestructSweepArgs {
   activeChat?: any;
   setActiveChat?: (chat: any) => void;
   setSavedMessages?: (updater: (prev: any[]) => any[]) => void;
-}
-
-/** Best-effort media erasure: a purged bubble must not leave bytes behind. */
-async function eraseMedia(media: ExpiredMedia): Promise<void> {
-  await Promise.all([
-    ...media.voiceIds.map(async (id) => {
-      try {
-        await deleteVoiceBlob(id);
-      } catch {
-        /* keep sweeping */
-      }
-    }),
-    ...media.transferIds.map(async (id) => {
-      try {
-        await deleteTransfer(id);
-      } catch {
-        /* keep sweeping */
-      }
-    }),
-  ]);
 }
 
 /**
@@ -59,8 +36,9 @@ export function useSelfDestructSweep(args: SelfDestructSweepArgs = {}): void {
       const state = useAppStore.getState();
       const chatsResult = purgeExpiredLists(state.chats, now);
       const channelsResult = purgeExpiredLists(state.channels, now);
+      const purged = [...chatsResult.purged, ...channelsResult.purged];
       const purgedIds = new Set<string | number>();
-      for (const msg of [...chatsResult.purged, ...channelsResult.purged]) purgedIds.add(msg?.id);
+      for (const msg of purged) purgedIds.add(msg?.id);
 
       if (purgedIds.size) {
         if (chatsResult.purged.length) state.setChats(chatsResult.value);
@@ -74,10 +52,8 @@ export function useSelfDestructSweep(args: SelfDestructSweepArgs = {}): void {
         }
       }
 
-      const media: ExpiredMedia = { voiceIds: [], transferIds: [] };
-      mergeExpiredMedia(media, chatsResult.media);
-      mergeExpiredMedia(media, channelsResult.media);
-      if (media.voiceIds.length || media.transferIds.length) void eraseMedia(media);
+      // A purged bubble must not leave bytes or object URLs behind.
+      if (purged.length) void releaseMessageMedia(purged);
     };
 
     const schedule = () => {

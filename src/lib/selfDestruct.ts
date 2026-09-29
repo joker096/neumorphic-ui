@@ -117,7 +117,14 @@ function transferIdOf(value: unknown): string | null {
   return id || null;
 }
 
-function collectMedia(msg: any, media: ExpiredMedia): void {
+/**
+ * Record the storage ids a message owns: the voice blob key and every
+ * file-transfer id (direct field, inline `ftr1:` attachment, album entries).
+ *
+ * Pure — no storage access — so both the expiry sweep and the manual delete
+ * path can collect ids first and erase them through `messageMedia`.
+ */
+export function collectMessageMedia(msg: any, media: ExpiredMedia): void {
   const voiceId = msg?.voiceId ?? (msg?.type === "audio" ? msg?.id : undefined);
   if (voiceId !== undefined && voiceId !== null && !media.voiceIds.includes(voiceId)) {
     media.voiceIds.push(voiceId);
@@ -170,7 +177,7 @@ export function purgeExpiredHistory(history: any[] | undefined, now: number): Pu
   for (const msg of history) {
     if (isSelfDestructExpired(msg, now)) {
       purged.push(msg);
-      collectMedia(msg, media);
+      collectMessageMedia(msg, media);
     } else {
       kept.push(msg);
     }
