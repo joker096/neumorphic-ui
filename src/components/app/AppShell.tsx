@@ -36,6 +36,8 @@ export interface AppShellProps {
   setActiveFolder: (folder: string) => void;
   chatSearchQuery: string;
   setChatSearchQuery: (query: string) => void;
+  chatSortBy: "recent" | "alpha";
+  setChatSortBy: (sort: "recent" | "alpha") => void;
   filteredChats: any[];
   filteredChannels: any[];
   bots: any[];
@@ -100,6 +102,8 @@ function AppShellImpl({
   setActiveFolder,
   chatSearchQuery,
   setChatSearchQuery,
+  chatSortBy,
+  setChatSortBy,
   filteredChats,
   filteredChannels,
   bots,
@@ -160,6 +164,8 @@ function AppShellImpl({
     setActiveFolder,
     chatSearchQuery,
     setChatSearchQuery,
+    chatSortBy,
+    setChatSortBy,
     filteredChats,
     filteredChannels,
     bots,

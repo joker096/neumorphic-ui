@@ -451,6 +451,24 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
     }
   });
 
+  describe('chat.sort keys translations', () => {
+    const sortKeys = [
+      'chat.sortByName', 'chat.sortByRecent', 'chat.selfDestructTimer',
+      'chat.format.title', 'chat.format.bold', 'chat.format.italic',
+      'chat.format.strike', 'chat.format.spoiler', 'chat.format.code',
+    ];
+
+    for (const lang of allLocales) {
+      for (const key of sortKeys) {
+        it(`"${key}" translates in ${lang}`, () => {
+          const val = getTranslation(key, lang);
+          expect(val).not.toBe(key);
+          expect(val.trim().length).toBeGreaterThan(0);
+        });
+      }
+    }
+  });
+
   describe('contacts.* keys translations', () => {
     const contactKeys = [
       'contacts.activeNow', 'contacts.addContact', 'contacts.allTab', 'contacts.blockSpammer', 'contacts.moreActions',

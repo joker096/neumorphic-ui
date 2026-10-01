@@ -252,7 +252,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 </span>
               </button>
               {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
-                <div className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-[3px] ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || contact.lastSeen < ACTIVE_NOW_THRESHOLD_MS) ? "bg-green-500" : "bg-gray-400"}`} />
+                <div className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-[3px] ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || (contact.lastSeen > 0 && contact.lastSeen < ACTIVE_NOW_THRESHOLD_MS)) ? "bg-green-500" : "bg-gray-400"}`} />
               )}
               {photoMenuOpen && (
                 <>

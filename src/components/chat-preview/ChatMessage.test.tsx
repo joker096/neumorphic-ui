@@ -14,6 +14,7 @@ const h = vi.hoisted(() => ({
   detectLang: vi.fn(),
   translate: vi.fn(),
   executeEditMessage: vi.fn(),
+  uiLang: 'en-US',
 }));
 
 vi.mock('../../hooks/useMessageActions', () => ({
@@ -30,7 +31,7 @@ vi.mock('motion/react', () => ({
   },
 }));
 vi.mock('../../lib/icqEmojis', () => ({ getICQStickerSrc: () => 'sticker-url' }));
-vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t }) }));
+vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t, lang: h.uiLang }) }));
 vi.mock('../../services', () => ({
   useServices: () => ({ translate: { detectLang: h.detectLang, translate: h.translate } }),
 }));
@@ -252,14 +253,19 @@ describe('ChatMessage', () => {
     expect(screen.getByTestId('reply-quote')).toBeInTheDocument();
   });
 
-  it('renders link preview for URL in text', () => {
+  it('keeps URL text and drops the fake preview card', () => {
+    // The old "LINK PREVIEW" box only echoed the URL that FormattedText already
+    // renders as an <a>, so it promised a preview and delivered none. Note
+    // FormattedText is mocked to plain text in this file, so the clickable-link
+    // contract itself is covered in FormattedText.test.tsx.
     render(<ChatMessage {...baseProps({ msg: { id: 5, text: 'see https://example.com now', _isLastInGroup: true } })} />);
-    expect(screen.getByText('https://example.com')).toBeInTheDocument();
+    expect(screen.getByTestId('formatted-text')).toHaveTextContent('https://example.com');
+    expect(screen.queryByText('Link Preview')).not.toBeInTheDocument();
   });
 
-  it('skips link preview without URL', () => {
+  it('renders no URL markup when the text has no link', () => {
     render(<ChatMessage {...baseProps({ msg: { id: 6, text: 'plain text', _isLastInGroup: true } })} />);
-    expect(screen.queryByText(/https?:\/\//)).not.toBeInTheDocument();
+    expect(screen.getByTestId('formatted-text').textContent).not.toMatch(/https?:\/\//);
   });
 
   it('renders keyboard rows and fires onAction', () => {
@@ -389,14 +395,25 @@ describe('ChatMessage', () => {
     expect(onReply).toHaveBeenCalledWith({ id: 1, text: 'hello', _isLastInGroup: false });
   });
 
-  it('translates message and shows translation', async () => {
+  it('translates message into the UI language and shows translation', async () => {
     h.detectLang.mockResolvedValue('en');
     h.translate.mockResolvedValue('Привет');
     render(<ChatMessage {...baseProps()} />);
     await act(async () => { await h.menuArgs.onTranslate(); });
     expect(h.detectLang).toHaveBeenCalledWith('hello');
-    expect(h.translate).toHaveBeenCalledWith('hello', 'en', 'ru');
+    // Target follows the UI language — was hardcoded to 'ru'.
+    expect(h.translate).toHaveBeenCalledWith('hello', 'en', 'en-US');
     await waitFor(() => expect(screen.getByText('Привет')).toBeInTheDocument());
+  });
+
+  it('translates into a non-Russian UI language when the user switches', async () => {
+    h.uiLang = 'de-DE';
+    h.detectLang.mockResolvedValue('en');
+    h.translate.mockResolvedValue('Hallo');
+    render(<ChatMessage {...baseProps()} />);
+    await act(async () => { await h.menuArgs.onTranslate(); });
+    expect(h.translate).toHaveBeenCalledWith('hello', 'en', 'de-DE');
+    h.uiLang = 'en-US';
   });
 
   it('toasts when translation unavailable', async () => {

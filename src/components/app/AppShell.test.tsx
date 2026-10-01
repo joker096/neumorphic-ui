@@ -80,6 +80,8 @@ const baseProps: AppShellProps = {
   setActiveFolder: vi.fn(),
   chatSearchQuery: "",
   setChatSearchQuery: vi.fn(),
+  chatSortBy: "recent",
+  setChatSortBy: vi.fn(),
   filteredChats: [],
   filteredChannels: [],
   bots: [],

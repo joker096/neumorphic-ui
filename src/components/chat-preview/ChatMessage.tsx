@@ -81,7 +81,7 @@ function ChatMessageImpl({
   }, []);
   const [editing, setEditing] = React.useState(false);
   const [draftText, setDraftText] = React.useState("");
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { translate } = useServices();
   const isGroupFirst =
     msg._groupPosition === "first" || msg._groupPosition === "single";
@@ -146,18 +146,14 @@ function ChatMessageImpl({
     () => (msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null),
     [msg.text, msg.type, theme],
   );
-  const linkPreview = React.useMemo(() => {
-    if (typeof msg.text !== "string") return null;
-    const match = msg.text.match(/https?:\/\/[^\s]+/i);
-    return match?.[0] ?? null;
-  }, [msg.text]);
   const bubbleCornerClass = getBubbleCornerClass(msg._groupPosition as GroupPosition, isMe);
 
   const handleTranslate = async () => {
     setTranslating(true);
     try {
       const from = await translate.detectLang(msg.text);
-      setTranslation(await translate.translate(msg.text, from, "ru"));
+      // Translate into the UI language, not a hardcoded target.
+      setTranslation(await translate.translate(msg.text, from, lang));
     } catch {
       toast(t("chat.translateNotConfigured", "Перевод не подключён"));
     } finally {
@@ -318,12 +314,6 @@ function ChatMessageImpl({
             >
               {morseDecoded ? "••• / −−−" : t("chat.morseSample", "AБВ")}
             </button>
-          )}
-          {linkPreview && (
-            <div className={`mt-2 p-2 rounded-xl border text-xs ${isDark ? "bg-white/5 border-[var(--border-color)] text-gray-300" : "bg-slate-50 border-[var(--border-color)] text-slate-600"}`}>
-              <div className="font-bold uppercase tracking-widest text-xs opacity-70 mb-1">{t('chat.linkPreview')}</div>
-              <div className="break-all line-clamp-2">{linkPreview}</div>
-            </div>
           )}
           {msg.keyboard && (
             <div className="flex flex-col gap-1.5 mt-3 mb-1 w-full shrink-0">

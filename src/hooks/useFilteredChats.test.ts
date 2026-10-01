@@ -250,4 +250,44 @@ describe('useFilteredChats', () => {
 
     expect(result.current.filteredChats.map(c => c.name)).toEqual(['Team']);
   });
+
+  describe('sorting', () => {
+    const sortArgs = { hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false };
+    const chats = [
+      { id: 1, name: 'Carol', message: 'x', history: [], unread: 0 },
+      { id: 2, name: 'alice', message: 'x', history: [], unread: 0 },
+      { id: 3, name: 'Bob', message: 'x', history: [], unread: 0 },
+    ];
+
+    it('keeps store insertion order by default', () => {
+      const { result } = renderHook(() =>
+        useFilteredChats(chats, '', 'all', [], sortArgs, []),
+      );
+      expect(result.current.filteredChats.map(c => c.name)).toEqual(['Carol', 'alice', 'Bob']);
+    });
+
+    it('orders by name when sortBy is alpha, case-insensitively', () => {
+      const { result } = renderHook(() =>
+        useFilteredChats(chats, '', 'all', [], sortArgs, [], [], false, 'alpha'),
+      );
+      expect(result.current.filteredChats.map(c => c.name)).toEqual(['alice', 'Bob', 'Carol']);
+    });
+
+    it('does not mutate the input array when sorting', () => {
+      const input = [...chats];
+      renderHook(() => useFilteredChats(input, '', 'all', [], sortArgs, [], [], false, 'alpha'));
+      expect(input.map(c => c.name)).toEqual(['Carol', 'alice', 'Bob']);
+    });
+
+    it('sorts channels by name too', () => {
+      const channels = [
+        { id: 'c2', name: 'Zeta', history: [] },
+        { id: 'c1', name: 'Alpha', history: [] },
+      ];
+      const { result } = renderHook(() =>
+        useFilteredChats([], '', 'all', [], sortArgs, channels, [], false, 'alpha'),
+      );
+      expect(result.current.filteredChannels.map(c => c.name)).toEqual(['Alpha', 'Zeta']);
+    });
+  });
 });

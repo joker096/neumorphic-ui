@@ -6,6 +6,17 @@ const PERSONAL = CHAT_FOLDER_KEYS[1];
 const WORK = CHAT_FOLDER_KEYS[3];
 const GROUPS = CHAT_FOLDER_KEYS[4];
 
+/**
+ * Ordering of the chat list.
+ *  - `recent` — store insertion order (newest chat first). The default, and the
+ *    only honest "recent" we have: chats carry no numeric timestamp, `chat.time`
+ *    is a preformatted display string ("10:42" / "Yesterday"), so it cannot be
+ *    ordered against. A real recency sort needs a timestamp plumbed through the
+ *    whole send path (chatSlice + send hooks + IDB + wire format).
+ *  - `alpha`   — by chat name, locale-aware. Telegram calls this "By name".
+ */
+export type ChatSortBy = 'recent' | 'alpha';
+
 export function useFilteredChats(
   currentChatList: any[],
   chatSearchQuery: string,
@@ -14,7 +25,8 @@ export function useFilteredChats(
   advancedFilters: any,
   channels: any[],
   contacts: any[] = [],
-  spamFilter = false
+  spamFilter = false,
+  sortBy: ChatSortBy = 'recent',
 ) {
   const MENTIONED_USER = "user";
 
@@ -102,5 +114,21 @@ export function useFilteredChats(
     return true;
   }), [channels, chatSearchQuery, activeFolder, archivedChats]);
 
-  return { filteredChats, filteredChannels, mentionCounts };
+  const sortedChats = useMemo(() => {
+    if (sortBy !== 'alpha') return filteredChats;
+    // Copy first — `filteredChats` items are the live store objects, and sort
+    // must not mutate the array that came out of the filter.
+    return [...filteredChats].sort((a, b) =>
+      String(a.name ?? '').localeCompare(String(b.name ?? ''), undefined, { sensitivity: 'base' })
+    );
+  }, [filteredChats, sortBy]);
+
+  const sortedChannels = useMemo(() => {
+    if (sortBy !== 'alpha') return filteredChannels;
+    return [...filteredChannels].sort((a, b) =>
+      String(a.name ?? '').localeCompare(String(b.name ?? ''), undefined, { sensitivity: 'base' })
+    );
+  }, [filteredChannels, sortBy]);
+
+  return { filteredChats: sortedChats, filteredChannels: sortedChannels, mentionCounts };
 }

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from "react";
-import { Search, Trash2 } from "lucide-react";
+import { Search, Trash2, ArrowDownAZ } from "lucide-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { SearchInput } from "./ui/SearchInput";
 import { OnboardingPanel } from "./ui/OnboardingPanel";
@@ -19,6 +19,8 @@ interface ChatListViewProps {
   view: string;
   activeFolder: string;
   setActiveFolder: (folder: string) => void;
+  chatSortBy?: "recent" | "alpha";
+  setChatSortBy?: (sort: "recent" | "alpha") => void;
   chatSearchQuery: string;
   setChatSearchQuery: (query: string) => void;
   filteredChats: any[];
@@ -61,6 +63,8 @@ export const ChatListView = ({
   view,
   activeFolder,
   setActiveFolder,
+  chatSortBy = "recent",
+  setChatSortBy,
   chatSearchQuery,
   setChatSearchQuery,
   filteredChats,
@@ -209,7 +213,10 @@ export const ChatListView = ({
                 id: profileContact?.id ?? chat.id,
                 name: chat.name,
                 color: chat.color,
-                lastSeen: chat.online ? 0 : Date.now() - 3600000,
+                // Real liveness only: useChatPresence stamps chat.lastSeen on peer
+                // disconnect and real contacts carry it from creation/import.
+                // 0 = unknown, which ContactProfileModal renders as "—".
+                lastSeen: chat.online ? 0 : (chat.lastSeen ?? profileContact?.lastSeen ?? 0),
                 online: chat.online,
                 isFavorite: chat.isFavorite,
                 localFields: profileContact?.localFields
@@ -239,14 +246,39 @@ export const ChatListView = ({
       <ViewTabs view={view} isDark={isDark} onSelect={setView} t={t} />
 
       {view === "chats" && (
-        <FolderFilterBar
-          isDark={isDark}
-          activeFolder={activeFolder}
-          setActiveFolder={setActiveFolder}
-          advancedFilters={advancedFilters}
-          setShowAdvancedFilterModal={setShowAdvancedFilterModal}
-          t={t}
-        />
+        <>
+          <FolderFilterBar
+            isDark={isDark}
+            activeFolder={activeFolder}
+            setActiveFolder={setActiveFolder}
+            advancedFilters={advancedFilters}
+            setShowAdvancedFilterModal={setShowAdvancedFilterModal}
+            t={t}
+          />
+          {setChatSortBy && (
+            <div className="flex justify-end pb-2 -mt-1">
+              <button
+                type="button"
+                onClick={() => setChatSortBy(chatSortBy === "alpha" ? "recent" : "alpha")}
+                aria-pressed={chatSortBy === "alpha"}
+                aria-label={chatSortBy === "alpha" ? t("chat.sortByRecent", "Sort by date") : t("chat.sortByName", "Sort by name")}
+                title={chatSortBy === "alpha" ? t("chat.sortByRecent", "Sort by date") : t("chat.sortByName", "Sort by name")}
+                className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full active:scale-95"
+              >
+                <span className={`px-3 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1 transition-colors ${
+                  chatSortBy === "alpha"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                    : isDark
+                      ? "bg-white/5 text-[var(--text-tertiary)]"
+                      : "bg-black/5 text-[var(--text-tertiary)]"
+                }`}>
+                  <ArrowDownAZ size={12} aria-hidden="true" />
+                  {chatSortBy === "alpha" ? t("chat.sortByName", "By name") : t("chat.sortByRecent", "By date")}
+                </span>
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {view === "chats" && <AvatarRow theme={theme} onStoryClick={setActiveStory} onComposeStory={onComposeStory} t={t} />}
