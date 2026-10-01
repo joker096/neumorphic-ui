@@ -166,6 +166,16 @@ export interface SettingsSlice {
   spamFilter: boolean;
   mediaAutoLoad: string;
   selfDestructDefault: string;
+  /**
+   * Per-chat timer overrides, keyed by stringified chat id.
+   *
+   * Session-only on purpose: nothing here is written to `localStorage`, so a
+   * reload falls back to `selfDestructDefault`. Storing `"Off"` is meaningful —
+   * it disables the timer for that chat *despite* a global default, so the
+   * entry must not be dropped when the value is falsy.
+   */
+  chatSelfDestruct: Record<string, string>;
+  setChatSelfDestruct: (chatId: string | number, timer: string | undefined) => void;
   obfuscationEnabled: boolean;
   relayBackend: string;
   autoReconnect: boolean;
@@ -249,6 +259,7 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   spamFilter: savedPrivacySettings.spamFilter ?? true,
   mediaAutoLoad: savedPrivacySettings.mediaAutoLoad ?? 'Wi-Fi',
   selfDestructDefault: savedPrivacySettings.selfDestructDefault ?? 'Off',
+  chatSelfDestruct: {},
   obfuscationEnabled: savedPrivacySettings.obfuscationEnabled ?? true,
   relayBackend: savedPrivacySettings.relayBackend ?? 'direct',
   autoReconnect: savedPrivacySettings.autoReconnect ?? true,
@@ -295,6 +306,10 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   setSelfDestructDefault: (v) => {
     set({ selfDestructDefault: v });
     persistSetting('selfDestructDefault', v);
+  },
+  setChatSelfDestruct: (chatId, timer) => {
+    // No `persistSetting` call — per-chat timers are session-scoped by design.
+    set((s) => ({ chatSelfDestruct: { ...s.chatSelfDestruct, [String(chatId)]: timer ?? "Off" } }));
   },
   setObfuscationEnabled: (v) => {
     set({ obfuscationEnabled: v });

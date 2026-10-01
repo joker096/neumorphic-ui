@@ -5,6 +5,7 @@ import { EyeOff, Shield, ShieldOff, Eye, Bell, BellOff, Check, X, MessageSquare,
 import { TextInputModal } from '../settings/TextInputModal';
 import { Modal } from '../ui/Modal';
 import { useAppStore } from '../../store';
+import { selfDestructLabel as selfDestructLabelShared, selfDestructOptions } from '../../lib/selfDestruct';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -63,9 +64,9 @@ export const PrivacySection = ({
   };
 
   const cycleSelfDestructDefault = () => {
-    const options = premium ? ['Off', '1 min', '5 min', '1 hour', '1 day'] : ['Off', '1 min', '5 min'];
+    const options = selfDestructOptions(!!premium);
     const idx = options.indexOf(selfDestructDefault as string);
-    const next = options[(idx + 1) % options.length];
+    const next = options[(idx + 1) % options.length]!;
     if (setSelfDestructDefault) setSelfDestructDefault(next);
   };
 
@@ -75,13 +76,8 @@ export const PrivacySection = ({
       : v === 'Always' ? t('settings.autoLoad.always', 'Always')
       : v;
 
-  const selfDestructLabel = (v: string) =>
-    v === 'Off' ? t('settings.selfDestruct.off', 'Off')
-      : v === '1 min' ? t('settings.selfDestruct.1min', '1 min')
-      : v === '5 min' ? t('settings.selfDestruct.5min', '5 min')
-      : v === '1 hour' ? t('settings.selfDestruct.1hour', '1 hour')
-      : v === '1 day' ? t('settings.selfDestruct.1day', '1 day')
-      : v;
+  const selfDestructLabel = (v: string) => selfDestructLabelShared(t, v);
+
 
   return (
     <SubView key="privacy" title={t('settings.privacy')} isDark={isDark} onBack={onBack}>

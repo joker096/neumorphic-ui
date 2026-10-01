@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
-  Bell, BellOff, MessageCircle, Users, Megaphone, AtSign, Volume2,
-  Eye, Moon, Timer, Music, Plus,
+  MessageCircle, Users, Megaphone, AtSign, Volume2,
+  Eye, Moon, Timer, Music,
 } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsSectionTitle, SettingsRow, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from '../ui/Toast';
-import { ChatPickerModal } from '../payments/ChatPickerModal';
+import { NotificationsExceptions } from './NotificationsExceptions';
 import { soundConfig, type SoundEventType } from '../../lib/sounds/config';
 
 interface NotificationsSectionProps {
@@ -48,16 +48,6 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
   const [badgeMode, setBadgeMode] = useState<BadgeMode>('all');
   const [quietFrom, setQuietFrom] = useState('22:00');
   const [quietTo, setQuietTo] = useState('08:00');
-  const [exceptionPickerOpen, setExceptionPickerOpen] = useState(false);
-  const [exceptions, setExceptions] = useState<{ id: string | number; name: string; muted: boolean }[]>([
-    { id: 1, name: 'Work Group', muted: false },
-    { id: 2, name: 'Mom', muted: true },
-  ]);
-
-  const toggleException = (id: string | number) => {
-    setExceptions(prev => prev.map(e => (e.id === id ? { ...e, muted: !e.muted } : e)));
-    toast(t('settings.saved', 'Saved'), 'success');
-  };
 
   const playTone = (id: SoundEventType) => {
     try {
@@ -66,16 +56,6 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
     } catch {
       // Audio not supported in this environment — ignore.
     }
-  };
-
-  const pickExceptionChat = (chat: { id: string | number; name?: string; title?: string }) => {
-    setExceptionPickerOpen(false);
-    if (exceptions.some(e => e.id === chat.id)) {
-      toast(t('settings.addedException', 'Already in exceptions'), 'info');
-      return;
-    }
-    setExceptions(prev => [...prev, { id: chat.id, name: chat.name || chat.title || `Chat ${chat.id}`, muted: false }]);
-    toast(t('settings.added', 'Added'), 'success');
   };
 
   return (
@@ -238,48 +218,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         )}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.exceptions', 'Exceptions')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
-        {exceptions.length === 0 && (
-          <div className={`px-4 py-6 text-center text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('settings.noExceptions', 'No exceptions yet')}</div>
-        )}
-        {exceptions.map((e, i) => (
-          <div key={e.id}>
-            {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-gray-500/10" : "bg-gray-100"}`}>
-                  <Bell size={16} className={isDark ? "text-gray-400" : "text-slate-500"} />
-                </div>
-                <span className={`text-sm truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{e.name}</span>
-              </div>
-              <button
-                onClick={() => toggleException(e.id)}
-                aria-label={e.muted ? t('settings.muted', 'Muted') : t('settings.allowed', 'Allowed')}
-                title={e.muted ? t('settings.muted', 'Muted') : t('settings.allowed', 'Allowed')}
-                className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors ${e.muted ? (isDark ? "bg-gray-600/30 text-gray-300" : "bg-slate-200 text-slate-600") : "bg-[var(--accent)] text-[var(--button-primary-text)]"}`}
-              >
-                {e.muted ? <BellOff size={16} /> : <Bell size={16} />}
-                <span className="sr-only">{e.muted ? t('settings.muted', 'Muted') : t('settings.allowed', 'Allowed')}</span>
-              </button>
-            </div>
-          </div>
-        ))}
-        <button
-          onClick={() => setExceptionPickerOpen(true)}
-          aria-label={t('settings.addException', 'Add exception')}
-          className={`w-full min-h-11 flex items-center justify-center gap-2 mt-2 rounded-lg text-sm font-medium text-[var(--accent)] transition-colors active:scale-[0.99] border border-dashed ${isDark ? "hover:bg-white/5 border-white/15" : "hover:bg-black/5 border-black/15"}`}
-        >
-          <Plus size={16} />
-          <span>{t('settings.addException', 'Add exception')}</span>
-        </button>
-      </SettingsGroup>
-      <ChatPickerModal
-        open={exceptionPickerOpen}
-        onClose={() => setExceptionPickerOpen(false)}
-        onPick={pickExceptionChat}
-        title={t('settings.pickExceptionChat', 'Add exception')}
-      />
+      <NotificationsExceptions isDark={isDark} />
     </SubView>
   );
 };
