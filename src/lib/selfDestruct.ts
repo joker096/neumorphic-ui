@@ -10,6 +10,59 @@
 import { FTR_MAGIC } from "./fileTransfer/frames";
 import { SELF_DESTRUCT_MS } from "../constants/time";
 
+/**
+ * Timer options. `Off` first so a fresh picker starts on "no timer".
+ * The full list is premium-gated, mirroring `PrivacySection`, so a per-chat
+ * override cannot buy a longer duration than the account is entitled to.
+ */
+export const SELF_DESTRUCT_OPTIONS_ALL = ["Off", "1 min", "5 min", "1 hour", "1 day"] as const;
+export const SELF_DESTRUCT_OPTIONS_FREE = ["Off", "1 min", "5 min"] as const;
+
+/** Options the account may pick from. */
+export function selfDestructOptions(premium: boolean): readonly string[] {
+  return premium ? SELF_DESTRUCT_OPTIONS_ALL : SELF_DESTRUCT_OPTIONS_FREE;
+}
+
+/**
+ * Localised label for a stored timer value. The values are English identifiers
+ * persisted in the store, so translation happens at render time — shared with
+ * `PrivacySection` so the option labels have a single source of truth.
+ */
+export function selfDestructLabel(t: (key: string, fallback?: string) => string, v: string): string {
+  return v === "Off" ? t("settings.selfDestruct.off", "Off")
+    : v === "1 min" ? t("settings.selfDestruct.1min", "1 min")
+    : v === "5 min" ? t("settings.selfDestruct.5min", "5 min")
+    : v === "1 hour" ? t("settings.selfDestruct.1hour", "1 hour")
+    : v === "1 day" ? t("settings.selfDestruct.1day", "1 day")
+    : v;
+}
+
+/**
+ * Effective timer for an outgoing message: the per-chat override wins over the
+ * global default, and both are re-checked against the entitlement.
+ *
+ * Returns `"Off"` (never `undefined`) for a non-entitled duration, because
+ * dropping the override would silently re-expose the *global* default — a
+ * downgrade that the user never asked for. A value of `undefined` therefore
+ * means "no override at all", and only then does the global default apply.
+ *
+ * `chatId` is stringified: chat ids are `string | number` across the app
+ * (legacy numeric ids) and `Record` keys are always strings.
+ */
+export function resolveSelfDestructTimer(
+  chatId: string | number | null | undefined,
+  globalDefault: string | undefined,
+  overrides: Record<string, string> | undefined,
+  premium: boolean,
+): string | undefined {
+  const key = chatId === null || chatId === undefined ? null : String(chatId);
+  const override = key === null ? undefined : overrides?.[key];
+  const timer = override ?? globalDefault;
+  if (timer === undefined) return undefined;
+  if (timer === "Off") return "Off";
+  return selfDestructOptions(premium).includes(timer) ? timer : "Off";
+}
+
 /** A message is expired once its deadline is reached. Missing/invalid = never. */
 export function isSelfDestructExpired(msg: any, now: number): boolean {
   return typeof msg?.selfDestructAt === "number" && now >= msg.selfDestructAt;

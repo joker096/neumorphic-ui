@@ -16,6 +16,7 @@ import { useChatPresence } from './hooks/useChatPresence';
 import { useSoundSettingsSync } from './hooks/useSoundSettingsSync';
 import { useP2PMessages } from './hooks/useP2PMessages';
 import { useSelfDestructSweep } from './hooks/useSelfDestructSweep';
+import { useLiveLocationSweep } from './hooks/useLiveLocationSweep';
 import { useRefMessageActions } from './hooks/useRefMessageActions';
 import { useActiveChatWorkspace } from './hooks/useActiveChatWorkspace';
 import { useFilteredChats } from './hooks/useFilteredChats';
@@ -128,6 +129,7 @@ export default function App() {
   const [view, setView] = useState<'chats' | 'channels' | 'bots' | 'settings' | 'profile' | 'contacts' | 'stories' | 'company' | 'calls' | 'workplace' | 'bot' | 'miniApp'>('chats');
   const [subView, setSubView] = useState<string | null>(null);
   const [activeFolder, setActiveFolder] = useState<string>('all');
+  const [chatSortBy, setChatSortBy] = useState<'recent' | 'alpha'>('recent');
   const [activeChat, setActiveChat] = useState<any>(null);
   const [messageText, setMessageText] = useState("");
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
@@ -144,6 +146,11 @@ export default function App() {
   // messages + voice/file blobs) — the bubble component only hides expired
   // content, so without this the plaintext would live forever.
   useSelfDestructSweep({ activeChat, setActiveChat, setSavedMessages });
+
+  // Retire live-location shares and bubbles that outlived their deadline — the
+  // timeout that ends a stream dies with the tab, and a peer that vanishes never
+  // sends a stop frame.
+  useLiveLocationSweep();
 
   // Clear any pending reply when switching to a different contact/chat
   const activeChatIdRef = useRef(activeChat?.id ?? null);
@@ -192,6 +199,7 @@ export default function App() {
     channels,
     contacts,
     spamFilter,
+    chatSortBy,
   );
 
   useBrowserBackNavigation({
@@ -386,6 +394,8 @@ export default function App() {
           onCloseChat={closeChat}
           activeFolder={activeFolder}
           setActiveFolder={setActiveFolder}
+          chatSortBy={chatSortBy}
+          setChatSortBy={setChatSortBy}
           chatSearchQuery={chatSearchQuery}
           setChatSearchQuery={setChatSearchQuery}
           filteredChats={filteredChats}

@@ -8,7 +8,7 @@ import { chunkSizeForFileSize, sliceFileChunks } from "../lib/fileTransfer/chunk
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { saveTransferMeta, saveChunk, type StoredTransfer } from "../lib/fileTransfer/fileStore";
 import { p2pNetwork } from "../lib/p2p/network";
-import { applyDefaultSelfDestruct, wireSelfDestructTtl } from "../lib/selfDestruct";
+import { applyDefaultSelfDestruct, wireSelfDestructTtl, resolveSelfDestructTimer } from "../lib/selfDestruct";
 import { formatClockTime } from "../utils/chatUtils";
 import { useAppStore } from "../store";
 
@@ -18,12 +18,17 @@ export interface FileSendProgress {
 }
 
 /**
- * Stamp the user's default self-destruct timer onto an outgoing attachment.
- * The wire frames carry the remaining duration, so the receiver expires the
- * message (and its blobs) on its own schedule too.
+ * Stamp the self-destruct timer onto an outgoing attachment. A per-chat
+ * override wins over the global default. The wire frames carry the remaining
+ * duration, so the receiver expires the message (and its blobs) on its own
+ * schedule too.
  */
-function applySelfDestruct(msg: any): void {
-  applyDefaultSelfDestruct(msg, useAppStore.getState().selfDestructDefault);
+function applySelfDestruct(msg: any, chatId?: string | number): void {
+  const s = useAppStore.getState();
+  applyDefaultSelfDestruct(
+    msg,
+    resolveSelfDestructTimer(chatId, s.selfDestructDefault, s.chatSelfDestruct, s.premiumEntitlement?.premium ?? false),
+  );
 }
 
 export interface UseFileSendDeps {
@@ -114,7 +119,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       status: online ? "sent" : "queued",
       silent: opts.silent ?? false,
     };
-    applySelfDestruct(newMessage);
+    applySelfDestruct(newMessage, chat?.id);
     appendMessage(newMessage);
 
     const safeSend = (frame: FtrFrame) =>
@@ -207,7 +212,7 @@ export function useFileSend(chat: any, deps: UseFileSendDeps) {
       status: online ? "sent" : "queued",
       silent: opts.silent ?? false,
     };
-    applySelfDestruct(newMessage);
+    applySelfDestruct(newMessage, chat?.id);
     appendMessage(newMessage);
 
     const safeSend = (frame: FtrFrame) =>

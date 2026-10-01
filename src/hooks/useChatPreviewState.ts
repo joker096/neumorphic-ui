@@ -9,15 +9,21 @@ import { useOfflineQueue } from "./useOfflineQueue";
 import { encodeChatLocation, encodeChatArticle, encodeChatReadReceipt, encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
 import { useFileSend } from "./useFileSend";
-import { applyDefaultSelfDestruct, wireSelfDestructTtl } from "../lib/selfDestruct";
+import { applyDefaultSelfDestruct, wireSelfDestructTtl, resolveSelfDestructTimer } from "../lib/selfDestruct";
+import { blurCoordinate } from "../constants/liveLocation";
+import { toast } from "../components/ui/Toast";
 
 /**
- * Stamp the user's default self-destruct timer onto an outgoing message. Every
- * send path uses it, so the timer covers text, geo, article and attachments
- * alike instead of text only.
+ * Stamp the self-destruct timer onto an outgoing message. Every send path
+ * uses it, so the timer covers text, geo, article and attachments alike
+ * instead of text only. A per-chat override wins over the global default.
  */
-function applySelfDestruct(msg: any): void {
-  applyDefaultSelfDestruct(msg, useAppStore.getState().selfDestructDefault);
+function applySelfDestruct(msg: any, chatId?: string | number): void {
+  const s = useAppStore.getState();
+  applyDefaultSelfDestruct(
+    msg,
+    resolveSelfDestructTimer(chatId, s.selfDestructDefault, s.chatSelfDestruct, s.premiumEntitlement?.premium ?? false),
+  );
 }
 
 export function useChatPreviewState(
@@ -65,6 +71,8 @@ export function useChatPreviewState(
   const stealthMode = useAppStore(s => s.stealthMode);
   const scheduledQueue = useAppStore(s => s.scheduledQueue);
   const setChatsStore = useAppStore(s => s.setChats);
+  const startLiveLocationStore = useAppStore(s => s.startLiveLocation);
+  const stopLiveLocationStore = useAppStore(s => s.stopLiveLocation);
   const setChannels = useAppStore(s => s.setChannels);
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
@@ -191,7 +199,7 @@ export function useChatPreviewState(
       status: navigator.onLine ? "sent" : "queued",
       silent: eSilentMode,
     };
-    applySelfDestruct(newMessage);
+    applySelfDestruct(newMessage, chat?.id);
     if (hasAttachment) {
       newMessage.type = attachments[0]!.type;
       newMessage.attachment = attachments[0]!.url;
@@ -263,7 +271,7 @@ export function useChatPreviewState(
       status: navigator.onLine ? "sent" : "queued",
       silent: eSilentMode,
     };
-    applySelfDestruct(newMessage);
+    applySelfDestruct(newMessage, chat?.id);
     queueOffline({ ...newMessage, chatId: chat.id, chatName: chat.name }, () =>
       updateMsgStatusInChat(chat, newMessage.id, "failed"),
     );
@@ -288,6 +296,101 @@ export function useChatPreviewState(
     })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
   };
 
+  /**
+   * Stream a live share: every accepted position patches the same local bubble
+   * and is broadcast as a `chat-location` frame carrying the same `messageId`.
+   *
+   * Blurring happens here, not at the wire boundary, so the bubble the user
+   * sees is exactly the precision the peer receives. Blurring only on send
+   * would let the local copy imply a detail that never left the device.
+   */
+  const startLiveLocationShare = (opts: { durationMs?: number; approximate?: boolean } = {}) => {
+    if (!chat) return;
+    const chatId = chat.id;
+    const chatName = String(chat.name || "");
+
+    const emit = (share: any, live: boolean) => {
+      const point = share.approximate
+        ? blurCoordinate(share.latitude, share.longitude)
+        : { latitude: share.latitude, longitude: share.longitude };
+      const id = share.id;
+      const ts = share.timestamp;
+      // Functional updater: a share can outlive many other messages, so writing
+      // back the `chat` captured in this closure would resurrect a stale
+      // history and silently drop everything sent meanwhile.
+      onUpdateChat?.((prev: any) => {
+        const history = [...(prev?.history || [])];
+        const idx = history.findIndex((m: any) => String(m.id) === String(id));
+        const bubble: any = {
+          id,
+          sender: "me",
+          type: "location",
+          lat: point.latitude,
+          lng: point.longitude,
+          accuracy: share.accuracy,
+          approximate: share.approximate,
+          isLive: live,
+          // Kept on the local bubble after the share ends too, so the local
+          // card and the wire frame agree on when the share was meant to stop.
+          // `GeoMessageCard` treats a past deadline on a non-live pin as a plain
+          // static pin, so this changes nothing visually.
+          expiresAt: share.expiresAt,
+          text: "",
+          status: navigator.onLine ? "sent" : "queued",
+          silent: eSilentMode,
+        };
+        if (idx === -1) {
+          // Stamped once, on creation: the receiver pins the original send time
+          // so a moving bubble cannot reorder, and the sender must agree.
+          bubble.ts = ts;
+          bubble.time = formatClockTime(ts);
+          history.push(bubble);
+        } else {
+          history[idx] = { ...history[idx], ...bubble };
+        }
+        return { ...prev, history };
+      });
+
+      const sender = useAppStore.getState().userProfile;
+      void p2pNetwork.sendAddressed(
+        p2pNetwork.peerForChat(chatId) ?? p2pNetwork.peerForChatName(chatName),
+        encodeChatLocation({
+          type: "chat-location",
+          seq: nextFrameSeq(),
+          messageId: String(id),
+          chatId: String(chatId),
+          chatName,
+          senderName: sender?.name || sender?.username || "User",
+          lat: point.latitude,
+          lng: point.longitude,
+          silent: !!eSilentMode,
+          timestamp: ts,
+          live,
+          // Carried on the closing frame too, not just the live ones. A peer
+          // that never sees this final frame — closed tab, dropped connection —
+          // has no other way to learn the share ended, and a static pin with no
+          // deadline is a bubble nothing can ever expire. A legacy client
+          // ignores the field it does not know, so it costs nothing there, while
+          // any client that does read it gets a deadline for every pin.
+          expiresAt: share.expiresAt,
+          approximate: share.approximate,
+          accuracy: share.accuracy,
+        }),
+      ).catch(() => {});
+    };
+
+    startLiveLocationStore({
+      chatId,
+      durationMs: opts.durationMs,
+      approximate: opts.approximate,
+      onUpdate: (share) => emit(share, true),
+      onEnd: (share) => emit(share, false),
+      onError: () => toast(t("chat.liveLocationDenied", "Location unavailable"), "error"),
+    });
+  };
+
+  const stopLiveLocationShare = () => stopLiveLocationStore();
+
   const sendArticleMessage = (url: string, title?: string) => {
     const trimmed = String(url || "").trim();
     if (!/^https?:\/\//i.test(trimmed)) return;
@@ -303,7 +406,7 @@ export function useChatPreviewState(
       status: navigator.onLine ? "sent" : "queued",
       silent: eSilentMode,
     };
-    applySelfDestruct(newMessage);
+    applySelfDestruct(newMessage, chat?.id);
     queueOffline({ ...newMessage, chatId: chat.id, chatName: chat.name }, () =>
       updateMsgStatusInChat(chat, newMessage.id, "failed"),
     );
@@ -554,6 +657,8 @@ export function useChatPreviewState(
     msgListRef,
     sendMessage,
     sendGeoMessage,
+    startLiveLocationShare,
+    stopLiveLocationShare,
     sendArticleMessage,
     handleImageAttach,
     handleFileDrop,

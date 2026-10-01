@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useP2PMessages } from './useP2PMessages';
 import { FTR_MAGIC, encodeFrame, encodeAlbumManifest, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
-import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeChatEdit, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
+import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeChatEdit, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, encodeChatLocation, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
 import { saveTransferMeta, saveChunk, pruneAbandonedTransfers, pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer, listTransfers, type StoredTransfer } from '../lib/fileTransfer/fileStore';
 import { SELF_DESTRUCT_WIRE_MAX_MS } from '../lib/selfDestruct';
 import { p2pNetwork, type BroadcastMessage } from '../lib/p2p/network';
@@ -1285,4 +1285,143 @@ describe('useP2PMessages', () => {
       expect.objectContaining({ senderPeerId: 'peer-transport', senderName: 'Bob' }),
     );
   });
-});
+
+  describe('incoming live location stream', () => {
+    const liveFrame = (over: Record<string, any> = {}) => ({
+      type: 'chat-location' as const,
+      seq: 1,
+      messageId: 'live-1',
+      chatId: 'dm-1',
+      chatName: 'Bob',
+      senderName: 'Bob',
+      lat: 52.52,
+      lng: 13.405,
+      silent: false,
+      timestamp: 1000,
+      live: true,
+      expiresAt: Date.now() + 60_000,
+      approximate: true,
+      accuracy: 12,
+      ...over,
+    });
+
+    // `p2pNetwork` stamps a unique transport-level messageId per received
+    // message, and useP2PMessages dedupes on it module-wide. A live stream
+    // reuses ONE wire `messageId` across all its frames, so each frame here
+    // needs its own transport id or the dedupe swallows every update.
+    let transportId = 0;
+    const incoming = (frame: any): BroadcastMessage => ({
+      senderId: 'peer-remote',
+      timestamp: 1,
+      messageId: `transport-${++transportId}`,
+      data: encodeChatLocation(frame),
+    } as any);
+
+    it('patches the same bubble instead of appending one per fix', () => {
+      const { handle } = setup();
+      seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [] }]);
+
+      act(() => handle(incoming(liveFrame({ seq: 1, lat: 1, lng: 1 }))));
+      act(() => handle(incoming(liveFrame({ seq: 2, lat: 2, lng: 2 }))));
+      act(() => handle(incoming(liveFrame({ seq: 3, lat: 3, lng: 3 }))));
+
+      const history = currentChats()[0].history;
+      expect(history).toHaveLength(1);
+      expect(history[0].lat).toBe(3);
+    });
+
+    it('keeps the original send time so a moving bubble does not jump', () => {
+      const { handle } = setup();
+      seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [] }]);
+
+      act(() => handle(incoming(liveFrame({ seq: 1, timestamp: 1000 }))));
+      act(() => handle(incoming(liveFrame({ seq: 2, timestamp: 999_999 }))));
+
+      expect(currentChats()[0].history[0].ts).toBe(1000);
+    });
+
+    // The final "stop" frame may never arrive, so the absolute expiry must
+    // demote the bubble on its own or the receiver shows a live share forever.
+    it('demotes an expired frame to a static pin without a stop frame', () => {
+      const { handle } = setup();
+      seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [] }]);
+
+      act(() => handle(incoming(liveFrame({ seq: 1, expiresAt: Date.now() + 60_000 }))));
+      expect(currentChats()[0].history[0].isLive).toBe(true);
+
+      act(() => handle(incoming(liveFrame({ seq: 2, expiresAt: Date.now() - 1 }))));
+      expect(currentChats()[0].history[0].isLive).toBe(false);
+    });
+
+    it('acknowledges only the frame that created the bubble', () => {
+      const { handle } = setup();
+      seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [] }]);
+      const acks = () => (p2pNetwork.sendAddressed as any).mock.calls
+        .map((c: any[]) => String(c[1]))
+        .filter((s: string) => s.includes('chat-ack')).length;
+
+      act(() => handle(incoming(liveFrame({ seq: 1 }))));
+      const afterFirst = acks();
+
+      act(() => handle(incoming(liveFrame({ seq: 2, lat: 9 }))));
+      act(() => handle(incoming(liveFrame({ seq: 3, lat: 10 }))));
+
+      // Acking every GPS fix would flood the wire back to the sender.
+      expect(afterFirst).toBeGreaterThan(0);
+      expect(acks()).toBe(afterFirst);
+    });
+
+    // A live id is `live_<chat>_<ts>`, so ordering must come from `ts`. Reading
+    // only the id coerced it to 0, which sorted a share started mid-conversation
+    // above every message that actually predates it.
+    it('orders a live share by its send time, not by its non-numeric id', () => {
+      const { handle } = setup();
+      seedChats([{
+        id: 'dm-1', name: 'Bob', type: 'direct',
+        history: [
+          { id: 500, type: 'text', text: 'earlier', ts: 500 },
+          { id: 999_999, type: 'text', text: 'later', ts: 999_999 },
+        ],
+      }]);
+
+      act(() => handle(incoming(liveFrame({
+        seq: 1,
+        messageId: 'live_dm-1_9000',
+        timestamp: 9_000,
+      }))));
+
+      const history = currentChats()[0].history;
+      expect(history.map((m: any) => m.text || m.id)).toEqual(['earlier', 'live_dm-1_9000', 'later']);
+    });
+
+    it('renders a legacy geo frame with no live fields as a plain pin', () => {
+      const { handle } = setup();
+      seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [] }]);
+
+      act(() => handle(incoming({
+        type: 'chat-location', seq: 1, messageId: 'geo-legacy', chatId: 'dm-1',
+        chatName: 'Bob', senderName: 'Bob', lat: 1.5, lng: 2.5,
+        silent: false, timestamp: 5,
+      })));
+
+      const bubble = currentChats()[0].history[0];
+      expect(bubble.isLive).toBe(false);
+      expect(bubble.lat).toBe(1.5);
+    });
+
+    // The closing frame of a stream. The peer that never receives it still holds
+    // the deadline from the last live frame, so the bubble is expirable either
+    // way; the closing frame additionally records when the share really stopped.
+    it('keeps the deadline on the bubble when the closing frame arrives', () => {
+      const { handle } = setup();
+      seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [] }]);
+      const deadline = Date.now() + 60_000;
+
+      act(() => handle(incoming(liveFrame({ seq: 1, expiresAt: deadline }))));
+      act(() => handle(incoming(liveFrame({ seq: 2, live: false, expiresAt: deadline }))));
+
+      const bubble = currentChats()[0].history[0];
+      expect(bubble.isLive).toBe(false);
+      expect(bubble.expiresAt).toBe(deadline);
+    });
+  });});

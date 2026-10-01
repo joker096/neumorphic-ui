@@ -8,7 +8,7 @@ import { getPendingMessages, markMessageSent, pruneExpiredQueuedMessages } from 
 import { useOfflineQueue } from "./useOfflineQueue";
 import { encodeChatAudioChunk, encodeChatAudioEnd, encodeChatAudioMeta, encodeChatEdit, encodeChatText, nextFrameSeq, parseDurationStr, VOICE_P2P_CHUNK_SIZE, VOICE_P2P_MAX_CHUNKS, VOICE_P2P_MAX_SIZE } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
-import { applyDefaultSelfDestruct, wireSelfDestructTtl } from "../lib/selfDestruct";
+import { applyDefaultSelfDestruct, wireSelfDestructTtl, resolveSelfDestructTimer } from "../lib/selfDestruct";
 import { getVoiceBlob, persistVoiceBlob } from "../lib/voiceStore";
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { bytesToBase64 } from "../lib/fileTransfer/frames";
@@ -173,9 +173,14 @@ export function useMessageActions(
         duration: replyTarget.duration,
       } : undefined,
     };
-    applyDefaultSelfDestruct(msg, useAppStore.getState().selfDestructDefault);
+    // Per-chat override wins over the global default; see resolveSelfDestructTimer.
+    const store = useAppStore.getState();
+    applyDefaultSelfDestruct(
+      msg,
+      resolveSelfDestructTimer(activeChat?.id, store.selfDestructDefault, store.chatSelfDestruct, store.premiumEntitlement?.premium ?? false),
+    );
     return { ...msg, ...overrides };
-  }, [silentMode, replyTarget]);
+  }, [silentMode, replyTarget, activeChat]);
 
   const appendMessage = useCallback((newMessage: any) => {
     setChats((prevChats: any[]) => prevChats.map((c: any) =>

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import {
   Play, Loader2, FileText, FileSpreadsheet, FileArchive, FileCode,
-  Image as ImageIcon, Music, Film, ImageOff, VideoOff, Download, MapPin, Link2,
+  Image as ImageIcon, Music, Film, ImageOff, VideoOff, Download, Link2,
   type LucideIcon,
 } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { useAppStore } from "../../store";
 import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
 import { VoiceWaveform } from "./VoiceWaveform";
+import { GeoMessageCard } from "./GeoMessageCard";
 import { useVoiceBlobUrl } from "../../hooks/useVoiceBlobUrl";
 import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
 import { formatSize } from "../../utils/formatSize";
@@ -381,38 +382,6 @@ export function AttachmentMedia({
   }
 
   return null;
-}
-
-interface GeoMessageCardProps {
-  msg: any;
-  t: (key: string, fallback?: string) => string;
-}
-
-function GeoMessageCard({ msg, t }: GeoMessageCardProps) {
-  const lat = Number(msg.lat);
-  const lng = Number(msg.lng);
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  const coords = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}`;
-  const iconStyle = "bg-rose-500/15 text-rose-500";
-  return (
-    <div className="flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2">
-      <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${iconStyle}`}>
-        <MapPin size={20} />
-      </div>
-      <div className="min-w-0">
-        <div className="text-sm font-medium truncate">{coords}</div>
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-[var(--accent)] underline hover:opacity-80 break-all"
-        >
-          {t("chat.openInMap", "Open in map")}
-        </a>
-      </div>
-    </div>
-  );
 }
 
 interface ArticleMessageCardProps {

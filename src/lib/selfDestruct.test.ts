@@ -10,6 +10,8 @@ import {
   purgeExpiredLists,
   purgeExpiredSaved,
   resolveInboundSelfDestruct,
+  resolveSelfDestructTimer,
+  selfDestructOptions,
   wireSelfDestructTtl,
   EXPIRED_QUOTE_TYPE,
   SELF_DESTRUCT_WIRE_MAX_MS,
@@ -199,3 +201,66 @@ describe('selfDestruct wire TTL', () => {
   });
 });
 
+
+describe('resolveSelfDestructTimer', () => {
+  it('falls back to the global default when the chat has no override', () => {
+    expect(resolveSelfDestructTimer('c1', '5 min', {}, true)).toBe('5 min');
+    expect(resolveSelfDestructTimer('c1', '5 min', undefined, true)).toBe('5 min');
+  });
+
+  it('returns undefined only when there is neither override nor default', () => {
+    expect(resolveSelfDestructTimer('c1', undefined, {}, false)).toBeUndefined();
+  });
+
+  it('lets a per-chat override win over the global default', () => {
+    expect(resolveSelfDestructTimer('c1', '1 min', { c1: '1 hour' }, true)).toBe('1 hour');
+  });
+
+  it('scopes overrides per chat', () => {
+    const overrides = { c1: '1 hour' };
+    expect(resolveSelfDestructTimer('c1', '1 min', overrides, true)).toBe('1 hour');
+    expect(resolveSelfDestructTimer('c2', '1 min', overrides, true)).toBe('1 min');
+  });
+
+  it('keeps an explicit "Off" override instead of re-exposing the global default', () => {
+    // Dropping "Off" would silently hand the chat back to the global timer.
+    expect(resolveSelfDestructTimer('c1', '1 hour', { c1: 'Off' }, true)).toBe('Off');
+  });
+
+  it('refuses a premium-only duration on a free account', () => {
+    expect(resolveSelfDestructTimer('c1', '1 min', { c1: '1 day' }, false)).toBe('Off');
+    expect(resolveSelfDestructTimer('c1', '1 day', {}, false)).toBe('Off');
+    expect(resolveSelfDestructTimer('c1', '1 hour', { c1: '1 hour' }, false)).toBe('Off');
+  });
+
+  it('allows every option a premium account is entitled to', () => {
+    for (const o of selfDestructOptions(true)) {
+      expect(resolveSelfDestructTimer('c1', 'Off', { c1: o }, true)).toBe(o);
+    }
+  });
+
+  it('stringifies numeric chat ids, which the store still uses', () => {
+    expect(resolveSelfDestructTimer(7, '1 min', { '7': '5 min' }, true)).toBe('5 min');
+  });
+
+  it('ignores the override for a chat without an id rather than writing to "undefined"', () => {
+    expect(resolveSelfDestructTimer(undefined, '1 min', { undefined: '1 day' }, true)).toBe('1 min');
+    expect(resolveSelfDestructTimer(null, '1 min', {}, true)).toBe('1 min');
+  });
+
+  it('rejects an unknown timer value', () => {
+    expect(resolveSelfDestructTimer('c1', '1 min', { c1: '99 years' }, true)).toBe('Off');
+  });
+});
+
+describe('selfDestructOptions', () => {
+  it('gates the long durations behind premium', () => {
+    expect(selfDestructOptions(false)).toEqual(['Off', '1 min', '5 min']);
+    expect(selfDestructOptions(true)).toContain('1 day');
+  });
+
+  it('always starts on "Off"', () => {
+    expect(selfDestructOptions(false)[0]).toBe('Off');
+    expect(selfDestructOptions(true)[0]).toBe('Off');
+  });
+});

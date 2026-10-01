@@ -157,6 +157,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     msgListRef,
     sendMessage,
     sendGeoMessage,
+    startLiveLocationShare,
+    stopLiveLocationShare,
     sendArticleMessage,
     handleImageAttach,
     handleFileDrop,
@@ -187,6 +189,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     replyTarget, setReplyTargetProp,
   );
   const setChannels = useAppStore(s => s.setChannels);
+  const isSharingLiveLocation = useAppStore(s => s.liveShare?.isLive === true);
 
   // Deep-link: jump to a message when opened via search (chat carries __jumpToMessageId).
   React.useEffect(() => {
@@ -213,7 +216,10 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
       id: `hash_${chat.id}`,
       name: chat.name,
       color: chat.color,
-      lastSeen: chat.online ? 0 : Date.now() - 3600000,
+      // Real liveness only: useChatPresence stamps chat.lastSeen on peer
+      // disconnect and real contacts carry it from creation/import.
+      // 0 = unknown, which ContactProfileModal renders as "—".
+      lastSeen: chat.online ? 0 : (chat.lastSeen ?? profileContact?.lastSeen ?? 0),
       online: chat.online,
       isFavorite: chat.isFavorite,
       localFields: profileContact?.localFields
@@ -439,6 +445,9 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         setLocalReplyTarget={setReplyTargetFn2}
         sendMessage={sendMessage}
         sendGeoMessage={sendGeoMessage}
+  startLiveLocationShare={startLiveLocationShare}
+  stopLiveLocationShare={stopLiveLocationShare}
+  isSharingLiveLocation={isSharingLiveLocation}
         sendArticleMessage={sendArticleMessage}
         sendVoiceMessage={sendVoiceMessage}
         sendStickerMessage={sendStickerMessage}

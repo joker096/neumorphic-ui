@@ -87,24 +87,6 @@ export interface SessionData {
   isActive: boolean;
 }
 
-// --- Polls ---
-export interface PollOption {
-  text: string;
-  votes: string[];
-}
-
-export interface PollMessage {
-  id: number;
-  text: string;
-  options: PollOption[];
-  multiple: boolean;
-  isQuiz?: boolean;
-  correctOption?: number;
-  isAnonymous?: boolean;
-  votes: Record<string, string[]>;
-  createdBy: string;
-}
-
 // --- Cloud Sync ---
 export interface CloudSyncState {
   enabled: boolean;
@@ -120,12 +102,15 @@ export interface LocationShare {
   id: string;
   chatId: string | number;
   userId: string;
+  senderName: string;
   latitude: number;
   longitude: number;
   accuracy: number;
   timestamp: number;
   expiresAt: number;
   isLive: boolean;
+  /** True when the coordinates were blurred to protect the sharer's privacy. */
+  approximate?: boolean;
 }
 
 // --- Scheduled Messages ---

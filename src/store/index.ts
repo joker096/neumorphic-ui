@@ -8,14 +8,13 @@ import * as idb from '../lib/idb';
 import { setSessionPersistKey } from '../lib/securePersist';
 import { DEFAULT_BOT_PERMISSIONS } from './defaults';
 import type {
-  BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage,
+  BotPermissions, BotConfig, DeviceInfo, SessionData,
   CloudSyncState, LocationShare, ScheduledMessage,
   ConnectionState, P2PChannel,
 } from './types';
 import type { SettingsSlice } from './slices/settingsSlice';
 import type { ChatSlice } from './slices/chatSlice';
 import type { CallSlice } from './slices/callSlice';
-import type { PollSlice } from './slices/pollsSlice';
 import type { CloudSyncSlice } from './slices/cloudSyncSlice';
 import type { LocationSlice } from './slices/locationsSlice';
 import type { DeviceSlice } from './slices/deviceSlice';
@@ -31,7 +30,6 @@ import type { WalletSlice } from './slices/walletSlice';
 import { createSettingsSlice, hydrateSecurePrivacyFields } from './slices/settingsSlice';
 import { createChatSlice } from './slices/chatSlice';
 import { createCallSlice } from './slices/callSlice';
-import { createPollSlice } from './slices/pollsSlice';
 import { createCloudSyncSlice } from './slices/cloudSyncSlice';
 import { createLocationSlice } from './slices/locationsSlice';
 import { createDeviceSlice } from './slices/deviceSlice';
@@ -47,7 +45,7 @@ import { createWalletSlice } from './slices/walletSlice';
 
 // Re-export types for consumers
 export type {
-  BotPermissions, BotConfig, DeviceInfo, SessionData, PollOption, PollMessage,
+  BotPermissions, BotConfig, DeviceInfo, SessionData,
   CloudSyncState, LocationShare, ScheduledMessage,
   ConnectionState, P2PChannel,
 } from './types';
@@ -78,13 +76,12 @@ export const initAppStorage = async () => {
 export { DEFAULT_BOT_PERMISSIONS };
 
 // --- Store interface ---
-export interface AppState extends SettingsSlice, ChatSlice, CallSlice, PollSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice, ContactAvatarSlice, PremiumSlice, NotificationSlice, WalletSlice {}
+export interface AppState extends SettingsSlice, ChatSlice, CallSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice, ContactAvatarSlice, PremiumSlice, NotificationSlice, WalletSlice {}
 
 export const useAppStore = create<AppState>()((set, get) => ({
   ...createSettingsSlice(set, get),
   ...createChatSlice(set, get),
   ...createCallSlice(set, get),
-  ...createPollSlice(set, get),
   ...createCloudSyncSlice(set, get),
   ...createLocationSlice(set, get),
   ...createDeviceSlice(set, get),
