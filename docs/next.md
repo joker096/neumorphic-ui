@@ -82,8 +82,7 @@ Windows Credential Manager/DPAPI для desktop.
 Ротация секретов — частично (operator action, P1/C1).
 Device-bound KDF как не-public fingerprint — открыто, нужен продуктовый выбор (P1-3 partial, 2026-09-26): `deviceSecurity.getDeviceBoundKey()` выводит wrapping key из публичного browser fingerprint (canvas/WebGL/shape/мобильные сигнатуры), поэтому он защищает от случайного чтения IndexedDB, но не от целенаправленного локального сбора этой же телеметрии. Схема «PIN → KEK» (Argon2id/scrypt по PIN с солью на устройстве) сделала бы ключи невыводимыми из fingerprint, но **забытый PIN = необратимая потеря локальной идентичности и данных** (recovery-phrase восстанавливает identity, но не at-rest данные). Требуется решение владельца продукта; до него — см. `docs/security-guide.md` и threat model §3.4.1.
 
-В DEPLOY.md присутствуют реальные/похожие административные credentials.
-Их нужно немедленно ротировать, удалить из документации и истории, заменить placeholders.
+Credentials в документации — закрыто (2026-10-01): реальных значений нет ни в `DEPLOY.md`, ни в истории. Плейсхолдеры вида `ChangeMe_Strong123!` / `myadmin` / `yourpass` / `your-secret`, которые читались как готовые пароли, заменены на `<admin-user>` / `<strong-random-password>` / `<random-secret>`; скан всех 362 ревизий по именам `ADMIN_*`, `JWT_SECRET`, `PAYMENTO_*`, `SIGNALING_*` дал только плейсхолдеры, и каждый из них уже в fail-hard blocklist сервера (`server/signaling-server.ts`: длина < 32 или blocklist → exit). Инцидента не было, ротация не требуется.
 Приватность
 Минимизировать metadata leakage — частично (P5).
 

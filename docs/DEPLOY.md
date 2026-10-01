@@ -5,11 +5,11 @@
 ```powershell
 Option A — provide creds inline:
 
-npm run deploy -- -AdminUser myadmin -AdminPass yourpass
+npm run deploy -- -AdminUser <admin-user> -AdminPass "<strong-random-password>"
 
 Option B — env vars:
 
-$env:ADMIN_USER='myadmin'; $env:ADMIN_PASS='yourpass'; npm run deploy
+$env:ADMIN_USER='<admin-user>'; $env:ADMIN_PASS='<strong-random-password>'; npm run deploy
 
 Option C — skip admin creation:
 
@@ -59,13 +59,13 @@ npm run deploy:server
 ## Создание администратора вручную
 
 ```powershell
-npm run admin:create myadmin "ChangeMe_Strong123!"
+npm run admin:create <admin-user> "<strong-random-password>"
 ```
 
 ## Запуск сервера локально
 
 ```powershell
-JWT_SECRET=your-secret npx tsx server/signaling-server.ts
+JWT_SECRET=<random-secret> npx tsx server/signaling-server.ts
 ```
 
 ## Проверка 2FA (через curl)
@@ -73,7 +73,7 @@ JWT_SECRET=your-secret npx tsx server/signaling-server.ts
 ```bash
 curl -X POST http://localhost:8766/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"myadmin","password":"ChangeMe_Strong123!"}'
+  -d '{"username":"<admin-user>","password":"<strong-random-password>"}'
 ```
 
 ## Что и куда деплоится

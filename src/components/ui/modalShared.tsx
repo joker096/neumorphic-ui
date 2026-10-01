@@ -95,7 +95,6 @@ export function ModalHeader({
 /* ---- Bottom sheet (action sheet) ---- */
 
 export const sheetOverlay = 'fixed inset-0 z-[var(--z-drawer)] flex items-end justify-center';
-export const sheetOverlayAbsolute = 'absolute inset-0 z-[var(--z-dropdown)] flex items-end justify-center';
 export const sheetBackdrop = 'absolute inset-0 bg-black/45 backdrop-blur-[2px]';
 export const sheetSurface = (_isDark: boolean, extra = '') =>
   `glass-menu relative w-full max-w-md mx-auto rounded-t-2xl p-2 pb-[max(8px,env(safe-area-inset-bottom))] max-h-[80vh] overflow-y-auto ${extra}`;
@@ -129,14 +128,6 @@ export const modalPrimaryBtnClass =
 export const modalSecondaryBtnClass =
   'flex-1 h-11 text-sm font-bold rounded-xl transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]';
 
-/** Square icon-only primary action button (no w-full — safe inside sibling rows). */
-export const modalPrimaryIconBtnClass =
-  'w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none shadow-[var(--shadow-btn-primary)]';
-
-/** Square icon-only secondary / ghost button. */
-export const modalSecondaryIconBtnClass =
-  'w-11 h-11 rounded-xl flex items-center justify-center transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]';
-
 /** Informational callout box. */
 export const modalInfoClass =
   'text-xs p-4 rounded-xl flex gap-3 bg-[var(--accent)]/10 text-[var(--text-primary)]';
@@ -147,10 +138,4 @@ export const modalOptionClass = (active: boolean) =>
     active
       ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]'
       : 'border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] shadow-[var(--inset-field-shadow)]'
-  }`;
-
-/** iOS-style toggle track. */
-export const modalSwitchTrackClass = (active: boolean) =>
-  `w-[44px] h-[24px] rounded-full p-1 transition-colors flex items-center ${
-    active ? 'bg-[var(--accent)]' : 'bg-[var(--bg-tertiary)]'
   }`;

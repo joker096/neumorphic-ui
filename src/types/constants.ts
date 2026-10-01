@@ -69,16 +69,10 @@ export interface MockChannel {
   description?: string;
 }
 
-export interface OnlineContact {
-  id: number;
-  name: string;
-  color: string;
-}
-
 /**
  * Company types
  */
-export type { CompanyMember, CompanyChannel, CompanyMessage, CompanyRole } from '../lib/company/types';
+export type { CompanyMember, CompanyChannel, CompanyMessage } from '../lib/company/types';
 
 export interface CompanyDepartment {
   id: string;

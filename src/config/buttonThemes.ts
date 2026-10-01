@@ -1,4 +1,3 @@
-export type ThemeMode = 'light' | 'dark';
 export type ButtonColor = 'default' | 'red' | 'yellow' | 'green' | 'blue' | 'orange' | 'purple' | 'emerald';
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'icon' | 'premium';
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl' | 'icon-sm' | 'icon-md' | 'icon-lg';
@@ -12,8 +11,7 @@ export interface ColorTheme {
   bg?: string;
 }
 
-const darkThemes: Record<ButtonColor, ColorTheme> = {
-  default: {
+const darkThemes: Record<ButtonColor, ColorTheme> = {  default: {
     icon: "text-white/70",
     hoverIcon: "group-hover:text-white",
     activeIcon: "text-orange-400",
@@ -97,31 +95,6 @@ const lightThemes: Record<ButtonColor, ColorTheme> = {
     activeIcon: "text-emerald-500",
   },
 };
-
-export const BUTTON_THEMES: Record<ThemeMode, Record<ButtonColor, ColorTheme>> = {
-  dark: darkThemes,
-  light: lightThemes,
-};
-
-export function getButtonTheme(theme: ThemeMode, color: ButtonColor): ColorTheme {
-  return BUTTON_THEMES[theme][color];
-}
-
-export const ACTIVE_DEFAULT_COLOR: Record<ThemeMode, string> = {
-  dark: "text-orange-400",
-  light: "text-orange-500",
-};
-
-// Unified spacing system
-export const SPACING = {
-  xs: '1',
-  sm: '2',
-  md: '3',
-  lg: '4',
-  xl: '5',
-  '2xl': '6',
-  '3xl': '8',
-} as const;
 
 // Unified sizing system
 export const SIZE_MAP: Record<ButtonSize, string> = {

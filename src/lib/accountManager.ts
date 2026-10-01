@@ -73,4 +73,3 @@ export class AccountManager {
   }
 }
 
-export const accountManager = new AccountManager();

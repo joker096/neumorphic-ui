@@ -36,15 +36,6 @@ export interface WrappedKey {
   nonce: string;
 }
 
-export interface GroupKeyMaterial {
-  version: number
-  key: CryptoKey
-  wrappedFor: WrappedKey[]
-  createdAt: number
-  rotatedBy?: string
-  reason?: 'join' | 'leave' | 'compromise' | 'scheduled'
-}
-
 export interface CompanyEnvelope {
   /**
    * Wire format version. `2` = the header fields below are bound into the
@@ -87,28 +78,6 @@ export interface JoinAck {
   wrappedBy: string
 }
 
-export interface KeyRotateMessage {
-  type: 'company-key-rotate'
-  version: number
-  wrappedFor: WrappedKey[]
-  rotatedBy: string
-  reason: 'join' | 'leave' | 'compromise' | 'scheduled'
-  timestamp: number
-}
-
-export interface LeaveNotice {
-  type: 'company-leave'
-  userId: string
-  deviceId: string
-  timestamp: number
-}
-
-export interface KeyRequest {
-  type: 'company-key-request'
-  deviceId: string
-  publicKey: string
-}
-
 export interface CompanyMember {
   userId: string
   displayName: string
@@ -141,34 +110,4 @@ export interface CompanyMessage {
   status: 'sent' | 'delivered' | 'read'
   replyTo?: { id: string; senderName: string; text: string }
   reactions?: Record<string, string[]>
-}
-
-export interface CompanyState {
-  currentUser: CompanyUser | null
-  companyId: string | null
-  members: Map<string, CompanyMember>
-  companyChannels: CompanyChannel[]
-  activeChannelId: string | null
-  messages: Map<string, CompanyEnvelope[]>
-  devices: DeviceRecord[]
-  currentDeviceId: string | null
-  activeGroupKey: GroupKeyMaterial | null
-  oldGroupKeys: GroupKeyMaterial[]
-  isCompanyViewOpen: boolean
-  pendingInvite: InviteQRPayload | null
-}
-
-export type CompanyTopic = 
-  | `company:${string}:join`
-  | `company:${string}:join-ack`
-  | `company:${string}:key-rotate`
-  | `company:${string}:leave`
-  | `company:${string}:chat`
-  | `company:${string}:key-request`
-  | `company:${string}:office:${string}:chat`
-
-export interface CompanyTopicMatch {
-  companyId: string
-  officeId?: string
-  type: 'join' | 'join-ack' | 'key-rotate' | 'leave' | 'chat' | 'key-request'
 }
