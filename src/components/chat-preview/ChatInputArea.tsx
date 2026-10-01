@@ -11,8 +11,10 @@ import { ChatInputReplyBar } from "./ChatInputReplyBar";
 import { ChatInputVoiceError } from "./ChatInputVoiceError";
 import { ChannelComposer } from "./ChannelComposer";
 import { ComposerToolbar } from "./ComposerToolbar";
+import { selfDestructLabel, selfDestructOptions, resolveSelfDestructTimer } from "../../lib/selfDestruct";
+import { ComposerFormatBar } from "./ComposerFormatBar";
 import { DmComposerRow } from "./DmComposerRow";
-import { composerInputStyle, growTextarea } from "./composerInput";
+import { composerInputStyle, growTextarea, wrapSelection, type FormatWrapKey } from "./composerInput";
 import { MorsePreview } from "./MorsePreview";
 import { useAppStore } from "../../store";
 import { useTypingIndicator } from "./useTypingIndicator";
@@ -47,6 +49,9 @@ interface ChatInputAreaProps {
   handleImageAttach: (e: React.ChangeEvent<HTMLInputElement>, chat: any, onUpdateChat: any, silent: boolean) => void;
   sendVideoNote?: (file: File) => void;
   sendGeoMessage?: (lat: number, lng: number) => void;
+  startLiveLocationShare?: (opts?: { durationMs?: number; approximate?: boolean }) => void;
+  isSharingLiveLocation?: boolean;
+  stopLiveLocationShare?: () => void;
   sendArticleMessage?: (url: string, title?: string) => void;
   onUpdateChat?: (chat: any) => void;
   onPasteFiles?: (files: FileList | null) => void;
@@ -84,6 +89,9 @@ function ChatInputAreaImpl({
   sendVoiceMessage,
   sendStickerMessage,
   sendGeoMessage,
+  startLiveLocationShare,
+  isSharingLiveLocation,
+  stopLiveLocationShare,
   sendArticleMessage,
     handleImageAttach,
     onUpdateChat,
@@ -98,7 +106,38 @@ function ChatInputAreaImpl({
   const { t: translate } = useI18n();
   const showTyping = useAppStore((state) => state.typingIndicators);
   const userProfile = useAppStore((state) => state.userProfile);
+  // Per-chat self-destruct timer: an override over the global default, same
+  // premium gate. `chatId` gates the control — a chat without a stable id has
+  // nowhere to write the override, so the button is not rendered at all.
+  const chatId = chat?.id;
+  const timerPremium = !!useAppStore((state) => state.premiumEntitlement?.premium);
+  const timerOverrides = useAppStore((state) => state.chatSelfDestruct);
+  const timerGlobal = useAppStore((state) => state.selfDestructDefault);
+  const setChatSelfDestruct = useAppStore((state) => state.setChatSelfDestruct);
+  const timerOptions = selfDestructOptions(timerPremium);
+  const timerValue =
+    resolveSelfDestructTimer(chatId, timerGlobal, timerOverrides, timerPremium) ?? "Off";
+  const onCycleTimer = React.useCallback(() => {
+    if (chatId === undefined || chatId === null) return;
+    const idx = timerOptions.indexOf(timerValue);
+    setChatSelfDestruct(chatId, timerOptions[(idx + 1) % timerOptions.length]);
+  }, [chatId, timerOptions, timerValue, setChatSelfDestruct]);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const onFormatWrap = React.useCallback((key: FormatWrapKey) => {
+    const el = inputRef.current;
+    if (!el) return;
+    const { text, caret } = wrapSelection(el.value, el.selectionStart, el.selectionEnd, key);
+    setMsgTextFn(text);
+    // The textarea is controlled, so the caret can only be restored after React
+    // has committed the new value — the same reason `applyMention` defers.
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(caret, caret);
+      el.style.height = "auto";
+      if (el.value) growTextarea(el);
+    });
+  }, [setMsgTextFn]);
   const mentions = useChatMentions({
     isChannel,
     chat,
@@ -220,6 +259,9 @@ function ChatInputAreaImpl({
         docInputRef={dmDocInputRef}
         audioInputRef={dmAudioInputRef}
         sendGeoMessage={sendGeoMessage}
+      startLiveLocationShare={startLiveLocationShare}
+      isSharingLiveLocation={isSharingLiveLocation}
+      stopLiveLocationShare={stopLiveLocationShare}
         sendArticleMessage={sendArticleMessage}
         t={t}
       />
@@ -232,6 +274,9 @@ function ChatInputAreaImpl({
           onPick={mentions.applyMention}
           t={t}
         />
+        {!eIsRecordingVoice && eMsgText.length > 0 && (
+          <ComposerFormatBar onFormat={onFormatWrap} t={t} />
+        )}
         <ComposerToolbar
           isDark={isDark}
           hidden={eIsRecordingVoice}
@@ -248,6 +293,9 @@ function ChatInputAreaImpl({
             handleImageAttach(event, chat, onUpdateChat, eSilentMode);
             event.target.value = "";
           }}
+          timerActive={timerValue !== "Off"}
+          timerLabel={selfDestructLabel(t, timerValue)}
+          onCycleTimer={onCycleTimer}
           t={t}
         />
 

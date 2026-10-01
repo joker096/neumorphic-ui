@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock, Plus, Smile } from "lucide-react";
+import { Clock, Plus, Smile, Timer } from "lucide-react";
 
 export interface ComposerToolbarProps {
   isDark: boolean;
@@ -15,6 +15,14 @@ export interface ComposerToolbarProps {
   docInputRef: React.RefObject<HTMLInputElement | null>;
   audioInputRef: React.RefObject<HTMLInputElement | null>;
   onPickFiles: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  /**
+   * Per-chat self-destruct timer. `onCycleTimer` is absent when the current
+   * chat has no stable id — the control is then hidden rather than disabled,
+   * so there is never a live-looking button that cannot write anything.
+   */
+  timerActive?: boolean;
+  timerLabel?: string;
+  onCycleTimer?: () => void;
   t: (key: string, opts?: any) => string;
 }
 
@@ -38,6 +46,9 @@ export function ComposerToolbar({
   docInputRef,
   audioInputRef,
   onPickFiles,
+  timerActive,
+  timerLabel,
+  onCycleTimer,
   t,
 }: ComposerToolbarProps) {
   if (hidden) return null;
@@ -96,6 +107,20 @@ export function ComposerToolbar({
       >
         <Clock size={16} />
       </button>
+
+      {onCycleTimer && (
+        <button
+          type="button"
+          aria-label={t("chat.selfDestructTimer", "Self-destruct timer")}
+          title={timerLabel}
+          className={`icon-button ${
+            timerActive ? "bg-[var(--accent)]/20 text-[var(--accent)]" : ""
+          }`}
+          onClick={onCycleTimer}
+        >
+          <Timer size={16} />
+        </button>
+      )}
 
       <button
         type="button"

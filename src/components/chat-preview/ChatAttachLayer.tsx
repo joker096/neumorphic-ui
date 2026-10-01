@@ -1,5 +1,6 @@
 import React from "react";
-import { ChevronRight, FileText, Image as ImageIcon, Link2, MapPin, Music, Video as VideoIcon, X } from "lucide-react";
+import { ChevronRight, FileText, Image as ImageIcon, Link2, MapPin, Music, Radio, Video as VideoIcon, X } from "lucide-react";
+import { LiveLocationSheet } from "./LiveLocationSheet";
 
 export interface ChatAttachLayerProps {
   isDark: boolean;
@@ -13,6 +14,11 @@ export interface ChatAttachLayerProps {
   docInputRef: React.RefObject<HTMLInputElement | null>;
   audioInputRef: React.RefObject<HTMLInputElement | null>;
   sendGeoMessage?: (lat: number, lng: number) => void;
+  /** Live share: kept separate from the one-shot pin because it needs consent
+   *  for both duration and precision, and it can be stopped after it starts. */
+  startLiveLocationShare?: (opts?: { durationMs?: number; approximate?: boolean }) => void;
+  isSharingLiveLocation?: boolean;
+  stopLiveLocationShare?: () => void;
   sendArticleMessage?: (url: string, title?: string) => void;
   t: (key: string, opts?: any) => string;
 }
@@ -42,10 +48,14 @@ export function ChatAttachLayer({
   docInputRef,
   audioInputRef,
   sendGeoMessage,
+  startLiveLocationShare,
+  isSharingLiveLocation,
+  stopLiveLocationShare,
   sendArticleMessage,
   t,
 }: ChatAttachLayerProps) {
   const [showArticleInput, setShowArticleInput] = React.useState(false);
+  const [showLiveSheet, setShowLiveSheet] = React.useState(false);
   const [articleUrl, setArticleUrl] = React.useState("");
   const [error, setError] = React.useState("");
   const articleInputRef = React.useRef<HTMLInputElement>(null);
@@ -53,6 +63,21 @@ export function ChatAttachLayer({
   React.useEffect(() => {
     if (showArticleInput) articleInputRef.current?.focus();
   }, [showArticleInput]);
+
+  // The consent sheet is a separate overlay, so it must not be hidden by the
+  // menu-closed early return below.
+  if (showLiveSheet) {
+    return (
+      <LiveLocationSheet
+        t={t}
+        onCancel={() => setShowLiveSheet(false)}
+        onStart={(opts) => {
+          setShowLiveSheet(false);
+          startLiveLocationShare?.(opts);
+        }}
+      />
+    );
+  }
 
   if (!open && !error) return null;
 
@@ -133,9 +158,26 @@ export function ChatAttachLayer({
             onClick={() => pick(requestGeo)}
             className={itemClass(isDark)}
           >
-            <MapPin size={18} className="text-[var(--accent)] flex-shrink-0" />
-            {t("chat.location")}
-          </button>
+  <MapPin size={18} className="text-[var(--accent)] flex-shrink-0" />
+  {t("chat.location")}
+  </button>
+  <button
+  type="button"
+  onClick={() => {
+    setError("");
+    setShowArticleInput(false);
+    // Already sharing: this row becomes the stop affordance, so an ongoing
+    // share is always cancellable from the same place that started it.
+    if (isSharingLiveLocation) { onClose(); stopLiveLocationShare?.(); return; }
+    setShowLiveSheet(true);
+  }}
+  className={itemClass(isDark)}
+  >
+  <Radio size={18} className="text-rose-500 flex-shrink-0" />
+  {isSharingLiveLocation
+    ? t("chat.stopLiveLocation", "Stop live location")
+    : t("chat.liveLocation", "Live location")}
+  </button>
           <button
             type="button"
             onClick={() => {
