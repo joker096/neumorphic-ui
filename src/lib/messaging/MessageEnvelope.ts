@@ -16,13 +16,3 @@ export interface MessageEnvelope {
   priority: MessagePriority;
   path?: string[]; // Routing path for mesh
 }
-
-export function isEnvelopeExpired(envelope: MessageEnvelope): boolean {
-  if (envelope.ttl === 0) return false
-  const ageMs = Date.now() - envelope.timestamp
-  const expired = ageMs > envelope.ttl * 1000
-  if (expired) {
-    console.warn(`[MessageEnvelope] Expired: ${ageMs}ms > ${envelope.ttl * 1000}ms`)
-  }
-  return expired
-}

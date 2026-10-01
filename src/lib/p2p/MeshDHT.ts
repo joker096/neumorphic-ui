@@ -14,11 +14,6 @@ export interface DHTNode {
   [key: string]: any
 }
 
-export interface DHTLookupResult {
-  nodeId: string
-  peer: DHTNode
-}
-
 export interface DHTStoreValue {
   key: string
   value: string
@@ -271,52 +266,5 @@ export class MeshDHT {
       if (a[i] !== b[i]) diff++
     }
     return diff
-  }
-}
-
-// Legacy exports for compatibility
-export class MeshDHTLegacy {
-  private static table = new Map<string, DHTNode>()
-  private static TTL = 3600 * 1000
-
-  static async addNode(node: DHTNode): Promise<void> {
-    this.table.set(node.publicKey, { ...node, lastSeen: Date.now() })
-  }
-
-  static getNode(publicKey: string): DHTNode | null {
-    const node = this.table.get(publicKey)
-    if (!node) return null
-    if (Date.now() - node.lastSeen > this.TTL) {
-      this.table.delete(publicKey)
-      return null
-    }
-    return { ...node }
-  }
-
-  static removeNode(publicKey: string): void {
-    this.table.delete(publicKey)
-  }
-
-  static getClosestNodes(target: string, count: number = 3): DHTNode[] {
-    const nodes = Array.from(this.table.values())
-    nodes.sort((a, b) => a.latency - b.latency)
-    return nodes.slice(0, count)
-  }
-
-  static getTable(): Map<string, DHTNode> {
-    return this.table
-  }
-
-  static clear(): void {
-    this.table.clear()
-  }
-
-  static cleanup(): void {
-    const now = Date.now()
-    for (const [key, node] of this.table) {
-      if (now - node.lastSeen > this.TTL) {
-        this.table.delete(key)
-      }
-    }
   }
 }

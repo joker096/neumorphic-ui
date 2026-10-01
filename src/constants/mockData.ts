@@ -1,7 +1,7 @@
 /**
  * Mock call records and contact data
  */
-import type { MockCall, MockChat, MockChannel, OnlineContact } from '../types/constants';
+import type { MockCall, MockChat, MockChannel } from '../types/constants';
 import type { Contact } from '../types/contact';
 
 /** ISO date (YYYY-MM-DD, UTC) n days before today — stable within a session */
@@ -314,12 +314,4 @@ export const MOCK_CHANNELS: MockChannel[] = [
       },
     ],
   },
-];
-
-export const ONLINE_CONTACTS: OnlineContact[] = [
-  { id: 1, name: "Alice", color: "from-pink-400 to-rose-400" },
-  { id: 2, name: "Bob", color: "from-blue-400 to-indigo-400" },
-  { id: 3, name: "Charlie", color: "from-amber-400 to-orange-400" },
-  { id: 4, name: "Diana", color: "from-purple-400 to-fuchsia-400" },
-  { id: 5, name: "Eve", color: "from-teal-400 to-emerald-400" },
 ];

@@ -7,8 +7,6 @@ export interface IncomingCall {
   displayName: string;
   callType: 'audio' | 'video';
 }
-export type CallRole = 'initiator' | 'answerer';
-
 export interface CallPeer {
   peerId: string;
   displayName?: string;

@@ -34,4 +34,3 @@ export const TOAST_DND_DURATION_MS = 3000;
  * `useFilteredChats` cannot drift from each other.
  */
 export const CHAT_FOLDER_KEYS = ["all", "personal", "unread", "work", "groups", "archived"] as const;
-export type ChatFolderKey = (typeof CHAT_FOLDER_KEYS)[number];

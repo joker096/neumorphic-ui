@@ -44,5 +44,3 @@ export const STORAGE_KEYS = {
   CLOUD_SYNC_META: 'app_cloud_sync_meta',
   CLOUD_SYNC_SNAPSHOT: 'app_cloud_sync_snapshot',
 } as const
-
-export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

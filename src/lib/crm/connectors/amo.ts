@@ -1,9 +1,8 @@
 /**
  * amoCRM → CRM connector (local-first, OPT-IN).
  *
- * Mappers are pure and tested. Network transport (`connectAmo`) is
- * explicit-only: it requires a user-supplied token and is NEVER called
- * automatically. No telemetry, no cloud storage of CRM data.
+ * Mappers are pure and tested. No network transport is wired up: no telemetry,
+ * no cloud storage of CRM data.
  */
 
 import type { CrmContact, CrmContactStatus } from '../types';
@@ -61,18 +60,4 @@ export function amoContactToCrm(row: AmoContactRow): CrmContact {
 
 export function amoContactsToCrm(rows: AmoContactRow[]): CrmContact[] {
   return rows.map(amoContactToCrm);
-}
-
-export interface AmoConnectOptions {
-  domain: string;
-  token: string;
-}
-
-/** Explicit opt-in transport. Throws without a token. Never auto-called. */
-export async function connectAmo(opts: AmoConnectOptions): Promise<unknown> {
-  if (!opts.token) throw new Error('amoCRM token required (opt-in, no automatic sync)');
-  const url = `https://${opts.domain}/api/v4/contacts?auth_token=${encodeURIComponent(opts.token)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`amoCRM request failed: ${res.status}`);
-  return res.json();
 }

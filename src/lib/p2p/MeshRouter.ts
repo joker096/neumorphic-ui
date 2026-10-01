@@ -13,10 +13,6 @@ export interface RouteEntry {
   path?: string[]
 }
 
-export interface PeerGraph {
-  [peerId: string]: string[]
-}
-
 export interface MeshForwardMessage {
   type: 'mesh-forward'
   from: string

@@ -26,9 +26,6 @@ export const DEAL_STAGES: { id: DealStage; labelKey: string; gradient: string }[
   { id: 'lost', labelKey: 'crm.stageLost', gradient: 'from-rose-400 to-red-500' },
 ];
 
-/** All deal-stage ids (drift-free source for filters and loops). */
-export const CRM_DEAL_STAGES = DEAL_STAGES.map((s) => s.id) as readonly DealStage[];
-
 /** Named stage constants so stage filters never hardcode literals. */
 export const CRM_STAGE_WON: DealStage = 'won';
 export const CRM_STAGE_LOST: DealStage = 'lost';

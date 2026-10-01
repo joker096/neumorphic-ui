@@ -14,14 +14,6 @@ export interface PaymentoCreateResult {
   paymentUrl: string
 }
 
-export interface PaymentoCallback {
-  Token: string
-  PaymentId: number
-  OrderId: string
-  OrderStatus: number
-  AdditionalData?: Array<{ key: string; value: string }> | any
-}
-
 export interface PaymentoVerifyResult {
   status: number
   orderId: string

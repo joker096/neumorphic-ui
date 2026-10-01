@@ -1,23 +1,4 @@
-import type { P2PChannel } from '../store/types';
-
-export const CHANNEL_MIN_NAME_LENGTH = 1;
-
 export const DEFAULT_CHANNEL_GRADIENT = 'from-blue-500 to-indigo-500';
-
-export const DEFAULT_CHANNEL_SETTINGS: NonNullable<P2PChannel['settings']> = {
-  canPost: false,
-  canComment: true,
-  commentsRequireApproval: false,
-  canReact: true,
-  allowDownloads: true,
-  pinMessages: true,
-  showSubscribers: true,
-  allowForwarding: false,
-  allowReactions: true,
-  allowComments: true,
-  allowEditing: false,
-  allowDeletion: true,
-};
 
 export const CURRENT_USER_SENDER = 'me';
 
@@ -46,8 +27,6 @@ export const COMMENT_EMPTY_ICON_CLASS_DARK = 'text-gray-600';
 export const COMMENT_EMPTY_ICON_CLASS_LIGHT = 'text-slate-300';
 export const COMMENT_EMPTY_TEXT_CLASS_DARK = 'text-gray-400';
 export const COMMENT_EMPTY_TEXT_CLASS_LIGHT = 'text-slate-500';
-
-export const CHANNEL_CREATE_GRADIENT = 'bg-gradient-to-tr from-orange-500 to-orange-400';
 
 export const getCommentBubbleClass = (isDark: boolean, isOwn: boolean): string => {
   const align = isOwn ? 'self-end rounded-br-sm' : 'self-start rounded-bl-sm';
