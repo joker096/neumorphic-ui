@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronLeft, Undo, ArrowRight, LogIn, Shield, Check, Upload, Database } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { RecoveryManager } from "../../lib/recovery/RecoveryManager";
 import { cryptoCore, buf2hex } from "../../lib/crypto/cryptoCore";
@@ -10,6 +10,10 @@ import { applyBackup, decryptBackupFile, parseBackupFile } from "../../lib/backu
 import { isEncryptedBackup } from "../../lib/backupCrypto";
 import type { BackupData } from "../../lib/backup";
 import { TextInputModal } from "../settings/TextInputModal";
+import { LoginEnterPhrase } from "./login/LoginEnterPhrase";
+import { LoginImportData } from "./login/LoginImportData";
+import { LoginSetPin } from "./login/LoginSetPin";
+import { LoginComplete } from "./login/LoginComplete";
 
 type Step = "enter-phrase" | "restoring" | "import-data" | "set-pin" | "complete";
 
@@ -176,45 +180,14 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
       )}
       <div className="w-full max-w-md mx-auto">
         {step === "enter-phrase" && (
-          <div className="flex flex-col">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mb-6 mx-auto shadow-lg">
-              <Shield size={32} />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.login.restoreTitle", "Restore Identity")}</h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
-              {t("auth.login.restoreSubtitle", "Enter your recovery phrase to restore your identity on this device.")}
-            </p>
-            <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 mb-4">
-              <Shield size={16} className="text-amber-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-amber-700 dark:text-amber-300">
-                {t("auth.login.phraseOnlyNote", "Your recovery phrase restores your identity and keys. Chats and contacts come from a backup file — you'll be asked to import it on the next step.")}
-              </p>
-            </div>
-            <textarea
-              aria-label={t("auth.login.phrasePlaceholder", "word1 word2 word3 ...")}
-              value={phrase}
-              onChange={(e) => setPhrase(e.target.value)}
-              placeholder={t("auth.login.phrasePlaceholder", "word1 word2 word3 ...")}
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              className="w-full h-32 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none"
-            />
-            {error && (
-              <p role="alert" className="text-xs text-red-400 mb-3 text-center">{error}</p>
-            )}
-            <button
-              onClick={handleRestore}
-              disabled={isProcessing || phrase.split(/\s+/).filter(w => w.length > 0).length < 12}
-              aria-label={t("auth.login.restore", "Restore Identity")}
-              title={t("auth.login.restore", "Restore Identity")}
-              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Undo size={20} />
-              <span>{t("auth.login.restore", "Restore Identity")}</span>
-            </button>
-          </div>
+          <LoginEnterPhrase
+            phrase={phrase}
+            error={error}
+            isProcessing={isProcessing}
+            t={t}
+            onPhraseChange={setPhrase}
+            onRestore={handleRestore}
+          />
         )}
 
         {step === "restoring" && (
@@ -225,145 +198,35 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
         )}
 
         {step === "import-data" && (
-          <div className="flex flex-col">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mb-6 mx-auto shadow-lg">
-              <Database size={32} />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.login.restoreDataTitle", "Restore your data")}</h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
-              {t("auth.login.restoreDataSubtitle", "Your identity is back. Import a backup file to bring back your chats, contacts and settings — or start fresh.")}
-            </p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".enc,.json"
-              className="hidden"
-              onChange={handleFilePicked}
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={busyImport}
-              aria-label={t("auth.login.importBackup", "Import from backup file")}
-              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed mb-3"
-            >
-              {busyImport ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <Upload size={20} />
-              )}
-              <span>{busyImport ? t("auth.login.importing", "Importing...") : t("auth.login.importBackup", "Import from backup file")}</span>
-            </button>
-            {error && (
-              <p role="alert" className="text-xs text-red-400 mb-3 text-center">{error}</p>
-            )}
-            <button
-              type="button"
-              onClick={() => setStep("set-pin")}
-              disabled={busyImport}
-              aria-label={t("auth.login.startFresh", "Start fresh")}
-              className="w-full h-11 flex items-center justify-center gap-2 rounded-xl font-medium text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
-            >
-              <ArrowRight size={18} />
-              <span>{t("auth.login.startFresh", "Start fresh")}</span>
-            </button>
-          </div>
+          <LoginImportData
+            fileInputRef={fileInputRef}
+            busyImport={busyImport}
+            error={error}
+            t={t}
+            onFilePicked={handleFilePicked}
+            onStartFresh={() => setStep("set-pin")}
+          />
         )}
 
         {step === "set-pin" && (
-          <div className="flex flex-col">
-            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.login.setPin", "Set App Lock PIN")}</h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
-              {t("auth.login.pinDescription", "Optional but recommended. Adds a layer of protection when someone opens your device.")}
-            </p>
-            {isLocked && lockBlockTimer > 0 ? (
-              <div className="text-center mb-4">
-                <p className="text-red-500 font-bold text-sm">{t('lock.locked', 'Locked')}</p>
-                <p className="text-xs mt-1 text-[var(--text-secondary)]">{t('lock.tryAgainIn', { seconds: lockBlockTimer })}</p>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-3 mb-4">
-                  <input
-                    aria-label={t("auth.login.pinPlaceholder", "Enter PIN (4-6 digits)")}
-                    type="password"
-                    inputMode="numeric"
-                    autoComplete="off"
-                    maxLength={6}
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                    placeholder={t("auth.login.pinPlaceholder", "Enter PIN (4-6 digits)")}
-                    aria-invalid={pinError || undefined}
-                    aria-describedby={pinError ? "auth-login-pin-error" : undefined}
-                    autoFocus
-                    className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-2 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors bg-[var(--bg-secondary)] border-[var(--border-color)] ${pinError ? "border-red-500 text-red-500" : ""}`}
-                  />
-                  <input
-                    aria-label={t("auth.login.confirmPinPlaceholder", "Confirm PIN")}
-                    type="password"
-                    inputMode="numeric"
-                    autoComplete="off"
-                    maxLength={6}
-                    value={pinConfirm}
-                    onChange={(e) => setPinConfirm(e.target.value.replace(/\D/g, ''))}
-                    placeholder={t("auth.login.confirmPinPlaceholder", "Confirm PIN")}
-                    aria-invalid={pinError || undefined}
-                    aria-describedby={pinError ? "auth-login-pin-error" : undefined}
-                    className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-2 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors bg-[var(--bg-secondary)] border-[var(--border-color)] ${pinError ? "border-red-500 text-red-500" : ""}`}
-                  />
-                </div>
-                {pinError && (
-                  <p id="auth-login-pin-error" role="alert" className="text-xs text-red-400 mb-3 text-center">{t("auth.login.pinError", "PINs must match and be 4-6 digits.")}</p>
-                )}
-                {error && (
-                  <p role="alert" className="text-xs text-red-400 mb-3 text-center">{error}</p>
-                )}
-                <button
-                  onClick={handleSetPin}
-                  disabled={isProcessing || pin.length < 4}
-                  aria-label={t("auth.login.continue", "Continue")}
-                  title={t("auth.login.continue", "Continue")}
-                  className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ArrowRight size={20} />
-                  <span>{t("auth.login.continue", "Continue")}</span>
-                </button>
-                <button
-                  onClick={() => {
-                    clearSensitiveData();
-                    setStep("complete");
-                  }}
-                  aria-label={t("auth.login.skipPin", "Skip PIN Setup")}
-                  title={t("auth.login.skipPin", "Skip PIN Setup")}
-                  className="w-full h-11 flex items-center justify-center gap-2 mt-3 rounded-xl font-medium text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                >
-                  <ArrowRight size={18} />
-                  <span>{t("auth.login.skipPin", "Skip PIN Setup")}</span>
-                </button>
-              </>
-            )}
-          </div>
+          <LoginSetPin
+            isLocked={isLocked}
+            lockBlockTimer={lockBlockTimer}
+            pin={pin}
+            pinConfirm={pinConfirm}
+            pinError={pinError}
+            error={error}
+            isProcessing={isProcessing}
+            t={t}
+            onPinChange={setPin}
+            onPinConfirmChange={setPinConfirm}
+            onSetPin={handleSetPin}
+            onSkip={() => { clearSensitiveData(); setStep("complete"); }}
+          />
         )}
 
         {step === "complete" && (
-          <div className="flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-              <Check size={32} strokeWidth={2.5} className="text-green-500" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">{t("auth.login.restoreSuccess", "Identity Restored")}</h2>
-            <p className="text-[var(--text-secondary)] mb-8">
-              {t("auth.login.ready", "Your identity has been restored. You can now start messaging securely.")}
-            </p>
-            <button
-              onClick={handleComplete}
-              aria-label={t("auth.login.enterApp", "Enter App")}
-              title={t("auth.login.enterApp", "Enter App")}
-              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
-            >
-              <LogIn size={20} />
-              <span>{t("auth.login.enterApp", "Enter App")}</span>
-            </button>
-          </div>
+          <LoginComplete t={t} onComplete={handleComplete} />
         )}
       </div>
 
