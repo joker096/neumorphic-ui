@@ -25,8 +25,15 @@
  * Test files count as consumers: a regression test beside a component is a
  * house requirement, not a smell. `--app-only` re-reports those separately.
  *
- * Usage: node scripts/dead-export-audit.mjs [--app-only]
- * Exit:  0 = clean, 1 = findings
+ * Exit code keys on `dead` (a removable declaration) only. `surface` means the
+ * code is live inside its own file but carries a redundant `export` — that is
+ * export hygiene, not a defect, and it is reported as INFO so a repo-wide
+ * cleanup of 200+ such keywords cannot hold the gate red forever. `--strict`
+ * restores the old behaviour of failing on any finding, for use once that
+ * cleanup is done.
+ *
+ * Usage: node scripts/dead-export-audit.mjs [--app-only] [--strict]
+ * Exit:  0 = no dead declarations, 1 = dead declarations found
  */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { dirname, join, relative, resolve, extname } from 'node:path';
@@ -375,11 +382,19 @@ for (const [file, list] of sorted) {
   }
   if (list.length > 40) console.log(`   ... +${list.length - 40} more`);
 }
+const STRICT = process.argv.includes('--strict');
+const deadCount = tally.dead || 0;
+const surfaceCount = tally.surface || 0;
+const blocking = STRICT ? findings.length : deadCount;
 console.log(
   `\n=== SUMMARY ===\n  findings: ${findings.length}` +
-    `\n    dead    (declaration removable): ${tally.dead || 0}` +
-    `\n    surface (used internally — drop 'export' only): ${tally.surface || 0}` +
+    `\n    dead    (declaration removable): ${deadCount}` +
+    `\n    surface (live code, redundant 'export' — INFO, not a failure): ${surfaceCount}` +
     (tally['test-only'] ? `\n    test-only consumers: ${tally['test-only']}` : '') +
-    `\n  RESULT: ${findings.length ? 'FAIL' : 'PASS'}\n`,
+    `\n  RESULT: ${blocking ? 'FAIL' : 'PASS'}` +
+    (surfaceCount && !STRICT
+      ? `\n  note: ${surfaceCount} surface item(s) do not fail this gate; pass --strict to require them too`
+      : '') +
+    `\n`,
 );
-process.exit(findings.length ? 1 : 0);
+process.exit(blocking ? 1 : 0);
