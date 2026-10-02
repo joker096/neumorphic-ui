@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Play, Loader2, FileText, FileSpreadsheet, FileArchive, FileCode,
-  Image as ImageIcon, Music, Film, ImageOff, VideoOff, Download, Link2,
-  type LucideIcon,
-} from "lucide-react";
+import { Play, ImageOff, VideoOff } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { useAppStore } from "../../store";
 import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
@@ -12,20 +8,11 @@ import { GeoMessageCard } from "./GeoMessageCard";
 import { useVoiceBlobUrl } from "../../hooks/useVoiceBlobUrl";
 import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
 import { formatSize } from "../../utils/formatSize";
-import { getFileKind, type FileKind } from "../../utils/fileType";
 import { StoryCard } from "../stories/StoryCard";
-
-const FILE_KIND_STYLE: Record<FileKind, { Icon: LucideIcon; tint: string }> = {
-  pdf: { Icon: FileText, tint: "bg-rose-500/15 text-rose-500" },
-  doc: { Icon: FileText, tint: "bg-sky-500/15 text-sky-500" },
-  sheet: { Icon: FileSpreadsheet, tint: "bg-emerald-500/15 text-emerald-500" },
-  image: { Icon: ImageIcon, tint: "bg-violet-500/15 text-violet-500" },
-  audio: { Icon: Music, tint: "bg-amber-500/15 text-amber-500" },
-  video: { Icon: Film, tint: "bg-fuchsia-500/15 text-fuchsia-500" },
-  archive: { Icon: FileArchive, tint: "bg-orange-500/15 text-orange-500" },
-  code: { Icon: FileCode, tint: "bg-cyan-500/15 text-cyan-500" },
-  other: { Icon: FileText, tint: "bg-slate-500/15 text-slate-400" },
-};
+import { AlbumGrid } from "./attachments/AlbumGrid";
+import { AttachmentUnavailable } from "./attachments/AttachmentUnavailable";
+import { FileAttachmentRow } from "./attachments/FileAttachmentRow";
+import { ArticleMessageCard } from "./attachments/ArticleMessageCard";
 
 interface AttachmentMediaProps {
   msg: any;
@@ -36,37 +23,6 @@ interface AttachmentMediaProps {
   onSetPhotoOpen: (open: boolean) => void;
   onSetVideoOpen: (open: boolean) => void;
   onSetActiveMediaMsg?: (msg: any) => void;
-}
-
-interface AlbumTileProps {
-  url: string;
-  alt: string;
-  onError: () => void;
-  className?: string;
-}
-
-function AlbumTile({ url, alt, onError, className }: AlbumTileProps) {
-  const isFtr = typeof url === "string" && url.startsWith(FTR_MAGIC);
-  const ftrId = isFtr ? url.slice(FTR_MAGIC.length) : null;
-  const ftrEntry = useFtrBlobUrl(ftrId);
-  const src = ftrId ? ftrEntry?.url : url;
-  if (!src) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]">
-        <Loader2 size={18} className="animate-spin text-[var(--text-tertiary)]" />
-      </div>
-    );
-  }
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className={className}
-      loading="lazy"
-      decoding="async"
-      onError={onError}
-    />
-  );
 }
 
 export function AttachmentMedia({
@@ -87,6 +43,7 @@ export function AttachmentMedia({
   const autoLoadBlocked =
     mediaAutoLoad === "Off" || (mediaAutoLoad === "Wi-Fi" && !navigator.onLine);
   const shouldShowMedia = !autoLoadBlocked || revealed;
+  const reveal = () => setRevealed(true);
 
   // one shared cache (fileStore) serves every consumer, so the blob behind a
   // resolved transfer is assembled once per page instead of once per call site
@@ -144,74 +101,22 @@ export function AttachmentMedia({
       : null;
     if (albumItems && albumItems.length > 1) {
       if (!shouldShowMedia) {
-        return (
-          <div className={`flex items-center justify-center gap-2 rounded-xl border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-            <ImageOff size={18} />
-            <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
-            {autoLoadBlocked && (
-              <button
-                type="button"
-                onClick={() => setRevealed(true)}
-                className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
-              >
-                {t("chat.loadAttachment", "Load")}
-              </button>
-            )}
-          </div>
-        );
+        return <AttachmentUnavailable icon={ImageOff} isDark={isDark} onReveal={autoLoadBlocked ? reveal : undefined} />;
       }
-      const shown = albumItems.slice(0, 4);
-      const remaining = albumItems.length - shown.length;
       return (
-        <div
-          className="grid grid-cols-2 gap-1 rounded-[var(--message-radius)] overflow-hidden mb-1 border border-[var(--border-color)] inline-block max-w-full cursor-pointer w-[260px] sm:w-[300px]"
-          onClick={() => { onSetActiveMediaMsg?.(msg); onSetActivePhotoUrl(shown[0]!.url); onSetPhotoOpen(true); }}
-        >
-          {shown.map((it: any, i: number) => {
-            const isFailed = albumFailed.includes(i);
-            return (
-              <div key={`${it.url}-${i}`} className="relative aspect-square overflow-hidden">
-                {!isFailed ? (
-                  <AlbumTile
-                    url={it.url}
-                    alt={msg.text ? t("chat.sharedImageText", { text: msg.text }) : t("chat.sharedImage")}
-                    className="w-full h-full object-cover"
-                    onError={() => setAlbumFailed((prev) => (prev.includes(i) ? prev : [...prev, i]))}
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]">
-                    <ImageOff size={18} className="text-[var(--text-tertiary)]" />
-                  </div>
-                )}
-                {i === shown.length - 1 && remaining > 0 && (
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">+{remaining}</span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <AlbumGrid
+          items={albumItems}
+          alt={msg.text ? t("chat.sharedImageText", { text: msg.text }) : t("chat.sharedImage")}
+          failed={albumFailed}
+          onItemError={(i) => setAlbumFailed((prev) => (prev.includes(i) ? prev : [...prev, i]))}
+          onOpen={(url) => { onSetActiveMediaMsg?.(msg); onSetActivePhotoUrl(url); onSetPhotoOpen(true); }}
+        />
       );
     }
     if (ftrPending && !autoLoadBlocked) return ftrPendingRow;
     const src = ftrId ? (ftrReadyUrl ? ftrUrl : null) : (msg.attachment || msg.url);
     if (!src || mediaErr || !shouldShowMedia) {
-      return (
-        <div className={`flex items-center justify-center gap-2 rounded-xl border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-          <ImageOff size={18} />
-          <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
-          {autoLoadBlocked && (
-            <button
-              type="button"
-              onClick={() => setRevealed(true)}
-              className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
-            >
-              {t("chat.loadAttachment", "Load")}
-            </button>
-          )}
-        </div>
-      );
+      return <AttachmentUnavailable icon={ImageOff} isDark={isDark} onReveal={autoLoadBlocked ? reveal : undefined} />;
     }
     return (
       <div
@@ -251,21 +156,7 @@ export function AttachmentMedia({
         );
       }
       if (mediaErr || !shouldShowMedia) {
-        return (
-          <div className={`flex items-center justify-center gap-2 rounded-full border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-            <VideoOff size={18} />
-            <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
-            {autoLoadBlocked && (
-              <button
-                type="button"
-                onClick={() => setRevealed(true)}
-                className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
-              >
-                {t("chat.loadAttachment", "Load")}
-              </button>
-            )}
-          </div>
-        );
+        return <AttachmentUnavailable icon={VideoOff} isDark={isDark} radiusClass="rounded-full" onReveal={autoLoadBlocked ? reveal : undefined} />;
       }
       return (
         <div
@@ -303,21 +194,7 @@ export function AttachmentMedia({
     }
     const thumb = msg.thumb;
     if (!thumb || mediaErr || !shouldShowMedia) {
-      return (
-        <div className={`flex items-center justify-center gap-2 rounded-[12px] border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-          <VideoOff size={18} />
-          <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
-          {autoLoadBlocked && (
-            <button
-              type="button"
-              onClick={() => setRevealed(true)}
-              className="min-h-11 px-3 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs font-semibold"
-            >
-              {t("chat.loadAttachment", "Load")}
-            </button>
-          )}
-        </div>
-      );
+      return <AttachmentUnavailable icon={VideoOff} isDark={isDark} radiusClass="rounded-[12px]" onReveal={autoLoadBlocked ? reveal : undefined} />;
     }
     return (
       <div
@@ -341,35 +218,15 @@ export function AttachmentMedia({
   }
 
   if (msg.type === "file") {
-    const size = typeof msg.fileSize === "number" && msg.fileSize > 0 ? formatSize(msg.fileSize) : null;
-    const sub = [msg.text, size].filter(Boolean).join("  ·  ");
-    const ftrUnavailable = Boolean(ftrId) && !ftrReadyUrl && !ftrPending;
-    const { Icon: KindIcon, tint: kindTint } = FILE_KIND_STYLE[getFileKind(msg.fileName, msg.mime)];
     return (
-      <div className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 ${isDark ? "bg-white/5 border-[var(--border-color)]" : "bg-slate-100 border-[var(--border-color)]"}`}>
-        <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${kindTint}`}>
-          <KindIcon size={20} />
-        </div>
-        <div className="min-w-0">
-          <div className="text-sm font-medium truncate">{msg.fileName || t("chat.file")}</div>
-          {sub && <div className={`text-xs truncate ${isDark ? "text-gray-400" : "text-slate-500"}`}>{sub}</div>}
-          {(!msg.attachment || ftrUnavailable) && (
-            <div className={`text-xs truncate ${isDark ? "text-rose-400" : "text-rose-500"}`}>{t("chat.attachmentUnavailable", "Attachment unavailable")}</div>
-          )}
-        </div>
-        {ftrPending ? (
-          <span aria-hidden="true" className={`shrink-0 w-5 h-5 border-2 rounded-full animate-spin border-t-transparent ${isDark ? "border-gray-400" : "border-slate-400"}`} />
-        ) : ftrReadyUrl ? (
-          <a
-            href={ftrUrl || undefined}
-            download={msg.fileName || undefined}
-            aria-label={t("media.downloadDoc", "Download")}
-            className={`min-h-11 min-w-11 shrink-0 flex items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)]`}
-          >
-            <Download size={16} />
-          </a>
-        ) : null}
-      </div>
+      <FileAttachmentRow
+        msg={msg}
+        isDark={isDark}
+        hasTransfer={Boolean(ftrId)}
+        pending={Boolean(ftrPending)}
+        ready={Boolean(ftrReadyUrl)}
+        url={ftrUrl}
+      />
     );
   }
 
@@ -382,33 +239,4 @@ export function AttachmentMedia({
   }
 
   return null;
-}
-
-interface ArticleMessageCardProps {
-  msg: any;
-}
-
-function ArticleMessageCard({ msg }: ArticleMessageCardProps) {
-  const url = typeof msg.url === "string" ? msg.url : "";
-  if (!url) return null;
-  let host = "";
-  try {
-    host = new URL(url).host;
-  } catch {
-    host = url;
-  }
-  const title = typeof msg.title === "string" && msg.title.trim() ? msg.title.trim() : host;
-  return (
-    <div className="rounded-xl border mb-2 overflow-hidden">
-      <a href={url} target="_blank" rel="noopener noreferrer" className="block p-3 hover:opacity-90">
-        <div className="text-sm font-semibold break-words mb-1">{title}</div>
-        <div className="text-xs break-all flex items-center gap-1 opacity-70">
-          <Link2 size={12} className="flex-shrink-0" /> {host}
-        </div>
-        {msg.text && (
-          <div className="mt-1 text-xs break-words opacity-80">{String(msg.text)}</div>
-        )}
-      </a>
-    </div>
-  );
 }
