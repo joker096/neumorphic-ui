@@ -1,7 +1,3 @@
-import React, { useState } from "react";
-import { Scan } from "lucide-react";
-import { useI18n } from '../lib/i18n';
-
 const MORSE_MAP: Record<string, string> = {
   // Latin (ITU-R standard)
   A: ".-",
@@ -117,79 +113,4 @@ export const isMorseCode = (text: string) => {
 export const decodeIfMorse = (text: string) => {
   if (typeof text === "string" && isMorseCode(text)) return decodeMorse(text);
   return text;
-};
-
-export const MorseDecoder = ({
-  encodedText,
-}: {
-  encodedText: string;
-}) => {
-  const { t } = useI18n();
-  const [decoded, setDecoded] = useState("");
-
-  const label = (key: string, fallback: string) => {
-    const translated = t(key);
-    return translated === key ? fallback : translated;
-  };
-
-  const handleDecode = () => {
-    setDecoded(decodeMorse(encodedText));
-  };
-
-  return (
-    <div className="flex flex-col gap-2 mt-2 w-full">
-      <div
-        className={`p-3 rounded-md ${
-          'bg-[var(--bg-secondary)] text-[var(--text-primary)]'
-        }`}
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <div
-            className={`text-xs font-mono tracking-widest px-2 py-0.5 rounded ${
-              'bg-orange-500/20 text-orange-400'
-            }`}
-          >
-            {label('morseDecoder.morseEncoded', 'MORSE ENCODED')}
-          </div>
-        </div>
-        <div className="font-mono text[11px] leading-relaxed break-all opacity-80">
-          {encodedText}
-        </div>
-        {!decoded ? (
-           <button
-             onClick={handleDecode}
-             aria-label={label('morseDecoder.decode', 'DECODE MORSE')}
-             title={label('morseDecoder.decode', 'DECODE MORSE')}
-             className={`mt-3 min-h-11 px-4 flex items-center justify-center gap-2 rounded font-mono text-xs tracking-widest transition-colors ${
-               'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30'
-             }`}
-           >
-             <Scan size={16} />
-             <span>{label('morseDecoder.decode', 'DECODE MORSE')}</span>
-           </button>
-        ) : (
-          <div
-            className={`mt-3 p-3 rounded-lg border ${
-              'bg-amber-500/10 border-amber-500/20'
-            }`}
-          >
-            <div
-              className={`text-xs font-mono tracking-wider mb-1 ${
-                'text-amber-500/70'
-              }`}
-            >
-              {label('morseDecoder.decodedText', 'DECODED TEXT')}
-            </div>
-            <div
-              className={`font-mono font-medium text-[13px] ${
-                'text-amber-100'
-              }`}
-            >
-              {decoded}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
 };
