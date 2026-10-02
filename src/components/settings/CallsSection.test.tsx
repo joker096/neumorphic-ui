@@ -57,7 +57,7 @@ import { CallsSection } from './CallsSection';
 import { callManager } from '../../lib/call/CallManager';
 import { runRecordingRetention } from '../../lib/recordingRetention';
 import { toast } from 'sonner';
-import { MOCK_CALLS } from '../../constants/mockData';
+import { MOCK_CALLS } from '../../constants/mock/mockCalls';
 
 const t = (key: string, fallback?: string) => (typeof fallback === 'string' ? fallback : key);
 

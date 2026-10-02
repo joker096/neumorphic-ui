@@ -1,6 +1,9 @@
 import type { Contact } from '../types/contact';
 import type { P2PChannel } from '../store/types';
-import { MOCK_CHANNELS, MOCK_CHATS, MOCK_CONTACTS, MOCK_CALLS } from '../constants';
+import { MOCK_CHANNELS } from '../constants/mock/mockChannels';
+import { MOCK_CHATS } from '../constants/mock/mockChats';
+import { MOCK_CONTACTS } from '../constants/mock/mockContacts';
+import { MOCK_CALLS } from '../constants/mock/mockCalls';
 
 /**
  * Seed mock data into the store (called once on app init)

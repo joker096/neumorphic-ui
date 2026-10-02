@@ -5,7 +5,7 @@ import { SubView } from '../ui/SubView';
 import { useAppStore } from '../../store';
 import { runRecordingRetention } from '../../lib/recordingRetention';
 import { callManager } from '../../lib/call/CallManager';
-import { MOCK_CALLS } from '../../constants/mockData';
+import { MOCK_CALLS } from '../../constants/mock/mockCalls';
 import { toast } from 'sonner';
 
 interface CallsSectionProps {
