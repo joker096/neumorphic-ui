@@ -2,39 +2,31 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  X, MessageCircle, Phone, Video, Users, Bell, BellOff, Image as ImageIcon, FileText,
-  Link as LinkIcon, Mic, Shield, Crown, UserX, LogOut, Volume2, VolumeX, Info,
-  Bot as BotIcon, AtSign, Globe, Lock, Trash2, Pin, UserPlus, BadgeCheck,
+  X, MessageCircle, Phone, Video, UserX, LogOut, Volume2, VolumeX,
+  Bot as BotIcon, Globe, Lock, Trash2, UserPlus, BadgeCheck,
 } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 import { useAppStore } from '../store';
 import { ConfirmDialog } from './ui/ConfirmDialog';
-import { previewOf } from './chat-preview/PinnedMessagesBar';
 import { findCrmContactByChat } from '../lib/crm/bridge';
-import { CrmCard } from './crm/CrmCard';
 import { CloseButton } from './ui/CloseButton';
 import { InviteQRModal } from './ui/InviteQRModal';
-import { ToggleSwitch } from './ui/SettingsRow';
 import { toast } from './ui/Toast';
-import { DataState } from './ui/DataState';
 import { channelInviteLink as buildChannelInviteLink } from '../config/app';
-import type { GroupInfo, GroupMember, GroupPermissions } from '../store/slices/chatSlice';
+import type { GroupMember, GroupPermissions } from '../store/slices/chatSlice';
 import { canGroupPermission, getGroupRole, groupPermissionsOf } from '../store/slices/chatSlice';
-import { GroupManagementPanel } from './chat/GroupManagementPanel';
-import { SharedMediaTabs } from './chat/SharedMediaTabs';
 import {
-  CHAT_PROFILE_MEDIA_GRADIENTS,
-  CHAT_PROFILE_MOCK_MEMBERS,
   CHAT_PROFILE_DEFAULT_SUBSCRIBERS,
   CHAT_PROFILE_DEFAULT_MEMBERS,
 } from '../constants/chatConstants';
-import { formatLongDate } from '../utils/dateTime';
+import { ChatProfileBody, type ChatProfileKind, type ProfileChat } from './chat-profile/ChatProfileBody';
+import { ChatProfileActions } from './chat-profile/ChatProfileActions';
 
-export type ChatProfileKind = 'user' | 'group' | 'channel' | 'bot';
+export type { ChatProfileKind } from './chat-profile/ChatProfileBody';
 
 interface ChatProfileViewProps {
   open: boolean;
-  chat: { id: any; name: string; color: string; type?: ChatProfileKind; online?: boolean; members?: number | GroupMember[]; subscribers?: number; subscriberCount?: number; group?: GroupInfo; bio?: string; username?: string; verified?: boolean; isChannel?: boolean; isPublic?: boolean; isPrivate?: boolean; description?: string;   postCount?: number; history?: any[]; ownerId?: string };
+  chat: ProfileChat;
   isDark?: boolean;
   onClose: () => void;
   onMessage?: () => void;
@@ -42,18 +34,10 @@ interface ChatProfileViewProps {
   onVideoCall?: () => void;
 }
 
-const TABS = [
-  { id: 'media', label: 'profile.tab.media', fallback: 'Media', icon: <ImageIcon size={14} /> },
-  { id: 'files', label: 'profile.tab.files', fallback: 'Files', icon: <FileText size={14} /> },
-  { id: 'links', label: 'profile.tab.links', fallback: 'Links', icon: <LinkIcon size={14} /> },
-  { id: 'voice', label: 'profile.tab.voice', fallback: 'Voice', icon: <Mic size={14} /> },
-];
-
 export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage, onCall, onVideoCall }: ChatProfileViewProps) => {
   const { t, lang } = useI18n();
   const kind: ChatProfileKind = chat.type ?? (chat.isChannel ? 'channel' : 'user');
   const channelInviteLink = buildChannelInviteLink(chat.username, chat.id);
-  const [activeTab, setActiveTab] = useState('media');
   const [muted, setMuted] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
@@ -108,6 +92,16 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
     });
   };
 
+  const handleMuteAction = () => {
+    if (kind === 'group' || kind === 'channel') { setChatMuted(chat.id, !isChatMuted); return; }
+    toast(t('profile.notificationsOff', 'Muted for this chat'), 'info');
+  };
+
+  const handleToggleMute = () => {
+    if (kind === 'group' || kind === 'channel') { setChatMuted(chat.id, !isChatMuted); return; }
+    setMuted((v) => !v);
+  };
+
   const handleBlockToggle = () => {
     if (!blockedContact) return;
     setContactBlocked(blockedContact.id, !contactBlocked);
@@ -128,40 +122,6 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
     if (kind === 'bot') return t('profile.bot', 'Bot');
     return chat.online ? t('profile.online', 'online') : chat.username ?? t('profile.offline', 'last seen recently');
   };
-
-  const actions = (
-    <div className="flex items-center gap-2 mt-3">
-      <button onClick={() => { onMessage?.(); onClose(); }} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-[var(--accent)] text-[var(--button-primary-text)] font-medium min-h-11 active:scale-95 transition-transform">
-        <MessageCircle size={16} /> {t('profile.message', 'Message')}
-      </button>
-      {kind !== 'channel' && (
-        <button onClick={() => { onCall?.(); onClose(); }} aria-label={t('profile.call')} className="shrink-0 w-10 h-10 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
-          <Phone size={16} />
-        </button>
-      )}
-      {kind === 'user' || kind === 'bot' ? (
-        <button onClick={() => { onVideoCall?.(); onClose(); }} aria-label={t('profile.video')} className="shrink-0 w-10 h-10 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
-          <Video size={16} />
-        </button>
-      ) : (
-        <button
-          onClick={() => {
-            if (kind === 'group' || kind === 'channel') { setChatMuted(chat.id, !isChatMuted); return; }
-            toast(t('profile.notificationsOff', 'Muted for this chat'), 'info');
-          }}
-          aria-label={t('profile.mute')}
-          className="shrink-0 w-10 h-10 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform"
-        >
-          {isChatMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-        </button>
-      )}
-      {kind === 'channel' && (
-        <button onClick={() => setShowInvite(true)} aria-label={t('invite')} className="shrink-0 w-10 h-10 min-w-11 min-h-11 rounded-xl flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-primary)] active:scale-95 transition-transform">
-          <UserPlus size={16} />
-        </button>
-      )}
-    </div>
-  );
 
   return createPortal(
     <>
@@ -201,164 +161,39 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   </div>
                 )}
                 {chat.description && <div className={`mt-1.5 text-[11px] leading-relaxed ${isDark ? "text-[var(--text-secondary)]" : "text-slate-400"}`}>{chat.description}</div>}
-                {actions}
+                <ChatProfileActions
+                  kind={kind}
+                  isChatMuted={isChatMuted}
+                  onMessage={onMessage}
+                  onCall={onCall}
+                  onVideoCall={onVideoCall}
+                  onClose={onClose}
+                  onMute={handleMuteAction}
+                  onInvite={() => setShowInvite(true)}
+                />
               </div>
 
-              {/* Channel statistics */}
-              {kind === 'channel' && (
-                <div className="px-4 mt-5">
-                  <SectionTitle icon={<Info size={16} />} title={t('profile.statistics', 'Statistics')} isDark={isDark} />
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-                      <div className={`text-lg font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.subscriberCount ?? chat.subscribers ?? CHAT_PROFILE_DEFAULT_SUBSCRIBERS}</div>
-                      <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('profile.subscribersLabel', 'Subscribers')}</div>
-                    </div>
-                    <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-                      <div className={`text-lg font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.postCount ?? chat.history?.length ?? 0}</div>
-                      <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('profile.postsLabel', 'Posts')}</div>
-                    </div>
-                    <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-                      <div className={`text-sm font-bold truncate px-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.ownerId ? (ownerName || t('profile.owner', 'Owner')) : '—'}</div>
-                      <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('profile.owner', 'Owner')}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Group info */}
-              {kind === 'group' && (
-                <div className="px-4 mt-5">
-                  <SectionTitle icon={<Info size={16} />} title={t('profile.groupInfo', 'Group info')} isDark={isDark} />
-                  <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-                    <InfoRow label={t('profile.owner', 'Owner')} value={ownerName ?? '—'} isDark={isDark} />
-                    {groupCreatedAt ? <InfoRow label={t('profile.created', 'Created')} value={formatLongDate(groupCreatedAt, lang)} isDark={isDark} /> : null}
-                    <InfoRow label={t('profile.description', 'Description')} value={groupDescription || t('profile.noDescription', 'No description')} isDark={isDark} />
-                  </div>
-                </div>
-              )}
-
-              {/* Quick toggles */}
-              <div className="px-4 mt-4 space-y-2">
-                <Row icon={isChatMuted ? <BellOff size={16} /> : <Bell size={16} />} title={t('profile.mute', 'Mute')} isDark={isDark} right={<ToggleSwitch isOn={isChatMuted} onToggle={() => (kind === 'group' || kind === 'channel' ? setChatMuted(chat.id, !isChatMuted) : setMuted(v => !v))} ariaLabel={t('profile.mute', 'Mute')} isDark={isDark} />} />
-              </div>
-
-              {/* In-chat CRM card */}
-              {crmMatch && (
-                <div className="px-4 mt-4">
-                  <CrmCard
-                    contact={crmMatch}
-                    deals={crmDeals}
-                    tasks={crmTasks}
-                    isDark={isDark}
-                  />
-                </div>
-              )}
-
-              {/* Media tabs */}
-              {kind === 'group' ? (
-                <div className="px-4 mt-5">
-                  <SectionTitle icon={<ImageIcon size={16} />} title={t('profile.sharedMedia', 'Shared media')} isDark={isDark} />
-                  <SharedMediaTabs messages={groupMessages} isDark={isDark} onOpenChat={() => { onMessage?.(); onClose(); }} />
-                </div>
-              ) : (
-                <div className="px-4 mt-5">
-                  <div className="flex gap-1.5 overflow-x-auto">
-                    {TABS.map(tab => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`group flex items-center justify-center min-w-11 min-h-11 p-1 rounded-full transition-colors ${activeTab === tab.id ? "" : (isDark ? "hover:bg-white/5" : "hover:bg-slate-100")}`}
-                      >
-                        <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}>
-                          {tab.icon} {t(tab.label, tab.fallback)}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="mt-3">
-                    {activeTab === 'media' && (
-                      <div className="grid grid-cols-3 gap-2">
-                        {CHAT_PROFILE_MEDIA_GRADIENTS.map((g, i) => (
-                          <div key={i} className={`aspect-square rounded-xl bg-gradient-to-br ${g}`} />
-                        ))}
-                      </div>
-                    )}
-                    {activeTab === 'files' && <Placeholder icon={<FileText size={20} />} text={t('profile.noFiles', 'No files yet')} isDark={isDark} />}
-                    {activeTab === 'links' && <Placeholder icon={<LinkIcon size={20} />} text={t('profile.noLinks', 'No links yet')} isDark={isDark} />}
-                    {activeTab === 'voice' && <Placeholder icon={<Mic size={20} />} text={t('profile.noVoice', 'No voice messages')} isDark={isDark} />}
-                  </div>
-                </div>
-              )}
-
-              {/* Members / Admins */}
-              {kind === 'group' ? (
-                <div className="px-4 mt-5">
-                  <SectionTitle icon={<Users size={16} />} title={t('profile.members', 'Members')} isDark={isDark} />
-                  <GroupManagementPanel
-                    chatId={chat.id}
-                    members={Array.isArray(chat.members) ? chat.members : []}
-                    group={chat.group ?? { inviteToken: `ma_${chat.id}`, slowModeSeconds: 0, ownerId: '' }}
-                    isDark={isDark}
-                  />
-                </div>
-              ) : kind === 'channel' ? (
-                <div className="px-4 mt-5">
-                  <SectionTitle icon={<Users size={16} />} title={t('profile.administrators', 'Administrators')} isDark={isDark} />
-                  <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-                    {CHAT_PROFILE_MOCK_MEMBERS.map((name, i) => (
-                      <div key={name} className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white font-bold">
-                          {name.charAt(0)}
-                        </div>
-                        <div className="flex-1">
-                          <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{name}</div>
-                          {i === 0 && <div className={`text-xs flex items-center gap-1 ${isDark ? "text-amber-400" : "text-amber-600"}`}><Crown size={12} /> {t('profile.owner', 'Owner')}</div>}
-                        </div>
-                        {i === 0 && <Shield size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Pinned messages (groups) */}
-              {kind === 'group' && (
-                <div className="px-4 mt-5">
-                  <SectionTitle icon={<Pin size={16} />} title={t('profile.pinnedMessages', 'Pinned messages')} isDark={isDark} />
-                  {groupPinned.length === 0 ? (
-                    <DataState status="empty" isDark={isDark} title={t('group.noPinned', 'No pinned messages')} action={{ label: t('chat.openChat', 'Open chat'), onClick: () => { onMessage?.(); onClose(); } }} />
-                  ) : (
-                    <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-                      {groupPinned.map((p: any) => (
-                        <div key={p.id} className="flex items-start gap-2 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
-                          <div className={`flex-1 min-w-0 text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{previewOf(groupMessages, p.id)}</div>
-                          <button
-                            type="button"
-                            onClick={() => removePinnedMessage(p.id, chat.id)}
-                            aria-label={t('chat.unpin', 'Unpin')}
-                            className={`shrink-0 min-h-11 min-w-11 px-2 rounded-lg flex items-center justify-center cursor-pointer ${isDark ? "text-gray-400 hover:text-red-400 hover:bg-white/5" : "text-slate-500 hover:text-red-500 hover:bg-black/5"}`}
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Permissions / Privacy (group admins only: toggles are no-ops otherwise) */}
-              {kind === 'group' && canManageGroup && (
-              <div className="px-4 mt-5">
-                <SectionTitle icon={<Shield size={16} />} title={t('profile.permissions', 'Permissions')} isDark={isDark} />
-                <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-                  <Row icon={<MessageCircle size={16} />} title={t('profile.sendMessages', 'Send messages')} isDark={isDark} right={<ToggleSwitch isOn={groupPerms.sendMessages} ariaLabel={t('profile.sendMessages', 'Send messages')} onToggle={() => toggleGroupPermission('sendMessages')} isDark={isDark} />} />
-                  <Row icon={<Users size={16} />} title={t('profile.addMembers', 'Add members')} isDark={isDark} right={<ToggleSwitch isOn={groupPerms.addMembers} ariaLabel={t('profile.addMembers', 'Add members')} onToggle={() => toggleGroupPermission('addMembers')} isDark={isDark} />} />
-                  <Row icon={<AtSign size={16} />} title={t('profile.mentionEveryone', 'Mention everyone')} isDark={isDark} right={<ToggleSwitch isOn={groupPerms.mentionEveryone} ariaLabel={t('profile.mentionEveryone', 'Mention everyone')} onToggle={() => toggleGroupPermission('mentionEveryone')} isDark={isDark} />} />
-                </div>
-              </div>
-              )}
+              <ChatProfileBody
+                chat={chat}
+                kind={kind}
+                isDark={isDark}
+                ownerName={ownerName}
+                groupCreatedAt={groupCreatedAt}
+                groupDescription={groupDescription}
+                crmMatch={crmMatch}
+                crmDeals={crmDeals}
+                crmTasks={crmTasks}
+                groupMessages={groupMessages}
+                groupPinned={groupPinned}
+                groupPerms={groupPerms}
+                canManageGroup={canManageGroup}
+                isChatMuted={isChatMuted}
+                onToggleMute={handleToggleMute}
+                removePinnedMessage={removePinnedMessage}
+                toggleGroupPermission={toggleGroupPermission}
+                onMessage={onMessage}
+                onClose={onClose}
+              />
             </div>
 
             {/* Footer actions */}
