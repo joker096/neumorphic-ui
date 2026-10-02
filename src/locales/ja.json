@@ -652,11 +652,6 @@
     "pause": "一時停止",
     "stopAndSend": "停止して送信"
   },
-  "morseDecoder": {
-    "morseEncoded": "モールス符号化",
-    "decode": "モールスを復号",
-    "decodedText": "復号されたテキスト"
-  },
   "photoViewer": {
     "fullView": "全体表示",
     "p2pEncrypted": "P2P暗号化メディア",

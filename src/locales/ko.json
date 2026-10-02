@@ -652,11 +652,6 @@
     "pause": "일시 중지",
     "stopAndSend": "중지 및 보내기"
   },
-  "morseDecoder": {
-    "morseEncoded": "MORSE ENCODED",
-    "decode": "DECODE MORSE",
-    "decodedText": "DECODED TEXT"
-  },
   "photoViewer": {
     "fullView": "전체 보기",
     "p2pEncrypted": "P2P Encrypted Media",

@@ -399,7 +399,7 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('All top-level sections', () => {
-    const sections = ['nav', 'chat', 'common', 'createChannel', 'createBot', 'admin', 'aftercare', 'campaigns', 'campaignSheet', 'channelComments', 'recordings', 'voiceRecorder', 'morseDecoder', 'photoViewer', 'meshRadar', 'accountSwitcher', 'soundSettings', 'systemPlayer', 'search', 'confirmDialog', 'toast', 'views', 'contacts', 'header', 'lock', 'hub', 'settings', 'gifSearch', 'error', 'stickers', 'login', 'company', 'offline', 'notif'];
+    const sections = ['nav', 'chat', 'common', 'createChannel', 'createBot', 'admin', 'aftercare', 'campaigns', 'campaignSheet', 'channelComments', 'recordings', 'voiceRecorder', 'photoViewer', 'meshRadar', 'accountSwitcher', 'soundSettings', 'systemPlayer', 'search', 'confirmDialog', 'toast', 'views', 'contacts', 'header', 'lock', 'hub', 'settings', 'gifSearch', 'error', 'stickers', 'login', 'company', 'offline', 'notif'];
 
     for (const section of sections) {
       it(`section "${section}" has at least one key in en.json`, () => {

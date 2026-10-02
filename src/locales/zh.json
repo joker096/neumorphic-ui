@@ -652,11 +652,6 @@
     "pause": "暂停",
     "stopAndSend": "停止并发送"
   },
-  "morseDecoder": {
-    "morseEncoded": "MORSE ENCODED",
-    "decode": "DECODE MORSE",
-    "decodedText": "DECODED TEXT"
-  },
   "photoViewer": {
     "fullView": "全屏查看",
     "p2pEncrypted": "P2P 加密媒体",

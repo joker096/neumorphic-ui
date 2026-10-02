@@ -652,11 +652,6 @@
     "pause": "Пауза",
     "stopAndSend": "Стоп и отправить"
   },
-  "morseDecoder": {
-    "morseEncoded": "АЗБУКА МОРЗЕ",
-    "decode": "ДЕКОДИРОВАТЬ",
-    "decodedText": "РАСШИФРОВКА"
-  },
   "photoViewer": {
     "fullView": "Полный просмотр",
     "p2pEncrypted": "P2P Зашифрованный медиафайл",

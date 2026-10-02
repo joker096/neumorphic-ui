@@ -652,11 +652,6 @@
     "pause": "Pause",
     "stopAndSend": "Stoppen und senden"
   },
-  "morseDecoder": {
-    "morseEncoded": "MORSE KODIERT",
-    "decode": "MORSE DEKODIEREN",
-    "decodedText": "DEKODIERTER TEXT"
-  },
   "photoViewer": {
     "fullView": "Vollansicht",
     "p2pEncrypted": "P2P-verschlüsselte Medien",
