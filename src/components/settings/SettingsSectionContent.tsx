@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { CompanySettingsView } from './CompanySettingsView';
 import { AnimatePresence } from 'motion/react';
 import { AppearanceSettings } from './AppearanceSettings';
@@ -8,22 +8,7 @@ import { ProfileSection } from './ProfileSection';
 import { SettingsMainMenu } from './SettingsMainMenu';
 import { useSettingsSectionData } from './useSettingsSectionData';
 
-const NetworkSection = React.lazy(() => import('./NetworkSection').then(m => ({ default: m.NetworkSection })));
-const DevicesSection = React.lazy(() => import('./DevicesSection').then(m => ({ default: m.DevicesSection })));
-const SecuritySection = React.lazy(() => import('./SecuritySection').then(m => ({ default: m.SecuritySection })));
-const BotsSection = React.lazy(() => import('./BotsSection').then(m => ({ default: m.BotsSection })));
-const SystemStatusSection = React.lazy(() => import('./SystemStatusSection').then(m => ({ default: m.SystemStatusSection })));
-const StorageSection = React.lazy(() => import('./StorageSection').then(m => ({ default: m.StorageSection })));
-const NotificationsSection = React.lazy(() => import('./NotificationsSection').then(m => ({ default: m.NotificationsSection })));
-const FoldersSection = React.lazy(() => import('./FoldersSection').then(m => ({ default: m.FoldersSection })));
-const BackupExportSection = React.lazy(() => import('./BackupExportSection').then(m => ({ default: m.BackupExportSection })));
-const HelpSupportSection = React.lazy(() => import('./HelpSupportSection').then(m => ({ default: m.HelpSupportSection })));
-const CompanyGuideSection = React.lazy(() => import('./CompanyGuideSection').then(m => ({ default: m.CompanyGuideSection })));
-const PaymentsSection = React.lazy(() => import('./PaymentsSection').then(m => ({ default: m.PaymentsSection })));
-const PaymentRequestsSection = React.lazy(() => import('./PaymentRequestsSection').then(m => ({ default: m.PaymentRequestsSection })));
-const CallsSection = React.lazy(() => import('./CallsSection').then(m => ({ default: m.CallsSection })));
-const PremiumSection = React.lazy(() => import('./PremiumSection').then(m => ({ default: m.PremiumSection })));
-const MeshSection = React.lazy(() => import('./MeshSection').then(m => ({ default: m.MeshSection })));
+import { NetworkSection, DevicesSection, SecuritySection, BotsSection, SystemStatusSection, StorageSection, NotificationsSection, FoldersSection, BackupExportSection, HelpSupportSection, CompanyGuideSection, PaymentsSection, PaymentRequestsSection, CallsSection, PremiumSection, MeshSection } from './lazySections';
 
 export type SettingsSectionContentProps = {
   theme: 'light' | 'dark';
