@@ -1,13 +1,10 @@
 import React from "react";
-import { AppSideList } from "./AppSideList";
 import { AppMainContent } from "./AppMainContent";
+import { AppShellDesktop } from "./AppShellDesktop";
 import { BottomNav } from "../navigation";
-import { EcoSidebarNav } from "../ecochat/EcoSidebarNav";
 import { OfflineBanner } from "../status/OfflineBanner";
 import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
-import { STORAGE_KEYS } from "../../constants/storage";
 
 export interface AppShellProps {
   theme: "light" | "dark";
@@ -141,19 +138,10 @@ function AppShellImpl({
   draftTextByChat,
 }: AppShellProps) {
   const isMobile = useIsMobile();
-  const [sideWidth, setSideWidth] = useLocalStorage<number>(STORAGE_KEYS.SIDE_PANEL_WIDTH, 320);
-  const clampSideWidth = (w: number) => Math.min(480, Math.max(240, w));
-  const startSideResize = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const startX = e.clientX;
-    const startW = clampSideWidth(sideWidth);
-    const onMove = (ev: MouseEvent) => setSideWidth(clampSideWidth(startW + ev.clientX - startX));
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+
+  const handleOpenPremium = () => {
+    if (pushView) pushView("settings", "premium");
+    else { setSubView('premium'); setView('settings'); }
   };
 
   const chatListCoreProps = {
@@ -245,60 +233,28 @@ function AppShellImpl({
 
       {/* 3-column desktop layout: rail (76px) + resizable side list (240–480px) + main (flexible) */}
       {!isMobile && (
-        <div
-          className="ds-shell hidden md:grid md:grid-rows-[minmax(0,1fr)] w-full h-full min-h-0 overflow-hidden"
-          style={{ gridTemplateColumns: `76px ${clampSideWidth(sideWidth)}px 4px 1fr` }}
-        >
-          {/* Icon Rail */}
-          <aside aria-label={t("a11y.navSidebar")} className="z-40">
-            <EcoSidebarNav
-              activeView={view}
-              isDark={isDark}
-              unreadCount={chatsUnread}
-              companyUnreadCount={companyUnread}
-              onNavigate={handleNavigate}
-              hideCompany={hideWhenOfficeOnly}
-              connectionStatus={connectionStatus}
-              connectionError={connectionError}
-              t={t}
-            />
-          </aside>
-
-          {/* Side List — persistent across views (Telegram Desktop keeps the list visible) */}
-          <AppSideList
-            view={view}
-            isChatListRoute={isChatListRoute}
-            theme={theme}
-            isDark={isDark}
-            chatListProps={{
-              ...chatListCoreProps,
-              activeChatId: activeChat?.id,
-            }}
-            contacts={contacts}
-            setContacts={setContacts}
-            handlePreviewCall={handlePreviewCall}
-            handlePreviewMessage={handlePreviewMessage}
-            setView={setView}
-            onOpenPremium={() => {
-              if (pushView) pushView("settings", "premium");
-              else { setSubView('premium'); setView('settings'); }
-            }}
-          />
-
-          {/* Drag to resize the side list; double-click resets to 320px */}
-          <div
-            role="separator"
-            aria-orientation="vertical"
-            aria-label={t("desktop.resizePanel", "Drag to resize panel")}
-            title={t("desktop.resizePanel", "Drag to resize panel")}
-            className="cursor-col-resize hover:bg-[var(--accent)]/40"
-            onMouseDown={startSideResize}
-            onDoubleClick={() => setSideWidth(320)}
-          />
-
-          {/* Main Content (desktop only) — open chat stays; full-panel features override */}
-          <AppMainContent isMobile={false} isChatListRoute={isChatListRoute} {...mainContentProps} />
-        </div>
+        <AppShellDesktop
+          theme={theme}
+          isDark={isDark}
+          view={view}
+          isChatListRoute={isChatListRoute}
+          activeChatId={activeChat?.id}
+          chatsUnread={chatsUnread}
+          companyUnread={companyUnread}
+          hideWhenOfficeOnly={hideWhenOfficeOnly}
+          connectionStatus={connectionStatus}
+          connectionError={connectionError}
+          onNavigate={handleNavigate}
+          setView={setView}
+          contacts={contacts}
+          setContacts={setContacts}
+          handlePreviewCall={handlePreviewCall}
+          handlePreviewMessage={handlePreviewMessage}
+          chatListProps={chatListCoreProps}
+          mainContentProps={mainContentProps}
+          onOpenPremium={handleOpenPremium}
+          t={t}
+        />
       )}
 
       {/* Mobile layout: single column — rendered only below md */}
