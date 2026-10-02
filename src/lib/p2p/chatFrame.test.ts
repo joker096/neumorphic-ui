@@ -19,14 +19,16 @@ import {
   parseChatAudioEnd,
   formatDurationStr,
   parseDurationStr,
-  encodeChatLocation,
-  parseChatLocation,
-  encodeChatArticle,
-  parseChatArticle,
   encodeCallSignal,
   parseCallSignal,
   nextFrameSeq,
 } from './chatFrame';
+import {
+  encodeChatLocation,
+  parseChatLocation,
+  encodeChatArticle,
+  parseChatArticle,
+} from './chatRichFrames';
 
 const textFrame = {
   type: 'chat-text' as const,

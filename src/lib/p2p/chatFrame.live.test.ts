@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { encodeChatLocation, parseChatLocation } from './chatFrame';
+import { encodeChatLocation, parseChatLocation } from './chatRichFrames';
 
 describe('live location frame validation', () => {
   const base = {

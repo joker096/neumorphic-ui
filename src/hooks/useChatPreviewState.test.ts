@@ -4,7 +4,8 @@ import { useChatPreviewState } from './useChatPreviewState';
 import { useAppStore } from '../store';
 import { queueMessage } from '../lib/messageQueue';
 import { p2pNetwork } from '../lib/p2p/network';
-import { parseChatReadReceipt, parseChatLocation, parseChatArticle } from '../lib/p2p/chatFrame';
+import { parseChatReadReceipt } from '../lib/p2p/chatFrame';
+import { parseChatLocation, parseChatArticle } from '../lib/p2p/chatRichFrames';
 import { MINUTE_MS } from '../constants/time';
 
 vi.mock('../lib/p2p/network', () => {

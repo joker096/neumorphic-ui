@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FTR_MAGIC, ALBUM_MAGIC, parseFrame, parseAlbumManifest, base64ToBytes, type FtrFrame, type TransferMeta, type AlbumManifest } from "../lib/fileTransfer/frames";
-import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatEdit, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, parseChatLocation, parseChatArticle, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
+import { MSG_MAGIC, CALL_MAGIC, encodeChatDeliveryAck, nextFrameSeq, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt, parseChatEdit, parseChatText, parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd, formatDurationStr, VOICE_P2P_MAX_SIZE, VOICE_P2P_MAX_CHUNKS, type ChatAudioMetaFrame } from "../lib/p2p/chatFrame";
+import { parseChatLocation, parseChatArticle } from "../lib/p2p/chatRichFrames";
 import { saveVoiceBlob } from "../lib/voiceStore";
 import { resolveInboundSelfDestruct } from "../lib/selfDestruct";
 import {
