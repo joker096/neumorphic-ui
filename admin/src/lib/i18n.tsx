@@ -24,13 +24,6 @@ async function loadLocale(lang: string): Promise<Record<string, any>> {
   }
 }
 
-export async function preloadLocales() {
-  await Promise.all([
-    loadLocale('en'),
-    loadLocale('ru'),
-  ])
-}
-
 export function getTranslation(key: string, lang: string): string {
   const cached = cache.get(lang)
   if (!cached) return key
