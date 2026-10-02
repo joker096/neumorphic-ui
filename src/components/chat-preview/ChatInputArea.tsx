@@ -1,9 +1,7 @@
-import React, { lazy, Suspense } from "react";
+import React from "react";
 import { BellOff, ChevronRight, Clock, Mic, Radio } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
-const LazyLiveVoiceRecorder = lazy(() => import("../LiveVoiceRecorder").then(m => ({ default: m.LiveVoiceRecorder })));
-const LazyLiveVideoRecorder = lazy(() => import("../LiveVideoRecorder").then(m => ({ default: m.LiveVideoRecorder })));
 import { StickerPicker } from "../chat/StickerPicker";
 import { ChatAttachLayer } from "./ChatAttachLayer";
 import { ChatInputSchedulePopup } from "./ChatInputSchedulePopup";
@@ -11,7 +9,7 @@ import { ChatInputReplyBar } from "./ChatInputReplyBar";
 import { ChatInputVoiceError } from "./ChatInputVoiceError";
 import { ChannelComposer } from "./ChannelComposer";
 import { ComposerToolbar } from "./ComposerToolbar";
-import { selfDestructLabel, selfDestructOptions, resolveSelfDestructTimer } from "../../lib/selfDestruct";
+import { selfDestructLabel } from "../../lib/selfDestruct";
 import { ComposerFormatBar } from "./ComposerFormatBar";
 import { DmComposerRow } from "./DmComposerRow";
 import { composerInputStyle, growTextarea, wrapSelection, type FormatWrapKey } from "./composerInput";
@@ -20,6 +18,8 @@ import { useAppStore } from "../../store";
 import { useTypingIndicator } from "./useTypingIndicator";
 import { useChatMentions } from "./useChatMentions";
 import { MENTION_MENU_ID, MentionSuggestionsMenu } from "./MentionSuggestionsMenu";
+import { DmRecorderSlots } from "./DmRecorderSlots";
+import { useChatSelfDestructTimer } from "./useChatSelfDestructTimer";
 
 interface ChatInputAreaProps {
   isDark: boolean;
@@ -106,22 +106,7 @@ function ChatInputAreaImpl({
   const { t: translate } = useI18n();
   const showTyping = useAppStore((state) => state.typingIndicators);
   const userProfile = useAppStore((state) => state.userProfile);
-  // Per-chat self-destruct timer: an override over the global default, same
-  // premium gate. `chatId` gates the control — a chat without a stable id has
-  // nowhere to write the override, so the button is not rendered at all.
-  const chatId = chat?.id;
-  const timerPremium = !!useAppStore((state) => state.premiumEntitlement?.premium);
-  const timerOverrides = useAppStore((state) => state.chatSelfDestruct);
-  const timerGlobal = useAppStore((state) => state.selfDestructDefault);
-  const setChatSelfDestruct = useAppStore((state) => state.setChatSelfDestruct);
-  const timerOptions = selfDestructOptions(timerPremium);
-  const timerValue =
-    resolveSelfDestructTimer(chatId, timerGlobal, timerOverrides, timerPremium) ?? "Off";
-  const onCycleTimer = React.useCallback(() => {
-    if (chatId === undefined || chatId === null) return;
-    const idx = timerOptions.indexOf(timerValue);
-    setChatSelfDestruct(chatId, timerOptions[(idx + 1) % timerOptions.length]);
-  }, [chatId, timerOptions, timerValue, setChatSelfDestruct]);
+  const { timerValue, onCycleTimer } = useChatSelfDestructTimer(chat);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   const onFormatWrap = React.useCallback((key: FormatWrapKey) => {
@@ -207,48 +192,16 @@ function ChatInputAreaImpl({
         t={t}
       />
 
-      {showVideoRecorder ? (
-        <div className="px-3 pb-2">
-          <Suspense fallback={null}>
-            <LazyLiveVideoRecorder
-              onCancel={() => setShowVideoRecorder(false)}
-              onPermissionDenied={(msg: string) => {
-                setShowVideoRecorder(false);
-                setVoiceNoteErrFn2(msg);
-              }}
-              onSend={(url, _dur, blob) => {
-                setShowVideoRecorder(false);
-                if (sendVideoNote) {
-                  const file = new File([blob], "video-note.webm", { type: blob.type || "video/webm" });
-                  sendVideoNote(file);
-                }
-                URL.revokeObjectURL(url);
-              }}
-            />
-          </Suspense>
-        </div>
-      ) : null}
-
-      {eIsRecordingVoice ? (
-        <div className="px-3 pb-2">
-          <Suspense fallback={null}>
-            <LazyLiveVoiceRecorder
-              isDark={isDark}
-              onCancel={() => setIsRecordingVoiceFn2(false)}
-               onPermissionDenied={(msg: string) => {
-                 setIsRecordingVoiceFn2(false);
-                 setVoiceNoteErrFn2(msg);
-               }}
-               onSend={(url, dur, blob) => {
-                 setIsRecordingVoiceFn2(false);
-                 if (sendVoiceMessage) sendVoiceMessage(url, dur, blob);
-                 else setVoiceNoteErrFn2("");
-               }}
-              holdToRecord
-            />
-          </Suspense>
-        </div>
-      ) : null}
+      <DmRecorderSlots
+        isDark={isDark}
+        showVideoRecorder={showVideoRecorder}
+        recordingVoice={eIsRecordingVoice}
+        onStopVideo={() => setShowVideoRecorder(false)}
+        onStopVoice={() => setIsRecordingVoiceFn2(false)}
+        onVoiceError={setVoiceNoteErrFn2}
+        sendVideoNote={sendVideoNote}
+        sendVoiceMessage={sendVoiceMessage}
+      />
 
       <ChatAttachLayer
         isDark={isDark}
