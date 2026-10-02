@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Send, X, MessageSquare, UserRound } from 'lucide-react';
+import { Send, X, MessageSquare } from 'lucide-react';
 import { RelayClient } from '../../lib/company/relayClient';
 import {
   makeGuestIdentity,
@@ -12,17 +12,12 @@ import { parseEmbedToken, type EmbedConfig } from '../../lib/embed/token';
 import { b64encode } from '../../lib/crypto/cryptoCore';
 import { useI18n, I18nProvider } from '../../lib/i18n';
 import type { X25519KeyPair } from '../../lib/crypto/types';
+import { EmbedContactForm, type WidgetContact } from './EmbedContactForm';
 
 interface WidgetMessage {
   id: string;
   text: string;
   own: boolean;
-}
-
-interface WidgetContact {
-  name: string;
-  email: string;
-  phone: string;
 }
 
 let guestIdentity: X25519KeyPair | null = null;
@@ -184,58 +179,16 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
             </button>
           </div>
           {showContactForm && (
-            <form
-              className="ew-contact"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void sendContact();
-              }}
-            >
-              <div className="ew-contact-head">
-                <UserRound size={14} />
-                <span>{t('embed.contactTitle')}</span>
-              </div>
-              <input
-                aria-label={t('embed.contactName')}
-                value={contact.name}
-                onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))}
-                placeholder={t('embed.contactName')}
-                className="ew-field"
-              />
-              <input
-                aria-label={t('embed.contactEmail')}
-                value={contact.email}
-                onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))}
-                placeholder={t('embed.contactEmail')}
-                type="email"
-                className="ew-field"
-              />
-              <input
-                aria-label={t('embed.contactPhone')}
-                value={contact.phone}
-                onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))}
-                placeholder={t('embed.contactPhone')}
-                type="tel"
-                className="ew-field"
-              />
-              <div className="ew-contact-actions">
-                <button
-                  type="submit"
-                  disabled={sendingContact}
-                  className="ew-btn-primary"
-                  style={{ backgroundColor: accent }}
-                >
-                  {t('embed.contactStart')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void sendContact()}
-                  className="ew-btn-ghost"
-                >
-                  {t('embed.contactSkip')}
-                </button>
-              </div>
-            </form>
+            <EmbedContactForm
+              t={t}
+              accent={accent}
+              contact={contact}
+              onChange={(field, value) =>
+                setContact((c) => ({ ...c, [field]: value }))
+              }
+              onSend={() => void sendContact()}
+              sending={sendingContact}
+            />
           )}
           <div className="ew-messages">
             {offline && (
