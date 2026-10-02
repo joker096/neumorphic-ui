@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Phone, Video, MessageSquare, Edit, Trash2, Ban, Mail, Send, Star, StarOff, MoreVertical, ShieldCheck, ShieldOff, Camera, Bell, BellOff } from 'lucide-react';
+import { X, Phone, Video, MessageSquare, Ban, Mail, Send, Star, StarOff, ShieldCheck, Bell, BellOff } from 'lucide-react';
 import { useAppStore } from '../store';
 import { useI18n } from '../lib/i18n';
-import { ConfirmDialog } from './ui/ConfirmDialog';
 import { SafetyNumberModal } from './SafetyNumberModal';
 import type { ContactField } from '../types/contact';
-import { CONTACT_FALLBACK_GRADIENT, CONTACT_MAX_DAYS } from '../constants/contactConstants';
-import { MINUTE_MS, HOUR_MS, DAY_MS, ACTIVE_NOW_THRESHOLD_MS } from '../constants/time';
+import { ContactConfirmDialogs, type ContactConfirmAction } from './contact-profile/ContactConfirmDialogs';
+import { ContactActionsMenu } from './contact-profile/ContactActionsMenu';
+import { ContactAvatarPicker } from './contact-profile/ContactAvatarPicker';
+import { formatLastSeen } from './contact-profile/lastSeen';
 import { SharedMediaTabs } from './chat/SharedMediaTabs';
 import { ToggleSwitch } from './ui/ToggleSwitch';
 import { getMasterKeySet } from '../lib/identity/masterKey';
@@ -58,11 +59,9 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const contactAvatars = useAppStore(state => state.contactAvatars);
   const setContactAvatar = useAppStore(state => state.setContactAvatar);
   const removeContactAvatar = useAppStore(state => state.removeContactAvatar);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [confirmAction, setConfirmAction] = useState<'delete' | 'block' | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ContactConfirmAction | null>(null);
   const [showActions, setShowActions] = useState(false);
   const [showSafetyNumber, setShowSafetyNumber] = useState(false);
-  const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const [localMuted, setLocalMuted] = useState(false);
   const [identityHex, setIdentityHex] = useState<string | undefined>(undefined);
   const [peerPinned, setPeerPinned] = useState<string | undefined>(undefined);
@@ -92,7 +91,6 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
     setShowActions(false);
     setConfirmAction(null);
     setShowSafetyNumber(false);
-    setPhotoMenuOpen(false);
   }, [contact?.id]);
 
   const overrideAvatar = contact ? contactAvatars[contact.name] : undefined;
@@ -102,16 +100,6 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const notificationsOn = storeContact ? !storeContact.muted : dmChat ? !((dmChat as any).muted) : !localMuted;
   const isBlocked = !!blockedContact?.isBlocked;
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && contact) {
-      const reader = new FileReader();
-      reader.onload = () => setContactAvatar(contact.name, reader.result as string);
-      reader.readAsDataURL(file);
-    }
-    if (e.target.value) e.target.value = '';
-  };
-
   const handleDelete = () => { onDelete?.(); onClose(); setConfirmAction(null); };
   const handleBlock = () => { if (blockedContact) setContactBlocked(blockedContact.id, true); onBlock?.(); onClose(); setConfirmAction(null); };
   const handleUnblock = () => { if (blockedContact) setContactBlocked(blockedContact.id, false); onUnblock?.(); onClose(); };
@@ -119,32 +107,13 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
   return createPortal(
     <AnimatePresence>
-      <ConfirmDialog
-        key="delete"
-        isOpen={confirmAction === 'delete'}
-        title={t('contacts.deleteContact')}
-        message={t('contacts.confirmDeleteMessage', { name: contact?.name || '' })}
-        confirmLabel={t('contacts.deleteContact')}
-        cancelLabel={t('contacts.close')}
-        confirmIcon={<Trash2 />}
-        cancelIcon={<X />}
-        variant="danger"
+      <ContactConfirmDialogs
+        action={confirmAction}
+        contactName={contact?.name || ''}
         theme={theme}
-        onConfirm={handleDelete}
-        onCancel={() => setConfirmAction(null)}
-      />
-      <ConfirmDialog
-        key="block"
-        isOpen={confirmAction === 'block'}
-        title={t('contacts.blockSpammer')}
-        message={t('contacts.confirmBlockMessage', { name: contact?.name || '' })}
-        confirmLabel={t('contacts.blockSpammer')}
-        cancelLabel={t('contacts.close')}
-        confirmIcon={<Ban />}
-        cancelIcon={<X />}
-        variant="danger"
-        theme={theme}
-        onConfirm={handleBlock}
+        t={t}
+        onConfirmDelete={handleDelete}
+        onConfirmBlock={handleBlock}
         onCancel={() => setConfirmAction(null)}
       />
       {contact && (
@@ -171,132 +140,34 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             </button>
 
             {(onDelete || onBlock || onUnblock) && (
-              <div className="absolute top-4 left-4 z-10">
-                <div className="relative">
-                  <button
-                    onClick={() => setShowActions(!showActions)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"} text-[var(--text-tertiary)] hover:text-[var(--text-primary)] min-w-11 min-h-11`}
-                    aria-label={t('contacts.moreActions')}
-                  >
-                    <MoreVertical size={18} />
-                  </button>
-                  <AnimatePresence>
-                    {showActions && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                        className={`absolute left-10 top-0 flex gap-2 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"} rounded-xl p-2 shadow-lg`}
-                      >
-                        {onEdit && (
-                          <button
-                            onClick={() => { onEdit(); onClose(); setShowActions(false); }}
-                            className="w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-orange-500/15 hover:bg-orange-500/25 text-orange-500"
-                            aria-label={t('contacts.edit')}
-                          >
-                            <Edit size={16} />
-                          </button>
-                        )}
-                        {onDelete && (
-                          <button
-                            onClick={() => { setConfirmAction('delete'); onRequestDelete?.(); }}
-                            className="w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-red-500/10 hover:bg-red-500/20 text-red-500"
-                            aria-label={t('contacts.deleteContact')}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                        {onBlock && !isBlocked && blockedContact && (
-                          <button
-                            onClick={() => setConfirmAction('block')}
-                            className="w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-red-500/10 hover:bg-red-500/20 text-red-400"
-                            aria-label={t('contacts.blockSpammer')}
-                          >
-                            <Ban size={16} />
-                          </button>
-                        )}
-                        {onUnblock && isBlocked && (
-                          <button
-                            onClick={() => { handleUnblock(); setShowActions(false); }}
-                            className="w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-green-500/10 hover:bg-green-500/20 text-green-500"
-                            aria-label={t('profile.unblock')}
-                          >
-                            <ShieldOff size={16} />
-                          </button>
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
+              <ContactActionsMenu
+                isDark={isDark}
+                t={t}
+                open={showActions}
+                onToggle={() => setShowActions(!showActions)}
+                canEdit={!!onEdit}
+                canDelete={!!onDelete}
+                canBlock={!!onBlock && !isBlocked && !!blockedContact}
+                canUnblock={!!onUnblock && isBlocked}
+                onEdit={() => { onEdit(); onClose(); setShowActions(false); }}
+                onDelete={() => { setConfirmAction('delete'); onRequestDelete?.(); }}
+                onBlock={() => setConfirmAction('block')}
+                onUnblock={() => { handleUnblock(); setShowActions(false); }}
+              />
             )}
 
             <div className="flex w-full flex-col items-center max-h-[85vh] overflow-y-auto scrollbar-none">
-<div className="relative mt-4">
-              <button
-                type="button"
-                onClick={() => setPhotoMenuOpen(o => !o)}
-                aria-haspopup="menu"
-                aria-expanded={photoMenuOpen}
-                aria-label={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
-                title={overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
-                className={`group relative w-20 h-20 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[32px] shadow-lg`}
-              >
-                {overrideAvatar ? (
-                  <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                ) : (
-                  String(contact.name || '').charAt(0)
-                )}
-                <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-white opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
-                  <Camera size={18} aria-hidden="true" />
-                </span>
-              </button>
-              {!ghostViewMode && (contact.online || contact.lastSeen !== undefined) && !contact.callInfo && (
-                <div className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-[3px] ${isDark ? "border-[var(--bg-tertiary)]" : "border-[var(--border-color)]"} ${(contact.online || (contact.lastSeen > 0 && contact.lastSeen < ACTIVE_NOW_THRESHOLD_MS)) ? "bg-green-500" : "bg-gray-400"}`} />
-              )}
-              {photoMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setPhotoMenuOpen(false)} aria-hidden="true" />
-                  <div
-                    role="menu"
-                    className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 z-20 rounded-xl shadow-lg border p-1.5 min-w-[200px] ${isDark ? "bg-[var(--bg-tertiary)] border-[var(--border-color)]" : "bg-white border-[var(--border-color)]"}`}
-                  >
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => { setPhotoMenuOpen(false); fileInputRef.current?.click(); }}
-                      className="w-full min-h-11 px-3 rounded-lg flex items-center gap-2 text-sm text-left hover:bg-[var(--list-item-hover-bg)] transition-colors"
-                    >
-                      <Camera size={16} aria-hidden="true" />
-                      {overrideAvatar ? t('contacts.changePhoto') : t('contacts.setPhoto')}
-                    </button>
-                    {overrideAvatar && (
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => { setPhotoMenuOpen(false); removeContactAvatar(contact.name); }}
-                        className="w-full min-h-11 px-3 rounded-lg flex items-center gap-2 text-sm text-left text-red-500 hover:bg-red-500/10 transition-colors"
-                      >
-                        <Trash2 size={16} aria-hidden="true" />
-                        {t('contacts.removePhoto')}
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarFileChange}
+<ContactAvatarPicker
+              key={contact.id}
+              contact={contact}
+              overrideAvatar={overrideAvatar}
+              ghostViewMode={ghostViewMode}
+              isDark={isDark}
+              t={t}
+              onSetAvatar={setContactAvatar}
+              onRemoveAvatar={removeContactAvatar}
             />
-            <p className="text-[11px] text-[var(--text-tertiary)] text-center mt-1.5 max-w-[220px]">
-              {t('contacts.profilePhotoNote')}
-            </p>
-
-            <h2 className={`text-xl font-bold mt-3 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
+                        <h2 className={`text-xl font-bold mt-3 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
               {contact.name}
               <button
                 onClick={() => handleToggleFavorite(contact.id, contact.isFavorite || false)}
@@ -339,18 +210,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </div>
             ) : (contact.online || contact.lastSeen !== undefined) && !ghostViewMode && (
               <div className={`text-xs mt-2 font-medium ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-                {(() => {
-                  if (contact.online) return t('contacts.activeNow');
-                  if (!contact.lastSeen) return '—';
-                  const delta = Date.now() - contact.lastSeen;
-                  if (delta < 0 || isNaN(delta)) return '—';
-                  if (delta < ACTIVE_NOW_THRESHOLD_MS) return t('contacts.activeNow');
-                  if (delta < HOUR_MS) return t('chat.minutesAgo', { count: Math.floor(delta / MINUTE_MS) });
-                  if (delta < DAY_MS) return t('chat.hoursAgo', { count: Math.floor(delta / HOUR_MS) });
-                  const days = Math.floor(delta / DAY_MS);
-                  if (days > CONTACT_MAX_DAYS) return t('chat.yearsAgo', { count: Math.floor(days / 365) });
-                  return t('chat.daysAgo', { count: days });
-                })()}
+                {formatLastSeen(t, contact.online, contact.lastSeen)}
               </div>
             )}
 
