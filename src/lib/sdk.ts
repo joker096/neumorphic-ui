@@ -49,7 +49,7 @@ export function createMessAngerSdk(): MessAngerSdk {
     importCsv: (text, opts) => run(text, 'csv'),
     importJson: (text, opts) => run(text, 'json'),
     exportBundle: async (password) => {
-      const { downloadCrmMigrationBundle } = await import('./backup');
+      const { downloadCrmMigrationBundle } = await import('./backupCrm');
       await downloadCrmMigrationBundle(password);
     },
     getContacts: () => store().crmContacts,

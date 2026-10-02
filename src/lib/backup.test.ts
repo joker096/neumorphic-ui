@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useAppStore } from '../store';
-import { mergeCrmBundle, type CrmMigrationBundle, type CrmBackup } from './backup';
+import { type CrmBackup } from './backup';
+import { mergeCrmBundle, type CrmMigrationBundle } from './backupCrm';
 
 const bundle = (crm: CrmBackup): CrmMigrationBundle => ({
   version: 1,

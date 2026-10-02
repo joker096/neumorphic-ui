@@ -8,7 +8,7 @@ import {
   decryptCrmMigrationFile,
   mergeCrmBundle,
   type CrmMergeResult,
-} from '../../lib/backup';
+} from '../../lib/backupCrm';
 
 type Mode = 'text' | 'bundle';
 
