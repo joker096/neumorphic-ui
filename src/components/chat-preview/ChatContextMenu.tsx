@@ -98,7 +98,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, anchor
               } ${it.disabled ? "opacity-40 cursor-not-allowed" : it.danger ? "text-red-400 hover:bg-red-500/10" : "text-[var(--text-primary)] hover:bg-white/[0.06]"}`}
             >
               <Icon size={16} className="shrink-0" />
-              <span className="truncate">{it.label}</span>
+              <span className="min-w-0 truncate">{it.label}</span>
             </button>
           );
         })}
@@ -109,12 +109,13 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, anchor
 
   return createPortal(
     <div className="fixed inset-0 z-[var(--z-drawer)] flex items-end justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         role="menu"
         className="glass-menu relative w-full max-w-[420px] rounded-t-2xl p-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] animate-fade-in"
       >
+        <div aria-hidden="true" className="mx-auto mb-1.5 h-1 w-10 rounded-full bg-[var(--text-tertiary)] opacity-70" />
         {items.map((it) => {
           const Icon = it.icon;
           return (
@@ -135,7 +136,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, anchor
               }`}
             >
               <Icon size={16} className="shrink-0" />
-              <span className="truncate">{it.label}</span>
+              <span className="min-w-0 truncate">{it.label}</span>
             </button>
           );
         })}

@@ -162,6 +162,38 @@ describe('ChatContextMenu', () => {
       window.matchMedia = original;
     }
   });
+
+  it('truncates long labels in anchored and bottom sheet modes', () => {
+    const items = [
+      { id: 'pin', label: 'A very long label that should not overflow the menu', icon: Pin, onClick: vi.fn() },
+    ];
+    const { unmount } = render(<ChatContextMenu anchor={{ x: 0, y: 0 }} items={items} onClose={vi.fn()} />);
+    for (const btn of screen.getAllByRole('menuitem')) {
+      expect(btn.querySelector('span')).toHaveClass('min-w-0', 'truncate');
+    }
+    unmount();
+
+    render(<ChatContextMenu anchor={null} items={items} onClose={vi.fn()} />);
+    for (const btn of screen.getAllByRole('menuitem')) {
+      expect(btn.querySelector('span')).toHaveClass('min-w-0', 'truncate');
+    }
+  });
+
+  it('marks bottom sheet backdrop as aria-hidden', () => {
+    render(<ChatContextMenu anchor={null} items={baseItems()} onClose={vi.fn()} />);
+    const backdrop = document.body.querySelector('.absolute.inset-0');
+    expect(backdrop).not.toBeNull();
+    expect(backdrop).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('renders grabber inside bottom sheet menu and not in anchored menu', () => {
+    const { unmount } = render(<ChatContextMenu anchor={{ x: 0, y: 0 }} items={baseItems()} onClose={vi.fn()} />);
+    expect(screen.getByRole('menu').querySelector('.rounded-full')).toBeNull();
+    unmount();
+
+    render(<ChatContextMenu anchor={null} items={baseItems()} onClose={vi.fn()} />);
+    expect(screen.getByRole('menu').querySelector('.rounded-full')).not.toBeNull();
+  });
 });
 
 describe('buildMenuIcon', () => {
