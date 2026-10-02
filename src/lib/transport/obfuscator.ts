@@ -213,5 +213,3 @@ export class TrafficObfuscator {
     }
   }
 }
-
-export const trafficObfuscator = new TrafficObfuscator();
