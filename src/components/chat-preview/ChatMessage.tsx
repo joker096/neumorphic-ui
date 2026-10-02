@@ -1,28 +1,26 @@
 import React from "react";
 import { motion, type PanInfo } from "motion/react";
-import { Clock } from "lucide-react";
 import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
-import { MessageReactions } from "./MessageReactions";
 import { MessageContextMenu } from "./MessageContextMenu";
 import { buildMessageMenuActions } from "./messageMenuActions";
 import { useI18n } from "../../lib/i18n";
 import { useServices } from "../../services";
-import { InlineKeyboard } from "../features/bot/InlineKeyboard";
-import { toast } from "../ui/Toast";
 import { getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
 import { useMessageGestures } from "./useMessageGestures";
 import type { MenuAnchorRect } from "./menuPosition";
 import { AttachmentMedia } from "./AttachmentMedia";
 import { MessageTimestamp } from "./MessageTimestamp";
-import { BubbleActions } from "./BubbleActions";
 import { ChannelCommentsRow } from "./ChannelCommentsRow";
 import { ReplyQuote } from "./ReplyQuote";
 import { PaymentChatBubble } from "../payments/PaymentChatBubble";
 import { isMorseCode, decodeMorse } from "../MorseDecoder";
-import { Avatar } from "../ui/Avatar";
-import { useAppStore } from "../../store";
 import { executeEditMessage } from "../../hooks/useMessageActions";
+import { MessageGutterAvatar } from "./message/MessageGutterAvatar";
+import { MessageDateSeparator, ExpiredMessage, MorseToggle } from "./message/MessageTextStates";
+import { MessageEditForm } from "./message/MessageEditForm";
+import { MessageFooter } from "./message/MessageFooter";
+import { useSelfDestructExpiry, useMessageTranslation, useMorseToggle } from "./message/useMessageChrome";
 
 interface ChatMessageProps {
   msg: any;
@@ -80,47 +78,17 @@ function ChatMessageImpl({
     setMenuOpen(true);
   }, []);
   const [editing, setEditing] = React.useState(false);
-  const [draftText, setDraftText] = React.useState("");
   const { t, lang } = useI18n();
   const { translate } = useServices();
   const isGroupFirst =
     msg._groupPosition === "first" || msg._groupPosition === "single";
   const displayName = String(msg.sender || chat?.name || "");
   const showAvatar = !isChannel;
-  const avatarSrc = useAppStore((s) => {
-    if (!showAvatar) return undefined;
-    return isMe
-      ? s.userProfile?.avatar
-      : displayName
-        ? s.contactAvatars?.[displayName]
-        : undefined;
-  });
-  const ownName = useAppStore((s) => (showAvatar && isMe ? s.userProfile?.name : undefined));
-  const avatarColor = isMe ? undefined : chat?.color;
   // Avatars live in the outer gutter for every non-channel message, so identity
   // stays readable for media, stickers and edits too — not just plain text.
   const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
   const showSenderName = showAvatar && isGroup && isGroupFirst && !isMe && !!displayName;
-  // Render-side guarantee: expired content is never shown, even if the central
-  // sweep (useSelfDestructSweep) is late — it also erases the stored message.
-  const [expired, setExpired] = React.useState(
-    () => typeof msg.selfDestructAt === "number" && Date.now() >= (msg.selfDestructAt as number),
-  );
-
-  React.useEffect(() => {
-    if (typeof msg.selfDestructAt !== "number") {
-      setExpired(false);
-      return;
-    }
-    const check = () => setExpired(Date.now() >= (msg.selfDestructAt as number));
-    const remaining = (msg.selfDestructAt as number) - Date.now();
-    if (remaining <= 0) {
-      setExpired(true);
-      return;
-    }
-    const timer = window.setTimeout(check, Math.min(remaining + 50, 2_147_483_647));
-    return () => window.clearTimeout(timer);
-  }, [msg.selfDestructAt]);
+  const expired = useSelfDestructExpiry(msg.selfDestructAt as number | undefined);
 
   const {
     handleBubbleClick,
@@ -138,9 +106,10 @@ function ChatMessageImpl({
     onSetBounceMsgId,
     onOpenMenu: openMessageMenu,
   });
-  const [translation, setTranslation] = React.useState<string | null>(null);
-  const [translating, setTranslating] = React.useState(false);
-  const [morseDecoded, setMorseDecoded] = React.useState(false);
+  const { translation, translating, onTranslate } = useMessageTranslation({
+    translate, text: String(msg.text ?? ''), lang, t,
+  });
+  const [morseDecoded, toggleMorse] = useMorseToggle();
   const isMorse = typeof msg.text === "string" && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && isMorseCode(msg.text);
   const stickerSrc = React.useMemo(
     () => (msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null),
@@ -148,55 +117,22 @@ function ChatMessageImpl({
   );
   const bubbleCornerClass = getBubbleCornerClass(msg._groupPosition as GroupPosition, isMe);
 
-  const handleTranslate = async () => {
-    setTranslating(true);
-    try {
-      const from = await translate.detectLang(msg.text);
-      // Translate into the UI language, not a hardcoded target.
-      setTranslation(await translate.translate(msg.text, from, lang));
-    } catch {
-      toast(t("chat.translateNotConfigured", "Перевод не подключён"));
-    } finally {
-      setTranslating(false);
-    }
-  };
-
   const startEditing = () => {
-    setDraftText(typeof msg.text === "string" ? msg.text : "");
     setEditing(true);
     setMenuOpen(false);
   };
 
-  const commitEdit = () => {
-    const trimmed = draftText.trim();
+  const commitEdit = (trimmed: string) => {
     if (trimmed && trimmed !== msg.text) executeEditMessage(msg.id, trimmed, chat);
     setEditing(false);
-    setDraftText("");
   };
 
   if (msg._isDateSeparator) {
-    return (
-      <div className="sticky top-0 z-10 flex items-center gap-3 py-2">
-        <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
-        <span className="text-xs font-bold uppercase tracking-widest shrink-0 text-[var(--text-tertiary)]">
-          {msg._dateLabel}
-        </span>
-        <div className={`flex-1 h-px ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
-      </div>
-    );
+    return <MessageDateSeparator isDark={isDark} label={msg._dateLabel} />;
   }
 
   if (expired) {
-    return (
-      <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-2`}>
-        <div className={`flex items-center gap-2 rounded-xl border border-[var(--border-color)] px-3 py-2 text-xs italic ${
-          isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]" : "bg-slate-100 text-slate-500"
-        }`}>
-          <Clock size={14} />
-          <span>{t("chat.messageExpired", "Message expired")}</span>
-        </div>
-      </div>
-    );
+    return <ExpiredMessage isMe={isMe} isDark={isDark} t={t} />;
   }
 
   return (
@@ -222,13 +158,7 @@ function ChatMessageImpl({
       )}
       <div className={`msg-message-row flex flex-nowrap items-center relative gap-2 w-full max-w-[100%] ${showAvatar ? "has-gutter" : ""} ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
         {showAvatar && (
-          <Avatar
-            name={displayName || (isMe ? ownName || "Me" : "?")}
-            src={avatarSrc}
-            color={avatarColor}
-            size="sm"
-            className="msg-gutter-avatar"
-          />
+          <MessageGutterAvatar isMe={isMe} displayName={displayName} chat={chat} />
         )}
         <div
           onClick={handleBubbleClick}
@@ -258,37 +188,13 @@ function ChatMessageImpl({
           {msg.replyTo && <ReplyQuote replyTo={msg.replyTo} isDark={isDark} />}
           {msg.text && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && (
             editing ? (
-              <div className="pb-1 flex flex-col gap-1.5 min-w-[220px]">
-                <textarea
-                  value={draftText}
-                  onChange={(e) => setDraftText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") { setEditing(false); setDraftText(""); }
-                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); commitEdit(); }
-                  }}
-                  autoFocus
-                  rows={2}
-                  className="glass-input w-full resize-none rounded-lg px-2 py-1.5 text-[14px] leading-relaxed outline-none"
-                  aria-label={t("chat.editMessage", "Edit message")}
-                />
-                <div className="flex gap-1.5">
-                  <button
-                    type="button"
-                    onClick={commitEdit}
-                    disabled={!draftText.trim() || draftText.trim() === msg.text}
-                    className="min-h-11 px-3 rounded-lg text-xs font-bold bg-[var(--accent)] text-[var(--button-primary-text)] hover:brightness-110 active:scale-95 transition-all"
-                  >
-                    {t("chat.save", "Save")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setEditing(false); setDraftText(""); }}
-                    className="min-h-11 px-3 rounded-lg text-xs font-bold bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:brightness-110 active:scale-95 transition-all"
-                  >
-                    {t("chat.cancel", "Cancel")}
-                  </button>
-                </div>
-              </div>
+              <MessageEditForm
+                initialText={typeof msg.text === "string" ? msg.text : ""}
+                originalText={msg.text}
+                t={t}
+                onCommit={commitEdit}
+                onCancel={() => setEditing(false)}
+              />
             ) : (
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
@@ -301,19 +207,7 @@ function ChatMessageImpl({
             )
           )}
           {isMorse && (
-            <button
-              type="button"
-              onClick={() => setMorseDecoded((v) => !v)}
-               aria-label={morseDecoded ? t("chat.morseEncode", "Show Morse code") : t("chat.morseDecode", "Show text")}
-               title={morseDecoded ? t("chat.morseEncode", "Show Morse code") : t("chat.morseDecode", "Show text")}
-               className={`mt-1 inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-mono tracking-wider transition-colors min-h-11 cursor-pointer ${
-                isDark
-                  ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30"
-                  : "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border border-amber-500/30"
-              }`}
-            >
-              {morseDecoded ? "••• / −−−" : t("chat.morseSample", "AБВ")}
-            </button>
+            <MorseToggle decoded={morseDecoded} isDark={isDark} t={t} onToggle={toggleMorse} />
           )}
           {msg.keyboard && (
             <div className="flex flex-col gap-1.5 mt-3 mb-1 w-full shrink-0">
@@ -352,43 +246,23 @@ function ChatMessageImpl({
             />
           )}
         </div>
-        {!isChannel && (
-          <BubbleActions
-            msg={msg}
-            isMe={isMe}
-            isDark={isDark}
-            chat={chat}
-            chatSavedMessages={chatSavedMessages}
-            onReply={onReply}
-            onToggleSavedMessage={onToggleSavedMessage}
-          />
-        )}
-        <MessageReactions
+        <MessageFooter
           msg={msg}
+          chat={chat}
           isMe={isMe}
           isDark={isDark}
+          isChannel={!!isChannel}
+          chatSavedMessages={chatSavedMessages}
           activeReactionPicker={activeReactionPicker}
+          translation={translation}
+          translating={translating}
+          t={t}
+          onReply={onReply}
+          onToggleSavedMessage={onToggleSavedMessage}
           onSetActiveReactionPicker={onSetActiveReactionPicker}
           onReactionMessage={onReactionMessage}
+          onAction={onAction}
         />
-        {translating && (
-          <div className={`mt-1 text-xs italic ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-            {t("chat.translating", "Перевод…")}
-          </div>
-        )}
-        {translation && !translating && (
-          <div className={`mt-1 text-xs italic ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-            {translation}
-          </div>
-        )}
-        {Array.isArray(msg.inlineKeyboard) && msg.inlineKeyboard.length > 0 && (
-          <InlineKeyboard
-            botId={chat.botId ?? String(chat.id)}
-            messageId={String(msg.id)}
-            isDark={isDark}
-            rows={msg.inlineKeyboard}
-          />
-        )}
       </div>
       <MessageContextMenu
         open={menuOpen}
@@ -408,7 +282,7 @@ function ChatMessageImpl({
           onToggleSavedMessage,
           onForward,
           onDelete,
-          onTranslate: handleTranslate,
+          onTranslate,
           onEdit: isMe ? startEditing : undefined,
         })}
       />
