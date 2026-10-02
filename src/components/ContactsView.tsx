@@ -1,8 +1,6 @@
-import React, { useState, useMemo, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useI18n } from '../lib/i18n';
-import { QrCode, Scan, Users, UserPlus, Clock, Check, Copy, Share, Phone, MessageSquare, Edit, Loader2, Star, UserX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import type { IScannerError } from '@yudiel/react-qr-scanner';
 import { ContactProfileModal } from './ContactProfileModal';
 import { useDebounce } from '../hooks/useDebounce';
 import { useAppStore } from '../store';
@@ -10,19 +8,18 @@ import type { ContactTag } from '../types/contact';
 import { ContactCreateEditModal } from './ContactCreateEditModal';
 import { ContactItem } from './contacts/ContactItem';
 import { ContactAddForm } from './contacts/ContactAddForm';
+import { ContactsToolbar } from './contacts/ContactsToolbar';
+import { ContactsTabs, type TabOption } from './contacts/ContactsTabs';
+import { ContactsScanModal } from './contacts/ContactsScanModal';
+import { ContactsShareModal } from './contacts/ContactsShareModal';
 import type { Contact, ContactField } from '../types/contact';
-import { FormModal } from './ui/FormModal';
+import type { IScannerError } from '@yudiel/react-qr-scanner';
 import { InviteQRModal } from './ui/InviteQRModal';
-import { FormField } from './ui/FormField';
-import { FormActions } from './ui/FormActions';
-import { SearchInput } from './ui/SearchInput';
 import { DataState } from './ui/DataState';
 import { PROFILE_FALLBACK_ID } from '../constants/settingsConstants';
 import { pickContactGradient } from '../constants/contactConstants';
 
-type TabOption = 'all' | 'favorites' | 'recent' | 'blocked';
 
-const ScannerLazy = lazy(() => import('@yudiel/react-qr-scanner').then((m) => ({ default: m.Scanner })));
 
 export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall, onMessage, onEdit }: {
   theme: 'light' | 'dark', 
@@ -124,82 +121,29 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
     return b.lastSeen - a.lastSeen;
   }), [filteredContacts, sortBy]);
 
-  const tabs = useMemo(() => [
-    { key: 'all' as TabOption, label: t('contacts.allTab', { count: contacts.length }), icon: <Users size={12} /> },
-    { key: 'favorites' as TabOption, label: t('contacts.favoritesTab', { count: contacts.filter(c => c.isFavorite).length }), icon: <Star size={12} /> },
-    { key: 'recent' as TabOption, label: t('contacts.recentTab'), icon: <Clock size={12} /> },
-    { key: 'blocked' as TabOption, label: t('contacts.blockedTab', { count: contacts.filter(c => c.isBlocked).length }), icon: <UserX size={12} /> },
-  ], [contacts, t]);
 
   return (
     <div data-testid="contacts-container" className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
       
-      <div className="w-full flex items-center justify-between gap-2 mb-4 px-2">
-        <h2 className={`font-sans text-sm sm:text-base font-bold tracking-wide truncate min-w-0 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
-          {t('contacts.title')}
-        </h2>
-        <div className="flex gap-1.5 sm:gap-2 text-[var(--accent)] shrink-0">
-          <motion.button whileTap={{ scale: 0.9 }}
-            onClick={openScan}
-            title={t('contacts.scanContactQR')}
-            className="min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all">
-            <Scan size={24} />
-          </motion.button>
-          <motion.button whileTap={{ scale: 0.9 }}
-            onClick={() => { setShowShareId(true); setIsScanning(false); setShowAddForm(false); }}
-            title={t('contacts.shareIdentity')}
-            className="min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all">
-            <QrCode size={24} />
-          </motion.button>
-          <motion.button whileTap={{ scale: 0.9 }}
-            onClick={() => { setShowAddForm(true); setIsScanning(false); setShowShareId(false); }}
-            title={t('contacts.addContact')}
-            className="min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all">
-            <UserPlus size={24} />
-          </motion.button>
-          <motion.button whileTap={{ scale: 0.9 }}
-            onClick={() => { setShowInvite(true); setIsScanning(false); setShowShareId(false); setShowAddForm(false); }}
-            title={t('onboarding.invite')}
-            className="min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all">
-            <Share size={24} />
-          </motion.button>
-        </div>
-      </div>
+      <ContactsToolbar
+        isDark={isDark}
+        t={t}
+        onScan={openScan}
+        onShare={() => { setShowShareId(true); setIsScanning(false); setShowAddForm(false); }}
+        onAdd={() => { setShowAddForm(true); setIsScanning(false); setShowShareId(false); }}
+        onInvite={() => { setShowInvite(true); setIsScanning(false); setShowShareId(false); setShowAddForm(false); }}
+      />
 
-      <div className="w-full mb-4">
-        <div className="mb-3">
-          <SearchInput value={searchQuery} onChange={setSearchQuery}
-            placeholder={t('contacts.searchPlaceholder')} isDark={isDark} shape="pill" />
-        </div>
-
-        <div className={`flex rounded-full p-1 overflow-x-auto scrollbar-none ${isDark ? "bg-white/5" : "bg-black/5"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
-          {tabs.map(tab => (
-            <motion.button key={tab.key} whileTap={{ scale: 0.95 }}
-              onClick={() => setActiveTab(tab.key)} aria-pressed={activeTab === tab.key}
-              className={`group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full shrink-0 cursor-pointer ${
-                activeTab === tab.key
-                  ? (isDark ? 'bg-white/10 shadow-sm' : 'bg-white shadow-sm')
-                  : ''
-              }`}>
-              <span className={`flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
-                activeTab === tab.key
-                  ? (isDark ? 'text-[var(--text-primary)]' : 'text-slate-800')
-                  : (isDark ? 'text-gray-400 group-hover:text-gray-300' : 'text-slate-500 group-hover:text-slate-700')
-              }`}>
-                {tab.icon}
-                {tab.label}
-              </span>
-            </motion.button>
-          ))}
-        </div>
-
-        {searchQuery && (
-          <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-            className={`text-xs mt-2 px-1 ${isDark ? "text-gray-500" : "text-slate-500"}`}>
-            {t('contacts.foundResults', { count: filteredContacts.length, total: contacts.length })}
-          </motion.div>
-        )}
-      </div>
+      <ContactsTabs
+        contacts={contacts}
+        filteredCount={filteredContacts.length}
+        searchQuery={searchQuery}
+        activeTab={activeTab}
+        isDark={isDark}
+        t={t}
+        onSearchChange={setSearchQuery}
+        onTabChange={setActiveTab}
+      />
 
       <div className="w-full flex-1 overflow-y-auto">
         <AnimatePresence mode="popLayout">
@@ -274,75 +218,30 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
           onSave={handleSaveContact} />
       )}
 
-      <FormModal isOpen={isScanning} onClose={() => setIsScanning(false)}
-        title={t('contacts.scanContactQR')} subtitle={t('contacts.scanDescription')}
-        icon={Scan} theme={theme} closeTitle={t('contacts.close')}>
-          <div className={`w-full aspect-square overflow-hidden relative shadow-inner rounded-xl ${isDark ? "bg-black" : "bg-gray-100"}`}>
-            {scanError ? (
-              <DataState
-                status="error"
-                isDark={isDark}
-                title={scanError.kind === 'permission-denied' ? t('contacts.cameraPermissionDenied') : t('contacts.cameraError')}
-                retryAction={retryScan}
-              />
-            ) : (
-              <>
-                <Suspense fallback={null}>
-                  <ScannerLazy
-                    key={scannerKey}
-                    onScan={(result) => {
-                      if (result && result.length > 0) {
-                        setIsScanning(false); setNewContactId(result[0].rawValue); setShowAddForm(true);
-                      }
-                    }}
-                    onError={(e) => setScanError(e)}
-                    styles={{ container: { width: '100%', height: '100%' } }}
-                  />
-                </Suspense>
-                <div className="absolute inset-0 border-4 border-[var(--accent)]/50 pointer-events-none mix-blend-overlay rounded-xl" />
-              </>
-            )}
-          </div>
-      </FormModal>
+      <ContactsScanModal
+        isScanning={isScanning}
+        isDark={isDark}
+        theme={theme}
+        scanError={scanError}
+        scannerKey={scannerKey}
+        t={t}
+        onClose={() => setIsScanning(false)}
+        onRetry={retryScan}
+        onError={setScanError}
+        onScanned={(value) => { setIsScanning(false); setNewContactId(value); setShowAddForm(true); }}
+      />
 
-      <FormModal isOpen={showShareId} onClose={() => setShowShareId(false)}
-        title={t('contacts.shareIdentity')} subtitle={t('contacts.shareDescription')}
-        icon={QrCode} theme={theme} closeTitle={t('contacts.close')}>
-        <div className="flex flex-col items-center gap-4 mt-2">
-          <div className={`w-[220px] h-[220px] flex items-center justify-center p-4 shadow-xl ${
-            isDark ? "bg-white" : "bg-white border-2 border-gray-100"
-          }`}>
-            {qrDataUrl ? (
-              <img src={qrDataUrl} alt={t('contacts.shareQrAlt', 'Your identity QR code')} className="w-full h-full object-contain" />
-            ) : (
-              <div className="w-10 h-10 rounded-full border-2 border-[var(--text-tertiary)] border-t-transparent animate-spin" />
-            )}
-          </div>
-          <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${
-            isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"
-          }`}>
-            <div className={`font-mono text-xs tracking-widest break-all text-center ${"text-[var(--accent)]"}`}>
-              {shareId}
-            </div>
-            <div className="flex gap-2 w-full">
-              <motion.button whileTap={{ scale: 0.95 }} onClick={copyId}
-                className={`flex-1 flex items-center justify-center gap-2 min-h-11 rounded-xl font-bold text-xs transition-colors ${
-                  copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")
-                }`}>
-                {copied ? <Check size={14} /> : <Copy size={14} />}
-                {copied ? t('header.copied') : t('contacts.copyId', 'Copy ID')}
-              </motion.button>
-              <motion.button whileTap={{ scale: 0.95 }}
-                aria-label={t('contacts.share', 'Share contact')}
-                className={`w-10 h-10 min-w-11 min-h-11 shrink-0 flex items-center justify-center rounded-xl transition-colors ${
-                  isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"
-                }`}>
-                <Share size={14} />
-              </motion.button>
-            </div>
-          </div>
-        </div>
-      </FormModal>
+      <ContactsShareModal
+        showShareId={showShareId}
+        isDark={isDark}
+        theme={theme}
+        qrDataUrl={qrDataUrl}
+        shareId={shareId}
+        copied={copied}
+        t={t}
+        onClose={() => setShowShareId(false)}
+        onCopy={copyId}
+      />
 
       <InviteQRModal
         isOpen={showInvite}
