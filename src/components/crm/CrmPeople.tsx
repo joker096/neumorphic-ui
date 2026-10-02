@@ -1,28 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Building2, Users, Phone, Mail, Tag, ChevronDown, ListChecks, Check, Trash2, X } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Plus, Users, ListChecks, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
-import { CRM_FALLBACKS, crmAvatarAt, CONTACT_STATUSES, isOpenDealStage } from '../../constants/crmConstants';
-import type { CrmContact, CrmContactStatus } from '../../lib/crm/types';
-import { RoleBadge } from './RoleBadge';
+import { CRM_FALLBACKS, isOpenDealStage } from '../../constants/crmConstants';
+import type { CrmContact } from '../../lib/crm/types';
 import { ContactCard } from './ContactCard';
 import { CrmFilterBar } from './CrmFilterBar';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useCrmPermissions } from '../../lib/crm/permissions';
-
-const statusColor: Record<CrmContactStatus, string> = {
-  lead: 'bg-amber-400/15 text-amber-500',
-  client: 'bg-sky-400/15 text-sky-500',
-  partner: 'bg-violet-400/15 text-violet-500',
-  vendor: 'bg-orange-400/15 text-orange-500',
-  internal: 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]',
-  vip: 'bg-rose-400/15 text-rose-500',
-};
-
-const statusLabel = (s: CrmContactStatus, t: (k: string, f?: string) => string) =>
-  t(CONTACT_STATUSES.find((x) => x.id === s)!.labelKey, (CRM_FALLBACKS as any)[s]);
+import { CrmContactGroup } from './people/CrmContactGroup';
+import { CrmBulkBar } from './people/CrmBulkBar';
 
 type Props = {
   onOpenRoles?: () => void;
@@ -205,156 +193,39 @@ export const CrmPeople: React.FC<Props> = ({
         <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noContacts', CRM_FALLBACKS.noContacts)}</div>
       )}
 
-      {grouped.map((group) => {
-        const isCollapsed = collapsedGroups.includes(group.key);
-        const stats = deptStats(group.key);
-        return (
-        <div key={group.key} className="mb-2">
-          <button
-            type="button"
-            aria-expanded={!isCollapsed}
-            onClick={() => toggleCrmGroup(group.key)}
-            className="w-full flex items-center gap-2 px-2 py-1 mb-1 min-h-11 text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-          >
-            <ChevronDown size={14} className={`transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
-            {group.key === 'clients' ? <Building2 size={14} /> : <Users size={14} />}
-            <span className="truncate">{group.label} ({group.items.length})</span>
-            {stats && (
-              <span className="normal-case tracking-normal font-medium text-[var(--text-secondary)] flex items-center gap-2 truncate">
-                {stats.lead && <span>{t('crm.lead', CRM_FALLBACKS.lead)}: {stats.lead}</span>}
-                <span>{stats.openTasks} {t('crm.tabTasks', CRM_FALLBACKS.tabTasks)}</span>
-                <span>{stats.openDeals} {t('crm.tabDeals', CRM_FALLBACKS.tabDeals)}</span>
-              </span>
-            )}
-          </button>
-          {!isCollapsed && <div className="flex flex-col gap-1.5">
-            {group.items.map((c, i) => (
-              <motion.button
-                key={c.userId}
-                id={`crm-contact-${c.userId}`}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
-                onClick={() => (selectMode ? toggleSelect(c.userId) : setSelected(c))}
-                className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl text-left cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)] min-h-11 ${
-                  highlightId === c.userId ? 'ring-2 ring-[var(--accent)]' : ''
-                }`}
-              >
-                {selectMode && (
-                  <span
-                    className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
-                      selectedIds.includes(c.userId)
-                        ? 'bg-[var(--accent)] border-[var(--accent)] text-[var(--ink-on-saturate)]'
-                        : 'border-[var(--border-color)]'
-                    }`}
-                  >
-                    {selectedIds.includes(c.userId) && <Check size={14} />}
-                  </span>
-                )}
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${crmAvatarAt(i)} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm shrink-0`}>
-                  {c.displayName.charAt(0)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-bold text-sm text-[var(--text-primary)] break-words leading-snug">{c.displayName}</span>
-                    {c.userId === userId && (
-                      <span className="text-xs font-bold uppercase px-1.5 py-0.5 rounded-full bg-[var(--color-success)]/15 text-[var(--color-success)]">{t('crm.you', 'You')}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                    <RoleBadge contact={c} />
-                    <span className={`text-xs font-bold uppercase px-1.5 py-0.5 rounded-full ${statusColor[c.status]}`}>
-                      {statusLabel(c.status, t)}
-                    </span>
-                    {c.title && <span className="text-xs text-[var(--text-secondary)] truncate max-w-[180px]">{c.title}</span>}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5 text-xs text-[var(--text-secondary)] flex-wrap">
-                    {c.assignedManagerId && c.assignedManagerId !== c.userId && (
-                      <span>👤 {managerName(c.assignedManagerId)}</span>
-                    )}
-                    {c.phone && <span className="inline-flex items-center gap-1"><Phone size={12} />{c.phone}</span>}
-                    {c.email && <span className="inline-flex items-center gap-1 truncate max-w-[160px]"><Mail size={12} />{c.email}</span>}
-                  </div>
-                  {c.tags.length > 0 && (
-                    <div className="flex items-center gap-1 mt-1 flex-wrap">
-                      {c.tags.filter((x) => x !== 'me').map((tag) => (
-                        <span key={tag} className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
-                          <Tag size={12} />{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </motion.button>
-            ))}
-          </div>}
-        </div>
-        );
-      })}
+      {grouped.map((group) => (
+        <CrmContactGroup
+          key={group.key}
+          group={group}
+          collapsed={collapsedGroups.includes(group.key)}
+          stats={deptStats(group.key)}
+          userId={userId}
+          selectMode={selectMode}
+          selectedIds={selectedIds}
+          highlightId={highlightId}
+          t={t}
+          resolveManager={managerName}
+          onOpen={setSelected}
+          onToggleSelect={toggleSelect}
+          onToggleGroup={toggleCrmGroup}
+        />
+      ))}
 
       {selectMode && (
-        <div className="sticky bottom-2 mt-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-2.5 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold text-[var(--text-primary)]">
-            {t('crm.selectedCount', { count: selectedIds.length })}
-          </span>
-          {can('assignManagers') && (
-            <select
-              aria-label={t('crm.bulkAssign', CRM_FALLBACKS.bulkAssign)}
-              value={bulkManager}
-              onChange={(e) => setBulkManager(e.target.value)}
-              className="min-h-11 px-2 rounded-xl bg-[var(--bg-primary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs"
-            >
-              <option value="">{t('crm.bulkAssign', CRM_FALLBACKS.bulkAssign)}</option>
-              {managers.map((m) => (
-                <option key={m.userId} value={m.userId}>{m.displayName}</option>
-              ))}
-            </select>
-          )}
-          {can('assignManagers') && bulkManager && (
-            <button
-              type="button"
-              onClick={applyManager}
-              aria-label={t('crm.apply', CRM_FALLBACKS.apply)}
-              title={t('crm.apply', CRM_FALLBACKS.apply)}
-              className="min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
-            >
-              <Check size={18} aria-hidden="true" />
-              <span className="sr-only">{t('crm.apply', CRM_FALLBACKS.apply)}</span>
-            </button>
-          )}
-          {can('manageMembers') && (
-            <div className="flex items-center gap-1.5">
-              <input
-                aria-label={t('crm.bulkTagPlaceholder', CRM_FALLBACKS.bulkTagPlaceholder)}
-                value={bulkTag}
-                onChange={(e) => setBulkTag(e.target.value)}
-                placeholder={t('crm.bulkTagPlaceholder', CRM_FALLBACKS.bulkTagPlaceholder)}
-                className="min-h-11 px-2 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-color)] focus:border-[var(--accent)] outline-none text-xs text-[var(--text-primary)]"
-              />
-              <button
-                type="button"
-                onClick={applyTag}
-                aria-label={t('crm.apply', CRM_FALLBACKS.apply)}
-                title={t('crm.apply', CRM_FALLBACKS.apply)}
-                className="min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
-              >
-                <Check size={18} aria-hidden="true" />
-                <span className="sr-only">{t('crm.apply', CRM_FALLBACKS.apply)}</span>
-              </button>
-            </div>
-          )}
-          {can('manageMembers') && selectedIds.length > 0 && (
-            <button
-              onClick={() => setBulkDeleteOpen(true)}
-              aria-label={t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
-              title={t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}
-              className="min-h-11 px-3 rounded-xl bg-rose-500/15 text-rose-500 text-xs font-bold flex items-center justify-center gap-1.5"
-            >
-              <Trash2 size={16} aria-hidden="true" />
-              <span>{t('crm.bulkDelete', CRM_FALLBACKS.bulkDelete)}</span>
-            </button>
-          )}
-        </div>
+        <CrmBulkBar
+          selectedCount={selectedIds.length}
+          bulkManager={bulkManager}
+          bulkTag={bulkTag}
+          managers={managers}
+          canAssignManagers={can('assignManagers')}
+          canManageMembers={can('manageMembers')}
+          t={t}
+          onSetBulkManager={setBulkManager}
+          onSetBulkTag={setBulkTag}
+          onApplyManager={applyManager}
+          onApplyTag={applyTag}
+          onOpenDelete={() => setBulkDeleteOpen(true)}
+        />
       )}
 
       {selected && (
