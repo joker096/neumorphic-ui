@@ -46,13 +46,6 @@ export function buildCSP(options: CSPOptions = {}): string {
 }
 
 /**
- * Generate nonce for use in script/style tags
- */
-export function getNonce(): string {
-  return generateNonce()
-}
-
-/**
  * Apply CSP headers to a response
  */
 export function applyCSP(
