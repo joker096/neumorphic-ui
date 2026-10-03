@@ -1,14 +1,13 @@
 import { HMACAuth } from './HMACAuth'
 import { getRelayToken, withToken } from '../network/relayToken'
-import {
-  generateX25519KeyPair,
-  buf2hex,
-  hex2buf,
-  b64encode,
-  b64decode,
-  deriveSharedSessionKeys,
-} from '../crypto/cryptoCore'
+import { generateX25519KeyPair, buf2hex } from '../crypto/cryptoCore'
 import { signDh, verifyOrPinPeer } from './identityPin'
+import { parsePairingPayload, type LanPairingPayload } from './p2pPairing'
+import {
+  decryptSessionPayload,
+  deriveSessionKeys,
+  encryptSessionPayload,
+} from './sessionCrypto'
 
 /** Hard ceiling for a single messenger frame payload (64 KiB). */
 const MAX_PAYLOAD_BYTES = 65536
@@ -44,15 +43,6 @@ export type MetadataSignalType = 'typing-indicator' | 'delivery-receipt' | 'onli
  * The SDP + ephemeral ECDH pubkey travel through the payload; the session
  * HMAC/AES-GCM keys are derived locally on both sides and never transmitted. */
 export const PAIRING_MAGIC = 'mess-lan/1:'
-
-export interface LanPairingPayload {
-  peerId: string
-  role: 'offer' | 'answer'
-  dhPub: string
-  identityPub?: string
-  dhSig?: string
-  sdp: RTCSessionDescriptionInit
-}
 
 export class P2PTransport {
   private peerConnection: RTCPeerConnection | null = null
@@ -292,17 +282,10 @@ export class P2PTransport {
   private async deriveSessionFromPeerDh(peerDhPubHex: string): Promise<boolean> {
     if (!this.localDhPrivateKey) return false
     try {
-      const peerKey = hex2buf(peerDhPubHex)
-      if (peerKey.length !== 32) return false
-      const { hmacKey, aesKeyHex } = deriveSharedSessionKeys(this.localDhPrivateKey, peerKey)
-      this.hmacKey = hmacKey
-      this.sessionAesKey = await crypto.subtle.importKey(
-        'raw',
-        hex2buf(aesKeyHex),
-        { name: 'AES-GCM', length: 256 },
-        false,
-        ['encrypt', 'decrypt'],
-      )
+      const keys = await deriveSessionKeys(this.localDhPrivateKey, peerDhPubHex)
+      if (!keys) return false
+      this.hmacKey = keys.hmacKey
+      this.sessionAesKey = keys.aesKey
       this.outgoingSequence = 0
       this.incomingSequence = 0
       this.seenEncryptedPayloads.clear()
@@ -420,36 +403,12 @@ export class P2PTransport {
     }
   }
 
-  private async encryptPayload(data: string): Promise<string> {
-    const iv = crypto.getRandomValues(new Uint8Array(12))
-    const cipher = await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv },
-      this.sessionAesKey!,
-      new TextEncoder().encode(data),
-    )
-    return `${b64encode(iv)}:${b64encode(new Uint8Array(cipher))}`
+  private encryptPayload(data: string): Promise<string> {
+    return encryptSessionPayload(this.sessionAesKey!, data)
   }
 
-  private async decryptPayload(payload: string): Promise<string | null> {
-    if (!this.sessionAesKey) return null
-    const sep = payload.indexOf(':')
-    if (sep === -1) {
-      console.warn('[P2PTransport] Missing AES-GCM IV separator')
-      return null
-    }
-    try {
-      const iv = b64decode(payload.slice(0, sep))
-      const cipher = b64decode(payload.slice(sep + 1))
-      const plain = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv },
-        this.sessionAesKey,
-        cipher,
-      )
-      return new TextDecoder().decode(plain)
-    } catch {
-      console.warn('[P2PTransport] Failed to decrypt session payload')
-      return null
-    }
+  private decryptPayload(payload: string): Promise<string | null> {
+    return decryptSessionPayload(this.sessionAesKey, payload)
   }
 
   async sendCallControl(data: any): Promise<void> {
@@ -498,6 +457,16 @@ export class P2PTransport {
     this.pendingOutgoingTracks = [];
     this.localHandlesTracks = false;
     this.lastDhPubHex = null;
+  }
+
+  private resetSession(): void {
+    this.peerPublicKey = null
+    this.peerConnection?.close()
+    this.peerConnection = null
+    this.localDhPrivateKey = null
+    this.hmacKey = null
+    this.sessionAesKey = null
+    this.pendingCandidates = []
   }
 
   setRelayOnly(enabled: boolean): void {
@@ -625,27 +594,7 @@ export class P2PTransport {
   }
 
   private parsePairingPayload(payloadStr: string, expectedRole: 'offer' | 'answer'): LanPairingPayload {
-    if (typeof payloadStr !== 'string' || !payloadStr.startsWith(PAIRING_MAGIC)) {
-      throw new Error('[P2PTransport] invalid pairing payload: missing magic header')
-    }
-    let payload: any
-    try {
-      payload = JSON.parse(payloadStr.slice(PAIRING_MAGIC.length))
-    } catch {
-      throw new Error('[P2PTransport] invalid pairing payload: not JSON')
-    }
-    if (payload.role !== expectedRole) {
-      throw new Error(`[P2PTransport] invalid pairing payload: expected role "${expectedRole}"`)
-    }
-    if (
-      typeof payload.peerId !== 'string' ||
-      typeof payload.dhPub !== 'string' ||
-      !payload.sdp ||
-      typeof payload.sdp.type !== 'string'
-    ) {
-      throw new Error('[P2PTransport] malformed pairing payload')
-    }
-    return payload as LanPairingPayload
+    return parsePairingPayload(payloadStr, expectedRole, PAIRING_MAGIC)
   }
 
   private async authenticatePairing(payload: LanPairingPayload): Promise<void> {
@@ -691,13 +640,7 @@ export class P2PTransport {
   }
 
   private failPairing(reason: string): Error {
-    this.peerPublicKey = null
-    this.peerConnection?.close()
-    this.peerConnection = null
-    this.localDhPrivateKey = null
-    this.hmacKey = null
-    this.sessionAesKey = null
-    this.pendingCandidates = []
+    this.resetSession()
     return new Error(`[P2PTransport] pairing failed: ${reason}`)
   }
 
@@ -939,13 +882,7 @@ export class P2PTransport {
 
     if (!msg.dhPub) {
       console.warn('[P2PTransport] Rejecting offer without dhPub (fail-closed)')
-      this.peerPublicKey = null
-      this.peerConnection?.close()
-      this.peerConnection = null
-      this.localDhPrivateKey = null
-      this.hmacKey = null
-      this.sessionAesKey = null
-      this.pendingCandidates = []
+      this.resetSession()
       return
     }
 
@@ -954,24 +891,12 @@ export class P2PTransport {
     // «обязательная криптографическая identity-проверка».
     if (!msg.identityPub || !msg.dhSig) {
       console.warn('[P2PTransport] Rejecting offer without identity signature (fail-closed)')
-      this.peerPublicKey = null
-      this.peerConnection?.close()
-      this.peerConnection = null
-      this.localDhPrivateKey = null
-      this.hmacKey = null
-      this.sessionAesKey = null
-      this.pendingCandidates = []
+      this.resetSession()
       return
     }
     if (!this.identitySecretKey || !this.identityPublicKey) {
       console.warn('[P2PTransport] Rejecting offer: local identity keys missing (fail-closed)')
-      this.peerPublicKey = null
-      this.peerConnection?.close()
-      this.peerConnection = null
-      this.localDhPrivateKey = null
-      this.hmacKey = null
-      this.sessionAesKey = null
-      this.pendingCandidates = []
+      this.resetSession()
       return
     }
 
@@ -1009,13 +934,7 @@ export class P2PTransport {
     const idOk = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
     if (!idOk) {
       console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting offer')
-      this.peerPublicKey = null
-      this.peerConnection?.close()
-      this.peerConnection = null
-      this.localDhPrivateKey = null
-      this.hmacKey = null
-      this.sessionAesKey = null
-      this.pendingCandidates = []
+      this.resetSession()
       return
     }
     const ownKp = generateX25519KeyPair()
@@ -1043,13 +962,7 @@ export class P2PTransport {
   private async handleAnswer(msg: any): Promise<void> {
     if (!msg.dhPub || !this.localDhPrivateKey) {
       console.warn('[P2PTransport] Rejecting answer without dhPub (fail-closed)')
-      this.peerPublicKey = null
-      this.peerConnection?.close()
-      this.peerConnection = null
-      this.localDhPrivateKey = null
-      this.hmacKey = null
-      this.sessionAesKey = null
-      this.pendingCandidates = []
+      this.resetSession()
       return
     }
 
@@ -1057,13 +970,7 @@ export class P2PTransport {
     // Mandatory: an unsigned answer is refused (identity check closed).
     if (!msg.identityPub || !msg.dhSig) {
       console.warn('[P2PTransport] Rejecting answer without identity signature (fail-closed)')
-      this.peerPublicKey = null
-      this.peerConnection?.close()
-      this.peerConnection = null
-      this.localDhPrivateKey = null
-      this.hmacKey = null
-      this.sessionAesKey = null
-      this.pendingCandidates = []
+      this.resetSession()
       return
     }
     {
@@ -1071,13 +978,7 @@ export class P2PTransport {
       const ok = await verifyOrPinPeer(peerId, msg.identityPub, msg.dhPub, msg.dhSig)
       if (!ok) {
         console.warn('[P2PTransport] Peer identity/HMAC authentication failed; rejecting answer')
-        this.peerPublicKey = null
-        this.peerConnection?.close()
-        this.peerConnection = null
-        this.localDhPrivateKey = null
-        this.hmacKey = null
-        this.sessionAesKey = null
-        this.pendingCandidates = []
+        this.resetSession()
         return
       }
     }
