@@ -23,6 +23,8 @@ export interface UIState {
   setShowAddContactFromChat: (show: boolean) => void;
   chatReturnContext: { view: string; subView: string | null } | null;
   setChatReturnContext: (ctx: { view: string; subView: string | null } | null) => void;
+  crmTabRequest: 'people' | 'deals' | 'tasks' | 'roles' | null;
+  requestCrmTab: (tab: 'people' | 'deals' | 'tasks' | 'roles' | null) => void;
 }
 
 export const useUiStore = create<UIState>()(
@@ -51,6 +53,8 @@ export const useUiStore = create<UIState>()(
       setShowAddContactFromChat: (show) => set({ showAddContactFromChat: show }),
       chatReturnContext: null,
       setChatReturnContext: (ctx) => set({ chatReturnContext: ctx }),
+      crmTabRequest: null,
+      requestCrmTab: (tab) => set({ crmTabRequest: tab }),
     }),
     {
       name: 'ui-storage',

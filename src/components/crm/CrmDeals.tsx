@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Plus, TrendingUp } from 'lucide-react';
+import { Plus, TrendingUp, MessageCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
@@ -18,9 +18,10 @@ const fmt = (amount: number, currency: string, lang: string) => formatCurrency(a
 type Props = {
   focusDealId?: string | null;
   onFocusHandled?: () => void;
+  onMessage?: (name: string, color?: string) => void;
 };
 
-export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
+export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled, onMessage }) => {
   const { t, lang } = useI18n();
   const deals = useAppStore((s) => s.crmDeals);
   const contacts = useAppStore((s) => s.crmContacts);
@@ -171,7 +172,20 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled }) => {
                           </span>
                           <span className="font-bold text-sm text-[var(--text-primary)] shrink-0">{fmt(d.amount, d.currency, lang)}</span>
                         </div>
-                        <div className="text-xs text-[var(--text-secondary)] mt-0.5">{contactName(d.contactId)}</div>
+                        <div className="flex items-center justify-between gap-2 mt-0.5">
+                          <span className="text-xs text-[var(--text-secondary)] truncate">{contactName(d.contactId)}</span>
+                          {onMessage && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); onMessage(contactName(d.contactId)); }}
+                              aria-label={t('crm.openChat')}
+                              title={t('crm.openChat')}
+                              className="shrink-0 min-w-11 min-h-11 flex items-center justify-center rounded-lg bg-[var(--accent-soft)] text-[var(--accent)] hover:brightness-110 transition-all"
+                            >
+                              <MessageCircle size={14} aria-hidden="true" />
+                            </button>
+                          )}
+                        </div>
                         <select
                           value={d.stage}
                           disabled={!can('manageDeals')}

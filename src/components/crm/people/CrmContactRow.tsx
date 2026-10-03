@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Check, Phone, Mail, Tag } from 'lucide-react';
+import { Check, Phone, Mail, Tag, MessageCircle } from 'lucide-react';
 import { CRM_FALLBACKS, crmAvatarAt, CONTACT_STATUSES } from '../../../constants/crmConstants';
 import type { CrmContact, CrmContactStatus } from '../../../lib/crm/types';
 import { RoleBadge } from '../RoleBadge';
@@ -28,25 +28,30 @@ interface CrmContactRowProps {
   t: CrmTranslate;
   resolveManager: (id?: string | null) => string | null;
   onOpen: (contact: CrmContact) => void;
+  onMessage?: (contact: CrmContact) => void;
   onToggleSelect: (id: string) => void;
 }
 
 /** One selectable contact row: selection box, avatar, identity, role/status and details. */
 export function CrmContactRow({
   contact: c, index, userId, selectMode, isSelected, highlighted, t,
-  resolveManager, onOpen, onToggleSelect,
+  resolveManager, onOpen, onMessage, onToggleSelect,
 }: CrmContactRowProps) {
   return (
-    <motion.button
+    <motion.div
       id={`crm-contact-${c.userId}`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
-      onClick={() => (selectMode ? onToggleSelect(c.userId) : onOpen(c))}
-      className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl text-left cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)] min-h-11 ${
+      className={`w-full flex items-center gap-1.5 p-1.5 rounded-xl transition-all min-h-11 ${
         highlighted ? 'ring-2 ring-[var(--accent)]' : ''
       }`}
     >
+      <button
+        type="button"
+        onClick={() => (selectMode ? onToggleSelect(c.userId) : onOpen(c))}
+        className="flex-1 min-w-0 flex items-center gap-2.5 p-1 rounded-lg text-left cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)]"
+      >
       {selectMode && (
         <span
           className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
@@ -92,6 +97,18 @@ export function CrmContactRow({
           </div>
         )}
       </div>
-    </motion.button>
+      </button>
+      {onMessage && !selectMode && (
+        <button
+          type="button"
+          onClick={() => onMessage(c)}
+          aria-label={t('crm.openChat')}
+          title={t('crm.openChat')}
+          className="shrink-0 min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)] hover:brightness-110 transition-all"
+        >
+          <MessageCircle size={16} aria-hidden="true" />
+        </button>
+      )}
+    </motion.div>
   );
 }

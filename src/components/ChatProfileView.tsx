@@ -192,6 +192,8 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                 removePinnedMessage={removePinnedMessage}
                 toggleGroupPermission={toggleGroupPermission}
                 onMessage={onMessage}
+                onCall={onCall}
+                onVideoCall={onVideoCall}
                 onClose={onClose}
               />
             </div>

@@ -54,6 +54,8 @@ interface ChatProfileBodyProps {
   removePinnedMessage: (id: any, chatId: any) => void;
   toggleGroupPermission: (key: keyof GroupPermissions) => void;
   onMessage?: () => void;
+  onCall?: () => void;
+  onVideoCall?: () => void;
   onClose: () => void;
 }
 
@@ -61,7 +63,7 @@ interface ChatProfileBodyProps {
 export const ChatProfileBody = ({
   chat, kind, isDark, ownerName, groupCreatedAt, groupDescription, crmMatch, crmDeals, crmTasks,
   groupMessages, groupPinned, groupPerms, canManageGroup, isChatMuted, onToggleMute,
-  removePinnedMessage, toggleGroupPermission, onMessage, onClose,
+  removePinnedMessage, toggleGroupPermission, onMessage, onCall, onVideoCall, onClose,
 }: ChatProfileBodyProps) => {
   const { t, lang } = useI18n();
   const [activeTab, setActiveTab] = useState('media');
@@ -113,6 +115,9 @@ export const ChatProfileBody = ({
       contact={crmMatch}
       deals={crmDeals}
       tasks={crmTasks}
+      onCall={onCall}
+      onVideoCall={onVideoCall}
+      onMessage={onMessage}
       isDark={isDark}
     />
   </div>

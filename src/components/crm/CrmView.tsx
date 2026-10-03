@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Crown, Users, TrendingUp, CheckSquare, ShieldCheck, UserPlus, Upload, SlidersHorizontal } from 'lucide-react';
 import { useAppStore } from '../../store';
+import { useUiStore } from '../../store/uiStore';
 import { useI18n } from '../../lib/i18n';
 import { getAvailableCrmTabs } from '../../config/premium';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
@@ -12,6 +13,7 @@ import { CrmGlobalSearch } from './CrmGlobalSearch';
 import { CrmExportMenu } from './CrmExportMenu';
 import { CrmInviteModal } from './CrmInviteModal';
 import { CrmImportWizard } from './CrmImportWizard';
+import { CrmNextStepsBanner } from './CrmNextStepsBanner';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import type { CrmFocusKind } from '../../lib/crm/types';
 
@@ -59,6 +61,16 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage, onOpe
   useEffect(() => {
     if (!premium && tab !== 'people') setTab('people');
   }, [premium, tab]);
+
+  // Cross-view entry point (e.g. the chat-list reminder) asks CRM to land on a
+  // specific tab; consume and clear the one-shot request.
+  const crmTabRequest = useUiStore((s) => s.crmTabRequest);
+  const requestCrmTab = useUiStore((s) => s.requestCrmTab);
+  useEffect(() => {
+    if (!crmTabRequest) return;
+    if (availableTabs.includes(crmTabRequest)) setTab(crmTabRequest);
+    requestCrmTab(null);
+  }, [crmTabRequest, availableTabs, requestCrmTab]);
 
   const roleLabel = me?.role === 'admin' ? t('crm.roleAdmin', CRM_FALLBACKS.roleAdmin)
     : me?.role === 'manager' ? t('crm.roleManager', CRM_FALLBACKS.roleManager)
@@ -178,6 +190,8 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage, onOpe
         })}
       </div>
 
+      {availableTabs.includes('tasks') && <CrmNextStepsBanner onOpenTasks={() => setTab('tasks')} />}
+
       {tab === 'people' && (
         <CrmPeople
           onOpenRoles={premium ? () => setTab('roles') : undefined}
@@ -190,7 +204,7 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage, onOpe
           onToggleFilters={() => setFiltersOpen((prev) => !prev)}
         />
       )}
-      {tab === 'deals' && <CrmDeals focusDealId={focusDealId} onFocusHandled={focusHandled} />}
+      {tab === 'deals' && <CrmDeals focusDealId={focusDealId} onFocusHandled={focusHandled} onMessage={onMessage} />}
       {tab === 'tasks' && <CrmTasks focusTaskId={focusTaskId} onFocusHandled={focusHandled} />}
       {tab === 'roles' && <CrmRoles />}
 

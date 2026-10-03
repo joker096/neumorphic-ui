@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { CrmCard } from './CrmCard';
 import type { CrmContact, Deal, CrmTask } from '../../lib/crm/types';
 
@@ -70,5 +70,23 @@ describe('CrmCard', () => {
     // Sum is rendered locale-grouped but unlabelled; the old code printed "$1200".
     expect(screen.getByText('1,200')).toBeTruthy();
     expect(screen.queryByText(/\$/)).toBeNull();
+  });
+
+  it('shows quick call/video/message actions only when handlers are provided', () => {
+    const onCall = vi.fn();
+    const onVideoCall = vi.fn();
+    const onMessage = vi.fn();
+    const { rerender } = render(<CrmCard contact={contact} />);
+    expect(screen.queryByLabelText('crm.call')).toBeNull();
+    expect(screen.queryByLabelText('crm.videoCall')).toBeNull();
+    expect(screen.queryByLabelText('crm.message')).toBeNull();
+
+    rerender(<CrmCard contact={contact} onCall={onCall} onVideoCall={onVideoCall} onMessage={onMessage} />);
+    fireEvent.click(screen.getByLabelText('crm.call'));
+    fireEvent.click(screen.getByLabelText('crm.videoCall'));
+    fireEvent.click(screen.getByLabelText('crm.message'));
+    expect(onCall).toHaveBeenCalledTimes(1);
+    expect(onVideoCall).toHaveBeenCalledTimes(1);
+    expect(onMessage).toHaveBeenCalledTimes(1);
   });
 });

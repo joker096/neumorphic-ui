@@ -22,6 +22,8 @@ import { ChatPickerModal } from "./payments/ChatPickerModal";
 import { ConfirmDialog } from "./ui/ConfirmDialog";
 import { Trash2 } from "lucide-react";
 import { toast } from "./ui/Toast";
+import { CrmLeadSuggestionBar } from "./crm/CrmLeadSuggestionBar";
+import { resolveLeadSuggestion } from "../lib/crm/leadSuggestion";
 
 interface ChatPreviewLayerProps {
   chat: any;
@@ -190,6 +192,23 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   );
   const setChannels = useAppStore(s => s.setChannels);
   const isSharingLiveLocation = useAppStore(s => s.liveShare?.isLive === true);
+
+  // Unknown incoming contact → suggest saving them as a CRM lead.
+  const contacts = useAppStore((s) => s.contacts);
+  const crmContacts = useAppStore((s) => s.crmContacts);
+  const [dismissedLeadChats, setDismissedLeadChats] = React.useState<string[]>([]);
+  const leadSuggestion = React.useMemo(
+    () => resolveLeadSuggestion(chat, contacts, crmContacts),
+    [chat, contacts, crmContacts],
+  );
+  const leadSuggestionVisible = !!leadSuggestion && !dismissedLeadChats.includes(String(chat.id));
+  const addLeadSuggestion = () => {
+    if (!leadSuggestion) return;
+    useAppStore.getState().syncMessengerContacts([leadSuggestion.contact]);
+    toast(t("crm.leadAdded", "Lead added to CRM"));
+    setDismissedLeadChats((prev) => [...prev, String(chat.id)]);
+  };
+  const dismissLeadSuggestion = () => setDismissedLeadChats((prev) => [...prev, String(chat.id)]);
 
   // Deep-link: jump to a message when opened via search (chat carries __jumpToMessageId).
   React.useEffect(() => {
@@ -419,6 +438,16 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
             />
           </div>
         </div>
+      )}
+
+      {leadSuggestionVisible && leadSuggestion && (
+        <CrmLeadSuggestionBar
+          hint={t("crm.suggestLeadHint", { detail: leadSuggestion.detail })}
+          actionLabel={t("crm.suggestLead", "Add")}
+          dismissLabel={t("common.close", "Close")}
+          onAdd={addLeadSuggestion}
+          onDismiss={dismissLeadSuggestion}
+        />
       )}
 
       <ChatInputArea

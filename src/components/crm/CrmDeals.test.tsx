@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { CrmDeals } from './CrmDeals';
 
 const { state, can } = vi.hoisted(() => ({
@@ -88,5 +88,17 @@ describe('CrmDeals', () => {
     expect(() => render(<CrmDeals />)).not.toThrow();
     expect(screen.getByText('250')).toBeTruthy();
     expect(screen.getByText('40')).toBeTruthy();
+  });
+
+  it('opens the linked conversation from the deal card action', () => {
+    const onMessage = vi.fn();
+    render(<CrmDeals onMessage={onMessage} />);
+    fireEvent.click(screen.getByRole('button', { name: 'crm.openChat' }));
+    expect(onMessage).toHaveBeenCalledWith('Alice');
+  });
+
+  it('hides the open-chat action when no handler is provided', () => {
+    render(<CrmDeals />);
+    expect(screen.queryByRole('button', { name: 'crm.openChat' })).toBeNull();
   });
 });

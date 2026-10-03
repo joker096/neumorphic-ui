@@ -8,17 +8,21 @@ interface FolderFilterBarProps {
   advancedFilters: Record<string, boolean>;
   setShowAdvancedFilterModal: (show: boolean) => void;
   t: (key: string, options?: any) => string;
+  /** CRM sales-segment folders rendered before `archived`. */
+  segments?: readonly string[];
 }
 
-const FOLDERS = CHAT_FOLDER_KEYS;
-
-export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t }: FolderFilterBarProps) => (
+export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t, segments = [] }: FolderFilterBarProps) => {
+  const folders: readonly string[] = segments.length
+    ? [...CHAT_FOLDER_KEYS.filter((f) => f !== "archived"), ...segments, "archived"]
+    : CHAT_FOLDER_KEYS;
+  return (
     <div className="flex items-center gap-2 mb-3 sm:mb-4 shrink-0">
     <div
       className="flex-1 flex gap-1.5 overflow-x-auto scrollbar-none pb-1 -mx-1 px-1"
       onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}
     >
-      {FOLDERS.map((folder) => {
+      {folders.map((folder) => {
         const isActive = activeFolder === folder;
         return (
           <button
@@ -57,5 +61,6 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
     >
       <ListFilter size={16} />
     </button>
-  </div>
-);
+    </div>
+  );
+};

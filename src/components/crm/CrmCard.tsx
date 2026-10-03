@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircle2, Briefcase, CheckSquare, AlertTriangle, ArrowUpRight } from 'lucide-react';
+import { UserCircle2, Briefcase, CheckSquare, AlertTriangle, ArrowUpRight, Phone, Video, MessageSquare } from 'lucide-react';
 import type { CrmContact, Deal, CrmTask } from '../../lib/crm/types';
 import { useI18n } from '../../lib/i18n';
 import { formatCurrency } from '../../utils/currency';
@@ -10,6 +10,9 @@ interface CrmCardProps {
   deals?: Deal[];
   tasks?: CrmTask[];
   onOpen?: () => void;
+  onCall?: () => void;
+  onVideoCall?: () => void;
+  onMessage?: () => void;
   isDark?: boolean;
 }
 
@@ -22,7 +25,7 @@ const STATUS_COLOR: Record<string, string> = {
   vip: 'bg-rose-500/15 text-rose-400',
 };
 
-export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [], onOpen, isDark }) => {
+export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [], onOpen, onCall, onVideoCall, onMessage, isDark }) => {
   const { t, lang } = useI18n();
   const STATUS_LABEL: Record<string, string> = {
     lead: t('crm.statusLead'),
@@ -83,6 +86,44 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
         {contact.title && (
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Briefcase size={14} /> {contact.title}
+          </div>
+        )}
+
+        {(onMessage || onCall || onVideoCall) && (
+          <div className="flex items-center gap-2 pt-1">
+            {onCall && (
+              <button
+                type="button"
+                onClick={onCall}
+                aria-label={t('crm.call')}
+                title={t('crm.call')}
+                className="flex-1 min-h-11 flex items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/15 text-emerald-500 transition-colors hover:bg-emerald-500/25"
+              >
+                <Phone size={16} aria-hidden="true" />
+              </button>
+            )}
+            {onVideoCall && (
+              <button
+                type="button"
+                onClick={onVideoCall}
+                aria-label={t('crm.videoCall')}
+                title={t('crm.videoCall')}
+                className="flex-1 min-h-11 flex items-center justify-center rounded-xl border border-teal-500/20 bg-teal-500/15 text-teal-500 transition-colors hover:bg-teal-500/25"
+              >
+                <Video size={16} aria-hidden="true" />
+              </button>
+            )}
+            {onMessage && (
+              <button
+                type="button"
+                onClick={onMessage}
+                aria-label={t('crm.message')}
+                title={t('crm.message')}
+                className="flex-1 min-h-11 flex items-center justify-center rounded-xl border border-[var(--accent-soft)] bg-[var(--accent-soft)] text-[var(--accent)] transition-colors hover:brightness-110"
+              >
+                <MessageSquare size={16} aria-hidden="true" />
+              </button>
+            )}
           </div>
         )}
 

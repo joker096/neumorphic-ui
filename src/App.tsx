@@ -56,6 +56,7 @@ export default function App() {
   const toggleArchive = useAppStore(s => s.toggleArchive);
   const contacts = useAppStore(s => s.contacts);
   const setContacts = useAppStore(s => s.setContacts);
+  const crmContacts = useAppStore(s => s.crmContacts);
   const setActiveCall = useAppStore(s => s.setActiveCall);
   const stealthMode = useAppStore(state => state.stealthMode);
   const hideWhenOfficeOnly = useAppStore(state => state.hideWhenOfficeOnly);
@@ -200,6 +201,7 @@ export default function App() {
     contacts,
     spamFilter,
     chatSortBy,
+    crmContacts,
   );
 
   useBrowserBackNavigation({

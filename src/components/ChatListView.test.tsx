@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 
@@ -28,7 +28,7 @@ vi.mock('./chat-preview', () => ({
   ),
   AvatarRow: () => <div data-testid="avatar-row" />,
   BulkActionsBar: () => <div data-testid="bulk-actions-bar" />,
-  FolderFilterBar: () => <div data-testid="folder-filter-bar" />,
+  FolderFilterBar: (props: any) => <div data-testid="folder-filter-bar" data-segments={(props.segments ?? []).join(',')} />,
   ViewTabs: () => <div data-testid="view-tabs" />,
   ChatListSearchHeader: () => <div data-testid="chat-list-search-header" />,
   ChatListBots: () => <div data-testid="chat-list-bots" />,
@@ -86,6 +86,8 @@ vi.mock('./ui/DataState', () => ({ DataState: () => <div /> }));
 
 import { ChatListView } from './ChatListView';
 import { useChatListActions } from '../hooks/useChatListActions';
+import { useAppStore } from '../store';
+import { useUiStore } from '../store/uiStore';
 
 const t = (key: string, _fallback?: string) => key;
 
@@ -235,5 +237,66 @@ describe('ChatListView delete confirmation (lifted ConfirmDialog)', () => {
     expect(screen.getByTestId('confirm-title')).toHaveTextContent('chat.bulkDeleteConfirm');
     fireEvent.click(screen.getByTestId('confirm-confirm'));
     expect(confirmDelete).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('ChatListView CRM next-steps banner', () => {
+  const overdueTask = { id: 't1', title: 'Call lead', done: false, priority: 'high', dueAt: Date.now() - 60_000, createdAt: 0 };
+
+  const withStore = (premium: boolean, tasks: any[]) => {
+    useAppStore.setState({
+      premiumEntitlement: { premium, plan: premium ? 'premium' : null, expiresAt: null } as any,
+      crmTasks: tasks as any,
+    });
+    useUiStore.setState({ crmTabRequest: null });
+  };
+
+  beforeEach(() => {
+    vi.mocked(useChatListActions).mockImplementation(() => hookWith());
+  });
+
+  afterEach(() => {
+    useAppStore.setState({ premiumEntitlement: undefined as any, crmTasks: [] as any });
+    useUiStore.setState({ crmTabRequest: null });
+  });
+
+  it('routes to the CRM tasks tab when the reminder is clicked', () => {
+    const setView = vi.fn();
+    withStore(true, [overdueTask]);
+
+    render(<ChatListView {...baseProps} setView={setView} />);
+    fireEvent.click(screen.getByText('crm.nextSteps'));
+
+    expect(setView).toHaveBeenCalledWith('company');
+    expect(useUiStore.getState().crmTabRequest).toBe('tasks');
+  });
+
+  it('renders no reminder without actionable tasks', () => {
+    withStore(true, []);
+    render(<ChatListView {...baseProps} />);
+    expect(screen.queryByText('crm.nextSteps')).not.toBeInTheDocument();
+  });
+
+  it('hides the reminder on the free tier', () => {
+    withStore(false, [overdueTask]);
+    render(<ChatListView {...baseProps} />);
+    expect(screen.queryByText('crm.nextSteps')).not.toBeInTheDocument();
+  });
+});
+
+describe('ChatListView CRM sales-segment folders', () => {
+  afterEach(() => {
+    useAppStore.setState({ crmContacts: [] as any });
+  });
+
+  it('passes sales segments to the folder bar only when the CRM has contacts', () => {
+    useAppStore.setState({ crmContacts: [] as any });
+    const { unmount } = render(<ChatListView {...baseProps} />);
+    expect(screen.getByTestId('folder-filter-bar').getAttribute('data-segments')).toBe('');
+    unmount();
+
+    useAppStore.setState({ crmContacts: [{ userId: '1', displayName: 'A', status: 'lead' }] as any });
+    render(<ChatListView {...baseProps} />);
+    expect(screen.getByTestId('folder-filter-bar').getAttribute('data-segments')).toBe('leads,clients');
   });
 });

@@ -1,10 +1,13 @@
 import { useMemo } from "react";
-import { CHAT_FOLDER_KEYS } from "../constants/chatConstants";
+import { CHAT_FOLDER_KEYS, CRM_SEGMENT_KEYS } from "../constants/chatConstants";
+import { findCrmContactByChat } from "../lib/crm/bridge";
 const ARCHIVED = CHAT_FOLDER_KEYS[5];
 const UNREAD = CHAT_FOLDER_KEYS[2];
 const PERSONAL = CHAT_FOLDER_KEYS[1];
 const WORK = CHAT_FOLDER_KEYS[3];
 const GROUPS = CHAT_FOLDER_KEYS[4];
+const LEADS = CRM_SEGMENT_KEYS[0];
+const CLIENTS = CRM_SEGMENT_KEYS[1];
 
 /**
  * Ordering of the chat list.
@@ -27,6 +30,7 @@ export function useFilteredChats(
   contacts: any[] = [],
   spamFilter = false,
   sortBy: ChatSortBy = 'recent',
+  crmContacts: any[] = [],
 ) {
   const MENTIONED_USER = "user";
 
@@ -97,8 +101,15 @@ export function useFilteredChats(
     if (activeFolder === PERSONAL) return chat.type === 'dm' || chat.type === 'direct';
     if (activeFolder === WORK) return chat.type === 'group';
     if (activeFolder === GROUPS) return chat.type === 'group';
+    // CRM sales segments: a chat belongs to the segment when its matched CRM
+    // contact carries the segment's status (`leads` → `lead`, `clients` → `client`).
+    if (activeFolder === LEADS || activeFolder === CLIENTS) {
+      const match = findCrmContactByChat(crmContacts, chat);
+      if (!match) return false;
+      return match.status === (activeFolder === LEADS ? 'lead' : 'client');
+    }
     return true;
-  }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters, isSpamChat]);
+  }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters, isSpamChat, crmContacts]);
 
   const filteredChannels = useMemo(() => channels.filter(channel => {
     const query = chatSearchQuery.toLowerCase().trim();
@@ -111,6 +122,8 @@ export function useFilteredChats(
     const isArchived = archivedChats.includes(channel.id);
     if (activeFolder === ARCHIVED) return isArchived;
     if (isArchived) return false;
+    // Sales segments are contact-based; channels never belong to one.
+    if (activeFolder === LEADS || activeFolder === CLIENTS) return false;
     return true;
   }), [channels, chatSearchQuery, activeFolder, archivedChats]);
 

@@ -34,3 +34,11 @@ export const TOAST_DND_DURATION_MS = 3000;
  * `useFilteredChats` cannot drift from each other.
  */
 export const CHAT_FOLDER_KEYS = ["all", "personal", "unread", "work", "groups", "archived"] as const;
+
+/**
+ * CRM-derived "sales segment" folders appended to the chat-list filter bar
+ * (rendered before `archived`). Each maps to a `CrmContactStatus`: `leads` →
+ * `lead`, `clients` → `client`. The bar only shows them when the CRM actually
+ * has contacts, so users who never opened the CRM see the original folders.
+ */
+export const CRM_SEGMENT_KEYS = ["leads", "clients"] as const;

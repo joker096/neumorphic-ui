@@ -8,6 +8,10 @@ import { buildChatRows } from "./chat-list/buildChatRows";
 import { ChatListVirtualRows, useChatListRowRenderer } from "./chat-list/ChatListBody";
 import { ChatListEmptyState } from "./chat-list/ChatListEmptyState";
 import { ChatListOverlays, useGlobalSearchToggle } from "./chat-list/ChatListOverlays";
+import { CrmNextStepsBanner } from "./crm/CrmNextStepsBanner";
+import { useAppStore } from "../store";
+import { useUiStore } from "../store/uiStore";
+import { CRM_SEGMENT_KEYS } from "../constants/chatConstants";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -87,6 +91,10 @@ export const ChatListView = ({
   draftTextByChat,
 }: ChatListViewProps) => {
   const [globalSearchOpen, setGlobalSearchOpen] = useGlobalSearchToggle();
+  const premium = Boolean(useAppStore((s) => s.premiumEntitlement?.premium));
+  const crmContacts = useAppStore((s) => s.crmContacts);
+  const crmSegments = crmContacts.length ? CRM_SEGMENT_KEYS : [];
+  const requestCrmTab = useUiStore((s) => s.requestCrmTab);
 
   const {
     selectMode,
@@ -159,6 +167,15 @@ export const ChatListView = ({
       />
       <ViewTabs view={view} isDark={isDark} onSelect={setView} t={t} />
 
+      {view === "chats" && premium && (
+        <CrmNextStepsBanner
+          onOpenTasks={() => {
+            requestCrmTab("tasks");
+            setView("company");
+          }}
+        />
+      )}
+
       {view === "chats" && (
         <>
           <FolderFilterBar
@@ -168,6 +185,7 @@ export const ChatListView = ({
             advancedFilters={advancedFilters}
             setShowAdvancedFilterModal={setShowAdvancedFilterModal}
             t={t}
+            segments={crmSegments}
           />
           {setChatSortBy && (
             <div className="flex justify-end pb-2 -mt-1">

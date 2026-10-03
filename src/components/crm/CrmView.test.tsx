@@ -4,6 +4,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { act } from 'react';
 import { CrmView } from './CrmView';
+import { useUiStore } from '../../store/uiStore';
 import type { CrmContact } from '../../lib/crm/types';
 
 const { state, useAppStore, perms, captured } = vi.hoisted(() => {
@@ -87,6 +88,7 @@ describe('CrmView', () => {
     captured.deals = null;
     captured.tasks = null;
     captured.search = null;
+    useUiStore.setState({ crmTabRequest: null });
   });
 
   it('seeds CRM data on mount with current user', () => {
@@ -163,6 +165,13 @@ describe('CrmView', () => {
       expect(captured.people.filtersOpen).toBe(false);
       expect(typeof captured.people.onToggleFilters).toBe('function');
     });
+
+    it('ignores a requested tab the free tier cannot show', () => {
+      useUiStore.setState({ crmTabRequest: 'roles' });
+      render(<CrmView />);
+      expect(screen.getByTestId('crm-people')).toBeTruthy();
+      expect(screen.queryByTestId('crm-roles')).toBeNull();
+    });
   });
 
   describe('premium tier', () => {
@@ -204,6 +213,13 @@ describe('CrmView', () => {
       expect(screen.getByTestId('crm-tasks')).toBeTruthy();
       fireEvent.click(screen.getByRole('button', { name: 'Roles' }));
       expect(screen.getByTestId('crm-roles')).toBeTruthy();
+    });
+
+    it('lands on a requested tab and clears the one-shot request', () => {
+      useUiStore.setState({ crmTabRequest: 'tasks' });
+      render(<CrmView />);
+      expect(screen.getByTestId('crm-tasks')).toBeTruthy();
+      expect(useUiStore.getState().crmTabRequest).toBeNull();
     });
 
     it('hides invite button without manageCompany permission', () => {

@@ -290,4 +290,46 @@ describe('useFilteredChats', () => {
       expect(result.current.filteredChannels.map(c => c.name)).toEqual(['Alpha', 'Zeta']);
     });
   });
+
+  describe('CRM sales-segment folders', () => {
+    const filters = { hasMedia: false, hasAudio: false, hasReplies: false, fromBots: false, priority: false };
+    const chats = [
+      { id: 1, name: 'Alice', message: 'x', history: [], unread: 0 },
+      { id: 2, name: 'Bob', message: 'x', history: [], unread: 0 },
+      { id: 3, name: 'Zoe', message: 'x', history: [], unread: 0 },
+    ];
+    const crmContacts = [
+      { userId: '1', displayName: 'Alice', status: 'lead' },
+      { userId: '2', displayName: 'Bob', status: 'client' },
+    ];
+
+    it('leads folder keeps only chats matched to a lead CRM contact', () => {
+      const { result } = renderHook(() =>
+        useFilteredChats(chats, '', 'leads', [], filters, [], [], false, 'recent', crmContacts),
+      );
+      expect(result.current.filteredChats.map(c => c.name)).toEqual(['Alice']);
+    });
+
+    it('clients folder keeps only chats matched to a client CRM contact', () => {
+      const { result } = renderHook(() =>
+        useFilteredChats(chats, '', 'clients', [], filters, [], [], false, 'recent', crmContacts),
+      );
+      expect(result.current.filteredChats.map(c => c.name)).toEqual(['Bob']);
+    });
+
+    it('excludes chats with no CRM match from sales segments', () => {
+      const { result } = renderHook(() =>
+        useFilteredChats(chats, '', 'leads', [], filters, [], [], false, 'recent', crmContacts),
+      );
+      expect(result.current.filteredChats.map(c => c.name)).not.toContain('Zoe');
+    });
+
+    it('shows no channels inside a sales segment', () => {
+      const channels = [{ id: 'c1', name: 'News', history: [] }];
+      const { result } = renderHook(() =>
+        useFilteredChats(chats, '', 'leads', [], filters, channels, [], false, 'recent', crmContacts),
+      );
+      expect(result.current.filteredChannels).toHaveLength(0);
+    });
+  });
 });

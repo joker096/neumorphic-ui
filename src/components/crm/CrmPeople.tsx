@@ -206,6 +206,7 @@ export const CrmPeople: React.FC<Props> = ({
           t={t}
           resolveManager={managerName}
           onOpen={setSelected}
+          onMessage={onMessage ? (c: CrmContact) => onMessage(c.displayName) : undefined}
           onToggleSelect={toggleSelect}
           onToggleGroup={toggleCrmGroup}
         />

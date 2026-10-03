@@ -26,6 +26,7 @@ interface CrmContactGroupProps {
   t: CrmTranslate;
   resolveManager: (id?: string | null) => string | null;
   onOpen: (contact: CrmContact) => void;
+  onMessage?: (contact: CrmContact) => void;
   onToggleSelect: (id: string) => void;
   onToggleGroup: (key: string) => void;
 }
@@ -33,7 +34,7 @@ interface CrmContactGroupProps {
 /** Collapsible department/clients group with its contact rows. */
 export function CrmContactGroup({
   group, collapsed, stats, userId, selectMode, selectedIds, highlightId, t,
-  resolveManager, onOpen, onToggleSelect, onToggleGroup,
+  resolveManager, onOpen, onMessage, onToggleSelect, onToggleGroup,
 }: CrmContactGroupProps) {
   return (
     <div className="mb-2">
@@ -67,6 +68,7 @@ export function CrmContactGroup({
             t={t}
             resolveManager={resolveManager}
             onOpen={onOpen}
+            onMessage={onMessage}
             onToggleSelect={onToggleSelect}
           />
         ))}
