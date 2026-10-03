@@ -110,6 +110,18 @@ describe('MediaViewer - interactive gallery (UI/UX plan §13)', () => {
     expect(Number(seek.max)).toBe(90);
   });
 
+  it('shows a picture-in-picture control for video and requests PiP on click', () => {
+    Object.defineProperty(document, 'pictureInPictureEnabled', { value: true, configurable: true });
+    const reqPip = vi.fn(() => Promise.resolve());
+    renderViewer({ media: { type: 'video', url: 'https://example.com/v.mp4', name: 'v.mp4' } });
+    const video = document.querySelector('video') as HTMLVideoElement;
+    Object.defineProperty(video, 'duration', { value: 90, configurable: true });
+    (video as unknown as { requestPictureInPicture: unknown }).requestPictureInPicture = reqPip;
+    fireEvent(video, new Event('loadedmetadata'));
+    fireEvent.click(screen.getByRole('button', { name: 'media.pictureInPicture' }));
+    expect(reqPip).toHaveBeenCalledTimes(1);
+  });
+
   it('reset-zoom button resets instead of zooming out (D4 nested-icon handler regression)', () => {
     renderViewer();
     const img = document.querySelector('img');

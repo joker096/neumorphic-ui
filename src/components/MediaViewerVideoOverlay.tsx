@@ -1,5 +1,5 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { Play, Pause } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Play, Pause, PictureInPicture2 } from 'lucide-react';
 import { formatTime } from './mediaUtils';
 import type { MediaItem } from './mediaUtils';
 
@@ -16,6 +16,10 @@ export function MediaViewerVideoOverlay({ media, t, playing, onPlayingChange }: 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoTime, setVideoTime] = useState(0);
   const [videoDur, setVideoDur] = useState(0);
+  const [pipActive, setPipActive] = useState(false);
+  const [pipSupported] = useState(
+    () => typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled,
+  );
 
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
@@ -23,6 +27,26 @@ export function MediaViewerVideoOverlay({ media, t, playing, onPlayingChange }: 
     if (v.paused) v.play().catch(() => onPlayingChange(false));
     else v.pause();
   }, [onPlayingChange]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !pipSupported) return;
+    const onEnter = () => setPipActive(true);
+    const onLeave = () => setPipActive(false);
+    v.addEventListener('enterpictureinpicture', onEnter);
+    v.addEventListener('leavepictureinpicture', onLeave);
+    return () => {
+      v.removeEventListener('enterpictureinpicture', onEnter);
+      v.removeEventListener('leavepictureinpicture', onLeave);
+    };
+  }, [pipSupported, media.url]);
+
+  const togglePip = useCallback(() => {
+    const v = videoRef.current;
+    if (!v || typeof document === 'undefined') return;
+    if (pipActive) void document.exitPictureInPicture?.().catch(() => {});
+    else void v.requestPictureInPicture?.().catch(() => {});
+  }, [pipActive]);
 
   return (
     <div className="w-full max-w-2xl aspect-video bg-black rounded-lg overflow-hidden relative flex items-center justify-center shadow-2xl">
@@ -74,6 +98,16 @@ export function MediaViewerVideoOverlay({ media, t, playing, onPlayingChange }: 
             aria-label={t('media.seek')}
           />
           <span className="text-white/70 text-xs tabular-nums">{formatTime(videoDur)}</span>
+          {pipSupported && (
+            <button
+              onClick={togglePip}
+              aria-label={t('media.pictureInPicture')}
+              aria-pressed={pipActive}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white"
+            >
+              <PictureInPicture2 size={18} />
+            </button>
+          )}
         </div>
       )}
     </div>
