@@ -1918,6 +1918,7 @@
     "suggestLead": "追加",
     "suggestLeadHint": "{{detail}} をCRMリードとして追加",
     "leadAdded": "リードをCRMに追加しました",
+    "dismissSuggestion": "非表示",
     "tabPeople": "人",
     "tabDeals": "取引",
     "tabTasks": "タスク",

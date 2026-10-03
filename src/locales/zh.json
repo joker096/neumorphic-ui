@@ -1918,6 +1918,7 @@
     "suggestLead": "添加",
     "suggestLeadHint": "将 {{detail}} 添加为 CRM 线索",
     "leadAdded": "线索已添加到 CRM",
+    "dismissSuggestion": "忽略",
     "tabPeople": "人员",
     "tabDeals": "交易",
     "tabTasks": "任务",

@@ -1918,6 +1918,7 @@
     "suggestLead": "추가",
     "suggestLeadHint": "{{detail}}을(를) CRM 리드로 추가",
     "leadAdded": "CRM에 리드가 추가되었습니다",
+    "dismissSuggestion": "숨기기",
     "tabPeople": "사람",
     "tabDeals": "거래",
     "tabTasks": "작업",

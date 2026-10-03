@@ -197,7 +197,7 @@ export const ChatListView = ({
                 title={chatSortBy === "alpha" ? t("chat.sortByRecent", "Sort by date") : t("chat.sortByName", "Sort by name")}
                 className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full active:scale-95"
               >
-                <span className={`px-3 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1 transition-colors ${
+                <span className={`px-3 py-0.5 rounded-full text-xs font-bold flex items-center gap-1 transition-colors ${
                   chatSortBy === "alpha"
                     ? "bg-[var(--accent-soft)] text-[var(--accent)]"
                     : isDark

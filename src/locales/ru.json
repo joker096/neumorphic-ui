@@ -1918,6 +1918,7 @@
     "suggestLead": "Добавить",
     "suggestLeadHint": "Добавить {{detail}} как лид в CRM",
     "leadAdded": "Лид добавлен в CRM",
+    "dismissSuggestion": "Скрыть",
     "tabPeople": "Люди",
     "tabDeals": "Сделки",
     "tabTasks": "Задачи",

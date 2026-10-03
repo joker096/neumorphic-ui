@@ -1918,6 +1918,7 @@
     "suggestLead": "Ajouter",
     "suggestLeadHint": "Ajouter {{detail}} comme prospect",
     "leadAdded": "Prospect ajouté au CRM",
+    "dismissSuggestion": "Masquer",
     "tabPeople": "Personnes",
     "tabDeals": "Affaires",
     "tabTasks": "Tâches",

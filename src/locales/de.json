@@ -1918,6 +1918,7 @@
     "suggestLead": "Hinzufügen",
     "suggestLeadHint": "{{detail}} als CRM-Lead hinzufügen",
     "leadAdded": "Lead zum CRM hinzugefügt",
+    "dismissSuggestion": "Ausblenden",
     "tabPeople": "Personen",
     "tabDeals": "Deals",
     "tabTasks": "Aufgaben",

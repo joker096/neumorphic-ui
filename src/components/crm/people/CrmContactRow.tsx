@@ -39,7 +39,6 @@ export function CrmContactRow({
 }: CrmContactRowProps) {
   return (
     <motion.div
-      id={`crm-contact-${c.userId}`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.03 }}
@@ -49,6 +48,7 @@ export function CrmContactRow({
     >
       <button
         type="button"
+        id={`crm-contact-${c.userId}`}
         onClick={() => (selectMode ? onToggleSelect(c.userId) : onOpen(c))}
         className="flex-1 min-w-0 flex items-center gap-2.5 p-1 rounded-lg text-left cursor-pointer transition-all hover:bg-[var(--list-item-hover-bg)]"
       >

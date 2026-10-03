@@ -444,7 +444,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         <CrmLeadSuggestionBar
           hint={t("crm.suggestLeadHint", { detail: leadSuggestion.detail })}
           actionLabel={t("crm.suggestLead", "Add")}
-          dismissLabel={t("common.close", "Close")}
+          dismissLabel={t("crm.dismissSuggestion", "Dismiss")}
           onAdd={addLeadSuggestion}
           onDismiss={dismissLeadSuggestion}
         />

@@ -1916,6 +1916,7 @@
     "suggestLead": "Add",
     "suggestLeadHint": "Add {{detail}} as a CRM lead",
     "leadAdded": "Lead added to CRM",
+    "dismissSuggestion": "Dismiss",
     "tabPeople": "People",
     "tabDeals": "Deals",
     "tabTasks": "Tasks",
