@@ -140,6 +140,15 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                 <div className="text-[11px] text-[var(--text-secondary)]">{t('company.widgetHint', 'Change settings → the embed snippet updates. Re-paste it into your site.')}</div>
               </div>
 
+              <details className="rounded-xl bg-[var(--bg-secondary)]/60 p-3 text-xs text-[var(--text-secondary)]">
+                <summary className="font-bold text-[var(--text-primary)] cursor-pointer">{t('company.embedHowTo', 'How to embed on your site')}</summary>
+                <ol className="mt-2 flex flex-col gap-1 list-decimal list-inside">
+                  <li>{t('company.embedStep1', 'Copy the snippet below.')}</li>
+                  <li>{t('company.embedStep2', 'Paste it before the closing </body> tag of any page on your website.')}</li>
+                  <li>{t('company.embedStep3', 'Visitor chats and contacts then arrive here and in CRM as website leads.')}</li>
+                </ol>
+              </details>
+
               <textarea
                 aria-label={t('company.embedSnippet', 'Embed snippet')}
                 readOnly

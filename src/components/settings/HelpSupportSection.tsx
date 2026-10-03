@@ -28,6 +28,10 @@ const FAQ = [
     q: 'settings.faqQ4', qFallback: 'Can I export my data?',
     a: 'settings.faqA4', aFallback: 'Yes. Go to Settings → Backup & Export to download your data as an encrypted file.',
   },
+  {
+    q: 'settings.faqQ5', qFallback: 'How do I embed the chat on my website?',
+    a: 'settings.faqA5', aFallback: 'Create a company, open Company → Site chats, create a site chat, then copy the embed snippet into your website HTML before the closing body tag. Visitor messages and contacts appear in CRM as website leads.',
+  },
 ];
 
 const CATEGORIES = [

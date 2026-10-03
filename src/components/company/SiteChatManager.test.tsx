@@ -102,6 +102,13 @@ describe("SiteChatManager", () => {
     expect(toastSuccess).toHaveBeenCalledWith("Copied");
   });
 
+  it("shows the embed how-to instructions", () => {
+    render(<SiteChatManager />);
+    expect(screen.getByText("How to embed on your site")).toBeInTheDocument();
+    expect(screen.getByText("Copy the snippet below.")).toBeInTheDocument();
+    expect(screen.getByText("Paste it before the closing </body> tag of any page on your website.")).toBeInTheDocument();
+  });
+
   it("saves widget config on accent swatch click", async () => {
     render(<SiteChatManager />);
     const swatches = screen.getAllByRole("button", { name: /#/ });
