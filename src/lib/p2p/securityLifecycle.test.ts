@@ -23,6 +23,7 @@ import { generateX25519KeyPair, deriveSharedSessionKeys, buf2hex, hex2buf, crypt
 import { computeSafetyNumber } from '../crypto/safetyNumber'
 import { signDh, verifyDhSignature, verifyOrPinPeer, getPinnedIdentity, resetIdentityPins } from './identityPin'
 import { P2PTransport } from './P2PTransport'
+import { handleWsClose } from './p2pSignaling'
 
 let mockWs: any = null
 let onMessage: ReturnType<typeof vi.fn>
@@ -181,7 +182,7 @@ describe('S6 security lifecycle: register -> pair -> verify -> encrypt -> reconn
     const t = makeTransport()
     // No peerPublicKey -> onDisconnected skipped; pure backoff sequence
     for (let i = 0; i < 11; i++) {
-      ;(t as any).handleWsClose()
+      ;handleWsClose(t)
     }
     expect(delays).toEqual([1000, 2000, 4000, 8000, 16000, 30000, 30000, 30000, 30000, 30000])
     expect((t as any).reconnectAttempts).toBe(10)

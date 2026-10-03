@@ -4,6 +4,13 @@ import { P2PTransport } from './P2PTransport';
 import { HMACAuth } from './HMACAuth';
 import { signDh } from './identityPin';
 import { b64encode, b64decode, buf2hex } from '../crypto/cryptoCore';
+import {
+  handleAnswer,
+  handleOffer,
+  handleSignalingMessage,
+} from './p2pSignalingHandlers';
+import { sendSignaling } from './p2pSignaling';
+import { processCallControlMessage, setupDataChannel } from './p2pDataChannel';
 
 vi.mock('idb-keyval', () => ({
   get: vi.fn().mockResolvedValue('{}'),
@@ -515,7 +522,7 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
        const transport = makeTransport();
        const dc: any = { readyState: 'open', send: vi.fn(), close: vi.fn(), onopen: null, onclose: null, onmessage: null, onerror: null };
        (transport as any).dataChannel = dc;
-       (transport as any).setupDataChannel();
+       setupDataChannel(transport);
        (transport as any).hmacKey = 'some-key';
        const aesKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
        (transport as any).sessionAesKey = aesKey;
@@ -540,7 +547,7 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
        const transport = makeTransport();
        const dc: any = { readyState: 'open', send: vi.fn(), close: vi.fn(), onopen: null, onclose: null, onmessage: null, onerror: null };
        (transport as any).dataChannel = dc;
-       (transport as any).setupDataChannel();
+       setupDataChannel(transport);
        (transport as any).hmacKey = 'some-key';
        const aesKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
        (transport as any).sessionAesKey = aesKey;
@@ -565,7 +572,7 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
        const transport = makeTransport();
        const dc: any = { readyState: 'open', send: vi.fn(), close: vi.fn(), onopen: null, onclose: null, onmessage: null, onerror: null };
        (transport as any).dataChannel = dc;
-       (transport as any).setupDataChannel();
+       setupDataChannel(transport);
        (transport as any).hmacKey = 'some-key';
        const sendKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
        const recvKey = await subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
@@ -622,23 +629,23 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
       const handler = { onMediaEnded: vi.fn() };
       (transport as any).mediaHandlers = handler;
 
-      await (transport as any).processCallControlMessage(`1|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'audio' })}`);
+      await processCallControlMessage(transport, `1|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'audio' })}`);
       expect(handler.onMediaEnded).toHaveBeenCalledWith('peer', 'audio');
 
       // stale seq → dropped
-      await (transport as any).processCallControlMessage(`1|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
+      await processCallControlMessage(transport, `1|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
       expect(handler.onMediaEnded).toHaveBeenCalledTimes(1);
 
       // sender mismatch → dropped
-      await (transport as any).processCallControlMessage(`2|other|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
+      await processCallControlMessage(transport, `2|other|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
       expect(handler.onMediaEnded).toHaveBeenCalledTimes(1);
 
       // fresh seq → accepted
-      await (transport as any).processCallControlMessage(`2|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
+      await processCallControlMessage(transport, `2|peer|${JSON.stringify({ type: 'mute-toggled', kind: 'video' })}`);
       expect(handler.onMediaEnded).toHaveBeenCalledTimes(2);
 
       // missing seq (legacy bare JSON) → dropped
-      await (transport as any).processCallControlMessage(JSON.stringify({ type: 'mute-toggled', kind: 'video' }));
+      await processCallControlMessage(transport, JSON.stringify({ type: 'mute-toggled', kind: 'video' }));
       expect(handler.onMediaEnded).toHaveBeenCalledTimes(2);
     });
   });
@@ -762,9 +769,9 @@ it('encrypts data with per-session AES-GCM key before sending', async () => {
       const handler = vi.fn();
       transport.onMetadataSignal(handler);
 
-      await (transport as any).handleSignalingMessage({ type: 'typing-indicator', seq: 5, data: 'x' });
-      await (transport as any).handleSignalingMessage({ type: 'typing-indicator', seq: 4, data: 'y' });
-      await (transport as any).handleSignalingMessage({ type: 'online-status', seq: 6, data: 'z' });
+      await handleSignalingMessage(transport, { type: 'typing-indicator', seq: 5, data: 'x' });
+      await handleSignalingMessage(transport, { type: 'typing-indicator', seq: 4, data: 'y' });
+      await handleSignalingMessage(transport, { type: 'online-status', seq: 6, data: 'z' });
 
       expect(handler).toHaveBeenCalledTimes(2);
       expect(handler).toHaveBeenNthCalledWith(1, 'typing-indicator', 'x');
@@ -898,7 +905,7 @@ describe('P2PTransport security regressions', () => {
     (transport as any).sessionAesKey = 'aes';
     (transport as any).pendingCandidates = [{ candidate: 'candidate' } as any];
 
-    await (transport as any).handleOffer({ from: 'peer', sdp: { type: 'offer', sdp: 'sdp' } });
+    await handleOffer(transport, { from: 'peer', sdp: { type: 'offer', sdp: 'sdp' } });
 
     expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting offer without dhPub (fail-closed)');
     expect(closeMock).toHaveBeenCalled();
@@ -923,7 +930,7 @@ describe('P2PTransport security regressions', () => {
     (transport as any).sessionAesKey = 'aes';
     (transport as any).pendingCandidates = [{ candidate: 'candidate' } as any];
 
-    await (transport as any).handleAnswer({ sdp: { type: 'answer', sdp: 'sdp' } });
+    await handleAnswer(transport, { sdp: { type: 'answer', sdp: 'sdp' } });
 
     expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting answer without dhPub (fail-closed)');
     expect(closeMock).toHaveBeenCalled();
@@ -940,35 +947,40 @@ describe('P2PTransport security regressions', () => {
   it('drops stale signaling frames (anti-replay)', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const transport = makeTransport();
-    const iceSpy = vi.spyOn(transport as any, 'handleIceCandidate').mockResolvedValue(undefined);
     const frame = { type: 'ice-candidate', from: 'peer', seq: 4, candidate: { candidate: 'c' } };
 
-    await (transport as any).handleSignalingMessage(frame);
-    await (transport as any).handleSignalingMessage(frame);
+    await handleSignalingMessage(transport, frame);
+    await handleSignalingMessage(transport, frame);
 
-    expect(iceSpy).toHaveBeenCalledTimes(1);
+    // First frame routed to the ICE handler (queued); the replay is dropped.
+    expect(transport.pendingCandidates).toEqual([{ candidate: 'c' }]);
     expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Dropping stale signaling frame (anti-replay)');
     warnSpy.mockRestore();
   });
 
   it('accepts strictly increasing signaling frames and resets per-sender tracker on fresh offer', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const transport = makeTransport();
-    const iceSpy = vi.spyOn(transport as any, 'handleIceCandidate').mockResolvedValue(undefined);
-    const offerSpy = vi.spyOn(transport as any, 'handleOffer').mockResolvedValue(undefined);
 
-    await (transport as any).handleSignalingMessage({ type: 'ice-candidate', from: 'peer', seq: 5, candidate: { candidate: 'c' } });
-    await (transport as any).handleSignalingMessage({ type: 'offer', from: 'peer', seq: 3, dhPub: 'x' });
-    await (transport as any).handleSignalingMessage({ type: 'ice-candidate', from: 'peer', seq: 4, candidate: { candidate: 'c' } });
+    await handleSignalingMessage(transport, { type: 'ice-candidate', from: 'peer', seq: 5, candidate: { candidate: 'c1' } });
+    await handleSignalingMessage(transport, { type: 'offer', from: 'peer', seq: 3, dhPub: 'x' });
+    await handleSignalingMessage(transport, { type: 'ice-candidate', from: 'peer', seq: 4, candidate: { candidate: 'c2' } });
 
-    expect(offerSpy).toHaveBeenCalledTimes(1);
-    expect(iceSpy).toHaveBeenCalledTimes(2);
+    // The fresh offer (seq 3) reset the tracker despite being lower than the
+    // earlier ICE seq; the later ICE frame then advanced it to 4.
+    expect(transport.incomingSignalingSeqs.get('peer')).toBe(4);
+    // The offer handler ran (fail-closed without identity keys) and its reset
+    // cleared the first queued candidate; the second ICE frame was routed.
+    expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting offer without identity signature (fail-closed)');
+    expect(transport.pendingCandidates).toEqual([{ candidate: 'c2' }]);
+    warnSpy.mockRestore();
   });
 
   it('attaches a monotonic seq to every signaling frame', async () => {
     const transport = makeTransport();
     await connectTransport(transport);
     (transport as any).signalingSeq = 0;
-    (transport as any).sendSignaling({ type: 'ping-probe', probe: true });
+    sendSignaling(transport, { type: 'ping-probe', probe: true });
     const sent = mockWs.send.mock.calls.map((c: any) => c[0]);
     const parsed = sent.map((s: string) => JSON.parse(s));
     const seqs = parsed.filter((m: any) => m.type === 'ping-probe').map((m: any) => m.seq);
@@ -986,7 +998,7 @@ describe('P2PTransport security regressions', () => {
     (transport as any).sessionAesKey = 'aes';
     (transport as any).pendingCandidates = [{ candidate: 'candidate' } as any];
 
-    await (transport as any).handleOffer({ from: 'peer', sdp: { type: 'offer', sdp: 'sdp' }, dhPub: 'a'.repeat(64) });
+    await handleOffer(transport, { from: 'peer', sdp: { type: 'offer', sdp: 'sdp' }, dhPub: 'a'.repeat(64) });
 
     expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting offer without identity signature (fail-closed)');
     expect(closeMock).toHaveBeenCalled();
@@ -1011,7 +1023,7 @@ describe('P2PTransport security regressions', () => {
     (transport as any).sessionAesKey = 'aes';
     (transport as any).pendingCandidates = [{ candidate: 'candidate' } as any];
 
-    await (transport as any).handleAnswer({ sdp: { type: 'answer', sdp: 'sdp' }, dhPub: 'a'.repeat(64) });
+    await handleAnswer(transport, { sdp: { type: 'answer', sdp: 'sdp' }, dhPub: 'a'.repeat(64) });
 
     expect(warnSpy).toHaveBeenCalledWith('[P2PTransport] Rejecting answer without identity signature (fail-closed)');
     expect(closeMock).toHaveBeenCalled();

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as nacl from 'tweetnacl';
 import { P2PTransport } from './P2PTransport';
+import { setupDataChannel } from './p2pDataChannel';
 import * as identityPin from './identityPin';
 import {
   MSG_MAGIC,
@@ -189,7 +190,7 @@ async function pairPeers(caller: P2PTransport, callee: P2PTransport, calleeId: s
 function wireReceive(transport: P2PTransport, channel: any): void {
   (transport as any).receiveChain = Promise.resolve();
   (transport as any).dataChannel = channel;
-  (transport as any).setupDataChannel();
+  setupDataChannel(transport);
 }
 
 const lastSent = (dc: any): string => {
