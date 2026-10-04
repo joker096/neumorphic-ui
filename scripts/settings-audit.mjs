@@ -23,12 +23,15 @@
  * Usage: node scripts/settings-audit.mjs
  */
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SLICE = join(ROOT, 'src', 'store', 'slices', 'settingsSlice.ts');
+// Экшены слайса вынесены в `slices/settings/` (§1.2) — аудит обязан видеть
+// сеттеры и persist-вызовы во всех модулях группы, иначе S1/S3 рисуются ложно.
+const SLICE_DIR = join(ROOT, 'src', 'store', 'slices', 'settings');
 const SRC = join(ROOT, 'src');
 const SETTINGS_DIR = join(SRC, 'components', 'settings');
 
@@ -45,7 +48,15 @@ function walk(dir, out = []) {
 }
 
 const appFiles = walk(SRC).filter((f) => !/(\.test\.|\.spec\.)/.test(f));
-const sliceSrc = readFileSync(SLICE, 'utf-8');
+const sliceSrc = [
+  SLICE,
+  ...(existsSync(SLICE_DIR)
+    ? readdirSync(SLICE_DIR)
+      .filter((n) => n.endsWith('.ts'))
+      .sort()
+      .map((n) => join(SLICE_DIR, n))
+    : []),
+].map((fp) => readFileSync(fp, 'utf-8')).join('\n');
 
 // ---- parse slice -----------------------------------------------------------
 
