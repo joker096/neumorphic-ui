@@ -273,8 +273,6 @@ export type MeshRouter = MeshRouterCore
 
 const defaultRouter = new MeshRouterCore('self')
 
-export const MeshRouterSingleton = defaultRouter
-
 export const MeshRouter = {
   default: defaultRouter,
   clear(): void {
