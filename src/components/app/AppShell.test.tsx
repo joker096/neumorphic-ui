@@ -55,6 +55,32 @@ vi.mock("../status/OfflineBanner", () => ({
   OfflineBanner: () => React.createElement("div", { "data-testid": "offline-banner" }),
 }));
 
+// Chat-list data is store-sourced inside AppShell (useChatListData), so the
+// shell tests pin the hook instead of prop-drilling list state.
+vi.mock("../../hooks/useChatListData", () => ({
+  useChatListData: () => chatListData,
+}));
+
+const chatListData = {
+  chatsUnread: 3,
+  companyUnread: 5,
+  activeFolder: "all",
+  setActiveFolder: vi.fn(),
+  chatSearchQuery: "",
+  setChatSearchQuery: vi.fn(),
+  chatSortBy: "recent" as const,
+  setChatSortBy: vi.fn(),
+  filteredChats: [],
+  filteredChannels: [],
+  bots: [],
+  archivedUnreadCount: 0,
+  toggleArchive: vi.fn(),
+  contacts: [],
+  setContacts: vi.fn(),
+  chats: [],
+  setChats: vi.fn(),
+};
+
 const baseProps: AppShellProps = {
   theme: "dark",
   isDark: true,
@@ -69,31 +95,14 @@ const baseProps: AppShellProps = {
   onCloseComposer: vi.fn(),
   stealthMode: false,
   hideWhenOfficeOnly: false,
-  chatsUnread: 3,
-  companyUnread: 5,
   handleNavigate: vi.fn(),
   isChatListRoute: true,
   activeChat: { id: "c-1" },
   setActiveChat: vi.fn(),
   activeChatWorkspaceProps: { marker: "workspace" },
-  activeFolder: "all",
-  setActiveFolder: vi.fn(),
-  chatSearchQuery: "",
-  setChatSearchQuery: vi.fn(),
-  chatSortBy: "recent",
-  setChatSortBy: vi.fn(),
-  filteredChats: [],
-  filteredChannels: [],
-  bots: [],
-  archivedUnreadCount: 0,
-  toggleArchive: vi.fn(),
-  contacts: [],
-  setContacts: vi.fn(),
   showContactPicker: false,
   setShowContactPicker: vi.fn(),
   setEditingContact: vi.fn(),
-  chats: [],
-  setChats: vi.fn(),
   setView: vi.fn(),
   setGlobalSelectedContact: vi.fn(),
   setShowCreateChannel: vi.fn(),
@@ -154,8 +163,6 @@ describe("AppShell", () => {
       <AppShell
         {...baseProps}
         view="company"
-        chatsUnread={3}
-        companyUnread={5}
         handleNavigate={onNavigate}
       />,
     );

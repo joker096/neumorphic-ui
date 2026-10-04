@@ -5,6 +5,7 @@ import { BottomNav } from "../navigation";
 import { OfflineBanner } from "../status/OfflineBanner";
 import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useChatListData } from "../../hooks/useChatListData";
 
 export interface AppShellProps {
   theme: "light" | "dark";
@@ -22,31 +23,14 @@ export interface AppShellProps {
   onCloseComposer?: () => void;
   stealthMode: boolean;
   hideWhenOfficeOnly: boolean;
-  chatsUnread: number;
-  companyUnread: number;
   handleNavigate: (view: any) => void;
   isChatListRoute: boolean;
   activeChat: any;
   setActiveChat: (chat: any) => void;
   activeChatWorkspaceProps: any;
-  activeFolder: string;
-  setActiveFolder: (folder: string) => void;
-  chatSearchQuery: string;
-  setChatSearchQuery: (query: string) => void;
-  chatSortBy: "recent" | "alpha";
-  setChatSortBy: (sort: "recent" | "alpha") => void;
-  filteredChats: any[];
-  filteredChannels: any[];
-  bots: any[];
-  archivedUnreadCount: number;
-  toggleArchive: (id: string | number) => void;
-  contacts: Contact[];
-  setContacts: (updater: any) => void;
   showContactPicker: boolean;
   setShowContactPicker: (show: boolean) => void;
   setEditingContact: (contact: Contact | null) => void;
-  chats: any[];
-  setChats: (updater: any) => void;
   setView: (view: any) => void;
   goBack?: () => void;
   pushView?: (view: string, subView?: string | null) => void;
@@ -88,31 +72,14 @@ function AppShellImpl({
   onCloseComposer,
   stealthMode,
   hideWhenOfficeOnly,
-  chatsUnread,
-  companyUnread,
   handleNavigate,
   isChatListRoute,
   activeChat,
   setActiveChat,
   activeChatWorkspaceProps,
-  activeFolder,
-  setActiveFolder,
-  chatSearchQuery,
-  setChatSearchQuery,
-  chatSortBy,
-  setChatSortBy,
-  filteredChats,
-  filteredChannels,
-  bots,
-  archivedUnreadCount,
-  toggleArchive,
-  contacts,
-  setContacts,
   showContactPicker,
   setShowContactPicker,
   setEditingContact,
-  chats,
-  setChats,
   setView,
   goBack,
   pushView,
@@ -138,6 +105,26 @@ function AppShellImpl({
   draftTextByChat,
 }: AppShellProps) {
   const isMobile = useIsMobile();
+
+  const {
+    chatsUnread,
+    companyUnread,
+    activeFolder,
+    setActiveFolder,
+    chatSearchQuery,
+    setChatSearchQuery,
+    chatSortBy,
+    setChatSortBy,
+    filteredChats,
+    filteredChannels,
+    bots,
+    archivedUnreadCount,
+    toggleArchive,
+    contacts,
+    setContacts,
+    chats,
+    setChats,
+  } = useChatListData();
 
   const handleOpenPremium = () => {
     if (pushView) pushView("settings", "premium");
