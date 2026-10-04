@@ -1,0 +1,55 @@
+import { encodeChatDeliveryAck, nextFrameSeq, type ChatEditFrame, type ChatTextFrame } from "../chatFrame";
+import { p2pNetwork } from "../network";
+import { resolveInboundSelfDestruct } from "../../selfDestruct";
+import { formatClockTime } from "../../../utils/chatUtils";
+import { useAppStore } from "../../../store";
+import { authorizeInboundChatFrame } from "./inboundGate";
+import { appendIncomingToDmChat } from "./inboundChatStore";
+
+/** Inbound plain-text bubble: `sender` is the local contact name, never the asserted one. */
+export const handleChatText = (frame: ChatTextFrame | null, senderId: string) => {
+  if (!frame) return;
+  const messageId = frame.messageId || String(frame.timestamp);
+  const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "chat-text");
+  if (!chat) return;
+  appendIncomingToDmChat(chat, {
+    id: messageId,
+    sender: chat.name,
+    text: frame.text,
+    type: "text",
+    ts: frame.timestamp,
+    time: formatClockTime(frame.timestamp),
+    status: "delivered",
+    silent: frame.silent,
+    selfDestructAt: resolveInboundSelfDestruct(frame.ttlMs),
+  });
+  void p2pNetwork.sendAddressed(senderId, encodeChatDeliveryAck({
+    type: "chat-ack",
+    seq: nextFrameSeq(),
+    messageId,
+    chatId: frame.chatId,
+    timestamp: Date.now(),
+  })).catch(() => {});
+};
+
+/** Inbound edit: patches the addressed bubble in place and flags it edited. */
+export const handleChatEdit = (frame: ChatEditFrame | null, senderId: string) => {
+  if (!frame) return;
+  const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "chat-edit");
+  if (!chat) return;
+  const { setChats } = useAppStore.getState();
+  setChats((prevChats: any[]) => {
+    const chats = prevChats || [];
+    if (!chats.some((c: any) => c.id === chat.id)) return chats;
+    return chats.map((c: any) =>
+      c.id === chat.id
+        ? {
+            ...c,
+            history: (c.history || []).map((m: any) =>
+              String(m.id) === frame.messageId ? { ...m, text: frame.text, edited: true } : m,
+            ),
+          }
+        : c,
+    );
+  });
+};

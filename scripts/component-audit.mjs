@@ -31,7 +31,7 @@ const EXTERNAL_URL_OWNERS = new Map([
     'the URL is stored on the message as audioUrl; releaseMessageMedia revokes it when the message is deleted or self-destructs',
   ],
   [
-    'src\\hooks\\useP2PMessages.ts',
+    'src\\lib\\p2p\\inbound\\inboundVoice.ts',
     'same inbound voice path: audioUrl is owned by the message, released by releaseMessageMedia',
   ],
 ]);
