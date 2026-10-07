@@ -18,8 +18,8 @@ export function BubbleActions({
   const { t } = useI18n();
   const saved = chatSavedMessages.some((savedMsg: any) => savedMsg.messageId === msg.id);
   const chip = `${isDark
-    ? "bg-black/50 text-gray-300 hover:text-white border-white/10"
-    : "bg-white/95 text-slate-500 hover:text-slate-800 border-black/5"} border shadow-sm backdrop-blur-sm`;
+? "bg-black/50 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-white/10"
+  : "bg-white/95 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] border-black/5"} border shadow-sm backdrop-blur-sm`;
   return (
     <div className="hidden sm:flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
       <button

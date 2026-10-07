@@ -154,7 +154,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
   const timeLabel = isPlaying || progress > 0.001 ? formatClock(remainingSec) : duration;
-  const colorCls = isMe ? (isDark ? "text-emerald-200" : "text-emerald-600") : isDark ? "text-gray-400" : "text-slate-500";
+  const colorCls = isMe ? (isDark ? "text-emerald-200" : "text-emerald-600") : isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]";
   const avatarSrc = isMe ? userProfile?.avatar : contactAvatars?.[String(name ?? "")];
   const nextSpeed = speed >= 2 ? 1 : speed >= 1.5 ? 2 : 1.5;
   const handleCanvasSeek = (e: React.MouseEvent<HTMLCanvasElement>) => {

@@ -19,7 +19,7 @@ export function MessageDateSeparator({ isDark, label }: { isDark: boolean; label
 export function ExpiredMessage({ isMe, isDark, t }: { isMe: boolean; isDark: boolean; t: Translate }) {
   return (
     <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-2`}>
-      <div className={`flex items-center gap-2 rounded-xl border border-[var(--border-color)] px-3 py-2 text-xs italic ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]" : "bg-slate-100 text-slate-500"}`}>
+      <div className={`flex items-center gap-2 rounded-xl border border-[var(--border-color)] px-3 py-2 text-xs italic ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]" : "bg-black/5 text-[var(--text-tertiary)]"}`}>
         <Clock size={14} />
         <span>{t("chat.messageExpired", "Message expired")}</span>
       </div>

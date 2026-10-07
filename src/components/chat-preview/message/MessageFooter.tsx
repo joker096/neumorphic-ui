@@ -50,12 +50,12 @@ export function MessageFooter({
         onReactionMessage={onReactionMessage}
       />
       {translating && (
-        <div className={`mt-1 text-xs italic ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+        <div className={`mt-1 text-xs italic ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
           {t("chat.translating", "\u041f\u0435\u0440\u0435\u0432\u043e\u0434\u2026")}
         </div>
       )}
       {translation && !translating && (
-        <div className={`mt-1 text-xs italic ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+        <div className={`mt-1 text-xs italic ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
           {translation}
         </div>
       )}

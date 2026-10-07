@@ -22,8 +22,8 @@ export const MessageActions = ({ isMe, isDark = false, isSaved, onReply, onToggl
           title={t('chat.reply')}
           className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors ${
             isDark
-              ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5"
-              : "text-slate-500 hover:text-slate-800 hover:bg-black/5"
+? "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5"
+  : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/5"
           }`}
         >
           <CornerUpLeft size={14} />
@@ -37,8 +37,8 @@ export const MessageActions = ({ isMe, isDark = false, isSaved, onReply, onToggl
           title={isSaved ? t('chat.saved') : t('chat.save')}
           className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors ${
             isDark
-              ? "text-gray-400 hover:text-[var(--text-primary)] hover:bg-white/5"
-              : "text-slate-500 hover:text-slate-800 hover:bg-black/5"
+? "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5"
+  : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/5"
           }`}
         >
           <Bookmark size={12} />

@@ -199,7 +199,7 @@ function ChatMessageImpl({
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
               {msg.edited && (
-                <span className={`ml-1 align-middle text-[11px] uppercase tracking-wide ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+                <span className={`ml-1 align-middle text-[11px] uppercase tracking-wide ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                   {t("chat.edited", "edited")}
                 </span>
               )}
@@ -217,7 +217,7 @@ function ChatMessageImpl({
                     <button
                       key={j}
                       onClick={() => { if (onAction) onAction(btn.action || btn.text); }}
-                                             className={`flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[var(--bg-tertiary)] hover:bg-[var(--hover-bg-dark)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[var(--bg-primary)] hover:bg-slate-200 text-slate-700 border border-[var(--border-color)]"}`}
+                                             className={`flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[var(--bg-tertiary)] hover:bg-[var(--hover-bg-dark)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[var(--bg-primary)] hover:bg-black/10 text-[var(--text-secondary)] border border-[var(--border-color)]"}`}
                     >
                       {btn.text}
                     </button>
