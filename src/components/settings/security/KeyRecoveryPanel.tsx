@@ -126,10 +126,10 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
         />
         {showKeyRecovery && (
           <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
-            <p className={`text-xs mb-3 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <p className={`text-xs mb-3 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
               {t('settings.keyRecovery.hint')}
             </p>
-            <label htmlFor="key-recovery-export-pass" className={`block text-xs font-medium mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+            <label htmlFor="key-recovery-export-pass" className={`block text-xs font-medium mb-1 text-[var(--text-secondary)]`}>
               {t('settings.keyRecovery.exportPass')}
             </label>
             <input
@@ -139,9 +139,9 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
               onChange={e => setKeyExportPass(e.target.value)}
               placeholder={t('settings.keyRecovery.exportPassHint')}
               autoComplete="new-password"
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]`}
             />
-            <label htmlFor="key-recovery-export-pass-confirm" className={`block text-xs font-medium mt-2 mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+            <label htmlFor="key-recovery-export-pass-confirm" className={`block text-xs font-medium mt-2 mb-1 text-[var(--text-secondary)]`}>
               {t('settings.keyRecovery.exportPassConfirm')}
             </label>
             <input
@@ -152,7 +152,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
               placeholder={t('settings.keyRecovery.exportPassHint')}
               autoComplete="new-password"
               aria-invalid={!!keyExportPass && keyExportPassConfirm !== keyExportPass}
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"} ${keyExportPassConfirm && keyExportPassConfirm !== keyExportPass ? "border-red-500" : ""}`}
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)] ${keyExportPassConfirm && keyExportPassConfirm !== keyExportPass ? "border-red-500" : ""}`}
             />
             <button
               type="button"
@@ -168,18 +168,18 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
                   readOnly
                   value={keyExportBundle}
                   aria-label={t('settings.keyRecovery.export')}
-                  className={`w-full h-28 px-2 py-2 rounded-lg text-[11px] font-mono resize-none focus:outline-none border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-700"}`}
+                  className={`w-full h-28 px-2 py-2 rounded-lg text-[11px] font-mono resize-none focus:outline-none border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-secondary)]"}`}
                 />
                 <button
                   type="button"
                   onClick={handleKeyCopy}
-                  className={`mt-1 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/5 text-slate-600 hover:bg-black/10"}`}
+                  className={`mt-1 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-[var(--text-primary)] hover:bg-white/20" : "bg-black/5 text-[var(--text-secondary)] hover:bg-black/10"}`}
                 >
                   {t('settings.keyRecovery.copy')}
                 </button>
               </div>
             )}
-            <label htmlFor="key-recovery-import-bundle" className={`block text-xs font-medium mt-3 mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+            <label htmlFor="key-recovery-import-bundle" className={`block text-xs font-medium mt-3 mb-1 text-[var(--text-secondary)]`}>
               {t('settings.keyRecovery.importBundle')}
             </label>
             <textarea
@@ -187,9 +187,9 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
               value={keyImportBundle}
               onChange={e => setKeyImportBundle(e.target.value)}
               placeholder={t('settings.keyRecovery.import')}
-              className={`w-full h-24 px-2 py-2 rounded-lg text-[11px] font-mono resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+              className={`w-full h-24 px-2 py-2 rounded-lg text-[11px] font-mono resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]`}
             />
-            <label htmlFor="key-recovery-import-pass" className={`block text-xs font-medium mt-2 mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+            <label htmlFor="key-recovery-import-pass" className={`block text-xs font-medium mt-2 mb-1 text-[var(--text-secondary)]`}>
               {t('settings.keyRecovery.importPass')}
             </label>
             <input
@@ -198,7 +198,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
               value={keyImportPass}
               onChange={e => setKeyImportPass(e.target.value)}
               autoComplete="new-password"
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]`}
             />
             <button
               type="button"

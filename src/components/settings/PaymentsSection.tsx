@@ -129,8 +129,8 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
     <SubView title={t('settings.payments', 'Payments & Billing')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('wallet.title', 'Wallet')} isDark={isDark} />
       <div className={`rounded-2xl p-5 mb-2 ${isDark ? "bg-gradient-to-br from-[var(--accent)]/20 to-transparent border border-[var(--border-color)]" : "bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20"}`}>
-        <div className={`text-xs uppercase tracking-widest font-bold opacity-60 ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`}>{t('wallet.balance', 'Balance')}</div>
-        <div className={`text-[32px] font-bold mt-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{formatCurrency(balance, walletCurrency, lang, 2)}</div>
+        <div className="text-xs uppercase tracking-widest font-bold opacity-60 text-[var(--text-secondary)]">{t('wallet.balance', 'Balance')}</div>
+        <div className="text-[32px] font-bold mt-1 text-[var(--text-primary)]">{formatCurrency(balance, walletCurrency, lang, 2)}</div>
         <div className="flex gap-2 mt-4">
           <button onClick={() => openForm('topup')} aria-label={t('wallet.topUp', 'Top up')} title={t('wallet.topUp', 'Top up')} className="min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
             <Plus size={16} />
@@ -147,7 +147,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
         <div className="rounded-2xl p-4 mb-2 border bg-white/5 border-[var(--border-color)]">
           {!active ? (
             <>
-              <div className={`text-sm font-medium mb-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
+              <div className="text-sm font-medium mb-2 text-[var(--text-primary)]">
                 {mode === 'topup' ? t('wallet.topUp', 'Top up') : t('wallet.send', 'Send')}
               </div>
               <div className="flex gap-2 mb-2">
@@ -157,14 +157,14 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className={`flex-1 min-w-0 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-slate-300 text-slate-900'}`}
+                  className={`flex-1 min-w-0 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-[var(--border-color)] text-[var(--text-primary)]'}`}
                 />
                 <input
                   aria-label={t('payments.currency', 'Currency')}
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value.toUpperCase())}
                   maxLength={6}
-                  className={`w-24 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-slate-300 text-slate-900'}`}
+                  className={`w-24 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-[var(--border-color)] text-[var(--text-primary)]'}`}
                 />
               </div>
               <div className="flex gap-2">
@@ -182,7 +182,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
                 <button
                   onClick={() => setMode(null)}
                   aria-label={t('common.close', 'Close')}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium active:scale-[0.99] transition-transform ${isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'}`}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium active:scale-[0.99] transition-transform ${isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`}
                 >
                   {t('common.cancel', 'Cancel')}
                 </button>
@@ -239,25 +239,25 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
       <SettingsSectionTitle title={t('wallet.transactions', 'Transactions')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         {transactions.length === 0 && (
-          <div className={`px-4 py-6 text-center text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>
+          <div className={`px-4 py-6 text-center text-sm ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
             {t('wallet.empty', 'No transactions yet')}
           </div>
         )}
         {transactions.map((tx, i) => (
           <div key={tx.id}>
-            {i > 0 && <div className={`border-t ${isDark ? "border-[var(--border-color)]" : "border-slate-100"}`} />}
+            {i > 0 && <div className="border-t border-[var(--border-color)]" />}
             <div className="flex items-center gap-3 px-4 py-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-white/5" : "bg-slate-100"} ${tx.amount >= 0 ? "text-emerald-400" : (isDark ? "text-gray-300" : "text-slate-600")}`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-white/5" : "bg-black/5"} ${tx.amount >= 0 ? "text-emerald-400" : "text-[var(--text-secondary)]"}`}>
                 {txIcon(tx.type)}
               </div>
               <div className="flex-1 min-w-0">
-                <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{tx.title}</div>
-                <div className={`text-xs flex items-center gap-1 ${tx.status === 'failed' ? 'text-red-500' : (isDark ? 'text-gray-500' : 'text-slate-400')}`}>
+                <div className="text-sm font-medium text-[var(--text-primary)]">{tx.title}</div>
+                <div className={`text-xs flex items-center gap-1 ${tx.status === 'failed' ? 'text-red-500' : (isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]')}`}>
                   {STATUS_ICON[tx.status]}
                   {tx.status === 'pending' ? t('wallet.pending', 'Pending') : tx.status === 'failed' ? t('wallet.failed', 'Payment failed') : formatDate(tx.date, lang)}
                 </div>
               </div>
-              <span className={`text-sm font-semibold ${tx.amount >= 0 ? "text-emerald-400" : (isDark ? "text-[var(--text-primary)]" : "text-slate-800")}`}>
+              <span className={`text-sm font-semibold ${tx.amount >= 0 ? "text-emerald-400" : "text-[var(--text-primary)]"}`}>
                 {tx.amount >= 0 ? '+' : '-'}{formatCurrency(Math.abs(tx.amount), walletCurrency, lang, 2)}
               </span>
             </div>

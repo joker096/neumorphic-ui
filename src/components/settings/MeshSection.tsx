@@ -138,7 +138,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
 
   return (
     <SubView key="mesh" title={t('mesh.title', 'LAN Mesh')} isDark={isDark} onBack={onBack}>
-      <p className={`mb-4 text-[13px] leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+      <p className={`mb-4 text-[13px] leading-relaxed ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
         {t('mesh.hint', 'Serverless peer-to-peer: two devices on the same network exchange an invite QR and an answer QR. No signaling server involved — the session is encrypted with an ephemeral ECDH (X25519) + AES-GCM key pair derived locally on both sides.')}
       </p>
 
@@ -155,10 +155,10 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
                 value={offer}
                 readOnly
                 aria-label={t('mesh.invitePayload', 'Invite payload')}
-                className={`w-full h-20 resize-none rounded-lg p-2 text-[11px] font-mono ${isDark ? 'bg-black/30 text-gray-300' : 'bg-slate-100 text-slate-600'}`}
+                className={`w-full h-20 resize-none rounded-lg p-2 text-[11px] font-mono ${isDark ? 'bg-black/30 text-[var(--text-secondary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`}
               />
               <div className="flex items-center gap-2 w-full">
-                <button className={`min-h-11 flex-1 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 ${isDark ? 'bg-white/5 text-gray-200' : 'bg-slate-100 text-slate-700'}`} onClick={() => copy(offer)}>
+                <button className={`min-h-11 flex-1 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 ${isDark ? 'bg-white/5 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`} onClick={() => copy(offer)}>
                   {copied ? <Check size={16} /> : <Copy size={16} />} {t('mesh.copy', 'Copy')}
                 </button>
               </div>
@@ -175,7 +175,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
             onChange={(e) => setGuestOfferDraft(e.target.value)}
             placeholder={t('mesh.invitePlaceholder', 'Paste the invite payload here…')}
             aria-label={t('mesh.inviteInput', 'Invite payload input')}
-            className={`min-h-24 w-full resize-none rounded-lg p-2 text-[11px] font-mono ${isDark ? 'bg-black/30 text-gray-300' : 'bg-slate-100 text-slate-600'}`}
+            className={`min-h-24 w-full resize-none rounded-lg p-2 text-[11px] font-mono ${isDark ? 'bg-black/30 text-[var(--text-secondary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`}
           />
           <button className={actionCls} onClick={handleGenerateAnswer} disabled={answerBusy || !guestOfferDraft.trim()}>
             {answerBusy ? t('common.loading', 'Loading…') : t('mesh.generateAnswer', 'Generate answer QR')}
@@ -187,9 +187,9 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
                 value={answer}
                 readOnly
                 aria-label={t('mesh.answerPayload', 'Answer payload')}
-                className={`w-full h-20 resize-none rounded-lg p-2 text-[11px] font-mono ${isDark ? 'bg-black/30 text-gray-300' : 'bg-slate-100 text-slate-600'}`}
+                className={`w-full h-20 resize-none rounded-lg p-2 text-[11px] font-mono ${isDark ? 'bg-black/30 text-[var(--text-secondary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`}
               />
-              <button className={`min-h-11 w-full rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 ${isDark ? 'bg-white/5 text-gray-200' : 'bg-slate-100 text-slate-700'}`} onClick={() => copy(answer)}>
+              <button className={`min-h-11 w-full rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 ${isDark ? 'bg-white/5 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`} onClick={() => copy(answer)}>
                 {copied ? <Check size={16} /> : <Copy size={16} />} {t('mesh.copy', 'Copy')}
               </button>
             </div>
@@ -205,7 +205,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
             onChange={(e) => setCallerAnswerDraft(e.target.value)}
             placeholder={t('mesh.answerPlaceholder', 'Paste the answer payload here…')}
             aria-label={t('mesh.answerInput', 'Answer payload input')}
-            className={`min-h-24 w-full resize-none rounded-lg p-2 text-[11px] font-mono ${isDark ? 'bg-black/30 text-gray-300' : 'bg-slate-100 text-slate-600'}`}
+            className={`min-h-24 w-full resize-none rounded-lg p-2 text-[11px] font-mono ${isDark ? 'bg-black/30 text-[var(--text-secondary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`}
           />
           <button className={actionCls} onClick={handleConnectCaller} disabled={connecting || !callerAnswerDraft.trim()}>
             {connecting ? t('common.loading', 'Loading…') : t('mesh.connect', 'Connect')}
@@ -216,20 +216,20 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
       <SettingsGroup isDark={isDark} className="mb-6">
         <div className="p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className={`text-sm font-medium ${isDark ? 'text-gray-200' : 'text-slate-700'}`}>{t('mesh.session', 'Session')}</span>
-            <span className={`flex items-center gap-1.5 text-xs font-medium ${connected ? 'text-emerald-500' : isDark ? 'text-gray-400' : 'text-slate-400'}`}>
+            <span className={`text-sm font-medium ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>{t('mesh.session', 'Session')}</span>
+            <span className={`flex items-center gap-1.5 text-xs font-medium ${connected ? 'text-emerald-500' : isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
               <span className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-500' : 'bg-gray-400'}`} />
               {connected ? t('mesh.connected', 'Connected') : t('mesh.idle', 'Idle')}
             </span>
           </div>
-          {peerLabel && <div className={`text-xs font-mono ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('mesh.peer', 'Peer')}: {peerLabel}</div>}
+          {peerLabel && <div className={`text-xs font-mono ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>{t('mesh.peer', 'Peer')}: {peerLabel}</div>}
           {connected && (
             <button className="min-h-11 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 bg-emerald-500/15 text-emerald-600" onClick={handleSendTest}>
               <Send size={16} /> {t('mesh.sendTest', 'Send test message')}
             </button>
           )}
           {lastIncoming && (
-            <div className={`rounded-lg p-2 text-xs font-mono break-words ${isDark ? 'bg-black/30 text-gray-300' : 'bg-slate-100 text-slate-600'}`}>
+            <div className={`rounded-lg p-2 text-xs font-mono break-words ${isDark ? 'bg-black/30 text-[var(--text-secondary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`}>
               {t('mesh.received', 'Received')}: {lastIncoming}
             </div>
           )}

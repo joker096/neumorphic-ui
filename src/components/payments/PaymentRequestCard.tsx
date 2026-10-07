@@ -88,7 +88,7 @@ export const PaymentRequestCard = ({
         </span>
       )
     return (
-      <span className="inline-flex items-center gap-1 text-gray-500 text-xs font-semibold">
+      <span className="inline-flex items-center gap-1 text-[var(--text-secondary)] text-xs font-semibold">
         <Loader2 size={14} className="animate-spin" /> {paymentStatusLabel(status)}
       </span>
     )
@@ -109,7 +109,7 @@ export const PaymentRequestCard = ({
   return (
     <div
       className={`rounded-2xl p-4 border ${
-        isDark ? 'bg-white/5 border-[var(--border-color)]' : 'bg-white border-slate-200 shadow-sm'
+        isDark ? 'bg-white/5 border-[var(--border-color)]' : 'bg-white border-[var(--border-color)] shadow-sm'
       }`}
     >
       <div className="flex items-start gap-4">
@@ -122,12 +122,12 @@ export const PaymentRequestCard = ({
         </div>
         <div className="flex-1 min-w-0">
           {description && (
-            <div className={`text-sm font-medium ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>
+            <div className={`text-sm font-medium text-[var(--text-primary)]`}>
               {description}
             </div>
           )}
           {amount != null && (
-            <div className={`text-2xl font-bold mt-0.5 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>
+            <div className={`text-2xl font-bold mt-0.5 text-[var(--text-primary)]`}>
               {formatCurrency(Number(amount), currency, lang, 2)}
             </div>
           )}
@@ -149,7 +149,7 @@ export const PaymentRequestCard = ({
           aria-label={copied ? t('payments.copied') : t('payments.copy')}
           title={copied ? t('payments.copied') : t('payments.copy')}
           className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform min-w-11 min-h-11 ${
-            isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'
+            isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'
           }`}
         >
           {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -160,7 +160,7 @@ export const PaymentRequestCard = ({
           aria-label={t('payments.share')}
           title={t('payments.share')}
           className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
-            isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'
+            isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'
           }`}
         >
           <Share2 size={16} />
@@ -172,7 +172,7 @@ export const PaymentRequestCard = ({
             aria-label={t('payments.sendToChat')}
             title={t('payments.sendToChat')}
             className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
-              isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-slate-100 text-slate-700'
+              isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'
             }`}
           >
             <Send size={16} />

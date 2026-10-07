@@ -170,7 +170,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
               onKeyDown={e => e.key === 'Enter' && confirmPinAction()}
               autoComplete={pinMode === 'set' ? 'new-password' : 'current-password'}
               inputMode="numeric"
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]"}`}
               autoFocus
             />
             <div className="mt-2 flex gap-2">
@@ -185,7 +185,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
               <button
                 type="button"
                 onClick={() => { setShowPinInput(false); setPinValue(''); }}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/5 text-slate-600 hover:bg-black/10"}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-[var(--text-primary)] hover:bg-white/20" : "bg-black/5 text-[var(--text-secondary)] hover:bg-black/10"}`}
               >
                 {t('common.cancel')}
               </button>
@@ -254,7 +254,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
               value={String(idleSeconds)}
               onChange={(e) => setAppLockAutoLock(autoLockOnBackground, parseInt(e.target.value, 10))}
               aria-label={t('settings.idleLock')}
-              className={`px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-white border-slate-200 text-slate-800"}`}
+              className={`px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-white border-[var(--border-color)] text-[var(--text-primary)]"}`}
             >
               <option value="0">{t('settings.idleOff')}</option>
               <option value="30">30s</option>

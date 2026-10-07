@@ -100,27 +100,27 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
         />
         {showTotpSetup && (
           <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
-            <p className={`text-xs mb-3 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <p className={`text-xs mb-3 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
               {t('settings.totpInstruction')}
             </p>
-            <label htmlFor="security-totp-secret" className={`block text-xs font-medium mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+            <label htmlFor="security-totp-secret" className={`block text-xs font-medium mb-1 text-[var(--text-secondary)]`}>
               {t('settings.totpSecretLabel')}
             </label>
             <div
               id="security-totp-secret"
-              className={`w-full px-3 py-2 rounded-lg text-[11px] font-mono break-all border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-700"}`}
+              className={`w-full px-3 py-2 rounded-lg text-[11px] font-mono break-all border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-secondary)]"}`}
             >
               {totpDraftSecret}
             </div>
-            <p className={`text-[11px] font-mono break-all mt-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <p className={`text-[11px] font-mono break-all mt-1 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
               {otpauthUri(totpDraftSecret, useAppStore.getState().userProfile?.name || 'user')}
             </p>
             {totpCodeNow && (
-              <p className={`text-xs mt-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+              <p className={`text-xs mt-2 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                 {t('settings.totpCurrentCode')}: <span className="font-mono font-semibold">{totpCodeNow}</span>
               </p>
             )}
-            <label htmlFor="security-totp-input" className={`block text-xs font-medium mt-3 mb-1 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+            <label htmlFor="security-totp-input" className={`block text-xs font-medium mt-3 mb-1 text-[var(--text-secondary)]`}>
               {t('settings.totpSecretLabel')}
             </label>
             <input
@@ -133,7 +133,7 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
               onChange={e => setTotpInput(e.target.value.replace(/[^0-9]/g, ''))}
               onKeyDown={e => e.key === 'Enter' && confirmTotpSetup()}
               placeholder={t('settings.totpPlaceholder')}
-              className={`w-full px-3 py-2 rounded-lg text-sm text-center tracking-[0.4em] font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-slate-800"}`}
+              className={`w-full px-3 py-2 rounded-lg text-sm text-center tracking-[0.4em] font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]"}`}
             />
             <div className="mt-2 flex gap-2">
               <button
@@ -147,7 +147,7 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
               <button
                 type="button"
                 onClick={() => { setShowTotpSetup(false); setTotpInput(''); }}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-gray-300 hover:bg-white/20" : "bg-black/5 text-slate-600 hover:bg-black/10"}`}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-[var(--text-primary)] hover:bg-white/20" : "bg-black/5 text-[var(--text-secondary)] hover:bg-black/10"}`}
               >
                 {t('common.cancel')}
               </button>
