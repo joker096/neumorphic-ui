@@ -1,5 +1,7 @@
 # Mess&Anger — Deployment Guide
 
+pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipAdminCreate
+
 ## Одна команда — всё сразу
 
 ```powershell
