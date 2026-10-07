@@ -69,29 +69,29 @@ export const MeshRadar = ({ isDark = false, onBack }: { isDark?: boolean; onBack
   return (
     <SubView title={t('nav.radar', 'Mesh Radar')} isDark={isDark} onBack={onBack || (() => {})}>
       <div className="flex flex-col gap-4">
-        <div className={`flex flex-col items-center justify-center rounded-xl overflow-hidden ${isDark ? 'bg-[var(--bg-secondary)]' : 'bg-gray-50'}`}>
+        <div className={`flex flex-col items-center justify-center rounded-xl overflow-hidden ${isDark ? 'bg-[var(--bg-secondary)]' : 'bg-black/5'}`}>
           <canvas
             ref={canvasRef}
             className="w-full aspect-square max-w-[320px]"
           />
           <div className="flex flex-col items-center gap-2 pb-6">
             <div className={`w-3 h-3 rounded-full ${isDark ? 'bg-orange-500/80' : 'bg-orange-400'}`} />
-            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+            <p className={`text-xs font-medium ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
               {t('hub.radarSubtitle', 'Scanning for mesh nodes...')}
             </p>
           </div>
         </div>
 
-        <div className={`rounded-xl p-4 ${isDark ? 'bg-[var(--bg-secondary)]' : 'bg-gray-50'}`}>
+        <div className={`rounded-xl p-4 ${isDark ? 'bg-[var(--bg-secondary)]' : 'bg-black/5'}`}>
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-orange-500/10' : 'bg-orange-100'}`}>
               <RadarIcon size={20} className={isDark ? 'text-orange-400' : 'text-orange-600'} />
             </div>
             <div>
-              <p className={`text-sm font-semibold ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
+              <p className={`text-sm font-semibold text-[var(--text-primary)]`}>
                 {t('settings.meshNodesNearby', 'Mesh Nodes Nearby')}
               </p>
-              <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+              <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
                 {t('common.loading', 'Loading...')}
               </p>
             </div>

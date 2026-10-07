@@ -74,11 +74,11 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
           onLoadedMetadata={() => { if (audioRef.current) setDuration(audioRef.current.duration); }}
           onEnded={() => setPlaying(false)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
         />
-        <div className={`flex items-center justify-between mb-5 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
+        <div className={`flex items-center justify-between mb-5 text-[var(--text-primary)]`}>
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-sm truncate">{recording.title || t('recordings.recording')}</h3>
             {recording.participants.length > 0 && (
-              <p className={`text-xs mt-0.5 truncate ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+              <p className={`text-xs mt-0.5 truncate ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
                 {recording.participants.map(p => p.displayName).join(', ')}
               </p>
             )}
@@ -94,15 +94,15 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
           onChange={(e) => { const t = Number(e.target.value); if (audioRef.current) audioRef.current.currentTime = t; setCurrentTime(t); }}
           aria-label={t('a11y.seek', 'Seek')}
           className="w-full h-1.5 accent-orange-500 cursor-pointer mb-1.5 rounded-full appearance-none bg-white/10 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-orange-500 [&::-webkit-slider-thumb]:shadow-md" />
-        <div className={`flex justify-between text-xs mb-5 ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>
+        <div className={`flex justify-between text-xs mb-5 text-[var(--text-secondary)]`}>
           <span>{formatDuration(currentTime)}</span>
           <span>{formatDuration(duration)}</span>
         </div>
         <div className="flex items-center justify-center gap-4 mb-5">
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(-15)}
-            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-15s</motion.button>
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-[var(--text-secondary)]' : 'hover:bg-black/10 text-[var(--text-secondary)]'}`}>-15s</motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(-5)}
-            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>-5s</motion.button>
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-[var(--text-secondary)]' : 'hover:bg-black/10 text-[var(--text-secondary)]'}`}>-5s</motion.button>
           <motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.05 }} onClick={togglePlay}
             aria-label={playing ? t('systemPlayer.pause') : t('systemPlayer.play')}
             title={playing ? t('systemPlayer.pause') : t('systemPlayer.play')}
@@ -110,9 +110,9 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
             {playing ? <Pause size={24} /> : <Play size={24} className="ml-0.5" />}
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(5)}
-            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+5s</motion.button>
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-[var(--text-secondary)]' : 'hover:bg-black/10 text-[var(--text-secondary)]'}`}>+5s</motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => skip(15)}
-            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>+15s</motion.button>
+            className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium ${isDark ? 'hover:bg-white/10 text-[var(--text-secondary)]' : 'hover:bg-black/10 text-[var(--text-secondary)]'}`}>+15s</motion.button>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -128,7 +128,7 @@ export function RecordingPlayer({ recording, blobUrl, isDark = false, onClose, o
               className="w-20 h-1 accent-orange-500 cursor-pointer" />
           </div>
           <motion.button whileTap={{ scale: 0.9 }} onClick={cycleRate}
-            className={`min-h-11 min-w-11 flex items-center justify-center px-2 text-xs font-mono rounded-lg ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/10 text-slate-600'}`}>{rate}x</motion.button>
+            className={`min-h-11 min-w-11 flex items-center justify-center px-2 text-xs font-mono rounded-lg ${isDark ? 'hover:bg-white/10 text-[var(--text-secondary)]' : 'hover:bg-black/10 text-[var(--text-secondary)]'}`}>{rate}x</motion.button>
           <div className="flex items-center gap-1">
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => onExport(recording.id, recording.title || 'recording')}
               aria-label={t('recordings.export')}

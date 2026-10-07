@@ -24,7 +24,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
 
   const getIcon = (type: string) => {
     if (type === 'missed') return <PhoneMissed size={18} className="text-red-400" />;
-    if (type === 'declined') return <PhoneOff size={18} className="text-gray-400" />;
+    if (type === 'declined') return <PhoneOff size={18} className="text-[var(--text-secondary)]" />;
     if (type === 'incoming') return <PhoneIncoming size={18} className="text-emerald-400" />;
     return <PhoneOutgoing size={18} className="text-[var(--accent)]" />;
   };
@@ -63,13 +63,13 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('call.searchCalls')}
               aria-label={t('call.searchCalls')}
-              className={`w-full h-11 pl-10 pr-3 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-gray-500' : 'bg-white text-slate-800 placeholder:text-slate-400'}`}
+              className={`w-full h-11 pl-10 pr-3 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]' : 'bg-white text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]'}`}
             />
           </div>
           {callHistory.length > 0 && (
             <button
               onClick={clearCallHistory}
-              className={`p-3 min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-red-500/10 hover:text-red-400' : 'bg-gray-100 text-slate-600 hover:bg-red-50 hover:text-red-500'}`}
+              className={`p-3 min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-red-500/10 hover:text-red-400' : 'bg-black/5 text-[var(--text-secondary)] hover:bg-red-50 hover:text-red-500'}`}
               title={t('call.clearAll')}
             >
               <Trash2 size={18} />
@@ -91,16 +91,16 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
             {filtered.map((call) => (
               <div key={call.id}>
                 <div
-                  className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] hover:bg-white/5' : 'bg-white hover:bg-gray-50 border border-gray-100'}`}
+                  className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] hover:bg-white/5' : 'bg-white hover:bg-black/5 border border-[var(--border-color)]'}`}
                 >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
                     {getIcon(call.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
+                    <p className={`text-sm font-semibold truncate text-[var(--text-primary)]`}>
                       {call.name}
                     </p>
-                    <p className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+                    <p className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
                       <span>{call.at != null ? formatTime(call.at, lang) : call.time}{call.duration && ` · ${call.duration}`}</span>
                       {call.recordingId && (
                         <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-400">
@@ -113,7 +113,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
                   {(call.type === 'missed' || call.type === 'declined') && (
                     <button
                       onClick={() => callManager.startPreviewCall(`cb_${call.id}`, call.name, 'audio').catch(() => {})}
-                      className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent)]' : 'bg-gray-100 text-slate-500 hover:text-[var(--accent)]'}`}
+                      className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--accent)]' : 'bg-black/5 text-[var(--text-tertiary)] hover:text-[var(--accent)]'}`}
                       title={t('call.callBack')}
                       aria-label={t('call.callBack')}
                     >
@@ -137,7 +137,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
                   )}
                 </div>
                 {playingId === call.recordingId && blobUrl && (
-                  <div className={`flex items-center gap-3 px-3 pt-2 pb-3 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
+                  <div className={`flex items-center gap-3 px-3 pt-2 pb-3 text-[var(--text-primary)]`}>
                     <audio
                       controls
                       src={blobUrl}
@@ -146,7 +146,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
                     />
                     <button
                       onClick={closeRecording}
-                      className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'text-[var(--text-secondary)] hover:bg-white/5' : 'text-slate-500 hover:bg-gray-100'}`}
+                      className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'text-[var(--text-secondary)] hover:bg-white/5' : 'text-[var(--text-tertiary)] hover:bg-black/5'}`}
                       aria-label={t('common.close')}
                       title={t('common.close')}
                     >
