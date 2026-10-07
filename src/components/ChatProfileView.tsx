@@ -137,7 +137,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
           <div className={`absolute md:relative md:max-w-[420px] w-full h-full flex flex-col ${isDark ? "bg-[var(--bg-secondary)]" : "bg-white"} md:my-6 md:h-[calc(100%-3rem)] md:rounded-2xl md:border border-[var(--border-color)] md:shadow-2xl overflow-hidden`}>
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
-              <h2 className={`font-bold text-lg ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('profile.info', 'Profile')}</h2>
+              <h2 className={`font-bold text-lg ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{t('profile.info', 'Profile')}</h2>
               <CloseButton onClick={onClose} aria-label={t('common.close')} size="lg" />
             </div>
 
@@ -148,19 +148,19 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   {chat.name.charAt(0)}
                   {kind === 'bot' && <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[var(--accent)] flex items-center justify-center text-[11px] text-[var(--ink-on-saturate)] border-2 border-white md:border-[var(--bg-secondary)]"><BotIcon size={14} /></span>}
                 </div>
-                <div className={`mt-2.5 font-bold text-lg flex items-center gap-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
+                <div className={`mt-2.5 font-bold text-lg flex items-center gap-1 ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>
                   {chat.name}
                   {chat.verified && <BadgeCheck size={18} className="text-[var(--accent)]" />}
                 </div>
-                <div className={`text-[13px] ${isDark ? "text-[var(--text-secondary)]" : "text-slate-500"}`}>{subtitle()}</div>
-                {chat.username && <div className={`text-[11px] mt-0.5 ${isDark ? "text-[var(--text-secondary)]" : "text-slate-400"}`}>@{chat.username}</div>}
+                <div className={`text-[13px] ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{subtitle()}</div>
+                {chat.username && <div className={`text-[11px] mt-0.5 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>@{chat.username}</div>}
                 {kind === 'channel' && (
-                  <div className={`flex items-center gap-1 text-[11px] mt-1 ${isDark ? "text-[var(--text-secondary)]" : "text-slate-400"}`}>
+                  <div className={`flex items-center gap-1 text-[11px] mt-1 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                     {chat.isPublic ? <Globe size={12} /> : <Lock size={12} />}
                     <span>{chat.isPublic ? t('profile.channelPublic', 'Public channel') : t('profile.channelPrivate', 'Private channel')}</span>
                   </div>
                 )}
-                {chat.description && <div className={`mt-1.5 text-[11px] leading-relaxed ${isDark ? "text-[var(--text-secondary)]" : "text-slate-400"}`}>{chat.description}</div>}
+                {chat.description && <div className={`mt-1.5 text-[11px] leading-relaxed ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{chat.description}</div>}
                 <ChatProfileActions
                   kind={kind}
                   isChatMuted={isChatMuted}
@@ -264,8 +264,8 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
 const Row = ({ icon, title, right, isDark }: { icon: React.ReactNode; title: string; right?: React.ReactNode; isDark: boolean }) => (
   <div className="flex items-center justify-between px-4 py-3">
     <div className="flex items-center gap-3">
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-white/5" : "bg-slate-100"}`}>{icon}</div>
-      <span className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{title}</span>
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-white/5" : "bg-black/5"}`}>{icon}</div>
+      <span className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{title}</span>
     </div>
     {right}
   </div>
@@ -273,18 +273,18 @@ const Row = ({ icon, title, right, isDark }: { icon: React.ReactNode; title: str
 
 const InfoRow = ({ label, value, isDark }: { label: string; value: string; isDark: boolean }) => (
   <div className="flex items-center justify-between gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
-    <span className={`text-sm ${isDark ? "text-gray-400" : "text-slate-500"}`}>{label}</span>
-    <span className={`text-sm font-medium text-right ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{value}</span>
+    <span className={`text-sm ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{label}</span>
+    <span className={`text-sm font-medium text-right ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{value}</span>
   </div>
 );
 
 const SectionTitle = ({ icon, title, isDark }: { icon: React.ReactNode; title: string; isDark: boolean }) => (
-  <div className={`font-mono text-xs uppercase tracking-widest font-bold mb-2 opacity-50 px-1 flex items-center gap-1.5 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{icon} {title}</div>
+  <div className={`font-mono text-xs uppercase tracking-widest font-bold mb-2 opacity-50 px-1 flex items-center gap-1.5 text-[var(--text-primary)]`}>{icon} {title}</div>
 );
 
 const Placeholder = ({ icon, text, isDark }: { icon: React.ReactNode; text: string; isDark: boolean }) => (
-  <div className={`flex flex-col items-center justify-center py-10 text-center ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-    <div className={`w-9 h-9 rounded-2xl flex items-center justify-center mb-2 ${isDark ? "bg-white/5" : "bg-slate-100"}`}>{icon}</div>
+  <div className={`flex flex-col items-center justify-center py-10 text-center ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+    <div className={`w-9 h-9 rounded-2xl flex items-center justify-center mb-2 ${isDark ? "bg-white/5" : "bg-black/5"}`}>{icon}</div>
     <div className="text-sm">{text}</div>
   </div>
 );

@@ -131,7 +131,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
  className={`glass-panel w-full max-w-[340px] md:max-w-[400px] lg:max-w-[440px] p-6 relative flex flex-col items-center`}
           >
             <button
-              className={`absolute top-4 right-4 z-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-black/5 hover:bg-black/10 text-slate-800'}`}
+              className={`absolute top-4 right-4 z-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'bg-white/10 hover:bg-white/20 text-[var(--text-primary)]' : 'bg-black/5 hover:bg-black/10 text-[var(--text-primary)]'}`}
               onClick={onClose}
               title={t('contacts.close')}
               aria-label={t('contacts.close') || t('common.close')}
@@ -167,11 +167,11 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               onSetAvatar={setContactAvatar}
               onRemoveAvatar={removeContactAvatar}
             />
-                        <h2 className={`text-xl font-bold mt-3 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
+                        <h2 className={`text-xl font-bold mt-3 text-center flex items-center justify-center gap-2 tracking-tight ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>
               {contact.name}
               <button
                 onClick={() => handleToggleFavorite(contact.id, contact.isFavorite || false)}
-                className={`min-w-11 min-h-11 flex items-center justify-center rounded-full transition-all active:scale-90 ${contact.isFavorite ? (isDark ? "text-yellow-400 bg-white/10" : "text-yellow-500 bg-black/5") : (isDark ? "text-gray-500 hover:text-[var(--text-primary)]" : "text-slate-400 hover:text-slate-800")}`}
+                className={`min-w-11 min-h-11 flex items-center justify-center rounded-full transition-all active:scale-90 ${contact.isFavorite ? (isDark ? "text-yellow-400 bg-white/10" : "text-yellow-500 bg-black/5") : (isDark ? "text-[var(--text-secondary)] hover:text-[var(--text-primary)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]")}`}
                 title={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
                 aria-label={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
                 aria-pressed={contact.isFavorite}
@@ -180,7 +180,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </button>
             </h2>
 
-            <div className={`mt-1 font-mono text-xs tracking-wider px-3 py-1 rounded-full ${isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}>
+            <div className={`mt-1 font-mono text-xs tracking-wider px-3 py-1 rounded-full ${isDark ? "bg-white/5 text-[var(--text-secondary)]" : "bg-black/5 text-[var(--text-tertiary)]"}`}>
               {contact.id}
             </div>
 
@@ -193,44 +193,44 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
             <div className={`w-full mt-4 p-4 rounded-2xl flex items-center justify-between ${isDark ? "bg-white/5" : "bg-black/5"}`}>
               <div className="flex items-center gap-2">
-                {notificationsOn ? <Bell size={16} className={isDark ? "text-gray-400" : "text-slate-500"} /> : <BellOff size={16} className="text-red-400" />}
-                <span className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('profile.notifications')}</span>
+                {notificationsOn ? <Bell size={16} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} /> : <BellOff size={16} className="text-red-400" />}
+                <span className={`text-sm ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-secondary)]"}`}>{t('profile.notifications')}</span>
               </div>
               <ToggleSwitch isOn={notificationsOn} onToggle={() => (storeContact ? setContactMuted(contact.id, notificationsOn) : dmChat ? setChatMuted(dmChat.id, notificationsOn) : setLocalMuted(v => !v))} className="w-11 h-6" />
             </div>
 
             {contact.callInfo ? (
               <div className={`mt-4 w-full p-4 rounded-xl flex flex-col items-center gap-1 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                <div className={`text-sm font-semibold capitalize ${contact.callInfo.type === 'missed' ? 'text-red-500' : isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'}`}>
+                <div className={`text-sm font-semibold capitalize ${contact.callInfo.type === 'missed' ? 'text-red-500' : isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
                   {t('contacts.callType', { type: contact.callInfo.type })}
                 </div>
-                <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                   {contact.callInfo.time} {contact.callInfo.duration ? `• ${contact.callInfo.duration}` : ''}
                 </div>
               </div>
             ) : (contact.online || contact.lastSeen !== undefined) && !ghostViewMode && (
-              <div className={`text-xs mt-2 font-medium ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+              <div className={`text-xs mt-2 font-medium ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                 {formatLastSeen(t, contact.online, contact.lastSeen)}
               </div>
             )}
 
             {contact.localFields && contact.localFields.length > 0 && (
               <div className={`w-full mt-4 p-4 rounded-2xl flex flex-col gap-2 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                   {t('contacts.localInfo')}
                 </div>
                 {contact.localFields.map(field => (
                   <div key={field.id} className="flex items-center gap-2">
-                    {field.type === 'phone' && <Phone size={12} className={isDark ? "text-gray-400" : "text-slate-500"} />}
-                    {field.type === 'email' && <Mail size={12} className={isDark ? "text-gray-400" : "text-slate-500"} />}
-                    {field.type === 'telegram' && <Send size={12} className={isDark ? "text-gray-400" : "text-slate-500"} />}
-                    {field.type === 'custom' && <div className={`w-2 h-2 rounded-full ${isDark ? "bg-gray-500" : "bg-slate-400"}`} />}
-                    <span className={`text-xs ${isDark ? "text-gray-300" : "text-slate-700"}`}>
+                    {field.type === 'phone' && <Phone size={12} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />}
+                    {field.type === 'email' && <Mail size={12} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />}
+                    {field.type === 'telegram' && <Send size={12} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />}
+                    {field.type === 'custom' && <div className={`w-2 h-2 rounded-full ${isDark ? "bg-[var(--text-secondary)]" : "bg-[var(--text-tertiary)]"}`} />}
+                    <span className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-secondary)]"}`}>
                       {field.label || field.type}: {field.value}
                     </span>
                   </div>
                 ))}
-                <div className={`text-xs mt-1 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
+                <div className={`text-xs mt-1 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                   {t('contacts.localFieldsNotShared')}
                 </div>
               </div>
@@ -238,7 +238,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
             {dmChat && (
               <div className={`w-full mt-4 p-4 rounded-2xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                <div className={`text-xs font-bold uppercase tracking-widest mb-2 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                <div className={`text-xs font-bold uppercase tracking-widest mb-2 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                   {t('profile.sharedMedia')}
                 </div>
                 <SharedMediaTabs messages={dmChat.history || []} isDark={isDark} onOpenChat={() => { onMessage?.(); onClose(); }} />
@@ -260,7 +260,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 <MessageSquare size={20} fill="currentColor" />
                 <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.message')}</span>
               </button>
-              <button onClick={() => setShowSafetyNumber(true)} title={t('contacts.verifySecurityDesc')} className={`w-full min-h-11 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-black/5 hover:bg-black/10 text-slate-600'}`}>
+              <button onClick={() => setShowSafetyNumber(true)} title={t('contacts.verifySecurityDesc')} className={`w-full min-h-11 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 ${isDark ? 'bg-white/5 hover:bg-white/10 text-[var(--text-secondary)]' : 'bg-black/5 hover:bg-black/10 text-[var(--text-secondary)]'}`}>
                 <ShieldCheck size={16} />
                 <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.verifySecurity')}</span>
               </button>

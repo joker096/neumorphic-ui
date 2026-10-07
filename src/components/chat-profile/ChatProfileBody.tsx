@@ -76,16 +76,16 @@ export const ChatProfileBody = ({
     <SectionTitle icon={<Info size={16} />} title={t('profile.statistics', 'Statistics')} isDark={isDark} />
     <div className="grid grid-cols-3 gap-2">
       <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-        <div className={`text-lg font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.subscriberCount ?? chat.subscribers ?? CHAT_PROFILE_DEFAULT_SUBSCRIBERS}</div>
-        <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('profile.subscribersLabel', 'Subscribers')}</div>
+        <div className={`text-lg font-bold ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{chat.subscriberCount ?? chat.subscribers ?? CHAT_PROFILE_DEFAULT_SUBSCRIBERS}</div>
+        <div className={`text-[11px] mt-0.5 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('profile.subscribersLabel', 'Subscribers')}</div>
       </div>
       <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-        <div className={`text-lg font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.postCount ?? chat.history?.length ?? 0}</div>
-        <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('profile.postsLabel', 'Posts')}</div>
+        <div className={`text-lg font-bold ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{chat.postCount ?? chat.history?.length ?? 0}</div>
+        <div className={`text-[11px] mt-0.5 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('profile.postsLabel', 'Posts')}</div>
       </div>
       <div className={`rounded-xl p-3 text-center ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
-        <div className={`text-sm font-bold truncate px-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{chat.ownerId ? (ownerName || t('profile.owner', 'Owner')) : '—'}</div>
-        <div className={`text-[11px] mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('profile.owner', 'Owner')}</div>
+        <div className={`text-sm font-bold truncate px-1 ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{chat.ownerId ? (ownerName || t('profile.owner', 'Owner')) : '—'}</div>
+        <div className={`text-[11px] mt-0.5 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('profile.owner', 'Owner')}</div>
       </div>
     </div>
   </div>
@@ -136,9 +136,9 @@ export const ChatProfileBody = ({
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`group flex items-center justify-center min-w-11 min-h-11 p-1 rounded-full transition-colors ${activeTab === tab.id ? "" : (isDark ? "hover:bg-white/5" : "hover:bg-slate-100")}`}
+          className={`group flex items-center justify-center min-w-11 min-h-11 p-1 rounded-full transition-colors ${activeTab === tab.id ? "" : (isDark ? "hover:bg-white/5" : "hover:bg-black/5")}`}
         >
-          <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300" : "bg-slate-100 text-slate-600")}`}>
+          <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors ${activeTab === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-[var(--text-secondary)]" : "bg-black/5 text-[var(--text-secondary)]")}`}>
             {tab.icon} {t(tab.label, tab.fallback)}
           </span>
         </button>
@@ -181,7 +181,7 @@ export const ChatProfileBody = ({
             {name.charAt(0)}
           </div>
           <div className="flex-1">
-            <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{name}</div>
+            <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{name}</div>
             {i === 0 && <div className={`text-xs flex items-center gap-1 ${isDark ? "text-amber-400" : "text-amber-600"}`}><Crown size={12} /> {t('profile.owner', 'Owner')}</div>}
           </div>
           {i === 0 && <Shield size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />}
@@ -201,12 +201,12 @@ export const ChatProfileBody = ({
       <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
         {groupPinned.map((p: any) => (
           <div key={p.id} className="flex items-start gap-2 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
-            <div className={`flex-1 min-w-0 text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{previewOf(groupMessages, p.id)}</div>
+            <div className={`flex-1 min-w-0 text-sm ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{previewOf(groupMessages, p.id)}</div>
             <button
               type="button"
               onClick={() => removePinnedMessage(p.id, chat.id)}
               aria-label={t('chat.unpin', 'Unpin')}
-              className={`shrink-0 min-h-11 min-w-11 px-2 rounded-lg flex items-center justify-center cursor-pointer ${isDark ? "text-gray-400 hover:text-red-400 hover:bg-white/5" : "text-slate-500 hover:text-red-500 hover:bg-black/5"}`}
+              className={`shrink-0 min-h-11 min-w-11 px-2 rounded-lg flex items-center justify-center cursor-pointer ${isDark ? "text-[var(--text-secondary)] hover:text-red-400 hover:bg-white/5" : "text-[var(--text-tertiary)] hover:text-red-500 hover:bg-black/5"}`}
             >
               <X size={16} />
             </button>
@@ -235,8 +235,8 @@ export const ChatProfileBody = ({
 const Row = ({ icon, title, right, isDark }: { icon: React.ReactNode; title: string; right?: React.ReactNode; isDark: boolean }) => (
   <div className="flex items-center justify-between px-4 py-3">
     <div className="flex items-center gap-3">
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-white/5" : "bg-slate-100"}`}>{icon}</div>
-      <span className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{title}</span>
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-white/5" : "bg-black/5"}`}>{icon}</div>
+      <span className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{title}</span>
     </div>
     {right}
   </div>
@@ -244,18 +244,18 @@ const Row = ({ icon, title, right, isDark }: { icon: React.ReactNode; title: str
 
 const InfoRow = ({ label, value, isDark }: { label: string; value: string; isDark: boolean }) => (
   <div className="flex items-center justify-between gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
-    <span className={`text-sm ${isDark ? "text-gray-400" : "text-slate-500"}`}>{label}</span>
-    <span className={`text-sm font-medium text-right ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{value}</span>
+    <span className={`text-sm ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{label}</span>
+    <span className={`text-sm font-medium text-right ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}>{value}</span>
   </div>
 );
 
 const SectionTitle = ({ icon, title, isDark }: { icon: React.ReactNode; title: string; isDark: boolean }) => (
-  <div className={`font-mono text-xs uppercase tracking-widest font-bold mb-2 opacity-50 px-1 flex items-center gap-1.5 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{icon} {title}</div>
+  <div className={`font-mono text-xs uppercase tracking-widest font-bold mb-2 opacity-50 px-1 flex items-center gap-1.5 text-[var(--text-primary)]`}>{icon} {title}</div>
 );
 
 const Placeholder = ({ icon, text, isDark }: { icon: React.ReactNode; text: string; isDark: boolean }) => (
-  <div className={`flex flex-col items-center justify-center py-10 text-center ${isDark ? "text-gray-500" : "text-slate-400"}`}>
-    <div className={`w-9 h-9 rounded-2xl flex items-center justify-center mb-2 ${isDark ? "bg-white/5" : "bg-slate-100"}`}>{icon}</div>
+  <div className={`flex flex-col items-center justify-center py-10 text-center ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+    <div className={`w-9 h-9 rounded-2xl flex items-center justify-center mb-2 ${isDark ? "bg-white/5" : "bg-black/5"}`}>{icon}</div>
     <div className="text-sm">{text}</div>
   </div>
 );
