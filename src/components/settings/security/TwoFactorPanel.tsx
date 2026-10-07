@@ -3,6 +3,8 @@ import { SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../../ui
 import { toast } from 'sonner';
 import { useAppStore } from '../../../store';
 import { generateSecret, verifyTotp, otpauthUri, totpCode } from '../../../lib/twoFactor';
+import { useSecurityChallenge } from '../../../hooks/useSecurityChallenge';
+import { SecurityChallengeModal } from './SecurityChallengeModal';
 
 interface TwoFactorPanelProps {
   isDark?: boolean;
@@ -18,6 +20,7 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
   const [totpInput, setTotpInput] = useState('');
   const [totpBusy, setTotpBusy] = useState(false);
   const [totpCodeNow, setTotpCodeNow] = useState('');
+  const { challenge, require } = useSecurityChallenge();
 
   useEffect(() => {
     if (!showTotpSetup || !totpDraftSecret) {
@@ -65,9 +68,20 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
   };
 
   const disableTwoFactor = () => {
-    setTwoFactor(false);
-    setTotpSecret(null);
-    toast.success(t('settings.totpDisabled'));
+    // Dropping the second factor is as sensitive as enabling it, so it needs the
+    // app-lock PIN first. `pin`, not `strong`: the `strong` level would demand
+    // the very code whose removal is being requested.
+    const started = require({
+      level: 'pin',
+      title: t('lock.stepUpTitle', "Confirm it's you"),
+      message: t('lock.stepUpDisableTwoFactor'),
+      onVerified: () => {
+        setTwoFactor(false);
+        setTotpSecret(null);
+        toast.success(t('settings.totpDisabled'));
+      },
+    });
+    if (!started) toast.error(t('lock.setupPinForTwoFactor', 'Set an app-lock PIN first — it is required to disable two-factor authentication'));
   };
 
   return (
@@ -141,6 +155,7 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
           </div>
         )}
       </SettingsGroup>
+      <SecurityChallengeModal {...challenge} isDark={isDark} t={t} />
     </>
   );
 };

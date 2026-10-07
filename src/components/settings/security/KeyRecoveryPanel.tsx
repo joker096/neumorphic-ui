@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Key, ShieldCheck } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../../ui/SettingsRow';
 import { toast } from 'sonner';
-import { ConfirmModal } from '../ConfirmModal';
 import { deviceSecurity } from '../../../lib/deviceSecurity';
+import { useSecurityChallenge } from '../../../hooks/useSecurityChallenge';
+import { SecurityChallengeModal } from './SecurityChallengeModal';
 
 interface KeyRecoveryPanelProps {
   isDark?: boolean;
@@ -18,7 +19,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
   const [keyImportBundle, setKeyImportBundle] = useState('');
   const [keyImportPass, setKeyImportPass] = useState('');
   const [keyBusy, setKeyBusy] = useState(false);
-  const [showKeyRestoreConfirm, setShowKeyRestoreConfirm] = useState(false);
+  const { challenge, require } = useSecurityChallenge();
 
   const handleKeyExport = async () => {
     if (keyBusy) return;
@@ -39,6 +40,16 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
     } finally {
       setKeyBusy(false);
     }
+  };
+
+  const generateBundle = () => {
+    const started = require({
+      level: 'strong',
+      title: t('lock.stepUpTitle', "Confirm it's you"),
+      message: t('lock.stepUpExportKey'),
+      onVerified: handleKeyExport,
+    });
+    if (!started) toast.error(t('lock.setupPinFirst'));
   };
 
   const handleKeyCopy = async () => {
@@ -69,14 +80,35 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
     }
   };
 
+  const importBundle = () => {
+    // Replacing the device key re-binds encryption to foreign key material,
+    // so it needs the same proof as exporting it.
+    const started = require({
+      level: 'strong',
+      title: t('lock.stepUpTitle', "Confirm it's you"),
+      message: t('lock.stepUpImportKey'),
+      onVerified: handleKeyImport,
+    });
+    if (!started) toast.error(t('lock.setupPinFirst'));
+  };
+
   const handleKeyRestoreConfirm = async () => {
-    setShowKeyRestoreConfirm(false);
     try {
       await deviceSecurity.clearDeviceKeyOverride();
       toast.success(t('settings.keyRecovery.restored'));
     } catch {
       toast.error(t('settings.keyRecovery.failed'));
     }
+  };
+
+  const restoreDeviceKey = () => {
+    const started = require({
+      level: 'pin',
+      title: t('lock.stepUpTitle', "Confirm it's you"),
+      message: t('lock.stepUpRestoreKey'),
+      onVerified: handleKeyRestoreConfirm,
+    });
+    if (!started) toast.error(t('lock.setupPinFirst'));
   };
 
   return (
@@ -124,7 +156,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
             />
             <button
               type="button"
-              onClick={handleKeyExport}
+              onClick={generateBundle}
               disabled={keyBusy}
               className={`mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"} disabled:opacity-50`}
             >
@@ -170,7 +202,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
             />
             <button
               type="button"
-              onClick={handleKeyImport}
+              onClick={importBundle}
               disabled={keyBusy}
               className={`mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"} disabled:opacity-50`}
             >
@@ -186,20 +218,11 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
           title={t('settings.keyRecovery.restore')}
           subtitle={t('settings.keyRecovery.restoreSubtitle')}
           isDark={isDark}
-          onClick={() => setShowKeyRestoreConfirm(true)}
+          onClick={restoreDeviceKey}
         />
       </SettingsGroup>
 
-      <ConfirmModal
-        isOpen={showKeyRestoreConfirm}
-        title={t('settings.keyRecovery.restore')}
-        message={t('settings.keyRecovery.confirmRestore')}
-        confirmLabel={t('settings.keyRecovery.restore')}
-        cancelLabel={t('common.cancel')}
-        variant="danger"
-        onConfirm={handleKeyRestoreConfirm}
-        onCancel={() => setShowKeyRestoreConfirm(false)}
-      />
+      <SecurityChallengeModal {...challenge} isDark={isDark} t={t} />
     </>
   );
 };

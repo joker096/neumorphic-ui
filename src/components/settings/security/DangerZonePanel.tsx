@@ -1,35 +1,29 @@
-import { useState } from 'react';
-import { Shield, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../../ui/SettingsRow';
 import { toast } from 'sonner';
-import { ConfirmModal } from '../ConfirmModal';
 import { cryptoCore } from '../../../lib/crypto/cryptoCore';
+import { useSecurityChallenge } from '../../../hooks/useSecurityChallenge';
+import { SecurityChallengeModal } from './SecurityChallengeModal';
 
 interface DangerZonePanelProps {
   isDark?: boolean;
   t: (key: string, fallback?: string) => string;
 }
 
+/**
+ * Irreversible actions.
+ *
+ * "Wipe all data" and "Delete account" used to be two rows calling the same
+ * `cryptoCore.secureWipe()` — the app identity *is* the account (master seed
+ * lives in the same storage), so there is no honest difference between the
+ * two. They are collapsed into one control, and it now requires a `strong`
+ * step-up challenge (PIN, plus the 2FA code when two-factor is enabled)
+ * before anything is erased.
+ */
 export const DangerZonePanel = ({ isDark = false, t }: DangerZonePanelProps) => {
-  const [showWipeConfirm, setShowWipeConfirm] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { challenge, require } = useSecurityChallenge();
 
-  const handleWipeData = () => {
-    setShowWipeConfirm(true);
-  };
-
-  const handleConfirmWipe = async () => {
-    setShowWipeConfirm(false);
-    try {
-      await cryptoCore.secureWipe();
-      toast.success(t('settings.dataWiped'));
-    } catch {
-      toast.error(t('settings.wipeFailed'));
-    }
-  };
-
-  const handleConfirmDelete = async () => {
-    setShowDeleteConfirm(false);
+  const handleDeleteAccount = async () => {
     try {
       await cryptoCore.secureWipe();
       toast.success(t('settings.accountDeleted'));
@@ -38,19 +32,20 @@ export const DangerZonePanel = ({ isDark = false, t }: DangerZonePanelProps) => 
     }
   };
 
+  const requestDelete = () => {
+    const started = require({
+      level: 'strong',
+      title: t('lock.stepUpTitle', "Confirm it's you"),
+      message: t('settings.confirmDeleteAccount'),
+      onVerified: handleDeleteAccount,
+    });
+    if (!started) toast.error(t('lock.setupPinFirst'));
+  };
+
   return (
     <>
       <SettingsSectionTitle title={t('settings.dangerZone')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
-        <SettingsRow
-          icon={<Shield size={16} />}
-          iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-          iconColor={isDark ? "text-red-400" : "text-red-600"}
-          title={t('settings.wipeAllData')}
-          subtitle={t('settings.wipeSubtitle')}
-          isDark={isDark}
-          onClick={handleWipeData}
-        />
         <SettingsRow
           icon={<Trash2 size={16} />}
           iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
@@ -58,31 +53,11 @@ export const DangerZonePanel = ({ isDark = false, t }: DangerZonePanelProps) => 
           title={t('settings.deleteAccount')}
           subtitle={t('settings.deleteAccountSubtitle')}
           isDark={isDark}
-          onClick={() => setShowDeleteConfirm(true)}
+          onClick={requestDelete}
         />
       </SettingsGroup>
 
-      <ConfirmModal
-        isOpen={showWipeConfirm}
-        title={t('settings.wipeAllData')}
-        message={t('settings.confirmWipe')}
-        confirmLabel={t('settings.wipeAllData')}
-        cancelLabel={t('common.cancel')}
-        variant="danger"
-        onConfirm={handleConfirmWipe}
-        onCancel={() => setShowWipeConfirm(false)}
-      />
-
-      <ConfirmModal
-        isOpen={showDeleteConfirm}
-        title={t('settings.deleteAccount')}
-        message={t('settings.confirmDeleteAccount')}
-        confirmLabel={t('settings.deleteAccount')}
-        cancelLabel={t('common.cancel')}
-        variant="danger"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setShowDeleteConfirm(false)}
-      />
+      <SecurityChallengeModal {...challenge} isDark={isDark} t={t} />
     </>
   );
 };

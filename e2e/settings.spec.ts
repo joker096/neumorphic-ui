@@ -103,16 +103,23 @@ test.describe('Settings', () => {
     ).toBeVisible({ timeout: 5000 });
   });
 
-  test('security: wipe-all-data opens a confirm dialog that can be cancelled', async ({ page }) => {
+  test('security: destructive action is gated by step-up, not a plain confirm', async ({ page }) => {
     await gotoSettings(page);
     await openSettingsItem(page, 'Security');
-    await page.getByText('Wipe All Data').first().click();
-    // Confirm modal with warning
+
+    // "Wipe all data" and "Delete account" used to be two rows calling the same
+    // secureWipe() — collapsed into one control that now requires a `strong`
+    // step-up challenge before anything is erased.
+    const wipeRow = page.getByText('Wipe All Data');
+    await expect(wipeRow).toHaveCount(0);
+    const deleteRow = page.getByText(/delete account/i).first();
+    await expect(deleteRow).toBeVisible();
+
+    // No app-lock PIN is enrolled -> fail closed with guidance, no erasure.
+    await deleteRow.click();
     await expect(
-      page.getByText('Are you sure you want to wipe all data?')
-    ).toBeVisible();
-    await page.getByRole('button', { name: 'Cancel' }).click();
-    // Dialog dismissed, app intact
+      page.getByText(/set an app-lock pin first/i).first()
+    ).toBeVisible({ timeout: 5000 });
     await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
   });
 

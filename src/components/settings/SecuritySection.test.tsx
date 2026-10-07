@@ -20,9 +20,19 @@ const totpMock = vi.hoisted(() => ({
 
 vi.mock('../../lib/twoFactor', () => totpMock);
 
+const biometricMock = vi.hoisted(() => ({
+  isBiometricAvailable: vi.fn(async () => true),
+  registerBiometric: vi.fn(async () => 'cred-123'),
+  verifyBiometric: vi.fn(async () => true),
+  deleteBiometricCredential: vi.fn(async () => undefined),
+}));
+
+vi.mock('../../lib/biometric', () => biometricMock);
+
 vi.mock('../../lib/crypto/cryptoCore', () => ({
   cryptoCore: {
     hashAppLockPIN: vi.fn().mockResolvedValue({ hash: 'hashed', saltHex: 'salt' }),
+    verifyAppLockPIN: vi.fn().mockResolvedValue(true),
     secureWipe: vi.fn().mockResolvedValue(undefined),
   },
 }));
@@ -41,6 +51,8 @@ beforeEach(() => {
       setAppLock: vi.fn(),
       appLockHashedPIN: null,
       appLockSalt: '',
+      appLockBiometricEnabled: false,
+      appLockBiometricCredentialId: null,
       twoFactor: false,
       setTwoFactor: vi.fn(),
       totpSecret: null,
@@ -163,7 +175,7 @@ describe('SecuritySection - additional tests', () => {
     });
   });
 
-  it('disables 2FA when toggle is flipped on an active setup', async () => {
+  it('does not disable 2FA on a plain toggle click when no PIN is configured', async () => {
     const setTwoFactor = vi.fn();
     const setTotpSecret = vi.fn();
     mockUseAppStore.mockImplementation((selector?: any) => {
@@ -171,6 +183,8 @@ describe('SecuritySection - additional tests', () => {
         setAppLock: vi.fn(),
         appLockHashedPIN: null,
         appLockSalt: '',
+        appLockBiometricEnabled: false,
+        appLockBiometricCredentialId: null,
         twoFactor: true,
         setTwoFactor,
         totpSecret: 'OLDSECRET1234',
@@ -186,8 +200,129 @@ describe('SecuritySection - additional tests', () => {
 
     fireEvent.click(screen.getByText('settings.twoFactorAuth'));
 
+    // Fail closed: no identity proof is possible, so nothing is disabled.
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(setTwoFactor).not.toHaveBeenCalled();
+    expect(setTotpSecret).not.toHaveBeenCalled();
+  });
+
+  it('disables 2FA only after the step-up PIN is accepted', async () => {
+    const setTwoFactor = vi.fn();
+    const setTotpSecret = vi.fn();
+    mockUseAppStore.mockImplementation((selector?: any) => {
+      const state = {
+        setAppLock: vi.fn(),
+        appLockHashedPIN: 'hashed',
+        appLockSalt: 'salt',
+        appLockBiometricEnabled: false,
+        appLockBiometricCredentialId: null,
+        twoFactor: true,
+        setTwoFactor,
+        totpSecret: 'OLDSECRET1234',
+        setTotpSecret,
+      };
+      if (typeof selector === 'function') {
+        return selector(state);
+      }
+      return state;
+    });
+
+    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+
+    fireEvent.click(screen.getByText('settings.twoFactorAuth'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(setTwoFactor).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByPlaceholderText('settings.enterPin'), { target: { value: '1234' } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'settings.verify' }));
+    });
+
     expect(setTwoFactor).toHaveBeenCalledWith(false);
     expect(setTotpSecret).toHaveBeenCalledWith(null);
+  });
+
+  it('disables biometric unlock only after the step-up PIN is accepted', async () => {
+    const setAppLockBiometric = vi.fn();
+    mockUseAppStore.mockImplementation((selector?: any) => {
+      const state = {
+        setAppLock: vi.fn(),
+        appLockHashedPIN: 'hashed',
+        appLockSalt: 'salt',
+        appLockBiometricEnabled: true,
+        appLockBiometricCredentialId: 'cred-123',
+        setAppLockBiometric,
+        twoFactor: false,
+        setTwoFactor: vi.fn(),
+        totpSecret: null,
+        setTotpSecret: vi.fn(),
+      };
+      if (typeof selector === 'function') {
+        return selector(state);
+      }
+      return state;
+    });
+
+    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+
+    const toggle = screen.getByRole('switch', { name: 'settings.biometricUnlock' });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    fireEvent.click(toggle);
+
+    // A one-tap "disable" would let anyone holding an unlocked session strip the
+    // strongest lock the user has.
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(setAppLockBiometric).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByPlaceholderText('settings.enterPin'), { target: { value: '1234' } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'settings.verify' }));
+    });
+
+    expect(setAppLockBiometric).toHaveBeenCalledWith(false, null);
+  });
+
+  it('wipes the account only after a strong step-up challenge', async () => {
+    const { cryptoCore } = await import('../../lib/crypto/cryptoCore');
+    mockUseAppStore.mockImplementation((selector?: any) => {
+      const state = {
+        setAppLock: vi.fn(),
+        appLockHashedPIN: 'hashed',
+        appLockSalt: 'salt',
+        appLockBiometricEnabled: false,
+        appLockBiometricCredentialId: null,
+        twoFactor: true,
+        setTwoFactor: vi.fn(),
+        totpSecret: 'SECRET',
+        setTotpSecret: vi.fn(),
+      };
+      if (typeof selector === 'function') {
+        return selector(state);
+      }
+      return state;
+    });
+
+    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+
+    // A single merged destructive control — no separate "wipe" row.
+    expect(screen.queryByText('settings.wipeAllData')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('settings.deleteAccount'));
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(cryptoCore.secureWipe).not.toHaveBeenCalled();
+    // strong level → PIN + 2FA code.
+    expect(screen.getByPlaceholderText('lock.totpLabel')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByPlaceholderText('settings.enterPin'), { target: { value: '1234' } });
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText('lock.totpLabel'), { target: { value: '123456' } });
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'settings.verify' }));
+    });
+
+    expect(cryptoCore.secureWipe).toHaveBeenCalledTimes(1);
   });
 
   it('guards PIN set against double submit while hashing', async () => {

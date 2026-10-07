@@ -1,4 +1,4 @@
-import { Monitor, Smartphone, Clock } from 'lucide-react';
+import { Monitor } from 'lucide-react';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { AppLockPanel } from './security/AppLockPanel';
@@ -21,6 +21,12 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
 
       <KeyRecoveryPanel isDark={isDark} t={t} />
 
+      {/* Only facts we can actually observe are shown. The previous
+          "Active sessions — no other active sessions" and "Login history"
+          rows were static text for capabilities the local-first app does not
+          have: there is no session registry to read, so the first row asserted
+          something unverifiable (and wrong as soon as a second peer connects)
+          and the second advertised a log that does not exist. */}
       <SettingsSectionTitle title={t('settings.sessionsDevices')} isDark={isDark} />
       <SettingsGroup isDark={isDark} className="mb-6">
         <SettingsRow
@@ -29,22 +35,6 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
           iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
           title={t('settings.thisDevice')}
           subtitle={t('settings.thisDeviceSubtitle')}
-          isDark={isDark}
-        />
-        <SettingsRow
-          icon={<Smartphone size={16} />}
-          iconBg={isDark ? "bg-gray-500/10" : "bg-gray-100"}
-          iconColor={isDark ? "text-gray-400" : "text-gray-500"}
-          title={t('settings.activeSessions')}
-          subtitle={t('settings.noOtherSessions')}
-          isDark={isDark}
-        />
-        <SettingsRow
-          icon={<Clock size={16} />}
-          iconBg={isDark ? "bg-gray-500/10" : "bg-gray-100"}
-          iconColor={isDark ? "text-gray-400" : "text-gray-500"}
-          title={t('settings.loginHistory')}
-          subtitle={t('settings.loginHistoryUnavailable')}
           isDark={isDark}
         />
       </SettingsGroup>

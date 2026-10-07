@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 import { cryptoCore } from '../../../lib/crypto/cryptoCore';
 import { useAppStore } from '../../../store';
 import { isBiometricAvailable, registerBiometric } from '../../../lib/biometric';
+import { useSecurityChallenge } from '../../../hooks/useSecurityChallenge';
+import { SecurityChallengeModal } from './SecurityChallengeModal';
 
 interface AppLockPanelProps {
   isDark?: boolean;
@@ -28,6 +30,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
   const setAppLockAutoLock = useAppStore(s => s.setAppLockAutoLock);
   const lockApp = useAppStore(s => s.lockApp);
   const hasMethod = hasPin || biometricEnabled;
+  const { challenge, require } = useSecurityChallenge();
 
   useEffect(() => {
     let mounted = true;
@@ -45,6 +48,8 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
       setBiometricBusy(true);
       try {
         const userName = useAppStore.getState().userProfile?.name || 'user';
+        // Enrolment already demands OS presence (userVerification: 'required'),
+        // so a fresh proof is not needed here.
         const credentialId = await registerBiometric(userName);
         setAppLockBiometric(true, credentialId);
         toast.success(t('settings.biometricEnrolled'));
@@ -53,10 +58,20 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
       } finally {
         setBiometricBusy(false);
       }
-    } else {
-      setAppLockBiometric(false, null);
-      toast.success(t('settings.biometricDisabled'));
+      return;
     }
+    // Turning biometric unlock OFF must not be a one-tap action: anyone with an
+    // unlocked session could strip the strongest lock the user has.
+    const started = require({
+      level: 'biometric',
+      title: t('lock.stepUpTitle', "Confirm it's you"),
+      message: t('lock.stepUpDisableBiometric'),
+      onVerified: () => {
+        setAppLockBiometric(false, null);
+        toast.success(t('settings.biometricDisabled'));
+      },
+    });
+    if (!started) toast.error(t('lock.setupPinFirst'));
   };
 
   const handlePinSet = async () => {
@@ -251,6 +266,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
           }
         />
       </SettingsGroup>
+      <SecurityChallengeModal {...challenge} isDark={isDark} t={t} />
     </>
   );
 };
