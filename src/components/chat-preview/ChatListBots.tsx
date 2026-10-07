@@ -32,7 +32,7 @@ export function ChatListBots({ bots, onOpenBot, isDark, t }: ChatListBotsProps) 
           tabIndex={0}
           onClick={() => onOpenBot?.(b.id)}
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenBot?.(b.id); } }}
-          className={`w-full p-4 rounded-xl mb-4 flex flex-col gap-2 cursor-pointer transition-colors ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-[var(--bg-elevated)]" : "bg-white border border-[var(--border-color)] shadow-sm hover:bg-slate-50"}`}
+          className={`w-full p-4 rounded-xl mb-4 flex flex-col gap-2 cursor-pointer transition-colors ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-[var(--bg-elevated)]" : "bg-white border border-[var(--border-color)] shadow-sm hover:bg-black/5"}`}
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[var(--accent-soft)] text-[var(--accent)] flex items-center justify-center">
@@ -40,7 +40,7 @@ export function ChatListBots({ bots, onOpenBot, isDark, t }: ChatListBotsProps) 
             </div>
             <div className="flex-1">
               <h4 className="font-bold text-sm tracking-wide">{b.name}</h4>
-              <p className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.botTokenMask')}</p>
+              <p className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('chat.botTokenMask')}</p>
             </div>
           </div>
         </div>

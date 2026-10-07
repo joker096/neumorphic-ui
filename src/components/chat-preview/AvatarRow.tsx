@@ -19,16 +19,16 @@ export const AvatarRow = ({ theme, onStoryClick, onComposeStory, t }: AvatarRowP
 
   return (
     <div className="flex flex-col w-full overflow-visible mb-2 pt-2 pb-1 bg-transparent shrink-0">
-      <div className={`px-4 mb-2 font-mono text-xs uppercase tracking-widest font-bold ${isDark ? "text-gray-400" : "text-slate-400"}`}>{t("header.stories")}</div>
+      <div className={`px-4 mb-2 font-mono text-xs uppercase tracking-widest font-bold ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t("header.stories")}</div>
       <div className="flex items-center gap-2 sm:gap-3 px-1 sm:px-2 overflow-x-auto pb-2 scrollbar-none shrink-0" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         <div
           onClick={() => onComposeStory && onComposeStory()}
           className="flex flex-col items-center gap-1 sm:gap-1.5 group cursor-pointer shrink-0"
         >
           <div className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-transform duration-200 active:scale-95 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] border-dashed" : "bg-[var(--bg-primary)] border border-[var(--border-color)] border-dashed"}`}>
-            <Plus size={20} className={isDark ? "text-gray-300 group-hover:text-[var(--text-primary)]" : "text-slate-500 group-hover:text-[var(--text-secondary)]"} />
+            <Plus size={20} className={isDark ? "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" : "text-[var(--text-tertiary)] group-hover:text-[var(--text-secondary)]"} />
           </div>
-          <span className={`text-xs sm:text-xs font-semibold tracking-wide transition-colors ${isDark ? "text-gray-300 group-hover:text-gray-100" : "text-slate-500 group-hover:text-slate-800"}`}>
+          <span className={`text-xs sm:text-xs font-semibold tracking-wide transition-colors ${isDark ? "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" : "text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]"}`}>
             {t("header.myStory")}
           </span>
         </div>
@@ -59,7 +59,7 @@ export const AvatarRow = ({ theme, onStoryClick, onComposeStory, t }: AvatarRowP
                   />
                 )}
               </div>
-              <span className={`text-xs sm:text-xs font-semibold tracking-wide transition-colors ${isDark ? "text-gray-300 group-hover:text-gray-100" : "text-slate-500 group-hover:text-slate-800"}`}>
+              <span className={`text-xs sm:text-xs font-semibold tracking-wide transition-colors ${isDark ? "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" : "text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]"}`}>
                 {u.name}
               </span>
             </div>

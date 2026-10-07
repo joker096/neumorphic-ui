@@ -37,8 +37,8 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
                 isActive
                   ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md"
                   : isDark
-                    ? "bg-white/[0.05] text-gray-300 group-hover:text-white group-hover:bg-white/10 border border-[var(--border-color)]"
-                    : "bg-white text-slate-500 group-hover:text-slate-800 group-hover:bg-slate-50 border border-slate-200 shadow-sm"
+                    ? "bg-white/[0.05] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-white/10 border border-[var(--border-color)]"
+                    : "bg-white text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] group-hover:bg-black/5 border border-[var(--border-color)] shadow-sm"
               }`}
             >
               {t(`chat.folders.${folder}`)}
@@ -55,8 +55,8 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
         advancedFilters.hasMedia || advancedFilters.hasAudio || advancedFilters.hasReplies || advancedFilters.fromBots || advancedFilters.priority
           ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md"
           : isDark
-            ? "bg-white/[0.05] text-gray-300 hover:text-white hover:bg-white/10 border border-[var(--border-color)]"
-            : "bg-white text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-slate-200 shadow-sm"
+            ? "bg-white/[0.05] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10 border border-[var(--border-color)]"
+            : "bg-white text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/5 border border-[var(--border-color)] shadow-sm"
       }`}
     >
       <ListFilter size={16} />

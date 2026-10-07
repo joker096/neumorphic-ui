@@ -59,7 +59,7 @@ export const ChatListSearchHeader = ({
         aria-label={t("chat.archived")}
         title={t("chat.archived")}
         onClick={() => { setView("chats"); setActiveFolder("archived"); }}
-        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5 text-gray-400 hover:text-[var(--text-primary)]" : "bg-white border border-[var(--border-color)] hover:bg-black/5 text-slate-500 hover:text-slate-800 shadow-sm"}`}
+        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]" : "bg-white border border-[var(--border-color)] hover:bg-black/5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] shadow-sm"}`}
       >
         <Archive size={16} />
         {archivedUnreadCount > 0 && (
@@ -76,7 +76,7 @@ export const ChatListSearchHeader = ({
         aria-label={t("search.title", "Search")}
         title={t("search.title", "Search")}
         onClick={onOpenGlobalSearch}
-        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5 text-[var(--text-secondary)]" : "bg-white border border-[var(--border-color)] hover:bg-black/5 text-slate-600 shadow-sm"}`}
+        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5 text-[var(--text-secondary)]" : "bg-white border border-[var(--border-color)] hover:bg-black/5 text-[var(--text-secondary)] shadow-sm"}`}
       >
         <Globe size={16} />
       </button>
