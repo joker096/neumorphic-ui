@@ -90,7 +90,7 @@ export function ComposerToolbar({
           aria-expanded={attachOpen}
           onClick={onToggleAttach}
           className={`icon-button cursor-pointer ${
-            isDark ? "text-gray-400" : "text-slate-500 hover:text-slate-800"
+            isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
           }`}
         >
           <Plus size={16} />

@@ -65,8 +65,8 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
                     ? 'text-orange-300 border-orange-500/40'
                     : 'text-orange-600 border-orange-500/40'
                   : isDark
-                    ? 'text-gray-300 border-[var(--border-color)] group-hover:text-white group-hover:bg-white/10'
-                    : 'text-slate-600 border-[var(--border-color)] group-hover:text-slate-800 group-hover:bg-black/10'
+? 'text-[var(--text-secondary)] border-[var(--border-color)] group-hover:text-[var(--text-primary)] group-hover:bg-white/10'
+  : 'text-[var(--text-secondary)] border-[var(--border-color)] group-hover:text-[var(--text-primary)] group-hover:bg-black/10'
               }`}>
                 {t(f.labelKey, f.fallback)}
               </span>

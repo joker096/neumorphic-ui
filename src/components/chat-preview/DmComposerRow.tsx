@@ -79,9 +79,7 @@ export function DmComposerRow({
           inputMode="text"
           enterKeyHint="send"
           spellCheck={!morseMode}
-          className={`flex-1 min-w-0 min-h-11 py-[13px] bg-transparent border-none outline-none resize-none text-[12px] sm:text-[13px] md:text-[14px] leading-snug max-h-[120px] overflow-y-auto ${
-            isDark ? "text-[var(--text-primary)] placeholder:text-gray-500" : "text-slate-700 placeholder:text-slate-400"
-          }`}
+          className={`flex-1 min-w-0 min-h-11 py-[13px] bg-transparent border-none outline-none resize-none text-[12px] sm:text-[13px] md:text-[14px] leading-snug max-h-[120px] overflow-y-auto text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]`}
           style={inputStyle}
         />
         <div className="flex items-center gap-1 flex-shrink-0">

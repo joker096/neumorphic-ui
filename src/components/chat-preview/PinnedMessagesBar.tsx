@@ -50,7 +50,7 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
         type="button"
         onClick={() => setOpen(true)}
         className={`flex items-center gap-2 w-full px-3 py-2 text-left transition-colors cursor-pointer ${
-          isDark ? "bg-[var(--bg-tertiary)] hover:bg-white/5 text-[var(--text-primary)]" : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+          isDark ? "bg-[var(--bg-tertiary)] hover:bg-white/5 text-[var(--text-primary)]" : "bg-black/5 hover:bg-black/10 text-[var(--text-primary)]"
         }`}
         aria-label={t("chat.pinnedMessages", "Pinned messages")}
       >
@@ -89,7 +89,7 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
                   <button
                     type="button"
                     onClick={() => onUnpin(p.id)}
-                    className={`shrink-0 min-h-11 px-2 rounded-lg flex items-center justify-center cursor-pointer ${isDark ? "text-gray-400 hover:text-red-400 hover:bg-white/5" : "text-slate-500 hover:text-red-500 hover:bg-black/5"}`}
+                    className={`shrink-0 min-h-11 px-2 rounded-lg flex items-center justify-center cursor-pointer ${isDark ? "text-[var(--text-secondary)] hover:text-red-400 hover:bg-white/5" : "text-[var(--text-tertiary)] hover:text-red-500 hover:bg-black/5"}`}
                     aria-label={t("chat.unpin", "Unpin")}
                   >
                     <X size={16} />
