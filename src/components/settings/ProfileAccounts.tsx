@@ -51,7 +51,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
   return (
     <div className={`rounded-xl overflow-hidden mt-4 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
       <div className="p-4">
-        <div className={`text-xs uppercase tracking-widest font-bold mb-3 ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+        <div className={`text-xs uppercase tracking-widest font-bold mb-3 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
           {t('settings.accounts', 'Accounts')}
         </div>
         <div className="flex flex-col gap-2">
@@ -68,15 +68,15 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
               ) : (
                 <div
                   onClick={() => onSelect(acc.id)}
-                  className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-11 ${isDark ? "hover:bg-[var(--hover-bg-dark)]" : "hover:bg-slate-100"}`}
+                  className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-11 ${isDark ? "hover:bg-[var(--hover-bg-dark)]" : "hover:bg-black/5"}`}
                 >
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] font-bold bg-gradient-to-br ${acc.color} flex-shrink-0`}>
                     {acc.name.charAt(0)}
                   </div>
                   <div className="flex-1 flex flex-col overflow-hidden">
-                    <span className={`text-sm font-bold truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{acc.name}</span>
+                    <span className={`text-sm font-bold truncate text-[var(--text-primary)]`}>{acc.name}</span>
                     {(acc.username || acc.bio) && (
-                      <span className={`text-xs truncate ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+                      <span className={`text-xs truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
                         {acc.username ? `@${acc.username}` : ''}{acc.username && acc.bio ? ' · ' : ''}{acc.bio || ''}
                       </span>
                     )}
@@ -86,7 +86,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                       type="button"
                       aria-label={t('settings.editAccount', 'Edit account')}
                       onClick={(e) => startEdit(e, acc)}
-                      className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-gray-500 hover:text-[var(--accent)] hover:bg-white/5" : "text-slate-400 hover:text-[var(--accent)] hover:bg-slate-200"}`}
+                      className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-white/5" : "text-[var(--text-tertiary)] hover:text-[var(--accent)] hover:bg-black/10"}`}
                     >
                       <Pencil size={14} />
                     </button>
@@ -98,7 +98,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                           e.stopPropagation();
                           setPendingDeleteId(acc.id);
                         }}
-                        className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-gray-500 hover:text-red-400 hover:bg-white/5" : "text-slate-400 hover:text-red-600 hover:bg-slate-200"}`}
+                        className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-[var(--text-secondary)] hover:text-red-400 hover:bg-white/5" : "text-[var(--text-tertiary)] hover:text-red-600 hover:bg-black/10"}`}
                       >
                         <Trash2 size={14} />
                       </button>

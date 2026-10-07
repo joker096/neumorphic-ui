@@ -20,8 +20,8 @@ interface AccountDraft {
 
 const emptyDraft = (): AccountDraft => ({ name: '', username: '', bio: '' });
 
-  const inputClass = (isDark: boolean) => `w-full min-w-0 rounded-lg px-3 py-2 text-sm outline-none border transition-colors focus:ring-2 focus:ring-[var(--accent)]/40 bg-[var(--input-bg)] text-[var(--input-text)] border-[var(--border-color)] ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"} placeholder:text-[var(--text-secondary)]`;
-  const labelClass = (isDark: boolean) => `text-xs font-medium mb-1 block ${isDark ? "text-gray-400" : "text-slate-500"}`;
+  const inputClass = (isDark: boolean) => `w-full min-w-0 rounded-lg px-3 py-2 text-sm outline-none border transition-colors focus:ring-2 focus:ring-[var(--accent)]/40 bg-[var(--input-bg)] text-[var(--input-text)] border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]`;
+  const labelClass = (isDark: boolean) => `text-xs font-medium mb-1 block ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`;
 
 export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
   isDark: boolean;
@@ -47,7 +47,7 @@ export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
   };
 
   return (
-                <form onSubmit={commit} className={`p-3 rounded-2xl flex flex-col gap-2.5 border ${isDark ? "border-[var(--accent)]/40 bg-white/5" : "border-[var(--accent)]/40 bg-slate-50"}`}>
+                <form onSubmit={commit} className={`p-3 rounded-2xl flex flex-col gap-2.5 border ${isDark ? "border-[var(--accent)]/40 bg-white/5" : "border-[var(--accent)]/40 bg-black/5"}`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] font-bold bg-gradient-to-br ${color} flex-shrink-0`}>
                       {draft.name.charAt(0) || '?'}
@@ -116,7 +116,7 @@ export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
                         e.stopPropagation();
                         onCancel();
                       }}
-                      className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors ${isDark ? "text-gray-400 hover:bg-white/10" : "text-slate-500 hover:bg-slate-200"}`}
+                      className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors ${isDark ? "text-[var(--text-secondary)] hover:bg-white/10" : "text-[var(--text-tertiary)] hover:bg-black/10"}`}
                     >
                       {t('settings.cancel', 'Cancel')}
                     </button>
@@ -193,7 +193,7 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
                     setDraft(emptyDraft());
                     setShowForm(false);
                   }}
-                  className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors ${isDark ? "text-gray-400 hover:bg-white/10" : "text-slate-500 hover:bg-slate-200"}`}
+                  className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors ${isDark ? "text-[var(--text-secondary)] hover:bg-white/10" : "text-[var(--text-tertiary)] hover:bg-black/10"}`}
                 >
                   {t('settings.cancel', 'Cancel')}
                 </button>
@@ -201,7 +201,7 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
                   type="submit"
                   aria-label={t('settings.addAccount', 'Add Account')}
                   disabled={!draft.name.trim()}
-                  className={`min-w-11 min-h-11 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${draft.name.trim() ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 text-gray-500" : "bg-black/10 text-slate-400")} disabled:opacity-60`}
+                  className={`min-w-11 min-h-11 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${draft.name.trim() ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 text-[var(--text-secondary)]" : "bg-black/10 text-[var(--text-tertiary)]")} disabled:opacity-60`}
                 >
                   <Check size={16} />
                   <span className="hidden sm:inline text-sm font-bold">{t('settings.addAccount', 'Add Account')}</span>
@@ -224,13 +224,13 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
     );
   }
   return (
-            <div className={`flex items-center gap-3 p-3 rounded-2xl ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-2xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
               <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-500`}>
                 <Crown size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className={`text-sm font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('settings.accountsLimit', 'Accounts limit reached')}</div>
-                <div className={`text-xs mt-0.5 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('premium.gatingAccounts', 'Unlimited accounts with Premium')}</div>
+                <div className={`text-sm font-bold text-[var(--text-primary)]`}>{t('settings.accountsLimit', 'Accounts limit reached')}</div>
+                <div className={`text-xs mt-0.5 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('premium.gatingAccounts', 'Unlimited accounts with Premium')}</div>
               </div>
               {onGetPremium && (
                 <button

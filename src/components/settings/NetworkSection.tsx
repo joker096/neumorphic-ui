@@ -79,10 +79,10 @@ export const NetworkSection = ({
           placeholder={t('settings.turnServerExample')}
           value={turnServerUrl}
           onChange={(e) => onUpdateSettings({ turnServerUrl: e.target.value })}
-          className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-800"}`}
+          className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]`}
         />
         <div className="mt-4 flex flex-col gap-3">
-          <label className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+          <label className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
             {t('settings.turnServerUserLabel', 'TURN username')}
           </label>
           <input
@@ -92,9 +92,9 @@ export const NetworkSection = ({
             spellCheck={false}
             value={turnServerUser || ''}
             onChange={(e) => onUpdateSettings({ turnServerUser: e.target.value })}
-            className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-800"}`}
+            className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]`}
           />
-          <label className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+          <label className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
             {t('settings.turnServerPassLabel', 'TURN password')}
           </label>
           <input
@@ -105,7 +105,7 @@ export const NetworkSection = ({
             spellCheck={false}
             value={turnServerPass || ''}
             onChange={(e) => onUpdateSettings({ turnServerPass: e.target.value })}
-            className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] text-slate-800"}`}
+            className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]`}
           />
         </div>
       </SettingsGroup>

@@ -50,17 +50,17 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
       <SettingsSectionTitle title={t('settings.exceptions', 'Exceptions')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         {exceptions.length === 0 && (
-          <div className={`px-4 py-6 text-center text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('settings.noExceptions', 'No exceptions yet')}</div>
+          <div className={`px-4 py-6 text-center text-sm ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.noExceptions', 'No exceptions yet')}</div>
         )}
         {exceptions.map((e, i) => (
           <div key={e.id}>
             {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-gray-500/10" : "bg-gray-100"}`}>
-                  <Bell size={16} className={isDark ? "text-gray-400" : "text-slate-500"} />
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-gray-500/10" : "bg-black/5"}`}>
+                  <Bell size={16} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />
                 </div>
-                <span className={`text-sm truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{e.name}</span>
+                <span className={`text-sm truncate text-[var(--text-primary)]`}>{e.name}</span>
               </div>
               <button
                 onClick={() => toggleException(e.id)}

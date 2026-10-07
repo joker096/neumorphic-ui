@@ -145,10 +145,10 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
                 title={t(tone.key, tone.fallback)}
                 className={`flex-1 min-h-11 flex items-center gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
               >
-                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${customToneId === tone.id ? "border-[var(--accent)]" : (isDark ? "border-gray-600" : "border-slate-300")}`}>
+                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${customToneId === tone.id ? "border-[var(--accent)]" : (isDark ? "border-gray-600" : "border-[var(--border-color)]")}`}>
                   {customToneId === tone.id && <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />}
                 </span>
-                <span className={`text-sm truncate ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t(tone.key, tone.fallback)}</span>
+                <span className={`text-sm truncate text-[var(--text-primary)]`}>{t(tone.key, tone.fallback)}</span>
               </button>
               <button
                 type="button"
@@ -174,8 +174,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
               onClick={() => setBadgeMode(mode.id)}
               className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
             >
-              <span className={`text-sm ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t(`settings.badge_${mode.id}`, mode.label)}</span>
-              <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${badgeMode === mode.id ? "border-[var(--accent)]" : (isDark ? "border-gray-600" : "border-slate-300")}`}>
+              <span className={`text-sm text-[var(--text-primary)]`}>{t(`settings.badge_${mode.id}`, mode.label)}</span>
+              <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${badgeMode === mode.id ? "border-[var(--accent)]" : (isDark ? "border-gray-600" : "border-[var(--border-color)]")}`}>
                 {badgeMode === mode.id && <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />}
               </span>
             </button>
@@ -197,8 +197,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         />
         {quietHours && (
           <div className="flex items-center gap-3 px-4 py-3">
-            <Timer size={16} className={isDark ? "text-gray-400" : "text-slate-500"} />
-            <span className={`text-sm flex-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.timeRange', 'From – To')}</span>
+            <Timer size={16} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />
+            <span className={`text-sm flex-1 text-[var(--text-primary)]`}>{t('settings.timeRange', 'From – To')}</span>
             <input
               type="time"
               value={quietFrom}
@@ -206,7 +206,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
               aria-label={t('settings.quietFrom', 'Quiet from')}
               className={`rounded-lg px-2 py-1 text-sm bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--border-color)]`}
             />
-            <span className={isDark ? "text-gray-500" : "text-slate-400"}>–</span>
+            <span className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}>–</span>
             <input
               type="time"
               value={quietTo}
@@ -233,7 +233,7 @@ const ToggleSwitchLoose = ({ isOn, onToggle, isDark, ariaLabel }: { isOn: boolea
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
     className="my-[-10px] min-w-11 min-h-11 flex items-center cursor-pointer"
   >
-    <span className={`w-11 h-6 flex items-center rounded-full px-1 transition-colors duration-200 ${isOn ? 'bg-emerald-500 justify-end' : (isDark ? 'bg-gray-600 justify-start' : 'bg-slate-300 justify-start')}`}>
+    <span className={`w-11 h-6 flex items-center rounded-full px-1 transition-colors duration-200 ${isOn ? 'bg-emerald-500 justify-end' : (isDark ? 'bg-gray-600 justify-start' : 'bg-black/20 justify-start')}`}>
       <span className={`w-4 h-4 rounded-full bg-white shadow-sm shrink-0`} />
     </span>
   </button>
