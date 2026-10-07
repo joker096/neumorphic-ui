@@ -399,7 +399,9 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('All top-level sections', () => {
-    const sections = ['nav', 'chat', 'common', 'createChannel', 'createBot', 'admin', 'aftercare', 'campaigns', 'campaignSheet', 'channelComments', 'recordings', 'voiceRecorder', 'photoViewer', 'meshRadar', 'accountSwitcher', 'soundSettings', 'systemPlayer', 'search', 'confirmDialog', 'toast', 'views', 'contacts', 'header', 'lock', 'hub', 'settings', 'gifSearch', 'error', 'stickers', 'login', 'company', 'offline', 'notif'];
+    // Namespaces whose features were removed drop out of this list together
+    // with their dictionary sections (2026-10-06 i18n prune).
+    const sections = ['nav', 'chat', 'common', 'createChannel', 'createBot', 'channelComments', 'recordings', 'voiceRecorder', 'confirmDialog', 'toast', 'contacts', 'header', 'lock', 'hub', 'settings', 'error', 'stickers', 'login', 'company', 'offline', 'notif'];
 
     for (const section of sections) {
       it(`section "${section}" has at least one key in en.json`, () => {
@@ -631,7 +633,7 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('settings.security keys', () => {
-    const securityKeys = ['settings.security', 'settings.securitySubtitle', 'settings.recoveryPhrase', 'settings.recoveryPhraseGenerated', 'settings.recoveryPhraseSubtitle', 'settings.recoveryPhrasePlaceholder', 'settings.recoveryPhraseWriteDown', 'settings.recoveryPhraseIveSavedIt', 'settings.recoveryPhraseRestoreTitle', 'settings.recoveryPhraseRestoreSubtitle', 'settings.recoveryPhraseInvalid', 'settings.recoveryPhraseRestoring', 'settings.recoveryPhraseSuccess', 'settings.restore', 'settings.cancel', 'settings.confirmWipe', 'settings.wipeAllData', 'settings.wipeSubtitle', 'settings.dataWiped', 'settings.wipeFailed'];
+    const securityKeys = ['settings.security', 'settings.securitySubtitle', 'settings.recoveryPhrase', 'settings.recoveryPhraseGenerated', 'settings.recoveryPhraseSubtitle', 'settings.recoveryPhrasePlaceholder', 'settings.recoveryPhraseWriteDown', 'settings.recoveryPhraseIveSavedIt', 'settings.recoveryPhraseRestoreTitle', 'settings.recoveryPhraseRestoreSubtitle', 'settings.recoveryPhraseInvalid', 'settings.recoveryPhraseRestoring', 'settings.recoveryPhraseSuccess', 'settings.restore', 'settings.cancel', 'settings.wipeFailed'];
 
     for (const lang of allLocales) {
       for (const key of securityKeys) {
@@ -762,7 +764,7 @@ describe('=== COMPREHENSIVE I18N TESTS ===', () => {
   });
 
   describe('settings.pin keys', () => {
-    const pinKeys = ['settings.appLock', 'settings.appLockSubtitle', 'settings.appLockPin', 'settings.pinSet', 'settings.pinDisabled', 'settings.pinEnabled', 'settings.pinIncorrect', 'settings.pinTooShort', 'settings.confirmPin', 'settings.pinLock', 'settings.removePin', 'settings.pinRemoved', 'settings.enterPin', 'settings.confirmWipe', 'settings.wipeAllData', 'settings.wipeSubtitle', 'settings.dataWiped', 'settings.wipeFailed'];
+    const pinKeys = ['settings.appLock', 'settings.appLockSubtitle', 'settings.appLockPin', 'settings.pinSet', 'settings.pinDisabled', 'settings.pinEnabled', 'settings.pinIncorrect', 'settings.pinTooShort', 'settings.confirmPin', 'settings.pinLock', 'settings.removePin', 'settings.pinRemoved', 'settings.enterPin', 'settings.wipeFailed'];
 
     for (const lang of allLocales) {
       for (const key of pinKeys) {

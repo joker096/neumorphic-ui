@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Button } from './Button';
 import { Modal } from './Modal';
+import { useI18n } from "../../lib/i18n";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -21,8 +22,8 @@ export function ConfirmDialog({
   isOpen,
   title,
   message = '',
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   confirmIcon,
   cancelIcon,
   variant = 'default',
@@ -32,6 +33,11 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const isDark = theme === 'dark';
+  const { t } = useI18n();
+  // Defaults come from the locale dictionary: most call sites pass no labels,
+  // so English here meant every confirm dialog ignored the UI language.
+  const confirmText = confirmLabel ?? t('confirmDialog.ok', 'Confirm');
+  const cancelText = cancelLabel ?? t('confirmDialog.cancel', 'Cancel');
 
   return (
     <Modal
@@ -48,22 +54,22 @@ export function ConfirmDialog({
             size="md"
             className="flex-1"
             onClick={onCancel}
-            aria-label={cancelIcon ? cancelLabel : undefined}
+            aria-label={cancelIcon ? cancelText : undefined}
             icon={cancelIcon}
             iconSize={18}
           >
-            {cancelLabel}
+            {cancelText}
           </Button>
           <Button
             variant={variant === 'danger' ? 'danger' : 'primary'}
             size="md"
             className="flex-1"
             onClick={onConfirm}
-            aria-label={confirmIcon ? confirmLabel : undefined}
+            aria-label={confirmIcon ? confirmText : undefined}
             icon={confirmIcon}
             iconSize={18}
           >
-            {confirmLabel}
+            {confirmText}
           </Button>
         </>
       }

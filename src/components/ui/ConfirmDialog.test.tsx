@@ -1,6 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
+
+// The default button labels come from the dictionary now (i18n), so the suite
+// pins the EN strings the way CloseButton.test.tsx does.
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    t: (key: string, fallback?: string) =>
+      ({ 'confirmDialog.ok': 'Confirm', 'confirmDialog.cancel': 'Cancel' })[key] ?? fallback ?? key,
+    lang: 'en',
+    setLang: vi.fn(),
+  }),
+}));
 import { ConfirmDialog } from './ConfirmDialog';
 
 describe('ConfirmDialog - additional tests', () => {
