@@ -9,10 +9,13 @@
  * / `notify` message types (added to server/signaling-server.ts) AND a relay
  * JWT (the relay enforces `?token=`). Without a token the connection is
  * rejected and the sync degrades to no-op — the rest of the app is unaffected.
+ * A dropped or half-open socket reconnects with a bounded backoff
+ * (`relaySocket.ts`), so a relay restart no longer requires a page reload.
  */
 
 import { SIGNALING_SEED_URLS } from '../../config/signalling';
-import { getRelayToken, withToken } from '../network/relayToken';
+import { getRelayToken } from '../network/relayToken';
+import { openRelaySocket, type RelaySocket } from './relaySocket';
 
 export interface RosterMember {
   userId: string;
@@ -35,7 +38,7 @@ export interface CompanyRosterHandlers {
 }
 
 export class CompanyRosterSync {
-  private ws: WebSocket | null = null;
+  private socket: RelaySocket | null = null;
   private readonly topic: string;
   private readonly myPublicKey: string;
   private readonly handlers: CompanyRosterHandlers;
@@ -63,42 +66,26 @@ export class CompanyRosterSync {
 
   private connect(base: string, token: string): void {
     if (this.stopped) return;
-    const url = withToken(base, token);
-    let ws: WebSocket;
-    try {
-      ws = new WebSocket(url);
-    } catch {
-      return;
-    }
-    this.ws = ws;
-
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: 'register', publicKey: this.myPublicKey }));
-      ws.send(JSON.stringify({ type: 'subscribe', topic: this.topic }));
-    };
-
-    ws.onmessage = (ev) => {
-      let msg: any;
-      try {
-        msg = JSON.parse(ev.data as string);
-      } catch {
-        return;
-      }
-      if (msg.type === 'registered') {
-        ws.send(JSON.stringify({ type: 'subscribe', topic: this.topic }));
-        return;
-      }
-      if ((msg.type === 'publish' || msg.type === 'presence' || msg.type === 'notify') && msg.topic === this.topic) {
-        this.dispatch(msg);
-      }
-    };
-
-    ws.onerror = () => {
-      /* degrade silently */
-    };
-    ws.onclose = () => {
-      /* degrade silently */
-    };
+    this.socket = openRelaySocket({
+      base,
+      token,
+      onOpen: (send) => {
+        send({ type: 'register', publicKey: this.myPublicKey });
+        send({ type: 'subscribe', topic: this.topic });
+      },
+      onMessage: (msg) => {
+        if (msg.type === 'registered') {
+          this.socket?.publish({ type: 'subscribe', topic: this.topic });
+          return;
+        }
+        if (
+          (msg.type === 'publish' || msg.type === 'presence' || msg.type === 'notify') &&
+          msg.topic === this.topic
+        ) {
+          this.dispatch(msg);
+        }
+      },
+    });
   }
 
   private dispatch(msg: any): void {
@@ -134,22 +121,12 @@ export class CompanyRosterSync {
   }
 
   private send(obj: object): void {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      try {
-        this.ws.send(JSON.stringify(obj));
-      } catch {
-        /* ignore */
-      }
-    }
+    this.socket?.publish(obj);
   }
 
   stop(): void {
     this.stopped = true;
-    try {
-      this.ws?.close();
-    } catch {
-      /* ignore */
-    }
-    this.ws = null;
+    this.socket?.close();
+    this.socket = null;
   }
 }

@@ -79,7 +79,8 @@ describe('fetchEntitlement', () => {
   it('parses a premium entitlement', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ premium: true, plan: 'premium', expiresAt: 123 }),
+      status: 200,
+      text: async () => JSON.stringify({ premium: true, plan: 'premium', expiresAt: 123 }),
     } as unknown as Response)
     await expect(fetchEntitlement(samplePkB64)).resolves.toEqual({
       premium: true,
@@ -88,13 +89,15 @@ describe('fetchEntitlement', () => {
     })
     expect(fetch).toHaveBeenCalledWith(
       expect.stringContaining(`/entitlement?pk=${encodeURIComponent(samplePkB64)}`),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     )
   })
 
   it('defaults missing fields', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({}),
+      status: 200,
+      text: async () => '{}',
     } as unknown as Response)
     await expect(fetchEntitlement(samplePkB64)).resolves.toEqual({
       premium: false,
@@ -107,7 +110,26 @@ describe('fetchEntitlement', () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 404,
+      text: async () => '',
     } as unknown as Response)
     await expect(fetchEntitlement(samplePkB64)).rejects.toThrow('Entitlement check failed (404)')
+  })
+
+  it('aborts a hanging request instead of awaiting forever', async () => {
+    // Never resolves — only the abort signal can end the request (§4.2).
+    vi.mocked(fetch).mockImplementationOnce(
+      (_url: RequestInfo | URL, init?: RequestInit) =>
+        new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
+        }),
+    )
+    vi.useFakeTimers()
+    try {
+      const pending = expect(fetchEntitlement(samplePkB64)).rejects.toThrow('Aborted')
+      await vi.advanceTimersByTimeAsync(10_000)
+      await pending
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

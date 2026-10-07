@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Send, X, MessageSquare } from 'lucide-react';
 import { RelayClient } from '../../lib/company/relayClient';
+import type { RelayStatus } from '../../lib/company/relaySocket';
 import {
   makeGuestIdentity,
   sealToChannel,
@@ -44,6 +45,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const [messages, setMessages] = useState<WidgetMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [offline, setOffline] = useState(false);
+  const [relayStatus, setRelayStatus] = useState<RelayStatus>('connecting');
   const [contact, setContact] = useState<WidgetContact>({ name: '', email: '', phone: '' });
   const [contactSent, setContactSent] = useState(false);
   const [sendingContact, setSendingContact] = useState(false);
@@ -91,6 +93,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
         /* ignore undecryptable */
       }
     });
+    client.onStatus(setRelayStatus);
     client.start();
     relayRef.current = client;
     return () => {
@@ -105,10 +108,13 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
     const guest = getGuest();
     try {
       const sealed = await sealToChannel(guest, cfgRef.current.channelPubKeyB64, text);
-      relayRef.current?.publish(sealed);
+      // `publish` is the delivery proof: a dropped frame (relay down) must not
+      // become a fake "sent" bubble — the draft stays for the retry.
+      if (!relayRef.current?.publish(sealed)) return;
       setMessages((prev) => [...prev, { id: `s_${Date.now()}`, text, own: true }]);
     } catch {
       setOffline(true);
+      return; // keep the draft — the message was never delivered
     }
     setDraft('');
   };
@@ -139,7 +145,10 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
         ts: Date.now(),
       };
       const sealed = await sealToChannel(getGuest(), cfg.channelPubKeyB64, JSON.stringify(envelope));
-      relayRef.current?.publish(sealed);
+      // Same delivery proof as `send`: an undelivered contact form must stay in
+      // the form (and keep nagging the visitor) instead of being remembered as
+      // "sent" in localStorage.
+      if (!relayRef.current?.publish(sealed)) return;
       setContactSent(true);
       try {
         localStorage.setItem(contactSentKey(cfg.channelId), '1');
@@ -159,6 +168,15 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const greeting = cfgRef.current?.config?.greeting;
   const isDark = theme === 'dark';
   const showContactForm = collectContact && !contactSent && open;
+  // Relay down / still handshaking → show the note, keep the composer usable so
+  // the visitor can prepare a message instead of writing into a black hole.
+  const relayNote = offline
+    ? t('embed.offline')
+    : relayStatus === 'connecting'
+      ? t('embed.connecting', 'connecting…')
+      : relayStatus === 'offline'
+        ? t('embed.offline')
+        : null;
 
   return (
     <div
@@ -191,8 +209,8 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
             />
           )}
           <div className="ew-messages">
-            {offline && (
-              <div className="ew-offline-note">{t('embed.offline')}</div>
+            {relayNote && (
+              <div className="ew-offline-note">{relayNote}</div>
             )}
             {greeting && messages.length === 0 && (
               <div className="ew-msg-row ew-msg-other">

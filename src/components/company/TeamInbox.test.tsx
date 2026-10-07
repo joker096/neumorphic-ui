@@ -77,7 +77,14 @@ describe("TeamInbox", () => {
     store.ingestWebsiteContact.mockReset();
     store.ingestWebsiteContact.mockReturnValue({ id: "wc1", name: "Jane" });
     relayClientMock.mockImplementation(function () {
-      return { onMessage: vi.fn(), start: vi.fn(), stop: vi.fn(), publish: vi.fn() };
+      return {
+        onMessage: vi.fn(),
+        onStatus: (cb: any) => cb("online"),
+        isOnline: () => true,
+        start: vi.fn(),
+        stop: vi.fn(),
+        publish: vi.fn(() => true),
+      };
     });
     relayClientMock.mockClear();
     toastSuccess.mockClear();
@@ -235,6 +242,50 @@ describe("TeamInbox", () => {
     expect(relayClientMock).toHaveBeenCalledWith("company:org_1:channel:sc1");
   });
 
+  it("blocks the site-chat reply while the relay is offline", async () => {
+    const siteChannel: CompanyChannel = {
+      id: "sc1",
+      companyId: "org_1",
+      name: "Sales Chat",
+      description: "",
+      unread: 0,
+      memberCount: 1,
+      createdAt: 0,
+    };
+    store.companyChannels = [siteChannel];
+    store.activeChannelId = "sc1";
+    store.companyId = "org_1";
+    store.siteChats = [{ id: "sc1", name: "Sales Chat", snippet: "" }];
+    store.channelKeys = { sc1: { publicKeyB64: "pk", secretKeyB64: "sk" } };
+    const publish = vi.fn(() => false);
+    relayClientMock.mockImplementation(function () {
+      return {
+        onMessage: vi.fn(),
+        onStatus: (cb: any) => cb("offline"),
+        isOnline: () => false,
+        start: vi.fn(),
+        stop: vi.fn(),
+        publish,
+      };
+    });
+
+    render(<TeamInbox />);
+    expect(
+      screen.getByText("Website embed is offline — replies will not reach visitors"),
+    ).toBeInTheDocument();
+
+    const input = screen.getByLabelText("Type a message…");
+    fireEvent.change(input, { target: { value: "Anybody there?" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    // No optimistic bubble and nothing handed to the relay — the operator can retry.
+    expect(publish).not.toHaveBeenCalled();
+    expect(store.addCompanyMessage).not.toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalledWith(
+      "Website embed is offline — replies will not reach visitors",
+    );
+  });
+
   it("intercepts contact envelopes and imports them via ingestWebsiteContact without creating a bubble", async () => {
     const siteChannel: CompanyChannel = {
       id: "sc1",
@@ -255,9 +306,11 @@ describe("TeamInbox", () => {
     relayClientMock.mockImplementation(function () {
       return {
         onMessage: (cb: any) => { capturedCb = cb; },
+        onStatus: (cb: any) => cb("online"),
+        isOnline: () => true,
         start: vi.fn(),
         stop: vi.fn(),
-        publish: vi.fn(),
+        publish: vi.fn(() => true),
       };
     });
 

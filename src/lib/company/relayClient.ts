@@ -5,19 +5,23 @@
  * receiving guest messages on a site channel).
  *
  * Topic convention: `company:<id>:channel:<id>`. Degrades to no-op when the
- * relay is unavailable (connection rejected / WebSocket missing).
+ * relay is unavailable (no WebSocket, no seed URL, or the reconnect budget is
+ * exhausted) — see `relaySocket.ts` for the connect-timeout / retry policy.
  */
 
 import { SIGNALING_SEED_URLS } from '../../config/signalling';
-import { getRelayToken, withToken } from '../network/relayToken';
+import { getRelayToken } from '../network/relayToken';
+import { openRelaySocket, type RelaySocket, type RelayStatus } from './relaySocket';
 
 export type RelayMessageHandler = (payload: any) => void;
 
 export class RelayClient {
-  private ws: WebSocket | null = null;
+  private socket: RelaySocket | null = null;
   private readonly topic: string;
   private handler: RelayMessageHandler | null = null;
   private stopped = false;
+  private status: RelayStatus = 'connecting';
+  private statusHandler: ((status: RelayStatus) => void) | null = null;
 
   constructor(topic: string) {
     this.topic = topic;
@@ -27,10 +31,30 @@ export class RelayClient {
     this.handler = cb;
   }
 
+  /**
+   * Observe connection state. Fires immediately with the current value so the
+   * caller never renders a stale "connected" UI after the relay dropped.
+   */
+  onStatus(cb: (status: RelayStatus) => void): void {
+    this.statusHandler = cb;
+    cb(this.status);
+  }
+
+  /** True only while a frame would actually reach the relay. */
+  isOnline(): boolean {
+    return this.status === 'online';
+  }
+
   start(token?: string): void {
-    if (typeof WebSocket === 'undefined') return;
+    if (typeof WebSocket === 'undefined') {
+      this.setStatus('offline');
+      return;
+    }
     const base = SIGNALING_SEED_URLS[0];
-    if (!base) return;
+    if (!base) {
+      this.setStatus('offline');
+      return;
+    }
     if (token) {
       this.connect(base, token);
     } else {
@@ -38,62 +62,43 @@ export class RelayClient {
     }
   }
 
-  private connect(base: string, token: string): void {
-    if (this.stopped) return;
-    let ws: WebSocket;
-    try {
-      ws = new WebSocket(withToken(base, token));
-    } catch {
-      return;
-    }
-    this.ws = ws;
-
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: 'register', publicKey: 'embed' }));
-      ws.send(JSON.stringify({ type: 'subscribe', topic: this.topic }));
-    };
-
-    ws.onmessage = (ev) => {
-      let msg: any;
-      try {
-        msg = JSON.parse(ev.data as string);
-      } catch {
-        return;
-      }
-      if (msg.type === 'registered') {
-        ws.send(JSON.stringify({ type: 'subscribe', topic: this.topic }));
-        return;
-      }
-      if (msg.type === 'publish' && msg.topic === this.topic && msg.data) {
-        this.handler?.(msg.data);
-      }
-    };
-
-    ws.onerror = () => {
-      /* degrade silently */
-    };
-    ws.onclose = () => {
-      /* degrade silently */
-    };
+  private setStatus(next: RelayStatus): void {
+    if (this.status === next) return;
+    this.status = next;
+    this.statusHandler?.(next);
   }
 
-  publish(payload: any): void {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      try {
-        this.ws.send(JSON.stringify({ type: 'publish', topic: this.topic, data: payload }));
-      } catch {
-        /* ignore */
-      }
-    }
+  private connect(base: string, token: string): void {
+    if (this.stopped) return;
+    this.socket = openRelaySocket({
+      base,
+      token,
+      onStatus: (s) => this.setStatus(s),
+      onOpen: (send) => {
+        send({ type: 'register', publicKey: 'embed' });
+        send({ type: 'subscribe', topic: this.topic });
+      },
+      onMessage: (msg) => {
+        if (msg.type === 'registered') {
+          // The relay acks the registration with a fresh topic list — resubscribe.
+          this.socket?.publish({ type: 'subscribe', topic: this.topic });
+          return;
+        }
+        if (msg.type === 'publish' && msg.topic === this.topic && msg.data) {
+          this.handler?.(msg.data);
+        }
+      },
+    });
+  }
+
+  /** `false` when the frame was dropped (relay unreachable) — never pretend. */
+  publish(payload: any): boolean {
+    return this.socket?.publish({ type: 'publish', topic: this.topic, data: payload }) ?? false;
   }
 
   stop(): void {
     this.stopped = true;
-    try {
-      this.ws?.close();
-    } catch {
-      /* ignore */
-    }
-    this.ws = null;
+    this.socket?.close();
+    this.socket = null;
   }
 }

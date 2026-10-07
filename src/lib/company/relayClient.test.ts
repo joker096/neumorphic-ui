@@ -19,6 +19,8 @@ class FakeWebSocket {
   sent: string[] = [];
   onopen: (() => void) | null = null;
   onmessage: ((ev: any) => void) | null = null;
+  onerror: (() => void) | null = null;
+  onclose: (() => void) | null = null;
   constructor(url: string) {
     this.url = url;
     FakeWebSocket.instances.push(this);
@@ -64,6 +66,38 @@ describe('RelayClient', () => {
     c.publish({ foo: 'bar' });
     expect(ws.sent).toContain(
       JSON.stringify({ type: 'publish', topic: 'company:x:channel:y', data: { foo: 'bar' } }),
+    );
+  });
+
+  it('reports the current status to new subscribers and on transitions', () => {
+    const c = new RelayClient('company:x:channel:y');
+    const seen: string[] = [];
+    c.onStatus((s) => seen.push(s));
+    // The current state is pushed immediately so the UI never waits for the handshake.
+    expect(seen).toEqual(['connecting']);
+    expect(c.isOnline()).toBe(false);
+
+    c.start('tok');
+    FakeWebSocket.instances[0].onopen!();
+    expect(c.isOnline()).toBe(true);
+    expect(seen).toEqual(['connecting', 'online']);
+
+    FakeWebSocket.instances[0].onclose!();
+    expect(c.isOnline()).toBe(false);
+    expect(seen).toEqual(['connecting', 'online', 'offline']);
+  });
+
+  it('publish returns false when the socket is not open', () => {
+    const c = new RelayClient('company:x:channel:y');
+    c.start('tok');
+    const ws = FakeWebSocket.instances[0];
+    ws.onopen!();
+    expect(c.publish({ foo: 'bar' })).toBe(true);
+    ws.onclose!();
+    // Offline: callers must not show the message as delivered.
+    expect(c.publish({ foo: 'baz' })).toBe(false);
+    expect(ws.sent).not.toContain(
+      JSON.stringify({ type: 'publish', topic: 'company:x:channel:y', data: { foo: 'baz' } }),
     );
   });
 });

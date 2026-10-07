@@ -1,4 +1,5 @@
-import { PAYMENTO_BACKEND_BASE, buildGatewayUrl } from '../config/paymento'
+import { PAYMENTO_BACKEND_BASE, PAYMENT_REQUEST_TIMEOUT_MS, buildGatewayUrl } from '../config/paymento'
+import { fetchTextWithTimeout } from '../lib/network/fetchWithTimeout'
 import { formatClockTime } from '../utils/chatUtils'
 import type {
   PaymentoCreateInput,
@@ -7,12 +8,16 @@ import type {
 } from '../types/paymento'
 
 async function postJson<T>(url: string, body: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  const text = await res.text()
+  const res = await fetchTextWithTimeout(
+    url,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    PAYMENT_REQUEST_TIMEOUT_MS,
+  )
+  const text = res.text
   let data: any = {}
   if (text) {
     try {
@@ -41,12 +46,16 @@ export async function createPaymentRequest(
 // Query the current status of a payment (proxies Paymento verify with server-held secret).
 // POST + JSON body (not a URL path segment) keeps the payment token out of access logs.
 export async function verifyPayment(token: string): Promise<PaymentoVerifyResult> {
-  const res = await fetch(`${PAYMENTO_BACKEND_BASE}/verify`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token }),
-  })
-  const text = await res.text()
+  const res = await fetchTextWithTimeout(
+    `${PAYMENTO_BACKEND_BASE}/verify`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    },
+    PAYMENT_REQUEST_TIMEOUT_MS,
+  )
+  const text = res.text
   let data: any = {}
   if (text) {
     try {

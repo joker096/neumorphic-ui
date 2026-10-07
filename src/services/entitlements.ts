@@ -1,4 +1,5 @@
-import { PAYMENTO_BACKEND_BASE } from '../config/paymento'
+import { ENTITLEMENT_TIMEOUT_MS, PAYMENTO_BACKEND_BASE } from '../config/paymento'
+import { fetchTextWithTimeout } from '../lib/network/fetchWithTimeout'
 
 export interface EntitlementState {
   premium: boolean
@@ -20,15 +21,17 @@ export async function getDevicePublicKey(): Promise<string> {
 }
 
 export async function fetchEntitlement(devicePublicKey: string): Promise<EntitlementState> {
-  const res = await fetch(
+  const res = await fetchTextWithTimeout(
     `${PAYMENTO_BACKEND_BASE}/entitlement?pk=${encodeURIComponent(devicePublicKey)}`,
+    {},
+    ENTITLEMENT_TIMEOUT_MS,
   )
   if (!res.ok) {
     const err = new Error(`Entitlement check failed (${res.status})`)
     ;(err as Error & { status: number }).status = res.status
     throw err
   }
-  const data = (await res.json()) as { premium?: boolean; plan?: string; expiresAt?: number }
+  const data = JSON.parse(res.text) as { premium?: boolean; plan?: string; expiresAt?: number }
   return {
     premium: data.premium === true,
     plan: data.plan ?? null,

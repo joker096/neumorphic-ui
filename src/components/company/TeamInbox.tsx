@@ -5,6 +5,7 @@ import { ChannelList } from './ChannelList';
 import { Send, MessageSquare, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { RelayClient } from '../../lib/company/relayClient';
+import type { RelayStatus } from '../../lib/company/relaySocket';
 import { openFromChannel, sealToChannel, type SealedMessage } from '../../lib/embed/embedCrypto';
 import { b64decode } from '../../lib/crypto/cryptoCore';
 import type { X25519KeyPair } from '../../lib/crypto/types';
@@ -55,6 +56,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
   const ingestWebsiteContact = useAppStore((s) => s.ingestWebsiteContact);
   const [draft, setDraft] = useState('');
   const [syncing, setSyncing] = useState(false);
+  const [relayStatus, setRelayStatus] = useState<RelayStatus>('connecting');
 
   const active = companyChannels.find((c) => c.id === activeChannelId) || companyChannels[0] || null;
   const isSite = !!active && siteChats.some((s) => s.id === active.id);
@@ -109,6 +111,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
         /* corrupt envelope — ignore */
       }
     });
+    client.onStatus(setRelayStatus);
     client.start();
     relayRef.current = client;
     return () => {
@@ -122,10 +125,18 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
         .filter((m) => m.channelId === active.id)
         .sort((a, b) => a.timestamp - b.timestamp)
     : [];
+  // Non-site channels are plain team channels — nothing to connect to.
+  const relayOnline = !isSite || relayStatus === 'online';
 
   const send = async () => {
     const text = draft.trim();
     if (!text || !active) return;
+    // A site reply that the relay would drop is not a reply — refuse it instead
+    // of showing the agent a locally-"sent" bubble the visitor never receives.
+    if (isSite && !relayOnline) {
+      toast.error(t('company.siteChatOffline', 'Website embed is offline — replies will not reach visitors'));
+      return;
+    }
     addCompanyMessage({
       id: uid(),
       channelId: active.id,
@@ -200,8 +211,12 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
             <div className="text-xs font-normal text-[var(--text-secondary)]">{active.description}</div>
           ) : null}
           {isSite && (
-            <div className="text-[11px] font-normal text-emerald-500 mt-0.5">
-              {t('company.siteChatLive', 'Website embed · E2E encrypted')}
+            <div
+              className={`text-[11px] font-normal mt-0.5 ${relayOnline ? 'text-emerald-500' : 'text-amber-500'}`}
+            >
+              {relayOnline
+                ? t('company.siteChatLive', 'Website embed · E2E encrypted')
+                : t('company.siteChatOffline', 'Website embed is offline — replies will not reach visitors')}
             </div>
           )}
         </div>

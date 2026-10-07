@@ -24,7 +24,9 @@ vi.mock('../../lib/company/relayClient', () => {
   class FakeRelayClient {
     topic: string;
     _cb: any = null;
+    _statusCb: any = null;
     published: any[] = [];
+    status: any = 'online';
     constructor(topic: string) {
       this.topic = topic;
       lastClient = this;
@@ -32,9 +34,18 @@ vi.mock('../../lib/company/relayClient', () => {
     onMessage(cb: any) {
       this._cb = cb;
     }
+    onStatus(cb: any) {
+      this._statusCb = cb;
+      cb(this.status);
+    }
+    isOnline() {
+      return this.status === 'online';
+    }
     start() {}
     publish(p: any) {
+      if (this.status !== 'online') return false;
       this.published.push(p);
+      return true;
     }
     stop() {}
   }
@@ -79,6 +90,45 @@ describe('EmbedWidget', () => {
       lastClient._cb({ senderPubKey: 'g', cipher: 'c', iv: 'i' });
     });
     expect(await screen.findByText('reply from company')).toBeTruthy();
+  });
+
+  it('keeps the draft and shows a note when the relay is unreachable (no fake sent bubble)', async () => {
+    render(<EmbedWidget token={token} />);
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+    const input = await screen.findByPlaceholderText('embed.typeMessage');
+
+    // Relay dropped after the panel opened.
+    await act(async () => {
+      lastClient.status = 'offline';
+      lastClient._statusCb('offline');
+    });
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'hi' } });
+    });
+    await act(async () => {
+      fireEvent.keyDown(input, { key: 'Enter' });
+    });
+
+    expect(screen.queryByText('hi')).toBeNull(); // no fake own bubble
+    expect(screen.getByText('embed.offline')).toBeTruthy();
+    expect((input as HTMLInputElement).value).toBe('hi'); // draft kept for a retry
+    expect(lastClient.published.length).toBe(0);
+  });
+
+  it('shows the connecting note until the relay is online', async () => {
+    render(<EmbedWidget token={token} />);
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+    await screen.findByPlaceholderText('embed.typeMessage');
+    // The fake client reports its current status synchronously on subscribe.
+    lastClient.status = 'connecting';
+    await act(async () => {
+      lastClient._statusCb('connecting');
+    });
+    expect(screen.getByText('embed.connecting')).toBeTruthy();
   });
 
   it('send button has min-h-11 touch zone', async () => {
