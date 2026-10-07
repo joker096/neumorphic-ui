@@ -15,7 +15,7 @@ export function ChatInputReplyBar({ replyTarget, setReplyTarget, isDark, t }: Ch
   if (!replyTarget) return null;
   return (
     <div className={`mx-2 sm:mx-3 mb-1 px-2 sm:px-3 py-2 rounded-xl border-l-2 flex items-start justify-between gap-1.5 sm:gap-2 ${
-      isDark ? "bg-[var(--bg-tertiary)]/80 border-[var(--accent)]/60 text-gray-300" : "bg-white/80 border-[var(--accent)] text-slate-700"
+      isDark ? "bg-[var(--bg-tertiary)]/80 border-[var(--accent)]/60 text-[var(--text-secondary)]" : "bg-white/80 border-[var(--accent)] text-[var(--text-secondary)]"
     }`}>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest font-bold opacity-70">
@@ -38,7 +38,7 @@ export function ChatInputReplyBar({ replyTarget, setReplyTarget, isDark, t }: Ch
          aria-label={t("common.close")}
          title={t("common.close")}
         className={`mt-0.5 min-w-11 min-h-11 rounded-full flex items-center justify-center transition-all active:scale-90 ${
-          isDark ? "text-gray-500 hover:text-[var(--text-primary)] hover:bg-white/10" : "text-slate-400 hover:text-slate-800 hover:bg-black/10"
+          isDark ? "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/10"
         }`}
       >
         <X size={14} strokeWidth={2.5} />

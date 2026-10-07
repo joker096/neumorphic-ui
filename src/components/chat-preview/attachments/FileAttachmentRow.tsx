@@ -36,13 +36,13 @@ export function FileAttachmentRow({ msg, isDark, hasTransfer, pending, ready, ur
   const unavailable = hasTransfer && !ready && !pending;
   const { Icon: KindIcon, tint: kindTint } = FILE_KIND_STYLE[getFileKind(msg.fileName, msg.mime)];
   return (
-    <div className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 ${isDark ? "bg-white/5 border-[var(--border-color)]" : "bg-slate-100 border-[var(--border-color)]"}`}>
+    <div className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 ${isDark ? "bg-white/5 border-[var(--border-color)]" : "bg-black/5 border-[var(--border-color)]"}`}>
       <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${kindTint}`}>
         <KindIcon size={20} />
       </div>
       <div className="min-w-0">
         <div className="text-sm font-medium truncate">{msg.fileName || t("chat.file")}</div>
-        {sub && <div className={`text-xs truncate ${isDark ? "text-gray-400" : "text-slate-500"}`}>{sub}</div>}
+        {sub && <div className={`text-xs truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{sub}</div>}
         {(!msg.attachment || unavailable) && (
           <div className={`text-xs truncate ${isDark ? "text-rose-400" : "text-rose-500"}`}>{t("chat.attachmentUnavailable", "Attachment unavailable")}</div>
         )}

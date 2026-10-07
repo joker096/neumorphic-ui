@@ -70,7 +70,7 @@ export function ChannelComposer({
           className={`w-full py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors font-medium text-sm tracking-wide min-w-11 min-h-11 ${
             isDark
               ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-[var(--accent)] border border-[var(--border-color)]"
-              : "bg-white hover:bg-slate-50 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"
+              : "bg-white hover:bg-black/5 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"
           }`}
           aria-label={isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
           title={isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
@@ -143,7 +143,7 @@ export function ChannelComposer({
           htmlFor={MEDIA_INPUT_ID}
           aria-label={t('chat.attachFile')}
           className={`icon-button shrink-0 ${
-            isDark ? "text-gray-400" : "text-slate-500 hover:text-slate-800"
+            isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
           }`}
         >
           <Plus size={16} />
@@ -169,7 +169,7 @@ export function ChannelComposer({
           enterKeyHint="send"
           spellCheck={!morseMode}
           className={`flex-1 min-w-0 bg-transparent outline-none border-none resize-none text-sm px-2 py-1.5 max-h-[120px] overflow-y-auto ${
-            isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]" : "text-slate-800 placeholder:text-slate-400"
+            isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]" : "text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
           } ${morseMode ? "font-mono" : ""}`}
           style={composerInputStyle(morseMode, isDark)}
         />

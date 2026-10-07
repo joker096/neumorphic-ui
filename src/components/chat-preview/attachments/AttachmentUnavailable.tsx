@@ -14,7 +14,7 @@ interface AttachmentUnavailableProps {
 export function AttachmentUnavailable({ icon: Icon, isDark, radiusClass = "rounded-xl", onReveal }: AttachmentUnavailableProps) {
   const { t } = useI18n();
   return (
-    <div className={`flex items-center justify-center gap-2 ${radiusClass} border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+    <div className={`flex items-center justify-center gap-2 ${radiusClass} border border-[var(--border-color)] mb-1 py-6 text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
       <Icon size={18} />
       <span>{t("chat.attachmentUnavailable", "Attachment unavailable")}</span>
       {onReveal && (

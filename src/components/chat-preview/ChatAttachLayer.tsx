@@ -28,7 +28,7 @@ const GEO_MAX_AGE_MS = 60_000;
 
 const itemClass = (isDark: boolean) =>
   `min-w-11 min-h-11 w-full flex items-center gap-3 px-3 rounded-lg text-sm cursor-pointer transition-colors ${
-    isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-slate-700 hover:bg-black/5"
+    isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-[var(--text-secondary)] hover:bg-black/5"
   }`;
 
 /**
@@ -208,7 +208,7 @@ export function ChatAttachLayer({
                 className={`min-h-11 flex-1 min-w-0 px-3 rounded-lg text-sm outline-none transition-colors ${
                   isDark
                     ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
-                    : "bg-slate-100 text-slate-800 placeholder:text-slate-400"
+                    : "bg-black/5 text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
                 }`}
               />
               <button
