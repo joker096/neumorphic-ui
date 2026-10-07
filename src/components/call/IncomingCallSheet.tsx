@@ -78,7 +78,7 @@ export const IncomingCallSheet: React.FC<IncomingCallSheetProps> = ({
       className="fixed inset-0 z-[var(--z-modal)] flex flex-col items-center justify-center overflow-hidden"
       style={{
         background:
-          'linear-gradient(165deg, color-mix(in srgb, var(--bg-primary) 82%, var(--accent)) 0%, var(--bg-primary, #0d1017) 55%, #0c0e15 100%)',
+          'linear-gradient(165deg, color-mix(in srgb, var(--bg-primary) 82%, var(--accent)) 0%, var(--bg-primary, #080b0c) 55%, #050708 100%)',
       }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--accent-soft)_0%,_transparent_65%)] pointer-events-none" />

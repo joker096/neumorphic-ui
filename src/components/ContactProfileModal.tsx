@@ -256,7 +256,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                   <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.videoCall')}</span>
                 </button>
               </div>
-              <button onClick={() => { onMessage?.(); onClose(); }} className={`w-full h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${'bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] text-[var(--accent)] border border-[var(--accent-soft)]'}`}>
+              <button onClick={() => { onMessage?.(); onClose(); }} className={`w-full h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${'bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink-on-saturate)] text-[var(--accent)] border border-[var(--accent-soft)]'}`}>
                 <MessageSquare size={20} fill="currentColor" />
                 <span className="text-xs font-bold uppercase tracking-wider">{t('contacts.message')}</span>
               </button>

@@ -177,7 +177,7 @@ export const ChatProfileBody = ({
     <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}>
       {CHAT_PROFILE_MOCK_MEMBERS.map((name, i) => (
         <div key={name} className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white font-bold">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-[var(--ink-on-saturate)] font-bold">
             {name.charAt(0)}
           </div>
           <div className="flex-1">

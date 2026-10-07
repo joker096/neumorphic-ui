@@ -168,7 +168,7 @@ export const ProfileEditForm = ({
           type="submit"
           aria-label={t('settings.saveProfile', 'Save Profile')}
           title={t('settings.saveProfile', 'Save Profile')}
-          className="flex-1 min-h-11 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--accent)] text-[var(--text-primary)] hover:brightness-110 active:scale-[0.98] shadow-lg transition-all"
+          className="flex-1 min-h-11 rounded-lg font-bold flex items-center justify-center gap-2 bg-[var(--accent)] text-[var(--ink-on-saturate)] hover:brightness-110 active:scale-[0.98] shadow-lg transition-all"
         >
           <Check size={18} aria-hidden="true" />
           <span>{t('settings.saveProfile', 'Save Profile')}</span>

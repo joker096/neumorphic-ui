@@ -190,7 +190,7 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
               <div className="w-full h-1.5 rounded-full bg-white/20 overflow-hidden">
                 <div className="h-full bg-[var(--accent)]" style={{ width: `${progress}%` }} />
               </div>
-              <button onClick={() => void downloadMedia(media, t, message)} aria-label={t('media.downloadDoc', 'Download')} title={t('media.downloadDoc', 'Download')} className="flex items-center justify-center w-9 h-9 min-w-11 min-h-11 rounded-lg bg-[var(--accent)] text-white">
+              <button onClick={() => void downloadMedia(media, t, message)} aria-label={t('media.downloadDoc', 'Download')} title={t('media.downloadDoc', 'Download')} className="flex items-center justify-center w-9 h-9 min-w-11 min-h-11 rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)]">
                 <Download size={18} />
                 <span className="sr-only">{t('media.downloadDoc', 'Download')}</span>
               </button>
@@ -210,7 +210,7 @@ export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev
                 <div className="h-full bg-[var(--accent)]" style={{ width: `${progress}%` }} />
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => setPlaying(v => !v)} className="w-9 h-9 min-w-11 min-h-11 rounded-full bg-[var(--accent)] flex items-center justify-center text-white" aria-label={t('media.play')}>
+                <button onClick={() => setPlaying(v => !v)} className="w-9 h-9 min-w-11 min-h-11 rounded-full bg-[var(--accent)] flex items-center justify-center text-[var(--ink-on-saturate)]" aria-label={t('media.play')}>
                   {playing ? <Pause size={24} /> : <Play size={24} />}
                 </button>
                 <input type="range" min={0} max={100} value={progress} onChange={e => setProgress(Number(e.target.value))} className="flex-1 accent-[var(--accent)]" aria-label={t('media.seek')} />

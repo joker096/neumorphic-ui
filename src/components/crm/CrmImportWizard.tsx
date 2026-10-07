@@ -111,7 +111,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
             <button
               onClick={handleParse}
               disabled={busy}
-              className="px-4 py-2 rounded-xl bg-[var(--accent)] text-white text-sm font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold disabled:opacity-50"
             >
               {t('crm.import.parse', 'Preview')}
             </button>
@@ -151,7 +151,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
                 <button
                   onClick={handleImport}
                   disabled={busy || preview.result.contacts.length === 0}
-                  className="w-full px-4 py-2 rounded-xl bg-[var(--accent)] text-white text-sm font-semibold disabled:opacity-50"
+                  className="w-full px-4 py-2 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold disabled:opacity-50"
                 >
                   {t('crm.import.confirm', 'Import')} {preview.result.contacts.length} {t('crm.import.contacts', 'contacts')}
                 </button>
@@ -185,7 +185,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
               <button
                 onClick={handleParse}
                 disabled={busy}
-                className="px-4 py-2 rounded-xl bg-[var(--accent)] text-white text-sm font-semibold disabled:opacity-50"
+                className="px-4 py-2 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold disabled:opacity-50"
               >
                 {t('crm.import.importBundle', 'Import bundle')}
               </button>

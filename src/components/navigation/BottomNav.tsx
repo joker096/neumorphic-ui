@@ -72,7 +72,7 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
         }`}
       >
         <span
-          className={`relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white text-xs font-bold ${
+          className={`relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] text-xs font-bold ${
             isSettingsActive ? "ring-2 ring-[var(--accent)]" : ""
           }`}
         >

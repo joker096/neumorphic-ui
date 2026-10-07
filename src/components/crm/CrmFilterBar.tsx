@@ -35,7 +35,7 @@ export const CrmFilterBar: React.FC<Props> = ({ onOpenRoles, open: controlledOpe
 
   const assignedCls = `min-h-11 px-3 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
     filters.assignedToMe
-      ? 'bg-[var(--accent)] text-white'
+      ? 'bg-[var(--accent)] text-[var(--ink-on-saturate)]'
       : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
   }`;
 
@@ -84,7 +84,7 @@ export const CrmFilterBar: React.FC<Props> = ({ onOpenRoles, open: controlledOpe
         <SlidersHorizontal size={16} className={`text-[var(--text-secondary)] transition-transform ${open ? 'rotate-90' : ''}`} />
         <span className="text-xs font-bold">{t('crm.filters', CRM_FALLBACKS.filters)}</span>
         {activeCount > 0 && (
-          <span data-testid="crm-filter-badge" className="ml-1 text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--accent)] text-white">
+          <span data-testid="crm-filter-badge" className="ml-1 text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--accent)] text-[var(--ink-on-saturate)]">
             {activeCount}
           </span>
         )}

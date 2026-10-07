@@ -96,7 +96,7 @@ export const EcoSidebarNav = ({
               <span className="relative">
                 <AppIcon icon={Icon} size={20} active={isActive} />
                 {badgeCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white text-xs font-semibold flex items-center justify-center shadow-md" style={{ boxShadow: "0 0 8px rgba(var(--accent-rgb),0.4)" }}>
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] text-xs font-semibold flex items-center justify-center shadow-md" style={{ boxShadow: "0 0 8px rgba(var(--accent-rgb),0.4)" }}>
                     {badgeCount > 99 ? "99+" : badgeCount}
                   </span>
                 )}
@@ -128,7 +128,7 @@ export const EcoSidebarNav = ({
                 decoding="async"
               />
             ) : (
-              <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-white text-xs font-bold shadow-lg" style={{ boxShadow: "0 0 10px rgba(var(--accent-rgb),0.25)" }}>
+              <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-[var(--ink-on-saturate)] text-xs font-bold shadow-lg" style={{ boxShadow: "0 0 10px rgba(var(--accent-rgb),0.25)" }}>
                 {(userProfile.name || userProfile.username || "U").charAt(0).toUpperCase()}
               </span>
             )}

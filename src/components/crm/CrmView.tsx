@@ -117,7 +117,7 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage, onOpe
               <SlidersHorizontal size={16} className={`transition-transform ${filtersOpen ? 'rotate-90' : ''}`} aria-hidden="true" />
               <span className="sr-only">{t('crm.filters', CRM_FALLBACKS.filters)}</span>
               {filterCount > 0 && (
-                <span data-testid="crm-filter-badge" className="absolute -top-1 -right-1 text-[11px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[var(--accent)] text-white">
+                <span data-testid="crm-filter-badge" className="absolute -top-1 -right-1 text-[11px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[var(--accent)] text-[var(--ink-on-saturate)]">
                   {filterCount}
                 </span>
               )}

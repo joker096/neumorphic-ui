@@ -23,7 +23,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
           onClick={onAdd}
           aria-label={t('settings.addField', 'Add Field')}
           title={t('settings.addField', 'Add Field')}
-          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--text-primary)] transition-colors"
+          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-[var(--accent-soft)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-[var(--ink-on-saturate)] transition-colors"
         >
           <Plus size={16} />
           <span className="sr-only">{t('settings.addField', 'Add Field')}</span>

@@ -41,7 +41,7 @@ export function TasksTab({ isDark }: { isDark?: boolean }) {
           placeholder={t('workplace.newTask')}
           className="flex-1 px-3 py-2 rounded-xl border border-[var(--border-color)] bg-transparent"
         />
-        <button type="submit" className="min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-[var(--accent)] text-white" aria-label={t('workplace.add')}>
+        <button type="submit" className="min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)]" aria-label={t('workplace.add')}>
           <Plus size={18} />
         </button>
       </form>
@@ -146,7 +146,7 @@ export function ModerationTab({ isDark }: { isDark?: boolean }) {
               onClick={() => moderation.resolve(item.id).catch(() => reportServiceError(t))}
               aria-label={t('workplace.resolve')}
               title={t('workplace.resolve')}
-              className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg bg-[var(--accent)] text-white text-xs"
+              className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg bg-[var(--accent)] text-[var(--ink-on-saturate)] text-xs"
             >
               <CheckCheck size={18} />
               <span className="sr-only">{t('workplace.resolve')}</span>

@@ -39,7 +39,7 @@ export function ChatListItemAvatar({ chat, isDark, active, type, selectMode, sel
           className={`w-full h-full ${ROUNDED} flex items-center justify-center shadow-sm ${selected ? "bg-[var(--accent)]" : isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
         >
           {selected ? (
-            <Check size={16} strokeWidth={2.5} className="text-white" />
+            <Check size={16} strokeWidth={2.5} className="text-[var(--ink-on-saturate)]" />
           ) : (
             <div className={`w-4 h-4 rounded-full border-2 ${isDark ? "border-gray-500" : "border-slate-300"}`} />
           )}
@@ -63,7 +63,7 @@ export function ChatListItemAvatar({ chat, isDark, active, type, selectMode, sel
       )}
       {type === "channel" && !selectMode && (
         <div className={`absolute -bottom-0.5 -right-0.5 w-[15px] h-[15px] rounded-full border-2 z-10 flex items-center justify-center bg-[var(--accent)] border-[var(--bg-secondary)]`}>
-          <Megaphone size={12} className="text-white" />
+          <Megaphone size={12} className="text-[var(--ink-on-saturate)]" />
         </div>
       )}
     </div>

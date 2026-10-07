@@ -55,7 +55,7 @@ export function WorkplaceView({ isDark, channelId = "demo" }: WorkplaceViewProps
               key={tabItem.id}
               onClick={() => setTab(tabItem.id)}
               className={`flex items-center gap-1.5 min-h-11 px-3 rounded-lg text-sm font-medium whitespace-nowrap ${
-                active ? "bg-[var(--accent)] text-white" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-white border border-[var(--border-color)]"
+                active ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-white border border-[var(--border-color)]"
               }`}
             >
               <Icon size={16} /> {t(TAB_LABEL[tabItem.id])}
@@ -101,7 +101,7 @@ export function PaymentCard({ invoice, isDark, onPay }: PaymentCardProps) {
             onClick={() => onPay?.(invoice.id)}
             aria-label={t('workplace.pay')}
             title={t('workplace.pay')}
-            className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-[var(--accent)] text-white text-sm font-semibold"
+            className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold"
           >
             <CreditCard size={18} />
             <span className="sr-only">{t('workplace.pay')}</span>

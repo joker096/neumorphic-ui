@@ -146,7 +146,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
               <div className="flex flex-col items-center text-center px-5 pt-5 pb-2">
                 <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${chat.color} flex items-center justify-center text-white text-[32px] font-bold shadow-lg relative`}>
                   {chat.name.charAt(0)}
-                  {kind === 'bot' && <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[var(--accent)] flex items-center justify-center text-[11px] text-white border-2 border-white md:border-[var(--bg-secondary)]"><BotIcon size={14} /></span>}
+                  {kind === 'bot' && <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[var(--accent)] flex items-center justify-center text-[11px] text-[var(--ink-on-saturate)] border-2 border-white md:border-[var(--bg-secondary)]"><BotIcon size={14} /></span>}
                 </div>
                 <div className={`mt-2.5 font-bold text-lg flex items-center gap-1 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
                   {chat.name}

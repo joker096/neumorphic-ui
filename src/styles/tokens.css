@@ -10,11 +10,16 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+
+  /* Ink for text/icons on saturated fills (accent, gold, warning).
+     Declared here so themes that omit it (e.g. landing) never resolve
+     `var(--ink-on-saturate)` to an invalid value. */
+  --ink-on-saturate: #080b0c;
 
   /* Typography ramp — tighter, proportional scale so control sizing
      matches the text inside it instead of dwarfing it. */
@@ -72,9 +77,9 @@
   --radius-20: 1.25rem;
   --radius-24: 1.5rem;
   --radius-full: 9999px;
-  --radius-control: 0.5rem;
-  --radius-card: 0.75rem;
-  --radius-modal: 1rem;
+  --radius-control: var(--radius-12);
+  --radius-card: var(--radius-16);
+  --radius-modal: var(--radius-20);
 
   --text-display-sm: 2rem;
   --text-display: 2.5rem;
@@ -121,45 +126,50 @@
   --gold-soft: rgba(201,169,110,0.14);
   --gold-soft-hover: rgba(201,169,110,0.07);
   --cream: #f0ece4;
+
+  /* Unified Design System 19.09.26 — theme-independent hues
+     (`--ma-blue`, `--ma-online`). Defined here so both themes resolve. */
+  --blue: #1683ff;
+  --online: #4ede63;
 }
 
 [data-theme="dark"] {
-  --bg-primary: #0d1017;
+  --bg-primary: #080b0c;
   /* Dark ink for text on saturated fills (accent/green/amber) — WCAG AA */
-  --ink-on-saturate: #0d1017;
-  --bg-secondary: #13151b;
-  --bg-tertiary: #1a1d24;
-  --bg-elevated: #22262e;
-  --text-primary: #f0f2f5;
-  --text-secondary: #a6adba;
-  --text-tertiary: #8b94a6;
-  --border-color: rgba(255,255,255,0.08);
+  --ink-on-saturate: #080b0c;
+  --bg-secondary: #0d1112;
+  --bg-tertiary: #121718;
+  /* 4th surface step (doc has only a 3-step ladder + translucent panels).
+     Continued the doc's ~+5/step neutral progression — the previous
+     #22262e was a leftover from the retired blue-tinted palette and left
+     --text-tertiary at 4.26:1 (WCAG AA fail) on elevated surfaces. */
+  --bg-elevated: #171c1d;
+  --text-primary: #f4f7f6;
+  --text-secondary: #aab2b2;
+  --text-tertiary: #7f8a8b; /* doc `--ma-text-muted` #737d7e +1 step: doc value fails WCAG AA (4.5:1) on --bg-tertiary/--input-bg; same hue */
+  --border-color: rgba(255,255,255,0.11);
   --accent: #4ede63;
   --accent-rgb: 78,222,99;
-  --accent-soft: rgba(78,222,99,0.12);
+  --accent-soft: rgba(78,222,99,0.13);
   --accent2: #10b981;
   --accent2-rgb: 16,185,129;
   --success: #38d69a;
   --success-soft: rgba(56,214,154,0.12);
-  --danger: #ff607d;
-  --danger-soft: rgba(255,96,125,0.12);
+  --danger: #ff4d5e;
+  --danger-soft: rgba(255,77,94,0.12);
   --cyan: #51d7ff;
-  --amber: #ffc85b;
-  --waveform-played-self: #f0f2f5;
+  --amber: #f5b942;
+  --waveform-played-self: #f4f7f6;
   --waveform-played-other: #4ede63;
-  --waveform-unplayed-self: rgba(240,242,245,0.35);
+  --waveform-unplayed-self: rgba(244,247,246,0.35);
   --waveform-unplayed-other: rgba(78,222,99,0.45);
 
   --button-primary-bg: #4ede63;
-  --button-primary-text: #0d1017;
+  --button-primary-text: #080b0c;
   --button-secondary-bg: transparent;
-  --button-secondary-text: #9ca3af;
+  --button-secondary-text: #aab2b2;
   --button-secondary-hover-bg: rgba(78,222,99,0.15);
   --button-secondary-border: rgba(78,222,99,0.3);
-
-  --card-raised-bg: #22262e;
-  --card-flat-bg: #1a1d24;
-  --card-inset-bg: #13151b;
 
   /* Neumorphic surface shadows (dark): subtle top-left highlight + deep bottom-right shadow */
   --neo-shadow-out: -7px -7px 16px rgba(255,255,255,0.035);
@@ -178,8 +188,8 @@
 
   /* Must differ from --bg-secondary (modal/card surface) or inputs vanish in modals */
   --input-bg: #1a1d24;
-  --input-text: #f0f2f5;
-  --input-placeholder: #8b94a6;
+  --input-text: #f4f7f6;
+  --input-placeholder: #7f8a8b;
   --inset-field-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.4);
 
   --glass-bg: rgba(13,16,23,0.75);
@@ -202,8 +212,8 @@
 
   --text-warm-dark: #e6d6b8;
 
-  --system-background: #0d1017;
-  --separator: rgba(255,255,255,0.08);
+  --system-background: #080b0c;
+  --separator: rgba(255,255,255,0.11);
 
   --list-item-hover-bg: rgba(255,255,255,0.04);
   --toggle-active-bg: #4ede63;
@@ -215,8 +225,8 @@
 
   --color-success: #38d69a;
   --color-success-soft: rgba(56,214,154,0.12);
-  --color-warning: #ffc85b;
-  --color-danger: #ff607d;
+  --color-warning: #f5b942;
+  --color-danger: #ff4d5e;
 
   --gold: #c9a96e;
   --gold-soft: rgba(201,169,110,0.14);
@@ -254,7 +264,7 @@
   /* Chat list item */
   --chat-swipe-bg: #2b2f42;
   --chat-swipe-bg-hover: #363b52;
-  --chat-online-dot: #38d69a;
+  --chat-online-dot: #4ede63;
   --chat-online-dot-hover: #2fb985;
   --chat-mention-bg: #51d7ff;
   --chat-mention-text: #0f172a;
@@ -300,10 +310,6 @@
   --button-secondary-text: #047857;
   --button-secondary-hover-bg: rgba(5,150,102,0.12);
   --button-secondary-border: rgba(5,150,102,0.3);
-
-  --card-raised-bg: #ffffff;
-  --card-flat-bg: #f1f5f9;
-  --card-inset-bg: #f1f5f9;
 
   /* Neumorphic surface shadows (light): white highlight + soft slate shadow */
   --neo-shadow-out: -7px -7px 16px rgba(255,255,255,0.9);
@@ -403,6 +409,8 @@
   --color-success-soft: rgba(22,160,74,0.12);
   --color-warning: #d97c0f;
   --color-danger: #dc2023;
+  --blue: #1683ff;
+  --online: #10b981;
 
   --gold: #c9a96e;
   --gold-soft: rgba(201,169,110,0.22);

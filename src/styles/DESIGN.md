@@ -38,19 +38,33 @@ Tracking: base body `letter-spacing: -0.005em`; custom `--tracking-wide/wider/wi
 
 ## Color System
 
-### Dark Theme
-- Background: `#0d1017` (primary) / `#13151b` (secondary) / `#1a1d24` (tertiary) / `#22262e` (elevated)
-- Text: `#f0f2f5` (primary) / `#9ca3af` (secondary) / `#6b7280` (tertiary)
-- Accent: `#6f7fff` (indigo) / `#965dff` (secondary accent)
-- Gold (landing/accents): `#c9a96e`
-- Success: `#38d69a` / Warning: `#ffc85b` / Danger: `#ff607d`
+Источник истины — `docs/MessAnger_Unified_Design_System_19_09_26.md` (`--ma-*`, dark-only спека).
+Рабочие значения — `src/styles/tokens.css` (`--*`) и `src/styles/messenger.css` (`--msg-*`).
 
-### Light Theme
-- Background: `#f8fafc` (primary) / `#f1f5f9` (secondary) / `#e2e8f0` (tertiary) / `#ffffff` (elevated)
-- Text: `#0f172a` (primary) / `#475569` (secondary) / `#94a3b8` (tertiary)
-- Accent: `#ea580c` (orange)
+### Dark Theme (спека дока)
+- Background: `#080b0c` (primary) / `#0d1112` (secondary) / `#121718` (tertiary) / `#171c1d` (elevated, 4-й шаг продолжения лестницы дока)
+- Text: `#f4f7f6` (primary) / `#aab2b2` (secondary) / `#7f8a8b` (tertiary)
+- Accent: `#4ede63` (green) / `#10b981` (secondary accent) — ink на заливке `#080b0c` (`--ink-on-saturate`)
+- Blue (links/unread): `#1683ff`
 - Gold (landing/accents): `#c9a96e`
-- Success: `#16a04a` / Warning: `#d97c0f` / Danger: `#dc2023`
+- Success: `#4ede63` / Warning: `#f5b942` / Danger: `#ff4d5e`
+- Отклонения от дока (намеренные, AA-гейт 4.5:1): `--text-tertiary #7f8a8b` (в доке `#737d7e` — 4.35:1, провал),
+  `--msg-text-muted #849091` (зафиксированный AA-фикс 2026-09-14),
+  `--msg-unread #0f6ee0` (заливка, а не текст — `#1683ff` даёт 3.67:1 на 12px/700).
+
+### Light Theme (доком не покрыта — известное ограничение)
+- Background: `#f8fafc` (primary) / `#f1f5f9` (secondary) / `#e2e8f0` (tertiary) / `#ffffff` (elevated)
+- Text: `#0f172a` (primary) / `#475569` (secondary) / `#64748b` (tertiary)
+- Accent: `#059669` / secondary `#047857` / warm `#ea580c`
+- Primary button fill: `--button-primary-bg #047857` (белый текст 4.9:1 ✓)
+- Gold (landing/accents): `#c9a96e`
+- Success: `#059669` / Warning: `#d97c0f` / Danger: `#dc2023`
+- Известный дефицит: `text-white`/`--button-primary-text` на `bg-[var(--accent)]` = 3.78:1 (light only).
+  Dark-эквивалент исправлен 2026-10-06 → `--ink-on-saturate`.
+- Ink на заливке (light): `#0f172a` (`--ink-on-saturate`, L283\ tokens.css) на solid-accent = 4.74:1 ✓.
+- Известное ограничение: **light-градиенты** аватаров/бейджей (`accent→accent2`, avg ≈ 4.0:1) с ink-текстом —
+  декоративные glyph-подписи, не в спеке дока (dark-only). Смотр на Phase 3 palette-ревизии.
+  Градиентные поверхности не измеримы контраст-чекером ui-audit (см. UI_CYCLE.md §2.3).
 
 ## Spacing System
 
@@ -65,6 +79,30 @@ Tracking: base body `letter-spacing: -0.005em`; custom `--tracking-wide/wider/wi
 | `--space-8` | 32px |
 | `--space-7` (landing) | 48px |
 | `--space-8` (landing) | 64px |
+
+## Radius System
+
+Источник — `docs/MessAnger_Unified_Design_System_19_09_26.md` (`--ma-radius-*`).
+
+| Токен | Значение | Док (`--ma-radius-*`) |
+|-------|----------|-----------------------|
+| `--radius-sm` | 8px | xs (8px) |
+| `--radius-md` | 12px | sm (12px) |
+| `--radius-lg` | 16px | md (16px) |
+| `--radius-xl` | 20px | lg (20px) |
+| `--radius-2xl` | 28px | xl (28px) |
+
+Алиасы приложений (consumers: `FormActions`/`FormField`/`SearchInput` → control; card/modal пока 0 потребителей):
+
+| Токен | Значение |
+|-------|----------|
+| `--radius-control` | `var(--radius-12)` = 12px |
+| `--radius-card` | `var(--radius-16)` = 16px |
+| `--radius-modal` | `var(--radius-20)` = 20px |
+
+Двойное определение (мигрировано 2026-10-07): `src/styles/tokens.css:root` И `src/index.css @theme` —
+Tailwind генерарирует `rounded-sm/md/lg/xl/2xl` из `@theme`, поэтому при изменении правятся ОБА блока.
+Raw-шкала `--radius-02..24` нетронута (сырой масштаб, superset значений дока).
 
 ## Breakpoints
 

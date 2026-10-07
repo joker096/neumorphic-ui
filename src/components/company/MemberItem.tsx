@@ -62,7 +62,7 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
         </div>
         {selectable && (
           <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? "bg-[var(--accent)] border-[var(--accent)]" : isDark ? "bg-[var(--bg-tertiary)] border-[var(--border-color)]" : "bg-white border-[var(--border-color)]"}`}>
-            {selected && <span className="text-xs text-white leading-none">✓</span>}
+            {selected && <span className="text-xs text-[var(--ink-on-saturate)] leading-none">✓</span>}
           </div>
         )}
         {!selectable && member.online && (

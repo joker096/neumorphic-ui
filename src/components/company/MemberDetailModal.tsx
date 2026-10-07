@@ -115,7 +115,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                   disabled={member.role === 'admin'}
                   className={`flex-1 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
                     member.role === 'admin'
-                      ? "bg-[var(--accent)] text-white"
+                      ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]"
                       : "bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110"
                   }`}
                 >
@@ -126,7 +126,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                   disabled={member.role === 'manager'}
                   className={`flex-1 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
                     member.role === 'manager'
-                      ? "bg-[var(--color-warning)] text-white"
+                      ? "bg-[var(--color-warning)] text-[var(--ink-on-saturate)]"
                       : "bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110"
                   }`}
                 >
@@ -137,7 +137,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                   disabled={member.role === 'member' || isCurrentUser}
                   className={`flex-1 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all disabled:opacity-50 ${
                     member.role === 'member'
-                      ? "bg-[var(--accent)] text-white"
+                      ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]"
                       : "bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:brightness-110"
                   }`}
                 >

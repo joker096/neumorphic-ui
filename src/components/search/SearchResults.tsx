@@ -82,7 +82,7 @@ function Row({
         )}
       </div>
       {badge ? (
-        <div className="shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full bg-gradient-to-tr from-[var(--accent)] to-[var(--accent2)] text-white text-xs font-bold flex items-center justify-center">
+        <div className="shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full bg-gradient-to-tr from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] text-xs font-bold flex items-center justify-center">
           {badge}
         </div>
       ) : (

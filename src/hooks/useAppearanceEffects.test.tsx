@@ -111,7 +111,7 @@ describe('useAppearanceEffects', () => {
     expect(root.style.getPropertyValue('--accent')).toBe('#4ede63');
     expect(root.style.getPropertyValue('--accent-rgb')).toBe('78,222,99');
     expect(root.style.getPropertyValue('--accent2')).toBe('#10b981');
-    expect(root.style.getPropertyValue('--button-primary-text')).toBe('#0d1017');
+    expect(root.style.getPropertyValue('--button-primary-text')).toBe('#080b0c');
   });
 
   it('does not write --chat-bg-image for custom bg with no data URL yet', () => {

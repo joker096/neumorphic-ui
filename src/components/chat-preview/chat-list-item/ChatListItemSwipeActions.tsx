@@ -40,7 +40,7 @@ export function ChatListItemSwipeOpenActions({ isOpen, t, canOpen, canCall, canV
       {canVideoCall && (
         <button
           onClick={() => onAction("video")}
-          className="my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 bg-[var(--accent)] hover:brightness-110"
+          className="my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-[var(--ink-on-saturate)] transition-all active:scale-95 bg-[var(--accent)] hover:brightness-110"
           aria-label={t('chat.startVideoCall')}
         >
           <Video size={20} fill="currentColor" stroke="currentColor" />
@@ -83,7 +83,7 @@ export function ChatListItemSwipeManageActions({ isOpen, isDark, t, isMuted, isA
       {canArchive && (
         <button
           onClick={() => onAction("archive")}
-          className={`my-1.5 flex aspect-square w-[50px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 ${isArchived ? (isDark ? "bg-[var(--chat-online-dot)] hover:bg-[var(--chat-online-dot-hover)]" : "bg-emerald-500 hover:bg-emerald-600") : "bg-[var(--accent)] hover:brightness-110"}`}
+          className={`my-1.5 flex aspect-square w-[50px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-[var(--ink-on-saturate)] transition-all active:scale-95 ${isArchived ? (isDark ? "bg-[var(--chat-online-dot)] hover:bg-[var(--chat-online-dot-hover)]" : "bg-emerald-500 hover:bg-emerald-600") : "bg-[var(--accent)] hover:brightness-110"}`}
           aria-label={archiveLabel}
         >
           {isArchived ? <ArchiveRestore size={20} /> : <Archive size={20} />}

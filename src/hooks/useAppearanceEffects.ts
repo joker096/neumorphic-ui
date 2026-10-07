@@ -57,7 +57,7 @@ const PAIRED_ACCENT2: Record<string, string> = {
 /** Readable foreground for a saturated accent fill (dark ink on bright tones). */
 function textOnAccent(hex: string): string {
   const luminance = relativeLuminance(hex);
-  return luminance !== null && luminance > 0.4 ? '#0d1017' : '#ffffff';
+  return luminance !== null && luminance > 0.4 ? '#080b0c' : '#ffffff';
 }
 
 /**

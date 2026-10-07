@@ -59,17 +59,17 @@
   --color-input-text: var(--input-text);
   --color-input-placeholder: var(--input-placeholder);
   --color-ring: var(--accent);
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
 }
 
 html {
   font-size: var(--font-size-base);
   scroll-behavior: smooth;
-  background: var(--bg-primary, #0d1017);
+  background: var(--bg-primary, #080b0c);
 }
 
 body {

@@ -27,7 +27,7 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
           <div
             className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${
               filters[filter.id as keyof typeof filters]
-                ? "bg-[var(--accent)] text-[var(--text-primary)]"
+                ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]"
                 : isDark
                   ? "bg-[var(--bg-tertiary)] text-gray-400 group-hover:text-gray-200"
                   : "bg-slate-50 text-slate-500 group-hover:text-slate-700"

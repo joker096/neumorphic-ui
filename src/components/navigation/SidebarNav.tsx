@@ -29,8 +29,8 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
         <div
           className={`w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center font-black text-sm select-none ${
             isDark
-              ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white shadow-[0_4px_14px_rgba(var(--accent-rgb),0.35)]"
-              : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-white shadow-[0_3px_10px_rgba(var(--accent-rgb),0.3)]"
+              ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] shadow-[0_4px_14px_rgba(var(--accent-rgb),0.35)]"
+              : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] shadow-[0_3px_10px_rgba(var(--accent-rgb),0.3)]"
           }`}
           style={{ fontSize: 13, letterSpacing: "-0.02em" }}
           aria-hidden="true"

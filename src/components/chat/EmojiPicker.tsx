@@ -109,7 +109,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
       <button
         type="button"
         onClick={() => { setQuery(""); setActiveCat("recent"); }}
-        className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === "recent" ? "bg-[var(--accent)] text-white" : isDark ? "text-gray-300 hover:bg-white/10" : "text-slate-600 hover:bg-black/5"}`}
+        className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === "recent" ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "text-gray-300 hover:bg-white/10" : "text-slate-600 hover:bg-black/5"}`}
       >
         {t("emojis.recent", "Recent")}
       </button>
@@ -118,7 +118,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
           key={c.key}
           type="button"
           onClick={() => { setQuery(""); setActiveCat(c.key); }}
-          className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === c.key ? "bg-[var(--accent)] text-white" : isDark ? "text-gray-300 hover:bg-white/10" : "text-slate-600 hover:bg-black/5"}`}
+          className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === c.key ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "text-gray-300 hover:bg-white/10" : "text-slate-600 hover:bg-black/5"}`}
         >
           {t(`emojis.cat.${c.key}`, c.label)}
         </button>
