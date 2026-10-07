@@ -125,8 +125,8 @@ export function SettingsMainMenu({
                         <Bell size={16} className={isDark ? "text-red-400" : "text-red-600"} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t('settings.notifications')}</div>
-                        {t('settings.notificationsSubtitle') && <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.notificationsSubtitle')}</div>}
+                        <div className={`text-sm font-medium text-[var(--text-primary)]`}>{t('settings.notifications')}</div>
+                        {t('settings.notificationsSubtitle') && <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.notificationsSubtitle')}</div>}
                       </div>
                     </div>
                     <ToggleSwitch isOn={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} isDark={isDark} ariaLabel={t('settings.notifications')} />
@@ -139,10 +139,10 @@ export function SettingsMainMenu({
                   <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/10" : "bg-emerald-100"}`}>
-                        {soundEnabled ? <Bell size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} /> : <BellOff size={16} className={isDark ? "text-gray-500" : "text-slate-400"} />}
+                        {soundEnabled ? <Bell size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} /> : <BellOff size={16} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.sound')}</div>
+                        <div className={`text-sm text-[var(--text-secondary)]`}>{t('settings.sound')}</div>
                       </div>
                     </div>
                     <ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} ariaLabel={t('settings.sound')} />
@@ -158,7 +158,7 @@ export function SettingsMainMenu({
                         <Bell size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.soundVolume', 'Volume')}</div>
+                        <div className={`text-sm text-[var(--text-secondary)]`}>{t('settings.soundVolume', 'Volume')}</div>
                       </div>
                     </div>
                     <input
@@ -182,9 +182,9 @@ export function SettingsMainMenu({
                       <Cloud size={16} className="t-accent" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm ${isDark ? "text-gray-300" : "text-slate-700"}`}>{t('settings.cloudSyncOption')}</div>
+                      <div className={`text-sm text-[var(--text-secondary)]`}>{t('settings.cloudSyncOption')}</div>
                       {cloudSync.enabled && (
-                        <div className={`text-xs truncate ${cloudSync.status === "error" ? (isDark ? "text-red-400" : "text-red-600") : (isDark ? "text-gray-400" : "text-slate-500")}`}>
+                        <div className={`text-xs truncate ${cloudSync.status === "error" ? (isDark ? "text-red-400" : "text-red-600") : (isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]")}`}>
                           {cloudSync.status === "error"
                             ? t('settings.cloudSyncError', 'Sync failed')
                             : cloudSync.status === "syncing"
@@ -271,7 +271,7 @@ export function SettingsMainMenu({
         )}
 
         <div className="w-full flex justify-center pb-8 pt-4 border-t border-[var(--border-color)]">
-          <div className={`text-xs font-mono tracking-widest uppercase ${isDark ? "text-[var(--text-secondary)]" : "text-slate-600"} flex items-center gap-1`}>
+          <div className={`text-xs font-mono tracking-widest uppercase text-[var(--text-secondary)] flex items-center gap-1`}>
             <Smartphone size={12} />
             {t('settings.lastBuild')}: {APP_INFO.BUILD_DATE}
           </div>

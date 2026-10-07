@@ -239,7 +239,7 @@ const handleSelectAccount = (id: number) => {
                   <RotateCcw size={18} />
                   <span className="text-sm font-medium">{t('settings.restoreIdentity', 'Restore Identity')}</span>
                 </button>
-                <p className={`text-xs mt-2 px-1 ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('settings.restoreIdentityDescription', 'Restore identity using your 24-word recovery phrase')}</p>
+                <p className={`text-xs mt-2 px-1 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.restoreIdentityDescription', 'Restore identity using your 24-word recovery phrase')}</p>
               </div>
             </div>
           </>

@@ -262,7 +262,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     />
   );
 
-  const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('common.loading')}</div>;
+  const fallback = <div className={`text-center py-8 text-sm ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('common.loading')}</div>;
 
   return (
     <AnimatePresence mode="wait">

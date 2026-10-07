@@ -62,7 +62,7 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
       >
         <button
           type="button"
-          className={`absolute top-4 right-4 z-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-black/5 hover:bg-black/10 text-slate-800"}`}
+          className={`absolute top-4 right-4 z-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-black/5 hover:bg-black/10 text-[var(--text-primary)]"}`}
           onClick={onClose}
           title={t('contacts.close', 'Close')}
           aria-label={t('contacts.close', 'Close')}
@@ -71,10 +71,10 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
         </button>
 
         <div className="flex flex-col items-center mt-4">
-          <h3 className={`text-lg font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('settings.shareIdentity', 'Share Identity')}</h3>
-          <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('settings.shareDescription', 'Share your identity so others can find and connect with you.')}</p>
+          <h3 className={`text-lg font-bold mb-2 text-[var(--text-primary)]`}>{t('settings.shareIdentity', 'Share Identity')}</h3>
+          <p className={`text-xs text-center mb-6 px-4 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.shareDescription', 'Share your identity so others can find and connect with you.')}</p>
 
-          <div className={`w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
+          <div className={`w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 ${isDark ? "bg-white" : "bg-white border-2 border-[var(--border-color)]"}`}>
             {qrDataUrl ? (
               <img src={qrDataUrl} alt={t('settings.shareQrAlt', 'Your identity QR code')} className="w-full h-full object-contain" />
             ) : (
@@ -82,16 +82,16 @@ export const ShareIdentityModal = ({ isDark, t, onClose }: ShareIdentityModalPro
             )}
           </div>
 
-          <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-slate-50 border border-[var(--border-color)]"}`}>
+          <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-black/5 border border-[var(--border-color)]"}`}>
             <div className={`font-mono text-xs tracking-widest break-all text-center ${isDark ? "text-orange-400" : "text-orange-600"}`}>
               {shareId}
             </div>
             <div className="flex gap-2 w-full">
-              <button onClick={handleCopyId} aria-label={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} title={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} className={`flex-1 min-h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800")}`}>
+              <button onClick={handleCopyId} aria-label={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} title={copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')} className={`flex-1 min-h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-xs transition-colors ${copied ? "bg-green-500 text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-black/5 text-[var(--text-primary)]")}`}>
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 <span>{copied ? t('header.copied', 'Copied') : t('settings.copyId', 'Copy ID')}</span>
               </button>
-              <button onClick={handleShare} aria-label={t('settings.shareIdentity', 'Share Identity')} title={t('settings.shareIdentity', 'Share Identity')} className={`flex-1 min-h-11 shrink-0 flex items-center justify-center gap-2 rounded-xl font-bold text-xs transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-gray-50 text-slate-800"}`}>
+              <button onClick={handleShare} aria-label={t('settings.shareIdentity', 'Share Identity')} title={t('settings.shareIdentity', 'Share Identity')} className={`flex-1 min-h-11 shrink-0 flex items-center justify-center gap-2 rounded-xl font-bold text-xs transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-[var(--text-primary)]" : "bg-white shadow hover:bg-black/5 text-[var(--text-primary)]"}`}>
                 <Share2 size={14} />
                 <span>{t('settings.shareIdentity', 'Share Identity')}</span>
               </button>

@@ -122,11 +122,11 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
               aria-expanded={openFaq === i}
               className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
             >
-              <span className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t(item.q, item.qFallback)}</span>
-              <HelpCircle size={16} className={`shrink-0 transition-colors ${openFaq === i ? "text-[var(--accent)]" : (isDark ? "text-gray-500" : "text-slate-400")}`} aria-hidden="true" />
+              <span className={`text-sm font-medium text-[var(--text-primary)]`}>{t(item.q, item.qFallback)}</span>
+              <HelpCircle size={16} className={`shrink-0 transition-colors ${openFaq === i ? "text-[var(--accent)]" : (isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]")}`} aria-hidden="true" />
             </button>
             {openFaq === i && (
-              <div className={`px-4 pb-4 text-sm leading-relaxed ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t(item.a, item.aFallback)}</div>
+              <div className={`px-4 pb-4 text-sm leading-relaxed ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t(item.a, item.aFallback)}</div>
             )}
           </div>
         ))}
@@ -146,7 +146,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
           ) : (
             <>
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-email">{t('settings.contactEmailLabel', 'Email')}</label>
+                <label className={`text-xs font-medium text-[var(--text-primary)]`} htmlFor="help-email">{t('settings.contactEmailLabel', 'Email')}</label>
                 <input
                   id="help-email"
                   type="email"
@@ -160,7 +160,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-category">{t('settings.contactCategory', 'Category')}</label>
+                <label className={`text-xs font-medium text-[var(--text-primary)]`} htmlFor="help-category">{t('settings.contactCategory', 'Category')}</label>
                 <div className="relative">
                   <select
                     id="help-category"
@@ -172,12 +172,12 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
                       <option key={c.value} value={c.value}>{t(c.labelKey, c.fallback)}</option>
                     ))}
                   </select>
-                  <ChevronDown size={16} className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-400" : "text-slate-400"}`} aria-hidden="true" />
+                  <ChevronDown size={16} className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`} aria-hidden="true" />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-700"}`} htmlFor="help-message">{t('settings.describeIssue', 'Describe your issue…')}</label>
+                <label className={`text-xs font-medium text-[var(--text-primary)]`} htmlFor="help-message">{t('settings.describeIssue', 'Describe your issue…')}</label>
                 <textarea
                   id="help-message"
                   ref={messageRef}
@@ -197,7 +197,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
                 onClick={submit}
                 aria-label={t('settings.sendRequest', 'Send request')}
                 title={t('settings.sendRequest', 'Send request')}
-                className={`mt-1 w-full h-10 min-h-11 flex items-center justify-center gap-2 rounded-lg text-sm font-bold transition-colors active:scale-[0.99] ${canSubmit ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : "bg-[var(--bg-tertiary)] text-gray-400 cursor-not-allowed"}`}
+                className={`mt-1 w-full h-10 min-h-11 flex items-center justify-center gap-2 rounded-lg text-sm font-bold transition-colors active:scale-[0.99] ${canSubmit ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] cursor-not-allowed"}`}
               >
                 <MessageSquare size={16} aria-hidden="true" />
                 <span>{t('settings.sendRequest', 'Send request')}</span>

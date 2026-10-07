@@ -46,10 +46,10 @@ export function BigMenuButton({
       <div className="flex items-center gap-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>{icon}</div>
         <div className="flex-1 min-w-0">
-          <div className={`text-sm font-semibold ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{title}</div>
-          <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{subtitle}</div>
+          <div className={`text-sm font-semibold text-[var(--text-primary)]`}>{title}</div>
+          <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{subtitle}</div>
         </div>
-        <ChevronRight size={16} className={`shrink-0 opacity-40 ${isDark ? "text-gray-400" : "text-slate-500"}`} />
+        <ChevronRight size={16} className={`shrink-0 opacity-40 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`} />
       </div>
     </button>
   );

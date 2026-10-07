@@ -133,7 +133,7 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
             isDark={isDark}
             onStatus={handleStatus}
           />
-          <div className={`text-center text-xs py-2 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+          <div className={`text-center text-xs py-2 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
             {t('premium.waitingConfirm', 'Waiting for payment confirmation')}
           </div>
         </div>
