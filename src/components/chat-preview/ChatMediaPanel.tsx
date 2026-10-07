@@ -42,7 +42,7 @@ export const ChatMediaPanel = ({
              onClick={() => setShowFilterMenu(!showFilterMenu)}
              aria-label={t('chat.filters.button')}
              title={t('chat.filters.button')}
-             className={`min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-bold whitespace-nowrap transition-colors ${showFilterMenu ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "bg-white/5 text-gray-400" : "bg-black/5 text-slate-500"}`}
+             className={`min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-bold whitespace-nowrap transition-colors ${showFilterMenu ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "bg-white/5 text-[var(--text-secondary)]" : "bg-black/5 text-[var(--text-tertiary)]"}`}
           >
             <ListFilter size={14} />
           </button>
@@ -55,7 +55,7 @@ export const ChatMediaPanel = ({
               </span>
             </button>
           )}
-          <div className={`ml-auto text-xs font-bold uppercase tracking-widest ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+          <div className={`ml-auto text-xs font-bold uppercase tracking-widest ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
             {t('chat.filters.items', { count: mediaItems.length })}
           </div>
         </div>
@@ -63,22 +63,22 @@ export const ChatMediaPanel = ({
         {showFilterMenu && (
           <div className={`space-y-2 pb-2 border-b ${"border-[var(--border-color)]"}`}>
             <div className="flex items-center gap-1 sm:gap-2">
-              <span className={`text-xs font-bold uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.filters.from')}</span>
+              <span className={`text-xs font-bold uppercase ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('chat.filters.from')}</span>
               {['', 'me', 'them'].map((v) => (
                 <button key={v} onClick={() => setFilterBySender(v)} aria-pressed={filterBySender === v}
                   className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
                 >
-                  <span className={`flex items-center px-3 py-0.5 rounded-full text-xs transition-colors ${filterBySender === v ? "bg-green-500 text-[var(--ink-on-saturate)]" : isDark ? "bg-white/5 text-gray-400 group-hover:bg-white/10" : "bg-black/5 text-slate-500 group-hover:bg-black/10"}`}>
+                  <span className={`flex items-center px-3 py-0.5 rounded-full text-xs transition-colors ${filterBySender === v ? "bg-green-500 text-[var(--ink-on-saturate)]" : isDark ? "bg-white/5 text-[var(--text-secondary)] group-hover:bg-white/10" : "bg-black/5 text-[var(--text-tertiary)] group-hover:bg-black/10"}`}>
                     {v === '' ? t('chat.filters.all') : v === 'me' ? t('chat.filters.me') : t('chat.filters.others')}
                   </span>
                 </button>
               ))}
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className={`text-xs font-bold uppercase ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t('chat.filters.from')}</span>
-              <input aria-label={t('chat.filters.from', 'From')} type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className={`text-xs ${isDark ? "text-[var(--text-primary)] bg-transparent" : "text-slate-700 bg-transparent"} outline-none`} />
-              <span className={`text-xs ${isDark ? "text-gray-500" : "text-slate-400"}`}>{t('chat.filters.to')}</span>
-              <input aria-label={t('chat.filters.to', 'To')} type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className={`text-xs ${isDark ? "text-[var(--text-primary)] bg-transparent" : "text-slate-700 bg-transparent"} outline-none`} />
+              <span className={`text-xs font-bold uppercase ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('chat.filters.from')}</span>
+              <input aria-label={t('chat.filters.from', 'From')} type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className={`text-xs ${isDark ? "text-[var(--text-primary)] bg-transparent" : "text-[var(--text-secondary)] bg-transparent"} outline-none`} />
+              <span className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('chat.filters.to')}</span>
+              <input aria-label={t('chat.filters.to', 'To')} type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className={`text-xs ${isDark ? "text-[var(--text-primary)] bg-transparent" : "text-[var(--text-secondary)] bg-transparent"} outline-none`} />
             </div>
           </div>
         )}
@@ -88,7 +88,7 @@ export const ChatMediaPanel = ({
             <button key={tab} onClick={() => setMediaTab(tab)} aria-pressed={mediaTab === tab}
               className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
             >
-              <span className={`flex items-center px-3 sm:px-4 py-0.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : isDark ? "bg-white/5 text-gray-400 group-hover:text-[var(--text-primary)] group-hover:bg-white/10" : "bg-black/5 text-slate-500 group-hover:text-slate-800 group-hover:bg-black/10"}`}>
+              <span className={`flex items-center px-3 sm:px-4 py-0.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : isDark ? "bg-white/5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-white/10" : "bg-black/5 text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] group-hover:bg-black/10"}`}>
                 {tab === 'all' ? t('chat.filters.mediaTabs.all') : tab === 'photos' ? t('chat.filters.mediaTabs.photos') : tab === 'audio' ? t('chat.filters.mediaTabs.audio') : t('chat.filters.mediaTabs.links')}
               </span>
             </button>
@@ -124,13 +124,13 @@ export const ChatMediaPanel = ({
                 onClick={() => setPhotoOpen(true)}
               >
                 {msg.type === 'audio' ? (
-                  <div className={`w-full h-full flex flex-col items-start justify-between p-3 ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-50"}`}>
+                  <div className={`w-full h-full flex flex-col items-start justify-between p-3 ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-black/5"}`}>
                      <Mic size={18} className={"text-[var(--accent)]"} />
-                    <div className={`text-xs font-bold ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>{t('chat.filters.voiceNote')}</div>
-                    <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{msg.duration || '0:00'}</div>
+                    <div className="text-xs font-bold text-[var(--text-primary)]">{t('chat.filters.voiceNote')}</div>
+                    <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{msg.duration || '0:00'}</div>
                   </div>
                 ) : (
-                  <div className={`w-full h-full flex items-center justify-center p-3 text-center text-xs ${isDark ? "bg-[var(--bg-tertiary)] text-gray-300" : "bg-white text-slate-600"}`}>
+                  <div className={`w-full h-full flex items-center justify-center p-3 text-center text-xs ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]" : "bg-white text-[var(--text-secondary)]"}`}>
                     <span className="break-all line-clamp-3">{msg.text}</span>
                   </div>
                 )}
