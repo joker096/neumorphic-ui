@@ -6,12 +6,6 @@ import type { InviteQRPayload } from '../lib/company/types';
 import type { Contact, UserProfile } from '../types/contact';
 import * as idb from '../lib/idb';
 import { setSessionPersistKey } from '../lib/securePersist';
-import { DEFAULT_BOT_PERMISSIONS } from './defaults';
-import type {
-  BotPermissions, BotConfig, DeviceInfo, SessionData,
-  CloudSyncState, LocationShare, ScheduledMessage,
-  ConnectionState, P2PChannel,
-} from './types';
 import type { SettingsSlice } from './slices/settingsSlice';
 import type { ChatSlice } from './slices/chatSlice';
 import type { CallSlice } from './slices/callSlice';
@@ -45,8 +39,7 @@ import { createWalletSlice } from './slices/walletSlice';
 
 // Re-export types for consumers
 export type {
-  BotPermissions, BotConfig, DeviceInfo, SessionData,
-  CloudSyncState, LocationShare, ScheduledMessage,
+  BotConfig, CloudSyncState, ScheduledMessage,
   ConnectionState, P2PChannel,
 } from './types';
 
@@ -71,9 +64,6 @@ export const initAppStorage = async () => {
     throw e;
   }
 };
-
-// --- Default bot permissions ---
-export { DEFAULT_BOT_PERMISSIONS };
 
 // --- Store interface ---
 export interface AppState extends SettingsSlice, ChatSlice, CallSlice, CloudSyncSlice, LocationSlice, DeviceSlice, CompanySlice, ConnectionSlice, SyncSlice, ProfileSlice, CrmSlice, ContactAvatarSlice, PremiumSlice, NotificationSlice, WalletSlice {}
