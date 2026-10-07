@@ -307,10 +307,16 @@ const auditInPage = (): { findings: Omit<Finding, 'viewport' | 'view'>[]; totals
       let bg: { r: number; g: number; b: number; a: number } | null = null;
       while (node) {
         const ncs = getComputedStyle(node);
+        const bi = ncs.backgroundImage;
+        // Gradient fills are unmeasurable against an opaque ancestor behind them —
+        // a glyph sits ON the gradient (avatar initials, gradient pills/badges), not
+        // on the panel behind it. Falling through to an opaque ancestor produced
+        // false positives where the panel color ≈ text color (1:1 verdicts for
+        // ink-on-accent glyphs). Treat any gradient layer as the innermost painted
+        // surface and skip the measurement (see UI_CYCLE.md §2.5).
+        if (bi && bi !== 'none' && bi.includes('gradient')) return;
         const c = parseColor(ncs.backgroundColor);
         if (c && c.a > 0.05) {
-          const bi = ncs.backgroundImage;
-          if (bi && bi !== 'none' && bi.includes('gradient')) return;
           bg = c;
           break;
         }
