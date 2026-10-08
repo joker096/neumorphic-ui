@@ -122,6 +122,22 @@ describe('MediaViewer - interactive gallery (UI/UX plan §13)', () => {
     expect(reqPip).toHaveBeenCalledTimes(1);
   });
 
+  it('auto-requests PiP when the page is hidden mid-playback (visibilitychange)', () => {
+    Object.defineProperty(document, 'pictureInPictureEnabled', { value: true, configurable: true });
+    const reqPip = vi.fn(() => Promise.resolve());
+    renderViewer({ media: { type: 'video', url: 'https://example.com/v.mp4', name: 'v.mp4' } });
+    const video = document.querySelector('video') as HTMLVideoElement;
+    Object.defineProperty(video, 'duration', { value: 90, configurable: true });
+    Object.defineProperty(video, 'paused', { value: false, configurable: true });
+    Object.defineProperty(video, 'readyState', { value: 4, configurable: true });
+    (video as unknown as { requestPictureInPicture: unknown }).requestPictureInPicture = reqPip;
+    fireEvent(video, new Event('loadedmetadata'));
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    fireEvent(document, new Event('visibilitychange'));
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    expect(reqPip).toHaveBeenCalledTimes(1);
+  });
+
   it('reset-zoom button resets instead of zooming out (D4 nested-icon handler regression)', () => {
     renderViewer();
     const img = document.querySelector('img');

@@ -153,6 +153,24 @@ describe('AttachmentMedia ftr1: receive path', () => {
     });
   });
 
+  it('auto-requests PiP when the page hides while the inline video plays', async () => {
+    Object.defineProperty(document, 'pictureInPictureEnabled', { value: true, configurable: true });
+    const { container } = render(<AttachmentMedia {...baseProps({ msg: ftrMsg({ transferId: 't-pip', type: 'video' }) })} />);
+    const video = await waitFor(() => {
+      const v = container.querySelector('video');
+      expect(v).not.toBeNull();
+      return v as HTMLVideoElement;
+    });
+    const reqPip = vi.fn(() => Promise.resolve());
+    (video as unknown as { requestPictureInPicture: unknown }).requestPictureInPicture = reqPip;
+    Object.defineProperty(video, 'paused', { value: false, configurable: true });
+    Object.defineProperty(video, 'readyState', { value: 4, configurable: true });
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    expect(reqPip).toHaveBeenCalledTimes(1);
+  });
+
   it('shows unavailable when the received sha256 does not match', async () => {
     (resolveFtrBlobUrl as any).mockResolvedValue({ url: 'blob:mock-1', shaOk: false });
     render(<AttachmentMedia {...baseProps({ msg: ftrMsg({ transferId: 't-sha' }) })} />);

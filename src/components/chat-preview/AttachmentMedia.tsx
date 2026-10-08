@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Play, ImageOff, VideoOff } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { useAppStore } from "../../store";
@@ -7,6 +7,7 @@ import { VoiceWaveform } from "./VoiceWaveform";
 import { GeoMessageCard } from "./GeoMessageCard";
 import { useVoiceBlobUrl } from "../../hooks/useVoiceBlobUrl";
 import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
+import { useAutoPictureInPicture } from "../../hooks/useAutoPictureInPicture";
 import { formatSize } from "../../utils/formatSize";
 import { StoryCard } from "../stories/StoryCard";
 import { AlbumGrid } from "./attachments/AlbumGrid";
@@ -35,6 +36,10 @@ export function AttachmentMedia({
   const [revealed, setRevealed] = useState(false);
   const voiceUrl = useVoiceBlobUrl(msg.voiceId, msg.audioUrl);
   const [albumFailed, setAlbumFailed] = useState<number[]>([]);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const pipSupported =
+    typeof document !== "undefined" && "pictureInPictureEnabled" in document && document.pictureInPictureEnabled;
+  useAutoPictureInPicture(videoRef, pipSupported);
 
   const ftrId = typeof msg.attachment === "string" && msg.attachment.startsWith(FTR_MAGIC)
     ? (typeof msg.fileTransferId === "string" ? msg.fileTransferId : msg.attachment.slice(FTR_MAGIC.length))
@@ -145,6 +150,7 @@ export function AttachmentMedia({
         return (
           <div className="rounded-full overflow-hidden mb-1 border border-[var(--border-color)] inline-block">
             <video
+              ref={videoRef}
               src={ftrUrl || undefined}
               controls
               playsInline
@@ -183,6 +189,7 @@ export function AttachmentMedia({
       return (
         <div className="rounded-[var(--message-radius)] overflow-hidden mb-1 border border-[var(--border-color)] inline-block max-w-full">
           <video
+            ref={videoRef}
             src={ftrUrl || undefined}
             controls
             playsInline

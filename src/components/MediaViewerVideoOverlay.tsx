@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Play, Pause, PictureInPicture2 } from 'lucide-react';
 import { formatTime } from './mediaUtils';
 import type { MediaItem } from './mediaUtils';
+import { useAutoPictureInPicture } from '../hooks/useAutoPictureInPicture';
 
 type TranslateFn = (key: string, fallback?: string | Record<string, string | number>) => string;
 
@@ -20,6 +21,8 @@ export function MediaViewerVideoOverlay({ media, t, playing, onPlayingChange }: 
   const [pipSupported] = useState(
     () => typeof document !== 'undefined' && 'pictureInPictureEnabled' in document && document.pictureInPictureEnabled,
   );
+
+  useAutoPictureInPicture(videoRef, pipSupported);
 
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
