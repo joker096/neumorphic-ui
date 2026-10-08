@@ -34,7 +34,7 @@ export const CompanyInviteModal = ({ isDark, title, description, invitePayload, 
         <CompanyModalCloseButton onClick={onClose} />
         <h3 className="text-xl font-bold mb-4 text-[var(--text-primary)]">{title}</h3>
         <p className="text-sm text-center mb-4 text-[var(--text-secondary)]">{description}</p>
-        <div className={`w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 ${isDark ? "bg-white" : "bg-white border-2 border-gray-100"}`}>
+        <div className={`w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 ${isDark ? "bg-white" : "bg-white border-2 border-[var(--border-color)]"}`}>
           <QrCode data={invitePayload ? JSON.stringify(invitePayload) : (companyId || '')} size={180} />
         </div>
         <div className="w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset">

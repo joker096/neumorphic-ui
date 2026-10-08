@@ -14,7 +14,7 @@ interface ContactsToolbarProps {
 export function ContactsToolbar({ isDark, t, onScan, onShare, onAdd, onInvite }: ContactsToolbarProps) {
   return (
     <div className="w-full flex items-center justify-between gap-2 mb-4 px-2">
-      <h2 className={`font-sans text-sm sm:text-base font-bold tracking-wide truncate min-w-0 ${isDark ? "text-[var(--text-primary)]" : "text-slate-800"}`}>
+      <h2 className={`font-sans text-sm sm:text-base font-bold tracking-wide truncate min-w-0 text-[var(--text-primary)]`}>
         {t('contacts.title')}
       </h2>
       <div className="flex gap-1.5 sm:gap-2 text-[var(--accent)] shrink-0">

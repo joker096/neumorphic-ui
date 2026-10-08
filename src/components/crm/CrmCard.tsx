@@ -17,7 +17,7 @@ interface CrmCardProps {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  lead: 'bg-slate-500/15 text-slate-400',
+  lead: 'bg-slate-500/15 text-[var(--text-secondary)]',
   client: 'bg-emerald-500/15 text-emerald-400',
   partner: 'bg-sky-500/15 text-sky-400',
   vendor: 'bg-amber-500/15 text-amber-400',
@@ -57,7 +57,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
       <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
         <div className="flex items-center gap-2">
           <UserCircle2 size={16} className="text-[var(--accent)]" />
-          <span className={`text-sm font-semibold ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>
+          <span className={`text-sm font-semibold text-[var(--text-primary)]`}>
             {t('crm.title')}
           </span>
         </div>
@@ -77,14 +77,14 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
             {STATUS_LABEL[contact.status] ?? contact.status}
           </span>
           {contact.tags.map((tag) => (
-            <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-gray-400">
+            <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-[var(--text-secondary)]">
               #{tag}
             </span>
           ))}
         </div>
 
         {contact.title && (
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
             <Briefcase size={14} /> {contact.title}
           </div>
         )}
@@ -136,7 +136,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
         {openTasks.length > 0 && (
           <ul className="space-y-1 pt-1">
             {openTasks.slice(0, 3).map((task) => (
-              <li key={task.id} className="flex items-center gap-2 text-xs text-gray-400">
+              <li key={task.id} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
                 <CheckSquare size={14} /> {task.title}
                 {task.dueAt != null && task.dueAt < Date.now() && (
                   <span className="text-rose-400 flex items-center gap-0.5"><AlertTriangle size={12} /> {t('crm.overdue')}</span>

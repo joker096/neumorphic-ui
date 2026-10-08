@@ -35,7 +35,7 @@ describe('ContactItem - additional tests', () => {
 
   it('renders light theme styles', () => {
     const { container } = render(<ContactItem contact={mockContact} theme="light" isDark={false} onClick={() => {}} onToggleFavorite={vi.fn()} t={(k: string) => k} />);
-    expect(container.querySelector('[class*="hover:bg-white"]') || container.querySelector('[class*="text-slate-800"]') || container.querySelector('[class*="shadow-sm"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="text-slate-300"]') || container.querySelector('[class*="hover:bg-[var(--list-item-hover-bg)]"]') || container.querySelector('[class*="text-[var(--text-tertiary)]"]')).toBeInTheDocument();
   });
 
   it('renders favorite star when favorite', () => {

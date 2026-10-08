@@ -44,8 +44,8 @@ export function ContactsTabs({ contacts, filteredCount, searchQuery, activeTab, 
             }`}>
             <span className={`flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
               activeTab === tab.key
-                ? (isDark ? 'text-[var(--text-primary)]' : 'text-slate-800')
-                : (isDark ? 'text-gray-400 group-hover:text-gray-300' : 'text-slate-500 group-hover:text-slate-700')
+                ? 'text-[var(--text-primary)]'
+                : (isDark ? 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]')
             }`}>
               {tab.icon}
               {tab.label}
@@ -56,7 +56,7 @@ export function ContactsTabs({ contacts, filteredCount, searchQuery, activeTab, 
 
       {searchQuery && (
         <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-          className={`text-xs mt-2 px-1 ${isDark ? "text-gray-500" : "text-slate-500"}`}>
+          className={`text-xs mt-2 px-1 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
           {t('contacts.foundResults', { count: filteredCount, total: contacts.length })}
         </motion.div>
       )}

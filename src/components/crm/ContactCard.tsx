@@ -148,7 +148,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
                 <div className="text-base font-bold truncate text-[var(--text-primary)]">{contact.displayName}</div>
                 <div className="flex items-center gap-1.5 text-xs mt-0.5">
                   <span className={`w-2 h-2 rounded-full ${contact.online ? 'bg-green-500' : 'bg-gray-400'}`} aria-hidden="true" />
-                  <span className={isDark ? 'text-gray-400' : 'text-[var(--text-secondary)]'}>{contact.online ? t('crm.online', 'Online') : t('crm.offline', 'Offline')}</span>
+                  <span className="text-[var(--text-secondary)]">{contact.online ? t('crm.online', 'Online') : t('crm.offline', 'Offline')}</span>
                 </div>
                 {contact.title && <div className="text-xs text-[var(--text-secondary)] truncate mt-0.5">{contact.title}</div>}
               </div>

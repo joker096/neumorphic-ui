@@ -25,7 +25,7 @@ export function ContactsScanModal({ isScanning, isDark, theme, scanError, scanne
     <FormModal isOpen={isScanning} onClose={onClose}
       title={t('contacts.scanContactQR')} subtitle={t('contacts.scanDescription')}
       icon={Scan} theme={theme} closeTitle={t('contacts.close')}>
-        <div className={`w-full aspect-square overflow-hidden relative shadow-inner rounded-xl ${isDark ? "bg-black" : "bg-gray-100"}`}>
+        <div className={`w-full aspect-square overflow-hidden relative shadow-inner rounded-xl ${isDark ? "bg-black" : "bg-black/5"}`}>
           {scanError ? (
             <DataState
               status="error"

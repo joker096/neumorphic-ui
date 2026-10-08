@@ -126,12 +126,12 @@ export const ContactItem: React.FC<ContactItemProps> = ({
         </div>
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex items-center gap-2">
-            <span className={`font-bold truncate text-sm ${isDark ? "text-gray-100" : "text-slate-800"}`}>{contact.name}</span>
+            <span className={`font-bold truncate text-sm text-[var(--text-primary)]`}>{contact.name}</span>
             {contact.isFavorite && <Star size={12} className="text-yellow-400 shrink-0" />}
           </div>
           <div className="flex items-center gap-2">
-            <span className={`font-mono text-xs md:text-xs tracking-wider truncate ${isDark ? "text-gray-500" : "text-slate-400"}`}>{contact.id}</span>
-            <span className={`text-xs md:text-xs font-bold shrink-0 ${isDark ? "text-gray-600" : "text-slate-400"}`}>
+            <span className={`font-mono text-xs md:text-xs tracking-wider truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{contact.id}</span>
+            <span className={`text-xs md:text-xs font-bold shrink-0 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
               &bull; {(() => {
                 const delta = Date.now() - contact.lastSeen;
                 if (delta < 0 || isNaN(delta) || !contact.lastSeen) return '—';
