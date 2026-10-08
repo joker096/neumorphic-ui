@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
+import { WebSocketServer } from 'ws';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', 'dist');
@@ -11,11 +12,37 @@ const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]);
   if (p === '/') p = '/index.html';
+
+  // Backend stubs: static dist has no relay/paymento/signaling server, but the
+  // app probes them on boot — emulate them so console stays error-free.
+  if (p === '/api/auth/token' && req.method === 'POST') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ token: 'smoke-stub-token' }));
+    return;
+  }
+  if (p.startsWith('/api/paymento/entitlement')) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ premium: false, plan: null, expiresAt: null }));
+    return;
+  }
+  if (p.startsWith('/api/')) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({}));
+    return;
+  }
+
   let fp = path.join(ROOT, p);
   if (!fs.existsSync(fp)) { res.writeHead(404); res.end('nf'); return; }
   const ext = path.extname(fp) || '.html';
   res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
   fs.createReadStream(fp).pipe(res);
+});
+
+// Signaling stub: accept the WS handshake, stay silent (no protocol traffic).
+const wss = new WebSocketServer({ noServer: true });
+server.on('upgrade', (req, socket, head) => {
+  if (req.url.split('?')[0] !== '/ws') { socket.destroy(); return; }
+  wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
 });
 
 await new Promise((r) => server.listen(0, r));
@@ -39,6 +66,8 @@ console.log('JS errors:', errors.length);
 for (const e of errors) console.log('  -', e);
 
 await browser.close();
+for (const client of wss.clients) client.terminate();
+wss.close();
 server.close();
 
 if (!hasApp || errors.length > 0) {
