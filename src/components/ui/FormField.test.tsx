@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
+import { Search } from 'lucide-react';
 import { FormField } from './FormField';
 
 describe('FormField', () => {
@@ -175,10 +176,25 @@ describe('FormField', () => {
   });
 
   it('renders error with ml-1 margin', () => {
-    const { container } = render(<FormField value="" onChange={() => {}} error="Error" />);
+    const { container } = render(<FormField label="Label" value="" onChange={() => {}} error="Error" />);
     const error = container.querySelector('span');
     expect(error).toHaveClass('text-xs');
     expect(error).toHaveClass('font-medium');
     expect(error).toHaveClass('text-destructive');
+  });
+
+  it('labels the icon action button for screen readers', () => {
+    render(
+      <FormField
+        value=""
+        onChange={() => {}}
+        icon={Search}
+        iconAction={() => {}}
+        iconTooltip="Scan QR code"
+      />,
+    );
+    const btn = screen.getByRole('button', { name: 'Scan QR code' });
+    expect(btn).toHaveAttribute('title', 'Scan QR code');
+    expect(btn).toHaveAttribute('aria-label', 'Scan QR code');
   });
 });

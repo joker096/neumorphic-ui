@@ -25,7 +25,7 @@ export function MessageReactions({ msg, isMe, isDark, activeReactionPicker, onSe
         <div className="flex gap-1.5 mt-1 z-10 relative">
           {Object.entries(msg.reactions).map(([emoji, count]) => (
             <React.Fragment key={emoji}>
-              <Tooltip content={`${count === 1 ? 'You' : count + ' users'} reacted with ${emoji}`} position="top" theme={isDark ? 'dark' : 'light'}>
+              <Tooltip content={t('chat.reactionTooltip', { count: Number(count), emoji })} position="top">
                 <div
                   className={`rounded-full px-2 py-0.5 text-[12px] shadow-sm flex items-center ${isMe ? 'cursor-default' : 'cursor-help group select-none'} border transition-colors ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--border-color)] hover:bg-[var(--hover-bg-dark)]" : "bg-white text-[var(--text-secondary)] border-[var(--border-color)] hover:bg-black/5 hover:border-[var(--border-color)]"}`}
                   onClick={() => { if (!isMe) onReactionMessage(msg.id, emoji); }}

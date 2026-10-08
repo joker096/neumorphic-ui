@@ -348,6 +348,12 @@
     "forwarded": "Forwarded",
     "deleted": "Deleted",
     "reactions": "Reactions",
+    "reactionTooltip": {
+      "one": "{{count}} user reacted with {{emoji}}",
+      "few": "{{count}} users reacted with {{emoji}}",
+      "many": "{{count}} users reacted with {{emoji}}",
+      "other": "{{count}} users reacted with {{emoji}}"
+    },
     "removeMedia": "Remove media",
     "morse": "Morse",
     "removeScheduledMessage": "Remove scheduled message",

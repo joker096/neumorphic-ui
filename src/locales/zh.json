@@ -348,6 +348,12 @@
     "forwarded": "Forwarded",
     "deleted": "Deleted",
     "reactions": "Reactions",
+    "reactionTooltip": {
+      "one": "{{count}} 人用 {{emoji}} 做出了回应",
+      "few": "{{count}} 人用 {{emoji}} 做出了回应",
+      "many": "{{count}} 人用 {{emoji}} 做出了回应",
+      "other": "{{count}} 人用 {{emoji}} 做出了回应"
+    },
     "removeMedia": "移除媒体",
     "morse": "摩尔斯",
     "removeScheduledMessage": "删除定时消息",

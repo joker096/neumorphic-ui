@@ -82,11 +82,12 @@ export const FormField = ({
             Icon ? 'pr-12' : ''
           } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         />
-        {Icon && (
+        {Icon && iconAction && (
           <button
             type="button"
             onClick={iconAction}
             title={iconTooltip}
+            aria-label={iconTooltip}
             disabled={disabled}
             className={`absolute right-2 top-1/2 -translate-y-1/2 min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-[var(--radius-control)] flex items-center justify-center transition-colors bg-muted hover:bg-muted text-foreground ${disabled ? 'opacity-50' : ''}`}
           >

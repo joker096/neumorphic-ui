@@ -348,6 +348,12 @@
     "forwarded": "Переслано",
     "deleted": "Удалено",
     "reactions": "Реакции",
+    "reactionTooltip": {
+      "one": "{{count}} пользователь отреагировал {{emoji}}",
+      "few": "{{count}} пользователя отреагировали {{emoji}}",
+      "many": "{{count}} пользователей отреагировали {{emoji}}",
+      "other": "{{count}} пользователей отреагировали {{emoji}}"
+    },
     "removeMedia": "Удалить медиа",
     "morse": "Азбука Морзе",
     "removeScheduledMessage": "Удалить отложенное сообщение",

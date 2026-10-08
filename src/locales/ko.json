@@ -348,6 +348,12 @@
     "forwarded": "Forwarded",
     "deleted": "Deleted",
     "reactions": "Reactions",
+    "reactionTooltip": {
+      "one": "{{count}}명이 {{emoji}}으로 반응했습니다",
+      "few": "{{count}}명이 {{emoji}}으로 반응했습니다",
+      "many": "{{count}}명이 {{emoji}}으로 반응했습니다",
+      "other": "{{count}}명이 {{emoji}}으로 반응했습니다"
+    },
     "removeMedia": "미디어 삭제",
     "morse": "모스",
     "removeScheduledMessage": "예약 메시지 삭제",

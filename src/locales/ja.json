@@ -348,6 +348,12 @@
     "forwarded": "転送",
     "deleted": "削除済み",
     "reactions": "リアクション",
+    "reactionTooltip": {
+      "one": "{{count}}人が{{emoji}}で反応しました",
+      "few": "{{count}}人が{{emoji}}で反応しました",
+      "many": "{{count}}人が{{emoji}}で反応しました",
+      "other": "{{count}}人が{{emoji}}で反応しました"
+    },
     "removeMedia": "メディアを削除",
     "morse": "モールス",
     "removeScheduledMessage": "予約メッセージを削除",

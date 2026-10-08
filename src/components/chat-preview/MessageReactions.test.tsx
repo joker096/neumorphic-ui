@@ -15,10 +15,14 @@ vi.mock('motion/react', () => ({
   AnimatePresence: ({ children }: any) => children,
 }));
 
-vi.mock('../ui/Tooltip', () => ({
-  Tooltip: ({ children, content }: any) => (
-    <div data-tooltip={content}>{children}</div>
-  ),
+vi.mock('../../lib/i18n', () => ({
+  useI18n: () => ({
+    lang: 'en',
+    t: (key: string, fallback?: unknown) =>
+      fallback && typeof fallback === 'object'
+        ? `tip:${(fallback as { count?: unknown }).count}:${(fallback as { emoji?: unknown }).emoji}`
+        : key,
+  }),
 }));
 
 const baseProps: any = {
@@ -101,6 +105,20 @@ describe('MessageReactions', () => {
     );
     const tooltipEl = document.querySelector('[data-tooltip]');
     expect(tooltipEl).toBeInTheDocument();
+    expect(tooltipEl).toHaveAttribute('data-tooltip', 'tip:1:👍');
+  });
+
+  it('shows the localized reaction hint on hover', () => {
+    render(
+      <MessageReactions
+        {...baseProps}
+        msg={{ id: 1, reactions: { '👍': 2 } }}
+      />,
+    );
+    fireEvent.mouseEnter(screen.getByText('👍'));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('tip:2:👍');
+    fireEvent.mouseLeave(screen.getByText('👍'));
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
   it('renders 6 reaction options for the free tier', () => {
