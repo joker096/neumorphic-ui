@@ -125,13 +125,35 @@ export function markOutgoingStatus(ack: { messageId: string; chatId: string } | 
   const { setChats } = useAppStore.getState();
   setChats((prevChats: any[]) => (prevChats || []).map((chat: any) => {
     if (String(chat.id) !== ack.chatId) return chat;
+    const history: any[] = chat.history || [];
+    // A peer ACK is per-message: only the referenced outgoing bubble is delivered.
+    if (status === "delivered") {
+      return {
+        ...chat,
+        history: history.map((message: any) =>
+          String(message.id) === ack.messageId && message.sender === "me"
+            ? { ...message, status }
+            : message,
+        ),
+      };
+    }
+    // A read receipt is a watermark, not a per-message event: everything we sent
+    // up to and including the message the peer actually read turns read (what
+    // Telegram/WhatsApp show). Resolve the referenced bubble's send time from our
+    // own history — inbound frames carry the sender's (our) message id — and
+    // upgrade every earlier outgoing bubble that is still awaiting delivery.
+    const reference = history.find((message: any) => String(message.id) === ack.messageId);
+    const referenceTs = reference ? sendTimeOf(reference) : undefined;
     return {
       ...chat,
-      history: (chat.history || []).map((message: any) =>
-        String(message.id) === ack.messageId && message.sender === "me"
-          ? { ...message, status }
-          : message,
-      ),
+      history: history.map((message: any) => {
+        if (message.sender !== "me") return message;
+        if (message.status !== "sent" && message.status !== "delivered") return message;
+        const covered = referenceTs === undefined
+          ? String(message.id) === ack.messageId
+          : sendTimeOf(message) <= referenceTs;
+        return covered ? { ...message, status } : message;
+      }),
     };
   }));
 }

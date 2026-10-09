@@ -588,6 +588,84 @@ describe('useP2PMessages', () => {
     expect(chats[0].history[0].status).toBe('read');
   });
 
+  it('marks every outgoing message up to the read watermark read on peer read receipt', () => {
+    const { handle } = setup();
+    const receipt: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'read-cascade',
+      timestamp: 30,
+      data: encodeChatReadReceipt({ type: 'chat-read', seq: 1, messageId: '3', chatId: 'dm-1', timestamp: 30 }),
+    };
+
+    seedChats([{
+      id: 'dm-1',
+      name: 'Bob',
+      type: 'direct',
+      history: [
+        { id: 1, ts: 10, sender: 'me', text: 'one', status: 'delivered' },
+        { id: 2, ts: 20, sender: 'me', text: 'two', status: 'delivered' },
+        { id: 3, ts: 30, sender: 'me', text: 'three', status: 'delivered' },
+        { id: 4, ts: 40, sender: 'me', text: 'four', status: 'delivered' },
+      ],
+    }]);
+
+    act(() => handle(receipt));
+
+    const history = currentChats()[0].history;
+    expect(history.map((m: any) => m.status)).toEqual(['read', 'read', 'read', 'delivered']);
+  });
+
+  it('does not mark failed or queued outgoing messages read on a read receipt', () => {
+    const { handle } = setup();
+    const receipt: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'read-skip-failed',
+      timestamp: 30,
+      data: encodeChatReadReceipt({ type: 'chat-read', seq: 1, messageId: '3', chatId: 'dm-1', timestamp: 30 }),
+    };
+
+    seedChats([{
+      id: 'dm-1',
+      name: 'Bob',
+      type: 'direct',
+      history: [
+        { id: 1, ts: 10, sender: 'me', text: 'one', status: 'failed' },
+        { id: 2, ts: 20, sender: 'me', text: 'two', status: 'queued' },
+        { id: 3, ts: 30, sender: 'me', text: 'three', status: 'delivered' },
+      ],
+    }]);
+
+    act(() => handle(receipt));
+
+    const history = currentChats()[0].history;
+    expect(history.map((m: any) => m.status)).toEqual(['failed', 'queued', 'read']);
+  });
+
+  it('falls back to the referenced message when the read watermark is unknown', () => {
+    const { handle } = setup();
+    const receipt: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'read-fallback',
+      timestamp: 30,
+      data: encodeChatReadReceipt({ type: 'chat-read', seq: 1, messageId: '99', chatId: 'dm-1', timestamp: 30 }),
+    };
+
+    seedChats([{
+      id: 'dm-1',
+      name: 'Bob',
+      type: 'direct',
+      history: [
+        { id: 1, ts: 10, sender: 'me', text: 'one', status: 'delivered' },
+        { id: 2, ts: 20, sender: 'me', text: 'two', status: 'delivered' },
+      ],
+    }]);
+
+    act(() => handle(receipt));
+
+    const history = currentChats()[0].history;
+    expect(history.map((m: any) => m.status)).toEqual(['delivered', 'delivered']);
+  });
+
   it('processes each wire messageId exactly once', () => {
     const { handle } = setup();
     const msg: BroadcastMessage = {
