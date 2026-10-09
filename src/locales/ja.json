@@ -346,6 +346,8 @@
     "searchPrev": "前の一致",
     "searchNext": "次の一致",
     "forwarded": "転送",
+    "forwardedFrom": "{{name}} から転送",
+    "jumpToMessage": "メッセージへ移動",
     "deleted": "削除済み",
     "reactions": "リアクション",
     "reactionTooltip": {

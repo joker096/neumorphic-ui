@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, type PanInfo } from "motion/react";
+import { Forward } from "lucide-react";
 import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
 import { MessageContextMenu } from "./MessageContextMenu";
@@ -52,6 +53,8 @@ interface ChatMessageProps {
   onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
   onRetry?: (msg: any) => void;
+  /** Scrolls the list to a message id, used by the reply quote. */
+  onJumpToMessage?: (id: string | number) => void;
   selectionMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string | number) => void;
@@ -68,6 +71,7 @@ function ChatMessageImpl({
   onSetActiveReactionPicker, onSwipeReplyId,
   onSetVideoOpen, onSetShowComments, onSetActivePostId,
   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
+  onJumpToMessage,
   selectionMode = false, selected = false, onToggleSelect, onSelect,
   onRetry,
 }: ChatMessageProps) {
@@ -88,6 +92,7 @@ function ChatMessageImpl({
   // stays readable for media, stickers and edits too — not just plain text.
   const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
   const showSenderName = showAvatar && isGroup && isGroupFirst && !isMe && !!displayName;
+  const forwardedFrom = msg.forwarded ? (msg.forwardedFrom || msg.forwardedFromChat) : undefined;
   const expired = useSelfDestructExpiry(msg.selfDestructAt as number | undefined);
 
   const {
@@ -174,6 +179,16 @@ function ChatMessageImpl({
               {displayName}
             </div>
           )}
+          {msg.forwarded && (
+            <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+              <Forward size={12} aria-hidden="true" />
+              <span className="truncate max-w-[200px]">
+                {forwardedFrom
+                  ? t("chat.forwardedFrom", { name: forwardedFrom })
+                  : t("chat.forwarded", "Forwarded")}
+              </span>
+            </div>
+          )}
           <AttachmentMedia
             msg={msg}
             isMe={isMe}
@@ -185,7 +200,17 @@ function ChatMessageImpl({
             onSetActiveMediaMsg={onSetActiveMediaMsg}
           />
           {msg.type === "payment" && <PaymentChatBubble msg={msg} isDark={isDark} />}
-          {msg.replyTo && <ReplyQuote replyTo={msg.replyTo} isDark={isDark} />}
+          {msg.replyTo && (
+            <ReplyQuote
+              replyTo={msg.replyTo}
+              isDark={isDark}
+              onJump={
+                onJumpToMessage && msg.replyTo.id != null
+                  ? () => onJumpToMessage(msg.replyTo.id)
+                  : undefined
+              }
+            />
+          )}
           {msg.text && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && (
             editing ? (
               <MessageEditForm

@@ -346,6 +346,8 @@
     "searchPrev": "Предыдущее совпадение",
     "searchNext": "Следующее совпадение",
     "forwarded": "Переслано",
+    "forwardedFrom": "Переслано от {{name}}",
+    "jumpToMessage": "Перейти к сообщению",
     "deleted": "Удалено",
     "reactions": "Реакции",
     "reactionTooltip": {

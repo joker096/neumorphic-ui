@@ -346,6 +346,8 @@
     "searchPrev": "Vorherige Übereinstimmung",
     "searchNext": "Nächste Übereinstimmung",
     "forwarded": "Weitergeleitet",
+    "forwardedFrom": "Weitergeleitet von {{name}}",
+    "jumpToMessage": "Zur Nachricht springen",
     "deleted": "Gelöscht",
     "reactions": "Reaktionen",
     "reactionTooltip": {

@@ -346,6 +346,8 @@
     "searchPrev": "Coincidencia anterior",
     "searchNext": "Coincidencia siguiente",
     "forwarded": "Reenviado",
+    "forwardedFrom": "Reenviado de {{name}}",
+    "jumpToMessage": "Ir al mensaje",
     "deleted": "Eliminado",
     "reactions": "Reacciones",
     "reactionTooltip": {

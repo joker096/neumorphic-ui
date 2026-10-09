@@ -189,6 +189,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onForward={msgActions.handleForwardMessage}
         onDelete={interactions.confirmSingleDelete}
         onRetry={retryFailedMessage}
+        onJumpToMessage={interactions.handleJumpToMessage}
         selectionMode={selectionMode}
         selectedIds={selectedIds}
         onToggleSelect={msgActions.handleToggleSelect}

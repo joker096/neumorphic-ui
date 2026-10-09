@@ -346,6 +346,8 @@
     "searchPrev": "Correspondance précédente",
     "searchNext": "Correspondance suivante",
     "forwarded": "Transféré",
+    "forwardedFrom": "Transféré de {{name}}",
+    "jumpToMessage": "Aller au message",
     "deleted": "Supprimé",
     "reactions": "Réactions",
     "reactionTooltip": {

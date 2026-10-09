@@ -32,6 +32,7 @@ interface ChatMessageListProps {
   onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
   onRetry?: (msg: any) => void;
+  onJumpToMessage?: (id: string | number) => void;
   selectionMode?: boolean;
   selectedIds?: Set<string | number>;
   onToggleSelect?: (id: string | number) => void;
@@ -47,6 +48,7 @@ export function ChatMessageList({
   onSetActiveMediaMsg,
   onSetActiveReactionPicker, onSwipeReplyId, onSetVideoOpen, onSetShowComments,
   onSetActivePostId,   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
+  onJumpToMessage,
   selectionMode, selectedIds, onToggleSelect, onSelect,
   onScrollPosition,
   onRetry,
@@ -93,6 +95,7 @@ export function ChatMessageList({
           onForward={onForward}
           onDelete={onDelete}
           onRetry={onRetry}
+          onJumpToMessage={onJumpToMessage}
           selectionMode={selectionMode}
           selected={selectedIds ? selectedIds.has(msg.id) : false}
           onToggleSelect={onToggleSelect}

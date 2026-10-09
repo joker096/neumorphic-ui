@@ -346,6 +346,8 @@
     "searchPrev": "Previous match",
     "searchNext": "Next match",
     "forwarded": "Forwarded",
+    "forwardedFrom": "{{name}}님에게서 전달됨",
+    "jumpToMessage": "메시지로 이동",
     "deleted": "Deleted",
     "reactions": "Reactions",
     "reactionTooltip": {

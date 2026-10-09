@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 const dict: Record<string, string> = {
   'chat.replyingTo': 'Replying to',
@@ -31,5 +31,24 @@ describe('ReplyQuote', () => {
     unmount();
     render(<ReplyQuote replyTo={{ id: 2, sender: 'bob', type: 'image' }} isDark={false} />);
     expect(screen.getByText('Attachment')).toBeInTheDocument();
+  });
+
+  it('is not interactive when no jump handler is provided', () => {
+    render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', text: 'hello' }} isDark={false} />);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('calls onJump and stops the click from reaching the bubble when tappable', () => {
+    const onJump = vi.fn();
+    const onBubbleClick = vi.fn();
+    render(
+      <div onClick={onBubbleClick}>
+        <ReplyQuote replyTo={{ id: 1, sender: 'bob', text: 'hello' }} isDark={false} onJump={onJump} />
+      </div>,
+    );
+    const quote = screen.getByRole('button', { name: 'Go to message' });
+    fireEvent.click(quote);
+    expect(onJump).toHaveBeenCalledTimes(1);
+    expect(onBubbleClick).not.toHaveBeenCalled();
   });
 });

@@ -114,7 +114,7 @@ export function useChatPreviewInteractions({
     });
   };
 
-  const handleJumpToPinned = (id: number) => {
+  const handleJumpToMessage = (id: string | number) => {
     // Virtualizer indices cover flatItems (bubbles + date separators), so the
     // jump resolves there — same pattern as the search deep-link above.
     const idx = flatItems.findIndex((item: any) => !item._isDateSeparator && item.id === id);
@@ -122,6 +122,8 @@ export function useChatPreviewInteractions({
       (msgListRef.current as any).scrollToIndex?.(idx, "center");
     }
   };
+
+  const handleJumpToPinned = (id: number) => handleJumpToMessage(id);
 
   const handleScrollToBottom = () => {
     msgListRef.current?.scrollToBottom();
@@ -167,6 +169,7 @@ export function useChatPreviewInteractions({
     addLeadSuggestion,
     dismissLeadSuggestion,
     handleProfileClick,
+    handleJumpToMessage,
     handleJumpToPinned,
     handleScrollToBottom,
     handleCopySelected,

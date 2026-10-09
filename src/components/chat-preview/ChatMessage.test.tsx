@@ -253,6 +253,21 @@ describe('ChatMessage', () => {
     expect(screen.getByTestId('reply-quote')).toBeInTheDocument();
   });
 
+  it('renders a forwarded label with the original author when present', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 8, text: 'fwd', forwarded: true, forwardedFrom: 'Alice', _isLastInGroup: true } })} />);
+    expect(screen.getByText('chat.forwardedFrom')).toBeInTheDocument();
+  });
+
+  it('renders a plain forwarded label when the author is unknown', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 9, text: 'fwd', forwarded: true, _isLastInGroup: true } })} />);
+    expect(screen.getByText('Forwarded')).toBeInTheDocument();
+  });
+
+  it('shows no forwarded label for a regular message', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 10, text: 'plain', _isLastInGroup: true } })} />);
+    expect(screen.queryByText('Forwarded')).not.toBeInTheDocument();
+  });
+
   it('keeps URL text and drops the fake preview card', () => {
     // The old "LINK PREVIEW" box only echoed the URL that FormattedText already
     // renders as an <a>, so it promised a preview and delivered none. Note
