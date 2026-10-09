@@ -132,6 +132,39 @@ describe('MessageReactions', () => {
     expect(container.querySelectorAll('button').length).toBe(6);
   });
 
+  it('shows the add button for own messages too', () => {
+    const { container } = render(<MessageReactions {...baseProps} isMe msg={{ id: 1, reactions: {} }} />);
+    expect(container.querySelector('.lucide-plus')).toBeInTheDocument();
+  });
+
+  it('toggles a reaction on an own message', () => {
+    const onReactionMessage = vi.fn();
+    render(
+      <MessageReactions
+        {...baseProps}
+        isMe
+        onReactionMessage={onReactionMessage}
+        msg={{ id: 1, reactions: { '👍': 1 } }}
+      />,
+    );
+    fireEvent.click(screen.getByText('👍'));
+    expect(onReactionMessage).toHaveBeenCalledWith(1, '👍');
+  });
+
+  it('highlights the local user reactions and marks them pressed', () => {
+    render(
+      <MessageReactions
+        {...baseProps}
+        msg={{ id: 1, reactions: { '👍': 2, '🔥': 1 }, myReactions: { '👍': true } }}
+      />,
+    );
+    const mine = screen.getByText('👍').closest('[role="button"]')!;
+    const other = screen.getByText('🔥').closest('[role="button"]')!;
+    expect(mine).toHaveAttribute('aria-pressed', 'true');
+    expect(mine.className).toContain('border-[var(--accent)]');
+    expect(other).toHaveAttribute('aria-pressed', 'false');
+  });
+
   it('renders 18 reaction options for the premium tier', () => {
     mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
     const { container } = render(

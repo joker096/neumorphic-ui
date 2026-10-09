@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useP2PMessages } from './useP2PMessages';
 import { FTR_MAGIC, encodeFrame, encodeAlbumManifest, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
-import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeChatEdit, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
+import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeChatEdit, encodeChatReaction, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
 import { encodeChatLocation } from '../lib/p2p/chatRichFrames';
 import { saveTransferMeta, saveChunk, pruneAbandonedTransfers, pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer, listTransfers, type StoredTransfer } from '../lib/fileTransfer/fileStore';
 import { SELF_DESTRUCT_WIRE_MAX_MS } from '../lib/selfDestruct';
@@ -408,6 +408,38 @@ describe('useP2PMessages', () => {
     const edited = chats[0].history.find((m: any) => m.id === 'wire-msg-1');
     expect(edited).toMatchObject({ text: 'revised', edited: true });
     expect(chats[0].history).toHaveLength(1);
+  });
+
+  it('applies an incoming chat-reaction frame as a count delta and never sets myReactions', () => {
+    seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [{ id: 'wire-msg-1', sender: 'Bob', text: 'hi', reactions: {} }] }]);
+    const { handle } = setup();
+    const add: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'react-1',
+      timestamp: 5,
+      data: encodeChatReaction({
+        type: 'chat-reaction', seq: 2, messageId: 'wire-msg-1', chatId: 'dm-1',
+        chatName: 'Bob', senderName: 'Bob', emoji: '👍', op: 'add', timestamp: 5,
+      }),
+    };
+    const remove: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'react-2',
+      timestamp: 6,
+      data: encodeChatReaction({
+        type: 'chat-reaction', seq: 3, messageId: 'wire-msg-1', chatId: 'dm-1',
+        chatName: 'Bob', senderName: 'Bob', emoji: '👍', op: 'remove', timestamp: 6,
+      }),
+    };
+
+    act(() => { handle(add); });
+    let target = currentChats()[0].history.find((m: any) => m.id === 'wire-msg-1');
+    expect(target.reactions['👍']).toBe(1);
+    expect(target.myReactions).toBeUndefined();
+
+    act(() => { handle(remove); });
+    target = currentChats()[0].history.find((m: any) => m.id === 'wire-msg-1');
+    expect(target.reactions['👍']).toBeUndefined();
   });
 
   it('ignores chat-edit frames for unknown chats and unknown message ids', () => {

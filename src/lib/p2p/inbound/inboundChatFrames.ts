@@ -1,4 +1,4 @@
-import { encodeChatDeliveryAck, nextFrameSeq, type ChatEditFrame, type ChatTextFrame } from "../chatFrame";
+import { encodeChatDeliveryAck, nextFrameSeq, type ChatEditFrame, type ChatReactionFrame, type ChatTextFrame } from "../chatFrame";
 import { p2pNetwork } from "../network";
 import { resolveInboundSelfDestruct } from "../../selfDestruct";
 import { formatClockTime } from "../../../utils/chatUtils";
@@ -48,6 +48,41 @@ export const handleChatEdit = (frame: ChatEditFrame | null, senderId: string) =>
             history: (c.history || []).map((m: any) =>
               String(m.id) === frame.messageId ? { ...m, text: frame.text, edited: true } : m,
             ),
+          }
+        : c,
+    );
+  });
+};
+
+/**
+ * Inbound reaction toggle: bumps or removes a single count on the addressed
+ * bubble. The remote side never owns `myReactions` — only counts change — so the
+ * local "mine" highlight cannot be spoofed by a peer.
+ */
+export const handleChatReaction = (frame: ChatReactionFrame | null, senderId: string) => {
+  if (!frame) return;
+  const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "chat-reaction");
+  if (!chat) return;
+  const { setChats } = useAppStore.getState();
+  setChats((prevChats: any[]) => {
+    const chats = prevChats || [];
+    if (!chats.some((c: any) => c.id === chat.id)) return chats;
+    return chats.map((c: any) =>
+      c.id === chat.id
+        ? {
+            ...c,
+            history: (c.history || []).map((m: any) => {
+              if (String(m.id) !== frame.messageId) return m;
+              const reactions = { ...(m.reactions || {}) };
+              if (frame.op === "add") {
+                reactions[frame.emoji] = (reactions[frame.emoji] || 0) + 1;
+              } else {
+                const next = (reactions[frame.emoji] || 0) - 1;
+                if (next > 0) reactions[frame.emoji] = next;
+                else delete reactions[frame.emoji];
+              }
+              return { ...m, reactions };
+            }),
           }
         : c,
     );

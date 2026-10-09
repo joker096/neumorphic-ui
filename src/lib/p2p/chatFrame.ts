@@ -87,6 +87,48 @@ export function parseChatEdit(raw: string): ChatEditFrame | null {
   }
 }
 
+/**
+ * Reaction toggle for one emoji on one message. Only the delta travels — the
+ * receiver bumps or removes a single count — so a peer can never rewrite the
+ * whole reaction map. The sender's own reaction is tracked locally under
+ * `msg.myReactions`; it is never asserted over the wire.
+ */
+export interface ChatReactionFrame {
+  type: 'chat-reaction';
+  seq: number;
+  messageId: string;
+  chatId: string;
+  chatName: string;
+  senderName: string;
+  emoji: string;
+  op: 'add' | 'remove';
+  timestamp: number;
+}
+
+export function encodeChatReaction(frame: ChatReactionFrame): string {
+  return MSG_MAGIC + JSON.stringify(frame);
+}
+
+/** Parse a reaction frame; null when the payload is not a valid reaction frame. */
+export function parseChatReaction(raw: string): ChatReactionFrame | null {
+  if (!raw.startsWith(MSG_MAGIC)) return null;
+  try {
+    const parsed = JSON.parse(raw.slice(MSG_MAGIC.length)) as ChatReactionFrame;
+    return parsed.type === 'chat-reaction' && isSeq(parsed.seq)
+      && typeof parsed.messageId === 'string'
+      && typeof parsed.chatId === 'string'
+      && typeof parsed.chatName === 'string'
+      && typeof parsed.senderName === 'string'
+      && typeof parsed.emoji === 'string'
+      && (parsed.op === 'add' || parsed.op === 'remove')
+      && isNonNegativeInt(parsed.timestamp)
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export interface ChatReadReceiptFrame {
   type: 'chat-read';
   seq: number;

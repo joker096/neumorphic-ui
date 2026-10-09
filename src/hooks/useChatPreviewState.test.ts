@@ -4,7 +4,7 @@ import { useChatPreviewState } from './useChatPreviewState';
 import { useAppStore } from '../store';
 import { queueMessage } from '../lib/messageQueue';
 import { p2pNetwork } from '../lib/p2p/network';
-import { parseChatReadReceipt } from '../lib/p2p/chatFrame';
+import { parseChatReadReceipt, parseChatReaction } from '../lib/p2p/chatFrame';
 import { parseChatLocation, parseChatArticle } from '../lib/p2p/chatRichFrames';
 import { MINUTE_MS } from '../constants/time';
 
@@ -139,6 +139,63 @@ describe('useChatPreviewState (offline-first queue)', () => {
       await Promise.resolve();
     });
 
+  });
+});
+
+describe('useChatPreviewState (reaction toggle)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const reactableChat = () => ({
+    id: 'dm-3',
+    name: 'Bob',
+    history: [{ id: 7, sender: 'Bob', text: 'hey', time: '10:00', reactions: {}, myReactions: {} }],
+  });
+
+  it('adds then removes the local reaction on a second tap', () => {
+    const onUpdateChat = vi.fn();
+    let current: any = reactableChat();
+    const { result, rerender } = renderHook(() =>
+      useChatPreviewState(current, onUpdateChat, undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    act(() => result.current.handleReactionMessage(7, '👍'));
+    current = onUpdateChat.mock.calls.at(-1)![0];
+    let last = current.history.find((m: any) => m.id === 7);
+    expect(last.reactions['👍']).toBe(1);
+    expect(last.myReactions['👍']).toBe(true);
+
+    rerender();
+
+    act(() => result.current.handleReactionMessage(7, '👍'));
+    last = onUpdateChat.mock.calls.at(-1)![0].history.find((m: any) => m.id === 7);
+    expect(last.reactions['👍']).toBeUndefined();
+    expect(last.myReactions['👍']).toBeUndefined();
+  });
+
+  it('broadcasts an encoded chat-reaction frame with the toggled op', () => {
+    const { result } = renderHook(() =>
+      useChatPreviewState(reactableChat(), vi.fn(), undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    act(() => result.current.handleReactionMessage(7, '🔥'));
+
+    const sent = vi.mocked(p2pNetwork.sendAddressed).mock.calls.at(-1)![1] as string;
+    expect(parseChatReaction(sent)).toMatchObject({ type: 'chat-reaction', messageId: '7', emoji: '🔥', op: 'add' });
+  });
+
+  it('allows reacting to an own message', () => {
+    const chat = { id: 'dm-3', name: 'Bob', history: [{ id: 8, sender: 'me', text: 'mine', time: '10:00', reactions: {} }] };
+    const onUpdateChat = vi.fn();
+    const { result } = renderHook(() =>
+      useChatPreviewState(chat, onUpdateChat, undefined, [], undefined, true, true, '', vi.fn())
+    );
+
+    act(() => result.current.handleReactionMessage(8, '🎉'));
+
+    const last = onUpdateChat.mock.calls.at(-1)![0].history.find((m: any) => m.id === 8);
+    expect(last.reactions['🎉']).toBe(1);
   });
 });
 

@@ -11,6 +11,8 @@ import {
   parseChatReadReceipt,
   encodeChatEdit,
   parseChatEdit,
+  encodeChatReaction,
+  parseChatReaction,
   encodeChatAudioMeta,
   parseChatAudioMeta,
   encodeChatAudioChunk,
@@ -139,6 +141,33 @@ describe('chat edit frames', () => {
 
     const text = { type: 'chat-text' as const, seq: 7, messageId: 'm-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', text: 'x', silent: false, timestamp: 12 };
     expect(parseChatEdit(encodeChatText(text))).toBeNull();
+  });
+});
+
+describe('chat reaction frames', () => {
+  it('round-trips add and remove reaction frames', () => {
+    const add = {
+      type: 'chat-reaction' as const,
+      seq: 8,
+      messageId: 'm-1',
+      chatId: 'dm-1',
+      chatName: 'Bob',
+      senderName: 'Bob',
+      emoji: '👍',
+      op: 'add' as const,
+      timestamp: 13,
+    };
+    expect(parseChatReaction(encodeChatReaction(add))).toEqual(add);
+    expect(parseChatReaction(encodeChatReaction({ ...add, op: 'remove' }))!.op).toBe('remove');
+  });
+
+  it('rejects legacy, invalid-op and non-reaction payloads', () => {
+    const legacy = { type: 'chat-reaction', messageId: 'm-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', emoji: '👍', op: 'add', timestamp: 13 };
+    expect(parseChatReaction(MSG_MAGIC + JSON.stringify(legacy))).toBeNull();
+
+    expect(parseChatReaction(MSG_MAGIC + JSON.stringify({ type: 'chat-reaction', seq: 1, messageId: 'm-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', emoji: '👍', op: 'reset', timestamp: 13 }))).toBeNull();
+    expect(parseChatReaction(encodeChatText(textFrame))).toBeNull();
+    expect(parseChatReaction(`${MSG_MAGIC}{broken`)).toBeNull();
   });
 });
 
