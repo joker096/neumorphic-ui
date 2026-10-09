@@ -6,6 +6,26 @@ import { MOCK_CONTACTS } from '../constants/mock/mockContacts';
 import { MOCK_CALLS } from '../constants/mock/mockCalls';
 
 /**
+ * Mock bubbles carry only `date` (YYYY-MM-DD) + `time` (`"10:42"` or a label
+ * like `"Jul 28"`), but the live app orders and renders the list from `ts`.
+ * Stamp it once at seed time so the recency sort and the derived list time see
+ * the demo's real chronology instead of falling back to message-id order.
+ * Clock times map to that day's local time; label times land at noon.
+ */
+function mockMessageStamp(m: any): { ts?: number } {
+  if (m?.ts != null || typeof m?.date !== 'string') return {};
+  const clock = typeof m.time === 'string' && /^\d{1,2}:\d{2}$/.test(m.time) ? m.time : '12:00';
+  const parsed = Date.parse(`${m.date}T${clock}:00`);
+  return Number.isFinite(parsed) ? { ts: parsed } : {};
+}
+
+function seedHistory(history: any): any {
+  return Array.isArray(history)
+    ? history.map((m: any) => ({ ...m, ...mockMessageStamp(m) }))
+    : history;
+}
+
+/**
  * Seed mock data into the store (called once on app init)
  */
 export function seedMockData(
@@ -19,7 +39,7 @@ export function seedMockData(
   channels: P2PChannel[],
 ) {
   if (chats.length === 0) {
-    setChats(MOCK_CHATS as any);
+    setChats(MOCK_CHATS.map((chat: any) => ({ ...chat, history: seedHistory(chat.history) })) as any);
   }
   if (contacts.length === 0) {
     setContacts(MOCK_CONTACTS);
@@ -46,7 +66,7 @@ export function seedMockData(
         time: c.time,
         unread: c.unread,
         isChannel: true,
-        history: c.history,
+        history: seedHistory(c.history),
       }))
     ) as any;
   }

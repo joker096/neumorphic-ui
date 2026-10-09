@@ -60,6 +60,7 @@ export function useAppNavigation(
       type: "direct" as const,
       color: color || "from-blue-400 to-indigo-500",
       online: true,
+      createdAt: Date.now(),
       history: [],
     };
     setChats((prev: any[]) => [newChat, ...prev] as any);

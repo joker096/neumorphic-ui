@@ -1,26 +1,64 @@
 import { useAppStore } from "../../../store";
+import { playSound } from "../../sounds";
+import { sendTimeOf } from "../../../utils/chatUtils";
+import type { NotificationKind } from "../../../store/slices/notificationSlice";
+import { isNotificationKindEnabled, DEFAULT_NOTIFICATION_SETTINGS } from "../../../store/slices/notificationSlice";
 
 export function appendIncomingToDmChat(chat: any, newMessage: any) {
-  const { setChats } = useAppStore.getState();
+  const { setChats, activeChatId } = useAppStore.getState();
+  const isOpen = activeChatId != null && String(activeChatId) === String(chat.id);
+  let appended = false;
   setChats((prevChats: any[]) => {
     const chats = prevChats || [];
     if (!chats.some((c: any) => c.id === chat.id)) return chats;
+    appended = true;
     return chats.map((c: any) =>
-      c.id === chat.id ? { ...c, history: insertBySendTime(c.history || [], newMessage) } : c,
+      c.id === chat.id
+        ? {
+            ...c,
+            history: insertBySendTime(c.history || [], newMessage),
+            // Telegram/WhatsApp semantics: an incoming bubble while the chat is
+            // closed bumps the badge; the conversation being read stays at 0.
+            ...(isOpen ? null : { unread: (c.unread || 0) + 1 }),
+          }
+        : c,
     );
   });
+  if (!appended || isOpen) return;
+  const fresh = useAppStore.getState().chats.find((c: any) => c.id === chat.id);
+  notifyIncoming(chat, fresh, newMessage);
 }
 
 /**
- * Send time of a bubble, for ordering.
- *
- * `ts` is the canonical send time. `id` is only a fallback because most
- * senders use `Date.now()` for both, but live-location ids are strings
- * (`live_<chat>_<ts>`) and `Number("live_…")` is `NaN`, which collapsed to 0
- * and pushed a freshly started share to the top of the chat.
+ * In-app notification + sound for an incoming bubble while the chat is NOT
+ * open. The kind mirrors the chat-list classification (mention/group/channel),
+ * and the sound runs through the same filter switch (`isNotificationKindEnabled`)
+ * instead of a private copy, so a disabled category stays silent as well as
+ * absent from the center. `pushNotification` re-checks the switch itself.
  */
-const sendTimeOf = (m: any): number =>
-  Number(m?.ts) || Number(m?.id) || Number(m?.timestamp) || 0;
+function notifyIncoming(chat: any, freshChat: any | undefined, msg: any) {
+  const state = useAppStore.getState();
+  const target = freshChat ?? chat;
+  // Muted chats keep their badge (like Telegram) but stay silent.
+  if (target.isMuted || target.muted) return;
+  // Fall back to the defaults when the store is only partially wired (tests,
+  // pre-hydration) instead of throwing on every incoming frame.
+  const settings = state.notificationSettings ?? DEFAULT_NOTIFICATION_SETTINGS;
+  const text = typeof msg.text === "string" ? msg.text : "";
+  const mentionsMe =
+    (Array.isArray(msg.mentions) && msg.mentions.some((m: any) => m?.name === "user")) ||
+    /@user\b/i.test(text);
+  const kind: NotificationKind = mentionsMe
+    ? "mention"
+    : target.type === "group" || target.group
+      ? "group"
+      : target.isChannel || target.type === "channel"
+        ? "channel"
+        : "message";
+  if (!isNotificationKindEnabled(kind, settings)) return;
+  state.pushNotification?.({ title: target.name || "", body: text || undefined, kind, chatId: String(chat.id) });
+  if (settings.sounds && !msg.silent) playSound("incoming-chat");
+}
 
 /**
  * Incoming frames carry the sender's message id (Date.now() at send time), so a
@@ -42,7 +80,8 @@ function insertBySendTime(history: any[], message: any): any[] {
  * GPS fix.
  */
 export function upsertIncomingToDmChat(chat: any, newMessage: any): { created: boolean } {
-  const { setChats } = useAppStore.getState();
+  const { setChats, activeChatId } = useAppStore.getState();
+  const isOpen = activeChatId != null && String(activeChatId) === String(chat.id);
   let created = false;
   setChats((prevChats: any[]) => {
     const chats = prevChats || [];
@@ -53,7 +92,13 @@ export function upsertIncomingToDmChat(chat: any, newMessage: any): { created: b
       const idx = history.findIndex((m: any) => String(m.id) === String(newMessage.id));
       if (idx === -1) {
         created = true;
-        return { ...c, history: insertBySendTime(history, newMessage) };
+        return {
+          ...c,
+          history: insertBySendTime(history, newMessage),
+          // Only the first frame of a live-location stream counts as new; every
+          // GPS fix after it must not bump the badge again.
+          ...(isOpen ? null : { unread: (c.unread || 0) + 1 }),
+        };
       }
       // Keep the original send time: a moving bubble must not jump to the top
       // of the chat on every fix.
@@ -68,6 +113,10 @@ export function upsertIncomingToDmChat(chat: any, newMessage: any): { created: b
       };
     });
   });
+  if (created && !isOpen) {
+    const fresh = useAppStore.getState().chats.find((c: any) => c.id === chat.id);
+    notifyIncoming(chat, fresh, newMessage);
+  }
   return { created };
 }
 

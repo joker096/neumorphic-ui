@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { CHAT_FOLDER_KEYS, CRM_SEGMENT_KEYS } from "../constants/chatConstants";
 import { findCrmContactByChat } from "../lib/crm/bridge";
+import { chatActivityOf } from "../utils/chatUtils";
 const ARCHIVED = CHAT_FOLDER_KEYS[5];
 const UNREAD = CHAT_FOLDER_KEYS[2];
 const PERSONAL = CHAT_FOLDER_KEYS[1];
@@ -11,11 +12,10 @@ const CLIENTS = CRM_SEGMENT_KEYS[1];
 
 /**
  * Ordering of the chat list.
- *  - `recent` — store insertion order (newest chat first). The default, and the
- *    only honest "recent" we have: chats carry no numeric timestamp, `chat.time`
- *    is a preformatted display string ("10:42" / "Yesterday"), so it cannot be
- *    ordered against. A real recency sort needs a timestamp plumbed through the
- *    whole send path (chatSlice + send hooks + IDB + wire format).
+ *  - `recent` — by last activity: send time of the newest bubble (with message
+ *    id fallback — live senders use `Date.now()` for both), else the chat's
+ *    `createdAt`, else 0. Chats with equal keys keep their relative insertion
+ *    order (Array.sort is stable), so never-active chats don't churn.
  *  - `alpha`   — by chat name, locale-aware. Telegram calls this "By name".
  */
 export type ChatSortBy = 'recent' | 'alpha';
@@ -128,16 +128,20 @@ export function useFilteredChats(
   }), [channels, chatSearchQuery, activeFolder, archivedChats]);
 
   const sortedChats = useMemo(() => {
-    if (sortBy !== 'alpha') return filteredChats;
     // Copy first — `filteredChats` items are the live store objects, and sort
     // must not mutate the array that came out of the filter.
+    if (sortBy !== 'alpha') {
+      return [...filteredChats].sort((a, b) => chatActivityOf(b) - chatActivityOf(a));
+    }
     return [...filteredChats].sort((a, b) =>
       String(a.name ?? '').localeCompare(String(b.name ?? ''), undefined, { sensitivity: 'base' })
     );
   }, [filteredChats, sortBy]);
 
   const sortedChannels = useMemo(() => {
-    if (sortBy !== 'alpha') return filteredChannels;
+    if (sortBy !== 'alpha') {
+      return [...filteredChannels].sort((a, b) => chatActivityOf(b) - chatActivityOf(a));
+    }
     return [...filteredChannels].sort((a, b) =>
       String(a.name ?? '').localeCompare(String(b.name ?? ''), undefined, { sensitivity: 'base' })
     );

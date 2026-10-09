@@ -128,6 +128,56 @@ export function fuzzTime(timeStr: string, id: number): string {
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`
 }
 
+/**
+ * Send time of a bubble, for ordering and list-time rendering.
+ *
+ * `ts` is the canonical send time. `id` is only a fallback because most
+ * senders use `Date.now()` for both, but live-location ids are strings
+ * (`live_<chat>_<ts>`) and `Number("live_…")` is `NaN`, which collapsed to 0
+ * and pushed a freshly started share to the top of the chat.
+ */
+export function sendTimeOf(m: any): number {
+  return Number(m?.ts) || Number(m?.id) || Number(m?.timestamp) || 0;
+}
+
+/**
+ * Activity key for the `recent` chat-list sort: the send time of the newest
+ * bubble, else the chat's creation time, else 0. Equal keys keep their
+ * relative insertion order (Array.sort is stable).
+ */
+export function chatActivityOf(chat: any): number {
+  const history: any[] | undefined = chat?.history;
+  const last = Array.isArray(history) && history.length > 0 ? history[history.length - 1] : null;
+  return sendTimeOf(last) || Number(chat?.createdAt) || 0;
+}
+
+/**
+ * List-row time, derived from the newest bubble so an incoming message updates
+ * the row even though the inbound append path never touches `chat.time`:
+ *  - today → the bubble's own stamp (`msg.time`, byte-identical to what the
+ *    conversation renders; re-formatted from `ts` when the stamp is missing),
+ *  - older → the day label ("Yesterday" / "Oct 6"), injected through `t`,
+ *  - no `ts` (legacy bubbles / unseeded fixtures) → the stamped `chat.time`.
+ */
+export function chatListTime(
+  chat: any,
+  t: (key: string, options?: any) => string,
+  lang?: string,
+): string {
+  const history: any[] | undefined = chat?.history;
+  const last = Array.isArray(history) && history.length > 0 ? history[history.length - 1] : null;
+  const ts = Number(last?.ts);
+  if (!(Number.isFinite(ts) && ts > 0)) return chat?.time ?? '';
+  if (dayDiffFromNow(ts) === 0) {
+    return (typeof last.time === 'string' && last.time) || formatClockTime(ts);
+  }
+  return formatDateLabel(String(chat?.time ?? ''), ts, {
+    lang,
+    today: t('chat.today'),
+    yesterday: t('chat.yesterday'),
+  });
+}
+
 export function getBubbleCornerClass(gp: GroupPosition, isMe: boolean): string {
   if (isMe) {
     if (gp === 'single') return 'rounded-xl rounded-br-sm'

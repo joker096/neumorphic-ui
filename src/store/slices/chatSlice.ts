@@ -56,6 +56,14 @@ export const groupPermissionsOf = (group: GroupInfo | undefined | null): GroupPe
 
 export interface ChatSlice {
   chats: any[];
+  /**
+   * Id of the conversation currently open in the workspace — a store mirror of
+   * App's `activeChat` state so the non-React inbound writers (P2P append
+   * paths) can suppress unread badges / notifications for the chat the user is
+   * already reading.
+   */
+  activeChatId: string | number | null;
+  setActiveChatId: (id: string | number | null) => void;
   createGroup: (opts: { name: string; memberIds: string[] }) => string;
   updateGroup: (chatId: string, patch: Partial<{ members: GroupMember[]; group: GroupInfo }>) => void;
   deleteGroup: (chatId: string) => void;
@@ -86,6 +94,8 @@ export interface ChatSlice {
 
 export const createChatSlice = (set: any, get: any): ChatSlice => ({
   chats: [],
+  activeChatId: null,
+  setActiveChatId: (id) => set({ activeChatId: id }),
   setChats: (updater) => set((state: any) => ({
     chats: typeof updater === 'function' ? updater(state.chats) : updater
   })),

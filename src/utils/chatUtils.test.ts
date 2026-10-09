@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { groupMessages, formatDateLabel, formatShortDate, formatClockTime, fuzzTime, getBubbleCornerClass } from './chatUtils';
+import { groupMessages, formatDateLabel, formatShortDate, formatClockTime, fuzzTime, getBubbleCornerClass, sendTimeOf, chatActivityOf, chatListTime } from './chatUtils';
 
 describe('formatClockTime', () => {
   it('matches the previous toLocaleTimeString call it replaces', () => {
@@ -215,5 +215,58 @@ describe('getBubbleCornerClass', () => {
 
   it('falls back to single for invalid group position', () => {
     expect(getBubbleCornerClass('invalid' as any, true)).toBe('rounded-xl rounded-br-sm');
+  });
+});
+
+describe('sendTimeOf / chatActivityOf', () => {
+  it('prefers ts, then a numeric id, then timestamp', () => {
+    expect(sendTimeOf({ ts: 5 })).toBe(5);
+    expect(sendTimeOf({ id: 7 })).toBe(7);
+    expect(sendTimeOf({ timestamp: 9 })).toBe(9);
+  });
+
+  it('does not treat a string live-location id as a timestamp', () => {
+    // `Number("live_<chat>_<ts>")` is NaN → must not collapse to 0 and bump a
+    // freshly started share to the top of the list.
+    expect(sendTimeOf({ id: 'live_1_1700000000000' })).toBe(0);
+    expect(sendTimeOf(undefined)).toBe(0);
+  });
+
+  it('keys chat activity on the newest bubble, else createdAt, else 0', () => {
+    expect(chatActivityOf({ history: [{ ts: 1 }, { ts: 3 }] })).toBe(3);
+    expect(chatActivityOf({ history: [], createdAt: 42 })).toBe(42);
+    expect(chatActivityOf({})).toBe(0);
+  });
+});
+
+describe('chatListTime', () => {
+  const t = (key: string) =>
+    key === 'chat.today' ? 'Today' : key === 'chat.yesterday' ? 'Yesterday' : key;
+
+  it('shows the newest bubble stamp for a message from today', () => {
+    const now = Date.now();
+    expect(chatListTime({ history: [{ ts: now, time: '10:42' }], time: '09:00' }, t)).toBe('10:42');
+  });
+
+  it('re-formats from ts when the bubble carries no stamp', () => {
+    const now = Date.now();
+    expect(chatListTime({ history: [{ ts: now }] }, t)).toBe(formatClockTime(now));
+  });
+
+  it('shows the injected Yesterday label for a day-old bubble', () => {
+    const ts = Date.now() - 24 * 60 * 60 * 1000;
+    expect(chatListTime({ history: [{ ts, time: '23:59' }], time: '23:59' }, t)).toBe('Yesterday');
+  });
+
+  it('shows a localized day label for older bubbles', () => {
+    const ts = Date.now() - 40 * 24 * 60 * 60 * 1000;
+    const label = chatListTime({ history: [{ ts, time: '11:00' }] }, t, 'ru-RU');
+    expect(label).not.toBe('11:00');
+    expect(label).toBe(formatDateLabel('', ts, { lang: 'ru-RU', today: 'Today', yesterday: 'Yesterday' }));
+  });
+
+  it('falls back to the stamped chat.time without a usable ts', () => {
+    expect(chatListTime({ history: [{ time: '12:00' }], time: '12:00' }, t)).toBe('12:00');
+    expect(chatListTime({ time: 'Jul 28' }, t)).toBe('Jul 28');
   });
 });

@@ -34,7 +34,7 @@ export interface NotificationSlice {
   setBrowserPermission: (perm: NotificationPermission) => void;
 }
 
-const DEFAULT_SETTINGS: NotificationSettings = {
+export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   allMessages: true,
   mentions: true,
   replies: true,
@@ -46,7 +46,7 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   mobile: true,
 };
 
-function kindEnabled(kind: NotificationKind, s: NotificationSettings): boolean {
+export function isNotificationKindEnabled(kind: NotificationKind, s: NotificationSettings): boolean {
   switch (kind) {
     case 'message': return s.allMessages;
     case 'mention': return s.mentions;
@@ -61,11 +61,11 @@ function kindEnabled(kind: NotificationKind, s: NotificationSettings): boolean {
 export const createNotificationSlice = (set: any, get: any): NotificationSlice => ({
   notificationItems: [],
   unreadCount: 0,
-  notificationSettings: DEFAULT_SETTINGS,
+  notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
   browserPermission: typeof Notification !== 'undefined' ? Notification.permission : 'default',
   pushNotification: ({ title, body, kind = 'system', chatId }) => {
     const settings = get().notificationSettings as NotificationSettings;
-    if (!kindEnabled(kind, settings)) return;
+    if (!isNotificationKindEnabled(kind, settings)) return;
     const item: NotificationItem = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       title,

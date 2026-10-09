@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback } from "react";
+import { lazy, Suspense, useState, useCallback, useEffect } from "react";
 import { AppOverlays } from "./components/app";
 import { useMessageActions } from "./hooks/useMessageActions";
 import { useProfileActions } from "./hooks/useProfileActions";
@@ -78,7 +78,6 @@ export default function App() {
 
   const { connectionStatus, connectionError } = useAppConnection();
 
-  useScheduledMessages();
   useP2PBoot();
   useChatPresence();
   useSoundSettingsSync();
@@ -87,6 +86,23 @@ export default function App() {
   const { pendingInvite, setPendingInvite } = useAppBootEffects({ setActiveStory });
 
   const [activeChat, setActiveChat] = useState<any>(null);
+  const setActiveChatId = useAppStore(s => s.setActiveChatId);
+  const activeChatId = activeChat?.id ?? null;
+  // Mirror the open conversation into the store: inbound append paths (P2P)
+  // run outside React and need to know which chat the user is reading to
+  // suppress unread badges/notifications; opening a chat clears its badge.
+  useEffect(() => {
+    setActiveChatId(activeChatId);
+    if (activeChatId == null) return;
+    setChats((prev: any[]) =>
+      prev.some((c: any) => c.id === activeChatId && (c.unread || 0) > 0)
+        ? prev.map((c: any) => (c.id === activeChatId ? { ...c, unread: 0 } : c))
+        : prev,
+    );
+  }, [activeChatId, setActiveChatId, setChats]);
+  // Scheduled-fire needs the open conversation to append into — defined after
+  // the `activeChat` state above (same hook-order constraint as the mirror).
+  useScheduledMessages(setActiveChat);
   const [messageText, setMessageText] = useState("");
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [voiceNoteError, setVoiceNoteError] = useState("");

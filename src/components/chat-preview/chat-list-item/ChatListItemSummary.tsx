@@ -3,6 +3,28 @@ import { FormattedText } from "../FormattedText";
 
 type Translate = (key: string, options?: any) => string;
 
+/**
+ * Newest-bubble preview: the bubble's own text when it has any, else a
+ * localized label for the media type; falls back to the stamped `chat.message`
+ * for empty/legacy histories. Deriving here keeps the row fresh even though the
+ * inbound append path never touches `chat.message`.
+ */
+function previewOf(lastMsg: any, fallback: string, t: Translate): string {
+  if (!lastMsg) return fallback;
+  if (typeof lastMsg.text === "string" && lastMsg.text) return lastMsg.text;
+  switch (lastMsg.type) {
+    case "image": return t("chat.photo");
+    case "video": return t("chat.video");
+    case "audio": return typeof lastMsg.duration === "string" && lastMsg.duration
+      ? `${t("chat.voiceNote")}${lastMsg.duration}`
+      : t("chat.voiceNote");
+    case "file": return t("chat.attachment");
+    case "location": return t("chat.location");
+    case "article": return t("chat.article");
+    default: return fallback;
+  }
+}
+
 interface ChatListItemSummaryProps {
   chat: any;
   active: boolean;
@@ -42,7 +64,7 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
               {t("chat.draft", "Draft")}: <FormattedText text={draftText} />
             </span>
           ) : (
-            <FormattedText text={chat.message} />
+            <FormattedText text={previewOf(lastMsg, chat.message, t)} />
           )}
         </span>
         {chat.unread > 0 && (

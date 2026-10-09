@@ -58,7 +58,7 @@ export function useChatPreviewInteractions({
   const confirmDelete = () => {
     if (!deleteConfirm) return;
     if (deleteConfirm.kind === "single") handleDeleteMessage(deleteConfirm.msg);
-    else handleDeleteSelected(chat.messages || []);
+    else handleDeleteSelected(chat.history || []);
     setDeleteConfirm(null);
   };
 
@@ -115,10 +115,11 @@ export function useChatPreviewInteractions({
   };
 
   const handleJumpToPinned = (id: number) => {
-    const messages = (chat.messages || []) as any[];
-    const idx = messages.findIndex((m) => m.id === id);
+    // Virtualizer indices cover flatItems (bubbles + date separators), so the
+    // jump resolves there — same pattern as the search deep-link above.
+    const idx = flatItems.findIndex((item: any) => !item._isDateSeparator && item.id === id);
     if (idx >= 0 && msgListRef.current) {
-      (msgListRef.current as any).scrollToIndex?.(idx);
+      (msgListRef.current as any).scrollToIndex?.(idx, "center");
     }
   };
 
@@ -126,7 +127,7 @@ export function useChatPreviewInteractions({
     msgListRef.current?.scrollToBottom();
   };
 
-  const selectedMessages = (chat.messages || []).filter((m: any) => selectedIds.has(m.id));
+  const selectedMessages = (chat.history || []).filter((m: any) => selectedIds.has(m.id));
   const handleCopySelected = async () => {
     const texts = selectedMessages
       .map((m: any) => (typeof m.text === "string" ? m.text : ""))

@@ -68,6 +68,9 @@ vi.mock('../store', () => ({
     }),
   },
 }));
+// The inbound notify path plays a sound through this module; jsdom has no
+// media pipeline, so it is silenced here (behavior lives in the sounds tests).
+vi.mock('../lib/sounds', () => ({ playSound: vi.fn() }));
 
 function setup() {
   const { result } = renderHook(() => useP2PMessages());

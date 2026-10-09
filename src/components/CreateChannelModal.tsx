@@ -62,6 +62,7 @@ export const CreateChannelModal = ({ theme = 'dark', onClose }: { theme?: 'dark'
       const channelWithUIProps = {
          ...newChannel,
          isChannel: true,
+         createdAt: Date.now(),
          history: [],
           message: desc || t('createChannel.channelCreated'),
           time: t('chat.justNow'),

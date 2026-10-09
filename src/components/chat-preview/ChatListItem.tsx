@@ -4,6 +4,8 @@ import { Trash2 } from "lucide-react";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
 import { useAppStore } from "../../store";
 import { p2pNetwork } from "../../lib/p2p/network";
+import { chatListTime } from "../../utils/chatUtils";
+import { useI18n } from "../../lib/i18n";
 import type { MenuAnchorRect } from "./ChatContextMenu";
 import { useLongPressMenu } from "./chat-list-item/useLongPressMenu";
 import { ChatListItemSwipeOpenActions, ChatListItemSwipeManageActions } from "./chat-list-item/ChatListItemSwipeActions";
@@ -83,11 +85,15 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
 
   const isArchived = archiveLabel === t("chat.unarchive");
   const roundedClass = "rounded-full";
+  const { lang } = useI18n();
 
   const fuzzedTime = React.useMemo(() => {
-    if (!stealthMode || !chat.time) return chat.time;
-    const match = chat.time.match(/(\d{1,2}):(\d{2})/);
-    if (!match) return chat.time;
+    // Derived from the newest bubble (today → its stamp, older → day label),
+    // falling back to the stamped `chat.time` for bubbles without `ts`.
+    const base = chatListTime(chat, t, lang);
+    if (!stealthMode || !base) return base;
+    const match = base.match(/(\d{1,2}):(\d{2})/);
+    if (!match) return base;
     let h = parseInt(match[1]);
     let m = parseInt(match[2]);
     const offset = (chat.id % 11) - 5;
@@ -95,7 +101,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
     if (m < 0) { m += 60; h = (h - 1 + 24) % 24; }
     else if (m >= 60) { m -= 60; h = (h + 1) % 24; }
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-  }, [chat.time, chat.id, stealthMode]);
+  }, [chat, t, lang, stealthMode]);
 
   const handleSwipeAction = (action: string) => {
     if (action === "message") {

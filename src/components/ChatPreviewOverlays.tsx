@@ -70,7 +70,6 @@ export function ChatPreviewOverlays({
     setSelectedContact(null);
   };
 
-  const pushNotification = useAppStore((s) => s.pushNotification);
   const setChats = useAppStore((s) => s.setChats);
   const setContacts = useAppStore((s) => s.setContacts);
 
@@ -84,22 +83,6 @@ export function ChatPreviewOverlays({
     }
     setSelectedContact(null);
   };
-  const prevMsgCount = React.useRef(0);
-  React.useEffect(() => {
-    if (!chat) return;
-    const msgs = chat.messages;
-    const len = Array.isArray(msgs) ? msgs.length : 0;
-    if (prevMsgCount.current && len > prevMsgCount.current) {
-      const added = msgs.slice(prevMsgCount.current);
-      added.forEach((m: any) => {
-        if (m && !m.isMe) {
-          const kind = chat.type === "group" ? "group" : chat.type === "channel" ? "channel" : "message";
-          pushNotification({ title: chat.name, body: typeof m.text === "string" ? m.text : "", kind, chatId: chat.id });
-        }
-      });
-    }
-    prevMsgCount.current = len;
-  }, [chat, pushNotification]);
 
   return (
     <>

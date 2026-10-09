@@ -44,7 +44,6 @@ export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateCha
           ? {
               ...c,
               history: (c.history || []).filter((m: any) => m.id !== msg.id),
-              messages: (c.messages || []).filter((m: any) => m.id !== msg.id),
             }
           : c,
       )
@@ -105,7 +104,6 @@ export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateCha
           ? {
               ...c,
               history: (c.history || []).filter((m: any) => !selectedIds.has(m.id)),
-              messages: (c.messages || []).filter((m: any) => !selectedIds.has(m.id)),
             }
           : c,
       )

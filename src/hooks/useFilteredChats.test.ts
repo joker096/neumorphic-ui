@@ -289,6 +289,51 @@ describe('useFilteredChats', () => {
       );
       expect(result.current.filteredChannels.map(c => c.name)).toEqual(['Alpha', 'Zeta']);
     });
+
+    it('orders by newest bubble activity when sortBy is recent (default)', () => {
+      const active = [
+        { id: 1, name: 'Old', message: 'x', history: [{ ts: 100 }], unread: 0 },
+        { id: 2, name: 'New', message: 'x', history: [{ ts: 300 }], unread: 0 },
+        { id: 3, name: 'Mid', message: 'x', history: [{ ts: 200 }], unread: 0 },
+      ];
+      const { result } = renderHook(() =>
+        useFilteredChats(active, '', 'all', [], sortArgs, []),
+      );
+      expect(result.current.filteredChats.map(c => c.name)).toEqual(['New', 'Mid', 'Old']);
+    });
+
+    it('falls back to createdAt for a chat with no messages yet', () => {
+      const active = [
+        { id: 1, name: 'HasMsg', message: 'x', history: [{ ts: 100 }], unread: 0 },
+        { id: 2, name: 'Fresh', message: '', history: [], createdAt: 500, unread: 0 },
+      ];
+      const { result } = renderHook(() =>
+        useFilteredChats(active, '', 'all', [], sortArgs, []),
+      );
+      expect(result.current.filteredChats.map(c => c.name)).toEqual(['Fresh', 'HasMsg']);
+    });
+
+    it('keeps insertion order when activity keys are equal (stable)', () => {
+      const equal = [
+        { id: 1, name: 'First', message: 'x', history: [{ ts: 100 }], unread: 0 },
+        { id: 2, name: 'Second', message: 'x', history: [{ ts: 100 }], unread: 0 },
+      ];
+      const { result } = renderHook(() =>
+        useFilteredChats(equal, '', 'all', [], sortArgs, []),
+      );
+      expect(result.current.filteredChats.map(c => c.name)).toEqual(['First', 'Second']);
+    });
+
+    it('orders channels by newest activity too', () => {
+      const channels = [
+        { id: 'a', name: 'A', history: [{ ts: 10 }] },
+        { id: 'b', name: 'B', history: [{ ts: 20 }] },
+      ];
+      const { result } = renderHook(() =>
+        useFilteredChats([], '', 'all', [], sortArgs, channels),
+      );
+      expect(result.current.filteredChannels.map(c => c.name)).toEqual(['B', 'A']);
+    });
   });
 
   describe('CRM sales-segment folders', () => {

@@ -16,9 +16,16 @@ interface MessageWireArgs {
   activeChat: any;
   setChats: (updater: any) => void;
   setActiveChat: (updater: any) => void;
+  /**
+   * Own the offline-queue flush (mount + online + 30s retry). Secondary mounts
+   * (e.g. `useScheduledMessages`) only need the send primitives and must leave
+   * the single flush loop to the primary mount in `useMessageActions` — two
+   * flush loops would read the same pending batch and dispatch it twice.
+   */
+  flushQueue?: boolean;
 }
 
-export function useMessageWire({ activeChat, setChats, setActiveChat }: MessageWireArgs) {
+export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue = true }: MessageWireArgs) {
   const updateMessageStatus = useCallback((msgId: number, status: string) => {
     setChats((prevChats: any[]) => prevChats.map((c: any) => {
       if (!c.history) return c;
@@ -104,6 +111,7 @@ export function useMessageWire({ activeChat, setChats, setActiveChat }: MessageW
   }, [updateMessageStatus]);
 
   useEffect(() => {
+    if (!flushQueue) return;
     const attempt = async (item: any): Promise<boolean> => {
       try {
         const chatContext = { id: item.data.chatId, name: item.data.chatName };
@@ -149,7 +157,7 @@ export function useMessageWire({ activeChat, setChats, setActiveChat }: MessageW
       window.removeEventListener("online", prune);
       window.clearInterval(retryTimer);
     };
-  }, [sendTextOverP2P, sendVoiceOverP2P, updateMessageStatus]);
+  }, [sendTextOverP2P, sendVoiceOverP2P, updateMessageStatus, flushQueue]);
 
   const editMessage = useCallback((messageId: number, newText: string) => {
     executeEditMessage(messageId, newText, activeChat);
