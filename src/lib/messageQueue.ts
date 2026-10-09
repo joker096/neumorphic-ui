@@ -166,6 +166,20 @@ export const QUEUE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 /** Maximum number of retry attempts per queued message before it fails. */
 export const MAX_QUEUE_RETRIES = 5;
 
+/** Base delay of the exponential retry backoff for a queued item. */
+export const QUEUE_RETRY_BASE_MS = 5_000;
+/** Upper bound of the exponential retry backoff for a queued item. */
+export const QUEUE_RETRY_MAX_MS = 5 * 60_000;
+
+/**
+ * Delay that must elapse since the last failed attempt before a queued item is
+ * retried again. Grows as `base * 2^retryCount`, capped at `QUEUE_RETRY_MAX_MS`.
+ */
+export function queueBackoffMs(retryCount: number): number {
+  const n = Math.max(0, Math.floor(Number(retryCount) || 0));
+  return Math.min(QUEUE_RETRY_MAX_MS, QUEUE_RETRY_BASE_MS * 2 ** n);
+}
+
 export async function pruneExpiredQueuedMessages(maxAgeMs: number = QUEUE_MAX_AGE_MS): Promise<number> {
   const db = await openDB();
   return new Promise((resolve, reject) => {

@@ -52,6 +52,15 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
     }
   }, [onUpdateChat, setChatsStore, setChannels]);
 
+  /**
+   * Honest failure for a wire send that threw. When the offline queue is on the
+   * message is already persisted for the shared flush loop, so it stays
+   * `queued`; otherwise there is no retry path and the bubble is `failed`.
+   */
+  const markSendFailure = useCallback((chatArg: any, msgId: string | number) => {
+    updateMsgStatusInChat(chatArg, msgId, useAppStore.getState().offlineMode ? "queued" : "failed");
+  }, [updateMsgStatusInChat]);
+
   const sendMessage = (attachment?: { url: string; type: 'image' | 'video' } | Array<{ url: string; type: 'image' | 'video' }>) => {
     const textToSend = draft.eMorseMode ? encodeMorse(draft.eMsgText) : draft.eMsgText.trim();
     const attachments = Array.isArray(attachment) ? attachment : attachment ? [attachment] : [];
@@ -117,7 +126,7 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
         silent: !!newMessage.silent,
         timestamp: Number(newMessage.id) || Date.now(),
         ttlMs: wireSelfDestructTtl(newMessage.selfDestructAt),
-      })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
+      })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => markSendFailure(updatedChat, newMessage.id));
     }
     draft.setMsgTextFn("");
     draft.setReplyTargetFn2(null);
@@ -161,7 +170,7 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
       silent: !!newMessage.silent,
       timestamp: Number(newMessage.id) || Date.now(),
       ttlMs: wireSelfDestructTtl(newMessage.selfDestructAt),
-    })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
+    })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => markSendFailure(updatedChat, newMessage.id));
   };
 
   const sendArticleMessage = (url: string, title?: string) => {
@@ -201,7 +210,7 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
       silent: !!newMessage.silent,
       timestamp: Number(newMessage.id) || Date.now(),
       ttlMs: wireSelfDestructTtl(newMessage.selfDestructAt),
-    })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => {});
+    })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => markSendFailure(updatedChat, newMessage.id));
   };
 
   const attachFiles = (files: File[], _chatData: any, _onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {

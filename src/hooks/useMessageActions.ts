@@ -153,7 +153,9 @@ export function useMessageActions(
     appendMessage(newMessage);
     queueOffline({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name },
       () => updateMessageStatus(newMessage.id, "failed"));
-    void sendTextOverP2P(newMessage, activeChat).catch(() => {});
+    void sendTextOverP2P(newMessage, activeChat).catch(() =>
+      updateMessageStatus(newMessage.id, useAppStore.getState().offlineMode ? "queued" : "failed"),
+    );
     setMessageText("");
     setSilentMode(false);
     setReplyTarget(null);

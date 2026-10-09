@@ -8,7 +8,10 @@ import { wireSelfDestructTtl } from "../lib/selfDestruct";
 import { getVoiceBlob } from "../lib/voiceStore";
 import { sha256Hex } from "../lib/fileTransfer/integrity";
 import { bytesToBase64 } from "../lib/fileTransfer/frames";
-import { getPendingMessages, markMessageSent, pruneExpiredQueuedMessages } from "../lib/messageQueue";
+import {
+  getPendingMessages, markMessageSent, pruneExpiredQueuedMessages,
+  retryMessage, removeQueuedMessage, queueBackoffMs, MAX_QUEUE_RETRIES,
+} from "../lib/messageQueue";
 import { useAppStore } from "../store";
 import { executeEditMessage } from "../lib/chatEdit";
 
@@ -112,21 +115,28 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
 
   useEffect(() => {
     if (!flushQueue) return;
-    const attempt = async (item: any): Promise<boolean> => {
+    const attempt = async (item: any): Promise<void> => {
+      const chatContext = { id: item.data.chatId, name: item.data.chatName };
       try {
-        const chatContext = { id: item.data.chatId, name: item.data.chatName };
         if (item.data?.type === "audio") {
           await sendVoiceOverP2P(item.data, chatContext);
         } else {
           await sendTextOverP2P(item.data, chatContext);
         }
+        await markMessageSent(item.id);
       } catch {
-        // Best-effort dispatch: there is no server-side queue, so a failed
-        // in-flight attempt is marked sent on-device (optimistic) and the
-        // transport layer retries delivery on its own reconnect schedule.
+        // Honest failure: there is no server-side queue, so a frame that never
+        // left the device stays queued and is retried with exponential
+        // backoff. Only after MAX_QUEUE_RETRIES do we evict it and surface a
+        // failed bubble (with a manual retry affordance).
+        const retryCount = (item.retryCount || 0) + 1;
+        if (retryCount >= MAX_QUEUE_RETRIES) {
+          await removeQueuedMessage(item.id).catch(() => {});
+          if (item.data?.id !== undefined) updateMessageStatus(item.data.id, "failed");
+        } else {
+          await retryMessage(item).catch(() => {});
+        }
       }
-      await markMessageSent(item.id);
-      return true;
     };
 
     const flush = async () => {
@@ -138,6 +148,9 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
         const type = item.data?.type;
         const isDeliverable = type === undefined || type === "sticker" || type === "audio";
         if (!isDeliverable) continue;
+        // Exponential backoff between failed attempts for the same item.
+        const lastRetry = item.lastRetry || 0;
+        if (lastRetry && Date.now() - lastRetry < queueBackoffMs(item.retryCount || 0)) continue;
         // One failed message must not abort the rest of the queue.
         await attempt(item);
       }

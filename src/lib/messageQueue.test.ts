@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest';
+import { queueBackoffMs, QUEUE_RETRY_BASE_MS, QUEUE_RETRY_MAX_MS } from './messageQueue';
 
 // --- In-memory IndexedDB fake (patterned after recordingStorage.test.ts) ---
 
@@ -334,5 +335,22 @@ describe('messageQueue', () => {
     expect(all).toHaveLength(3);
     expect(all.map((m: any) => m.data.text)).toEqual(['a', 'b', 'c']);
     expect(all[0].sent).toBe(true);
+  });
+});
+
+describe('queueBackoffMs', () => {
+  it('grows exponentially from the base delay', () => {
+    expect(queueBackoffMs(0)).toBe(QUEUE_RETRY_BASE_MS);
+    expect(queueBackoffMs(1)).toBe(QUEUE_RETRY_BASE_MS * 2);
+    expect(queueBackoffMs(2)).toBe(QUEUE_RETRY_BASE_MS * 4);
+  });
+
+  it('caps at QUEUE_RETRY_MAX_MS', () => {
+    expect(queueBackoffMs(99)).toBe(QUEUE_RETRY_MAX_MS);
+  });
+
+  it('treats negative and non-finite input as attempt zero', () => {
+    expect(queueBackoffMs(-3)).toBe(QUEUE_RETRY_BASE_MS);
+    expect(queueBackoffMs(NaN)).toBe(QUEUE_RETRY_BASE_MS);
   });
 });
