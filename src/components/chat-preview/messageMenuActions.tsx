@@ -3,6 +3,7 @@ import {
 } from "lucide-react";
 import { toast } from "../ui/Toast";
 import { useAppStore } from "../../store";
+import { sendChatPin } from "../../lib/p2p/pinSync";
 import { type MessageContextAction } from "./MessageContextMenu";
 
 interface BuildMessageMenuArgs {
@@ -80,9 +81,11 @@ export function buildMessageMenuActions({
         const st = useAppStore.getState();
         if (isPinned) {
           st.removePinnedMessage(msg.id, chat.id);
+          sendChatPin(chat, msg.id, "unpin");
           toast(t("chat.unpinned", "Unpinned"));
         } else {
           st.addPinnedMessage({ id: msg.id, chatId: chat.id, pinBy: "me" });
+          sendChatPin(chat, msg.id, "pin");
           toast(t("chat.pinned", "Pinned"));
         }
       },

@@ -2,12 +2,12 @@ import { FTR_MAGIC, ALBUM_MAGIC, parseFrame, parseAlbumManifest, type FtrFrame }
 import {
   CALL_MAGIC, MSG_MAGIC, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt,
   parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd,
-  parseChatEdit, parseChatReaction, parseChatText,
+  parseChatEdit, parseChatReaction, parseChatPin, parseChatText,
 } from "../chatFrame";
 import { parseChatLocation, parseChatArticle } from "../chatRichFrames";
 import { p2pNetwork, type BroadcastMessage } from "../network";
 import { handleAlbumManifest } from "./inboundAlbum";
-import { handleChatEdit, handleChatReaction, handleChatText } from "./inboundChatFrames";
+import { handleChatEdit, handleChatPin, handleChatReaction, handleChatText } from "./inboundChatFrames";
 import { handleChatArticle, handleChatLocation } from "./inboundRichFrames";
 import { markOutgoingStatus } from "./inboundChatStore";
 import { handleAudioChunk, handleAudioEnd, handleAudioMeta } from "./inboundVoice";
@@ -76,6 +76,11 @@ export const createInboundMessageHandler = (
       const reaction = parseChatReaction(raw);
       if (reaction) {
         handleChatReaction(reaction, msg.senderId);
+        return;
+      }
+      const pin = parseChatPin(raw);
+      if (pin) {
+        handleChatPin(pin, msg.senderId);
         return;
       }
       const text = parseChatText(raw);

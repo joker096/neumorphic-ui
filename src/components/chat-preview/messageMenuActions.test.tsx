@@ -10,6 +10,7 @@ const h = vi.hoisted(() => ({
   pinned: [] as any[],
   addPinned: vi.fn(),
   removePinned: vi.fn(),
+  sendChatPin: vi.fn(),
 }));
 
 vi.mock('../../store', () => ({
@@ -21,6 +22,8 @@ vi.mock('../../store', () => ({
     }),
   },
 }));
+
+vi.mock('../../lib/p2p/pinSync', () => ({ sendChatPin: h.sendChatPin }));
 
 vi.mock('../ui/Toast', () => ({ toast: vi.fn() }));
 
@@ -116,6 +119,7 @@ describe('buildMessageMenuActions', () => {
     const actions = buildMessageMenuActions(baseArgs());
     actions.find(a => a.key === 'pin')!.onClick();
     expect(h.addPinned).toHaveBeenCalledWith({ id: 1, chatId: 'c1', pinBy: 'me' });
+    expect(h.sendChatPin).toHaveBeenCalledWith({ id: 'c1' }, 1, 'pin');
     expect(toast).toHaveBeenCalledWith('Pinned');
   });
 
@@ -126,6 +130,7 @@ describe('buildMessageMenuActions', () => {
     expect(pin.label).toBe('Unpin');
     pin.onClick();
     expect(h.removePinned).toHaveBeenCalledWith(1, 'c1');
+    expect(h.sendChatPin).toHaveBeenCalledWith({ id: 'c1' }, 1, 'unpin');
     expect(toast).toHaveBeenCalledWith('Unpinned');
   });
 

@@ -238,7 +238,7 @@ describe('SecuritySection - additional tests', () => {
       fireEvent.click(screen.getByRole('button', { name: 'settings.verify' }));
     });
 
-    expect(setTwoFactor).toHaveBeenCalledWith(false);
+    await waitFor(() => expect(setTwoFactor).toHaveBeenCalledWith(false));
     expect(setTotpSecret).toHaveBeenCalledWith(null);
   });
 
@@ -279,7 +279,7 @@ describe('SecuritySection - additional tests', () => {
       fireEvent.click(screen.getByRole('button', { name: 'settings.verify' }));
     });
 
-    expect(setAppLockBiometric).toHaveBeenCalledWith(false, null);
+    await waitFor(() => expect(setAppLockBiometric).toHaveBeenCalledWith(false, null));
   });
 
   it('wipes the account only after a strong step-up challenge', async () => {
@@ -322,7 +322,7 @@ describe('SecuritySection - additional tests', () => {
       fireEvent.click(screen.getByRole('button', { name: 'settings.verify' }));
     });
 
-    expect(cryptoCore.secureWipe).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(cryptoCore.secureWipe).toHaveBeenCalledTimes(1));
   });
 
   it('guards PIN set against double submit while hashing', async () => {

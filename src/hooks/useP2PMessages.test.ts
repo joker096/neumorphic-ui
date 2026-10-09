@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useP2PMessages } from './useP2PMessages';
 import { FTR_MAGIC, encodeFrame, encodeAlbumManifest, bytesToBase64, type FtrFrame } from '../lib/fileTransfer/frames';
-import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeChatEdit, encodeChatReaction, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
+import { encodeChatDeliveryAck, encodeChatReadReceipt, encodeChatText, encodeChatEdit, encodeChatReaction, encodeChatPin, encodeCallSignal, encodeChatAudioMeta, encodeChatAudioChunk, encodeChatAudioEnd, VOICE_P2P_MAX_SIZE } from '../lib/p2p/chatFrame';
 import { encodeChatLocation } from '../lib/p2p/chatRichFrames';
 import { saveTransferMeta, saveChunk, pruneAbandonedTransfers, pruneCompletedTransfers, enforceFileTransferBudget, canAcceptFileTransfer, listTransfers, type StoredTransfer } from '../lib/fileTransfer/fileStore';
 import { SELF_DESTRUCT_WIRE_MAX_MS } from '../lib/selfDestruct';
@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   handleRemoteCallSignal: vi.fn(),
   sha256Hex: vi.fn(),
   store: { chats: [] as any[] },
+  pinned: [] as any[],
 }));
 
 vi.mock('../lib/voiceStore', () => ({
@@ -65,6 +66,11 @@ vi.mock('../store', () => ({
         mocks.store.chats = typeof updater === 'function' ? updater(mocks.store.chats) : updater;
       },
       chats: mocks.store.chats,
+      pinnedMessageList: mocks.pinned,
+      addPinnedMessage: (pin: any) => { mocks.pinned = [...mocks.pinned, pin]; },
+      removePinnedMessage: (id: any, chatId?: any) => {
+        mocks.pinned = mocks.pinned.filter((p: any) => !(p.id === id && (chatId === undefined || p.chatId === chatId)));
+      },
     }),
   },
 }));
@@ -115,6 +121,7 @@ describe('useP2PMessages', () => {
     // Default: the chat is unbound, so the first authenticated claim wins.
     vi.mocked(p2pNetwork.rememberChatPeer).mockReturnValue(true);
     seedChats(INITIAL_CHATS);
+    mocks.pinned = [];
   });
 
   it('persists incoming meta, appends the ftr message to the name-matched DM, and reports progress 0', async () => {
@@ -440,6 +447,52 @@ describe('useP2PMessages', () => {
     act(() => { handle(remove); });
     target = currentChats()[0].history.find((m: any) => m.id === 'wire-msg-1');
     expect(target.reactions['👍']).toBeUndefined();
+  });
+
+  it('applies an incoming chat-pin frame using the local message id, and unpins on remove', () => {
+    seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [{ id: 5, sender: 'me', text: 'hi' }] }]);
+    const { handle } = setup();
+    const pin: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'pin-1',
+      timestamp: 7,
+      data: encodeChatPin({
+        type: 'chat-pin', seq: 2, messageId: '5', chatId: 'dm-1',
+        chatName: 'Bob', senderName: 'Bob', op: 'pin', timestamp: 7,
+      }),
+    };
+    const unpin: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'pin-2',
+      timestamp: 8,
+      data: encodeChatPin({
+        type: 'chat-pin', seq: 3, messageId: '5', chatId: 'dm-1',
+        chatName: 'Bob', senderName: 'Bob', op: 'unpin', timestamp: 8,
+      }),
+    };
+
+    act(() => { handle(pin); });
+    expect(mocks.pinned).toEqual([{ id: 5, chatId: 'dm-1', pinBy: 'Bob' }]);
+
+    act(() => { handle(unpin); });
+    expect(mocks.pinned).toEqual([]);
+  });
+
+  it('ignores chat-pin frames for unknown chats and unknown message ids', () => {
+    seedChats([{ id: 'dm-1', name: 'Bob', type: 'direct', history: [{ id: 'wire-1', sender: 'Bob', text: 'hi' }] }]);
+    const { handle } = setup();
+    const unknownMsg: BroadcastMessage = {
+      senderId: 'peer-remote',
+      messageId: 'pin-x',
+      timestamp: 9,
+      data: encodeChatPin({
+        type: 'chat-pin', seq: 4, messageId: 'nope', chatId: 'dm-1',
+        chatName: 'Bob', senderName: 'Bob', op: 'pin', timestamp: 9,
+      }),
+    };
+
+    act(() => { handle(unknownMsg); });
+    expect(mocks.pinned).toEqual([]);
   });
 
   it('ignores chat-edit frames for unknown chats and unknown message ids', () => {

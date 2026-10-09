@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 import { useAppStore } from '../store';
+import { sendChatPin } from '../lib/p2p/pinSync';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { findCrmContactByChat } from '../lib/crm/bridge';
 import { CloseButton } from './ui/CloseButton';
@@ -189,7 +190,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                 canManageGroup={canManageGroup}
                 isChatMuted={isChatMuted}
                 onToggleMute={handleToggleMute}
-                removePinnedMessage={removePinnedMessage}
+                removePinnedMessage={(id: number) => { removePinnedMessage(id, chat.id); sendChatPin(chat, id, "unpin"); }}
                 toggleGroupPermission={toggleGroupPermission}
                 onMessage={onMessage}
                 onCall={onCall}

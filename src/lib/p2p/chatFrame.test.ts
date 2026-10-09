@@ -13,6 +13,8 @@ import {
   parseChatEdit,
   encodeChatReaction,
   parseChatReaction,
+  encodeChatPin,
+  parseChatPin,
   encodeChatAudioMeta,
   parseChatAudioMeta,
   encodeChatAudioChunk,
@@ -168,6 +170,32 @@ describe('chat reaction frames', () => {
     expect(parseChatReaction(MSG_MAGIC + JSON.stringify({ type: 'chat-reaction', seq: 1, messageId: 'm-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', emoji: '👍', op: 'reset', timestamp: 13 }))).toBeNull();
     expect(parseChatReaction(encodeChatText(textFrame))).toBeNull();
     expect(parseChatReaction(`${MSG_MAGIC}{broken`)).toBeNull();
+  });
+});
+
+describe('chat pin frames', () => {
+  it('round-trips pin and unpin frames', () => {
+    const pin = {
+      type: 'chat-pin' as const,
+      seq: 9,
+      messageId: 'm-1',
+      chatId: 'dm-1',
+      chatName: 'Bob',
+      senderName: 'Bob',
+      op: 'pin' as const,
+      timestamp: 14,
+    };
+    expect(parseChatPin(encodeChatPin(pin))).toEqual(pin);
+    expect(parseChatPin(encodeChatPin({ ...pin, op: 'unpin' }))!.op).toBe('unpin');
+  });
+
+  it('rejects legacy, invalid-op and non-pin payloads', () => {
+    const legacy = { type: 'chat-pin', messageId: 'm-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', op: 'pin', timestamp: 14 };
+    expect(parseChatPin(MSG_MAGIC + JSON.stringify(legacy))).toBeNull();
+
+    expect(parseChatPin(MSG_MAGIC + JSON.stringify({ type: 'chat-pin', seq: 1, messageId: 'm-1', chatId: 'dm-1', chatName: 'Bob', senderName: 'Bob', op: 'toggle', timestamp: 14 }))).toBeNull();
+    expect(parseChatPin(encodeChatText(textFrame))).toBeNull();
+    expect(parseChatPin(`${MSG_MAGIC}{broken`)).toBeNull();
   });
 });
 

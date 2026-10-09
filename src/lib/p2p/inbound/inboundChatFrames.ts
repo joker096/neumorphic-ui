@@ -1,4 +1,4 @@
-import { encodeChatDeliveryAck, nextFrameSeq, type ChatEditFrame, type ChatReactionFrame, type ChatTextFrame } from "../chatFrame";
+import { encodeChatDeliveryAck, nextFrameSeq, type ChatEditFrame, type ChatPinFrame, type ChatReactionFrame, type ChatTextFrame } from "../chatFrame";
 import { p2pNetwork } from "../network";
 import { resolveInboundSelfDestruct } from "../../selfDestruct";
 import { formatClockTime } from "../../../utils/chatUtils";
@@ -87,4 +87,26 @@ export const handleChatReaction = (frame: ChatReactionFrame | null, senderId: st
         : c,
     );
   });
+};
+
+/**
+ * Inbound pin/unpin delta. The sender references the message by its wire string
+ * id; the local copy may use a numeric id (own messages are keyed by
+ * `Date.now()`), so the target is resolved via `String(m.id)` and the *local* id
+ * is stored — that keeps `previewOf`'s strict lookup and the dedupe in
+ * `addPinnedMessage` working. Unknown chats/messages are ignored.
+ */
+export const handleChatPin = (frame: ChatPinFrame | null, senderId: string) => {
+  if (!frame) return;
+  const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "chat-pin");
+  if (!chat) return;
+  const { chats, addPinnedMessage, removePinnedMessage } = useAppStore.getState();
+  const localChat = (chats || []).find((c: any) => String(c.id) === String(chat.id));
+  const target = (localChat?.history || []).find((m: any) => String(m.id) === frame.messageId);
+  if (!target) return;
+  if (frame.op === "pin") {
+    addPinnedMessage({ id: target.id, chatId: chat.id, pinBy: frame.senderName });
+  } else {
+    removePinnedMessage(target.id, chat.id);
+  }
 };

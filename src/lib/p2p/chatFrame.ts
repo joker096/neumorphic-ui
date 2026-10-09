@@ -129,6 +129,47 @@ export function parseChatReaction(raw: string): ChatReactionFrame | null {
   }
 }
 
+/**
+ * Pin/unpin of one message. Only the delta travels — the receiver adds or
+ * removes a single pin entry — so a peer can never rewrite the whole pin list.
+ * `chatId`/`chatName` address the direct chat; the receiver resolves the local
+ * chat and the local message id (own ids may be numeric while a received copy
+ * is keyed by the wire string id).
+ */
+export interface ChatPinFrame {
+  type: 'chat-pin';
+  seq: number;
+  messageId: string;
+  chatId: string;
+  chatName: string;
+  senderName: string;
+  op: 'pin' | 'unpin';
+  timestamp: number;
+}
+
+export function encodeChatPin(frame: ChatPinFrame): string {
+  return MSG_MAGIC + JSON.stringify(frame);
+}
+
+/** Parse a pin frame; null when the payload is not a valid pin frame. */
+export function parseChatPin(raw: string): ChatPinFrame | null {
+  if (!raw.startsWith(MSG_MAGIC)) return null;
+  try {
+    const parsed = JSON.parse(raw.slice(MSG_MAGIC.length)) as ChatPinFrame;
+    return parsed.type === 'chat-pin' && isSeq(parsed.seq)
+      && typeof parsed.messageId === 'string'
+      && typeof parsed.chatId === 'string'
+      && typeof parsed.chatName === 'string'
+      && typeof parsed.senderName === 'string'
+      && (parsed.op === 'pin' || parsed.op === 'unpin')
+      && isNonNegativeInt(parsed.timestamp)
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export interface ChatReadReceiptFrame {
   type: 'chat-read';
   seq: number;
