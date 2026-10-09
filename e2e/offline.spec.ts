@@ -16,7 +16,7 @@ async function setOnline(page: Page, online: boolean) {
   }, online);
 }
 
-async function pendingQueueCount(page: Page): Promise<number> {
+async function pendingQueueItems(page: Page): Promise<any[]> {
   return page.evaluate(async () => {
     const db = await new Promise<IDBDatabase>((resolve, reject) => {
       const req = indexedDB.open('messanger-queue-v2', 1);
@@ -29,13 +29,16 @@ async function pendingQueueCount(page: Page): Promise<number> {
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);
     });
-    const items = await new Promise<any[]>((resolve) => {
+    return new Promise<any[]>((resolve) => {
       const req = db.transaction('pendingMessages', 'readonly').objectStore('pendingMessages').getAll();
       req.onsuccess = () => resolve(req.result || []);
       req.onerror = () => resolve([]);
     });
-    return items.filter((m: any) => !m.sent).length;
   });
+}
+
+async function pendingQueueCount(page: Page): Promise<number> {
+  return (await pendingQueueItems(page)).filter((m: any) => !m.sent).length;
 }
 
 const offlineBanner = (page: Page) => page.getByRole('status').filter({ hasText: 'Last synced' });
@@ -50,7 +53,7 @@ test.describe('Offline messaging', () => {
     await expect(offlineBanner(page)).toBeVisible();
   });
 
-  test('message sent offline is queued and flushes when back online', async ({ page }) => {
+  test('message sent offline stays queued after reconnect while no peer is reachable', async ({ page }) => {
     await openAliceChat(page);
     await setOnline(page, false);
 
@@ -64,7 +67,12 @@ test.describe('Offline messaging', () => {
 
     await setOnline(page, true);
     await expect(offlineBanner(page)).toHaveCount(0);
-    await expect.poll(() => pendingQueueCount(page)).toBe(0);
+    // No P2P peer is reachable in the sandbox, so the honest-fail path keeps
+    // the frame queued (retried with backoff) instead of faking delivery.
+    await expect.poll(() => pendingQueueCount(page)).toBe(1);
+    const pending = (await pendingQueueItems(page)).filter((m: any) => !m.sent);
+    expect(pending).toHaveLength(1);
+    expect(pending[0].retryCount ?? 0).toBeGreaterThanOrEqual(1);
     await expect(page.getByText('Offline queued message').first()).toBeVisible();
   });
 });
