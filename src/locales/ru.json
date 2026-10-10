@@ -242,6 +242,16 @@
     "messageExpired": "Сообщение истекло",
     "save": "Сохранить",
     "reply": "Ответить",
+    "threadTitle": "Ветка",
+    "threadPlaceholder": "Ответить в ветке…",
+    "threadSend": "Отправить",
+    "threadOpen": "Открыть ветку",
+    "threadReplies": {
+      "one": "{{count}} ответ",
+      "few": "{{count}} ответа",
+      "many": "{{count}} ответов",
+      "other": "{{count}} ответов"
+    },
     "voiceNote": "Голосовое сообщение • ",
     "photo": "Фото",
     "video": "Видео",

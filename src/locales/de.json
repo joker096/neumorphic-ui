@@ -242,6 +242,16 @@
     "messageExpired": "Nachricht abgelaufen",
     "save": "Speichern",
     "reply": "Antworten",
+    "threadTitle": "Thread",
+    "threadPlaceholder": "Im Thread antworten…",
+    "threadSend": "Senden",
+    "threadOpen": "Thread öffnen",
+    "threadReplies": {
+      "one": "{{count}} Antwort",
+      "few": "{{count}} Antworten",
+      "many": "{{count}} Antworten",
+      "other": "{{count}} Antworten"
+    },
     "voiceNote": "Sprachnotiz • ",
     "photo": "Foto",
     "video": "Video",

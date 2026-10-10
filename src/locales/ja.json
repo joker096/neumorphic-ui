@@ -242,6 +242,16 @@
     "messageExpired": "メッセージが失効しました",
     "save": "保存",
     "reply": "返信",
+    "threadTitle": "スレッド",
+    "threadPlaceholder": "スレッドで返信…",
+    "threadSend": "送信",
+    "threadOpen": "スレッドを開く",
+    "threadReplies": {
+      "one": "{{count}} 件の返信",
+      "few": "{{count}} 件の返信",
+      "many": "{{count}} 件の返信",
+      "other": "{{count}} 件の返信"
+    },
     "voiceNote": "音声メモ • ",
     "photo": "写真",
     "video": "動画",

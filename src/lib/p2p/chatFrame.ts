@@ -30,6 +30,17 @@ export function nextFrameSeq(): number {
 
 export const isSeq = (n: unknown): n is number => Number.isSafeInteger(n) && (n as number) >= 0;
 
+/** Quoted message snapshot carried by a reply. The id is always the wire string
+ * id (`String(senderMessageId)`), so both peers resolve it via `String(m.id)`.
+ * `text` is untrusted — it is only ever rendered as plain text. */
+export interface ChatQuote {
+  id: string;
+  sender: string;
+  text?: string;
+  type?: string;
+  duration?: string;
+}
+
 /** Text chat message carried across peers. */
 export interface ChatTextFrame {
   type: 'chat-text';
@@ -43,6 +54,8 @@ export interface ChatTextFrame {
   timestamp: number;
   /** Remaining self-destruct duration; omitted when the message never expires. */
   ttlMs?: number;
+  /** Quoted message when this is a reply; omitted otherwise. */
+  replyTo?: ChatQuote;
 }
 
 export interface ChatDeliveryAckFrame {
@@ -188,9 +201,15 @@ export function parseChatText(raw: string): ChatTextFrame | null {
   if (!raw.startsWith(MSG_MAGIC)) return null;
   try {
     const parsed = JSON.parse(raw.slice(MSG_MAGIC.length)) as ChatTextFrame;
-    return parsed.type === 'chat-text' && isSeq(parsed.seq) && typeof parsed.messageId === 'string'
-      ? parsed
-      : null;
+    if (parsed.type !== 'chat-text' || !isSeq(parsed.seq) || typeof parsed.messageId !== 'string') {
+      return null;
+    }
+    // A malformed quote is dropped, not fatal — the message itself still lands.
+    const quote = parsed.replyTo;
+    if (quote != null && (typeof quote.id !== 'string' || typeof quote.sender !== 'string')) {
+      return { ...parsed, replyTo: undefined };
+    }
+    return parsed;
   } catch {
     return null;
   }

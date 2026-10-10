@@ -22,6 +22,17 @@ export const handleChatText = (frame: ChatTextFrame | null, senderId: string) =>
     status: "delivered",
     silent: frame.silent,
     selfDestructAt: resolveInboundSelfDestruct(frame.ttlMs),
+    replyTo: frame.replyTo
+      ? {
+          id: String(frame.replyTo.id),
+          // replyTo.sender is authored from the peer's point of view, where "me"
+          // is the peer; invert it so the quote reads correctly for us.
+          sender: frame.replyTo.sender === "me" ? chat.name : "me",
+          text: frame.replyTo.text,
+          type: frame.replyTo.type,
+          duration: frame.replyTo.duration,
+        }
+      : undefined,
   });
   void p2pNetwork.sendAddressed(senderId, encodeChatDeliveryAck({
     type: "chat-ack",

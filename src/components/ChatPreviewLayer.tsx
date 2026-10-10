@@ -129,13 +129,16 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     stealthMode,
   } = preview;
 
+  const threadRoot = preview.threadRootId != null ? preview.threads.rootOf(preview.threadRootId) : undefined;
+  const threadReplies = preview.threadRootId != null ? preview.threads.repliesOf(preview.threadRootId) : [];
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 40, scale: 0.95 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 40, scale: 0.95 }}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      drag={isMobile && !selectionMode && !showStickerPicker && !preview.showMediaPanel ? "x" : false}
+      drag={isMobile && !selectionMode && !showStickerPicker && !preview.showMediaPanel && preview.threadRootId == null ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={{ left: 0, right: 0.35 }}
       onDragEnd={(_: unknown, info: PanInfo) => {
@@ -174,6 +177,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         activeReactionPicker={activeReactionPicker}
         theme={theme}
         onReply={(m) => onReply?.(m)}
+        threadCountOf={preview.threads.countOf}
+        onOpenThread={(id) => preview.setThreadRootId(id)}
         onToggleSavedMessage={(c, m) => onToggleSavedMessage?.(c, m)}
         onSetActivePhotoUrl={setActivePhotoUrl}
         onSetPhotoOpen={setPhotoOpen}
@@ -253,6 +258,11 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         profileOpen={interactions.profileOpen}
         setProfileOpen={interactions.setProfileOpen}
         onClosePreview={onClose}
+        threadOpen={preview.threadRootId != null}
+        threadRoot={threadRoot}
+        threadReplies={threadReplies}
+        onCloseThread={() => preview.setThreadRootId(null)}
+        onSendThreadReply={(text) => { if (threadRoot) preview.sendMessage(undefined, { text, replyTarget: threadRoot }); }}
       />
 
       <ChatPreviewDialogs

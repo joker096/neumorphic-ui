@@ -242,6 +242,16 @@
     "messageExpired": "消息已过期",
     "save": "保存",
     "reply": "回复",
+    "threadTitle": "话题",
+    "threadPlaceholder": "在话题中回复…",
+    "threadSend": "发送",
+    "threadOpen": "打开话题",
+    "threadReplies": {
+      "one": "{{count}} 条回复",
+      "few": "{{count}} 条回复",
+      "many": "{{count}} 条回复",
+      "other": "{{count}} 条回复"
+    },
     "voiceNote": "语音消息 • ",
     "photo": "照片",
     "video": "视频",

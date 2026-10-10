@@ -242,6 +242,16 @@
     "messageExpired": "메시지가 만료됨",
     "save": "저장",
     "reply": "답장",
+    "threadTitle": "스레드",
+    "threadPlaceholder": "스레드에 답장…",
+    "threadSend": "보내기",
+    "threadOpen": "스레드 열기",
+    "threadReplies": {
+      "one": "답장 {{count}}개",
+      "few": "답장 {{count}}개",
+      "many": "답장 {{count}}개",
+      "other": "답장 {{count}}개"
+    },
     "voiceNote": "음성 메모 • ",
     "photo": "사진",
     "video": "동영상",

@@ -242,6 +242,16 @@
     "messageExpired": "Mensaje caducado",
     "save": "Guardar",
     "reply": "Responder",
+    "threadTitle": "Hilo",
+    "threadPlaceholder": "Responder en el hilo…",
+    "threadSend": "Enviar",
+    "threadOpen": "Abrir hilo",
+    "threadReplies": {
+      "one": "{{count}} respuesta",
+      "few": "{{count}} respuestas",
+      "many": "{{count}} respuestas",
+      "other": "{{count}} respuestas"
+    },
     "voiceNote": "Nota de voz • ",
     "photo": "Foto",
     "video": "Vídeo",

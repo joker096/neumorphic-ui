@@ -33,6 +33,10 @@ interface ChatMessageListProps {
   onDelete?: (msg: any) => void;
   onRetry?: (msg: any) => void;
   onJumpToMessage?: (id: string | number) => void;
+  /** Thread reply count per message id (0 when the message has no replies). */
+  threadCountOf?: (id: string | number | null | undefined) => number;
+  /** Opens the reply-thread panel for a message id. */
+  onOpenThread?: (id: string | number) => void;
   selectionMode?: boolean;
   selectedIds?: Set<string | number>;
   onToggleSelect?: (id: string | number) => void;
@@ -48,7 +52,7 @@ export function ChatMessageList({
   onSetActiveMediaMsg,
   onSetActiveReactionPicker, onSwipeReplyId, onSetVideoOpen, onSetShowComments,
   onSetActivePostId,   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
-  onJumpToMessage,
+  onJumpToMessage, threadCountOf, onOpenThread,
   selectionMode, selectedIds, onToggleSelect, onSelect,
   onScrollPosition,
   onRetry,
@@ -96,6 +100,8 @@ export function ChatMessageList({
           onDelete={onDelete}
           onRetry={onRetry}
           onJumpToMessage={onJumpToMessage}
+          threadReplies={threadCountOf ? threadCountOf(msg.id) : 0}
+          onOpenThread={onOpenThread}
           selectionMode={selectionMode}
           selected={selectedIds ? selectedIds.has(msg.id) : false}
           onToggleSelect={onToggleSelect}

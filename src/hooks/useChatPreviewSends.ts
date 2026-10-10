@@ -9,6 +9,14 @@ import { p2pNetwork } from "../lib/p2p/network";
 import { applyDefaultSelfDestruct, wireSelfDestructTtl, resolveSelfDestructTimer } from "../lib/selfDestruct";
 import type { ChatPreviewDraft } from "./useChatPreviewDraft";
 
+/** Optional overrides for a programmatic send (e.g. the thread panel composer). */
+export interface ChatSendOverrides {
+  /** Text to send; when passed the composer draft is left untouched. */
+  text?: string;
+  /** Quote to attach as `replyTo` instead of the composer's reply target. */
+  replyTarget?: any;
+}
+
 interface UseChatPreviewSendsArgs {
   chat: any;
   onUpdateChat?: (chat: any) => void;
@@ -61,8 +69,12 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
     updateMsgStatusInChat(chatArg, msgId, useAppStore.getState().offlineMode ? "queued" : "failed");
   }, [updateMsgStatusInChat]);
 
-  const sendMessage = (attachment?: { url: string; type: 'image' | 'video' } | Array<{ url: string; type: 'image' | 'video' }>) => {
-    const textToSend = draft.eMorseMode ? encodeMorse(draft.eMsgText) : draft.eMsgText.trim();
+  const sendMessage = (attachment?: { url: string; type: 'image' | 'video' } | Array<{ url: string; type: 'image' | 'video' }>, overrides?: ChatSendOverrides) => {
+    const override = overrides != null;
+    const textToSend = override
+      ? String(overrides!.text ?? "").trim()
+      : draft.eMorseMode ? encodeMorse(draft.eMsgText) : draft.eMsgText.trim();
+    const replyTarget = override ? overrides!.replyTarget : draft.eReplyTarget;
     const attachments = Array.isArray(attachment) ? attachment : attachment ? [attachment] : [];
     const hasAttachment = attachments.length > 0;
     if (!textToSend && !hasAttachment) return;
@@ -84,13 +96,13 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
         newMessage.album = attachments.map((a) => ({ url: a.url, type: a.type }));
       }
     } else {
-      newMessage.type = draft.eMorseMode ? "morse" : undefined;
-      newMessage.replyTo = draft.eReplyTarget ? {
-        id: draft.eReplyTarget.id,
-        sender: draft.eReplyTarget.sender,
-        text: draft.eReplyTarget.text,
-        type: draft.eReplyTarget.type,
-        duration: draft.eReplyTarget.duration
+      newMessage.type = (!override && draft.eMorseMode) ? "morse" : undefined;
+      newMessage.replyTo = replyTarget ? {
+        id: replyTarget.id,
+        sender: replyTarget.sender,
+        text: replyTarget.text,
+        type: replyTarget.type,
+        duration: replyTarget.duration
       } : undefined;
     }
     queueOffline({ ...newMessage, chatId: chat.id, chatName: chat.name }, () =>
@@ -126,12 +138,22 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
         silent: !!newMessage.silent,
         timestamp: Number(newMessage.id) || Date.now(),
         ttlMs: wireSelfDestructTtl(newMessage.selfDestructAt),
+        replyTo: newMessage.replyTo ? {
+          id: String(newMessage.replyTo.id),
+          sender: String(newMessage.replyTo.sender ?? ""),
+          text: newMessage.replyTo.text != null ? String(newMessage.replyTo.text) : undefined,
+          type: newMessage.replyTo.type,
+          duration: newMessage.replyTo.duration,
+        } : undefined,
       })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => markSendFailure(updatedChat, newMessage.id));
     }
-    draft.setMsgTextFn("");
-    draft.setReplyTargetFn2(null);
-    draft.setMorseModeFn2(false);
-    draft.resetSilentDraft();
+    // A programmatic send (thread panel) must not clobber the composer draft.
+    if (!override) {
+      draft.setMsgTextFn("");
+      draft.setReplyTargetFn2(null);
+      draft.setMorseModeFn2(false);
+      draft.resetSilentDraft();
+    }
   };
 
   const sendGeoMessage = (lat: number, lng: number) => {

@@ -242,6 +242,16 @@
     "messageExpired": "Message expiré",
     "save": "Enregistrer",
     "reply": "Répondre",
+    "threadTitle": "Fil",
+    "threadPlaceholder": "Répondre dans le fil…",
+    "threadSend": "Envoyer",
+    "threadOpen": "Ouvrir le fil",
+    "threadReplies": {
+      "one": "{{count}} réponse",
+      "few": "{{count}} réponses",
+      "many": "{{count}} réponses",
+      "other": "{{count}} réponses"
+    },
     "voiceNote": "Note vocale • ",
     "photo": "Photo",
     "video": "Vidéo",

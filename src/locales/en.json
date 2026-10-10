@@ -242,6 +242,16 @@
     "messageExpired": "Message expired",
     "save": "Save",
     "reply": "Reply",
+    "threadTitle": "Thread",
+    "threadPlaceholder": "Reply in thread…",
+    "threadSend": "Send",
+    "threadOpen": "Open thread",
+    "threadReplies": {
+      "one": "{{count}} reply",
+      "few": "{{count}} replies",
+      "many": "{{count}} replies",
+      "other": "{{count}} replies"
+    },
     "voiceNote": "Voice note • ",
     "photo": "Photo",
     "video": "Video",

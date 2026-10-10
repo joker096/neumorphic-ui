@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAppStore } from "../store";
 import { useI18n } from "../lib/i18n";
 import { useOfflineQueue } from "./useOfflineQueue";
@@ -8,6 +8,7 @@ import { useChatPreviewSearch } from "./useChatPreviewSearch";
 import { useChatPreviewSends } from "./useChatPreviewSends";
 import { useChatPreviewLiveLocation } from "./useChatPreviewLiveLocation";
 import { useChatPreviewEffects } from "./useChatPreviewEffects";
+import { useMessageThreads } from "./useMessageThreads";
 
 /**
  * Chat preview state orchestrator.
@@ -87,6 +88,11 @@ export function useChatPreviewState(
   const [unreadSinceScroll, setUnreadSinceScroll] = useState(0);
   const lastTapRef = useRef<{ time: number; msgId: string | number }>({ time: 0, msgId: 0 });
   const [swipeReplyId, setSwipeReplyId] = useState<string | number | null>(null);
+  const [threadRootId, setThreadRootId] = useState<string | number | null>(null);
+  const threads = useMessageThreads(chat?.history);
+
+  // Switching chats closes any open thread panel.
+  useEffect(() => { setThreadRootId(null); }, [chat?.id]);
 
   const draft = useChatPreviewDraft({
     messageText, setMessageText,
@@ -162,6 +168,8 @@ export function useChatPreviewState(
     eReplyTarget: draft.eReplyTarget, setReplyTargetFn2: draft.setReplyTargetFn2,
     lastTapRef,
     swipeReplyId, setSwipeReplyId,
+    threads,
+    threadRootId, setThreadRootId,
     sendMessage: sends.sendMessage,
     sendGeoMessage: sends.sendGeoMessage,
     sendArticleMessage: sends.sendArticleMessage,

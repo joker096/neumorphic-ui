@@ -199,6 +199,29 @@ describe('chat pin frames', () => {
   });
 });
 
+describe('chat reply-to quotes', () => {
+  it('round-trips a text frame carrying a quote', () => {
+    const frame = {
+      ...textFrame,
+      replyTo: { id: 'wire-0', sender: 'Bob', text: 'earlier', type: 'morse', duration: '0:05' },
+    };
+    expect(parseChatText(encodeChatText(frame))).toEqual(frame);
+    expect(parseChatText(encodeChatText(frame))!.replyTo!.id).toBe('wire-0');
+  });
+
+  it('keeps the quote optional so legacy peers stay compatible', () => {
+    expect(parseChatText(encodeChatText(textFrame))!.replyTo).toBeUndefined();
+  });
+
+  it('drops a malformed quote instead of the whole message', () => {
+    const junk = { ...textFrame, replyTo: { id: 5, sender: 'Bob' } } as any;
+    const parsed = parseChatText(encodeChatText(junk));
+    expect(parsed).not.toBeNull();
+    expect(parsed!.text).toBe('hello');
+    expect(parsed!.replyTo).toBeUndefined();
+  });
+});
+
 describe('call signal frames', () => {
   it('round-trips call-ring / call-accept / call-end frames', () => {
     const ring = { type: 'call-ring' as const, seq: 4, callId: 'c-1', callType: 'video' as const, timestamp: 9 };

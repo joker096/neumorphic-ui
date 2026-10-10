@@ -2,6 +2,7 @@ import React from "react";
 import { useAppStore } from "../store";
 import { ChannelCommentsView } from "./ChannelCommentsView";
 import { SavedMessagesPanel } from "./chat-preview/SavedMessagesPanel";
+import { MessageThreadPanel } from "./chat-preview/MessageThreadPanel";
 import type { ContactProfile } from "./ContactProfileModal";
 import { formatSize } from "../utils/formatSize";
 const LazyMediaViewer = React.lazy(() => import("./MediaViewer").then((m) => ({ default: m.MediaViewer })));
@@ -41,6 +42,11 @@ interface ChatPreviewOverlaysProps {
   profileOpen: boolean;
   setProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onClosePreview?: () => void;
+  threadOpen: boolean;
+  threadRoot?: any;
+  threadReplies: any[];
+  onCloseThread: () => void;
+  onSendThreadReply: (text: string) => void;
 }
 
 export function ChatPreviewOverlays({
@@ -56,6 +62,7 @@ export function ChatPreviewOverlays({
   profileOpen, setProfileOpen,
   onClosePreview,
   onForward, onDelete,
+  threadOpen, threadRoot, threadReplies, onCloseThread, onSendThreadReply,
 }: ChatPreviewOverlaysProps) {
   const handleCall = () => {
     if (onCall && selectedContact) onCall(selectedContact.name, selectedContact.color);
@@ -113,6 +120,15 @@ export function ChatPreviewOverlays({
       )}
       <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} />
       <SavedMessagesPanel show={showSavedPanel} isDark={isDark} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(c, msg) => onToggleSavedMessage?.(c, msg)} t={t} />
+      <MessageThreadPanel
+        open={threadOpen}
+        isDark={isDark}
+        rootMessage={threadRoot}
+        replies={threadReplies}
+        t={t}
+        onClose={onCloseThread}
+        onSend={onSendThreadReply}
+      />
       {selectedContact && (
         <React.Suspense fallback={null}>
           <LazyContactProfileModal

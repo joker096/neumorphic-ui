@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, type PanInfo } from "motion/react";
-import { Forward } from "lucide-react";
+import { Forward, MessageSquare } from "lucide-react";
 import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
 import { MessageContextMenu } from "./MessageContextMenu";
@@ -55,6 +55,10 @@ interface ChatMessageProps {
   onRetry?: (msg: any) => void;
   /** Scrolls the list to a message id, used by the reply quote. */
   onJumpToMessage?: (id: string | number) => void;
+  /** Number of replies hanging off this message (thread root chip). */
+  threadReplies?: number;
+  /** Opens the thread panel for this message. */
+  onOpenThread?: (id: string | number) => void;
   selectionMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string | number) => void;
@@ -71,7 +75,7 @@ function ChatMessageImpl({
   onSetActiveReactionPicker, onSwipeReplyId,
   onSetVideoOpen, onSetShowComments, onSetActivePostId,
   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
-  onJumpToMessage,
+  onJumpToMessage, threadReplies, onOpenThread,
   selectionMode = false, selected = false, onToggleSelect, onSelect,
   onRetry,
 }: ChatMessageProps) {
@@ -250,6 +254,19 @@ function ChatMessageImpl({
                 </div>
               ))}
             </div>
+          )}
+          {!isChannel && (threadReplies ?? 0) > 0 && onOpenThread && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onOpenThread(msg.id); }}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => e.stopPropagation()}
+              aria-label={t("chat.threadOpen", "Open thread")}
+              className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[12px] font-semibold transition-colors ${isMe ? "text-[var(--text-primary)] hover:bg-black/10" : "text-[var(--accent)] hover:bg-black/10"}`}
+            >
+              <MessageSquare size={12} aria-hidden="true" />
+              {t("chat.threadReplies", { count: threadReplies ?? 0 })}
+            </button>
           )}
           {msg._isLastInGroup && (
             <MessageTimestamp
