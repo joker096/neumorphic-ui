@@ -12,7 +12,6 @@ import { publishMyStory } from './storiesData';
 interface StoryComposerProps {
   open: boolean;
   onClose: () => void;
-  isDark?: boolean;
 }
 
 interface MediaState {
@@ -20,7 +19,7 @@ interface MediaState {
   url: string;
 }
 
-export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerProps) => {
+export const StoryComposer = ({ open, onClose }: StoryComposerProps) => {
   const { t } = useI18n();
   const [bg, setBg] = useState(STORY_GRADIENTS[0]);
   const [caption, setCaption] = useState('');
@@ -73,13 +72,9 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
     onClose();
   };
 
-  const surfaceClass = isDark
-    ? 'bg-[var(--bg-secondary)] border border-[var(--border-color)]'
-    : 'bg-white border border-slate-200';
-  const labelClass = `text-xs uppercase tracking-widest font-bold mb-2 opacity-50 ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-700'}`;
-  const chipBase = isDark
-    ? 'bg-white/5 text-gray-300'
-    : 'bg-slate-100 text-slate-600';
+  const surfaceClass = 'bg-[var(--bg-secondary)] border border-[var(--border-color)]';
+  const labelClass = 'text-xs uppercase tracking-widest font-bold mb-2 opacity-50 text-[var(--text-primary)]';
+  const chipBase = 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]';
   const activeChip = 'bg-[var(--accent)] text-[var(--button-primary-text)]';
 
   return createPortal(
@@ -94,7 +89,7 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
     >
       <div className={`w-full max-w-md rounded-2xl overflow-hidden shadow-2xl ${surfaceClass}`}>
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
-          <h3 className={`font-semibold ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>{t('story.newStory', 'New story')}</h3>
+          <h3 className="font-semibold text-[var(--text-primary)]">{t('story.newStory', 'New story')}</h3>
           <CloseButton onClick={onClose} aria-label={t('common.close')} size="md" />
         </div>
 
@@ -146,7 +141,7 @@ export const StoryComposer = ({ open, onClose, isDark = false }: StoryComposerPr
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center border border-dashed border-[var(--border-color)] ${isDark ? 'text-gray-400' : 'text-slate-400'} cursor-pointer transition-colors hover:text-[var(--accent)]`}
+                className="w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center border border-dashed border-[var(--border-color)] text-[var(--text-tertiary)] cursor-pointer transition-colors hover:text-[var(--accent)]"
                 aria-label={t('story.fromGallery', 'From gallery')}
               >
                 <ImageIcon size={16} />

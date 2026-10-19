@@ -65,9 +65,14 @@ describe('StoryViewer', () => {
     expect(screen.getByText('Eve')).toBeInTheDocument();
   });
 
-  it('shows story views label by default', () => {
+  it("shows the view count on the viewer's own story", () => {
+    render(<StoryViewer activeUser={ME} onClose={vi.fn()} />);
+    expect(screen.getByLabelText('story.views')).toBeInTheDocument();
+  });
+
+  it("hides the view count on someone else's story", () => {
     render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
-    expect(screen.getByText('story.views')).toBeInTheDocument();
+    expect(screen.queryByLabelText('story.views')).toBeNull();
   });
 
   it('shows stealth label in stealth mode', () => {

@@ -73,11 +73,10 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
         <div className="relative w-full max-w-md h-full max-h-[90vh] flex flex-col">
           <StoryProgressBar count={stories.length} currentIndex={storyIndex} progress={progress} />
 
-          <StoryHeader user={user} timeLabel={timeLabel} onClose={onClose} />
+          <StoryHeader user={user} timeLabel={timeLabel} onClose={onClose} isStealthMode={isStealthMode} />
 
           <StoryContent
             story={story}
-            isStealthMode={isStealthMode}
             onTap={onTap}
             onPauseStart={() => setPaused(true)}
             onPauseEnd={() => setPaused(false)}
@@ -91,6 +90,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
             user={user}
             reply={reply}
             liked={liked}
+            views={story.views}
             onReplyChange={setReply}
             onSendReply={sendReply}
             onToggleLike={toggleLike}

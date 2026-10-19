@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Send, Share2, MoreVertical } from 'lucide-react';
+import { Eye, Heart, Send, Share2, MoreVertical } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { toast } from '../ui/Toast';
 import { STORY_REPLY_MAX_LENGTH } from '../../constants/storyConstants';
@@ -9,6 +9,8 @@ interface StoryFooterProps {
   user: StoryUser;
   reply: string;
   liked: boolean;
+  /** View count of the current story — only rendered for the viewer's own story. */
+  views?: number;
   onReplyChange: (value: string) => void;
   onSendReply: () => void;
   onToggleLike: () => void;
@@ -23,6 +25,7 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
   user,
   reply,
   liked,
+  views,
   onReplyChange,
   onSendReply,
   onToggleLike,
@@ -36,12 +39,20 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
     toast(liked ? t('story.unliked', 'Removed reaction') : t('story.liked', 'Reacted ❤'), 'success');
   };
 
+  const viewLabel = t('story.views', { count: views ?? 0 });
+
   return (
-    <div
-      className={`absolute bottom-0 left-0 z-20 flex w-full items-center gap-2 p-3 pb-[max(12px,env(safe-area-inset-bottom))] ${
-        user.isMe ? 'justify-end' : ''
-      }`}
-    >
+    <div className="absolute bottom-0 left-0 z-20 flex w-full items-center gap-2 p-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+      {user.isMe && (
+        <div
+          className="mr-auto flex h-11 min-h-11 items-center gap-1.5 rounded-full border border-white/15 bg-white/15 px-3.5 text-sm font-medium text-white backdrop-blur-sm tabular-nums"
+          aria-label={viewLabel}
+          title={viewLabel}
+        >
+          <Eye size={18} aria-hidden="true" />
+          {views ?? 0}
+        </div>
+      )}
       {!user.isMe && (
         <input
           type="text"

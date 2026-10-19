@@ -32,7 +32,7 @@ describe('StoryComposer', () => {
   });
 
   function pickFile(kind: 'image' | 'video') {
-    render(<StoryComposer open onClose={() => {}} isDark={false} />);
+    render(<StoryComposer open onClose={() => {}} />);
     const input = document.body.querySelector('input[type="file"]') as HTMLInputElement;
     expect(input).toBeTruthy();
     const file = new File([kind === 'video' ? 'video-bytes' : 'image-bytes'], kind === 'video' ? 'clip.mp4' : 'pic.png', { type: kind === 'video' ? 'video/mp4' : 'image/png' });

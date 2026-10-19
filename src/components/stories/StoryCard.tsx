@@ -51,17 +51,16 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
           </div>
         )}
         {story.caption && (
-          <div className="relative z-10 px-4 text-center text-white text-sm font-medium drop-shadow-md max-w-[85%] break-words">
+          <div className="relative z-10 px-4 pb-10 text-center text-white text-sm font-medium drop-shadow-md max-w-[85%] break-words">
             {story.caption}
           </div>
         )}
-      </div>
-      <div className="flex items-center gap-1.5 px-2 py-1.5">
-        <Globe size={12} className="shrink-0 opacity-60" aria-hidden="true" />
-        <span className="text-xs font-medium truncate">
-          {story.userName ? t('story.sharedBy', 'Story') : t('story.sharedStory', 'Story')}
-          {story.userName ? ` · ${story.userName}` : ''}
-        </span>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center gap-1.5 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-3 pb-2.5 pt-10">
+          <Globe size={12} className="shrink-0 text-white/70" aria-hidden="true" />
+          <span className="truncate text-xs font-medium text-white">
+            {story.userName ?? t('story.sharedStory', 'Story')}
+          </span>
+        </div>
       </div>
     </div>
   );

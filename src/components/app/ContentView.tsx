@@ -54,7 +54,7 @@ export const ContentView = ({
       </div>
       <Suspense fallback={null}>
         <StoryViewer activeUser={activeStory} onClose={onCloseStory} isDark={isDark} isStealthMode={isStealthMode} />
-        <StoryComposer open={showStoryComposer} onClose={onCloseComposer ?? (() => {})} isDark={isDark} />
+        <StoryComposer open={showStoryComposer} onClose={onCloseComposer ?? (() => {})} />
       </Suspense>
     </motion.div>
   );

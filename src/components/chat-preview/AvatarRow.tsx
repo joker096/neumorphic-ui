@@ -121,7 +121,7 @@ export const AvatarRow = ({ theme, onStoryClick, onComposeStory, t }: AvatarRowP
           className="group flex min-h-11 w-14 shrink-0 flex-col items-center rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
         >
           <span className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-[var(--border-color)] bg-[var(--accent-soft)] text-[var(--accent)] transition-transform duration-200 group-active:scale-95">
-            <Plus size={22} aria-hidden="true" />
+            <Plus size={24} aria-hidden="true" />
           </span>
           <span className="mt-1 w-full truncate text-center text-xs font-semibold text-[var(--text-secondary)] transition-colors group-hover:text-[var(--text-primary)]">
             {t("header.myStory", "My story")}

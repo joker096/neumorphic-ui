@@ -1,12 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Eye, ImageOff } from 'lucide-react';
-import { useI18n } from '../../lib/i18n';
+import { ImageOff } from 'lucide-react';
 import { STORY_DEFAULT_GRADIENT } from '../../constants/storyConstants';
 import type { StoryItem } from './storiesData';
 
 interface StoryContentProps {
   story: StoryItem;
-  isStealthMode: boolean;
   onTap: (e: React.MouseEvent<HTMLDivElement>) => void;
   onPauseStart: () => void;
   onPauseEnd: () => void;
@@ -29,10 +27,9 @@ const clampFollow = (value: number) =>
   Math.max(-MAX_DRAG_FOLLOW_PX, Math.min(MAX_DRAG_FOLLOW_PX, value * DRAG_FOLLOW));
 
 export const StoryContent: React.FC<StoryContentProps> = ({
-  story, isStealthMode, onTap, onPauseStart, onPauseEnd,
+  story, onTap, onPauseStart, onPauseEnd,
   onSwipeNext, onSwipePrev, onSwipeUp, onSwipeDown,
 }) => {
-  const { t } = useI18n();
   const [mediaFailed, setMediaFailed] = useState(false);
   const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
   const showImage = story.type === 'photo' && !!story.image && !mediaFailed;
@@ -141,17 +138,15 @@ export const StoryContent: React.FC<StoryContentProps> = ({
           <ImageOff size={48} />
         </div>
       )}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-64 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
+        aria-hidden="true"
+      />
       {story.caption && (
-        <div className="absolute bottom-36 left-0 right-0 z-10 px-6 text-center text-white text-lg font-medium drop-shadow-lg break-words max-h-40 overflow-hidden">
+        <div className="absolute bottom-24 left-0 right-0 z-10 px-6 text-center text-white text-lg font-medium drop-shadow-lg break-words max-h-40 overflow-hidden">
           {story.caption}
         </div>
       )}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 bg-black/40 backdrop-blur-md rounded-full text-white/80 text-xs z-10">
-        <Eye size={14} aria-hidden="true" />
-        {isStealthMode
-          ? t('story.viewedStealthily', 'Viewed stealthily')
-          : t('story.views', { count: story.views })}
-      </div>
     </div>
   );
 };
