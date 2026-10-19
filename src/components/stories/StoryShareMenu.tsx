@@ -1,7 +1,7 @@
 import React from 'react';
 import { Forward, Link2 } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
-import { MessageContextMenu, type MessageContextAction } from '../chat-preview/MessageContextMenu';
+import { StoryActionMenu, type StoryMenuAction } from './StoryActionMenu';
 
 interface StoryShareMenuProps {
   open: boolean;
@@ -13,7 +13,7 @@ interface StoryShareMenuProps {
 export const StoryShareMenu: React.FC<StoryShareMenuProps> = ({ open, onClose, onForward, onCopyLink }) => {
   const { t } = useI18n();
 
-  const actions: MessageContextAction[] = [
+  const actions: StoryMenuAction[] = [
     {
       key: 'forward',
       label: t('story.forwardToChat', 'Forward'),
@@ -29,11 +29,10 @@ export const StoryShareMenu: React.FC<StoryShareMenuProps> = ({ open, onClose, o
   ];
 
   return (
-    <MessageContextMenu
+    <StoryActionMenu
       open={open}
       onClose={onClose}
       title={t('story.shareSheet', 'Share story')}
-      isDark
       actions={actions}
     />
   );

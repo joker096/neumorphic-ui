@@ -279,7 +279,7 @@ describe('StoryViewer', () => {
     container.remove();
   });
 
-  it('swipe down closes the viewer', () => {
+  it('swipe down returns to the previous user', () => {
     vi.useFakeTimers();
     const onClose = vi.fn();
     const { container } = render(<StoryViewer activeUser={ALICE} onClose={onClose} />);
@@ -289,7 +289,37 @@ describe('StoryViewer', () => {
     fireEvent.touchStart(content, { touches: [{ clientX: 200, clientY: 80 }] });
     fireEvent.touchMove(content, { touches: [{ clientX: 205, clientY: 260 }] });
     fireEvent.touchEnd(content, { changedTouches: [{ clientX: 205, clientY: 260 }] });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog', { name: 'You' })).toBeInTheDocument();
+    vi.useRealTimers();
+    container.remove();
+  });
+
+  it('swipe down on the first user closes the viewer', () => {
+    vi.useFakeTimers();
+    const onClose = vi.fn();
+    const { container } = render(<StoryViewer activeUser={ME} onClose={onClose} />);
+    const content = getContent();
+    content.getBoundingClientRect = () =>
+      ({ width: 300, left: 0, top: 0, right: 300, bottom: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    fireEvent.touchStart(content, { touches: [{ clientX: 200, clientY: 80 }] });
+    fireEvent.touchMove(content, { touches: [{ clientX: 205, clientY: 260 }] });
+    fireEvent.touchEnd(content, { changedTouches: [{ clientX: 205, clientY: 260 }] });
     expect(onClose).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    container.remove();
+  });
+
+  it('swipe up advances to the next user', () => {
+    vi.useFakeTimers();
+    const { container } = render(<StoryViewer activeUser={ALICE} onClose={vi.fn()} />);
+    const content = getContent();
+    content.getBoundingClientRect = () =>
+      ({ width: 300, left: 0, top: 0, right: 300, bottom: 0, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    fireEvent.touchStart(content, { touches: [{ clientX: 200, clientY: 260 }] });
+    fireEvent.touchMove(content, { touches: [{ clientX: 204, clientY: 80 }] });
+    fireEvent.touchEnd(content, { changedTouches: [{ clientX: 204, clientY: 80 }] });
+    expect(screen.getByRole('dialog', { name: 'Bob' })).toBeInTheDocument();
     vi.useRealTimers();
     container.remove();
   });

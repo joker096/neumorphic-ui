@@ -26,7 +26,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
     user, stories, story, storyIndex, progress, reply, liked,
     menuOpen, shareOpen, forwardPicker, savable, timeLabel,
     setReply, setPaused, setMenuOpen, setShareOpen, setForwardPicker,
-    goNext, goPrev, onTap, sendReply, toggleLike,
+    goNext, goPrev, goNextUser, goPrevUser, onTap, sendReply, toggleLike,
     copyLink, handleShare, handleForward, handleDelete, handleSave,
   } = useStoryViewer({ activeUser, onClose });
 
@@ -83,7 +83,8 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
             onPauseEnd={() => setPaused(false)}
             onSwipeNext={goNext}
             onSwipePrev={goPrev}
-            onSwipeClose={onClose}
+            onSwipeUp={goNextUser}
+            onSwipeDown={goPrevUser}
           />
 
           <StoryFooter
@@ -108,30 +109,30 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
           >
             <ChevronLeft size={20} aria-hidden="true" />
           </button>
+
+          <StoryOptionsMenu
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            isMe={!!user.isMe}
+            savable={savable}
+            onCopyLink={copyLink}
+            onDelete={handleDelete}
+            onSave={handleSave}
+          />
+
+          <StoryShareMenu
+            open={shareOpen}
+            onClose={() => setShareOpen(false)}
+            onForward={() => {
+              setShareOpen(false);
+              setForwardPicker(true);
+            }}
+            onCopyLink={() => {
+              setShareOpen(false);
+              copyLink();
+            }}
+          />
         </div>
-
-        <StoryOptionsMenu
-          open={menuOpen}
-          onClose={() => setMenuOpen(false)}
-          isMe={!!user.isMe}
-          savable={savable}
-          onCopyLink={copyLink}
-          onDelete={handleDelete}
-          onSave={handleSave}
-        />
-
-        <StoryShareMenu
-          open={shareOpen}
-          onClose={() => setShareOpen(false)}
-          onForward={() => {
-            setShareOpen(false);
-            setForwardPicker(true);
-          }}
-          onCopyLink={() => {
-            setShareOpen(false);
-            copyLink();
-          }}
-        />
 
         <ChatPickerModal
           open={forwardPicker}

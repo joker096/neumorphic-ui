@@ -71,8 +71,8 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   test('stories view loads', async ({ page }) => {
     await ensureAppReady(page);
     await page.getByRole('button', { name: 'Chats', exact: true }).click();
-    await expect(page.getByText('P2P Stories', { exact: true })).toBeVisible();
-    await expect(page.getByText('My Story')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'My Story', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Alice', exact: true }).first()).toBeVisible();
   });
 
   test('recordings view loads', async ({ page }) => {

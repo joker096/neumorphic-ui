@@ -15,9 +15,11 @@ interface StoryViewerInput {
 
 const PROGRESS_INCREMENT = 100 / (STORY_DURATION_MS / STORY_PROGRESS_TICK_MS);
 
+const ALL_STORY_USERS: StoryUser[] = [MY_STORY_USER, ...STORY_USERS];
+
 export function useStoryViewer({ activeUser, onClose }: StoryViewerInput) {
   const { t } = useI18n();
-  const allUsers: StoryUser[] = [MY_STORY_USER, ...STORY_USERS];
+  const allUsers = ALL_STORY_USERS;
 
   const initialIndex = Math.max(0, allUsers.findIndex((u) => u.id === (activeUser?.id ?? -1)));
   const [userIndex, setUserIndex] = useState(initialIndex === -1 ? 0 : initialIndex);
@@ -126,7 +128,7 @@ export function useStoryViewer({ activeUser, onClose }: StoryViewerInput) {
     const id = activeUser?.id;
     if (id === undefined || id === prevUserIdRef.current) return;
     prevUserIdRef.current = id;
-    const idx = [MY_STORY_USER, ...STORY_USERS].findIndex((u) => u.id === id);
+    const idx = ALL_STORY_USERS.findIndex((u) => u.id === id);
     resetStory(idx === -1 ? 0 : idx, 0);
   }, [activeUser?.id, resetStory]);
 
@@ -134,7 +136,7 @@ export function useStoryViewer({ activeUser, onClose }: StoryViewerInput) {
 
   useEffect(() => {
     if (activeId === undefined) return;
-    const target = [MY_STORY_USER, ...STORY_USERS].find((u) => u.id === activeId);
+    const target = ALL_STORY_USERS.find((u) => u.id === activeId);
     if (target) markStoriesSeen(target);
   }, [activeId]);
 
@@ -159,6 +161,28 @@ export function useStoryViewer({ activeUser, onClose }: StoryViewerInput) {
     }
   }, [storyIndex, userIndex, resetStory, allUsers]);
 
+  /** Vertical navigation: jump to the first story of the next user that has stories. */
+  const goNextUser = useCallback(() => {
+    for (let i = userIndex + 1; i < allUsers.length; i++) {
+      if (getVisibleStories(allUsers[i]).length > 0) {
+        resetStory(i, 0);
+        return;
+      }
+    }
+    onClose();
+  }, [userIndex, allUsers, resetStory, onClose]);
+
+  /** Vertical navigation: jump to the previous user (from the start) or close on the first. */
+  const goPrevUser = useCallback(() => {
+    for (let i = userIndex - 1; i >= 0; i--) {
+      if (getVisibleStories(allUsers[i]).length > 0) {
+        resetStory(i, 0);
+        return;
+      }
+    }
+    onClose();
+  }, [userIndex, allUsers, resetStory, onClose]);
+
   useEffect(() => {
     if (activeId === undefined) return;
     const onKey = (e: KeyboardEvent) => {
@@ -173,6 +197,12 @@ export function useStoryViewer({ activeUser, onClose }: StoryViewerInput) {
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         goPrev();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        goPrevUser();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        goNextUser();
       } else if (e.key === ' ') {
         e.preventDefault();
         setPaused((p) => !p);
@@ -180,7 +210,7 @@ export function useStoryViewer({ activeUser, onClose }: StoryViewerInput) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [activeId, onClose, goNext, goPrev]);
+  }, [activeId, onClose, goNext, goPrev, goNextUser, goPrevUser]);
 
   useEffect(() => {
     if (paused) return;
@@ -224,7 +254,7 @@ export function useStoryViewer({ activeUser, onClose }: StoryViewerInput) {
     user, stories, story, storyIndex, progress, reply, liked,
     menuOpen, shareOpen, forwardPicker, savable, timeLabel,
     setReply, setPaused, setMenuOpen, setShareOpen, setForwardPicker,
-    goNext, goPrev, onTap, sendReply, toggleLike,
+    goNext, goPrev, goNextUser, goPrevUser, onTap, sendReply, toggleLike,
     copyLink, handleShare, handleForward, handleDelete, handleSave,
   };
 }

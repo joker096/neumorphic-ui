@@ -16,6 +16,9 @@ interface StoryFooterProps {
   onOpenMenu: () => void;
 }
 
+const circleClass =
+  'h-11 w-11 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center border border-white/15 backdrop-blur-sm transition-colors active:scale-95';
+
 export const StoryFooter: React.FC<StoryFooterProps> = ({
   user,
   reply,
@@ -34,7 +37,11 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
   };
 
   return (
-    <div className="absolute bottom-0 left-0 w-full p-3 z-20 flex items-center gap-2">
+    <div
+      className={`absolute bottom-0 left-0 z-20 flex w-full items-center gap-2 p-3 pb-[max(12px,env(safe-area-inset-bottom))] ${
+        user.isMe ? 'justify-end' : ''
+      }`}
+    >
       {!user.isMe && (
         <input
           type="text"
@@ -44,7 +51,7 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
           placeholder={t('story.replyPlaceholder', 'Send a reply…')}
           aria-label={t('story.replyPlaceholder', 'Send a reply…')}
           maxLength={STORY_REPLY_MAX_LENGTH}
-          className="flex-1 rounded-full px-4 py-2.5 text-sm bg-white/15 text-white placeholder-white/60 border border-white/20 outline-none focus:bg-white/25 min-h-11"
+          className="h-11 min-w-0 flex-1 rounded-full border border-white/15 bg-white/15 px-4 text-sm text-white outline-none placeholder:text-white/55 focus:bg-white/25"
         />
       )}
       {!user.isMe && (
@@ -53,9 +60,9 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
           onClick={handleLike}
           aria-label={t('story.react')}
           aria-pressed={liked}
-          className={`w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 transition-colors active:scale-95 ${liked ? 'bg-rose-500 text-white' : 'bg-white/15 text-white hover:bg-white/25'}`}
+          className={`${circleClass} ${liked ? 'bg-rose-500 text-white' : 'bg-white/15 text-white hover:bg-white/25'}`}
         >
-          <Heart size={18} fill={liked ? 'currentColor' : 'none'} aria-hidden="true" />
+          <Heart size={20} fill={liked ? 'currentColor' : 'none'} aria-hidden="true" />
         </button>
       )}
       {!user.isMe && (
@@ -64,27 +71,27 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
           onClick={onSendReply}
           disabled={!reply.trim()}
           aria-label={t('story.sendReply', 'Send')}
-          className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-[var(--accent)] text-[var(--button-primary-text)] transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          className={`${circleClass} bg-[var(--accent)] text-[var(--button-primary-text)] disabled:opacity-40 disabled:cursor-not-allowed`}
         >
-          <Send size={18} aria-hidden="true" />
+          <Send size={20} aria-hidden="true" />
         </button>
       )}
       <button
         type="button"
         onClick={onShare}
         aria-label={t('story.share', 'Share')}
-        className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-white/15 text-white hover:bg-white/25 transition-colors active:scale-95"
+        className={`${circleClass} bg-white/15 text-white hover:bg-white/25`}
       >
-        <Share2 size={18} aria-hidden="true" />
+        <Share2 size={20} aria-hidden="true" />
       </button>
       <button
         type="button"
         onClick={onOpenMenu}
         aria-label={t('common.more')}
         aria-haspopup="menu"
-        className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-white/15 text-white hover:bg-white/25 transition-colors active:scale-95"
+        className={`${circleClass} bg-white/15 text-white hover:bg-white/25`}
       >
-        <MoreVertical size={18} aria-hidden="true" />
+        <MoreVertical size={20} aria-hidden="true" />
       </button>
     </div>
   );

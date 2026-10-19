@@ -89,10 +89,15 @@ describe('StoryOptionsMenu', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('closes on cancel button', () => {
+  it('closes when the backdrop is clicked', () => {
     const onClose = vi.fn();
     render(<StoryOptionsMenu {...makeProps({ onClose })} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    fireEvent.click(screen.getByTestId('story-menu-backdrop'));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no cancel row (compact popover)', () => {
+    render(<StoryOptionsMenu {...makeProps()} />);
+    expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
   });
 });
