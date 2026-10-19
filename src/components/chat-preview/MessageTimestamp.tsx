@@ -27,7 +27,7 @@ export function MessageTimestamp({
   const timeLabel = stealthMode ? fuzzTime(msg.time, msg.id) : msg.time;
   return (
     <div className={`message-meta flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide ${msg.type ? "px-2" : ""}`}>
-      {shortDate && <span className="opacity-70">{shortDate}</span>}
+      {shortDate && <span>{shortDate}</span>}
       {msg.silent && <BellOff size={12} className="mr-0.5 opacity-60" />}
       {timeLabel}
       {isMe && (
