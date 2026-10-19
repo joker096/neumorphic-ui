@@ -60,7 +60,7 @@ const ThreadBubble = ({
             <FormattedText text={body} />
           </p>
         )}
-        <span className={`mt-1 block text-right text-[11px] ${isDark ? "text-[var(--text-tertiary)]" : "text-[var(--text-tertiary)]"}`}>
+        <span className="mt-1 block text-right text-[11px] text-[var(--text-tertiary)]">
           {timeOf(message)}
         </span>
       </div>

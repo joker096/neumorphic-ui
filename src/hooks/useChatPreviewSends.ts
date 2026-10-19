@@ -71,10 +71,17 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
 
   const sendMessage = (attachment?: { url: string; type: 'image' | 'video' } | Array<{ url: string; type: 'image' | 'video' }>, overrides?: ChatSendOverrides) => {
     const override = overrides != null;
-    const textToSend = override
-      ? String(overrides!.text ?? "").trim()
-      : draft.eMorseMode ? encodeMorse(draft.eMsgText) : draft.eMsgText.trim();
-    const replyTarget = override ? overrides!.replyTarget : draft.eReplyTarget;
+    const replyTarget = override ? overrides?.replyTarget : draft.eReplyTarget;
+    const overrideText = typeof overrides?.text === "string" ? overrides.text : "";
+    // Programmatic sends (thread panel) pass literal text; the composer path encodes morse.
+    let textToSend: string;
+    if (override) {
+      textToSend = overrideText.trim();
+    } else if (draft.eMorseMode) {
+      textToSend = encodeMorse(draft.eMsgText);
+    } else {
+      textToSend = draft.eMsgText.trim();
+    }
     const attachments = Array.isArray(attachment) ? attachment : attachment ? [attachment] : [];
     const hasAttachment = attachments.length > 0;
     if (!textToSend && !hasAttachment) return;
