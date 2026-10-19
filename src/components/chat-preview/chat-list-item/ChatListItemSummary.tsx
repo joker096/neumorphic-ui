@@ -1,5 +1,6 @@
-import { AlertTriangle, MapPin, Paperclip } from "lucide-react";
+import { AlertTriangle, Check, CheckCheck, Clock, MapPin, Paperclip } from "lucide-react";
 import { FormattedText } from "../FormattedText";
+import { useAppStore } from "../../../store";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -25,6 +26,16 @@ function previewOf(lastMsg: any, fallback: string, t: Translate): string {
   }
 }
 
+/** Outgoing-status glyph, mirroring the bubble footer: clock = queued, double check = delivered, accent double check = read. */
+function statusTick(status: string | undefined, deliveryReceipts: boolean, readReceipts: boolean) {
+  if (status === "queued") return <Clock size={14} strokeWidth={2.5} />;
+  if (deliveryReceipts && readReceipts && status === "read") {
+    return <CheckCheck size={14} strokeWidth={2.5} className="text-[var(--accent)]" />;
+  }
+  if (deliveryReceipts && status === "delivered") return <CheckCheck size={14} strokeWidth={2.5} />;
+  return <Check size={14} strokeWidth={2.5} />;
+}
+
 interface ChatListItemSummaryProps {
   chat: any;
   active: boolean;
@@ -38,9 +49,16 @@ interface ChatListItemSummaryProps {
 
 /** Title row (pinned marker, name, stealth-fuzzed time) and preview row (typing/draft/last message + badges). */
 export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText, typingIndicators, remoteTyping, t }: ChatListItemSummaryProps) {
+  const deliveryReceipts = useAppStore((s: any) => s.deliveryReceipts ?? true);
+  const readReceipts = useAppStore((s: any) => s.readReceipts ?? true);
   const lastMsg = (chat.history || []).at(-1);
   const lastHasAttach = lastMsg && (lastMsg.type === "image" || lastMsg.type === "video" || lastMsg.type === "audio" || lastMsg.type === "file");
   const lastMustFail = lastMsg && lastMsg.sender === "me" && lastMsg.status === "failed";
+  const typing = !!typingIndicators && (chat.isTyping || remoteTyping) && type === "chat";
+  // Telegram-style delivery ticks on the preview line — only for the viewer's own
+  // last bubble and only when the preview actually shows that bubble (not a draft
+  // or a live typing indicator).
+  const showTicks = !!lastMsg && lastMsg.sender === "me" && lastMsg.status !== "failed" && !typing && !draftText;
 
   return (
     <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
@@ -54,10 +72,15 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
       <div className="flex justify-between items-center">
         <span className={`chat-item-subtitle truncate pr-4 flex items-center gap-1 ${active ? "text-[var(--accent)]" : ""} ${chat.unread ? "font-medium" : ""}`}>
           <span className="flex items-center gap-1 min-w-0">
+            {showTicks && (
+              <span className="shrink-0 inline-flex items-center" aria-hidden="true">
+                {statusTick(lastMsg?.status, deliveryReceipts, readReceipts)}
+              </span>
+            )}
             {lastHasAttach && <Paperclip size={12} className="shrink-0 opacity-70" />}
             {lastMustFail && <AlertTriangle size={12} className="shrink-0 text-red-500" />}
           </span>
-          {typingIndicators && (chat.isTyping || remoteTyping) && type === "chat" ? (
+          {typing ? (
             <span className="font-bold tracking-wide italic text-[var(--accent)]">{t("chat.typing")}</span>
           ) : draftText ? (
             <span className="italic text-[var(--text-secondary)]">

@@ -99,6 +99,51 @@ describe('ChatListItem', () => {
     expect(document.querySelector('svg.text-red-500')).not.toBeInTheDocument();
   });
 
+  it('shows a single check tick on my sent last message', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, history: [{ id: 1, sender: 'me', text: 'ok', status: 'sent' }] }} />);
+    expect(document.querySelector('.lucide-check')).toBeInTheDocument();
+    expect(document.querySelector('.lucide-check-check')).not.toBeInTheDocument();
+  });
+
+  it('shows a double check tick on a delivered last message', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, history: [{ id: 1, sender: 'me', text: 'ok', status: 'delivered' }] }} />);
+    expect(document.querySelector('.lucide-check-check')).toBeInTheDocument();
+  });
+
+  it('highlights the tick with the accent colour once the message is read', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, history: [{ id: 1, sender: 'me', text: 'ok', status: 'read' }] }} />);
+    const tick = document.querySelector('.lucide-check-check');
+    expect(tick).toBeInTheDocument();
+    expect(tick?.getAttribute('class')).toContain('var(--accent)');
+  });
+
+  it('shows no tick on a message from someone else', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, history: [{ id: 1, sender: 'them', text: 'hi', status: 'sent' }] }} />);
+    expect(document.querySelector('.lucide-check')).not.toBeInTheDocument();
+    expect(document.querySelector('.lucide-check-check')).not.toBeInTheDocument();
+  });
+
+  it('falls back to a single check when delivery receipts are off', () => {
+    mockStore.deliveryReceipts = false;
+    try {
+      render(<ChatListItem {...defaultProps} chat={{ ...mockChat, history: [{ id: 1, sender: 'me', text: 'ok', status: 'delivered' }] }} />);
+      expect(document.querySelector('.lucide-check')).toBeInTheDocument();
+      expect(document.querySelector('.lucide-check-check')).not.toBeInTheDocument();
+    } finally {
+      delete mockStore.deliveryReceipts;
+    }
+  });
+
+  it('hides the tick while the typing indicator replaces the preview', () => {
+    mockStore.typingIndicators = true;
+    try {
+      render(<ChatListItem {...defaultProps} chat={{ ...mockChat, isTyping: true, history: [{ id: 1, sender: 'me', text: 'ok', status: 'delivered' }] }} />);
+      expect(document.querySelector('.lucide-check-check')).not.toBeInTheDocument();
+    } finally {
+      mockStore.typingIndicators = false;
+    }
+  });
+
   it('applies active state class when active is true', () => {
     const { container } = render(<ChatListItem {...defaultProps} active={true} />);
     expect(container.querySelector('.chat-list-item-active')).toBeInTheDocument();
