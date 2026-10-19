@@ -20,7 +20,7 @@ export const OnboardingPanel = ({ isDark = false, variant = "contacts", t, onSta
           ? <Megaphone size={32} className="text-[var(--accent)]" />
           : <MessageSquarePlus size={32} className="text-[var(--accent)]" />}
      </div>
-      <h3 className={`text-lg font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
+      <h3 className="text-lg font-bold mb-2 text-[var(--text-primary)]">
         {t("onboarding.welcome") || "Welcome to Mess&Anger"}
       </h3>
        <p className={`text-sm max-w-xs mb-6 leading-relaxed text-[var(--text-secondary)]`}>
@@ -66,10 +66,10 @@ export const OnboardingPanel = ({ isDark = false, variant = "contacts", t, onSta
           <button
             type="button"
             onClick={onInvite}
-            className={`w-full min-h-11 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 ${
+            className={`w-full min-h-11 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 text-[var(--text-primary)] ${
               isDark
-                ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-white/5"
-                : "bg-white text-slate-700 border border-[var(--border-color)] hover:bg-black/5 shadow-sm"
+                ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5"
+                : "bg-white border border-[var(--border-color)] hover:bg-black/5 shadow-sm"
             }`}
           >
            <QrCode size={16} />

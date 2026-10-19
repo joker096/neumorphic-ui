@@ -48,25 +48,25 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
   const isBlockedTemporarily = lockBlockTimer > 0;
 
   return (
-    <div className={`w-full h-[100dvh] flex flex-col items-center justify-center font-sans pt-[env(safe-area-inset-top,0px)] ${isDark ? "bg-[var(--bg-primary)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-slate-800"}`}>
+    <div className={`w-full h-[100dvh] flex flex-col items-center justify-center font-sans pt-[env(safe-area-inset-top,0px)] ${isDark ? "bg-[var(--bg-primary)]" : "bg-[var(--bg-secondary)]"} text-[var(--text-primary)]`}>
       <div className={`p-6 sm:p-8 rounded-3xl flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl ${isDark ? "bg-[var(--bg-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}>
         <Lock size={48} className={`mb-6 ${isDark ? "text-orange-500" : "text-orange-600"}`} />
         <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t('lock.title')}</h2>
-        <p className={`text-sm mb-6 text-center ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+        <p className="text-sm mb-6 text-center text-[var(--text-secondary)]">
           {t('lock.description')}
         </p>
 
         {isBlockedPermanently ? (
           <div className="text-center mb-4">
             <p className="text-red-500 font-bold text-sm">{t('lock.tooManyAttempts')}</p>
-            <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+            <p className="text-xs mt-1 text-[var(--text-secondary)]">
               {t('lock.permanentlyLocked')}
             </p>
           </div>
         ) : isBlockedTemporarily ? (
           <div className="text-center mb-4">
             <p className="text-red-500 font-bold text-sm">{t('lock.locked')}</p>
-            <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+            <p className="text-xs mt-1 text-[var(--text-secondary)]">
               {t('lock.tryAgainIn', { seconds: lockBlockTimer })}
             </p>
           </div>
@@ -146,7 +146,7 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
                   className={`mt-3 w-full h-11 rounded-xl font-medium flex items-center justify-center gap-2 border transition-transform active:scale-95 disabled:opacity-60 ${
                     isDark
                       ? "border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
-                      : "border-slate-200 text-slate-800 hover:bg-slate-50"
+                      : "border-[var(--border-color)] text-[var(--text-primary)] hover:bg-black/5"
                   }`}
                 >
                   <Fingerprint size={20} />

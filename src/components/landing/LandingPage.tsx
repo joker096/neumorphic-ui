@@ -66,15 +66,11 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           transition={{ duration: 1, ease: [0.32, 0.72, 0, 1] }}
           className="flex flex-col items-center text-center max-w-3xl"
         >
-          <div className={`mb-6 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border ${
-            isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
-          }`}>
+          <div className="mb-6 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border border-[var(--border-color)] text-[var(--text-secondary)]">
             {APP_INFO.VERSION} &mdash; June 2026
           </div>
 
-          <h1 className={`text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 ${
-            isDark ? "text-[var(--text-primary)]" : "text-slate-900"
-          }`}>
+          <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--text-primary)]">
             {t("landing.communication")}
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
@@ -82,9 +78,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
             </span>
           </h1>
 
-          <p className={`text-lg max-w-xl leading-relaxed mb-10 ${
-            isDark ? "text-gray-400" : "text-slate-500"
-          }`}>
+          <p className="text-lg max-w-xl leading-relaxed mb-10 text-[var(--text-secondary)]">
             {t("landing.heroSubtitle")}
           </p>
 
@@ -105,11 +99,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className={`rounded-full px-8 py-3 text-sm font-bold border transition-all duration-300 ${
-                isDark
-                  ? "border-[var(--border-color)] text-gray-300 hover:bg-white/5"
-                  : "border-[var(--border-color)] text-slate-600 hover:bg-black/5"
-              }`}
+              className="rounded-full px-8 py-3 text-sm font-bold border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300"
             >
               {t("landing.sourceCode")}
             </a>
@@ -122,22 +112,18 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           transition={{ delay: 0.8, duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
-          <div className={`w-5 h-8 rounded-full border-2 ${"border-[var(--border-color)]"} flex justify-center pt-2`}>
-            <div className={`w-1 h-2 rounded-full animate-bounce ${isDark ? "bg-gray-400" : "bg-slate-500"}`} />
+          <div className="w-5 h-8 rounded-full border-2 border-[var(--border-color)] flex justify-center pt-2">
+            <div className="w-1 h-2 rounded-full animate-bounce bg-[var(--text-secondary)]" />
           </div>
         </motion.div>
       </section>
 
       <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-6xl mx-auto">
-          <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border ${
-            isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
-          }`}>
+          <div className="mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border border-[var(--border-color)] text-[var(--text-secondary)]">
             {t("landing.featuresBadge")}
           </div>
-          <h2 className={`text-[clamp(1.8rem,4vw,3rem)] font-bold text-center tracking-[-0.02em] mb-16 ${
-            isDark ? "text-[var(--text-primary)]" : "text-slate-900"
-          }`}>
+          <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold text-center tracking-[-0.02em] mb-16 text-[var(--text-primary)]">
             {t("landing.featuresTitle")}<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">{t("landing.featuresTitleAccent")}</span>
           </h2>
@@ -162,10 +148,10 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                     }`}>
                       <Icon size={20} className={isDark ? "text-orange-400" : "text-orange-600"} />
                     </div>
-                    <h3 className={`text-base font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
+                    <h3 className="text-base font-bold mb-2 text-[var(--text-primary)]">
                       {t(feat.titleKey)}
                     </h3>
-                    <p className={`text-sm leading-relaxed ${isDark ? "text-gray-500" : "text-slate-500"}`}>
+                    <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                       {t(feat.descKey)}
                     </p>
                   </div>
@@ -178,9 +164,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
 
       <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-5xl mx-auto">
-          <div className={`mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border ${
-            isDark ? "border-[var(--border-color)] text-gray-400" : "border-[var(--border-color)] text-gray-500"
-          }`}>
+          <div className="mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border border-[var(--border-color)] text-[var(--text-secondary)]">
             {t("landing.securityBadge")}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -214,10 +198,10 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                   }`}>
                     <Icon size={24} className={isDark ? "text-orange-400" : "text-orange-600"} />
                   </div>
-                  <h3 className={`text-base font-bold mb-2 ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>
+                  <h3 className="text-base font-bold mb-2 text-[var(--text-primary)]">
                     {t(item.titleKey)}
                   </h3>
-                  <p className={`text-sm leading-relaxed max-w-xs mx-auto ${isDark ? "text-gray-500" : "text-slate-500"}`}>
+                  <p className="text-sm leading-relaxed max-w-xs mx-auto text-[var(--text-secondary)]">
                     {t(item.descKey)}
                   </p>
                 </motion.div>
@@ -229,12 +213,10 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
 
       <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-3xl mx-auto text-center">
-          <h2 className={`text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 ${
-            isDark ? "text-[var(--text-primary)]" : "text-slate-900"
-          }`}>
+          <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 text-[var(--text-primary)]">
             {t("landing.ctaTitle")}
           </h2>
-          <p className={`text-lg mb-10 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+          <p className="text-lg mb-10 text-[var(--text-secondary)]">
             {t("landing.ctaSubtitle")}
           </p>
           <button
@@ -251,9 +233,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
         </motion.div>
       </section>
 
-      <footer className={`relative z-10 border-t px-6 py-8 ${
-        "border-[var(--border-color)]"
-      }`}>
+      <footer className="relative z-10 border-t px-6 py-8 border-[var(--border-color)]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className={`w-5 h-5 rounded-md flex items-center justify-center ${
@@ -261,11 +241,11 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
             }`}>
               <Zap size={12} className={isDark ? "text-orange-400" : "text-orange-600"} />
             </div>
-            <span className={`text-xs font-bold tracking-tight ${isDark ? "text-gray-500" : "text-slate-500"}`}>
+            <span className="text-xs font-bold tracking-tight text-[var(--text-secondary)]">
               {t("landing.brand")}
             </span>
           </div>
-          <p className={`text-xs ${isDark ? "text-gray-600" : "text-slate-400"}`}>
+          <p className="text-xs text-[var(--text-tertiary)]">
             {t("landing.copyright")}
           </p>
         </div>

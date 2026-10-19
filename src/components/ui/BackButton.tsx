@@ -35,9 +35,7 @@ export const BackButton = ({
   const circleTheme = isDark
     ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)]"
     : "bg-[var(--bg-elevated)] hover:bg-white";
-  const iconTheme = isDark
-    ? "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
-    : "text-slate-500 hover:text-slate-800";
+  const iconTheme = "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]";
 
   return (
     <button

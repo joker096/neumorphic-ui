@@ -155,7 +155,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
         className="glass-panel relative w-full max-w-[560px] rounded-2xl shadow-2xl flex flex-col max-h-[80vh]"
       >
         <div className={`flex items-center gap-2 px-4 py-3 border-b ${isDark ? "border-[var(--border-color)]" : "border-black/10"}`}>
-          <Search size={18} className={isDark ? "text-[var(--text-tertiary)]" : "text-slate-400"} />
+          <Search size={18} className="text-[var(--text-tertiary)]" />
           <input
             aria-label={t("search.placeholder", "Search chats, messages, contacts…")}
             ref={inputRef}
@@ -163,9 +163,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
             onChange={(e) => { setQuery(e.target.value); setActiveIndex(-1); }}
             onKeyDown={handleKeyDown}
             placeholder={t("search.placeholder", "Search chats, messages, contacts…")}
-            className={`flex-1 bg-transparent outline-none text-xs py-1 ${
-              isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]" : "text-slate-800 placeholder:text-slate-400"
-            }`}
+            className="flex-1 bg-transparent outline-none text-xs py-1 text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
           />
           {query && (
             <button
@@ -195,7 +193,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className={`mr-1 text-[11px] font-bold uppercase tracking-[0.15em] ${isDark ? "text-[var(--text-tertiary)]" : "text-slate-500"}`}>
+              <span className={`mr-1 text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]`}>
                 {t("search.senderFilters.from", "From")}
               </span>
               {SENDER_FILTERS.map((f) => (
@@ -209,7 +207,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className={`mr-1 text-[11px] font-bold uppercase tracking-[0.15em] ${isDark ? "text-[var(--text-tertiary)]" : "text-slate-500"}`}>
+              <span className={`mr-1 text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]`}>
                 {t("search.typeFilters.type", "Type")}
               </span>
               {TYPE_FILTERS.map((f) => (
@@ -247,11 +245,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                   key={h}
                   type="button"
                   onClick={() => setQuery(h)}
-                  className={`w-full flex items-center gap-3 px-3 min-h-11 rounded-xl text-left text-[13px] cursor-pointer ${
-                    isDark ? "text-[var(--text-primary)] hover:bg-white/[0.05]" : "text-slate-700 hover:bg-black/5"
-                  }`}
+                  className="w-full flex items-center gap-3 px-3 min-h-11 rounded-xl text-left text-[13px] cursor-pointer text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/[0.05]"
                 >
-                  <Clock size={14} className={isDark ? "text-[var(--text-tertiary)]" : "text-slate-400"} />
+                  <Clock size={14} className="text-[var(--text-tertiary)]" />
                   <span className="truncate">{h}</span>
                 </button>
               ))}
@@ -259,7 +255,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
           )}
 
           {!hasQuery && history.length === 0 && (
-            <div className={`flex flex-col items-center justify-center py-12 opacity-60 text-[13px] ${isDark ? "text-[var(--text-tertiary)]" : "text-slate-400"}`}>
+            <div className="flex flex-col items-center justify-center py-12 opacity-60 text-[13px] text-[var(--text-tertiary)]">
               <Search size={32} className="mb-3" />
               {t("search.hint", "Search across all chats, channels and contacts")}
             </div>

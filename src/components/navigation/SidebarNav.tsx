@@ -78,10 +78,10 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
       <div className={`mx-3 mb-4 mt-auto h-px ${isDark ? "bg-white/[0.05]" : "bg-black/[0.05]"}`} />
       <div className="flex items-center justify-center pb-4">
         <div
-          className={`w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 ${
+          className={`w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] ${
             isDark
-              ? "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] shadow-[inset_0_1px_3px_rgba(255,255,255,0.08)]"
-              : "bg-white text-slate-500 hover:text-slate-700 shadow-[0_1px_4px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)]"
+              ? "shadow-[inset_0_1px_3px_rgba(255,255,255,0.08)]"
+              : "shadow-[0_1px_4px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)]"
           }`}
           aria-hidden="true"
         >

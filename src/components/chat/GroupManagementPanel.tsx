@@ -51,8 +51,8 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
   };
 
   const cardClass = `rounded-xl overflow-hidden ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white border border-[var(--border-color)] shadow-sm'}`;
-  const iconWrapClass = `w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? 'bg-white/5' : 'bg-slate-100'}`;
-  const iconBtnClass = `min-w-11 min-h-11 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'text-gray-400 hover:text-[var(--text-primary)] bg-white/5' : 'text-slate-500 hover:text-slate-900 bg-slate-100'}`;
+  const iconWrapClass = `w-8 h-8 rounded-lg flex items-center justify-center bg-black/5 dark:bg-white/5`;
+  const iconBtnClass = `min-w-11 min-h-11 rounded-lg flex items-center justify-center transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-black/5 dark:bg-white/5`;
 
   return (
     <div className="space-y-4">
@@ -62,8 +62,8 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
           <div className="flex items-center gap-3 px-4 py-3">
             <div className={iconWrapClass}><LinkIcon size={16} /></div>
             <div className="flex-1 min-w-0">
-              <div className={`text-sm ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>{t('group.inviteLink', 'Invite link')}</div>
-              <div className={`text-xs truncate ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{inviteUrl}</div>
+              <div className="text-sm text-[var(--text-primary)]">{t('group.inviteLink', 'Invite link')}</div>
+              <div className="text-xs truncate text-[var(--text-tertiary)]">{inviteUrl}</div>
             </div>
             <button onClick={() => void copyInvite()} aria-label={t('group.copyInvite', 'Copy invite link')} title={t('group.copyInvite', 'Copy invite link')} className={iconBtnClass}>
               {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -77,12 +77,12 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
         <div className={cardClass}>
           <div className="flex items-center gap-3 px-4 py-3">
             <div className={iconWrapClass}><Timer size={16} /></div>
-            <div className={`flex-1 text-sm ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>{t('group.slowMode', 'Slow mode')}</div>
+            <div className="flex-1 text-sm text-[var(--text-primary)]">{t('group.slowMode', 'Slow mode')}</div>
             <select
               aria-label={t('group.slowMode', 'Slow mode')}
               value={liveGroup.slowModeSeconds}
               onChange={(e) => patchGroup({ slowModeSeconds: Number(e.target.value) })}
-              className={`w-24 h-[var(--control-height-md)] rounded-lg text-sm px-2 ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]' : 'bg-slate-100 text-slate-900'}`}
+              className="w-24 h-[var(--control-height-md)] rounded-lg text-sm px-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
             >
               {SLOW_MODE_OPTIONS.map((sec) => (
                 <option key={sec} value={sec}>
@@ -102,7 +102,7 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
             <div key={m.id} className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
               <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${m.color} flex items-center justify-center text-white font-bold`}>{m.name.charAt(0)}</div>
               <div className="flex-1 min-w-0">
-                <div className={`text-sm font-medium truncate ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>{m.name}</div>
+                <div className="text-sm font-medium truncate text-[var(--text-primary)]">{m.name}</div>
                 {owner && (
                   <div className={`text-xs flex items-center gap-1 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                     <Crown size={12} /> {t('group.owner', 'Owner')}
@@ -115,7 +115,7 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
                     aria-label={`${m.name} ${t('group.role', 'Role')}`}
                     value={m.role}
                     onChange={(e) => patchMembers(liveMembers.map((x) => (x.id === m.id ? { ...x, role: e.target.value as GroupMember['role'] } : x)))}
-                    className={`w-16 h-[var(--control-height-md)] rounded-lg text-xs px-1 ${isDark ? 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]' : 'bg-slate-100 text-slate-900'}`}
+                    className="w-16 h-[var(--control-height-md)] rounded-lg text-xs px-1 bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
                   >
                     <option value="admin">{t('group.admin', 'Admin')}</option>
                     <option value="member">{t('group.member', 'Member')}</option>
@@ -159,7 +159,7 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
           {pendingContacts.map((c) => (
             <div key={c.id} className="flex items-center gap-3 px-4 py-2 border-b last:border-b-0 border-[var(--border-color)]">
               <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-white text-xs font-bold`}>{c.name.charAt(0)}</div>
-              <div className={`flex-1 text-sm truncate ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>{c.name}</div>
+              <div className="flex-1 text-sm truncate text-[var(--text-primary)]">{c.name}</div>
               <button
                 onClick={() => patchMembers([...liveMembers, { id: c.id, name: c.name, color: c.color, role: 'member' as const }])}
                 aria-label={`${t('group.addMembers', 'Add member')} ${c.name}`}

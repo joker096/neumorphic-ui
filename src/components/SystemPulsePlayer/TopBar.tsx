@@ -10,7 +10,7 @@ export const TopBar = ({
   setIsRadioMode, setShowAddStationModal, setStationName, setStationUrl, setStationAddError, setRadioStations
 }: TopBarProps) => {
   const { t } = useI18n();
-  const textColor = isDark ? "text-[var(--text-warm-dark)]" : "text-slate-700";
+  const textColor = isDark ? "text-[var(--text-warm-dark)]" : "text-[var(--text-primary)]";
   const openAddStation = () => {
     setStationName("");
     setStationUrl("");

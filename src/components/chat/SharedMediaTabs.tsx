@@ -32,8 +32,8 @@ export const SharedMediaTabs = ({ messages, isDark, onOpenChat }: SharedMediaTab
   );
 
   const boxClass = isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm";
-  const textClass = isDark ? "text-[var(--text-primary)]" : "text-slate-900";
-  const iconBoxClass = isDark ? "bg-white/5" : "bg-slate-100";
+  const textClass = "text-[var(--text-primary)]";
+  const iconBoxClass = "bg-black/5 dark:bg-white/5";
 
   return (
     <>
@@ -44,7 +44,7 @@ export const SharedMediaTabs = ({ messages, isDark, onOpenChat }: SharedMediaTab
             onClick={() => setActive(tab.id)}
             className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-xl cursor-pointer shrink-0"
           >
-            <span className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[12px] font-medium whitespace-nowrap transition-colors ${active === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : (isDark ? "bg-white/5 text-gray-300 group-hover:bg-white/10" : "bg-slate-100 text-slate-600 group-hover:bg-slate-200")}`}>
+            <span className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[12px] font-medium whitespace-nowrap transition-colors ${active === tab.id ? "bg-[var(--accent)] text-[var(--button-primary-text)]" : "bg-black/5 text-[var(--text-secondary)] group-hover:bg-black/10 dark:bg-white/5 dark:group-hover:bg-white/10"}`}>
               {tab.icon} {t(tab.label, tab.fallback)}
             </span>
           </button>

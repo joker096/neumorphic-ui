@@ -28,7 +28,7 @@ export function FilterChip({ label, active, isDark, onClick }: { label: string; 
       <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-semibold transition-colors border ${
         active
           ? `border-[var(--accent)] text-[var(--accent)]`
-          : isDark ? "border-[var(--border-color)] text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] group-hover:bg-white/10" : "border-[var(--border-color)] text-slate-600 group-hover:text-slate-800 group-hover:bg-black/10"
+          : "border-[var(--border-color)] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-black/10 dark:group-hover:bg-white/10"
       }`}>
         {label}
       </span>

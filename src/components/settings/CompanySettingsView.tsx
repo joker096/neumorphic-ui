@@ -73,8 +73,8 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
                 <BookOpen size={16} className={isDark ? 'text-amber-400' : 'text-amber-600'} />
               </span>
               <span className="flex-1 min-w-0">
-                <span className={`text-sm font-medium ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>{t('company.guide.title', 'Company guide')}</span>
-                <span className={`block text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('company.guide.subtitle', 'How companies & roles work')}</span>
+                <span className="text-sm font-medium text-[var(--text-primary)]">{t('company.guide.title', 'Company guide')}</span>
+                <span className="block text-xs text-[var(--text-secondary)]">{t('company.guide.subtitle', 'How companies & roles work')}</span>
               </span>
             </span>
           </button>

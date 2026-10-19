@@ -136,7 +136,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
             <Plus size={16} />
             <span className="text-sm font-medium">{t('wallet.topUp', 'Top up')}</span>
           </button>
-          <button onClick={() => openForm('send')} aria-label={t('wallet.send', 'Send')} title={t('wallet.send', 'Send')} className={`min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg transition-colors active:scale-95 ${isDark ? "bg-white/10 text-[var(--text-primary)]" : "bg-slate-800 text-white"}`}>
+          <button onClick={() => openForm('send')} aria-label={t('wallet.send', 'Send')} title={t('wallet.send', 'Send')} className="min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg transition-colors active:scale-95 bg-black/10 text-[var(--text-primary)] dark:bg-white/10">
             <ArrowUpRight size={16} />
             <span className="text-sm font-medium">{t('wallet.send', 'Send')}</span>
           </button>

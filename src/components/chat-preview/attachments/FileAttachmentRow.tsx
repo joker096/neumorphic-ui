@@ -16,7 +16,7 @@ const FILE_KIND_STYLE: Record<FileKind, { Icon: LucideIcon; tint: string }> = {
   video: { Icon: Film, tint: "bg-fuchsia-500/15 text-fuchsia-500" },
   archive: { Icon: FileArchive, tint: "bg-orange-500/15 text-orange-500" },
   code: { Icon: FileCode, tint: "bg-cyan-500/15 text-cyan-500" },
-  other: { Icon: FileText, tint: "bg-slate-500/15 text-slate-400" },
+  other: { Icon: FileText, tint: "bg-slate-500/15 text-[var(--text-secondary)]" },
 };
 
 interface FileAttachmentRowProps {
@@ -48,7 +48,7 @@ export function FileAttachmentRow({ msg, isDark, hasTransfer, pending, ready, ur
         )}
       </div>
       {pending ? (
-        <span aria-hidden="true" className={`shrink-0 w-5 h-5 border-2 rounded-full animate-spin border-t-transparent ${isDark ? "border-gray-400" : "border-slate-400"}`} />
+        <span aria-hidden="true" className="shrink-0 w-5 h-5 border-2 rounded-full animate-spin border-t-transparent border-[var(--text-tertiary)]" />
       ) : ready ? (
         <a
           href={url || undefined}

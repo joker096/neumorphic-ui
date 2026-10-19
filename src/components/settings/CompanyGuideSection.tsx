@@ -93,14 +93,14 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
                   <span className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${isDark ? 'bg-[var(--accent-soft)]' : 'bg-[var(--accent)]/10'}`}>
                     <span className="t-accent">{step.icon}</span>
                   </span>
-                  <span className={`text-sm font-medium ${isDark ? 'text-[var(--text-primary)]' : 'text-slate-900'}`}>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
                     {t(step.titleKey, step.titleFallback)}
                   </span>
                 </span>
-                <ChevronRight size={16} className={`shrink-0 transition-transform ${isOpen ? 'rotate-90 text-[var(--accent)]' : (isDark ? 'text-gray-500' : 'text-slate-400')}`} />
+                <ChevronRight size={16} className={`shrink-0 transition-transform ${isOpen ? 'rotate-90 text-[var(--accent)]' : 'text-[var(--text-tertiary)]'}`} />
               </button>
               {isOpen && (
-                <div className={`px-4 pb-4 pl-16 text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>
+                <div className="px-4 pb-4 pl-16 text-sm leading-relaxed text-[var(--text-secondary)]">
                   {t(step.bodyKey, step.bodyFallback)}
                 </div>
               )}

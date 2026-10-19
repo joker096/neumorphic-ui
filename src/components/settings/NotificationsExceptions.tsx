@@ -57,7 +57,7 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
             {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-gray-500/10" : "bg-black/5"}`}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-black/5 dark:bg-white/10">
                   <Bell size={16} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />
                 </div>
                 <span className={`text-sm truncate text-[var(--text-primary)]`}>{e.name}</span>
@@ -66,7 +66,7 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
                 onClick={() => toggleException(e.id)}
                 aria-label={stateLabel(e.muted)}
                 title={stateLabel(e.muted)}
-                className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors ${e.muted ? (isDark ? "bg-gray-600/30 text-gray-300" : "bg-slate-200 text-slate-600") : "bg-[var(--accent)] text-[var(--button-primary-text)]"}`}
+                className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors ${e.muted ? "bg-black/10 text-[var(--text-secondary)] dark:bg-gray-600/30 dark:text-[var(--text-primary)]" : "bg-[var(--accent)] text-[var(--button-primary-text)]"}`}
               >
                 {e.muted ? <BellOff size={16} /> : <Bell size={16} />}
                 <span className="sr-only">{stateLabel(e.muted)}</span>

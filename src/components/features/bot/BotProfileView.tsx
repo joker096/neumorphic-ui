@@ -50,7 +50,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
   ) : null;
 
   return (
-    <div className={`flex-1 flex flex-col h-full min-h-0 ${isDark ? "text-gray-100" : "text-slate-800"}`}>
+    <div className="flex-1 flex flex-col h-full min-h-0 text-[var(--text-primary)]">
       <div className="flex items-center gap-3 p-4 border-b border-[var(--border-color)]">
         <button
           onClick={onBack}
@@ -75,13 +75,13 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
             {verifiedMark}
           </h3>
           {profile.username && (
-            <p className={`text-sm ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <p className="text-sm text-[var(--text-secondary)]">
               @{profile.username}
             </p>
           )}
         </div>
         {profile.description && (
-          <p className={`text-center max-w-md text-sm ${isDark ? "text-gray-300" : "text-slate-600"}`}>
+          <p className="text-center max-w-md text-sm text-[var(--text-secondary)]">
             {profile.description}
           </p>
         )}

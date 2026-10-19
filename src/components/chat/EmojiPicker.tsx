@@ -109,7 +109,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
       <button
         type="button"
         onClick={() => { setQuery(""); setActiveCat("recent"); }}
-        className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === "recent" ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "text-gray-300 hover:bg-white/10" : "text-slate-600 hover:bg-black/5"}`}
+        className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === "recent" ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/10"}`}
       >
         {t("emojis.recent", "Recent")}
       </button>
@@ -118,7 +118,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
           key={c.key}
           type="button"
           onClick={() => { setQuery(""); setActiveCat(c.key); }}
-          className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === c.key ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "text-gray-300 hover:bg-white/10" : "text-slate-600 hover:bg-black/5"}`}
+          className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === c.key ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/10"}`}
         >
           {t(`emojis.cat.${c.key}`, c.label)}
         </button>
@@ -128,13 +128,13 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
 
   return (
     <div
-      className={`w-full max-w-[340px] rounded-2xl p-2 ${isDark ? "bg-[var(--bg-secondary)] text-gray-100" : "bg-white text-slate-800"} shadow-xl border border-black/5`}
+      className={`w-full max-w-[340px] rounded-2xl p-2 ${isDark ? "bg-[var(--bg-secondary)]" : "bg-white"} text-[var(--text-primary)] shadow-xl border border-black/5`}
       role="dialog"
       aria-label={t("emojis.title", "Emoji")}
     >
       <div className="flex items-center gap-2 mb-2">
         <div className="relative flex-1">
-          <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
           <input
             type="text"
             value={query}

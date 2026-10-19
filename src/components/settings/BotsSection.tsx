@@ -62,7 +62,7 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
   return (
     <SubView title={t('settings.bots')} isDark={isDark} onBack={onBack}>
       {bots.length === 0 ? (
-        <div className={`text-center py-8 text-sm ${isDark ? "text-gray-500" : "text-slate-400"}`}>
+        <div className="text-center py-8 text-sm text-[var(--text-tertiary)]">
           <Bot size={32} className="mx-auto mb-3 opacity-40" />
           {t('settings.noBots')}
         </div>
@@ -72,8 +72,8 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
             <SettingsRow
               key={bot.id}
               icon={<Bot size={16} />}
-              iconBg={bot.isRunning ? (isDark ? "bg-emerald-500/10" : "bg-emerald-100") : (isDark ? "bg-gray-500/10" : "bg-gray-100")}
-              iconColor={bot.isRunning ? (isDark ? "text-emerald-400" : "text-emerald-600") : (isDark ? "text-gray-400" : "text-gray-500")}
+              iconBg={bot.isRunning ? (isDark ? "bg-emerald-500/10" : "bg-emerald-100") : "bg-black/10 dark:bg-white/10"}
+              iconColor={bot.isRunning ? (isDark ? "text-emerald-400" : "text-emerald-600") : "text-[var(--text-secondary)]"}
               title={bot.name}
               subtitle={bot.isRunning ? t('settings.botRunning') : t('settings.botStopped')}
               isDark={isDark}

@@ -41,7 +41,7 @@ export function ChatListItemAvatar({ chat, isDark, active, type, selectMode, sel
           {selected ? (
             <Check size={16} strokeWidth={2.5} className="text-[var(--ink-on-saturate)]" />
           ) : (
-            <div className={`w-4 h-4 rounded-full border-2 ${isDark ? "border-gray-500" : "border-slate-300"}`} />
+            <div className="w-4 h-4 rounded-full border-2 border-[var(--text-tertiary)]" />
           )}
         </div>
       ) : overrideAvatar ? (

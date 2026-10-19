@@ -174,7 +174,7 @@ export const ChannelCommentsView = ({
                 onChange={(e) => setComment(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder={t('channelComments.placeholder')}
-                className={`flex-1 bg-transparent border-none outline-none text-[14px] ${isDark ? 'text-[var(--text-primary)] placeholder:text-gray-500' : 'text-slate-700 placeholder:text-slate-400'}`}
+                className="flex-1 bg-transparent border-none outline-none text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
               />
               <button
                 type="button"
@@ -184,9 +184,9 @@ export const ChannelCommentsView = ({
                   comment.trim()
                     ? 'bg-[var(--accent)] text-[var(--text-primary)]'
                     : isDark
-                      ? 'bg-[var(--bg-tertiary)]/10 text-gray-500'
-                      : 'bg-black/5 text-slate-400'
-                }`}
+                      ? 'bg-[var(--bg-tertiary)]/10'
+                      : 'bg-black/5'
+                } text-[var(--text-tertiary)]`}
               >
                 <Send size={16} />
               </button>

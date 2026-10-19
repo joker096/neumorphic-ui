@@ -36,8 +36,8 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
                   {meta.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm font-medium ${isDark ? "text-[var(--text-primary)]" : "text-slate-900"}`}>{t(`chat.folders.${key}`)}</div>
-                  <div className={`text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>{t(meta.descKey, meta.descFallback)}</div>
+                  <div className="text-sm font-medium text-[var(--text-primary)]">{t(`chat.folders.${key}`)}</div>
+                  <div className="text-xs text-[var(--text-secondary)]">{t(meta.descKey, meta.descFallback)}</div>
                 </div>
               </div>
             </div>

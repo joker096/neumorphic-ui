@@ -31,7 +31,7 @@ describe('SubView', () => {
 
   it('renders with proper theme variables', () => {
     const { container } = render(<SubView title="Test" onBack={vi.fn()}><p>Content</p></SubView>);
-    expect(container.querySelector('[class*="text-white"]') || container.querySelector('[class*="text-slate-800"]')).toBeInTheDocument();
+    expect(container.querySelector('[class*="text-[var(--text-primary)]"]')).toBeInTheDocument();
   });
 
   it('renders with swipeable=true by default', () => {

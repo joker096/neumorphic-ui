@@ -29,16 +29,16 @@ export const AdvancedFilterModal = ({ onClose, isDark = false, filters, setFilte
               filters[filter.id as keyof typeof filters]
                 ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]"
                 : isDark
-                  ? "bg-[var(--bg-tertiary)] text-gray-400 group-hover:text-gray-200"
-                  : "bg-slate-50 text-slate-500 group-hover:text-slate-700"
-            }`}
+                  ? "bg-[var(--bg-tertiary)]"
+                  : "bg-black/5"
+            } text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]`}
           >
             <filter.icon size={18} />
           </div>
-          <span className={`text-xs font-bold flex-1 ${isDark ? "text-gray-300" : "text-slate-700"}`}>{filter.label}</span>
+          <span className="text-xs font-bold flex-1 text-[var(--text-primary)]">{filter.label}</span>
           <div
             className={`w-[44px] h-[24px] rounded-full p-1 transition-colors flex items-center ${
-              filters[filter.id as keyof typeof filters] ? "bg-[var(--accent)]" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-slate-100"
+              filters[filter.id as keyof typeof filters] ? "bg-[var(--accent)]" : "bg-[var(--bg-tertiary)]"
             }`}
           >
             <div

@@ -45,7 +45,7 @@ export function WorkplaceView({ isDark, channelId = "demo" }: WorkplaceViewProps
   const [tab, setTab] = useState<TabId>("tasks");
 
   return (
-    <div className={`flex-1 flex flex-col h-full min-h-0 ${isDark ? "text-gray-100" : "text-slate-800"}`}>
+    <div className="flex-1 flex flex-col h-full min-h-0 text-[var(--text-primary)]">
       <div className="flex items-center gap-2 p-3 border-b border-[var(--border-color)] overflow-x-auto">
         {TABS.map((tabItem) => {
           const Icon = tabItem.icon;

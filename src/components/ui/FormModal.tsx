@@ -81,9 +81,7 @@ export const FormModal = ({
                   </div>
                 )}
                 {title && (
-                  <h3 className={`text-lg font-bold text-center ${
-                    isDark ? 'text-[var(--text-primary)]' : 'text-slate-800'
-                  }`}>
+                  <h3 className="text-lg font-bold text-center text-[var(--text-primary)]">
                     {title}
                   </h3>
                 )}

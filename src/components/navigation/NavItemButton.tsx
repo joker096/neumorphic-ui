@@ -38,9 +38,7 @@ ${active
              ? isDark
                ? "bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent2)]/15 text-[var(--accent)] shadow-[0_4px_16px_rgba(var(--accent-rgb),0.25),inset_0_1px_0_rgba(255,255,255,0.1)]"
                : "bg-gradient-to-br from-[var(--accent)]/12 to-[var(--accent2)]/8 text-[var(--accent)] shadow-[0_2px_10px_rgba(var(--accent-rgb),0.15),inset_0_1px_0_rgba(255,255,255,0.9)]"
-             : isDark
-               ? "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-white/[0.05] active:bg-white/[0.08]"
-               : "text-slate-500 hover:text-slate-800 hover:bg-black/[0.04] active:bg-black/[0.07]"}`;
+             : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-black/[0.04] active:bg-black/[0.07] dark:hover:bg-white/[0.05] dark:active:bg-white/[0.08]"}`;
 
     const badgeClassName = isBottom
            ? `absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center bg-[var(--accent)] shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]`

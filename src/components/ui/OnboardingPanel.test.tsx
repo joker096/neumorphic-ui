@@ -50,7 +50,7 @@ describe('OnboardingPanel', () => {
 
   it('renders with light theme', () => {
     const { container } = render(<OnboardingPanel isDark={false} t={mockT} />);
-    const heading = container.querySelector('[class*="text-slate-900"]');
+    const heading = container.querySelector('[class*="text-[var(--text-primary)]"]');
     expect(heading).toBeInTheDocument();
   });
 
