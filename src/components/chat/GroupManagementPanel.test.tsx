@@ -39,7 +39,6 @@ const renderPanel = (role: 'owner' | 'admin' | 'member') => {
       chatId="g1"
       members={mockStore.chats[0].members}
       group={mockStore.chats[0].group}
-      isDark={false}
     />,
   );
 };

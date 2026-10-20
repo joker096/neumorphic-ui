@@ -179,7 +179,6 @@ export const ChatProfileBody = ({
       chatId={chat.id}
       members={Array.isArray(chat.members) ? chat.members : []}
       group={chat.group ?? { inviteToken: `ma_${chat.id}`, slowModeSeconds: 0, ownerId: '' }}
-      isDark={isDark}
     />
   </div>
 ) : kind === 'channel' ? (

@@ -12,10 +12,9 @@ interface GroupManagementPanelProps {
   chatId: string;
   members: GroupMember[];
   group: GroupInfo;
-  isDark: boolean;
 }
 
-export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupManagementPanelProps) => {
+export const GroupManagementPanel = ({ chatId, members, group }: GroupManagementPanelProps) => {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const { contacts, updateGroup, chats, userProfile } = useAppStore();
@@ -50,9 +49,9 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const cardClass = `rounded-xl overflow-hidden ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white border border-[var(--border-color)] shadow-sm'}`;
-  const iconWrapClass = `w-8 h-8 rounded-lg flex items-center justify-center bg-black/5 dark:bg-white/5`;
-  const iconBtnClass = `min-w-11 min-h-11 rounded-lg flex items-center justify-center transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-black/5 dark:bg-white/5`;
+  const cardClass = 'rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]';
+  const iconWrapClass = 'w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--msg-bg-panel)] text-[var(--text-secondary)]';
+  const iconBtnClass = 'min-w-11 min-h-11 rounded-lg flex items-center justify-center transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--msg-bg-panel)] hover:bg-[var(--msg-bg-panel-hover)] active:scale-95';
 
   return (
     <div className="space-y-4">
@@ -104,7 +103,7 @@ export const GroupManagementPanel = ({ chatId, members, group, isDark }: GroupMa
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate text-[var(--text-primary)]">{m.name}</div>
                 {owner && (
-                  <div className={`text-xs flex items-center gap-1 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
+                  <div className="text-xs flex items-center gap-1 text-[var(--amber)]">
                     <Crown size={12} /> {t('group.owner', 'Owner')}
                   </div>
                 )}
