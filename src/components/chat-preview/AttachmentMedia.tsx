@@ -18,7 +18,6 @@ import { ArticleMessageCard } from "./attachments/ArticleMessageCard";
 interface AttachmentMediaProps {
   msg: any;
   isMe: boolean;
-  isDark: boolean;
   stickerSrc: string | null;
   onSetActivePhotoUrl: (url: string) => void;
   onSetPhotoOpen: (open: boolean) => void;
@@ -27,7 +26,7 @@ interface AttachmentMediaProps {
 }
 
 export function AttachmentMedia({
-  msg, isMe, isDark, stickerSrc,
+  msg, isMe, stickerSrc,
   onSetActivePhotoUrl, onSetPhotoOpen, onSetVideoOpen, onSetActiveMediaMsg,
 }: AttachmentMediaProps) {
   const { t } = useI18n();
@@ -68,11 +67,11 @@ export function AttachmentMedia({
 
   const ftrSize = typeof msg.fileSize === "number" && msg.fileSize > 0 ? formatSize(msg.fileSize) : null;
   const ftrPendingRow = (
-    <div className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 ${isDark ? "bg-white/5 border-[var(--border-color)]" : "bg-black/5 border-[var(--border-color)]"}`}>
+    <div className="flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 bg-[var(--msg-bg-panel)] border-[var(--border-color)]">
       <span aria-hidden="true" className="shrink-0 w-5 h-5 border-2 rounded-full animate-spin border-t-transparent border-[var(--text-tertiary)]" />
       <div className="min-w-0">
         <div className="text-sm font-medium truncate">{msg.fileName || t("chat.file")}</div>
-        {ftrSize && <div className={`text-xs truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{ftrSize}</div>}
+        {ftrSize && <div className="text-xs truncate text-[var(--text-secondary)]">{ftrSize}</div>}
       </div>
     </div>
   );
@@ -85,7 +84,7 @@ export function AttachmentMedia({
   }
 
   if (msg.type === "audio") {
-    return <VoiceWaveform duration={msg.duration} isMe={isMe} isDark={isDark} audioUrl={voiceUrl} name={String(msg.sender || "")} />;
+    return <VoiceWaveform duration={msg.duration} isMe={isMe} audioUrl={voiceUrl} name={String(msg.sender || "")} />;
   }
 
   if (msg.type === "sticker") {
@@ -106,7 +105,7 @@ export function AttachmentMedia({
       : null;
     if (albumItems && albumItems.length > 1) {
       if (!shouldShowMedia) {
-        return <AttachmentUnavailable icon={ImageOff} isDark={isDark} onReveal={autoLoadBlocked ? reveal : undefined} />;
+        return <AttachmentUnavailable icon={ImageOff} onReveal={autoLoadBlocked ? reveal : undefined} />;
       }
       return (
         <AlbumGrid
@@ -121,7 +120,7 @@ export function AttachmentMedia({
     if (ftrPending && !autoLoadBlocked) return ftrPendingRow;
     const src = ftrId ? (ftrReadyUrl ? ftrUrl : null) : (msg.attachment || msg.url);
     if (!src || mediaErr || !shouldShowMedia) {
-      return <AttachmentUnavailable icon={ImageOff} isDark={isDark} onReveal={autoLoadBlocked ? reveal : undefined} />;
+      return <AttachmentUnavailable icon={ImageOff} onReveal={autoLoadBlocked ? reveal : undefined} />;
     }
     return (
       <div
@@ -162,7 +161,7 @@ export function AttachmentMedia({
         );
       }
       if (mediaErr || !shouldShowMedia) {
-        return <AttachmentUnavailable icon={VideoOff} isDark={isDark} radiusClass="rounded-full" onReveal={autoLoadBlocked ? reveal : undefined} />;
+        return <AttachmentUnavailable icon={VideoOff} radiusClass="rounded-full" onReveal={autoLoadBlocked ? reveal : undefined} />;
       }
       return (
         <div
@@ -201,7 +200,7 @@ export function AttachmentMedia({
     }
     const thumb = msg.thumb;
     if (!thumb || mediaErr || !shouldShowMedia) {
-      return <AttachmentUnavailable icon={VideoOff} isDark={isDark} radiusClass="rounded-[12px]" onReveal={autoLoadBlocked ? reveal : undefined} />;
+      return <AttachmentUnavailable icon={VideoOff} radiusClass="rounded-[12px]" onReveal={autoLoadBlocked ? reveal : undefined} />;
     }
     return (
       <div
@@ -228,7 +227,6 @@ export function AttachmentMedia({
     return (
       <FileAttachmentRow
         msg={msg}
-        isDark={isDark}
         hasTransfer={Boolean(ftrId)}
         pending={Boolean(ftrPending)}
         ready={Boolean(ftrReadyUrl)}

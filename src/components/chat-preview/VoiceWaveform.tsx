@@ -10,11 +10,10 @@ interface VoiceWaveformProps {
   isMe?: boolean;
   audioUrl?: string;
   stream?: MediaStream | null;
-  isDark?: boolean;
   name?: string;
 }
 
-export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDark, name }: VoiceWaveformProps) => {
+export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name }: VoiceWaveformProps) => {
   const { t } = useI18n();
   const contactAvatars = useAppStore((s) => s.contactAvatars);
   const userProfile = useAppStore((s) => s.userProfile);
@@ -154,7 +153,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, isDar
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
   const timeLabel = isPlaying || progress > 0.001 ? formatClock(remainingSec) : duration;
-  const colorCls = isMe ? (isDark ? "text-emerald-200" : "text-emerald-600") : isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]";
+  const colorCls = isMe ? "text-[var(--waveform-played-self)]" : "text-[var(--text-secondary)]";
   const avatarSrc = isMe ? userProfile?.avatar : contactAvatars?.[String(name ?? "")];
   const nextSpeed = speed >= 2 ? 1 : speed >= 1.5 ? 2 : 1.5;
   const handleCanvasSeek = (e: React.MouseEvent<HTMLCanvasElement>) => {

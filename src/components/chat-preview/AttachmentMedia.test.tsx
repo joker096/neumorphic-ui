@@ -26,7 +26,6 @@ function baseProps(over: any = {}) {
   return {
     msg: {},
     isMe: true,
-    isDark: false,
     stickerSrc: null,
     onSetActivePhotoUrl: vi.fn(),
     onSetPhotoOpen: vi.fn(),

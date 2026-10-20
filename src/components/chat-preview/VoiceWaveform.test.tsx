@@ -80,13 +80,13 @@ describe('VoiceWaveform', () => {
   });
 
   it('renders waveform canvas', () => {
-    render(<VoiceWaveform isDark={true} duration="0:12" />);
+    render(<VoiceWaveform duration="0:12" />);
 
     expect(screen.getByText('0:12')).toBeInTheDocument();
   });
 
   it('renders play button for playback mode', async () => {
-    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+    render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
 
     // The Play button appears once isReady=true, which happens when decodeAudioData resolves
     // With fake timers removed, this should resolve naturally
@@ -96,13 +96,13 @@ describe('VoiceWaveform', () => {
   });
 
   it('does not render play button for live stream mode', () => {
-    render(<VoiceWaveform isDark={true} stream={mockStream as any} />);
+    render(<VoiceWaveform stream={mockStream as any} />);
 
     expect(screen.queryByTitle('systemPlayer.play')).not.toBeInTheDocument();
   });
 
   it('toggles playback when play button clicked', async () => {
-    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+    render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
       expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
@@ -113,7 +113,7 @@ describe('VoiceWaveform', () => {
   });
 
   it('seeks when slider changed', async () => {
-    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+    render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
       expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
@@ -126,25 +126,25 @@ describe('VoiceWaveform', () => {
   });
 
   it('shows duration', () => {
-    render(<VoiceWaveform isDark={true} duration="1:30" />);
+    render(<VoiceWaveform duration="1:30" />);
 
     expect(screen.getByText('1:30')).toBeInTheDocument();
   });
 
   it('applies dark theme colors for own messages', () => {
-    render(<VoiceWaveform isDark={true} isMe={true} duration="0:12" />);
+    render(<VoiceWaveform isMe={true} duration="0:12" />);
 
     expect(screen.getByText('0:12')).toBeInTheDocument();
   });
 
   it('applies light theme colors for other messages', () => {
-    render(<VoiceWaveform isDark={false} isMe={false} duration="0:12" />);
+    render(<VoiceWaveform isMe={false} duration="0:12" />);
 
     expect(screen.getByText('0:12')).toBeInTheDocument();
   });
 
   it('generates static waveform from audio buffer', async () => {
-    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+    render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
       expect(mockAudioContext.decodeAudioData).toHaveBeenCalled();
@@ -152,7 +152,7 @@ describe('VoiceWaveform', () => {
   });
 
   it('does not synthesize audio when no source is available', async () => {
-    render(<VoiceWaveform isDark={true} duration="0:12" />);
+    render(<VoiceWaveform duration="0:12" />);
 
     await waitFor(() => {
       expect(screen.getByText('0:12')).toBeInTheDocument();
@@ -164,7 +164,7 @@ describe('VoiceWaveform', () => {
   it('surfaces an unavailable voice note instead of playing noise', async () => {
     mockAudioContext.decodeAudioData.mockRejectedValueOnce(new Error('decode failed'));
 
-    render(<VoiceWaveform isDark={true} audioUrl="blob:dead" duration="0:05" />);
+    render(<VoiceWaveform audioUrl="blob:dead" duration="0:05" />);
 
     await waitFor(() => {
       expect(screen.getByText('chat.voiceUnavailable')).toBeInTheDocument();
@@ -175,7 +175,7 @@ describe('VoiceWaveform', () => {
   });
 
   it('cleans up audio context on unmount', () => {
-    const { unmount } = render(<VoiceWaveform isDark={true} audioUrl="test.mp3" />);
+    const { unmount } = render(<VoiceWaveform audioUrl="test.mp3" />);
     unmount();
 
     expect(mockAudioContext.close).toHaveBeenCalled();
@@ -185,7 +185,7 @@ describe('VoiceWaveform', () => {
     mockAudioContext.state = 'suspended';
     mockAudioContext.resume.mockResolvedValue(undefined);
 
-    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+    render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
       expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
@@ -198,15 +198,15 @@ describe('VoiceWaveform', () => {
   });
 
   it('renders seek slider only when audioUrl provided', () => {
-    render(<VoiceWaveform isDark={true} duration="0:12" />);
+    render(<VoiceWaveform duration="0:12" />);
     expect(screen.queryByTestId('seek-slider')).not.toBeInTheDocument();
 
-    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+    render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
     expect(screen.getByTestId('seek-slider')).toBeInTheDocument();
   });
 
   it('shows progress during playback', async () => {
-    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+    render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
       expect(screen.getByTitle('systemPlayer.play')).toBeInTheDocument();
@@ -228,19 +228,19 @@ describe('VoiceWaveform', () => {
       ['3:00', 'w-[320px]'],
     ];
     for (const [duration, width] of cases) {
-      const { container, unmount } = render(<VoiceWaveform isDark={true} duration={duration} />);
+      const { container, unmount } = render(<VoiceWaveform duration={duration} />);
       expect(container.firstChild).toHaveClass(width);
       unmount();
     }
   });
 
   it('keeps live stream waveforms full width', () => {
-    const { container } = render(<VoiceWaveform isDark={true} stream={mockStream as any} />);
+    const { container } = render(<VoiceWaveform stream={mockStream as any} />);
     expect(container.firstChild).toHaveClass('w-full');
   });
 
   it('switches the duration label to a remaining countdown once progress advances', async () => {
-    render(<VoiceWaveform isDark={true} audioUrl="test.mp3" duration="0:12" />);
+    render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
 
     await waitFor(() => {
       expect(screen.getAllByRole('button')[0]).toBeEnabled();

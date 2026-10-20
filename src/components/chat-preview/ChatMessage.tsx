@@ -196,7 +196,6 @@ function ChatMessageImpl({
           <AttachmentMedia
             msg={msg}
             isMe={isMe}
-            isDark={isDark}
             stickerSrc={stickerSrc}
             onSetActivePhotoUrl={onSetActivePhotoUrl}
             onSetPhotoOpen={onSetPhotoOpen}

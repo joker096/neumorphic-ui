@@ -100,7 +100,6 @@ export const ChatPreviewPanels = ({
       />
 
       <ChatMediaPanel
-        isDark={isDark}
         showMediaPanel={showMediaPanel}
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}

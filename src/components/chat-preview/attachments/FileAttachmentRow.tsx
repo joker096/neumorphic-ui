@@ -21,7 +21,6 @@ const FILE_KIND_STYLE: Record<FileKind, { Icon: LucideIcon; tint: string }> = {
 
 interface FileAttachmentRowProps {
   msg: any;
-  isDark: boolean;
   hasTransfer: boolean;
   pending: boolean;
   ready: boolean;
@@ -29,22 +28,22 @@ interface FileAttachmentRowProps {
 }
 
 /** Document row: kind icon, name/size, transfer state and the download action. */
-export function FileAttachmentRow({ msg, isDark, hasTransfer, pending, ready, url }: FileAttachmentRowProps) {
+export function FileAttachmentRow({ msg, hasTransfer, pending, ready, url }: FileAttachmentRowProps) {
   const { t } = useI18n();
   const size = typeof msg.fileSize === "number" && msg.fileSize > 0 ? formatSize(msg.fileSize) : null;
   const sub = [msg.text, size].filter(Boolean).join("  ·  ");
   const unavailable = hasTransfer && !ready && !pending;
   const { Icon: KindIcon, tint: kindTint } = FILE_KIND_STYLE[getFileKind(msg.fileName, msg.mime)];
   return (
-    <div className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 ${isDark ? "bg-white/5 border-[var(--border-color)]" : "bg-black/5 border-[var(--border-color)]"}`}>
+    <div className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 bg-[var(--msg-bg-panel)] border-[var(--border-color)]`}>
       <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${kindTint}`}>
         <KindIcon size={20} />
       </div>
       <div className="min-w-0">
         <div className="text-sm font-medium truncate">{msg.fileName || t("chat.file")}</div>
-        {sub && <div className={`text-xs truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{sub}</div>}
+        {sub && <div className={`text-xs truncate text-[var(--text-secondary)]`}>{sub}</div>}
         {(!msg.attachment || unavailable) && (
-          <div className={`text-xs truncate ${isDark ? "text-rose-400" : "text-rose-500"}`}>{t("chat.attachmentUnavailable", "Attachment unavailable")}</div>
+          <div className={`text-xs truncate text-[var(--danger)]`}>{t("chat.attachmentUnavailable", "Attachment unavailable")}</div>
         )}
       </div>
       {pending ? (
