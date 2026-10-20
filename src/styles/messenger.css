@@ -309,6 +309,14 @@
     box-shadow: 0 2px 8px rgba(22, 131, 255, 0.3);
   }
 
+  /* Muted chat: Telegram keeps the counter but drops it out of the accent
+     paint, so a silenced chat no longer reads as loudly as an audible one. */
+  .badge.unread.badge-muted {
+    background: var(--chat-badge-muted-bg);
+    color: var(--chat-badge-muted-text);
+    box-shadow: none;
+  }
+
   /* -----------------------------------------------------------------
      Messages
      ----------------------------------------------------------------- */

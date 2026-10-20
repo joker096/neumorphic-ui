@@ -109,7 +109,7 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
           )}
         </span>
         {chat.unread > 0 && !chat.hasMentions && (
-          <div className={`badge unread shrink-0`}>
+          <div className={`badge unread shrink-0${chat.isMuted ? " badge-muted" : ""}`}>
             <span className="text-xs font-bold pb-[0.5px] leading-none">{chat.unread}</span>
           </div>
         )}

@@ -257,6 +257,23 @@ describe('ChatListItem', () => {
     expect(screen.queryByText('3')).toBeNull();
   });
 
+  it('dims the unread counter for a muted chat like Telegram', () => {
+    const { container } = render(
+      <ChatListItem {...defaultProps} chat={{ ...mockChat, isMuted: true }} />,
+    );
+    const badge = container.querySelector('.badge.unread');
+    expect(badge).not.toBeNull();
+    expect(badge?.classList.contains('badge-muted')).toBe(true);
+    expect(screen.getByText('3')).toBeInTheDocument();
+  });
+
+  it('keeps the accent unread counter for an unmuted chat', () => {
+    const { container } = render(<ChatListItem {...defaultProps} />);
+    const badge = container.querySelector('.badge.unread');
+    expect(badge).not.toBeNull();
+    expect(badge?.classList.contains('badge-muted')).toBe(false);
+  });
+
   it('prefixes a group preview with the incoming author like Telegram', () => {
     const { container } = render(
       <ChatListItem

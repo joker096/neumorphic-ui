@@ -268,6 +268,10 @@
   --chat-online-dot-hover: #2fb985;
   --chat-mention-bg: #51d7ff;
   --chat-mention-text: #0f172a;
+  /* Telegram dims the unread counter of a muted chat instead of painting it
+     with the accent, so muted rows stop competing with unmuted ones. */
+  --chat-badge-muted-bg: #3a4344;
+  --chat-badge-muted-text: #e6eceb;
 
   /* Nav sidebar */
   --nav-sidebar-gradient-from: #eef1f7;
@@ -396,6 +400,8 @@
   --chat-online-dot-hover: #2fb985;
   --chat-mention-bg: #51d7ff;
   --chat-mention-text: #0f172a;
+  --chat-badge-muted-bg: #d7dcdb;
+  --chat-badge-muted-text: #3a4344;
 
   /* Nav sidebar */
   --nav-sidebar-gradient-from: #eef1f7;
