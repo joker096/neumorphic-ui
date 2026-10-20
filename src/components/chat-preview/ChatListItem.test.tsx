@@ -256,4 +256,45 @@ describe('ChatListItem', () => {
     expect(screen.getByText('@')).toBeInTheDocument();
     expect(screen.queryByText('3')).toBeNull();
   });
+
+  it('prefixes a group preview with the incoming author like Telegram', () => {
+    const { container } = render(
+      <ChatListItem
+        {...defaultProps}
+        chat={{
+          ...mockChat,
+          type: 'group',
+          history: [{ id: 9, sender: 'Alice', text: 'Hey there', type: 'text' }],
+        }}
+      />,
+    );
+    expect(container.textContent).toContain('Alice:');
+    expect(container.textContent).toContain('Hey there');
+  });
+
+  it('does not prefix the preview for the viewer’s own group message', () => {
+    const { container } = render(
+      <ChatListItem
+        {...defaultProps}
+        chat={{
+          ...mockChat,
+          type: 'group',
+          history: [{ id: 9, sender: 'me', text: 'My own text', type: 'text', status: 'sent' }],
+        }}
+      />,
+    );
+    expect(container.textContent).not.toContain('me:');
+    expect(container.textContent).toContain('My own text');
+  });
+
+  it('does not prefix the preview for a one-to-one chat', () => {
+    const { container } = render(
+      <ChatListItem
+        {...defaultProps}
+        chat={{ ...mockChat, history: [{ id: 9, sender: 'Alice', text: 'Direct hi', type: 'text' }] }}
+      />,
+    );
+    expect(container.textContent).not.toContain('Alice:');
+    expect(container.textContent).toContain('Direct hi');
+  });
 });

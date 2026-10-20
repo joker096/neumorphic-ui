@@ -59,6 +59,14 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
   // last bubble and only when the preview actually shows that bubble (not a draft
   // or a live typing indicator).
   const showTicks = !!lastMsg && lastMsg.sender === "me" && lastMsg.status !== "failed" && !typing && !draftText;
+  // Telegram prefixes group previews with the author («Alice: hi»), but not for the
+  // viewer's own bubble nor when the line already shows typing/draft instead of the
+  // last message.
+  const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
+  const senderPrefix =
+    isGroup && lastMsg && lastMsg.sender && lastMsg.sender !== "me" && !typing && !draftText
+      ? `${String(lastMsg.sender)}: `
+      : "";
 
   return (
     <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
@@ -92,7 +100,12 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
               {t("chat.draft", "Draft")}: <FormattedText text={draftText} />
             </span>
           ) : (
-            <FormattedText text={previewOf(lastMsg, chat.message, t)} />
+            <>
+              {senderPrefix && (
+                <span className="shrink-0 text-[var(--text-secondary)]">{senderPrefix}</span>
+              )}
+              <FormattedText text={previewOf(lastMsg, chat.message, t)} />
+            </>
           )}
         </span>
         {chat.unread > 0 && !chat.hasMentions && (
