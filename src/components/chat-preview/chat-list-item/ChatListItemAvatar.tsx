@@ -6,7 +6,6 @@ type Translate = (key: string, options?: any) => string;
 
 interface ChatListItemAvatarProps {
   chat: any;
-  isDark: boolean;
   active: boolean;
   type: "chat" | "channel";
   selectMode: boolean;
@@ -19,8 +18,19 @@ interface ChatListItemAvatarProps {
 
 const ROUNDED = "rounded-full";
 
-/** Leading avatar: selection box, stored photo or gradient initial, plus the online and channel badges. */
-export function ChatListItemAvatar({ chat, isDark, active, type, selectMode, selected, overrideAvatar, t, onToggleSelect, onAvatarClick }: ChatListItemAvatarProps) {
+/** Cell tint for a composite group avatar; deterministic so a member keeps their colour. */
+const CELL_COLORS = [
+  "from-emerald-400 to-teal-600",
+  "from-orange-400 to-red-600",
+  "from-sky-400 to-indigo-600",
+  "from-fuchsia-400 to-purple-600",
+];
+
+/**
+ * Leading avatar: selection box, stored photo, group composite or gradient initial,
+ * plus the online and channel badges.
+ */
+export function ChatListItemAvatar({ chat, active, type, selectMode, selected, overrideAvatar, t, onToggleSelect, onAvatarClick }: ChatListItemAvatarProps) {
   // Telegram marks the contact's avatar when they have an unseen story. Stories here
   // are name-matched against the demo `STORY_USERS` (same fallback used elsewhere).
   const storyUser =
@@ -28,6 +38,16 @@ export function ChatListItemAvatar({ chat, isDark, active, type, selectMode, sel
       ? STORY_USERS.find((u) => chat.name.toLowerCase().startsWith(u.name.toLowerCase()))
       : undefined;
   const hasUnseenStory = !!storyUser && getUnseenCount(storyUser) > 0;
+
+  // Telegram paints a group chat as a collage of its speakers instead of a single
+  // initial, so the row reads as "several people" before the name is parsed. Only
+  // real members (not the demo seed) qualify, and only when a second face exists —
+  // a group with one member would just duplicate the one-to-one look.
+  const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
+  const groupMembers =
+    isGroup && !overrideAvatar && !selectMode && Array.isArray(chat?.members)
+      ? chat.members.filter((m: any) => m && typeof m.name === "string" && m.name.trim()).slice(0, 4)
+      : [];
 
   return (
     <div
@@ -47,7 +67,7 @@ export function ChatListItemAvatar({ chat, isDark, active, type, selectMode, sel
     >
       {selectMode ? (
         <div
-          className={`w-full h-full ${ROUNDED} flex items-center justify-center shadow-sm ${selected ? "bg-[var(--accent)]" : isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
+          className={`w-full h-full ${ROUNDED} flex items-center justify-center shadow-sm ${selected ? "bg-[var(--accent)]" : "bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}`}
         >
           {selected ? (
             <Check size={16} strokeWidth={2.5} className="text-[var(--ink-on-saturate)]" />
@@ -64,9 +84,23 @@ export function ChatListItemAvatar({ chat, isDark, active, type, selectMode, sel
           loading="lazy"
           decoding="async"
         />
+      ) : groupMembers.length >= 2 ? (
+        <div
+          className={`w-full h-full ${ROUNDED} overflow-hidden grid grid-cols-2 ${groupMembers.length > 2 ? "grid-rows-2" : "grid-rows-1"} gap-[1px] bg-[var(--bg-tertiary)]`}
+          data-group-avatar="true"
+        >
+          {groupMembers.map((member: any, index: number) => (
+            <div
+              key={member.id ?? `${member.name}-${index}`}
+              className={`flex items-center justify-center bg-gradient-to-br ${member.color || CELL_COLORS[index % CELL_COLORS.length]} text-[var(--text-primary)] font-bold text-xs leading-none`}
+            >
+              {String(member.name).trim().charAt(0).toUpperCase()}
+            </div>
+          ))}
+        </div>
       ) : (
         <div className={`w-full h-full ${ROUNDED} bg-gradient-to-br ${chat.color} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm shadow-sm`}>
-          {chat.name.charAt(0)}
+          {String(chat.name ?? "").charAt(0)}
         </div>
       )}
       {chat.online && !selectMode && (

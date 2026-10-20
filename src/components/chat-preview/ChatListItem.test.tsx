@@ -358,4 +358,43 @@ describe('ChatListItem', () => {
     );
     expect(container.textContent).not.toContain('replies');
   });
+
+  it('renders a composite avatar with every group member initial', () => {
+    const { container, getByText } = render(
+      <ChatListItem
+        {...defaultProps}
+        chat={{
+          ...mockChat,
+          type: 'group',
+          members: [
+            { id: 'm1', name: 'Bob', color: 'from-emerald-400 to-teal-600', role: 'member' },
+            { id: 'm2', name: 'Cara', color: 'from-orange-400 to-red-600', role: 'member' },
+          ],
+        }}
+      />,
+    );
+    expect(container.querySelector('[data-group-avatar="true"]')).not.toBeNull();
+    expect(getByText('B')).toBeTruthy();
+    expect(getByText('C')).toBeTruthy();
+  });
+
+  it('keeps the single initial avatar for a one-to-one chat', () => {
+    const { container } = render(<ChatListItem {...defaultProps} chat={mockChat} />);
+    expect(container.querySelector('[data-group-avatar="true"]')).toBeNull();
+    expect(container.textContent).toContain('A');
+  });
+
+  it('falls back to the single initial when a group has only one member', () => {
+    const { container } = render(
+      <ChatListItem
+        {...defaultProps}
+        chat={{
+          ...mockChat,
+          type: 'group',
+          members: [{ id: 'm1', name: 'Bob', color: 'from-emerald-400 to-teal-600', role: 'owner' }],
+        }}
+      />,
+    );
+    expect(container.querySelector('[data-group-avatar="true"]')).toBeNull();
+  });
 });

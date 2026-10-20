@@ -55,7 +55,6 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   onMenuRequest,
   draftText,
 }: ChatListItemProps) => {
-  const isDark = theme === "dark";
   const stealthMode = useAppStore((state) => state.stealthMode);
   const typingIndicators = useAppStore((state) => state.typingIndicators);
   const contactAvatars = useAppStore((state) => state.contactAvatars);
@@ -206,7 +205,6 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
       >
         <ChatListItemAvatar
           chat={chat}
-          isDark={isDark}
           active={active}
           type={type}
           selectMode={selectMode}
