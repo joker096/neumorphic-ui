@@ -129,7 +129,11 @@ describe('MessageReactions', () => {
         msg={{ id: 1, reactions: {} }}
       />,
     );
-    expect(container.querySelectorAll('button').length).toBe(6);
+    // Emoji tiles carry an aria-label per emoji; the hover "+" control is not an emoji tile.
+    const freeEmojiButtons = Array.from(container.querySelectorAll('button')).filter(
+      (b) => b.getAttribute('aria-label') && b.getAttribute('aria-label') !== 'chat.reactions',
+    );
+    expect(freeEmojiButtons.length).toBe(6);
   });
 
   it('shows the add button for own messages too', () => {
@@ -174,6 +178,9 @@ describe('MessageReactions', () => {
         msg={{ id: 1, reactions: {} }}
       />,
     );
-    expect(container.querySelectorAll('button').length).toBe(18);
+    const premiumEmojiButtons = Array.from(container.querySelectorAll('button')).filter(
+      (b) => b.getAttribute('aria-label') && b.getAttribute('aria-label') !== 'chat.reactions',
+    );
+    expect(premiumEmojiButtons.length).toBe(18);
   });
 });

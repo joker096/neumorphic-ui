@@ -44,18 +44,17 @@ export function MessageFooter({
       <MessageReactions
         msg={msg}
         isMe={isMe}
-        isDark={isDark}
         activeReactionPicker={activeReactionPicker}
         onSetActiveReactionPicker={onSetActiveReactionPicker}
         onReactionMessage={onReactionMessage}
       />
       {translating && (
-        <div className={`mt-1 text-xs italic ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+        <div className={`mt-1 text-xs italic text-[var(--text-secondary)]`}>
           {t("chat.translating", "\u041f\u0435\u0440\u0435\u0432\u043e\u0434\u2026")}
         </div>
       )}
       {translation && !translating && (
-        <div className={`mt-1 text-xs italic ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+        <div className={`mt-1 text-xs italic text-[var(--text-secondary)]`}>
           {translation}
         </div>
       )}
