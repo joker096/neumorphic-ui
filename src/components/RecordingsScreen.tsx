@@ -102,7 +102,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('recordings.searchPlaceholder', 'Search recordings...')}
             aria-label={t('recordings.searchPlaceholder', 'Search recordings...')}
-            className={`w-full h-11 pl-10 pr-3 rounded-xl text-sm outline-none transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]' : 'bg-white text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]'}`}
+            className="w-full h-11 pl-10 pr-3 rounded-xl text-sm outline-none transition-colors bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:border-[var(--accent)]"
           />
         </div>
 
@@ -120,31 +120,29 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
               return (
                 <div
                   key={r.id}
-                  className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)]' : 'bg-white hover:bg-black/5 border border-[var(--border-color)]'}`}
+                  className="flex items-center gap-3 p-3 rounded-xl transition-colors bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:bg-[var(--msg-bg-panel-hover)]"
                 >
                   <button
                     onClick={() => toggleFavorite(r.id)}
-                    className={`min-w-11 min-h-11 flex items-center justify-center rounded-full ${isDark ? 'bg-white/5' : 'bg-black/5'}`}
+                    className="min-w-11 min-h-11 flex items-center justify-center rounded-full bg-[var(--msg-bg-panel)] hover:bg-[var(--msg-bg-panel-hover)] transition-colors"
                     aria-label={r.isFavorite ? t('recordings.removeFavorite') : t('recordings.addToFavorites')}
                   >
                     <Star
                       size={16}
-                      className={r.isFavorite
-                        ? (isDark ? 'text-amber-400' : 'text-amber-500')
-                        : (isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]')}
+                      className={r.isFavorite ? 'text-[var(--amber)]' : 'text-[var(--text-tertiary)]'}
                       fill={r.isFavorite ? 'currentColor' : 'none'}
                     />
                   </button>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[var(--msg-bg-panel)]">
                     {isVideo
-                      ? <Video size={18} className={isDark ? 'text-purple-400' : 'text-purple-600'} />
-                      : <Mic size={18} className={isDark ? 'text-emerald-400' : 'text-emerald-600'} />}
+                      ? <Video size={18} className="text-[var(--blue)]" />
+                      : <Mic size={18} className="text-[var(--color-success)]" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate text-[var(--text-primary)]`}>
+                    <p className="text-sm font-semibold truncate text-[var(--text-primary)]">
                       {r.title || t('recordings.untitled')}
                     </p>
-                    <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
+                    <p className="text-xs text-[var(--text-secondary)]">
                       {formatDate(r.createdAt, lang)}
                       {r.fileSize > 0 && ` · ${formatSize(r.fileSize)}`}
                     </p>
@@ -153,7 +151,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
                     {!isVideo && (
                       <button
                         onClick={() => play(r)}
-                        className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-white/5' : 'bg-black/5 text-[var(--text-secondary)] hover:bg-black/10'}`}
+                        className="min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)]"
                         aria-label={t('recordings.play')}
                       >
                         <Play size={16} />
@@ -161,14 +159,14 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
                     )}
                     <button
                       onClick={() => handleExport(r.id, r.title || t('recordings.untitled'))}
-                      className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-white/5' : 'bg-black/5 text-[var(--text-secondary)] hover:bg-black/10'}`}
+                      className="min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)]"
                       aria-label={t('recordings.export')}
                     >
                       <Download size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(r.id)}
-                      className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? 'bg-[var(--bg-secondary)] text-red-400 hover:bg-red-500/10' : 'bg-black/5 text-[var(--text-secondary)] hover:bg-red-50 hover:text-red-500'}`}
+                      className="min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:bg-[var(--danger-soft)] hover:text-[var(--danger)]"
                       aria-label={t('recordings.delete')}
                     >
                       <Trash2 size={16} />
@@ -184,7 +182,6 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
           <RecordingPlayer
             recording={playing.recording}
             blobUrl={playing.blobUrl}
-            isDark={isDark}
             onClose={closePlayer}
             onDelete={handleDelete}
             onExport={handleExport}
