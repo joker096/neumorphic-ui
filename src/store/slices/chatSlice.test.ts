@@ -55,6 +55,15 @@ describe('chatSlice', () => {
     expect(get().archivedChats).not.toContain('c1');
   });
 
+  it('setChatUnread marks a chat read and unread again', () => {
+    const { slice, get } = makeSlice({ chats: [{ id: 'c1', unread: 4 }, { id: 'c2', unread: 7 }] });
+    slice.setChatUnread('c1', false);
+    expect(get().chats.find((c: any) => c.id === 'c1').unread).toBe(0);
+    expect(get().chats.find((c: any) => c.id === 'c2').unread).toBe(7);
+    slice.setChatUnread('c1', true);
+    expect(get().chats.find((c: any) => c.id === 'c1').unread).toBeGreaterThanOrEqual(1);
+  });
+
   it('pinChat pins up to three chats', () => {
     const { slice, get } = makeSlice({ chats: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }] });
     slice.pinChat('a');

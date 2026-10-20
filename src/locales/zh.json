@@ -103,6 +103,7 @@
     "pin": "置顶",
     "unpin": "取消置顶",
     "markRead": "标为已读",
+    "markUnread": "标为未读",
     "select": "选择",
     "copy": "复制",
     "copied": "已复制",

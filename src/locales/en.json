@@ -103,6 +103,7 @@
     "pin": "Pin",
     "unpin": "Unpin",
     "markRead": "Mark Read",
+    "markUnread": "Mark as unread",
     "select": "Select",
     "copy": "Copy",
     "copied": "Copied",

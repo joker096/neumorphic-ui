@@ -86,6 +86,8 @@ export interface ChatSlice {
   scheduledQueue: { messages: ScheduledMessage[]; addMessage: (msg: ScheduledMessage) => void; removeMessage: (id: string) => void };
   archivedChats: (string | number)[];
   toggleArchive: (id: string | number) => void;
+  /** Mark a chat read (`unread = false`) or unread (`unread = true`, at least 1). */
+  setChatUnread: (id: string | number, unread: boolean) => void;
   pinChat: (chatId: string | number) => void;
   pinnedMessageList: Array<{ id: number; chatId: string | number; pinBy: string; pinnedAt: number }>;
   addPinnedMessage: (pin: { id: number; chatId: string | number; pinBy: string }) => void;
@@ -213,6 +215,11 @@ export const createChatSlice = (set: any, get: any): ChatSlice => ({
   archivedChats: [],
   toggleArchive: (id) => set((state: any) => ({
     archivedChats: state.archivedChats.includes(id) ? state.archivedChats.filter((i: string | number) => i !== id) : [...state.archivedChats, id]
+  })),
+  setChatUnread: (id, unread) => set((state: any) => ({
+    chats: state.chats.map((c: any) => (
+      c.id === id ? { ...c, unread: unread ? Math.max(1, Number(c.unread) || 0) : 0 } : c
+    ))
   })),
   pinChat: (chatId) => set((state: any) => {
     const pinnedCount = state.chats.filter((c: any) => c.pinned).length;

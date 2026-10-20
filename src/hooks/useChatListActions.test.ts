@@ -3,9 +3,10 @@ import { renderHook, act } from "@testing-library/react";
 import { useChatListActions } from "./useChatListActions";
 
 const setChatsMock = vi.hoisted(() => vi.fn());
+const setChatUnreadMock = vi.hoisted(() => vi.fn());
 
 vi.mock("../store", () => ({
-  useAppStore: () => ({ setChats: setChatsMock }),
+  useAppStore: () => ({ setChats: setChatsMock, setChatUnread: setChatUnreadMock }),
 }));
 
 vi.mock("../components/chat-preview/ChatContextMenu", () => ({
@@ -27,6 +28,40 @@ function renderActions(overrides: Record<string, any> = {}) {
 
 beforeEach(() => {
   setChatsMock.mockReset();
+  setChatUnreadMock.mockReset();
+});
+
+describe("useChatListActions unread toggle", () => {
+  const openWith = (chat: any) => {
+    const { result } = renderActions();
+    act(() => result.current.openMenu(chat, null));
+    return result;
+  };
+
+  it("offers Mark Read and clears unread for a chat with unread messages", () => {
+    const result = openWith({ id: "dm-1", pinned: false, isMuted: false, unread: 3 });
+    const item = result.current.menuItems.find(i => i.id === "markRead");
+    expect(item?.label).toBe("chat.markRead");
+    expect(item?.disabled).toBeFalsy();
+    act(() => item?.onClick());
+    expect(setChatUnreadMock).toHaveBeenCalledWith("dm-1", false);
+  });
+
+  it("offers Mark as unread for an already read chat instead of a dead row", () => {
+    const result = openWith({ id: "dm-2", pinned: false, isMuted: false, unread: 0 });
+    const item = result.current.menuItems.find(i => i.id === "markUnread");
+    expect(item?.label).toBe("chat.markUnread");
+    expect(result.current.menuItems.find(i => i.id === "markRead")).toBeUndefined();
+    act(() => item?.onClick());
+    expect(setChatUnreadMock).toHaveBeenCalledWith("dm-2", true);
+  });
+
+  it("opening a chat clears its unread counter through the store action", () => {
+    const { result, setActiveChat } = renderActions();
+    act(() => result.current.handleChatOpen({ id: "dm-3", unread: 2, name: "Bob" }));
+    expect(setChatUnreadMock).toHaveBeenCalledWith("dm-3", false);
+    expect(setActiveChat).toHaveBeenCalledWith({ id: "dm-3", unread: 2, name: "Bob" });
+  });
 });
 
 describe("useChatListActions delete confirmation", () => {

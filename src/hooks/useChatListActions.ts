@@ -11,7 +11,7 @@ interface UseChatListActionsArgs {
 }
 
 export function useChatListActions({ t, activeFolder, toggleArchive, setActiveChat, activeChatId }: UseChatListActionsArgs) {
-  const { setChats } = useAppStore();
+  const { setChats, setChatUnread } = useAppStore();
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
   const [menu, setMenu] = useState<{ chat: any; anchor: { x: number; y: number } | null; anchorRect: MenuAnchorRect | null } | null>(null);
@@ -58,10 +58,14 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     setChats(prev => prev.map((c: any) => c.id === chat.id ? { ...c, isMuted: !c.isMuted } : c));
   };
   const handleMenuMarkRead = (chat: any) => {
-    setChats(prev => prev.map((c: any) => c.id === chat.id ? { ...c, unread: 0 } : c));
+    setChatUnread(chat.id, false);
+  };
+  /** Telegram behaviour: the row toggles — read chats can be pushed back to unread. */
+  const handleMenuToggleUnread = (chat: any) => {
+    setChatUnread(chat.id, !chat.unread);
   };
   const handleChatOpen = (chat: any) => {
-    if (chat?.unread) handleMenuMarkRead(chat);
+    if (chat?.unread) setChatUnread(chat.id, false);
     setActiveChat(chat);
   };
   const handleMenuDelete = (chat: any) => {
@@ -112,11 +116,10 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
         onClick: () => handleMenuMute(menu.chat),
       },
       {
-        id: "markRead",
-        label: t("chat.markRead"),
-        icon: buildMenuIcon("markRead"),
-        disabled: !menu.chat.unread,
-        onClick: () => handleMenuMarkRead(menu.chat),
+        id: menu.chat.unread ? "markRead" : "markUnread",
+        label: t(menu.chat.unread ? "chat.markRead" : "chat.markUnread"),
+        icon: buildMenuIcon(menu.chat.unread ? "markRead" : "markUnread"),
+        onClick: () => handleMenuToggleUnread(menu.chat),
       },
       {
         id: activeFolder === "archived" ? "unarchive" : "archive",
@@ -138,7 +141,7 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
         onClick: () => requestMenuDelete(menu.chat),
       },
     ];
-  }, [menu, t, activeFolder, toggleArchive, activeChatId]);
+  }, [menu, t, activeFolder, toggleArchive, activeChatId, setChatUnread]);
 
   return {
     selectMode,

@@ -103,6 +103,7 @@
     "pin": "ピン留め",
     "unpin": "ピン解除",
     "markRead": "既読にする",
+    "markUnread": "未読にする",
     "select": "選択",
     "copy": "コピー",
     "copied": "コピーしました",

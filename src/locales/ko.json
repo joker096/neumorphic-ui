@@ -103,6 +103,7 @@
     "pin": "고정",
     "unpin": "고정 해제",
     "markRead": "읽음 표시",
+    "markUnread": "읽지 않음으로 표시",
     "select": "선택",
     "copy": "복사",
     "copied": "복사됨",
