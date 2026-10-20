@@ -18,7 +18,6 @@ function renderComposer(overrides: Partial<React.ComponentProps<typeof ChannelCo
   const onSend = vi.fn();
   const utils = render(
     <ChannelComposer
-      isDark
       isOwner
       isMuted={false}
       onToggleMute={vi.fn()}

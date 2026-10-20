@@ -9,7 +9,6 @@ export interface PendingMedia {
 }
 
 export interface ChannelComposerProps {
-  isDark: boolean;
   /** Only the channel owner may post; everyone else gets a mute/unmute control. */
   isOwner: boolean;
   isMuted: boolean;
@@ -38,7 +37,6 @@ const MAX_STAGED_FILES = 10;
  * persists it (same hand-off as the video-note recorder's URL).
  */
 export function ChannelComposer({
-  isDark,
   isOwner,
   isMuted,
   onToggleMute,
@@ -67,11 +65,7 @@ export function ChannelComposer({
         <button
           type="button"
           onClick={onToggleMute}
-          className={`w-full py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors font-medium text-sm tracking-wide min-w-11 min-h-11 ${
-            isDark
-              ? "bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg-dark)] text-[var(--accent)] border border-[var(--border-color)]"
-              : "bg-white hover:bg-black/5 text-[var(--accent)] border border-[var(--border-color)] shadow-sm"
-          }`}
+          className="w-full py-2.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-colors font-medium text-sm tracking-wide min-w-11 min-h-11 bg-[var(--bg-secondary)] hover:bg-[var(--msg-bg-panel-hover)] text-[var(--accent)] border border-[var(--border-color)] active:scale-95"
           aria-label={isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
           title={isMuted ? t("chat.filters.unmuteChannel") : t("chat.filters.muteChannel")}
         >
@@ -112,7 +106,7 @@ export function ChannelComposer({
                 type="button"
                 onClick={() => dropStaged(i)}
                 aria-label={t('chat.removeMedia')}
-                className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center"
+                className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[var(--danger)] text-[var(--ink-on-saturate)] flex items-center justify-center active:scale-95"
               >
                 <X size={12} />
               </button>
@@ -142,9 +136,7 @@ export function ChannelComposer({
         <label
           htmlFor={MEDIA_INPUT_ID}
           aria-label={t('chat.attachFile')}
-          className={`icon-button shrink-0 ${
-            isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
-          }`}
+          className="icon-button shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <Plus size={16} />
         </label>
@@ -168,9 +160,7 @@ export function ChannelComposer({
           inputMode="text"
           enterKeyHint="send"
           spellCheck={!morseMode}
-          className={`flex-1 min-w-0 bg-transparent outline-none border-none resize-none text-sm px-2 py-1.5 max-h-[120px] overflow-y-auto ${
-            isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]" : "text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
-          } ${morseMode ? "font-mono" : ""}`}
+          className={`flex-1 min-w-0 bg-transparent outline-none border-none resize-none text-sm px-2 py-1.5 max-h-[120px] overflow-y-auto text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] ${morseMode ? "font-mono" : ""}`}
           style={composerInputStyle(morseMode)}
         />
         <button

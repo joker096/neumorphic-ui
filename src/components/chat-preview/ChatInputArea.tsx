@@ -164,7 +164,6 @@ function ChatInputAreaImpl({
     const isChannelOwner = !!chat.ownerId && chat.ownerId === userProfile.id;
     return (
       <ChannelComposer
-        isDark={isDark}
         isOwner={isChannelOwner}
         isMuted={!!chat.isMuted}
         onToggleMute={() => {
