@@ -23,11 +23,11 @@ export function growTextarea(el: HTMLTextAreaElement): void {
 }
 
 /** Inline style for the composer textarea: monospace amber glyphs in Morse mode. */
-export function composerInputStyle(morseMode: boolean, isDark: boolean): React.CSSProperties | undefined {
+export function composerInputStyle(morseMode: boolean): React.CSSProperties | undefined {
   if (!morseMode) return undefined;
   return {
     fontFamily: "monospace",
-    color: isDark ? "#fbbf24" : "#d97706",
+    color: "var(--amber)",
     filter: "saturate(0.7)",
   };
 }

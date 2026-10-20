@@ -2,7 +2,6 @@ import React from "react";
 import { Clock, Plus, Smile, Timer } from "lucide-react";
 
 export interface ComposerToolbarProps {
-  isDark: boolean;
   /** Hidden while the hold-to-record gesture owns the row. */
   hidden: boolean;
   attachOpen: boolean;
@@ -34,7 +33,6 @@ export interface ComposerToolbarProps {
  * and never owns a `<input>` of its own.
  */
 export function ComposerToolbar({
-  isDark,
   hidden,
   attachOpen,
   onToggleAttach,
@@ -89,9 +87,7 @@ export function ComposerToolbar({
           aria-haspopup="menu"
           aria-expanded={attachOpen}
           onClick={onToggleAttach}
-          className={`icon-button cursor-pointer ${
-            isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
-          }`}
+          className="icon-button cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <Plus size={18} />
         </button>

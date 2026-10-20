@@ -7,24 +7,19 @@ interface ChatInputSchedulePopupProps {
   setScheduleDateTime: (v: string) => void;
   showSchedulePopup: boolean;
   setShowSchedulePopup: (v: boolean) => void;
-  isDark: boolean;
   t: (key: string, opts?: any) => string;
 }
 
-export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, isDark, t }: ChatInputSchedulePopupProps) {
+export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, t }: ChatInputSchedulePopupProps) {
   const { t: translate } = useI18n();
   if (!showSchedulePopup) return null;
   return (
-    <div className={`mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-xl flex flex-col gap-2 ${
-      isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"
-    }`}>
+    <div className="mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-xl flex flex-col gap-2 bg-[var(--bg-secondary)] border border-[var(--border-color)]">
       <div className="flex justify-between items-center">
         <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">{t("chat.scheduleSend")}</span>
         <button
           type="button"
-          className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer ${
-            isDark ? "text-[var(--text-secondary)] hover:text-[var(--text-primary)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
-          }`}
+          className="min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           onClick={() => setShowSchedulePopup(false)}
           aria-label={translate("common.close")}
         >
@@ -36,17 +31,13 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
         type="datetime-local"
         value={scheduleDateTime}
         onChange={(e) => setScheduleDateTime(e.target.value)}
-        className={`w-full outline-none text-sm p-2 rounded-lg ${
-          isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]" : "bg-black/5 text-[var(--text-primary)]"
-        }`}
+        className="w-full outline-none text-sm p-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
       />
       <div className="flex gap-2">
         <button
           type="button"
           onClick={() => { setScheduleDateTime(""); setShowSchedulePopup(false); }}
-          className={`flex-1 py-2 text-xs font-bold rounded-lg ${
-            isDark ? "bg-white/5 text-[var(--text-secondary)] hover:bg-white/10" : "bg-black/5 text-[var(--text-tertiary)] hover:bg-black/10"
-          }`}
+          className="flex-1 py-2 text-xs font-bold rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)]"
         >
           {t("common.cancel")}
         </button>
@@ -56,7 +47,7 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
           disabled={!scheduleDateTime}
           className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${
             !scheduleDateTime ? "opacity-50 cursor-not-allowed" : ""
-          } ${isDark ? "bg-[var(--accent)]/20 text-[var(--accent)]" : "bg-[var(--accent)]/10 text-[var(--accent)]"}`}
+          } bg-[var(--accent)]/20 text-[var(--accent)]`}
         >
           {t("chat.setTime")}
         </button>

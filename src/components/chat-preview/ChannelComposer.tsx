@@ -171,7 +171,7 @@ export function ChannelComposer({
           className={`flex-1 min-w-0 bg-transparent outline-none border-none resize-none text-sm px-2 py-1.5 max-h-[120px] overflow-y-auto ${
             isDark ? "text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]" : "text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
           } ${morseMode ? "font-mono" : ""}`}
-          style={composerInputStyle(morseMode, isDark)}
+          style={composerInputStyle(morseMode)}
         />
         <button
           type="button"

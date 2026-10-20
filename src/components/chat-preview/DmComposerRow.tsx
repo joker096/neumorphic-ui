@@ -5,7 +5,6 @@ import { MENTION_MENU_ID } from "./MentionSuggestionsMenu";
 import { composerInputStyle, growTextarea } from "./composerInput";
 
 export interface DmComposerRowProps {
-  isDark: boolean;
   msgText: string;
   setMsgText: (value: string) => void;
   morseMode: boolean;
@@ -31,7 +30,6 @@ export interface DmComposerRowProps {
  * the empty state unreachable from the keyboard.
  */
 export function DmComposerRow({
-  isDark,
   msgText,
   setMsgText,
   morseMode,
@@ -47,7 +45,7 @@ export function DmComposerRow({
   t,
 }: DmComposerRowProps) {
   const placeholder = morseMode ? t("chat.morsePlaceholder") : t("chat.messagePlaceholder");
-  const inputStyle = composerInputStyle(morseMode, isDark);
+  const inputStyle = composerInputStyle(morseMode);
 
   return (
     <>

@@ -158,7 +158,7 @@ function ChatInputAreaImpl({
   });
 
   const messagePlaceholder = eMorseMode ? t("chat.morsePlaceholder") : t("chat.messagePlaceholder");
-  const inputStyle = composerInputStyle(eMorseMode, isDark);
+  const inputStyle = composerInputStyle(eMorseMode);
 
   if (isChannel) {
     const isChannelOwner = !!chat.ownerId && chat.ownerId === userProfile.id;
@@ -188,7 +188,6 @@ function ChatInputAreaImpl({
         setScheduleDateTime={setScheduleDtFn2}
         showSchedulePopup={eShowSchedulePopup}
         setShowSchedulePopup={setShowSchedulePopupFn2}
-        isDark={isDark}
         t={t}
       />
 
@@ -230,7 +229,6 @@ function ChatInputAreaImpl({
           <ComposerFormatBar onFormat={onFormatWrap} t={t} />
         )}
         <ComposerToolbar
-          isDark={isDark}
           hidden={eIsRecordingVoice}
           attachOpen={showAttachMenu}
           onToggleAttach={() => setShowAttachMenu((v) => !v)}
@@ -252,7 +250,6 @@ function ChatInputAreaImpl({
         />
 
         <DmComposerRow
-          isDark={isDark}
           msgText={eMsgText}
           setMsgText={setMsgTextFn}
           morseMode={eMorseMode}
