@@ -251,6 +251,18 @@ describe('ChatListItem', () => {
     expect(marker.tagName.toLowerCase()).toBe('svg');
   });
 
+  it('does not render the pinned marker for an unpinned chat', () => {
+    render(<ChatListItem {...defaultProps} />);
+    expect(screen.queryByLabelText('chat.pinned')).toBeNull();
+  });
+
+  it('renders the pinned marker in the timestamp cluster for a pinned chat', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, pinned: true }} />);
+    const marker = screen.getByLabelText('chat.pinned');
+    expect(marker).toBeInTheDocument();
+    expect(marker.tagName.toLowerCase()).toBe('svg');
+  });
+
   it('replaces the unread counter with the mention badge when the chat has mentions', () => {
     render(<ChatListItem {...defaultProps} chat={{ ...mockChat, hasMentions: true }} />);
     expect(screen.getByText('@')).toBeInTheDocument();

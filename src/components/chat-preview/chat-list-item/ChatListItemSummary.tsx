@@ -84,10 +84,17 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
     <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
       <div className="flex justify-between items-center mb-[2px]">
         <span className={`chat-item-title truncate pr-2 flex items-center gap-1`}>
-          {chat.pinned && <MapPin size={12} className="shrink-0 opacity-60 rotate-45" />}
           {chat.name}
         </span>
         <span className={`chat-item-time shrink-0 flex items-center gap-1`}>
+          {chat.pinned && (
+            <MapPin
+              size={12}
+              className="shrink-0 rotate-45 text-[var(--text-secondary)]"
+              role="img"
+              aria-label={t("chat.pinned", "Pinned")}
+            />
+          )}
           {chat.isMuted && (
             <BellOff size={12} className="shrink-0 opacity-60" role="img" aria-label={t("chat.muted", "Muted")} />
           )}
