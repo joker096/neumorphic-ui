@@ -238,4 +238,22 @@ describe('ChatListItem', () => {
       vi.useRealTimers();
     }
   });
+
+  it('does not render the muted marker for a non-muted chat', () => {
+    render(<ChatListItem {...defaultProps} />);
+    expect(screen.queryByLabelText('chat.muted')).toBeNull();
+  });
+
+  it('renders the muted marker next to the timestamp for a muted chat', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, isMuted: true }} />);
+    const marker = screen.getByLabelText('chat.muted');
+    expect(marker).toBeInTheDocument();
+    expect(marker.tagName.toLowerCase()).toBe('svg');
+  });
+
+  it('replaces the unread counter with the mention badge when the chat has mentions', () => {
+    render(<ChatListItem {...defaultProps} chat={{ ...mockChat, hasMentions: true }} />);
+    expect(screen.getByText('@')).toBeInTheDocument();
+    expect(screen.queryByText('3')).toBeNull();
+  });
 });

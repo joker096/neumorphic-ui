@@ -1,4 +1,4 @@
-import { AlertTriangle, Check, CheckCheck, Clock, MapPin, Paperclip } from "lucide-react";
+import { AlertTriangle, BellOff, Check, CheckCheck, Clock, MapPin, Paperclip } from "lucide-react";
 import { FormattedText } from "../FormattedText";
 import { useAppStore } from "../../../store";
 
@@ -67,7 +67,12 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
           {chat.pinned && <MapPin size={12} className="shrink-0 opacity-60 rotate-45" />}
           {chat.name}
         </span>
-        <span className={`chat-item-time shrink-0`}>{fuzzedTime}</span>
+        <span className={`chat-item-time shrink-0 flex items-center gap-1`}>
+          {chat.isMuted && (
+            <BellOff size={12} className="shrink-0 opacity-60" role="img" aria-label={t("chat.muted", "Muted")} />
+          )}
+          {fuzzedTime}
+        </span>
       </div>
       <div className="flex justify-between items-center">
         <span className={`chat-item-subtitle truncate pr-4 flex items-center gap-1 ${active ? "text-[var(--accent)]" : ""} ${chat.unread ? "font-medium" : ""}`}>
@@ -90,7 +95,7 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
             <FormattedText text={previewOf(lastMsg, chat.message, t)} />
           )}
         </span>
-        {chat.unread > 0 && (
+        {chat.unread > 0 && !chat.hasMentions && (
           <div className={`badge unread shrink-0`}>
             <span className="text-xs font-bold pb-[0.5px] leading-none">{chat.unread}</span>
           </div>
