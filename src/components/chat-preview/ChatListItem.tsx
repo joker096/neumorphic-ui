@@ -128,7 +128,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
     setSwipedOpen("closed");
   };
 
-  const targetX = swipedOpen === "left" ? -186 : swipedOpen === "right" ? 200 : 0;
+  const targetX = swipedOpen === "left" ? -196 : swipedOpen === "right" ? 200 : 0;
 
   return (
     <div
@@ -149,7 +149,6 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
       />
       <ChatListItemSwipeManageActions
         isOpen={swipedOpen === "left"}
-        isDark={isDark}
         t={t}
         isMuted={!!chat.isMuted}
         isArchived={isArchived}
