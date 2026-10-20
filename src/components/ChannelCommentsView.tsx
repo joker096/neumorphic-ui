@@ -8,16 +8,10 @@ import { formatClockTime } from '../utils/chatUtils';
 import {
   CURRENT_USER_SENDER,
   getCommentBubbleClass,
-  COMMENT_SENDER_NAME_CLASS_DARK,
-  COMMENT_SENDER_NAME_CLASS_LIGHT,
-  COMMENT_TIME_OWN_DARK,
-  COMMENT_TIME_OWN_LIGHT,
-  COMMENT_TIME_OTHER_DARK,
-  COMMENT_TIME_OTHER_LIGHT,
-  COMMENT_EMPTY_ICON_CLASS_DARK,
-  COMMENT_EMPTY_ICON_CLASS_LIGHT,
-  COMMENT_EMPTY_TEXT_CLASS_DARK,
-  COMMENT_EMPTY_TEXT_CLASS_LIGHT,
+  COMMENT_SENDER_NAME_CLASS,
+  COMMENT_TIME_CLASS,
+  COMMENT_EMPTY_ICON_CLASS,
+  COMMENT_EMPTY_TEXT_CLASS,
   type ChannelComment,
 } from '../constants/channelConstants';
 
@@ -25,18 +19,11 @@ interface ChannelCommentsProps {
   isOpen: boolean;
   onClose: () => void;
   postId: number;
-  theme?: 'dark' | 'light';
 }
 
 const formatCurrentTime = (): string => formatClockTime(Date.now());
 
-const CommentBubble = ({
-  comment,
-  isDark,
-}: {
-  comment: ChannelComment;
-  isDark: boolean;
-}) => {
+const CommentBubble = ({ comment }: { comment: ChannelComment }) => {
   const own = comment.sender === CURRENT_USER_SENDER;
 
   return (
@@ -44,40 +31,30 @@ const CommentBubble = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       key={comment.id}
-      className={`flex flex-col gap-1 p-3 rounded-2xl max-w-[85%] ${getCommentBubbleClass(isDark, own)}`}
+      className={`flex flex-col gap-1 p-3 rounded-2xl max-w-[85%] ${getCommentBubbleClass(own)}`}
     >
       {!own && (
-        <span className={`text-xs font-bold mb-1 ${isDark ? COMMENT_SENDER_NAME_CLASS_DARK : COMMENT_SENDER_NAME_CLASS_LIGHT}`}>
+        <span className={`text-xs font-bold mb-1 ${COMMENT_SENDER_NAME_CLASS}`}>
           {comment.sender}
         </span>
       )}
-      <p className="text-[14px] leading-relaxed break-words">
+      <p className="text-sm leading-relaxed break-words">
         <FormattedText text={comment.text} />
       </p>
-      <span
-        className={`text-xs self-end mt-1 ${
-          own
-            ? isDark
-              ? COMMENT_TIME_OWN_DARK
-              : COMMENT_TIME_OWN_LIGHT
-            : isDark
-              ? COMMENT_TIME_OTHER_DARK
-              : COMMENT_TIME_OTHER_LIGHT
-        }`}
-      >
+      <span className={`text-xs self-end mt-1 ${COMMENT_TIME_CLASS}`}>
         {comment.time}
       </span>
     </motion.div>
   );
 };
 
-const EmptyCommentsState = ({ isDark }: { isDark: boolean }) => {
+const EmptyCommentsState = () => {
   const { t } = useI18n();
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center text-center gap-3 px-6 py-12">
-      <MessageSquare size={40} className={isDark ? COMMENT_EMPTY_ICON_CLASS_DARK : COMMENT_EMPTY_ICON_CLASS_LIGHT} />
-      <p className={`text-[14px] ${isDark ? COMMENT_EMPTY_TEXT_CLASS_DARK : COMMENT_EMPTY_TEXT_CLASS_LIGHT}`}>
+      <MessageSquare size={40} className={COMMENT_EMPTY_ICON_CLASS} />
+      <p className={`text-sm ${COMMENT_EMPTY_TEXT_CLASS}`}>
         {t('channelComments.leaveAComment')}
       </p>
     </div>
@@ -88,9 +65,7 @@ export const ChannelCommentsView = ({
   isOpen,
   onClose,
   postId,
-  theme = 'dark',
 }: ChannelCommentsProps) => {
-  const isDark = theme === 'dark';
   const { t } = useI18n();
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<ChannelComment[]>([]);
@@ -119,6 +94,7 @@ export const ChannelCommentsView = ({
   };
 
   const hasComments = comments.length > 0;
+  const canSend = comment.trim().length > 0;
 
   return (
     <AnimatePresence>
@@ -128,26 +104,22 @@ export const ChannelCommentsView = ({
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: '100%', opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className={`absolute inset-0 z-50 flex flex-col ${isDark ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}`}
+          className="absolute inset-0 z-50 flex flex-col bg-[var(--bg-primary)]"
         >
-          <div
-            className={`h-[72px] flex items-center px-4 border-b ${isDark ? 'border-[var(--border-color)] bg-[var(--bg-tertiary)]' : 'border-[var(--border-color)] bg-white'}`}
-          >
+          <div className="h-[72px] flex items-center px-4 border-b border-[var(--border-color)] bg-[var(--bg-tertiary)]">
             <button
               type="button"
               onClick={onClose}
               aria-label={t('common.close', 'Close')}
-              className={`w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors mr-3 ${isDark ? 'hover:bg-[var(--bg-tertiary)]/20 text-[var(--text-secondary)]' : 'hover:bg-black/5 text-[var(--text-secondary)]'}`}
+              className="w-9 h-9 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-colors mr-3 text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)] active:scale-95"
             >
               <ChevronLeft size={24} />
             </button>
             <div>
-              <h3 className="font-bold text-[16px] text-[var(--text-primary)]">
+              <h3 className="font-bold text-base text-[var(--text-primary)]">
                 {t('channelComments.title')}
               </h3>
-              <p
-                className={`text-xs uppercase tracking-wider font-semibold text-[var(--accent)]`}
-              >
+              <p className="text-xs uppercase tracking-wider font-semibold text-[var(--accent)]">
                 {t('channelComments.replies', { count: comments.length })}
               </p>
             </div>
@@ -155,18 +127,14 @@ export const ChannelCommentsView = ({
 
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
             {hasComments ? (
-              comments.map((c) => <CommentBubble key={c.id} comment={c} isDark={isDark} />)
+              comments.map((c) => <CommentBubble key={c.id} comment={c} />)
             ) : (
-              <EmptyCommentsState isDark={isDark} />
+              <EmptyCommentsState />
             )}
           </div>
 
-          <div
-            className={`p-4 border-t ${isDark ? 'border-[var(--border-color)] bg-[color:var(--bg-tertiary)]/90 backdrop-blur-md' : 'border-[var(--border-color)] bg-[var(--bg-primary)]/90 backdrop-blur-md'}`}
-          >
-            <div
-              className={`flex items-center w-full h-12 rounded-full px-4 relative ${isDark ? 'bg-[var(--bg-secondary)] border border-[var(--border-color)]' : 'bg-white border border-[var(--border-color)] shadow-[inset_1px_1px_3px_rgba(165,175,190,0.1)]'}`}
-            >
+          <div className="p-4 border-t border-[var(--border-color)] bg-[var(--bg-tertiary)]/90 backdrop-blur-md">
+            <div className="flex items-center w-full h-12 rounded-full px-4 relative bg-[var(--bg-secondary)] border border-[var(--border-color)]">
               <input
                 aria-label={t('channelComments.placeholder')}
                 type="text"
@@ -174,19 +142,18 @@ export const ChannelCommentsView = ({
                 onChange={(e) => setComment(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder={t('channelComments.placeholder')}
-                className="flex-1 bg-transparent border-none outline-none text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+                className="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
               />
               <button
                 type="button"
                 onClick={handleSend}
+                disabled={!canSend}
                 aria-label={t('channelComments.send', 'Send')}
-                className={`min-w-11 min-h-11 flex items-center justify-center rounded-full ml-2 cursor-pointer transition-transform active:scale-95 ${
-                  comment.trim()
-                    ? 'bg-[var(--accent)] text-[var(--text-primary)]'
-                    : isDark
-                      ? 'bg-[var(--bg-tertiary)]/10'
-                      : 'bg-black/5'
-                } text-[var(--text-tertiary)]`}
+                className={`min-w-11 min-h-11 flex items-center justify-center rounded-full ml-2 cursor-pointer transition-all active:scale-95 ${
+                  canSend
+                    ? 'bg-[var(--accent)] text-[var(--ink-on-saturate)]'
+                    : 'bg-[var(--msg-bg-input)] text-[var(--text-tertiary)] cursor-default active:scale-100'
+                }`}
               >
                 <Send size={16} />
               </button>
