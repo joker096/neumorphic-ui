@@ -169,7 +169,7 @@ export const ChatListView = ({
         setShowCreateGroup={setShowCreateGroup}
         onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
       />
-      <ViewTabs view={view} isDark={isDark} onSelect={setView} t={t} />
+      <ViewTabs view={view} onSelect={setView} t={t} />
 
       {view === "chats" && premium && (
         <CrmNextStepsBanner
@@ -183,8 +183,7 @@ export const ChatListView = ({
       {view === "chats" && (
         <>
           <FolderFilterBar
-            isDark={isDark}
-            activeFolder={activeFolder}
+                        activeFolder={activeFolder}
             setActiveFolder={setActiveFolder}
             advancedFilters={advancedFilters}
             setShowAdvancedFilterModal={setShowAdvancedFilterModal}
@@ -221,8 +220,7 @@ export const ChatListView = ({
 
       {view === "chats" && filteredChats.length > 0 && selectMode && (
         <BulkActionsBar
-          isDark={isDark}
-          selectedIds={selectedIds}
+                    selectedIds={selectedIds}
           t={t}
           onCancel={handleCancelSelect}
           onArchive={handleBulkArchive}

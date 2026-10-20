@@ -37,7 +37,7 @@ export const ChatListSearchHeader = ({
         aria-label={view === "channels" ? t("chat.createChannel") : t("chat.createBot")}
         onClick={() => view === "channels" ? setShowCreateChannel(true) : setShowCreateBot(true)}
         title={view === "channels" ? t("chat.createChannel") : t("chat.createBot")}
-        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30" : "bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20 shadow-sm"}`}
+        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30`}
       >
         <Plus size={16} />
       </button>
@@ -49,7 +49,7 @@ export const ChatListSearchHeader = ({
           aria-label={t("chat.createGroup")}
           title={t("chat.createGroup")}
           onClick={() => setShowCreateGroup(true)}
-          className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30" : "bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20 shadow-sm"}`}
+          className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30`}
         >
           <Users size={16} />
         </button>
@@ -59,7 +59,7 @@ export const ChatListSearchHeader = ({
         aria-label={t("chat.archived")}
         title={t("chat.archived")}
         onClick={() => { setView("chats"); setActiveFolder("archived"); }}
-        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]" : "bg-white border border-[var(--border-color)] hover:bg-black/5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] shadow-sm"}`}
+        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-[var(--msg-bg-panel-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]`}
       >
         <Archive size={16} />
         {archivedUnreadCount > 0 && (
@@ -76,7 +76,7 @@ export const ChatListSearchHeader = ({
         aria-label={t("search.title", "Search")}
         title={t("search.title", "Search")}
         onClick={onOpenGlobalSearch}
-        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5 text-[var(--text-secondary)]" : "bg-white border border-[var(--border-color)] hover:bg-black/5 text-[var(--text-secondary)] shadow-sm"}`}
+        className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-[var(--msg-bg-panel-hover)] text-[var(--text-secondary)]`}
       >
         <Globe size={16} />
       </button>

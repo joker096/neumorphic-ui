@@ -52,21 +52,13 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
               onClick={() => onSearchTypeChange(f.key)}
               aria-pressed={active}
               className={`group shrink-0 min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95 ${
-                active
-                  ? isDark
-                    ? 'bg-orange-500/20'
-                    : 'bg-orange-500/15'
-                  : ''
+                active ? 'bg-[var(--accent)]/20' : ''
               }`}
             >
               <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-semibold transition-colors border ${
                 active
-                  ? isDark
-                    ? 'text-orange-300 border-orange-500/40'
-                    : 'text-orange-600 border-orange-500/40'
-                  : isDark
-? 'text-[var(--text-secondary)] border-[var(--border-color)] group-hover:text-[var(--text-primary)] group-hover:bg-white/10'
-  : 'text-[var(--text-secondary)] border-[var(--border-color)] group-hover:text-[var(--text-primary)] group-hover:bg-black/10'
+                  ? 'text-[var(--accent)] border-[var(--accent)]/40'
+                  : 'text-[var(--text-secondary)] border-[var(--border-color)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--msg-bg-panel-hover)]'
               }`}>
                 {t(f.labelKey, f.fallback)}
               </span>

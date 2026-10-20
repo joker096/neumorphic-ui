@@ -2,7 +2,6 @@ import { ListFilter } from "lucide-react";
 import { CHAT_FOLDER_KEYS } from "../../constants/chatConstants";
 
 interface FolderFilterBarProps {
-  isDark: boolean;
   activeFolder: string;
   setActiveFolder: (folder: string) => void;
   advancedFilters: Record<string, boolean>;
@@ -12,7 +11,7 @@ interface FolderFilterBarProps {
   segments?: readonly string[];
 }
 
-export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t, segments = [] }: FolderFilterBarProps) => {
+export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t, segments = [] }: FolderFilterBarProps) => {
   const folders: readonly string[] = segments.length
     ? [...CHAT_FOLDER_KEYS.filter((f) => f !== "archived"), ...segments, "archived"]
     : CHAT_FOLDER_KEYS;
@@ -36,9 +35,7 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
               className={`min-h-[22px] min-w-[34px] px-2 py-0 rounded-full text-[12px] font-bold whitespace-nowrap ${
                 isActive
                   ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md"
-                  : isDark
-                    ? "bg-white/[0.05] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-white/10 border border-[var(--border-color)]"
-                    : "bg-white text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] group-hover:bg-black/5 border border-[var(--border-color)] shadow-sm"
+                  : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--msg-bg-panel-hover)] border border-[var(--border-color)]"
               }`}
             >
               {t(`chat.folders.${folder}`)}
@@ -54,9 +51,7 @@ export const FolderFilterBar = ({ isDark, activeFolder, setActiveFolder, advance
       className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] p-2 rounded-full cursor-pointer shrink-0 transition-all active:scale-95 flex items-center justify-center ${
         advancedFilters.hasMedia || advancedFilters.hasAudio || advancedFilters.hasReplies || advancedFilters.fromBots || advancedFilters.priority
           ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md"
-          : isDark
-            ? "bg-white/[0.05] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10 border border-[var(--border-color)]"
-            : "bg-white text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/5 border border-[var(--border-color)] shadow-sm"
+          : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)] border border-[var(--border-color)]"
       }`}
     >
       <ListFilter size={16} />
