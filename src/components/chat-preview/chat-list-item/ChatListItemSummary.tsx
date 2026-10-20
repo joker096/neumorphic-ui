@@ -1,6 +1,7 @@
 import { AlertTriangle, BellOff, Check, CheckCheck, Clock, MapPin, Paperclip } from "lucide-react";
 import { FormattedText } from "../FormattedText";
 import { useAppStore } from "../../../store";
+import { useMessageThreads } from "../../../hooks/useMessageThreads";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -67,6 +68,17 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
     isGroup && lastMsg && lastMsg.sender && lastMsg.sender !== "me" && !typing && !draftText
       ? `${String(lastMsg.sender)}: `
       : "";
+  // Telegram tells you a chat is alive even when the last bubble is a thread root:
+  // the reply counter rides next to the preview so the row reads «N replies» without
+  // opening the chat. Hidden while the line shows typing/draft instead of the message.
+  const threads = useMessageThreads(chat.history);
+  // Anchor on the thread root, not on the last bubble: the newest message in a
+  // threaded chat is usually a reply, and its own descendant count is zero.
+  // `rootOf` returns the root message itself, so the count is read by its id.
+  const replyCount =
+    lastMsg && !typing && !draftText
+      ? threads.countOf(threads.rootOf(lastMsg.id)?.id)
+      : 0;
 
   return (
     <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
@@ -105,6 +117,11 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
                 <span className="shrink-0 text-[var(--text-secondary)]">{senderPrefix}</span>
               )}
               <FormattedText text={previewOf(lastMsg, chat.message, t)} />
+              {replyCount > 0 && (
+                <span className="shrink-0 font-semibold text-[var(--accent)]">
+                  {t("chat.threadReplies", { count: replyCount })}
+                </span>
+              )}
             </>
           )}
         </span>

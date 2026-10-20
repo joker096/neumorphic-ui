@@ -314,4 +314,48 @@ describe('ChatListItem', () => {
     expect(container.textContent).not.toContain('Alice:');
     expect(container.textContent).toContain('Direct hi');
   });
+
+  const threadT = (key: string, options?: any) =>
+    key === 'chat.threadReplies' ? `${options?.count} replies` : defaultProps.t(key);
+
+  it('shows the reply counter when the newest message belongs to a thread', () => {
+    const { container } = render(
+      <ChatListItem
+        {...defaultProps}
+        t={threadT}
+        chat={{
+          ...mockChat,
+          history: [
+            { id: 7, sender: 'Alice', text: 'Root', type: 'text' },
+            {
+              id: 8,
+              sender: 'me',
+              text: 'Answer',
+              type: 'text',
+              status: 'sent',
+              replyTo: { id: 7 },
+            },
+          ],
+        }}
+      />,
+    );
+    expect(container.textContent).toContain('1 replies');
+  });
+
+  it('omits the reply counter when the chat has no threads', () => {
+    const { container } = render(
+      <ChatListItem
+        {...defaultProps}
+        t={threadT}
+        chat={{
+          ...mockChat,
+          history: [
+            { id: 7, sender: 'Alice', text: 'Plain one', type: 'text' },
+            { id: 8, sender: 'Alice', text: 'Plain two', type: 'text' },
+          ],
+        }}
+      />,
+    );
+    expect(container.textContent).not.toContain('replies');
+  });
 });
