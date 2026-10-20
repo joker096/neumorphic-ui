@@ -86,23 +86,17 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
 
       <div className="flex-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
         <div className="flex flex-col min-w-0">
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <span
-              className="font-bold text-[16px] tracking-tight truncate text-[var(--text-primary)]"
-            >
-              {chat.name}
-            </span>
+          <span className="truncate font-bold text-[16px] tracking-tight text-[var(--text-primary)]">
+            {chat.name}
+          </span>
+          <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
             {typing ? (
               <span
                 className="flex items-center gap-1.5 shrink-0"
                 aria-live="polite"
               >
-                <span className="relative flex h-1.5 w-1.5 shrink-0">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
-                </span>
                 <span
-                  className={`text-xs sm:text-xs font-medium tracking-wide italic truncate ${"text-[var(--success)]"}`}
+                  className={`text-xs font-medium tracking-wide italic truncate ${"text-[var(--success)]"}`}
                 >
                   {t("chat.typing")}
                 </span>
@@ -125,17 +119,17 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
               <>
                 <Users size={12} className={`shrink-0 ${"text-[var(--accent)]"}`} />
                 <span
-                  className={`text-xs sm:text-xs font-semibold shrink-0 ${"text-[var(--accent)]/90"}`}
+                  className={`text-xs font-semibold shrink-0 text-[var(--accent)]/90`}
                 >
                   {t("chat.subscribers", { count: subscriberCount })}
                 </span>
                 <span
-                  className={`text-xs sm:text-xs font-semibold shrink-0 ${"text-[var(--accent)]/90"}`}
+                  className={`text-xs font-semibold shrink-0 text-[var(--accent)]/90`}
                 >
                   ·
                 </span>
                 <span
-                  className={`text-xs sm:text-xs font-semibold shrink-0 ${"text-[var(--accent)]/90"}`}
+                  className={`text-xs font-semibold shrink-0 text-[var(--accent)]/90`}
                 >
                   {t("chat.posts", { count: chat.postCount ?? chat.history?.length ?? 0 })}
                 </span>
@@ -143,10 +137,10 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             ) : (
               <>
                 <span
-                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${chat.online ? "bg-[var(--success)]" : "bg-gray-500"}`}
+                  className={`h-1.5 w-1.5 rounded-full shrink-0 ${chat.online ? "bg-[var(--success)]" : "bg-[var(--text-tertiary)]"}`}
                 />
                 <span
-                  className={`text-xs sm:text-xs font-semibold shrink-0 ${"text-[var(--accent)]/90"}`}
+                  className={`text-xs font-semibold shrink-0 text-[var(--accent)]/90`}
                 >
                   {chat.online ? t("chat.filters.online") : t("chat.filters.offline")}
                 </span>
