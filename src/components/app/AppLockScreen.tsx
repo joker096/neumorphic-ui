@@ -17,11 +17,18 @@ type AppLockScreenProps = {
   lockAttempts: number;
   lockBlockTimer: number;
   lockBlockedUntil: number | undefined;
-  isDark?: boolean;
   unlockBusy?: boolean;
   handleUnlock: (e?: React.FormEvent) => Promise<void>;
   handleUnlockBiometric: () => Promise<void>;
 };
+
+const INPUT_CLASS =
+  'w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 ' +
+  'bg-[var(--bg-tertiary)] border-[var(--border-color)] text-[var(--text-primary)] ' +
+  'placeholder:text-[var(--text-tertiary)] transition-colors ' +
+  'focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50';
+
+const ERROR_CLASS = 'text-xs text-center mb-3 text-[var(--danger)]';
 
 export const AppLockScreen: React.FC<AppLockScreenProps> = ({
   pinInput,
@@ -38,7 +45,6 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
   lockAttempts,
   lockBlockTimer,
   lockBlockedUntil,
-  isDark = true,
   unlockBusy = false,
   handleUnlock,
   handleUnlockBiometric,
@@ -48,9 +54,9 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
   const isBlockedTemporarily = lockBlockTimer > 0;
 
   return (
-    <div className={`w-full h-[100dvh] flex flex-col items-center justify-center font-sans pt-[env(safe-area-inset-top,0px)] ${isDark ? "bg-[var(--bg-primary)]" : "bg-[var(--bg-secondary)]"} text-[var(--text-primary)]`}>
-      <div className={`p-6 sm:p-8 rounded-3xl flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl ${isDark ? "bg-[var(--bg-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}>
-        <Lock size={48} className={`mb-6 ${isDark ? "text-orange-500" : "text-orange-600"}`} />
+    <div className="w-full h-[100dvh] flex flex-col items-center justify-center font-sans pt-[env(safe-area-inset-top,0px)] bg-[var(--bg-primary)] text-[var(--text-primary)]">
+      <div className="p-6 sm:p-8 rounded-3xl flex flex-col items-center max-w-sm w-full mx-4 shadow-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)]">
+        <Lock size={48} className="mb-6 text-[var(--accent)]" />
         <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t('lock.title')}</h2>
         <p className="text-sm mb-6 text-center text-[var(--text-secondary)]">
           {t('lock.description')}
@@ -58,14 +64,14 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
 
         {isBlockedPermanently ? (
           <div className="text-center mb-4">
-            <p className="text-red-500 font-bold text-sm">{t('lock.tooManyAttempts')}</p>
+            <p className="text-[var(--danger)] font-bold text-sm">{t('lock.tooManyAttempts')}</p>
             <p className="text-xs mt-1 text-[var(--text-secondary)]">
               {t('lock.permanentlyLocked')}
             </p>
           </div>
         ) : isBlockedTemporarily ? (
           <div className="text-center mb-4">
-            <p className="text-red-500 font-bold text-sm">{t('lock.locked')}</p>
+            <p className="text-[var(--danger)] font-bold text-sm">{t('lock.locked')}</p>
             <p className="text-xs mt-1 text-[var(--text-secondary)]">
               {t('lock.tryAgainIn', { seconds: lockBlockTimer })}
             </p>
@@ -83,15 +89,11 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
               inputMode="numeric"
               aria-invalid={pinError}
               aria-describedby={pinError ? 'app-lock-pin-error' : undefined}
-              className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors ${
-                isDark
-                  ? "bg-[var(--bg-secondary)] border-[var(--border-color)]"
-                  : "bg-[var(--bg-primary)] border-[var(--border-color)]"
-              } ${pinError ? "border-red-500 text-red-500" : ""}`}
+              className={`${INPUT_CLASS} ${pinError ? "border-[var(--danger)] text-[var(--danger)]" : ""}`}
               placeholder="****"
             />
             {pinError && (
-              <p id="app-lock-pin-error" role="alert" className={`text-xs text-center mb-3 ${isDark ? 'text-red-400' : 'text-red-500'}`}>
+              <p id="app-lock-pin-error" role="alert" className={ERROR_CLASS}>
                 {t('lock.wrongPin', { remaining: lockAttempts >= 2 ? 3 - Math.min(lockAttempts, 3) : 3 - lockAttempts })}
               </p>
             )}
@@ -109,14 +111,10 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
                   aria-invalid={totpError}
                   aria-describedby={totpError ? 'app-lock-totp-error' : undefined}
                   placeholder={t('lock.totpLabel')}
-                  className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-4 rounded-xl border mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors ${
-                    isDark
-                      ? "bg-[var(--bg-secondary)] border-[var(--border-color)]"
-                      : "bg-[var(--bg-primary)] border-[var(--border-color)]"
-                  } ${totpError ? "border-red-500 text-red-500" : ""}`}
+                  className={`${INPUT_CLASS} ${totpError ? "border-[var(--danger)] text-[var(--danger)]" : ""}`}
                 />
                 {totpError && (
-                  <p id="app-lock-totp-error" role="alert" className={`text-xs text-center mb-3 ${isDark ? 'text-red-400' : 'text-red-500'}`}>
+                  <p id="app-lock-totp-error" role="alert" className={ERROR_CLASS}>
                     {t('lock.totpWrong')}
                   </p>
                 )}
@@ -127,11 +125,7 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
               disabled={unlockBusy}
               aria-label={t('lock.unlock')}
               title={t('lock.unlock')}
-              className={`w-full h-11 flex items-center justify-center rounded-xl font-bold text-sm transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
-                isDark
-                  ? "bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--text-primary)] shadow-lg"
-                  : "bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] shadow-lg"
-              }`}
+              className="w-full h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-sm transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-[var(--shadow-btn-primary)] hover:brightness-110"
             >
               <LockOpen size={20} />
               <span>{unlockBusy ? '…' : t('lock.unlock')}</span>
@@ -143,17 +137,13 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
                   onClick={handleUnlockBiometric}
                   disabled={biometricBusy}
                   aria-label={t('lock.biometric')}
-                  className={`mt-3 w-full h-11 rounded-xl font-medium flex items-center justify-center gap-2 border transition-transform active:scale-95 disabled:opacity-60 ${
-                    isDark
-                      ? "border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
-                      : "border-[var(--border-color)] text-[var(--text-primary)] hover:bg-black/5"
-                  }`}
+                  className="mt-3 w-full h-11 rounded-xl font-medium flex items-center justify-center gap-2 border transition-transform active:scale-95 disabled:opacity-60 border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]"
                 >
                   <Fingerprint size={20} />
                   <span>{biometricBusy ? '…' : t('lock.biometric')}</span>
                 </button>
                 {biometricError && (
-                  <p role="alert" className={`mt-2 text-xs text-center ${isDark ? 'text-red-400' : 'text-red-500'}`}>
+                  <p role="alert" className={`mt-2 ${ERROR_CLASS} mb-0`}>
                     {t('lock.biometricFailed')}
                   </p>
                 )}
@@ -165,7 +155,3 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
     </div>
   );
 };
-
-
-
-
