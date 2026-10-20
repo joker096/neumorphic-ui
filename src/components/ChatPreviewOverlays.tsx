@@ -119,7 +119,7 @@ export function ChatPreviewOverlays({
         </React.Suspense>
       )}
       <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} theme={theme} />
-      <SavedMessagesPanel show={showSavedPanel} isDark={isDark} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(c, msg) => onToggleSavedMessage?.(c, msg)} t={t} />
+      <SavedMessagesPanel show={showSavedPanel} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(c, msg) => onToggleSavedMessage?.(c, msg)} t={t} />
       <MessageThreadPanel
         open={threadOpen}
         isDark={isDark}
