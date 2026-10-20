@@ -135,13 +135,10 @@ describe('InlineKeyboard', () => {
     );
   });
 
-  it('uses the dark background class when isDark is set', () => {
-    const { container } = render(<InlineKeyboard botId="b1" messageId="m1" rows={ROWS} isDark />);
-    expect(container.querySelector('button')).toHaveClass('bg-[var(--accent)]/10');
-  });
-
-  it('uses the light background class by default', () => {
+  it('paints buttons with design tokens instead of theme branches', () => {
     const { container } = render(<InlineKeyboard botId="b1" messageId="m1" rows={ROWS} />);
-    expect(container.querySelector('button')).toHaveClass('bg-[var(--accent)]/5');
+    const button = container.querySelector('button');
+    expect(button).toHaveClass('bg-[var(--accent-soft)]');
+    expect(button).toHaveClass('text-[var(--accent)]');
   });
 });

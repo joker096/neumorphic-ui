@@ -4,7 +4,6 @@ import { useI18n } from "../../lib/i18n";
 interface BubbleActionsProps {
   msg: any;
   isMe: boolean;
-  isDark: boolean;
   chat: any;
   chatSavedMessages: any[];
   onReply: (msg: any) => void;
@@ -12,14 +11,12 @@ interface BubbleActionsProps {
 }
 
 export function BubbleActions({
-  msg, isMe, isDark, chat, chatSavedMessages,
+  msg, isMe, chat, chatSavedMessages,
   onReply, onToggleSavedMessage,
 }: BubbleActionsProps) {
   const { t } = useI18n();
   const saved = chatSavedMessages.some((savedMsg: any) => savedMsg.messageId === msg.id);
-  const chip = `${isDark
-? "bg-black/50 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-white/10"
-  : "bg-white/95 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] border-black/5"} border shadow-sm backdrop-blur-sm`;
+  const chip = "bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-color)] border shadow-sm backdrop-blur-sm";
   return (
     <div className="hidden sm:flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
       <button

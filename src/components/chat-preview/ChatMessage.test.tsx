@@ -342,7 +342,8 @@ describe('ChatMessage', () => {
     fireEvent.contextMenu(bubbleEl());
     const lastCall = MCMMock.mock.calls[MCMMock.mock.calls.length - 1][0];
     expect(lastCall.open).toBe(true);
-    expect(lastCall.isDark).toBe(false);
+    // Round 16: the menu is painted by design tokens, it no longer receives a theme prop.
+    expect(lastCall.isDark).toBeUndefined();
     expect(lastCall.actions).toEqual([{ key: 'reply', label: 'Reply', onClick: expect.any(Function) }]);
   });
 

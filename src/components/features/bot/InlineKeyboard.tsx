@@ -7,12 +7,11 @@ import { useI18n } from "../../../lib/i18n";
 export interface InlineKeyboardProps {
   botId: string;
   messageId: string;
-  isDark?: boolean;
   /** Прямые ряды кнопок (из сообщения). Если не заданы — догружаются через BotService. */
   rows?: InlineKeyboardButton[][];
 }
 
-export function InlineKeyboard({ botId, messageId, isDark, rows }: InlineKeyboardProps) {
+export function InlineKeyboard({ botId, messageId, rows }: InlineKeyboardProps) {
   const { bot } = useServices();
   const { t } = useI18n();
   const [fetched, setFetched] = useState<InlineKeyboardButton[][] | null>(null);
@@ -70,9 +69,7 @@ export function InlineKeyboard({ botId, messageId, isDark, rows }: InlineKeyboar
             <button
               key={btn.text}
               onClick={() => handle(btn)}
-              className={`flex items-center justify-center min-h-11 px-3 py-1.5 rounded-lg text-sm font-medium border border-[var(--accent)]/40 text-[var(--accent)] ${
-                isDark ? "bg-[var(--accent)]/10" : "bg-[var(--accent)]/5"
-              }`}
+              className="flex items-center justify-center min-h-11 px-3 py-1.5 rounded-lg text-sm font-medium border border-[var(--accent)]/40 text-[var(--accent)] bg-[var(--accent-soft)] transition-colors hover:brightness-110 active:scale-95"
             >
               {btn.text}
             </button>

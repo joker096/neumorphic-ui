@@ -8,7 +8,6 @@ interface MessageFooterProps {
   msg: any;
   chat: any;
   isMe: boolean;
-  isDark: boolean;
   isChannel: boolean;
   chatSavedMessages: any[];
   activeReactionPicker: string | number | null;
@@ -24,7 +23,7 @@ interface MessageFooterProps {
 
 /** Everything rendered beside/below the bubble: hover actions, reactions, translation note and bot keyboard. */
 export function MessageFooter({
-  msg, chat, isMe, isDark, isChannel, chatSavedMessages, activeReactionPicker,
+  msg, chat, isMe, isChannel, chatSavedMessages, activeReactionPicker,
   translation, translating, t, onReply, onToggleSavedMessage,
   onSetActiveReactionPicker, onReactionMessage, onAction,
 }: MessageFooterProps) {
@@ -34,7 +33,6 @@ export function MessageFooter({
         <BubbleActions
           msg={msg}
           isMe={isMe}
-          isDark={isDark}
           chat={chat}
           chatSavedMessages={chatSavedMessages}
           onReply={onReply}
@@ -62,7 +60,6 @@ export function MessageFooter({
         <InlineKeyboard
           botId={chat.botId ?? String(chat.id)}
           messageId={String(msg.id)}
-          isDark={isDark}
           rows={msg.inlineKeyboard}
         />
       )}

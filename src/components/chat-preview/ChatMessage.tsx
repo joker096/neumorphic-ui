@@ -282,7 +282,6 @@ function ChatMessageImpl({
           {isChannel && (
             <ChannelCommentsRow
               msg={msg}
-              isDark={isDark}
               onSetActivePostId={onSetActivePostId}
               onSetShowComments={onSetShowComments}
             />
@@ -292,7 +291,6 @@ function ChatMessageImpl({
           msg={msg}
           chat={chat}
           isMe={isMe}
-          isDark={isDark}
           isChannel={!!isChannel}
           chatSavedMessages={chatSavedMessages}
           activeReactionPicker={activeReactionPicker}
@@ -311,7 +309,6 @@ function ChatMessageImpl({
         onClose={() => setMenuOpen(false)}
         anchorRect={menuAnchorRect}
         title={typeof msg.text === "string" ? msg.text.slice(0, 48) : t("chat.message")}
-        isDark={isDark}
         actions={buildMessageMenuActions({
           msg,
           isMe,

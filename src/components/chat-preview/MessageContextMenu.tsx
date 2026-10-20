@@ -26,7 +26,6 @@ interface MessageContextMenuProps {
   onClose: () => void;
   title?: string;
   actions: MessageContextAction[];
-  isDark?: boolean;
   /**
    * Long-press anchor (bubble rect). Renders the menu next to the pressed
    * message instead of a bottom sheet; without it the sheet stays the default.
@@ -34,7 +33,7 @@ interface MessageContextMenuProps {
   anchorRect?: MenuAnchorRect | null;
 }
 
-export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, onClose, title, actions, isDark = false, anchorRect = null }) => {
+export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, onClose, title, actions, anchorRect = null }) => {
   const { t } = useI18n();
   const coarse = useCoarsePointer();
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -104,8 +103,8 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
       aria-label={label}
     >
       <div className={sheetBackdrop} onClick={onClose} aria-hidden="true" />
-      <div className={sheetSurface(isDark, 'p-1.5')}>
-        {title && <div className={sheetTitleClass(isDark)}>{title}</div>}
+      <div className={sheetSurface(false, 'p-1.5')}>
+        {title && <div className={sheetTitleClass(false)}>{title}</div>}
         <div className="flex flex-col">
           {actions.map((a) => (
             <button
@@ -115,14 +114,14 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
                 a.onClick();
                 onClose();
               }}
-              className={sheetActionClass(isDark, a.danger, true)}
+              className={sheetActionClass(false, a.danger, true)}
             >
               {a.icon && <span className="shrink-0 text-[16px]">{a.icon}</span>}
               <span>{a.label}</span>
             </button>
           ))}
         </div>
-        <button type="button" onClick={onClose} className={sheetCancelClass(isDark, true)}>
+        <button type="button" onClick={onClose} className={sheetCancelClass(false, true)}>
           {t("common.cancel", "Cancel")}
         </button>
       </div>
