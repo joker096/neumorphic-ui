@@ -1,5 +1,5 @@
 import React from "react";
-import { BellOff, ChevronRight, Clock, Mic, Radio } from "lucide-react";
+import { BellOff, Clock, Mic, Radio, Send } from "lucide-react";
 import type { ChatMentions } from "./useChatMentions";
 import { MENTION_MENU_ID } from "./MentionSuggestionsMenu";
 import { composerInputStyle, growTextarea } from "./composerInput";
@@ -134,7 +134,7 @@ export function DmComposerRow({
               : "bg-[var(--accent)]/20 text-[var(--accent)]"
         }`}
       >
-        {msgText ? (scheduleDateTime ? <Clock size={16} /> : <ChevronRight size={18} />) : <Mic size={18} />}
+        {msgText ? (scheduleDateTime ? <Clock size={16} /> : <Send size={18} />) : <Mic size={18} />}
       </button>
     </>
   );
