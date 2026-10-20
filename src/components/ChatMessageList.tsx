@@ -1,6 +1,9 @@
 import React from "react";
 import { VirtualizedMessageList } from "./chat/VirtualizedMessageList";
 import { ChatMessage } from "./chat-preview/ChatMessage";
+import { UnreadDivider } from "./chat-preview/message/UnreadDivider";
+import { useI18n } from "../lib/i18n";
+import { insertUnreadDivider, unreadDividerIndex } from "../utils/unreadDivider";
 
 interface ChatMessageListProps {
   msgListRef: React.RefObject<any>;
@@ -57,10 +60,34 @@ export function ChatMessageList({
   onScrollPosition,
   onRetry,
 }: ChatMessageListProps) {
+  const { t } = useI18n();
+  // `chat.unread` is cleared in the store when the chat opens, but the preview
+  // renders the chat snapshot captured at that moment, so the divider stays
+  // where Telegram puts it for the rest of the session.
+  const items = React.useMemo(
+    () => insertUnreadDivider(flatItems, chat?.unread || 0),
+    [flatItems, chat?.unread],
+  );
+  const dividerIndex = unreadDividerIndex(items);
+  const anchoredChatRef = React.useRef<any>(null);
+
+  // Open the conversation at the first unread message instead of the bottom.
+  // Runs after the list's own stick-to-bottom frame (parent effect → last rAF),
+  // so it wins on the initial paint of a chat with unread history.
+  React.useEffect(() => {
+    if (dividerIndex < 0 || searchQuery || selectionMode) return;
+    if (anchoredChatRef.current === chat?.id) return;
+    anchoredChatRef.current = chat?.id;
+    const frame = window.requestAnimationFrame(() => {
+      msgListRef.current?.scrollToIndex?.(dividerIndex, "center");
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [dividerIndex, chat?.id, searchQuery, selectionMode, msgListRef]);
+
   return (
     <VirtualizedMessageList
       ref={msgListRef}
-      items={flatItems}
+      items={items}
       estimateSize={72}
       overscan={3}
       isDark={isDark}
@@ -68,7 +95,10 @@ export function ChatMessageList({
       stickToBottom={isNearBottom}
       onScrollPosition={onScrollPosition}
     >
-      {(msg: any) => (
+      {(msg: any) =>
+        msg._isUnreadDivider ? (
+          <UnreadDivider label={t("chat.unreadMessages", "Unread messages")} />
+        ) : (
         <ChatMessage
           msg={msg}
           isMe={msg.sender === "me"}
@@ -107,7 +137,8 @@ export function ChatMessageList({
           onToggleSelect={onToggleSelect}
           onSelect={onSelect}
         />
-      )}
+        )
+      }
     </VirtualizedMessageList>
   );
 }
