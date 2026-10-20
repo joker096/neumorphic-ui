@@ -162,11 +162,19 @@ describe('ChatListItem', () => {
     expect(avatar?.querySelector('.avatar-status')).not.toBeInTheDocument();
   });
 
-  it('calls onArchive when archive action is triggered', () => {
-    const onArchive = vi.fn();
-    render(<ChatListItem {...defaultProps} onArchive={onArchive} archiveLabel="chat.archive" />);
-    fireEvent.click(screen.getAllByLabelText('chat.archive')[0]);
-    expect(onArchive).toHaveBeenCalledWith(1);
+  it('calls onPin when pin action is triggered', () => {
+    const onPin = vi.fn();
+    render(<ChatListItem {...defaultProps} onPin={onPin} />);
+    fireEvent.click(screen.getAllByLabelText('chat.pin')[0]);
+    expect(onPin).toHaveBeenCalledWith(1);
+  });
+
+  it('toggles read state from the swipe drawer', () => {
+    const onToggleRead = vi.fn();
+    render(<ChatListItem {...defaultProps} onToggleRead={onToggleRead} />);
+    // `mockChat.unread` is 3, so the drawer offers "mark read".
+    fireEvent.click(screen.getAllByLabelText('chat.markRead')[0]);
+    expect(onToggleRead).toHaveBeenCalledWith(1, true);
   });
 
   it('calls onMute when mute action is triggered', () => {
@@ -188,7 +196,7 @@ describe('ChatListItem', () => {
 
   it('marks closed swipe-action buckets inert (not aria-hidden) so swipe buttons cannot trap focus', () => {
     const { container } = render(
-      <ChatListItem {...defaultProps} onMute={vi.fn()} onArchive={vi.fn()} onDelete={vi.fn()} />,
+      <ChatListItem {...defaultProps} onMute={vi.fn()} onPin={vi.fn()} onDelete={vi.fn()} />,
     );
     expect(container.querySelectorAll('[inert]').length).toBe(2);
     container.querySelectorAll('[inert]').forEach((el) => {

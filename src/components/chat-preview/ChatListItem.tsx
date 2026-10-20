@@ -18,11 +18,11 @@ interface ChatListItemProps {
   type?: "chat" | "channel";
   active?: boolean;
   onClick?: () => void;
-  onArchive?: (id: string | number) => void;
+  onPin?: (id: string | number) => void;
   onMute?: (id: string | number) => void;
+  onToggleRead?: (id: string | number, unread: boolean) => void;
   onDelete?: (id: string | number) => void;
   onAvatarClick?: (chat: any) => void;
-  archiveLabel?: string;
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
   t: (key: string, options?: any) => string;
@@ -40,11 +40,11 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   type = "chat",
   active = false,
   onClick,
-  onArchive,
+  onPin,
   onMute,
+  onToggleRead,
   onDelete,
   onAvatarClick,
-  archiveLabel,
   onCall,
   onVideoCall,
   t,
@@ -82,7 +82,8 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
     onLongPress: openMenuOnLongPress,
   });
 
-  const isArchived = archiveLabel === t("chat.unarchive");
+  const isUnread = (Number(chat.unread) || 0) > 0;
+  const isPinned = !!chat.pinned;
   const roundedClass = "rounded-full";
   const { lang } = useI18n();
 
@@ -117,8 +118,10 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
       return;
     } else if (action === "mute" && onMute) {
       onMute(chat.id);
-    } else if (action === "archive" && onArchive) {
-      onArchive(chat.id);
+    } else if (action === "pin" && onPin) {
+      onPin(chat.id);
+    } else if (action === "read" && onToggleRead) {
+      onToggleRead(chat.id, isUnread);
     } else if (action === "delete") {
       setSwipedOpen("closed");
       setShowDeleteConfirm(true);
@@ -127,7 +130,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
     setSwipedOpen("closed");
   };
 
-  const targetX = swipedOpen === "left" ? -196 : swipedOpen === "right" ? 200 : 0;
+  const targetX = swipedOpen === "left" ? -252 : swipedOpen === "right" ? 200 : 0;
 
   return (
     <div
@@ -150,16 +153,17 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         isOpen={swipedOpen === "left"}
         t={t}
         isMuted={!!chat.isMuted}
-        isArchived={isArchived}
-        archiveLabel={archiveLabel}
+        isPinned={isPinned}
+        isUnread={isUnread}
         canMute={!!onMute}
-        canArchive={!!onArchive}
+        canPin={!!onPin}
+        canToggleRead={!!onToggleRead}
         canDelete={!!onDelete}
         onAction={handleSwipeAction}
       />
       <motion.div
         drag={selectMode ? false : "x"}
-        dragConstraints={{ left: -200, right: 240 }}
+        dragConstraints={{ left: -260, right: 240 }}
         dragElastic={0.05}
         onDragStart={() => {
           dragged.current = false;

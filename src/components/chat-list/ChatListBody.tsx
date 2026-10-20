@@ -18,6 +18,8 @@ interface RowRendererDeps {
   onOpenChat?: (chat: any) => void;
   toggleArchive: (id: string | number) => void;
   handleMenuMute: (target: { id: string | number }) => void;
+  handleMenuPin: (target: any) => void;
+  handleMenuToggleUnread: (target: any) => void;
   handleMenuDelete: (target: { id: number }) => void;
   onCall: (name: string, color?: string) => void;
   onVideoCall: (name: string, color?: string) => void;
@@ -30,8 +32,8 @@ interface RowRendererDeps {
 export function useChatListRowRenderer(deps: RowRendererDeps) {
   const {
     theme, t, activeChatId, activeFolder, selectMode, selectedIds, contacts, draftTextByChat,
-    handleChatOpen, onOpenChat, toggleArchive, handleMenuMute, handleMenuDelete, onCall,
-    onVideoCall, handleToggleSelect, openMenu, setGlobalSelectedContact,
+    handleChatOpen, onOpenChat, handleMenuMute, handleMenuPin, handleMenuToggleUnread,
+    handleMenuDelete, onCall, onVideoCall, handleToggleSelect, openMenu, setGlobalSelectedContact,
   } = deps;
 
   return useCallback((chat: any, type: "chat" | "channel") => (
@@ -44,10 +46,10 @@ export function useChatListRowRenderer(deps: RowRendererDeps) {
         handleChatOpen(chat);
         onOpenChat?.(chat);
       }}
-      onArchive={() => toggleArchive(chat.id)}
+      onPin={type === "chat" ? () => handleMenuPin(chat) : undefined}
       onMute={type === "chat" ? () => handleMenuMute({ id: chat.id }) : undefined}
+      onToggleRead={type === "chat" ? () => handleMenuToggleUnread(chat) : undefined}
       onDelete={type === "chat" ? () => handleMenuDelete({ id: chat.id }) : undefined}
-      archiveLabel={activeFolder === "archived" ? t("chat.unarchive") : t("chat.archive")}
       onCall={() => onCall(chat.name, chat.color)}
       onVideoCall={() => onVideoCall(chat.name, chat.color)}
       t={t}
@@ -77,7 +79,7 @@ export function useChatListRowRenderer(deps: RowRendererDeps) {
           : undefined
       }
     />
-  ), [theme, t, activeChatId, activeFolder, selectMode, selectedIds, contacts, draftTextByChat, handleChatOpen, onOpenChat, toggleArchive, handleMenuMute, handleMenuDelete, onCall, onVideoCall, handleToggleSelect, openMenu, setGlobalSelectedContact]);
+  ), [theme, t, activeChatId, activeFolder, selectMode, selectedIds, contacts, draftTextByChat, handleChatOpen, onOpenChat, handleMenuMute, handleMenuPin, handleMenuToggleUnread, handleMenuDelete, onCall, onVideoCall, handleToggleSelect, openMenu, setGlobalSelectedContact]);
 }
 
 interface ChatListVirtualRowsProps {
