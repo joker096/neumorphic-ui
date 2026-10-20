@@ -272,9 +272,9 @@ function ChatInputAreaImpl({
         />
       </div>
 
-      <ChatInputReplyBar replyTarget={eReplyTarget} setReplyTarget={setLocalReplyTarget} isDark={isDark} t={t} />
-      <ChatInputVoiceError voiceNoteError={eVoiceNoteError} isDark={isDark} />
-      {eMorseMode && <MorsePreview msgText={eMsgText} isDark={isDark} />}
+      <ChatInputReplyBar replyTarget={eReplyTarget} setReplyTarget={setLocalReplyTarget} t={t} />
+      <ChatInputVoiceError voiceNoteError={eVoiceNoteError} />
+      {eMorseMode && <MorsePreview msgText={eMsgText} />}
 
       {eShowStickerPicker && (
         <div className="animate-fade-in">
