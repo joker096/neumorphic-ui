@@ -111,21 +111,21 @@ describe('ChatInputArea (channel)', () => {
     render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} handleImageAttach={vi.fn()} />);
     const plus = screen.getByRole('button', { name: 'chat.attachFile' });
     fireEvent.click(plus);
-    expect(screen.getByText('chat.photo / chat.video')).toBeInTheDocument();
+    expect(screen.getByText('chat.photo')).toBeInTheDocument();
     expect(screen.getByText('media.document')).toBeInTheDocument();
     expect(screen.getByText('media.audio')).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(screen.queryByText('chat.photo / chat.video')).not.toBeInTheDocument();
+    expect(screen.queryByText('chat.photo')).not.toBeInTheDocument();
   });
 
   it('photo/video item opens media input with image+video accept and passes files through', () => {
     const handleImageAttach = vi.fn();
     render(<ChatInputArea {...channelProps(OWNER_ID)} isChannel={false} handleImageAttach={handleImageAttach} />);
     fireEvent.click(screen.getByRole('button', { name: 'chat.attachFile' }));
-    fireEvent.click(screen.getByText('chat.photo / chat.video'));
+    fireEvent.click(screen.getByText('chat.photo'));
     const input = document.getElementById('dm-media-input') as HTMLInputElement;
     expect(input.accept).toBe('image/*,video/*');
-    expect(screen.queryByText('chat.photo / chat.video')).not.toBeInTheDocument();
+    expect(screen.queryByText('chat.photo')).not.toBeInTheDocument();
     fireEvent.change(input, { target: { files: [new File(['x'], 'a.png', { type: 'image/png' })] } });
     expect(handleImageAttach).toHaveBeenCalledTimes(1);
   });
@@ -220,7 +220,7 @@ describe('ChatInputArea (channel)', () => {
       expect(getCurrentPosition).toHaveBeenCalledTimes(1);
       getCurrentPosition.mock.calls[0]![0]({ coords: { latitude: 55.7558, longitude: 37.6173 } });
       expect(sendGeoMessage).toHaveBeenCalledWith(55.7558, 37.6173);
-      expect(screen.queryByText('chat.photo / chat.video')).not.toBeInTheDocument();
+      expect(screen.queryByText('chat.photo')).not.toBeInTheDocument();
     });
 
     it('shows an error row when geolocation is denied', () => {

@@ -7,7 +7,6 @@ import { ChatAttachLayer } from './ChatAttachLayer';
 const t = (k: string) => k;
 
 const baseProps = () => ({
-  isDark: true,
   open: true,
   onClose: vi.fn(),
   onOpenVideoRecorder: vi.fn(),

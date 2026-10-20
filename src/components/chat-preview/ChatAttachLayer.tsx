@@ -3,7 +3,6 @@ import { ChevronRight, FileText, Image as ImageIcon, Link2, MapPin, Music, Radio
 import { LiveLocationSheet } from "./LiveLocationSheet";
 
 export interface ChatAttachLayerProps {
-  isDark: boolean;
   /** Whether the attach menu is open. The layer itself stays mounted so a
    *  failure notice survives the menu closing. */
   open: boolean;
@@ -26,13 +25,15 @@ export interface ChatAttachLayerProps {
 const GEO_TIMEOUT_MS = 10_000;
 const GEO_MAX_AGE_MS = 60_000;
 
-const itemClass = (isDark: boolean) =>
-  `min-w-11 min-h-11 w-full flex items-center gap-3 px-3 rounded-lg text-sm cursor-pointer transition-colors ${
-    isDark ? "text-[var(--text-primary)] hover:bg-white/5" : "text-[var(--text-secondary)] hover:bg-black/5"
-  }`;
+/** Telegram-style tile: icon above a short label, one 76px cell of the grid. */
+const tileClass =
+  "flex min-h-[76px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight text-[var(--text-secondary)] transition-colors hover:bg-[var(--msg-bg-panel-hover)] active:scale-95";
 
 /**
- * Attach popover: photo/video, document, audio, video note, location, article.
+ * Attach menu: photo, document, audio, video note, location, live location, article.
+ *
+ * Laid out as a compact icon grid (Telegram parity) instead of a vertical list:
+ * seven tiles fit two rows, so the menu never covers the composer.
  *
  * Owns the article sub-input and the failure notice. Location and article both
  * fail asynchronously or by user input, so the notice is rendered outside the
@@ -40,7 +41,6 @@ const itemClass = (isDark: boolean) =>
  * has to stay readable.
  */
 export function ChatAttachLayer({
-  isDark,
   open,
   onClose,
   onOpenVideoRecorder,
@@ -115,84 +115,82 @@ export function ChatAttachLayer({
   return (
     <>
       {open && (
-        <div className={`mx-2 sm:mx-3 mb-2 p-1.5 sm:p-2 rounded-xl flex flex-col gap-0.5 ${
-          isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"
-        }`}>
-          <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent)] px-3 py-1.5">
-            {t("chat.attachFile")}
-          </span>
-          <button
-            type="button"
-            onClick={() => pick(() => mediaInputRef.current?.click())}
-            className={itemClass(isDark)}
-          >
-            <ImageIcon size={18} className="text-[var(--accent)] flex-shrink-0" />
-            {t("chat.photo")} / {t("chat.video")}
-          </button>
-          <button
-            type="button"
-            onClick={() => pick(() => docInputRef.current?.click())}
-            className={itemClass(isDark)}
-          >
-            <FileText size={18} className="text-[var(--accent)] flex-shrink-0" />
-            {t("media.document")}
-          </button>
-          <button
-            type="button"
-            onClick={() => pick(() => audioInputRef.current?.click())}
-            className={itemClass(isDark)}
-          >
-            <Music size={18} className="text-[var(--accent)] flex-shrink-0" />
-            {t("media.audio")}
-          </button>
-          <button
-            type="button"
-            onClick={() => pick(onOpenVideoRecorder)}
-            className={itemClass(isDark)}
-          >
-            <VideoIcon size={18} className="text-[var(--accent)] flex-shrink-0" />
-            {t("chat.videoNote", "Video note")}
-          </button>
-          <button
-            type="button"
-            onClick={() => pick(requestGeo)}
-            className={itemClass(isDark)}
-          >
-  <MapPin size={18} className="text-[var(--accent)] flex-shrink-0" />
-  {t("chat.location")}
-  </button>
-  <button
-  type="button"
-  onClick={() => {
-    setError("");
-    setShowArticleInput(false);
-    // Already sharing: this row becomes the stop affordance, so an ongoing
-    // share is always cancellable from the same place that started it.
-    if (isSharingLiveLocation) { onClose(); stopLiveLocationShare?.(); return; }
-    setShowLiveSheet(true);
-  }}
-  className={itemClass(isDark)}
-  >
-  <Radio size={18} className="text-rose-500 flex-shrink-0" />
-  {isSharingLiveLocation
-    ? t("chat.stopLiveLocation", "Stop live location")
-    : t("chat.liveLocation", "Live location")}
-  </button>
-          <button
-            type="button"
-            onClick={() => {
-              setError("");
-              setArticleUrl("");
-              setShowArticleInput((v) => !v);
-            }}
-            aria-expanded={showArticleInput}
-            className={itemClass(isDark)}
-          >
-            <Link2 size={18} className="text-[var(--accent)] flex-shrink-0" />
-            {t("chat.article")}
-          </button>
+        <div className="mx-2 sm:mx-3 mb-2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-2">
+          <div className="grid grid-cols-4 gap-1">
+            <button
+              type="button"
+              onClick={() => pick(() => mediaInputRef.current?.click())}
+              className={tileClass}
+            >
+              <ImageIcon size={24} className="text-[var(--accent)]" />
+              {t("chat.photo")}
+            </button>
+            <button
+              type="button"
+              onClick={() => pick(() => docInputRef.current?.click())}
+              className={tileClass}
+            >
+              <FileText size={24} className="text-[var(--accent)]" />
+              {t("media.document")}
+            </button>
+            <button
+              type="button"
+              onClick={() => pick(() => audioInputRef.current?.click())}
+              className={tileClass}
+            >
+              <Music size={24} className="text-[var(--accent)]" />
+              {t("media.audio")}
+            </button>
+            <button
+              type="button"
+              onClick={() => pick(onOpenVideoRecorder)}
+              className={tileClass}
+            >
+              <VideoIcon size={24} className="text-[var(--accent)]" />
+              {t("chat.videoNote", "Video note")}
+            </button>
+            <button type="button" onClick={() => pick(requestGeo)} className={tileClass}>
+              <MapPin size={24} className="text-[var(--accent)]" />
+              {t("chat.location")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setError("");
+                setShowArticleInput(false);
+                // Already sharing: this tile becomes the stop affordance, so an
+                // ongoing share is always cancellable from where it started.
+                if (isSharingLiveLocation) {
+                  onClose();
+                  stopLiveLocationShare?.();
+                  return;
+                }
+                setShowLiveSheet(true);
+              }}
+              className={tileClass}
+            >
+              <Radio size={24} className="text-[var(--danger)]" />
+              {isSharingLiveLocation
+                ? t("chat.stopLiveLocation", "Stop live location")
+                : t("chat.liveLocation", "Live location")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setError("");
+                setArticleUrl("");
+                setShowArticleInput((v) => !v);
+              }}
+              aria-expanded={showArticleInput}
+              className={tileClass}
+            >
+              <Link2 size={24} className="text-[var(--accent)]" />
+              {t("chat.article")}
+            </button>
+          </div>
+
           {showArticleInput && (
-            <div className="flex items-center gap-1.5 px-2 py-1.5">
+            <div className="mt-1 flex items-center gap-1.5 px-1 pb-1">
               <input
                 aria-label={t("chat.articleUrl", "https://…")}
                 ref={articleInputRef}
@@ -205,17 +203,13 @@ export function ChatAttachLayer({
                   }
                 }}
                 placeholder={t("chat.articleUrl", "https://…")}
-                className={`min-h-11 flex-1 min-w-0 px-3 rounded-lg text-sm outline-none transition-colors ${
-                  isDark
-                    ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
-                    : "bg-black/5 text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
-                }`}
+                className="min-h-11 min-w-0 flex-1 rounded-lg bg-[var(--bg-tertiary)] px-3 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)]"
               />
               <button
                 type="button"
                 onClick={submitArticle}
                 aria-label={t("chat.sendMessage")}
-                className="icon-button primary cursor-pointer"
+                className="icon-button primary min-w-11 cursor-pointer"
               >
                 <ChevronRight size={16} />
               </button>
@@ -225,10 +219,10 @@ export function ChatAttachLayer({
       )}
 
       {error && (
-        <div className="mx-2 sm:mx-3 mb-2 px-3 py-2 rounded-lg text-xs border border-rose-500/40 bg-rose-500/10 text-rose-500 flex items-center gap-2">
+        <div className="mx-2 sm:mx-3 mb-2 flex items-center gap-2 rounded-lg border border-[var(--danger)]/40 bg-[var(--danger-soft)] px-3 py-2 text-xs text-[var(--danger)]">
           <X
-            size={14}
-            className="flex-shrink-0 cursor-pointer min-h-11 min-w-11 -my-1 -mx-2 p-3"
+            size={16}
+            className="-mx-2 -my-1 min-h-11 min-w-11 flex-shrink-0 cursor-pointer p-3"
             onClick={() => setError("")}
             aria-label="Dismiss"
           />

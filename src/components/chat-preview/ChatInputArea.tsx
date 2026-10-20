@@ -204,7 +204,6 @@ function ChatInputAreaImpl({
       />
 
       <ChatAttachLayer
-        isDark={isDark}
         open={showAttachMenu}
         onClose={() => setShowAttachMenu(false)}
         onOpenVideoRecorder={() => setShowVideoRecorder(true)}
@@ -212,9 +211,9 @@ function ChatInputAreaImpl({
         docInputRef={dmDocInputRef}
         audioInputRef={dmAudioInputRef}
         sendGeoMessage={sendGeoMessage}
-      startLiveLocationShare={startLiveLocationShare}
-      isSharingLiveLocation={isSharingLiveLocation}
-      stopLiveLocationShare={stopLiveLocationShare}
+        startLiveLocationShare={startLiveLocationShare}
+        isSharingLiveLocation={isSharingLiveLocation}
+        stopLiveLocationShare={stopLiveLocationShare}
         sendArticleMessage={sendArticleMessage}
         t={t}
       />
