@@ -93,7 +93,7 @@ export function ComposerToolbar({
             isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
           }`}
         >
-          <Plus size={16} />
+          <Plus size={18} />
         </button>
       </div>
 
@@ -105,7 +105,7 @@ export function ComposerToolbar({
         }`}
         onClick={onToggleSchedule}
       >
-        <Clock size={16} />
+        <Clock size={18} />
       </button>
 
       {onCycleTimer && (
@@ -118,7 +118,7 @@ export function ComposerToolbar({
           }`}
           onClick={onCycleTimer}
         >
-          <Timer size={16} />
+          <Timer size={18} />
         </button>
       )}
 
@@ -130,7 +130,7 @@ export function ComposerToolbar({
         }`}
         onClick={onToggleStickers}
       >
-        <Smile size={16} />
+        <Smile size={18} />
       </button>
     </>
   );
