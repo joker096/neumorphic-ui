@@ -54,7 +54,6 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const setContactMuted = useAppStore(state => state.setContactMuted);
   const setChatMuted = useAppStore(state => state.setChatMuted);
   const setContactBlocked = useAppStore(state => state.setContactBlocked);
-  const isDark = theme === 'dark';
   const { t } = useI18n();
   const contactAvatars = useAppStore(state => state.contactAvatars);
   const setContactAvatar = useAppStore(state => state.setContactAvatar);
@@ -239,7 +238,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 <div className="text-xs font-bold uppercase tracking-widest mb-2 text-[var(--text-tertiary)]">
                   {t('profile.sharedMedia')}
                 </div>
-                <SharedMediaTabs messages={dmChat.history || []} isDark={isDark} onOpenChat={() => { onMessage?.(); onClose(); }} />
+                <SharedMediaTabs messages={dmChat.history || []} onOpenChat={() => { onMessage?.(); onClose(); }} />
               </div>
             )}
 

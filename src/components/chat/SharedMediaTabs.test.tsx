@@ -19,7 +19,7 @@ if (typeof URL.createObjectURL !== 'function') {
   });
 }
 
-const renderTabs = (messages: any[]) => render(<SharedMediaTabs messages={messages} isDark={false} />);
+const renderTabs = (messages: any[]) => render(<SharedMediaTabs messages={messages} />);
 
 describe('SharedMediaTabs', () => {
   beforeEach(() => {

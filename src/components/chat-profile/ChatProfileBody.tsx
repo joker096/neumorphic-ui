@@ -133,7 +133,7 @@ export const ChatProfileBody = ({
 {kind === 'group' ? (
   <div className="px-4 mt-5">
     <SectionTitle icon={<ImageIcon size={16} />} title={t('profile.sharedMedia', 'Shared media')} />
-    <SharedMediaTabs messages={groupMessages} isDark={isDark} onOpenChat={() => { onMessage?.(); onClose(); }} />
+    <SharedMediaTabs messages={groupMessages} onOpenChat={() => { onMessage?.(); onClose(); }} />
   </div>
 ) : (
   <div className="px-4 mt-5">
