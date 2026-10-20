@@ -33,19 +33,19 @@ export function ContactsTabs({ contacts, filteredCount, searchQuery, activeTab, 
           placeholder={t('contacts.searchPlaceholder')} isDark={isDark} shape="pill" />
       </div>
 
-      <div className={`flex rounded-full p-1 overflow-x-auto scrollbar-none ${isDark ? "bg-white/5" : "bg-black/5"}`} onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
+      <div className="flex rounded-full p-1 overflow-x-auto scrollbar-none bg-[var(--msg-bg-input)]" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
         {tabs.map(tab => (
           <motion.button key={tab.key} whileTap={{ scale: 0.95 }}
             onClick={() => onTabChange(tab.key)} aria-pressed={activeTab === tab.key}
-            className={`group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full shrink-0 cursor-pointer ${
+            className={`group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full shrink-0 cursor-pointer transition-colors ${
               activeTab === tab.key
-                ? (isDark ? 'bg-white/10 shadow-sm' : 'bg-white shadow-sm')
+                ? 'bg-[var(--msg-bg-panel)] shadow-sm'
                 : ''
             }`}>
-            <span className={`flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
+            <span className={`flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
               activeTab === tab.key
                 ? 'text-[var(--text-primary)]'
-                : (isDark ? 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)]')
+                : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'
             }`}>
               {tab.icon}
               {tab.label}
@@ -56,7 +56,7 @@ export function ContactsTabs({ contacts, filteredCount, searchQuery, activeTab, 
 
       {searchQuery && (
         <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-          className={`text-xs mt-2 px-1 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+          className="text-xs mt-2 px-1 text-[var(--text-secondary)]">
           {t('contacts.foundResults', { count: filteredCount, total: contacts.length })}
         </motion.div>
       )}
