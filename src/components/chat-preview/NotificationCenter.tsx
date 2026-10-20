@@ -94,7 +94,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
         <>
           <div className="fixed inset-0 z-[var(--z-tooltip)]" onClick={() => setOpen(false)} aria-hidden />
           <div
-            className={`glass-panel fixed z-[var(--z-toast)] w-[320px] max-w-[90vw] rounded-2xl overflow-hidden ${isDark ? "text-[var(--text-primary)]" : "text-[var(--text-primary)]"}`}
+            className={`glass-panel fixed z-[var(--z-toast)] w-[320px] max-w-[90vw] rounded-2xl overflow-hidden text-[var(--text-primary)]`}
             style={{ top: pos?.top, right: pos?.right, transform: pos?.flip ? "translateY(-100%)" : undefined }}
             role="dialog"
             aria-label={t("notif.title", "Notifications")}

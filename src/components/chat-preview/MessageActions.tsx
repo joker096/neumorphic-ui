@@ -3,14 +3,13 @@ import { Bookmark, CornerUpLeft } from "lucide-react";
 
 interface MessageActionsProps {
   isMe: boolean;
-  isDark?: boolean;
   isSaved: boolean;
   onReply?: () => void;
   onToggleSaved?: () => void;
   t: (key: string) => string;
 }
 
-export const MessageActions = ({ isMe, isDark = false, isSaved, onReply, onToggleSaved, t }: MessageActionsProps) => {
+export const MessageActions = ({ isMe, isSaved, onReply, onToggleSaved, t }: MessageActionsProps) => {
   if (isMe && !onReply && !onToggleSaved) return null;
 
   return (
@@ -20,11 +19,7 @@ export const MessageActions = ({ isMe, isDark = false, isSaved, onReply, onToggl
           onClick={onReply}
           aria-label={t('chat.reply')}
           title={t('chat.reply')}
-          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors ${
-            isDark
-? "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5"
-  : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/5"
-          }`}
+          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]"
         >
           <CornerUpLeft size={14} />
           <span className="sr-only">{t('chat.reply')}</span>
@@ -35,11 +30,7 @@ export const MessageActions = ({ isMe, isDark = false, isSaved, onReply, onToggl
           onClick={onToggleSaved}
           aria-label={isSaved ? t('chat.saved') : t('chat.save')}
           title={isSaved ? t('chat.saved') : t('chat.save')}
-          className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors ${
-            isDark
-? "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5"
-  : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/5"
-          }`}
+          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]"
         >
           <Bookmark size={12} />
           <span className="sr-only">{isSaved ? t('chat.saved') : t('chat.save')}</span>

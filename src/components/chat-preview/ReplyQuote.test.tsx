@@ -16,25 +16,25 @@ import { ReplyQuote } from './ReplyQuote';
 
 describe('ReplyQuote', () => {
   it('renders the quoted text', () => {
-    render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', text: 'hello there' }} isDark={false} />);
+    render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', text: 'hello there' }} />);
     expect(screen.getByText('hello there')).toBeInTheDocument();
   });
 
   it('shows an expired placeholder instead of the content of a self-destructed message', () => {
-    render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', type: 'expired' }} isDark={false} />);
+    render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', type: 'expired' }} />);
     expect(screen.getByText('Message expired')).toBeInTheDocument();
   });
 
   it('describes voice and attachment quotes without text', () => {
-    const { unmount } = render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', type: 'audio' }} isDark={false} />);
+    const { unmount } = render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', type: 'audio' }} />);
     expect(screen.getByText('Voice note')).toBeInTheDocument();
     unmount();
-    render(<ReplyQuote replyTo={{ id: 2, sender: 'bob', type: 'image' }} isDark={false} />);
+    render(<ReplyQuote replyTo={{ id: 2, sender: 'bob', type: 'image' }} />);
     expect(screen.getByText('Attachment')).toBeInTheDocument();
   });
 
   it('is not interactive when no jump handler is provided', () => {
-    render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', text: 'hello' }} isDark={false} />);
+    render(<ReplyQuote replyTo={{ id: 1, sender: 'bob', text: 'hello' }} />);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
@@ -43,7 +43,7 @@ describe('ReplyQuote', () => {
     const onBubbleClick = vi.fn();
     render(
       <div onClick={onBubbleClick}>
-        <ReplyQuote replyTo={{ id: 1, sender: 'bob', text: 'hello' }} isDark={false} onJump={onJump} />
+        <ReplyQuote replyTo={{ id: 1, sender: 'bob', text: 'hello' }} onJump={onJump} />
       </div>,
     );
     const quote = screen.getByRole('button', { name: 'Go to message' });

@@ -8,7 +8,6 @@ import { formatClockTime, sendTimeOf } from "../../utils/chatUtils";
 
 interface MessageThreadPanelProps {
   open: boolean;
-  isDark: boolean;
   rootMessage: any;
   replies: any[];
   t: (key: string, fallback?: string | Record<string, string | number>) => string;
@@ -33,11 +32,9 @@ const bodyOf = (msg: any, t: MessageThreadPanelProps["t"]): string => {
 
 const ThreadBubble = ({
   message,
-  isDark,
   t,
 }: {
   message: any;
-  isDark: boolean;
   t: MessageThreadPanelProps["t"];
 }) => {
   const isMe = message?.sender === "me";
@@ -54,7 +51,7 @@ const ThreadBubble = ({
             {displayName}
           </div>
         )}
-        {message?.replyTo && <ReplyQuote replyTo={message.replyTo} isDark={isDark} />}
+        {message?.replyTo && <ReplyQuote replyTo={message.replyTo} />}
         {body && (
           <p className="whitespace-pre-wrap">
             <FormattedText text={body} />
@@ -70,7 +67,6 @@ const ThreadBubble = ({
 
 export function MessageThreadPanel({
   open,
-  isDark,
   rootMessage,
   replies,
   t,
@@ -96,9 +92,9 @@ export function MessageThreadPanel({
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           role="dialog"
           aria-label={t("chat.threadTitle", "Thread")}
-          className={`absolute inset-0 z-[55] flex flex-col ${isDark ? "bg-[var(--bg-primary)]" : "bg-[var(--bg-secondary)]"}`}
+          className={`absolute inset-0 z-[55] flex flex-col bg-[var(--bg-primary)]`}
         >
-          <div className={`h-[72px] flex items-center px-4 border-b ${isDark ? "border-[var(--border-color)] bg-[var(--bg-tertiary)]" : "border-[var(--border-color)] bg-white"}`}>
+          <div className={`h-[72px] flex items-center px-4 border-b border-[var(--border-color)] bg-[var(--bg-tertiary)]`}>
             <button
               type="button"
               onClick={onClose}
@@ -120,16 +116,16 @@ export function MessageThreadPanel({
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
             {rootMessage && (
               <div className="rounded-2xl ring-1 ring-[var(--accent)]/40 pb-2">
-                <ThreadBubble message={rootMessage} isDark={isDark} t={t} />
+                <ThreadBubble message={rootMessage} t={t} />
               </div>
             )}
             {replies.map((reply) => (
-              <ThreadBubble key={reply.id} message={reply} isDark={isDark} t={t} />
+              <ThreadBubble key={reply.id} message={reply} t={t} />
             ))}
           </div>
 
-          <div className={`p-4 border-t ${isDark ? "border-[var(--border-color)] bg-[color:var(--bg-tertiary)]/90 backdrop-blur-md" : "border-[var(--border-color)] bg-[var(--bg-primary)]/90 backdrop-blur-md"}`}>
-            <div className={`flex items-center w-full min-h-12 rounded-full px-4 relative ${isDark ? "bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}>
+          <div className={`p-4 border-t border-[var(--border-color)] bg-[var(--bg-tertiary)]/90 backdrop-blur-md`}>
+            <div className={`flex items-center w-full min-h-12 rounded-full px-4 relative bg-[var(--bg-secondary)] border border-[var(--border-color)]`}>
               <input
                 aria-label={t("chat.threadPlaceholder", "Reply in thread")}
                 type="text"

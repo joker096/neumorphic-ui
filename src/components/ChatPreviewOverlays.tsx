@@ -122,7 +122,6 @@ export function ChatPreviewOverlays({
       <SavedMessagesPanel show={showSavedPanel} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(c, msg) => onToggleSavedMessage?.(c, msg)} t={t} />
       <MessageThreadPanel
         open={threadOpen}
-        isDark={isDark}
         rootMessage={threadRoot}
         replies={threadReplies}
         t={t}

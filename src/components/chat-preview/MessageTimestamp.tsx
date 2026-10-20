@@ -6,7 +6,6 @@ import { formatShortDate, fuzzTime } from "../../utils/chatUtils";
 interface MessageTimestampProps {
   msg: any;
   isMe: boolean;
-  isDark: boolean;
   stealthMode: boolean;
   deliveryReceipts: boolean;
   readReceipts: boolean;
@@ -14,7 +13,7 @@ interface MessageTimestampProps {
 }
 
 export function MessageTimestamp({
-  msg, isMe, isDark, stealthMode, deliveryReceipts, readReceipts, onRetry,
+  msg, isMe, stealthMode, deliveryReceipts, readReceipts, onRetry,
 }: MessageTimestampProps) {
   const { t, lang } = useI18n();
   const shortDate = typeof msg.ts === "number"

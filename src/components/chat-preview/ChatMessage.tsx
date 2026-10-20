@@ -137,11 +137,11 @@ function ChatMessageImpl({
   };
 
   if (msg._isDateSeparator) {
-    return <MessageDateSeparator isDark={isDark} label={msg._dateLabel} />;
+    return <MessageDateSeparator label={msg._dateLabel} />;
   }
 
   if (expired) {
-    return <ExpiredMessage isMe={isMe} isDark={isDark} t={t} />;
+    return <ExpiredMessage isMe={isMe} t={t} />;
   }
 
   return (
@@ -206,7 +206,6 @@ function ChatMessageImpl({
           {msg.replyTo && (
             <ReplyQuote
               replyTo={msg.replyTo}
-              isDark={isDark}
               onJump={
                 onJumpToMessage && msg.replyTo.id != null
                   ? () => onJumpToMessage(msg.replyTo.id)
@@ -235,7 +234,7 @@ function ChatMessageImpl({
             )
           )}
           {isMorse && (
-            <MorseToggle decoded={morseDecoded} isDark={isDark} t={t} onToggle={toggleMorse} />
+            <MorseToggle decoded={morseDecoded} t={t} onToggle={toggleMorse} />
           )}
           {msg.keyboard && (
             <div className="flex flex-col gap-1.5 mt-3 mb-1 w-full shrink-0">
@@ -271,7 +270,6 @@ function ChatMessageImpl({
             <MessageTimestamp
               msg={msg}
               isMe={isMe}
-              isDark={isDark}
               stealthMode={stealthMode}
               deliveryReceipts={deliveryReceipts}
               readReceipts={readReceipts}

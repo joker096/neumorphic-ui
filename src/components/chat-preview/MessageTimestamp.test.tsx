@@ -20,7 +20,6 @@ function renderAt(ts: number, overrides: Record<string, unknown> = {}, stealthMo
     <MessageTimestamp
       msg={{ id: 1, time: '14:05', ts, type: '', silent: false, status: 'sent', ...overrides } as any}
       isMe={false}
-      isDark={true}
       stealthMode={stealthMode}
       deliveryReceipts={false}
       readReceipts={false}
@@ -86,7 +85,6 @@ describe('MessageTimestamp', () => {
       <MessageTimestamp
         msg={{ id: 1, time: '14:05', ts: Date.now(), type: '', silent: false, status: 'delivered' } as any}
         isMe={true}
-        isDark={true}
         stealthMode={false}
         deliveryReceipts={true}
         readReceipts={true}
