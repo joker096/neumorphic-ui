@@ -44,12 +44,12 @@ export const PlayerView = ({
       exit={{ opacity: 0, x: -20 }}
       className="flex flex-col items-center w-full"
     >
-      <div className="w-[180px] h-[40px] sm:w-[220px] sm:h-[50px] flex items-center justify-center relative z-10 mb-6 bg-[var(--bg-secondary)] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)] transition-colors">
-        <div className={`absolute top-[35px] left-[30px] w-4 h-4 rounded-full ${isRadioMode ? "bg-[var(--player-green)]" : "bg-[var(--player-orange)]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
-        <div className={`absolute top-[45px] left-[70px] w-3 h-3 rounded-full ${isRadioMode ? "bg-[var(--player-eq-green)]" : "bg-[var(--player-orange-dark)]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
-        <div className={`absolute top-[48px] left-[105px] w-4 h-4 rounded-full ${isRadioMode ? "bg-[var(--player-green)]" : "bg-[var(--player-orange)]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
-        <div className="absolute top-[45px] right-[70px] w-3 h-3 rounded-full bg-[var(--player-inactive-dot)] shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors" />
-        <div className="absolute top-[35px] right-[30px] w-4 h-4 rounded-full bg-[var(--player-inactive-dot2)] shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors" />
+      <div className="w-[180px] h-[40px] sm:w-[220px] sm:h-[50px] flex items-center justify-center relative z-10 mb-6 bg-[var(--bg-secondary)] shadow-[var(--player-neo-dot-inset)] transition-colors">
+        <div className={`absolute top-[35px] left-[30px] w-4 h-4 rounded-full ${isRadioMode ? "bg-[var(--player-green)]" : "bg-[var(--player-orange)]"} shadow-[var(--player-neo-dot)] transition-colors`} />
+        <div className={`absolute top-[45px] left-[70px] w-3 h-3 rounded-full ${isRadioMode ? "bg-[var(--player-eq-green)]" : "bg-[var(--player-orange-dark)]"} shadow-[var(--player-neo-dot)] transition-colors`} />
+        <div className={`absolute top-[48px] left-[105px] w-4 h-4 rounded-full ${isRadioMode ? "bg-[var(--player-green)]" : "bg-[var(--player-orange)]"} shadow-[var(--player-neo-dot)] transition-colors`} />
+        <div className="absolute top-[45px] right-[70px] w-3 h-3 rounded-full bg-[var(--player-inactive-dot)] shadow-[var(--player-neo-dot)] transition-colors" />
+        <div className="absolute top-[35px] right-[30px] w-4 h-4 rounded-full bg-[var(--player-inactive-dot2)] shadow-[var(--player-neo-dot)] transition-colors" />
         <span className="text-lg font-medium tracking-wider text-[var(--text-primary)]">{activeIndex + 1}/{activeList.length}</span>
       </div>
 
@@ -58,10 +58,10 @@ export const PlayerView = ({
         <motion.div
           onClick={() => setIsRadioMode(!isRadioMode)}
           whileTap={{ scale: 0.9 }}
-          className="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-primary)] border border-[var(--border-color)] shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_-3px_-3px_6px_rgba(255,255,255,0.1),_inset_3px_3px_6px_rgba(0,0,0,0.3)] transition-all"
+          className="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-primary)] border border-[var(--border-color)] shadow-[var(--player-neo-plate-raised)] transition-all"
         >
           <div className={`absolute inset-0 rounded-full ${isRadioMode ? "bg-gradient-to-br from-[var(--player-green)]/20 to-transparent" : "bg-gradient-to-br from-[var(--player-green)]/20 to-transparent"} ${isRadioMode ? "opacity-100" : "opacity-0"} transition-opacity`} />
-          {isRadioMode ? <Radio size={24} className="text-[var(--player-green)] drop-shadow-[0_0_4px_rgba(92,194,92,0.5)]" /> : <List size={24} className="text-[var(--text-primary)]" />}
+          {isRadioMode ? <Radio size={24} className="text-[var(--player-green)] drop-shadow-[var(--player-led-green-sm)]" /> : <List size={24} className="text-[var(--text-primary)]" />}
         </motion.div>
       </div>
 
@@ -69,7 +69,7 @@ export const PlayerView = ({
         <div
           onClick={prevTrack}
           title={t('systemPlayer.previousTrack')}
-          className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform"
+          className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[var(--player-neo-key)] active:scale-95 transition-transform"
         >
           <SkipBack size={18} fill="currentColor" />
         </div>
@@ -80,7 +80,7 @@ export const PlayerView = ({
         <div
           onClick={nextTrack}
           title={t('systemPlayer.nextTrack')}
-          className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[4px_4px_8px_rgba(0,0,0,0.4),_inset_-1px_-1px_2px_rgba(0,0,0,0.2)] active:scale-95 transition-transform"
+          className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[var(--player-neo-key)] active:scale-95 transition-transform"
         >
           <SkipForward size={18} fill="currentColor" />
         </div>
@@ -98,7 +98,7 @@ export const PlayerView = ({
           );
         })}
 
-        <div className={`w-[200px] h-[200px] sm:w-[220px] sm:h-[220px] rounded-full flex items-center justify-center shadow-[inset_10px_10px_20px_rgba(0,0,0,0.5)] bg-gradient-to-br from-transparent to-black/20 relative z-30 opacity-90 transition-colors`}>
+        <div className={`w-[200px] h-[200px] sm:w-[220px] sm:h-[220px] rounded-full flex items-center justify-center shadow-[var(--player-neo-plate)] bg-gradient-to-br from-transparent to-black/20 relative z-30 opacity-90 transition-colors`}>
           {isPlaying && (
             <div className="absolute inset-x-0 bottom-6 flex justify-center items-end gap-[3px] h-12 opacity-80 z-20 pointer-events-none">
               {[1, 2, 3, 4, 5, 6, 7].map((bar) => (
@@ -106,13 +106,13 @@ export const PlayerView = ({
                   key={bar}
                   animate={{ height: ["10%", "90%", "30%", "100%", "20%"] }}
                   transition={{ duration: 0.5 + Math.random() * 0.5, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
-                  className={`w-[5px] rounded-t-full ${isRadioMode ? "bg-[var(--player-green)] shadow-[0_0_8px_rgba(92,194,92,0.8)]" : "bg-[var(--player-orange)] shadow-[0_0_8px_rgba(226,132,92,0.8)]"}`}
+                  className={`w-[5px] rounded-t-full ${isRadioMode ? "bg-[var(--player-green)] shadow-[var(--player-led-green)]" : "bg-[var(--player-orange)] shadow-[var(--player-led-orange)]"}`}
                 />
               ))}
             </div>
           )}
-          <div className={`w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] rounded-full flex items-center justify-center shadow-[inset_10px_10px_20px_rgba(0,0,0,0.5)] bg-gradient-to-br ${isRadioMode ? "from-[var(--player-green-dark)] to-[var(--player-green-deep)]" : "from-[var(--player-orange)] to-[var(--player-orange-deep)]"} relative z-30 opacity-90 transition-colors`}>
-            <div className={`w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] rounded-full flex items-center justify-center shadow-[4px_4px_10px_rgba(0,0,0,0.4)] transition-colors relative overflow-visible`}>
+          <div className={`w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] rounded-full flex items-center justify-center shadow-[var(--player-neo-plate)] bg-gradient-to-br ${isRadioMode ? "from-[var(--player-green-dark)] to-[var(--player-green-deep)]" : "from-[var(--player-orange)] to-[var(--player-orange-deep)]"} relative z-30 opacity-90 transition-colors`}>
+            <div className={`w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] rounded-full flex items-center justify-center shadow-[var(--player-neo-slot)] transition-colors relative overflow-visible`}>
               <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] rounded-full border-2 ${isRadioMode ? 'border-[var(--player-green-dark)] opacity-50' : 'border-[var(--player-orange)] opacity-50'} z-10`}></div>
               <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] rounded-full border ${isRadioMode ? 'border-[var(--player-green)] opacity-40' : 'border-[var(--player-eq-orange)] opacity-40'} z-10`}></div>
               <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[10px] h-[10px] rounded-full ${isRadioMode ? 'bg-[var(--player-green-dark)]' : 'bg-[var(--player-orange)]'} z-10`}></div>
@@ -122,7 +122,7 @@ export const PlayerView = ({
                   if (!isPlaying) initWebAudio();
                   setIsPlaying(!isPlaying);
                 }}
-                className={`w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] rounded-full flex items-center justify-center cursor-pointer shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_2px_2px_4px_rgba(255,255,255,0.2)] ${isRadioMode ? "bg-[var(--player-green-bright)]" : "bg-[var(--player-orange-bright)]"} active:scale-95 transition-all active:shadow-[inset_6px_6px_12px_rgba(0,0,0,0.4)] z-10`}
+                className={`w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] rounded-full flex items-center justify-center cursor-pointer shadow-[var(--player-neo-knob)] ${isRadioMode ? "bg-[var(--player-green-bright)]" : "bg-[var(--player-orange-bright)]"} active:scale-95 transition-all active:shadow-[var(--player-neo-knob-inset)] z-10`}
               >
                 {isPlaying ? (
                   <Pause size={32} className="text-[var(--player-play-text)]" fill="currentColor" />
