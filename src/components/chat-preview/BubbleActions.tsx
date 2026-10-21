@@ -1,6 +1,9 @@
 import { Bookmark, Reply } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 
+/** Round bubble action trigger revealed on hover. */
+const BUBBLE_BTN_CLASS = 'min-w-11 min-h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto';
+
 interface BubbleActionsProps {
   msg: any;
   isMe: boolean;
@@ -24,7 +27,7 @@ export function BubbleActions({
         aria-label={t('chat.reply')}
         onClick={(e) => { e.stopPropagation(); onReply(msg); }}
         onPointerDown={(e) => e.stopPropagation()}
-        className="min-w-11 min-h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto"
+        className={BUBBLE_BTN_CLASS}
       >
         <span className={`w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-110 ${chip}`}>
           <Reply size={14} />
@@ -35,7 +38,7 @@ export function BubbleActions({
         aria-label={t('chat.save')}
         onClick={(e) => { e.stopPropagation(); onToggleSavedMessage(chat, msg); }}
         onPointerDown={(e) => e.stopPropagation()}
-        className="min-w-11 min-h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto"
+        className={BUBBLE_BTN_CLASS}
       >
         <span className={`w-7 h-7 flex items-center justify-center rounded-full transition-transform hover:scale-110 ${chip}`}>
           <Bookmark size={14} className={saved ? "fill-current" : ""} />

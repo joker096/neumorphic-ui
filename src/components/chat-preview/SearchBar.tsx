@@ -3,6 +3,9 @@ import { SearchInput } from '../ui/SearchInput'
 import { useI18n } from '../../lib/i18n'
 import { ChevronDown, ChevronUp } from "lucide-react";
 
+/** Round icon button of the chat search bar. */
+const ICON_BTN_CLASS = 'shrink-0 w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-40 enabled:hover:bg-black/10 dark:enabled:hover:bg-white/10 transition-colors cursor-pointer';
+
 interface SearchBarProps {
   showSearch: boolean
   isDark?: boolean
@@ -77,7 +80,7 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
               disabled={!hasMatches}
               aria-label={t('chat.searchPrev', 'Previous match')}
               title={t('chat.searchPrev', 'Previous match')}
-              className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-40 enabled:hover:bg-black/10 dark:enabled:hover:bg-white/10 transition-colors cursor-pointer"
+              className={ICON_BTN_CLASS}
             >
               <ChevronUp size={16} className="text-[var(--text-secondary)]" />
             </button>
@@ -87,7 +90,7 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
               disabled={!hasMatches}
               aria-label={t('chat.searchNext', 'Next match')}
               title={t('chat.searchNext', 'Next match')}
-              className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-40 enabled:hover:bg-black/10 dark:enabled:hover:bg-white/10 transition-colors cursor-pointer"
+              className={ICON_BTN_CLASS}
             >
               <ChevronDown size={16} className="text-[var(--text-secondary)]" />
             </button>

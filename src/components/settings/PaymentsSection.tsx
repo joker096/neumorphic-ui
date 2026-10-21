@@ -13,6 +13,9 @@ import { useAppStore, selectWalletBalance } from '../../store';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/dateTime';
 import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
+
+/** Accent wallet action button (top up / send). */
+const PRIMARY_BTN_CLASS = 'min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform';
 interface PaymentsSectionProps {
   isDark?: boolean;
   onBack: () => void;
@@ -133,11 +136,11 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
         <div className="text-xs uppercase tracking-widest font-bold opacity-60 text-[var(--text-secondary)]">{t('wallet.balance', 'Balance')}</div>
         <div className="text-[32px] font-bold mt-1 text-[var(--text-primary)]">{formatCurrency(balance, walletCurrency, lang, 2)}</div>
         <div className="flex gap-2 mt-4">
-          <button onClick={() => openForm('topup')} aria-label={t('wallet.topUp', 'Top up')} title={t('wallet.topUp', 'Top up')} className="min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
+          <button onClick={() => openForm('topup')} aria-label={t('wallet.topUp', 'Top up')} title={t('wallet.topUp', 'Top up')} className={PRIMARY_BTN_CLASS}>
             <Plus size={16} />
             <span className="text-sm font-medium">{t('wallet.topUp', 'Top up')}</span>
           </button>
-          <button onClick={() => openForm('send')} aria-label={t('wallet.send', 'Send')} title={t('wallet.send', 'Send')} className="min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform">
+          <button onClick={() => openForm('send')} aria-label={t('wallet.send', 'Send')} title={t('wallet.send', 'Send')} className={PRIMARY_BTN_CLASS}>
             <ArrowUpRight size={16} />
             <span className="text-sm font-medium">{t('wallet.send', 'Send')}</span>
           </button>

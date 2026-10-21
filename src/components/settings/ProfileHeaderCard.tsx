@@ -4,6 +4,9 @@ import { DEFAULT_AVATAR_COLOR, PROFILE_FIELD_TYPES } from '../../constants/setti
 import type { UserProfile } from '../../types/contact';
 import { HINT_TEXT_CLASS } from '../ui/textClasses';
 
+/** Neutral pill button of the profile header card. */
+const SECONDARY_BTN_CLASS = 'min-h-11 min-w-11 px-3 flex items-center justify-center gap-2 rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]';
+
 interface ProfileHeaderCardProps {
   userProfile: UserProfile;
   t: (key: string, fallback?: string | Record<string, string>) => string;
@@ -90,7 +93,7 @@ export const ProfileHeaderCard = ({ userProfile, t, onEdit, onShare }: ProfileHe
           onClick={onEdit}
           aria-label={t('settings.editProfile', 'Edit Profile')}
           title={t('settings.editProfile', 'Edit Profile')}
-          className="min-h-11 min-w-11 px-3 flex items-center justify-center gap-2 rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+          className={SECONDARY_BTN_CLASS}
         >
           <Edit size={14} />
           <span className="text-sm">{t('settings.editProfile', 'Edit Profile')}</span>
@@ -99,7 +102,7 @@ export const ProfileHeaderCard = ({ userProfile, t, onEdit, onShare }: ProfileHe
           onClick={onShare}
           aria-label={t('settings.shareIdentity', 'Share Identity')}
           title={t('settings.shareIdentity', 'Share Identity')}
-          className="min-h-11 min-w-11 px-3 flex items-center justify-center gap-2 rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+          className={SECONDARY_BTN_CLASS}
         >
           <Share2 size={16} />
           <span className="text-sm">{t('settings.shareIdentity', 'Share Identity')}</span>

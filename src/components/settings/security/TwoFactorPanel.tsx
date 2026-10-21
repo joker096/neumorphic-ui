@@ -5,7 +5,7 @@ import { useAppStore } from '../../../store';
 import { generateSecret, verifyTotp, otpauthUri, totpCode } from '../../../lib/twoFactor';
 import { useSecurityChallenge } from '../../../hooks/useSecurityChallenge';
 import { SecurityChallengeModal } from './SecurityChallengeModal';
-import { PANEL_FOOTER_CLASS } from './securityClasses';
+import { PANEL_FOOTER_CLASS, SEGMENTED_BTN_CLASS } from './securityClasses';
 
 interface TwoFactorPanelProps {
   isDark?: boolean;
@@ -148,7 +148,7 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
               <button
                 type="button"
                 onClick={() => { setShowTotpSetup(false); setTotpInput(''); }}
-                className="flex-1 py-2 rounded-lg text-xs font-medium transition-colors bg-black/5 text-[var(--text-secondary)] hover:bg-black/10 dark:bg-white/10 dark:text-[var(--text-primary)] dark:hover:bg-white/20"
+                className={SEGMENTED_BTN_CLASS}
               >
                 {t('common.cancel')}
               </button>

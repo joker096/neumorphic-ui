@@ -1,6 +1,9 @@
 import React from "react";
 import { Bookmark, CornerUpLeft } from "lucide-react";
 
+/** Round caption button of the message action row. */
+const ACTION_BTN_CLASS = 'w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]';
+
 interface MessageActionsProps {
   isMe: boolean;
   isSaved: boolean;
@@ -19,7 +22,7 @@ export const MessageActions = ({ isMe, isSaved, onReply, onToggleSaved, t }: Mes
           onClick={onReply}
           aria-label={t('chat.reply')}
           title={t('chat.reply')}
-          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]"
+          className={ACTION_BTN_CLASS}
         >
           <CornerUpLeft size={14} />
           <span className="sr-only">{t('chat.reply')}</span>
@@ -30,7 +33,7 @@ export const MessageActions = ({ isMe, isSaved, onReply, onToggleSaved, t }: Mes
           onClick={onToggleSaved}
           aria-label={isSaved ? t('chat.saved') : t('chat.save')}
           title={isSaved ? t('chat.saved') : t('chat.save')}
-          className="w-9 h-9 min-w-11 min-h-11 flex items-center justify-center text-xs font-bold uppercase tracking-widest rounded-full transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]"
+          className={ACTION_BTN_CLASS}
         >
           <Bookmark size={12} />
           <span className="sr-only">{isSaved ? t('chat.saved') : t('chat.save')}</span>

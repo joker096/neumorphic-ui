@@ -1,5 +1,8 @@
 import { Bell, BellOff, Mail, MailOpen, MessageSquare, Phone, Pin, PinOff, Trash2, Video } from "lucide-react";
 
+/** Swipe tile of the chat list row actions. */
+const SWIPE_ACTION_CLASS = 'my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 bg-[var(--chat-swipe-bg)] hover:bg-[var(--chat-swipe-bg-hover)]';
+
 type Translate = (key: string, options?: any) => string;
 
 interface SwipeOpenActionsProps {
@@ -22,7 +25,7 @@ export function ChatListItemSwipeOpenActions({ isOpen, t, canOpen, canCall, canV
       {canOpen && (
         <button
           onClick={() => onAction("message")}
-          className="my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 bg-[var(--chat-swipe-bg)] hover:bg-[var(--chat-swipe-bg-hover)]"
+          className={SWIPE_ACTION_CLASS}
           aria-label={t('chat.openChat')}
         >
           <MessageSquare size={20} fill="currentColor" stroke="currentColor" />
@@ -31,7 +34,7 @@ export function ChatListItemSwipeOpenActions({ isOpen, t, canOpen, canCall, canV
       {canCall && (
         <button
           onClick={() => onAction("call")}
-          className="my-1.5 flex aspect-square w-[56px] min-h-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none text-white transition-all active:scale-95 bg-[var(--chat-swipe-bg)] hover:bg-[var(--chat-swipe-bg-hover)]"
+          className={SWIPE_ACTION_CLASS}
           aria-label={t('chat.startCall')}
         >
           <Phone size={20} fill="currentColor" stroke="currentColor" />

@@ -4,6 +4,9 @@ import type { ProfileField, FieldVisibility } from './ProfileSection';
 import { PROFILE_FIELD_TYPES, VISIBILITY_OPTIONS } from '../../constants/settingsConstants';
 import { FIELD_LABEL_CLASS } from '../ui/textClasses';
 
+/** Full-width single-line input of the contact-field editor. */
+const INPUT_CLASS = 'w-full min-h-11 rounded-lg text-xs outline-none px-3 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]';
+
 interface ProfileFieldEditorProps {
   fields: ProfileField[];
   onAdd: () => void;
@@ -82,7 +85,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
               placeholder={t('settings.customLabelPlaceholder', 'Label')}
               value={field.label}
               onChange={(e) => onUpdate(field.id, { label: e.target.value })}
-              className="w-full min-h-11 rounded-lg text-xs outline-none px-3 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+              className={INPUT_CLASS}
             />
           )}
           <input
@@ -100,7 +103,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
             }
             value={field.value}
             onChange={(e) => onUpdate(field.id, { value: e.target.value })}
-            className="w-full min-h-11 rounded-lg text-xs outline-none px-3 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+            className={INPUT_CLASS}
           />
         </div>
       ))}
