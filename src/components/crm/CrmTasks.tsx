@@ -1,3 +1,4 @@
+import { FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useEffect, useRef, useState } from 'react';
 import { Plus, CheckCircle2, Circle, Trash2, Flag, X, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,7 +20,7 @@ const priorityColor: Record<TaskPriority, string> = {
 
 const inputCls =
   'w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
-const labelCls = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block';
+const labelCls = FORM_FIELD_LABEL_CLASS;
 
 type Props = { task?: CrmTask; onClose: () => void };
 

@@ -1,3 +1,4 @@
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useState, useEffect } from 'react';
 import { X, Phone, Mail, MapPin, Globe, FileText, Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -85,8 +86,8 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
 
       <div className="flex-1 overflow-y-auto p-4 md:px-16 space-y-3">
         {FIELDS.map(f => (
-          <div key={f.key} className="p-4 rounded-md neu-card-inset">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+          <div key={f.key} className={FORM_FIELD_GROUP_CLASS}>
+            <label className={FORM_FIELD_LABEL_CLASS}>
               {t(f.label)}
             </label>
             <div className="flex items-center gap-3">

@@ -1,3 +1,4 @@
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
 import { X, Trash2, ChevronDown, UserCog, Check, Loader2 } from 'lucide-react';
@@ -93,8 +94,8 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
 
         {canManage ? (
           <div className="flex flex-col gap-4">
-            <div className="p-4 rounded-md neu-card-inset">
-              <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+            <div className={FORM_FIELD_GROUP_CLASS}>
+              <label className={FORM_FIELD_LABEL_CLASS}>
                 {t('company.name', 'Name')}
               </label>
               <input
@@ -106,8 +107,8 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
               />
             </div>
 
-            <div className="p-4 rounded-md neu-card-inset">
-              <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block flex items-center gap-1.5">
+            <div className={FORM_FIELD_GROUP_CLASS}>
+              <label className={`${FORM_FIELD_LABEL_CLASS} flex items-center gap-1.5`}>
                 <UserCog size={14} /> {t('company.role', COMPANY_EDIT_FALLBACKS.role)}
               </label>
               <div className="flex gap-2">

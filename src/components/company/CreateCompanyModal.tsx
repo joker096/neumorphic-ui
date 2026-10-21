@@ -1,3 +1,4 @@
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
 import { X, Building2, User, Loader2, Check } from 'lucide-react';
@@ -64,8 +65,8 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
         </p>
 
         <div className="flex flex-col gap-3">
-          <div className="p-4 rounded-md neu-card-inset">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+          <div className={FORM_FIELD_GROUP_CLASS}>
+            <label className={FORM_FIELD_LABEL_CLASS}>
               {t('company.companyName', 'Company name')}
             </label>
             <div className="flex items-center gap-3">
@@ -83,8 +84,8 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
             </div>
           </div>
 
-          <div className="p-4 rounded-md neu-card-inset">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+          <div className={FORM_FIELD_GROUP_CLASS}>
+            <label className={FORM_FIELD_LABEL_CLASS}>
               {t('company.yourName', 'Your name')}
             </label>
             <div className="flex items-center gap-3">

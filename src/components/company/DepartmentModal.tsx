@@ -1,3 +1,4 @@
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
 import { X, Trash2, Check, Loader2 } from 'lucide-react';
@@ -109,8 +110,8 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
             required
           />
 
-          <div className="p-4 rounded-md neu-card-inset">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+          <div className={FORM_FIELD_GROUP_CLASS}>
+            <label className={FORM_FIELD_LABEL_CLASS}>
               {t('company.departmentDescription', 'Description')}
             </label>
             <textarea
@@ -123,8 +124,8 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
             />
           </div>
 
-          <div className="p-4 rounded-md neu-card-inset">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+          <div className={FORM_FIELD_GROUP_CLASS}>
+            <label className={FORM_FIELD_LABEL_CLASS}>
               {t('company.departmentColor', 'Color')}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -140,8 +141,8 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
             </div>
           </div>
 
-          <div className="p-4 rounded-md neu-card-inset">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+          <div className={FORM_FIELD_GROUP_CLASS}>
+            <label className={FORM_FIELD_LABEL_CLASS}>
               {t('company.departmentMembers', 'Members')}
             </label>
             {members.length === 0 ? (

@@ -1,3 +1,4 @@
+import { FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { Trash2, Tag as TagIcon, X, Phone, Video, MessageSquare, Plus, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -12,7 +13,7 @@ import { useCrmPermissions } from '../../lib/crm/permissions';
 
 const inputCls =
   'w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
-const labelCls = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block';
+const labelCls = FORM_FIELD_LABEL_CLASS;
 const selectCls = inputCls;
 
 type Props = {

@@ -1,3 +1,4 @@
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
 import { X, Trash2, Check, Loader2 } from 'lucide-react';
@@ -135,8 +136,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             theme={isDark ? 'dark' : 'light'}
           />
 
-          <div className="p-4 rounded-md neu-card-inset">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+          <div className={FORM_FIELD_GROUP_CLASS}>
+            <label className={FORM_FIELD_LABEL_CLASS}>
               {t('company.contactDepartment', 'Department')}
             </label>
             <select
@@ -152,8 +153,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             </select>
           </div>
 
-          <div className="p-4 rounded-md neu-card-inset">
-            <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
+          <div className={FORM_FIELD_GROUP_CLASS}>
+            <label className={FORM_FIELD_LABEL_CLASS}>
               {t('company.contactNotes', 'Notes')}
             </label>
             <textarea
