@@ -365,6 +365,13 @@ document.querySelectorAll('.faq dt').forEach(dt => {
     grid.innerHTML = '<div class="card"><h3>Downloads</h3><p>Release manifest unavailable.</p></div>';
     return;
   }
+  // Release URL helpers (public/landing/releaseUrls.js). The manifest urls are
+  // relative to the site root, this page lives one level deeper.
+  const RU = globalThis.MessAngerReleaseUrls;
+  if (!RU) {
+    grid.innerHTML = '<div class="card"><h3>Downloads</h3><p>Release manifest unavailable.</p></div>';
+    return;
+  }
   if (ver) ver.textContent = 'Version ' + manifest.version + ' · SHA-256 verified · ' + manifest.files.filter(f => f.present).length + ' builds';
   const LABELS = {
     windows: 'Desktop · Windows', linux: 'Desktop · Linux', macos: 'Desktop · macOS',
@@ -392,16 +399,20 @@ document.querySelectorAll('.faq dt').forEach(dt => {
       const size = (f.size / 1048576).toFixed(2);
       const kindLabel = KINDNAME[f.kind] || (f.kind || '').toUpperCase();
       body += '<p>' + escapeHtml(kindLabel) + ' · ' + size + ' MB</p>';
-      body += btn('Download ' + kindLabel, f.url, f.file);
+      const href = RU.assetUrl(manifest, f.file, window.location.href);
+      body += href
+        ? btn('Download ' + kindLabel, href, f.file)
+        : '<span class="btn" style="opacity:.5">Unavailable</span>';
       body += '<p style="margin-top:8px;font-size:10px;opacity:.5;word-break:break-all">SHA-256: ' + escapeHtml(f.sha256.slice(0, 16)) + '…</p>';
     }
     for (const f of pending) {
-      if (!f.url) {
+      const href = RU.safeUrl(f.url, window.location.href);
+      if (!href) {
         body += '<p>' + escapeHtml(f.note || 'Coming soon.') + '</p><span class="btn" style="opacity:.5">Pending</span>';
         continue;
       }
       const storeLabel = (f.platform === 'android' && f.kind === 'store') ? 'Google Play' : (KINDNAME[f.kind] ? 'Get ' + KINDNAME[f.kind] : 'Get ' + escapeHtml(f.kind || '').toUpperCase());
-      body += '<p>' + escapeHtml(f.note || 'Coming soon.') + '</p>' + btn(storeLabel, f.url);
+      body += '<p>' + escapeHtml(f.note || 'Coming soon.') + '</p>' + btn(storeLabel, href);
     }
     card.innerHTML = body;
     grid.appendChild(card);

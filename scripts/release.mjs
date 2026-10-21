@@ -10,6 +10,9 @@ const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf
 const OUT_DIR = path.join(ROOT, 'dist', 'releases');
 
 const REPO_BASE_URL = process.env.RELEASE_BASE_URL || 'https://mess.cvr.name/releases/';
+// Root of the deployed app. The PWA entry points here, not into the releases
+// folder; override when the app and the release files live on different hosts.
+const APP_BASE_URL = process.env.APP_BASE_URL || new URL('../', REPO_BASE_URL).href;
 const SIGN_KEY = process.env.RELEASE_SIGN_KEY || '';
 const ANDROID_PACKAGE_ID = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'android-publish.json'), 'utf8')).packageId;
 const PLAY_STORE_URL = process.env.PLAY_STORE_URL || `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE_ID}`;
@@ -117,7 +120,7 @@ function buildManifest(found) {
         file: null,
         size: null,
         sha256: null,
-        url: e.url || (e.platform === 'web' ? REPO_BASE_URL.replace(/\/$/, '') + '/' : ''),
+        url: e.url || (e.platform === 'web' ? APP_BASE_URL : ''),
         present: false,
         note: e.note,
       });
