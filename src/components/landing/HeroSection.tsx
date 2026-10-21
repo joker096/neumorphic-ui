@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import type { LandingPageProps } from "./LandingPage";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
+import { CTA_ARROW_CLASS } from './landingClasses';
 
 export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarted">) => {
   const { t } = useI18n();
@@ -36,7 +37,7 @@ export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStart
         >
           <span className="relative z-10 flex items-center gap-3">
             {t("landing.openApp")}
-            <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5">
+            <span className={CTA_ARROW_CLASS}>
               <ArrowRight size={14} className="text-[var(--text-primary)]" />
             </span>
           </span>
