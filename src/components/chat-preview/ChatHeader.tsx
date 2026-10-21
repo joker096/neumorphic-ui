@@ -3,6 +3,9 @@ import { ChevronRight, Search, Phone, Video, Users, MoreVertical } from "lucide-
 import { IconButton } from "../ui/IconButton";
 import { useAppStore } from "../../store";
 
+/** Drop shadow shared by the round header buttons (profile, search, call, menu). */
+const HEADER_BTN_SHADOW_CLASS = 'shadow-md shadow-black/10 dark:shadow-black/30';
+
 interface ChatHeaderProps {
   chat: {
     name: string;
@@ -157,7 +160,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             isDark={isDark}
             variant="ghost"
             size="md"
-            className="shadow-md shadow-black/10 dark:shadow-black/30"
+            className={HEADER_BTN_SHADOW_CLASS}
           />
         </div>
       )}
@@ -171,7 +174,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             isDark={isDark}
             variant="ghost"
             size="md"
-            className="shadow-md shadow-black/10 dark:shadow-black/30"
+            className={HEADER_BTN_SHADOW_CLASS}
           />
         </div>
       )}
@@ -185,7 +188,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             isDark={isDark}
             variant="ghost"
             size="md"
-            className="shadow-md shadow-black/10 dark:shadow-black/30"
+            className={HEADER_BTN_SHADOW_CLASS}
           />
         </div>
       )}
@@ -200,7 +203,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             isDark={isDark}
             variant="ghost"
             size="md"
-            className="shadow-md shadow-black/10 dark:shadow-black/30"
+            className={HEADER_BTN_SHADOW_CLASS}
           />
           {moreOpen && (
             <>
