@@ -38,3 +38,7 @@ export const AUTH_SPINNER_CLASS =
 
 /** Centred single-column stack used by most steps. */
 export const AUTH_COLUMN_CLASS = 'flex flex-col items-center text-center';
+
+/** Multi-line phrase box on the login and registration steps. */
+export const AUTH_TEXTAREA_CLASS =
+  'w-full h-32 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none';

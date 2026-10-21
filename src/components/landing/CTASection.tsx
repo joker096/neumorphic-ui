@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import type { LandingPageProps } from "./LandingPage";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS } from './landingClasses';
+import { CTA_ARROW_CLASS, CTA_PRIMARY_CLASS } from './landingClasses';
 
 export const CTASection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarted">) => {
   const { t } = useI18n();
@@ -22,7 +22,7 @@ export const CTASection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarte
     </p>
     <button
       onClick={onGetStarted}
-      className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+      className={CTA_PRIMARY_CLASS}
     >
       <span className="relative z-10 flex items-center gap-3">
         {t("landing.getStarted")}

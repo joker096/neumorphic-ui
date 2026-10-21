@@ -1,5 +1,5 @@
 import { Shield, Undo } from "lucide-react";
-import { AUTH_ERROR_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS } from '../authShared';
+import { AUTH_ERROR_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS, AUTH_TEXTAREA_CLASS } from '../authShared';
 
 type T = (key: string, options?: any) => string;
 
@@ -36,7 +36,7 @@ export function LoginEnterPhrase({ phrase, error, isProcessing, t, onPhraseChang
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
-        className="w-full h-32 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none"
+        className={AUTH_TEXTAREA_CLASS}
       />
       {error && (
         <p role="alert" className={`${AUTH_ERROR_CLASS}`}>{error}</p>

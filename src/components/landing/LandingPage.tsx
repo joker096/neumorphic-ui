@@ -2,8 +2,7 @@ import { motion } from "motion/react";
 import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } from "lucide-react";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS } from './landingClasses';
-import { FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS } from './landingClasses';
+import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS } from './landingClasses';
 
 export type LandingPageProps = {
   isDark?: boolean;
@@ -87,7 +86,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <div className="flex items-center gap-4">
             <button
               onClick={onGetStarted}
-              className="group relative overflow-hidden rounded-full px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+              className={CTA_SECONDARY_CLASS}
             >
               <span className="relative z-10 flex items-center gap-3">
                 {t("landing.openApp")}
@@ -122,7 +121,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
 
       <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-6xl mx-auto">
-          <div className="mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border border-[var(--border-color)] text-[var(--text-secondary)]">
+          <div className={LANDING_PILL_CLASS}>
             {t("landing.featuresBadge")}
           </div>
           <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold text-center tracking-[-0.02em] mb-16 text-[var(--text-primary)]">
@@ -160,7 +159,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
 
       <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-5xl mx-auto">
-          <div className="mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border border-[var(--border-color)] text-[var(--text-secondary)]">
+          <div className={LANDING_PILL_CLASS}>
             {t("landing.securityBadge")}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -215,7 +214,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           </p>
           <button
             onClick={onGetStarted}
-            className="group relative overflow-hidden rounded-full px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-[var(--text-primary)] font-bold text-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+            className={CTA_PRIMARY_CLASS}
           >
             <span className="relative z-10 flex items-center gap-3">
               {t("landing.getStarted")}
