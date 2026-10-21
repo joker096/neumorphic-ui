@@ -46,11 +46,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
         <button
           onClick={onBack}
           aria-label={t('common.back')}
-          className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-all duration-200 ${
-            isDark
-              ? 'bg-[var(--bg-tertiary)] hover:bg-[var(--hover-bg-dark)] text-[var(--text-secondary)]'
-              : 'bg-[var(--bg-primary)] hover:bg-white text-[var(--text-secondary)] shadow-sm'
-          }`}
+          className={"min-w-11 min-h-11 rounded-full flex items-center justify-center transition-all duration-200 bg-[var(--bg-primary)] hover:bg-white text-[var(--text-secondary)] shadow-sm dark:bg-[var(--bg-tertiary)] dark:hover:bg-[var(--hover-bg-dark)] dark:shadow-none"}
         >
           <ChevronLeft size={16} />
         </button>
@@ -69,8 +65,8 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
             className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-black/5"
           >
             <span className="flex items-center gap-3 min-w-0">
-              <span className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${isDark ? 'bg-amber-500/10' : 'bg-amber-100'}`}>
-                <BookOpen size={16} className={isDark ? 'text-amber-400' : 'text-amber-600'} />
+              <span className={"w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-500/10"}>
+                <BookOpen size={16} className="text-amber-600 dark:text-amber-400" />
               </span>
               <span className="flex-1 min-w-0">
                 <span className="text-sm font-medium text-[var(--text-primary)]">{t('company.guide.title', 'Company guide')}</span>
@@ -93,7 +89,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
         )}
 
         {showCreate && (
-          <div className={`rounded-xl p-4 flex flex-col gap-3 ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white shadow-sm border border-[var(--border-color)]'}`}>
+          <div className={"rounded-xl p-4 flex flex-col gap-3 bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
             <div>
               <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 block">{t('company.orgName', 'Company')}</label>
               <input
@@ -139,7 +135,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
         )}
 
         {companyId && (
-          <div className={`rounded-xl p-4 ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white shadow-sm border border-[var(--border-color)]'}`}>
+          <div className={"rounded-xl p-4 bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
             <div className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1.5">{t('company.orgId', 'org_b64test123')}</div>
             <div className="font-mono text-xs break-all text-[var(--accent)]">{companyId}</div>
             {companySettings?.name && (
@@ -151,7 +147,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
          <div className="pb-16 sm:pb-0">
            <div className="w-full">
              <SettingsSectionTitle title={t('settings.companyVisibility')} isDark={isDark} />
-             <div className={`rounded-xl overflow-hidden ${isDark ? 'bg-[var(--bg-tertiary)] border border-[var(--border-color)]' : 'bg-white shadow-sm border border-[var(--border-color)]'}`}>
+             <div className={"rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
                <SettingsToggleRow
                  icon={<Building2 size={16} />}
                   iconColor="t-accent"

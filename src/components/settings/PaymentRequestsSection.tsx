@@ -73,9 +73,7 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
     <SubView title={t('payRequests.title', 'Payment Requests')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('payRequests.new', 'New payment request')} isDark={isDark} />
       <div
-        className={`rounded-2xl p-4 mb-2 border ${
-          isDark ? 'bg-white/5 border-[var(--border-color)]' : 'bg-white border-[var(--border-color)] shadow-sm'
-        }`}
+        className={"rounded-2xl p-4 mb-2 border bg-[var(--bg-tertiary)] border-[var(--border-color)]"}
       >
         <div className="flex gap-2 mb-2">
           <input
@@ -85,7 +83,7 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
             className={`flex-1 min-w-0 rounded-lg px-3 py-2 text-sm outline-none border ${
-              isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-[var(--border-color)] text-[var(--text-primary)]'
+              'bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]'
             }`}
           />
           <input
@@ -94,7 +92,7 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
             onChange={(e) => setCurrency(e.target.value.toUpperCase())}
             maxLength={6}
             className={`w-24 rounded-lg px-3 py-2 text-sm outline-none border ${
-              isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-[var(--border-color)] text-[var(--text-primary)]'
+              'bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]'
             }`}
           />
         </div>
@@ -104,7 +102,7 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t('payRequests.descPlaceholder', 'Description (optional)')}
           className={`w-full rounded-lg px-3 py-2 text-sm outline-none border mb-3 ${
-            isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-[var(--border-color)] text-[var(--text-primary)]'
+            'bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]'
           }`}
         />
         <button

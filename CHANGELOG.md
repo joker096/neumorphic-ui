@@ -30,6 +30,14 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Настройки компании и запросы платежей на дизайн-токенах (2026-10-21).** Обе секции теряли тему в светлой ветке (`bg-white shadow-sm`) и держали `isDark` в каждой строке.
+  1. `CompanySettingsView`: кнопка «назад» — `bg-[var(--bg-primary)] hover:bg-white text-[var(--text-secondary)] shadow-sm dark:bg-[var(--bg-tertiary)] dark:hover:bg-[var(--hover-bg-dark)] dark:shadow-none` вместо блочного тернарника.
+  2. Три карточки (название/видимость, блок компании, список видимости) получили один `bg-[var(--bg-tertiary)] border border-[var(--border-color)]`, шаблонные обёртки удалены.
+  3. Тон `amber` у строки руководства — `bg-amber-100 dark:bg-amber-500/10` + `text-amber-600 dark:text-amber-400`.
+  4. `PaymentRequestsSection`: карточка формы — `bg-[var(--bg-tertiary)] border border-[var(--border-color)]`; три поля (сумма, валюта, комментарий) держали по две ветки, различавшиеся только `bg-white/5` / `bg-white` → единый `bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]`.
+  5. `isDark` в обеих секциях остаётся чистым форвардом в `SubView`/`SettingsSectionTitle`/`SettingsGroup`/`SettingsRow` (`isDark ?` = 0).
+  6. D1–D5 перескан: 0 findings — все контролы живые (переименование компании, переключатель видимости, переход в руководство, создание запроса платежа, назад).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Лендинг и модалка контакта компании на дизайн-токенах (2026-10-21).** `LandingPage` держал семь тернарников, `company/ContactModal` — карточку с `bg-white` в светлой теме.
   1. `LandingPage`: рамка карточки фич — `border-black/[0.06] hover:border-black/[0.12] dark:border-[var(--border-color)]/[0.06] dark:hover:border-[var(--border-color)]/[0.12]` вместо блочного `isDark ? … : …`.
   2. Три иконные плашки (`bg-orange-500/8` в светлой / `bg-orange-500/10` в тёмной) сведены к одной строке с `dark:`-вариантом, иконки — `text-orange-600 dark:text-orange-400`; заодно две из них перестали быть шаблонными строками из одного выражения.
