@@ -154,7 +154,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
         aria-label={t("search.title", "Search")}
         className="glass-panel relative w-full max-w-[560px] rounded-2xl shadow-2xl flex flex-col max-h-[80vh]"
       >
-        <div className={`flex items-center gap-2 px-4 py-3 border-b ${isDark ? "border-[var(--border-color)]" : "border-black/10"}`}>
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border-color)]">
           <Search size={18} className="text-[var(--text-tertiary)]" />
           <input
             aria-label={t("search.placeholder", "Search chats, messages, contacts…")}
@@ -170,9 +170,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
               type="button"
               aria-label={t("search.clear", "Clear")}
               onClick={() => setQuery("")}
-              className={`min-w-11 min-h-11 flex items-center justify-center rounded-full cursor-pointer transition-colors ${
-                isDark ? "hover:bg-white/10" : "hover:bg-black/10"
-              }`}
+              className="min-w-11 min-h-11 flex items-center justify-center rounded-full cursor-pointer transition-colors hover:bg-[var(--msg-bg-panel-hover)]"
             >
               <X size={16} />
             </button>
@@ -180,20 +178,19 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
         </div>
 
         {hasQuery && (
-          <div className={`flex flex-col gap-1.5 px-2 py-2 border-b ${isDark ? "border-[var(--border-color)]" : "border-black/10"}`}>
+          <div className="flex flex-col gap-1.5 px-2 py-2 border-b border-[var(--border-color)]">
             <div className="flex flex-wrap items-center gap-1.5">
               {DATE_FILTERS.map((f) => (
                 <FilterChip
                   key={f.value}
                   label={t(f.key, f.fallback)}
                   active={dateFilter === f.value}
-                  isDark={isDark}
                   onClick={() => { setDateFilter(f.value); setActiveIndex(-1); }}
                 />
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className={`mr-1 text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]`}>
+              <span className="mr-1 text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
                 {t("search.senderFilters.from", "From")}
               </span>
               {SENDER_FILTERS.map((f) => (
@@ -201,13 +198,12 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                   key={f.value}
                   label={t(f.key, f.fallback)}
                   active={senderFilter === f.value}
-                  isDark={isDark}
                   onClick={() => { setSenderFilter(f.value); setActiveIndex(-1); }}
                 />
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className={`mr-1 text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]`}>
+              <span className="mr-1 text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
                 {t("search.typeFilters.type", "Type")}
               </span>
               {TYPE_FILTERS.map((f) => (
@@ -215,7 +211,6 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                   key={f.value}
                   label={t(f.key, f.fallback)}
                   active={typeFilter === f.value}
-                  isDark={isDark}
                   onClick={() => { setTypeFilter(f.value); setActiveIndex(-1); }}
                 />
               ))}
@@ -235,7 +230,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                   type="button"
                   aria-label={t("search.historyClear", "Clear history")}
                   onClick={clearHistory}
-                  className={`p-1 rounded-full cursor-pointer ${isDark ? "hover:bg-white/10" : "hover:bg-black/10"}`}
+                  className="min-w-11 min-h-11 flex items-center justify-center rounded-full cursor-pointer hover:bg-[var(--msg-bg-panel-hover)]"
                 >
                   <X size={12} />
                 </button>
@@ -275,7 +270,6 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
           <SearchResultSections
             results={{ chatResults, groupResults, channelResults, fileResults, linkResults, contactResults }}
             q={q}
-            isDark={isDark}
             activeIndex={activeIndex}
             rowRefs={rowRefs}
             t={t}

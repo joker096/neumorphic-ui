@@ -30,6 +30,14 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Search: глобальный поиск и список результатов на дизайн-токенах (2026-10-21).** `GlobalSearch.tsx` и `search/SearchResults.tsx` — 23 `isDark`-вхождения, из них 10 локальных тернарников.
+  1. Верхняя панель и строка фильтров держали `border-b ${isDark ? "border-[var(--border-color)]" : "border-black/10"}` — теперь одна строка `border-b border-[var(--border-color)]` (в светлой теме бордер был почти невидим).
+  2. Кнопка очистки строки поиска переведена на `hover:bg-[var(--msg-bg-panel-hover)]`; кнопка очистки истории поиска была `p-1` (≈24 px хит-зона) — получила `min-w-11 min-h-11 flex items-center justify-center rounded-full` (§2.2).
+  3. Две подписи фильтров `text-[11px] font-bold uppercase` — ниже типографической рампы; переведены на `text-xs`, шаблонная обёртка удалена.
+  4. `FilterChip` и `Row` потеряли проп `isDark`: активный чип/строка — `bg-black/10 dark:bg-white/10`, неактивная строка — `hover:bg-black/5 dark:hover:bg-white/[0.05]`.
+  5. `SearchResultSections` потерял проп `isDark` из интерфейса, деструктуризации и шести форвардов; в `GlobalSearch` флаг остаётся только в интерфейсе, деструктуризации и как форвард в `DataState`.
+  6. D1–D5 перескан: 0 findings — оба клира, чипы фильтров, строки результатов и `DataState` живые; удаления пропсов не оставили мёртвых хендлеров.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Settings: «Mesh» и «Состояние системы» на дизайн-токенах (2026-10-21).** Замыкающие секции кластера настроек: `MeshSection` (15 локальных тернарников) и `SystemStatusSection` (2 пары иконных тонов).
   1. `MeshSection`: пять моноширинных полей (`Peer ID`, `Public key`, `Session`, `Seed`, `Relay`) держали по две ветки `bg-black/5` / `bg-black/30` — сведены к `bg-black/5 text-[var(--text-secondary)] dark:bg-black/30`.
   2. Две кнопки копирования — `bg-black/5 text-[var(--text-secondary)] dark:bg-white/5 dark:text-[var(--text-primary)]` вместо пары тернарников.

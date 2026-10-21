@@ -15,14 +15,14 @@ function renderHighlighted(text: string, query: string): React.ReactNode {
   );
 }
 
-export function FilterChip({ label, active, isDark, onClick }: { label: string; active: boolean; isDark: boolean; onClick: () => void }) {
+export function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
       aria-pressed={active}
       onClick={onClick}
       className={`group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95 ${
-        active ? (isDark ? "bg-white/10" : "bg-black/10") : ""
+        active ? "bg-black/10 dark:bg-white/10" : ""
       }`}
     >
       <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-semibold transition-colors border ${
@@ -49,13 +49,12 @@ function Section({ icon: Icon, title, children }: { icon: React.ElementType; tit
 }
 
 function Row({
-  color, title, subtitle, badge, isDark, onClick, active = false, innerRef, highlight,
+  color, title, subtitle, badge, onClick, active = false, innerRef, highlight,
 }: {
   color: string;
   title: string;
   subtitle?: string;
   badge?: number;
-  isDark: boolean;
   onClick: () => void;
   active?: boolean;
   innerRef?: (el: HTMLButtonElement | null) => void;
@@ -68,8 +67,8 @@ function Row({
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors min-h-11 cursor-pointer ${
         active
-          ? isDark ? "bg-white/10" : "bg-black/10"
-          : isDark ? "hover:bg-white/[0.05]" : "hover:bg-black/5"
+          ? "bg-black/10 dark:bg-white/10"
+          : "hover:bg-black/5 dark:hover:bg-white/[0.05]"
       }`}
     >
       <div className={`shrink-0 avatar avatar-sm bg-gradient-to-br ${color} flex items-center justify-center text-white font-bold text-sm`}>
@@ -102,7 +101,6 @@ interface SearchResultSectionsProps {
     contactResults: any[];
   };
   q: string;
-  isDark: boolean;
   activeIndex: number;
   rowRefs: React.RefObject<Array<HTMLButtonElement | null>>;
   t: (key: string, fallback?: string) => string;
@@ -111,7 +109,7 @@ interface SearchResultSectionsProps {
   onSelectContact: (contact: any) => void;
 }
 
-export function SearchResultSections({ results, q, isDark, activeIndex, rowRefs, t, onSelectChat, onSelectChannel, onSelectContact }: SearchResultSectionsProps) {
+export function SearchResultSections({ results, q, activeIndex, rowRefs, t, onSelectChat, onSelectChannel, onSelectContact }: SearchResultSectionsProps) {
   const { chatResults, groupResults, channelResults, fileResults, linkResults, contactResults } = results;
   return (
     <>
@@ -125,8 +123,7 @@ export function SearchResultSections({ results, q, isDark, activeIndex, rowRefs,
          subtitle={snippet || chat.message}
          highlight={q}
          badge={chat.unread}
-        isDark={isDark}
-        active={i === activeIndex}
+            active={i === activeIndex}
         innerRef={(el) => { rowRefs.current[i] = el; }}
         onClick={() => onSelectChat(chat, messageId)}
       />
@@ -144,8 +141,7 @@ export function SearchResultSections({ results, q, isDark, activeIndex, rowRefs,
          subtitle={snippet || chat.message}
          highlight={q}
          badge={chat.members ? chat.members.length : undefined}
-        isDark={isDark}
-        active={chatResults.length + i === activeIndex}
+            active={chatResults.length + i === activeIndex}
         innerRef={(el) => { rowRefs.current[chatResults.length + i] = el; }}
         onClick={() => onSelectChat(chat, messageId)}
       />
@@ -162,8 +158,7 @@ export function SearchResultSections({ results, q, isDark, activeIndex, rowRefs,
         title={chat.name}
          subtitle={snippet || chat.message}
          highlight={q}
-         isDark={isDark}
-        active={chatResults.length + groupResults.length + i === activeIndex}
+             active={chatResults.length + groupResults.length + i === activeIndex}
         innerRef={(el) => { rowRefs.current[chatResults.length + groupResults.length + i] = el; }}
         onClick={() => onSelectChannel(chat, messageId)}
       />
@@ -180,8 +175,7 @@ export function SearchResultSections({ results, q, isDark, activeIndex, rowRefs,
          title={fileName}
          subtitle={chat.name}
          highlight={q}
-        isDark={isDark}
-        active={chatResults.length + groupResults.length + channelResults.length + i === activeIndex}
+            active={chatResults.length + groupResults.length + channelResults.length + i === activeIndex}
         innerRef={(el) => { rowRefs.current[chatResults.length + groupResults.length + channelResults.length + i] = el; }}
         onClick={() => onSelectChat(chat, messageId)}
       />
@@ -198,8 +192,7 @@ export function SearchResultSections({ results, q, isDark, activeIndex, rowRefs,
          title={url}
          subtitle={chat.name}
          highlight={q}
-        isDark={isDark}
-        active={chatResults.length + groupResults.length + channelResults.length + fileResults.length + i === activeIndex}
+            active={chatResults.length + groupResults.length + channelResults.length + fileResults.length + i === activeIndex}
         innerRef={(el) => { rowRefs.current[chatResults.length + groupResults.length + channelResults.length + fileResults.length + i] = el; }}
         onClick={() => onSelectChat(chat, messageId)}
       />
@@ -216,8 +209,7 @@ export function SearchResultSections({ results, q, isDark, activeIndex, rowRefs,
         title={c.name}
          subtitle={c.lastSeen ? t("search.contact", "Contact") : ""}
          highlight={q}
-        isDark={isDark}
-          active={chatResults.length + groupResults.length + channelResults.length + fileResults.length + linkResults.length + i === activeIndex}
+              active={chatResults.length + groupResults.length + channelResults.length + fileResults.length + linkResults.length + i === activeIndex}
           innerRef={(el) => { rowRefs.current[chatResults.length + groupResults.length + channelResults.length + fileResults.length + linkResults.length + i] = el; }}
           onClick={() => onSelectContact(c)}
       />
