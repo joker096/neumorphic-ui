@@ -45,7 +45,7 @@ export const ScheduledMessages: React.FC<ScheduledMessagesProps> = ({
             className="flex w-full justify-end"
           >
             <div
-              className="max-w-[80%] sm:max-w-[70%] p-3 rounded-md sm:rounded-[16px] text-[13px] sm:text-[14px] shadow-sm border border-dashed relative leading-relaxed overflow-hidden break-words neu-card-inset"
+              className="max-w-[80%] sm:max-w-[70%] p-3 rounded-md sm:rounded-[16px] text-sm sm:text-sm shadow-sm border border-dashed relative leading-relaxed overflow-hidden break-words neu-card-inset"
             >
               <FormattedText text={msg.type === "morse" && msg.originalText ? msg.originalText : msg.text} searchTerm="" />
               <div className="flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide opacity-50">

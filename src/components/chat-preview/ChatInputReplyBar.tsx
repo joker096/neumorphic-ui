@@ -19,7 +19,7 @@ export function ChatInputReplyBar({ replyTarget, setReplyTarget, t }: ChatInputR
           <ChevronRight size={12} className="rotate-180" />
           {t("chat.replyingTo")} {replyTarget.sender === "me" ? t("chat.yourMessage") : replyTarget.sender}
         </div>
-        <div className="text-[12px] truncate mt-0.5">
+        <div className="text-xs truncate mt-0.5">
           {replyTarget.text
             ? decodeIfMorse(replyTarget.text)
             : replyTarget.type === "audio"

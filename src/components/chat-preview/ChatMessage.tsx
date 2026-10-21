@@ -175,10 +175,10 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`msg-bubble message max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit ${showAvatar ? "min-w-0" : "shrink-0"} ${msg.type ? "p-1.5" : "p-2.5"} text-[14px] leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
+          className={`msg-bubble message max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit ${showAvatar ? "min-w-0" : "shrink-0"} ${msg.type ? "p-1.5" : "p-2.5"} text-sm leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
         >
           {showSenderName && (
-            <div className="mb-1 text-[12px] font-semibold leading-tight text-[var(--accent)]">
+            <div className="mb-1 text-xs font-semibold leading-tight text-[var(--accent)]">
               {displayName}
             </div>
           )}
@@ -259,7 +259,7 @@ function ChatMessageImpl({
               onPointerDown={(e) => e.stopPropagation()}
               onPointerUp={(e) => e.stopPropagation()}
               aria-label={t("chat.threadOpen", "Open thread")}
-              className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[12px] font-semibold transition-colors ${isMe ? "text-[var(--text-primary)] hover:bg-black/10" : "text-[var(--accent)] hover:bg-black/10"}`}
+              className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${isMe ? "text-[var(--text-primary)] hover:bg-black/10" : "text-[var(--accent)] hover:bg-black/10"}`}
             >
               <MessageSquare size={12} aria-hidden="true" />
               {t("chat.threadReplies", { count: threadReplies ?? 0 })}

@@ -84,7 +84,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
 
       <div className="flex-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
         <div className="flex flex-col min-w-0">
-          <span className="truncate font-bold text-[16px] tracking-tight text-[var(--text-primary)]">
+          <span className="truncate font-bold text-base tracking-tight text-[var(--text-primary)]">
             {chat.name}
           </span>
           <div className="mt-0.5 flex min-w-0 items-center gap-1.5">

@@ -81,7 +81,7 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
           <Pin size={16} />
         </span>
         <span className="min-w-0 flex-1 py-1.5">
-          <span className="block truncate text-[13px] font-semibold leading-tight">
+          <span className="block truncate text-sm font-semibold leading-tight">
             {previewOf(messages, top.id, t)}
           </span>
           <span className="block truncate text-xs leading-tight text-[var(--text-secondary)]">
@@ -116,7 +116,7 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
                     }}
                     className="min-h-11 flex-1 min-w-0 rounded-xl px-3 py-2.5 text-left transition-colors cursor-pointer hover:bg-[var(--msg-bg-panel-hover)] active:scale-[0.99]"
                   >
-                    <span className="line-clamp-2 block text-[14px] leading-snug text-[var(--text-primary)]">
+                    <span className="line-clamp-2 block text-sm leading-snug text-[var(--text-primary)]">
                       {previewOf(messages, p.id, t)}
                     </span>
                   </button>

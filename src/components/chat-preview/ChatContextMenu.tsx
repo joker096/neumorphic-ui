@@ -128,7 +128,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, anchor
                 it.onClick();
                 onClose();
               }}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium text-left transition-colors min-h-11 cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-left transition-colors min-h-11 cursor-pointer ${
                 it.disabled
                   ? "opacity-40 cursor-not-allowed"
                   : it.danger

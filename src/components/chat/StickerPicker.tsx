@@ -53,7 +53,7 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
             onClick={() => setActiveTab(tab.id)}
             className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-all shrink-0 active:scale-95"
           >
-            <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${
+            <span className={`flex items-center px-3 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
               activeTab === tab.id
                 ? 'bg-[var(--accent)] text-[var(--text-primary)]'
                 : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:bg-black/10 dark:group-hover:bg-white/10'

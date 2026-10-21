@@ -164,7 +164,7 @@ export const CrmPeople: React.FC<Props> = ({
               onClick={() => (selectMode ? exitSelect() : (setSelectMode(true), setSelectedIds([])))}
               aria-label={t('crm.bulkSelect', CRM_FALLBACKS.bulkSelect)}
               title={t('crm.bulkSelect', CRM_FALLBACKS.bulkSelect)}
-              className={`flex items-center justify-center w-11 min-h-[var(--control-height-sm)] rounded-xl font-bold text-[13px] cursor-pointer transition-all ${
+              className={`flex items-center justify-center w-11 min-h-[var(--control-height-sm)] rounded-xl font-bold text-sm cursor-pointer transition-all ${
                 selectMode
                   ? 'bg-[var(--accent)] text-[var(--ink-on-saturate)]'
                   : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -178,7 +178,7 @@ export const CrmPeople: React.FC<Props> = ({
               onClick={() => setShowAdd(true)}
               aria-label={t('crm.addContact', CRM_FALLBACKS.addContact)}
               title={t('crm.addContact', CRM_FALLBACKS.addContact)}
-              className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-[13px] cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--ink-on-saturate)] hover:brightness-110 flex items-center justify-center"
+              className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--ink-on-saturate)] hover:brightness-110 flex items-center justify-center"
             >
               <Plus size={16} aria-hidden="true" />
               <span className="sr-only">{t('crm.addContact', CRM_FALLBACKS.addContact)}</span>

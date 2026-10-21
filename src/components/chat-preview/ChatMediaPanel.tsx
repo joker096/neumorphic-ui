@@ -87,7 +87,7 @@ export const ChatMediaPanel = ({
             <button key={tab} onClick={() => setMediaTab(tab)} aria-pressed={mediaTab === tab}
               className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
             >
-              <span className={`flex items-center px-3 sm:px-4 py-0.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--msg-bg-panel-hover)]"}`}>
+              <span className={`flex items-center px-3 sm:px-4 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--msg-bg-panel-hover)]"}`}>
                 {tab === 'all' ? t('chat.filters.mediaTabs.all') : tab === 'photos' ? t('chat.filters.mediaTabs.photos') : tab === 'audio' ? t('chat.filters.mediaTabs.audio') : t('chat.filters.mediaTabs.links')}
               </span>
             </button>

@@ -26,7 +26,7 @@ export function MessageEditForm({ initialText, originalText, t, onCommit, onCanc
         }}
         autoFocus
         rows={2}
-        className="glass-input w-full resize-none rounded-lg px-2 py-1.5 text-[14px] leading-relaxed outline-none"
+        className="glass-input w-full resize-none rounded-lg px-2 py-1.5 text-sm leading-relaxed outline-none"
         aria-label={t("chat.editMessage", "Edit message")}
       />
       <div className="flex gap-1.5">

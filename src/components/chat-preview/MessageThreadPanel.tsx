@@ -44,10 +44,10 @@ const ThreadBubble = ({
   return (
     <div className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
       <div
-        className={`max-w-[85%] p-3 rounded-2xl text-[14px] leading-relaxed break-words msg-bubble message ${isMe ? "outgoing" : ""}`}
+        className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed break-words msg-bubble message ${isMe ? "outgoing" : ""}`}
       >
         {!isMe && displayName && (
-          <div className="mb-1 text-[12px] font-semibold leading-tight text-[var(--accent)]">
+          <div className="mb-1 text-xs font-semibold leading-tight text-[var(--accent)]">
             {displayName}
           </div>
         )}
@@ -104,7 +104,7 @@ export function MessageThreadPanel({
               <ChevronLeft size={24} />
             </button>
             <div>
-              <h3 className="font-bold text-[16px] text-[var(--text-primary)]">
+              <h3 className="font-bold text-base text-[var(--text-primary)]">
                 {t("chat.threadTitle", "Thread")}
               </h3>
               <p className="text-xs uppercase tracking-wider font-semibold text-[var(--accent)]">
@@ -134,7 +134,7 @@ export function MessageThreadPanel({
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSend(); } }}
                 placeholder={t("chat.threadPlaceholder", "Reply in thread")}
-                className="flex-1 bg-transparent border-none outline-none text-[14px] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+                className="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
               />
               <button
                 type="button"

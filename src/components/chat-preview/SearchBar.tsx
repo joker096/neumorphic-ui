@@ -55,7 +55,7 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
                 active ? 'bg-[var(--accent)]/20' : ''
               }`}
             >
-              <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-semibold transition-colors border ${
+              <span className={`flex items-center px-3 py-0.5 rounded-full text-xs font-semibold transition-colors border ${
                 active
                   ? 'text-[var(--accent)] border-[var(--accent)]/40'
                   : 'text-[var(--text-secondary)] border-[var(--border-color)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--msg-bg-panel-hover)]'
@@ -68,7 +68,7 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
 
         {searchQuery.trim() !== '' && (
           <div className="shrink-0 ml-auto flex items-center gap-1 pl-2">
-            <span className="text-[12px] tabular-nums text-[var(--text-tertiary)] min-w-[52px] text-right">
+            <span className="text-xs tabular-nums text-[var(--text-tertiary)] min-w-[52px] text-right">
               {hasMatches ? `${activeMatch + 1}/${matchCount}` : t('chat.searchNoResults', 'No results')}
             </span>
             <button

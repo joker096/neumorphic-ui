@@ -21,11 +21,11 @@ export function CrmLeadSuggestionBar({ hint, actionLabel, dismissLabel, onAdd, o
       className="mx-3 sm:mx-4 mb-1 flex items-center gap-2 rounded-xl border border-[var(--border-color)]/60 bg-[var(--bg-tertiary)]/70 px-3 py-1.5"
     >
       <UserPlus size={16} className="shrink-0 text-[var(--accent)]" aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate text-[12px] text-[var(--text-secondary)]">{hint}</span>
+      <span className="min-w-0 flex-1 truncate text-xs text-[var(--text-secondary)]">{hint}</span>
       <button
         type="button"
         onClick={onAdd}
-        className="shrink-0 min-h-11 rounded-lg bg-[var(--accent)] px-3 text-[12px] font-semibold text-[var(--ink-on-saturate)] transition-transform active:scale-95"
+        className="shrink-0 min-h-11 rounded-lg bg-[var(--accent)] px-3 text-xs font-semibold text-[var(--ink-on-saturate)] transition-transform active:scale-95"
       >
         {actionLabel}
       </button>

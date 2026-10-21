@@ -76,7 +76,7 @@ export const ContactCRMFields = ({ company, setCompany, position, setPosition, t
           aria-expanded={showTags}
         >
           <Tag size={14} className={fieldIconClass} />
-          <span className={`flex-1 truncate text-[13px] ${tags.length > 0 ? 'text-input-text' : 'text-input-placeholder'}`}>
+          <span className={`flex-1 truncate text-sm ${tags.length > 0 ? 'text-input-text' : 'text-input-placeholder'}`}>
             {tags.length > 0 ? tags.map(tg => t(`contacts.crmTag${capitalize(tg)}`)).join(', ') : t('contacts.addTags', 'Add tags...')}
           </span>
         </button>

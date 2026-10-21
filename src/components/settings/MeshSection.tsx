@@ -138,7 +138,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
 
   return (
     <SubView key="mesh" title={t('mesh.title', 'LAN Mesh')} isDark={isDark} onBack={onBack}>
-      <p className={`mb-4 text-[13px] leading-relaxed text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>
+      <p className={`mb-4 text-sm leading-relaxed text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>
         {t('mesh.hint', 'Serverless peer-to-peer: two devices on the same network exchange an invite QR and an answer QR. No signaling server involved — the session is encrypted with an ephemeral ECDH (X25519) + AES-GCM key pair derived locally on both sides.')}
       </p>
 

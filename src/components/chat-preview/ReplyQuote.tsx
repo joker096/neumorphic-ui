@@ -10,7 +10,7 @@ interface ReplyQuoteProps {
 
 export function ReplyQuote({ replyTo, onJump }: ReplyQuoteProps) {
   const { t } = useI18n();
-  const base = `mb-2 px-3 py-2 rounded-xl border-l-2 text-[12px] bg-[var(--bg-tertiary)] border-[var(--accent)] text-[var(--text-secondary)]`;
+  const base = `mb-2 px-3 py-2 rounded-xl border-l-2 text-xs bg-[var(--bg-tertiary)] border-[var(--accent)] text-[var(--text-secondary)]`;
   const body = (
     <>
       <div className="font-bold text-xs uppercase tracking-widest opacity-70 mb-1">

@@ -108,7 +108,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
       <button
         type="button"
         onClick={() => { setQuery(""); setActiveCat("recent"); }}
-        className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === "recent" ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/10"}`}
+        className={`px-2 py-1 rounded-lg text-xs whitespace-nowrap ${activeCat === "recent" ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/10"}`}
       >
         {t("emojis.recent", "Recent")}
       </button>
@@ -117,7 +117,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
           key={c.key}
           type="button"
           onClick={() => { setQuery(""); setActiveCat(c.key); }}
-          className={`px-2 py-1 rounded-lg text-[12px] whitespace-nowrap ${activeCat === c.key ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/10"}`}
+          className={`px-2 py-1 rounded-lg text-xs whitespace-nowrap ${activeCat === c.key ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/10"}`}
         >
           {t(`emojis.cat.${c.key}`, c.label)}
         </button>
@@ -140,7 +140,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("emojis.search", "Search")}
             aria-label={t("emojis.search", "Search")}
-            className="w-full pl-8 pr-2 py-1.5 rounded-lg text-[13px] bg-black/5 dark:bg-white/10 outline-none border-none"
+            className="w-full pl-8 pr-2 py-1.5 rounded-lg text-sm bg-black/5 dark:bg-white/10 outline-none border-none"
           />
         </div>
       </div>
@@ -153,7 +153,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
             type="button"
             aria-label={tn || t("emojis.skinDefault", "Default")}
             onClick={() => setTone(i)}
-            className={`w-6 h-6 rounded-full flex items-center justify-center text-[14px] ${tone === i ? "ring-2 ring-[var(--accent)]" : ""} ${i === 0 ? "bg-black/10 dark:bg-white/20" : "bg-[#f5cba7]"}`}
+            className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${tone === i ? "ring-2 ring-[var(--accent)]" : ""} ${i === 0 ? "bg-black/10 dark:bg-white/20" : "bg-[#f5cba7]"}`}
           >
             {tn || "🙂"}
           </button>
@@ -175,13 +175,13 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
             aria-label={e.n}
             onClick={() => pick(e)}
             onKeyDown={(ev) => onGridKey(ev, i)}
-            className="aspect-square flex items-center justify-center text-[18px] rounded-lg hover:bg-[var(--accent)]/20 focus:bg-[var(--accent)]/30 focus:outline-none"
+            className="aspect-square flex items-center justify-center text-lg rounded-lg hover:bg-[var(--accent)]/20 focus:bg-[var(--accent)]/30 focus:outline-none"
           >
             {display(e)}
           </button>
         ))}
         {visible.length === 0 && (
-          <div className="col-span-full py-6 text-center text-[12px] opacity-50">{t("emojis.none", "No results")}</div>
+          <div className="col-span-full py-6 text-center text-xs opacity-50">{t("emojis.none", "No results")}</div>
         )}
       </div>
     </div>

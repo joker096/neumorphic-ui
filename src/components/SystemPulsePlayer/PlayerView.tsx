@@ -50,7 +50,7 @@ export const PlayerView = ({
         <div className={`absolute top-[48px] left-[105px] w-4 h-4 rounded-full ${isRadioMode ? "bg-[var(--player-green)]" : "bg-[var(--player-orange)]"} shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors`} />
         <div className="absolute top-[45px] right-[70px] w-3 h-3 rounded-full bg-[var(--player-inactive-dot)] shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors" />
         <div className="absolute top-[35px] right-[30px] w-4 h-4 rounded-full bg-[var(--player-inactive-dot2)] shadow-[2px_2px_4px_rgba(0,0,0,0.5)] transition-colors" />
-        <span className="text-[18px] font-medium tracking-wider text-[var(--text-primary)]">{activeIndex + 1}/{activeList.length}</span>
+        <span className="text-lg font-medium tracking-wider text-[var(--text-primary)]">{activeIndex + 1}/{activeList.length}</span>
       </div>
 
       <div className="relative mb-6 z-10 flex justify-center w-full" title={isRadioMode ? t('systemPlayer.switchToPlaylist') : t('systemPlayer.switchToRadio')}>
@@ -74,8 +74,8 @@ export const PlayerView = ({
           <SkipBack size={18} fill="currentColor" />
         </div>
         <div className="flex flex-col items-center justify-center w-full min-w-0 px-2 overflow-hidden">
-          <span className="text-[20px] sm:text-[24px] font-medium leading-none text-[var(--text-primary)] truncate w-full text-center transition-colors" title={currentTrack?.name}>{currentTrack?.name || t('systemPlayer.noTracks')}</span>
-          <span className="text-[12px] font-bold tracking-widest uppercase opacity-70 text-[var(--text-primary)] mt-1.5 transition-colors">{isRadioMode ? t('systemPlayer.radioLink') : t('systemPlayer.localTrack')}</span>
+          <span className="text-xl sm:text-2xl font-medium leading-none text-[var(--text-primary)] truncate w-full text-center transition-colors" title={currentTrack?.name}>{currentTrack?.name || t('systemPlayer.noTracks')}</span>
+          <span className="text-xs font-bold tracking-widest uppercase opacity-70 text-[var(--text-primary)] mt-1.5 transition-colors">{isRadioMode ? t('systemPlayer.radioLink') : t('systemPlayer.localTrack')}</span>
         </div>
         <div
           onClick={nextTrack}

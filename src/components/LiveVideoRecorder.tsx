@@ -120,7 +120,7 @@ export const LiveVideoRecorder = ({ onCancel, onSend, onPermissionDenied }: Live
 
         <div className="flex-1 flex items-center gap-2 overflow-hidden">
           <div className={`w-2 h-2 rounded-full ${isRecording ? "bg-red-500 animate-pulse" : "bg-gray-500"}`} />
-          <span className="text-[13px] font-bold tracking-wide font-mono text-[var(--text-primary)]">
+          <span className="text-sm font-bold tracking-wide font-mono text-[var(--text-primary)]">
             {Math.floor(duration / 60)}:{String(duration % 60).padStart(2, '0')}
           </span>
         </div>

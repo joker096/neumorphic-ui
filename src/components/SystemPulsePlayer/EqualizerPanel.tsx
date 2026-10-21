@@ -50,7 +50,7 @@ isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
         >
           <ArrowLeft size={18} />
         </div>
-        <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{t('systemPlayer.audioSettings')}</span>
+        <span className={`text-sm font-bold tracking-[0.1em] uppercase ${textColor}`}>{t('systemPlayer.audioSettings')}</span>
         <div className="w-10" />
       </div>
 

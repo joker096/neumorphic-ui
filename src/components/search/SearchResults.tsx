@@ -25,7 +25,7 @@ export function FilterChip({ label, active, onClick }: { label: string; active: 
         active ? "bg-black/10 dark:bg-white/10" : ""
       }`}
     >
-      <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-semibold transition-colors border ${
+      <span className={`flex items-center px-3 py-0.5 rounded-full text-xs font-semibold transition-colors border ${
         active
           ? `border-[var(--accent)] text-[var(--accent)]`
           : "border-[var(--border-color)] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-black/10 dark:group-hover:bg-white/10"
@@ -75,7 +75,7 @@ function Row({
         {title.charAt(0).toUpperCase()}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="font-semibold text-[13px] truncate">{highlight ? renderHighlighted(title, highlight) : title}</div>
+        <div className="font-semibold text-sm truncate">{highlight ? renderHighlighted(title, highlight) : title}</div>
         {subtitle && (
           <div className="text-xs truncate opacity-70">{highlight ? renderHighlighted(subtitle, highlight) : subtitle}</div>
         )}

@@ -86,7 +86,7 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
               coarse ? "min-h-11 px-3 py-2" : "min-h-9 px-3 py-1"
             } ${a.danger ? "text-red-400 hover:bg-red-500/10" : "text-[var(--text-primary)] hover:bg-white/[0.06]"}`}
           >
-            {a.icon && <span className="shrink-0 text-[16px]">{a.icon}</span>}
+            {a.icon && <span className="shrink-0 text-base">{a.icon}</span>}
             <span className="truncate">{a.label}</span>
           </button>
         ))}
@@ -116,7 +116,7 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
               }}
               className={sheetActionClass(false, a.danger, true)}
             >
-              {a.icon && <span className="shrink-0 text-[16px]">{a.icon}</span>}
+              {a.icon && <span className="shrink-0 text-base">{a.icon}</span>}
               <span>{a.label}</span>
             </button>
           ))}

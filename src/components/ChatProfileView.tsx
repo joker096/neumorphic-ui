@@ -153,7 +153,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   {chat.name}
                   {chat.verified && <BadgeCheck size={18} className="text-[var(--accent)]" />}
                 </div>
-                <div className="text-[13px] text-[var(--text-secondary)]">{subtitle()}</div>
+                <div className="text-sm text-[var(--text-secondary)]">{subtitle()}</div>
                 {chat.username && <div className="text-xs mt-0.5 text-[var(--text-secondary)]">@{chat.username}</div>}
                 {kind === 'channel' && (
                   <div className="flex items-center gap-1 text-xs mt-1 text-[var(--text-secondary)]">

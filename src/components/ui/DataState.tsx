@@ -59,7 +59,7 @@ export const DataState = ({
   if (status === 'partial') {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 px-4 py-2 text-[12px] bg-amber-500/10 text-amber-500">
+        <div className="flex items-center gap-2 px-4 py-2 text-xs bg-amber-500/10 text-amber-500">
           <AlertTriangle size={14} />
           <span>{title ?? t('dataState.partial')}</span>
         </div>

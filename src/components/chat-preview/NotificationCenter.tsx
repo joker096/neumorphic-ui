@@ -100,7 +100,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
             aria-label={t("notif.title", "Notifications")}
           >
             <div className="flex items-center justify-between px-3 py-2 border-b border-black/10 dark:border-white/10">
-              <span className="font-semibold text-[14px]">{t("notif.title", "Notifications")}</span>
+              <span className="font-semibold text-sm">{t("notif.title", "Notifications")}</span>
               <div className="flex items-center gap-1">
                 <button type="button" aria-label={t("notif.settingsTitle", "Settings")} onClick={() => setShowSettings((s) => !s)} className="flex items-center justify-center min-w-11 min-h-11 -my-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10">
                   {showSettings ? <X size={16} /> : <BellOff size={16} />}
@@ -121,12 +121,12 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
             {showSettings ? (
               <div className="p-3 space-y-1 max-h-[320px] overflow-y-auto">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[12px] font-medium opacity-70">{t("notif.browser", "Browser notifications")}</span>
+                  <span className="text-xs font-medium opacity-70">{t("notif.browser", "Browser notifications")}</span>
                   <button
                     type="button"
                     onClick={requestPerm}
                     disabled={browserPermission === "granted" || browserPermission === "denied"}
-                    className={`text-[12px] px-2 py-1 rounded-lg ${browserPermission === "granted" ? "bg-green-500/20 text-green-400" : browserPermission === "denied" ? "bg-red-500/20 text-red-400" : "bg-[var(--accent)]/20 text-[var(--accent)]"}`}
+                    className={`text-xs px-2 py-1 rounded-lg ${browserPermission === "granted" ? "bg-green-500/20 text-green-400" : browserPermission === "denied" ? "bg-red-500/20 text-red-400" : "bg-[var(--accent)]/20 text-[var(--accent)]"}`}
                   >
                     {browserPermission === "granted" ? t("notif.enabled", "Enabled") : browserPermission === "denied" ? t("notif.blocked", "Blocked") : t("notif.enable", "Enable")}
                   </button>
@@ -135,7 +135,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
                   <p className="pb-2 text-xs opacity-60">{t("notif.blockedHint", "Blocked in browser settings. Enable notifications for this site there, then reload.")}</p>
                 )}
                 {SETTING_KEYS.map((s) => (
-                  <label key={s.key} className="flex items-center justify-between py-1 text-[13px] cursor-pointer">
+                  <label key={s.key} className="flex items-center justify-between py-1 text-sm cursor-pointer">
                     <span>{t(s.labelKey, s.label)}</span>
                     <input
                       type="checkbox"
@@ -162,8 +162,8 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
                       >
                         <Icon size={16} className="mt-0.5 flex-shrink-0 text-[var(--accent)]" />
                         <div className="min-w-0 flex-1">
-                          <div className="text-[13px] font-medium truncate">{n.title}</div>
-                          {n.body && <div className="text-[12px] opacity-70 truncate">{n.body}</div>}
+                          <div className="text-sm font-medium truncate">{n.title}</div>
+                          {n.body && <div className="text-xs opacity-70 truncate">{n.body}</div>}
                         </div>
                         <span className="text-xs opacity-50 flex-shrink-0">{relTime(n.createdAt, t)}</span>
                       </button>

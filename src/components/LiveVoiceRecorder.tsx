@@ -172,7 +172,7 @@ onDragEnd={(_: unknown, info: PanInfo) => {
               
               <div className="flex-1 flex items-center gap-3 overflow-hidden">
                  <div className={`w-2 h-2 rounded-full ${isPaused ? "bg-yellow-500" : "bg-red-500"} ${!isPaused && isRecording ? "animate-pulse" : ""}`} />
-                 <span className={`text-[13px] font-bold tracking-wide font-mono min-w-[36px] text-[var(--text-primary)]`}>
+                 <span className={`text-sm font-bold tracking-wide font-mono min-w-[36px] text-[var(--text-primary)]`}>
                     {formatTime(duration)}
                  </span>
                  <div className="flex-1 h-8 px-2 flex items-center">

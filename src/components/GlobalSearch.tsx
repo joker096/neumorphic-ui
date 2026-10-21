@@ -240,7 +240,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                   key={h}
                   type="button"
                   onClick={() => setQuery(h)}
-                  className="w-full flex items-center gap-3 px-3 min-h-11 rounded-xl text-left text-[13px] cursor-pointer text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/[0.05]"
+                  className="w-full flex items-center gap-3 px-3 min-h-11 rounded-xl text-left text-sm cursor-pointer text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/[0.05]"
                 >
                   <Clock size={14} className="text-[var(--text-tertiary)]" />
                   <span className="truncate">{h}</span>
@@ -250,7 +250,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
           )}
 
           {!hasQuery && history.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 opacity-60 text-[13px] text-[var(--text-tertiary)]">
+            <div className="flex flex-col items-center justify-center py-12 opacity-60 text-sm text-[var(--text-tertiary)]">
               <Search size={32} className="mb-3" />
               {t("search.hint", "Search across all chats, channels and contacts")}
             </div>

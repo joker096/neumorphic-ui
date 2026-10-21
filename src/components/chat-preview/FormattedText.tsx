@@ -72,22 +72,22 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
             return <span key={i} className="text-xs font-bold uppercase tracking-widest opacity-60">{renderHighlight(part.slice(4))}</span>;
          }
          if (part.startsWith('## ')) {
-            return <span key={i} className="text-[12px] font-bold uppercase tracking-widest opacity-70">{renderHighlight(part.slice(3))}</span>;
+            return <span key={i} className="text-xs font-bold uppercase tracking-widest opacity-70">{renderHighlight(part.slice(3))}</span>;
          }
          if (part.startsWith('# ')) {
-            return <span key={i} className="text-[14px] font-bold">{renderHighlight(part.slice(2))}</span>;
+            return <span key={i} className="text-sm font-bold">{renderHighlight(part.slice(2))}</span>;
          }
          // Blockquotes
          if (part.startsWith('> ')) {
             return (
-              <blockquote key={i} className={`my-1 pl-3 border-l-2 border-[var(--border-color)] italic text-[12px] ${part.length > 100 ? "" : ""}`}>
+              <blockquote key={i} className={`my-1 pl-3 border-l-2 border-[var(--border-color)] italic text-xs ${part.length > 100 ? "" : ""}`}>
                 {renderHighlight(part.slice(2))}
               </blockquote>
             );
          }
          if (part.startsWith('>\n')) {
             return (
-              <blockquote key={i} className={`my-1 pl-3 border-l-2 border-[var(--border-color)] italic text-[12px] ${part.length > 100 ? "" : ""}`}>
+              <blockquote key={i} className={`my-1 pl-3 border-l-2 border-[var(--border-color)] italic text-xs ${part.length > 100 ? "" : ""}`}>
                 {renderHighlight(part.slice(2))}
               </blockquote>
             );

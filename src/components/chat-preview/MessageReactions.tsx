@@ -32,7 +32,7 @@ export function MessageReactions({ msg, isMe, activeReactionPicker, onSetActiveR
                   role="button"
                   tabIndex={0}
                   aria-pressed={!!mine[emoji]}
-                  className={`rounded-full px-2 py-0.5 text-[12px] flex items-center cursor-pointer select-none border transition-all active:scale-95 ${mine[emoji] ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]" : "border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)] hover:text-[var(--text-primary)]"}`}
+                  className={`rounded-full px-2 py-0.5 text-xs flex items-center cursor-pointer select-none border transition-all active:scale-95 ${mine[emoji] ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]" : "border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)] hover:text-[var(--text-primary)]"}`}
                   onClick={() => onReactionMessage(msg.id, emoji)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onReactionMessage(msg.id, emoji); } }}
                 >

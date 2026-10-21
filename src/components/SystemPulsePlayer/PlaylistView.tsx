@@ -86,7 +86,7 @@ isRadioMode, isPlaying, setIsPlaying, showPlaylist, setShowPlaylist, activeList,
         >
           <ChevronLeft size={18} />
         </div>
-        <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{isRadioMode ? t('systemPlayer.radioStations') : t('systemPlayer.systemPlaylist')}</span>
+        <span className={`text-sm font-bold tracking-[0.1em] uppercase ${textColor}`}>{isRadioMode ? t('systemPlayer.radioStations') : t('systemPlayer.systemPlaylist')}</span>
         {!isRadioMode ? (
           <label className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold bg-orange-100 text-orange-600 hover:bg-orange-200 dark:bg-orange-500/20 dark:text-orange-400 dark:hover:bg-orange-500/30 transition-colors`}             title={t('systemPlayer.addTrack')}>
             <Plus size={18} />
@@ -146,7 +146,7 @@ isRadioMode, isPlaying, setIsPlaying, showPlaylist, setShowPlaylist, activeList,
                   )}
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
-                  <span className={`text-[14px] font-bold truncate ${isActive ? "text-[var(--text-primary)]" : textColor}`}>{track.name}</span>
+                  <span className={`text-sm font-bold truncate ${isActive ? "text-[var(--text-primary)]" : textColor}`}>{track.name}</span>
                   <span className={`text-xs font-mono opacity-60 ${textColor}`}>{t('systemPlayer.nodePrefix', 'M-NODE')} {track.id}</span>
                 </div>
                 <span className={`text-xs font-mono opacity-50 ${textColor} mr-2`}>{track.time}</span>

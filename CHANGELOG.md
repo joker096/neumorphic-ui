@@ -30,6 +30,13 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Типографика: произвольные px-размеры сведены к шкале (2026-10-21).** Последние обходы рампы — 64 вхождения в 32 файлах: `text-[12px]`, `text-[13px]`, `text-[14px]`, `text-[16px]`, `text-[18px]`, `text-[20px]`, `text-[24px]`.
+  1. Отображение: `12px → text-xs`, `13/14px → text-sm`, `16px → text-base`, `18px → text-lg`, `20px → text-xl`, `24px → text-2xl` (включая `sm:`-варианты — `PlayerView` 20/24 px стал `text-xl sm:text-2xl`).
+  2. Задеты: чат-превью (`ChatHeader`, `ChatMessage`, `MessageThreadPanel`, `DmComposerRow`, `NotificationCenter`, `PinnedMessagesBar`, `ReplyQuote`, `ScheduledMessages`, `SearchBar`, `FolderFilterBar`, `ChatContextMenu`, `MessageContextMenu`, `MessageReactions`, `ChatMediaPanel`, `FormattedText`, `MessageEditForm`), `GlobalSearch`, `SearchResults`, `ChatProfileView`, `EmojiPicker`, `StickerPicker`, `ContactFormFields`, `CrmPeople`, `CrmLeadSuggestionBar`, `MeshSection`, `DataState`, `LiveVoiceRecorder`, `LiveVideoRecorder`, `SystemPulsePlayer` (`PlayerView`, `PlaylistView`, `EqualizerPanel`).
+  3. 13 px ужат до 12 px (метки, элементы меню, подписи списков) — ровно на шаг ниже, чтобы не раздувать плотные списки; 14 px остался 14 px через `text-sm`.
+  4. `ChatMessage`, `ChatHeader` и `DmComposerRow` по-прежнему держат `text-sm`/`sm:text-sm` там, где был `12/14px` — визуально без изменений, но теперь через шкалу.
+  5. D1–D5 перескан: 0 findings — правки чисто презентационные, ни один хендлер не тронут.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Светлая тема: невидимые полупрозрачные подложки (2026-10-21).** Семь поверхностей использовали `bg-white/5…20`, рассчитанный только на тёмную тему: в светлой они растворялись в фоне, и контрол терял границу.
   1. `crm/CrmCard`: чипы тегов и блок статистики — `bg-black/5 dark:bg-white/5` (было `bg-white/5`).
   2. `settings/PaymentsSection`: карточка быстрых сумм — `bg-black/5 dark:bg-white/5`.

@@ -32,7 +32,7 @@ export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters
             className="group min-h-11 min-w-11 p-1 flex items-center justify-center cursor-pointer transition-all shrink-0 active:scale-95"
           >
             <span
-              className={`min-h-[22px] min-w-[34px] px-2 py-0 rounded-full text-[12px] font-bold whitespace-nowrap ${
+              className={`min-h-[22px] min-w-[34px] px-2 py-0 rounded-full text-xs font-bold whitespace-nowrap ${
                 isActive
                   ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md"
                   : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--msg-bg-panel-hover)] border border-[var(--border-color)]"
