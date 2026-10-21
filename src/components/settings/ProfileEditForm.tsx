@@ -3,6 +3,7 @@ import { Camera, X, Check } from 'lucide-react';
 import { AVATAR_COLORS } from '../../constants/settingsConstants';
 import { ProfileFieldEditor } from './ProfileFieldEditor';
 import type { ProfileField, FieldVisibility } from './ProfileSection';
+import { FIELD_LABEL_CLASS } from '../ui/textClasses';
 
 interface ProfileEditFormProps {
   isDark: boolean;
@@ -72,7 +73,7 @@ export const ProfileEditForm = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.displayName', 'Display Name')}</label>
+        <label className={FIELD_LABEL_CLASS}>{t('settings.displayName', 'Display Name')}</label>
         <input
           aria-label={t('settings.enterName', 'Enter your name')}
           type="text"
@@ -84,7 +85,7 @@ export const ProfileEditForm = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.username', 'Username')}</label>
+        <label className={FIELD_LABEL_CLASS}>{t('settings.username', 'Username')}</label>
         <input
           aria-label={t('settings.usernamePlaceholder', '@username')}
           type="text"
@@ -99,7 +100,7 @@ export const ProfileEditForm = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.status', 'Status')}</label>
+        <label className={FIELD_LABEL_CLASS}>{t('settings.status', 'Status')}</label>
         <input
           aria-label={t('settings.statusPlaceholder', "What's on your mind?")}
           type="text"
@@ -114,7 +115,7 @@ export const ProfileEditForm = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.bio', 'Bio')}</label>
+        <label className={FIELD_LABEL_CLASS}>{t('settings.bio', 'Bio')}</label>
         <textarea
           aria-label={t('settings.bioPlaceholder', 'Tell others about yourself')}
           value={editBio}
@@ -127,7 +128,7 @@ export const ProfileEditForm = ({
 
       {!editAvatar && (
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.avatarColor', 'Avatar Color')}</label>
+          <label className={FIELD_LABEL_CLASS}>{t('settings.avatarColor', 'Avatar Color')}</label>
           <div className="flex gap-2 flex-wrap">
             {AVATAR_COLORS.map((color) => (
               <button

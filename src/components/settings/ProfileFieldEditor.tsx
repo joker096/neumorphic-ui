@@ -2,6 +2,7 @@ import React from 'react';
 import { Trash2, Plus } from 'lucide-react';
 import type { ProfileField, FieldVisibility } from './ProfileSection';
 import { PROFILE_FIELD_TYPES, VISIBILITY_OPTIONS } from '../../constants/settingsConstants';
+import { FIELD_LABEL_CLASS } from '../ui/textClasses';
 
 interface ProfileFieldEditorProps {
   fields: ProfileField[];
@@ -17,7 +18,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-[var(--text-secondary)]">{t('settings.contactFields', 'Contact Fields')}</span>
+        <span className={FIELD_LABEL_CLASS}>{t('settings.contactFields', 'Contact Fields')}</span>
         <button
           type="button"
           onClick={onAdd}
