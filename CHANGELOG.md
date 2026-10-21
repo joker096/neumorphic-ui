@@ -30,6 +30,16 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Пять повторяющихся наборов классов вынесены в локальные константы (2026-10-21).** Точка присутствия в шапке чата, круглые вкладки медиа, иконки уведомлений, опасные кнопки в профиле чата и круглые кнопки в просмотрщике медиа печатали одну и ту же строку по три раза каждый — правка размера или тона требовала трёх синхронных правок в одном компоненте.
+  1. `chat-preview/ChatHeader.tsx` → `ONLINE_DOT_CLASS` (3 сайта).
+  2. `chat-preview/ChatMediaPanel.tsx` → `MEDIA_TAB_CLASS` (3 сайта).
+  3. `chat-preview/NotificationCenter.tsx` → `ICON_BTN_CLASS` (3 сайта).
+  4. `ChatProfileView.tsx` → `DANGER_BTN_CLASS` (3 сайта).
+  5. `MediaViewer.tsx` → `ROUND_BTN_CLASS` (3 сайта).
+  6. Каждая константа объявлена модульно-локально (с JSDoc, сразу после последнего импорта) — набор принадлежит только своему экрану, общий модуль тут не нужен.
+  7. Намеренно не тронуты варианты другой формы: `StickerPicker.tsx:54`, `ContactsTabs.tsx:40`, `SearchResults.tsx:24`, `ChatListView.tsx:201`, `ChatProfileView.tsx:228`, `MediaViewer.tsx:125,129`, `SystemPulsePlayer/VideoOverlay.tsx:37`.
+  8. Значения байт-в-байт, рендер и визуальные базлайны не изменились; D1–D5 перескан: 0 findings — правки презентационные, ни один хендлер не тронут.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (646), button-audit 0 (289/436), l10n PASS (0 errors / 10 dynamic), component-audit 0/0/0, dead-export dead 0, orphan PASS, ui-audit 14/14, visual 8/8.
 - **Подвал панелей безопасности и карточки счётчиков профиля: классы вынесены в константы (2026-10-21).** Строка `px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]` печаталась в трёх панелях настроек безопасности (`settings/security/AppLockPanel.tsx:161`, `KeyRecoveryPanel.tsx:128`, `TwoFactorPanel.tsx:102`), а `rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]` — в трёх карточках счётчиков профиля (`chat-profile/ChatProfileBody.tsx:88,92,96`) — правка отступа или радиуса требовала синхронных правок в четырёх файлах.
   1. Новый `src/components/settings/security/securityClasses.ts` с байт-в-байт значением `PANEL_FOOTER_CLASS`; переведены три панели безопасности.
   2. `chat-profile/ChatProfileBody.tsx` — модульно-локальная константа `STAT_CARD_CLASS` (JSDoc: карточка счётчика в шапке профиля — подписчики, посты, владелец).

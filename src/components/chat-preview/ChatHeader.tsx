@@ -3,6 +3,10 @@ import { ChevronRight, Search, Phone, Video, Users, MoreVertical } from "lucide-
 import { IconButton } from "../ui/IconButton";
 import { useAppStore } from "../../store";
 
+/** Small pulsing dot marking the online state in the header. */
+const ONLINE_DOT_CLASS =
+  'w-1 h-1 rounded-full bg-[var(--success)] animate-bounce';
+
 /** Drop shadow shared by the round header buttons (profile, search, call, menu). */
 const HEADER_BTN_SHADOW_CLASS = 'shadow-md shadow-black/10 dark:shadow-black/30';
 
@@ -103,15 +107,15 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
                 </span>
                 <span className="flex items-end gap-0.5 h-3">
                   <span
-                    className="w-1 h-1 rounded-full bg-[var(--success)] animate-bounce"
+                    className={ONLINE_DOT_CLASS}
                     style={{ animationDelay: "0ms" }}
                   />
                   <span
-                    className="w-1 h-1 rounded-full bg-[var(--success)] animate-bounce"
+                    className={ONLINE_DOT_CLASS}
                     style={{ animationDelay: "150ms" }}
                   />
                   <span
-                    className="w-1 h-1 rounded-full bg-[var(--success)] animate-bounce"
+                    className={ONLINE_DOT_CLASS}
                     style={{ animationDelay: "300ms" }}
                   />
                 </span>

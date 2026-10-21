@@ -24,6 +24,10 @@ import { ChatProfileBody, type ChatProfileKind, type ProfileChat } from './chat-
 import { ChatProfileActions } from './chat-profile/ChatProfileActions';
 import { HINT_TEXT_TIGHT_CLASS } from './ui/textClasses';
 
+/** Destructive action button in the chat profile footer (block, leave). */
+const DANGER_BTN_CLASS =
+  'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-rose-500 bg-rose-500/10 font-medium min-h-11 active:scale-95 transition-transform';
+
 export type { ChatProfileKind } from './chat-profile/ChatProfileBody';
 
 interface ChatProfileViewProps {
@@ -204,16 +208,16 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
             <div className="p-4 border-t border-[var(--border-color)] flex gap-2">
               {kind === 'user' || kind === 'bot' ? (
                 blockedContact && (
-                  <button onClick={handleBlockToggle} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-rose-500 bg-rose-500/10 font-medium min-h-11 active:scale-95 transition-transform">
+                  <button onClick={handleBlockToggle} className={DANGER_BTN_CLASS}>
                     <UserX size={18} /> {contactBlocked ? t('profile.unblock', 'Unblock') : t('profile.block', 'Block')}
                   </button>
                 )
               ) : kind === 'group' ? (
-                <button onClick={() => setLeaveOpen(true)} aria-label={t('profile.leave', 'Leave group')} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-rose-500 bg-rose-500/10 font-medium min-h-11 active:scale-95 transition-transform">
+                <button onClick={() => setLeaveOpen(true)} aria-label={t('profile.leave', 'Leave group')} className={DANGER_BTN_CLASS}>
                   <LogOut size={18} /> {t('profile.leave', 'Leave')}
                 </button>
               ) : (
-                <button onClick={() => { leaveChannel(chat.id); toast(t('profile.left', 'You left the chat'), 'success'); onClose(); }} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-rose-500 bg-rose-500/10 font-medium min-h-11 active:scale-95 transition-transform">
+                <button onClick={() => { leaveChannel(chat.id); toast(t('profile.left', 'You left the chat'), 'success'); onClose(); }} className={DANGER_BTN_CLASS}>
                   <LogOut size={18} /> {t('profile.leave', 'Leave')}
                 </button>
               )}

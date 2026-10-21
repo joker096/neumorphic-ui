@@ -6,6 +6,10 @@ import { useI18n } from "../../lib/i18n";
 import type { NotificationKind, NotificationSettings } from "../../store/slices/notificationSlice";
 import { DataState } from "../ui/DataState";
 
+/** Square icon button in the notification panel header. */
+const ICON_BTN_CLASS =
+  'flex items-center justify-center min-w-11 min-h-11 -my-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10';
+
 const KIND_ICON: Record<NotificationKind, React.ComponentType<{ size?: number; className?: string }>> = {
   message: MessageSquare,
   mention: AtSign,
@@ -102,16 +106,16 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
             <div className="flex items-center justify-between px-3 py-2 border-b border-black/10 dark:border-white/10">
               <span className="font-semibold text-sm">{t("notif.title", "Notifications")}</span>
               <div className="flex items-center gap-1">
-                <button type="button" aria-label={t("notif.settingsTitle", "Settings")} onClick={() => setShowSettings((s) => !s)} className="flex items-center justify-center min-w-11 min-h-11 -my-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10">
+                <button type="button" aria-label={t("notif.settingsTitle", "Settings")} onClick={() => setShowSettings((s) => !s)} className={ICON_BTN_CLASS}>
                   {showSettings ? <X size={16} /> : <BellOff size={16} />}
                 </button>
                 {unreadCount > 0 && (
-                  <button type="button" aria-label={t("notif.markRead", "Mark all read")} onClick={markRead} className="flex items-center justify-center min-w-11 min-h-11 -my-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10">
+                  <button type="button" aria-label={t("notif.markRead", "Mark all read")} onClick={markRead} className={ICON_BTN_CLASS}>
                     <Check size={16} />
                   </button>
                 )}
                 {notificationItems.length > 0 && (
-                  <button type="button" aria-label={t("notif.clear", "Clear")} onClick={clearAll} className="flex items-center justify-center min-w-11 min-h-11 -my-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10">
+                  <button type="button" aria-label={t("notif.clear", "Clear")} onClick={clearAll} className={ICON_BTN_CLASS}>
                     <Trash2 size={16} />
                   </button>
                 )}

@@ -11,6 +11,10 @@ import { MediaViewerActionBar } from './MediaViewerActionBar';
 import { MediaViewerVideoOverlay } from './MediaViewerVideoOverlay';
 import { useMediaViewerGestures } from './useMediaViewerGestures';
 
+/** Round glass button floating over the media viewer. */
+const ROUND_BTN_CLASS =
+  'w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white';
+
 export type { MediaKind, MediaItem } from './mediaUtils';
 
 interface MediaViewerProps {
@@ -128,13 +132,13 @@ export const MediaViewer = ({ media, onClose, prev, next, onPrev, onNext, total,
                 </button>
               </>
             )}
-            <button onClick={(e) => { e.stopPropagation(); resetZoom(); }} aria-label={t('media.resetZoom')} className="w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+            <button onClick={(e) => { e.stopPropagation(); resetZoom(); }} aria-label={t('media.resetZoom')} className={ROUND_BTN_CLASS}>
               <ZoomOut size={18} />
             </button>
-            <button onClick={(e) => { e.stopPropagation(); zoom(1); }} aria-label={t('media.zoomIn')} className="w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+            <button onClick={(e) => { e.stopPropagation(); zoom(1); }} aria-label={t('media.zoomIn')} className={ROUND_BTN_CLASS}>
               <ZoomIn size={18} />
             </button>
-            <button onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }} aria-label={t('media.fullscreen', 'Fullscreen')} title={t('media.fullscreen', 'Fullscreen')} className="w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+            <button onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }} aria-label={t('media.fullscreen', 'Fullscreen')} title={t('media.fullscreen', 'Fullscreen')} className={ROUND_BTN_CLASS}>
               {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
             </button>
             <CloseButton onClick={onClose} aria-label={t('common.close')} size="lg" className="!text-white hover:!bg-white/20" />

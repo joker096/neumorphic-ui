@@ -5,6 +5,10 @@ import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
 import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
 import { TINY_BOLD_CLASS } from '../ui/textClasses';
 
+/** Round media tab button (photos, videos, files). */
+const MEDIA_TAB_CLASS =
+  'group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95';
+
 interface ChatMediaPanelProps {
   showMediaPanel: boolean;
   showFilterMenu: boolean;
@@ -48,7 +52,7 @@ export const ChatMediaPanel = ({
           </button>
           {(filterBySender || filterStartDate || filterEndDate) && (
             <button onClick={() => { setFilterBySender(""); setFilterStartDate(""); setFilterEndDate(""); }}
-              className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
+              className={MEDIA_TAB_CLASS}
             >
               <span className={`flex items-center px-2 sm:px-3 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors bg-[var(--danger-soft)] text-[var(--danger)]`}>
                 {t('chat.filters.clear')}
@@ -66,7 +70,7 @@ export const ChatMediaPanel = ({
               <span className={`text-xs font-bold uppercase text-[var(--text-secondary)]`}>{t('chat.filters.from')}</span>
               {['', 'me', 'them'].map((v) => (
                 <button key={v} onClick={() => setFilterBySender(v)} aria-pressed={filterBySender === v}
-                  className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
+                  className={MEDIA_TAB_CLASS}
                 >
                   <span className={`flex items-center px-3 py-0.5 rounded-full text-xs transition-colors ${filterBySender === v ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:bg-[var(--msg-bg-panel-hover)]"}`}>
                     {v === '' ? t('chat.filters.all') : v === 'me' ? t('chat.filters.me') : t('chat.filters.others')}
@@ -86,7 +90,7 @@ export const ChatMediaPanel = ({
         <div className="flex items-center gap-2">
           {['all', 'photos', 'audio', 'links'].map((tab) => (
             <button key={tab} onClick={() => setMediaTab(tab)} aria-pressed={mediaTab === tab}
-              className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-transform active:scale-95"
+              className={MEDIA_TAB_CLASS}
             >
               <span className={`flex items-center px-3 sm:px-4 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${mediaTab === tab ? "bg-[var(--accent)] text-[var(--ink-on-saturate)] shadow-md" : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--msg-bg-panel-hover)]"}`}>
                 {tab === 'all' ? t('chat.filters.mediaTabs.all') : tab === 'photos' ? t('chat.filters.mediaTabs.photos') : tab === 'audio' ? t('chat.filters.mediaTabs.audio') : t('chat.filters.mediaTabs.links')}
