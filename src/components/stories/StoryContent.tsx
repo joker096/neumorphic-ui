@@ -2,8 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { ImageOff } from 'lucide-react';
 import { STORY_DEFAULT_GRADIENT } from '../../constants/storyConstants';
 import type { StoryItem } from './storiesData';
-import { STORY_MEDIA_COVER_CLASS } from './storyClasses';
-
+import { STORY_MEDIA_COVER_CLASS, STORY_MEDIA_OVERLAY_CLASS } from './storyClasses';
 interface StoryContentProps {
   story: StoryItem;
   onTap: (e: React.MouseEvent<HTMLDivElement>) => void;
@@ -135,7 +134,7 @@ export const StoryContent: React.FC<StoryContentProps> = ({
         />
       )}
       {(story.type === 'photo' || story.type === 'video') && mediaFailed && (
-        <div className="absolute inset-0 flex items-center justify-center text-white/70" aria-hidden="true">
+        <div className={STORY_MEDIA_OVERLAY_CLASS} aria-hidden="true">
           <ImageOff size={48} />
         </div>
       )}

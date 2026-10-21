@@ -49,3 +49,9 @@ export const SUBVIEW_TITLE_CLASS = 'font-sans text-xl font-bold tracking-wide te
 
 /** Small accent caption above a comment or a thread. */
 export const ACCENT_CAPS_CLASS = 'text-xs uppercase tracking-wider font-semibold text-[var(--accent)]';
+
+/** Truncated semi-bold row title. */
+export const SEMIBOLD_TRUNCATE_CLASS = 'text-sm font-semibold truncate text-[var(--text-primary)]';
+
+/** Accent-coloured uppercase caption. */
+export const ACCENT_CAPS_BOLD_CLASS = 'text-xs font-bold uppercase tracking-widest text-[var(--accent)]';

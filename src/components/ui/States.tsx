@@ -1,4 +1,5 @@
 import React from 'react';
+import { EMPTY_STATE_COLUMN_CLASS } from './stateClasses';
 import { Inbox, AlertTriangle, RefreshCw, LifeBuoy } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { PRIMARY_ACTION_BTN_CLASS } from './buttonClasses';
@@ -14,7 +15,7 @@ interface EmptyStateProps {
 export const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => {
   const { t } = useI18n();
   return (
-  <div className="flex flex-col items-center justify-center text-center px-6 py-12">
+  <div className={EMPTY_STATE_COLUMN_CLASS}>
     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-muted text-muted-foreground">
       {icon ?? <Inbox size={32} />}
     </div>
@@ -44,7 +45,7 @@ interface ErrorStateProps {
 export const ErrorState = ({ message, description, code, retryAction, supportAction }: ErrorStateProps) => {
   const { t } = useI18n();
   return (
-  <div className="flex flex-col items-center justify-center text-center px-6 py-12">
+  <div className={EMPTY_STATE_COLUMN_CLASS}>
     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-destructive/10 text-destructive">
       <AlertTriangle size={32} />
     </div>

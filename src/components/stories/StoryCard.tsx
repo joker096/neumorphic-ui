@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Globe, ImageOff, Play } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { STORY_DEFAULT_GRADIENT } from '../../constants/storyConstants';
-import { STORY_MEDIA_COVER_CLASS } from './storyClasses';
-
+import { STORY_MEDIA_COVER_CLASS, STORY_MEDIA_OVERLAY_CLASS } from './storyClasses';
 interface StoryCardStory {
   userId: number | string;
   userName?: string;
@@ -40,7 +39,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
           <video src={story.video} className={STORY_MEDIA_COVER_CLASS} muted loop playsInline onError={() => setMediaFailed(true)} />
         )}
         {(story.type === 'photo' || story.type === 'video') && mediaFailed && (
-          <div className="absolute inset-0 flex items-center justify-center text-white/70" aria-hidden="true">
+          <div className={STORY_MEDIA_OVERLAY_CLASS} aria-hidden="true">
             <ImageOff size={32} />
           </div>
         )}

@@ -2,8 +2,7 @@ import { motion } from "motion/react";
 import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } from "lucide-react";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS } from './landingClasses';
-import { FOOTER_WRAP_CLASS } from "./landingClasses";
+import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS, FOOTER_WRAP_CLASS, HERO_LEAD_CLASS, FOOTER_SECTION_CLASS, FOOTER_META_CLASS } from './landingClasses';
 export type LandingPageProps = {
   isDark?: boolean;
   onGetStarted: () => void;
@@ -79,7 +78,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
             </span>
           </h1>
 
-          <p className="text-lg max-w-xl leading-relaxed mb-10 text-[var(--text-secondary)]">
+          <p className={HERO_LEAD_CLASS}>
             {t("landing.heroSubtitle")}
           </p>
 
@@ -226,13 +225,13 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
         </motion.div>
       </section>
 
-      <footer className="relative z-10 border-t px-6 py-8 border-[var(--border-color)]">
+      <footer className={FOOTER_SECTION_CLASS}>
         <div className={FOOTER_WRAP_CLASS}>
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded-md flex items-center justify-center bg-orange-500/8 dark:bg-orange-500/10">
               <Zap size={12} className="text-orange-600 dark:text-orange-400" />
             </div>
-            <span className="text-xs font-bold tracking-tight text-[var(--text-secondary)]">
+            <span className={FOOTER_META_CLASS}>
               {t("landing.brand")}
             </span>
           </div>

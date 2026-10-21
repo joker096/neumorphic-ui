@@ -1,6 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
+import { ACCENT_CAPS_BOLD_CLASS } from "../ui/textClasses";
 
 interface ChatInputSchedulePopupProps {
   scheduleDateTime: string;
@@ -16,7 +17,7 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
   return (
     <div className="mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-xl flex flex-col gap-2 bg-[var(--bg-secondary)] border border-[var(--border-color)]">
       <div className="flex justify-between items-center">
-        <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">{t("chat.scheduleSend")}</span>
+        <span className={ACCENT_CAPS_BOLD_CLASS}>{t("chat.scheduleSend")}</span>
         <button
           type="button"
           className="min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"

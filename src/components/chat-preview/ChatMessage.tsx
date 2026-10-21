@@ -18,6 +18,7 @@ import { MessageGutterAvatar } from "./message/MessageGutterAvatar";
 import { MessageDateSeparator, ExpiredMessage, MorseToggle } from "./message/MessageTextStates";
 import { MessageEditForm } from "./message/MessageEditForm";
 import { MessageFooter } from "./message/MessageFooter";
+import { MESSAGE_SENDER_LABEL_CLASS } from "./chatPreviewClasses";
 
 interface ChatMessageProps {
   msg: any;
@@ -144,7 +145,7 @@ function ChatMessageImpl({
           className={`msg-bubble message max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit ${showAvatar ? "min-w-0" : "shrink-0"} ${msg.type ? "p-1.5" : "p-2.5"} text-sm leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
         >
           {showSenderName && (
-            <div className="mb-1 text-xs font-semibold leading-tight text-[var(--accent)]">
+            <div className={MESSAGE_SENDER_LABEL_CLASS}>
               {displayName}
             </div>
           )}

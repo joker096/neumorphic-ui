@@ -5,6 +5,7 @@ import { Pin, PinOff, BellOff, Bell, CheckCheck, Mail, Archive, ArchiveRestore, 
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useCoarsePointer } from "../../hooks/useCoarsePointer";
 import { MENU_WIDTH, MOUSE_ROW_HEIGHT, TOUCH_ROW_HEIGHT, VIEWPORT_MARGIN, resolveMenuPosition, type MenuAnchorRect } from "./menuPosition";
+import { CONTEXT_MENU_CLASS } from "./chatPreviewClasses";
 
 export interface ContextMenuItem {
   id: string;
@@ -81,7 +82,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, anchor
         ref={ref}
         role="menu"
         style={{ position: "fixed", top: Math.max(VIEWPORT_MARGIN, y), left: Math.max(VIEWPORT_MARGIN, x), width: MENU_WIDTH }}
-        className="z-[var(--z-tooltip)] glass-menu rounded-xl p-1 animate-fade-in"
+        className={CONTEXT_MENU_CLASS}
       >
         {items.map((it) => {
           const Icon = it.icon;

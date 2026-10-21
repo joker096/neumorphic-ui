@@ -48,3 +48,6 @@ export const FORM_TRANSPARENT_INPUT_CLASS = 'flex-1 bg-transparent border-none o
 
 /** Inset card that holds a QR code and its caption. */
 export const FORM_CARD_CLASS = 'w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset';
+
+/** Search icon inside a field. */
+export const FORM_SEARCH_ICON_CLASS = 'absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]';

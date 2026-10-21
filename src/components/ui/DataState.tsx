@@ -1,4 +1,5 @@
 import React from 'react';
+import { EMPTY_STATE_COLUMN_CLASS } from './stateClasses';
 import { AlertTriangle, Lock, ShieldAlert, Trash2, WifiOff, Loader2, Inbox, Search, RefreshCw } from 'lucide-react';
 import { EmptyState, ErrorState } from './States';
 import { useI18n } from '../../lib/i18n';
@@ -33,7 +34,7 @@ export interface DataStateProps {
   emptyIcon?: 'search' | 'inbox';
 }
 
-const WRAPPER = 'flex flex-col items-center justify-center text-center px-6 py-12';
+
 const ICON_BOX = 'w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-muted text-muted-foreground';
 const TITLE = 'text-sm font-semibold text-foreground';
 const SUBTEXT = 'text-xs mt-1 max-w-xs text-muted-foreground';
@@ -71,7 +72,7 @@ export const DataState = ({
 
   if (status === 'loading') {
     return (
-      <div className={WRAPPER}>
+      <div className={EMPTY_STATE_COLUMN_CLASS}>
         <Loader2 size={32} className="animate-spin mb-4 text-primary" />
         <div className="text-sm text-muted-foreground">{title ?? t('dataState.loading')}</div>
       </div>
@@ -95,7 +96,7 @@ export const DataState = ({
 
   if (status === 'offline') {
     return (
-      <div className={WRAPPER}>
+      <div className={EMPTY_STATE_COLUMN_CLASS}>
         <div className={ICON_BOX}>
           <WifiOff size={32} />
         </div>
@@ -120,7 +121,7 @@ export const DataState = ({
 
   if (status === 'unauthorized') {
     return (
-      <div className={WRAPPER}>
+      <div className={EMPTY_STATE_COLUMN_CLASS}>
         <div className={ICON_BOX}>
           <Lock size={32} />
         </div>
@@ -137,7 +138,7 @@ export const DataState = ({
 
   if (status === 'restricted') {
     return (
-      <div className={WRAPPER}>
+      <div className={EMPTY_STATE_COLUMN_CLASS}>
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-rose-500/10 text-rose-500">
           <ShieldAlert size={32} />
         </div>
@@ -149,7 +150,7 @@ export const DataState = ({
 
   if (status === 'deleted') {
     return (
-      <div className={WRAPPER}>
+      <div className={EMPTY_STATE_COLUMN_CLASS}>
         <div className={ICON_BOX}>
           <Trash2 size={32} />
         </div>

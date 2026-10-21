@@ -8,6 +8,8 @@ import { callRecorderService, type CallRecording } from '../lib/callRecorderServ
 import { recordingStorage } from '../lib/recordingStorage';
 import { useAppStore } from '../store';
 import { formatDate } from './recordings/recordingUtils';
+import { SEMIBOLD_TRUNCATE_CLASS } from './ui/textClasses';
+import { FORM_SEARCH_ICON_CLASS } from './ui/formClasses';
 
 /** Icon button of the recording row (play, export, delete). */
 const ICON_BTN_CLASS = 'min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)]';
@@ -98,7 +100,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
     <SubView title={t('recordings.title', 'Recordings')} isDark={isDark} onBack={onBack || (() => {})}>
       <div className="flex flex-col gap-4">
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+          <Search size={16} className={FORM_SEARCH_ICON_CLASS} />
           <input
             type="text"
             value={query}
@@ -142,7 +144,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
                       : <Mic size={18} className="text-[var(--color-success)]" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate text-[var(--text-primary)]">
+                    <p className={SEMIBOLD_TRUNCATE_CLASS}>
                       {r.title || t('recordings.untitled')}
                     </p>
                     <p className="text-xs text-[var(--text-secondary)]">

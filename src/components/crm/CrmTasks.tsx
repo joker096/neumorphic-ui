@@ -12,6 +12,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { formatDate } from '../../utils/dateTime';
 import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS, CRM_FULL_PRIMARY_BTN_CLASS } from './crmClasses';
+import { ACCENT_CAPS_BOLD_CLASS } from '../ui/textClasses';
 const priorityColor: Record<TaskPriority, string> = {
   low: 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]',
   medium: 'bg-amber-400/15 text-amber-500',
@@ -157,7 +158,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
   return (
     <div className={CRM_PANEL_BODY_CLASS}>
       <div className="flex items-center justify-between px-1 mb-2">
-        <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
+        <span className={ACCENT_CAPS_BOLD_CLASS}>
           {visibleTasks.filter((x) => !x.done).length} {t('crm.open', 'open')}
         </span>
         {can('manageTasks') && (

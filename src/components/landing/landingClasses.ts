@@ -35,3 +35,12 @@ export const CTA_SECTION_TITLE_CLASS = 'text-[clamp(1.8rem,4vw,3rem)] font-bold 
 
 /** Layout row of the landing footer. */
 export const FOOTER_WRAP_CLASS = 'max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4';
+
+/** Lead paragraph under the hero heading. */
+export const HERO_LEAD_CLASS = 'text-lg max-w-xl leading-relaxed mb-10 text-[var(--text-secondary)]';
+
+/** Footer column block. */
+export const FOOTER_SECTION_CLASS = 'relative z-10 border-t px-6 py-8 border-[var(--border-color)]';
+
+/** Small bold footer meta line. */
+export const FOOTER_META_CLASS = 'text-xs font-bold tracking-tight text-[var(--text-secondary)]';

@@ -7,6 +7,7 @@ import { decodeIfMorse } from "../MorseDecoder";
 import { formatClockTime, sendTimeOf } from "../../utils/chatUtils";
 import { FORM_TRANSPARENT_INPUT_CLASS } from "../ui/formClasses";
 import { ACCENT_CAPS_CLASS } from "../ui/textClasses";
+import { MESSAGE_SENDER_LABEL_CLASS } from "./chatPreviewClasses";
 
 interface MessageThreadPanelProps {
   open: boolean;
@@ -49,7 +50,7 @@ const ThreadBubble = ({
         className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed break-words msg-bubble message ${isMe ? "outgoing" : ""}`}
       >
         {!isMe && displayName && (
-          <div className="mb-1 text-xs font-semibold leading-tight text-[var(--accent)]">
+          <div className={MESSAGE_SENDER_LABEL_CLASS}>
             {displayName}
           </div>
         )}

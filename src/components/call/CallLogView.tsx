@@ -7,8 +7,8 @@ import { useAppStore } from '../../store';
 import { callManager } from '../../lib/call/CallManager';
 import { callRecorderService } from '../../lib/callRecorderService';
 import { formatTime } from '../../utils/dateTime';
-import { INLINE_HINT_CLASS } from '../ui/textClasses';
-
+import { INLINE_HINT_CLASS, SEMIBOLD_TRUNCATE_CLASS } from '../ui/textClasses';
+import { FORM_SEARCH_ICON_CLASS } from '../ui/formClasses';
 const SEARCH_CLASS =
   'w-full h-11 pl-10 pr-3 rounded-xl text-sm outline-none transition-colors bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] border border-[var(--border-color)] focus:border-[var(--accent)]';
 const ROW_CLASS =
@@ -64,7 +64,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
+            <Search size={16} className={FORM_SEARCH_ICON_CLASS} />
             <input
               type="text"
               value={query}
@@ -103,7 +103,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
                     {getIcon(call.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate text-[var(--text-primary)]">
+                    <p className={SEMIBOLD_TRUNCATE_CLASS}>
                       {call.name}
                     </p>
                     <p className={INLINE_HINT_CLASS}>

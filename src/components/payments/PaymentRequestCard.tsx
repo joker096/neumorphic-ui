@@ -7,6 +7,7 @@ import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPend
 import { useI18n } from '../../lib/i18n'
 import { formatCurrency } from '../../utils/currency'
 import { MEDIUM_LABEL_CLASS, INLINE_SEMIBOLD_CLASS } from '../ui/textClasses';
+import { PAYMENT_SUCCESS_STATUS_CLASS, PAYMENT_FAILED_STATUS_CLASS, PAYMENT_PENDING_STATUS_CLASS } from './paymentClasses';
 interface PaymentRequestCardProps {
   token: string
   amount?: string | number
@@ -71,19 +72,19 @@ export const PaymentRequestCard = ({
     if (status === null) return null
     if (isPaymentSuccessful(status))
       return (
-        <span className="inline-flex items-center gap-1 text-emerald-500 text-xs font-semibold">
+        <span className={PAYMENT_SUCCESS_STATUS_CLASS}>
           <CheckCircle2 size={14} /> {paymentStatusLabel(status)}
         </span>
       )
     if (isPaymentFailed(status))
       return (
-        <span className="inline-flex items-center gap-1 text-red-500 text-xs font-semibold">
+        <span className={PAYMENT_FAILED_STATUS_CLASS}>
           <XCircle size={14} /> {paymentStatusLabel(status)}
         </span>
       )
     if (isPaymentPending(status))
       return (
-        <span className="inline-flex items-center gap-1 text-amber-500 text-xs font-semibold">
+        <span className={PAYMENT_PENDING_STATUS_CLASS}>
           <Clock size={14} /> {paymentStatusLabel(status)}
         </span>
       )
