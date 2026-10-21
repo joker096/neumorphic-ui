@@ -21,6 +21,7 @@ import { useRefMessageActions } from './hooks/useRefMessageActions';
 import { useActiveChatWorkspace } from './hooks/useActiveChatWorkspace';
 import { useDataHydration } from './hooks/useDataHydration';
 import { useBrowserBackNavigation } from './hooks/useBrowserBackNavigation';
+import { useAppStoreBindings } from './hooks/useAppStoreBindings';
 import { useAppBootEffects } from './hooks/useAppBootEffects';
 import { useAppViewNavigation } from './hooks/useAppViewNavigation';
 import { useChatDraftSync } from './hooks/useChatDraftSync';
@@ -40,21 +41,11 @@ export default function App() {
   const { theme, setTheme, isDark, fontSize, setFontSize, t } = useAppSettings();
   useAppearanceEffects();
 
-  const chats = useAppStore(s => s.chats);
-  const setChats = useAppStore(s => s.setChats);
-  const channels = useAppStore(s => s.channels);
-  const setChannels = useAppStore(s => s.setChannels);
-  const callHistory = useAppStore(s => s.callHistory);
-  const setCallHistory = useAppStore(s => s.setCallHistory);
-  const setBots = useAppStore(s => s.setBots);
-  const scheduledQueue = useAppStore(s => s.scheduledQueue);
-  const draftsEnabled = useAppStore(s => s.draftsEnabled);
-  const contacts = useAppStore(s => s.contacts);
-  const setContacts = useAppStore(s => s.setContacts);
-  const setActiveCall = useAppStore(s => s.setActiveCall);
-  const stealthMode = useAppStore(state => state.stealthMode);
-  const hideWhenOfficeOnly = useAppStore(state => state.hideWhenOfficeOnly);
-  const loadCompanyMessages = useAppStore(s => s.loadCompanyMessages);
+  const {
+    chats, setChats, channels, setChannels, callHistory, setCallHistory,
+    setBots, scheduledQueue, draftsEnabled, contacts, setContacts,
+    setActiveCall, stealthMode, hideWhenOfficeOnly, loadCompanyMessages,
+  } = useAppStoreBindings();
   // Modal / filter / picker flags for the shell + overlays layers: one store
   // read, spread through instead of re-listing 25 pass-through props in JSX.
   const ui = useUiStore();
