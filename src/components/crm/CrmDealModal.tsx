@@ -8,6 +8,7 @@ import { CRM_DEFAULT_DEAL_STAGE, CRM_FALLBACKS, DEAL_STAGES } from '../../consta
 import type { Deal, DealStage } from '../../lib/crm/types';
 import { CrmModal } from './CrmModal';
 import { useCrmPermissions } from '../../lib/crm/permissions';
+import { CRM_FULL_PRIMARY_BTN_CLASS } from './crmClasses';
 
 const inputCls =
   `${FORM_FIELD_CONTROL_CLASS} text-xs`;
@@ -63,7 +64,7 @@ export const DealModal: React.FC<Props> = ({ deal, onClose }) => {
       title={isNew ? t('crm.newDeal', 'New deal') : deal!.title}
       footer={
         editable ? (
-          <button onClick={handleSave} aria-label={t('crm.save', CRM_FALLBACKS.save)} title={t('crm.save', CRM_FALLBACKS.save)} className="w-full min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center gap-2">
+          <button onClick={handleSave} aria-label={t('crm.save', CRM_FALLBACKS.save)} title={t('crm.save', CRM_FALLBACKS.save)} className={CRM_FULL_PRIMARY_BTN_CLASS}>
             <Check size={16} aria-hidden="true" />
             <span className="sr-only">{t('crm.save', CRM_FALLBACKS.save)}</span>
           </button>

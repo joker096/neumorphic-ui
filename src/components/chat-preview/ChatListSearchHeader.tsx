@@ -1,6 +1,7 @@
 import { Archive, Plus, Globe, Users } from "lucide-react";
 import { SearchInput } from "../ui/SearchInput";
 import { NotificationCenter } from "./NotificationCenter";
+import { UNREAD_BADGE_CLASS } from "./chatPreviewClasses";
 
 interface ChatListSearchHeaderProps {
   isDark: boolean;
@@ -63,7 +64,7 @@ export const ChatListSearchHeader = ({
       >
         <Archive size={16} />
         {archivedUnreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-[var(--ink-on-saturate)] shadow-md border-[2px] border-[var(--bg-secondary)] dark:border-[var(--bg-primary)] px-1">
+          <div className={UNREAD_BADGE_CLASS}>
             {archivedUnreadCount}
           </div>
         )}

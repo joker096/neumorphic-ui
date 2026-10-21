@@ -5,6 +5,7 @@ import { useAppStore } from "../../store";
 import { useI18n } from "../../lib/i18n";
 import type { NotificationKind, NotificationSettings } from "../../store/slices/notificationSlice";
 import { DataState } from "../ui/DataState";
+import { UNREAD_BADGE_CLASS } from "./chatPreviewClasses";
 
 /** Square icon button in the notification panel header. */
 const ICON_BTN_CLASS =
@@ -87,7 +88,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
       >
         <Bell size={16} />
         {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-[var(--ink-on-saturate)] shadow-md border-[2px] border-[var(--bg-secondary)] dark:border-[var(--bg-primary)] px-1">
+          <div className={UNREAD_BADGE_CLASS}>
             {unreadCount > 99 ? "99+" : unreadCount}
           </div>
         )}

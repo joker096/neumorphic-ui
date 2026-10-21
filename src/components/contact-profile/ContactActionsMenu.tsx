@@ -1,6 +1,9 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Ban, Edit, MoreVertical, ShieldOff, Trash2 } from "lucide-react";
 
+/** Danger action button of the contact actions menu (block, delete). */
+const DANGER_ICON_BTN_CLASS = 'w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-[var(--danger-soft)] hover:bg-[var(--danger)]/20 text-[var(--danger)]';
+
 type Translate = (key: string, options?: any) => string;
 
 interface ContactActionsMenuProps {
@@ -49,7 +52,7 @@ export function ContactActionsMenu({ t, open, onToggle, canEdit, canDelete, canB
               {canDelete && (
                 <button
                   onClick={onDelete}
-                  className="w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-[var(--danger-soft)] hover:bg-[var(--danger)]/20 text-[var(--danger)]"
+                  className={DANGER_ICON_BTN_CLASS}
                   aria-label={t("contacts.deleteContact")}
                 >
                   <Trash2 size={16} />
@@ -58,7 +61,7 @@ export function ContactActionsMenu({ t, open, onToggle, canEdit, canDelete, canB
               {canBlock && (
                 <button
                   onClick={onBlock}
-                  className="w-10 h-10 min-w-11 min-h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all bg-[var(--danger-soft)] hover:bg-[var(--danger)]/20 text-[var(--danger)]"
+                  className={DANGER_ICON_BTN_CLASS}
                   aria-label={t("contacts.blockSpammer")}
                 >
                   <Ban size={16} />

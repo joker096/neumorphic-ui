@@ -11,8 +11,7 @@ import { useCrmPermissions } from '../../lib/crm/permissions';
 import { DataState } from '../ui/DataState';
 import { formatCurrency } from '../../utils/currency';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
-import { CRM_PANEL_BODY_CLASS } from './crmClasses';
-
+import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS } from './crmClasses';
 // Amount + currency both arrive from imported CRM records, so the formatter is
 // memoized and fail-soft (see utils/currency).
 const fmt = (amount: number, currency: string, lang: string) => formatCurrency(amount, currency, lang, 0);
@@ -74,7 +73,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled, onMessa
           <TrendingUp size={14} /> {fmt(total, 'RUB', lang)}
         </div>
         {can('manageDeals') && (
-          <button onClick={() => setShowAdd(true)} aria-label={t('crm.addDeal', CRM_FALLBACKS.addDeal)} title={t('crm.addDeal', CRM_FALLBACKS.addDeal)} className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center">
+          <button onClick={() => setShowAdd(true)} aria-label={t('crm.addDeal', CRM_FALLBACKS.addDeal)} title={t('crm.addDeal', CRM_FALLBACKS.addDeal)} className={CRM_ICON_PRIMARY_BTN_CLASS}>
             <Plus size={16} aria-hidden="true" />
             <span className="sr-only">{t('crm.addDeal', CRM_FALLBACKS.addDeal)}</span>
           </button>

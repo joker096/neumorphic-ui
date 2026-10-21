@@ -11,8 +11,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { formatDate } from '../../utils/dateTime';
-import { CRM_PANEL_BODY_CLASS } from './crmClasses';
-
+import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS, CRM_FULL_PRIMARY_BTN_CLASS } from './crmClasses';
 const priorityColor: Record<TaskPriority, string> = {
   low: 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]',
   medium: 'bg-amber-400/15 text-amber-500',
@@ -63,7 +62,7 @@ const TaskModal: React.FC<Props> = ({ task, onClose }) => {
       title={task ? task.title : t('crm.newTask', 'New task')}
       footer={
         editable ? (
-          <button onClick={handleSave} aria-label={t('crm.save', CRM_FALLBACKS.save)} title={t('crm.save', CRM_FALLBACKS.save)} className="w-full min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center gap-2">
+          <button onClick={handleSave} aria-label={t('crm.save', CRM_FALLBACKS.save)} title={t('crm.save', CRM_FALLBACKS.save)} className={CRM_FULL_PRIMARY_BTN_CLASS}>
             <Check size={16} aria-hidden="true" />
             <span className="sr-only">{t('crm.save', CRM_FALLBACKS.save)}</span>
           </button>
@@ -162,7 +161,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
           {visibleTasks.filter((x) => !x.done).length} {t('crm.open', 'open')}
         </span>
         {can('manageTasks') && (
-          <button onClick={() => setShowAdd(true)} aria-label={t('crm.addTask', CRM_FALLBACKS.addTask)} title={t('crm.addTask', CRM_FALLBACKS.addTask)} className="w-9 h-9 min-w-11 min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center">
+          <button onClick={() => setShowAdd(true)} aria-label={t('crm.addTask', CRM_FALLBACKS.addTask)} title={t('crm.addTask', CRM_FALLBACKS.addTask)} className={CRM_ICON_PRIMARY_BTN_CLASS}>
             <Plus size={16} aria-hidden="true" />
             <span className="sr-only">{t('crm.addTask', CRM_FALLBACKS.addTask)}</span>
           </button>

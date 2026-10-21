@@ -21,3 +21,7 @@ export const LIST_EMPTY_HINT_CLASS =
 /** Round muted circle that wraps an avatar initial or icon in company dialogs. */
 export const AVATAR_CIRCLE_CLASS =
   'min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-secondary)]';
+
+/** Multiline note field of the company contact and department dialogs. */
+export const COMPANY_TEXTAREA_CLASS =
+  'w-full px-3 py-2 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-sm resize-none';

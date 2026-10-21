@@ -10,6 +10,7 @@ import { FormField } from '../ui/FormField';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { CompanyModalCloseButton } from './CompanyModalCloseButton';
+import { COMPANY_TEXTAREA_CLASS } from './companyClasses';
 
 type DepartmentModalProps = {
   department: CompanyDepartment | null;
@@ -114,7 +115,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t('company.departmentDescriptionPlaceholder', 'What does this department do?')}
               rows={2}
-              className="w-full px-3 py-2 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-sm resize-none"
+              className={COMPANY_TEXTAREA_CLASS}
             />
           </div>
 

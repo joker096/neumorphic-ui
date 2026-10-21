@@ -1,0 +1,9 @@
+/**
+ * Class strings shared by the chat preview surfaces.
+ *
+ * Class strings rather than components: every call site keeps its own element
+ * and only the chrome of the control is identical.
+ */
+
+/** Red unread counter badge pinned to a corner of a header button. */
+export const UNREAD_BADGE_CLASS = 'absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-[var(--ink-on-saturate)] shadow-md border-[2px] border-[var(--bg-secondary)] dark:border-[var(--bg-primary)] px-1';
