@@ -1,4 +1,4 @@
-import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS, FORM_PRIMARY_BTN_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
 import { X, Trash2, Check, Loader2 } from 'lucide-react';
@@ -9,6 +9,7 @@ import { DEPARTMENT_COLORS, departmentColorAt } from '../../constants/companyCon
 import { FormField } from '../ui/FormField';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
+import { CompanyModalCloseButton } from './CompanyModalCloseButton';
 
 type DepartmentModalProps = {
   department: CompanyDepartment | null;
@@ -88,14 +89,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
   return (
     <div className={modalOverlay}>
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
-<button
-  type="button"
-  aria-label={t('common.close')}
-  onClick={onClose}
-  className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
->
-  <X size={18} />
-</button>
+<CompanyModalCloseButton onClick={onClose} />
         <h3 className="text-xl font-bold mb-5 text-[var(--text-primary)]">
           {department ? t('company.editDepartment', 'Edit department') : t('company.addDepartment', 'Add department')}
         </h3>
@@ -190,7 +184,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
             disabled={saving}
             aria-label={t('company.save', 'Save')}
             title={t('company.save', 'Save')}
-            className="w-full min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
+            className={FORM_PRIMARY_BTN_CLASS}
           >
             {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Check size={16} aria-hidden="true" />}
             <span>{t('company.save', 'Save')}</span>

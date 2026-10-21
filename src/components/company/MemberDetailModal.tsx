@@ -1,4 +1,4 @@
-import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS, FORM_PRIMARY_BTN_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
 import { X, Trash2, ChevronDown, UserCog, Check, Loader2 } from 'lucide-react';
@@ -7,17 +7,7 @@ import type { CompanyMember } from '../../lib/company/types';
 import { useI18n } from '../../lib/i18n';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { COMPANY_EDIT_FALLBACKS, COMPANY_MEMBER_FALLBACKS } from '../../constants/companyConstants';
-
-const closeBtn = (onClick: () => void, ariaLabel: string) => (
-  <button
-    type="button"
-    aria-label={ariaLabel}
-    onClick={onClick}
-    className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-  >
-    <X size={18} />
-  </button>
-);
+import { CompanyModalCloseButton } from './CompanyModalCloseButton';
 
 type MemberDetailModalProps = {
   member: CompanyMember;
@@ -81,7 +71,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   return (
     <div className={modalOverlay}>
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
-        {closeBtn(onClose, t('common.close'))}
+        <CompanyModalCloseButton onClick={onClose} />
         <h3 className="text-xl font-bold mb-1 text-[var(--text-primary)]">{member.displayName}</h3>
         <div className="text-xs text-[var(--text-secondary)] mb-5">
           {member.role === 'admin'
@@ -164,7 +154,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
               disabled={saving}
               aria-label={t('company.save', COMPANY_EDIT_FALLBACKS.save)}
               title={t('company.save', COMPANY_EDIT_FALLBACKS.save)}
-              className="w-full min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
+              className={FORM_PRIMARY_BTN_CLASS}
             >
               {saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Check size={16} aria-hidden="true" />}
               <span>{t('company.save', COMPANY_EDIT_FALLBACKS.save)}</span>

@@ -1,22 +1,12 @@
 import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
-import { X, Building2, User, Loader2, Check } from 'lucide-react';
+import { Building2, User, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { FormField } from '../ui/FormField';
-
-const closeBtn = (onClick: () => void, ariaLabel: string) => (
-  <button
-    type="button"
-    aria-label={ariaLabel}
-    onClick={onClick}
-    className="absolute top-4 right-4 z-10 w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-  >
-    <X size={18} />
-  </button>
-);
+import { CompanyModalCloseButton } from './CompanyModalCloseButton';
 
 type CreateCompanyModalProps = {
   onClose: () => void;
@@ -51,7 +41,7 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
   return (
     <div className={modalOverlay}>
       <div className="w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl bg-white border border-[var(--border-color)]">
-        {closeBtn(onClose, t('common.close'))}
+        <CompanyModalCloseButton onClick={onClose} />
         <div className="flex items-center gap-2 mb-1">
           <div className="w-9 h-9 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--accent)]">
             <Building2 size={18} />

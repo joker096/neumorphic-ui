@@ -1,4 +1,4 @@
-import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS, FORM_PRIMARY_BTN_CLASS } from '../ui/formClasses';
 import React, { useState, useEffect } from 'react';
 import { X, Phone, Mail, MapPin, Globe, FileText, Save, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -114,7 +114,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50"
+          className={FORM_PRIMARY_BTN_CLASS}
         >
           {saving ? (
             <Loader2 size={16} className="animate-spin" />
