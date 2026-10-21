@@ -91,8 +91,8 @@ export const PrivacySection = ({
         />
         <SettingsRow
           icon={<UserX size={16} />}
-          iconBg={isDark ? "bg-rose-500/10" : "bg-rose-100"}
-          iconColor={isDark ? "text-rose-400" : "text-rose-600"}
+          iconBg="bg-rose-100 dark:bg-rose-500/10"
+          iconColor="text-rose-600 dark:text-rose-400"
           title={t('settings.blacklist')}
           value={blockedCount > 0 ? t('settings.blacklistCount', { n: blockedCount }) : t('settings.blacklistEmpty', 'Empty')}
           isDark={isDark}
@@ -104,8 +104,8 @@ export const PrivacySection = ({
       <SettingsGroup isDark={isDark} className="mb-6">
         <SettingsRow
           icon={<ShieldOff size={16} />}
-          iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
-          iconColor={isDark ? "text-amber-400" : "text-amber-600"}
+          iconBg="bg-amber-100 dark:bg-amber-500/10"
+          iconColor="text-amber-600 dark:text-amber-400"
           title={t('settings.spamFilter')}
           subtitle={t('settings.spamFilterSubtitle')}
           isDark={isDark}
@@ -154,8 +154,8 @@ export const PrivacySection = ({
         {mediaAutoLoad !== undefined && setMediaAutoLoad && (
           <SettingsRow
             icon={<Download size={16} />}
-            iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
-            iconColor={isDark ? "text-cyan-400" : "text-cyan-600"}
+            iconBg="bg-cyan-100 dark:bg-cyan-500/10"
+            iconColor="text-cyan-600 dark:text-cyan-400"
             title={t('settings.mediaAutoLoad')}
             subtitle={t('settings.mediaAutoLoadSubtitle')}
             value={mediaAutoLoadLabel(mediaAutoLoad as string)}
