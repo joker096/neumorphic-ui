@@ -64,8 +64,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
       <SettingsGroup isDark={isDark}>
         <SettingsToggleRow
           icon={<MessageCircle size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.privateChats', 'Private chats')}
           subtitle={t('settings.privateChatsSub', 'Messages from contacts')}
           isOn={privateChats}
@@ -79,21 +79,21 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           title={t('settings.groups', 'Groups')}
           subtitle={t('settings.groupsSub', 'Group conversations')}
           isDark={isDark}
-          rightElement={<ToggleSwitchLoose isOn={groups} onToggle={() => setGroups(v => !v)} isDark={isDark} ariaLabel={t('settings.groups', 'Groups')} />}
+          rightElement={<ToggleSwitchLoose isOn={groups} onToggle={() => setGroups(v => !v)} ariaLabel={t('settings.groups', 'Groups')} />}
         />
         <SettingsRow
           icon={<Megaphone size={16} />}
-          iconBg={isDark ? "bg-purple-500/10" : "bg-purple-100"}
-          iconColor={isDark ? "text-purple-400" : "text-purple-600"}
+          iconBg="bg-purple-100 dark:bg-purple-500/10"
+          iconColor="text-purple-600 dark:text-purple-400"
           title={t('settings.channels', 'Channels')}
           subtitle={t('settings.channelsSub', 'Broadcast channels')}
           isDark={isDark}
-          rightElement={<ToggleSwitchLoose isOn={channels} onToggle={() => setChannels(v => !v)} isDark={isDark} ariaLabel={t('settings.channels', 'Channels')} />}
+          rightElement={<ToggleSwitchLoose isOn={channels} onToggle={() => setChannels(v => !v)} ariaLabel={t('settings.channels', 'Channels')} />}
         />
         <SettingsToggleRow
           icon={<AtSign size={16} />}
-          iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
-          iconColor={isDark ? "text-amber-400" : "text-amber-600"}
+          iconBg="bg-amber-100 dark:bg-amber-500/10"
+          iconColor="text-amber-600 dark:text-amber-400"
           title={t('settings.mentions', 'Mentions & replies')}
           subtitle={t('settings.mentionsSub', '@you and replies')}
           isOn={mentions}
@@ -106,8 +106,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
       <SettingsGroup isDark={isDark}>
         <SettingsToggleRow
           icon={<Volume2 size={16} />}
-          iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
-          iconColor={isDark ? "text-cyan-400" : "text-cyan-600"}
+          iconBg="bg-cyan-100 dark:bg-cyan-500/10"
+          iconColor="text-cyan-600 dark:text-cyan-400"
           title={t('settings.inAppSound', 'In-app sound')}
           subtitle={t('settings.inAppSoundSub', 'Play sound while app is open')}
           isOn={inAppSound}
@@ -116,8 +116,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         />
         <SettingsToggleRow
           icon={<Eye size={16} />}
-          iconBg={isDark ? "bg-teal-500/10" : "bg-teal-100"}
-          iconColor={isDark ? "text-teal-400" : "text-teal-600"}
+          iconBg="bg-teal-100 dark:bg-teal-500/10"
+          iconColor="text-teal-600 dark:text-teal-400"
           title={t('settings.messagePreview', 'Message preview')}
           subtitle={t('settings.messagePreviewSub', 'Show text in notifications')}
           isOn={preview}
@@ -126,8 +126,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         />
         <SettingsToggleRow
           icon={<Music size={16} />}
-          iconBg={isDark ? "bg-fuchsia-500/10" : "bg-fuchsia-100"}
-          iconColor={isDark ? "text-fuchsia-400" : "text-fuchsia-600"}
+          iconBg="bg-fuchsia-100 dark:bg-fuchsia-500/10"
+          iconColor="text-fuchsia-600 dark:text-fuchsia-400"
           title={t('settings.customTone', 'Custom notification tone')}
           subtitle={t('settings.customToneSub', 'Use a distinct sound')}
           isOn={customTone}
@@ -136,16 +136,16 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         />
         {customTone && NOTIFY_TONES.map((tone, i) => (
           <div key={tone.id}>
-            {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
+            {i > 0 && <div className={"border-t border-[var(--border-color)]"} />}
             <div className="flex items-center">
               <button
                 type="button"
                 onClick={() => { setCustomToneId(tone.id); toast(t('settings.saved', 'Saved'), 'success'); }}
                 aria-label={t(tone.key, tone.fallback)}
                 title={t(tone.key, tone.fallback)}
-                className={`flex-1 min-h-11 flex items-center gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+                className="flex-1 min-h-11 flex items-center gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-[var(--msg-bg-panel-hover)]"
               >
-                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${customToneId === tone.id ? "border-[var(--accent)]" : (isDark ? "border-gray-600" : "border-[var(--border-color)]")}`}>
+                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${customToneId === tone.id ? "border-[var(--accent)]" : "border-[var(--text-tertiary)]/50"}`}>
                   {customToneId === tone.id && <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />}
                 </span>
                 <span className={`text-sm truncate text-[var(--text-primary)]`}>{t(tone.key, tone.fallback)}</span>
@@ -155,7 +155,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
                 onClick={() => playTone(tone.id)}
                 aria-label={t('settings.previewSound', 'Play sound')}
                 title={t('settings.previewSound', 'Play sound')}
-                className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors text-[var(--accent)] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+                className={`w-9 h-9 min-w-11 min-h-11 flex items-center justify-center rounded-lg transition-colors text-[var(--accent)] hover:bg-[var(--msg-bg-panel-hover)]`}
               >
                 <Volume2 size={16} />
                 <span className="sr-only">{t('settings.previewSound', 'Play sound')}</span>
@@ -169,13 +169,13 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
       <SettingsGroup isDark={isDark}>
         {BADGE_MODES.map((mode, i) => (
           <div key={mode.id}>
-            {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
+            {i > 0 && <div className={"border-t border-[var(--border-color)]"} />}
             <button
               onClick={() => setBadgeMode(mode.id)}
-              className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+              className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-[var(--msg-bg-panel-hover)]`}
             >
               <span className={`text-sm text-[var(--text-primary)]`}>{t(`settings.badge_${mode.id}`, mode.label)}</span>
-              <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${badgeMode === mode.id ? "border-[var(--accent)]" : (isDark ? "border-gray-600" : "border-[var(--border-color)]")}`}>
+              <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${badgeMode === mode.id ? "border-[var(--accent)]" : "border-[var(--text-tertiary)]/50"}`}>
                 {badgeMode === mode.id && <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />}
               </span>
             </button>
@@ -187,8 +187,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
       <SettingsGroup isDark={isDark}>
         <SettingsToggleRow
           icon={<Moon size={16} />}
-          iconBg={isDark ? "bg-indigo-500/10" : "bg-indigo-100"}
-          iconColor={isDark ? "text-indigo-400" : "text-indigo-600"}
+          iconBg="bg-indigo-100 dark:bg-indigo-500/10"
+          iconColor="text-indigo-600 dark:text-indigo-400"
           title={t('settings.quietHoursTitle', 'Enable quiet hours')}
           subtitle={t('settings.quietHoursSub', 'Mute notifications on schedule')}
           isOn={quietHours}
@@ -197,7 +197,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         />
         {quietHours && (
           <div className="flex items-center gap-3 px-4 py-3">
-            <Timer size={16} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />
+            <Timer size={16} className="text-[var(--text-secondary)]" />
             <span className={`text-sm flex-1 text-[var(--text-primary)]`}>{t('settings.timeRange', 'From – To')}</span>
             <input
               type="time"
@@ -206,7 +206,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
               aria-label={t('settings.quietFrom', 'Quiet from')}
               className={`rounded-lg px-2 py-1 text-sm bg-[var(--input-bg)] text-[var(--input-text)] border border-[var(--border-color)]`}
             />
-            <span className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}>–</span>
+            <span className="text-[var(--text-secondary)]">–</span>
             <input
               type="time"
               value={quietTo}
@@ -224,7 +224,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
 };
 
 // Local loose toggle so we can reuse the styled switch inside SettingsRow rightElement
-const ToggleSwitchLoose = ({ isOn, onToggle, isDark, ariaLabel }: { isOn: boolean; onToggle: () => void; isDark?: boolean; ariaLabel?: string }) => (
+const ToggleSwitchLoose = ({ isOn, onToggle, ariaLabel }: { isOn: boolean; onToggle: () => void; ariaLabel?: string }) => (
   <button
     type="button"
     role="switch"
@@ -233,7 +233,7 @@ const ToggleSwitchLoose = ({ isOn, onToggle, isDark, ariaLabel }: { isOn: boolea
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
     className="my-[-10px] min-w-11 min-h-11 flex items-center cursor-pointer"
   >
-    <span className={`w-11 h-6 flex items-center rounded-full px-1 transition-colors duration-200 ${isOn ? 'bg-emerald-500 justify-end' : (isDark ? 'bg-gray-600 justify-start' : 'bg-black/20 justify-start')}`}>
+    <span className={`w-11 h-6 flex items-center rounded-full px-1 transition-colors duration-200 ${isOn ? 'bg-[var(--color-success)] justify-end' : 'bg-[var(--text-tertiary)]/40 justify-start'}`}>
       <span className={`w-4 h-4 rounded-full bg-white shadow-sm shrink-0`} />
     </span>
   </button>
