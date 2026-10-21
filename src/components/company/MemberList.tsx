@@ -4,8 +4,7 @@ import { MemberItem } from './MemberItem';
 import type { CompanyMember } from '../../lib/company/types';
 import { memberColorAt, COMPANY_UI_FALLBACKS } from '../../constants/companyConstants';
 import { FORM_ICON_ADD_BTN_CLASS } from '../ui/formClasses';
-import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS } from './companyClasses';
-
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_SECTION_LABEL_CLASS } from './companyClasses';
 type MemberListProps = {
   isDark?: boolean;
   members: CompanyMember[];
@@ -45,7 +44,7 @@ export const MemberList = ({
 }: MemberListProps) => {
   return (
     <div className="w-full mb-4">
-      <div className="flex items-center gap-2 px-2 mb-3 font-bold text-xs uppercase tracking-widest text-[var(--accent)]">
+      <div className={COMPANY_SECTION_LABEL_CLASS}>
         <Users size={14} />
         <span className="truncate">{teamMembersLabel} ({members.length})</span>
       </div>

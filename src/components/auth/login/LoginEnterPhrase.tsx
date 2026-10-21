@@ -1,6 +1,5 @@
 import { Shield, Undo } from "lucide-react";
-import { AUTH_ERROR_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS, AUTH_TEXTAREA_CLASS } from '../authShared';
-
+import { AUTH_ERROR_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS, AUTH_TEXTAREA_CLASS, AUTH_AVATAR_CIRCLE_CLASS } from '../authShared';
 type T = (key: string, options?: any) => string;
 
 interface LoginEnterPhraseProps {
@@ -14,7 +13,7 @@ interface LoginEnterPhraseProps {
 export function LoginEnterPhrase({ phrase, error, isProcessing, t, onPhraseChange, onRestore }: LoginEnterPhraseProps) {
   return (
     <div className="flex flex-col">
-      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mb-6 mx-auto shadow-lg">
+      <div className={AUTH_AVATAR_CIRCLE_CLASS}>
         <Shield size={32} />
       </div>
       <h2 className={`${AUTH_TITLE_CLASS}`}>{t("auth.login.restoreTitle", "Restore Identity")}</h2>

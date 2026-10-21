@@ -1,7 +1,6 @@
 import { Database, Upload, ArrowRight } from "lucide-react";
 import type { RefObject, ChangeEvent } from "react";
-import { AUTH_ERROR_CLASS, AUTH_PRIMARY_BTN_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS } from '../authShared';
-
+import { AUTH_ERROR_CLASS, AUTH_PRIMARY_BTN_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS, AUTH_AVATAR_CIRCLE_CLASS } from '../authShared';
 type T = (key: string, options?: any) => string;
 
 interface LoginImportDataProps {
@@ -15,7 +14,7 @@ interface LoginImportDataProps {
 export function LoginImportData({ fileInputRef, busyImport, error, t, onFilePicked, onStartFresh }: LoginImportDataProps) {
   return (
     <div className="flex flex-col">
-      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mb-6 mx-auto shadow-lg">
+      <div className={AUTH_AVATAR_CIRCLE_CLASS}>
         <Database size={32} />
       </div>
       <h2 className={`${AUTH_TITLE_CLASS}`}>{t("auth.login.restoreDataTitle", "Restore your data")}</h2>

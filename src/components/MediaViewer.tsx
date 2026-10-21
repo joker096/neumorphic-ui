@@ -11,6 +11,9 @@ import { MediaViewerActionBar } from './MediaViewerActionBar';
 import { MediaViewerVideoOverlay } from './MediaViewerVideoOverlay';
 import { useMediaViewerGestures } from './useMediaViewerGestures';
 
+/** Round navigation button of the media viewer (previous / next). */
+const ROUND_NAV_BTN_CLASS = 'w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30';
+
 /** Round glass button floating over the media viewer. */
 const ROUND_BTN_CLASS =
   'w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white';
@@ -122,11 +125,11 @@ export const MediaViewer = ({ media, onClose, prev, next, onPrev, onNext, total,
           <div className="flex gap-2">
             {(prev || next) && (
               <>
-                <button onClick={(e) => { e.stopPropagation(); onPrev?.(); }} disabled={!prev} aria-label={t('media.prev')} title={t('media.prev')} className="w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30">
+                <button onClick={(e) => { e.stopPropagation(); onPrev?.(); }} disabled={!prev} aria-label={t('media.prev')} title={t('media.prev')} className={ROUND_NAV_BTN_CLASS}>
                   <ChevronLeft size={18} />
                   <span className="sr-only">{t('media.prev')}</span>
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); onNext?.(); }} disabled={!next} aria-label={t('media.next')} title={t('media.next')} className="w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30">
+                <button onClick={(e) => { e.stopPropagation(); onNext?.(); }} disabled={!next} aria-label={t('media.next')} title={t('media.next')} className={ROUND_NAV_BTN_CLASS}>
                   <ChevronRight size={18} />
                   <span className="sr-only">{t('media.next')}</span>
                 </button>

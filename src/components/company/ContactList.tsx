@@ -3,8 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { CompanyContact, CompanyDepartment } from '../../types/constants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
-import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS } from './companyClasses';
-
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS } from './companyClasses';
 type ContactListProps = {
   isDark?: boolean;
   contacts: CompanyContact[];
@@ -94,7 +93,7 @@ export const ContactList = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.97 }}
                   onClick={() => onContactClick?.(contact)}
-                  className="w-full text-left p-3 rounded-2xl flex items-center gap-3 cursor-pointer transition-all bg-[var(--bg-tertiary)] hover:brightness-110"
+                  className={COMPANY_ROW_CLASS}
                 >
                   <div className="w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-teal-400 to-cyan-500 text-white font-bold">
                     {String(contact.name || '').slice(0, 2).toUpperCase()}

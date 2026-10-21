@@ -2,8 +2,7 @@ import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import type { LandingPageProps } from "./LandingPage";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS, CTA_PRIMARY_CLASS } from './landingClasses';
-
+import { CTA_ARROW_CLASS, CTA_PRIMARY_CLASS, CTA_SECTION_TITLE_CLASS } from './landingClasses';
 export const CTASection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarted">) => {
   const { t } = useI18n();
   return (
@@ -14,7 +13,7 @@ export const CTASection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarte
     transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
     className="max-w-3xl mx-auto text-center"
   >
-    <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 text-[var(--text-primary)]">
+    <h2 className={CTA_SECTION_TITLE_CLASS}>
       {t("landing.ctaTitle")}
     </h2>
     <p className="text-lg mb-10 text-[var(--text-secondary)]">

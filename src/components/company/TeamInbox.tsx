@@ -10,6 +10,7 @@ import { openFromChannel, sealToChannel, type SealedMessage } from '../../lib/em
 import { b64decode } from '../../lib/crypto/cryptoCore';
 import type { X25519KeyPair } from '../../lib/crypto/types';
 import { formatClockTime } from '../../utils/chatUtils';
+import { COMPANY_INPUT_CLASS } from "./companyClasses";
 
 type TeamInboxProps = {
   isDark?: boolean;
@@ -262,7 +263,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
               }
             }}
             placeholder={t('company.typeMessage', 'Type a message…')}
-            className="flex-1 min-h-11 rounded-xl px-3 bg-[var(--input-bg)] text-[var(--text-primary)] outline-none"
+            className={COMPANY_INPUT_CLASS}
           />
           <button
             onClick={() => void send()}

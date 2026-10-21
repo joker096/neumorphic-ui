@@ -3,8 +3,7 @@ import { ArrowRight } from "lucide-react";
 import type { LandingPageProps } from "./LandingPage";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS, GRADIENT_TEXT_CLASS, CTA_SECONDARY_CLASS } from './landingClasses';
-
+import { CTA_ARROW_CLASS, GRADIENT_TEXT_CLASS, CTA_SECONDARY_CLASS, HERO_TITLE_CLASS } from './landingClasses';
 export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarted">) => {
   const { t } = useI18n();
   return (
@@ -18,7 +17,7 @@ export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStart
       {APP_INFO.VERSION} &mdash; June 2026
     </div>
 
-      <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--text-primary)]">
+      <h1 className={HERO_TITLE_CLASS}>
         {t("landing.communication")}
         <br />
         <span className={GRADIENT_TEXT_CLASS}>

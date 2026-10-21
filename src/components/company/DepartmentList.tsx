@@ -4,8 +4,7 @@ import type { CompanyDepartment, CompanyMember } from '../../types/constants';
 import { memberColorAt } from '../../constants/companyConstants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
-import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS } from './companyClasses';
-
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS } from './companyClasses';
 type DepartmentListProps = {
   isDark?: boolean;
   departments: CompanyDepartment[];
@@ -105,7 +104,7 @@ export const DepartmentList = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.97 }}
                   onClick={() => onDepartmentClick?.(dept)}
-                  className="w-full text-left p-3 rounded-2xl flex items-center gap-3 cursor-pointer transition-all bg-[var(--bg-tertiary)] hover:brightness-110"
+                  className={COMPANY_ROW_CLASS}
                 >
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br ${dept.color || memberColorAt(i)}`}>
                     <Building2 size={18} className="text-white" />

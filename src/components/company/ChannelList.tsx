@@ -4,6 +4,7 @@ import { ChannelItem } from './ChannelItem';
 import type { CompanyChannel } from '../../lib/company/types';
 import { CHANNEL_GRADIENTS, DEFAULT_CHANNEL_GRADIENT } from '../../constants/companyConstants';
 import { DataState } from '../ui/DataState';
+import { COMPANY_SECTION_LABEL_CLASS } from "./companyClasses";
 
 type ChannelListProps = {
   isDark?: boolean;
@@ -16,7 +17,7 @@ type ChannelListProps = {
 export const ChannelList = ({ isDark = false, channels, channelsLabel, onChannelClick, t }: ChannelListProps) => {
   return (
     <div className="w-full">
-      <div className="flex items-center gap-2 px-2 mb-3 font-bold text-xs uppercase tracking-widest text-[var(--accent)]">
+      <div className={COMPANY_SECTION_LABEL_CLASS}>
         <Briefcase size={14} />
         <span className="truncate">{channelsLabel}</span>
       </div>

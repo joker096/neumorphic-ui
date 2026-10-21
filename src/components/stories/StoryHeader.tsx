@@ -5,6 +5,9 @@ import { CloseButton } from '../ui/CloseButton';
 import { getUnseenCount } from '../../lib/stories/storySeen';
 import type { StoryUser } from './storiesData';
 
+/** Small translucent chip of the story header. */
+const CHIP_CLASS = 'flex items-center gap-1 text-white/60 text-xs bg-white/10 px-2 py-1 rounded-full shrink-0';
+
 interface StoryHeaderProps {
   user: StoryUser;
   timeLabel: string;
@@ -39,12 +42,12 @@ export const StoryHeader: React.FC<StoryHeaderProps> = ({ user, timeLabel, onClo
         <div className="text-white/60 text-xs truncate">{timeLabel}</div>
       </div>
       {isStealthMode && (
-        <div className="flex items-center gap-1 text-white/60 text-xs bg-white/10 px-2 py-1 rounded-full shrink-0">
+        <div className={CHIP_CLASS}>
           <EyeOff size={12} aria-hidden="true" /> {t('story.viewedStealthily', 'Viewed stealthily')}
         </div>
       )}
       {user.isMe && (
-        <div className="flex items-center gap-1 text-white/60 text-xs bg-white/10 px-2 py-1 rounded-full shrink-0">
+        <div className={CHIP_CLASS}>
           <Lock size={12} aria-hidden="true" /> {t('story.private', 'Private')}
         </div>
       )}

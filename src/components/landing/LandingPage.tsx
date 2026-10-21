@@ -2,8 +2,7 @@ import { motion } from "motion/react";
 import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } from "lucide-react";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS } from './landingClasses';
-
+import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS } from './landingClasses';
 export type LandingPageProps = {
   isDark?: boolean;
   onGetStarted: () => void;
@@ -71,7 +70,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
             {APP_INFO.VERSION} &mdash; June 2026
           </div>
 
-          <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--text-primary)]">
+          <h1 className={HERO_TITLE_CLASS}>
             {t("landing.communication")}
             <br />
             <span className={GRADIENT_TEXT_CLASS}>
@@ -206,7 +205,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
 
       <section className="relative z-10 px-6 py-16">
         <motion.div {...fadeUp} className="max-w-3xl mx-auto text-center">
-          <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 text-[var(--text-primary)]">
+          <h2 className={CTA_SECTION_TITLE_CLASS}>
             {t("landing.ctaTitle")}
           </h2>
           <p className="text-lg mb-10 text-[var(--text-secondary)]">

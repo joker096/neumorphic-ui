@@ -4,6 +4,9 @@ import { formatTime } from './mediaUtils';
 import type { MediaItem } from './mediaUtils';
 import { useAutoPictureInPicture } from '../hooks/useAutoPictureInPicture';
 
+/** Round button of the video overlay controls. */
+const OVERLAY_ROUND_BTN_CLASS = 'w-9 h-9 min-w-11 min-h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white';
+
 type TranslateFn = (key: string, fallback?: string | Record<string, string | number>) => string;
 
 interface MediaViewerVideoOverlayProps {
@@ -80,7 +83,7 @@ export function MediaViewerVideoOverlay({ media, t, playing, onPlayingChange }: 
         <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/70 to-transparent flex items-center gap-3">
           <button
             onClick={togglePlay}
-            className="w-9 h-9 min-w-11 min-h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white"
+            className={OVERLAY_ROUND_BTN_CLASS}
             aria-label={t('media.play')}
           >
             {playing ? <Pause size={18} /> : <Play size={18} />}
@@ -106,7 +109,7 @@ export function MediaViewerVideoOverlay({ media, t, playing, onPlayingChange }: 
               onClick={togglePip}
               aria-label={t('media.pictureInPicture')}
               aria-pressed={pipActive}
-              className="w-9 h-9 min-w-11 min-h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white"
+              className={OVERLAY_ROUND_BTN_CLASS}
             >
               <PictureInPicture2 size={18} />
             </button>

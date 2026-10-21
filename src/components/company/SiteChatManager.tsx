@@ -4,6 +4,7 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { formatDate } from '../../utils/dateTime';
 import { toast } from 'sonner';
+import { COMPANY_INPUT_CLASS } from "./companyClasses";
 
 const ACCENT_PRESETS = ['#6C5CE7', '#2563EB', '#16A34A', '#EA580C', '#DC2626', '#0F172A'];
 
@@ -56,7 +57,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t('company.siteChatName', 'Site chat name (e.g. Sales)')}
-          className="flex-1 min-h-11 rounded-xl px-3 bg-[var(--input-bg)] text-[var(--text-primary)] outline-none"
+          className={COMPANY_INPUT_CLASS}
         />
         <button
           onClick={() => void create()}

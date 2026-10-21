@@ -26,3 +26,9 @@ export const CTA_SECONDARY_CLASS =
 /** Small outlined pill used as a section label. */
 export const LANDING_PILL_CLASS =
   'mx-auto mb-4 w-fit px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border border-[var(--border-color)] text-[var(--text-secondary)]';
+
+/** Hero headline of the landing page. */
+export const HERO_TITLE_CLASS = 'text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--text-primary)]';
+
+/** Headline of the closing call-to-action band. */
+export const CTA_SECTION_TITLE_CLASS = 'text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 text-[var(--text-primary)]';

@@ -11,6 +11,12 @@ import { useCrmPermissions } from '../../lib/crm/permissions';
 import { FORM_FIELD_CONTROL_CLASS } from '../ui/formClasses';
 import { TINY_BOLD_CLASS } from '../ui/textClasses';
 
+/** Primary button that adds a department or a custom role. */
+const ADD_BTN_CLASS = 'min-h-11 px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer';
+
+/** Dashed placeholder shown when a role or department list is empty. */
+const EMPTY_HINT_CLASS = 'text-xs text-[var(--text-secondary)] p-3 rounded-2xl border border-dashed border-[var(--border-color)] text-center';
+
 /** Delete button of a role or department row. */
 const DANGER_TEXT_BTN_CLASS = 'min-w-11 min-h-11 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0 rounded-xl';
 
@@ -56,14 +62,14 @@ export const CrmRoles: React.FC = () => {
         {can('manageDepartments') && (
           <div className="flex gap-2 mb-2 px-1">
             <input aria-label={t('crm.departmentName', 'Department name')} value={depName} onChange={(e) => setDepName(e.target.value)} placeholder={t('crm.departmentName', 'Department name')} className={inputCls} />
-            <button onClick={() => { if (depName.trim()) { addDepartment(depName.trim(), DEP_COLORS[departments.length % DEP_COLORS.length]); setDepName(''); toast.success(t('crm.departmentCreated', 'Department created')); } }} className="min-h-11 px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer">
+            <button onClick={() => { if (depName.trim()) { addDepartment(depName.trim(), DEP_COLORS[departments.length % DEP_COLORS.length]); setDepName(''); toast.success(t('crm.departmentCreated', 'Department created')); } }} className={ADD_BTN_CLASS}>
               <Plus size={16} />
             </button>
           </div>
         )}
         <div className="flex flex-col gap-1.5 px-1">
           {departments.length === 0 && (
-            <div className="text-xs text-[var(--text-secondary)] p-3 rounded-2xl border border-dashed border-[var(--border-color)] text-center">
+            <div className={EMPTY_HINT_CLASS}>
               {t('crm.noDepartments', 'No departments yet. Add the first one.')}
             </div>
           )}
@@ -104,14 +110,14 @@ export const CrmRoles: React.FC = () => {
         {can('manageRoles') && (
           <div className="flex gap-2 mb-2 px-1">
             <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder={t('crm.roleName', CRM_FALLBACKS.roleName)} className={inputCls} />
-            <button onClick={() => { if (roleName.trim()) { addCustomRole(roleName.trim()); setRoleName(''); toast.success(t('crm.roleCreated', 'Role created')); } }} className="min-h-11 px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer">
+            <button onClick={() => { if (roleName.trim()) { addCustomRole(roleName.trim()); setRoleName(''); toast.success(t('crm.roleCreated', 'Role created')); } }} className={ADD_BTN_CLASS}>
               <Plus size={16} />
             </button>
           </div>
         )}
         <div className="flex flex-col gap-2 px-1">
           {customRoles.length === 0 && (
-            <div className="text-xs text-[var(--text-secondary)] p-3 rounded-2xl border border-dashed border-[var(--border-color)] text-center">
+            <div className={EMPTY_HINT_CLASS}>
               {t('crm.noRoles', 'No custom roles yet. Create one to fine-tune access.')}
             </div>
           )}
