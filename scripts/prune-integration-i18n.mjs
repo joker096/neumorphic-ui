@@ -1,13 +1,18 @@
 /**
- * prune-integration-i18n.mjs — one-shot maintenance script.
+ * prune-integration-i18n.mjs — idempotent maintenance script.
  *
  * Removes the 13 `integrations.*` keys that were only referenced by the deleted
  * unconnected `src/components/integrations/*` prototype panels, keeping the two
  * live keys used by `src/services/index.tsx` (`notConnected`,
  * `notConnectedDesc`).
  *
- * Line-based surgery: every other byte of the locale file is preserved, so
- * formatting/EOL are untouched (the repo locales are LF, no BOM).
+ * Re-running it on an already-pruned locale is a no-op: the script verifies the
+ * invariant (exactly the two live keys survive) and exits 0 instead of failing
+ * on keys that are legitimately absent.
+ *
+ * Line-based surgery that keeps every line's original terminator, so every
+ * other byte of the locale file is preserved: formatting and EOL stay untouched
+ * and the script behaves the same on LF and CRLF checkouts (Windows autocrlf).
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -22,49 +27,67 @@ const DROP = [
 ];
 const LOCALES = ['en', 'ru', 'de', 'es', 'fr', 'ja', 'ko', 'zh'];
 
+/**
+ * A locale is pruned when both live keys survive and no stale key is left.
+ * Extra live keys are allowed: the block may grow later, and a new key must
+ * not turn this script back into a failing one-shot.
+ */
+const isPruned = (keys) =>
+  [...KEEP].every((key) => keys.includes(key)) && !keys.some((key) => DROP.includes(key));
+
 let failed = false;
 
 for (const loc of LOCALES) {
   const file = resolve(ROOT, 'src/locales', `${loc}.json`);
   const before = readFileSync(file, 'utf-8');
-  const lines = before.split('\n');
+  // Keep every line's original terminator, so untouched bytes stay untouched
+  // and the surgery behaves the same on LF and CRLF checkouts (Windows autocrlf).
+  const parts = before.match(/[^\n]*\n|[^\n]+$/g) || [];
+  const text = parts.map((part) => part.replace(/\r?\n$/, ''));
 
-  const start = lines.findIndex((l) => l === '  "integrations": {');
+  const start = text.findIndex((l) => l === '  "integrations": {');
   if (start === -1) { console.error(`${loc}: no "integrations" block`); failed = true; continue; }
   let end = -1;
-  for (let i = start + 1; i < lines.length; i++) {
-    if (lines[i] === '  },') { end = i; break; }
+  for (let i = start + 1; i < text.length; i++) {
+    if (text[i] === '  },') { end = i; break; }
   }
   if (end === -1) { console.error(`${loc}: unterminated "integrations" block`); failed = true; continue; }
 
-  const block = lines.slice(start + 1, end);
+  const block = parts.slice(start + 1, end);
   const removed = [];
-  const kept = block.filter((line) => {
-    const m = /^\s{4}"([^"]+)":/.exec(line);
+  const kept = block.filter((part) => {
+    const m = /^\s{4}"([^"]+)":/.exec(part.replace(/\r?\n$/, ''));
     if (!m) return true;
     if (KEEP.has(m[1])) return true;
     if (DROP.includes(m[1])) { removed.push(m[1]); return false; }
     return true;
   });
 
-  const missing = DROP.filter((k) => !removed.includes(k));
-  if (missing.length) { console.error(`${loc}: keys not found: ${missing.join(', ')}`); failed = true; continue; }
+  // The prune is idempotent: a locale that no longer carries the stale keys is
+  // already in the desired state, not a failure. The invariant is checked below.
+  if (!removed.length) {
+    const parsedAlready = JSON.parse(before);
+    const keysAlready = Object.keys(parsedAlready.integrations || {});
+    if (!isPruned(keysAlready)) { console.error(`${loc}: unexpected surviving keys ${JSON.stringify(keysAlready)}`); failed = true; }
+    else console.log(`${loc}: already pruned, kept [${keysAlready.join(', ')}] — no change`);
+    continue;
+  }
 
   // The closing `  },` follows directly, so the last surviving entry must not
   // keep its trailing comma.
-  if (kept.length && kept[kept.length - 1].trimEnd().endsWith(',')) {
-    kept[kept.length - 1] = kept[kept.length - 1].replace(/,(\s*)$/, '$1');
+  if (kept.length && kept[kept.length - 1].replace(/\r?\n$/, '').trimEnd().endsWith(',')) {
+    kept[kept.length - 1] = kept[kept.length - 1].replace(/,(\r?\n)$/, '$1');
   }
 
-  const after = [...lines.slice(0, start + 1), ...kept, ...lines.slice(end)].join('\n');
+  const after = [...parts.slice(0, start + 1), ...kept, ...parts.slice(end)].join('');
 
-  // Verify: parses, and exactly the two live keys remain.
+  // Verify: parses, both live keys remain and no stale key survived.
   const parsed = JSON.parse(after);
   const keys = Object.keys(parsed.integrations || {});
-  const ok = keys.length === 2 && KEEP.has(keys[0]) && KEEP.has(keys[1]);
+  const ok = isPruned(keys);
   if (!ok) { console.error(`${loc}: unexpected surviving keys ${JSON.stringify(keys)}`); failed = true; continue; }
 
-  writeFileSync(file, after, 'utf-8');
+  if (after !== before) writeFileSync(file, after, 'utf-8');
   console.log(`${loc}: removed ${removed.length} keys, kept [${keys.join(', ')}] (${before.length} -> ${after.length} chars)`);
 }
 
