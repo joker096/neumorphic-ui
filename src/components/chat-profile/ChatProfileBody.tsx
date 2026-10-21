@@ -17,6 +17,7 @@ import {
 } from '../../constants/chatConstants';
 import { formatLongDate } from '../../utils/dateTime';
 import type { GroupMember, GroupPermissions } from '../../store/slices/chatSlice';
+import { ROW_SHELL_CLASS } from '../ui/rowClasses';
 
 export type ChatProfileKind = 'user' | 'group' | 'channel' | 'bot';
 
@@ -243,7 +244,7 @@ export const ChatProfileBody = ({
 };
 
 const Row = ({ icon, title, right }: { icon: React.ReactNode; title: string; right?: React.ReactNode }) => (
-  <div className="flex items-center justify-between px-4 py-3">
+  <div className={ROW_SHELL_CLASS}>
     <div className="flex items-center gap-3">
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${ICON_BOX}`}>{icon}</div>
       <span className="text-sm text-[var(--text-primary)]">{title}</span>

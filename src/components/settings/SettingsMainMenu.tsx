@@ -13,6 +13,7 @@ import { formatClockTime } from "../../utils/chatUtils";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useAppStore } from "../../store";
 import type { CloudSyncState } from "../../store/types";
+import { ROW_SHELL_CLASS } from '../ui/rowClasses';
 
 interface SettingsMainMenuProps {
   isDark: boolean;
@@ -136,7 +137,7 @@ export function SettingsMainMenu({
               )}
               {soundMatches && (
                 <>
-                  <div className="flex items-center justify-between px-4 py-3">
+                  <div className={ROW_SHELL_CLASS}>
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/10`}>
                         {soundEnabled ? <Bell size={16} className="text-emerald-600 dark:text-emerald-400" /> : <BellOff size={16} className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />}
@@ -176,7 +177,7 @@ export function SettingsMainMenu({
                 </>
               )}
               {cloudSyncMatches && (
-                <div className="flex items-center justify-between px-4 py-3">
+                <div className={ROW_SHELL_CLASS}>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--accent-soft)]">
                       <Cloud size={16} className="t-accent" />

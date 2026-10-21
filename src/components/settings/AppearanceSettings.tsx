@@ -3,6 +3,7 @@ import { ImagePlus, Palette, Sparkles, X } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
+import { ROW_SHELL_CLASS, SEGMENTED_TRACK_CLASS } from '../ui/rowClasses';
 
 const MAX_BG_DIMENSION = 960;
 const BG_JPEG_QUALITY = 0.8;
@@ -94,7 +95,7 @@ export const AppearanceSettings = ({
     <SubView title={t('settings.appearance')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('settings.appearanceDescription')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/10`}>
               <Palette size={16} className="text-emerald-600 dark:text-emerald-400" />
@@ -104,7 +105,7 @@ export const AppearanceSettings = ({
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.themeModeSubtitle')}</div>
             </div>
           </div>
-          <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
+          <div className={SEGMENTED_TRACK_CLASS}>
             {(['light','dark','system'] as const).map((m) => (
               <button key={m} type="button" data-testid={`theme-mode-${m}`} onClick={() => handleThemeMode(m)}
                 className={`px-3 py-1.5 text-xs font-medium ${ (themeMode ?? 'system') === m ? 'bg-emerald-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
@@ -123,7 +124,7 @@ export const AppearanceSettings = ({
           value={fontSizeLabel(fontSize)}
           onClick={() => setFontSize(fontSize === 'Small' ? 'Medium' : fontSize === 'Medium' ? 'Large' : 'Small')}
         />
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-purple-100 dark:bg-purple-500/10`}>
               <Sparkles size={16} className="text-purple-600 dark:text-purple-400" />
@@ -133,7 +134,7 @@ export const AppearanceSettings = ({
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.animationsSubtitle')}</div>
             </div>
           </div>
-          <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
+          <div className={SEGMENTED_TRACK_CLASS}>
             {(['off','low','high'] as const).map((i) => (
               <button key={i} type="button" onClick={() => setAnimationIntensity?.(i)}
                 className={`px-2.5 py-1.5 text-xs ${ (animationIntensity ?? 'high') === i ? 'bg-purple-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
@@ -142,7 +143,7 @@ export const AppearanceSettings = ({
             ))}
           </div>
         </div>
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--accent-soft)]`}>
               <Sparkles size={16} className="t-accent" />
@@ -154,7 +155,7 @@ export const AppearanceSettings = ({
           </div>
           <ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations?.(!uiAnimations)} isDark={isDark} ariaLabel={t('settings.uiAnimations')} />
         </div>
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/10`}>
               <Palette size={16} className="text-emerald-600 dark:text-emerald-400" />
@@ -175,7 +176,7 @@ export const AppearanceSettings = ({
             ))}
           </div>
         </div>
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-100 dark:bg-cyan-500/10`}>
               <Palette size={16} className="text-cyan-600 dark:text-cyan-400" />
@@ -186,7 +187,7 @@ export const AppearanceSettings = ({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
+            <div className={SEGMENTED_TRACK_CLASS}>
               {(['default','light','dark','dots'] as const).map((bg) => (
                 <button key={bg} type="button" onClick={() => setChatBackground?.(bg)}
                   className={`px-2.5 py-1.5 text-xs ${ (chatBackground ?? 'default') === bg ? 'bg-cyan-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
@@ -223,7 +224,7 @@ export const AppearanceSettings = ({
             )}
           </div>
         </div>
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-500/10`}>
               <Palette size={16} className="text-amber-600 dark:text-amber-400" />
@@ -233,7 +234,7 @@ export const AppearanceSettings = ({
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.densitySubtitle')}</div>
             </div>
           </div>
-          <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
+          <div className={SEGMENTED_TRACK_CLASS}>
             {(['comfortable','compact'] as const).map((d) => (
               <button key={d} type="button" onClick={() => setDensity?.(d)}
                 className={`px-2.5 py-1.5 text-xs ${ (density ?? 'comfortable') === d ? 'bg-amber-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
@@ -242,7 +243,7 @@ export const AppearanceSettings = ({
             ))}
           </div>
         </div>
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-rose-100 dark:bg-rose-500/10`}>
               <Palette size={16} className="text-rose-600 dark:text-rose-400" />
@@ -252,7 +253,7 @@ export const AppearanceSettings = ({
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.messageRadiusSubtitle')}</div>
             </div>
           </div>
-          <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
+          <div className={SEGMENTED_TRACK_CLASS}>
             {[8,12,16,24].map((r) => (
               <button key={r} type="button" onClick={() => setMessageRadius?.(r)}
                 className={`px-2.5 py-1.5 text-xs ${ (messageRadius ?? 16) === r ? 'bg-rose-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>

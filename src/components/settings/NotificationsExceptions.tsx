@@ -4,6 +4,7 @@ import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { toast } from '../ui/Toast';
 import { ChatPickerModal } from '../payments/ChatPickerModal';
+import { ROW_SHELL_CLASS } from '../ui/rowClasses';
 
 interface NotifyException {
   id: string | number;
@@ -55,7 +56,7 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
         {exceptions.map((e, i) => (
           <div key={e.id}>
             {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
-            <div className="flex items-center justify-between px-4 py-3">
+            <div className={ROW_SHELL_CLASS}>
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-black/5 dark:bg-white/10">
                   <Bell size={16} className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />
