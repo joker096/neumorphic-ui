@@ -1,5 +1,6 @@
 import React, { useRef } from 'react'
 import type { LucideIcon } from 'lucide-react'
+import { FORM_CAPS_LABEL_CLASS } from './formClasses';
 
 interface FormFieldProps {
   label?: string
@@ -61,7 +62,7 @@ export const FormField = ({
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && (
-        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+        <label className={FORM_CAPS_LABEL_CLASS}>
           {label}
         </label>
       )}

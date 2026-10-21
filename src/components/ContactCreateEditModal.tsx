@@ -5,6 +5,7 @@ import type { Contact, ContactField, ContactTag } from '../types/contact';
 import { AppModal } from './ui/AppModal';
 import { ContactCRMFields, ContactCustomField } from './contacts/ContactFormFields';
 import { isValidEmail, isValidPhone } from '../constants/validation';
+import { FORM_CAPS_LABEL_CLASS } from './ui/formClasses';
 
 type ContactFormProps = {
   contact?: Contact;
@@ -84,7 +85,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <label className={FORM_CAPS_LABEL_CLASS}>
               {t('contacts.contactName')}
             </label>
             <input
@@ -99,7 +100,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <label className={FORM_CAPS_LABEL_CLASS}>
               {t('contacts.networkId')}
             </label>
             <input
@@ -129,7 +130,7 @@ export const ContactCreateEditModal = ({ contact, isDark = false, onClose, onSav
 
         <div className="flex flex-col gap-3 mt-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('contacts.localInfo')}</span>
+            <span className={FORM_CAPS_LABEL_CLASS}>{t('contacts.localInfo')}</span>
             <button
               type="button"
               onClick={addField}

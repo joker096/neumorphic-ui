@@ -39,3 +39,6 @@ export const FORM_ICON_ADD_BTN_GAPPED_CLASS = `${ICON_BTN_BASE} gap-1.5 ${ICON_B
 
 /** Square destructive button of the row-level remove actions. */
 export const FORM_ICON_DANGER_BTN_CLASS = `${ICON_BTN_BASE} gap-2 ${ICON_BTN_DANGER_LOOK}`;
+
+/** Uppercase caption above a control, using the muted theme token. */
+export const FORM_CAPS_LABEL_CLASS = 'text-xs font-bold uppercase tracking-widest text-muted-foreground';
