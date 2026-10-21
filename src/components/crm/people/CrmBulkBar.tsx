@@ -4,6 +4,9 @@ import type { CrmContact } from '../../../lib/crm/types';
 import type { CrmTranslate } from './CrmContactRow';
 import { TINY_BOLD_CLASS } from '../../ui/textClasses';
 
+/** Accent icon button of the CRM bulk action bar. */
+const ACCENT_ICON_BTN_CLASS = 'min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform';
+
 interface CrmBulkBarProps {
   selectedCount: number;
   bulkManager: string;
@@ -48,7 +51,7 @@ export function CrmBulkBar({
           onClick={onApplyManager}
           aria-label={t('crm.apply', CRM_FALLBACKS.apply)}
           title={t('crm.apply', CRM_FALLBACKS.apply)}
-          className="min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
+          className={ACCENT_ICON_BTN_CLASS}
         >
           <Check size={18} aria-hidden="true" />
           <span className="sr-only">{t('crm.apply', CRM_FALLBACKS.apply)}</span>
@@ -68,7 +71,7 @@ export function CrmBulkBar({
             onClick={onApplyTag}
             aria-label={t('crm.apply', CRM_FALLBACKS.apply)}
             title={t('crm.apply', CRM_FALLBACKS.apply)}
-            className="min-h-11 min-w-11 w-9 h-9 p-0 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] inline-flex items-center justify-center active:scale-95 transition-transform"
+            className={ACCENT_ICON_BTN_CLASS}
           >
             <Check size={18} aria-hidden="true" />
             <span className="sr-only">{t('crm.apply', CRM_FALLBACKS.apply)}</span>

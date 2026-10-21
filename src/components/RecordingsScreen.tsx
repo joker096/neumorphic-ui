@@ -9,6 +9,9 @@ import { recordingStorage } from '../lib/recordingStorage';
 import { useAppStore } from '../store';
 import { formatDate } from './recordings/recordingUtils';
 
+/** Icon button of the recording row (play, export, delete). */
+const ICON_BTN_CLASS = 'min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)]';
+
 function formatSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -151,7 +154,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
                     {!isVideo && (
                       <button
                         onClick={() => play(r)}
-                        className="min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)]"
+                        className={ICON_BTN_CLASS}
                         aria-label={t('recordings.play')}
                       >
                         <Play size={16} />
@@ -159,7 +162,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
                     )}
                     <button
                       onClick={() => handleExport(r.id, r.title || t('recordings.untitled'))}
-                      className="min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)]"
+                      className={ICON_BTN_CLASS}
                       aria-label={t('recordings.export')}
                     >
                       <Download size={16} />

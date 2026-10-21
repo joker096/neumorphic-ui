@@ -3,6 +3,9 @@ import { Maximize, Minimize, Users } from "lucide-react";
 import { StatusDots } from "./CallControls";
 import { CALL_DEMO_BADGE_LABEL, CALL_DEFAULT_INITIAL, CALL_NETWORK_QUALITY_COLORS, CALL_NETWORK_QUALITY_MS } from "../../constants/callConstants";
 
+/** Neomorphic round button of the call top bar. */
+const NEO_CIRCLE_BTN_CLASS = 'neo-circle w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]';
+
 interface CallTopBarProps {
   showControls: boolean;
   remoteName: string;
@@ -88,7 +91,7 @@ export const CallTopBar: React.FC<CallTopBarProps> = ({
           {isVideo && (
             <button
               onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-              className="neo-circle w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className={NEO_CIRCLE_BTN_CLASS}
               title={t('call.fullscreen')}
               aria-label={t('call.fullscreen')}
             >
@@ -98,7 +101,7 @@ export const CallTopBar: React.FC<CallTopBarProps> = ({
           {onMinimize && (
             <button
               onClick={(e) => { e.stopPropagation(); onMinimize(); }}
-              className="neo-circle w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className={NEO_CIRCLE_BTN_CLASS}
               title={t('call.minimize')}
               aria-label={t('call.minimize')}
             >

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Inbox, AlertTriangle, RefreshCw, LifeBuoy } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import { PRIMARY_ACTION_BTN_CLASS } from './buttonClasses';
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -56,7 +57,7 @@ export const ErrorState = ({ message, description, code, retryAction, supportAct
           onClick={retryAction}
           aria-label={t('ui.retry')}
           title={t('ui.retry')}
-          className="flex items-center justify-center gap-2 min-h-11 px-3 text-sm font-medium rounded-lg bg-primary text-primary-foreground active:scale-95 transition-transform"
+          className={PRIMARY_ACTION_BTN_CLASS}
         >
           <RefreshCw size={16} />
           <span>{t('ui.retry')}</span>

@@ -3,6 +3,9 @@ import { motion } from "motion/react";
 import { SkipBack, SkipForward, Play, Pause, List, Radio } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 
+/** Round player key of the equalizer / transport. */
+const PLAYER_ROUND_BTN_CLASS = 'w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[var(--player-neo-key)] active:scale-95 transition-transform';
+
 type Track = {
   id: string;
   name: string;
@@ -69,7 +72,7 @@ export const PlayerView = ({
         <div
           onClick={prevTrack}
           title={t('systemPlayer.previousTrack')}
-          className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[var(--player-neo-key)] active:scale-95 transition-transform"
+          className={PLAYER_ROUND_BTN_CLASS}
         >
           <SkipBack size={18} fill="currentColor" />
         </div>
@@ -80,7 +83,7 @@ export const PlayerView = ({
         <div
           onClick={nextTrack}
           title={t('systemPlayer.nextTrack')}
-          className="w-9 h-9 min-w-11 min-h-11 shrink-0 rounded-full flex items-center justify-center text-xl cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-[var(--player-neo-key)] active:scale-95 transition-transform"
+          className={PLAYER_ROUND_BTN_CLASS}
         >
           <SkipForward size={18} fill="currentColor" />
         </div>

@@ -11,6 +11,9 @@ import { useCrmPermissions } from '../../lib/crm/permissions';
 import { FORM_FIELD_CONTROL_CLASS } from '../ui/formClasses';
 import { TINY_BOLD_CLASS } from '../ui/textClasses';
 
+/** Delete button of a role or department row. */
+const DANGER_TEXT_BTN_CLASS = 'min-w-11 min-h-11 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0 rounded-xl';
+
 /** Accent caps label above a block of CRM roles. */
 const SECTION_LABEL_CLASS =
   'flex items-center gap-2 px-1 mb-1.5 text-xs font-bold uppercase tracking-widest text-[var(--accent)]';
@@ -84,7 +87,7 @@ export const CrmRoles: React.FC = () => {
                 </select>
               )}
               {can('manageDepartments') && (
-                <button onClick={() => setConfirm({ type: 'department', id: d.id })} aria-label={t('crm.deleteDepartment', 'Delete department')} title={t('crm.deleteDepartment', 'Delete department')} className="min-w-11 min-h-11 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0 rounded-xl">
+                <button onClick={() => setConfirm({ type: 'department', id: d.id })} aria-label={t('crm.deleteDepartment', 'Delete department')} title={t('crm.deleteDepartment', 'Delete department')} className={DANGER_TEXT_BTN_CLASS}>
                   <Trash2 size={16} />
                 </button>
               )}
@@ -121,7 +124,7 @@ export const CrmRoles: React.FC = () => {
                   <span className="flex-1 font-bold text-sm text-[var(--text-primary)]">{r.name}</span>
                 )}
                 {can('manageRoles') && (
-                  <button onClick={() => setConfirm({ type: 'role', id: r.id })} aria-label={t('crm.deleteRole', 'Delete role')} title={t('crm.deleteRole', 'Delete role')} className="min-w-11 min-h-11 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--color-danger)] cursor-pointer shrink-0 rounded-xl">
+                  <button onClick={() => setConfirm({ type: 'role', id: r.id })} aria-label={t('crm.deleteRole', 'Delete role')} title={t('crm.deleteRole', 'Delete role')} className={DANGER_TEXT_BTN_CLASS}>
                     <Trash2 size={16} />
                   </button>
                 )}
