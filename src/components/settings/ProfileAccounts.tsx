@@ -18,7 +18,6 @@ interface AccountDraft {
 }
 
 interface ProfileAccountsProps {
-  isDark: boolean;
   t: (key: string, fallback?: string | Record<string, string | number>) => string;
   accounts: Account[];
   activeId: number;
@@ -30,7 +29,7 @@ interface ProfileAccountsProps {
   onGetPremium?: () => void;
 }
 
-export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAddAccount, onUpdateAccount, onDelete, canAdd, onGetPremium }: ProfileAccountsProps) => {
+export const ProfileAccounts = ({ t, accounts, activeId, onSelect, onAddAccount, onUpdateAccount, onDelete, canAdd, onGetPremium }: ProfileAccountsProps) => {
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -49,9 +48,9 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
   };
 
   return (
-    <div className={`rounded-xl overflow-hidden mt-4 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
+    <div className={`rounded-xl overflow-hidden mt-4 bg-[var(--bg-tertiary)] border border-[var(--border-color)]`}>
       <div className="p-4">
-        <div className={`text-xs uppercase tracking-widest font-bold mb-3 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+        <div className={`text-xs uppercase tracking-widest font-bold mb-3 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>
           {t('settings.accounts', 'Accounts')}
         </div>
         <div className="flex flex-col gap-2">
@@ -59,7 +58,6 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
             <div key={acc.id}>
               {editingId === acc.id ? (
                 <AccountEditForm
-                  isDark={isDark}
                   t={t}
                   account={acc}
                   onSave={(partial) => onUpdateAccount(acc.id, partial)}
@@ -68,7 +66,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
               ) : (
                 <div
                   onClick={() => onSelect(acc.id)}
-                  className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-11 ${isDark ? "hover:bg-[var(--hover-bg-dark)]" : "hover:bg-black/5"}`}
+                  className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors min-h-11 hover:bg-[var(--msg-bg-panel-hover)]`}
                 >
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] font-bold bg-gradient-to-br ${acc.color} flex-shrink-0`}>
                     {acc.name.charAt(0)}
@@ -76,7 +74,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                   <div className="flex-1 flex flex-col overflow-hidden">
                     <span className={`text-sm font-bold truncate text-[var(--text-primary)]`}>{acc.name}</span>
                     {(acc.username || acc.bio) && (
-                      <span className={`text-xs truncate ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+                      <span className={`text-xs truncate text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>
                         {acc.username ? `@${acc.username}` : ''}{acc.username && acc.bio ? ' · ' : ''}{acc.bio || ''}
                       </span>
                     )}
@@ -86,7 +84,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                       type="button"
                       aria-label={t('settings.editAccount', 'Edit account')}
                       onClick={(e) => startEdit(e, acc)}
-                      className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-white/5" : "text-[var(--text-tertiary)] hover:text-[var(--accent)] hover:bg-black/10"}`}
+                      className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors text-[var(--text-tertiary)] hover:text-[var(--accent)] hover:bg-black/10 dark:text-[var(--text-secondary)] dark:hover:bg-white/5`}
                     >
                       <Pencil size={14} />
                     </button>
@@ -98,7 +96,7 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
                           e.stopPropagation();
                           setPendingDeleteId(acc.id);
                         }}
-                        className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "text-[var(--text-secondary)] hover:text-red-400 hover:bg-white/5" : "text-[var(--text-tertiary)] hover:text-red-600 hover:bg-black/10"}`}
+                        className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors text-[var(--text-tertiary)] hover:text-[var(--danger)] hover:bg-black/10 dark:text-[var(--text-secondary)] dark:hover:bg-white/5`}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -113,10 +111,9 @@ export const ProfileAccounts = ({ isDark, t, accounts, activeId, onSelect, onAdd
               )}
             </div>
           ))}
-          <div className={`h-[1px] w-full my-1 shrink-0 ${isDark ? "bg-white/5" : "bg-black/5"}`} />
+          <div className={`h-[1px] w-full my-1 shrink-0 bg-black/5 dark:bg-white/5`} />
           <AccountAddSection
-            isDark={isDark}
-            t={t}
+                  t={t}
             canAdd={canAdd}
             onAddAccount={onAddAccount}
             onGetPremium={onGetPremium}

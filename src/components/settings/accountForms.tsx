@@ -20,11 +20,10 @@ interface AccountDraft {
 
 const emptyDraft = (): AccountDraft => ({ name: '', username: '', bio: '' });
 
-  const inputClass = (isDark: boolean) => `w-full min-w-0 rounded-lg px-3 py-2 text-sm outline-none border transition-colors focus:ring-2 focus:ring-[var(--accent)]/40 bg-[var(--input-bg)] text-[var(--input-text)] border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]`;
-  const labelClass = (isDark: boolean) => `text-xs font-medium mb-1 block ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`;
+  const INPUT_CLASS = "w-full min-w-0 rounded-lg px-3 py-2 text-sm outline-none border transition-colors focus:ring-2 focus:ring-[var(--accent)]/40 bg-[var(--input-bg)] text-[var(--input-text)] border-[var(--border-color)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]";
+  const LABEL_CLASS = "text-xs font-medium mb-1 block text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]";
 
-export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
-  isDark: boolean;
+export function AccountEditForm({ t, account, onSave, onCancel }: {
   t: T;
   account: AccountLike;
   onSave: (partial: { name: string; username: string; bio: string; color: string }) => void;
@@ -47,7 +46,7 @@ export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
   };
 
   return (
-                <form onSubmit={commit} className={`p-3 rounded-2xl flex flex-col gap-2.5 border ${isDark ? "border-[var(--accent)]/40 bg-white/5" : "border-[var(--accent)]/40 bg-black/5"}`}>
+                <form onSubmit={commit} className={`p-3 rounded-2xl flex flex-col gap-2.5 border border-[var(--accent)]/40 bg-black/5 dark:bg-white/5`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[var(--text-primary)] font-bold bg-gradient-to-br ${color} flex-shrink-0`}>
                       {draft.name.charAt(0) || '?'}
@@ -60,11 +59,11 @@ export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
                       onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
                       onClick={(e) => e.stopPropagation()}
                       placeholder={t('settings.newAccountPlaceholder', 'Account name...')}
-                      className={`${inputClass(isDark)} flex-1`}
+                      className={`${INPUT_CLASS} flex-1`}
                     />
                   </div>
                   <div className="grid gap-2">
-                    <label className={labelClass(isDark)}>{t('settings.accountUsername', 'Username')}</label>
+                    <label className={LABEL_CLASS}>{t('settings.accountUsername', 'Username')}</label>
                     <input
                       aria-label={t('settings.accountUsername', 'Username')}
                       type="text"
@@ -72,11 +71,11 @@ export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
                       onChange={(e) => setDraft((d) => ({ ...d, username: e.target.value }))}
                       onClick={(e) => e.stopPropagation()}
                       placeholder="@username"
-                      className={inputClass(isDark)}
+                      className={INPUT_CLASS}
                     />
                   </div>
                   <div className="grid gap-2">
-                    <label className={labelClass(isDark)}>{t('settings.accountBio', 'Bio')}</label>
+                    <label className={LABEL_CLASS}>{t('settings.accountBio', 'Bio')}</label>
                     <input
                       aria-label={t('settings.accountBio', 'Bio')}
                       type="text"
@@ -84,11 +83,11 @@ export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
                       onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
                       onClick={(e) => e.stopPropagation()}
                       placeholder={t('settings.accountBio', 'Bio')}
-                      className={inputClass(isDark)}
+                      className={INPUT_CLASS}
                     />
                   </div>
                   <div className="grid gap-2">
-                    <label className={labelClass(isDark)}>{t('settings.accountColor', 'Color')}</label>
+                    <label className={LABEL_CLASS}>{t('settings.accountColor', 'Color')}</label>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {ACCOUNT_COLORS.map((c) => (
                         <button
@@ -116,7 +115,7 @@ export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
                         e.stopPropagation();
                         onCancel();
                       }}
-                      className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors ${isDark ? "text-[var(--text-secondary)] hover:bg-white/10" : "text-[var(--text-tertiary)] hover:bg-black/10"}`}
+                      className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors text-[var(--text-tertiary)] hover:bg-black/10 dark:text-[var(--text-secondary)] dark:hover:bg-white/10`}
                     >
                       {t('settings.cancel', 'Cancel')}
                     </button>
@@ -134,8 +133,7 @@ export function AccountEditForm({ isDark, t, account, onSave, onCancel }: {
   );
 }
 
-export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremium }: {
-  isDark: boolean;
+export function AccountAddSection({ t, canAdd, onAddAccount, onGetPremium }: {
   t: T;
   canAdd: boolean;
   onAddAccount: (draft: AccountDraft) => void;
@@ -159,7 +157,7 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
 
   if (showForm) {
     return (
-            <form onSubmit={submit} className={`p-3 rounded-2xl flex flex-col gap-2.5 border border-dashed ${isDark ? "border-[var(--border-color)]" : "border-[var(--border-color)]"}`}>
+            <form onSubmit={submit} className={`p-3 rounded-2xl flex flex-col gap-2.5 border border-dashed border-[var(--border-color)]`}>
               <input
                 aria-label={t('settings.newAccountPlaceholder', 'Account name...')}
                 autoFocus
@@ -167,7 +165,7 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
                 value={draft.name}
                 onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
                 placeholder={t('settings.newAccountPlaceholder', 'Account name...')}
-                className={inputClass(isDark)}
+                className={INPUT_CLASS}
               />
               <input
                 aria-label={t('settings.accountUsername', 'Username')}
@@ -175,7 +173,7 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
                 value={draft.username || ''}
                 onChange={(e) => setDraft((d) => ({ ...d, username: e.target.value }))}
                 placeholder={t('settings.accountUsername', 'Username')}
-                className={inputClass(isDark)}
+                className={INPUT_CLASS}
               />
               <input
                 aria-label={t('settings.accountBio', 'Bio')}
@@ -183,7 +181,7 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
                 value={draft.bio || ''}
                 onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
                 placeholder={t('settings.accountBio', 'Bio')}
-                className={inputClass(isDark)}
+                className={INPUT_CLASS}
               />
               <div className="flex items-center gap-1.5 justify-end pt-1">
                 <button
@@ -193,7 +191,7 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
                     setDraft(emptyDraft());
                     setShowForm(false);
                   }}
-                  className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors ${isDark ? "text-[var(--text-secondary)] hover:bg-white/10" : "text-[var(--text-tertiary)] hover:bg-black/10"}`}
+                  className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors text-[var(--text-tertiary)] hover:bg-black/10 dark:text-[var(--text-secondary)] dark:hover:bg-white/10`}
                 >
                   {t('settings.cancel', 'Cancel')}
                 </button>
@@ -201,7 +199,7 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
                   type="submit"
                   aria-label={t('settings.addAccount', 'Add Account')}
                   disabled={!draft.name.trim()}
-                  className={`min-w-11 min-h-11 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${draft.name.trim() ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : (isDark ? "bg-white/10 text-[var(--text-secondary)]" : "bg-black/10 text-[var(--text-tertiary)]")} disabled:opacity-60`}
+                  className={`min-w-11 min-h-11 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-colors ${draft.name.trim() ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "bg-black/10 text-[var(--text-tertiary)] dark:bg-white/10 dark:text-[var(--text-secondary)]"} disabled:opacity-60`}
                 >
                   <Check size={16} />
                   <span className="hidden sm:inline text-sm font-bold">{t('settings.addAccount', 'Add Account')}</span>
@@ -224,13 +222,13 @@ export function AccountAddSection({ isDark, t, canAdd, onAddAccount, onGetPremiu
     );
   }
   return (
-            <div className={`flex items-center gap-3 p-3 rounded-2xl ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-2xl bg-black/5 dark:bg-white/5`}>
               <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-500`}>
                 <Crown size={18} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className={`text-sm font-bold text-[var(--text-primary)]`}>{t('settings.accountsLimit', 'Accounts limit reached')}</div>
-                <div className={`text-xs mt-0.5 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('premium.gatingAccounts', 'Unlimited accounts with Premium')}</div>
+                <div className={`text-xs mt-0.5 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('premium.gatingAccounts', 'Unlimited accounts with Premium')}</div>
               </div>
               {onGetPremium && (
                 <button

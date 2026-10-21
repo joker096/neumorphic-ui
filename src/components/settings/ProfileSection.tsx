@@ -216,7 +216,6 @@ const handleSelectAccount = (id: number) => {
         {!editing && (
           <>
             <ProfileAccounts
-              isDark={isDark}
               t={t}
               accounts={accounts}
               activeId={activeId}
@@ -228,7 +227,7 @@ const handleSelectAccount = (id: number) => {
               onGetPremium={onOpenPremium}
             />
 
-            <div className={`rounded-xl overflow-hidden mt-4 ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
+            <div className={`rounded-xl overflow-hidden mt-4 bg-[var(--bg-tertiary)] border border-[var(--border-color)]`}>
               <div className="p-4">
                 <button
                   onClick={handleRestoreIdentity}
@@ -239,7 +238,7 @@ const handleSelectAccount = (id: number) => {
                   <RotateCcw size={18} />
                   <span className="text-sm font-medium">{t('settings.restoreIdentity', 'Restore Identity')}</span>
                 </button>
-                <p className={`text-xs mt-2 px-1 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.restoreIdentityDescription', 'Restore identity using your 24-word recovery phrase')}</p>
+                <p className={`text-xs mt-2 px-1 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.restoreIdentityDescription', 'Restore identity using your 24-word recovery phrase')}</p>
               </div>
             </div>
           </>

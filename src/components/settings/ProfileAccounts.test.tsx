@@ -30,7 +30,6 @@ const accounts = [
 ];
 
 const baseProps = () => ({
-  isDark: false,
   t,
   accounts,
   activeId: 1,
