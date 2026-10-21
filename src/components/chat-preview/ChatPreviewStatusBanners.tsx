@@ -11,7 +11,7 @@ const TypingBubble = ({ isDark }: TypingBubbleProps) => (
         isDark
           ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]/60"
           : "bg-white/70 border border-[var(--border-color)]/60"
-      } shadow-[0_2px_4px_rgba(0,0,0,0.12)]`}
+      } shadow-[var(--shadow-banner)]`}
       aria-live="polite"
     >
       <span

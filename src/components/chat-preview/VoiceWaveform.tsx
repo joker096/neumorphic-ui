@@ -179,7 +179,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name 
           } ${
               isMe
               ? "bg-black/10 hover:bg-black/15 text-[var(--text-primary)] dark:bg-white/20 dark:hover:bg-white/30"
-              : "bg-[var(--accent)] hover:brightness-110 text-[var(--ink-on-saturate)] shadow-[0_0_15px_rgba(var(--accent-rgb),0.4)]"
+              : "bg-[var(--accent)] hover:brightness-110 text-[var(--ink-on-saturate)] shadow-[var(--shadow-voice-play)]"
           }`}
         >
           {!isReady && !loadError ? (

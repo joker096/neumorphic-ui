@@ -128,7 +128,7 @@ export const LiveVideoRecorder = ({ onCancel, onSend, onPermissionDenied }: Live
         <button
           onClick={handleStopAndSend}
           disabled={!isRecording}
-          className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[0_0_10px_rgba(249,115,22,0.5)] disabled:opacity-40"
+          className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-white shadow-[var(--shadow-rec-glow)] disabled:opacity-40"
           title={label('videoRecorder.stopAndSend', 'Stop and Send')}
           aria-label={label('videoRecorder.stopAndSend', 'Stop and Send')}
         >

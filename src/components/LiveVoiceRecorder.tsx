@@ -193,7 +193,7 @@ onDragEnd={(_: unknown, info: PanInfo) => {
                   )}
                   <button 
                       onClick={handleStopAndSend}
-                     className="w-10 h-10 min-w-11 min-h-11 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                     className="w-10 h-10 min-w-11 min-h-11 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[var(--shadow-rec-glow)]"
                      title={label('voiceRecorder.stopAndSend', 'Stop and Send')}
                   >
                      <Send size={18} className="-ml-0.5" />

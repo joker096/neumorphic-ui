@@ -114,7 +114,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       return (
         <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-[var(--text-primary)] pt-[calc(1.5rem+env(safe-area-inset-top,0px))] pb-6 pl-[calc(1.5rem+env(safe-area-inset-left,0px))] pr-[calc(1.5rem+env(safe-area-inset-right,0px))]">
-          <div className="max-w-[500px] w-full rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
+          <div className="max-w-[500px] w-full rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-color)] p-6 shadow-[var(--shadow-dialog)]">
             <h1 className="text-xl font-bold mb-2">{fallbackT("error.somethingWentWrong")}</h1>
             <p className="text-sm opacity-80 mb-3">
               {chunkError

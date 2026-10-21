@@ -167,7 +167,7 @@ export const MediaViewer = ({ media, onClose, prev, next, onPrev, onNext, total,
                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                    onLoad={() => setImgStatus('loaded')}
                    onError={() => setImgStatus('error')}
-                   className={`max-w-full max-h-[82vh] object-contain rounded-lg shadow-[0_0_60px_rgba(0,0,0,0.8)] select-none ${imgStatus === 'loading' ? 'opacity-0' : 'opacity-100'} transition-opacity`}
+                   className={`max-w-full max-h-[82vh] object-contain rounded-lg shadow-[var(--shadow-media-glow)] select-none ${imgStatus === 'loading' ? 'opacity-0' : 'opacity-100'} transition-opacity`}
                    onContextMenu={(e) => e.preventDefault()}
                    draggable={false}
                  />

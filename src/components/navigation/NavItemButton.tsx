@@ -29,25 +29,25 @@ ${active
         ? `flex min-h-11 items-center gap-3 rounded-2xl px-3 py-3
            transition-all duration-300 cursor-pointer relative
            ${active
-             ? "bg-white text-emerald-800 shadow-[0_4px_15px_rgba(0,0,0,0.15)]"
+             ? "bg-white text-emerald-800 shadow-[var(--shadow-nav-avatar)]"
              : "text-white/90 hover:bg-white/10"}`
          : `flex min-h-11 items-center justify-center rounded-xl px-3 py-2.5 cursor-pointer
             transition-all duration-200 active:scale-[0.97] focus-visible:outline-none
             focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40
            ${active
              ? isDark
-               ? "bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent2)]/15 text-[var(--accent)] shadow-[0_4px_16px_rgba(var(--accent-rgb),0.25),inset_0_1px_0_rgba(255,255,255,0.1)]"
-               : "bg-gradient-to-br from-[var(--accent)]/12 to-[var(--accent2)]/8 text-[var(--accent)] shadow-[0_2px_10px_rgba(var(--accent-rgb),0.15),inset_0_1px_0_rgba(255,255,255,0.9)]"
+               ? "bg-gradient-to-br from-[var(--accent)]/20 to-[var(--accent2)]/15 text-[var(--accent)] shadow-[var(--shadow-nav-active)]"
+               : "bg-gradient-to-br from-[var(--accent)]/12 to-[var(--accent2)]/8 text-[var(--accent)] shadow-[var(--shadow-nav-idle)]"
              : "text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-black/[0.04] active:bg-black/[0.07] dark:hover:bg-white/[0.05] dark:active:bg-white/[0.08]"}`;
 
     const badgeClassName = isBottom
-           ? `absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center bg-[var(--accent)] shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)]`
+           ? `absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center bg-[var(--accent)] shadow-[var(--shadow-nav-badge)]`
        : variant === "eco"
          ? `absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center bg-emerald-500`
          : `absolute top-[6px] right-[6px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center
             ${isDark
-              ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] shadow-[0_2px_8px_rgba(var(--accent-rgb),0.45)]"
-              : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] shadow-[0_1px_5px_rgba(var(--accent-rgb),0.35)]"}`;
+              ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] shadow-[var(--shadow-nav-pill-active)]"
+              : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] shadow-[var(--shadow-nav-pill-idle)]"}`;
 
     return (
       <button

@@ -25,7 +25,7 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
       {/* Logo / app mark */}
       <div className="flex items-center justify-center h-16 shrink-0 border-b border-transparent">
         <div
-          className={"w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center font-black text-sm select-none bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] shadow-[0_3px_10px_rgba(var(--accent-rgb),0.3)] dark:shadow-[0_4px_14px_rgba(var(--accent-rgb),0.35)]"}
+          className={"w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center font-black text-sm select-none bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] shadow-[var(--shadow-logo-glow-light)] dark:shadow-[var(--shadow-logo-glow-dark)]"}
           style={{ fontSize: 13, letterSpacing: "-0.02em" }}
           aria-hidden="true"
         >
@@ -72,7 +72,7 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
       <div className={"mx-3 mb-4 mt-auto h-px bg-black/[0.05] dark:bg-white/[0.05]"} />
       <div className="flex items-center justify-center pb-4">
         <div
-          className={"w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] shadow-[0_1px_4px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)] dark:shadow-[inset_0_1px_3px_rgba(255,255,255,0.08)]"}
+          className={"w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] shadow-[var(--shadow-logo-light)] dark:shadow-[var(--shadow-logo-dark)]"}
           aria-hidden="true"
         >
           ?
