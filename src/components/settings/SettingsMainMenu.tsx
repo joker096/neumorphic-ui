@@ -101,8 +101,8 @@ export function SettingsMainMenu({
           <BigMenuButton
             isDark={isDark}
             tone="emerald"
-            icon={<User size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />}
-            iconBg={isDark ? "bg-emerald-500/20" : "bg-emerald-100"}
+            icon={<User size={18} className="text-emerald-600 dark:text-emerald-400" />}
+            iconBg="bg-emerald-100 dark:bg-emerald-500/20"
             title={t('settings.profile', 'Profile & Accounts')}
             subtitle={t('settings.profileSubtitle', 'Your identity and accounts')}
             onClick={() => setActiveSection('profile')}
@@ -119,14 +119,14 @@ export function SettingsMainMenu({
             <SettingsCard isDark={isDark} onClick={() => setActiveSection('notifications')}>
               {notifMatches && (
                 <>
-                  <div className={`flex items-center justify-between px-4 py-3 ${notificationsEnabled ? (isDark ? "bg-emerald-500/5" : "bg-emerald-50/50") : ""}`}>
+                  <div className={`flex items-center justify-between px-4 py-3 ${notificationsEnabled ? "bg-emerald-50/50 dark:bg-emerald-500/5" : ""}`}>
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-red-500/10" : "bg-red-100"}`}>
-                        <Bell size={16} className={isDark ? "text-red-400" : "text-red-600"} />
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-red-100 dark:bg-red-500/10`}>
+                        <Bell size={16} className="text-red-600 dark:text-red-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm font-medium text-[var(--text-primary)]`}>{t('settings.notifications')}</div>
-                        {t('settings.notificationsSubtitle') && <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.notificationsSubtitle')}</div>}
+                        <div className="text-sm font-medium text-[var(--text-primary)]">{t('settings.notifications')}</div>
+                        {t('settings.notificationsSubtitle') && <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.notificationsSubtitle')}</div>}
                       </div>
                     </div>
                     <ToggleSwitch isOn={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} isDark={isDark} ariaLabel={t('settings.notifications')} />
@@ -138,11 +138,11 @@ export function SettingsMainMenu({
                 <>
                   <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/10" : "bg-emerald-100"}`}>
-                        {soundEnabled ? <Bell size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} /> : <BellOff size={16} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />}
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/10`}>
+                        {soundEnabled ? <Bell size={16} className="text-emerald-600 dark:text-emerald-400" /> : <BellOff size={16} className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm text-[var(--text-secondary)]`}>{t('settings.sound')}</div>
+                        <div className="text-sm text-[var(--text-secondary)]">{t('settings.sound')}</div>
                       </div>
                     </div>
                     <ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} ariaLabel={t('settings.sound')} />
@@ -154,11 +154,11 @@ export function SettingsMainMenu({
                 <>
                   <div className="flex items-center justify-between px-4 py-3 min-h-11">
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-amber-500/10" : "bg-amber-100"}`}>
-                        <Bell size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-500/10`}>
+                        <Bell size={16} className="text-amber-600 dark:text-amber-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm text-[var(--text-secondary)]`}>{t('settings.soundVolume', 'Volume')}</div>
+                        <div className="text-sm text-[var(--text-secondary)]">{t('settings.soundVolume', 'Volume')}</div>
                       </div>
                     </div>
                     <input
@@ -178,13 +178,13 @@ export function SettingsMainMenu({
               {cloudSyncMatches && (
                 <div className="flex items-center justify-between px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--accent-soft)]`}>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--accent-soft)]">
                       <Cloud size={16} className="t-accent" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm text-[var(--text-secondary)]`}>{t('settings.cloudSyncOption')}</div>
+                      <div className="text-sm text-[var(--text-secondary)]">{t('settings.cloudSyncOption')}</div>
                       {cloudSync.enabled && (
-                        <div className={`text-xs truncate ${cloudSync.status === "error" ? (isDark ? "text-red-400" : "text-red-600") : (isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]")}`}>
+                        <div className={`text-xs truncate ${cloudSync.status === "error" ? "text-red-600 dark:text-red-400" : "text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}`}>
                           {cloudSync.status === "error"
                             ? t('settings.cloudSyncError', 'Sync failed')
                             : cloudSync.status === "syncing"
@@ -223,8 +223,8 @@ export function SettingsMainMenu({
             {backupMatches && (
               <SettingsCard isDark={isDark}>
                 <SettingsNavItem
-                  icon={<Download size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />}
-                  iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
+                  icon={<Download size={16} className="text-cyan-600 dark:text-cyan-400" />}
+                  iconBg="bg-cyan-100 dark:bg-cyan-500/10"
                   title={t('settings.backupExport')}
                   subtitle={t('settings.backupExportSubtitle', 'Backup, export and reset')}
                   isDark={isDark}
@@ -236,8 +236,8 @@ export function SettingsMainMenu({
               <BigMenuButton
                 isDark={isDark}
                 tone="amber"
-                icon={<HardDrive size={18} className={isDark ? "text-amber-400" : "text-amber-600"} />}
-                iconBg={isDark ? "bg-amber-500/20" : "bg-amber-100"}
+                icon={<HardDrive size={18} className="text-amber-600 dark:text-amber-400" />}
+                iconBg="bg-amber-100 dark:bg-amber-500/20"
                 title={t('settings.dataStorage')}
                 subtitle={t('settings.dataStorageSubtitle')}
                 onClick={() => setActiveSection('storage')}
@@ -250,8 +250,8 @@ export function SettingsMainMenu({
           <BigMenuButton
             isDark={isDark}
             tone="purple"
-            icon={<Building2 size={18} className={isDark ? "text-purple-400" : "text-purple-600"} />}
-            iconBg={isDark ? "bg-purple-500/20" : "bg-purple-100"}
+            icon={<Building2 size={18} className="text-purple-600 dark:text-purple-400" />}
+            iconBg="bg-purple-100 dark:bg-purple-500/20"
             title={t('settings.company')}
             subtitle={t('settings.companySubtitle')}
             onClick={() => setActiveSection('company')}
@@ -271,7 +271,7 @@ export function SettingsMainMenu({
         )}
 
         <div className="w-full flex justify-center pb-8 pt-4 border-t border-[var(--border-color)]">
-          <div className={`text-xs font-mono tracking-widest uppercase text-[var(--text-secondary)] flex items-center gap-1`}>
+          <div className="text-xs font-mono tracking-widest uppercase text-[var(--text-secondary)] flex items-center gap-1">
             <Smartphone size={12} />
             {t('settings.lastBuild')}: {APP_INFO.BUILD_DATE}
           </div>
