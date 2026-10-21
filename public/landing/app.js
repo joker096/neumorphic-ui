@@ -365,7 +365,7 @@ document.querySelectorAll('.faq dt').forEach(dt => {
     grid.innerHTML = '<div class="card"><h3>Downloads</h3><p>Release manifest unavailable.</p></div>';
     return;
   }
-  // Release URL helpers (public/landing/releaseUrls.js). The manifest urls are
+  // Release URL helpers (public/releaseUrls.js). The manifest urls are
   // relative to the site root, this page lives one level deeper.
   const RU = globalThis.MessAngerReleaseUrls;
   if (!RU) {

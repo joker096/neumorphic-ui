@@ -9,11 +9,13 @@ import { describe, expect, it } from 'vitest';
  * which on that page resolve to /landing/releases/<file> and 404, so the
  * landing page builds its asset links from the manifest base instead.
  *
- * These tests load the shipped helper (public/landing/releaseUrls.js) and
- * check the resolution rules against the real manifest shape.
+ * The helper lives in public/releaseUrls.js and is shared by the downloads
+ * page and the landing page, so the same-origin / https guard exists in one
+ * place only. These tests load the shipped helper and check the resolution
+ * rules against the real manifest shape.
  */
 
-const HELPERS_PATH = path.resolve(__dirname, '../../public/landing/releaseUrls.js');
+const HELPERS_PATH = path.resolve(__dirname, '../../public/releaseUrls.js');
 
 interface ReleaseHelpers {
   releaseBase(manifest: unknown, pageUrl: string): string;
@@ -90,5 +92,22 @@ describe('landing release urls', () => {
     const page = fs.readFileSync(path.resolve(__dirname, '../../public/landing/app.js'), 'utf8');
     expect(page).toContain('RU.assetUrl(manifest, f.file');
     expect(page).not.toContain("btn('Download ' + kindLabel, f.url");
+  });
+
+  it('both pages load the shared helper', () => {
+    const landing = fs.readFileSync(path.resolve(__dirname, '../../public/landing/index.html'), 'utf8');
+    const downloads = fs.readFileSync(path.resolve(__dirname, '../../public/downloads.html'), 'utf8');
+    expect(landing).toContain('<script src="../releaseUrls.js" defer></script>');
+    expect(downloads).toContain('<script src="releaseUrls.js"></script>');
+  });
+
+  it('the downloads page keeps no second copy of the origin guard', () => {
+    const downloads = fs.readFileSync(path.resolve(__dirname, '../../public/downloads.html'), 'utf8');
+    expect(downloads).toContain('globalThis.MessAngerReleaseUrls');
+    expect(downloads).not.toContain("url.protocol === 'https:' ? url.href");
+  });
+
+  it('ships one helper file only', () => {
+    expect(fs.existsSync(path.resolve(__dirname, '../../public/landing/releaseUrls.js'))).toBe(false);
   });
 });

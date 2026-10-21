@@ -73,6 +73,7 @@
       .err { color: #c0392b; text-align: center; padding: 20px; }
       .icon { width: 26px; height: 26px; flex: none; }
     </style>
+    <script src="releaseUrls.js"></script>
   </head>
   <body>
     <div class="wrap">
@@ -133,16 +134,20 @@
           .replace(/'/g, '&#39;');
       }
 
+      // Shared with the landing page (public/releaseUrls.js): only same-origin
+      // or https links are allowed into an href.
+      const RU = globalThis.MessAngerReleaseUrls;
+
       function safeDownloadUrl(value) {
-        try {
-          const url = new URL(String(value ?? ''), window.location.href);
-          return url.origin === window.location.origin || url.protocol === 'https:' ? url.href : '';
-        } catch {
-          return '';
-        }
+        return RU ? RU.safeUrl(value, window.location.href) : '';
       }
 
       async function load() {
+        if (!RU) {
+          document.getElementById('grid').innerHTML =
+            '<div class="err">Could not load release helpers. <code>releaseUrls.js</code> is missing from the build.</div>';
+          return;
+        }
         let manifest;
         try {
           const res = await fetch('./releases/releases.json', { cache: 'no-store' });

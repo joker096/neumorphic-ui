@@ -1,17 +1,18 @@
-// ════════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // RELEASE URL HELPERS
 //
-// The release manifest (dist/releases/releases.json) is published next to
-// the downloadable artifacts and lists every build by its bare file name.
-// Its `url` field is relative to the page that renders it
+// Shared by the downloads page (/downloads.html) and the landing page
+// (/landing/). The release manifest (dist/releases/releases.json) is
+// published next to the downloadable artifacts and lists every build by its
+// bare file name. Its `url` field is relative to the page that renders it
 // ("./releases/<file>"), which is correct for a page served from the site
-// root - but this landing page lives one directory deeper (/landing/), so
+// root - but the landing page lives one directory deeper (/landing/), so
 // those urls would resolve to /landing/releases/<file> and 404.
 //
 // The helpers below build the asset links from the manifest base instead and
-// keep the same-origin / https guard the downloads page uses, so a manifest
-// can never inject a javascript: or a third-party http: link.
-// ════════════════════════════════════════════════════
+// keep a same-origin / https guard, so a manifest can never inject a
+// javascript: or a third-party http: link.
+// ══════════════════════════════════════════
 (function (global) {
   'use strict';
 
