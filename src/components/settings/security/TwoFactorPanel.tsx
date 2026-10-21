@@ -5,6 +5,7 @@ import { useAppStore } from '../../../store';
 import { generateSecret, verifyTotp, otpauthUri, totpCode } from '../../../lib/twoFactor';
 import { useSecurityChallenge } from '../../../hooks/useSecurityChallenge';
 import { SecurityChallengeModal } from './SecurityChallengeModal';
+import { PANEL_FOOTER_CLASS } from './securityClasses';
 
 interface TwoFactorPanelProps {
   isDark?: boolean;
@@ -99,7 +100,7 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
           isDark={isDark}
         />
         {showTotpSetup && (
-          <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
+          <div className={PANEL_FOOTER_CLASS}>
             <p className={`text-xs mb-3 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>
               {t('settings.totpInstruction')}
             </p>

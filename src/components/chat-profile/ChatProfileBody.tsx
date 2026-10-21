@@ -22,6 +22,10 @@ import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 import { LARGE_LABEL_CLASS } from '../ui/textClasses';
 import { HINT_TEXT_TIGHT_CLASS } from '../ui/textClasses';
 
+/** Counter card of the profile header (subscribers, posts, owner). */
+const STAT_CARD_CLASS =
+  'rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]';
+
 export type ChatProfileKind = 'user' | 'group' | 'channel' | 'bot';
 
 export type ProfileChat = {
@@ -85,15 +89,15 @@ export const ChatProfileBody = ({
   <div className="px-4 mt-5">
     <SectionTitle icon={<Info size={16} />} title={t('profile.statistics', 'Statistics')} />
     <div className="grid grid-cols-3 gap-2">
-      <div className="rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]">
+      <div className={STAT_CARD_CLASS}>
         <div className={LARGE_LABEL_CLASS}>{chat.subscriberCount ?? chat.subscribers ?? CHAT_PROFILE_DEFAULT_SUBSCRIBERS}</div>
         <div className={HINT_TEXT_TIGHT_CLASS}>{t('profile.subscribersLabel', 'Subscribers')}</div>
       </div>
-      <div className="rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]">
+      <div className={STAT_CARD_CLASS}>
         <div className={LARGE_LABEL_CLASS}>{chat.postCount ?? chat.history?.length ?? 0}</div>
         <div className={HINT_TEXT_TIGHT_CLASS}>{t('profile.postsLabel', 'Posts')}</div>
       </div>
-      <div className="rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]">
+      <div className={STAT_CARD_CLASS}>
         <div className="text-sm font-bold truncate px-1 text-[var(--text-primary)]">{chat.ownerId ? (ownerName || t('profile.owner', 'Owner')) : '—'}</div>
         <div className={HINT_TEXT_TIGHT_CLASS}>{t('profile.owner', 'Owner')}</div>
       </div>

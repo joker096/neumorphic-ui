@@ -7,6 +7,7 @@ import { useAppStore } from '../../../store';
 import { isBiometricAvailable, registerBiometric } from '../../../lib/biometric';
 import { useSecurityChallenge } from '../../../hooks/useSecurityChallenge';
 import { SecurityChallengeModal } from './SecurityChallengeModal';
+import { PANEL_FOOTER_CLASS } from './securityClasses';
 
 interface AppLockPanelProps {
   isDark?: boolean;
@@ -158,7 +159,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
           }}
         />
         {showPinInput && (
-          <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
+          <div className={PANEL_FOOTER_CLASS}>
             <label htmlFor="security-pin-input" className="sr-only">{t('settings.enterPin')}</label>
             <input
               id="security-pin-input"

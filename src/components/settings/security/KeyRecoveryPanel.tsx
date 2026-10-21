@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { deviceSecurity } from '../../../lib/deviceSecurity';
 import { useSecurityChallenge } from '../../../hooks/useSecurityChallenge';
 import { SecurityChallengeModal } from './SecurityChallengeModal';
+import { PANEL_FOOTER_CLASS } from './securityClasses';
 
 interface KeyRecoveryPanelProps {
   isDark?: boolean;
@@ -125,7 +126,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
           onClick={() => setShowKeyRecovery(v => !v)}
         />
         {showKeyRecovery && (
-          <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
+          <div className={PANEL_FOOTER_CLASS}>
             <p className={"text-xs mb-3 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
               {t('settings.keyRecovery.hint')}
             </p>
