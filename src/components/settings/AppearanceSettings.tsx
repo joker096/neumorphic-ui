@@ -4,8 +4,7 @@ import { useI18n } from '../../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { ROW_SHELL_CLASS, SEGMENTED_TRACK_CLASS } from '../ui/rowClasses';
-import { PRIMARY_LABEL_CLASS } from '../ui/textClasses';
-
+import { PRIMARY_LABEL_CLASS, MUTED_CAPTION_CLASS } from '../ui/textClasses';
 const MAX_BG_DIMENSION = 960;
 const BG_JPEG_QUALITY = 0.8;
 
@@ -103,7 +102,7 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className={PRIMARY_LABEL_CLASS}>{t('settings.darkTheme')}</div>
-              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.themeModeSubtitle')}</div>
+              <div className={MUTED_CAPTION_CLASS}>{t('settings.themeModeSubtitle')}</div>
             </div>
           </div>
           <div className={SEGMENTED_TRACK_CLASS}>
@@ -132,7 +131,7 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className={PRIMARY_LABEL_CLASS}>{t('settings.animations')}</div>
-              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.animationsSubtitle')}</div>
+              <div className={MUTED_CAPTION_CLASS}>{t('settings.animationsSubtitle')}</div>
             </div>
           </div>
           <div className={SEGMENTED_TRACK_CLASS}>
@@ -151,7 +150,7 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className={PRIMARY_LABEL_CLASS}>{t('settings.uiAnimations')}</div>
-              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.uiAnimationsSubtitle')}</div>
+              <div className={MUTED_CAPTION_CLASS}>{t('settings.uiAnimationsSubtitle')}</div>
             </div>
           </div>
           <ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations?.(!uiAnimations)} isDark={isDark} ariaLabel={t('settings.uiAnimations')} />
@@ -163,7 +162,7 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className={PRIMARY_LABEL_CLASS}>{t('settings.accentColor')}</div>
-              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.accentColorSubtitle')}</div>
+              <div className={MUTED_CAPTION_CLASS}>{t('settings.accentColorSubtitle')}</div>
             </div>
           </div>
           <div className="flex gap-1.5">
@@ -184,7 +183,7 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className={PRIMARY_LABEL_CLASS}>{t('settings.chatBackground')}</div>
-              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.chatBackgroundSubtitle')}</div>
+              <div className={MUTED_CAPTION_CLASS}>{t('settings.chatBackgroundSubtitle')}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -232,7 +231,7 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className={PRIMARY_LABEL_CLASS}>{t('settings.density')}</div>
-              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.densitySubtitle')}</div>
+              <div className={MUTED_CAPTION_CLASS}>{t('settings.densitySubtitle')}</div>
             </div>
           </div>
           <div className={SEGMENTED_TRACK_CLASS}>
@@ -251,7 +250,7 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className={PRIMARY_LABEL_CLASS}>{t('settings.messageRadius')}</div>
-              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.messageRadiusSubtitle')}</div>
+              <div className={MUTED_CAPTION_CLASS}>{t('settings.messageRadiusSubtitle')}</div>
             </div>
           </div>
           <div className={SEGMENTED_TRACK_CLASS}>

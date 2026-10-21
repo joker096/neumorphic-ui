@@ -1,5 +1,8 @@
 import { Archive, Bell, CheckCheck, Trash2, X } from "lucide-react";
 
+/** Pill button of the bulk action bar. */
+const CHIP_BTN_CLASS = 'min-h-11 px-2 flex-1 flex items-center justify-center gap-1.5 rounded-full text-xs font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]';
+
 interface BulkActionsBarProps {
   selectedIds: Set<string | number>;
   t: (key: string, options?: any) => string;
@@ -20,7 +23,7 @@ export const BulkActionsBar = ({ selectedIds, t, onCancel, onArchive, onDelete, 
       {selectedIds.size} {t("chat.selected")}
     </span>
     <div className="flex-1" />
-    <button onClick={onArchive} aria-label={t("chat.archive")} title={t("chat.archive")} className={`min-h-11 px-2 flex-1 flex items-center justify-center gap-1.5 rounded-full text-xs font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]`}>
+    <button onClick={onArchive} aria-label={t("chat.archive")} title={t("chat.archive")} className={CHIP_BTN_CLASS}>
       <Archive size={16} />
       <span>{t("chat.archive")}</span>
     </button>
@@ -28,11 +31,11 @@ export const BulkActionsBar = ({ selectedIds, t, onCancel, onArchive, onDelete, 
       <Trash2 size={16} />
       <span>{t("chat.delete")}</span>
     </button>
-    <button onClick={onMarkRead} aria-label={t("chat.markRead")} title={t("chat.markRead")} className={`min-h-11 px-2 flex-1 flex items-center justify-center gap-1.5 rounded-full text-xs font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]`}>
+    <button onClick={onMarkRead} aria-label={t("chat.markRead")} title={t("chat.markRead")} className={CHIP_BTN_CLASS}>
       <CheckCheck size={16} />
       <span>{t("chat.markRead")}</span>
     </button>
-    <button onClick={onToggleMute} aria-label={t("chat.mute")} title={t("chat.mute")} className={`min-h-11 px-2 flex-1 flex items-center justify-center gap-1.5 rounded-full text-xs font-bold transition-colors bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-color)]`}>
+    <button onClick={onToggleMute} aria-label={t("chat.mute")} title={t("chat.mute")} className={CHIP_BTN_CLASS}>
       <Bell size={16} />
       <span>{t("chat.mute")}</span>
     </button>

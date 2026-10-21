@@ -1,16 +1,19 @@
 import { Clock } from "lucide-react";
 
+/** Horizontal rule inside a separator row. */
+const SEPARATOR_LINE_CLASS = 'flex-1 h-px bg-[var(--border-color)]';
+
 type Translate = (key: string, options?: any) => string;
 
 /** Sticky day divider between message groups. */
 export function MessageDateSeparator({ label }: { label?: string }) {
   return (
     <div className="sticky top-0 z-10 flex items-center gap-3 py-2">
-      <div className={`flex-1 h-px bg-[var(--border-color)]`} />
+      <div className={SEPARATOR_LINE_CLASS} />
       <span className="text-xs font-bold uppercase tracking-widest shrink-0 text-[var(--text-tertiary)]">
         {label}
       </span>
-      <div className={`flex-1 h-px bg-[var(--border-color)]`} />
+      <div className={SEPARATOR_LINE_CLASS} />
     </div>
   );
 }

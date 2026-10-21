@@ -2,8 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useI18n } from '../lib/i18n';
 import { SubView } from './ui/SubView';
 import { Radar as RadarIcon } from 'lucide-react';
-import { PRIMARY_LABEL_CLASS } from './ui/textClasses';
-
+import { PRIMARY_LABEL_CLASS, MUTED_CAPTION_CLASS } from './ui/textClasses';
 export const MeshRadar = ({ isDark = false, onBack }: { isDark?: boolean; onBack?: () => void }) => {
   const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -92,7 +91,7 @@ export const MeshRadar = ({ isDark = false, onBack }: { isDark?: boolean; onBack
               <p className={PRIMARY_LABEL_CLASS}>
                 {t('settings.meshNodesNearby', 'Mesh Nodes Nearby')}
               </p>
-              <p className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>
+              <p className={MUTED_CAPTION_CLASS}>
                 {t('common.loading', 'Loading...')}
               </p>
             </div>

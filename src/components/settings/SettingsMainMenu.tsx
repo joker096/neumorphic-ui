@@ -14,7 +14,7 @@ import { APP_INFO } from "../../config/settingsDefaults";
 import { useAppStore } from "../../store";
 import type { CloudSyncState } from "../../store/types";
 import { ROW_SHELL_CLASS } from '../ui/rowClasses';
-import { MEDIUM_LABEL_CLASS, SECONDARY_TEXT_CLASS, SUBTLE_TEXT_CLASS } from '../ui/textClasses';
+import { MEDIUM_LABEL_CLASS, SECONDARY_TEXT_CLASS, SUBTLE_TEXT_CLASS, MUTED_CAPTION_CLASS } from '../ui/textClasses';
 interface SettingsMainMenuProps {
   isDark: boolean;
   searchQuery: string;
@@ -127,7 +127,7 @@ export function SettingsMainMenu({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className={MEDIUM_LABEL_CLASS}>{t('settings.notifications')}</div>
-                        {t('settings.notificationsSubtitle') && <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.notificationsSubtitle')}</div>}
+                        {t('settings.notificationsSubtitle') && <div className={MUTED_CAPTION_CLASS}>{t('settings.notificationsSubtitle')}</div>}
                       </div>
                     </div>
                     <ToggleSwitch isOn={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} isDark={isDark} ariaLabel={t('settings.notifications')} />

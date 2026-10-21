@@ -6,6 +6,10 @@ import { SubView } from '../ui/SubView';
 import { toast } from '../ui/Toast';
 import { EmptyState } from '../ui/States';
 import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
+import { GUIDE_ROW_CLASS } from '../ui/rowClasses';
+
+/** Label of a help entry. */
+const HELP_LABEL_CLASS = 'text-xs font-medium text-[var(--text-primary)]';
 
 interface HelpSupportSectionProps {
   isDark?: boolean;
@@ -121,7 +125,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
               type="button"
               onClick={() => setOpenFaq(openFaq === i ? null : i)}
               aria-expanded={openFaq === i}
-              className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-black/5 dark:hover:bg-white/5`}
+              className={GUIDE_ROW_CLASS}
             >
               <span className={MEDIUM_LABEL_CLASS}>{t(item.q, item.qFallback)}</span>
               <HelpCircle size={16} className={`shrink-0 transition-colors ${openFaq === i ? "text-[var(--accent)]" : "text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}`} aria-hidden="true" />
@@ -147,7 +151,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
           ) : (
             <>
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium text-[var(--text-primary)]`} htmlFor="help-email">{t('settings.contactEmailLabel', 'Email')}</label>
+                <label className={HELP_LABEL_CLASS} htmlFor="help-email">{t('settings.contactEmailLabel', 'Email')}</label>
                 <input
                   id="help-email"
                   type="email"
@@ -161,7 +165,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium text-[var(--text-primary)]`} htmlFor="help-category">{t('settings.contactCategory', 'Category')}</label>
+                <label className={HELP_LABEL_CLASS} htmlFor="help-category">{t('settings.contactCategory', 'Category')}</label>
                 <div className="relative">
                   <select
                     id="help-category"
@@ -178,7 +182,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className={`text-xs font-medium text-[var(--text-primary)]`} htmlFor="help-message">{t('settings.describeIssue', 'Describe your issue…')}</label>
+                <label className={HELP_LABEL_CLASS} htmlFor="help-message">{t('settings.describeIssue', 'Describe your issue…')}</label>
                 <textarea
                   id="help-message"
                   ref={messageRef}

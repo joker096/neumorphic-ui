@@ -33,3 +33,6 @@ export const PADDED_ROW_CLASS =
 /** Compact label row above a group of fields. */
 export const LABEL_ROW_CLASS =
   'flex items-center gap-2 mb-2';
+
+/** Full width settings row used by the guide and support lists. */
+export const GUIDE_ROW_CLASS = 'w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-black/5 dark:hover:bg-white/5';

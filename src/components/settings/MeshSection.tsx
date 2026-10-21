@@ -8,6 +8,12 @@ import { SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { Check, Copy, Send, Unplug } from 'lucide-react';
 
+/** Tall monospaced text area of the mesh settings. */
+const MONO_AREA_TALL_CLASS = 'min-h-24 w-full resize-none rounded-lg p-2 text-xs font-mono bg-black/5 text-[var(--text-secondary)] dark:bg-black/30';
+
+/** Short monospaced text area of the mesh settings. */
+const MONO_AREA_SHORT_CLASS = 'w-full h-20 resize-none rounded-lg p-2 text-xs font-mono bg-black/5 text-[var(--text-secondary)] dark:bg-black/30';
+
 interface MeshSectionProps {
   isDark?: boolean;
   onBack?: () => void;
@@ -155,7 +161,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
                 value={offer}
                 readOnly
                 aria-label={t('mesh.invitePayload', 'Invite payload')}
-                className={`w-full h-20 resize-none rounded-lg p-2 text-xs font-mono bg-black/5 text-[var(--text-secondary)] dark:bg-black/30`}
+                className={MONO_AREA_SHORT_CLASS}
               />
               <div className="flex items-center gap-2 w-full">
                 <button className={`min-h-11 flex-1 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 bg-black/5 text-[var(--text-secondary)] dark:bg-white/5 dark:text-[var(--text-primary)]`} onClick={() => copy(offer)}>
@@ -175,7 +181,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
             onChange={(e) => setGuestOfferDraft(e.target.value)}
             placeholder={t('mesh.invitePlaceholder', 'Paste the invite payload here…')}
             aria-label={t('mesh.inviteInput', 'Invite payload input')}
-            className={`min-h-24 w-full resize-none rounded-lg p-2 text-xs font-mono bg-black/5 text-[var(--text-secondary)] dark:bg-black/30`}
+            className={MONO_AREA_TALL_CLASS}
           />
           <button className={actionCls} onClick={handleGenerateAnswer} disabled={answerBusy || !guestOfferDraft.trim()}>
             {answerBusy ? t('common.loading', 'Loading…') : t('mesh.generateAnswer', 'Generate answer QR')}
@@ -187,7 +193,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
                 value={answer}
                 readOnly
                 aria-label={t('mesh.answerPayload', 'Answer payload')}
-                className={`w-full h-20 resize-none rounded-lg p-2 text-xs font-mono bg-black/5 text-[var(--text-secondary)] dark:bg-black/30`}
+                className={MONO_AREA_SHORT_CLASS}
               />
               <button className={`min-h-11 w-full rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 bg-black/5 text-[var(--text-secondary)] dark:bg-white/5 dark:text-[var(--text-primary)]`} onClick={() => copy(answer)}>
                 {copied ? <Check size={16} /> : <Copy size={16} />} {t('mesh.copy', 'Copy')}
@@ -205,7 +211,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
             onChange={(e) => setCallerAnswerDraft(e.target.value)}
             placeholder={t('mesh.answerPlaceholder', 'Paste the answer payload here…')}
             aria-label={t('mesh.answerInput', 'Answer payload input')}
-            className={`min-h-24 w-full resize-none rounded-lg p-2 text-xs font-mono bg-black/5 text-[var(--text-secondary)] dark:bg-black/30`}
+            className={MONO_AREA_TALL_CLASS}
           />
           <button className={actionCls} onClick={handleConnectCaller} disabled={connecting || !callerAnswerDraft.trim()}>
             {connecting ? t('common.loading', 'Loading…') : t('mesh.connect', 'Connect')}

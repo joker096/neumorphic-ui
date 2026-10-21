@@ -10,6 +10,7 @@ import { toast } from '../ui/Toast';
 import { NotificationsExceptions } from './NotificationsExceptions';
 import { soundConfig, type SoundEventType } from '../../lib/sounds/config';
 import { PADDED_ROW_CLASS } from '../ui/rowClasses';
+import { PRIMARY_TEXT_CLASS } from '../ui/textClasses';
 
 interface NotificationsSectionProps {
   isDark?: boolean;
@@ -175,7 +176,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
               onClick={() => setBadgeMode(mode.id)}
               className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-[var(--msg-bg-panel-hover)]`}
             >
-              <span className={`text-sm text-[var(--text-primary)]`}>{t(`settings.badge_${mode.id}`, mode.label)}</span>
+              <span className={PRIMARY_TEXT_CLASS}>{t(`settings.badge_${mode.id}`, mode.label)}</span>
               <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${badgeMode === mode.id ? "border-[var(--accent)]" : "border-[var(--text-tertiary)]/50"}`}>
                 {badgeMode === mode.id && <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />}
               </span>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Bookmark } from "lucide-react";
 import { sheetSurface, modalCloseClass } from "../ui/modalShared";
+import { CAPS_TERTIARY_CLASS, PRIMARY_TEXT_CLASS } from "../ui/textClasses";
 
 interface SavedMessagesPanelProps {
   show: boolean;
@@ -50,7 +51,7 @@ export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose,
                   {chatSavedMessages.slice().reverse().map((saved: any) => (
                     <div key={saved.key} className={`p-4 rounded-xl border bg-[var(--bg-tertiary)] border-[var(--border-color)]`}>
                       <div className="flex items-center justify-between gap-3 mb-2">
-                        <div className={`text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]`}>
+                        <div className={CAPS_TERTIARY_CLASS}>
                           {saved.sourceLabel || chatName}
                         </div>
                         <button
@@ -63,7 +64,7 @@ export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose,
                           <span className="sr-only">{t('chat.unsave')}</span>
                         </button>
                       </div>
-                      <div className={`text-sm text-[var(--text-primary)]`}>
+                      <div className={PRIMARY_TEXT_CLASS}>
                         {saved.preview}
                       </div>
                       <div className={`mt-2 text-xs font-semibold text-[var(--text-tertiary)]`}>

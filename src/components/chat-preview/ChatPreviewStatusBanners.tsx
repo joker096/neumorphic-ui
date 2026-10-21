@@ -1,5 +1,8 @@
 import { CrmLeadSuggestionBar } from "../crm/CrmLeadSuggestionBar";
 
+/** Animated dot of the typing indicator. */
+const TYPING_DOT_CLASS = 'w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-bounce';
+
 interface TypingBubbleProps {
   isDark: boolean;
 }
@@ -15,15 +18,15 @@ const TypingBubble = ({ isDark }: TypingBubbleProps) => (
       aria-live="polite"
     >
       <span
-        className={`w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-bounce`}
+        className={TYPING_DOT_CLASS}
         style={{ animationDelay: "0ms" }}
       />
       <span
-        className={`w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-bounce`}
+        className={TYPING_DOT_CLASS}
         style={{ animationDelay: "150ms" }}
       />
       <span
-        className={`w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-bounce`}
+        className={TYPING_DOT_CLASS}
         style={{ animationDelay: "300ms" }}
       />
     </div>

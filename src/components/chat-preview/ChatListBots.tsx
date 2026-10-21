@@ -1,5 +1,6 @@
 import { Bot } from "lucide-react";
 import { DataState } from "../ui/DataState";
+import { SECONDARY_CAPTION_CLASS } from "../ui/textClasses";
 
 interface ChatListBotsProps {
   bots: any[];
@@ -40,7 +41,7 @@ export function ChatListBots({ bots, onOpenBot, isDark, t }: ChatListBotsProps) 
             </div>
             <div className="flex-1">
               <h4 className="font-bold text-sm tracking-wide">{b.name}</h4>
-              <p className={`text-xs text-[var(--text-secondary)]`}>{t('chat.botTokenMask')}</p>
+              <p className={SECONDARY_CAPTION_CLASS}>{t('chat.botTokenMask')}</p>
             </div>
           </div>
         </div>

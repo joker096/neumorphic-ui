@@ -3,8 +3,14 @@ import { ListFilter, Mic } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
 import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
-import { TINY_BOLD_CLASS } from '../ui/textClasses';
+import { TINY_BOLD_CLASS, SECONDARY_CAPTION_CLASS } from '../ui/textClasses';
 import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
+
+/** Transparent inline input of the media panel filter. */
+const TRANSPARENT_INPUT_CLASS = 'text-xs text-[var(--text-primary)] bg-transparent outline-none';
+
+/** Small caps label of a media panel tab. */
+const CAPS_SECONDARY_CLASS = 'text-xs font-bold uppercase text-[var(--text-secondary)]';
 
 /** Round media tab button (photos, videos, files). */
 const MEDIA_TAB_CLASS =
@@ -68,7 +74,7 @@ export const ChatMediaPanel = ({
         {showFilterMenu && (
           <div className={`space-y-2 pb-2 border-b ${"border-[var(--border-color)]"}`}>
             <div className="flex items-center gap-1 sm:gap-2">
-              <span className={`text-xs font-bold uppercase text-[var(--text-secondary)]`}>{t('chat.filters.from')}</span>
+              <span className={CAPS_SECONDARY_CLASS}>{t('chat.filters.from')}</span>
               {['', 'me', 'them'].map((v) => (
                 <button key={v} onClick={() => setFilterBySender(v)} aria-pressed={filterBySender === v}
                   className={MEDIA_TAB_CLASS}
@@ -80,10 +86,10 @@ export const ChatMediaPanel = ({
               ))}
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className={`text-xs font-bold uppercase text-[var(--text-secondary)]`}>{t('chat.filters.from')}</span>
-              <input aria-label={t('chat.filters.from', 'From')} type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className={`text-xs text-[var(--text-primary)] bg-transparent outline-none`} />
-              <span className={`text-xs text-[var(--text-secondary)]`}>{t('chat.filters.to')}</span>
-              <input aria-label={t('chat.filters.to', 'To')} type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className={`text-xs text-[var(--text-primary)] bg-transparent outline-none`} />
+              <span className={CAPS_SECONDARY_CLASS}>{t('chat.filters.from')}</span>
+              <input aria-label={t('chat.filters.from', 'From')} type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className={TRANSPARENT_INPUT_CLASS} />
+              <span className={SECONDARY_CAPTION_CLASS}>{t('chat.filters.to')}</span>
+              <input aria-label={t('chat.filters.to', 'To')} type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className={TRANSPARENT_INPUT_CLASS} />
             </div>
           </div>
         )}
@@ -132,7 +138,7 @@ export const ChatMediaPanel = ({
                   <div className={`w-full h-full flex flex-col items-start justify-between p-3 bg-[var(--bg-tertiary)]`}>
                      <Mic size={18} className={"text-[var(--accent)]"} />
                     <div className={TINY_BOLD_CLASS}>{t('chat.filters.voiceNote')}</div>
-                    <div className={`text-xs text-[var(--text-secondary)]`}>{msg.duration || '0:00'}</div>
+                    <div className={SECONDARY_CAPTION_CLASS}>{msg.duration || '0:00'}</div>
                   </div>
                 ) : (
                   <div className={`w-full h-full flex items-center justify-center p-3 text-center text-xs bg-[var(--bg-tertiary)] text-[var(--text-secondary)]`}>

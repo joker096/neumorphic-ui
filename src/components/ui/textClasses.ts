@@ -99,3 +99,12 @@ export const TRUNCATE_MEDIUM_CLASS =
 /** Centred heading with the standard bottom gap. */
 export const CENTERED_HEADING_CLASS =
   'text-center mb-4';
+
+/** Muted caption that brightens in the dark theme. */
+export const MUTED_CAPTION_CLASS = 'text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]';
+
+/** Small caps label in the tertiary tone. */
+export const CAPS_TERTIARY_CLASS = 'text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]';
+
+/** Regular body text in the primary tone. */
+export const PRIMARY_TEXT_CLASS = 'text-sm text-[var(--text-primary)]';

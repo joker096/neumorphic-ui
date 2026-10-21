@@ -4,6 +4,7 @@ import { toast } from "../ui/Toast";
 import { useI18n } from "../../lib/i18n";
 import { useAppStore } from "../../store";
 import { SearchInput } from "../ui/SearchInput";
+import { CAPS_TERTIARY_CLASS } from "../ui/textClasses";
 import {
   getICQEmojiPath,
   getICQStickerSrc,
@@ -74,7 +75,7 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
       <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
         {visiblePacks.map(pack => (
           <div key={pack.id} className="flex flex-col gap-1">
-            <div className={`text-xs font-bold uppercase tracking-widest text-[var(--text-tertiary)]`}>{pack.name}</div>
+            <div className={CAPS_TERTIARY_CLASS}>{pack.name}</div>
             <div className="flex gap-1 flex-wrap">
               {pack.stickers.map((st, idx) => {
                 const stickerSrc = pack.id === 'icq' ? getICQEmojiPath(st, theme) : getICQStickerSrc(st, theme);

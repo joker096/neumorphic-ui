@@ -2,6 +2,9 @@ import { InlineKeyboard } from "../../features/bot/InlineKeyboard";
 import { BubbleActions } from "../BubbleActions";
 import { MessageReactions } from "../MessageReactions";
 
+/** Italic note under a message footer row. */
+const ITALIC_NOTE_CLASS = 'mt-1 text-xs italic text-[var(--text-secondary)]';
+
 type Translate = (key: string, options?: any) => string;
 
 interface MessageFooterProps {
@@ -47,12 +50,12 @@ export function MessageFooter({
         onReactionMessage={onReactionMessage}
       />
       {translating && (
-        <div className={`mt-1 text-xs italic text-[var(--text-secondary)]`}>
+        <div className={ITALIC_NOTE_CLASS}>
           {t("chat.translating", "\u041f\u0435\u0440\u0435\u0432\u043e\u0434\u2026")}
         </div>
       )}
       {translation && !translating && (
-        <div className={`mt-1 text-xs italic text-[var(--text-secondary)]`}>
+        <div className={ITALIC_NOTE_CLASS}>
           {translation}
         </div>
       )}

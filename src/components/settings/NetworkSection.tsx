@@ -4,6 +4,9 @@ import type { TunnelBackend } from '../../lib/transport/wsTunnel';
 import { IS_RELAY_PROXY_CONFIGURED } from '../../config/signalling';
 import { RefreshCw, Radio } from 'lucide-react';
 
+/** Input field of the network settings. */
+const FIELD_INPUT_CLASS = 'w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]';
+
 interface NetworkSectionProps {
   isDark?: boolean;
   obfuscationEnabled: boolean;
@@ -79,7 +82,7 @@ export const NetworkSection = ({
           placeholder={t('settings.turnServerExample')}
           value={turnServerUrl}
           onChange={(e) => onUpdateSettings({ turnServerUrl: e.target.value })}
-          className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]`}
+          className={FIELD_INPUT_CLASS}
         />
         <div className="mt-4 flex flex-col gap-3">
           <label className={"text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
@@ -92,7 +95,7 @@ export const NetworkSection = ({
             spellCheck={false}
             value={turnServerUser || ''}
             onChange={(e) => onUpdateSettings({ turnServerUser: e.target.value })}
-            className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]`}
+            className={FIELD_INPUT_CLASS}
           />
           <label className={"text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
             {t('settings.turnServerPassLabel', 'TURN password')}
@@ -105,7 +108,7 @@ export const NetworkSection = ({
             spellCheck={false}
             value={turnServerPass || ''}
             onChange={(e) => onUpdateSettings({ turnServerPass: e.target.value })}
-            className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]`}
+            className={FIELD_INPUT_CLASS}
           />
         </div>
       </SettingsGroup>

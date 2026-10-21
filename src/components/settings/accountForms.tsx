@@ -3,6 +3,9 @@ import { Check, Plus, Crown } from 'lucide-react';
 import { ACCOUNT_COLORS } from '../../constants/settingsConstants';
 import { BOLD_LABEL_CLASS } from '../ui/textClasses';
 
+/** Neutral ghost button of the account forms. */
+const GHOST_BTN_CLASS = 'min-h-11 px-3 rounded-lg text-sm font-medium transition-colors text-[var(--text-tertiary)] hover:bg-black/10 dark:text-[var(--text-secondary)] dark:hover:bg-white/10';
+
 type T = (key: string, fallback?: string | Record<string, string | number>) => string;
 
 interface AccountLike {
@@ -116,7 +119,7 @@ export function AccountEditForm({ t, account, onSave, onCancel }: {
                         e.stopPropagation();
                         onCancel();
                       }}
-                      className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors text-[var(--text-tertiary)] hover:bg-black/10 dark:text-[var(--text-secondary)] dark:hover:bg-white/10`}
+                      className={GHOST_BTN_CLASS}
                     >
                       {t('settings.cancel', 'Cancel')}
                     </button>
@@ -192,7 +195,7 @@ export function AccountAddSection({ t, canAdd, onAddAccount, onGetPremium }: {
                     setDraft(emptyDraft());
                     setShowForm(false);
                   }}
-                  className={`min-h-11 px-3 rounded-lg text-sm font-medium transition-colors text-[var(--text-tertiary)] hover:bg-black/10 dark:text-[var(--text-secondary)] dark:hover:bg-white/10`}
+                  className={GHOST_BTN_CLASS}
                 >
                   {t('settings.cancel', 'Cancel')}
                 </button>

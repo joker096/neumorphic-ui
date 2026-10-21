@@ -4,6 +4,9 @@ import { IconButton } from "../ui/IconButton";
 import { useAppStore } from "../../store";
 import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 
+/** Accent coloured status label in the chat header. */
+const ACCENT_LABEL_CLASS = 'text-xs font-semibold shrink-0 text-[var(--accent)]/90';
+
 /** Small pulsing dot marking the online state in the header. */
 const ONLINE_DOT_CLASS =
   'w-1 h-1 rounded-full bg-[var(--success)] animate-bounce';
@@ -125,17 +128,17 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
               <>
                 <Users size={12} className={`shrink-0 ${"text-[var(--accent)]"}`} />
                 <span
-                  className={`text-xs font-semibold shrink-0 text-[var(--accent)]/90`}
+                  className={ACCENT_LABEL_CLASS}
                 >
                   {t("chat.subscribers", { count: subscriberCount })}
                 </span>
                 <span
-                  className={`text-xs font-semibold shrink-0 text-[var(--accent)]/90`}
+                  className={ACCENT_LABEL_CLASS}
                 >
                   ·
                 </span>
                 <span
-                  className={`text-xs font-semibold shrink-0 text-[var(--accent)]/90`}
+                  className={ACCENT_LABEL_CLASS}
                 >
                   {t("chat.posts", { count: chat.postCount ?? chat.history?.length ?? 0 })}
                 </span>
@@ -146,7 +149,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
                   className={`h-1.5 w-1.5 rounded-full shrink-0 ${chat.online ? "bg-[var(--success)]" : "bg-[var(--text-tertiary)]"}`}
                 />
                 <span
-                  className={`text-xs font-semibold shrink-0 text-[var(--accent)]/90`}
+                  className={ACCENT_LABEL_CLASS}
                 >
                   {chat.online ? t("chat.filters.online") : t("chat.filters.offline")}
                 </span>

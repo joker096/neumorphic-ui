@@ -4,6 +4,7 @@ import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsSectionTitle, SettingsRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
+import { GUIDE_ROW_CLASS } from '../ui/rowClasses';
 
 interface CompanyGuideSectionProps {
   isDark?: boolean;
@@ -88,7 +89,7 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
             <div key={step.key}>
               <button
                 onClick={() => setOpenStep(isOpen ? null : step.key)}
-                className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-black/5 dark:hover:bg-white/5`}
+                className={GUIDE_ROW_CLASS}
               >
                 <span className="flex items-center gap-3 min-w-0">
                   <span className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[var(--accent)]/10 dark:bg-[var(--accent-soft)]`}>
