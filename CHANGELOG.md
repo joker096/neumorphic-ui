@@ -30,6 +30,11 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Панель инструментов контактов: класс кнопки вынесен в локальную константу (2026-10-21).** В `contacts/ContactsToolbar.tsx` одна и та же строка `min-w-11 min-h-11 flex items-center justify-center hover:opacity-80 transition-all` стояла на четырёх кнопках (поиск, добавление, сканирование, приглашение) — правка тач-зоны требовала четырёх синхронных правок в одном файле.
+  1. Класс объявлен один раз как модульная константа `TOOLBAR_BTN_CLASS` с комментарием; кнопки используют `className={TOOLBAR_BTN_CLASS}`.
+  2. Константа намеренно оставлена локальной, а не вынесена в общий модуль: этот размер кнопки принадлежит только данной панели.
+  3. Значение байт-в-байт прежнее, рендер и визуальные базлайны не изменились; D1–D5 перескан: 0 findings.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (641), button-audit 0 (289/436), l10n PASS (0 errors / 10 dynamic), component-audit 0/0/0, dead-export dead 0, orphan PASS, ui-audit 14/14, visual 8/8.
 - **Истории: класс медиа-подложки вынесен в `stories/storyClasses` (2026-10-21).** Строка `absolute inset-0 w-full h-full object-cover` была скопирована в шести местах (`StoryCard` 36/39, `StoryComposer` 99/102, `StoryContent` 121/128), поэтому правка кадрирования медиа означала синхронную правку в трёх файлах.
   1. Новый `src/components/stories/storyClasses.ts` с байт-в-байт значением `STORY_MEDIA_COVER_CLASS`.
   2. Переведены `StoryCard.tsx`, `StoryComposer.tsx`, `StoryContent.tsx`; литерал остался только в определении.
