@@ -2,8 +2,7 @@ import { motion } from "motion/react";
 import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } from "lucide-react";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS, FOOTER_WRAP_CLASS, HERO_LEAD_CLASS, FOOTER_SECTION_CLASS, FOOTER_META_CLASS } from './landingClasses';
-import { HERO_COLUMN_CLASS } from "./landingClasses";
+import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS, FOOTER_WRAP_CLASS, HERO_LEAD_CLASS, FOOTER_SECTION_CLASS, FOOTER_META_CLASS, CTA_SECTION_LEAD_CLASS, HERO_COLUMN_CLASS } from './landingClasses';
 export type LandingPageProps = {
   isDark?: boolean;
   onGetStarted: () => void;
@@ -209,7 +208,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <h2 className={CTA_SECTION_TITLE_CLASS}>
             {t("landing.ctaTitle")}
           </h2>
-          <p className="text-lg mb-10 text-[var(--text-secondary)]">
+          <p className={CTA_SECTION_LEAD_CLASS}>
             {t("landing.ctaSubtitle")}
           </p>
           <button

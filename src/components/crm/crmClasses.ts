@@ -28,3 +28,6 @@ export const CRM_EMPTY_CLASS = 'py-10 text-center text-sm text-[var(--text-secon
 
 /** Centred hint under a CRM section. */
 export const CRM_CENTERED_HINT_CLASS = 'text-center text-xs text-[var(--text-secondary)] py-2';
+
+/** Header row of a CRM board (title plus action). */
+export const CRM_BOARD_HEADER_CLASS = 'flex items-center justify-between px-1 mb-2';

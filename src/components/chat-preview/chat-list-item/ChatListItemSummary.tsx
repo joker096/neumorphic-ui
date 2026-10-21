@@ -3,6 +3,9 @@ import { FormattedText } from "../FormattedText";
 import { useAppStore } from "../../../store";
 import { useMessageThreads } from "../../../hooks/useMessageThreads";
 
+/** Tight caps label under the chat-list summary. */
+const LABEL_TIGHT_CLASS = 'text-xs font-bold pb-[0.5px] leading-none';
+
 type Translate = (key: string, options?: any) => string;
 
 /**
@@ -134,12 +137,12 @@ export function ChatListItemSummary({ chat, active, type, fuzzedTime, draftText,
         </span>
         {chat.unread > 0 && !chat.hasMentions && (
           <div className={`badge unread shrink-0${chat.isMuted ? " badge-muted" : ""}`}>
-            <span className="text-xs font-bold pb-[0.5px] leading-none">{chat.unread}</span>
+            <span className={LABEL_TIGHT_CLASS}>{chat.unread}</span>
           </div>
         )}
         {chat.hasMentions && (
           <div className={`shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full flex items-center justify-center shadow-sm bg-[var(--chat-mention-bg)] text-[var(--chat-mention-text)]`}>
-            <span className="text-xs font-bold pb-[0.5px] leading-none">@</span>
+            <span className={LABEL_TIGHT_CLASS}>@</span>
           </div>
         )}
       </div>

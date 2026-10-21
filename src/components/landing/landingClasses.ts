@@ -47,3 +47,6 @@ export const FOOTER_META_CLASS = 'text-xs font-bold tracking-tight text-[var(--t
 
 /** Centred hero column of the landing page. */
 export const HERO_COLUMN_CLASS = 'flex flex-col items-center text-center max-w-3xl';
+
+/** Lead paragraph of the closing call-to-action section. */
+export const CTA_SECTION_LEAD_CLASS = 'text-lg mb-10 text-[var(--text-secondary)]';

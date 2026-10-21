@@ -73,3 +73,9 @@ export const TRUNCATE_SECONDARY_CLASS = 'text-xs truncate text-[var(--text-secon
 
 /** Heading of a confirmation or onboarding panel. */
 export const PANEL_TITLE_CLASS = 'text-lg font-bold mb-2 text-[var(--text-primary)]';
+
+/** Title of a large surface (company dialog, profile header card). */
+export const XL_LABEL_CLASS = 'text-xl font-bold text-[var(--text-primary)]';
+
+/** Tertiary hint under a field value. */
+export const TERTIARY_HINT_CLASS = 'text-xs mt-1 text-[var(--text-tertiary)]';

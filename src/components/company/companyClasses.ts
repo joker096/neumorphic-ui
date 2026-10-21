@@ -43,3 +43,12 @@ export const COMPANY_NAME_CLASS = 'font-bold text-sm text-[var(--text-primary)] 
 
 /** Title of a company dialog. */
 export const COMPANY_MODAL_TITLE_CLASS = 'text-xl font-bold mb-5 text-[var(--text-primary)]';
+
+/** Header row of a company list (title plus action). */
+export const COMPANY_LIST_HEADER_CLASS = 'flex items-center justify-between px-2 mb-3';
+
+/** Muted note under a company list row. */
+export const COMPANY_MUTED_NOTE_CLASS = 'text-xs text-[var(--text-secondary)] mt-0.5';
+
+/** Hint block above the fields of a company dialog. */
+export const COMPANY_MODAL_HINT_CLASS = 'text-xs text-[var(--text-secondary)] mb-5';

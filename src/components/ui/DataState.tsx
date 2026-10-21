@@ -1,5 +1,5 @@
 import React from 'react';
-import { EMPTY_STATE_COLUMN_CLASS } from './stateClasses';
+import { EMPTY_STATE_COLUMN_CLASS, STATE_SUBTEXT_CLASS } from './stateClasses';
 import { AlertTriangle, Lock, ShieldAlert, Trash2, WifiOff, Loader2, Inbox, Search, RefreshCw } from 'lucide-react';
 import { EmptyState, ErrorState } from './States';
 import { useI18n } from '../../lib/i18n';
@@ -37,7 +37,6 @@ export interface DataStateProps {
 
 const ICON_BOX = 'w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-muted text-muted-foreground';
 const TITLE = 'text-sm font-semibold text-foreground';
-const SUBTEXT = 'text-xs mt-1 max-w-xs text-muted-foreground';
 const PRIMARY_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-11 bg-primary text-primary-foreground active:scale-95 transition-transform';
 const GHOST_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-11 transition-colors active:scale-95 text-primary';
 
@@ -101,7 +100,7 @@ export const DataState = ({
           <WifiOff size={32} />
         </div>
         <div className={TITLE}>{title ?? t('dataState.offline')}</div>
-        {description && <div className={SUBTEXT}>{description}</div>}
+        {description && <div className={STATE_SUBTEXT_CLASS}>{description}</div>}
         <div className="flex items-center gap-2 mt-4">
           {retryAction && (
             <button onClick={retryAction} aria-label={t('ui.retry')} title={t('ui.retry')} className={PRIMARY_ACTION_BTN_CLASS}>
@@ -126,7 +125,7 @@ export const DataState = ({
           <Lock size={32} />
         </div>
         <div className={TITLE}>{title ?? t('dataState.unauthorized')}</div>
-        {description && <div className={SUBTEXT}>{description}</div>}
+        {description && <div className={STATE_SUBTEXT_CLASS}>{description}</div>}
         {action && (
           <button onClick={action.onClick} className={`mt-4 ${PRIMARY_BTN}`}>
             {action.label}
@@ -143,7 +142,7 @@ export const DataState = ({
           <ShieldAlert size={32} />
         </div>
         <div className={TITLE}>{title ?? t('dataState.restricted')}</div>
-        {description && <div className={SUBTEXT}>{description}</div>}
+        {description && <div className={STATE_SUBTEXT_CLASS}>{description}</div>}
       </div>
     );
   }
@@ -155,7 +154,7 @@ export const DataState = ({
           <Trash2 size={32} />
         </div>
         <div className={TITLE}>{title ?? t('dataState.deleted')}</div>
-        {description && <div className={SUBTEXT}>{description}</div>}
+        {description && <div className={STATE_SUBTEXT_CLASS}>{description}</div>}
       </div>
     );
   }

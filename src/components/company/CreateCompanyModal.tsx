@@ -7,7 +7,8 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { FormField } from '../ui/FormField';
 import { CompanyModalCloseButton } from './CompanyModalCloseButton';
-import { AVATAR_CIRCLE_CLASS } from './companyClasses';
+import { AVATAR_CIRCLE_CLASS, COMPANY_MODAL_HINT_CLASS } from './companyClasses';
+import { XL_LABEL_CLASS } from '../ui/textClasses';
 
 type CreateCompanyModalProps = {
   onClose: () => void;
@@ -47,11 +48,11 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
           <div className="w-9 h-9 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--accent)]">
             <Building2 size={18} />
           </div>
-          <h3 className="text-xl font-bold text-[var(--text-primary)]">
+          <h3 className={XL_LABEL_CLASS}>
             {t('company.createTitle', 'Create your company')}
           </h3>
         </div>
-        <p className="text-xs text-[var(--text-secondary)] mb-5">
+        <p className={COMPANY_MODAL_HINT_CLASS}>
           {t('company.createDescription', 'You will become the company admin and can invite teammates.')}
         </p>
 

@@ -5,6 +5,9 @@ import { SubView } from '../ui/SubView';
 import { Modal } from '../ui/Modal';
 import { APP_INFO } from '../../config/settingsDefaults';
 
+/** Muted status line of the system status section. */
+const STATUS_HINT_CLASS = 'text-xs font-medium text-muted-foreground';
+
 interface SystemStatusSectionProps {
   isDark?: boolean;
   connectionStatus: string;
@@ -71,7 +74,7 @@ export const SystemStatusSection = ({
             iconBg="bg-[var(--accent-soft)]"
             iconColor="text-[var(--accent)]"
             title={t('settings.transportBackend')}
-            rightElement={<span className="text-xs font-medium text-muted-foreground">{transportBackend}</span>}
+            rightElement={<span className={STATUS_HINT_CLASS}>{transportBackend}</span>}
             isDark={isDark}
           />
           <SettingsRow
@@ -79,7 +82,7 @@ export const SystemStatusSection = ({
             iconBg="bg-amber-100 dark:bg-amber-500/10"
             iconColor="text-amber-600 dark:text-amber-400"
             title={t('settings.latency')}
-            rightElement={<span className="text-xs font-medium text-muted-foreground">{`${latencyMs} ms`}</span>}
+            rightElement={<span className={STATUS_HINT_CLASS}>{`${latencyMs} ms`}</span>}
             isDark={isDark}
           />
         </SettingsGroup>

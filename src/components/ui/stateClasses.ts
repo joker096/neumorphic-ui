@@ -8,3 +8,6 @@
 /** Column that centres the icon, title and hint of an empty state. */
 export const EMPTY_STATE_COLUMN_CLASS =
   'flex flex-col items-center justify-center text-center px-6 py-12';
+
+/** Hint line under the title of an empty or error state. */
+export const STATE_SUBTEXT_CLASS = 'text-xs mt-1 max-w-xs text-muted-foreground';

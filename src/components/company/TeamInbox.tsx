@@ -10,7 +10,7 @@ import { openFromChannel, sealToChannel, type SealedMessage } from '../../lib/em
 import { b64decode } from '../../lib/crypto/cryptoCore';
 import type { X25519KeyPair } from '../../lib/crypto/types';
 import { formatClockTime } from '../../utils/chatUtils';
-import { COMPANY_INPUT_CLASS } from "./companyClasses";
+import { COMPANY_INPUT_CLASS, COMPANY_MUTED_NOTE_CLASS } from "./companyClasses";
 
 type TeamInboxProps = {
   isDark?: boolean;
@@ -242,7 +242,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
                   >
                     {m.text}
                   </div>
-                  <div className="text-xs text-[var(--text-secondary)] mt-0.5">
+                  <div className={COMPANY_MUTED_NOTE_CLASS}>
                     {formatClockTime(m.timestamp, lang)}
                   </div>
                 </div>

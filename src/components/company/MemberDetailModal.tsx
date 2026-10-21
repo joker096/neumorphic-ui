@@ -8,6 +8,7 @@ import { useI18n } from '../../lib/i18n';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { COMPANY_EDIT_FALLBACKS, COMPANY_MEMBER_FALLBACKS } from '../../constants/companyConstants';
 import { CompanyModalCloseButton } from './CompanyModalCloseButton';
+import { COMPANY_MODAL_HINT_CLASS } from './companyClasses';
 
 type MemberDetailModalProps = {
   member: CompanyMember;
@@ -73,7 +74,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
         <CompanyModalCloseButton onClick={onClose} />
         <h3 className="text-xl font-bold mb-1 text-[var(--text-primary)]">{member.displayName}</h3>
-        <div className="text-xs text-[var(--text-secondary)] mb-5">
+        <div className={COMPANY_MODAL_HINT_CLASS}>
           {member.role === 'admin'
             ? t('company.roleAdmin', COMPANY_MEMBER_FALLBACKS.roleAdmin)
             : member.role === 'manager'

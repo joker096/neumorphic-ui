@@ -2,7 +2,7 @@ import React from 'react';
 import { Edit, Share2, Phone, Mail, MessageSquare, Send, Shield, AtSign, Link } from 'lucide-react';
 import { DEFAULT_AVATAR_COLOR, PROFILE_FIELD_TYPES } from '../../constants/settingsConstants';
 import type { UserProfile } from '../../types/contact';
-import { HINT_TEXT_CLASS } from '../ui/textClasses';
+import { HINT_TEXT_CLASS, XL_LABEL_CLASS, TERTIARY_HINT_CLASS } from '../ui/textClasses';
 
 /** Neutral pill button of the profile header card. */
 const SECONDARY_BTN_CLASS = 'min-h-11 min-w-11 px-3 flex items-center justify-center gap-2 rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]';
@@ -60,10 +60,10 @@ export const ProfileHeaderCard = ({ userProfile, t, onEdit, onShare }: ProfileHe
         </div>
       </div>
       <div className="pt-8 pb-4 px-4 text-center">
-        <h3 className="text-xl font-bold text-[var(--text-primary)]">{userProfile.name || (userProfile.username ? `@${userProfile.username}` : t('settings.defaultUserName', 'User'))}</h3>
+        <h3 className={XL_LABEL_CLASS}>{userProfile.name || (userProfile.username ? `@${userProfile.username}` : t('settings.defaultUserName', 'User'))}</h3>
         {userProfile.username && userProfile.name && <p className="text-sm mt-0.5 font-medium text-[var(--accent)]">@{userProfile.username}</p>}
         {userProfile.bio && <p className={HINT_TEXT_CLASS}>{userProfile.bio}</p>}
-        {userProfile.status && <p className="text-xs mt-1 text-[var(--text-tertiary)]">{userProfile.status}</p>}
+        {userProfile.status && <p className={TERTIARY_HINT_CLASS}>{userProfile.status}</p>}
         {fields.length > 0 && (
           <div className="flex flex-col gap-2 mt-4">
             {fields.map((field) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { EMPTY_STATE_COLUMN_CLASS } from './stateClasses';
+import { EMPTY_STATE_COLUMN_CLASS, STATE_SUBTEXT_CLASS } from './stateClasses';
 import { Inbox, AlertTriangle, RefreshCw, LifeBuoy } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { PRIMARY_ACTION_BTN_CLASS } from './buttonClasses';
@@ -20,7 +20,7 @@ export const EmptyState = ({ icon, title, description, action }: EmptyStateProps
       {icon ?? <Inbox size={32} />}
     </div>
     <div className="text-sm font-semibold text-foreground">{title}</div>
-    {description && <div className="text-xs mt-1 max-w-xs text-muted-foreground">{description}</div>}
+    {description && <div className={STATE_SUBTEXT_CLASS}>{description}</div>}
     {action && (
       <button
         onClick={action.onClick}
@@ -50,7 +50,7 @@ export const ErrorState = ({ message, description, code, retryAction, supportAct
       <AlertTriangle size={32} />
     </div>
     <div className="text-sm font-semibold text-foreground">{message}</div>
-    {description && <div className="text-xs mt-1 max-w-xs text-muted-foreground">{description}</div>}
+    {description && <div className={STATE_SUBTEXT_CLASS}>{description}</div>}
     {code && <div className="text-xs font-mono mt-1 text-muted-foreground">{code}</div>}
     <div className="flex items-center gap-2 mt-4">
       {retryAction && (

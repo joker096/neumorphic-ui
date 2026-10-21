@@ -16,7 +16,7 @@ import { ToggleSwitch } from './ui/ToggleSwitch';
 import { getMasterKeySet } from '../lib/identity/masterKey';
 import { getPinnedIdentity } from '../lib/p2p/identityPin';
 import { buf2hex } from '../lib/crypto/cryptoCore';
-import { CAPS_LABEL_CLASS } from './ui/textClasses';
+import { CAPS_LABEL_CLASS, TERTIARY_HINT_CLASS } from './ui/textClasses';
 
 export type ContactProfile = {
   id: string;
@@ -229,7 +229,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                     </span>
                   </div>
                 ))}
-                <div className="text-xs mt-1 text-[var(--text-tertiary)]">
+                <div className={TERTIARY_HINT_CLASS}>
                   {t('contacts.localFieldsNotShared')}
                 </div>
               </div>

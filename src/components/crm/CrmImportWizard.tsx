@@ -6,6 +6,9 @@ import type { ImportIssue } from '../../lib/crm/import';
 import { useCrmImportWizard } from './useCrmImportWizard';
 import { LARGE_LABEL_CLASS } from '../ui/textClasses';
 
+/** Muted hint block in the import wizard. */
+const HINT_BLOCK_CLASS = 'text-xs text-[var(--text-secondary)] block';
+
 /** Accent button of the import wizard. */
 const PRIMARY_BTN_CLASS = 'px-4 py-2 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold disabled:opacity-50';
 
@@ -167,7 +170,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
             <p className="text-xs text-[var(--text-secondary)]">
               {t('crm.import.bundleHint', 'Import an encrypted Mess&Anger CRM bundle (.enc) exported from another device. Merges by id — existing records are updated, new ones added.')}
             </p>
-            <label className="text-xs text-[var(--text-secondary)] block">
+            <label className={HINT_BLOCK_CLASS}>
               {t('crm.import.file', 'File')}:
               <input
                 type="file"
@@ -176,7 +179,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
                 className="mt-1 block text-xs"
               />
             </label>
-            <label className="text-xs text-[var(--text-secondary)] block">
+            <label className={HINT_BLOCK_CLASS}>
               {t('crm.import.password', 'Password')}:
               <input
                 type="password"

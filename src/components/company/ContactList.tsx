@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { CompanyContact, CompanyDepartment } from '../../types/constants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
-import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS, COMPANY_LIST_TITLE_CLASS, COMPANY_NAME_CLASS } from './companyClasses';
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS, COMPANY_LIST_TITLE_CLASS, COMPANY_NAME_CLASS, COMPANY_LIST_HEADER_CLASS } from './companyClasses';
 type ContactListProps = {
   isDark?: boolean;
   contacts: CompanyContact[];
@@ -38,7 +38,7 @@ export const ContactList = ({
 
   return (
     <div className="w-full mb-4">
-      <div className="flex items-center justify-between px-2 mb-3">
+      <div className={COMPANY_LIST_HEADER_CLASS}>
         <div className={COMPANY_LIST_TITLE_CLASS}>
           <Users size={14} />
           <span className="truncate">{contactsLabel} ({contacts.length})</span>
