@@ -128,7 +128,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
   return (
     <SubView title={t('settings.payments', 'Payments & Billing')} isDark={isDark} onBack={onBack}>
       <SettingsSectionTitle title={t('wallet.title', 'Wallet')} isDark={isDark} />
-      <div className={`rounded-2xl p-5 mb-2 ${isDark ? "bg-gradient-to-br from-[var(--accent)]/20 to-transparent border border-[var(--border-color)]" : "bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20"}`}>
+      <div className="rounded-2xl p-5 mb-2 bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20 dark:from-[var(--accent)]/20 dark:border-[var(--border-color)]">
         <div className="text-xs uppercase tracking-widest font-bold opacity-60 text-[var(--text-secondary)]">{t('wallet.balance', 'Balance')}</div>
         <div className="text-[32px] font-bold mt-1 text-[var(--text-primary)]">{formatCurrency(balance, walletCurrency, lang, 2)}</div>
         <div className="flex gap-2 mt-4">
@@ -157,14 +157,14 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className={`flex-1 min-w-0 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-[var(--border-color)] text-[var(--text-primary)]'}`}
+                  className={"flex-1 min-w-0 rounded-lg px-3 py-2 text-sm outline-none border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]"}
                 />
                 <input
                   aria-label={t('payments.currency', 'Currency')}
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value.toUpperCase())}
                   maxLength={6}
-                  className={`w-24 rounded-lg px-3 py-2 text-sm outline-none border ${isDark ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]' : 'bg-white border-[var(--border-color)] text-[var(--text-primary)]'}`}
+                  className={"w-24 rounded-lg px-3 py-2 text-sm outline-none border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]"}
                 />
               </div>
               <div className="flex gap-2">
@@ -182,7 +182,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
                 <button
                   onClick={() => setMode(null)}
                   aria-label={t('common.close', 'Close')}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium active:scale-[0.99] transition-transform ${isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'}`}
+                  className={"px-3 py-2 rounded-lg text-sm font-medium active:scale-[0.99] transition-transform bg-black/5 text-[var(--text-secondary)] dark:bg-white/10 dark:text-[var(--text-primary)]"}
                 >
                   {t('common.cancel', 'Cancel')}
                 </button>
@@ -208,8 +208,8 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
       <SettingsGroup isDark={isDark}>
         <SettingsToggleRow
           icon={<CreditCard size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.paymentsEnabled', 'Payments')}
           subtitle={t('settings.paymentsEnabledSub', 'Send and receive money')}
           isOn={walletEnabled}
@@ -228,8 +228,8 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
         />
         <SettingsRow
           icon={<ShieldCheck size={16} />}
-          iconBg={isDark ? "bg-purple-500/10" : "bg-purple-100"}
-          iconColor={isDark ? "text-purple-400" : "text-purple-600"}
+          iconBg="bg-purple-100 dark:bg-purple-500/10"
+          iconColor="text-purple-600 dark:text-purple-400"
           title={t('settings.paymentSecurity', 'Security')}
           subtitle={t('settings.paymentSecuritySub', 'Encrypted & tokenized')}
           isDark={isDark}
@@ -239,7 +239,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
       <SettingsSectionTitle title={t('wallet.transactions', 'Transactions')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         {transactions.length === 0 && (
-          <div className={`px-4 py-6 text-center text-sm ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]'}`}>
+          <div className="px-4 py-6 text-center text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">
             {t('wallet.empty', 'No transactions yet')}
           </div>
         )}
@@ -247,12 +247,12 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
           <div key={tx.id}>
             {i > 0 && <div className="border-t border-[var(--border-color)]" />}
             <div className="flex items-center gap-3 px-4 py-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-white/5" : "bg-black/5"} ${tx.amount >= 0 ? "text-emerald-400" : "text-[var(--text-secondary)]"}`}>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-black/5 dark:bg-white/5 ${tx.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--text-secondary)]"}`}>
                 {txIcon(tx.type)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-[var(--text-primary)]">{tx.title}</div>
-                <div className={`text-xs flex items-center gap-1 ${tx.status === 'failed' ? 'text-red-500' : (isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-tertiary)]')}`}>
+                <div className={`text-xs flex items-center gap-1 ${tx.status === 'failed' ? 'text-[var(--danger)]' : 'text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]'}`}>
                   {STATUS_ICON[tx.status]}
                   {tx.status === 'pending' ? t('wallet.pending', 'Pending') : tx.status === 'failed' ? t('wallet.failed', 'Payment failed') : formatDate(tx.date, lang)}
                 </div>
