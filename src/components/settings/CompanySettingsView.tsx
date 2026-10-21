@@ -5,6 +5,7 @@ import { useI18n } from '../../lib/i18n'
 import { useAppStore } from '../../store'
 import { SettingsSectionTitle, SettingsToggleRow, SettingsRow, SettingsGroup } from '../ui/SettingsRow'
 import { toast } from '../ui/Toast'
+import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 
 type CompanySettingsViewProps = {
   isDark: boolean
@@ -70,7 +71,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
                 <BookOpen size={16} className="text-amber-600 dark:text-amber-400" />
               </span>
               <span className="flex-1 min-w-0">
-                <span className="text-sm font-medium text-[var(--text-primary)]">{t('company.guide.title', 'Company guide')}</span>
+                <span className={MEDIUM_LABEL_CLASS}>{t('company.guide.title', 'Company guide')}</span>
                 <span className="block text-xs text-[var(--text-secondary)]">{t('company.guide.subtitle', 'How companies & roles work')}</span>
               </span>
             </span>

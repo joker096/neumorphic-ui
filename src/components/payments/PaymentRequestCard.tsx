@@ -6,6 +6,7 @@ import { gatewayUrl, verifyPayment, sharePaymentLink } from '../../services/paym
 import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPending } from '../../types/paymento'
 import { useI18n } from '../../lib/i18n'
 import { formatCurrency } from '../../utils/currency'
+import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 
 interface PaymentRequestCardProps {
   token: string
@@ -122,7 +123,7 @@ export const PaymentRequestCard = ({
         </div>
         <div className="flex-1 min-w-0">
           {description && (
-            <div className={`text-sm font-medium text-[var(--text-primary)]`}>
+            <div className={MEDIUM_LABEL_CLASS}>
               {description}
             </div>
           )}

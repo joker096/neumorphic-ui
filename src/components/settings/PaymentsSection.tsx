@@ -12,6 +12,7 @@ import { isPaymentSuccessful } from '../../types/paymento';
 import { useAppStore, selectWalletBalance } from '../../store';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/dateTime';
+import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 interface PaymentsSectionProps {
   isDark?: boolean;
   onBack: () => void;
@@ -251,7 +252,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
                 {txIcon(tx.type)}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-[var(--text-primary)]">{tx.title}</div>
+                <div className={MEDIUM_LABEL_CLASS}>{tx.title}</div>
                 <div className={`text-xs flex items-center gap-1 ${tx.status === 'failed' ? 'text-[var(--danger)]' : 'text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]'}`}>
                   {STATUS_ICON[tx.status]}
                   {tx.status === 'pending' ? t('wallet.pending', 'Pending') : tx.status === 'failed' ? t('wallet.failed', 'Payment failed') : formatDate(tx.date, lang)}

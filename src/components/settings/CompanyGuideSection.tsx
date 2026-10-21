@@ -3,6 +3,7 @@ import { BookOpen, Building2, UserPlus, ShieldCheck, KeyRound, ChevronRight } fr
 import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsSectionTitle, SettingsRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
+import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 
 interface CompanyGuideSectionProps {
   isDark?: boolean;
@@ -93,7 +94,7 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
                   <span className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[var(--accent)]/10 dark:bg-[var(--accent-soft)]`}>
                     <span className="t-accent">{step.icon}</span>
                   </span>
-                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                  <span className={MEDIUM_LABEL_CLASS}>
                     {t(step.titleKey, step.titleFallback)}
                   </span>
                 </span>

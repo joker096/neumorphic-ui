@@ -14,6 +14,7 @@ import { APP_INFO } from "../../config/settingsDefaults";
 import { useAppStore } from "../../store";
 import type { CloudSyncState } from "../../store/types";
 import { ROW_SHELL_CLASS } from '../ui/rowClasses';
+import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 
 interface SettingsMainMenuProps {
   isDark: boolean;
@@ -126,7 +127,7 @@ export function SettingsMainMenu({
                         <Bell size={16} className="text-red-600 dark:text-red-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-[var(--text-primary)]">{t('settings.notifications')}</div>
+                        <div className={MEDIUM_LABEL_CLASS}>{t('settings.notifications')}</div>
                         {t('settings.notificationsSubtitle') && <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.notificationsSubtitle')}</div>}
                       </div>
                     </div>

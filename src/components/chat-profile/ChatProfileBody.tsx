@@ -18,6 +18,7 @@ import {
 import { formatLongDate } from '../../utils/dateTime';
 import type { GroupMember, GroupPermissions } from '../../store/slices/chatSlice';
 import { ROW_SHELL_CLASS } from '../ui/rowClasses';
+import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 
 export type ChatProfileKind = 'user' | 'group' | 'channel' | 'bot';
 
@@ -192,7 +193,7 @@ export const ChatProfileBody = ({
             {name.charAt(0)}
           </div>
           <div className="flex-1">
-            <div className="text-sm font-medium text-[var(--text-primary)]">{name}</div>
+            <div className={MEDIUM_LABEL_CLASS}>{name}</div>
             {i === 0 && <div className="text-xs flex items-center gap-1 text-[var(--amber)]"><Crown size={12} /> {t('profile.owner', 'Owner')}</div>}
           </div>
           {i === 0 && <Shield size={16} className="text-[var(--accent)]" />}

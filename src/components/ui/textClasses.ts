@@ -22,3 +22,6 @@ export const INLINE_HINT_CLASS = 'flex items-center gap-1.5 text-xs text-[var(--
 
 /** Semi-bold primary label used for row and menu titles. */
 export const PRIMARY_LABEL_CLASS = 'text-sm font-semibold text-[var(--text-primary)]';
+
+/** Medium-weight primary-colour text used for row titles and headings. */
+export const MEDIUM_LABEL_CLASS = 'text-sm font-medium text-[var(--text-primary)]';

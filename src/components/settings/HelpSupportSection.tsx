@@ -5,6 +5,7 @@ import { SettingsGroup, SettingsSectionTitle, SettingsRow } from '../ui/Settings
 import { SubView } from '../ui/SubView';
 import { toast } from '../ui/Toast';
 import { EmptyState } from '../ui/States';
+import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 
 interface HelpSupportSectionProps {
   isDark?: boolean;
@@ -122,7 +123,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
               aria-expanded={openFaq === i}
               className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-black/5 dark:hover:bg-white/5`}
             >
-              <span className={`text-sm font-medium text-[var(--text-primary)]`}>{t(item.q, item.qFallback)}</span>
+              <span className={MEDIUM_LABEL_CLASS}>{t(item.q, item.qFallback)}</span>
               <HelpCircle size={16} className={`shrink-0 transition-colors ${openFaq === i ? "text-[var(--accent)]" : "text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}`} aria-hidden="true" />
             </button>
             {openFaq === i && (
