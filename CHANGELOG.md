@@ -30,6 +30,13 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **§1.2: `useChatPreviewSends.ts` разбит на модули (358 → 279 строк).** Хук держал все исходящие пути чата в одном теле: три send-функции, обработчики вложений, тоггл реакций и две утилиты статуса. Логика перенесена дословно, публичная поверхность хука не изменилась.
+  1. `hooks/chatPreviewSends/outgoingMessage.ts` (19) — `applySelfDestruct` (штамп `selfDestructAt` по настройкам + TTL для wire-кадра).
+  2. `hooks/chatPreviewSends/attachments.ts` (37) — `createAttachmentHandlers({ sendFile, sendFiles })` отдаёт `attachFiles`/`sendVideoNote`/`handleImageAttach`/`handleFileDrop`.
+  3. `hooks/chatPreviewSends/useReactionToggle.ts` (69) — состояние `activeReactionPicker` + `handleReactionMessage` (toggle `reactions`/`myReactions` + `encodeChatReaction` дельта).
+  4. `useChatPreviewSends.ts` оставил `sendMessage`/`sendGeoMessage`/`sendArticleMessage`/`retryFailedMessage` и тот же возвращаемый объект; `attachFiles` больше не деструктурируется — используется только внутри модуля вложений.
+  5. component-audit oversize **3 → 2** (остались `ChatMessage.tsx` 329, `App.tsx` 302). D1–D5 перескан: 0 findings — перенос дословный, хендлеры живые.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (635), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), dead-export dead 0, ui-audit 14/14, visual 8/8.
 - **§1.2: `src/lib/p2p/chatFrame.ts` разбит с 399 до 13 строк (3 модуля) (2026-10-21).** Последний oversize-файл вне UI-слоя держал в одном теле магические префиксы, seq-нумерацию, все числовые гарды и кодеки девяти видов кадров. Перенос дословный, ни одна строка логики не переписана.
   1. `chatFrameCore.ts` (152) — `MSG_MAGIC`/`CALL_MAGIC`, `nextFrameSeq`/`isSeq`, общие гарды `isNonNegativeInt`/`isFiniteNum`, кодеки текста, delivery-ack, read-receipt и call-сигналинга.
   2. `chatFrameInteraction.ts` (123) — кадры правки, реакции и пина (каждый — дельта к существующему сообщению, не снапшот).

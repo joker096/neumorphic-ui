@@ -3,10 +3,10 @@ import { useAppStore } from "../store";
 import { formatClockTime } from "../utils/chatUtils";
 import { encodeMorse } from "../components/MorseDecoder";
 import { queueMessage } from "../lib/messageQueue";
-import { encodeChatReaction, encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
+import { encodeChatText, nextFrameSeq } from '../lib/p2p/chatFrame';
 import { encodeChatLocation, encodeChatArticle } from "../lib/p2p/chatRichFrames";
 import { p2pNetwork } from "../lib/p2p/network";
-import { applyDefaultSelfDestruct, wireSelfDestructTtl, resolveSelfDestructTimer } from "../lib/selfDestruct";
+import { wireSelfDestructTtl } from '../lib/selfDestruct';
 import type { ChatPreviewDraft } from "./useChatPreviewDraft";
 
 /** Optional overrides for a programmatic send (e.g. the thread panel composer). */
@@ -16,6 +16,9 @@ export interface ChatSendOverrides {
   /** Quote to attach as `replyTo` instead of the composer's reply target. */
   replyTarget?: any;
 }
+import { applySelfDestruct } from './chatPreviewSends/outgoingMessage';
+import { createAttachmentHandlers } from './chatPreviewSends/attachments';
+import { useReactionToggle } from './chatPreviewSends/useReactionToggle';
 
 interface UseChatPreviewSendsArgs {
   chat: any;
@@ -29,24 +32,16 @@ interface UseChatPreviewSendsArgs {
 }
 
 /**
- * Stamp the self-destruct timer onto an outgoing message. Every send path
- * uses it, so the timer covers text, geo, article and attachments alike
- * instead of text only. A per-chat override wins over the global default.
- */
-function applySelfDestruct(msg: any, chatId?: string | number): void {
-  const s = useAppStore.getState();
-  applyDefaultSelfDestruct(
-    msg,
-    resolveSelfDestructTimer(chatId, s.selfDestructDefault, s.chatSelfDestruct, s.premiumEntitlement?.premium ?? false),
-  );
-}
-
-/**
  * Every outgoing path of the chat preview: text/morse, geo, article, file
  * attach and drop, video notes, the failed-message retry and reactions.
  */
 export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, setChatsStore, setChannels, sendFile, sendFiles }: UseChatPreviewSendsArgs) {
-  const [activeReactionPicker, setActiveReactionPicker] = useState<number | string | null>(null);
+  const { activeReactionPicker, setActiveReactionPicker, handleReactionMessage } = useReactionToggle({
+    chat,
+    onUpdateChat,
+    setChatsStore,
+  });
+  const { sendVideoNote, handleImageAttach, handleFileDrop } = createAttachmentHandlers({ sendFile, sendFiles });
 
   const updateMsgStatusInChat = useCallback((chatArg: any, msgId: string | number, status: string) => {
     const updatedChat = {
@@ -242,30 +237,6 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
     })).then(() => updateMsgStatusInChat(updatedChat, newMessage.id, "sent")).catch(() => markSendFailure(updatedChat, newMessage.id));
   };
 
-  const attachFiles = (files: File[], _chatData: any, _onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
-    if (files.length === 1) {
-      void sendFile(files[0], { silent });
-    } else if (files.length > 1) {
-      void sendFiles(files, { silent });
-    }
-  };
-
-  const sendVideoNote = (file: File) => {
-    void sendFile(file, { silent: false, videoNote: true });
-  };
-
-  const handleImageAttach = (e: React.ChangeEvent<HTMLInputElement>, chatData: any, onUpdChat: ((c: any) => void) | undefined, silent: boolean) => {
-    const files = e.target.files ? [...e.target.files] : [];
-    if (files.length === 0) return;
-    attachFiles(files, chatData, onUpdChat, silent);
-  };
-
-  const handleFileDrop = (files: FileList | null | undefined, chatData: any, onUpdChat: ((c: any) => void) | undefined) => {
-    const arr = files ? [...files] : [];
-    if (arr.length === 0) return;
-    attachFiles(arr, chatData, onUpdChat, false);
-  };
-
   const retryFailedMessage = useCallback((msg: any) => {
     if (!chat || !msg) return;
     const deliver = () => {
@@ -292,56 +263,6 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
     }
     deliver();
   }, [chat, updateMsgStatusInChat]);
-
-  /**
-   * Toggle the local user's reaction: a second tap on the same emoji removes it.
-   * The sender's own reactions are tracked under `myReactions` (never asserted
-   * over the wire) so the highlight survives re-renders, and the count delta
-   * travels as a `chat-reaction` frame. Own messages are reactable too, matching
-   * the double-tap gesture which fires regardless of direction.
-   */
-  const handleReactionMessage = (msgId: string | number, emoji: string) => {
-    let op: "add" | "remove" = "add";
-    const updatedChat = {
-      ...chat,
-      history: (chat.history || []).map((m: any) => {
-        if (m.id !== msgId) return m;
-        const reactions = { ...(m.reactions || {}) };
-        const mine = { ...(m.myReactions || {}) };
-        if (mine[emoji]) {
-          op = "remove";
-          delete mine[emoji];
-          const next = (reactions[emoji] || 0) - 1;
-          if (next > 0) reactions[emoji] = next;
-          else delete reactions[emoji];
-        } else {
-          op = "add";
-          mine[emoji] = true;
-          reactions[emoji] = (reactions[emoji] || 0) + 1;
-        }
-        return { ...m, reactions, myReactions: mine };
-      })
-    };
-    if (onUpdateChat) onUpdateChat(updatedChat);
-    setChatsStore(prev => prev.map(c => c.id === chat.id ? updatedChat : c));
-    setActiveReactionPicker(null);
-
-    const sender = useAppStore.getState().userProfile;
-    void p2pNetwork.sendAddressed(
-      p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name),
-      encodeChatReaction({
-        type: "chat-reaction",
-        seq: nextFrameSeq(),
-        messageId: String(msgId),
-        chatId: String(chat.id),
-        chatName: String(chat.name || ""),
-        senderName: sender?.name || sender?.username || "User",
-        emoji,
-        op,
-        timestamp: Date.now(),
-      }),
-    ).catch(() => {});
-  };
 
   return {
     sendMessage,
