@@ -40,6 +40,8 @@ npm run dev
 | `npm run dev` | Start dev server |
 | `npm run lint` | ESLint + TypeScript check |
 | `npm run build` | Production build |
+| `npm run release` | Collect release artifacts + write `dist/releases/releases.json` |
+| `npm run verify` | Verify the release manifest (file sizes + sha256) |
 | `npm test` | Run unit tests (Vitest) |
 | `npm run test:e2e` | Run Playwright e2e tests |
 | `npm run l10n:audit` | i18n key/fallback audit (0 errors) |
@@ -61,8 +63,19 @@ DB_PATH=./data/admin.db
 ALLOWED_ORIGINS=https://yourdomain.com
 ```
 
+The release pipeline (`npm run release` / `npm run verify`) reads four more variables:
+
+```
+RELEASE_BASE_URL=https://mess.cvr.name/releases/
+APP_BASE_URL=https://mess.cvr.name/
+PLAY_STORE_URL=https://play.google.com/store/apps/details?id=<android-package>
+RELEASE_SIGN_KEY=
+```
+
+`RELEASE_BASE_URL` is the public base of the published artifacts — it becomes `baseUrl` in the manifest and every artifact url is resolved against it. `APP_BASE_URL` is the app root used by the "Web · PWA" entry. `PLAY_STORE_URL` overrides the store link (default: the Google Play page of the Android package). `RELEASE_SIGN_KEY` is the GPG key id used to sign `releases.json` (unset = unsigned).
+
 ## Tests
 
-- **Unit:** 5954 tests across 343 files (Vitest)
-- **E2E:** ~196 Playwright tests in `e2e/`
+- **Unit:** 6577 tests across 381 files (Vitest)
+- **E2E:** 210 Playwright tests in 23 spec files (`e2e/`)
 - **Lint:** ESLint + TypeScript — 0 errors
