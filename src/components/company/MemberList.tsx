@@ -4,6 +4,7 @@ import { MemberItem } from './MemberItem';
 import type { CompanyMember } from '../../lib/company/types';
 import { memberColorAt, COMPANY_UI_FALLBACKS } from '../../constants/companyConstants';
 import { FORM_ICON_ADD_BTN_CLASS } from '../ui/formClasses';
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS } from './companyClasses';
 
 type MemberListProps = {
   isDark?: boolean;
@@ -50,12 +51,12 @@ export const MemberList = ({
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-8 text-[var(--text-secondary)]">
+        <div className={LIST_LOADING_CLASS}>
           <Loader2 size={18} className="animate-spin" />
           <span className="text-xs">{t('company.loading', 'Loading...')}</span>
         </div>
       ) : error ? (
-        <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
+        <div className={LIST_EMPTY_CLASS}>
           <AlertCircle size={20} className="text-[var(--color-warning)]" />
           <span className="text-xs text-[var(--text-secondary)]">{error}</span>
           {onRetry && (
@@ -71,7 +72,7 @@ export const MemberList = ({
           )}
         </div>
       ) : members.length === 0 ? (
-        <div className="py-8 text-center text-xs text-[var(--text-secondary)]">
+        <div className={LIST_EMPTY_HINT_CLASS}>
           {t('company.emptyMembers', COMPANY_UI_FALLBACKS.emptyMembers)}
         </div>
       ) : (

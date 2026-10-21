@@ -6,6 +6,7 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { getCompanySettings, saveCompanySettings } from '../../lib/idb';
 import { FormField } from '../ui/FormField';
+import { AVATAR_CIRCLE_CLASS } from './companyClasses';
 
 const closeBtnStyle = 'w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]';
 
@@ -92,7 +93,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
             </label>
             <div className="flex items-center gap-3">
               {f.icon && (
-                <div className="min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+                <div className={AVATAR_CIRCLE_CLASS}>
                   {React.createElement(f.icon, { size: 16 })}
                 </div>
               )}

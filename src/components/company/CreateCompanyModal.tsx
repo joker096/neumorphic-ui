@@ -7,6 +7,7 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { FormField } from '../ui/FormField';
 import { CompanyModalCloseButton } from './CompanyModalCloseButton';
+import { AVATAR_CIRCLE_CLASS } from './companyClasses';
 
 type CreateCompanyModalProps = {
   onClose: () => void;
@@ -60,7 +61,7 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
               {t('company.companyName', 'Company name')}
             </label>
             <div className="flex items-center gap-3">
-              <div className="min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+              <div className={AVATAR_CIRCLE_CLASS}>
                 <Building2 size={16} />
               </div>
               <FormField
@@ -79,7 +80,7 @@ export const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({ onClose,
               {t('company.yourName', 'Your name')}
             </label>
             <div className="flex items-center gap-3">
-              <div className="min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+              <div className={AVATAR_CIRCLE_CLASS}>
                 <User size={16} />
               </div>
               <FormField

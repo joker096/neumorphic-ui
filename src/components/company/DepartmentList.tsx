@@ -4,6 +4,7 @@ import type { CompanyDepartment, CompanyMember } from '../../types/constants';
 import { memberColorAt } from '../../constants/companyConstants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS } from './companyClasses';
 
 type DepartmentListProps = {
   isDark?: boolean;
@@ -66,12 +67,12 @@ export const DepartmentList = ({
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-8 text-[var(--text-secondary)]">
+        <div className={LIST_LOADING_CLASS}>
           <Loader2 size={18} className="animate-spin" />
           <span className="text-xs">{t('company.loading', 'Loading...')}</span>
         </div>
       ) : error ? (
-        <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
+        <div className={LIST_EMPTY_CLASS}>
           <AlertCircle size={20} className="text-[var(--color-warning)]" />
           <span className="text-xs text-[var(--text-secondary)]">{error}</span>
           {onRetry && (
@@ -87,7 +88,7 @@ export const DepartmentList = ({
           )}
         </div>
       ) : departments.length === 0 ? (
-        <div className="py-8 text-center text-xs text-[var(--text-secondary)]">
+        <div className={LIST_EMPTY_HINT_CLASS}>
           {t('company.departmentsEmpty', 'No departments yet')}
         </div>
       ) : (
