@@ -1,6 +1,7 @@
 import React from 'react';
 import { Lock, Fingerprint, LockOpen } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import { HINT_TEXT_CLASS } from '../ui/textClasses';
 
 type AppLockScreenProps = {
   pinInput: string;
@@ -65,14 +66,14 @@ export const AppLockScreen: React.FC<AppLockScreenProps> = ({
         {isBlockedPermanently ? (
           <div className="text-center mb-4">
             <p className="text-[var(--danger)] font-bold text-sm">{t('lock.tooManyAttempts')}</p>
-            <p className="text-xs mt-1 text-[var(--text-secondary)]">
+            <p className={HINT_TEXT_CLASS}>
               {t('lock.permanentlyLocked')}
             </p>
           </div>
         ) : isBlockedTemporarily ? (
           <div className="text-center mb-4">
             <p className="text-[var(--danger)] font-bold text-sm">{t('lock.locked')}</p>
-            <p className="text-xs mt-1 text-[var(--text-secondary)]">
+            <p className={HINT_TEXT_CLASS}>
               {t('lock.tryAgainIn', { seconds: lockBlockTimer })}
             </p>
           </div>

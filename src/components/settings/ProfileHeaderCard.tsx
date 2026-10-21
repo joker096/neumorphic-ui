@@ -2,6 +2,7 @@ import React from 'react';
 import { Edit, Share2, Phone, Mail, MessageSquare, Send, Shield, AtSign, Link } from 'lucide-react';
 import { DEFAULT_AVATAR_COLOR, PROFILE_FIELD_TYPES } from '../../constants/settingsConstants';
 import type { UserProfile } from '../../types/contact';
+import { HINT_TEXT_CLASS } from '../ui/textClasses';
 
 interface ProfileHeaderCardProps {
   userProfile: UserProfile;
@@ -58,7 +59,7 @@ export const ProfileHeaderCard = ({ userProfile, t, onEdit, onShare }: ProfileHe
       <div className="pt-8 pb-4 px-4 text-center">
         <h3 className="text-xl font-bold text-[var(--text-primary)]">{userProfile.name || (userProfile.username ? `@${userProfile.username}` : t('settings.defaultUserName', 'User'))}</h3>
         {userProfile.username && userProfile.name && <p className="text-sm mt-0.5 font-medium text-[var(--accent)]">@{userProfile.username}</p>}
-        {userProfile.bio && <p className="text-xs mt-1 text-[var(--text-secondary)]">{userProfile.bio}</p>}
+        {userProfile.bio && <p className={HINT_TEXT_CLASS}>{userProfile.bio}</p>}
         {userProfile.status && <p className="text-xs mt-1 text-[var(--text-tertiary)]">{userProfile.status}</p>}
         {fields.length > 0 && (
           <div className="flex flex-col gap-2 mt-4">

@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { AUTH_ERROR_CLASS, AUTH_LINK_BTN_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS } from '../authShared';
+import { HINT_TEXT_CLASS } from '../../ui/textClasses';
 
 type T = (key: string, options?: any) => string;
 
@@ -30,7 +31,7 @@ export function LoginSetPin({
       {isLocked && lockBlockTimer > 0 ? (
         <div className="text-center mb-4">
           <p className="text-red-500 font-bold text-sm">{t('lock.locked', 'Locked')}</p>
-          <p className="text-xs mt-1 text-[var(--text-secondary)]">{t('lock.tryAgainIn', { seconds: lockBlockTimer })}</p>
+          <p className={HINT_TEXT_CLASS}>{t('lock.tryAgainIn', { seconds: lockBlockTimer })}</p>
         </div>
       ) : (
         <>

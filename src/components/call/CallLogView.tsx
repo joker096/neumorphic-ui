@@ -7,6 +7,7 @@ import { useAppStore } from '../../store';
 import { callManager } from '../../lib/call/CallManager';
 import { callRecorderService } from '../../lib/callRecorderService';
 import { formatTime } from '../../utils/dateTime';
+import { INLINE_HINT_CLASS } from '../ui/textClasses';
 
 const SEARCH_CLASS =
   'w-full h-11 pl-10 pr-3 rounded-xl text-sm outline-none transition-colors bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] border border-[var(--border-color)] focus:border-[var(--accent)]';
@@ -105,7 +106,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
                     <p className="text-sm font-semibold truncate text-[var(--text-primary)]">
                       {call.name}
                     </p>
-                    <p className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+                    <p className={INLINE_HINT_CLASS}>
                       <span>{call.at != null ? formatTime(call.at, lang) : call.time}{call.duration && ` · ${call.duration}`}</span>
                       {call.recordingId && (
                         <span className="inline-flex items-center gap-1 text-xs font-bold text-[var(--danger)]">

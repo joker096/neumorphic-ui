@@ -2,6 +2,7 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { Building2, Globe, Mail, MapPin, Phone } from "lucide-react";
 import { COMPANY_INFO_GRADIENT, COMPANY_UI_FALLBACKS } from '../../constants/companyConstants';
+import { INLINE_HINT_CLASS } from '../ui/textClasses';
 
 type CompanyInfoCardProps = {
   orgId?: string;
@@ -39,25 +40,25 @@ export const CompanyInfoCard = ({ orgId = 'N/A', connected }: CompanyInfoCardPro
         <div className="mt-3 pt-3 border-t border-[var(--border-color)] border-opacity-20">
           <div className="flex flex-col gap-1">
             {companySettings?.phone && (
-              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+              <div className={INLINE_HINT_CLASS}>
                 <Phone size={12} />
                 <span className="truncate">{companySettings.phone}</span>
               </div>
             )}
             {companySettings?.email && (
-              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+              <div className={INLINE_HINT_CLASS}>
                 <Mail size={12} />
                 <span className="truncate">{companySettings.email}</span>
               </div>
             )}
             {companySettings?.address && (
-              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+              <div className={INLINE_HINT_CLASS}>
                 <MapPin size={12} />
                 <span className="truncate">{companySettings.address}</span>
               </div>
             )}
             {companySettings?.website && (
-              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+              <div className={INLINE_HINT_CLASS}>
                 <Globe size={12} />
                 <span className="truncate">{companySettings.website}</span>
               </div>

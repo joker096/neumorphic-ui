@@ -30,6 +30,12 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Подсказки под полями: два класса вынесены в `ui/textClasses` (2026-10-21).** Строка `text-xs mt-1 text-[var(--text-secondary)]` была скопирована в пяти местах (`app/AppLockScreen.tsx` ×2, `auth/login/LoginSetPin.tsx`, `auth/registration/RegistrationSteps.tsx`, `settings/ProfileHeaderCard.tsx`), а `flex items-center gap-1.5 text-xs text-[var(--text-secondary)]` — ещё в пяти (`company/CompanyInfoCard.tsx` ×4, `call/CallLogView.tsx`) — правка кегля или отступа подсказки требовала синхронных правок в шести файлах.
+  1. В `src/components/ui/textClasses.ts` добавлены `HINT_TEXT_CLASS` и `INLINE_HINT_CLASS` — значения байт-в-байт прежние.
+  2. Все десять вызовов переведены на константы, литералы остались только в определении.
+  3. `chat-profile/ChatProfileView.tsx` намеренно не тронут: там та же типографика, но с префиксом `flex items-center gap-1 ` — другая форма.
+  4. Рендер и визуальные базлайны не изменились; D1–D5 перескан: 0 findings — правки презентационные, ни один хендлер не тронут.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (643), button-audit 0 (289/436), l10n PASS (0 errors / 10 dynamic), component-audit 0/0/0, dead-export dead 0, orphan PASS, ui-audit 14/14, visual 8/8.
 - **Мелкие капс-подписи: класс вынесен в `ui/textClasses` (2026-10-21).** Строка `text-xs font-bold uppercase tracking-wider` была скопирована в девяти местах: подписи действий в профиле контакта (звонок, видео, сообщение, проверка безопасности) и роли-бейджи в компании и CRM — правка трекинга или кегля требовала синхронной правки в трёх файлах.
   1. В `src/components/ui/textClasses.ts` добавлен `CAPS_LABEL_CLASS` (значение байт-в-байт, рядом с уже существующим `SUBTLE_TRUNCATE_CLASS`).
   2. `ContactProfileModal.tsx` — четыре подписи действий переведены на константу.
