@@ -14,8 +14,7 @@ import { APP_INFO } from "../../config/settingsDefaults";
 import { useAppStore } from "../../store";
 import type { CloudSyncState } from "../../store/types";
 import { ROW_SHELL_CLASS } from '../ui/rowClasses';
-import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
-import { SUBTLE_TEXT_CLASS } from "../ui/textClasses";
+import { MEDIUM_LABEL_CLASS, SECONDARY_TEXT_CLASS, SUBTLE_TEXT_CLASS } from '../ui/textClasses';
 interface SettingsMainMenuProps {
   isDark: boolean;
   searchQuery: string;
@@ -144,7 +143,7 @@ export function SettingsMainMenu({
                         {soundEnabled ? <Bell size={16} className="text-emerald-600 dark:text-emerald-400" /> : <BellOff size={16} className={SUBTLE_TEXT_CLASS} />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm text-[var(--text-secondary)]">{t('settings.sound')}</div>
+                        <div className={SECONDARY_TEXT_CLASS}>{t('settings.sound')}</div>
                       </div>
                     </div>
                     <ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} ariaLabel={t('settings.sound')} />
@@ -160,7 +159,7 @@ export function SettingsMainMenu({
                         <Bell size={16} className="text-amber-600 dark:text-amber-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm text-[var(--text-secondary)]">{t('settings.soundVolume', 'Volume')}</div>
+                        <div className={SECONDARY_TEXT_CLASS}>{t('settings.soundVolume', 'Volume')}</div>
                       </div>
                     </div>
                     <input
@@ -184,7 +183,7 @@ export function SettingsMainMenu({
                       <Cloud size={16} className="t-accent" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-[var(--text-secondary)]">{t('settings.cloudSyncOption')}</div>
+                      <div className={SECONDARY_TEXT_CLASS}>{t('settings.cloudSyncOption')}</div>
                       {cloudSync.enabled && (
                         <div className={`text-xs truncate ${cloudSync.status === "error" ? "text-red-600 dark:text-red-400" : "text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}`}>
                           {cloudSync.status === "error"

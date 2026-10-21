@@ -1,4 +1,3 @@
-import { FORM_FIELD_CONTROL_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { Trash2, Tag as TagIcon, X, Phone, Video, MessageSquare, Plus, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -11,11 +10,10 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
+import { TWO_COL_GRID_CLASS } from "../ui/gridClasses";
+import { CRM_FIELD_INPUT_CLASS, CRM_FIELD_LABEL_CLASS } from './crmClasses';
 
-const inputCls =
-  `${FORM_FIELD_CONTROL_CLASS} text-xs`;
-const labelCls = FORM_FIELD_LABEL_CLASS;
-const selectCls = inputCls;
 
 type Props = {
   contact?: CrmContact;
@@ -141,7 +139,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
             <div className="flex items-center gap-3">
               <div className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center text-[var(--ink-on-saturate)] font-bold text-lg shrink-0 ${contact.avatarColor ? `bg-gradient-to-br ${contact.avatarColor}` : 'bg-[var(--accent)]'}`}>
                 {overrideAvatar ? (
-                  <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img src={overrideAvatar} alt="" role="presentation" className={MEDIA_COVER_CLASS} loading="lazy" decoding="async" />
                 ) : (
                   contact.displayName.charAt(0)
                 )}
@@ -191,42 +189,42 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
           </>
         )}
         <div>
-          <label className={labelCls}>{t('crm.fullName', CRM_FALLBACKS.fullName)}</label>
-          <input value={form.displayName} disabled={!editable} onChange={(e) => set('displayName', e.target.value)} className={inputCls} />
+          <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.fullName', CRM_FALLBACKS.fullName)}</label>
+          <input value={form.displayName} disabled={!editable} onChange={(e) => set('displayName', e.target.value)} className={CRM_FIELD_INPUT_CLASS} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className={TWO_COL_GRID_CLASS}>
           <div>
-            <label className={labelCls}>{t('crm.jobTitle', CRM_FALLBACKS.jobTitle)}</label>
-            <input value={form.title} disabled={!editable} onChange={(e) => set('title', e.target.value)} className={inputCls} />
+            <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.jobTitle', CRM_FALLBACKS.jobTitle)}</label>
+            <input value={form.title} disabled={!editable} onChange={(e) => set('title', e.target.value)} className={CRM_FIELD_INPUT_CLASS} />
           </div>
           <div>
-            <label className={labelCls}>{t('crm.status', CRM_FALLBACKS.status)}</label>
-            <select value={form.status} disabled={!editable} onChange={(e) => set('status', e.target.value as CrmContactStatus)} className={selectCls}>
+            <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.status', CRM_FALLBACKS.status)}</label>
+            <select value={form.status} disabled={!editable} onChange={(e) => set('status', e.target.value as CrmContactStatus)} className={CRM_FIELD_INPUT_CLASS}>
               {CONTACT_STATUSES.map((s) => <option key={s.id} value={s.id}>{t(s.labelKey, (CRM_FALLBACKS as any)[s.labelKey.replace('crm.', '')])}</option>)}
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className={TWO_COL_GRID_CLASS}>
           <div>
-            <label className={labelCls}>{t('crm.phone', CRM_FALLBACKS.phone)}</label>
-            <input value={form.phone} disabled={!editable} onChange={(e) => set('phone', e.target.value)} className={inputCls} inputMode="tel" />
+            <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.phone', CRM_FALLBACKS.phone)}</label>
+            <input value={form.phone} disabled={!editable} onChange={(e) => set('phone', e.target.value)} className={CRM_FIELD_INPUT_CLASS} inputMode="tel" />
           </div>
           <div>
-            <label className={labelCls}>{t('crm.email', CRM_FALLBACKS.email)}</label>
-            <input value={form.email} disabled={!editable} onChange={(e) => set('email', e.target.value)} className={inputCls} inputMode="email" />
+            <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.email', CRM_FALLBACKS.email)}</label>
+            <input value={form.email} disabled={!editable} onChange={(e) => set('email', e.target.value)} className={CRM_FIELD_INPUT_CLASS} inputMode="email" />
           </div>
         </div>
         {editable && (
-          <div className="grid grid-cols-2 gap-3">
+          <div className={TWO_COL_GRID_CLASS}>
             <div>
-              <label className={labelCls}>{t('crm.role', CRM_FALLBACKS.role)}</label>
-              <select aria-label={t('crm.role', CRM_FALLBACKS.role)} value={form.role} onChange={(e) => set('role', e.target.value as SystemRole)} className={selectCls}>
+              <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.role', CRM_FALLBACKS.role)}</label>
+              <select aria-label={t('crm.role', CRM_FALLBACKS.role)} value={form.role} onChange={(e) => set('role', e.target.value as SystemRole)} className={CRM_FIELD_INPUT_CLASS}>
                 {SYSTEM_ROLES.map((r) => <option key={r.id} value={r.id}>{t(r.labelKey, (CRM_FALLBACKS as any)[r.labelKey.replace('crm.', '')])}</option>)}
               </select>
             </div>
             <div>
-              <label className={labelCls}>{t('crm.department', CRM_FALLBACKS.department)}</label>
-              <select aria-label={t('crm.department', CRM_FALLBACKS.department)} value={form.departmentId} onChange={(e) => set('departmentId', e.target.value)} className={selectCls}>
+              <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.department', CRM_FALLBACKS.department)}</label>
+              <select aria-label={t('crm.department', CRM_FALLBACKS.department)} value={form.departmentId} onChange={(e) => set('departmentId', e.target.value)} className={CRM_FIELD_INPUT_CLASS}>
                 <option value="">—</option>
                 {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
@@ -234,17 +232,17 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
           </div>
         )}
         {editable && (
-          <div className="grid grid-cols-2 gap-3">
+          <div className={TWO_COL_GRID_CLASS}>
             <div>
-              <label className={labelCls}>{t('crm.manager', CRM_FALLBACKS.manager)}</label>
-              <select aria-label={t('crm.manager', CRM_FALLBACKS.manager)} value={form.assignedManagerId} onChange={(e) => set('assignedManagerId', e.target.value)} className={selectCls}>
+              <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.manager', CRM_FALLBACKS.manager)}</label>
+              <select aria-label={t('crm.manager', CRM_FALLBACKS.manager)} value={form.assignedManagerId} onChange={(e) => set('assignedManagerId', e.target.value)} className={CRM_FIELD_INPUT_CLASS}>
                 <option value="">—</option>
                 {contacts.filter((c) => c.role === 'manager' || c.role === 'admin').map((c) => <option key={c.userId} value={c.userId}>{c.displayName}</option>)}
               </select>
             </div>
             <div>
-              <label className={labelCls}>{t('crm.customRole', 'Custom role')}</label>
-              <select aria-label={t('crm.customRole', 'Custom role')} value={form.customRoleId} onChange={(e) => set('customRoleId', e.target.value)} className={selectCls}>
+              <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.customRole', 'Custom role')}</label>
+              <select aria-label={t('crm.customRole', 'Custom role')} value={form.customRoleId} onChange={(e) => set('customRoleId', e.target.value)} className={CRM_FIELD_INPUT_CLASS}>
                 <option value="">—</option>
                 {customRoles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
               </select>
@@ -252,7 +250,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
           </div>
         )}
         <div>
-          <label className={labelCls}>{t('crm.tagsPlaceholder', CRM_FALLBACKS.tagsPlaceholder)}</label>
+          <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.tagsPlaceholder', CRM_FALLBACKS.tagsPlaceholder)}</label>
           <div className="flex gap-2">
             <input
               value={tagInput}
@@ -260,7 +258,7 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
               placeholder={t('crm.tagsPlaceholder', CRM_FALLBACKS.tagsPlaceholder)}
-              className={inputCls}
+              className={CRM_FIELD_INPUT_CLASS}
             />
             {editable && <button onClick={addTag} aria-label={t('crm.addTag', 'Add tag')} title={t('crm.addTag', 'Add tag')} className="min-h-11 min-w-11 w-11 rounded-xl bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-bold cursor-pointer flex items-center justify-center"><Plus size={18} aria-hidden="true" /><span className="sr-only">{t('crm.addTag', 'Add tag')}</span></button>}
           </div>
@@ -274,8 +272,8 @@ export const ContactCard: React.FC<Props> = ({ contact, onClose, onCall, onVideo
           </div>
         </div>
         <div>
-          <label className={labelCls}>{t('crm.notes', CRM_FALLBACKS.notes)}</label>
-          <textarea value={form.notes} disabled={!editable} onChange={(e) => set('notes', e.target.value)} rows={3} className={`${inputCls} py-2 resize-none`} />
+          <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.notes', CRM_FALLBACKS.notes)}</label>
+          <textarea value={form.notes} disabled={!editable} onChange={(e) => set('notes', e.target.value)} rows={3} className={`${CRM_FIELD_INPUT_CLASS} py-2 resize-none`} />
         </div>
       </div>
     </CrmModal>

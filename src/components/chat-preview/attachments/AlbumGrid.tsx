@@ -2,6 +2,7 @@ import { Loader2, ImageOff } from "lucide-react";
 import { useI18n } from "../../../lib/i18n";
 import { FTR_MAGIC } from "../../../lib/fileTransfer/frames";
 import { useFtrBlobUrl } from "../../../hooks/useFtrBlobUrl";
+import { MEDIA_COVER_CLASS } from "../../ui/mediaClasses";
 
 /** Overlay that covers an album tile while it loads. */
 const EMPTY_OVERLAY_CLASS = 'absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]';
@@ -62,7 +63,7 @@ export function AlbumGrid({ items, alt, failed, onItemError, onOpen }: AlbumGrid
               <AlbumTile
                 url={it.url}
                 alt={alt}
-                className="w-full h-full object-cover"
+                className={MEDIA_COVER_CLASS}
                 onError={() => onItemError(i)}
               />
             ) : (

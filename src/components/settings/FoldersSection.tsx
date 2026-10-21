@@ -4,8 +4,7 @@ import { useI18n } from '../../lib/i18n';
 import { SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { CHAT_FOLDER_KEYS } from '../../constants/chatConstants';
-import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
-
+import { MEDIUM_LABEL_CLASS, SECONDARY_CAPTION_CLASS } from '../ui/textClasses';
 interface NotificationsSectionProps {
   isDark?: boolean;
   onBack: () => void;
@@ -38,7 +37,7 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={MEDIUM_LABEL_CLASS}>{t(`chat.folders.${key}`)}</div>
-                  <div className="text-xs text-[var(--text-secondary)]">{t(meta.descKey, meta.descFallback)}</div>
+                  <div className={SECONDARY_CAPTION_CLASS}>{t(meta.descKey, meta.descFallback)}</div>
                 </div>
               </div>
             </div>

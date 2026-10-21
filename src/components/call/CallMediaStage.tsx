@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { Loader2, MicOff } from "lucide-react";
 import { GroupCallParticipants } from "./GroupCallParticipants";
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 import {
   CALL_AVATAR_GRADIENT,
   CALL_AVATAR_GRADIENT_SOFT,
@@ -44,7 +45,7 @@ export const CallMediaStage: React.FC<CallMediaStageProps> = ({
           ref={remoteVideoRef}
           autoPlay
           playsInline
-          className="w-full h-full object-cover"
+          className={MEDIA_COVER_CLASS}
         />
         {showAvatarFallback && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/55 backdrop-blur-md">

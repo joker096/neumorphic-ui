@@ -1,6 +1,7 @@
 import { Zap } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { FOOTER_WRAP_CLASS, FOOTER_SECTION_CLASS, FOOTER_META_CLASS } from "./landingClasses";
+import { TERTIARY_CAPTION_CLASS } from "../ui/textClasses";
 export const LandingFooter = () => {
   const { t } = useI18n();
   return (
@@ -14,7 +15,7 @@ export const LandingFooter = () => {
           {t("landing.brand")}
         </span>
       </div>
-      <p className="text-xs text-[var(--text-tertiary)]">
+      <p className={TERTIARY_CAPTION_CLASS}>
         {t("landing.copyright")}
       </p>
     </div>

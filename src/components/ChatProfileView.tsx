@@ -22,8 +22,7 @@ import {
 } from '../constants/chatConstants';
 import { ChatProfileBody, type ChatProfileKind, type ProfileChat } from './chat-profile/ChatProfileBody';
 import { ChatProfileActions } from './chat-profile/ChatProfileActions';
-import { HINT_TEXT_TIGHT_CLASS } from './ui/textClasses';
-
+import { HINT_TEXT_TIGHT_CLASS, SECONDARY_TEXT_CLASS } from './ui/textClasses';
 /** Destructive action button in the chat profile footer (block, leave). */
 const DANGER_BTN_CLASS =
   'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-rose-500 bg-rose-500/10 font-medium min-h-11 active:scale-95 transition-transform';
@@ -158,7 +157,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   {chat.name}
                   {chat.verified && <BadgeCheck size={18} className="text-[var(--accent)]" />}
                 </div>
-                <div className="text-sm text-[var(--text-secondary)]">{subtitle()}</div>
+                <div className={SECONDARY_TEXT_CLASS}>{subtitle()}</div>
                 {chat.username && <div className={HINT_TEXT_TIGHT_CLASS}>@{chat.username}</div>}
                 {kind === 'channel' && (
                   <div className="flex items-center gap-1 text-xs mt-1 text-[var(--text-secondary)]">

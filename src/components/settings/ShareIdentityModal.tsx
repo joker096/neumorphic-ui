@@ -7,6 +7,7 @@ import QRCode from 'qrcode';
 import { useAppStore } from '../../store';
 import { PROFILE_FALLBACK_ID } from '../../constants/settingsConstants';
 import { QR_SPINNER_CLASS } from '../ui/spinnerClasses';
+import { MEDIA_CONTAIN_CLASS } from "../ui/mediaClasses";
 
 interface ShareIdentityModalProps {
   t: (key: string, fallback?: string) => string;
@@ -77,7 +78,7 @@ export const ShareIdentityModal = ({ t, onClose }: ShareIdentityModalProps) => {
 
           <div className={`w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] flex items-center justify-center p-4 shadow-xl mb-6 bg-white border-2 border-[var(--border-color)]`}>
             {qrDataUrl ? (
-              <img src={qrDataUrl} alt={t('settings.shareQrAlt', 'Your identity QR code')} className="w-full h-full object-contain" />
+              <img src={qrDataUrl} alt={t('settings.shareQrAlt', 'Your identity QR code')} className={MEDIA_CONTAIN_CLASS} />
             ) : (
               <div className={QR_SPINNER_CLASS} />
             )}

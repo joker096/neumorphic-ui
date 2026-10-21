@@ -3,6 +3,7 @@ import { Camera, Trash2 } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { CONTACT_FALLBACK_GRADIENT } from "../../constants/contactConstants";
 import { ACTIVE_NOW_THRESHOLD_MS } from "../../constants/time";
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -51,7 +52,7 @@ export function ContactAvatarPicker({ contact, overrideAvatar, ghostViewMode, t,
           className={`group relative w-20 h-20 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br ${contact.color || CONTACT_FALLBACK_GRADIENT} text-[var(--text-primary)] font-bold text-[32px] shadow-lg`}
         >
           {overrideAvatar ? (
-            <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+            <img src={overrideAvatar} alt="" role="presentation" className={MEDIA_COVER_CLASS} loading="lazy" decoding="async" />
           ) : (
             String(contact.name || '').charAt(0)
           )}

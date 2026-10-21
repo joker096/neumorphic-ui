@@ -2,6 +2,7 @@ import React from 'react';
 import { MicOff, Mic } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { CALL_GROUP_AVATAR_GRADIENT } from '../../constants/callConstants';
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 
 interface GroupCallParticipantsProps {
   participants: Array<{
@@ -29,7 +30,7 @@ export const GroupCallParticipants: React.FC<GroupCallParticipantsProps> = ({
             <video
               autoPlay
               playsInline
-              className="w-full h-full object-cover"
+              className={MEDIA_COVER_CLASS}
               ref={(el) => {
                 if (el && participant.stream) {
                   el.srcObject = participant.stream;

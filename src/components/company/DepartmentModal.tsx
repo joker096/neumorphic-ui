@@ -11,6 +11,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { CompanyModalCloseButton } from './CompanyModalCloseButton';
 import { COMPANY_TEXTAREA_CLASS, COMPANY_MODAL_TITLE_CLASS } from './companyClasses';
+import { SECONDARY_CAPTION_CLASS } from "../ui/textClasses";
 type DepartmentModalProps = {
   department: CompanyDepartment | null;
   members: CompanyMember[];
@@ -140,7 +141,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
               {t('company.departmentMembers', 'Members')}
             </label>
             {members.length === 0 ? (
-              <div className="text-xs text-[var(--text-secondary)]">
+              <div className={SECONDARY_CAPTION_CLASS}>
                 {t('company.emptyMembers', 'No members yet')}
               </div>
             ) : (

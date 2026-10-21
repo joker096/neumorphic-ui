@@ -1,3 +1,4 @@
+import { FORM_FIELD_CONTROL_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 /**
  * Class strings shared by the CRM surfaces.
  *
@@ -31,3 +32,9 @@ export const CRM_CENTERED_HINT_CLASS = 'text-center text-xs text-[var(--text-sec
 
 /** Header row of a CRM board (title plus action). */
 export const CRM_BOARD_HEADER_CLASS = 'flex items-center justify-between px-1 mb-2';
+
+/** Compact input control shared by the CRM forms. */
+export const CRM_FIELD_INPUT_CLASS = `${FORM_FIELD_CONTROL_CLASS} text-xs`;
+
+/** Label above a CRM form control. */
+export const CRM_FIELD_LABEL_CLASS = FORM_FIELD_LABEL_CLASS;

@@ -4,6 +4,7 @@ import { useI18n } from "../../lib/i18n";
 import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
 import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
 import { TINY_BOLD_CLASS } from '../ui/textClasses';
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 
 /** Round media tab button (photos, videos, files). */
 const MEDIA_TAB_CLASS =
@@ -171,7 +172,7 @@ const MediaImageTile = ({ msg, onOpen }: { msg: any; onOpen: (msg: any, url: str
       onClick={() => { if (src) onOpen(msg, src); }}
     >
       {src ? (
-        <img src={src} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className="w-full h-full object-cover" />
+        <img src={src} alt={msg.text ? `Shared image: ${msg.text}` : "Shared image"} className={MEDIA_COVER_CLASS} />
       ) : (
         <div className="w-full h-full animate-pulse bg-white/10" />
       )}

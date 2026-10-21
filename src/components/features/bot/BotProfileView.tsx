@@ -5,9 +5,9 @@ import { DataState } from "../../ui/DataState";
 import { BotCommandList } from "./BotCommandList";
 import { BOT_AVATAR_FALLBACK_GRADIENT } from "../../../constants/botConstants";
 import { useI18n } from "../../../lib/i18n";
-import { BOT_ICON_BTN_CLASS } from './botClasses';
+import { BOT_ICON_BTN_CLASS, BOT_HEADER_CLASS } from './botClasses';
 import { FEATURE_BODY_CLASS } from "../featureClasses";
-import { BOT_HEADER_CLASS } from "./botClasses";
+import { SECONDARY_TEXT_CLASS } from "../../ui/textClasses";
 export interface BotProfileViewProps {
   botId: string;
   isDark?: boolean;
@@ -77,7 +77,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
             {verifiedMark}
           </h3>
           {profile.username && (
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className={SECONDARY_TEXT_CLASS}>
               @{profile.username}
             </p>
           )}

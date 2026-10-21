@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MapPin, Radio } from "lucide-react";
 import { formatCountdown } from "../../constants/liveLocation";
+import { TRUNCATE_MEDIUM_CLASS } from "../ui/textClasses";
 
 /** Ticks the live card once per second; anything coarser makes the timer jump. */
 const TICK_MS = 1_000;
@@ -48,7 +49,7 @@ export function GeoMessageCard({ msg, t }: GeoMessageCardProps) {
         {live ? <Radio size={20} aria-hidden="true" /> : <MapPin size={20} aria-hidden="true" />}
       </div>
       <div className="min-w-0">
-        <div className="text-sm font-medium truncate">{coords}</div>
+        <div className={TRUNCATE_MEDIUM_CLASS}>{coords}</div>
         <a
           href={mapsUrl}
           target="_blank"

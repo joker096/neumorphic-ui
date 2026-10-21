@@ -5,6 +5,7 @@ import type { CompanyMember } from '../../lib/company/types';
 import { memberColorAt, COMPANY_UI_FALLBACKS } from '../../constants/companyConstants';
 import { FORM_ICON_ADD_BTN_CLASS } from '../ui/formClasses';
 import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_SECTION_LABEL_CLASS } from './companyClasses';
+import { SECONDARY_CAPTION_CLASS } from "../ui/textClasses";
 type MemberListProps = {
   isDark?: boolean;
   members: CompanyMember[];
@@ -57,7 +58,7 @@ export const MemberList = ({
       ) : error ? (
         <div className={LIST_EMPTY_CLASS}>
           <AlertCircle size={20} className="text-[var(--color-warning)]" />
-          <span className="text-xs text-[var(--text-secondary)]">{error}</span>
+          <span className={SECONDARY_CAPTION_CLASS}>{error}</span>
           {onRetry && (
             <button
               onClick={onRetry}

@@ -8,7 +8,7 @@ import { callRecorderService, type CallRecording } from '../lib/callRecorderServ
 import { recordingStorage } from '../lib/recordingStorage';
 import { useAppStore } from '../store';
 import { formatDate } from './recordings/recordingUtils';
-import { SEMIBOLD_TRUNCATE_CLASS } from './ui/textClasses';
+import { SEMIBOLD_TRUNCATE_CLASS, SECONDARY_CAPTION_CLASS } from './ui/textClasses';
 import { FORM_SEARCH_ICON_CLASS } from './ui/formClasses';
 
 /** Icon button of the recording row (play, export, delete). */
@@ -147,7 +147,7 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
                     <p className={SEMIBOLD_TRUNCATE_CLASS}>
                       {r.title || t('recordings.untitled')}
                     </p>
-                    <p className="text-xs text-[var(--text-secondary)]">
+                    <p className={SECONDARY_CAPTION_CLASS}>
                       {formatDate(r.createdAt, lang)}
                       {r.fileSize > 0 && ` · ${formatSize(r.fileSize)}`}
                     </p>

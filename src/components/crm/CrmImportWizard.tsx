@@ -4,8 +4,7 @@ import { Download, AlertTriangle, CheckCircle2, X, FileJson, FileSpreadsheet } f
 import { useI18n } from '../../lib/i18n';
 import type { ImportIssue } from '../../lib/crm/import';
 import { useCrmImportWizard } from './useCrmImportWizard';
-import { LARGE_LABEL_CLASS } from '../ui/textClasses';
-
+import { LARGE_LABEL_CLASS, SECONDARY_CAPTION_CLASS } from '../ui/textClasses';
 /** Muted hint block in the import wizard. */
 const HINT_BLOCK_CLASS = 'text-xs text-[var(--text-secondary)] block';
 
@@ -87,7 +86,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
               className="w-full h-36 resize-y rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] p-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent)]"
             />
             <div className="flex flex-wrap items-center gap-3">
-              <label className="text-xs text-[var(--text-secondary)]">
+              <label className={SECONDARY_CAPTION_CLASS}>
                 {t('crm.import.file', 'File')}:
                 <input
                   ref={fileRef}
@@ -97,7 +96,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
                   className="ml-2 text-xs"
                 />
               </label>
-              <label className="text-xs text-[var(--text-secondary)]">
+              <label className={SECONDARY_CAPTION_CLASS}>
                 {t('crm.import.currency', 'Currency')}:
                 <input
                   value={defaultCurrency}
@@ -136,7 +135,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
                   )}
                 </div>
                 {preview.plan.contacts.slice(0, 5).map((c, i) => (
-                  <div key={i} className="text-xs text-[var(--text-secondary)]">
+                  <div key={i} className={SECONDARY_CAPTION_CLASS}>
                     • {c.displayName} {c.phone ? `· ${c.phone}` : ''} · <span className="text-[var(--accent)]">{c.status}</span>
                     {c.tags.length > 0 && ` · #${c.tags.join(' #')}`}
                   </div>
@@ -167,7 +166,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className={SECONDARY_CAPTION_CLASS}>
               {t('crm.import.bundleHint', 'Import an encrypted Mess&Anger CRM bundle (.enc) exported from another device. Merges by id — existing records are updated, new ones added.')}
             </p>
             <label className={HINT_BLOCK_CLASS}>

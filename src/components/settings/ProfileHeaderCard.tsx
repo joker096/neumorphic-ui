@@ -2,8 +2,8 @@ import React from 'react';
 import { Edit, Share2, Phone, Mail, MessageSquare, Send, Shield, AtSign, Link } from 'lucide-react';
 import { DEFAULT_AVATAR_COLOR, PROFILE_FIELD_TYPES } from '../../constants/settingsConstants';
 import type { UserProfile } from '../../types/contact';
-import { HINT_TEXT_CLASS, XL_LABEL_CLASS, TERTIARY_HINT_CLASS } from '../ui/textClasses';
-
+import { HINT_TEXT_CLASS, XL_LABEL_CLASS, TERTIARY_HINT_CLASS, SECONDARY_CAPTION_CLASS } from '../ui/textClasses';
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 /** Neutral pill button of the profile header card. */
 const SECONDARY_BTN_CLASS = 'min-h-11 min-w-11 px-3 flex items-center justify-center gap-2 rounded-md transition-all bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]';
 
@@ -45,13 +45,13 @@ export const ProfileHeaderCard = ({ userProfile, t, onEdit, onShare }: ProfileHe
     <div className={"w-full rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
       <div className={`h-24 bg-gradient-to-br ${userProfile.avatar ? '' : 'from-orange-400 to-red-500'}`}>
         {userProfile.avatar && (
-          <img src={userProfile.avatar} alt={userProfile.name ? t('settings.profilePictureAlt', { name: userProfile.name }) : t('settings.profilePictureAltNone', 'Profile picture')} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          <img src={userProfile.avatar} alt={userProfile.name ? t('settings.profilePictureAlt', { name: userProfile.name }) : t('settings.profilePictureAltNone', 'Profile picture')} className={MEDIA_COVER_CLASS} loading="lazy" decoding="async" />
         )}
       </div>
       <div className="flex justify-center -mt-8 relative">
         <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-[var(--bg-primary)]">
           {userProfile.avatar ? (
-            <img src={userProfile.avatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+            <img src={userProfile.avatar} alt="" role="presentation" className={MEDIA_COVER_CLASS} loading="lazy" decoding="async" />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${avatarColor} flex items-center justify-center`}>
               <span className="text-[var(--text-primary)] text-2xl font-bold">{initial}</span>
@@ -72,7 +72,7 @@ export const ProfileHeaderCard = ({ userProfile, t, onEdit, onShare }: ProfileHe
               const isContactsOnly = field.visibleTo ? field.visibleTo !== 'everyone' : false;
               return (
                 <div key={field.id || field.value} className="flex items-center gap-2 px-2 py-1 rounded-md bg-[var(--bg-secondary)]">
-                  <span className="text-xs text-[var(--text-secondary)]">
+                  <span className={SECONDARY_CAPTION_CLASS}>
                     {renderFieldIcon(field.type)}
                     {displayLabel}
                   </span>

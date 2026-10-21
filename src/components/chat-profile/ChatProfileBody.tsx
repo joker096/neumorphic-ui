@@ -18,7 +18,7 @@ import {
 import { formatLongDate } from '../../utils/dateTime';
 import type { GroupMember, GroupPermissions } from '../../store/slices/chatSlice';
 import { ROW_SHELL_CLASS, GROUP_ROW_CLASS } from '../ui/rowClasses';
-import { MEDIUM_LABEL_CLASS, LARGE_LABEL_CLASS, HINT_TEXT_TIGHT_CLASS, AMBER_INLINE_CLASS } from '../ui/textClasses';
+import { MEDIUM_LABEL_CLASS, LARGE_LABEL_CLASS, HINT_TEXT_TIGHT_CLASS, AMBER_INLINE_CLASS, SECONDARY_TEXT_CLASS } from '../ui/textClasses';
 /** Counter card of the profile header (subscribers, posts, owner). */
 const STAT_CARD_CLASS =
   'rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]';
@@ -259,7 +259,7 @@ const Row = ({ icon, title, right }: { icon: React.ReactNode; title: string; rig
 
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center justify-between gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
-    <span className="text-sm text-[var(--text-secondary)]">{label}</span>
+    <span className={SECONDARY_TEXT_CLASS}>{label}</span>
     <span className="text-sm font-medium text-right text-[var(--text-primary)]">{value}</span>
   </div>
 );

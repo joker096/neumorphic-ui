@@ -79,3 +79,19 @@ export const XL_LABEL_CLASS = 'text-xl font-bold text-[var(--text-primary)]';
 
 /** Tertiary hint under a field value. */
 export const TERTIARY_HINT_CLASS = 'text-xs mt-1 text-[var(--text-tertiary)]';
+
+/** Secondary-colour caption in the small size. */
+export const SECONDARY_CAPTION_CLASS =
+  'text-xs text-[var(--text-secondary)]';
+
+/** Secondary-colour body text in the regular size. */
+export const SECONDARY_TEXT_CLASS =
+  'text-sm text-[var(--text-secondary)]';
+
+/** Tertiary-colour caption in the small size. */
+export const TERTIARY_CAPTION_CLASS =
+  'text-xs text-[var(--text-tertiary)]';
+
+/** Medium label that truncates instead of wrapping. */
+export const TRUNCATE_MEDIUM_CLASS =
+  'text-sm font-medium truncate';

@@ -6,6 +6,7 @@ import { useI18n } from "../../lib/i18n";
 import type { NotificationKind, NotificationSettings } from "../../store/slices/notificationSlice";
 import { DataState } from "../ui/DataState";
 import { UNREAD_BADGE_CLASS } from "./chatPreviewClasses";
+import { TRUNCATE_MEDIUM_CLASS } from "../ui/textClasses";
 
 /** Square icon button in the notification panel header. */
 const ICON_BTN_CLASS =
@@ -167,7 +168,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
                       >
                         <Icon size={16} className="mt-0.5 flex-shrink-0 text-[var(--accent)]" />
                         <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium truncate">{n.title}</div>
+                          <div className={TRUNCATE_MEDIUM_CLASS}>{n.title}</div>
                           {n.body && <div className="text-xs opacity-70 truncate">{n.body}</div>}
                         </div>
                         <span className="text-xs opacity-50 flex-shrink-0">{relTime(n.createdAt, t)}</span>

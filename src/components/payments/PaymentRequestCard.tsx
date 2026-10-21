@@ -8,6 +8,7 @@ import { useI18n } from '../../lib/i18n'
 import { formatCurrency } from '../../utils/currency'
 import { MEDIUM_LABEL_CLASS, INLINE_SEMIBOLD_CLASS } from '../ui/textClasses';
 import { PAYMENT_SUCCESS_STATUS_CLASS, PAYMENT_FAILED_STATUS_CLASS, PAYMENT_PENDING_STATUS_CLASS } from './paymentClasses';
+import { MEDIA_CONTAIN_CLASS } from "../ui/mediaClasses";
 interface PaymentRequestCardProps {
   token: string
   amount?: string | number
@@ -116,7 +117,7 @@ export const PaymentRequestCard = ({
       <div className="flex items-start gap-4">
         <div className="w-[120px] h-[120px] rounded-xl overflow-hidden bg-white shrink-0 flex items-center justify-center">
           {qr ? (
-            <img src={qr} alt={t('payments.qr')} className="w-full h-full object-contain" />
+            <img src={qr} alt={t('payments.qr')} className={MEDIA_CONTAIN_CLASS} />
           ) : (
             <div className="w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
           )}

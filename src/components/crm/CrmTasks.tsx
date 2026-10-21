@@ -1,4 +1,3 @@
-import { FORM_FIELD_CONTROL_CLASS, FORM_FIELD_LABEL_CLASS } from '../ui/formClasses';
 import React, { useEffect, useRef, useState } from 'react';
 import { Plus, CheckCircle2, Circle, Trash2, Flag, X, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -11,17 +10,15 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { formatDate } from '../../utils/dateTime';
-import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS, CRM_FULL_PRIMARY_BTN_CLASS, CRM_EMPTY_CLASS, CRM_CENTERED_HINT_CLASS, CRM_BOARD_HEADER_CLASS } from './crmClasses';
+import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS, CRM_FULL_PRIMARY_BTN_CLASS, CRM_EMPTY_CLASS, CRM_CENTERED_HINT_CLASS, CRM_BOARD_HEADER_CLASS, CRM_FIELD_INPUT_CLASS, CRM_FIELD_LABEL_CLASS } from './crmClasses';
 import { ACCENT_CAPS_BOLD_CLASS } from '../ui/textClasses';
+import { TWO_COL_GRID_CLASS } from "../ui/gridClasses";
 const priorityColor: Record<TaskPriority, string> = {
   low: 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]',
   medium: 'bg-amber-400/15 text-amber-500',
   high: 'bg-rose-400/15 text-rose-500',
 };
 
-const inputCls =
-  `${FORM_FIELD_CONTROL_CLASS} text-xs`;
-const labelCls = FORM_FIELD_LABEL_CLASS;
 
 type Props = { task?: CrmTask; onClose: () => void };
 
@@ -72,33 +69,33 @@ const TaskModal: React.FC<Props> = ({ task, onClose }) => {
     >
       <div className="flex flex-col gap-3">
         <div>
-          <label className={labelCls}>{t('crm.taskTitle', CRM_FALLBACKS.taskTitle)}</label>
-          <input value={form.title} disabled={!editable} onChange={(e) => set('title', e.target.value)} className={inputCls} />
+          <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.taskTitle', CRM_FALLBACKS.taskTitle)}</label>
+          <input value={form.title} disabled={!editable} onChange={(e) => set('title', e.target.value)} className={CRM_FIELD_INPUT_CLASS} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className={TWO_COL_GRID_CLASS}>
           <div>
-            <label className={labelCls}>{t('crm.priority', CRM_FALLBACKS.priority)}</label>
-            <select value={form.priority} disabled={!editable} onChange={(e) => set('priority', e.target.value as TaskPriority)} className={inputCls}>
+            <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.priority', CRM_FALLBACKS.priority)}</label>
+            <select value={form.priority} disabled={!editable} onChange={(e) => set('priority', e.target.value as TaskPriority)} className={CRM_FIELD_INPUT_CLASS}>
               <option value="low">{t('crm.priorityLow', 'Low')}</option>
               <option value="medium">{t('crm.priorityMedium', 'Medium')}</option>
               <option value="high">{t('crm.priorityHigh', 'High')}</option>
             </select>
           </div>
           <div>
-            <label className={labelCls}>{t('crm.due', CRM_FALLBACKS.due)}</label>
-            <input type="date" value={form.dueAt} disabled={!editable} onChange={(e) => set('dueAt', e.target.value)} className={inputCls} />
+            <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.due', CRM_FALLBACKS.due)}</label>
+            <input type="date" value={form.dueAt} disabled={!editable} onChange={(e) => set('dueAt', e.target.value)} className={CRM_FIELD_INPUT_CLASS} />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className={TWO_COL_GRID_CLASS}>
           <div>
-            <label className={labelCls}>{t('crm.assignee', CRM_FALLBACKS.assignee)}</label>
-            <select value={form.assigneeId} disabled={!editable} onChange={(e) => set('assigneeId', e.target.value)} className={inputCls}>
+            <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.assignee', CRM_FALLBACKS.assignee)}</label>
+            <select value={form.assigneeId} disabled={!editable} onChange={(e) => set('assigneeId', e.target.value)} className={CRM_FIELD_INPUT_CLASS}>
               {contacts.map((c) => <option key={c.userId} value={c.userId}>{c.displayName}</option>)}
             </select>
           </div>
           <div>
-            <label className={labelCls}>{t('crm.contact', 'Contact')}</label>
-            <select value={form.contactId} disabled={!editable} onChange={(e) => set('contactId', e.target.value)} className={inputCls}>
+            <label className={CRM_FIELD_LABEL_CLASS}>{t('crm.contact', 'Contact')}</label>
+            <select value={form.contactId} disabled={!editable} onChange={(e) => set('contactId', e.target.value)} className={CRM_FIELD_INPUT_CLASS}>
               <option value="">—</option>
               {contacts.map((c) => <option key={c.userId} value={c.userId}>{c.displayName}</option>)}
             </select>

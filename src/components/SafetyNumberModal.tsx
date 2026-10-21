@@ -3,6 +3,7 @@ import { useI18n } from '../lib/i18n';
 import { computeSafetyNumber, computeVerificationLevel, getVerificationColor } from '../lib/crypto/safetyNumber';
 import { useEffect, useState } from 'react';
 import { AppModal } from './ui/AppModal';
+import { SECONDARY_CAPTION_CLASS } from "./ui/textClasses";
 
 interface SafetyNumberModalProps {
   open: boolean;
@@ -48,7 +49,7 @@ export const SafetyNumberModal = ({ open, contactId, contactName, myPeerId, thei
       )}
       <div className="flex items-center justify-center gap-2 mb-4">
         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: getVerificationColor(verifyLevel) }} />
-        <span className="text-xs text-[var(--text-secondary)]">
+        <span className={SECONDARY_CAPTION_CLASS}>
           {t('contacts.verificationLevel', { level: verifyLevel })}
         </span>
       </div>

@@ -4,6 +4,7 @@ import { useI18n } from '../../lib/i18n';
 import { FTR_MAGIC } from '../../lib/fileTransfer/frames';
 import { useFtrBlobUrl } from '../../hooks/useFtrBlobUrl';
 import { DataState } from '../ui/DataState';
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 
 interface SharedMediaTabsProps {
   messages: any[];
@@ -113,7 +114,7 @@ const MediaTile = ({ msg }: { msg: any }) => {
   return (
     <div className="aspect-square rounded-xl overflow-hidden border border-[var(--border-color)]">
       {src ? (
-        <img src={src} alt={msg.text || t('profile.tab.media', 'Media')} className="w-full h-full object-cover" />
+        <img src={src} alt={msg.text || t('profile.tab.media', 'Media')} className={MEDIA_COVER_CLASS} />
       ) : (
         <div className={`w-full h-full ${ICON_BOX}`} />
       )}

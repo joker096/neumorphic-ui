@@ -16,8 +16,8 @@ import { ToggleSwitch } from './ui/ToggleSwitch';
 import { getMasterKeySet } from '../lib/identity/masterKey';
 import { getPinnedIdentity } from '../lib/p2p/identityPin';
 import { buf2hex } from '../lib/crypto/cryptoCore';
-import { CAPS_LABEL_CLASS, TERTIARY_HINT_CLASS } from './ui/textClasses';
-
+import { CAPS_LABEL_CLASS, TERTIARY_HINT_CLASS, SECONDARY_CAPTION_CLASS, SECONDARY_TEXT_CLASS, TERTIARY_CAPTION_CLASS } from './ui/textClasses';
+import { TWO_COL_GRID_CLASS } from "./ui/gridClasses";
 export type ContactProfile = {
   id: string;
   name: string;
@@ -193,7 +193,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             <div className="w-full mt-4 p-4 rounded-2xl flex items-center justify-between bg-[var(--bg-tertiary)]">
               <div className="flex items-center gap-2">
                 {notificationsOn ? <Bell size={16} className="text-[var(--text-secondary)]" /> : <BellOff size={16} className="text-[var(--danger)]" />}
-                <span className="text-sm text-[var(--text-secondary)]">{t('profile.notifications')}</span>
+                <span className={SECONDARY_TEXT_CLASS}>{t('profile.notifications')}</span>
               </div>
               <ToggleSwitch isOn={notificationsOn} onToggle={() => (storeContact ? setContactMuted(contact.id, notificationsOn) : dmChat ? setChatMuted(dmChat.id, notificationsOn) : setLocalMuted(v => !v))} className="w-11 h-6" />
             </div>
@@ -203,7 +203,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                 <div className={`text-sm font-semibold capitalize ${contact.callInfo.type === 'missed' ? 'text-[var(--danger)]' : 'text-[var(--text-primary)]'}`}>
                   {t('contacts.callType', { type: contact.callInfo.type })}
                 </div>
-                <div className="text-xs text-[var(--text-tertiary)]">
+                <div className={TERTIARY_CAPTION_CLASS}>
                   {contact.callInfo.time} {contact.callInfo.duration ? `• ${contact.callInfo.duration}` : ''}
                 </div>
               </div>
@@ -224,7 +224,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
                     {field.type === 'email' && <Mail size={12} className="text-[var(--text-tertiary)]" />}
                     {field.type === 'telegram' && <Send size={12} className="text-[var(--text-tertiary)]" />}
                     {field.type === 'custom' && <div className="w-2 h-2 rounded-full bg-[var(--text-tertiary)]" />}
-                    <span className="text-xs text-[var(--text-secondary)]">
+                    <span className={SECONDARY_CAPTION_CLASS}>
                       {field.label || field.type}: {field.value}
                     </span>
                   </div>
@@ -245,7 +245,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             )}
 
             <div className="w-full mt-6 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className={TWO_COL_GRID_CLASS}>
                 <button onClick={() => { onCall?.(); onClose(); }} className="h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 bg-[var(--color-success-soft)] hover:bg-[var(--color-success)]/20 text-[var(--color-success)] border border-[var(--color-success)]/25">
                   <Phone size={20} fill="currentColor" />
                   <span className={CAPS_LABEL_CLASS}>{t('contacts.call')}</span>

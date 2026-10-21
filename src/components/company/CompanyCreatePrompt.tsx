@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Building2, HelpCircle, ChevronDown } from 'lucide-react';
 import type { TFunction } from './useCompanyContacts';
-import { LARGE_LABEL_CLASS, BOLD_LABEL_CLASS } from '../ui/textClasses';
-
+import { LARGE_LABEL_CLASS, BOLD_LABEL_CLASS, SECONDARY_CAPTION_CLASS } from '../ui/textClasses';
 /** Muted body copy under a company guide heading. */
 const GUIDE_BODY_CLASS =
   'text-xs text-[var(--text-secondary)] mt-1';
@@ -59,7 +58,7 @@ export const CompanyCreatePrompt = ({ t, onCreate }: CompanyCreatePromptProps) =
             <h4 className={BOLD_LABEL_CLASS}>{t('company.guide.confirmTitle', '3. Confirm & assign roles')}</h4>
             <p className={GUIDE_BODY_CLASS}>{t('company.guide.confirmBody', 'A new joiner is given the "Member" role by default. The Admin verifies the invite signature and confirms the join. Only Admins can change roles.')}</p>
           </div>
-          <p className="text-xs text-[var(--text-secondary)]">{t('company.createHelpNote', 'Full guide: Settings → Company → Company guide.')}</p>
+          <p className={SECONDARY_CAPTION_CLASS}>{t('company.createHelpNote', 'Full guide: Settings → Company → Company guide.')}</p>
         </div>
       )}
     </div>

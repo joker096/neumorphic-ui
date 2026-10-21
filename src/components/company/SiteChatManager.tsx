@@ -5,6 +5,7 @@ import { useI18n } from '../../lib/i18n';
 import { formatDate } from '../../utils/dateTime';
 import { toast } from 'sonner';
 import { COMPANY_INPUT_CLASS } from "./companyClasses";
+import { SECONDARY_CAPTION_CLASS } from "../ui/textClasses";
 
 const ACCENT_PRESETS = ['#6C5CE7', '#2563EB', '#16A34A', '#EA580C', '#DC2626', '#0F172A'];
 
@@ -138,7 +139,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                     className="flex-1 min-h-11 rounded-lg px-3 bg-[var(--input-bg)] text-[var(--text-primary)] text-sm outline-none"
                   />
                 </div>
-                <div className="text-xs text-[var(--text-secondary)]">{t('company.widgetHint', 'Change settings → the embed snippet updates. Re-paste it into your site.')}</div>
+                <div className={SECONDARY_CAPTION_CLASS}>{t('company.widgetHint', 'Change settings → the embed snippet updates. Re-paste it into your site.')}</div>
               </div>
 
               <details className="rounded-xl bg-[var(--bg-secondary)]/60 p-3 text-xs text-[var(--text-secondary)]">
@@ -167,12 +168,12 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
               <div className="flex flex-col gap-1.5">
                 <div className="text-xs font-bold flex items-center gap-2">
                   {t('company.websiteContacts', 'Website contacts')}
-                  <span className="text-xs text-[var(--text-secondary)]">
+                  <span className={SECONDARY_CAPTION_CLASS}>
                     {t('company.websiteContactCount', '{{n}} contact(s) from this site').replace('{{n}}', String(chatContacts.length))}
                   </span>
                 </div>
                 {chatContacts.length === 0 ? (
-                  <div className="text-xs text-[var(--text-secondary)]">{t('company.noWebsiteContacts', 'No contacts yet — visitors who fill the widget form appear here and in CRM as website-sourced leads.')}</div>
+                  <div className={SECONDARY_CAPTION_CLASS}>{t('company.noWebsiteContacts', 'No contacts yet — visitors who fill the widget form appear here and in CRM as website-sourced leads.')}</div>
                 ) : (
                   chatContacts.slice(0, 5).map((c) => (
                     <div key={c.id} className="flex items-center gap-2 text-xs bg-[var(--bg-secondary)]/60 rounded-lg px-2 py-1.5">

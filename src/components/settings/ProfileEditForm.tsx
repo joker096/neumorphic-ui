@@ -3,8 +3,8 @@ import { Camera, X, Check } from 'lucide-react';
 import { AVATAR_COLORS } from '../../constants/settingsConstants';
 import { ProfileFieldEditor } from './ProfileFieldEditor';
 import type { ProfileField, FieldVisibility } from './ProfileSection';
-import { FIELD_LABEL_CLASS } from '../ui/textClasses';
-
+import { FIELD_LABEL_CLASS, TERTIARY_CAPTION_CLASS } from '../ui/textClasses';
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 /** Full-width text input used by the profile edit form. */
 const INPUT_CLASS =
   'w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors';
@@ -53,7 +53,7 @@ export const ProfileEditForm = ({
         >
           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[var(--bg-primary)] shadow-lg">
             {editAvatar ? (
-              <img src={editAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+              <img src={editAvatar} alt="" role="presentation" className={MEDIA_COVER_CLASS} loading="lazy" decoding="async" />
             ) : (
               <div className={`w-full h-full bg-gradient-to-br ${editColor} flex items-center justify-center`}>
                 <span className="text-[var(--text-primary)] text-[40px] font-bold">{initial}</span>
@@ -113,7 +113,7 @@ export const ProfileEditForm = ({
           placeholder={t('settings.statusPlaceholder', "What's on your mind?")}
           className={INPUT_CLASS}
         />
-        <p className="text-xs text-[var(--text-tertiary)]">
+        <p className={TERTIARY_CAPTION_CLASS}>
           {t('settings.statusSubtitle', "Let others know what you're up to")}
         </p>
       </div>

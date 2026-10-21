@@ -3,6 +3,7 @@ import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } fro
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
 import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS, FOOTER_WRAP_CLASS, HERO_LEAD_CLASS, FOOTER_SECTION_CLASS, FOOTER_META_CLASS, CTA_SECTION_LEAD_CLASS, HERO_COLUMN_CLASS } from './landingClasses';
+import { TERTIARY_CAPTION_CLASS } from "../ui/textClasses";
 export type LandingPageProps = {
   isDark?: boolean;
   onGetStarted: () => void;
@@ -235,7 +236,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
               {t("landing.brand")}
             </span>
           </div>
-          <p className="text-xs text-[var(--text-tertiary)]">
+          <p className={TERTIARY_CAPTION_CLASS}>
             {t("landing.copyright")}
           </p>
         </div>

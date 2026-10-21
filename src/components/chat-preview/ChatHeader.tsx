@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ChevronRight, Search, Phone, Video, Users, MoreVertical } from "lucide-react";
 import { IconButton } from "../ui/IconButton";
 import { useAppStore } from "../../store";
+import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
 
 /** Small pulsing dot marking the online state in the header. */
 const ONLINE_DOT_CLASS =
@@ -78,7 +79,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
         className={`w-11 h-11 rounded-full bg-gradient-to-br shrink-0 ${chat.color} flex items-center justify-center text-[var(--text-primary)] font-bold text-sm shadow-sm relative cursor-pointer overflow-hidden`}
       >
         {overrideAvatar ? (
-          <img src={overrideAvatar} alt="" role="presentation" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          <img src={overrideAvatar} alt="" role="presentation" className={MEDIA_COVER_CLASS} loading="lazy" decoding="async" />
         ) : (
           chat.name.charAt(0)
         )}

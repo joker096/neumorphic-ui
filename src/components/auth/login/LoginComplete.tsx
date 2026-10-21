@@ -1,6 +1,5 @@
 import { Check, LogIn } from "lucide-react";
-import { AUTH_COLUMN_CLASS, AUTH_PRIMARY_BTN_CLASS } from '../authShared';
-import { AUTH_SUCCESS_CIRCLE_CLASS } from "../authShared";
+import { AUTH_COLUMN_CLASS, AUTH_PRIMARY_BTN_CLASS, AUTH_SUCCESS_CIRCLE_CLASS } from '../authShared';
 
 type T = (key: string, options?: any) => string;
 

@@ -3,6 +3,7 @@ import { Play, Pause, PictureInPicture2 } from 'lucide-react';
 import { formatTime } from './mediaUtils';
 import type { MediaItem } from './mediaUtils';
 import { useAutoPictureInPicture } from '../hooks/useAutoPictureInPicture';
+import { MEDIA_CONTAIN_CLASS } from "./ui/mediaClasses";
 
 /** Round button of the video overlay controls. */
 const OVERLAY_ROUND_BTN_CLASS = 'w-9 h-9 min-w-11 min-h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white';
@@ -60,7 +61,7 @@ export function MediaViewerVideoOverlay({ media, t, playing, onPlayingChange }: 
         <video
           ref={videoRef}
           src={media.url}
-          className="w-full h-full object-contain"
+          className={MEDIA_CONTAIN_CLASS}
           controls={false}
           onClick={togglePlay}
           onPlay={() => onPlayingChange(true)}

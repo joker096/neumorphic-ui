@@ -8,9 +8,8 @@ import type { CrmPermission } from '../../lib/crm/types';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
-import { FORM_FIELD_CONTROL_CLASS } from '../ui/formClasses';
-import { TINY_BOLD_CLASS } from '../ui/textClasses';
-
+import { TINY_BOLD_CLASS, SECONDARY_CAPTION_CLASS } from '../ui/textClasses';
+import { CRM_FIELD_INPUT_CLASS } from './crmClasses';
 /** Role name taking the remaining width of a role row. */
 const ROLE_NAME_CLASS = 'flex-1 font-bold text-sm text-[var(--text-primary)]';
 
@@ -27,8 +26,6 @@ const DANGER_TEXT_BTN_CLASS = 'min-w-11 min-h-11 flex items-center justify-cente
 const SECTION_LABEL_CLASS =
   'flex items-center gap-2 px-1 mb-1.5 text-xs font-bold uppercase tracking-widest text-[var(--accent)]';
 
-const inputCls =
-  `${FORM_FIELD_CONTROL_CLASS} text-xs`;
 const DEP_COLORS = ['from-sky-400 to-blue-500', 'from-emerald-400 to-green-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-rose-400 to-pink-500'];
 
 export const CrmRoles: React.FC = () => {
@@ -64,7 +61,7 @@ export const CrmRoles: React.FC = () => {
         </div>
         {can('manageDepartments') && (
           <div className="flex gap-2 mb-2 px-1">
-            <input aria-label={t('crm.departmentName', 'Department name')} value={depName} onChange={(e) => setDepName(e.target.value)} placeholder={t('crm.departmentName', 'Department name')} className={inputCls} />
+            <input aria-label={t('crm.departmentName', 'Department name')} value={depName} onChange={(e) => setDepName(e.target.value)} placeholder={t('crm.departmentName', 'Department name')} className={CRM_FIELD_INPUT_CLASS} />
             <button onClick={() => { if (depName.trim()) { addDepartment(depName.trim(), DEP_COLORS[departments.length % DEP_COLORS.length]); setDepName(''); toast.success(t('crm.departmentCreated', 'Department created')); } }} className={ADD_BTN_CLASS}>
               <Plus size={16} />
             </button>
@@ -80,7 +77,7 @@ export const CrmRoles: React.FC = () => {
             <div key={d.id} className="flex items-center gap-2 p-2.5 rounded-xl border border-[var(--border-color)]">
               <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${d.color} shrink-0`} />
               {can('manageDepartments') ? (
-                <input aria-label={t('crm.departmentName', 'Department name')} value={d.name} onChange={(e) => updateDepartment(d.id, { name: e.target.value })} className={`${inputCls} flex-1`} />
+                <input aria-label={t('crm.departmentName', 'Department name')} value={d.name} onChange={(e) => updateDepartment(d.id, { name: e.target.value })} className={`${CRM_FIELD_INPUT_CLASS} flex-1`} />
               ) : (
                 <span className={ROLE_NAME_CLASS}>{d.name}</span>
               )}
@@ -89,7 +86,7 @@ export const CrmRoles: React.FC = () => {
                   aria-label={t('crm.departmentLead', CRM_FALLBACKS.departmentLead)}
                   value={d.leadId ?? ''}
                   onChange={(e) => updateDepartment(d.id, { leadId: e.target.value || null })}
-                  className={inputCls}
+                  className={CRM_FIELD_INPUT_CLASS}
                 >
                   <option value="">{t('crm.departmentLead', CRM_FALLBACKS.departmentLead)}: —</option>
                   {internalContacts.map((c) => <option key={c.userId} value={c.userId}>{c.displayName}</option>)}
@@ -112,7 +109,7 @@ export const CrmRoles: React.FC = () => {
         </div>
         {can('manageRoles') && (
           <div className="flex gap-2 mb-2 px-1">
-            <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder={t('crm.roleName', CRM_FALLBACKS.roleName)} className={inputCls} />
+            <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder={t('crm.roleName', CRM_FALLBACKS.roleName)} className={CRM_FIELD_INPUT_CLASS} />
             <button onClick={() => { if (roleName.trim()) { addCustomRole(roleName.trim()); setRoleName(''); toast.success(t('crm.roleCreated', 'Role created')); } }} className={ADD_BTN_CLASS}>
               <Plus size={16} />
             </button>
@@ -128,7 +125,7 @@ export const CrmRoles: React.FC = () => {
             <div key={r.id} className="p-2.5 rounded-xl border border-[var(--border-color)]">
               <div className="flex items-center gap-2 mb-2">
                 {can('manageRoles') ? (
-                  <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={r.name} onChange={(e) => updateCustomRole(r.id, { name: e.target.value })} className={`${inputCls} flex-1`} />
+                  <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={r.name} onChange={(e) => updateCustomRole(r.id, { name: e.target.value })} className={`${CRM_FIELD_INPUT_CLASS} flex-1`} />
                 ) : (
                   <span className={ROLE_NAME_CLASS}>{r.name}</span>
                 )}
@@ -154,7 +151,7 @@ export const CrmRoles: React.FC = () => {
                         {t(p.labelKey, (CRM_FALLBACKS as any)[p.labelKey.replace('crm.', '')])}
                         {active && <span className="ml-1 text-[var(--accent)]">✓</span>}
                       </div>
-                      <div className="text-xs text-[var(--text-secondary)]">{t(p.descriptionKey, (CRM_FALLBACKS as any)[p.descriptionKey.replace('crm.', '')])}</div>
+                      <div className={SECONDARY_CAPTION_CLASS}>{t(p.descriptionKey, (CRM_FALLBACKS as any)[p.descriptionKey.replace('crm.', '')])}</div>
                     </button>
                   );
                 })}

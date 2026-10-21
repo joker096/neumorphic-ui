@@ -3,8 +3,7 @@ import { ChevronLeft, Terminal } from "lucide-react";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
 import { useI18n } from "../../../lib/i18n";
-import { BOT_ICON_BTN_CLASS } from './botClasses';
-import { BOT_HEADER_CLASS } from "./botClasses";
+import { BOT_ICON_BTN_CLASS, BOT_HEADER_CLASS } from './botClasses';
 export interface MiniAppProps {
   botId: string;
   isDark?: boolean;

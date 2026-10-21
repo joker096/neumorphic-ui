@@ -7,6 +7,7 @@ import { useI18n } from "../../../lib/i18n";
 import { formatSize } from "../../../utils/formatSize";
 import { getFileKind, type FileKind } from "../../../utils/fileType";
 import { SMALL_SPINNER_CLASS } from "../../ui/spinnerClasses";
+import { TRUNCATE_MEDIUM_CLASS } from "../../ui/textClasses";
 
 const FILE_KIND_STYLE: Record<FileKind, { Icon: LucideIcon; tint: string }> = {
   pdf: { Icon: FileText, tint: "bg-rose-500/15 text-rose-500" },
@@ -41,7 +42,7 @@ export function FileAttachmentRow({ msg, hasTransfer, pending, ready, url }: Fil
         <KindIcon size={20} />
       </div>
       <div className="min-w-0">
-        <div className="text-sm font-medium truncate">{msg.fileName || t("chat.file")}</div>
+        <div className={TRUNCATE_MEDIUM_CLASS}>{msg.fileName || t("chat.file")}</div>
         {sub && <div className={`text-xs truncate text-[var(--text-secondary)]`}>{sub}</div>}
         {(!msg.attachment || unavailable) && (
           <div className={`text-xs truncate text-[var(--danger)]`}>{t("chat.attachmentUnavailable", "Attachment unavailable")}</div>

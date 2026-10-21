@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
+import { MEDIA_COVER_CLASS } from "./ui/mediaClasses";
 
 interface LiveVideoRecorderProps {
   onCancel: () => void;
@@ -114,7 +115,7 @@ export const LiveVideoRecorder = ({ onCancel, onSend, onPermissionDenied }: Live
         </button>
 
         <div className="relative w-11 h-11 rounded-full overflow-hidden ring-2 ring-[var(--accent)] shrink-0">
-          <video ref={videoRef} muted playsInline className="w-full h-full object-cover" />
+          <video ref={videoRef} muted playsInline className={MEDIA_COVER_CLASS} />
           {!isRecording && <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-xs text-white">{label('videoRecorder.preparing', 'Preparing…')}</div>}
         </div>
 
