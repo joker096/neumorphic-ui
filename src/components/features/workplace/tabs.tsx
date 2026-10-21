@@ -5,6 +5,7 @@ import { useServices, useServiceData, NotConfiguredState } from "../../../servic
 import { DataState } from "../../ui/DataState";
 import { Skeleton } from "../../ui/Skeleton";
 import { Panel, reportServiceError } from "./shared";
+import { LIST_ROW_CLASS } from '../../ui/rowClasses';
 
 export function TasksTab({ isDark }: { isDark?: boolean }) {
   const { t } = useI18n();
@@ -51,7 +52,7 @@ export function TasksTab({ isDark }: { isDark?: boolean }) {
         <DataState status="empty" isDark={isDark} title={t('workplace.noTasks')} description={t('workplace.createFirstTask')} />
       ) : (
         state.data.map((task) => (
-          <label key={task.id} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-color)]">
+          <label key={task.id} className={LIST_ROW_CLASS}>
             <input type="checkbox" checked={task.done} onChange={() => tasks.updateTask(task.id, { done: !task.done }).catch(() => reportServiceError(t))} />
             <span className={task.done ? "line-through opacity-60" : ""}>{task.title}</span>
             {task.assignee && <span className="ml-auto text-xs opacity-60">{task.assignee}</span>}
@@ -78,7 +79,7 @@ export function AutomationTab({ isDark }: { isDark?: boolean }) {
         <DataState status="empty" isDark={isDark} title={t('workplace.noRules')} description={t('workplace.addRules')} />
       ) : (
         state.data.map((r) => (
-          <div key={r.id} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-color)]">
+          <div key={r.id} className={LIST_ROW_CLASS}>
             <div className="flex-1">
               <div className="font-semibold text-sm">{r.name}</div>
               <div className="text-xs opacity-60">{r.trigger} → {r.action}</div>
@@ -139,7 +140,7 @@ export function ModerationTab({ isDark }: { isDark?: boolean }) {
         <DataState status="empty" isDark={isDark} title={t('workplace.queueEmpty')} description={t('workplace.complaintsHere')} />
       ) : (
         state.data.map((item) => (
-          <div key={item.id} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-color)]">
+          <div key={item.id} className={LIST_ROW_CLASS}>
             <span className="text-xs uppercase opacity-60">{item.type}</span>
             <span className="flex-1 text-sm">{item.summary}</span>
             <button
