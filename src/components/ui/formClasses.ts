@@ -16,3 +16,26 @@ export const FORM_FIELD_LABEL_CLASS =
 /** Full-width primary submit button of a form dialog. */
 export const FORM_PRIMARY_BTN_CLASS =
   'w-full min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 disabled:opacity-50';
+
+/**
+ * Base class of a text control that sits directly in a form field: input,
+ * select or textarea. Call sites append their own type scale (` text-sm`,
+ * ` text-xs`) so the sizing stays explicit instead of inherited.
+ */
+export const FORM_FIELD_CONTROL_CLASS = 'w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]';
+
+const ICON_BTN_BASE =
+  'w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center';
+const ICON_BTN_PRIMARY_LOOK =
+  'text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110';
+const ICON_BTN_DANGER_LOOK =
+  'font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110';
+
+/** Square primary button that adds a row in the company lists. */
+export const FORM_ICON_ADD_BTN_CLASS = `${ICON_BTN_BASE} ${ICON_BTN_PRIMARY_LOOK}`;
+
+/** Same button with the inline icon gap used by the list headers. */
+export const FORM_ICON_ADD_BTN_GAPPED_CLASS = `${ICON_BTN_BASE} gap-1.5 ${ICON_BTN_PRIMARY_LOOK}`;
+
+/** Square destructive button of the row-level remove actions. */
+export const FORM_ICON_DANGER_BTN_CLASS = `${ICON_BTN_BASE} gap-2 ${ICON_BTN_DANGER_LOOK}`;

@@ -1,4 +1,4 @@
-import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS, FORM_PRIMARY_BTN_CLASS } from '../ui/formClasses';
+import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS, FORM_ICON_DANGER_BTN_CLASS, FORM_PRIMARY_BTN_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
 import { X, Trash2, Check, Loader2 } from 'lucide-react';
@@ -172,7 +172,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
               onClick={handleRemove}
               aria-label={t('company.removeMember', 'Remove')}
               title={t('company.removeMember', 'Remove')}
-              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110"
+              className={`${FORM_ICON_DANGER_BTN_CLASS}`}
             >
               <Trash2 size={16} />
               <span className="sr-only">{t('company.removeMember', 'Remove')}</span>

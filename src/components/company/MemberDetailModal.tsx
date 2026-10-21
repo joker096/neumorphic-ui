@@ -1,4 +1,4 @@
-import { FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS, FORM_PRIMARY_BTN_CLASS } from '../ui/formClasses';
+import { FORM_FIELD_CONTROL_CLASS, FORM_FIELD_GROUP_CLASS, FORM_FIELD_LABEL_CLASS, FORM_ICON_DANGER_BTN_CLASS, FORM_PRIMARY_BTN_CLASS } from '../ui/formClasses';
 import React, { useState } from 'react';
 import { modalOverlay } from '../ui/modalShared';
 import { X, Trash2, ChevronDown, UserCog, Check, Loader2 } from 'lucide-react';
@@ -93,7 +93,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t('company.renamePlaceholder', COMPANY_EDIT_FALLBACKS.renamePlaceholder)}
-                className="w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
+                className={`${FORM_FIELD_CONTROL_CLASS}`}
               />
             </div>
 
@@ -143,7 +143,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
               disabled={isCurrentUser}
               aria-label={t('company.removeMember', COMPANY_EDIT_FALLBACKS.removeMember)}
               title={t('company.removeMember', COMPANY_EDIT_FALLBACKS.removeMember)}
-              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer transition-all bg-[var(--color-danger-soft)] text-[var(--color-danger)] hover:brightness-110 disabled:opacity-50"
+              className={`${FORM_ICON_DANGER_BTN_CLASS} disabled:opacity-50`}
             >
               <Trash2 size={16} />
               <span className="sr-only">{t('company.removeMember', COMPANY_EDIT_FALLBACKS.removeMember)}</span>

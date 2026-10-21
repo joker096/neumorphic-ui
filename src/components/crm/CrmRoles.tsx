@@ -8,9 +8,10 @@ import type { CrmPermission } from '../../lib/crm/types';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
+import { FORM_FIELD_CONTROL_CLASS } from '../ui/formClasses';
 
 const inputCls =
-  'w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] text-xs';
+  `${FORM_FIELD_CONTROL_CLASS} text-xs`;
 const DEP_COLORS = ['from-sky-400 to-blue-500', 'from-emerald-400 to-green-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-rose-400 to-pink-500'];
 
 export const CrmRoles: React.FC = () => {

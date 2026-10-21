@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+
+import { FORM_FIELD_CONTROL_CLASS } from '../ui/formClasses';import React, { useState } from 'react'
 import { ChevronLeft, Building2, BookOpen, Plus, X, Loader2 } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
 import { useAppStore } from '../../store'
@@ -97,7 +98,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
                 placeholder={t('company.namePlaceholder', 'Acme Inc.')}
-                className="w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
+                className={`${FORM_FIELD_CONTROL_CLASS}`}
               />
             </div>
             <div>
@@ -107,7 +108,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
                 value={yourName}
                 onChange={(e) => setYourName(e.target.value)}
                 placeholder={t('company.displayNamePlaceholder', 'John Doe')}
-                className="w-full min-h-11 px-3 rounded-xl bg-[var(--bg-secondary)] text-[var(--text-primary)] outline-none border border-[var(--border-color)] focus:border-[var(--accent)]"
+                className={`${FORM_FIELD_CONTROL_CLASS}`}
               />
             </div>
             <div className="flex gap-2">

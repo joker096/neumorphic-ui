@@ -2,6 +2,7 @@ import { Building2, Plus, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { CompanyDepartment, CompanyMember } from '../../types/constants';
 import { memberColorAt } from '../../constants/companyConstants';
+import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
 
 type DepartmentListProps = {
   isDark?: boolean;
@@ -55,7 +56,7 @@ export const DepartmentList = ({
             onClick={onAdd}
             aria-label={addLabel}
             title={addLabel}
-            className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+            className={`${FORM_ICON_ADD_BTN_GAPPED_CLASS}`}
           >
             <Plus size={16} />
             <span className="sr-only">{addLabel}</span>
@@ -77,7 +78,7 @@ export const DepartmentList = ({
               onClick={onRetry}
               aria-label={t('company.retry', 'Retry')}
               title={t('company.retry', 'Retry')}
-              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+              className={`${FORM_ICON_ADD_BTN_CLASS}`}
             >
               <RefreshCw size={16} />
               <span className="sr-only">{t('company.retry', 'Retry')}</span>

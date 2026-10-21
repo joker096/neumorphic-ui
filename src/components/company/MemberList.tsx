@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { MemberItem } from './MemberItem';
 import type { CompanyMember } from '../../lib/company/types';
 import { memberColorAt, COMPANY_UI_FALLBACKS } from '../../constants/companyConstants';
+import { FORM_ICON_ADD_BTN_CLASS } from '../ui/formClasses';
 
 type MemberListProps = {
   isDark?: boolean;
@@ -62,7 +63,7 @@ export const MemberList = ({
               onClick={onRetry}
               aria-label={t('company.retry', COMPANY_UI_FALLBACKS.retry)}
               title={t('company.retry', COMPANY_UI_FALLBACKS.retry)}
-              className="w-9 h-9 min-w-11 min-h-11 rounded-xl flex items-center justify-center text-xs font-bold cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110"
+              className={`${FORM_ICON_ADD_BTN_CLASS}`}
             >
               <RefreshCw size={16} />
               <span className="sr-only">{t('company.retry', COMPANY_UI_FALLBACKS.retry)}</span>
