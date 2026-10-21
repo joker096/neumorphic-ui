@@ -3,6 +3,7 @@ import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } fro
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
 import { CTA_ARROW_CLASS } from './landingClasses';
+import { FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS } from './landingClasses';
 
 export type LandingPageProps = {
   isDark?: boolean;
@@ -74,7 +75,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--text-primary)]">
             {t("landing.communication")}
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
+            <span className={GRADIENT_TEXT_CLASS}>
               {t("landing.withoutCompromise")}
             </span>
           </h1>
@@ -126,7 +127,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           </div>
           <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold text-center tracking-[-0.02em] mb-16 text-[var(--text-primary)]">
             {t("landing.featuresTitle")}<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">{t("landing.featuresTitleAccent")}</span>
+            <span className={GRADIENT_TEXT_CLASS}>{t("landing.featuresTitleAccent")}</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -143,7 +144,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                     <div className={"w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-orange-500/8 dark:bg-orange-500/10"}>
                       <Icon size={20} className="text-orange-600 dark:text-orange-400" />
                     </div>
-                    <h3 className="text-base font-bold mb-2 text-[var(--text-primary)]">
+                    <h3 className={FEATURE_TITLE_CLASS}>
                       {t(feat.titleKey)}
                     </h3>
                     <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
@@ -191,7 +192,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                   <div className="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-orange-500/8 dark:bg-orange-500/10">
                     <Icon size={24} className="text-orange-600 dark:text-orange-400" />
                   </div>
-                  <h3 className="text-base font-bold mb-2 text-[var(--text-primary)]">
+                  <h3 className={FEATURE_TITLE_CLASS}>
                     {t(item.titleKey)}
                   </h3>
                   <p className="text-sm leading-relaxed max-w-xs mx-auto text-[var(--text-secondary)]">

@@ -4,6 +4,7 @@ import type { LandingPageProps } from "./LandingPage";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
 import { CTA_ARROW_CLASS } from './landingClasses';
+import { GRADIENT_TEXT_CLASS } from './landingClasses';
 
 export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarted">) => {
   const { t } = useI18n();
@@ -21,7 +22,7 @@ export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStart
       <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.05] tracking-[-0.03em] mb-6 text-[var(--text-primary)]">
         {t("landing.communication")}
         <br />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
+        <span className={GRADIENT_TEXT_CLASS}>
           {t("landing.withoutCompromise")}
         </span>
       </h1>

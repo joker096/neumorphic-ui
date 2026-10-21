@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import type { LandingFeature } from "../../data/landingData";
+import { FEATURE_TITLE_CLASS } from './landingClasses';
 
 type FeaturesSectionProps = {
   features: LandingFeature[];
@@ -22,7 +23,7 @@ export const FeaturesSection = ({ features }: FeaturesSectionProps) => (
             <div className="w-10 h-10 rounded-md flex items-center justify-center mb-4 bg-orange-500/10">
               <Icon size={20} className="text-[var(--text-tertiary)]" />
             </div>
-            <h3 className="text-base font-bold mb-2 text-[var(--text-primary)]">
+            <h3 className={FEATURE_TITLE_CLASS}>
               {feat.title}
             </h3>
             <p className="text-sm leading-relaxed text-[var(--text-tertiary)]">

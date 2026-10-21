@@ -30,6 +30,12 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Лендинг: типографика карточек и градиентных слов вынесена в `landing/landingClasses` (2026-10-21).** Заголовок карточки возможностей (`text-base font-bold mb-2 text-[var(--text-primary)]`) печатался трижды, а градиентный акцентный текст (`text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400`) — ещё трижды, в трёх файлах лендинга, поэтому правка кегля или цвета градиента требовала синхронных правок.
+  1. В `src/components/landing/landingClasses.ts` рядом с `CTA_ARROW_CLASS` добавлены `FEATURE_TITLE_CLASS` и `GRADIENT_TEXT_CLASS` — значения байт-в-байт прежние.
+  2. Переведены `landing/FeaturesSection.tsx` (1) и `landing/LandingPage.tsx` (2 + 2), `landing/HeroSection.tsx` (1).
+  3. Литералы остались только в определении; рендер и визуальные базлайны не изменились.
+  4. D1–D5 перескан: 0 findings — правки презентационные, ни один хендлер не тронут.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (644), button-audit 0 (289/436), l10n PASS (0 errors / 10 dynamic), component-audit 0/0/0, dead-export dead 0, orphan PASS, ui-audit 14/14, visual 8/8.
 - **Плотные подписи и полужирные заголовки: два класса вынесены в `ui/textClasses` (2026-10-21).** Строка `text-xs mt-0.5 text-[var(--text-secondary)]` была скопирована в четырёх местах (счётчики подписчиков, постов и владельца в профиле чата, подпись @username), а `text-sm font-bold text-[var(--text-primary)]` — в шести (шаги руководства компании, заголовок выбора чата, заголовок плавающего виджета звонка и подпись формы аккаунта) — правка кегля или тона требовала синхронных правок в шести файлах.
   1. В `src/components/ui/textClasses.ts` добавлены `HINT_TEXT_TIGHT_CLASS` и `BOLD_LABEL_CLASS` — значения байт-в-байт прежние.
   2. Все десять вызовов переведены на константы, литералы остались только в определении.
