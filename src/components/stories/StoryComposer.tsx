@@ -9,6 +9,7 @@ import { toast } from '../ui/Toast';
 import { STORY_GRADIENTS, AUDIENCE_OPTIONS, EXPIRATION_OPTIONS, DEFAULT_AUDIENCE, DEFAULT_EXPIRATION, STORY_CAPTION_MAX_LENGTH } from '../../constants/storyConstants';
 import { publishMyStory } from './storiesData';
 import { STORY_MEDIA_COVER_CLASS } from './storyClasses';
+import { SECTION_HEADER_ROW_CLASS } from '../ui/rowClasses';
 
 interface StoryComposerProps {
   open: boolean;
@@ -89,7 +90,7 @@ export const StoryComposer = ({ open, onClose }: StoryComposerProps) => {
       aria-label={t('story.composer', 'New story')}
     >
       <div className={`w-full max-w-md rounded-2xl overflow-hidden shadow-2xl ${surfaceClass}`}>
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
+        <div className={SECTION_HEADER_ROW_CLASS}>
           <h3 className="font-semibold text-[var(--text-primary)]">{t('story.newStory', 'New story')}</h3>
           <CloseButton onClick={onClose} aria-label={t('common.close')} size="md" />
         </div>

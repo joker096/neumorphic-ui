@@ -5,6 +5,7 @@ import { useI18n } from '../../lib/i18n';
 import { formatCurrency } from '../../utils/currency';
 import { isOpenDealStage } from '../../constants/crmConstants';
 import { PRIMARY_LABEL_CLASS } from '../ui/textClasses';
+import { SECTION_HEADER_ROW_CLASS } from '../ui/rowClasses';
 
 interface CrmCardProps {
   contact: CrmContact;
@@ -53,7 +54,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
     <div
       className={"rounded-xl border border-[var(--border-color)] overflow-hidden bg-white shadow-sm dark:bg-[var(--bg-tertiary)] dark:shadow-none"}
     >
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
+      <div className={SECTION_HEADER_ROW_CLASS}>
         <div className="flex items-center gap-2">
           <UserCircle2 size={16} className="text-[var(--accent)]" />
           <span className={PRIMARY_LABEL_CLASS}>

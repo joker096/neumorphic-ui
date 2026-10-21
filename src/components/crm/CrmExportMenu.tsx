@@ -6,6 +6,7 @@ import type { CrmContact, Department, Deal, CrmTask } from '../../lib/crm/types'
 import {
   downloadFile, contactsToCsv, dealsToCsv, tasksToCsv, companyToCompanyJson, exportStamp,
 } from '../../lib/crm/export';
+import { EXPORT_ICON_BTN_CLASS } from './crmClasses';
 
 type Props = {
   contacts: CrmContact[];
@@ -75,7 +76,7 @@ export const CrmExportMenu: React.FC<Props> = ({ contacts, departments, deals, t
         aria-haspopup="menu"
         aria-label={t('crm.export', CRM_FALLBACKS.export)}
         title={t('crm.export', CRM_FALLBACKS.export)}
-        className="w-9 h-9 min-w-11 min-h-11 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+        className={EXPORT_ICON_BTN_CLASS}
       >
         <Download size={16} aria-hidden="true" />
         <span className="sr-only">{t('crm.export', CRM_FALLBACKS.export)}</span>

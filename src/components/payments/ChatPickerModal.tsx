@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
 import { useEscapeKey } from '../../hooks/useEscapeKey'
 import { BOLD_LABEL_CLASS } from '../ui/textClasses';
+import { SECTION_HEADER_ROW_CLASS } from '../ui/rowClasses';
 
 interface ChatPickerModalProps {
   open: boolean
@@ -34,7 +35,7 @@ export const ChatPickerModal = ({ open, onClose, onPick, title, excludeChatId }:
         className="w-full max-w-sm rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)] shadow-xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
+        <div className={SECTION_HEADER_ROW_CLASS}>
           <h3 className={BOLD_LABEL_CLASS}>
             {title || t('payments.sendToChat')}
           </h3>

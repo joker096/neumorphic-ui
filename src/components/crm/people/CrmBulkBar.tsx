@@ -2,6 +2,7 @@ import { Check, Trash2 } from 'lucide-react';
 import { CRM_FALLBACKS } from '../../../constants/crmConstants';
 import type { CrmContact } from '../../../lib/crm/types';
 import type { CrmTranslate } from './CrmContactRow';
+import { TINY_BOLD_CLASS } from '../../ui/textClasses';
 
 interface CrmBulkBarProps {
   selectedCount: number;
@@ -25,7 +26,7 @@ export function CrmBulkBar({
 }: CrmBulkBarProps) {
   return (
     <div className="sticky bottom-2 mt-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-2.5 flex flex-wrap items-center gap-2">
-      <span className="text-xs font-bold text-[var(--text-primary)]">
+      <span className={TINY_BOLD_CLASS}>
         {t('crm.selectedCount', { count: selectedCount })}
       </span>
       {canAssignManagers && (

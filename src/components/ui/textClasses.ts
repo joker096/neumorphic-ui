@@ -34,3 +34,6 @@ export const HINT_TEXT_TIGHT_CLASS = 'text-xs mt-0.5 text-[var(--text-secondary)
 
 /** Bold heading of a step or a modal title. */
 export const BOLD_LABEL_CLASS = 'text-sm font-bold text-[var(--text-primary)]';
+
+/** Tiny bold label used by counters and filter captions. */
+export const TINY_BOLD_CLASS = 'text-xs font-bold text-[var(--text-primary)]';

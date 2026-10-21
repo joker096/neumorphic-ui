@@ -30,6 +30,13 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Три семейства классов вынесены в общие модули (2026-10-21).** Микро-заголовки (`text-xs font-bold text-[var(--text-primary)]`, 3 места), кнопки экспорта CRM (`w-9 h-9 min-w-11 min-h-11 rounded-xl …`, 3 места) и шапки секций (`flex items-center justify-between px-4 py-3 border-b …`, 3 места) были скопированы в девяти файлах — правка кегля, отступа или радиуса требовала синхронных правок в шести модулях.
+  1. `src/components/ui/textClasses.ts` — добавлен `TINY_BOLD_CLASS`; применён в `chat-preview/ChatMediaPanel.tsx`, `crm/people/CrmBulkBar.tsx`, `crm/CrmRoles.tsx`.
+  2. Новый `src/components/crm/crmClasses.ts` — `EXPORT_ICON_BTN_CLASS`; применён в `crm/CrmExportMenu.tsx` и `crm/CrmView.tsx` (2 из 3 кнопок экспорта: третья отличается тоном hover).
+  3. `src/components/ui/rowClasses.ts` — добавлен `SECTION_HEADER_ROW_CLASS`; применён в `crm/CrmCard.tsx`, `payments/ChatPickerModal.tsx`, `stories/StoryComposer.tsx`.
+  4. Литералы остались только в определениях; рендер и визуальные базлайны не изменились.
+  5. D1–D5 перескан: 0 findings — правки презентационные, ни один хендлер не тронут.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (645), button-audit 0 (289/436), l10n PASS (0 errors / 10 dynamic), component-audit 0/0/0, dead-export dead 0, orphan PASS, ui-audit 14/14, visual 8/8.
 - **Лендинг: типографика карточек и градиентных слов вынесена в `landing/landingClasses` (2026-10-21).** Заголовок карточки возможностей (`text-base font-bold mb-2 text-[var(--text-primary)]`) печатался трижды, а градиентный акцентный текст (`text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400`) — ещё трижды, в трёх файлах лендинга, поэтому правка кегля или цвета градиента требовала синхронных правок.
   1. В `src/components/landing/landingClasses.ts` рядом с `CTA_ARROW_CLASS` добавлены `FEATURE_TITLE_CLASS` и `GRADIENT_TEXT_CLASS` — значения байт-в-байт прежние.
   2. Переведены `landing/FeaturesSection.tsx` (1) и `landing/LandingPage.tsx` (2 + 2), `landing/HeroSection.tsx` (1).

@@ -3,6 +3,7 @@ import { ListFilter, Mic } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { FTR_MAGIC } from "../../lib/fileTransfer/frames";
 import { useFtrBlobUrl } from "../../hooks/useFtrBlobUrl";
+import { TINY_BOLD_CLASS } from '../ui/textClasses';
 
 interface ChatMediaPanelProps {
   showMediaPanel: boolean;
@@ -125,7 +126,7 @@ export const ChatMediaPanel = ({
                 {msg.type === 'audio' ? (
                   <div className={`w-full h-full flex flex-col items-start justify-between p-3 bg-[var(--bg-tertiary)]`}>
                      <Mic size={18} className={"text-[var(--accent)]"} />
-                    <div className="text-xs font-bold text-[var(--text-primary)]">{t('chat.filters.voiceNote')}</div>
+                    <div className={TINY_BOLD_CLASS}>{t('chat.filters.voiceNote')}</div>
                     <div className={`text-xs text-[var(--text-secondary)]`}>{msg.duration || '0:00'}</div>
                   </div>
                 ) : (

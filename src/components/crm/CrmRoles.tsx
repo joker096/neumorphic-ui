@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { FORM_FIELD_CONTROL_CLASS } from '../ui/formClasses';
+import { TINY_BOLD_CLASS } from '../ui/textClasses';
 
 const inputCls =
   `${FORM_FIELD_CONTROL_CLASS} text-xs`;
@@ -133,7 +134,7 @@ export const CrmRoles: React.FC = () => {
                         active ? 'border-[var(--accent)] bg-[var(--accent)]/10' : 'border-[var(--border-color)]'
                       } ${can('manageRoles') ? 'cursor-pointer' : 'cursor-default'}`}
                     >
-                      <div className="text-xs font-bold text-[var(--text-primary)]">
+                      <div className={TINY_BOLD_CLASS}>
                         {t(p.labelKey, (CRM_FALLBACKS as any)[p.labelKey.replace('crm.', '')])}
                         {active && <span className="ml-1 text-[var(--accent)]">✓</span>}
                       </div>
