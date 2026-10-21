@@ -30,6 +30,13 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Устройства и руководство компании на дизайн-токенах (2026-10-21).** `DevicesSection` и `CompanyGuideSection` замыкают кластер настроек: в обоих остались только форварды в общие примитивы.
+  1. `DevicesSection`: три пары иконных тонов — `emerald` для устройства и данных, `red` для неактивной сессии — сведены к `bg-<hue>-100 dark:bg-<hue>-500/10` + `text-<hue>-600 dark:text-<hue>-400`.
+  2. `CompanyGuideSection`: hover-строка руководства → `hover:bg-black/5 dark:hover:bg-white/5`; иконная плашка заголовка → `bg-[var(--accent)]/10 dark:bg-[var(--accent-soft)]` вместо пары `--accent-soft`/`--accent`/10.
+  3. Тона `emerald` (роли) и `amber` (заметки) — те же `dark:`-классы, что в остальных секциях.
+  4. В обоих файлах `isDark` остаётся чистым форвардом в `SubView`/`SettingsSectionTitle`/`SettingsGroup`/`SettingsRow` (16 и 18 вхождений, `isDark ?` = 0).
+  5. D1–D5 перескан: 0 findings — все контролы живые (список устройств, завершение сессии, переходы разделов руководства, создание компании).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Справка и 2FA на дизайн-токенах (2026-10-21).** `HelpSupportSection` и `security/TwoFactorPanel` держали по семь локальных тернарников.
   1. `HelpSupportSection`: пара тонов `purple` → один `bg-purple-100 dark:bg-purple-500/10` + `text-purple-600 dark:text-purple-400`.
   2. Строки FAQ: hover-подложка → `hover:bg-black/5 dark:hover:bg-white/5`, шеврон и текст ответа → `text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]` (шеврон сохранил поворот по `openFaq === i`).

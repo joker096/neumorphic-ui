@@ -42,24 +42,24 @@ export const DevicesSection = ({ isDark = false, onBack, t }: DevicesSectionProp
       <SettingsGroup isDark={isDark} className="mb-6">
         <SettingsRow
           icon={<Monitor size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.thisDevice', 'This device')}
           subtitle={deviceInfo}
           isDark={isDark}
         />
         <SettingsRow
           icon={<Clock size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.lastActive', 'Last active')}
           subtitle={t('settings.lastActiveNow', 'Just now')}
           isDark={isDark}
         />
         <SettingsRow
           icon={<X size={16} />}
-          iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-          iconColor={isDark ? "text-red-400" : "text-red-600"}
+          iconBg="bg-red-100 dark:bg-red-500/10"
+          iconColor="text-red-600 dark:text-red-400"
           title={t('settings.terminateSession', 'Terminate session')}
           subtitle={t('settings.terminateCurrentSubtitle', 'End this session and wipe local data')}
           isDark={isDark}

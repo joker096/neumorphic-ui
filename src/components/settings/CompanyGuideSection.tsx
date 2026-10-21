@@ -87,10 +87,10 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
             <div key={step.key}>
               <button
                 onClick={() => setOpenStep(isOpen ? null : step.key)}
-                className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
+                className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-black/5 dark:hover:bg-white/5`}
               >
                 <span className="flex items-center gap-3 min-w-0">
-                  <span className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${isDark ? 'bg-[var(--accent-soft)]' : 'bg-[var(--accent)]/10'}`}>
+                  <span className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[var(--accent)]/10 dark:bg-[var(--accent-soft)]`}>
                     <span className="t-accent">{step.icon}</span>
                   </span>
                   <span className="text-sm font-medium text-[var(--text-primary)]">
@@ -113,8 +113,8 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
       <SettingsGroup isDark={isDark}>
         <SettingsRow
           icon={<BookOpen size={16} />}
-          iconBg={isDark ? 'bg-emerald-500/10' : 'bg-emerald-100'}
-          iconColor={isDark ? 'text-emerald-400' : 'text-emerald-600'}
+          iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('company.guide.note1', 'The first person to create a company is its Admin')}
           isDark={isDark}
         />
@@ -127,8 +127,8 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
         />
         <SettingsRow
           icon={<KeyRound size={16} />}
-          iconBg={isDark ? 'bg-amber-500/10' : 'bg-amber-100'}
-          iconColor={isDark ? 'text-amber-400' : 'text-amber-600'}
+          iconBg="bg-amber-100 dark:bg-amber-500/10"
+          iconColor="text-amber-600 dark:text-amber-400"
           title={t('company.guide.note3', 'Joining always requires the Admin’s signed invite')}
           isDark={isDark}
         />
