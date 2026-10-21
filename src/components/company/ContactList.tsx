@@ -2,6 +2,7 @@ import { Users, Plus, Loader2, AlertCircle, Mail, Phone, RefreshCw } from 'lucid
 import { AnimatePresence, motion } from 'motion/react';
 import type { CompanyContact, CompanyDepartment } from '../../types/constants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
+import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
 
 type ContactListProps = {
   isDark?: boolean;
@@ -100,7 +101,7 @@ export const ContactList = ({
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-sm text-[var(--text-primary)] truncate">{contact.name}</div>
                     {contact.title ? (
-                      <div className="text-xs text-[var(--text-secondary)] truncate">{contact.title}</div>
+                      <div className={SUBTLE_TRUNCATE_CLASS}>{contact.title}</div>
                     ) : null}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5 text-xs text-[var(--text-secondary)]">
                       {contact.phone && (

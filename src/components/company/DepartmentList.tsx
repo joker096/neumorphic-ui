@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { CompanyDepartment, CompanyMember } from '../../types/constants';
 import { memberColorAt } from '../../constants/companyConstants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
+import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
 
 type DepartmentListProps = {
   isDark?: boolean;
@@ -111,7 +112,7 @@ export const DepartmentList = ({
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-sm text-[var(--text-primary)] truncate">{dept.name}</div>
                     {dept.description ? (
-                      <div className="text-xs text-[var(--text-secondary)] truncate">{dept.description}</div>
+                      <div className={SUBTLE_TRUNCATE_CLASS}>{dept.description}</div>
                     ) : null}
                     <div className="text-xs text-[var(--text-secondary)] mt-0.5">
                       {t('company.departmentMemberCount', '{count} member(s)').replace('{count}', String(assigned.length))}

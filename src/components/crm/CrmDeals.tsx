@@ -10,6 +10,7 @@ import { DealModal } from './CrmDealModal';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { DataState } from '../ui/DataState';
 import { formatCurrency } from '../../utils/currency';
+import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
 
 // Amount + currency both arrive from imported CRM records, so the formatter is
 // memoized and fail-soft (see utils/currency).
@@ -173,7 +174,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled, onMessa
                           <span className="font-bold text-sm text-[var(--text-primary)] shrink-0">{fmt(d.amount, d.currency, lang)}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2 mt-0.5">
-                          <span className="text-xs text-[var(--text-secondary)] truncate">{contactName(d.contactId)}</span>
+                          <span className={SUBTLE_TRUNCATE_CLASS}>{contactName(d.contactId)}</span>
                           {onMessage && (
                             <button
                               type="button"

@@ -3,6 +3,7 @@ import { Check, Phone, Mail, Tag, MessageCircle } from 'lucide-react';
 import { CRM_FALLBACKS, crmAvatarAt, CONTACT_STATUSES } from '../../../constants/crmConstants';
 import type { CrmContact, CrmContactStatus } from '../../../lib/crm/types';
 import { RoleBadge } from '../RoleBadge';
+import { SUBTLE_TRUNCATE_CLASS } from '../../ui/textClasses';
 
 export type CrmTranslate = (key: string, options?: any) => string;
 
@@ -78,7 +79,7 @@ export function CrmContactRow({
           <span className={`text-xs font-bold uppercase px-1.5 py-0.5 rounded-full ${statusColor[c.status]}`}>
             {statusLabel(c.status, t)}
           </span>
-          {c.title && <span className="text-xs text-[var(--text-secondary)] truncate max-w-[180px]">{c.title}</span>}
+          {c.title && <span className={`${SUBTLE_TRUNCATE_CLASS} max-w-[180px]`}>{c.title}</span>}
         </div>
         <div className="flex items-center gap-2 mt-0.5 text-xs text-[var(--text-secondary)] flex-wrap">
           {c.assignedManagerId && c.assignedManagerId !== c.userId && (

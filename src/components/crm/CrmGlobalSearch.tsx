@@ -4,6 +4,7 @@ import { useI18n } from '../../lib/i18n';
 import { useAppStore } from '../../store';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
 import type { CrmContact, Deal, CrmTask, CrmFocusKind } from '../../lib/crm/types';
+import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
 
 type Hit = { kind: CrmFocusKind; id: string; title: string; subtitle: string };
 
@@ -82,7 +83,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
             className="w-full text-left px-2.5 py-2 hover:bg-[var(--list-item-hover-bg)] transition-colors"
           >
             <div className="text-xs font-semibold text-[var(--text-primary)]">{hit.title}</div>
-            {hit.subtitle && <div className="text-xs text-[var(--text-secondary)] truncate">{hit.subtitle}</div>}
+            {hit.subtitle && <div className={SUBTLE_TRUNCATE_CLASS}>{hit.subtitle}</div>}
           </button>
         ))}
       </div>

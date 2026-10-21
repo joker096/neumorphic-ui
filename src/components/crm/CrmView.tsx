@@ -16,6 +16,7 @@ import { CrmImportWizard } from './CrmImportWizard';
 import { CrmNextStepsBanner } from './CrmNextStepsBanner';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import type { CrmFocusKind } from '../../lib/crm/types';
+import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
 
 type Tab = 'people' | 'deals' | 'tasks' | 'roles';
 
@@ -97,7 +98,7 @@ export const CrmView: React.FC<Props> = ({ onCall, onVideoCall, onMessage, onOpe
     <div className="w-full h-full flex flex-col overflow-hidden min-h-0">
       <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border-color)]">
         <div className="min-w-0">
-          <div className="text-xs text-[var(--text-secondary)] truncate">
+          <div className={SUBTLE_TRUNCATE_CLASS}>
             {me?.displayName} · {roleLabel} · {permissions.length} {t('crm.perms', 'perms')}
           </div>
         </div>
