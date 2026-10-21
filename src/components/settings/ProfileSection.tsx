@@ -246,7 +246,7 @@ const handleSelectAccount = (id: number) => {
 
         <AnimatePresence>
           {showShareId && (
-            <ShareIdentityModal isDark={isDark} t={t} onClose={() => setShowShareId(false)} />
+            <ShareIdentityModal t={t} onClose={() => setShowShareId(false)} />
           )}
         </AnimatePresence>
       </div>
