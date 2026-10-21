@@ -1,27 +1,23 @@
 import React from "react";
 import { motion, type PanInfo } from "motion/react";
 import { Forward, MessageSquare } from "lucide-react";
-import { getICQStickerSrc } from "../../lib/icqEmojis";
 import { FormattedText } from "./FormattedText";
 import { MessageContextMenu } from "./MessageContextMenu";
 import { buildMessageMenuActions } from "./messageMenuActions";
 import { useI18n } from "../../lib/i18n";
 import { useServices } from "../../services";
-import { getBubbleCornerClass, type GroupPosition } from "../../utils/chatUtils";
-import { useMessageGestures } from "./useMessageGestures";
-import type { MenuAnchorRect } from "./menuPosition";
 import { AttachmentMedia } from "./AttachmentMedia";
 import { MessageTimestamp } from "./MessageTimestamp";
 import { ChannelCommentsRow } from "./ChannelCommentsRow";
 import { ReplyQuote } from "./ReplyQuote";
 import { PaymentChatBubble } from "../payments/PaymentChatBubble";
-import { isMorseCode, decodeMorse } from "../MorseDecoder";
+import { decodeMorse } from "../MorseDecoder";
+import { useMessageBubble } from "./message/useMessageBubble";
 import { executeEditMessage } from "../../hooks/useMessageActions";
 import { MessageGutterAvatar } from "./message/MessageGutterAvatar";
 import { MessageDateSeparator, ExpiredMessage, MorseToggle } from "./message/MessageTextStates";
 import { MessageEditForm } from "./message/MessageEditForm";
 import { MessageFooter } from "./message/MessageFooter";
-import { useSelfDestructExpiry, useMessageTranslation, useMorseToggle } from "./message/useMessageChrome";
 
 interface ChatMessageProps {
   msg: any;
@@ -78,52 +74,22 @@ function ChatMessageImpl({
   selectionMode = false, selected = false, onToggleSelect, onSelect,
   onRetry,
 }: ChatMessageProps) {
-  const [menuOpen, setMenuOpen] = React.useState(false);
-  const [menuAnchorRect, setMenuAnchorRect] = React.useState<MenuAnchorRect | null>(null);
-  const openMessageMenu = React.useCallback((anchorRect: MenuAnchorRect | null) => {
-    setMenuAnchorRect(anchorRect);
-    setMenuOpen(true);
-  }, []);
-  const [editing, setEditing] = React.useState(false);
   const { t, lang } = useI18n();
   const { translate } = useServices();
-  const isGroupFirst =
-    msg._groupPosition === "first" || msg._groupPosition === "single";
-  const displayName = String(msg.sender || chat?.name || "");
-  const showAvatar = !isChannel;
-  // Avatars live in the outer gutter for every non-channel message, so identity
-  // stays readable for media, stickers and edits too — not just plain text.
-  const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
-  const showSenderName = showAvatar && isGroup && isGroupFirst && !isMe && !!displayName;
-  const forwardedFrom = msg.forwarded ? (msg.forwardedFrom || msg.forwardedFromChat) : undefined;
-  const expired = useSelfDestructExpiry(msg.selfDestructAt as number | undefined);
 
   const {
-    handleBubbleClick,
-    handleContextMenu,
-    handlePointerDown,
-    handlePointerUp,
-    handlePointerLeave,
-    handlePointerCancel,
-  } = useMessageGestures({
-    msgId: msg.id,
-    selectionMode,
-    onToggleSelect,
-    onReply,
-    onReactionMessage,
-    onSetBounceMsgId,
-    onOpenMenu: openMessageMenu,
+    menuOpen, setMenuOpen, menuAnchorRect, openMessageMenu,
+    editing, setEditing, isGroupFirst, displayName, showAvatar, isGroup,
+    showSenderName, forwardedFrom, expired,
+    handleBubbleClick, handleContextMenu,
+    handlePointerDown, handlePointerUp, handlePointerLeave, handlePointerCancel,
+    translation, translating, onTranslate,
+    morseDecoded, toggleMorse, isMorse, stickerSrc, bubbleCornerClass,
+  } = useMessageBubble({
+    msg, isMe, isChannel, chat, theme, selectionMode,
+    onToggleSelect, onReply, onReactionMessage, onSetBounceMsgId,
+    translate, lang, t,
   });
-  const { translation, translating, onTranslate } = useMessageTranslation({
-    translate, text: String(msg.text ?? ''), lang, t,
-  });
-  const [morseDecoded, toggleMorse] = useMorseToggle();
-  const isMorse = typeof msg.text === "string" && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && isMorseCode(msg.text);
-  const stickerSrc = React.useMemo(
-    () => (msg.type === "sticker" ? getICQStickerSrc(msg.text, theme) : null),
-    [msg.text, msg.type, theme],
-  );
-  const bubbleCornerClass = getBubbleCornerClass(msg._groupPosition as GroupPosition, isMe);
 
   const startEditing = () => {
     setEditing(true);
