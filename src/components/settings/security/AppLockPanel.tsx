@@ -134,8 +134,8 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
       <SettingsGroup isDark={isDark} className="mb-6">
         <SettingsRow
           icon={hasPin ? <Lock size={16} /> : <Unlock size={16} />}
-          iconBg={hasPin ? (isDark ? "bg-emerald-500/10" : "bg-emerald-100") : (isDark ? "bg-gray-500/10" : "bg-gray-100")}
-          iconColor={hasPin ? (isDark ? "text-emerald-400" : "text-emerald-600") : (isDark ? "text-gray-400" : "text-gray-500")}
+          iconBg={hasPin ? "bg-emerald-100 dark:bg-emerald-500/10" : "bg-gray-100 dark:bg-gray-500/10"}
+          iconColor={hasPin ? "text-emerald-600 dark:text-emerald-400" : "text-gray-500 dark:text-gray-400"}
           title={t('settings.pinLock')}
           subtitle={hasPin ? t('settings.pinEnabled') : t('settings.pinDisabled')}
           isDark={isDark}
@@ -170,7 +170,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
               onKeyDown={e => e.key === 'Enter' && confirmPinAction()}
               autoComplete={pinMode === 'set' ? 'new-password' : 'current-password'}
               inputMode="numeric"
-              className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]"}`}
+              className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-colors border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]"
               autoFocus
             />
             <div className="mt-2 flex gap-2">
@@ -178,14 +178,14 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
                 type="button"
                 onClick={confirmPinAction}
                 disabled={pinBusy}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"}`}
+                className="flex-1 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:hover:bg-emerald-500/30"
               >
                 {pinBusy ? '…' : (pinMode === 'set' ? t('settings.confirmPin') : t('settings.removePin'))}
               </button>
               <button
                 type="button"
                 onClick={() => { setShowPinInput(false); setPinValue(''); }}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-[var(--text-primary)] hover:bg-white/20" : "bg-black/5 text-[var(--text-secondary)] hover:bg-black/10"}`}
+                className="flex-1 py-2 rounded-lg text-xs font-medium transition-colors bg-black/5 text-[var(--text-secondary)] hover:bg-black/10 dark:bg-white/10 dark:text-[var(--text-primary)] dark:hover:bg-white/20"
               >
                 {t('common.cancel')}
               </button>
@@ -198,8 +198,8 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
 
         <SettingsRow
           icon={<Fingerprint size={16} />}
-          iconBg={isDark ? "bg-cyan-500/10" : "bg-cyan-100"}
-          iconColor={isDark ? "text-cyan-400" : "text-cyan-600"}
+          iconBg="bg-cyan-100 dark:bg-cyan-500/10"
+          iconColor="text-cyan-600 dark:text-cyan-400"
           title={t('settings.biometricUnlock')}
           subtitle={biometricSupported
             ? (biometricEnabled ? t('settings.biometricEnabled') : t('settings.biometricDisabledSetting'))
@@ -219,8 +219,8 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
 
         <SettingsRow
           icon={<LockKeyhole size={16} />}
-          iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
-          iconColor={isDark ? "text-amber-400" : "text-amber-600"}
+          iconBg="bg-amber-100 dark:bg-amber-500/10"
+          iconColor="text-amber-600 dark:text-amber-400"
           title={t('settings.lockNow')}
           subtitle={t('settings.lockNowSubtitle')}
           isDark={isDark}
@@ -244,8 +244,8 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
 
         <SettingsRow
           icon={<Timer size={16} />}
-          iconBg={isDark ? "bg-violet-500/10" : "bg-violet-100"}
-          iconColor={isDark ? "text-violet-400" : "text-violet-600"}
+          iconBg="bg-violet-100 dark:bg-violet-500/10"
+          iconColor="text-violet-600 dark:text-violet-400"
           title={t('settings.idleLock')}
           subtitle={t('settings.idleLockSubtitle')}
           isDark={isDark}
@@ -254,7 +254,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
               value={String(idleSeconds)}
               onChange={(e) => setAppLockAutoLock(autoLockOnBackground, parseInt(e.target.value, 10))}
               aria-label={t('settings.idleLock')}
-              className={`px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-white border-[var(--border-color)] text-[var(--text-primary)]"}`}
+              className="px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]"
             >
               <option value="0">{t('settings.idleOff')}</option>
               <option value="30">30s</option>
