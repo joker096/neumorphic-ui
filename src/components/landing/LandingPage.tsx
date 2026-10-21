@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } from "lucide-react";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS, FOOTER_WRAP_CLASS, HERO_LEAD_CLASS, FOOTER_SECTION_CLASS, FOOTER_META_CLASS, CTA_SECTION_LEAD_CLASS, HERO_COLUMN_CLASS } from './landingClasses';
+import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS, FOOTER_WRAP_CLASS, HERO_LEAD_CLASS, FOOTER_SECTION_CLASS, FOOTER_META_CLASS, CTA_SECTION_LEAD_CLASS, HERO_COLUMN_CLASS, LANDING_ICON_ROW_CLASS } from './landingClasses';
 import { TERTIARY_CAPTION_CLASS } from "../ui/textClasses";
 export type LandingPageProps = {
   isDark?: boolean;
@@ -88,7 +88,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
               onClick={onGetStarted}
               className={CTA_SECONDARY_CLASS}
             >
-              <span className="relative z-10 flex items-center gap-3">
+              <span className={LANDING_ICON_ROW_CLASS}>
                 {t("landing.openApp")}
                 <span className={CTA_ARROW_CLASS}>
                   <ArrowRight size={14} className="text-[var(--text-primary)]" />
@@ -216,7 +216,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
             onClick={onGetStarted}
             className={CTA_PRIMARY_CLASS}
           >
-            <span className="relative z-10 flex items-center gap-3">
+            <span className={LANDING_ICON_ROW_CLASS}>
               {t("landing.getStarted")}
               <span className={CTA_ARROW_CLASS}>
                 <ArrowRight size={14} className="text-[var(--text-primary)]" />

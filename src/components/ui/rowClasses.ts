@@ -25,3 +25,11 @@ export const GROUP_ROW_CLASS = 'flex items-center gap-3 px-4 py-3 border-b last:
 
 /** Scrollable body of a comment or thread panel. */
 export const SCROLL_BODY_CLASS = 'flex-1 overflow-y-auto p-4 flex flex-col gap-4';
+
+/** Padded row: leading icon, label and trailing control. */
+export const PADDED_ROW_CLASS =
+  'flex items-center gap-3 px-4 py-3';
+
+/** Compact label row above a group of fields. */
+export const LABEL_ROW_CLASS =
+  'flex items-center gap-2 mb-2';

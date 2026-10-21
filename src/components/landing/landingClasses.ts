@@ -50,3 +50,7 @@ export const HERO_COLUMN_CLASS = 'flex flex-col items-center text-center max-w-3
 
 /** Lead paragraph of the closing call-to-action section. */
 export const CTA_SECTION_LEAD_CLASS = 'text-lg mb-10 text-[var(--text-secondary)]';
+
+/** Icon row of the landing hero and call-to-action bands. */
+export const LANDING_ICON_ROW_CLASS =
+  'relative z-10 flex items-center gap-3';

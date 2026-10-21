@@ -1,6 +1,7 @@
 import { UserPlus, Copy, Check, ArrowRight, LogIn, Shield } from "lucide-react";
-import { HINT_TEXT_CLASS } from '../../ui/textClasses';
+import { HINT_TEXT_CLASS, CENTERED_HEADING_CLASS } from '../../ui/textClasses';
 import { AUTH_COLUMN_CLASS, AUTH_ERROR_CLASS, AUTH_LINK_BTN_CLASS, AUTH_PRIMARY_BTN_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SPINNER_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS, AUTH_TEXTAREA_CLASS, AUTH_SUCCESS_CIRCLE_CLASS } from '../authShared';
+import { THREE_COL_GRID_CLASS } from '../../ui/gridClasses';
 
 /** Centred subtitle under a registration step heading. */
 const REG_SUBTITLE_CLASS = 'text-sm text-[var(--text-secondary)] mb-4 text-center';
@@ -54,7 +55,7 @@ export function ShowPhraseStep({ t, phrase, phraseWords, onContinue }: { t: T; p
               {t("auth.registration.writeDown", "Write these 24 words down in order. Never share them. This is the only way to recover your identity.")}
             </p>
             <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-4 mb-4">
-              <div className="grid grid-cols-3 gap-2">
+              <div className={THREE_COL_GRID_CLASS}>
                 {phraseWords.map((word, i) => (
                   <div key={i} className="flex items-center gap-2 bg-[var(--bg-primary)] rounded-lg px-3 py-2">
                     <span className="text-xs text-[var(--text-secondary)] font-mono w-5">{i + 1}</span>
@@ -130,7 +131,7 @@ export function SetPinStep({ t, isLocked, lockBlockTimer, pin, onPinChange, pinC
               {t("auth.registration.pinDescription", "Optional but recommended. Adds a layer of protection when someone opens your device.")}
             </p>
             {isLocked && lockBlockTimer > 0 ? (
-              <div className="text-center mb-4">
+              <div className={CENTERED_HEADING_CLASS}>
                 <p className="text-red-500 font-bold text-sm">{t('lock.locked', 'Locked')}</p>
                 <p className={HINT_TEXT_CLASS}>{t('lock.tryAgainIn', { seconds: lockBlockTimer })}</p>
               </div>

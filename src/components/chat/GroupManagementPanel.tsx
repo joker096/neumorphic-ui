@@ -5,7 +5,7 @@ import type { GroupInfo, GroupMember } from '../../store/slices/chatSlice';
 import { canGroupPermission, getGroupRole } from '../../store/slices/chatSlice';
 import { useI18n } from '../../lib/i18n';
 import { groupInviteUrl } from '../../config/app';
-import { GROUP_ROW_CLASS } from '../ui/rowClasses';
+import { GROUP_ROW_CLASS, PADDED_ROW_CLASS } from '../ui/rowClasses';
 import { AMBER_INLINE_CLASS } from '../ui/textClasses';
 const SLOW_MODE_OPTIONS = [0, 10, 30, 60];
 
@@ -59,7 +59,7 @@ export const GroupManagementPanel = ({ chatId, members, group }: GroupManagement
       {/* Invite link (managers only) */}
       {canManageGroup && (
         <div className={cardClass}>
-          <div className="flex items-center gap-3 px-4 py-3">
+          <div className={PADDED_ROW_CLASS}>
             <div className={iconWrapClass}><LinkIcon size={16} /></div>
             <div className="flex-1 min-w-0">
               <div className="text-sm text-[var(--text-primary)]">{t('group.inviteLink', 'Invite link')}</div>
@@ -75,7 +75,7 @@ export const GroupManagementPanel = ({ chatId, members, group }: GroupManagement
       {/* Slow mode (managers only) */}
       {canManageGroup && (
         <div className={cardClass}>
-          <div className="flex items-center gap-3 px-4 py-3">
+          <div className={PADDED_ROW_CLASS}>
             <div className={iconWrapClass}><Timer size={16} /></div>
             <div className="flex-1 text-sm text-[var(--text-primary)]">{t('group.slowMode', 'Slow mode')}</div>
             <select

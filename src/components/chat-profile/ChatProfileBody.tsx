@@ -19,6 +19,7 @@ import { formatLongDate } from '../../utils/dateTime';
 import type { GroupMember, GroupPermissions } from '../../store/slices/chatSlice';
 import { ROW_SHELL_CLASS, GROUP_ROW_CLASS } from '../ui/rowClasses';
 import { MEDIUM_LABEL_CLASS, LARGE_LABEL_CLASS, HINT_TEXT_TIGHT_CLASS, AMBER_INLINE_CLASS, SECONDARY_TEXT_CLASS } from '../ui/textClasses';
+import { THREE_COL_GRID_CLASS } from '../ui/gridClasses';
 /** Counter card of the profile header (subscribers, posts, owner). */
 const STAT_CARD_CLASS =
   'rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]';
@@ -85,7 +86,7 @@ export const ChatProfileBody = ({
 {kind === 'channel' && (
   <div className="px-4 mt-5">
     <SectionTitle icon={<Info size={16} />} title={t('profile.statistics', 'Statistics')} />
-    <div className="grid grid-cols-3 gap-2">
+    <div className={THREE_COL_GRID_CLASS}>
       <div className={STAT_CARD_CLASS}>
         <div className={LARGE_LABEL_CLASS}>{chat.subscriberCount ?? chat.subscribers ?? CHAT_PROFILE_DEFAULT_SUBSCRIBERS}</div>
         <div className={HINT_TEXT_TIGHT_CLASS}>{t('profile.subscribersLabel', 'Subscribers')}</div>
@@ -163,7 +164,7 @@ export const ChatProfileBody = ({
 
     <div className="mt-3">
       {activeTab === 'media' && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className={THREE_COL_GRID_CLASS}>
           {CHAT_PROFILE_MEDIA_GRADIENTS.map((g, i) => (
             <div key={i} className={`aspect-square rounded-xl bg-gradient-to-br ${g}`} />
           ))}

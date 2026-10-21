@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import type { LandingPageProps } from "./LandingPage";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS, CTA_PRIMARY_CLASS, CTA_SECTION_TITLE_CLASS, CTA_SECTION_LEAD_CLASS } from './landingClasses';
+import { CTA_ARROW_CLASS, CTA_PRIMARY_CLASS, CTA_SECTION_TITLE_CLASS, CTA_SECTION_LEAD_CLASS, LANDING_ICON_ROW_CLASS } from './landingClasses';
 export const CTASection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarted">) => {
   const { t } = useI18n();
   return (
@@ -23,7 +23,7 @@ export const CTASection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarte
       onClick={onGetStarted}
       className={CTA_PRIMARY_CLASS}
     >
-      <span className="relative z-10 flex items-center gap-3">
+      <span className={LANDING_ICON_ROW_CLASS}>
         {t("landing.getStarted")}
         <span className={CTA_ARROW_CLASS}>
           <ArrowRight size={14} className="text-[var(--text-primary)]" />

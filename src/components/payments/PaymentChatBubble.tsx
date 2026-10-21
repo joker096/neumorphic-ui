@@ -7,6 +7,7 @@ import { useI18n } from '../../lib/i18n'
 import { formatCurrency } from '../../utils/currency'
 import { INLINE_SEMIBOLD_CLASS, CAPS_MUTED_CLASS } from '../ui/textClasses';
 import { PAYMENT_SUCCESS_STATUS_CLASS, PAYMENT_FAILED_STATUS_CLASS, PAYMENT_PENDING_STATUS_CLASS } from './paymentClasses';
+import { LABEL_ROW_CLASS } from '../ui/rowClasses';
 interface PaymentChatBubbleProps {
   msg: any
 }
@@ -81,7 +82,7 @@ export const PaymentChatBubble = ({ msg }: PaymentChatBubbleProps) => {
     <div
       className={"mt-2 rounded-2xl p-3 border bg-white border-[var(--border-color)] shadow-sm text-[var(--text-primary)] dark:bg-white/5 dark:shadow-none"}
     >
-      <div className="flex items-center gap-2 mb-2">
+      <div className={LABEL_ROW_CLASS}>
         <span
           className={"flex items-center justify-center w-8 h-8 rounded-xl bg-orange-100 dark:bg-white/10"}
         >

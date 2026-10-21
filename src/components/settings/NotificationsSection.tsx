@@ -9,6 +9,7 @@ import { SubView } from '../ui/SubView';
 import { toast } from '../ui/Toast';
 import { NotificationsExceptions } from './NotificationsExceptions';
 import { soundConfig, type SoundEventType } from '../../lib/sounds/config';
+import { PADDED_ROW_CLASS } from '../ui/rowClasses';
 
 interface NotificationsSectionProps {
   isDark?: boolean;
@@ -196,7 +197,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           onToggle={() => { setQuietHours(v => !v); toast(t('settings.saved', 'Saved'), 'success'); }}
         />
         {quietHours && (
-          <div className="flex items-center gap-3 px-4 py-3">
+          <div className={PADDED_ROW_CLASS}>
             <Timer size={16} className="text-[var(--text-secondary)]" />
             <span className={`text-sm flex-1 text-[var(--text-primary)]`}>{t('settings.timeRange', 'From – To')}</span>
             <input

@@ -10,6 +10,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { TINY_BOLD_CLASS, SECONDARY_CAPTION_CLASS } from '../ui/textClasses';
 import { CRM_FIELD_INPUT_CLASS } from './crmClasses';
+import { LABEL_ROW_CLASS } from '../ui/rowClasses';
 /** Role name taking the remaining width of a role row. */
 const ROLE_NAME_CLASS = 'flex-1 font-bold text-sm text-[var(--text-primary)]';
 
@@ -123,7 +124,7 @@ export const CrmRoles: React.FC = () => {
           )}
           {customRoles.map((r) => (
             <div key={r.id} className="p-2.5 rounded-xl border border-[var(--border-color)]">
-              <div className="flex items-center gap-2 mb-2">
+              <div className={LABEL_ROW_CLASS}>
                 {can('manageRoles') ? (
                   <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={r.name} onChange={(e) => updateCustomRole(r.id, { name: e.target.value })} className={`${CRM_FIELD_INPUT_CLASS} flex-1`} />
                 ) : (

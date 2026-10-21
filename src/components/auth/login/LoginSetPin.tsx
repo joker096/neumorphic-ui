@@ -1,7 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { AUTH_ERROR_CLASS, AUTH_LINK_BTN_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS } from '../authShared';
-import { HINT_TEXT_CLASS } from '../../ui/textClasses';
-
+import { HINT_TEXT_CLASS, CENTERED_HEADING_CLASS } from '../../ui/textClasses';
 type T = (key: string, options?: any) => string;
 
 interface LoginSetPinProps {
@@ -29,7 +28,7 @@ export function LoginSetPin({
         {t("auth.login.pinDescription", "Optional but recommended. Adds a layer of protection when someone opens your device.")}
       </p>
       {isLocked && lockBlockTimer > 0 ? (
-        <div className="text-center mb-4">
+        <div className={CENTERED_HEADING_CLASS}>
           <p className="text-red-500 font-bold text-sm">{t('lock.locked', 'Locked')}</p>
           <p className={HINT_TEXT_CLASS}>{t('lock.tryAgainIn', { seconds: lockBlockTimer })}</p>
         </div>

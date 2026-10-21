@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import type { LandingPageProps } from "./LandingPage";
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
-import { CTA_ARROW_CLASS, GRADIENT_TEXT_CLASS, CTA_SECONDARY_CLASS, HERO_TITLE_CLASS, HERO_LEAD_CLASS, HERO_COLUMN_CLASS } from './landingClasses';
+import { CTA_ARROW_CLASS, GRADIENT_TEXT_CLASS, CTA_SECONDARY_CLASS, HERO_TITLE_CLASS, HERO_LEAD_CLASS, HERO_COLUMN_CLASS, LANDING_ICON_ROW_CLASS } from './landingClasses';
 export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStarted">) => {
   const { t } = useI18n();
   return (
@@ -34,7 +34,7 @@ export const HeroSection = ({ onGetStarted }: Pick<LandingPageProps, "onGetStart
           onClick={onGetStarted}
           className={CTA_SECONDARY_CLASS}
         >
-          <span className="relative z-10 flex items-center gap-3">
+          <span className={LANDING_ICON_ROW_CLASS}>
             {t("landing.openApp")}
             <span className={CTA_ARROW_CLASS}>
               <ArrowRight size={14} className="text-[var(--text-primary)]" />

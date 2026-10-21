@@ -5,6 +5,7 @@ import { FTR_MAGIC } from '../../lib/fileTransfer/frames';
 import { useFtrBlobUrl } from '../../hooks/useFtrBlobUrl';
 import { DataState } from '../ui/DataState';
 import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
+import { THREE_COL_GRID_CLASS } from '../ui/gridClasses';
 
 interface SharedMediaTabsProps {
   messages: any[];
@@ -58,7 +59,7 @@ export const SharedMediaTabs = ({ messages, onOpenChat }: SharedMediaTabsProps) 
           media.length === 0 ? (
             <DataState status="empty" title={t('profile.noMedia', 'No media yet')} action={emptyAction} />
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div className={THREE_COL_GRID_CLASS}>
               {media.map((m: any) => (
                 <MediaTile key={String(m.id)} msg={m} />
               ))}

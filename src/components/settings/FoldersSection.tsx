@@ -5,6 +5,7 @@ import { SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { CHAT_FOLDER_KEYS } from '../../constants/chatConstants';
 import { MEDIUM_LABEL_CLASS, SECONDARY_CAPTION_CLASS } from '../ui/textClasses';
+import { PADDED_ROW_CLASS } from '../ui/rowClasses';
 interface NotificationsSectionProps {
   isDark?: boolean;
   onBack: () => void;
@@ -31,7 +32,7 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
           return (
             <div key={key}>
               {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
-              <div className="flex items-center gap-3 px-4 py-3">
+              <div className={PADDED_ROW_CLASS}>
                 <div className={"w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[var(--accent)]/10 dark:bg-[var(--accent-soft)] text-[var(--accent)]"}>
                   {meta.icon}
                 </div>

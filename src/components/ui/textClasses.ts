@@ -95,3 +95,7 @@ export const TERTIARY_CAPTION_CLASS =
 /** Medium label that truncates instead of wrapping. */
 export const TRUNCATE_MEDIUM_CLASS =
   'text-sm font-medium truncate';
+
+/** Centred heading with the standard bottom gap. */
+export const CENTERED_HEADING_CLASS =
+  'text-center mb-4';

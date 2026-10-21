@@ -3,6 +3,9 @@ import { motion } from 'motion/react';
 import { CALL_CONTROL_SIZES } from '../../constants/callConstants';
 import { AppIcon, type AppIconSource } from '../ui/AppIcon';
 
+/** Small round dot of the call control strip. */
+const DOT_CLASS = 'w-1 h-1 rounded-full bg-white/60';
+
 /** Animated "connecting" indicator shown next to the call status label. */
 export function StatusDots() {
   return (
@@ -10,17 +13,17 @@ export function StatusDots() {
       <motion.span
         animate={{ opacity: [0, 1, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
-        className="w-1 h-1 rounded-full bg-white/60"
+        className={DOT_CLASS}
       />
       <motion.span
         animate={{ opacity: [0, 1, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
-        className="w-1 h-1 rounded-full bg-white/60"
+        className={DOT_CLASS}
       />
       <motion.span
         animate={{ opacity: [0, 1, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}
-        className="w-1 h-1 rounded-full bg-white/60"
+        className={DOT_CLASS}
       />
     </span>
   );

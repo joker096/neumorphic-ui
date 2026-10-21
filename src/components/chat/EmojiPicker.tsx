@@ -1,5 +1,6 @@
 import React from "react";
 import { Search } from "lucide-react";
+import { LABEL_ROW_CLASS } from '../ui/rowClasses';
 
 type Emoji = { e: string; n: string; cat: string; tone?: boolean };
 
@@ -131,7 +132,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
       role="dialog"
       aria-label={t("emojis.title", "Emoji")}
     >
-      <div className="flex items-center gap-2 mb-2">
+      <div className={LABEL_ROW_CLASS}>
         <div className="relative flex-1">
           <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
           <input

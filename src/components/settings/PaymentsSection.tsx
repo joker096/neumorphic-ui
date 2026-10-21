@@ -13,6 +13,7 @@ import { useAppStore, selectWalletBalance } from '../../store';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/dateTime';
 import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
+import { PADDED_ROW_CLASS } from '../ui/rowClasses';
 
 /** Accent wallet action button (top up / send). */
 const PRIMARY_BTN_CLASS = 'min-h-11 px-3 flex-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] text-[var(--button-primary-text)] active:scale-95 transition-transform';
@@ -250,7 +251,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
         {transactions.map((tx, i) => (
           <div key={tx.id}>
             {i > 0 && <div className="border-t border-[var(--border-color)]" />}
-            <div className="flex items-center gap-3 px-4 py-3">
+            <div className={PADDED_ROW_CLASS}>
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-black/5 dark:bg-white/5 ${tx.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--text-secondary)]"}`}>
                 {txIcon(tx.type)}
               </div>
