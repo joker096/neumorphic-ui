@@ -3,6 +3,7 @@ import { ChevronLeft, Terminal } from "lucide-react";
 import { useServices, useServiceData, NotConfiguredState } from "../../../services";
 import { DataState } from "../../ui/DataState";
 import { useI18n } from "../../../lib/i18n";
+import { BOT_ICON_BTN_CLASS } from './botClasses';
 
 export interface MiniAppProps {
   botId: string;
@@ -27,7 +28,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
             <button
               onClick={onClose}
               aria-label={t("bot.back", "Back")}
-              className="flex items-center justify-center min-w-11 min-h-11 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
+              className={BOT_ICON_BTN_CLASS}
             >
               <ChevronLeft size={20} />
             </button>
@@ -72,7 +73,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
         <button
           onClick={onClose}
           aria-label={t("bot.back", "Back")}
-          className="flex items-center justify-center min-w-11 min-h-11 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
+          className={BOT_ICON_BTN_CLASS}
         >
           <ChevronLeft size={20} />
         </button>

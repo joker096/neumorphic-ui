@@ -30,6 +30,12 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Панели CRM и кнопки ботов: классы вынесены в общие модули (2026-10-21).** Тело вкладки CRM (`flex-1 flex flex-col overflow-y-auto px-2 py-2`) печаталось в трёх досках (`crm/CrmDeals.tsx`, `crm/CrmPeople.tsx`, `crm/CrmTasks.tsx`), а круглая иконка-кнопка бота (`flex items-center justify-center min-w-11 min-h-11 rounded-lg hover:bg-black/5 dark:hover:bg-white/10`) — ещё в трёх (`features/bot/BotProfileView.tsx`, `features/bot/MiniAppView.tsx` ×2) — правка отступа или тона требовала синхронных правок в пяти файлах.
+  1. В `src/components/crm/crmClasses.ts` рядом с `EXPORT_ICON_BTN_CLASS` добавлен `CRM_PANEL_BODY_CLASS` (значение байт-в-байт).
+  2. Новый `src/components/features/bot/botClasses.ts` с `BOT_ICON_BTN_CLASS` (значение байт-в-байт).
+  3. `crm/CrmRoles.tsx:47` намеренно не тронут: тот же базовый класс, но с суффиксом ` gap-4` — другая форма.
+  4. Литералы остались только в определениях; рендер и визуальные базлайны не изменились; D1–D5 перескан: 0 findings — правки презентационные, ни один хендлер не тронут.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (647), button-audit 0 (289/436), l10n PASS (0 errors / 10 dynamic), component-audit 0/0/0, dead-export dead 0, orphan PASS, ui-audit 14/14, visual 8/8.
 - **Пять повторяющихся наборов классов вынесены в локальные константы (2026-10-21).** Точка присутствия в шапке чата, круглые вкладки медиа, иконки уведомлений, опасные кнопки в профиле чата и круглые кнопки в просмотрщике медиа печатали одну и ту же строку по три раза каждый — правка размера или тона требовала трёх синхронных правок в одном компоненте.
   1. `chat-preview/ChatHeader.tsx` → `ONLINE_DOT_CLASS` (3 сайта).
   2. `chat-preview/ChatMediaPanel.tsx` → `MEDIA_TAB_CLASS` (3 сайта).

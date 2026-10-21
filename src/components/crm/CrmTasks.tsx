@@ -11,6 +11,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { formatDate } from '../../utils/dateTime';
+import { CRM_PANEL_BODY_CLASS } from './crmClasses';
 
 const priorityColor: Record<TaskPriority, string> = {
   low: 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]',
@@ -155,7 +156,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
   const sorted = [...visibleTasks].sort((a, b) => Number(a.done) - Number(b.done) || (a.dueAt ?? 0) - (b.dueAt ?? 0));
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto px-2 py-2">
+    <div className={CRM_PANEL_BODY_CLASS}>
       <div className="flex items-center justify-between px-1 mb-2">
         <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
           {visibleTasks.filter((x) => !x.done).length} {t('crm.open', 'open')}

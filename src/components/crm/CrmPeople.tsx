@@ -11,6 +11,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { CrmContactGroup } from './people/CrmContactGroup';
 import { CrmBulkBar } from './people/CrmBulkBar';
+import { CRM_PANEL_BODY_CLASS } from './crmClasses';
 
 type Props = {
   onOpenRoles?: () => void;
@@ -153,7 +154,7 @@ export const CrmPeople: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto px-2 py-2">
+    <div className={CRM_PANEL_BODY_CLASS}>
       <div className="flex items-center justify-between px-1 mb-1.5">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
           <Users size={14} /> {filtered.length}
