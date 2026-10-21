@@ -79,7 +79,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
     }
   };
 
-  const panelBg = isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]";
+  const panelBg = "bg-[var(--bg-tertiary)] border border-[var(--border-color)]";
 
   return (
     <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">

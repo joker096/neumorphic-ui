@@ -136,17 +136,11 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                   key={feat.titleKey}
                   {...stagger}
                   transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1], delay: i * 0.08 }}
-                  className={`group rounded-[1.75rem] border p-[1px] transition-all duration-500 ${
-                    isDark
-                      ? "border-[var(--border-color)]/[0.06] hover:border-[var(--border-color)]/[0.12]"
-                      : "border-black/[0.06] hover:border-black/[0.12]"
-                  }`}
+                  className="group rounded-[1.75rem] border p-[1px] transition-all duration-500 border-black/[0.06] hover:border-black/[0.12] dark:border-[var(--border-color)]/[0.06] dark:hover:border-[var(--border-color)]/[0.12]"
                 >
                   <div className="rounded-[calc(1.75rem-1px)] p-6 bg-[var(--landing-surface)]">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${
-                      isDark ? "bg-orange-500/10" : "bg-orange-500/8"
-                    }`}>
-                      <Icon size={20} className={isDark ? "text-orange-400" : "text-orange-600"} />
+                    <div className={"w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-orange-500/8 dark:bg-orange-500/10"}>
+                      <Icon size={20} className="text-orange-600 dark:text-orange-400" />
                     </div>
                     <h3 className="text-base font-bold mb-2 text-[var(--text-primary)]">
                       {t(feat.titleKey)}
@@ -193,10 +187,8 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
                   transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1], delay: i * 0.1 }}
                   className="text-center"
                 >
-                  <div className={`mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${
-                    isDark ? "bg-orange-500/10" : "bg-orange-500/8"
-                  }`}>
-                    <Icon size={24} className={isDark ? "text-orange-400" : "text-orange-600"} />
+                  <div className="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-orange-500/8 dark:bg-orange-500/10">
+                    <Icon size={24} className="text-orange-600 dark:text-orange-400" />
                   </div>
                   <h3 className="text-base font-bold mb-2 text-[var(--text-primary)]">
                     {t(item.titleKey)}
@@ -236,10 +228,8 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
       <footer className="relative z-10 border-t px-6 py-8 border-[var(--border-color)]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded-md flex items-center justify-center ${
-              isDark ? "bg-orange-500/10" : "bg-orange-500/8"
-            }`}>
-              <Zap size={12} className={isDark ? "text-orange-400" : "text-orange-600"} />
+            <div className="w-5 h-5 rounded-md flex items-center justify-center bg-orange-500/8 dark:bg-orange-500/10">
+              <Zap size={12} className="text-orange-600 dark:text-orange-400" />
             </div>
             <span className="text-xs font-bold tracking-tight text-[var(--text-secondary)]">
               {t("landing.brand")}

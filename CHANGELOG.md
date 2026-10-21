@@ -30,6 +30,13 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Лендинг и модалка контакта компании на дизайн-токенах (2026-10-21).** `LandingPage` держал семь тернарников, `company/ContactModal` — карточку с `bg-white` в светлой теме.
+  1. `LandingPage`: рамка карточки фич — `border-black/[0.06] hover:border-black/[0.12] dark:border-[var(--border-color)]/[0.06] dark:hover:border-[var(--border-color)]/[0.12]` вместо блочного `isDark ? … : …`.
+  2. Три иконные плашки (`bg-orange-500/8` в светлой / `bg-orange-500/10` в тёмной) сведены к одной строке с `dark:`-вариантом, иконки — `text-orange-600 dark:text-orange-400`; заодно две из них перестали быть шаблонными строками из одного выражения.
+  3. `ContactModal`: `panelBg` больше не выбирает между `bg-white` и `--bg-tertiary` — всегда `bg-[var(--bg-tertiary)] border border-[var(--border-color)]`.
+  4. `isDark` в `ContactModal` остаётся только адаптером `theme={isDark ? 'dark' : 'light'}` для пяти `ConfirmDialog`; в `LandingPage` — только условием рендера фонового свечения (не className).
+  5. D1–D5 перескан: 0 findings — все контролы живые (CTA лендинга, создание/сохранение контакта, подтверждения).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Устройства и руководство компании на дизайн-токенах (2026-10-21).** `DevicesSection` и `CompanyGuideSection` замыкают кластер настроек: в обоих остались только форварды в общие примитивы.
   1. `DevicesSection`: три пары иконных тонов — `emerald` для устройства и данных, `red` для неактивной сессии — сведены к `bg-<hue>-100 dark:bg-<hue>-500/10` + `text-<hue>-600 dark:text-<hue>-400`.
   2. `CompanyGuideSection`: hover-строка руководства → `hover:bg-black/5 dark:hover:bg-white/5`; иконная плашка заголовка → `bg-[var(--accent)]/10 dark:bg-[var(--accent-soft)]` вместо пары `--accent-soft`/`--accent`/10.
