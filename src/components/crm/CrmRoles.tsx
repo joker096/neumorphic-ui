@@ -11,6 +11,10 @@ import { useCrmPermissions } from '../../lib/crm/permissions';
 import { FORM_FIELD_CONTROL_CLASS } from '../ui/formClasses';
 import { TINY_BOLD_CLASS } from '../ui/textClasses';
 
+/** Accent caps label above a block of CRM roles. */
+const SECTION_LABEL_CLASS =
+  'flex items-center gap-2 px-1 mb-1.5 text-xs font-bold uppercase tracking-widest text-[var(--accent)]';
+
 const inputCls =
   `${FORM_FIELD_CONTROL_CLASS} text-xs`;
 const DEP_COLORS = ['from-sky-400 to-blue-500', 'from-emerald-400 to-green-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-rose-400 to-pink-500'];
@@ -43,7 +47,7 @@ export const CrmRoles: React.FC = () => {
     <div className="flex-1 flex flex-col overflow-y-auto px-2 py-2 gap-4">
       {/* Departments */}
       <section>
-        <div className="flex items-center gap-2 px-1 mb-1.5 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
+        <div className={SECTION_LABEL_CLASS}>
           <Building2 size={14} /> {t('crm.departments', CRM_FALLBACKS.departments)}
         </div>
         {can('manageDepartments') && (
@@ -91,7 +95,7 @@ export const CrmRoles: React.FC = () => {
 
       {/* Custom roles */}
       <section>
-        <div className="flex items-center gap-2 px-1 mb-1.5 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
+        <div className={SECTION_LABEL_CLASS}>
           <ShieldCheck size={14} /> {t('crm.customRoles', CRM_FALLBACKS.customRoles)}
         </div>
         {can('manageRoles') && (
@@ -150,7 +154,7 @@ export const CrmRoles: React.FC = () => {
 
       {can('manageRoles') && (
         <section>
-          <div className="flex items-center gap-2 px-1 mb-1.5 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
+          <div className={SECTION_LABEL_CLASS}>
             <RefreshCw size={14} /> {t('crm.data', 'Data')}
           </div>
           <div className="px-1">

@@ -5,6 +5,10 @@ import { ProfileFieldEditor } from './ProfileFieldEditor';
 import type { ProfileField, FieldVisibility } from './ProfileSection';
 import { FIELD_LABEL_CLASS } from '../ui/textClasses';
 
+/** Full-width text input used by the profile edit form. */
+const INPUT_CLASS =
+  'w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors';
+
 interface ProfileEditFormProps {
   isDark: boolean;
   t: (key: string, fallback?: string) => string;
@@ -80,7 +84,7 @@ export const ProfileEditForm = ({
           value={editName}
           onChange={(e) => setEditName(e.target.value)}
           placeholder={t('settings.enterName', 'Enter your name')}
-          className="w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors"
+          className={INPUT_CLASS}
         />
       </div>
 
@@ -95,7 +99,7 @@ export const ProfileEditForm = ({
           autoCapitalize="none"
           autoComplete="off"
           spellCheck={false}
-          className="w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors"
+          className={INPUT_CLASS}
         />
       </div>
 
@@ -107,7 +111,7 @@ export const ProfileEditForm = ({
           value={editStatus}
           onChange={(e) => setEditStatus(e.target.value)}
           placeholder={t('settings.statusPlaceholder', "What's on your mind?")}
-          className="w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors"
+          className={INPUT_CLASS}
         />
         <p className="text-xs text-[var(--text-tertiary)]">
           {t('settings.statusSubtitle', "Let others know what you're up to")}
