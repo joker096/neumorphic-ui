@@ -260,6 +260,10 @@
   --player-list-active: #333a41;
   --player-station-modal: #2a3036;
   --player-station-modal-light: #e8ecf4;
+  --player-neo-raised: 8px 8px 16px rgba(0,0,0,0.6), -8px -8px 16px rgba(255,255,255,0.05);
+  --player-neo-inset: inset 4px 4px 8px rgba(0,0,0,0.6), inset -4px -4px 8px rgba(255,255,255,0.05);
+  --player-neo-btn-raised: 4px 4px 8px rgba(0,0,0,0.4), -2px -2px 4px rgba(255,255,255,0.05);
+  --player-neo-inset-sm: inset 2px 2px 4px rgba(0,0,0,0.3);
 
   /* Chat list item */
   --chat-swipe-bg: #2b2f42;
@@ -392,6 +396,10 @@
   --player-list-active: #d1d8e0;
   --player-station-modal: #e8ecf4;
   --player-station-modal-light: #e8ecf4;
+  --player-neo-raised: 8px 8px 16px rgba(165,175,190,0.6), -8px -8px 16px rgba(255,255,255,0.8);
+  --player-neo-inset: inset 4px 4px 8px rgba(165,175,190,0.6), inset -4px -4px 8px rgba(255,255,255,0.8);
+  --player-neo-btn-raised: 4px 4px 8px rgba(165,175,190,0.4), -2px -2px 4px rgba(255,255,255,0.8);
+  --player-neo-inset-sm: inset 2px 2px 4px rgba(165,175,190,0.6);
 
   /* Chat list item */
   --chat-swipe-bg: #545b73;

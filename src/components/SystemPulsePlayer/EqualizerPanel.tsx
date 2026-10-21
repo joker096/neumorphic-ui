@@ -58,7 +58,7 @@ isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
         <div>
           <div className={`text-xs font-bold tracking-widest uppercase mb-3 ${textColor} opacity-70`}>{t('systemPlayer.masterVolume')}</div>
           <div className="flex items-center gap-4">
-            <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMin')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(0); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:bg-white/5 dark:hover:bg-white/10 dark:shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]`} title={t('systemPlayer.volumeMin')} onClick={() => setVolume(0)}>
+            <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMin')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(0); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 bg-black/5 hover:bg-black/10 shadow-[var(--player-neo-btn-raised)] dark:bg-white/5 dark:hover:bg-white/10`} title={t('systemPlayer.volumeMin')} onClick={() => setVolume(0)}>
               <VolumeX size={16} className={textColor} />
             </div>
             <input
@@ -72,7 +72,7 @@ isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
                 background: `linear-gradient(to right, ${isRadioMode ? 'var(--player-eq-radio)' : 'var(--player-eq-music)'} ${volume}%, var(--player-eq-track) ${volume}%)`
               }}
             />
-            <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMax')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(100); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:bg-white/5 dark:hover:bg-white/10 dark:shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]`} title={t('systemPlayer.volumeMax')} onClick={() => setVolume(100)}>
+            <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMax')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(100); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 bg-black/5 hover:bg-black/10 shadow-[var(--player-neo-btn-raised)] dark:bg-white/5 dark:hover:bg-white/10`} title={t('systemPlayer.volumeMax')} onClick={() => setVolume(100)}>
               <Volume2 size={16} className={textColor} />
             </div>
           </div>

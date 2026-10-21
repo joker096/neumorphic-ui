@@ -60,7 +60,7 @@ export const PlayerView = ({
           whileTap={{ scale: 0.9 }}
           className="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-primary)] border border-[var(--border-color)] shadow-[6px_6px_12px_rgba(0,0,0,0.4),_inset_-3px_-3px_6px_rgba(255,255,255,0.1),_inset_3px_3px_6px_rgba(0,0,0,0.3)] transition-all"
         >
-          <div className={`absolute inset-0 rounded-full ${isRadioMode ? "bg-gradient-to-br from-[var(--player-green)]/20 to-transparent" : "bg-gradient-to-br from-green-500/20 to-transparent"} ${isRadioMode ? "opacity-100" : "opacity-0"} transition-opacity`} />
+          <div className={`absolute inset-0 rounded-full ${isRadioMode ? "bg-gradient-to-br from-[var(--player-green)]/20 to-transparent" : "bg-gradient-to-br from-[var(--player-green)]/20 to-transparent"} ${isRadioMode ? "opacity-100" : "opacity-0"} transition-opacity`} />
           {isRadioMode ? <Radio size={24} className="text-[var(--player-green)] drop-shadow-[0_0_4px_rgba(92,194,92,0.5)]" /> : <List size={24} className="text-[var(--text-primary)]" />}
         </motion.div>
       </div>

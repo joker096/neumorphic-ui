@@ -119,7 +119,7 @@ isRadioMode, isPlaying, setIsPlaying, showPlaylist, setShowPlaylist, activeList,
               key={track.id}
               className={`flex items-center gap-4 p-3 transition-all group ${
                 isActive
-                  ? "bg-[var(--player-list-active)] shadow-[inset_2px_2px_4px_rgba(165,175,190,0.6)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]"
+                  ? "bg-[var(--player-list-active)] shadow-[var(--player-neo-inset-sm)]"
                   : "hover:bg-black/5 dark:hover:bg-[var(--player-list-active)]/50"
               }`}
             >
