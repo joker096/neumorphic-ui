@@ -4,6 +4,7 @@ import { Download, AlertTriangle, CheckCircle2, X, FileJson, FileSpreadsheet } f
 import { useI18n } from '../../lib/i18n';
 import type { ImportIssue } from '../../lib/crm/import';
 import { useCrmImportWizard } from './useCrmImportWizard';
+import { LARGE_LABEL_CLASS } from '../ui/textClasses';
 
 export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { t } = useI18n();
@@ -41,7 +42,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('crm.import.title', 'Import CRM data')}</h3>
+          <h3 className={LARGE_LABEL_CLASS}>{t('crm.import.title', 'Import CRM data')}</h3>
           <button
             onClick={onClose}
             aria-label={t('common.close', 'Close')}

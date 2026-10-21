@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Building2, HelpCircle, ChevronDown } from 'lucide-react';
 import type { TFunction } from './useCompanyContacts';
+import { LARGE_LABEL_CLASS } from '../ui/textClasses';
 
 type CompanyCreatePromptProps = {
   t: TFunction;
@@ -15,7 +16,7 @@ export const CompanyCreatePrompt = ({ t, onCreate }: CompanyCreatePromptProps) =
         <Building2 size={32} />
       </div>
       <div>
-        <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('company.noCompany', 'No company yet')}</h3>
+        <h3 className={LARGE_LABEL_CLASS}>{t('company.noCompany', 'No company yet')}</h3>
         <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-[260px]">{t('company.createHint', 'Create a company to invite teammates and manage roles.')}</p>
       </div>
       <button

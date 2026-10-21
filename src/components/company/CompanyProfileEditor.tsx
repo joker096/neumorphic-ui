@@ -7,6 +7,7 @@ import { useI18n } from '../../lib/i18n';
 import { getCompanySettings, saveCompanySettings } from '../../lib/idb';
 import { FormField } from '../ui/FormField';
 import { AVATAR_CIRCLE_CLASS } from './companyClasses';
+import { LARGE_LABEL_CLASS } from '../ui/textClasses';
 
 const closeBtnStyle = 'w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all bg-black/5 hover:bg-black/10 text-[var(--text-secondary)] hover:text-[var(--text-primary)]';
 
@@ -64,7 +65,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
     return (
       <div className="absolute inset-0 z-[var(--z-modal)] flex flex-col bg-[var(--bg-primary)]/95">
         <div className="flex items-center justify-between px-4 py-3 md:px-16 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
-          <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
+          <h2 className={LARGE_LABEL_CLASS}>{t('company.settingsTitle', 'Company Settings')}</h2>
 <button type="button" aria-label={t('common.close')} onClick={onClose} className={closeBtnStyle}>
   <X size={16} />
 </button>
@@ -79,7 +80,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
   return (
     <div className="absolute inset-0 z-[var(--z-modal)] flex flex-col bg-[var(--bg-primary)]/95">
       <div className="flex items-center justify-between px-4 py-3 md:px-16 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
-        <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('company.settingsTitle', 'Company Settings')}</h2>
+        <h2 className={LARGE_LABEL_CLASS}>{t('company.settingsTitle', 'Company Settings')}</h2>
         <button onClick={onClose} className={closeBtnStyle}>
           <X size={16} />
         </button>

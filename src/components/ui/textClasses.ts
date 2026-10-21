@@ -25,3 +25,6 @@ export const PRIMARY_LABEL_CLASS = 'text-sm font-semibold text-[var(--text-prima
 
 /** Medium-weight primary-colour text used for row titles and headings. */
 export const MEDIUM_LABEL_CLASS = 'text-sm font-medium text-[var(--text-primary)]';
+
+/** Large bold caption used for section headings and headline counters. */
+export const LARGE_LABEL_CLASS = 'text-lg font-bold text-[var(--text-primary)]';
