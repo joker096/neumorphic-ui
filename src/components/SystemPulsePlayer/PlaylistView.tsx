@@ -12,7 +12,6 @@ type Track = {
 };
 
 type PlaylistViewProps = {
-  isDark?: boolean;
   isRadioMode: boolean;
   isPlaying: boolean;
   setIsPlaying: (v: boolean) => void;
@@ -48,7 +47,7 @@ type PlaylistViewProps = {
 };
 
 export const PlaylistView = ({
-  isDark = false, isRadioMode, isPlaying, setIsPlaying, showPlaylist, setShowPlaylist, activeList, activeIndex,
+isRadioMode, isPlaying, setIsPlaying, showPlaylist, setShowPlaylist, activeList, activeIndex,
   confirmDeleteIndex, setConfirmDeleteIndex, confirmDeleteMode, setConfirmDeleteMode,
   currentTrackIndex, setCurrentTrackIndex, radioStationIndex, setRadioStationIndex,
   playlist, setPlaylist, radioStations, setRadioStations, openVideoUrl, setShowVideo, setIsVideoPlaying,
@@ -82,19 +81,19 @@ export const PlaylistView = ({
           tabIndex={0}
           onClick={() => setShowPlaylist(false)}
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setShowPlaylist(false); } }}
-          className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[var(--text-warm-dark)] hover:bg-white/10" : "bg-black/5 text-[var(--text-primary)] hover:bg-black/10"} transition-colors`}
+          className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold bg-black/5 text-[var(--text-primary)] hover:bg-black/10 dark:bg-white/5 dark:text-[var(--text-warm-dark)] dark:hover:bg-white/10 transition-colors`}
            title={t('systemPlayer.backToPlayer')}
         >
           <ChevronLeft size={18} />
         </div>
         <span className={`text-[13px] font-bold tracking-[0.1em] uppercase ${textColor}`}>{isRadioMode ? t('systemPlayer.radioStations') : t('systemPlayer.systemPlaylist')}</span>
         {!isRadioMode ? (
-          <label className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-orange-500/20 text-orange-400 hover:bg-orange-500/30" : "bg-orange-100 text-orange-600 hover:bg-orange-200"} transition-colors`}             title={t('systemPlayer.addTrack')}>
+          <label className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold bg-orange-100 text-orange-600 hover:bg-orange-200 dark:bg-orange-500/20 dark:text-orange-400 dark:hover:bg-orange-500/30 transition-colors`}             title={t('systemPlayer.addTrack')}>
             <Plus size={18} />
             <input type="file" accept="audio/*" className="hidden" onChange={handleFileSelect} />
           </label>
         ) : (
-           <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-[var(--player-green)]/20 text-[var(--player-green)] hover:bg-[var(--player-green)]/30" : "bg-green-100 text-green-600 hover:bg-green-200"} transition-colors`} title={t('systemPlayer.addStation')}
+           <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold bg-green-100 text-green-600 hover:bg-green-200 dark:bg-[var(--player-green)]/20 dark:text-[var(--player-green)] dark:hover:bg-[var(--player-green)]/30 transition-colors`} title={t('systemPlayer.addStation')}
             onClick={() => {
               setStationName("");
               setStationUrl("");
@@ -120,15 +119,15 @@ export const PlaylistView = ({
               key={track.id}
               className={`flex items-center gap-4 p-3 transition-all group ${
                 isActive
-                  ? (isDark ? "bg-[var(--player-list-active)] shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]" : "bg-[var(--player-list-active)] shadow-[inset_2px_2px_4px_rgba(165,175,190,0.6)]")
-                  : (isDark ? "hover:bg-[var(--player-list-active)]/50" : "hover:bg-black/5")
+                  ? "bg-[var(--player-list-active)] shadow-[inset_2px_2px_4px_rgba(165,175,190,0.6)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3)]"
+                  : "hover:bg-black/5 dark:hover:bg-[var(--player-list-active)]/50"
               }`}
             >
               <div
                 onClick={() => handleTrackClick(track, i)}
                 className="flex items-center flex-1 min-w-0 gap-4 cursor-pointer"
               >
-                <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 ${isActive ? (isRadioMode ? "bg-[var(--player-green-dark)]" : "bg-[var(--player-orange)]") : (isDark ? "bg-[var(--player-panel-bg)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]")} shadow-md transition-colors`}>
+                <div className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center shrink-0 ${isActive ? (isRadioMode ? "bg-[var(--player-green-dark)]" : "bg-[var(--player-orange)]") : "bg-white border border-[var(--border-color)] dark:bg-[var(--player-panel-bg)]"} shadow-md transition-colors`}>
                   {isActive && isPlaying ? (
                     <div className="flex gap-0.5 items-end h-3">
                       {[0, 1, 2].map((bar) => (
@@ -147,7 +146,7 @@ export const PlaylistView = ({
                   )}
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
-                  <span className={`text-[14px] font-bold truncate ${isActive && isDark ? "text-[var(--text-primary)]" : textColor}`}>{track.name}</span>
+                  <span className={`text-[14px] font-bold truncate ${isActive ? "text-[var(--text-primary)]" : textColor}`}>{track.name}</span>
                   <span className={`text-xs font-mono opacity-60 ${textColor}`}>{t('systemPlayer.nodePrefix', 'M-NODE')} {track.id}</span>
                 </div>
                 <span className={`text-xs font-mono opacity-50 ${textColor} mr-2`}>{track.time}</span>
@@ -167,7 +166,7 @@ export const PlaylistView = ({
                     setConfirmDeleteIndex(i);
                   }
                 }}
-                className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-[var(--accent)] transition-opacity ${isDark ? "hover:bg-red-500/20 text-red-400" : "hover:bg-red-100 text-red-500"}`}
+                className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-[var(--accent)] transition-opacity hover:bg-red-100 text-red-500 dark:hover:bg-red-500/20 dark:text-red-400`}
                 role="button"
                 tabIndex={0}
                 aria-label={t('systemPlayer.remove')}

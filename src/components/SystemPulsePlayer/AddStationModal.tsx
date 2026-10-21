@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import { useI18n } from "../../lib/i18n";
 
 type AddStationModalProps = {
-  isDark?: boolean;
   textColor?: string;
   showAddStationModal: boolean;
   setShowAddStationModal: (v: boolean) => void;
@@ -21,7 +20,7 @@ type AddStationModalProps = {
 };
 
 export const AddStationModal = ({
-  isDark = false, textColor, showAddStationModal, setShowAddStationModal,
+textColor, showAddStationModal, setShowAddStationModal,
   stationName, setStationName, stationUrl, setStationUrl, stationAddError, setStationAddError,
   setRadioStations, radioStations, setRadioStationIndex, setIsPlaying, setIsRadioMode
 }: AddStationModalProps) => {
@@ -54,7 +53,7 @@ export const AddStationModal = ({
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className={`w-[90%] max-w-[320px] rounded-2xl p-6 ${isDark ? "bg-[var(--player-station-modal)]" : "bg-[var(--player-station-modal-light)]"}`}
+        className={`w-[90%] max-w-[320px] rounded-2xl p-6 bg-[var(--player-station-modal-light)] dark:bg-[var(--player-station-modal)]`}
       >
         <h3 className={`text-lg font-bold mb-4 ${textColor}`}>{t('systemPlayer.addRadioStation')}</h3>
         <div className="mb-3">
@@ -65,7 +64,7 @@ export const AddStationModal = ({
             value={stationName}
             onChange={(e) => setStationName(e.target.value)}
             placeholder={t('systemPlayer.stationNamePlaceholder')}
-            className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
+            className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none bg-white text-[var(--text-primary)] border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)]`}
             autoFocus
           />
         </div>
@@ -77,20 +76,20 @@ export const AddStationModal = ({
             value={stationUrl}
             onChange={(e) => setStationUrl(e.target.value)}
             placeholder={t('systemPlayer.streamUrlPlaceholder')}
-            className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none ${isDark ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)]"}`}
+            className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none bg-white text-[var(--text-primary)] border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)]`}
           />
           {stationAddError && <p className="text-xs text-red-400 mt-1">{stationAddError}</p>}
         </div>
         <div className="flex gap-2 mt-4">
           <button
             onClick={handleSubmit}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-[var(--player-green)] text-[var(--text-primary)]" : "bg-green-600 text-[var(--text-primary)]"}`}
+            className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold bg-green-600 text-white dark:bg-[var(--player-green)] dark:text-[var(--ink-on-saturate)]`}
           >
             {t('systemPlayer.addStation')}
           </button>
           <button
             onClick={() => setShowAddStationModal(false)}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold ${isDark ? "bg-white/10 text-[var(--text-secondary)] hover:bg-white/20" : "bg-black/10 text-[var(--text-primary)] hover:bg-black/20"}`}
+            className={`flex-1 px-4 py-2 rounded-xl text-sm font-bold bg-black/10 text-[var(--text-primary)] hover:bg-black/20 dark:bg-white/10 dark:text-[var(--text-secondary)] dark:hover:bg-white/20`}
           >
             {t('systemPlayer.cancel')}
           </button>

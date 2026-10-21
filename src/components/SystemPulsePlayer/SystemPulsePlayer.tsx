@@ -15,13 +15,13 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
   const state = usePlayerState(theme);
   const { t } = useI18n();
 
-  const bgColor = state.isDark ? "bg-[var(--player-panel-bg)]" : "bg-[var(--bg-secondary)]";
-  const textColor = state.isDark ? "text-[var(--text-warm-dark)]" : "text-[var(--text-primary)]";
-  const darkShadow = state.isDark ? "shadow-[8px_8px_16px_rgba(0,0,0,0.6),_-8px_-8px_16px_rgba(255,255,255,0.05)]" : "shadow-[8px_8px_16px_rgba(165,175,190,0.6),_-8px_-8px_16px_rgba(255,255,255,0.8)]";
-  const insetShadow = state.isDark ? "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.05)]" : "shadow-[inset_4px_4px_8px_rgba(165,175,190,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.8)]";
+  const bgColor = "bg-[var(--bg-secondary)] dark:bg-[var(--player-panel-bg)]";
+  const textColor = "text-[var(--text-primary)] dark:text-[var(--text-warm-dark)]";
+  const darkShadow = "shadow-[8px_8px_16px_rgba(165,175,190,0.6),_-8px_-8px_16px_rgba(255,255,255,0.8)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.6),_-8px_-8px_16px_rgba(255,255,255,0.05)]";
+  const insetShadow = "shadow-[inset_4px_4px_8px_rgba(165,175,190,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.8)] dark:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.05)]";
 
   return (
-    <div className={`w-full max-w-[400px] flex flex-col items-center p-6 sm:p-8 ${bgColor} ${darkShadow} relative overflow-hidden font-sans border ${state.isDark ? "border-[var(--border-color)]/[0.02]" : "border-black/[0.02]"} transition-all duration-300`}>
+    <div className={`w-full max-w-[400px] flex flex-col items-center p-6 sm:p-8 ${bgColor} ${darkShadow} relative overflow-hidden font-sans border border-black/[0.02] dark:border-[var(--border-color)]/[0.02] transition-all duration-300`}>
       {state.rippleState.active && (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
           <div
@@ -53,7 +53,6 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
       <AnimatePresence mode="wait">
         {state.showEq ? (
           <EqualizerPanel
-            isDark={state.isDark}
             isRadioMode={state.isRadioMode}
             volume={state.volume}
             setVolume={state.setVolume}
@@ -92,7 +91,6 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
           />
         ) : (
           <PlaylistView
-            isDark={state.isDark}
             isRadioMode={state.isRadioMode}
             isPlaying={state.isPlaying}
             setIsPlaying={state.setIsPlaying}
@@ -137,7 +135,6 @@ export const SystemPulsePlayer = ({ theme }: { theme: "light" | "dark" }) => {
         closeVideo={state.closeVideo}
       />
       <AddStationModal
-        isDark={state.isDark}
         textColor={textColor}
         showAddStationModal={state.showAddStationModal}
         setShowAddStationModal={state.setShowAddStationModal}

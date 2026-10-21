@@ -5,7 +5,6 @@ import { useI18n } from "../../lib/i18n";
 import type { EQPreset } from "./utils";
 
 type EqualizerPanelProps = {
-  isDark?: boolean;
   isRadioMode: boolean;
   textColor?: string;
   volume: number;
@@ -24,7 +23,7 @@ type EqualizerPanelProps = {
 };
 
 export const EqualizerPanel = ({
-  isDark = false, isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
+isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
   showEq, setShowEq, currentPreset, setCurrentPreset, savedPresets, setSavedPresets,
   applyPreset, savePreset, deletePreset
 }: EqualizerPanelProps) => {
@@ -47,7 +46,7 @@ export const EqualizerPanel = ({
           title={t('systemPlayer.backToPlayer')}
           onClick={() => setShowEq(false)}
           onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setShowEq(false); } }}
-          className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold ${isDark ? "bg-white/5 text-[var(--text-warm-dark)] hover:bg-white/10" : "bg-black/5 text-[var(--text-primary)] hover:bg-black/10"} transition-colors`}
+          className={`w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer font-bold bg-black/5 text-[var(--text-primary)] hover:bg-black/10 dark:bg-white/5 dark:text-[var(--text-warm-dark)] dark:hover:bg-white/10 transition-colors`}
         >
           <ArrowLeft size={18} />
         </div>
@@ -59,7 +58,7 @@ export const EqualizerPanel = ({
         <div>
           <div className={`text-xs font-bold tracking-widest uppercase mb-3 ${textColor} opacity-70`}>{t('systemPlayer.masterVolume')}</div>
           <div className="flex items-center gap-4">
-            <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMin')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(0); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title={t('systemPlayer.volumeMin')} onClick={() => setVolume(0)}>
+            <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMin')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(0); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:bg-white/5 dark:hover:bg-white/10 dark:shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]`} title={t('systemPlayer.volumeMin')} onClick={() => setVolume(0)}>
               <VolumeX size={16} className={textColor} />
             </div>
             <input
@@ -68,12 +67,12 @@ export const EqualizerPanel = ({
               value={volume}
               onChange={(e) => setVolume(Number(e.target.value))}
               aria-label={t('systemPlayer.masterVolume')}
-              className={`flex-1 h-3 rounded-full appearance-none outline-none ${isDark ? "bg-black/20" : "bg-black/10"}`}
+              className={`flex-1 h-3 rounded-full appearance-none outline-none bg-black/10 dark:bg-black/20`}
               style={{
                 background: `linear-gradient(to right, ${isRadioMode ? 'var(--player-eq-radio)' : 'var(--player-eq-music)'} ${volume}%, var(--player-eq-track) ${volume}%)`
               }}
             />
-            <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMax')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(100); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 ${isDark ? "bg-white/5 hover:bg-white/10 shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]" : "bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)]"}`} title={t('systemPlayer.volumeMax')} onClick={() => setVolume(100)}>
+            <div role="button" tabIndex={0} aria-label={t('systemPlayer.volumeMax')} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setVolume(100); } }} className={`min-w-11 min-h-11 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 bg-black/5 hover:bg-black/10 shadow-[4px_4px_8px_rgba(165,175,190,0.4),_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:bg-white/5 dark:hover:bg-white/10 dark:shadow-[4px_4px_8px_rgba(0,0,0,0.4),_-2px_-2px_4px_rgba(255,255,255,0.05)]`} title={t('systemPlayer.volumeMax')} onClick={() => setVolume(100)}>
               <Volume2 size={16} className={textColor} />
             </div>
           </div>
@@ -113,7 +112,7 @@ export const EqualizerPanel = ({
               onClick={resetEq}
               aria-label={t('systemPlayer.resetEq')}
               title={t('systemPlayer.resetEq')}
-              className={`min-h-11 px-3 p-0 rounded-xl inline-flex items-center justify-center gap-2 transition-colors ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"}`}
+              className={`min-h-11 px-3 p-0 rounded-xl inline-flex items-center justify-center gap-2 transition-colors bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10`}
             >
               <RotateCcw size={18} aria-hidden="true" />
               <span className="text-sm">{t('systemPlayer.resetEq')}</span>
