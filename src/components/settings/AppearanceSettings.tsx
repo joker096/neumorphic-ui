@@ -96,12 +96,12 @@ export const AppearanceSettings = ({
       <SettingsGroup isDark={isDark}>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/10" : "bg-emerald-100"}`}>
-              <Palette size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/10`}>
+              <Palette size={16} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
               <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.darkTheme')}</div>
-              <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.themeModeSubtitle')}</div>
+              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.themeModeSubtitle')}</div>
             </div>
           </div>
           <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
@@ -125,12 +125,12 @@ export const AppearanceSettings = ({
         />
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-purple-500/10" : "bg-purple-100"}`}>
-              <Sparkles size={16} className={isDark ? "text-purple-400" : "text-purple-600"} />
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-purple-100 dark:bg-purple-500/10`}>
+              <Sparkles size={16} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
               <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.animations')}</div>
-              <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.animationsSubtitle')}</div>
+              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.animationsSubtitle')}</div>
             </div>
           </div>
           <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
@@ -149,19 +149,19 @@ export const AppearanceSettings = ({
             </div>
             <div>
               <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.uiAnimations')}</div>
-              <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.uiAnimationsSubtitle')}</div>
+              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.uiAnimationsSubtitle')}</div>
             </div>
           </div>
           <ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations?.(!uiAnimations)} isDark={isDark} ariaLabel={t('settings.uiAnimations')} />
         </div>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-emerald-500/10" : "bg-emerald-100"}`}>
-              <Palette size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/10`}>
+              <Palette size={16} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
               <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.accentColor')}</div>
-              <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.accentColorSubtitle')}</div>
+              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.accentColorSubtitle')}</div>
             </div>
           </div>
           <div className="flex gap-1.5">
@@ -177,12 +177,12 @@ export const AppearanceSettings = ({
         </div>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-cyan-500/10" : "bg-cyan-100"}`}>
-              <Palette size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-100 dark:bg-cyan-500/10`}>
+              <Palette size={16} className="text-cyan-600 dark:text-cyan-400" />
             </div>
             <div>
               <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.chatBackground')}</div>
-              <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.chatBackgroundSubtitle')}</div>
+              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.chatBackgroundSubtitle')}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -210,14 +210,14 @@ export const AppearanceSettings = ({
             {premium && customChatBackground && (
               <button type="button" aria-label={t('settings.chatbg.remove')}
                 onClick={() => { setCustomChatBackground?.(''); setChatBackground?.('default'); }}
-                className={`flex items-center justify-center min-w-11 min-h-11 w-8 h-8 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/60 ${isDark ? 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] hover:bg-black/5'}`}>
+                className={`flex items-center justify-center min-w-11 min-h-11 w-8 h-8 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/60 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]`}>
                 <X size={14} />
               </button>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
               onChange={(e) => { handleFileSelect(e.target.files?.[0]); e.target.value = ''; }} />
             {!premium && (
-              <span className={`text-xs flex items-center gap-1 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
+              <span className={`text-xs flex items-center gap-1 text-amber-600 dark:text-amber-400`}>
                 <Sparkles size={12} /> {t('settings.chatbg.premium')}
               </span>
             )}
@@ -225,12 +225,12 @@ export const AppearanceSettings = ({
         </div>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-amber-500/10" : "bg-amber-100"}`}>
-              <Palette size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-500/10`}>
+              <Palette size={16} className="text-amber-600 dark:text-amber-400" />
             </div>
             <div>
               <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.density')}</div>
-              <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.densitySubtitle')}</div>
+              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.densitySubtitle')}</div>
             </div>
           </div>
           <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
@@ -244,12 +244,12 @@ export const AppearanceSettings = ({
         </div>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? "bg-rose-500/10" : "bg-rose-100"}`}>
-              <Palette size={16} className={isDark ? "text-rose-400" : "text-rose-600"} />
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-rose-100 dark:bg-rose-500/10`}>
+              <Palette size={16} className="text-rose-600 dark:text-rose-400" />
             </div>
             <div>
               <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.messageRadius')}</div>
-              <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.messageRadiusSubtitle')}</div>
+              <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.messageRadiusSubtitle')}</div>
             </div>
           </div>
           <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
