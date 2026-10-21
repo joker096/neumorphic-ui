@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Volume2, VolumeX, ArrowLeft, RotateCcw } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import type { EQPreset } from "./utils";
-
+import { PLAYER_SECTION_HEADER_CLASS, PLAYER_PANEL_CLASS } from "./playerClasses";
 type EqualizerPanelProps = {
   isRadioMode: boolean;
   textColor?: string;
@@ -36,9 +36,9 @@ isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="flex flex-col w-full h-[60vh] sm:h-[500px] md:h-[450px] relative z-10"
+      className={PLAYER_PANEL_CLASS}
     >
-      <div className="flex items-center justify-between mb-6 border-b border-[var(--border-color)]/[0.05] pb-4">
+      <div className={PLAYER_SECTION_HEADER_CLASS}>
         <div
           role="button"
           tabIndex={0}

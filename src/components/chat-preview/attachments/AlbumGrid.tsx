@@ -3,6 +3,9 @@ import { useI18n } from "../../../lib/i18n";
 import { FTR_MAGIC } from "../../../lib/fileTransfer/frames";
 import { useFtrBlobUrl } from "../../../hooks/useFtrBlobUrl";
 
+/** Overlay that covers an album tile while it loads. */
+const EMPTY_OVERLAY_CLASS = 'absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]';
+
 interface AlbumTileProps {
   url: string;
   alt: string;
@@ -17,7 +20,7 @@ function AlbumTile({ url, alt, onError, className }: AlbumTileProps) {
   const src = ftrId ? ftrEntry?.url : url;
   if (!src) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]">
+      <div className={EMPTY_OVERLAY_CLASS}>
         <Loader2 size={18} className="animate-spin text-[var(--text-tertiary)]" />
       </div>
     );
@@ -63,7 +66,7 @@ export function AlbumGrid({ items, alt, failed, onItemError, onOpen }: AlbumGrid
                 onError={() => onItemError(i)}
               />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-[var(--msg-bg-panel)]">
+              <div className={EMPTY_OVERLAY_CLASS}>
                 <ImageOff size={18} className="text-[var(--text-tertiary)]" />
               </div>
             )}

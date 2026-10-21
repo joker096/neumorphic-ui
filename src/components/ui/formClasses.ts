@@ -45,3 +45,6 @@ export const FORM_CAPS_LABEL_CLASS = 'text-xs font-bold uppercase tracking-wides
 
 /** Borderless field used by inline chat inputs (thread panel, channel comments). */
 export const FORM_TRANSPARENT_INPUT_CLASS = 'flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]';
+
+/** Inset card that holds a QR code and its caption. */
+export const FORM_CARD_CLASS = 'w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset';

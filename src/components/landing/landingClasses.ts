@@ -32,3 +32,6 @@ export const HERO_TITLE_CLASS = 'text-[clamp(2.5rem,6vw,5rem)] font-bold leading
 
 /** Headline of the closing call-to-action band. */
 export const CTA_SECTION_TITLE_CLASS = 'text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.02em] mb-4 text-[var(--text-primary)]';
+
+/** Layout row of the landing footer. */
+export const FOOTER_WRAP_CLASS = 'max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4';

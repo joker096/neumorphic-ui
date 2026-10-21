@@ -2,8 +2,7 @@ import { Phone, Video, Pencil } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { CompanyMember } from '../../lib/company/types';
 import { COMPANY_MEMBER_FALLBACKS } from '../../constants/companyConstants';
-import { CAPS_LABEL_CLASS } from '../ui/textClasses';
-
+import { CAPS_LABEL_CLASS, CONTACT_NAME_CLASS } from '../ui/textClasses';
 type MemberItemProps = {
   member: CompanyMember;
   isDark?: boolean;
@@ -72,7 +71,7 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-bold text-sm text-[var(--text-primary)] break-words leading-snug">
+          <span className={CONTACT_NAME_CLASS}>
             {member.displayName}
           </span>
           {member.role === 'admin' && (

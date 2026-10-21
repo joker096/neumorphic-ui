@@ -6,6 +6,7 @@ import { ReplyQuote } from "./ReplyQuote";
 import { decodeIfMorse } from "../MorseDecoder";
 import { formatClockTime, sendTimeOf } from "../../utils/chatUtils";
 import { FORM_TRANSPARENT_INPUT_CLASS } from "../ui/formClasses";
+import { ACCENT_CAPS_CLASS } from "../ui/textClasses";
 
 interface MessageThreadPanelProps {
   open: boolean;
@@ -108,7 +109,7 @@ export function MessageThreadPanel({
               <h3 className="font-bold text-base text-[var(--text-primary)]">
                 {t("chat.threadTitle", "Thread")}
               </h3>
-              <p className="text-xs uppercase tracking-wider font-semibold text-[var(--accent)]">
+              <p className={ACCENT_CAPS_CLASS}>
                 {t("chat.threadReplies", { count: replies.length })}
               </p>
             </div>

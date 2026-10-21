@@ -34,3 +34,6 @@ export const COMPANY_SECTION_LABEL_CLASS = 'flex items-center gap-2 px-2 mb-3 fo
 
 /** Inline text field of a company panel. */
 export const COMPANY_INPUT_CLASS = 'flex-1 min-h-11 rounded-xl px-3 bg-[var(--input-bg)] text-[var(--text-primary)] outline-none';
+
+/** Accent heading above a company list (contacts, departments). */
+export const COMPANY_LIST_TITLE_CLASS = 'flex items-center gap-2 font-bold text-xs uppercase tracking-widest text-[var(--accent)]';

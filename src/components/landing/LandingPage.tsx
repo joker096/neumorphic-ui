@@ -3,6 +3,7 @@ import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } fro
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
 import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS } from './landingClasses';
+import { FOOTER_WRAP_CLASS } from "./landingClasses";
 export type LandingPageProps = {
   isDark?: boolean;
   onGetStarted: () => void;
@@ -226,7 +227,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
       </section>
 
       <footer className="relative z-10 border-t px-6 py-8 border-[var(--border-color)]">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className={FOOTER_WRAP_CLASS}>
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded-md flex items-center justify-center bg-orange-500/8 dark:bg-orange-500/10">
               <Zap size={12} className="text-orange-600 dark:text-orange-400" />

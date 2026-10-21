@@ -19,3 +19,6 @@ export const CRM_ICON_PRIMARY_BTN_CLASS =
 /** Full width primary button of the CRM dialogs (save / submit). */
 export const CRM_FULL_PRIMARY_BTN_CLASS =
   'w-full min-h-11 rounded-xl font-bold text-sm cursor-pointer transition-all bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:brightness-110 flex items-center justify-center gap-2';
+
+/** Accent heading above a CRM board column. */
+export const CRM_BOARD_TITLE_CLASS = 'flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]';

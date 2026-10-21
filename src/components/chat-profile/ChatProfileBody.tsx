@@ -17,10 +17,8 @@ import {
 } from '../../constants/chatConstants';
 import { formatLongDate } from '../../utils/dateTime';
 import type { GroupMember, GroupPermissions } from '../../store/slices/chatSlice';
-import { ROW_SHELL_CLASS } from '../ui/rowClasses';
-import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
-import { LARGE_LABEL_CLASS } from '../ui/textClasses';
-import { HINT_TEXT_TIGHT_CLASS } from '../ui/textClasses';
+import { ROW_SHELL_CLASS, GROUP_ROW_CLASS } from '../ui/rowClasses';
+import { MEDIUM_LABEL_CLASS, LARGE_LABEL_CLASS, HINT_TEXT_TIGHT_CLASS } from '../ui/textClasses';
 
 /** Counter card of the profile header (subscribers, posts, owner). */
 const STAT_CARD_CLASS =
@@ -194,7 +192,7 @@ export const ChatProfileBody = ({
     <SectionTitle icon={<Users size={16} />} title={t('profile.administrators', 'Administrators')} />
     <div className={CARD}>
       {CHAT_PROFILE_MOCK_MEMBERS.map((name, i) => (
-        <div key={name} className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
+        <div key={name} className={GROUP_ROW_CLASS}>
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-[var(--ink-on-saturate)] font-bold">
             {name.charAt(0)}
           </div>

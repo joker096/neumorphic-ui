@@ -5,7 +5,7 @@ import type { GroupInfo, GroupMember } from '../../store/slices/chatSlice';
 import { canGroupPermission, getGroupRole } from '../../store/slices/chatSlice';
 import { useI18n } from '../../lib/i18n';
 import { groupInviteUrl } from '../../config/app';
-
+import { GROUP_ROW_CLASS } from '../ui/rowClasses';
 const SLOW_MODE_OPTIONS = [0, 10, 30, 60];
 
 interface GroupManagementPanelProps {
@@ -98,7 +98,7 @@ export const GroupManagementPanel = ({ chatId, members, group }: GroupManagement
         {liveMembers.map((m) => {
           const owner = m.role === 'owner';
           return (
-            <div key={m.id} className="flex items-center gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]">
+            <div key={m.id} className={GROUP_ROW_CLASS}>
               <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${m.color} flex items-center justify-center text-white font-bold`}>{m.name.charAt(0)}</div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate text-[var(--text-primary)]">{m.name}</div>

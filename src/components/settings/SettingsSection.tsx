@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
+import { SUBVIEW_TITLE_CLASS } from '../ui/textClasses';
 
 interface SettingsSectionProps {
   title: string;
@@ -28,7 +29,7 @@ export const SettingsSection = ({ title, onBack, children, icon: Icon, ariaLabel
           <ChevronLeft size={20} className="text-[var(--text-primary)]" />
         </button>
         {Icon && <Icon size={20} className="shrink-0 text-emerald-500" />}
-        <h2 className="font-sans text-xl font-bold tracking-wide text-[var(--text-primary)]">
+        <h2 className={SUBVIEW_TITLE_CLASS}>
           {title}
         </h2>
       </div>

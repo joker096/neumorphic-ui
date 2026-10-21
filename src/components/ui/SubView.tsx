@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import { SUBVIEW_TITLE_CLASS } from './textClasses';
 
 interface SubViewProps {
   title: string;
@@ -27,7 +28,7 @@ export const SubView = ({ title, onBack, children, isDark = false }: SubViewProp
           className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20`}>
           <ChevronLeft size={18} className="text-[var(--text-primary)]" />
         </button>
-        <h2 className="font-sans text-xl font-bold tracking-wide text-[var(--text-primary)]">
+        <h2 className={SUBVIEW_TITLE_CLASS}>
           {title}
         </h2>
       </div>

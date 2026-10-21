@@ -4,7 +4,7 @@ import { useI18n } from "../../lib/i18n";
 import { useAppStore } from "../../store";
 import { isCompanyAdmin } from "../../config/navigation";
 import { DataState } from "../ui/DataState";
-
+import { ORANGE_SPINNER_CLASS } from "../ui/spinnerClasses";
 const LazyProfileView = lazy(() => import("../ProfileView").then(m => ({ default: m.ProfileView })));
 const LazyBotProfileView = lazy(() => import("./bot/BotProfileView").then(m => ({ default: m.BotProfileView })));
 const LazyMiniApp = lazy(() => import("./bot/MiniAppView").then(m => ({ default: m.MiniApp })));
@@ -47,7 +47,7 @@ type FeatureViewsProps = {
 function Loader() {
   return (
     <div className="flex items-center justify-center h-[200px]">
-      <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+      <div className={ORANGE_SPINNER_CLASS} />
     </div>
   );
 }

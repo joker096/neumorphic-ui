@@ -5,7 +5,7 @@ import { COMPANY_MODAL_MAX_WIDTH } from '../../constants/companyConstants';
 import { CompanyModalCloseButton } from './CompanyModalCloseButton';
 import type { InviteQRPayload } from '../../lib/company/types';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
-
+import { FORM_CARD_CLASS } from '../ui/formClasses';
 type CompanyInviteModalProps = {
   isDark: boolean;
   title: string;
@@ -38,7 +38,7 @@ export const CompanyInviteModal = ({ isDark, title, description, invitePayload, 
         <div className={"w-full max-w-[200px] aspect-square flex items-center justify-center p-4 shadow-xl mb-4 bg-white border-2 border-[var(--border-color)]"}>
           <QrCode data={invitePayload ? JSON.stringify(invitePayload) : (companyId || '')} size={180} />
         </div>
-        <div className="w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset">
+        <div className={FORM_CARD_CLASS}>
           <div className="font-mono text-xs tracking-widest break-all text-center text-[var(--accent)]">
             {invitePayload?.org || companyId || ''}
           </div>

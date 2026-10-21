@@ -19,3 +19,6 @@ export const LIST_ROW_CLASS =
 
 /** Header row of a card or sheet. */
 export const SECTION_HEADER_ROW_CLASS = 'flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]';
+
+/** Row inside a bordered group panel (members, permissions). */
+export const GROUP_ROW_CLASS = 'flex items-center gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]';

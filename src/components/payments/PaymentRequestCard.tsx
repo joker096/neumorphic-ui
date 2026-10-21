@@ -6,8 +6,7 @@ import { gatewayUrl, verifyPayment, sharePaymentLink } from '../../services/paym
 import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPending } from '../../types/paymento'
 import { useI18n } from '../../lib/i18n'
 import { formatCurrency } from '../../utils/currency'
-import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
-
+import { MEDIUM_LABEL_CLASS, INLINE_SEMIBOLD_CLASS } from '../ui/textClasses';
 interface PaymentRequestCardProps {
   token: string
   amount?: string | number
@@ -89,7 +88,7 @@ export const PaymentRequestCard = ({
         </span>
       )
     return (
-      <span className="inline-flex items-center gap-1 text-[var(--text-secondary)] text-xs font-semibold">
+      <span className={INLINE_SEMIBOLD_CLASS}>
         <Loader2 size={14} className="animate-spin" /> {paymentStatusLabel(status)}
       </span>
     )

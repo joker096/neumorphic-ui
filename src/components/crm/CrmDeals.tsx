@@ -11,7 +11,7 @@ import { useCrmPermissions } from '../../lib/crm/permissions';
 import { DataState } from '../ui/DataState';
 import { formatCurrency } from '../../utils/currency';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
-import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS } from './crmClasses';
+import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS, CRM_BOARD_TITLE_CLASS } from './crmClasses';
 // Amount + currency both arrive from imported CRM records, so the formatter is
 // memoized and fail-soft (see utils/currency).
 const fmt = (amount: number, currency: string, lang: string) => formatCurrency(amount, currency, lang, 0);
@@ -69,7 +69,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled, onMessa
   return (
     <div className={CRM_PANEL_BODY_CLASS}>
       <div className="flex items-center justify-between px-1 mb-2">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
+        <div className={CRM_BOARD_TITLE_CLASS}>
           <TrendingUp size={14} /> {fmt(total, 'RUB', lang)}
         </div>
         {can('manageDeals') && (

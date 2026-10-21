@@ -5,6 +5,7 @@ import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPend
 import { toast } from '../ui/Toast'
 import { useI18n } from '../../lib/i18n'
 import { formatCurrency } from '../../utils/currency'
+import { INLINE_SEMIBOLD_CLASS } from '../ui/textClasses';
 
 interface PaymentChatBubbleProps {
   msg: any
@@ -62,7 +63,7 @@ export const PaymentChatBubble = ({ msg }: PaymentChatBubbleProps) => {
         </span>
       )
     return (
-      <span className="inline-flex items-center gap-1 text-[var(--text-secondary)] text-xs font-semibold">
+      <span className={INLINE_SEMIBOLD_CLASS}>
         <Loader2 size={14} className="animate-spin" /> {paymentStatusLabel(status)}
       </span>
     )

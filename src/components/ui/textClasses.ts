@@ -37,3 +37,15 @@ export const BOLD_LABEL_CLASS = 'text-sm font-bold text-[var(--text-primary)]';
 
 /** Tiny bold label used by counters and filter captions. */
 export const TINY_BOLD_CLASS = 'text-xs font-bold text-[var(--text-primary)]';
+
+/** Small semibold caption with a leading icon, inline in a row. */
+export const INLINE_SEMIBOLD_CLASS = 'inline-flex items-center gap-1 text-[var(--text-secondary)] text-xs font-semibold';
+
+/** Bold name of a contact inside a list row. */
+export const CONTACT_NAME_CLASS = 'font-bold text-sm text-[var(--text-primary)] break-words leading-snug';
+
+/** Title of a sub-view header. */
+export const SUBVIEW_TITLE_CLASS = 'font-sans text-xl font-bold tracking-wide text-[var(--text-primary)]';
+
+/** Small accent caption above a comment or a thread. */
+export const ACCENT_CAPS_CLASS = 'text-xs uppercase tracking-wider font-semibold text-[var(--accent)]';

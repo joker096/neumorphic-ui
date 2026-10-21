@@ -7,6 +7,9 @@ import { SettingsSectionTitle, SettingsToggleRow, SettingsRow, SettingsGroup } f
 import { toast } from '../ui/Toast'
 import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 
+/** Caps label of a company settings block. */
+const SECTION_LABEL_CLASS = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 block';
+
 type CompanySettingsViewProps = {
   isDark: boolean
   onBack: () => void
@@ -93,7 +96,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
         {showCreate && (
           <div className={"rounded-xl p-4 flex flex-col gap-3 bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
             <div>
-              <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 block">{t('company.orgName', 'Company')}</label>
+              <label className={SECTION_LABEL_CLASS}>{t('company.orgName', 'Company')}</label>
               <input
                 aria-label={t('company.namePlaceholder', 'Acme Inc.')}
                 value={orgName}
@@ -103,7 +106,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
               />
             </div>
             <div>
-              <label className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 block">{t('company.yourName', 'Your Name')}</label>
+              <label className={SECTION_LABEL_CLASS}>{t('company.yourName', 'Your Name')}</label>
               <input
                 aria-label={t('company.displayNamePlaceholder', 'John Doe')}
                 value={yourName}

@@ -4,7 +4,7 @@ import type { CompanyDepartment, CompanyMember } from '../../types/constants';
 import { memberColorAt } from '../../constants/companyConstants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
-import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS } from './companyClasses';
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS, COMPANY_LIST_TITLE_CLASS } from './companyClasses';
 type DepartmentListProps = {
   isDark?: boolean;
   departments: CompanyDepartment[];
@@ -48,7 +48,7 @@ export const DepartmentList = ({
   return (
     <div className="w-full mb-4">
       <div className="flex items-center justify-between px-2 mb-3">
-        <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-widest text-[var(--accent)]">
+        <div className={COMPANY_LIST_TITLE_CLASS}>
           <Building2 size={14} />
           <span className="truncate">{departmentsLabel} ({departments.length})</span>
         </div>

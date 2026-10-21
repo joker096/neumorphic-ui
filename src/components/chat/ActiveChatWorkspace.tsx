@@ -1,4 +1,5 @@
 import { lazy, Suspense, type Dispatch, type SetStateAction } from "react";
+import { ORANGE_SPINNER_CLASS } from "../ui/spinnerClasses";
 const LazyChatPreviewLayer = lazy(() =>
   import("../ChatPreviewLayer").then((m) => ({ default: m.ChatPreviewLayer })),
 );
@@ -6,7 +7,7 @@ const LazyChatPreviewLayer = lazy(() =>
 function ChatPreviewFallback() {
   return (
     <div className="h-full w-full flex items-center justify-center" aria-hidden="true">
-      <div className="animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full" />
+      <div className={ORANGE_SPINNER_CLASS} />
     </div>
   );
 }

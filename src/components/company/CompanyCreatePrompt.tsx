@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Building2, HelpCircle, ChevronDown } from 'lucide-react';
 import type { TFunction } from './useCompanyContacts';
-import { LARGE_LABEL_CLASS } from '../ui/textClasses';
-import { BOLD_LABEL_CLASS } from '../ui/textClasses';
+import { LARGE_LABEL_CLASS, BOLD_LABEL_CLASS } from '../ui/textClasses';
 
 /** Muted body copy under a company guide heading. */
 const GUIDE_BODY_CLASS =

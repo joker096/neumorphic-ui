@@ -1,6 +1,7 @@
 import { UserPlus, Copy, Check, ArrowRight, LogIn, Shield } from "lucide-react";
 import { AUTH_COLUMN_CLASS, AUTH_ERROR_CLASS, AUTH_LINK_BTN_CLASS, AUTH_PRIMARY_BTN_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SPINNER_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS, AUTH_TEXTAREA_CLASS } from '../authShared';
 import { HINT_TEXT_CLASS } from '../../ui/textClasses';
+import { AUTH_SUCCESS_CIRCLE_CLASS } from "../authShared";
 
 type T = (key: string, options?: any) => string;
 
@@ -196,7 +197,7 @@ export function SetPinStep({ t, isLocked, lockBlockTimer, pin, onPinChange, pinC
 export function CompleteStep({ t, onComplete }: { t: T; onComplete: () => void }) {
   return (
           <div className={`${AUTH_COLUMN_CLASS}`}>
-            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
+            <div className={AUTH_SUCCESS_CIRCLE_CLASS}>
               <Check size={32} strokeWidth={2.5} className="text-green-500" />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold mb-2">{t("auth.registration.identityCreated", "Identity Created")}</h2>

@@ -45,3 +45,6 @@ export const AUTH_TEXTAREA_CLASS =
 
 /** Round gradient badge that opens the login and import steps. */
 export const AUTH_AVATAR_CIRCLE_CLASS = 'w-16 h-16 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mb-6 mx-auto shadow-lg';
+
+/** Round success badge above the auth result screens. */
+export const AUTH_SUCCESS_CIRCLE_CLASS = 'w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-6';

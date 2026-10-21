@@ -5,7 +5,7 @@ import { X, Copy, Check } from 'lucide-react';
 import { QrCode } from '../QrCode';
 import { modalOverlay, modalSurface, modalCloseClass, type ModalTheme } from './modalShared';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
-
+import { FORM_CARD_CLASS } from './formClasses';
 type InviteQRModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -74,7 +74,7 @@ export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }
               <QrCode data={inviteText} size={180} />
             </div>
 
-            <div className="w-full p-4 rounded-md flex flex-col items-center gap-3 neu-card-inset">
+            <div className={FORM_CARD_CLASS}>
               <div className="font-mono text-xs tracking-widest break-all text-center text-orange-500">
                 {inviteText}
               </div>

@@ -12,6 +12,9 @@ import { StoryShareMenu } from './StoryShareMenu';
 import { ChatPickerModal } from '../payments/ChatPickerModal';
 import { useStoryViewer } from './useStoryViewer';
 
+/** Full-screen backdrop of the story viewer. */
+const BACKDROP_CLASS = 'fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/95';
+
 interface StoryViewerProps {
   activeUser: { id: number | string; name: string; color: string } | null;
   onClose: () => void;
@@ -39,7 +42,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/95"
+          className={BACKDROP_CLASS}
           role="dialog"
           aria-modal="true"
         >
@@ -65,7 +68,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/95"
+        className={BACKDROP_CLASS}
         role="dialog"
         aria-modal="true"
         aria-label={user.name}

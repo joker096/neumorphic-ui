@@ -6,6 +6,7 @@ import { useI18n } from '../lib/i18n';
 import { get, set } from '../lib/idb';
 import { formatClockTime } from '../utils/chatUtils';
 import { FORM_TRANSPARENT_INPUT_CLASS } from './ui/formClasses';
+import { ACCENT_CAPS_CLASS } from './ui/textClasses';
 import {
   CURRENT_USER_SENDER,
   getCommentBubbleClass,
@@ -120,7 +121,7 @@ export const ChannelCommentsView = ({
               <h3 className="font-bold text-base text-[var(--text-primary)]">
                 {t('channelComments.title')}
               </h3>
-              <p className="text-xs uppercase tracking-wider font-semibold text-[var(--accent)]">
+              <p className={ACCENT_CAPS_CLASS}>
                 {t('channelComments.replies', { count: comments.length })}
               </p>
             </div>

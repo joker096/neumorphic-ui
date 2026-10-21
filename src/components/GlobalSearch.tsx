@@ -14,6 +14,9 @@ import {
 } from "./search/searchEngine";
 import { useBodyScrollLock } from "../lib/a11y";
 
+/** Caps label above a global search section. */
+const SECTION_LABEL_CLASS = 'mr-1 text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]';
+
 const SEARCH_HISTORY_KEY = "mess_search_history";
 const HISTORY_LIMIT = 10;
 
@@ -190,7 +193,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="mr-1 text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
+              <span className={SECTION_LABEL_CLASS}>
                 {t("search.senderFilters.from", "From")}
               </span>
               {SENDER_FILTERS.map((f) => (
@@ -203,7 +206,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="mr-1 text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
+              <span className={SECTION_LABEL_CLASS}>
                 {t("search.typeFilters.type", "Type")}
               </span>
               {TYPE_FILTERS.map((f) => (

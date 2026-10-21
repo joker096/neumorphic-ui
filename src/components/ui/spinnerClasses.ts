@@ -10,3 +10,6 @@ export const SMALL_SPINNER_CLASS = 'shrink-0 w-5 h-5 border-2 rounded-full anima
 
 /** Larger spinner used inside the QR and sharing panels. */
 export const QR_SPINNER_CLASS = 'w-10 h-10 rounded-full border-2 border-[var(--text-tertiary)] border-t-transparent animate-spin';
+
+/** Large accent spinner used while a chat or a feature view loads. */
+export const ORANGE_SPINNER_CLASS = 'animate-spin w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full';
