@@ -71,7 +71,7 @@ export const StoryFooter: React.FC<StoryFooterProps> = ({
           onClick={handleLike}
           aria-label={t('story.react')}
           aria-pressed={liked}
-          className={`${circleClass} ${liked ? 'bg-rose-500 text-white' : 'bg-white/15 text-white hover:bg-white/25'}`}
+          className={`${circleClass} ${liked ? 'bg-rose-500 text-[var(--ink-on-saturate)]' : 'bg-white/15 text-white hover:bg-white/25'}`}
         >
           <Heart size={20} fill={liked ? 'currentColor' : 'none'} aria-hidden="true" />
         </button>

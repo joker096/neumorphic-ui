@@ -54,7 +54,7 @@ export const CompanyCreatePrompt = ({ t, onCreate }: CompanyCreatePromptProps) =
             <h4 className="text-sm font-bold text-[var(--text-primary)]">{t('company.guide.confirmTitle', '3. Confirm & assign roles')}</h4>
             <p className="text-xs text-[var(--text-secondary)] mt-1">{t('company.guide.confirmBody', 'A new joiner is given the "Member" role by default. The Admin verifies the invite signature and confirms the join. Only Admins can change roles.')}</p>
           </div>
-          <p className="text-[11px] text-[var(--text-secondary)]">{t('company.createHelpNote', 'Full guide: Settings → Company → Company guide.')}</p>
+          <p className="text-xs text-[var(--text-secondary)]">{t('company.createHelpNote', 'Full guide: Settings → Company → Company guide.')}</p>
         </div>
       )}
     </div>

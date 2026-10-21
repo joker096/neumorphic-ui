@@ -80,7 +80,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
             <div key={sc.id} className="rounded-2xl border border-[var(--border-color)] p-3 flex flex-col gap-3">
               <div className="font-bold text-sm flex items-center gap-2">
                 <Globe size={16} /> {sc.name}
-                <span className="ml-auto text-[11px] text-emerald-500">{t('company.siteChatLive', 'Website embed · E2E encrypted')}</span>
+                <span className="ml-auto text-xs text-emerald-500">{t('company.siteChatLive', 'Website embed · E2E encrypted')}</span>
               </div>
 
               {/* Widget config */}
@@ -137,7 +137,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                     className="flex-1 min-h-11 rounded-lg px-3 bg-[var(--input-bg)] text-[var(--text-primary)] text-sm outline-none"
                   />
                 </div>
-                <div className="text-[11px] text-[var(--text-secondary)]">{t('company.widgetHint', 'Change settings → the embed snippet updates. Re-paste it into your site.')}</div>
+                <div className="text-xs text-[var(--text-secondary)]">{t('company.widgetHint', 'Change settings → the embed snippet updates. Re-paste it into your site.')}</div>
               </div>
 
               <details className="rounded-xl bg-[var(--bg-secondary)]/60 p-3 text-xs text-[var(--text-secondary)]">
@@ -166,19 +166,19 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
               <div className="flex flex-col gap-1.5">
                 <div className="text-xs font-bold flex items-center gap-2">
                   {t('company.websiteContacts', 'Website contacts')}
-                  <span className="text-[11px] text-[var(--text-secondary)]">
+                  <span className="text-xs text-[var(--text-secondary)]">
                     {t('company.websiteContactCount', '{{n}} contact(s) from this site').replace('{{n}}', String(chatContacts.length))}
                   </span>
                 </div>
                 {chatContacts.length === 0 ? (
-                  <div className="text-[11px] text-[var(--text-secondary)]">{t('company.noWebsiteContacts', 'No contacts yet — visitors who fill the widget form appear here and in CRM as website-sourced leads.')}</div>
+                  <div className="text-xs text-[var(--text-secondary)]">{t('company.noWebsiteContacts', 'No contacts yet — visitors who fill the widget form appear here and in CRM as website-sourced leads.')}</div>
                 ) : (
                   chatContacts.slice(0, 5).map((c) => (
                     <div key={c.id} className="flex items-center gap-2 text-xs bg-[var(--bg-secondary)]/60 rounded-lg px-2 py-1.5">
                       <span className="font-bold">{c.name}</span>
                       {c.email && <span className="opacity-60">· {c.email}</span>}
                       {c.phone && <span className="opacity-60">· {c.phone}</span>}
-                      <span className="ml-auto text-[11px] text-[var(--text-secondary)]">{formatDate(c.ts, lang)}</span>
+                      <span className="ml-auto text-xs text-[var(--text-secondary)]">{formatDate(c.ts, lang)}</span>
                       <button
                         onClick={() => removeWebsiteContact(c.id)}
                         aria-label={t('company.removeWebsiteContact', 'Remove contact')}

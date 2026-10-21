@@ -212,7 +212,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
           ) : null}
           {isSite && (
             <div
-              className={`text-[11px] font-normal mt-0.5 ${relayOnline ? 'text-emerald-500' : 'text-amber-500'}`}
+              className={`text-xs font-normal mt-0.5 ${relayOnline ? 'text-emerald-500' : 'text-amber-500'}`}
             >
               {relayOnline
                 ? t('company.siteChatLive', 'Website embed · E2E encrypted')
@@ -231,7 +231,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
               const own = m.senderId === userProfile.id;
               return (
                 <div key={m.id} className={`flex flex-col max-w-[80%] ${own ? 'self-end items-end' : 'self-start items-start'}`}>
-                  {!own && <div className="text-[11px] text-[var(--text-secondary)] mb-0.5">{m.senderName}</div>}
+                  {!own && <div className="text-xs text-[var(--text-secondary)] mb-0.5">{m.senderName}</div>}
                   <div
                     className={`px-3 py-2 rounded-2xl text-sm ${
                       own
@@ -241,7 +241,7 @@ export const TeamInbox = ({ isDark = false }: TeamInboxProps) => {
                   >
                     {m.text}
                   </div>
-                  <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">
+                  <div className="text-xs text-[var(--text-secondary)] mt-0.5">
                     {formatClockTime(m.timestamp, lang)}
                   </div>
                 </div>

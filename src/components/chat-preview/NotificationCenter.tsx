@@ -83,7 +83,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
       >
         <Bell size={16} />
         {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-md border-[2px] border-[var(--bg-secondary)] dark:border-[var(--bg-primary)] px-1">
+          <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-[var(--ink-on-saturate)] shadow-md border-[2px] border-[var(--bg-secondary)] dark:border-[var(--bg-primary)] px-1">
             {unreadCount > 99 ? "99+" : unreadCount}
           </div>
         )}
@@ -132,7 +132,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
                   </button>
                 </div>
                 {browserPermission === "denied" && (
-                  <p className="pb-2 text-[11px] opacity-60">{t("notif.blockedHint", "Blocked in browser settings. Enable notifications for this site there, then reload.")}</p>
+                  <p className="pb-2 text-xs opacity-60">{t("notif.blockedHint", "Blocked in browser settings. Enable notifications for this site there, then reload.")}</p>
                 )}
                 {SETTING_KEYS.map((s) => (
                   <label key={s.key} className="flex items-center justify-between py-1 text-[13px] cursor-pointer">
@@ -165,7 +165,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
                           <div className="text-[13px] font-medium truncate">{n.title}</div>
                           {n.body && <div className="text-[12px] opacity-70 truncate">{n.body}</div>}
                         </div>
-                        <span className="text-[11px] opacity-50 flex-shrink-0">{relTime(n.createdAt, t)}</span>
+                        <span className="text-xs opacity-50 flex-shrink-0">{relTime(n.createdAt, t)}</span>
                       </button>
                     );
                   })

@@ -73,7 +73,7 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
             {t('crm.inviteCode', CRM_FALLBACKS.inviteCode)}
           </div>
         )}
-        <div className="text-[11px] uppercase tracking-wide text-[var(--text-secondary)]">
+        <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
           {t('crm.inviteCode', CRM_FALLBACKS.inviteCode)}
         </div>
         <div className="font-mono text-lg font-bold tracking-widest text-[var(--text-primary)]">{code}</div>
@@ -88,7 +88,7 @@ export const CrmInviteModal: React.FC<{ onClose: () => void }> = ({ onClose }) =
             {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
           </button>
         </div>
-        <div className="text-[11px] text-[var(--text-secondary)] text-center">
+        <div className="text-xs text-[var(--text-secondary)] text-center">
           {t('crm.inviteHint', CRM_FALLBACKS.inviteHint)}
         </div>
       </div>

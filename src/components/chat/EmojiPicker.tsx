@@ -146,7 +146,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
       </div>
 
       <div className="flex items-center gap-1 mb-2" aria-label={t("emojis.skinTone", "Skin tone")}>
-        <span className="text-[11px] opacity-60 mr-1">{t("emojis.skinTone", "Skin tone")}:</span>
+        <span className="text-xs opacity-60 mr-1">{t("emojis.skinTone", "Skin tone")}:</span>
         {TONES.map((tn, i) => (
           <button
             key={i}

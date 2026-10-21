@@ -20,7 +20,7 @@ export function LoginComplete({ t, onComplete }: LoginCompleteProps) {
         onClick={onComplete}
         aria-label={t("auth.login.enterApp", "Enter App")}
         title={t("auth.login.enterApp", "Enter App")}
-        className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
+        className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg"
       >
         <LogIn size={20} />
         <span>{t("auth.login.enterApp", "Enter App")}</span>

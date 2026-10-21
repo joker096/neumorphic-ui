@@ -151,6 +151,6 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
 const Metric: React.FC<{ label: string; value: string; highlight?: boolean }> = ({ label, value, highlight }) => (
   <div className="rounded-lg bg-white/5 px-2 py-1.5 text-center">
     <div className={`text-sm font-bold ${highlight ? 'text-amber-400' : 'text-[var(--text-primary)]'}`}>{value}</div>
-    <div className="text-[11px] uppercase tracking-wide opacity-50">{label}</div>
+    <div className="text-xs uppercase tracking-wide opacity-50">{label}</div>
   </div>
 );

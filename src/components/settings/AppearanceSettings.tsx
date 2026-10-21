@@ -107,7 +107,7 @@ export const AppearanceSettings = ({
           <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
             {(['light','dark','system'] as const).map((m) => (
               <button key={m} type="button" data-testid={`theme-mode-${m}`} onClick={() => handleThemeMode(m)}
-                className={`px-3 py-1.5 text-xs font-medium ${ (themeMode ?? 'system') === m ? 'bg-emerald-500 text-white' : 'text-[var(--text-secondary)]' }`}>
+                className={`px-3 py-1.5 text-xs font-medium ${ (themeMode ?? 'system') === m ? 'bg-emerald-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
                 {t(`settings.themeMode.${m}`)}
               </button>
             ))}
@@ -136,7 +136,7 @@ export const AppearanceSettings = ({
           <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
             {(['off','low','high'] as const).map((i) => (
               <button key={i} type="button" onClick={() => setAnimationIntensity?.(i)}
-                className={`px-2.5 py-1.5 text-xs ${ (animationIntensity ?? 'high') === i ? 'bg-purple-500 text-white' : 'text-[var(--text-secondary)]' }`}>
+                className={`px-2.5 py-1.5 text-xs ${ (animationIntensity ?? 'high') === i ? 'bg-purple-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
                 {t(`settings.anim.${i}`)}
               </button>
             ))}
@@ -189,7 +189,7 @@ export const AppearanceSettings = ({
             <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
               {(['default','light','dark','dots'] as const).map((bg) => (
                 <button key={bg} type="button" onClick={() => setChatBackground?.(bg)}
-                  className={`px-2.5 py-1.5 text-xs ${ (chatBackground ?? 'default') === bg ? 'bg-cyan-500 text-white' : 'text-[var(--text-secondary)]' }`}>
+                  className={`px-2.5 py-1.5 text-xs ${ (chatBackground ?? 'default') === bg ? 'bg-cyan-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
                   {t(`settings.chatbg.${bg}`)}
                 </button>
               ))}
@@ -197,7 +197,7 @@ export const AppearanceSettings = ({
                 <button type="button"
                   onClick={() => { if (isCustomActive) setChatBackground?.('default'); else fileInputRef.current?.click(); }}
                   aria-pressed={isCustomActive}
-                  className={`px-2.5 py-1.5 text-xs flex items-center gap-1 ${ isCustomActive ? 'bg-cyan-500 text-white' : 'text-[var(--text-secondary)]' }`}>
+                  className={`px-2.5 py-1.5 text-xs flex items-center gap-1 ${ isCustomActive ? 'bg-cyan-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
                   {customChatBackground ? (
                     <span className="w-3 h-3 rounded-[3px] bg-cover bg-center" style={{ backgroundImage: `url("${customChatBackground}")` }} />
                   ) : (
@@ -236,7 +236,7 @@ export const AppearanceSettings = ({
           <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
             {(['comfortable','compact'] as const).map((d) => (
               <button key={d} type="button" onClick={() => setDensity?.(d)}
-                className={`px-2.5 py-1.5 text-xs ${ (density ?? 'comfortable') === d ? 'bg-amber-500 text-white' : 'text-[var(--text-secondary)]' }`}>
+                className={`px-2.5 py-1.5 text-xs ${ (density ?? 'comfortable') === d ? 'bg-amber-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
                 {t(`settings.densityMode.${d}`)}
               </button>
             ))}
@@ -255,7 +255,7 @@ export const AppearanceSettings = ({
           <div className="flex rounded-lg border border-[var(--border-color)] overflow-hidden">
             {[8,12,16,24].map((r) => (
               <button key={r} type="button" onClick={() => setMessageRadius?.(r)}
-                className={`px-2.5 py-1.5 text-xs ${ (messageRadius ?? 16) === r ? 'bg-rose-500 text-white' : 'text-[var(--text-secondary)]' }`}>
+                className={`px-2.5 py-1.5 text-xs ${ (messageRadius ?? 16) === r ? 'bg-rose-500 text-[var(--ink-on-saturate)]' : 'text-[var(--text-secondary)]' }`}>
                 {r}px
               </button>
             ))}

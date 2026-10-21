@@ -129,7 +129,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled, onMessa
                       {t(stage.labelKey, (CRM_FALLBACKS as any)[stage.labelKey.replace('crm.', '')])} ({stageDeals.length})
                     </span>
                   </span>
-                  <span className="text-[11px] text-[var(--text-secondary)] shrink-0">{fmt(stageSum, 'RUB', lang)}</span>
+                  <span className="text-xs text-[var(--text-secondary)] shrink-0">{fmt(stageSum, 'RUB', lang)}</span>
                 </div>
                 <div className="h-1 w-full rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
                   <div
@@ -140,7 +140,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled, onMessa
               </button>
               {!isCollapsed && (
                 stageDeals.length === 0 ? (
-                  <div className="min-h-11 rounded-lg border border-dashed border-[var(--border-color)] flex items-center justify-center text-[11px] text-[var(--text-secondary)]">
+                  <div className="min-h-11 rounded-lg border border-dashed border-[var(--border-color)] flex items-center justify-center text-xs text-[var(--text-secondary)]">
                     {t('crm.noDeals', CRM_FALLBACKS.noDeals)}
                   </div>
                 ) : (
@@ -194,7 +194,7 @@ export const CrmDeals: React.FC<Props> = ({ focusDealId, onFocusHandled, onMessa
                             setDealStage(d.id, e.target.value as DealStage);
                             toast.success(t('crm.stageChanged', 'Stage updated'));
                           }}
-                          className="w-full min-h-11 mt-1.5 px-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-[11px] outline-none border border-[var(--border-color)] focus:border-[var(--accent)] disabled:opacity-40"
+                          className="w-full min-h-11 mt-1.5 px-2 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-xs outline-none border border-[var(--border-color)] focus:border-[var(--accent)] disabled:opacity-40"
                         >
                           {DEAL_STAGES.map((s) => (
                             <option key={s.id} value={s.id}>{stageLabel(s.id)}</option>

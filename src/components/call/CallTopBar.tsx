@@ -44,22 +44,22 @@ export const CallTopBar: React.FC<CallTopBarProps> = ({
                 {remoteName}
               </h2>
               {isGroup && (
-                <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-white/15 text-white shrink-0">
+                <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-white/15 text-white shrink-0">
                   <Users size={12} /> {participantCount}
                 </span>
               )}
               {isPreview && (
-                <span className="text-[11px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-white/15 text-white shrink-0">
+                <span className="text-xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-white/15 text-white shrink-0">
                   {CALL_DEMO_BADGE_LABEL}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`text-[11px] sm:text-xs font-medium tracking-wide ${status === 'error' ? 'text-[var(--danger)]' : 'text-white/70 capitalize'}`}>
+              <span className={`text-xs sm:text-xs font-medium tracking-wide ${status === 'error' ? 'text-[var(--danger)]' : 'text-white/70 capitalize'}`}>
                 {statusLabel}
               </span>
               {status === 'connected' && (
-                <span className="text-white/50 text-[11px] sm:text-xs font-mono tabular-nums">
+                <span className="text-white/50 text-xs sm:text-xs font-mono tabular-nums">
                   {formatDuration(elapsed)}
                 </span>
               )}

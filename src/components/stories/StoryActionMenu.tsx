@@ -39,7 +39,7 @@ export const StoryActionMenu: React.FC<StoryActionMenuProps> = ({ open, onClose,
         className="glass-menu mr-3 mb-20 w-60 max-w-[calc(100%-1.5rem)] rounded-2xl p-1.5 shadow-[var(--shadow-modal)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
+        <div className="px-3 pb-1 pt-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)]">
           {title}
         </div>
         {actions.map((action) => (

@@ -17,7 +17,7 @@ export function WelcomeStep({ t, error, isProcessing, onGenerate }: { t: T; erro
               disabled={isProcessing}
               aria-label={t("auth.registration.createIdentity", "Create Identity")}
               title={t("auth.registration.createIdentity", "Create Identity")}
-              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <UserPlus size={20} />
               <span>{t("auth.registration.createIdentity", "Create Identity")}</span>
@@ -73,7 +73,7 @@ export function ShowPhraseStep({ t, phrase, phraseWords, onContinue }: { t: T; p
               onClick={onContinue}
               aria-label={t("auth.registration.iveWrittenItDown", "I've Written It Down")}
               title={t("auth.registration.iveWrittenItDown", "I've Written It Down")}
-              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg"
             >
               <Check size={20} />
               <span>{t("auth.registration.iveWrittenItDown", "I've Written It Down")}</span>
@@ -108,7 +108,7 @@ export function ConfirmPhraseStep({ t, confirmInput, onConfirmInput, error, onCo
               disabled={confirmInput.split(/\s+/).length !== 24}
               aria-label={t("auth.registration.verify", "Verify Phrase")}
               title={t("auth.registration.verify", "Verify Phrase")}
-              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check size={20} />
               <span>{t("auth.registration.verify", "Verify Phrase")}</span>
@@ -171,7 +171,7 @@ export function SetPinStep({ t, isLocked, lockBlockTimer, pin, onPinChange, pinC
                   disabled={isProcessing || pin.length < 4}
                   aria-label={t("auth.registration.continue", "Continue")}
                   title={t("auth.registration.continue", "Continue")}
-              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ArrowRight size={20} />
                   <span>{t("auth.registration.continue", "Continue")}</span>
@@ -205,7 +205,7 @@ export function CompleteStep({ t, onComplete }: { t: T; onComplete: () => void }
               onClick={onComplete}
               aria-label={t("auth.registration.enterApp", "Enter App")}
               title={t("auth.registration.enterApp", "Enter App")}
-              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg"
+              className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg"
             >
               <LogIn size={20} />
               <span>{t("auth.registration.enterApp", "Enter App")}</span>

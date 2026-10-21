@@ -134,7 +134,7 @@ export function AttachmentMedia({
           onError={() => setMediaErr(true)}
         />
         {ftrSize && (
-          <div className="pointer-events-none absolute bottom-2 right-2 bg-[rgba(0,0,0,0.45)] backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-semibold text-white tracking-wider">
+          <div className="pointer-events-none absolute bottom-2 right-2 bg-[rgba(0,0,0,0.45)] backdrop-blur-md px-1.5 py-0.5 rounded text-xs font-semibold text-white tracking-wider">
             {ftrSize}
           </div>
         )}
@@ -179,7 +179,7 @@ export function AttachmentMedia({
               <Play size={24} className="text-white fill-white ml-1" />
             </div>
           </div>
-          <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-semibold text-white tracking-wider">{msg.duration}</div>
+          <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-xs font-semibold text-white tracking-wider">{msg.duration}</div>
         </div>
       );
     }
@@ -218,7 +218,7 @@ export function AttachmentMedia({
             <Play size={24} className="text-white fill-white ml-1" />
           </div>
         </div>
-        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-semibold text-white tracking-wider">{msg.duration}</div>
+        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-xs font-semibold text-white tracking-wider">{msg.duration}</div>
       </div>
     );
   }

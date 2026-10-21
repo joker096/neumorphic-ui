@@ -27,7 +27,7 @@ const GEO_MAX_AGE_MS = 60_000;
 
 /** Telegram-style tile: icon above a short label, one 76px cell of the grid. */
 const tileClass =
-  "flex min-h-[76px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight text-[var(--text-secondary)] transition-colors hover:bg-[var(--msg-bg-panel-hover)] active:scale-95";
+  "flex min-h-[76px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl px-1 py-2 text-center text-xs font-semibold leading-tight text-[var(--text-secondary)] transition-colors hover:bg-[var(--msg-bg-panel-hover)] active:scale-95";
 
 /**
  * Attach menu: photo, document, audio, video note, location, live location, article.

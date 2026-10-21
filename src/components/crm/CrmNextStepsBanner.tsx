@@ -46,7 +46,7 @@ export const CrmNextStepsBanner: React.FC<Props> = ({ onOpenTasks }) => {
       {overdue > 0 && (
         <span className="inline-flex items-center gap-1 text-xs font-bold text-[var(--color-danger)]">
           {t('crm.overdue', 'Overdue')}
-          <span className="min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-[var(--color-danger)] text-white text-[11px]">
+          <span className="min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-[var(--color-danger)] text-[var(--ink-on-saturate)] text-xs">
             {overdue}
           </span>
         </span>
@@ -55,7 +55,7 @@ export const CrmNextStepsBanner: React.FC<Props> = ({ onOpenTasks }) => {
         <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-500">
           <Clock size={12} aria-hidden="true" />
           {t('crm.dueToday', 'Due today')}
-          <span className="min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-amber-500/20 text-[11px]">
+          <span className="min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-amber-500/20 text-xs">
             {dueToday}
           </span>
         </span>

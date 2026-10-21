@@ -73,7 +73,7 @@ export function LoginSetPin({
             disabled={isProcessing || pin.length < 4}
             aria-label={t("auth.login.continue", "Continue")}
             title={t("auth.login.continue", "Continue")}
-            className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowRight size={20} />
             <span>{t("auth.login.continue", "Continue")}</span>

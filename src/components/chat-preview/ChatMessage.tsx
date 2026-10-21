@@ -183,7 +183,7 @@ function ChatMessageImpl({
             </div>
           )}
           {msg.forwarded && (
-            <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+            <div className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
               <Forward size={12} aria-hidden="true" />
               <span className="truncate max-w-[200px]">
                 {forwardedFrom

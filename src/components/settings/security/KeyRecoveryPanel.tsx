@@ -187,7 +187,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
               value={keyImportBundle}
               onChange={e => setKeyImportBundle(e.target.value)}
               placeholder={t('settings.keyRecovery.import')}
-              className={`w-full h-24 px-2 py-2 rounded-lg text-[11px] font-mono resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]`}
+              className={`w-full h-24 px-2 py-2 rounded-lg text-xs font-mono resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]`}
             />
             <label htmlFor="key-recovery-import-pass" className={`block text-xs font-medium mt-2 mb-1 text-[var(--text-secondary)]`}>
               {t('settings.keyRecovery.importPass')}

@@ -76,19 +76,19 @@ export function TransportIndicator({ status = 'disconnected', detail, relayed = 
         <span className="block text-xs font-semibold text-[var(--text-primary)]">
           {t('transport.current', 'Current:')} {meta.icon} {label}
         </span>
-        <span className="mt-1 block text-[11px] leading-snug text-[var(--text-secondary)]">
+        <span className="mt-1 block text-xs leading-snug text-[var(--text-secondary)]">
           {t(meta.meaningKey, meta.meaning)}
         </span>
         {(status === 'blocked' || status === 'error') && detail && (
-          <span className="mt-1.5 block text-[11px] font-medium leading-snug text-[var(--danger)] break-words">
+          <span className="mt-1.5 block text-xs font-medium leading-snug text-[var(--danger)] break-words">
             {detail}
           </span>
         )}
 
-        <span className="mt-2.5 block border-t border-[var(--border-color)] pt-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+        <span className="mt-2.5 block border-t border-[var(--border-color)] pt-2 text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
           {t('transport.allStatuses', 'All statuses')}
         </span>
-        <ul className="mt-1.5 space-y-1 text-[11px] leading-snug">
+        <ul className="mt-1.5 space-y-1 text-xs leading-snug">
           {isRelayed && (
             <li className="flex items-start gap-1.5 text-[var(--text-primary)]">
               <span className="shrink-0">{RELAY_META.icon}</span>

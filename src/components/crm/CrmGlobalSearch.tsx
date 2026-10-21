@@ -71,7 +71,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
     if (items.length === 0) return null;
     return (
       <div>
-        <div className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">
+        <div className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-[var(--text-secondary)]">
           {GROUP_ICONS[kind]}
           {label}
         </div>
@@ -82,7 +82,7 @@ export const CrmGlobalSearch: React.FC<Props> = ({ contacts, deals, tasks, onPic
             className="w-full text-left px-2.5 py-2 hover:bg-[var(--list-item-hover-bg)] transition-colors"
           >
             <div className="text-xs font-semibold text-[var(--text-primary)]">{hit.title}</div>
-            {hit.subtitle && <div className="text-[11px] text-[var(--text-secondary)] truncate">{hit.subtitle}</div>}
+            {hit.subtitle && <div className="text-xs text-[var(--text-secondary)] truncate">{hit.subtitle}</div>}
           </button>
         ))}
       </div>

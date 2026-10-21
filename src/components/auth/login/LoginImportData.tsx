@@ -33,7 +33,7 @@ export function LoginImportData({ fileInputRef, busyImport, error, t, onFilePick
         onClick={() => fileInputRef.current?.click()}
         disabled={busyImport}
         aria-label={t("auth.login.importBackup", "Import from backup file")}
-        className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+        className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg disabled:opacity-60 disabled:cursor-not-allowed mb-3"
       >
         {busyImport ? (
           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

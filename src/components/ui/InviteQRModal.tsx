@@ -83,7 +83,7 @@ export const InviteQRModal = ({ isOpen, onClose, inviteText, isDark = false, t }
                 onClick={handleCopy}
                 className={`flex items-center justify-center gap-2 min-h-11 px-4 rounded-xl font-bold text-xs transition-colors ${
                   copied
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-green-500 text-[var(--ink-on-saturate)]'
                     : 'bg-background border border-border text-foreground hover:bg-muted'
                 }`}
               >
