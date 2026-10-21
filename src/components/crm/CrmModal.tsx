@@ -1,4 +1,5 @@
 import React, { ReactNode, useRef } from 'react';
+import { modalOverlay } from '../ui/modalShared';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useFocusTrap } from '../../lib/a11y';
@@ -28,7 +29,7 @@ export const CrmModal: React.FC<ModalProps> = ({ onClose, title, children, foote
   useEscapeKey(onClose);
 
   return createPortal(
-  <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div className={modalOverlay}>
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={title} className={`w-full ${maxWidth} max-h-[90vh] flex flex-col shadow-2xl relative rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-color)]`}>
       {closeBtn(onClose, 'Close')}
       <h3 className="text-lg font-bold px-5 pt-4 pb-2 text-[var(--text-primary)]">{title}</h3>

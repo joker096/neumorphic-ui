@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { modalOverlay } from '../ui/modalShared';
 import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { X, Copy, Check, Share2 } from 'lucide-react';
@@ -51,7 +52,7 @@ export const ShareIdentityModal = ({ t, onClose }: ShareIdentityModalProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className={modalOverlay}
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 20 }}

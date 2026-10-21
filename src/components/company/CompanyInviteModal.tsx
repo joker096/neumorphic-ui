@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { modalOverlay } from '../ui/modalShared';
 import { QrCode } from '../QrCode';
 import { COMPANY_MODAL_MAX_WIDTH } from '../../constants/companyConstants';
 import { CompanyModalCloseButton } from './CompanyModalCloseButton';
@@ -21,7 +22,7 @@ export const CompanyInviteModal = ({ isDark, title, description, invitePayload, 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className={modalOverlay}
       onClick={onClose}
     >
       <motion.div

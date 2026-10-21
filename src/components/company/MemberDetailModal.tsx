@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { modalOverlay } from '../ui/modalShared';
 import { X, Trash2, ChevronDown, UserCog, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CompanyMember } from '../../lib/company/types';
@@ -77,7 +78,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   const panelBg = "bg-[var(--bg-tertiary)] border border-[var(--border-color)]";
 
   return (
-    <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className={modalOverlay}>
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
         {closeBtn(onClose, t('common.close'))}
         <h3 className="text-xl font-bold mb-1 text-[var(--text-primary)]">{member.displayName}</h3>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { modalOverlay } from './ui/modalShared';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Phone, Video, MessageSquare, Ban, Mail, Send, Star, StarOff, ShieldCheck, Bell, BellOff } from 'lucide-react';
@@ -121,7 +122,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className={modalOverlay}
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
