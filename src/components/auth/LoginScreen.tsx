@@ -14,6 +14,7 @@ import { LoginEnterPhrase } from "./login/LoginEnterPhrase";
 import { LoginImportData } from "./login/LoginImportData";
 import { LoginSetPin } from "./login/LoginSetPin";
 import { LoginComplete } from "./login/LoginComplete";
+import { AUTH_COLUMN_CLASS, AUTH_SPINNER_CLASS } from './authShared';
 
 type Step = "enter-phrase" | "restoring" | "import-data" | "set-pin" | "complete";
 
@@ -191,8 +192,8 @@ export function LoginScreen({ onComplete, onBack }: LoginScreenProps) {
         )}
 
         {step === "restoring" && (
-          <div className="flex flex-col items-center text-center">
-            <div className="w-9 h-9 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+          <div className={`${AUTH_COLUMN_CLASS}`}>
+            <div className={`${AUTH_SPINNER_CLASS}`}></div>
             <p className="text-lg">{t("auth.login.restoring", "Restoring...")}</p>
           </div>
         )}

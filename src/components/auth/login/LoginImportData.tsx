@@ -1,5 +1,6 @@
 import { Database, Upload, ArrowRight } from "lucide-react";
 import type { RefObject, ChangeEvent } from "react";
+import { AUTH_ERROR_CLASS, AUTH_PRIMARY_BTN_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS } from '../authShared';
 
 type T = (key: string, options?: any) => string;
 
@@ -17,8 +18,8 @@ export function LoginImportData({ fileInputRef, busyImport, error, t, onFilePick
       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mb-6 mx-auto shadow-lg">
         <Database size={32} />
       </div>
-      <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.login.restoreDataTitle", "Restore your data")}</h2>
-      <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
+      <h2 className={`${AUTH_TITLE_CLASS}`}>{t("auth.login.restoreDataTitle", "Restore your data")}</h2>
+      <p className={`${AUTH_SUBTITLE_CLASS}`}>
         {t("auth.login.restoreDataSubtitle", "Your identity is back. Import a backup file to bring back your chats, contacts and settings — or start fresh.")}
       </p>
       <input
@@ -33,7 +34,7 @@ export function LoginImportData({ fileInputRef, busyImport, error, t, onFilePick
         onClick={() => fileInputRef.current?.click()}
         disabled={busyImport}
         aria-label={t("auth.login.importBackup", "Import from backup file")}
-        className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+        className={`${AUTH_PRIMARY_BTN_CLASS} disabled:opacity-60 disabled:cursor-not-allowed mb-3`}
       >
         {busyImport ? (
           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -43,7 +44,7 @@ export function LoginImportData({ fileInputRef, busyImport, error, t, onFilePick
         <span>{busyImport ? t("auth.login.importing", "Importing...") : t("auth.login.importBackup", "Import from backup file")}</span>
       </button>
       {error && (
-        <p role="alert" className="text-xs text-red-400 mb-3 text-center">{error}</p>
+        <p role="alert" className={`${AUTH_ERROR_CLASS}`}>{error}</p>
       )}
       <button
         type="button"

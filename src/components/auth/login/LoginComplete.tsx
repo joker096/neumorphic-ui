@@ -1,4 +1,5 @@
 import { Check, LogIn } from "lucide-react";
+import { AUTH_COLUMN_CLASS, AUTH_PRIMARY_BTN_CLASS } from '../authShared';
 
 type T = (key: string, options?: any) => string;
 
@@ -8,7 +9,7 @@ interface LoginCompleteProps {
 }
 export function LoginComplete({ t, onComplete }: LoginCompleteProps) {
   return (
-    <div className="flex flex-col items-center text-center">
+    <div className={`${AUTH_COLUMN_CLASS}`}>
       <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
         <Check size={32} strokeWidth={2.5} className="text-green-500" />
       </div>
@@ -20,7 +21,7 @@ export function LoginComplete({ t, onComplete }: LoginCompleteProps) {
         onClick={onComplete}
         aria-label={t("auth.login.enterApp", "Enter App")}
         title={t("auth.login.enterApp", "Enter App")}
-        className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg"
+        className={`${AUTH_PRIMARY_BTN_CLASS}`}
       >
         <LogIn size={20} />
         <span>{t("auth.login.enterApp", "Enter App")}</span>

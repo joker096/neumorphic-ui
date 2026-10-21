@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { AUTH_ERROR_CLASS, AUTH_LINK_BTN_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS } from '../authShared';
 
 type T = (key: string, options?: any) => string;
 
@@ -22,8 +23,8 @@ export function LoginSetPin({
 }: LoginSetPinProps) {
   return (
     <div className="flex flex-col">
-      <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.login.setPin", "Set App Lock PIN")}</h2>
-      <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
+      <h2 className={`${AUTH_TITLE_CLASS}`}>{t("auth.login.setPin", "Set App Lock PIN")}</h2>
+      <p className={`${AUTH_SUBTITLE_CLASS}`}>
         {t("auth.login.pinDescription", "Optional but recommended. Adds a layer of protection when someone opens your device.")}
       </p>
       {isLocked && lockBlockTimer > 0 ? (
@@ -63,17 +64,17 @@ export function LoginSetPin({
             />
           </div>
           {pinError && (
-            <p id="auth-login-pin-error" role="alert" className="text-xs text-red-400 mb-3 text-center">{t("auth.login.pinError", "PINs must match and be 4-6 digits.")}</p>
+            <p id="auth-login-pin-error" role="alert" className={`${AUTH_ERROR_CLASS}`}>{t("auth.login.pinError", "PINs must match and be 4-6 digits.")}</p>
           )}
           {error && (
-            <p role="alert" className="text-xs text-red-400 mb-3 text-center">{error}</p>
+            <p role="alert" className={`${AUTH_ERROR_CLASS}`}>{error}</p>
           )}
           <button
             onClick={onSetPin}
             disabled={isProcessing || pin.length < 4}
             aria-label={t("auth.login.continue", "Continue")}
             title={t("auth.login.continue", "Continue")}
-            className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`${AUTH_PRIMARY_BTN_DISABLED_CLASS}`}
           >
             <ArrowRight size={20} />
             <span>{t("auth.login.continue", "Continue")}</span>
@@ -82,7 +83,7 @@ export function LoginSetPin({
             onClick={onSkip}
             aria-label={t("auth.login.skipPin", "Skip PIN Setup")}
             title={t("auth.login.skipPin", "Skip PIN Setup")}
-            className="w-full h-11 flex items-center justify-center gap-2 mt-3 rounded-xl font-medium text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className={`${AUTH_LINK_BTN_CLASS}`}
           >
             <ArrowRight size={18} />
             <span>{t("auth.login.skipPin", "Skip PIN Setup")}</span>

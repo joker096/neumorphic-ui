@@ -1,4 +1,5 @@
 import { Shield, Undo } from "lucide-react";
+import { AUTH_ERROR_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS } from '../authShared';
 
 type T = (key: string, options?: any) => string;
 
@@ -16,8 +17,8 @@ export function LoginEnterPhrase({ phrase, error, isProcessing, t, onPhraseChang
       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-600 to-amber-600 flex items-center justify-center mb-6 mx-auto shadow-lg">
         <Shield size={32} />
       </div>
-      <h2 className="text-xl sm:text-2xl font-bold mb-2 text-center">{t("auth.login.restoreTitle", "Restore Identity")}</h2>
-      <p className="text-sm text-[var(--text-secondary)] mb-6 text-center">
+      <h2 className={`${AUTH_TITLE_CLASS}`}>{t("auth.login.restoreTitle", "Restore Identity")}</h2>
+      <p className={`${AUTH_SUBTITLE_CLASS}`}>
         {t("auth.login.restoreSubtitle", "Enter your recovery phrase to restore your identity on this device.")}
       </p>
       <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 mb-4">
@@ -38,14 +39,14 @@ export function LoginEnterPhrase({ phrase, error, isProcessing, t, onPhraseChang
         className="w-full h-32 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none"
       />
       {error && (
-        <p role="alert" className="text-xs text-red-400 mb-3 text-center">{error}</p>
+        <p role="alert" className={`${AUTH_ERROR_CLASS}`}>{error}</p>
       )}
       <button
         onClick={onRestore}
         disabled={isProcessing || phrase.split(/\s+/).filter(w => w.length > 0).length < 12}
         aria-label={t("auth.login.restore", "Restore Identity")}
         title={t("auth.login.restore", "Restore Identity")}
-        className="w-full h-11 flex items-center justify-center gap-2.5 rounded-xl font-bold text-sm transition-transform active:scale-95 bg-gradient-to-r from-orange-600 to-amber-600 text-[var(--ink-on-saturate)] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        className={`${AUTH_PRIMARY_BTN_DISABLED_CLASS}`}
       >
         <Undo size={20} />
         <span>{t("auth.login.restore", "Restore Identity")}</span>
