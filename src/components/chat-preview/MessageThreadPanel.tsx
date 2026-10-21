@@ -5,6 +5,7 @@ import { FormattedText } from "./FormattedText";
 import { ReplyQuote } from "./ReplyQuote";
 import { decodeIfMorse } from "../MorseDecoder";
 import { formatClockTime, sendTimeOf } from "../../utils/chatUtils";
+import { FORM_TRANSPARENT_INPUT_CLASS } from "../ui/formClasses";
 
 interface MessageThreadPanelProps {
   open: boolean;
@@ -134,7 +135,7 @@ export function MessageThreadPanel({
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSend(); } }}
                 placeholder={t("chat.threadPlaceholder", "Reply in thread")}
-                className="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+                className={FORM_TRANSPARENT_INPUT_CLASS}
               />
               <button
                 type="button"

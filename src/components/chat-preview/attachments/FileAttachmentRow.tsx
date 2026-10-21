@@ -6,6 +6,7 @@ import {
 import { useI18n } from "../../../lib/i18n";
 import { formatSize } from "../../../utils/formatSize";
 import { getFileKind, type FileKind } from "../../../utils/fileType";
+import { SMALL_SPINNER_CLASS } from "../../ui/spinnerClasses";
 
 const FILE_KIND_STYLE: Record<FileKind, { Icon: LucideIcon; tint: string }> = {
   pdf: { Icon: FileText, tint: "bg-rose-500/15 text-rose-500" },
@@ -47,7 +48,7 @@ export function FileAttachmentRow({ msg, hasTransfer, pending, ready, url }: Fil
         )}
       </div>
       {pending ? (
-        <span aria-hidden="true" className="shrink-0 w-5 h-5 border-2 rounded-full animate-spin border-t-transparent border-[var(--text-tertiary)]" />
+        <span aria-hidden="true" className={SMALL_SPINNER_CLASS} />
       ) : ready ? (
         <a
           href={url || undefined}

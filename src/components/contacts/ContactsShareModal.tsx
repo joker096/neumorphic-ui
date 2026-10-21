@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { QrCode, Check, Copy, Share } from "lucide-react";
 import { FormModal } from "../ui/FormModal";
+import { QR_SPINNER_CLASS } from "../ui/spinnerClasses";
 
 type T = (key: string, options?: any) => string;
 
@@ -26,7 +27,7 @@ export function ContactsShareModal({ showShareId, theme, qrDataUrl, shareId, cop
           {qrDataUrl ? (
             <img src={qrDataUrl} alt={t('contacts.shareQrAlt', 'Your identity QR code')} className="w-full h-full object-contain" />
           ) : (
-            <div className="w-10 h-10 rounded-full border-2 border-[var(--text-tertiary)] border-t-transparent animate-spin" />
+            <div className={QR_SPINNER_CLASS} />
           )}
         </div>
         <div className={`w-full p-4 rounded-2xl flex flex-col items-center gap-3 ${

@@ -14,6 +14,16 @@ import { AlbumGrid } from "./attachments/AlbumGrid";
 import { AttachmentUnavailable } from "./attachments/AttachmentUnavailable";
 import { FileAttachmentRow } from "./attachments/FileAttachmentRow";
 import { ArticleMessageCard } from "./attachments/ArticleMessageCard";
+import { SMALL_SPINNER_CLASS } from "../ui/spinnerClasses";
+
+/** Duration badge pinned to the bottom-right of a media tile. */
+const DURATION_BADGE_CLASS = 'absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-xs font-semibold text-white tracking-wider';
+
+/** Dim overlay of a media tile that darkens on hover. */
+const TILE_HOVER_OVERLAY_CLASS = 'absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/20';
+
+/** Round play badge of an image or video tile. */
+const PREVIEW_ICON_CLASS = 'w-12 h-12 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform group-hover:scale-105';
 
 interface AttachmentMediaProps {
   msg: any;
@@ -68,7 +78,7 @@ export function AttachmentMedia({
   const ftrSize = typeof msg.fileSize === "number" && msg.fileSize > 0 ? formatSize(msg.fileSize) : null;
   const ftrPendingRow = (
     <div className="flex items-center gap-3 rounded-xl border px-3 py-2.5 mb-2 bg-[var(--msg-bg-panel)] border-[var(--border-color)]">
-      <span aria-hidden="true" className="shrink-0 w-5 h-5 border-2 rounded-full animate-spin border-t-transparent border-[var(--text-tertiary)]" />
+      <span aria-hidden="true" className={SMALL_SPINNER_CLASS} />
       <div className="min-w-0">
         <div className="text-sm font-medium truncate">{msg.fileName || t("chat.file")}</div>
         {ftrSize && <div className="text-xs truncate text-[var(--text-secondary)]">{ftrSize}</div>}
@@ -174,12 +184,12 @@ export function AttachmentMedia({
             className="block w-48 sm:w-56 aspect-square object-cover max-w-full"
             onError={() => setMediaErr(true)}
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/20">
-            <div className="w-12 h-12 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+          <div className={TILE_HOVER_OVERLAY_CLASS}>
+            <div className={PREVIEW_ICON_CLASS}>
               <Play size={24} className="text-white fill-white ml-1" />
             </div>
           </div>
-          <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-xs font-semibold text-white tracking-wider">{msg.duration}</div>
+          <div className={DURATION_BADGE_CLASS}>{msg.duration}</div>
         </div>
       );
     }
@@ -213,12 +223,12 @@ export function AttachmentMedia({
           className="block aspect-video object-cover w-[240px] sm:w-[300px] md:w-[360px] max-w-full"
           onError={() => setMediaErr(true)}
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors group-hover:bg-black/20">
-          <div className="w-12 h-12 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+        <div className={TILE_HOVER_OVERLAY_CLASS}>
+          <div className={PREVIEW_ICON_CLASS}>
             <Play size={24} className="text-white fill-white ml-1" />
           </div>
         </div>
-        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-xs font-semibold text-white tracking-wider">{msg.duration}</div>
+        <div className={DURATION_BADGE_CLASS}>{msg.duration}</div>
       </div>
     );
   }

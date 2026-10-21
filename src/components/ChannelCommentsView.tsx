@@ -5,6 +5,7 @@ import { FormattedText } from './chat-preview/FormattedText';
 import { useI18n } from '../lib/i18n';
 import { get, set } from '../lib/idb';
 import { formatClockTime } from '../utils/chatUtils';
+import { FORM_TRANSPARENT_INPUT_CLASS } from './ui/formClasses';
 import {
   CURRENT_USER_SENDER,
   getCommentBubbleClass,
@@ -142,7 +143,7 @@ export const ChannelCommentsView = ({
                 onChange={(e) => setComment(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder={t('channelComments.placeholder')}
-                className="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+                className={FORM_TRANSPARENT_INPUT_CLASS}
               />
               <button
                 type="button"

@@ -4,6 +4,9 @@ import type { ProfileField, FieldVisibility } from './ProfileSection';
 import { PROFILE_FIELD_TYPES, VISIBILITY_OPTIONS } from '../../constants/settingsConstants';
 import { FIELD_LABEL_CLASS } from '../ui/textClasses';
 
+/** Compact field of the contact-field editor. */
+const COMPACT_INPUT_CLASS = 'min-h-11 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]';
+
 /** Full-width single-line input of the contact-field editor. */
 const INPUT_CLASS = 'w-full min-h-11 rounded-lg text-xs outline-none px-3 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]';
 
@@ -52,7 +55,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
               aria-label={t('settings.fieldTypeLabel', 'Type')}
               value={field.type}
               onChange={(e) => onUpdate(field.id, { type: e.target.value as ProfileField['type'] })}
-              className="min-h-11 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+              className={COMPACT_INPUT_CLASS}
             >
               {PROFILE_FIELD_TYPES.map((opt) => (
                 <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.label)}</option>
@@ -62,7 +65,7 @@ export const ProfileFieldEditor = ({ fields, onAdd, onRemove, onUpdate, newField
               aria-label={t('settings.fieldVisibility', 'Visibility')}
               value={field.visibility}
               onChange={(e) => onUpdate(field.id, { visibility: e.target.value as FieldVisibility })}
-              className="min-h-11 rounded-lg text-xs outline-none px-2 bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-color)]"
+              className={COMPACT_INPUT_CLASS}
             >
               {VISIBILITY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{t(opt.labelKey, opt.fallback)}</option>

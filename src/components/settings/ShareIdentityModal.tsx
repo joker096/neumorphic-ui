@@ -6,6 +6,7 @@ import { X, Copy, Check, Share2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useAppStore } from '../../store';
 import { PROFILE_FALLBACK_ID } from '../../constants/settingsConstants';
+import { QR_SPINNER_CLASS } from '../ui/spinnerClasses';
 
 interface ShareIdentityModalProps {
   t: (key: string, fallback?: string) => string;
@@ -78,7 +79,7 @@ export const ShareIdentityModal = ({ t, onClose }: ShareIdentityModalProps) => {
             {qrDataUrl ? (
               <img src={qrDataUrl} alt={t('settings.shareQrAlt', 'Your identity QR code')} className="w-full h-full object-contain" />
             ) : (
-              <div className="w-10 h-10 rounded-full border-2 border-[var(--text-tertiary)] border-t-transparent animate-spin" />
+              <div className={QR_SPINNER_CLASS} />
             )}
           </div>
 

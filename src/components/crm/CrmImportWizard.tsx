@@ -6,6 +6,9 @@ import type { ImportIssue } from '../../lib/crm/import';
 import { useCrmImportWizard } from './useCrmImportWizard';
 import { LARGE_LABEL_CLASS } from '../ui/textClasses';
 
+/** Accent button of the import wizard. */
+const PRIMARY_BTN_CLASS = 'px-4 py-2 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold disabled:opacity-50';
+
 export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { t } = useI18n();
   const {
@@ -112,7 +115,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
             <button
               onClick={handleParse}
               disabled={busy}
-              className="px-4 py-2 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold disabled:opacity-50"
+              className={PRIMARY_BTN_CLASS}
             >
               {t('crm.import.parse', 'Preview')}
             </button>
@@ -186,7 +189,7 @@ export const CrmImportWizard: React.FC<{ onClose: () => void }> = ({ onClose }) 
               <button
                 onClick={handleParse}
                 disabled={busy}
-                className="px-4 py-2 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold disabled:opacity-50"
+                className={PRIMARY_BTN_CLASS}
               >
                 {t('crm.import.importBundle', 'Import bundle')}
               </button>

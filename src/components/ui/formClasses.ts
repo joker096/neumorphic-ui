@@ -42,3 +42,6 @@ export const FORM_ICON_DANGER_BTN_CLASS = `${ICON_BTN_BASE} gap-2 ${ICON_BTN_DAN
 
 /** Uppercase caption above a control, using the muted theme token. */
 export const FORM_CAPS_LABEL_CLASS = 'text-xs font-bold uppercase tracking-widest text-muted-foreground';
+
+/** Borderless field used by inline chat inputs (thread panel, channel comments). */
+export const FORM_TRANSPARENT_INPUT_CLASS = 'flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]';
