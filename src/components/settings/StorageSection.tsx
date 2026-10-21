@@ -38,8 +38,8 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
       <SettingsGroup isDark={isDark}>
         <SettingsRow
           icon={<Shield size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.localEncryption', 'Local encryption at rest')}
           subtitle={t('settings.localEncryptionSubtitle', 'Secrets (2FA, TURN) encrypted with AES-256-GCM. Chats stay readable to the browser')}
           isDark={isDark}
@@ -47,8 +47,8 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
         />
         <SettingsToggleRow
           icon={<CloudOff size={16} />}
-          iconBg={isDark ? "bg-sky-500/10" : "bg-sky-100"}
-          iconColor={isDark ? "text-sky-400" : "text-sky-600"}
+          iconBg="bg-sky-100 dark:bg-sky-500/10"
+          iconColor="text-sky-600 dark:text-sky-400"
           title={t('settings.offlineMode', 'Offline queue')}
           subtitle={t('settings.offlineModeSubtitle', 'Keep messages on this device and send them when the connection returns')}
           isOn={offlineMode}
@@ -57,8 +57,8 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
         />
         <SettingsToggleRow
           icon={<FileText size={16} />}
-          iconBg={isDark ? "bg-violet-500/10" : "bg-violet-100"}
-          iconColor={isDark ? "text-violet-400" : "text-violet-600"}
+          iconBg="bg-violet-100 dark:bg-violet-500/10"
+          iconColor="text-violet-600 dark:text-violet-400"
           title={t('settings.draftsSaved', 'Message drafts')}
           subtitle={t('settings.draftsSavedSubtitle', 'Unsent messages saved per chat')}
           isOn={draftsEnabled}
@@ -67,8 +67,8 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
         />
         <SettingsRow
           icon={<Trash2 size={16} />}
-          iconBg={isDark ? "bg-rose-500/10" : "bg-rose-100"}
-          iconColor={isDark ? "text-rose-400" : "text-rose-600"}
+          iconBg="bg-rose-100 dark:bg-rose-500/10"
+          iconColor="text-rose-600 dark:text-rose-400"
           title={t('settings.clearCache', 'Clear cache')}
           subtitle={t('settings.clearCacheSubtitle', 'Re-downloadable media and app cache only. Recordings, drafts and chats are kept')}
           isDark={isDark}

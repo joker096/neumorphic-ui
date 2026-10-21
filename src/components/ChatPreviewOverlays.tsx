@@ -111,7 +111,6 @@ export function ChatPreviewOverlays({
             prev={undefined}
             next={undefined}
             onClose={() => { setPhotoOpen(false); setVideoOpen(false); setActiveMediaMsg?.(null); }}
-            isDark={isDark}
             onToggleSave={onToggleSavedMessage ? (m: any) => onToggleSavedMessage(chat, m) : undefined}
             onForward={onForward}
             onDelete={onDelete}

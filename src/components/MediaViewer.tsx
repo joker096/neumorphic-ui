@@ -16,7 +16,6 @@ export type { MediaKind, MediaItem } from './mediaUtils';
 interface MediaViewerProps {
   media: MediaItem | null;
   onClose: () => void;
-  isDark?: boolean;
   prev?: MediaItem | null;
   next?: MediaItem | null;
   onPrev?: () => void;
@@ -29,7 +28,7 @@ interface MediaViewerProps {
   onDelete?: (msg: any) => void;
 }
 
-export const MediaViewer = ({ media, onClose, isDark = false, prev, next, onPrev, onNext, total, index, message, onToggleSave, onForward, onDelete }: MediaViewerProps) => {
+export const MediaViewer = ({ media, onClose, prev, next, onPrev, onNext, total, index, message, onToggleSave, onForward, onDelete }: MediaViewerProps) => {
   useBodyScrollLock(true);
   const { t } = useI18n();
   const [playing, setPlaying] = useState(false);

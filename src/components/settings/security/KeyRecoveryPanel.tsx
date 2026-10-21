@@ -117,8 +117,8 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
       <SettingsGroup isDark={isDark} className="mb-6">
         <SettingsRow
           icon={<Key size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.keyRecovery.export')}
           subtitle={t('settings.keyRecovery.subtitle')}
           isDark={isDark}
@@ -126,7 +126,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
         />
         {showKeyRecovery && (
           <div className="px-4 py-3 border-t border-[var(--border-color)] dark:border-[var(--border-color)]">
-            <p className={`text-xs mb-3 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+            <p className={"text-xs mb-3 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
               {t('settings.keyRecovery.hint')}
             </p>
             <label htmlFor="key-recovery-export-pass" className={`block text-xs font-medium mb-1 text-[var(--text-secondary)]`}>
@@ -158,7 +158,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
               type="button"
               onClick={generateBundle}
               disabled={keyBusy}
-              className={`mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"} disabled:opacity-50`}
+              className={"mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:hover:bg-emerald-500/30 disabled:opacity-50"}
             >
               {t('settings.keyRecovery.generate')}
             </button>
@@ -168,12 +168,12 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
                   readOnly
                   value={keyExportBundle}
                   aria-label={t('settings.keyRecovery.export')}
-                  className={`w-full h-28 px-2 py-2 rounded-lg text-[11px] font-mono resize-none focus:outline-none border ${isDark ? "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]" : "bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-secondary)]"}`}
+                  className={"w-full h-28 px-2 py-2 rounded-lg text-xs font-mono resize-none focus:outline-none border bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)]"}
                 />
                 <button
                   type="button"
                   onClick={handleKeyCopy}
-                  className={`mt-1 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-white/10 text-[var(--text-primary)] hover:bg-white/20" : "bg-black/5 text-[var(--text-secondary)] hover:bg-black/10"}`}
+                  className={"mt-1 w-full py-2 rounded-lg text-xs font-medium transition-colors bg-black/5 text-[var(--text-secondary)] hover:bg-black/10 dark:bg-white/10 dark:text-[var(--text-primary)] dark:hover:bg-white/20"}
                 >
                   {t('settings.keyRecovery.copy')}
                 </button>
@@ -204,7 +204,7 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
               type="button"
               onClick={importBundle}
               disabled={keyBusy}
-              className={`mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors ${isDark ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"} disabled:opacity-50`}
+              className={"mt-2 w-full py-2 rounded-lg text-xs font-medium transition-colors bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:hover:bg-emerald-500/30 disabled:opacity-50"}
             >
               {t('settings.keyRecovery.import')}
             </button>
@@ -213,8 +213,8 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
 
         <SettingsRow
           icon={<ShieldCheck size={16} />}
-          iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
-          iconColor={isDark ? "text-amber-400" : "text-amber-600"}
+          iconBg="bg-amber-100 dark:bg-amber-500/10"
+          iconColor="text-amber-600 dark:text-amber-400"
           title={t('settings.keyRecovery.restore')}
           subtitle={t('settings.keyRecovery.restoreSubtitle')}
           isDark={isDark}
