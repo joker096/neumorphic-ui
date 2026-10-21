@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { PRIMARY_LABEL_CLASS } from '../ui/textClasses';
 
 interface SettingsCardProps {
   children: ReactNode;
@@ -41,7 +42,7 @@ export const SettingsNavItem = ({ icon, iconBg, title, subtitle, isDark, onClick
       {icon}
     </div>
     <div className="flex-1 min-w-0">
-      <div className={`text-sm font-semibold text-[var(--text-primary)]`}>{title}</div>
+      <div className={PRIMARY_LABEL_CLASS}>{title}</div>
       {subtitle && <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">{subtitle}</div>}
     </div>
     {rightElement}

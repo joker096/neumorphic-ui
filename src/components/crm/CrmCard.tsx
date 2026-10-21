@@ -4,6 +4,7 @@ import type { CrmContact, Deal, CrmTask } from '../../lib/crm/types';
 import { useI18n } from '../../lib/i18n';
 import { formatCurrency } from '../../utils/currency';
 import { isOpenDealStage } from '../../constants/crmConstants';
+import { PRIMARY_LABEL_CLASS } from '../ui/textClasses';
 
 interface CrmCardProps {
   contact: CrmContact;
@@ -55,7 +56,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
       <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
         <div className="flex items-center gap-2">
           <UserCircle2 size={16} className="text-[var(--accent)]" />
-          <span className={`text-sm font-semibold text-[var(--text-primary)]`}>
+          <span className={PRIMARY_LABEL_CLASS}>
             {t('crm.title')}
           </span>
         </div>

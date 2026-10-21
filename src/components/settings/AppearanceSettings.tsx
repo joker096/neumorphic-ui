@@ -4,6 +4,7 @@ import { useI18n } from '../../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, ToggleSwitch } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { ROW_SHELL_CLASS, SEGMENTED_TRACK_CLASS } from '../ui/rowClasses';
+import { PRIMARY_LABEL_CLASS } from '../ui/textClasses';
 
 const MAX_BG_DIMENSION = 960;
 const BG_JPEG_QUALITY = 0.8;
@@ -101,7 +102,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.darkTheme')}</div>
+              <div className={PRIMARY_LABEL_CLASS}>{t('settings.darkTheme')}</div>
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.themeModeSubtitle')}</div>
             </div>
           </div>
@@ -130,7 +131,7 @@ export const AppearanceSettings = ({
               <Sparkles size={16} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.animations')}</div>
+              <div className={PRIMARY_LABEL_CLASS}>{t('settings.animations')}</div>
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.animationsSubtitle')}</div>
             </div>
           </div>
@@ -149,7 +150,7 @@ export const AppearanceSettings = ({
               <Sparkles size={16} className="t-accent" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.uiAnimations')}</div>
+              <div className={PRIMARY_LABEL_CLASS}>{t('settings.uiAnimations')}</div>
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.uiAnimationsSubtitle')}</div>
             </div>
           </div>
@@ -161,7 +162,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.accentColor')}</div>
+              <div className={PRIMARY_LABEL_CLASS}>{t('settings.accentColor')}</div>
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.accentColorSubtitle')}</div>
             </div>
           </div>
@@ -182,7 +183,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className="text-cyan-600 dark:text-cyan-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.chatBackground')}</div>
+              <div className={PRIMARY_LABEL_CLASS}>{t('settings.chatBackground')}</div>
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.chatBackgroundSubtitle')}</div>
             </div>
           </div>
@@ -230,7 +231,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className="text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.density')}</div>
+              <div className={PRIMARY_LABEL_CLASS}>{t('settings.density')}</div>
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.densitySubtitle')}</div>
             </div>
           </div>
@@ -249,7 +250,7 @@ export const AppearanceSettings = ({
               <Palette size={16} className="text-rose-600 dark:text-rose-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-[var(--text-primary)]">{t('settings.messageRadius')}</div>
+              <div className={PRIMARY_LABEL_CLASS}>{t('settings.messageRadius')}</div>
               <div className={`text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('settings.messageRadiusSubtitle')}</div>
             </div>
           </div>

@@ -30,6 +30,12 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Полужирные подписи строк: класс вынесен в `ui/textClasses` (2026-10-21).** Строка `text-sm font-semibold text-[var(--text-primary)]` была скопирована в одиннадцати местах — семь заголовков в «Оформлении» (тема, анимации, акцентный цвет, фон чата, плотность, радиус сообщений), заголовки пунктов меню настроек, подпись карточки CRM и подпись панели радара — правка кегля или тона требовала синхронной правки в пяти файлах.
+  1. В `src/components/ui/textClasses.ts` добавлен `PRIMARY_LABEL_CLASS` (значение байт-в-байт прежнее).
+  2. Переведены `settings/AppearanceSettings.tsx` (7), `settings/SettingsMenuParts.tsx`, `settings/SettingsMenuPrimitives.tsx`, `crm/CrmCard.tsx`, `MeshRadar.tsx` — четыре последних сайта хранили класс в шаблонном литерале без интерполяции, они тоже переведены на константу.
+  3. Литерал остался только в определении; рендер и визуальные базлайны не изменились.
+  4. D1–D5 перескан: 0 findings — правки презентационные, ни один хендлер не тронут.
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (644), button-audit 0 (289/436), l10n PASS (0 errors / 10 dynamic), component-audit 0/0/0, dead-export dead 0, orphan PASS, ui-audit 14/14, visual 8/8.
 - **Компактные подписи полей профиля: класс вынесен в `ui/textClasses` (2026-10-21).** Строка `text-xs font-semibold text-[var(--text-secondary)]` была скопирована в шести местах — пять подписей полей в редакторе профиля (имя, username, статус, bio, цвет аватара) и заголовок блока контактных полей — правка кегля или тона требовала синхронной правки в двух файлах.
   1. В `src/components/ui/textClasses.ts` добавлен `FIELD_LABEL_CLASS` (значение байт-в-байт прежнее).
   2. Переведены `settings/ProfileEditForm.tsx` (5 подписей) и `settings/ProfileFieldEditor.tsx` (1 заголовок).

@@ -19,3 +19,6 @@ export const FIELD_LABEL_CLASS = 'text-xs font-semibold text-[var(--text-seconda
 
 /** Same caption with a leading icon, laid out on one line. */
 export const INLINE_HINT_CLASS = 'flex items-center gap-1.5 text-xs text-[var(--text-secondary)]';
+
+/** Semi-bold primary label used for row and menu titles. */
+export const PRIMARY_LABEL_CLASS = 'text-sm font-semibold text-[var(--text-primary)]';

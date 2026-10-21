@@ -2,6 +2,7 @@ import React from "react";
 import { ChevronRight } from "lucide-react";
 import { SettingsSectionTitle } from "../ui/SettingsRow";
 import { SettingsCard, SettingsDivider, SettingsNavItem } from "./SettingsMenuPrimitives";
+import { PRIMARY_LABEL_CLASS } from '../ui/textClasses';
 
 export interface NavItemDef {
   icon: React.ReactNode;
@@ -46,7 +47,7 @@ export function BigMenuButton({
       <div className="flex items-center gap-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>{icon}</div>
         <div className="flex-1 min-w-0">
-          <div className={`text-sm font-semibold text-[var(--text-primary)]`}>{title}</div>
+          <div className={PRIMARY_LABEL_CLASS}>{title}</div>
           <div className={"text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>{subtitle}</div>
         </div>
         <ChevronRight size={16} className={"shrink-0 opacity-40 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"} />
