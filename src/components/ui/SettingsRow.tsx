@@ -26,7 +26,7 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
     }
   };
 
-  const rowClasses = `w-full flex items-center gap-3 px-4 py-3 text-left border-b last:border-b-0 border-border ${interactive ? `transition-colors cursor-pointer active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}` : ""} ${className}`;
+  const rowClasses = `w-full flex items-center gap-3 px-4 py-3 text-left border-b last:border-b-0 border-border ${interactive ? `transition-colors cursor-pointer active:scale-[0.99] hover:bg-black/5 dark:hover:bg-white/5` : ""} ${className}`;
 
   const rowContent = (
     <>
@@ -83,7 +83,7 @@ export const SettingsSectionTitle = ({ title, isDark = false }: { title: string;
 );
 
 export const SettingsGroup = ({ children, isDark = false, className = "" }: { children: React.ReactNode; isDark?: boolean; className?: string }) => (
-  <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"} ${className}`}>
+  <div className={`rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)] ${className}`}>
     {children}
   </div>
 );

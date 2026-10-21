@@ -178,7 +178,6 @@ const handleSelectAccount = (id: number) => {
       <div ref={profileCardRef} className="w-full">
         {!editing ? (
           <ProfileHeaderCard
-            isDark={isDark}
             userProfile={userProfile}
             t={t}
             onEdit={handleStartEditing}

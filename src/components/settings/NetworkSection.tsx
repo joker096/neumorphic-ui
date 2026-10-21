@@ -82,7 +82,7 @@ export const NetworkSection = ({
           className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]`}
         />
         <div className="mt-4 flex flex-col gap-3">
-          <label className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+          <label className={"text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
             {t('settings.turnServerUserLabel', 'TURN username')}
           </label>
           <input
@@ -94,7 +94,7 @@ export const NetworkSection = ({
             onChange={(e) => onUpdateSettings({ turnServerUser: e.target.value })}
             className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors bg-[var(--bg-primary)] text-[var(--text-primary)]`}
           />
-          <label className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+          <label className={"text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
             {t('settings.turnServerPassLabel', 'TURN password')}
           </label>
           <input

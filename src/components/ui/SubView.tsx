@@ -24,7 +24,7 @@ export const SubView = ({ title, onBack, children, isDark = false }: SubViewProp
           type="button"
           onClick={onBack}
           aria-label={t('common.back')}
-          className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/5 hover:bg-black/10"}`}>
+          className={`min-w-11 min-h-11 rounded-full flex items-center justify-center transition-colors bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20`}>
           <ChevronLeft size={18} className="text-[var(--text-primary)]" />
         </button>
         <h2 className="font-sans text-xl font-bold tracking-wide text-[var(--text-primary)]">

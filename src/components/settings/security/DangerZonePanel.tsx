@@ -48,8 +48,8 @@ export const DangerZonePanel = ({ isDark = false, t }: DangerZonePanelProps) => 
       <SettingsGroup isDark={isDark}>
         <SettingsRow
           icon={<Trash2 size={16} />}
-          iconBg={isDark ? "bg-red-500/10" : "bg-red-100"}
-          iconColor={isDark ? "text-red-400" : "text-red-600"}
+          iconBg="bg-red-100 dark:bg-red-500/10"
+          iconColor="text-red-600 dark:text-red-400"
           title={t('settings.deleteAccount')}
           subtitle={t('settings.deleteAccountSubtitle')}
           isDark={isDark}

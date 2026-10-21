@@ -4,7 +4,6 @@ import { DEFAULT_AVATAR_COLOR, PROFILE_FIELD_TYPES } from '../../constants/setti
 import type { UserProfile } from '../../types/contact';
 
 interface ProfileHeaderCardProps {
-  isDark: boolean;
   userProfile: UserProfile;
   t: (key: string, fallback?: string | Record<string, string>) => string;
   onEdit: () => void;
@@ -33,13 +32,13 @@ const renderFieldIcon = (type: string) => {
   }
 };
 
-export const ProfileHeaderCard = ({ isDark, userProfile, t, onEdit, onShare }: ProfileHeaderCardProps) => {
+export const ProfileHeaderCard = ({ userProfile, t, onEdit, onShare }: ProfileHeaderCardProps) => {
   const avatarColor = userProfile.avatarColor || DEFAULT_AVATAR_COLOR;
   const initial = (userProfile.name || userProfile.username || 'U').charAt(0).toUpperCase();
   const fields = (userProfile.fields ?? []) as Array<{ id?: string; value: string; label?: string; type: string; visibleTo?: string }>;
 
   return (
-    <div className={`w-full rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
+    <div className={"w-full rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
       <div className={`h-24 bg-gradient-to-br ${userProfile.avatar ? '' : 'from-orange-400 to-red-500'}`}>
         {userProfile.avatar && (
           <img src={userProfile.avatar} alt={userProfile.name ? t('settings.profilePictureAlt', { name: userProfile.name }) : t('settings.profilePictureAltNone', 'Profile picture')} className="w-full h-full object-cover" loading="lazy" decoding="async" />

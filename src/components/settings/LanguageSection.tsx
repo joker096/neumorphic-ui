@@ -28,7 +28,7 @@ const LANGUAGES = [
 
 export const LanguageSection = ({ isDark = false, language, setLanguage, setLang, onBack, t }: LanguageSectionProps) => (
   <SubView title={t('settings.language')} isDark={isDark} onBack={onBack}>
-    <div className={`rounded-xl overflow-hidden ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"}`}>
+    <div className={"rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
       {LANGUAGES.map(lang => (
         <SettingsRow 
           key={lang.code}

@@ -31,8 +31,8 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
       <SettingsGroup isDark={isDark} className="mb-6">
         <SettingsRow
           icon={<Monitor size={16} />}
-          iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-          iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+          iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.thisDevice')}
           subtitle={t('settings.thisDeviceSubtitle')}
           isDark={isDark}

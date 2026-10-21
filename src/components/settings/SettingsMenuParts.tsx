@@ -47,9 +47,9 @@ export function BigMenuButton({
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>{icon}</div>
         <div className="flex-1 min-w-0">
           <div className={`text-sm font-semibold text-[var(--text-primary)]`}>{title}</div>
-          <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{subtitle}</div>
+          <div className={"text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>{subtitle}</div>
         </div>
-        <ChevronRight size={16} className={`shrink-0 opacity-40 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`} />
+        <ChevronRight size={16} className={"shrink-0 opacity-40 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"} />
       </div>
     </button>
   );

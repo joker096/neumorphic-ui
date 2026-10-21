@@ -30,6 +30,16 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Общие примитивы настроек и профильная шапка на дизайн-токенах (2026-10-21).** Девять файлов: `ui/SettingsRow`, `ui/SubView`, `settings/NetworkSection`, `SecuritySection`, `security/DangerZonePanel`, `FoldersSection`, `LanguageSection`, `ProfileHeaderCard`, `SettingsMenuParts`.
+  1. `SettingsRow`: hover строки → `hover:bg-black/5 dark:hover:bg-white/5`, панель `SettingsGroup` — единый `bg-[var(--bg-tertiary)] border border-[var(--border-color)]` вместо пары `bg-white shadow-sm` / токены.
+  2. `SubView`: кнопка «назад» — `bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20`.
+  3. `NetworkSection`: два `<label>` → `text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`.
+  4. `SecuritySection` (emerald) и `security/DangerZonePanel` (red) — пары иконных тонов в один `dark:`-класс.
+  5. `FoldersSection`: плашка папки — `bg-[var(--accent)]/10 dark:bg-[var(--accent-soft)]`.
+  6. `LanguageSection`, `ProfileHeaderCard`: карточки теряли тему (`bg-white shadow-sm` в светлой) → `--bg-tertiary`/`--border-color`; `SettingsMenuParts` — подпись и шеврон → токен-пара. `isDark` удалён из `ProfileHeaderCard` вместе с call-site в `ProfileSection` и тестовым пропсом.
+  7. Остаются намеренные исключения: `theme={isDark ? …}` адаптеры для `ConfirmDialog`/`Modal`, inline-цвета (`SWIPE_ACTION_COLORS`, градиент `SidebarNav`, canvas `strokeStyle`, `footerStatusRing`).
+  8. D1–D5 перескан: 0 findings — все контролы живые (строки настроек, тумблеры, папки, язык, профильная шапка, редактирование, шаринг).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Закреплённые сообщения, примитивы меню настроек, исключения уведомлений и участник на дизайн-токенах (2026-10-21).** Четыре файла с остаточными `isDark`-тернарниками, два мёртвых пропа удалены.
   1. `PinnedMessagesBar`: шторка, заголовок и «Отмена» уже были на токенах — `isDark` объявлялся и передавался, но хелперы `sheetSurface`/`sheetTitleClass`/`sheetCancelClass` его игнорируют (параметр `_isDark`). Проп удалён вместе с call-site в `ChatPreviewPanels`.
   2. `SettingsMenuPrimitives`: `SettingsCard` больше не выбирает между `bg-white shadow-sm` и `--bg-tertiary`; у `SettingsNavItem` подпись и шеврон → `text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`; `SettingsDivider` вообще не использовал флаг (ветки уже были идентичны) — проп и его интерфейс удалены, четыре call-site (`SettingsMainMenu` ×3, `SettingsMenuParts` ×1) очищены.

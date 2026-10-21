@@ -32,7 +32,7 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
             <div key={key}>
               {i > 0 && <div className={`border-t ${"border-[var(--border-color)]"}`} />}
               <div className="flex items-center gap-3 px-4 py-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isDark ? "bg-[var(--accent-soft)]" : "bg-[var(--accent)]/10"} text-[var(--accent)]`}>
+                <div className={"w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[var(--accent)]/10 dark:bg-[var(--accent-soft)] text-[var(--accent)]"}>
                   {meta.icon}
                 </div>
                 <div className="flex-1 min-w-0">

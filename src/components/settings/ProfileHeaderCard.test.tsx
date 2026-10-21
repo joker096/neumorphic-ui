@@ -31,7 +31,6 @@ const profile = {
 const renderCard = (overrides: Record<string, any> = {}) =>
   render(
     <ProfileHeaderCard
-      isDark={false}
       userProfile={profile as any}
       t={t}
       onEdit={vi.fn()}
