@@ -55,7 +55,7 @@ export function WorkplaceView({ isDark, channelId = "demo" }: WorkplaceViewProps
               key={tabItem.id}
               onClick={() => setTab(tabItem.id)}
               className={`flex items-center gap-1.5 min-h-11 px-3 rounded-lg text-sm font-medium whitespace-nowrap ${
-                active ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : isDark ? "bg-[var(--bg-tertiary)]" : "bg-white border border-[var(--border-color)]"
+                active ? "bg-[var(--accent)] text-[var(--ink-on-saturate)]" : "bg-white border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)]"
               }`}
             >
               <Icon size={16} /> {t(TAB_LABEL[tabItem.id])}
@@ -84,7 +84,7 @@ export interface PaymentCardProps {
 export function PaymentCard({ invoice, isDark, onPay }: PaymentCardProps) {
   const { t, lang } = useI18n();
   return (
-    <div className={`p-4 rounded-2xl border border-[var(--border-color)] ${isDark ? "bg-[var(--bg-tertiary)]" : "bg-white"}`}>
+    <div className={"p-4 rounded-2xl border border-[var(--border-color)] bg-white dark:bg-[var(--bg-tertiary)]"}>
       <div className="flex items-center gap-2 mb-1">
         <CreditCard size={18} className="text-[var(--accent)]" />
         <span className="font-semibold">{invoice.title}</span>

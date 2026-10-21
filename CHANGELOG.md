@@ -30,6 +30,14 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Боты, рабочее место, CRM-карточка и сканер QR на дизайн-токенах (2026-10-21).** Пять файлов вне кластера настроек, один мёртвый проп удалён.
+  1. `BotCommandList`: строка команды — `bg-white border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)]` вместо пары ветвей.
+  2. `BotProfileView`: кнопка «Открыть приложение» — `bg-white dark:bg-[var(--bg-tertiary)]`; после этого `isDark` у `BotCommandList` стал мёртвым — проп удалён вместе с call-site, а тест проверяет `dark:bg-[var(--bg-tertiary)]` вместо старого класса.
+  3. `WorkplaceView`: активный таб — `bg-white border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)]` (вложенный тернарник схлопнут), карточка счёта — тот же класс.
+  4. `CrmCard`: корневая карточка — `bg-white shadow-sm dark:bg-[var(--bg-tertiary)] dark:shadow-none`.
+  5. `ContactsScanModal`: область сканера — `bg-black/5 dark:bg-black`.
+  6. D1–D5 перескан: 0 findings — все контролы живые (открытие мини-приложения, табы рабочего места, оплата счёта, сканер QR, закрытие модалок).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Компания и эко-навигация на дизайн-токенах, три мёртвых пропа удалены (2026-10-21).** `CompanyInviteModal`, `CompanyInfoCard`, `MemberDetailModal`, `ChannelItem`, `ChannelList`, `EcoSidebarNav`.
   1. `CompanyInviteModal`: карточка приглашения теряла тему (`bg-white` в светлой) → `bg-[var(--bg-tertiary)] border border-[var(--border-color)]`; QR-контейнер обязан быть белым в обеих темах — одна строка `bg-white border-2 border-[var(--border-color)]` вместо пары почти идентичных веток.
   2. `CompanyInfoCard`: карточка компании — тот же панельный класс; бейдж подключения — `bg-[var(--color-success-soft)] text-[var(--color-success)] dark:bg-[var(--color-success)]/20`.

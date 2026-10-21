@@ -50,9 +50,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
 
   return (
     <div
-      className={`rounded-xl border border-[var(--border-color)] overflow-hidden ${
-        isDark ? 'bg-[var(--bg-tertiary)]' : 'bg-white shadow-sm'
-      }`}
+      className={"rounded-xl border border-[var(--border-color)] overflow-hidden bg-white shadow-sm dark:bg-[var(--bg-tertiary)] dark:shadow-none"}
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
         <div className="flex items-center gap-2">

@@ -86,7 +86,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
           </p>
         )}
 
-        <BotCommandList commands={profile.commands} isDark={isDark} />
+        <BotCommandList commands={profile.commands} />
 
         <div className="flex gap-3 mt-4">
           <button
@@ -103,9 +103,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
               onClick={() => onOpenMiniApp?.(botId)}
               aria-label={t("bot.openApp", "Open app")}
               title={t("bot.openApp", "Open app")}
-              className={`flex items-center justify-center w-9 h-9 min-w-11 min-h-11 rounded-xl font-semibold text-sm border border-[var(--border-color)] ${
-                isDark ? "bg-[var(--bg-tertiary)]" : "bg-white"
-              }`}
+              className={"flex items-center justify-center w-9 h-9 min-w-11 min-h-11 rounded-xl font-semibold text-sm border border-[var(--border-color)] bg-white dark:bg-[var(--bg-tertiary)]"}
             >
               <ExternalLink size={16} />
               <span className="sr-only">{t("bot.openApp", "Open app")}</span>

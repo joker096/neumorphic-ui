@@ -3,11 +3,10 @@ import { useI18n } from "../../../lib/i18n";
 
 export interface BotCommandListProps {
   commands: BotCommand[];
-  isDark?: boolean;
 }
 
 /** Renders the command list of a bot profile. No-op when empty. */
-export function BotCommandList({ commands, isDark }: BotCommandListProps) {
+export function BotCommandList({ commands }: BotCommandListProps) {
   const { t } = useI18n();
   if (!commands || commands.length === 0) return null;
 
@@ -20,9 +19,7 @@ export function BotCommandList({ commands, isDark }: BotCommandListProps) {
         {commands.map((c) => (
           <div
             key={c.command}
-            className={`flex items-baseline gap-2 px-3 py-2 rounded-lg ${
-              isDark ? "bg-[var(--bg-tertiary)]" : "bg-white border border-[var(--border-color)]"
-            }`}
+            className={"flex items-baseline gap-2 px-3 py-2 rounded-lg bg-white border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)]"}
           >
             <code className="text-[var(--accent)] text-sm font-semibold">/{c.command}</code>
             <span className="text-xs opacity-70">{c.description}</span>

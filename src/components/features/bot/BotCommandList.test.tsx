@@ -35,10 +35,10 @@ describe('BotCommandList', () => {
     expect(screen.getByText('Show help')).toBeInTheDocument();
   });
 
-  it('applies the dark background to command rows when isDark is set', () => {
-    const { container } = render(<BotCommandList commands={COMMANDS} isDark />);
+  it('applies the dark background to command rows via the dark variant', () => {
+    const { container } = render(<BotCommandList commands={COMMANDS} />);
     const rows = Array.from(container.querySelectorAll('code')).map((el) => el.parentElement);
-    rows.forEach((row) => expect(row).toHaveClass('bg-[var(--bg-tertiary)]'));
+    rows.forEach((row) => expect(row).toHaveClass('dark:bg-[var(--bg-tertiary)]'));
   });
 
   it('applies the light bordered row style by default', () => {
