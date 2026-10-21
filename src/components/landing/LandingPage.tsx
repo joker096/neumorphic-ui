@@ -3,6 +3,7 @@ import { Shield, Zap, Globe, Lock, ArrowRight, MessageCircle, Radio, Users } fro
 import { APP_INFO } from "../../config/settingsDefaults";
 import { useI18n } from "../../lib/i18n";
 import { CTA_ARROW_CLASS, FEATURE_TITLE_CLASS, GRADIENT_TEXT_CLASS, CTA_PRIMARY_CLASS, CTA_SECONDARY_CLASS, LANDING_PILL_CLASS, HERO_TITLE_CLASS, CTA_SECTION_TITLE_CLASS, FOOTER_WRAP_CLASS, HERO_LEAD_CLASS, FOOTER_SECTION_CLASS, FOOTER_META_CLASS } from './landingClasses';
+import { HERO_COLUMN_CLASS } from "./landingClasses";
 export type LandingPageProps = {
   isDark?: boolean;
   onGetStarted: () => void;
@@ -64,7 +65,7 @@ export const LandingPage = ({ isDark = false, onGetStarted }: LandingPageProps) 
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1, ease: [0.32, 0.72, 0, 1] }}
-          className="flex flex-col items-center text-center max-w-3xl"
+          className={HERO_COLUMN_CLASS}
         >
           <div className="mb-6 px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium border border-[var(--border-color)] text-[var(--text-secondary)]">
             {APP_INFO.VERSION} &mdash; June 2026

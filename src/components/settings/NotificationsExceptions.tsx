@@ -5,7 +5,7 @@ import { SettingsGroup, SettingsSectionTitle } from '../ui/SettingsRow';
 import { toast } from '../ui/Toast';
 import { ChatPickerModal } from '../payments/ChatPickerModal';
 import { ROW_SHELL_CLASS } from '../ui/rowClasses';
-
+import { SUBTLE_TEXT_CLASS } from '../ui/textClasses';
 interface NotifyException {
   id: string | number;
   name: string;
@@ -59,7 +59,7 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
             <div className={ROW_SHELL_CLASS}>
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-black/5 dark:bg-white/10">
-                  <Bell size={16} className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />
+                  <Bell size={16} className={SUBTLE_TEXT_CLASS} />
                 </div>
                 <span className={`text-sm truncate text-[var(--text-primary)]`}>{e.name}</span>
               </div>

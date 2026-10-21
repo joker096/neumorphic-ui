@@ -7,3 +7,6 @@
 
 /** Square icon button used by the bot profile and mini app views. */
 export const BOT_ICON_BTN_CLASS = 'flex items-center justify-center min-w-11 min-h-11 rounded-lg hover:bg-black/5 dark:hover:bg-white/10';
+
+/** Header strip of a bot screen. */
+export const BOT_HEADER_CLASS = 'flex items-center gap-3 p-4 border-b border-[var(--border-color)]';

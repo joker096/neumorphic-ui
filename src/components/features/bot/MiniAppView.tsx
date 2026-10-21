@@ -4,7 +4,7 @@ import { useServices, useServiceData, NotConfiguredState } from "../../../servic
 import { DataState } from "../../ui/DataState";
 import { useI18n } from "../../../lib/i18n";
 import { BOT_ICON_BTN_CLASS } from './botClasses';
-
+import { BOT_HEADER_CLASS } from "./botClasses";
 export interface MiniAppProps {
   botId: string;
   isDark?: boolean;
@@ -24,7 +24,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
     return (
       <div className="flex-1 flex flex-col">
         {onClose && (
-          <div className="flex items-center gap-3 p-4 border-b border-[var(--border-color)]">
+          <div className={BOT_HEADER_CLASS}>
             <button
               onClick={onClose}
               aria-label={t("bot.back", "Back")}

@@ -15,7 +15,7 @@ import { useAppStore } from "../../store";
 import type { CloudSyncState } from "../../store/types";
 import { ROW_SHELL_CLASS } from '../ui/rowClasses';
 import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
-
+import { SUBTLE_TEXT_CLASS } from "../ui/textClasses";
 interface SettingsMainMenuProps {
   isDark: boolean;
   searchQuery: string;
@@ -141,7 +141,7 @@ export function SettingsMainMenu({
                   <div className={ROW_SHELL_CLASS}>
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/10`}>
-                        {soundEnabled ? <Bell size={16} className="text-emerald-600 dark:text-emerald-400" /> : <BellOff size={16} className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />}
+                        {soundEnabled ? <Bell size={16} className="text-emerald-600 dark:text-emerald-400" /> : <BellOff size={16} className={SUBTLE_TEXT_CLASS} />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm text-[var(--text-secondary)]">{t('settings.sound')}</div>

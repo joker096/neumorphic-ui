@@ -11,7 +11,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { CrmContactGroup } from './people/CrmContactGroup';
 import { CrmBulkBar } from './people/CrmBulkBar';
-import { CRM_PANEL_BODY_CLASS, CRM_BOARD_TITLE_CLASS } from './crmClasses';
+import { CRM_PANEL_BODY_CLASS, CRM_BOARD_TITLE_CLASS, CRM_EMPTY_CLASS } from './crmClasses';
 type Props = {
   onOpenRoles?: () => void;
   onCall?: (name: string, color?: string) => void;
@@ -190,7 +190,7 @@ export const CrmPeople: React.FC<Props> = ({
       <CrmFilterBar onOpenRoles={onOpenRoles} open={filtersOpen} onToggle={onToggleFilters} />
 
       {grouped.length === 0 && (
-        <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noContacts', CRM_FALLBACKS.noContacts)}</div>
+        <div className={CRM_EMPTY_CLASS}>{t('crm.noContacts', CRM_FALLBACKS.noContacts)}</div>
       )}
 
       {grouped.map((group) => (

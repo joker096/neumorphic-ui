@@ -6,6 +6,7 @@ import { canGroupPermission, getGroupRole } from '../../store/slices/chatSlice';
 import { useI18n } from '../../lib/i18n';
 import { groupInviteUrl } from '../../config/app';
 import { GROUP_ROW_CLASS } from '../ui/rowClasses';
+import { AMBER_INLINE_CLASS } from '../ui/textClasses';
 const SLOW_MODE_OPTIONS = [0, 10, 30, 60];
 
 interface GroupManagementPanelProps {
@@ -103,7 +104,7 @@ export const GroupManagementPanel = ({ chatId, members, group }: GroupManagement
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate text-[var(--text-primary)]">{m.name}</div>
                 {owner && (
-                  <div className="text-xs flex items-center gap-1 text-[var(--amber)]">
+                  <div className={AMBER_INLINE_CLASS}>
                     <Crown size={12} /> {t('group.owner', 'Owner')}
                   </div>
                 )}

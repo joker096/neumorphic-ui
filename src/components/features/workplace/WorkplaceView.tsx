@@ -14,7 +14,7 @@ import { DataState } from "../../ui/DataState";
 import { Skeleton } from "../../ui/Skeleton";
 import { Panel } from "./shared";
 import { TasksTab, AutomationTab, AnalyticsTab, ModerationTab, KbTab } from "./tabs";
-
+import { FEATURE_BODY_CLASS } from "../featureClasses";
 type TabId = "tasks" | "automation" | "analytics" | "moderation" | "kb" | "payments";
 
 const TAB_LABEL: Record<TabId, string> = {
@@ -45,7 +45,7 @@ export function WorkplaceView({ isDark, channelId = "demo" }: WorkplaceViewProps
   const [tab, setTab] = useState<TabId>("tasks");
 
   return (
-    <div className="flex-1 flex flex-col h-full min-h-0 text-[var(--text-primary)]">
+    <div className={FEATURE_BODY_CLASS}>
       <div className="flex items-center gap-2 p-3 border-b border-[var(--border-color)] overflow-x-auto">
         {TABS.map((tabItem) => {
           const Icon = tabItem.icon;

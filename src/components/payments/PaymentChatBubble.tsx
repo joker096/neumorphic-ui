@@ -5,7 +5,7 @@ import { paymentStatusLabel, isPaymentSuccessful, isPaymentFailed, isPaymentPend
 import { toast } from '../ui/Toast'
 import { useI18n } from '../../lib/i18n'
 import { formatCurrency } from '../../utils/currency'
-import { INLINE_SEMIBOLD_CLASS } from '../ui/textClasses';
+import { INLINE_SEMIBOLD_CLASS, CAPS_MUTED_CLASS } from '../ui/textClasses';
 import { PAYMENT_SUCCESS_STATUS_CLASS, PAYMENT_FAILED_STATUS_CLASS, PAYMENT_PENDING_STATUS_CLASS } from './paymentClasses';
 interface PaymentChatBubbleProps {
   msg: any
@@ -87,7 +87,7 @@ export const PaymentChatBubble = ({ msg }: PaymentChatBubbleProps) => {
         >
           <Wallet size={16} className="text-[var(--accent)]" />
         </span>
-        <span className="text-xs font-bold uppercase tracking-widest opacity-70">{t('payments.request')}</span>
+        <span className={CAPS_MUTED_CLASS}>{t('payments.request')}</span>
       </div>
       {description && <div className="text-sm font-medium">{description}</div>}
       {amount != null && amount !== '' && (

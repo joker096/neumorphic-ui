@@ -10,6 +10,7 @@ import { meta, downloadMedia, shareMedia } from './mediaUtils';
 import { MediaViewerActionBar } from './MediaViewerActionBar';
 import { MediaViewerVideoOverlay } from './MediaViewerVideoOverlay';
 import { useMediaViewerGestures } from './useMediaViewerGestures';
+import { FULL_OVERLAY_CLASS } from './ui/overlayClasses';
 
 /** Round navigation button of the media viewer (previous / next). */
 const ROUND_NAV_BTN_CLASS = 'w-10 h-10 min-w-11 min-h-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30';
@@ -156,7 +157,7 @@ export const MediaViewer = ({ media, onClose, prev, next, onPrev, onNext, total,
            {media.type === 'photo' && (
              <div className="relative flex items-center justify-center" onDoubleClick={(e) => { e.stopPropagation(); if (media.type === 'photo') toggleZoom(); }}>
                {imgStatus === 'loading' && (
-                 <div className="absolute inset-0 flex items-center justify-center">
+                 <div className={FULL_OVERLAY_CLASS}>
                    <span className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                  </div>
                )}

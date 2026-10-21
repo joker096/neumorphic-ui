@@ -37,3 +37,9 @@ export const COMPANY_INPUT_CLASS = 'flex-1 min-h-11 rounded-xl px-3 bg-[var(--in
 
 /** Accent heading above a company list (contacts, departments). */
 export const COMPANY_LIST_TITLE_CLASS = 'flex items-center gap-2 font-bold text-xs uppercase tracking-widest text-[var(--accent)]';
+
+/** Company list entry name. */
+export const COMPANY_NAME_CLASS = 'font-bold text-sm text-[var(--text-primary)] truncate';
+
+/** Title of a company dialog. */
+export const COMPANY_MODAL_TITLE_CLASS = 'text-xl font-bold mb-5 text-[var(--text-primary)]';

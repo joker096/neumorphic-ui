@@ -1,7 +1,9 @@
 import { UserPlus, Copy, Check, ArrowRight, LogIn, Shield } from "lucide-react";
-import { AUTH_COLUMN_CLASS, AUTH_ERROR_CLASS, AUTH_LINK_BTN_CLASS, AUTH_PRIMARY_BTN_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SPINNER_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS, AUTH_TEXTAREA_CLASS } from '../authShared';
 import { HINT_TEXT_CLASS } from '../../ui/textClasses';
-import { AUTH_SUCCESS_CIRCLE_CLASS } from "../authShared";
+import { AUTH_COLUMN_CLASS, AUTH_ERROR_CLASS, AUTH_LINK_BTN_CLASS, AUTH_PRIMARY_BTN_CLASS, AUTH_PRIMARY_BTN_DISABLED_CLASS, AUTH_SPINNER_CLASS, AUTH_SUBTITLE_CLASS, AUTH_TITLE_CLASS, AUTH_TEXTAREA_CLASS, AUTH_SUCCESS_CIRCLE_CLASS } from '../authShared';
+
+/** Centred subtitle under a registration step heading. */
+const REG_SUBTITLE_CLASS = 'text-sm text-[var(--text-secondary)] mb-4 text-center';
 
 type T = (key: string, options?: any) => string;
 
@@ -48,7 +50,7 @@ export function ShowPhraseStep({ t, phrase, phraseWords, onContinue }: { t: T; p
   return (
           <div className="flex flex-col">
             <h2 className={`${AUTH_TITLE_CLASS}`}>{t("auth.registration.recoveryPhrase", "Recovery Phrase")}</h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-4 text-center">
+            <p className={REG_SUBTITLE_CLASS}>
               {t("auth.registration.writeDown", "Write these 24 words down in order. Never share them. This is the only way to recover your identity.")}
             </p>
             <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-4 mb-4">
@@ -89,7 +91,7 @@ export function ConfirmPhraseStep({ t, confirmInput, onConfirmInput, error, onCo
   return (
           <div className="flex flex-col">
             <h2 className={`${AUTH_TITLE_CLASS}`}>{t("auth.registration.confirmPhrase", "Confirm Recovery Phrase")}</h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-4 text-center">
+            <p className={REG_SUBTITLE_CLASS}>
               {t("auth.registration.typePhrase", "Type your 24-word recovery phrase to confirm you saved it.")}
             </p>
             <textarea

@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { CompanyContact, CompanyDepartment } from '../../types/constants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
-import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS, COMPANY_LIST_TITLE_CLASS } from './companyClasses';
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS, COMPANY_LIST_TITLE_CLASS, COMPANY_NAME_CLASS } from './companyClasses';
 type ContactListProps = {
   isDark?: boolean;
   contacts: CompanyContact[];
@@ -99,7 +99,7 @@ export const ContactList = ({
                     {String(contact.name || '').slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-sm text-[var(--text-primary)] truncate">{contact.name}</div>
+                    <div className={COMPANY_NAME_CLASS}>{contact.name}</div>
                     {contact.title ? (
                       <div className={SUBTLE_TRUNCATE_CLASS}>{contact.title}</div>
                     ) : null}

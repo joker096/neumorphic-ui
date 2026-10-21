@@ -22,3 +22,9 @@ export const CRM_FULL_PRIMARY_BTN_CLASS =
 
 /** Accent heading above a CRM board column. */
 export const CRM_BOARD_TITLE_CLASS = 'flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent)]';
+
+/** Empty state of a CRM board. */
+export const CRM_EMPTY_CLASS = 'py-10 text-center text-sm text-[var(--text-secondary)]';
+
+/** Centred hint under a CRM section. */
+export const CRM_CENTERED_HINT_CLASS = 'text-center text-xs text-[var(--text-secondary)] py-2';

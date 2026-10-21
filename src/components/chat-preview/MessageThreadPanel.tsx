@@ -6,8 +6,9 @@ import { ReplyQuote } from "./ReplyQuote";
 import { decodeIfMorse } from "../MorseDecoder";
 import { formatClockTime, sendTimeOf } from "../../utils/chatUtils";
 import { FORM_TRANSPARENT_INPUT_CLASS } from "../ui/formClasses";
-import { ACCENT_CAPS_CLASS } from "../ui/textClasses";
+import { ACCENT_CAPS_CLASS, BOLD_BASE_CLASS } from "../ui/textClasses";
 import { MESSAGE_SENDER_LABEL_CLASS } from "./chatPreviewClasses";
+import { SCROLL_BODY_CLASS } from "../ui/rowClasses";
 
 interface MessageThreadPanelProps {
   open: boolean;
@@ -107,7 +108,7 @@ export function MessageThreadPanel({
               <ChevronLeft size={24} />
             </button>
             <div>
-              <h3 className="font-bold text-base text-[var(--text-primary)]">
+              <h3 className={BOLD_BASE_CLASS}>
                 {t("chat.threadTitle", "Thread")}
               </h3>
               <p className={ACCENT_CAPS_CLASS}>
@@ -116,7 +117,7 @@ export function MessageThreadPanel({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+          <div className={SCROLL_BODY_CLASS}>
             {rootMessage && (
               <div className="rounded-2xl ring-1 ring-[var(--accent)]/40 pb-2">
                 <ThreadBubble message={rootMessage} t={t} />

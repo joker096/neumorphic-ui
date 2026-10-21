@@ -22,3 +22,6 @@ export const SECTION_HEADER_ROW_CLASS = 'flex items-center justify-between px-4 
 
 /** Row inside a bordered group panel (members, permissions). */
 export const GROUP_ROW_CLASS = 'flex items-center gap-3 px-4 py-3 border-b last:border-b-0 border-[var(--border-color)]';
+
+/** Scrollable body of a comment or thread panel. */
+export const SCROLL_BODY_CLASS = 'flex-1 overflow-y-auto p-4 flex flex-col gap-4';

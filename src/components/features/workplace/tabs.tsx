@@ -7,6 +7,9 @@ import { Skeleton } from "../../ui/Skeleton";
 import { Panel, reportServiceError } from "./shared";
 import { LIST_ROW_CLASS } from '../../ui/rowClasses';
 
+/** Bordered card inside the workplace panels. */
+const CARD_CLASS = 'px-3 py-2 rounded-xl border border-[var(--border-color)]';
+
 export function TasksTab({ isDark }: { isDark?: boolean }) {
   const { t } = useI18n();
   const { tasks } = useServices();
@@ -109,7 +112,7 @@ export function AnalyticsTab({ isDark, channelId }: { isDark?: boolean; channelI
         <DataState status="empty" isDark={isDark} title={t('workplace.noData')} description={t('workplace.metricsAppear')} />
       ) : (
         state.data.map((m) => (
-          <div key={m.label} className="px-3 py-2 rounded-xl border border-[var(--border-color)]">
+          <div key={m.label} className={CARD_CLASS}>
             <div className="flex justify-between text-sm mb-1">
               <span>{m.label}</span>
               <span className="opacity-70">{m.value}</span>
@@ -188,7 +191,7 @@ export function KbTab({ isDark }: { isDark?: boolean }) {
         <DataState status="empty" isDark={isDark} emptyIcon="search" title={t('workplace.nothingFound')} description={t('workplace.nothingFoundHint')} />
       ) : (
         state.data.map((a) => (
-          <article key={a.id} className="px-3 py-2 rounded-xl border border-[var(--border-color)]">
+          <article key={a.id} className={CARD_CLASS}>
             <h4 className="font-semibold text-sm">{a.title}</h4>
             <p className="text-xs opacity-70 line-clamp-2">{a.body}</p>
           </article>

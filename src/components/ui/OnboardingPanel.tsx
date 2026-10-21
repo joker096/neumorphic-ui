@@ -1,5 +1,6 @@
 import React from "react";
 import { Megaphone, MessageSquarePlus, UserPlus, QrCode, Plus, Users } from "lucide-react";
+import { PANEL_TITLE_CLASS } from "./textClasses";
 
 type OnboardingPanelVariant = "contacts" | "channels";
 
@@ -20,7 +21,7 @@ export const OnboardingPanel = ({ isDark = false, variant = "contacts", t, onSta
           ? <Megaphone size={32} className="text-[var(--accent)]" />
           : <MessageSquarePlus size={32} className="text-[var(--accent)]" />}
      </div>
-      <h3 className="text-lg font-bold mb-2 text-[var(--text-primary)]">
+      <h3 className={PANEL_TITLE_CLASS}>
         {t("onboarding.welcome") || "Welcome to Mess&Anger"}
       </h3>
        <p className={`text-sm max-w-xs mb-6 leading-relaxed text-[var(--text-secondary)]`}>

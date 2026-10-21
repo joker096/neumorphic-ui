@@ -11,7 +11,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCrmPermissions } from '../../lib/crm/permissions';
 import { formatDate } from '../../utils/dateTime';
-import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS, CRM_FULL_PRIMARY_BTN_CLASS } from './crmClasses';
+import { CRM_PANEL_BODY_CLASS, CRM_ICON_PRIMARY_BTN_CLASS, CRM_FULL_PRIMARY_BTN_CLASS, CRM_EMPTY_CLASS, CRM_CENTERED_HINT_CLASS } from './crmClasses';
 import { ACCENT_CAPS_BOLD_CLASS } from '../ui/textClasses';
 const priorityColor: Record<TaskPriority, string> = {
   low: 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]',
@@ -67,7 +67,7 @@ const TaskModal: React.FC<Props> = ({ task, onClose }) => {
             <Check size={16} aria-hidden="true" />
             <span className="sr-only">{t('crm.save', CRM_FALLBACKS.save)}</span>
           </button>
-        ) : <div className="text-center text-xs text-[var(--text-secondary)] py-2">{t('crm.readOnly', 'Read only')}</div>
+        ) : <div className={CRM_CENTERED_HINT_CLASS}>{t('crm.readOnly', 'Read only')}</div>
       }
     >
       <div className="flex flex-col gap-3">
@@ -169,7 +169,7 @@ export const CrmTasks: React.FC<CrmTasksProps> = ({ focusTaskId, onFocusHandled 
         )}
       </div>
 
-      {visibleTasks.length === 0 && <div className="py-10 text-center text-sm text-[var(--text-secondary)]">{t('crm.noTasks', CRM_FALLBACKS.noTasks)}</div>}
+      {visibleTasks.length === 0 && <div className={CRM_EMPTY_CLASS}>{t('crm.noTasks', CRM_FALLBACKS.noTasks)}</div>}
 
       <div className="flex flex-col gap-1.5">
         {sorted.map((task) => (

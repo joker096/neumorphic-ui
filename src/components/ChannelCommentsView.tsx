@@ -6,7 +6,8 @@ import { useI18n } from '../lib/i18n';
 import { get, set } from '../lib/idb';
 import { formatClockTime } from '../utils/chatUtils';
 import { FORM_TRANSPARENT_INPUT_CLASS } from './ui/formClasses';
-import { ACCENT_CAPS_CLASS } from './ui/textClasses';
+import { ACCENT_CAPS_CLASS, BOLD_BASE_CLASS } from './ui/textClasses';
+import { SCROLL_BODY_CLASS } from './ui/rowClasses';
 import {
   CURRENT_USER_SENDER,
   getCommentBubbleClass,
@@ -118,7 +119,7 @@ export const ChannelCommentsView = ({
               <ChevronLeft size={24} />
             </button>
             <div>
-              <h3 className="font-bold text-base text-[var(--text-primary)]">
+              <h3 className={BOLD_BASE_CLASS}>
                 {t('channelComments.title')}
               </h3>
               <p className={ACCENT_CAPS_CLASS}>
@@ -127,7 +128,7 @@ export const ChannelCommentsView = ({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+          <div className={SCROLL_BODY_CLASS}>
             {hasComments ? (
               comments.map((c) => <CommentBubble key={c.id} comment={c} />)
             ) : (

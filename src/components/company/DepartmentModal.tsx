@@ -10,8 +10,7 @@ import { FormField } from '../ui/FormField';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { CompanyModalCloseButton } from './CompanyModalCloseButton';
-import { COMPANY_TEXTAREA_CLASS } from './companyClasses';
-
+import { COMPANY_TEXTAREA_CLASS, COMPANY_MODAL_TITLE_CLASS } from './companyClasses';
 type DepartmentModalProps = {
   department: CompanyDepartment | null;
   members: CompanyMember[];
@@ -91,7 +90,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
     <div className={modalOverlay}>
       <div className={`w-full max-w-[340px] md:max-w-[400px] p-6 shadow-2xl relative rounded-2xl ${panelBg}`}>
 <CompanyModalCloseButton onClick={onClose} />
-        <h3 className="text-xl font-bold mb-5 text-[var(--text-primary)]">
+        <h3 className={COMPANY_MODAL_TITLE_CLASS}>
           {department ? t('company.editDepartment', 'Edit department') : t('company.addDepartment', 'Add department')}
         </h3>
 

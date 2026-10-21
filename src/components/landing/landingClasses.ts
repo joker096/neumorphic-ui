@@ -44,3 +44,6 @@ export const FOOTER_SECTION_CLASS = 'relative z-10 border-t px-6 py-8 border-[va
 
 /** Small bold footer meta line. */
 export const FOOTER_META_CLASS = 'text-xs font-bold tracking-tight text-[var(--text-secondary)]';
+
+/** Centred hero column of the landing page. */
+export const HERO_COLUMN_CLASS = 'flex flex-col items-center text-center max-w-3xl';

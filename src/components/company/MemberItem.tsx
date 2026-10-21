@@ -2,7 +2,7 @@ import { Phone, Video, Pencil } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { CompanyMember } from '../../lib/company/types';
 import { COMPANY_MEMBER_FALLBACKS } from '../../constants/companyConstants';
-import { CAPS_LABEL_CLASS, CONTACT_NAME_CLASS } from '../ui/textClasses';
+import { CAPS_LABEL_CLASS, CONTACT_NAME_CLASS, TRUNCATE_SECONDARY_CLASS } from '../ui/textClasses';
 type MemberItemProps = {
   member: CompanyMember;
   isDark?: boolean;
@@ -90,7 +90,7 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
             </span>
           )}
         </div>
-        <div className="text-xs truncate text-[var(--text-secondary)]">
+        <div className={TRUNCATE_SECONDARY_CLASS}>
           {subtitle}
         </div>
       </div>

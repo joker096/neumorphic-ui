@@ -15,6 +15,7 @@ import { AttachmentUnavailable } from "./attachments/AttachmentUnavailable";
 import { FileAttachmentRow } from "./attachments/FileAttachmentRow";
 import { ArticleMessageCard } from "./attachments/ArticleMessageCard";
 import { SMALL_SPINNER_CLASS } from "../ui/spinnerClasses";
+import { TRUNCATE_SECONDARY_CLASS } from "../ui/textClasses";
 
 /** Duration badge pinned to the bottom-right of a media tile. */
 const DURATION_BADGE_CLASS = 'absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-xs font-semibold text-white tracking-wider';
@@ -81,7 +82,7 @@ export function AttachmentMedia({
       <span aria-hidden="true" className={SMALL_SPINNER_CLASS} />
       <div className="min-w-0">
         <div className="text-sm font-medium truncate">{msg.fileName || t("chat.file")}</div>
-        {ftrSize && <div className="text-xs truncate text-[var(--text-secondary)]">{ftrSize}</div>}
+        {ftrSize && <div className={TRUNCATE_SECONDARY_CLASS}>{ftrSize}</div>}
       </div>
     </div>
   );

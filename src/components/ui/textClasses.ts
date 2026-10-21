@@ -55,3 +55,21 @@ export const SEMIBOLD_TRUNCATE_CLASS = 'text-sm font-semibold truncate text-[var
 
 /** Accent-coloured uppercase caption. */
 export const ACCENT_CAPS_BOLD_CLASS = 'text-xs font-bold uppercase tracking-widest text-[var(--accent)]';
+
+/** Muted caption that brightens in the dark theme. */
+export const SUBTLE_TEXT_CLASS = 'text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]';
+
+/** Faded uppercase caption. */
+export const CAPS_MUTED_CLASS = 'text-xs font-bold uppercase tracking-widest opacity-70';
+
+/** Inline amber note with a leading icon. */
+export const AMBER_INLINE_CLASS = 'text-xs flex items-center gap-1 text-[var(--amber)]';
+
+/** Bold base-size title. */
+export const BOLD_BASE_CLASS = 'font-bold text-base text-[var(--text-primary)]';
+
+/** Secondary caption that truncates instead of wrapping. */
+export const TRUNCATE_SECONDARY_CLASS = 'text-xs truncate text-[var(--text-secondary)]';
+
+/** Heading of a confirmation or onboarding panel. */
+export const PANEL_TITLE_CLASS = 'text-lg font-bold mb-2 text-[var(--text-primary)]';

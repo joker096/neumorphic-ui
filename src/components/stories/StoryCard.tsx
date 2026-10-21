@@ -3,6 +3,7 @@ import { Globe, ImageOff, Play } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { STORY_DEFAULT_GRADIENT } from '../../constants/storyConstants';
 import { STORY_MEDIA_COVER_CLASS, STORY_MEDIA_OVERLAY_CLASS } from './storyClasses';
+import { FULL_OVERLAY_CLASS } from '../ui/overlayClasses';
 interface StoryCardStory {
   userId: number | string;
   userName?: string;
@@ -44,7 +45,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
           </div>
         )}
         {showVideo && (
-          <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+          <div className={FULL_OVERLAY_CLASS} aria-hidden="true">
             <div className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center">
               <Play size={18} className="text-white ml-0.5" />
             </div>

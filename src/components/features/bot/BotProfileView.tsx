@@ -6,7 +6,8 @@ import { BotCommandList } from "./BotCommandList";
 import { BOT_AVATAR_FALLBACK_GRADIENT } from "../../../constants/botConstants";
 import { useI18n } from "../../../lib/i18n";
 import { BOT_ICON_BTN_CLASS } from './botClasses';
-
+import { FEATURE_BODY_CLASS } from "../featureClasses";
+import { BOT_HEADER_CLASS } from "./botClasses";
 export interface BotProfileViewProps {
   botId: string;
   isDark?: boolean;
@@ -51,8 +52,8 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
   ) : null;
 
   return (
-    <div className="flex-1 flex flex-col h-full min-h-0 text-[var(--text-primary)]">
-      <div className="flex items-center gap-3 p-4 border-b border-[var(--border-color)]">
+    <div className={FEATURE_BODY_CLASS}>
+      <div className={BOT_HEADER_CLASS}>
         <button
           onClick={onBack}
           aria-label={t("bot.back", "Back")}

@@ -4,7 +4,7 @@ import type { CompanyDepartment, CompanyMember } from '../../types/constants';
 import { memberColorAt } from '../../constants/companyConstants';
 import { FORM_ICON_ADD_BTN_CLASS, FORM_ICON_ADD_BTN_GAPPED_CLASS } from '../ui/formClasses';
 import { SUBTLE_TRUNCATE_CLASS } from '../ui/textClasses';
-import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS, COMPANY_LIST_TITLE_CLASS } from './companyClasses';
+import { LIST_LOADING_CLASS, LIST_EMPTY_CLASS, LIST_EMPTY_HINT_CLASS, COMPANY_ROW_CLASS, COMPANY_LIST_TITLE_CLASS, COMPANY_NAME_CLASS } from './companyClasses';
 type DepartmentListProps = {
   isDark?: boolean;
   departments: CompanyDepartment[];
@@ -110,7 +110,7 @@ export const DepartmentList = ({
                     <Building2 size={18} className="text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-sm text-[var(--text-primary)] truncate">{dept.name}</div>
+                    <div className={COMPANY_NAME_CLASS}>{dept.name}</div>
                     {dept.description ? (
                       <div className={SUBTLE_TRUNCATE_CLASS}>{dept.description}</div>
                     ) : null}

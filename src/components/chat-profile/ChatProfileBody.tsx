@@ -18,8 +18,7 @@ import {
 import { formatLongDate } from '../../utils/dateTime';
 import type { GroupMember, GroupPermissions } from '../../store/slices/chatSlice';
 import { ROW_SHELL_CLASS, GROUP_ROW_CLASS } from '../ui/rowClasses';
-import { MEDIUM_LABEL_CLASS, LARGE_LABEL_CLASS, HINT_TEXT_TIGHT_CLASS } from '../ui/textClasses';
-
+import { MEDIUM_LABEL_CLASS, LARGE_LABEL_CLASS, HINT_TEXT_TIGHT_CLASS, AMBER_INLINE_CLASS } from '../ui/textClasses';
 /** Counter card of the profile header (subscribers, posts, owner). */
 const STAT_CARD_CLASS =
   'rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]';
@@ -198,7 +197,7 @@ export const ChatProfileBody = ({
           </div>
           <div className="flex-1">
             <div className={MEDIUM_LABEL_CLASS}>{name}</div>
-            {i === 0 && <div className="text-xs flex items-center gap-1 text-[var(--amber)]"><Crown size={12} /> {t('profile.owner', 'Owner')}</div>}
+            {i === 0 && <div className={AMBER_INLINE_CLASS}><Crown size={12} /> {t('profile.owner', 'Owner')}</div>}
           </div>
           {i === 0 && <Shield size={16} className="text-[var(--accent)]" />}
         </div>

@@ -9,6 +9,9 @@ import { FormField } from '../ui/FormField';
 import { AVATAR_CIRCLE_CLASS } from './companyClasses';
 import { LARGE_LABEL_CLASS } from '../ui/textClasses';
 
+/** Full-screen overlay panel of the company profile editor. */
+const OVERLAY_PANEL_CLASS = 'absolute inset-0 z-[var(--z-modal)] flex flex-col bg-[var(--bg-primary)]/95';
+
 /** Header row of a company settings section. */
 const SECTION_HEADER_CLASS = 'flex items-center justify-between px-4 py-3 md:px-16 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80';
 
@@ -66,7 +69,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
 
   if (loading) {
     return (
-      <div className="absolute inset-0 z-[var(--z-modal)] flex flex-col bg-[var(--bg-primary)]/95">
+      <div className={OVERLAY_PANEL_CLASS}>
         <div className={SECTION_HEADER_CLASS}>
           <h2 className={LARGE_LABEL_CLASS}>{t('company.settingsTitle', 'Company Settings')}</h2>
 <button type="button" aria-label={t('common.close')} onClick={onClose} className={closeBtnStyle}>
@@ -81,7 +84,7 @@ export const CompanyProfileEditor: React.FC<CompanyProfileEditorProps> = ({ onCl
   }
 
   return (
-    <div className="absolute inset-0 z-[var(--z-modal)] flex flex-col bg-[var(--bg-primary)]/95">
+    <div className={OVERLAY_PANEL_CLASS}>
       <div className={SECTION_HEADER_CLASS}>
         <h2 className={LARGE_LABEL_CLASS}>{t('company.settingsTitle', 'Company Settings')}</h2>
         <button onClick={onClose} className={closeBtnStyle}>

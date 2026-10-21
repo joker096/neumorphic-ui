@@ -6,6 +6,7 @@ import { Check, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { modalBackdrop, modalOverlay, modalSurface, currentTheme, type ModalTheme } from '../ui/modalShared';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
+import { PANEL_TITLE_CLASS } from '../ui/textClasses';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -72,7 +73,7 @@ export const ConfirmModal = ({
             className={modalSurface(true, 'max-w-[340px]')}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id={titleId} className="text-lg font-bold mb-2 text-[var(--text-primary)]">{title}</h3>
+            <h3 id={titleId} className={PANEL_TITLE_CLASS}>{title}</h3>
             {message && <p id={messageId} className="text-sm mb-6 leading-relaxed text-[var(--text-secondary)]">{message}</p>}
             <div className="flex gap-3">
               <Button

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MENTION_BODY_SOURCE } from '../../types/mention';
-
+import { CAPS_MUTED_CLASS } from '../ui/textClasses';
 const MENTION_RENDER_PATTERN = new RegExp(
   `(^|[^\\p{L}\\p{M}\\p{N}\\p{Pc}])(@${MENTION_BODY_SOURCE})`,
   'gu',
@@ -72,7 +72,7 @@ export const FormattedText = ({ text, searchTerm = "" }: { text: string, searchT
             return <span key={i} className="text-xs font-bold uppercase tracking-widest opacity-60">{renderHighlight(part.slice(4))}</span>;
          }
          if (part.startsWith('## ')) {
-            return <span key={i} className="text-xs font-bold uppercase tracking-widest opacity-70">{renderHighlight(part.slice(3))}</span>;
+            return <span key={i} className={CAPS_MUTED_CLASS}>{renderHighlight(part.slice(3))}</span>;
          }
          if (part.startsWith('# ')) {
             return <span key={i} className="text-sm font-bold">{renderHighlight(part.slice(2))}</span>;

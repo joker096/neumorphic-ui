@@ -8,8 +8,7 @@ import { CRM_DEFAULT_DEAL_STAGE, CRM_FALLBACKS, DEAL_STAGES } from '../../consta
 import type { Deal, DealStage } from '../../lib/crm/types';
 import { CrmModal } from './CrmModal';
 import { useCrmPermissions } from '../../lib/crm/permissions';
-import { CRM_FULL_PRIMARY_BTN_CLASS } from './crmClasses';
-
+import { CRM_FULL_PRIMARY_BTN_CLASS, CRM_CENTERED_HINT_CLASS } from './crmClasses';
 const inputCls =
   `${FORM_FIELD_CONTROL_CLASS} text-xs`;
 const labelCls = FORM_FIELD_LABEL_CLASS;
@@ -69,7 +68,7 @@ export const DealModal: React.FC<Props> = ({ deal, onClose }) => {
             <span className="sr-only">{t('crm.save', CRM_FALLBACKS.save)}</span>
           </button>
         ) : (
-          <div className="text-center text-xs text-[var(--text-secondary)] py-2">{t('crm.readOnly', 'Read only — managers can edit')}</div>
+          <div className={CRM_CENTERED_HINT_CLASS}>{t('crm.readOnly', 'Read only — managers can edit')}</div>
         )
       }
     >

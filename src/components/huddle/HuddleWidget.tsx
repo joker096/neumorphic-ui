@@ -6,6 +6,9 @@ import { useI18n } from '../../lib/i18n';
 import type { CallEventType } from '../../lib/call/types';
 import { CALL_HUDDLE_DEFAULT_NAME, CALL_HUDDLE_IDLE_GRADIENT, CALL_HUDDLE_ACTIVE_GRADIENT } from '../../constants/callConstants';
 
+/** Speaker name in the huddle widget. */
+const SPEAKER_NAME_CLASS = 'text-[var(--text-primary)] font-medium text-sm';
+
 interface HuddleWidgetProps {
   chatId: string;
   chatName?: string;
@@ -71,7 +74,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
               <Mic size={18} className="text-[var(--text-primary)]" />
             </div>
             <div>
-              <p className="text-[var(--text-primary)] font-medium text-sm">{t('huddle.title')}</p>
+              <p className={SPEAKER_NAME_CLASS}>{t('huddle.title')}</p>
               <p className="text-white/50 text-xs">{t('huddle.voiceChat')}</p>
             </div>
           </div>
@@ -97,7 +100,7 @@ export const HuddleWidget: React.FC<HuddleWidgetProps> = ({ chatId, chatName }) 
             <Mic size={18} className="text-[var(--ink-on-saturate)]" />
           </div>
           <div>
-            <p className="text-[var(--text-primary)] font-medium text-sm">{t('huddle.active')}</p>
+            <p className={SPEAKER_NAME_CLASS}>{t('huddle.active')}</p>
             <p className="text-white/50 text-xs">{t('huddle.participants', { count: participants.length + 1 })}</p>
           </div>
         </div>

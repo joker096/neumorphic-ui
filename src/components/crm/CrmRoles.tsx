@@ -11,6 +11,9 @@ import { useCrmPermissions } from '../../lib/crm/permissions';
 import { FORM_FIELD_CONTROL_CLASS } from '../ui/formClasses';
 import { TINY_BOLD_CLASS } from '../ui/textClasses';
 
+/** Role name taking the remaining width of a role row. */
+const ROLE_NAME_CLASS = 'flex-1 font-bold text-sm text-[var(--text-primary)]';
+
 /** Primary button that adds a department or a custom role. */
 const ADD_BTN_CLASS = 'min-h-11 px-3 rounded-xl bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold cursor-pointer';
 
@@ -79,7 +82,7 @@ export const CrmRoles: React.FC = () => {
               {can('manageDepartments') ? (
                 <input aria-label={t('crm.departmentName', 'Department name')} value={d.name} onChange={(e) => updateDepartment(d.id, { name: e.target.value })} className={`${inputCls} flex-1`} />
               ) : (
-                <span className="flex-1 font-bold text-sm text-[var(--text-primary)]">{d.name}</span>
+                <span className={ROLE_NAME_CLASS}>{d.name}</span>
               )}
               {can('manageDepartments') && (
                 <select
@@ -127,7 +130,7 @@ export const CrmRoles: React.FC = () => {
                 {can('manageRoles') ? (
                   <input aria-label={t('crm.roleName', CRM_FALLBACKS.roleName)} value={r.name} onChange={(e) => updateCustomRole(r.id, { name: e.target.value })} className={`${inputCls} flex-1`} />
                 ) : (
-                  <span className="flex-1 font-bold text-sm text-[var(--text-primary)]">{r.name}</span>
+                  <span className={ROLE_NAME_CLASS}>{r.name}</span>
                 )}
                 {can('manageRoles') && (
                   <button onClick={() => setConfirm({ type: 'role', id: r.id })} aria-label={t('crm.deleteRole', 'Delete role')} title={t('crm.deleteRole', 'Delete role')} className={DANGER_TEXT_BTN_CLASS}>
