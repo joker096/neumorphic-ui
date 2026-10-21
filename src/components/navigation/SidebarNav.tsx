@@ -19,19 +19,13 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
 
   return (
     <aside
-      className={`hidden md:flex flex-col w-16 h-full shrink-0 border-r ${
-        isDark ? "bg-[var(--bg-primary)] border-r-white/[0.05]" : "bg-[var(--bg-primary)] border-r-black/[0.05]"
-      }`}
+      className={"hidden md:flex flex-col w-16 h-full shrink-0 border-r bg-[var(--bg-primary)] border-r-black/[0.05] dark:border-r-white/[0.05]"}
       style={isDark ? {} : { background: "linear-gradient(180deg, var(--nav-sidebar-gradient-from) 0%, var(--nav-sidebar-gradient-to) 100%)" }}
     >
       {/* Logo / app mark */}
       <div className="flex items-center justify-center h-16 shrink-0 border-b border-transparent">
         <div
-          className={`w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center font-black text-sm select-none ${
-            isDark
-              ? "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] shadow-[0_4px_14px_rgba(var(--accent-rgb),0.35)]"
-              : "bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] shadow-[0_3px_10px_rgba(var(--accent-rgb),0.3)]"
-          }`}
+          className={"w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center font-black text-sm select-none bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] text-[var(--ink-on-saturate)] shadow-[0_3px_10px_rgba(var(--accent-rgb),0.3)] dark:shadow-[0_4px_14px_rgba(var(--accent-rgb),0.35)]"}
           style={{ fontSize: 13, letterSpacing: "-0.02em" }}
           aria-hidden="true"
         >
@@ -40,7 +34,7 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
       </div>
 
       {/* Divider */}
-      <div className={`mx-3 h-px ${isDark ? "bg-white/[0.05]" : "bg-black/[0.05]"}`} />
+      <div className={"mx-3 h-px bg-black/[0.05] dark:bg-white/[0.05]"} />
 
       <nav className="flex-1 flex flex-col gap-1.5 px-2 mt-3" role="navigation">
           {filteredItems.map((item) => {
@@ -75,14 +69,10 @@ export const SidebarNav = React.memo(({ activeView, isDark = false, unreadCount,
       </nav>
 
       {/* Bottom user section */}
-      <div className={`mx-3 mb-4 mt-auto h-px ${isDark ? "bg-white/[0.05]" : "bg-black/[0.05]"}`} />
+      <div className={"mx-3 mb-4 mt-auto h-px bg-black/[0.05] dark:bg-white/[0.05]"} />
       <div className="flex items-center justify-center pb-4">
         <div
-          className={`w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] ${
-            isDark
-              ? "shadow-[inset_0_1px_3px_rgba(255,255,255,0.08)]"
-              : "shadow-[0_1px_4px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)]"
-          }`}
+          className={"w-9 h-9 min-w-11 min-h-11 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] shadow-[0_1px_4px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)] dark:shadow-[inset_0_1px_3px_rgba(255,255,255,0.08)]"}
           aria-hidden="true"
         >
           ?

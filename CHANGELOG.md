@@ -30,6 +30,14 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Боковая навигация, отделы и карточка запроса платежа на дизайн-токенах (2026-10-21).** Три файла вне кластера настроек.
+  1. `SidebarNav`: рамка рейла — `border-r-black/[0.05] dark:border-r-white/[0.05]`; логотип держал две **идентичные** ветки, различавшиеся только альфой тени — одна строка `shadow-[0_3px_10px_…0.3] dark:shadow-[0_4px_14px_…0.35]`; два разделителя — `bg-black/[0.05] dark:bg-white/[0.05]`; кнопка профиля — светлая тень плюс `dark:shadow-[inset_…]`.
+  2. Градиентная подложка рейла остаётся на `isDark` намеренно: это inline `background` (в тёмной теме градиент не применяется вовсе), а не className — то же исключение, что `SWIPE_ACTION_COLORS` и canvas `strokeStyle`.
+  3. `company/DepartmentModal`: `colorSwatch` → `border-black/10 dark:border-white/30`, `panelBg` больше не выбирает между `bg-white` и `--bg-tertiary`.
+  4. `payments/PaymentRequestCard`: карточка — `bg-[var(--bg-tertiary)] border-[var(--border-color)]`; три кнопки состояния — `bg-black/5 text-[var(--text-secondary)] dark:bg-white/10 dark:text-[var(--text-primary)]`.
+  5. `isDark` в модалке остаётся адаптером `theme` для двух `ConfirmDialog`, в карточке платежа удалён полностью (0 вхождений).
+  6. D1–D5 перескан: 0 findings — все контролы живые (навигация, создание отдела, выбор цвета, оплата/отклонение запроса).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Контакты и боты на дизайн-токенах, мёртвый проп `isDark` удалён из `ContactsShareModal` (2026-10-21).** Три файла контактного кластера потеряли локальные тернарники.
   1. `ContactItem`: строка ID и подпись под именем → `text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`; звезда избранного — `text-yellow-500 dark:text-yellow-400`; у хелпера `swipeBtn` был объявлен и передавался, но нигде не читался параметр `isDark` — удалён вместе с двумя аргументами вызова.
   2. Цвет ящика «Позвонить» остаётся на `isDark` намеренно: это inline `backgroundColor` из `SWIPE_ACTION_COLORS` (`#47557a` / `#2b2f42`), а не className — тот же класс исключений, что canvas `strokeStyle` в `MeshRadar`.

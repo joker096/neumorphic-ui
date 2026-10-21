@@ -109,7 +109,7 @@ export const PaymentRequestCard = ({
   return (
     <div
       className={`rounded-2xl p-4 border ${
-        isDark ? 'bg-white/5 border-[var(--border-color)]' : 'bg-white border-[var(--border-color)] shadow-sm'
+        'bg-[var(--bg-tertiary)] border-[var(--border-color)]'
       }`}
     >
       <div className="flex items-start gap-4">
@@ -149,7 +149,7 @@ export const PaymentRequestCard = ({
           aria-label={copied ? t('payments.copied') : t('payments.copy')}
           title={copied ? t('payments.copied') : t('payments.copy')}
           className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform min-w-11 min-h-11 ${
-            isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'
+            'bg-black/5 text-[var(--text-secondary)] dark:bg-white/10 dark:text-[var(--text-primary)]'
           }`}
         >
           {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -160,7 +160,7 @@ export const PaymentRequestCard = ({
           aria-label={t('payments.share')}
           title={t('payments.share')}
           className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
-            isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'
+            'bg-black/5 text-[var(--text-secondary)] dark:bg-white/10 dark:text-[var(--text-primary)]'
           }`}
         >
           <Share2 size={16} />
@@ -172,7 +172,7 @@ export const PaymentRequestCard = ({
             aria-label={t('payments.sendToChat')}
             title={t('payments.sendToChat')}
             className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
-              isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'
+              'bg-black/5 text-[var(--text-secondary)] dark:bg-white/10 dark:text-[var(--text-primary)]'
             }`}
           >
             <Send size={16} />
