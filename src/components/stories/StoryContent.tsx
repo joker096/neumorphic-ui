@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { ImageOff } from 'lucide-react';
 import { STORY_DEFAULT_GRADIENT } from '../../constants/storyConstants';
 import type { StoryItem } from './storiesData';
+import { STORY_MEDIA_COVER_CLASS } from './storyClasses';
 
 interface StoryContentProps {
   story: StoryItem;
@@ -118,14 +119,14 @@ export const StoryContent: React.FC<StoryContentProps> = ({
         <img
           src={story.image}
           alt={story.caption ?? ''}
-          className="absolute inset-0 w-full h-full object-cover"
+          className={STORY_MEDIA_COVER_CLASS}
           onError={() => setMediaFailed(true)}
         />
       )}
       {showVideo && (
         <video
           src={story.video}
-          className="absolute inset-0 w-full h-full object-cover"
+          className={STORY_MEDIA_COVER_CLASS}
           autoPlay
           muted
           loop

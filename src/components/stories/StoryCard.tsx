@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Globe, ImageOff, Play } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { STORY_DEFAULT_GRADIENT } from '../../constants/storyConstants';
+import { STORY_MEDIA_COVER_CLASS } from './storyClasses';
 
 interface StoryCardStory {
   userId: number | string;
@@ -33,10 +34,10 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
     >
       <div className={`relative w-56 h-72 bg-gradient-to-br ${bg} flex items-center justify-center`} data-testid="story-card-bg">
         {showImage && (
-          <img src={story.image} alt="" className="absolute inset-0 w-full h-full object-cover" onError={() => setMediaFailed(true)} />
+          <img src={story.image} alt="" className={STORY_MEDIA_COVER_CLASS} onError={() => setMediaFailed(true)} />
         )}
         {showVideo && (
-          <video src={story.video} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline onError={() => setMediaFailed(true)} />
+          <video src={story.video} className={STORY_MEDIA_COVER_CLASS} muted loop playsInline onError={() => setMediaFailed(true)} />
         )}
         {(story.type === 'photo' || story.type === 'video') && mediaFailed && (
           <div className="absolute inset-0 flex items-center justify-center text-white/70" aria-hidden="true">

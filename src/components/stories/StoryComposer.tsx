@@ -8,6 +8,7 @@ import { Button } from '../ui/Button';
 import { toast } from '../ui/Toast';
 import { STORY_GRADIENTS, AUDIENCE_OPTIONS, EXPIRATION_OPTIONS, DEFAULT_AUDIENCE, DEFAULT_EXPIRATION, STORY_CAPTION_MAX_LENGTH } from '../../constants/storyConstants';
 import { publishMyStory } from './storiesData';
+import { STORY_MEDIA_COVER_CLASS } from './storyClasses';
 
 interface StoryComposerProps {
   open: boolean;
@@ -96,10 +97,10 @@ export const StoryComposer = ({ open, onClose }: StoryComposerProps) => {
         <div className="p-4">
           <div className={`relative rounded-xl h-56 flex items-center justify-center overflow-hidden bg-gradient-to-br ${bg}`}>
             {media?.kind === 'image' && (
-              <img src={media.url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={media.url} alt="" className={STORY_MEDIA_COVER_CLASS} />
             )}
             {media?.kind === 'video' && (
-              <video src={media.url} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop playsInline />
+              <video src={media.url} className={STORY_MEDIA_COVER_CLASS} autoPlay muted loop playsInline />
             )}
             {!media && <Type size={32} className="text-white/70" aria-hidden="true" />}
             {media && (
