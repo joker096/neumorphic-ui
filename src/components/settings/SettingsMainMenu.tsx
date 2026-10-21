@@ -47,7 +47,7 @@ export function SettingsMainMenu({
 
   const premiumActive = useAppStore((s) => s.premiumEntitlement.premium);
   const { appearanceItems, privacyItems, chatsItems, callsItems, servicesItems, advancedItems } =
-    buildSettingsMenuItems({ isDark, t, language, setActiveSection, setSubView, premiumActive });
+    buildSettingsMenuItems({ t, language, setActiveSection, setSubView, premiumActive });
 
   const q = searchQuery.trim().toLowerCase();
   const matches = (title: string, subtitle?: string) =>

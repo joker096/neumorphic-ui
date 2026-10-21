@@ -5,7 +5,6 @@ import {
 import type { NavItemDef } from "./SettingsMenuParts";
 
 interface SettingsMenuItemsArgs {
-  isDark: boolean;
   t: (key: string, options?: any) => string;
   language: string;
   setActiveSection: (section: string) => void;
@@ -14,12 +13,12 @@ interface SettingsMenuItemsArgs {
 }
 
 export function buildSettingsMenuItems({
-  isDark, t, language, setActiveSection, setSubView, premiumActive,
+  t, language, setActiveSection, setSubView, premiumActive,
 }: SettingsMenuItemsArgs) {
   const appearanceItems: NavItemDef[] = [
     {
-      icon: <Palette size={18} className={isDark ? "text-emerald-400" : "text-emerald-600"} />,
-      iconBg: isDark ? "bg-emerald-500/20" : "bg-emerald-100",
+      icon: <Palette size={18} className={"text-emerald-600 dark:text-emerald-400"} />,
+      iconBg: "bg-emerald-100 dark:bg-emerald-500/undefined",
       title: t('settings.theme'),
       subtitle: t('settings.appearanceTheme'),
       onClick: () => setActiveSection('appearance'),
@@ -35,22 +34,22 @@ export function buildSettingsMenuItems({
 
   const privacyItems: NavItemDef[] = [
     {
-      icon: <Shield size={18} className={isDark ? "text-rose-400" : "text-rose-600"} />,
-      iconBg: isDark ? "bg-rose-500/20" : "bg-rose-100",
+      icon: <Shield size={18} className={"text-rose-600 dark:text-rose-400"} />,
+      iconBg: "bg-rose-100 dark:bg-rose-500/undefined",
       title: t('settings.security'),
       subtitle: t('settings.securitySubtitle'),
       onClick: () => setActiveSection('security'),
     },
     {
-      icon: <Lock size={18} className={isDark ? "text-indigo-400" : "text-indigo-600"} />,
-      iconBg: isDark ? "bg-indigo-500/20" : "bg-indigo-100",
+      icon: <Lock size={18} className={"text-indigo-600 dark:text-indigo-400"} />,
+      iconBg: "bg-indigo-100 dark:bg-indigo-500/undefined",
       title: t('settings.privacy'),
       subtitle: t('settings.privacySubtitle'),
       onClick: () => setActiveSection('privacy'),
     },
     {
-      icon: <Monitor size={18} className={isDark ? "text-sky-400" : "text-sky-600"} />,
-      iconBg: isDark ? "bg-sky-500/20" : "bg-sky-100",
+      icon: <Monitor size={18} className={"text-sky-600 dark:text-sky-400"} />,
+      iconBg: "bg-sky-100 dark:bg-sky-500/undefined",
       title: t('settings.devices', 'Devices'),
       subtitle: t('settings.devicesSubtitle', 'Sessions and connected devices'),
       onClick: () => setActiveSection('devices'),
@@ -60,7 +59,7 @@ export function buildSettingsMenuItems({
   const chatsItems: NavItemDef[] = [
     {
       icon: <FolderTree size={16} className={"text-[var(--accent)]"} />,
-      iconBg: isDark ? "bg-[var(--accent-soft)]" : "bg-[var(--accent)]/10",
+      iconBg: "bg-[var(--accent-soft)]",
       title: t('settings.folders'),
       subtitle: t('settings.foldersSubtitle', 'Organize chats into filters'),
       onClick: () => setActiveSection('folders'),
@@ -69,8 +68,8 @@ export function buildSettingsMenuItems({
 
   const callsItems: NavItemDef[] = [
     {
-      icon: <Phone size={16} className={isDark ? "text-sky-400" : "text-sky-600"} />,
-      iconBg: isDark ? "bg-sky-500/10" : "bg-sky-100",
+      icon: <Phone size={16} className={"text-sky-600 dark:text-sky-400"} />,
+      iconBg: "bg-sky-100 dark:bg-sky-500/undefined",
       title: t('call.callsSettings', 'Call settings'),
       subtitle: t('call.callsSettingsSubtitle', 'Recording, history and call tools'),
       onClick: () => setActiveSection('calls'),
@@ -79,36 +78,36 @@ export function buildSettingsMenuItems({
 
   const servicesItems: NavItemDef[] = [
     {
-      icon: <Crown size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />,
-      iconBg: isDark ? "bg-amber-500/10" : "bg-amber-100",
+      icon: <Crown size={16} className={"text-amber-600 dark:text-amber-400"} />,
+      iconBg: "bg-amber-100 dark:bg-amber-500/undefined",
       title: t('premium.title', 'Premium'),
       subtitle: premiumActive ? t('premium.active', 'Active') : t('premium.menuSubtitle', 'Unlock premium features'),
       onClick: () => setActiveSection('premium'),
     },
     {
-      icon: <Bot size={16} className={isDark ? "text-fuchsia-400" : "text-fuchsia-600"} />,
-      iconBg: isDark ? "bg-fuchsia-500/10" : "bg-fuchsia-100",
+      icon: <Bot size={16} className={"text-fuchsia-600 dark:text-fuchsia-400"} />,
+      iconBg: "bg-fuchsia-100 dark:bg-fuchsia-500/undefined",
       title: t('settings.bots'),
       subtitle: t('settings.botsSubtitle'),
       onClick: () => setActiveSection('bots'),
     },
     {
-      icon: <Radar size={16} className={isDark ? "text-cyan-400" : "text-cyan-600"} />,
-      iconBg: isDark ? "bg-cyan-500/10" : "bg-cyan-100",
+      icon: <Radar size={16} className={"text-cyan-600 dark:text-cyan-400"} />,
+      iconBg: "bg-cyan-100 dark:bg-cyan-500/undefined",
       title: t('nav.radar'),
       subtitle: t('hub.radarSubtitle'),
       onClick: () => setSubView?.('radar'),
     },
     {
-      icon: <CreditCard size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />,
-      iconBg: isDark ? "bg-emerald-500/10" : "bg-emerald-100",
+      icon: <CreditCard size={16} className={"text-emerald-600 dark:text-emerald-400"} />,
+      iconBg: "bg-emerald-100 dark:bg-emerald-500/undefined",
       title: t('settings.payments'),
       subtitle: t('settings.paymentsSubtitle', 'Wallet, transfers and receipts'),
       onClick: () => setActiveSection('payments'),
     },
     {
-      icon: <Receipt size={16} className={isDark ? "text-violet-400" : "text-violet-600"} />,
-      iconBg: isDark ? "bg-violet-500/10" : "bg-violet-100",
+      icon: <Receipt size={16} className={"text-violet-600 dark:text-violet-400"} />,
+      iconBg: "bg-violet-100 dark:bg-violet-500/undefined",
       title: t('payRequests.menuTitle', 'Payment Requests'),
       subtitle: t('payRequests.menuSubtitle', 'Create & track crypto payments'),
       onClick: () => setActiveSection('paymentRequests'),
@@ -124,22 +123,22 @@ export function buildSettingsMenuItems({
       onClick: () => setActiveSection('network'),
     },
     {
-      icon: <Activity size={16} className={isDark ? "text-emerald-400" : "text-emerald-600"} />,
-      iconBg: isDark ? "bg-emerald-500/10" : "bg-emerald-100",
+      icon: <Activity size={16} className={"text-emerald-600 dark:text-emerald-400"} />,
+      iconBg: "bg-emerald-100 dark:bg-emerald-500/undefined",
       title: t('settings.systemStatus'),
       subtitle: t('settings.systemStatusSubtitle'),
       onClick: () => setActiveSection('systemStatus'),
     },
     {
-      icon: <Radar size={16} className={isDark ? "text-teal-400" : "text-teal-600"} />,
-      iconBg: isDark ? "bg-teal-500/10" : "bg-teal-100",
+      icon: <Radar size={16} className={"text-teal-600 dark:text-teal-400"} />,
+      iconBg: "bg-teal-100 dark:bg-teal-500/undefined",
       title: t('mesh.title', 'LAN Mesh'),
       subtitle: t('mesh.menuSubtitle', 'Serverless pairing via QR'),
       onClick: () => setActiveSection('mesh'),
     },
     {
-      icon: <HelpCircle size={16} className={isDark ? "text-amber-400" : "text-amber-600"} />,
-      iconBg: isDark ? "bg-amber-500/10" : "bg-amber-100",
+      icon: <HelpCircle size={16} className={"text-amber-600 dark:text-amber-400"} />,
+      iconBg: "bg-amber-100 dark:bg-amber-500/undefined",
       title: t('settings.helpSupport'),
       subtitle: t('settings.helpSupportSubtitle', 'FAQ, guides and contact'),
       onClick: () => setActiveSection('help'),
