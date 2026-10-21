@@ -9,7 +9,6 @@ import { CALL_END_GRADIENT } from '../constants/callConstants';
 import { callManager } from '../lib/call/CallManager';
 
 export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light' }) => {
-  const isDark = theme === "dark";
   const { t } = useI18n();
   const { activeCall, setActiveCall, callMinimized, setCallMinimized } = useAppStore();
   const [duration, setDuration] = useState(0);
@@ -56,12 +55,12 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
           )}
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              {activeCall.isVideo && <Video size={14} className={isDark ? "text-orange-400" : "text-orange-600"} />}
+              {activeCall.isVideo && <Video size={14} className="text-orange-600 dark:text-orange-400" />}
               <span className={`text-sm font-bold text-[var(--text-primary)]`}>
                 {activeCall.remotePeer?.displayName || t('call.unknownCaller')}
               </span>
             </div>
-            <span className={`text-xs font-mono font-medium ${isDark ? "text-orange-400" : "text-orange-600"}`}>
+            <span className={"text-xs font-mono font-medium text-orange-600 dark:text-orange-400"}>
               {formatDuration(duration)}
             </span>
           </div>

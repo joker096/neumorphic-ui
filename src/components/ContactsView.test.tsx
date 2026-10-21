@@ -263,7 +263,7 @@ describe('ContactsView', () => {
     render(<ContactsView {...defaultProps} />);
 
     const container = screen.getByTestId('contacts-container');
-    expect(container).toHaveClass('bg-[var(--bg-primary)]/50');
+    expect(container).toHaveClass('dark:bg-[var(--bg-primary)]/50');
   });
 
   it('applies light theme styles', () => {

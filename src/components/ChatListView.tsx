@@ -154,7 +154,7 @@ export const ChatListView = ({
   });
 
   return (
-    <div className={`w-full flex-1 flex flex-col overflow-hidden px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
+    <div className={"w-full flex-1 flex flex-col overflow-hidden px-3 md:px-5 py-3 md:py-5 bg-[var(--bg-secondary)]/50 dark:bg-[var(--bg-primary)]/50"}>
       <ChatListSearchHeader
         isDark={isDark}
         view={view}
@@ -231,7 +231,7 @@ export const ChatListView = ({
       )}
 
       <div ref={scrollRef} className="chat-list flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-        <ChatListVirtualRows rows={rows} isDark={isDark} scrollRef={scrollRef} renderRow={renderRow} />
+        <ChatListVirtualRows rows={rows} scrollRef={scrollRef} renderRow={renderRow} />
 
         {view === "bots" && (
           <ChatListBots bots={bots} onOpenBot={onOpenBot} isDark={isDark} t={t} />

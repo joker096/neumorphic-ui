@@ -84,13 +84,12 @@ export function useChatListRowRenderer(deps: RowRendererDeps) {
 
 interface ChatListVirtualRowsProps {
   rows: ChatRow[];
-  isDark: boolean;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   renderRow: (chat: any, type: "chat" | "channel") => ReactElement;
 }
 
 /** Absolutely-positioned virtualized rows over a spacer sized to the virtualizer total. */
-export function ChatListVirtualRows({ rows, isDark, scrollRef, renderRow }: ChatListVirtualRowsProps) {
+export function ChatListVirtualRows({ rows, scrollRef, renderRow }: ChatListVirtualRowsProps) {
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
@@ -135,7 +134,7 @@ export function ChatListVirtualRows({ rows, isDark, scrollRef, renderRow }: Chat
             {row.kind === "header" ? (
               <div className={row.innerClass}>{row.text}</div>
             ) : row.kind === "divider" ? (
-              <div className={`h-px w-full ${isDark ? "bg-white/5" : "bg-black/5"}`} />
+              <div className={"h-px w-full bg-black/5 dark:bg-white/5"} />
             ) : (
               renderRow(row.chat, row.kind)
             )}

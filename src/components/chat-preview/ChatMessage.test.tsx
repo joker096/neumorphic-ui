@@ -68,7 +68,7 @@ vi.mock('./BubbleActions', () => ({ BubbleActions: () => <div data-testid="bubbl
 vi.mock('./ChannelCommentsRow', () => ({ ChannelCommentsRow: () => <div data-testid="channel-comments" /> }));
 vi.mock('./ReplyQuote', () => ({ ReplyQuote: () => <div data-testid="reply-quote" /> }));
 vi.mock('../payments/PaymentChatBubble', () => ({
-  PaymentChatBubble: ({ isDark }: any) => <div data-testid="payment-bubble" data-dark={String(isDark)} />,
+  PaymentChatBubble: () => <div data-testid="payment-bubble" />,
 }));
 
 const storeState = vi.hoisted(() => ({
@@ -243,8 +243,8 @@ describe('ChatMessage', () => {
   });
 
   it('renders payment bubble for payment messages', () => {
-    render(<ChatMessage {...baseProps({ msg: { id: 3, type: 'payment', text: '$10', _isLastInGroup: true }, isDark: true })} />);
-    expect(screen.getByTestId('payment-bubble')).toHaveAttribute('data-dark', 'true');
+    render(<ChatMessage {...baseProps({ msg: { id: 3, type: 'payment', text: '$10', _isLastInGroup: true } })} />);
+    expect(screen.getByTestId('payment-bubble')).toBeInTheDocument();
     expect(screen.queryByTestId('formatted-text')).not.toBeInTheDocument();
   });
 

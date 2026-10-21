@@ -26,7 +26,6 @@ import { useSelfDestructExpiry, useMessageTranslation, useMorseToggle } from "./
 interface ChatMessageProps {
   msg: any;
   isMe: boolean;
-  isDark: boolean;
   isChannel?: boolean;
   chat: any;
   stealthMode: boolean;
@@ -66,7 +65,7 @@ interface ChatMessageProps {
 }
 
 function ChatMessageImpl({
-  msg, isMe, isDark, isChannel, chat, stealthMode,
+  msg, isMe, isChannel, chat, stealthMode,
   deliveryReceipts, readReceipts, chatSavedMessages, searchQuery,
   swipeReplyId, activeReactionPicker, theme,
   onReply, onToggleSavedMessage,
@@ -202,7 +201,7 @@ function ChatMessageImpl({
             onSetVideoOpen={onSetVideoOpen}
             onSetActiveMediaMsg={onSetActiveMediaMsg}
           />
-          {msg.type === "payment" && <PaymentChatBubble msg={msg} isDark={isDark} />}
+          {msg.type === "payment" && <PaymentChatBubble msg={msg} />}
           {msg.replyTo && (
             <ReplyQuote
               replyTo={msg.replyTo}
@@ -226,7 +225,7 @@ function ChatMessageImpl({
             <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
               <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
               {msg.edited && (
-                <span className={`ml-1 align-middle text-[11px] uppercase tracking-wide ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>
+                <span className={"ml-1 align-middle text-xs uppercase tracking-wide text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
                   {t("chat.edited", "edited")}
                 </span>
               )}
@@ -244,7 +243,7 @@ function ChatMessageImpl({
                     <button
                       key={j}
                       onClick={() => { if (onAction) onAction(btn.action || btn.text); }}
-                                             className={`flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95 ${isDark ? "bg-[var(--bg-tertiary)] hover:bg-[var(--hover-bg-dark)] text-[var(--text-primary)] border border-[var(--border-color)]" : "bg-[var(--bg-primary)] hover:bg-black/10 text-[var(--text-secondary)] border border-[var(--border-color)]"}`}
+                                             className={"flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95 bg-[var(--bg-primary)] hover:bg-black/10 text-[var(--text-secondary)] border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)] dark:hover:bg-[var(--hover-bg-dark)] dark:text-[var(--text-primary)]"}
                     >
                       {btn.text}
                     </button>

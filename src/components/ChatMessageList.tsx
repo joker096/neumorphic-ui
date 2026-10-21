@@ -102,7 +102,6 @@ export function ChatMessageList({
         <ChatMessage
           msg={msg}
           isMe={msg.sender === "me"}
-          isDark={isDark}
           isChannel={chat.isChannel}
           chat={chat}
           stealthMode={stealthMode}

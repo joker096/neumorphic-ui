@@ -8,10 +8,9 @@ import { formatCurrency } from '../../utils/currency'
 
 interface PaymentChatBubbleProps {
   msg: any
-  isDark?: boolean
 }
 
-export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProps) => {
+export const PaymentChatBubble = ({ msg }: PaymentChatBubbleProps) => {
   const { t, lang } = useI18n()
   const token = msg?.paymentToken as string | undefined
   const url = (msg?.paymentUrl as string) || ''
@@ -79,17 +78,11 @@ export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProp
 
   return (
     <div
-      className={`mt-2 rounded-2xl p-3 border ${
-        isDark
-          ? 'bg-white/5 border-[var(--border-color)] text-[var(--text-primary)]'
-          : 'bg-white border-[var(--border-color)] shadow-sm text-[var(--text-primary)]'
-      }`}
+      className={"mt-2 rounded-2xl p-3 border bg-white border-[var(--border-color)] shadow-sm text-[var(--text-primary)] dark:bg-white/5 dark:shadow-none"}
     >
       <div className="flex items-center gap-2 mb-2">
         <span
-          className={`flex items-center justify-center w-8 h-8 rounded-xl ${
-            isDark ? 'bg-white/10' : 'bg-orange-100'
-          }`}
+          className={"flex items-center justify-center w-8 h-8 rounded-xl bg-orange-100 dark:bg-white/10"}
         >
           <Wallet size={16} className="text-[var(--accent)]" />
         </span>
@@ -116,9 +109,7 @@ export const PaymentChatBubble = ({ msg, isDark = false }: PaymentChatBubbleProp
           onClick={handleCopy}
           aria-label={copied ? t('payments.copied') : t('payments.copy')}
           title={copied ? t('payments.copied') : t('payments.copy')}
-          className={`flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 ${
-            isDark ? 'bg-white/10 text-[var(--text-primary)]' : 'bg-black/5 text-[var(--text-secondary)]'
-          }`}
+          className={"flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg active:scale-95 transition-transform w-9 h-9 min-w-11 min-h-11 bg-black/5 text-[var(--text-secondary)] dark:bg-white/10 dark:text-[var(--text-primary)]"}
         >
           {copied ? <Check size={16} /> : <Copy size={16} />}
           <span className="sr-only">{copied ? t('payments.copied') : t('payments.copy')}</span>

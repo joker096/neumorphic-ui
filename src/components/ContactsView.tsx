@@ -123,7 +123,7 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
 
 
   return (
-    <div data-testid="contacts-container" className={`w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 ${isDark ? "bg-[var(--bg-primary)]/50" : "bg-[var(--bg-secondary)]/50"}`}>
+    <div data-testid="contacts-container" className={"w-full flex-1 flex flex-col overflow-y-auto px-3 md:px-5 py-3 md:py-5 bg-[var(--bg-secondary)]/50 dark:bg-[var(--bg-primary)]/50"}>
       
       <ContactsToolbar
         isDark={isDark}

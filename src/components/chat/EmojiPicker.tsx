@@ -56,7 +56,6 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
   const btnRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
   const firstRender = React.useRef(true);
 
-  const isDark = theme === "dark";
 
   const display = (e: Emoji) => (tone > 0 && e.tone ? e.e + TONES[tone] : e.e);
 
@@ -128,7 +127,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
 
   return (
     <div
-      className={`w-full max-w-[340px] rounded-2xl p-2 ${isDark ? "bg-[var(--bg-secondary)]" : "bg-white"} text-[var(--text-primary)] shadow-xl border border-black/5`}
+      className={"w-full max-w-[340px] rounded-2xl p-2 bg-white dark:bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-xl border border-black/5"}
       role="dialog"
       aria-label={t("emojis.title", "Emoji")}
     >
@@ -154,7 +153,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
             type="button"
             aria-label={tn || t("emojis.skinDefault", "Default")}
             onClick={() => setTone(i)}
-            className={`w-6 h-6 rounded-full flex items-center justify-center text-[14px] ${tone === i ? "ring-2 ring-[var(--accent)]" : ""} ${i === 0 ? (isDark ? "bg-white/20" : "bg-black/10") : "bg-[#f5cba7]"}`}
+            className={`w-6 h-6 rounded-full flex items-center justify-center text-[14px] ${tone === i ? "ring-2 ring-[var(--accent)]" : ""} ${i === 0 ? "bg-black/10 dark:bg-white/20" : "bg-[#f5cba7]"}`}
           >
             {tn || "🙂"}
           </button>

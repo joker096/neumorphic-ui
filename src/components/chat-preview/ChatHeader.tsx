@@ -77,9 +77,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
         )}
         {chat.online && !isChannelChat && (
           <div
-            className={`absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-[2px] ${
-              isDark ? "bg-[var(--success)] border-[var(--bg-tertiary)]" : "bg-[var(--success)] border-[var(--bg-primary)]"
-            }`}
+            className={"absolute -bottom-0.5 -right-0.5 w-[10px] h-[10px] rounded-full border-[2px] bg-[var(--success)] border-[var(--bg-primary)] dark:border-[var(--bg-tertiary)]"}
           />
         )}
       </div>
