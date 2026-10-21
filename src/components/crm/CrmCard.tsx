@@ -75,7 +75,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
             {STATUS_LABEL[contact.status] ?? contact.status}
           </span>
           {contact.tags.map((tag) => (
-            <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-[var(--text-secondary)]">
+            <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/5 text-[var(--text-secondary)]">
               #{tag}
             </span>
           ))}
@@ -149,7 +149,7 @@ export const CrmCard: React.FC<CrmCardProps> = ({ contact, deals = [], tasks = [
 };
 
 const Metric: React.FC<{ label: string; value: string; highlight?: boolean }> = ({ label, value, highlight }) => (
-  <div className="rounded-lg bg-white/5 px-2 py-1.5 text-center">
+  <div className="rounded-lg bg-black/5 dark:bg-white/5 px-2 py-1.5 text-center">
     <div className={`text-sm font-bold ${highlight ? 'text-amber-400' : 'text-[var(--text-primary)]'}`}>{value}</div>
     <div className="text-xs uppercase tracking-wide opacity-50">{label}</div>
   </div>

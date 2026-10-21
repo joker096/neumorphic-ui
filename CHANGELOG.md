@@ -30,6 +30,16 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Светлая тема: невидимые полупрозрачные подложки (2026-10-21).** Семь поверхностей использовали `bg-white/5…20`, рассчитанный только на тёмную тему: в светлой они растворялись в фоне, и контрол терял границу.
+  1. `crm/CrmCard`: чипы тегов и блок статистики — `bg-black/5 dark:bg-white/5` (было `bg-white/5`).
+  2. `settings/PaymentsSection`: карточка быстрых сумм — `bg-black/5 dark:bg-white/5`.
+  3. `ChatListView`: чип активного фильтра — `bg-black/5 dark:bg-white/5` в светлой ветке.
+  4. `chat/StickerPicker`: hover категории — `group-hover:bg-black/10 dark:group-hover:bg-white/10`.
+  5. `status/TransportIndicator`: пилюля статуса — `bg-black/5 dark:bg-white/5`.
+  6. `chat-preview/VoiceWaveform`: кнопка воспроизведения в своём голосовом — `bg-black/10 hover:bg-black/15 … dark:bg-white/20 dark:hover:bg-white/30`; кнопка скорости — `hover:bg-black/10 dark:hover:bg-white/10`.
+  7. Намеренно не тронуты подложки на заведомо тёмных поверхностях: `MediaViewer` и его оверлеи, `StoryHeader`/`StoryFooter`/`StoryViewer`, `CallTopBar`/`CallControls`, `LiveVoiceRecorder`, `HuddleWidget` (постоянный тёмный градиент), лендинг-hero, `VideoOverlay`.
+  8. D1–D5 перескан: 0 findings — правки чисто презентационные (теги, суммы, фильтр, категории стикеров, пилюля статуса, воспроизведение голосового).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Типографическая рампа и контраст насыщенных заливок (2026-10-21).** Свип по всему `src/`: 42 места ниже 12 px и 15 насыщенных заливок со светлым текстом.
   1. `text-[11px]` → `text-xs` в 22 файлах (42 вхождения): `call/CallTopBar` (4), `chat-preview/AttachmentMedia` (3), `ChatAttachLayer`, `ChatMessage`, `MessageThreadPanel`, `NotificationCenter` (2), `chat/EmojiPicker`, `company/CompanyCreatePrompt`, `SiteChatManager` (5), `TeamInbox` (3), `crm/CrmCard`, `CrmDeals` (3), `CrmFilterBar`, `CrmGlobalSearch` (2), `CrmInviteModal` (2), `CrmNextStepsBanner` (2), `CrmView`, `LiveVideoRecorder`, `security/KeyRecoveryPanel`, `status/TransportIndicator` (4), `stories/StoryActionMenu`, `StoryComposer`.
   2. Кнопки авторизации (5 кнопок входа + 4 шага регистрации): `text-white` на градиенте `from-orange-600 to-amber-600` давал 3.7:1 (провал AA) → `text-[var(--ink-on-saturate)]` (тёмные чернила ≈5.5:1).

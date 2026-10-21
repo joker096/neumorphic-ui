@@ -121,7 +121,7 @@ export function TransportIndicator({ status = 'disconnected', detail, relayed = 
       ref={anchorRef}
       role="status"
       aria-label={`Connection: ${label}`}
-      className="inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-white/5 cursor-help select-none"
+      className="inline-flex items-center px-1.5 py-0.5 text-xs rounded-full bg-black/5 dark:bg-white/5 cursor-help select-none"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >

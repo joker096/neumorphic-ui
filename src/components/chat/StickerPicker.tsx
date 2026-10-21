@@ -56,7 +56,7 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
             <span className={`flex items-center px-3 py-0.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${
               activeTab === tab.id
                 ? 'bg-[var(--accent)] text-[var(--text-primary)]'
-                : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:bg-white/10'
+                : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:bg-black/10 dark:group-hover:bg-white/10'
             }`}>
               {tab.label}
             </span>

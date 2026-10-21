@@ -144,7 +144,7 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
       </div>
 
       {(mode || active) && (
-        <div className="rounded-2xl p-4 mb-2 border bg-white/5 border-[var(--border-color)]">
+        <div className="rounded-2xl p-4 mb-2 border bg-black/5 dark:bg-white/5 border-[var(--border-color)]">
           {!active ? (
             <>
               <div className="text-sm font-medium mb-2 text-[var(--text-primary)]">

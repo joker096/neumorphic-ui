@@ -204,7 +204,7 @@ export const ChatListView = ({
                   chatSortBy === "alpha"
                     ? "bg-[var(--accent-soft)] text-[var(--accent)]"
                     : isDark
-                      ? "bg-white/5 text-[var(--text-tertiary)]"
+                      ? "bg-black/5 dark:bg-white/5 text-[var(--text-tertiary)]"
                       : "bg-black/5 text-[var(--text-tertiary)]"
                 }`}>
                   <ArrowDownAZ size={12} aria-hidden="true" />

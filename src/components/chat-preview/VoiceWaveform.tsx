@@ -178,7 +178,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name 
             isReady ? 'cursor-pointer' : 'cursor-default opacity-50'
           } ${
               isMe
-              ? "bg-white/20 hover:bg-white/30 text-[var(--text-primary)]"
+              ? "bg-black/10 hover:bg-black/15 text-[var(--text-primary)] dark:bg-white/20 dark:hover:bg-white/30"
               : "bg-[var(--accent)] hover:brightness-110 text-[var(--ink-on-saturate)] shadow-[0_0_15px_rgba(var(--accent-rgb),0.4)]"
           }`}
         >
@@ -213,7 +213,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name 
                  onClick={(e) => { e.stopPropagation(); changeSpeed(nextSpeed); }}
                  aria-label={t('a11y.playbackSpeed', 'Playback speed')}
                  title={t('a11y.playbackSpeed', 'Playback speed')}
-                 className="min-w-11 min-h-11 px-2 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:bg-white/10 flex items-center justify-center"
+                 className="min-w-11 min-h-11 px-2 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center"
                >
                  {Number.isInteger(speed) ? `${speed}×` : `${speed.toFixed(1)}×`}
                </button>
