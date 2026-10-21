@@ -50,7 +50,7 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
       <SettingsSectionTitle title={t('settings.exceptions', 'Exceptions')} isDark={isDark} />
       <SettingsGroup isDark={isDark}>
         {exceptions.length === 0 && (
-          <div className={`px-4 py-6 text-center text-sm ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t('settings.noExceptions', 'No exceptions yet')}</div>
+          <div className={"px-4 py-6 text-center text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>{t('settings.noExceptions', 'No exceptions yet')}</div>
         )}
         {exceptions.map((e, i) => (
           <div key={e.id}>
@@ -58,7 +58,7 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-black/5 dark:bg-white/10">
-                  <Bell size={16} className={isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"} />
+                  <Bell size={16} className="text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />
                 </div>
                 <span className={`text-sm truncate text-[var(--text-primary)]`}>{e.name}</span>
               </div>
@@ -77,7 +77,7 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
         <button
           onClick={() => setExceptionPickerOpen(true)}
           aria-label={t('settings.addException', 'Add exception')}
-          className={`w-full min-h-11 flex items-center justify-center gap-2 mt-2 rounded-lg text-sm font-medium text-[var(--accent)] transition-colors active:scale-[0.99] border border-dashed ${isDark ? "hover:bg-white/5 border-white/15" : "hover:bg-black/5 border-black/15"}`}
+          className={"w-full min-h-11 flex items-center justify-center gap-2 mt-2 rounded-lg text-sm font-medium text-[var(--accent)] transition-colors active:scale-[0.99] border border-dashed hover:bg-black/5 border-black/15 dark:hover:bg-white/5 dark:border-white/15"}
         >
           <Plus size={16} />
           <span>{t('settings.addException', 'Add exception')}</span>

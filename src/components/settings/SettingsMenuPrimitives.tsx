@@ -15,7 +15,7 @@ export const SettingsCard = ({ children, isDark, className = '', onClick }: Sett
     role={onClick ? 'button' : undefined}
     tabIndex={onClick ? 0 : undefined}
     onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
-    className={`rounded-xl ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white shadow-sm border border-[var(--border-color)]"} overflow-hidden ${onClick ? "cursor-pointer active:scale-[0.99]" : ""} ${className}`}
+    className={`rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-color)] overflow-hidden ${onClick ? "cursor-pointer active:scale-[0.99]" : ""} ${className}`}
   >
     {children}
   </div>
@@ -42,17 +42,13 @@ export const SettingsNavItem = ({ icon, iconBg, title, subtitle, isDark, onClick
     </div>
     <div className="flex-1 min-w-0">
       <div className={`text-sm font-semibold text-[var(--text-primary)]`}>{title}</div>
-      {subtitle && <div className={`text-xs ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{subtitle}</div>}
+      {subtitle && <div className="text-xs text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">{subtitle}</div>}
     </div>
     {rightElement}
-    {onClick && !rightElement && <ChevronRight size={16} className={`shrink-0 opacity-30 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`} />}
+    {onClick && !rightElement && <ChevronRight size={16} className="shrink-0 opacity-30 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />}
   </div>
 );
 
-interface SettingsDividerProps {
-  isDark: boolean;
-}
-
-export const SettingsDivider = ({ isDark }: SettingsDividerProps) => (
-  <div className={`border-t ${"border-[var(--border-color)]"}`} />
+export const SettingsDivider = () => (
+  <div className="border-t border-[var(--border-color)]" />
 );

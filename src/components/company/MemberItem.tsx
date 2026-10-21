@@ -25,7 +25,7 @@ const actionBtn = (icon: React.ReactNode, label: string, onClick: (e: React.Mous
     aria-label={label}
     onClick={onClick}
     className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all shrink-0 min-w-11 min-h-11 ${
-      isDark ? "bg-[var(--bg-tertiary)] hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)]" : "bg-[var(--bg-secondary)] hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)]"
+      "bg-[var(--bg-secondary)] hover:bg-[var(--list-item-hover-bg)] text-[var(--text-secondary)] dark:bg-[var(--bg-tertiary)]"
     }`}
   >
     {icon}
@@ -61,12 +61,12 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
           {member.displayName.charAt(0)}
         </div>
         {selectable && (
-          <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? "bg-[var(--accent)] border-[var(--accent)]" : isDark ? "bg-[var(--bg-tertiary)] border-[var(--border-color)]" : "bg-white border-[var(--border-color)]"}`}>
+          <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? "bg-[var(--accent)] border-[var(--accent)]" : "bg-white border-[var(--border-color)] dark:bg-[var(--bg-tertiary)]"}`}>
             {selected && <span className="text-xs text-[var(--ink-on-saturate)] leading-none">✓</span>}
           </div>
         )}
         {!selectable && member.online && (
-          <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 ${isDark ? "bg-[var(--color-success)] border-[var(--bg-tertiary)]" : "bg-[var(--color-success)] border-[var(--border-color)]"}`} />
+          <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 "bg-[var(--color-success)] border-[var(--border-color)] dark:border-[var(--bg-tertiary)]"`} />
         )}
       </div>
       <div className="flex-1 min-w-0">

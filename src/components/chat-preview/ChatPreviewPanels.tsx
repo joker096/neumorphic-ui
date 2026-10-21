@@ -135,7 +135,6 @@ export const ChatPreviewPanels = ({
         chatId={chat.id}
         messages={chat.history || []}
         pinnedMessages={pinnedMessageList}
-        isDark={isDark}
         onUnpin={(id) => useAppStore.getState().removePinnedMessage(id, chat.id)}
         onJump={handleJumpToPinned}
       />

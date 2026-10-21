@@ -62,7 +62,7 @@ export function NavGroup({ isDark, title, items }: { isDark: boolean; title: str
       <SettingsCard isDark={isDark}>
         {items.map((it, i) => (
           <React.Fragment key={i}>
-            {i > 0 && <SettingsDivider isDark={isDark} />}
+            {i > 0 && <SettingsDivider />}
             <SettingsNavItem
               icon={it.icon}
               iconBg={it.iconBg}

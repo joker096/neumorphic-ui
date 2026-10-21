@@ -131,7 +131,7 @@ export function SettingsMainMenu({
                     </div>
                     <ToggleSwitch isOn={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} isDark={isDark} ariaLabel={t('settings.notifications')} />
                   </div>
-                  {(soundMatches || volumeMatches || cloudSyncMatches) && <SettingsDivider isDark={isDark} />}
+                  {(soundMatches || volumeMatches || cloudSyncMatches) && <SettingsDivider />}
                 </>
               )}
               {soundMatches && (
@@ -147,7 +147,7 @@ export function SettingsMainMenu({
                     </div>
                     <ToggleSwitch isOn={soundEnabled} onToggle={() => setSoundEnabled(!soundEnabled)} isDark={isDark} ariaLabel={t('settings.sound')} />
                   </div>
-                  {(volumeMatches || cloudSyncMatches) && <SettingsDivider isDark={isDark} />}
+                  {(volumeMatches || cloudSyncMatches) && <SettingsDivider />}
                 </>
               )}
               {volumeMatches && (
@@ -172,7 +172,7 @@ export function SettingsMainMenu({
                       className="w-32 accent-[var(--accent)]"
                     />
                   </div>
-                  {cloudSyncMatches && <SettingsDivider isDark={isDark} />}
+                  {cloudSyncMatches && <SettingsDivider />}
                 </>
               )}
               {cloudSyncMatches && (

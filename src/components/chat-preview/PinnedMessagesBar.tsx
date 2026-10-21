@@ -14,7 +14,6 @@ interface PinnedMessagesBarProps {
   chatId: string | number;
   messages: any[];
   pinnedMessages: Array<{ id: number; chatId: string | number; pinBy: string }>;
-  isDark?: boolean;
   onUnpin?: (id: number) => void;
   onJump?: (id: number) => void;
 }
@@ -49,7 +48,6 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
   chatId,
   messages,
   pinnedMessages,
-  isDark,
   onUnpin,
   onJump,
 }) => {
@@ -103,8 +101,8 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
-          <div className={sheetSurface(isDark ?? false)}>
-            <div className={sheetTitleClass(isDark ?? false)}>
+          <div className={sheetSurface(false)}>
+            <div className={sheetTitleClass(false)}>
               {t("chat.pinnedMessages", "Pinned messages")}
             </div>
             <div className="flex max-h-[60vh] flex-col overflow-y-auto">
@@ -139,7 +137,7 @@ export const PinnedMessagesBar: React.FC<PinnedMessagesBarProps> = ({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className={sheetCancelClass(isDark ?? false)}
+              className={sheetCancelClass(false)}
             >
               {t("cancel", "Cancel")}
             </button>
