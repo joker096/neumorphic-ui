@@ -72,8 +72,8 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
             <SettingsRow
               key={bot.id}
               icon={<Bot size={16} />}
-              iconBg={bot.isRunning ? (isDark ? "bg-emerald-500/10" : "bg-emerald-100") : "bg-black/10 dark:bg-white/10"}
-              iconColor={bot.isRunning ? (isDark ? "text-emerald-400" : "text-emerald-600") : "text-[var(--text-secondary)]"}
+              iconBg={bot.isRunning ? "bg-emerald-100 dark:bg-emerald-500/10" : "bg-black/10 dark:bg-white/10"}
+              iconColor={bot.isRunning ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--text-secondary)]"}
               title={bot.name}
               subtitle={bot.isRunning ? t('settings.botRunning') : t('settings.botStopped')}
               isDark={isDark}

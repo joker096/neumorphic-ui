@@ -233,7 +233,6 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
 
       <ContactsShareModal
         showShareId={showShareId}
-        isDark={isDark}
         theme={theme}
         qrDataUrl={qrDataUrl}
         shareId={shareId}
