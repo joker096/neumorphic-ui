@@ -97,8 +97,8 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
       <SettingsGroup isDark={isDark}>
         <SettingsRow
           icon={<ExternalLink size={16} />}
-          iconBg={isDark ? "bg-purple-500/10" : "bg-purple-100"}
-          iconColor={isDark ? "text-purple-400" : "text-purple-600"}
+          iconBg="bg-purple-100 dark:bg-purple-500/10"
+          iconColor="text-purple-600 dark:text-purple-400"
           title={t('settings.statusPage', 'Service status')}
           subtitle={t('settings.statusSub', 'All systems operational')}
           isDark={isDark}
@@ -120,13 +120,13 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
               type="button"
               onClick={() => setOpenFaq(openFaq === i ? null : i)}
               aria-expanded={openFaq === i}
-              className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] ${isDark ? "hover:bg-white/5" : "hover:bg-black/5"}`}
+              className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-black/5 dark:hover:bg-white/5`}
             >
               <span className={`text-sm font-medium text-[var(--text-primary)]`}>{t(item.q, item.qFallback)}</span>
-              <HelpCircle size={16} className={`shrink-0 transition-colors ${openFaq === i ? "text-[var(--accent)]" : (isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]")}`} aria-hidden="true" />
+              <HelpCircle size={16} className={`shrink-0 transition-colors ${openFaq === i ? "text-[var(--accent)]" : "text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}`} aria-hidden="true" />
             </button>
             {openFaq === i && (
-              <div className={`px-4 pb-4 text-sm leading-relaxed ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`}>{t(item.a, item.aFallback)}</div>
+              <div className={`px-4 pb-4 text-sm leading-relaxed text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t(item.a, item.aFallback)}</div>
             )}
           </div>
         ))}
@@ -172,7 +172,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
                       <option key={c.value} value={c.value}>{t(c.labelKey, c.fallback)}</option>
                     ))}
                   </select>
-                  <ChevronDown size={16} className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? "text-[var(--text-secondary)]" : "text-[var(--text-tertiary)]"}`} aria-hidden="true" />
+                  <ChevronDown size={16} className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`} aria-hidden="true" />
                 </div>
               </div>
 
@@ -212,7 +212,7 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
         onClick={reportBug}
         aria-label={t('settings.reportBug', 'Report a bug')}
         title={t('settings.reportBug', 'Report a bug')}
-        className={`w-full h-10 min-h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-sm transition-colors active:scale-[0.99] ${isDark ? "bg-white/5 text-rose-300 hover:bg-white/10" : "bg-rose-50 text-rose-500 hover:bg-rose-100"}`}
+        className={`w-full h-10 min-h-11 flex items-center justify-center gap-2 rounded-xl font-bold text-sm transition-colors active:scale-[0.99] bg-rose-50 text-rose-500 hover:bg-rose-100 dark:bg-white/5 dark:text-rose-300 dark:hover:bg-white/10`}
       >
         <Bug size={16} aria-hidden="true" />
         <span>{t('settings.reportBug', 'Report a bug')}</span>
