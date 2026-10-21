@@ -55,8 +55,8 @@ export const SystemStatusSection = ({
         <SettingsGroup isDark={isDark} className="mb-6">
           <SettingsRow
             icon={<Wifi size={16} />}
-            iconBg={isDark ? "bg-emerald-500/10" : "bg-emerald-100"}
-            iconColor={isDark ? "text-emerald-400" : "text-emerald-600"}
+            iconBg="bg-emerald-100 dark:bg-emerald-500/10"
+            iconColor="text-emerald-600 dark:text-emerald-400"
             title={t('settings.connectionStatus')}
             subtitle={connectionStatusLabel}
             isDark={isDark}
@@ -76,8 +76,8 @@ export const SystemStatusSection = ({
           />
           <SettingsRow
             icon={<Clock size={16} />}
-            iconBg={isDark ? "bg-amber-500/10" : "bg-amber-100"}
-            iconColor={isDark ? "text-amber-400" : "text-amber-600"}
+            iconBg="bg-amber-100 dark:bg-amber-500/10"
+            iconColor="text-amber-600 dark:text-amber-400"
             title={t('settings.latency')}
             rightElement={<span className="text-xs font-medium text-muted-foreground">{`${latencyMs} ms`}</span>}
             isDark={isDark}

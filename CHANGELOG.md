@@ -30,6 +30,16 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Settings: «Mesh» и «Состояние системы» на дизайн-токенах (2026-10-21).** Замыкающие секции кластера настроек: `MeshSection` (15 локальных тернарников) и `SystemStatusSection` (2 пары иконных тонов).
+  1. `MeshSection`: пять моноширинных полей (`Peer ID`, `Public key`, `Session`, `Seed`, `Relay`) держали по две ветки `bg-black/5` / `bg-black/30` — сведены к `bg-black/5 text-[var(--text-secondary)] dark:bg-black/30`.
+  2. Две кнопки копирования — `bg-black/5 text-[var(--text-secondary)] dark:bg-white/5 dark:text-[var(--text-primary)]` вместо пары тернарников.
+  3. Вводный абзац и подпись счётчика пиров — `text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`; метка сессии — `text-[var(--text-secondary)] dark:text-[var(--text-primary)]`.
+  4. Состояние соединения — `text-emerald-500` при подключении, иначе `text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]` (одна пара вместо двух).
+  5. Четыре `text-[11px] font-mono` подняты до `text-xs` (11px ниже типографической рампы, ui-audit валит такой размер).
+  6. `SystemStatusSection`: иконные тона `emerald` и `amber` → `bg-<hue>-100 dark:bg-<hue>-500/10` + `text-<hue>-600 dark:text-<hue>-400`.
+  7. В обоих файлах `isDark` остаётся живым как чистый форвард (`MeshSection` — 12: `SubView`, три `SettingsSectionTitle`, четыре `SettingsGroup`; `SystemStatusSection` — 19), ни одного `isDark ?` не осталось.
+  8. D1–D5 перескан: 0 findings — все контролы живые (копирование идентификатора и ключа, переключение mesh-режима, смена seed, статусные строки).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Settings: кластер «Аккаунты» на дизайн-токенах, `isDark` удалён из трёх компонентов (2026-10-21).** `accountForms.tsx`, `ProfileAccounts.tsx` и `ProfileSection.tsx` держали `isDark`-тернарники поверх каждой строки формы аккаунта — при этом у двух хелперов стилей флаг вообще не использовался.
   1. `accountForms`: `inputClass(isDark)` и `labelClass(isDark)` были функциями ради неиспользуемого/единственного тернарника — теперь плоские константы `INPUT_CLASS` (флаг не читался вовсе) и `LABEL_CLASS` (`text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`).
   2. Рамка формы редактирования — `border-[var(--accent)]/40 bg-black/5 dark:bg-white/5`; рамка формы добавления держала две **идентичные** ветки `border-[var(--border-color)]` — тернарник удалён.
