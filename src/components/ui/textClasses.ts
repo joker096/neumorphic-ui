@@ -28,3 +28,9 @@ export const MEDIUM_LABEL_CLASS = 'text-sm font-medium text-[var(--text-primary)
 
 /** Large bold caption used for section headings and headline counters. */
 export const LARGE_LABEL_CLASS = 'text-lg font-bold text-[var(--text-primary)]';
+
+/** Secondary caption squeezed under a heading (counters, username). */
+export const HINT_TEXT_TIGHT_CLASS = 'text-xs mt-0.5 text-[var(--text-secondary)]';
+
+/** Bold heading of a step or a modal title. */
+export const BOLD_LABEL_CLASS = 'text-sm font-bold text-[var(--text-primary)]';

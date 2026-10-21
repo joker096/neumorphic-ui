@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
 import { useEscapeKey } from '../../hooks/useEscapeKey'
+import { BOLD_LABEL_CLASS } from '../ui/textClasses';
 
 interface ChatPickerModalProps {
   open: boolean
@@ -34,7 +35,7 @@ export const ChatPickerModal = ({ open, onClose, onPick, title, excludeChatId }:
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
-          <h3 className="text-sm font-bold text-[var(--text-primary)]">
+          <h3 className={BOLD_LABEL_CLASS}>
             {title || t('payments.sendToChat')}
           </h3>
 <button

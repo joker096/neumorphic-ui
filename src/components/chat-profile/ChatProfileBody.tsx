@@ -20,6 +20,7 @@ import type { GroupMember, GroupPermissions } from '../../store/slices/chatSlice
 import { ROW_SHELL_CLASS } from '../ui/rowClasses';
 import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 import { LARGE_LABEL_CLASS } from '../ui/textClasses';
+import { HINT_TEXT_TIGHT_CLASS } from '../ui/textClasses';
 
 export type ChatProfileKind = 'user' | 'group' | 'channel' | 'bot';
 
@@ -86,15 +87,15 @@ export const ChatProfileBody = ({
     <div className="grid grid-cols-3 gap-2">
       <div className="rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]">
         <div className={LARGE_LABEL_CLASS}>{chat.subscriberCount ?? chat.subscribers ?? CHAT_PROFILE_DEFAULT_SUBSCRIBERS}</div>
-        <div className="text-xs mt-0.5 text-[var(--text-secondary)]">{t('profile.subscribersLabel', 'Subscribers')}</div>
+        <div className={HINT_TEXT_TIGHT_CLASS}>{t('profile.subscribersLabel', 'Subscribers')}</div>
       </div>
       <div className="rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]">
         <div className={LARGE_LABEL_CLASS}>{chat.postCount ?? chat.history?.length ?? 0}</div>
-        <div className="text-xs mt-0.5 text-[var(--text-secondary)]">{t('profile.postsLabel', 'Posts')}</div>
+        <div className={HINT_TEXT_TIGHT_CLASS}>{t('profile.postsLabel', 'Posts')}</div>
       </div>
       <div className="rounded-xl p-3 text-center border border-[var(--border-color)] bg-[var(--bg-tertiary)]">
         <div className="text-sm font-bold truncate px-1 text-[var(--text-primary)]">{chat.ownerId ? (ownerName || t('profile.owner', 'Owner')) : '—'}</div>
-        <div className="text-xs mt-0.5 text-[var(--text-secondary)]">{t('profile.owner', 'Owner')}</div>
+        <div className={HINT_TEXT_TIGHT_CLASS}>{t('profile.owner', 'Owner')}</div>
       </div>
     </div>
   </div>

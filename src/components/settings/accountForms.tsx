@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Check, Plus, Crown } from 'lucide-react';
 import { ACCOUNT_COLORS } from '../../constants/settingsConstants';
+import { BOLD_LABEL_CLASS } from '../ui/textClasses';
 
 type T = (key: string, fallback?: string | Record<string, string | number>) => string;
 
@@ -227,7 +228,7 @@ export function AccountAddSection({ t, canAdd, onAddAccount, onGetPremium }: {
                 <Crown size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className={`text-sm font-bold text-[var(--text-primary)]`}>{t('settings.accountsLimit', 'Accounts limit reached')}</div>
+                <div className={BOLD_LABEL_CLASS}>{t('settings.accountsLimit', 'Accounts limit reached')}</div>
                 <div className={`text-xs mt-0.5 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>{t('premium.gatingAccounts', 'Unlimited accounts with Premium')}</div>
               </div>
               {onGetPremium && (

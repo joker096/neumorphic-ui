@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Building2, HelpCircle, ChevronDown } from 'lucide-react';
 import type { TFunction } from './useCompanyContacts';
 import { LARGE_LABEL_CLASS } from '../ui/textClasses';
+import { BOLD_LABEL_CLASS } from '../ui/textClasses';
 
 type CompanyCreatePromptProps = {
   t: TFunction;
@@ -44,15 +45,15 @@ export const CompanyCreatePrompt = ({ t, onCreate }: CompanyCreatePromptProps) =
       {showHelp && (
         <div className="w-full max-w-[320px] text-left mt-2 p-4 rounded-xl neu-card-inset space-y-3">
           <div>
-            <h4 className="text-sm font-bold text-[var(--text-primary)]">{t('company.guide.createTitle', '1. Create your own company (not demo data)')}</h4>
+            <h4 className={BOLD_LABEL_CLASS}>{t('company.guide.createTitle', '1. Create your own company (not demo data)')}</h4>
             <p className="text-xs text-[var(--text-secondary)] mt-1">{t('company.guide.createBody', 'Open Settings → Company → "Create your company". Enter the company name and your display name. The app generates a real company id (org_…) and cryptographic keys (X25519 + Ed25519) locally — you become the first Admin.')}</p>
           </div>
           <div>
-            <h4 className="text-sm font-bold text-[var(--text-primary)]">{t('company.guide.inviteTitle', '2. Invite teammates')}</h4>
+            <h4 className={BOLD_LABEL_CLASS}>{t('company.guide.inviteTitle', '2. Invite teammates')}</h4>
             <p className="text-xs text-[var(--text-secondary)] mt-1">{t('company.guide.inviteBody', 'An Admin opens the company view → "Invite members" and shares the QR code. A teammate scans it and sends a join request signed with their own key.')}</p>
           </div>
           <div>
-            <h4 className="text-sm font-bold text-[var(--text-primary)]">{t('company.guide.confirmTitle', '3. Confirm & assign roles')}</h4>
+            <h4 className={BOLD_LABEL_CLASS}>{t('company.guide.confirmTitle', '3. Confirm & assign roles')}</h4>
             <p className="text-xs text-[var(--text-secondary)] mt-1">{t('company.guide.confirmBody', 'A new joiner is given the "Member" role by default. The Admin verifies the invite signature and confirms the join. Only Admins can change roles.')}</p>
           </div>
           <p className="text-xs text-[var(--text-secondary)]">{t('company.createHelpNote', 'Full guide: Settings → Company → Company guide.')}</p>

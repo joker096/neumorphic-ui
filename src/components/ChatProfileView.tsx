@@ -22,6 +22,7 @@ import {
 } from '../constants/chatConstants';
 import { ChatProfileBody, type ChatProfileKind, type ProfileChat } from './chat-profile/ChatProfileBody';
 import { ChatProfileActions } from './chat-profile/ChatProfileActions';
+import { HINT_TEXT_TIGHT_CLASS } from './ui/textClasses';
 
 export type { ChatProfileKind } from './chat-profile/ChatProfileBody';
 
@@ -154,7 +155,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   {chat.verified && <BadgeCheck size={18} className="text-[var(--accent)]" />}
                 </div>
                 <div className="text-sm text-[var(--text-secondary)]">{subtitle()}</div>
-                {chat.username && <div className="text-xs mt-0.5 text-[var(--text-secondary)]">@{chat.username}</div>}
+                {chat.username && <div className={HINT_TEXT_TIGHT_CLASS}>@{chat.username}</div>}
                 {kind === 'channel' && (
                   <div className="flex items-center gap-1 text-xs mt-1 text-[var(--text-secondary)]">
                     {chat.isPublic ? <Globe size={12} /> : <Lock size={12} />}

@@ -7,6 +7,7 @@ import { callRecorderService } from '../lib/callRecorderService';
 import { formatDuration } from './recordings/recordingUtils';
 import { CALL_END_GRADIENT } from '../constants/callConstants';
 import { callManager } from '../lib/call/CallManager';
+import { BOLD_LABEL_CLASS } from './ui/textClasses';
 
 export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light' }) => {
   const { t } = useI18n();
@@ -56,7 +57,7 @@ export const FloatingCallWidget = ({ theme = 'dark' }: { theme?: 'dark' | 'light
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               {activeCall.isVideo && <Video size={14} className="text-orange-600 dark:text-orange-400" />}
-              <span className={`text-sm font-bold text-[var(--text-primary)]`}>
+              <span className={BOLD_LABEL_CLASS}>
                 {activeCall.remotePeer?.displayName || t('call.unknownCaller')}
               </span>
             </div>
