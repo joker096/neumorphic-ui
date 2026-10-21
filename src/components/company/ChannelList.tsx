@@ -30,7 +30,6 @@ export const ChannelList = ({ isDark = false, channels, channelsLabel, onChannel
             <ChannelItem
               key={channel.id}
               channel={channel}
-              isDark={isDark}
               index={i}
               gradient={CHANNEL_GRADIENTS[channel.id] || DEFAULT_CHANNEL_GRADIENT}
               onClick={() => onChannelClick?.(channel)}

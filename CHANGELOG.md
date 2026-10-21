@@ -30,6 +30,15 @@
 - **Embed: инструкция «как встроить» в `SiteChatManager.tsx` + FAQ-пункт в `HelpSupportSection.tsx`** (2026-10-03): в карточке site-чата добавлен сворачиваемый `<details>`-блок «Как встроить на ваш сайт» с 3 шагами (скопировать код → вставить перед `</body>` → заявки и контакты попадают сюда и в CRM как веб-лиды), расположен под настройками виджета над snippet. В `HelpSupportSection` добавлен FAQ Q5/A5 про встраивание чата. i18n ×8 (`company.embedHowTo`/`embedStep1..3`, `settings.faqQ5`/`faqA5`). Регрессия: `SiteChatManager.test.tsx` **8/8** (+1: рендер шагов инструкции). Гейты: lint 0, tsc clean, l10n PASS (0 errors), `allTests.test.ts` **2778/2778**, `MediaViewer.test.tsx` **17/17**.
 
 ### Fixed
+- **Компания и эко-навигация на дизайн-токенах, три мёртвых пропа удалены (2026-10-21).** `CompanyInviteModal`, `CompanyInfoCard`, `MemberDetailModal`, `ChannelItem`, `ChannelList`, `EcoSidebarNav`.
+  1. `CompanyInviteModal`: карточка приглашения теряла тему (`bg-white` в светлой) → `bg-[var(--bg-tertiary)] border border-[var(--border-color)]`; QR-контейнер обязан быть белым в обеих темах — одна строка `bg-white border-2 border-[var(--border-color)]` вместо пары почти идентичных веток.
+  2. `CompanyInfoCard`: карточка компании — тот же панельный класс; бейдж подключения — `bg-[var(--color-success-soft)] text-[var(--color-success)] dark:bg-[var(--color-success)]/20`.
+  3. `MemberDetailModal`: `panelBg` больше не выбирает между `bg-white` и `--bg-tertiary`; `theme={isDark ? …}` для модалки сохранён (это адаптер, а не className).
+  4. `ChannelItem`: бейдж непрочитанного — `bg-[var(--color-warning-soft)] text-[var(--color-warning)] dark:bg-[var(--color-warning)]/20`.
+  5. `EcoSidebarNav`: `hoverBg` → `hover:bg-black/[0.04] dark:hover:bg-white/[0.04]`; `footerStatusRing` остаётся hex-значением для inline-стиля (исключение, как canvas `strokeStyle`).
+  6. `isDark` удалён из `CompanyInfoCard` и `ChannelItem` (после конвертации он стал мёртвым) вместе с call-site в `ChannelList`.
+  7. D1–D5 перескан: 0 findings — все контролы живые (копирование приглашения, закрытие модалок, переход в канал, действия участника, навигация эко-панели).
+  Гейты: lint 0 (eslint + tsc), vitest **6565/6565** (380 файлов), icon-font-audit 0 (629), button-audit 0 (289/440), l10n PASS (0 errors / 10 dynamic), ui-audit 14/14, visual 8/8.
 - **Чат и список чатов на дизайн-токенах: пять мёртвых пропов удалены (2026-10-21).** Кластер `chat`/`chat-preview`/`chat-list`/`payments`.
   1. `ChatHeader`: точка присутствия — `bg-[var(--success)] border-[var(--bg-primary)] dark:border-[var(--bg-tertiary)]` вместо блочного тернарника.
   2. `ChatMessage`: подпись письма была `text-[11px]` (ниже типографической рампы) → `text-xs` с токен-парой; кнопка переключения Морзе — `bg-[var(--bg-primary)] hover:bg-black/10 text-[var(--text-secondary)] … dark:bg-[var(--bg-tertiary)] dark:hover:bg-[var(--hover-bg-dark)] dark:text-[var(--text-primary)]`.

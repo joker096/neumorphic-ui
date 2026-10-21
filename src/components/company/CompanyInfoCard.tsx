@@ -4,12 +4,11 @@ import { Building2, Globe, Mail, MapPin, Phone } from "lucide-react";
 import { COMPANY_INFO_GRADIENT, COMPANY_UI_FALLBACKS } from '../../constants/companyConstants';
 
 type CompanyInfoCardProps = {
-  isDark?: boolean;
   orgId?: string;
   connected: string;
 };
 
-export const CompanyInfoCard = ({ isDark = false, orgId = 'N/A', connected }: CompanyInfoCardProps) => {
+export const CompanyInfoCard = ({ orgId = 'N/A', connected }: CompanyInfoCardProps) => {
   const { t } = useI18n();
   const companySettings = useAppStore(state => state.companySettings);
 
@@ -19,7 +18,7 @@ export const CompanyInfoCard = ({ isDark = false, orgId = 'N/A', connected }: Co
 
   return (
     <div
-      className={`w-full px-4 py-4 rounded-2xl mb-4 relative ${isDark ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]" : "bg-white border border-[var(--border-color)] shadow-sm"}`}
+      className={"w-full px-4 py-4 rounded-2xl mb-4 relative bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}
     >
       <div className="flex items-center gap-3">
         <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${COMPANY_INFO_GRADIENT} flex items-center justify-center text-[var(--text-primary)] shrink-0`}>
@@ -31,7 +30,7 @@ export const CompanyInfoCard = ({ isDark = false, orgId = 'N/A', connected }: Co
           </div>
           <div className="text-xs font-mono truncate text-[var(--text-secondary)]">{orgId}</div>
         </div>
-        <div className={`text-xs font-bold px-2 py-1 rounded-full shrink-0 ${isDark ? "bg-[var(--color-success)]/20 text-[var(--color-success)]" : "bg-[var(--color-success-soft)] text-[var(--color-success)]"}`}>
+        <div className={"text-xs font-bold px-2 py-1 rounded-full shrink-0 bg-[var(--color-success-soft)] text-[var(--color-success)] dark:bg-[var(--color-success)]/20"}>
           {connected}
         </div>
       </div>

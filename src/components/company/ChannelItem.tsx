@@ -5,14 +5,13 @@ import type { CompanyChannel } from '../../lib/company/types';
 
 type ChannelItemProps = {
   channel: CompanyChannel;
-  isDark?: boolean;
   index: number;
   gradient: string;
   onClick?: () => void;
   t: (key: string, args?: Record<string, string | number>) => string;
 };
 
-export const ChannelItem = ({ channel, isDark = false, index, gradient, onClick, t }: ChannelItemProps) => {
+export const ChannelItem = ({ channel, index, gradient, onClick, t }: ChannelItemProps) => {
   const interactive = Boolean(onClick);
   return (
     <motion.div
@@ -45,7 +44,7 @@ export const ChannelItem = ({ channel, isDark = false, index, gradient, onClick,
       </div>
     </div>
     {channel.unread > 0 && (
-      <div className={`min-w-[20px] h-[20px] px-1.5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isDark ? "bg-[var(--color-warning)]/20 text-[var(--color-warning)]" : "bg-[var(--color-warning-soft)] text-[var(--color-warning)]"}`}>
+      <div className={"min-w-[20px] h-[20px] px-1.5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-[var(--color-warning-soft)] text-[var(--color-warning)] dark:bg-[var(--color-warning)]/20"}>
         {channel.unread}
       </div>
     )}

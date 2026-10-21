@@ -40,7 +40,7 @@ export const EcoSidebarNav = ({
     (item) => !(item.id === "company" && hideCompany) && (!item.adminOnly || admin),
   );
 
-  const hoverBg = isDark ? "hover:bg-white/[0.04]" : "hover:bg-black/[0.04]";
+  const hoverBg = "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]";
   const footerStatusRing = isDark ? "#070a0f" : "#ffffff";
 
   const handleProfileClick = () => onNavigate?.("settings");
