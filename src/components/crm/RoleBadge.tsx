@@ -4,6 +4,7 @@ import { SYSTEM_ROLES } from '../../constants/crmConstants';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { CRM_FALLBACKS } from '../../constants/crmConstants';
+import { CAPS_LABEL_CLASS } from '../ui/textClasses';
 
 function roleLabel(role: SystemRole, t: (k: string, f?: string) => string) {
   const meta = SYSTEM_ROLES.find((r) => r.id === role);
@@ -27,12 +28,12 @@ export const RoleBadge: React.FC<{ contact: CrmContact }> = ({ contact }) => {
 
   return (
     <span className="inline-flex items-center gap-1 flex-wrap">
-      <span className={`inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${tone[contact.role]}`}>
+      <span className={`inline-flex items-center gap-1 ${CAPS_LABEL_CLASS} px-1.5 py-0.5 rounded-full ${tone[contact.role]}`}>
         <Icon size={12} />
         {roleLabel(contact.role, t)}
       </span>
       {custom && (
-        <span className="text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
+        <span className={`${CAPS_LABEL_CLASS} px-1.5 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]`}>
           {custom.name}
         </span>
       )}

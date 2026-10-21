@@ -2,6 +2,7 @@ import { Phone, Video, Pencil } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { CompanyMember } from '../../lib/company/types';
 import { COMPANY_MEMBER_FALLBACKS } from '../../constants/companyConstants';
+import { CAPS_LABEL_CLASS } from '../ui/textClasses';
 
 type MemberItemProps = {
   member: CompanyMember;
@@ -75,17 +76,17 @@ export const MemberItem = ({ member, isDark = false, index, color, isCurrentUser
             {member.displayName}
           </span>
           {member.role === 'admin' && (
-            <span className="shrink-0 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]">
+            <span className={`shrink-0 ${CAPS_LABEL_CLASS} px-1.5 py-0.5 rounded-full bg-[var(--accent)]/15 text-[var(--accent)]`}>
               {roleLabel}
             </span>
           )}
           {member.role === 'manager' && (
-            <span className="shrink-0 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--color-warning)]/15 text-[var(--color-warning)]">
+            <span className={`shrink-0 ${CAPS_LABEL_CLASS} px-1.5 py-0.5 rounded-full bg-[var(--color-warning)]/15 text-[var(--color-warning)]`}>
               {roleLabel}
             </span>
           )}
           {isCurrentUser && (
-            <span className="shrink-0 text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[var(--color-success)]/15 text-[var(--color-success)]">
+            <span className={`shrink-0 ${CAPS_LABEL_CLASS} px-1.5 py-0.5 rounded-full bg-[var(--color-success)]/15 text-[var(--color-success)]`}>
               {t('company.you', COMPANY_MEMBER_FALLBACKS.you)}
             </span>
           )}
