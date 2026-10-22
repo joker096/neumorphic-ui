@@ -10,7 +10,7 @@ vi.hoisted(() => {
 
 import { getDb, closeDb, resetDbForTests } from '../db'
 import { createAdminSession, signToken } from '../auth'
-import { handleAuthRoute } from '../routes/auth'
+import { handleAuthRoute, resetRateLimits } from '../routes/auth'
 
 const OLD_SECRET = 'JBSWY3DPEHPK3PXP'
 
@@ -56,6 +56,9 @@ describe('POST /api/auth/reset-2fa', () => {
 
   beforeEach(() => {
     resetDbForTests()
+    // The rate-limit map is module level and the admin ids restart at 1 after a
+    // database reset, so the buckets have to be cleared between the cases.
+    resetRateLimits()
   })
 
   afterAll(() => {
@@ -96,7 +99,7 @@ describe('POST /api/auth/reset-2fa', () => {
     expect(sessions.map((s) => s.token)).toEqual([token])
   })
 
-  it('rate limits the resets per address', () => {
+  it('rate limits the resets per administrator', () => {
     const adminId = seedAdmin('limit-admin')
     const token = signToken({ adminId, username: 'limit-admin' })
     createAdminSession(adminId, token)
@@ -109,5 +112,24 @@ describe('POST /api/auth/reset-2fa', () => {
     }
     expect(statuses.slice(0, 5)).toEqual([200, 200, 200, 200, 200])
     expect(statuses[5]).toBe(429)
+  })
+
+  it('does not let one administrator exhaust the budget of another', () => {
+    const firstId = seedAdmin('first-admin')
+    const firstToken = signToken({ adminId: firstId, username: 'first-admin' })
+    createAdminSession(firstId, firstToken)
+    const secondId = seedAdmin('second-admin')
+    const secondToken = signToken({ adminId: secondId, username: 'second-admin' })
+    createAdminSession(secondId, secondToken)
+
+    for (let i = 0; i < 6; i += 1) {
+      const { res } = makeRes()
+      handleAuthRoute(makeReq(firstToken, '10.0.0.3'), res, '/api/auth/reset-2fa')
+    }
+
+    // The second operator shares the address but not the budget.
+    const { res, state } = makeRes()
+    handleAuthRoute(makeReq(secondToken, '10.0.0.3'), res, '/api/auth/reset-2fa')
+    expect(state.status).toBe(200)
   })
 })

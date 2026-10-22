@@ -5,22 +5,49 @@ export interface AuthenticatedRequest extends IncomingMessage {
   admin?: { adminId: number; username: string }
 }
 
-export function requireAuth(req: AuthenticatedRequest, res: ServerResponse): boolean {
+/** Outcome of a bearer-token check. */
+export interface AuthResult {
+  /** True when the request carries a valid administrator token. */
+  ok: boolean
+  /** The administrator behind the token (only set when `ok` is true). */
+  admin?: { adminId: number; username: string }
+  /** Why the check failed (only set when `ok` is false). */
+  reason?: 'missing' | 'invalid'
+}
+
+/**
+ * Check the bearer token of a request.
+ *
+ * Split out of `requireAuth` so a caller can decide what to answer for a
+ * failed check - the rate-limited admin endpoints answer 429 instead of 401
+ * once the anonymous budget of that IP is spent.
+ */
+export function authenticate(req: IncomingMessage): AuthResult {
   const authHeader = req.headers['authorization']
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.writeHead(401, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Missing authorization header' }))
-    return false
+    return { ok: false, reason: 'missing' }
   }
 
-  const token = authHeader.slice(7)
-  const payload = validateSession(token)
+  const payload = validateSession(authHeader.slice(7))
   if (!payload) {
-    res.writeHead(401, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Invalid or expired token' }))
+    return { ok: false, reason: 'invalid' }
+  }
+  return { ok: true, admin: payload }
+}
+
+/** Write the 401 answer for a failed bearer-token check. */
+export function writeUnauthorized(res: ServerResponse, reason: 'missing' | 'invalid' = 'invalid'): void {
+  res.writeHead(401, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify({ error: reason === 'missing' ? 'Missing authorization header' : 'Invalid or expired token' }))
+}
+
+export function requireAuth(req: AuthenticatedRequest, res: ServerResponse): boolean {
+  const result = authenticate(req)
+  if (!result.ok) {
+    writeUnauthorized(res, result.reason ?? 'invalid')
     return false
   }
 
-  req.admin = payload
+  req.admin = result.admin!
   return true
 }

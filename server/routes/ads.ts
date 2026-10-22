@@ -1,64 +1,57 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 import { getDb } from '../db.js'
-import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
+import { AuthenticatedRequest } from '../middleware/auth.js'
 import { resolveClientIp } from '../middleware/clientIp.js'
+import { AdminLimiters, authorizeAdminRequest, createRateLimiter, ipRateLimitKey, tooManyRequests } from '../middleware/rateLimit.js'
 
-const adsRateLimit = new Map<string, { count: number; resetAt: number }>()
+/** Anonymous traffic (ad delivery, impressions, clicks) shares one per-IP budget. */
+const anonymousLimiter = createRateLimiter(50, 60000)
 
-function checkAdsRateLimit(ip: string, maxRequests = 50, windowMs = 60000): boolean {
-  const now = Date.now()
-  let entry = adsRateLimit.get(ip)
-  if (!entry || now > entry.resetAt) {
-    adsRateLimit.set(ip, { count: 1, resetAt: now + windowMs })
-    return true
-  }
-  if (entry.count >= maxRequests) return false
-  entry.count++
-  return true
-}
+/** Signed-in operators get one bucket each, so a shared egress IP cannot lock them out. */
+const adminLimiter = createRateLimiter(120, 60000)
 
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, entry] of adsRateLimit) {
-    if (now > entry.resetAt) adsRateLimit.delete(key)
-  }
-}, 300000)
+/** Test seam: lets a test inspect or reset the buckets. */
+export const adsRateLimiters: AdminLimiters = { anonymous: anonymousLimiter, admin: adminLimiter }
 
 export function handleAdsRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
-  // Rate limit for client endpoints
   const ip = resolveClientIp(req)
-  if (!checkAdsRateLimit(ip)) {
-    res.writeHead(429, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Too many requests' }))
-    return true
+  const authReq = req as AuthenticatedRequest
+
+  // Client endpoints (no auth) - anonymous traffic spends the per-IP budget.
+  if (path === '/api/ads/active' && req.method === 'GET') {
+    if (!anonymousLimiter.check(ipRateLimitKey(ip))) { tooManyRequests(res); return true }
+    handleGetActiveAd(res); return true
+  }
+  const impMatch = path.match(/^\/api\/ads\/(\d+)\/impression$/)
+  if (impMatch && req.method === 'POST') {
+    if (!anonymousLimiter.check(ipRateLimitKey(ip))) { tooManyRequests(res); return true }
+    handleTrackImpression(res, parseInt(impMatch[1]!)); return true
+  }
+  const clickMatch = path.match(/^\/api\/ads\/(\d+)\/click$/)
+  if (clickMatch && req.method === 'POST') {
+    if (!anonymousLimiter.check(ipRateLimitKey(ip))) { tooManyRequests(res); return true }
+    handleTrackClick(res, parseInt(clickMatch[1]!)); return true
   }
 
-  // Client endpoints (no auth)
-  if (path === '/api/ads/active' && req.method === 'GET') { handleGetActiveAd(res); return true }
-  const impMatch = path.match(/^\/api\/ads\/(\d+)\/impression$/)
-  if (impMatch && req.method === 'POST') { handleTrackImpression(res, parseInt(impMatch[1]!)); return true }
-  const clickMatch = path.match(/^\/api\/ads\/(\d+)\/click$/)
-  if (clickMatch && req.method === 'POST') { handleTrackClick(res, parseInt(clickMatch[1]!)); return true }
-
-  // Admin endpoints (auth required)
-  const authReq = req as AuthenticatedRequest
+  // Admin endpoints (auth required) - the budget belongs to the operator, not
+  // to the egress IP, so a shared address can never lock a session out.
   if (path === '/api/ads' && req.method === 'GET') {
-    if (!requireAuth(authReq, res)) return true
+    if (!authorizeAdminRequest(authReq, res, ip, adsRateLimiters)) return true
     handleListAds(res); return true
   }
   if (path === '/api/ads' && req.method === 'POST') {
-    if (!requireAuth(authReq, res)) return true
+    if (!authorizeAdminRequest(authReq, res, ip, adsRateLimiters)) return true
     handleCreateAd(req, res); return true
   }
   const match = path.match(/^\/api\/ads\/(\d+)$/)
   if (match) {
     const id = parseInt(match[1]!)
     if (req.method === 'PUT') {
-      if (!requireAuth(authReq, res)) return true
+      if (!authorizeAdminRequest(authReq, res, ip, adsRateLimiters)) return true
       handleUpdateAd(req, res, id); return true
     }
     if (req.method === 'DELETE') {
-      if (!requireAuth(authReq, res)) return true
+      if (!authorizeAdminRequest(authReq, res, ip, adsRateLimiters)) return true
       handleDeleteAd(authReq, res, id); return true
     }
   }

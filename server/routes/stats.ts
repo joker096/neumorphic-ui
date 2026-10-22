@@ -1,54 +1,41 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 import { getDb } from '../db.js'
-import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
+import { AuthenticatedRequest } from '../middleware/auth.js'
 import { resolveClientIp } from '../middleware/clientIp.js'
+import { AdminLimiters, authorizeAdminRequest, createRateLimiter } from '../middleware/rateLimit.js'
 
-const statsRateLimit = new Map<string, { count: number; resetAt: number }>()
+/** Anonymous traffic (and unusable tokens) share one per-IP budget. */
+const anonymousLimiter = createRateLimiter(30, 60000)
 
-function checkStatsRateLimit(ip: string, maxRequests = 30, windowMs = 60000): boolean {
-  const now = Date.now()
-  let entry = statsRateLimit.get(ip)
-  if (!entry || now > entry.resetAt) {
-    statsRateLimit.set(ip, { count: 1, resetAt: now + windowMs })
-    return true
-  }
-  if (entry.count >= maxRequests) return false
-  entry.count++
-  return true
-}
+/** Signed-in operators get one bucket each, so a shared egress IP cannot lock them out. */
+const adminLimiter = createRateLimiter(120, 60000)
 
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, entry] of statsRateLimit) {
-    if (now > entry.resetAt) statsRateLimit.delete(key)
-  }
-}, 300000)
+/** Test seam: lets a test inspect or reset the buckets. */
+export const statsRateLimiters: AdminLimiters = { anonymous: anonymousLimiter, admin: adminLimiter }
 
 export function handleStatsRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
   const ip = resolveClientIp(req)
-  if (!checkStatsRateLimit(ip)) {
-    res.writeHead(429, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Too many requests' }))
-    return true
-  }
   const authReq = req as AuthenticatedRequest
+  // Every stats endpoint is admin-only. The budget belongs to the operator, not
+  // to the egress IP, so a shared address can never lock a session out and
+  // anonymous traffic can never exhaust the budget of a valid session.
   if (path === '/api/stats/overview' && req.method === 'GET') {
-    if (!requireAuth(authReq, res)) return true
+    if (!authorizeAdminRequest(authReq, res, ip, statsRateLimiters)) return true
     handleOverview(res)
     return true
   }
   if (path === '/api/stats/countries' && req.method === 'GET') {
-    if (!requireAuth(authReq, res)) return true
+    if (!authorizeAdminRequest(authReq, res, ip, statsRateLimiters)) return true
     handleCountries(res)
     return true
   }
   if (path === '/api/stats/devices' && req.method === 'GET') {
-    if (!requireAuth(authReq, res)) return true
+    if (!authorizeAdminRequest(authReq, res, ip, statsRateLimiters)) return true
     handleDevices(res)
     return true
   }
   if (path === '/api/stats/users' && req.method === 'GET') {
-    if (!requireAuth(authReq, res)) return true
+    if (!authorizeAdminRequest(authReq, res, ip, statsRateLimiters)) return true
     handleUsers(req, res)
     return true
   }

@@ -40,6 +40,16 @@ function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 60000): boolean 
 }
 
 /**
+ * Test seam: drop every rate-limit bucket.
+ *
+ * The map lives at module scope, so a test that resets the database would
+ * otherwise inherit the buckets of the previous case (admin ids restart at 1).
+ */
+export function resetRateLimits(): void {
+  rateLimitMap.clear()
+}
+
+/**
  * Client IP for rate limiting. Must be proxy-aware: behind nginx every peer is
  * loopback, so a socket-only key turns every per-IP limit into one global
  * bucket (3 requests to /verify-2fa would lock 2FA for the whole internet).
@@ -273,13 +283,14 @@ function handleLogout(req: AuthenticatedRequest, res: ServerResponse): void {
  */
 function handleReset2FA(req: AuthenticatedRequest, res: ServerResponse): void {
   if (!requireAuth(req, res)) return
-  const ip = getRemoteAddress(req)
-  if (!checkRateLimit('reset-2fa:' + ip, 5, 60000)) {
+  // Keyed by the administrator instead of the egress IP: operators behind a
+  // shared address must not be able to lock each other out.
+  const adminId = req.admin!.adminId
+  if (!checkRateLimit('reset-2fa:' + adminId, 5, 60000)) {
     res.writeHead(429, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ error: 'Too many attempts. Try again later.' }))
     return
   }
-  const adminId = req.admin!.adminId
   const { secret, uri } = generateTotpSecret()
   const updated = getDb().prepare('UPDATE admins SET totp_secret = ? WHERE id = ?').run(secret, adminId)
   if (updated.changes === 0) {
