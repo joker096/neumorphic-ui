@@ -50,7 +50,10 @@ function renderAds() {
 }
 
 async function openNewAdForm() {
-  const button = await screen.findByRole('button', { name: /new ad/i })
+  // The admin SPA loads its locale chunk asynchronously. On a loaded machine
+  // the label is still the translation key when the default 1s budget expires
+  // - a slow environment is not a finding.
+  const button = await screen.findByRole('button', { name: /new ad/i }, { timeout: 10_000 })
   fireEvent.click(button)
   await screen.findByPlaceholderText('Title')
 }

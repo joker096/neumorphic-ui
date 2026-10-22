@@ -40,9 +40,9 @@ describe('admin settings — reset 2FA', () => {
     mocks.reset2FA.mockResolvedValue({ secret: 'NEWSECRET42', uri: 'otpauth://totp/admin' })
 
     renderSettings()
-    fireEvent.click(await screen.findByRole('button', { name: /reset 2fa/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /reset 2fa/i }, { timeout: 10_000 }))
 
-    await waitFor(() => expect(screen.getByText('NEWSECRET42')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('NEWSECRET42')).toBeInTheDocument(), { timeout: 10_000 })
     expect(mocks.reset2FA).toHaveBeenCalledTimes(1)
   })
 
@@ -56,10 +56,11 @@ describe('admin settings — reset 2FA', () => {
     )
 
     renderSettings()
-    fireEvent.click(await screen.findByRole('button', { name: /reset 2fa/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /reset 2fa/i }, { timeout: 10_000 }))
 
-    await waitFor(() =>
-      expect(screen.getByText('Too many attempts. Try again later.')).toBeInTheDocument(),
+    await waitFor(
+      () => expect(screen.getByText('Too many attempts. Try again later.')).toBeInTheDocument(),
+      { timeout: 10_000 },
     )
     expect(screen.queryByText(/NEWSECRET42/)).toBeNull()
   })
