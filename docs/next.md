@@ -79,7 +79,7 @@ OS secure storage — закрыто (2026-09-15): web-аналог = WebCrypto 
 Android Keystore.
 iOS Keychain.
 Windows Credential Manager/DPAPI для desktop.
-Ротация секретов — частично (operator action, P1/C1).
+Ротация секретов — частично (operator action, P1/C1). Шаг оператора («отредактируй `.env`, перезапусти сервис») инструментирован: `npm run secrets:rotate` (сухой прогон по умолчанию, печатает только sha256-отпечатки, `--apply` пишет по месту с бэкапом `<file>.bak-<ISO>`, проверяет минимальную длину 32 и блоклист плейсхолдеров, предупреждает о сбросе админских сессий и relay-токенов). Остаётся действие оператора: применить ротацию и перезапустить сервис.
 Device-bound KDF как не-public fingerprint — открыто, нужен продуктовый выбор (P1-3 partial, 2026-09-26): `deviceSecurity.getDeviceBoundKey()` выводит wrapping key из публичного browser fingerprint (canvas/WebGL/shape/мобильные сигнатуры), поэтому он защищает от случайного чтения IndexedDB, но не от целенаправленного локального сбора этой же телеметрии. Схема «PIN → KEK» (Argon2id/scrypt по PIN с солью на устройстве) сделала бы ключи невыводимыми из fingerprint, но **забытый PIN = необратимая потеря локальной идентичности и данных** (recovery-phrase восстанавливает identity, но не at-rest данные). Требуется решение владельца продукта; до него — см. `docs/security-guide.md` и threat model §3.4.1.
 
 Credentials в документации — закрыто (2026-10-01): реальных значений нет ни в `DEPLOY.md`, ни в истории. Плейсхолдеры вида `ChangeMe_Strong123!` / `myadmin` / `yourpass` / `your-secret`, которые читались как готовые пароли, заменены на `<admin-user>` / `<strong-random-password>` / `<random-secret>`; скан всех 362 ревизий по именам `ADMIN_*`, `JWT_SECRET`, `PAYMENTO_*`, `SIGNALING_*` дал только плейсхолдеры, и каждый из них уже в fail-hard blocklist сервера (`server/signaling-server.ts`: длина < 32 или blocklist → exit). Инцидента не было, ротация не требуется.
@@ -170,7 +170,7 @@ recovery после потери устройства;
 политика удаления очереди и файлов — recovery/локальное хранение/удаление очереди описаны в существующих разделах security-guide; до отдельной сводной секции не выделено (опционально).
 Приоритет реализации
 
-Ротация секретов из документации. — частично (operator action).
+Ротация секретов из документации. — частично (operator action): инструмент `npm run secrets:rotate` готов (2026-10-22), остаётся применить ротацию и перезапустить сервис.
 Реальные P2P-звонки. — закрыто (P2).
 Адресные ACK/read receipts. — закрыто (P3).
 Обязательная peer identity verification. — закрыто (P4).
