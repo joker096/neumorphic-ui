@@ -1,3 +1,5 @@
+// Must come first: SEED_REGISTRY_PORT is read at module scope.
+import './env.js'
 import express from 'express';
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';

@@ -53,7 +53,9 @@ npm run dev
 
 ## Environment
 
-Copy `server/.env.example` to `server/.env` and configure:
+Copy `.env.example` to `.env` in the repo root — one file for the whole app. The signaling server loads it through `server/env.ts` in the order `./.env` → `./server/.env` → `<cwd>/.env` (the first file that defines a key wins), and the SPA reads the `VITE_*` variables at build time.
+
+Server variables (`server/.env.example` lists the same set with comments):
 
 ```
 JWT_SECRET=<random 64-char hex>
@@ -61,6 +63,16 @@ PORT=8765
 REST_PORT=8766
 DB_PATH=./data/admin.db
 ALLOWED_ORIGINS=https://yourdomain.com
+```
+
+Client variables (Vite inlines them at build time):
+
+```
+VITE_SIGNALING_SEED_URLS=wss://signals.example.com/ws
+VITE_RELAY_PROXY_URL=
+VITE_SIGNALING_REST_URL=
+VITE_EMBED_WIDGET_URL=
+VITE_USE_MOCK=
 ```
 
 The release pipeline (`npm run release` / `npm run verify`) reads four more variables:

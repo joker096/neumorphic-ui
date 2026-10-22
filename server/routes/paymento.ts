@@ -1,3 +1,5 @@
+// Must come first: the gateway credentials are read at module scope.
+import '../env.js'
 import { IncomingMessage, ServerResponse } from 'node:http'
 import crypto from 'node:crypto'
 import {

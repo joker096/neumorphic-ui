@@ -1,10 +1,8 @@
-import dotenv from 'dotenv'
+import './env.js'
 import jwt from 'jsonwebtoken'
 import { TOTP } from 'otpauth'
 import { createHmac } from 'node:crypto'
 import { getDb } from './db.js'
-
-dotenv.config()
 
 const JWT_SECRET = process.env.JWT_SECRET
 

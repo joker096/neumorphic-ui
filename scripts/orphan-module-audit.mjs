@@ -66,11 +66,21 @@ const mentionFiles = new Map(); // name -> Set(abs path)
 for (const file of files) {
   const code = readFileSync(file, 'utf-8');
   const dir = dirname(file);
-  // resolve relative imports
-  const RE = /(?:from\s+|import\s*\(\s*|require\(\s*)['"](\.[^'"]+)['"]/g;
+  // Resolve relative imports. `import\s+` also matches the side-effect form
+  // (`import './env.js'`): a module imported only for its side effects is used,
+  // not orphaned.
+  const RE = /(?:from\s+|import\s*\(\s*|import\s+|require\(\s*)['"](\.[^'"]+)['"]/g;
   let m;
   while ((m = RE.exec(code))) {
     let target = resolve(dir, m[1]);
+    // A `.js`/`.jsx` specifier may point at the TypeScript source it is
+    // compiled from (`import './env.js'` → `env.ts`).
+    if (target.endsWith('.js') || target.endsWith('.jsx')) {
+      const stem = target.slice(0, target.lastIndexOf('.'));
+      for (const tsExt of ['.ts', '.tsx']) {
+        if (existsSync(stem + tsExt)) { target = stem + tsExt; break; }
+      }
+    }
     for (const ext of ['.ts', '.tsx', '.js', '.jsx', '.mjs', '']) {
       if (existsSync(target + ext)) { target += ext; break; }
     }

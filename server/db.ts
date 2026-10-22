@@ -1,3 +1,6 @@
+// Must come first: DB_PATH is read at module scope, so the environment has to
+// be loaded before this module body runs.
+import './env.js'
 import Database from 'better-sqlite3'
 import path from 'node:path'
 import fs from 'node:fs'

@@ -1,3 +1,6 @@
+// Must come first: the port, JWT secret and CORS allow-list are read at
+// module scope, so the environment has to be loaded before this module body.
+import './env.js'
 import { WebSocketServer, WebSocket } from 'ws'
 import { createServer, RequestListener, IncomingMessage } from 'node:http'
 import { readFileSync, existsSync, statSync } from 'node:fs'

@@ -1,10 +1,8 @@
-import dotenv from 'dotenv'
+import './env.js'
 import bcrypt from 'bcrypt'
 import QRCode from 'qrcode'
 import { getDb, closeDb } from './db.js'
 import { generateTotpSecret } from './auth.js'
-
-dotenv.config()
 
 async function createAdmin(username: string, password: string): Promise<void> {
   getDb()
