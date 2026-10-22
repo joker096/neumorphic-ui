@@ -329,6 +329,26 @@ if (-not $SkipWebDeploy) {
       ($swText -replace "const CACHE_VERSION = 'v\d+'", $newVer) | Set-Content $swPath -NoNewline
       (Get-Content $swSrcPath -Raw) -replace "const CACHE_VERSION = 'v\d+'", $newVer | Set-Content $swSrcPath -NoNewline
       Write-Host "  ✓ CACHE_VERSION bumped to v$nextVer" -ForegroundColor Green
+
+      # Pre-compressed copies (sw.js.gz / sw.js.br) are produced by the BUILD, i.e. BEFORE
+      # this bump. Uploading them as-is leaves the previous release's service worker on the
+      # server: nginx's gzip_static/brotli serves the stale packed file, the browser sees
+      # byte-identical sw.js and never installs the new worker — the deploy "lags one
+      # release" and users keep the old bundle. Regenerate them from the bumped source;
+      # if regeneration fails, drop them so nginx serves sw.js itself.
+      foreach ($packExt in @('gz', 'br')) {
+        $packedSw = "$swPath.$packExt"
+        if (-not (Test-Path $packedSw)) { continue }
+        $env:SW_PACK_SRC = $swPath
+        $env:SW_PACK_OUT = $packedSw
+        $env:SW_PACK_MODE = $packExt
+        node -e "const fs=require('fs'),z=require('zlib');const src=process.env.SW_PACK_SRC,out=process.env.SW_PACK_OUT;const data=fs.readFileSync(src);fs.writeFileSync(out,process.env.SW_PACK_MODE==='br'?z.brotliCompressSync(data):z.gzipSync(data,{level:9}));" 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0 -or -not (Test-Path $packedSw)) {
+          Remove-Item $packedSw -Force -ErrorAction SilentlyContinue
+          Write-Host "  ⚠ Could not recompress sw.js.$packExt; removed the stale copy" -ForegroundColor Yellow
+        }
+        Remove-Item Env:\SW_PACK_SRC, Env:\SW_PACK_OUT, Env:\SW_PACK_MODE -ErrorAction SilentlyContinue
+      }
     } else {
       Write-Host "  ⚠ Could not locate CACHE_VERSION in sw.js; leaving unchanged" -ForegroundColor Yellow
     }
@@ -338,6 +358,10 @@ if (-not $SkipWebDeploy) {
 
   Write-Host "  Creating remote dirs..." -ForegroundColor Yellow
   ssh $Server "mkdir -p $WebRoot" 2>&1 | Out-Null
+
+  # Defensive: never let an older release's pre-compressed service worker survive the
+  # upload (nginx would serve it instead of the fresh sw.js and block SW updates).
+  ssh $Server "rm -f $WebRoot/sw.js.gz $WebRoot/sw.js.br" 2>&1 | Out-Null
 
   Write-Host "  Uploading web files..." -ForegroundColor Yellow
     Push-Location $DistDir
