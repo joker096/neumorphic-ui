@@ -46,10 +46,12 @@ type Props = {
   onUnblock?: () => void;
   onRequestDelete?: () => void;
   onToggleFavorite?: (id: string, isFavorite: boolean) => void;
+  /** Hide the favorite star when no real contact sits behind the profile. */
+  canToggleFavorite?: boolean;
   theme: 'light' | 'dark';
 };
 
-export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVideoCall, onMessage, onEdit, onDelete, onBlock, onUnblock, onRequestDelete, onToggleFavorite, theme }: Props) => {
+export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVideoCall, onMessage, onEdit, onDelete, onBlock, onUnblock, onRequestDelete, onToggleFavorite, canToggleFavorite = true, theme }: Props) => {
   const ghostViewMode = useAppStore(state => state.ghostViewMode);
   const chats = useAppStore(state => state.chats);
   const contacts = useAppStore(state => state.contacts);
@@ -168,15 +170,17 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             />
                         <h2 className="text-xl font-bold mt-3 text-center flex items-center justify-center gap-2 tracking-tight text-[var(--text-primary)]">
               {contact.name}
-              <button
-                onClick={() => handleToggleFavorite(contact.id, contact.isFavorite || false)}
-                className={`min-w-11 min-h-11 flex items-center justify-center rounded-full transition-all active:scale-90 ${contact.isFavorite ? "text-[var(--amber)] bg-[var(--msg-bg-panel)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"}`}
-                title={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
-                aria-label={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
-                aria-pressed={contact.isFavorite}
-              >
-                {contact.isFavorite ? <Star size={18} fill="currentColor" /> : <StarOff size={18} />}
-              </button>
+              {canToggleFavorite && (
+                <button
+                  onClick={() => handleToggleFavorite(contact.id, contact.isFavorite || false)}
+                  className={`min-w-11 min-h-11 flex items-center justify-center rounded-full transition-all active:scale-90 ${contact.isFavorite ? "text-[var(--amber)] bg-[var(--msg-bg-panel)]" : "text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"}`}
+                  title={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
+                  aria-label={contact.isFavorite ? t('common.removeFromFavorites') : t('common.addToFavorites')}
+                  aria-pressed={contact.isFavorite}
+                >
+                  {contact.isFavorite ? <Star size={18} fill="currentColor" /> : <StarOff size={18} />}
+                </button>
+              )}
             </h2>
 
             <div className="mt-1 font-mono text-xs tracking-wider px-3 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">

@@ -114,13 +114,6 @@ describe('App Store', () => {
       expect(useAppStore.getState().contacts[0].name).toBe('Alice');
     });
 
-    it('should add and remove favorites', () => {
-      useAppStore.getState().addFavorite('contact-1');
-      expect(useAppStore.getState().favoriteContacts).toContain('contact-1');
-      useAppStore.getState().removeFavorite('contact-1');
-      expect(useAppStore.getState().favoriteContacts).not.toContain('contact-1');
-    });
-
     it('should forward a message to another chat', () => {
       const chat1 = { id: 'chat-1', name: 'Source', history: [{ id: 1, text: 'Fwd me' }] };
       const chat2 = { id: 'chat-2', name: 'Target', history: [] };

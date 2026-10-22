@@ -35,7 +35,6 @@ interface ChatPreviewOverlaysProps {
   selectedContact: ContactProfile | null;
   setSelectedContact: React.Dispatch<React.SetStateAction<ContactProfile | null>>;
   setEditingContact: (contact: ContactProfile | null) => void;
-  onUpdateChat?: (chat: any) => void;
   onCall?: (name: string, color?: string) => void;
   onVideoCall?: (name: string, color?: string) => void;
   onMessage?: (name: string, color?: string) => void;
@@ -58,7 +57,7 @@ export function ChatPreviewOverlays({
   showSavedPanel, setShowSavedPanel, chatSavedMessages, onToggleSavedMessage,
   t,
   selectedContact, setSelectedContact, setEditingContact,
-  onUpdateChat, onCall, onVideoCall, onMessage,
+  onCall, onVideoCall, onMessage,
   profileOpen, setProfileOpen,
   onClosePreview,
   onForward, onDelete,
@@ -79,6 +78,11 @@ export function ChatPreviewOverlays({
 
   const setChats = useAppStore((s) => s.setChats);
   const setContacts = useAppStore((s) => s.setContacts);
+  const contacts = useAppStore((s) => s.contacts);
+  // The chat profile opens with a synthetic contact (a chat is not a contact
+  // record), so the real contact behind it is resolved by name - the same way
+  // the modal resolves the contact it blocks.
+  const favoriteContact = (contacts || []).find((c: any) => c.name === selectedContact?.name);
 
   const handleDeleteContact = () => {
     if (selectedContact) {
@@ -139,9 +143,17 @@ export function ChatPreviewOverlays({
             onDelete={handleDeleteContact}
             onEdit={() => { if (selectedContact) setEditingContact(selectedContact); setSelectedContact(null); }}
             onBlock={() => setSelectedContact(null)}
+            canToggleFavorite={Boolean(favoriteContact)}
             onToggleFavorite={(id, isFavorite) => {
               setSelectedContact(prev => prev && prev.id === id ? { ...prev, isFavorite } : prev);
-              if (chat) onUpdateChat?.({ ...chat, isFavorite });
+              // The favorite lives on the contact record - that is the list
+              // that shows the star and the «Избранные» tab. Writing it to the
+              // chat changed nothing anybody could see.
+              const target = favoriteContact;
+              if (!target) return;
+              setContacts((prev: any[]) =>
+                (prev || []).map((c: any) => (c.id === target.id ? { ...c, isFavorite } : c)),
+              );
             }}
           />
         </React.Suspense>

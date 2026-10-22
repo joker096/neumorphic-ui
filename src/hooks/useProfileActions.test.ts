@@ -29,22 +29,22 @@ function makeHarness() {
 }
 
 describe("useProfileActions", () => {
-  it("updates chats state for a chat-only id (not present in contacts)", () => {
-    const { result } = renderHook(() => makeHarness());
-    act(() => {
-      result.current.handleProfileToggleFavorite("chat_only", true);
-    });
-    expect(result.current.chats.find((c: any) => c.id === "chat_only")?.isFavorite).toBe(true);
-    expect(result.current.contacts).toHaveLength(1);
-  });
-
-  it("toggles favorite for a shared id on both chats and contacts", () => {
+  it("writes the favorite to the contact record", () => {
     const { result } = renderHook(() => makeHarness());
     act(() => {
       result.current.handleProfileToggleFavorite("chat_1", true);
     });
     expect(result.current.contacts[0].isFavorite).toBe(true);
-    expect(result.current.chats[0].isFavorite).toBe(true);
+  });
+
+  it("leaves the chat record alone - a chat has no favorite surface", () => {
+    const { result } = renderHook(() => makeHarness());
+    act(() => {
+      result.current.handleProfileToggleFavorite("chat_only", true);
+    });
+    expect(result.current.contacts).toHaveLength(1);
+    expect(result.current.contacts[0].isFavorite).toBe(false);
+    expect(result.current.chats.find((c: any) => c.id === "chat_only")?.isFavorite).toBe(false);
   });
 
   it("toggles favorite back to false", () => {
@@ -55,6 +55,6 @@ describe("useProfileActions", () => {
     act(() => {
       result.current.handleProfileToggleFavorite("chat_1", false);
     });
-    expect(result.current.chats[0].isFavorite).toBe(false);
+    expect(result.current.contacts[0].isFavorite).toBe(false);
   });
 });

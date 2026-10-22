@@ -53,10 +53,12 @@ export function useProfileActions(
   }, [globalSelectedContact, setGlobalSelectedContact]);
 
   const handleProfileToggleFavorite = useCallback((id: string, isFavorite: boolean) => {
+    // The favorite lives on the contact record - that is the list that shows
+    // the star and the «Избранные» tab. A chat record has no such surface, so
+    // writing the flag there changed nothing anybody could see.
     setContacts((prev: any[]) => (prev || []).map((c: any) => c.id === id ? { ...c, isFavorite } : c));
-    setChats((prev: any[]) => (prev || []).map((c: any) => c.id === id ? { ...c, isFavorite } : c));
     setGlobalSelectedContact((prev: any) => prev && prev.id === id ? { ...prev, isFavorite } : prev);
-  }, [setContacts, setChats, setGlobalSelectedContact]);
+  }, [setContacts, setGlobalSelectedContact]);
 
   return {
     handleProfileCall,

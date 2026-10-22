@@ -39,14 +39,6 @@ describe('chatSlice', () => {
     expect(get().chats[0].history[0].forwardedAt).toBeDefined();
   });
 
-  it('addFavorite/removeFavorite toggles membership', () => {
-    const { slice, get } = makeSlice();
-    slice.addFavorite('u1');
-    expect(get().favoriteContacts).toContain('u1');
-    slice.removeFavorite('u1');
-    expect(get().favoriteContacts).not.toContain('u1');
-  });
-
   it('toggleArchive toggles membership', () => {
     const { slice, get } = makeSlice();
     slice.toggleArchive('c1');

@@ -117,6 +117,7 @@ export const AppOverlays = ({
             onEdit={onProfileEdit}
             onBlock={onProfileBlock}
             onToggleFavorite={onProfileToggleFavorite}
+            canToggleFavorite={Boolean((contacts || []).find((c: any) => c.id === globalSelectedContact.id))}
           />
         </Suspense>
       )}

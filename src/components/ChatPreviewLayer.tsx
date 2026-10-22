@@ -251,7 +251,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         selectedContact={preview.selectedContact}
         setSelectedContact={preview.setSelectedContact as React.Dispatch<React.SetStateAction<ContactProfile | null>>}
         setEditingContact={setEditingContact}
-        onUpdateChat={onUpdateChat}
         onCall={onCall}
         onVideoCall={onVideoCall}
         onMessage={onMessage}

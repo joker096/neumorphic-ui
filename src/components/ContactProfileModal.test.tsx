@@ -455,4 +455,20 @@ describe('ContactProfileModal', () => {
       expect(updated?.isBlocked).toBe(false);
     });
   });
+
+  it('shows the favorite star and reports the toggle with the contact id', () => {
+    const onToggleFavorite = vi.fn();
+    render(<ContactProfileModal {...defaultProps} onToggleFavorite={onToggleFavorite} />);
+
+    const star = screen.getByRole('button', { name: 'common.addToFavorites' });
+    fireEvent.click(star);
+
+    expect(onToggleFavorite).toHaveBeenCalledWith('hash_test_123', true);
+  });
+
+  it('hides the favorite star when no real contact sits behind the profile', () => {
+    render(<ContactProfileModal {...defaultProps} canToggleFavorite={false} />);
+
+    expect(screen.queryByRole('button', { name: 'common.addToFavorites' })).toBeNull();
+  });
 });

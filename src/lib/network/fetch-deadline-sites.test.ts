@@ -38,6 +38,9 @@ function rawFetchLines(file: string): number[] {
 }
 
 describe('fetch deadlines', () => {
+  // The scan reads every source file of the app. On a loaded machine (the
+  // whole suite runs in parallel) it needs more than the default 5s budget -
+  // a timeout here would look like a dead code finding, not like a slow scan.
   it('calls fetch() only inside the shared timeout helper', () => {
     const offenders: string[] = []
     for (const file of listSourceFiles(SRC)) {
@@ -48,7 +51,7 @@ describe('fetch deadlines', () => {
       }
     }
     expect(offenders).toEqual([])
-  })
+  }, 60_000)
 
   it('keeps the helper itself free of inline abort controllers', () => {
     const source = fs.readFileSync(HELPER, 'utf8')

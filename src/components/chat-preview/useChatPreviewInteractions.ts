@@ -109,7 +109,7 @@ export function useChatPreviewInteractions({
       // 0 = unknown, which ContactProfileModal renders as "—".
       lastSeen: chat.online ? 0 : (chat.lastSeen ?? profileContact?.lastSeen ?? 0),
       online: chat.online,
-      isFavorite: chat.isFavorite,
+      isFavorite: profileContact?.isFavorite ?? false,
       localFields: profileContact?.localFields
     });
   };

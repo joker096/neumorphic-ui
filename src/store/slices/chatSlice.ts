@@ -76,9 +76,6 @@ export interface ChatSlice {
   setContacts: (updater: Contact[] | ((prev: Contact[]) => Contact[])) => void;
   setContactMuted: (contactId: string, muted: boolean) => void;
   setContactBlocked: (contactId: string, blocked: boolean) => void;
-  favoriteContacts: string[];
-  addFavorite: (id: string) => void;
-  removeFavorite: (id: string) => void;
   channels: P2PChannel[];
   setChannels: (updater: P2PChannel[] | ((prev: P2PChannel[]) => P2PChannel[])) => void;
   bots: BotConfig[];
@@ -191,13 +188,6 @@ export const createChatSlice = (set: any, get: any): ChatSlice => ({
   })),
   setContactBlocked: (contactId, blocked) => set((state: any) => ({
     contacts: state.contacts.map((c: Contact) => (c.id === contactId ? { ...c, isBlocked: blocked } : c)),
-  })),
-  favoriteContacts: [],
-  addFavorite: (id) => set((state: any) => ({
-    favoriteContacts: state.favoriteContacts.includes(id) ? state.favoriteContacts : [...state.favoriteContacts, id]
-  })),
-  removeFavorite: (id) => set((state: any) => ({
-    favoriteContacts: state.favoriteContacts.filter((i: string) => i !== id)
   })),
   channels: [],
   setChannels: (updater) => set((state: any) => ({
