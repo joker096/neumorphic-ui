@@ -189,6 +189,19 @@ if (-not $SkipBuild) {
         # "'vitest' is not recognized"); this runs the exact same entry point.
         node "$RootDir\node_modules\vitest\vitest.mjs" run
         if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
+        # The admin SPA ships its own tsconfig (strict + noUncheckedIndexedAccess)
+        # and is excluded from the root type-check, so without this gate a type
+        # error there would only surface at deploy time.
+        if (Test-Path $AdminDir) {
+          Write-Host "  Type-checking admin SPA..." -ForegroundColor Yellow
+          Push-Location $AdminDir
+          try {
+            npm install --ignore-scripts
+            if ($LASTEXITCODE -ne 0) { throw "Admin npm install failed" }
+            npm run typecheck
+            if ($LASTEXITCODE -ne 0) { throw "Admin type-check failed" }
+          } finally { Pop-Location }
+        }
     }
    Write-Host "  Building main SPA..." -ForegroundColor Yellow
      npm run build

@@ -29,6 +29,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "eslint . --quiet && tsc --noEmit",
+    "lint:admin": "npm --prefix admin run typecheck",
     "l10n:audit": "node scripts/l10n-audit.mjs",
     "l10n:fix": "node scripts/l10n-audit.mjs --fix --fix-extras",
     "l10n:cycle": "node scripts/l10n-cycle.mjs",

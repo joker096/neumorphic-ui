@@ -16,7 +16,13 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Install admin dependencies
+        run: npm ci --prefix admin
       - run: npm run lint
+      # The admin SPA has its own tsconfig (strict + noUncheckedIndexedAccess)
+      # and is excluded from the root type-check, so it needs its own gate.
+      - name: Type-check the admin SPA
+        run: npm run lint:admin
       - run: npx vitest run
       - run: npx tsc --noEmit
 

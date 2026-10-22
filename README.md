@@ -39,6 +39,7 @@ npm run dev
 |---|---|
 | `npm run dev` | Start dev server |
 | `npm run lint` | ESLint + TypeScript check |
+| `npm run lint:admin` | Type-check the admin SPA (own tsconfig; needs `npm install --prefix admin`) |
 | `npm run build` | Production build |
 | `npm run release` | Collect release artifacts + write `dist/releases/releases.json` |
 | `npm run verify` | Verify the release manifest (file sizes + sha256) |
