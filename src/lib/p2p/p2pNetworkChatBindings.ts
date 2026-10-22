@@ -49,8 +49,25 @@ export const rememberChatPeer = (
 
   if (idKey !== undefined) self.chatPeers.set(idKey, peerId);
   if (nameKey !== undefined) self.chatNamePeers.set(nameKey, peerId);
+  // Reverse binding (peer → chat), also first-write-wins: a peer that already
+  // owns a chat keeps it, so a later frame cannot re-point the routing.
+  const chatKey = idKey ?? nameKey;
+  if (chatKey !== undefined && !self.peerChats.has(peerId)) self.peerChats.set(peerId, chatKey);
   return true;
 };
+
+/**
+ * The local chat a transport peer owns (learned from inbound frames).
+ *
+ * This is the strong routing key: the binding exists only because the peer
+ * passed the display-name check of a previous frame, so the peer is
+ * transport-authenticated and the chat is already his. The display name is
+ * only needed for the very first frame of a conversation.
+ */
+export const chatForPeer = (
+  self: P2PNetworkInternals,
+  peerId: string,
+): string | undefined => (peerId ? self.peerChats.get(peerId) : undefined);
 
 /** Peer bound to a specific chat id (learned from inbound frames). */
 export const peerForChat = (

@@ -54,6 +54,8 @@ vi.mock('../lib/p2p/network', () => {
       rememberChatPeer: vi.fn(() => true),
       peerForChat: () => undefined,
       peerForChatName: () => undefined,
+      // Reverse binding (peer → chat): unbound unless a test says otherwise.
+      chatForPeer: () => undefined,
       getPeerName: vi.fn(),
     },
   };

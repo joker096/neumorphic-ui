@@ -35,6 +35,7 @@ import {
   sendToPeer,
 } from './p2pNetworkDelivery';
 import {
+  chatForPeer,
   getPeerName,
   peerForChat,
   peerForChatName,
@@ -78,6 +79,8 @@ export class P2PNetwork implements P2PNetworkInternals {
   peerNames = new Map<string, string>();
   chatPeers = new Map<string, string>();
   chatNamePeers = new Map<string, string>();
+  /** Reverse binding: transport peer id → the local chat id it owns. */
+  peerChats = new Map<string, string>();
 
   constructor(options: P2PNetworkOptions = {}) {
     this.peerId = options.peerId || DEFAULT_PEER_ID;
@@ -194,6 +197,17 @@ export class P2PNetwork implements P2PNetworkInternals {
   /** Peer bound to a chat name (last-learned wins; used when ids don't match). */
   peerForChatName(chatName: string): string | undefined {
     return peerForChatName(this, chatName);
+  }
+
+  /**
+   * The local chat a transport peer owns (learned from inbound frames).
+   *
+   * Stronger than the name lookup: the binding exists only because the peer
+   * passed the display-name check of an earlier frame, so an inbound frame can
+   * be routed by the authenticated peer instead of by a renameable name.
+   */
+  chatForPeer(peerId: string): string | undefined {
+    return chatForPeer(this, peerId);
   }
 
   /** Addressed delivery with broadcast fallback (returns true when addressed). */

@@ -27,4 +27,13 @@ export interface P2PNetworkInternals {
   peerNames: Map<string, string>;
   chatPeers: Map<string, string>;
   chatNamePeers: Map<string, string>;
+  /**
+   * Reverse binding: transport peer id → the local chat id it owns.
+   *
+   * Learned from inbound frames through `rememberChatPeer`, which only writes
+   * after the sender-asserted display name was checked. It lets an inbound
+   * frame resolve its chat by the transport-authenticated peer instead of by
+   * the (renameable, spoofable) display name.
+   */
+  peerChats: Map<string, string>;
 }

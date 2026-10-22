@@ -243,4 +243,22 @@ describe('P2PNetwork chat→peer binding', () => {
     expect(net.rememberChatPeer('dm-1', 'Bob', '')).toBe(false);
     expect(net.peerForChat('dm-1')).toBeUndefined();
   });
+
+  it('maps a peer back to the chat it owns', () => {
+    const net = new P2PNetwork({ peerId: 'net-self', peerPublicKey: 'net-self' });
+
+    expect(net.rememberChatPeer('dm-1', 'Bob', 'peer-bob')).toBe(true);
+    expect(net.chatForPeer('peer-bob')).toBe('dm-1');
+    expect(net.chatForPeer('peer-unknown')).toBeUndefined();
+  });
+
+  it('keeps the reverse mapping first-write-wins', () => {
+    const net = new P2PNetwork({ peerId: 'net-self', peerPublicKey: 'net-self' });
+
+    net.rememberChatPeer('dm-1', 'Bob', 'peer-bob');
+    // A second chat from the same peer is accepted, but the peer keeps the
+    // chat it was bound to first - routing must not drift.
+    expect(net.rememberChatPeer('dm-2', 'Alice', 'peer-bob')).toBe(true);
+    expect(net.chatForPeer('peer-bob')).toBe('dm-1');
+  });
 });
