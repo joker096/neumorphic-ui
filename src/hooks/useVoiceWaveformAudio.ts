@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { fetchArrayBufferWithTimeout } from '../lib/network/fetchWithTimeout';
 
 export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | null, durationSec = 0) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -38,12 +39,12 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
         setIsPlaying(true);
       } else if (audioUrl) {
         try {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 15000);
-          const resp = await fetch(audioUrl, { signal: controller.signal });
-          clearTimeout(timeout);
+          // One deadline for connect, headers AND the body read: an inline
+          // AbortController cleared right after the headers arrive covers only
+          // the headers, so a stalled body could hang forever.
+          const resp = await fetchArrayBufferWithTimeout(audioUrl);
           if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-          const arrayBuffer = await resp.arrayBuffer();
+          const arrayBuffer = resp.buffer;
           if (!active) return;
           bufferRef.current = await ctx.decodeAudioData(arrayBuffer);
           setIsReady(true);

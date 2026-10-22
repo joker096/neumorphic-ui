@@ -19,7 +19,7 @@ async function loadRelayTokenModule(restUrlOverride?: string) {
 }
 
 function okResponse(payload: unknown) {
-  return { ok: true, status: 200, json: async () => payload };
+  return { ok: true, status: 200, json: async () => payload, text: async () => JSON.stringify(payload) };
 }
 
 describe("relayToken", () => {
@@ -174,7 +174,7 @@ describe("relayToken", () => {
       setSeedUrls(["wss://relay.test:8080"]);
       vi.stubGlobal(
         "fetch",
-        vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({}) }),
+        vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({}), text: async () => "{}" }),
       );
       const mod = await loadRelayTokenModule();
 

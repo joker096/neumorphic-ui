@@ -9,6 +9,7 @@
  */
 
 import { set, get, del } from './idb';
+import { fetchBlobWithTimeout } from './network/fetchWithTimeout';
 
 const VOICE_PREFIX = 'voice_blob_';
 
@@ -41,9 +42,9 @@ export async function persistVoiceBlob(id: string | number, source: Blob | strin
     if (source instanceof Blob) {
       blob = source;
     } else {
-      const resp = await fetch(source);
+      const resp = await fetchBlobWithTimeout(source);
       if (!resp.ok) return;
-      blob = await resp.blob();
+      blob = resp.blob;
     }
     if (!blob || blob.size === 0) return;
     await saveVoiceBlob(id, blob);

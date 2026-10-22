@@ -1,4 +1,5 @@
 import { SIGNALING_SEED_URLS } from '../../config/signalling'
+import { fetchTextWithTimeout } from './fetchWithTimeout'
 
 /**
  * Self-contained relay auth: the signaling server requires a JWT in `?token=`.
@@ -10,6 +11,9 @@ import { SIGNALING_SEED_URLS } from '../../config/signalling'
  */
 
 const TOKEN_REFRESH_MS = 45 * 60 * 1000 // refresh well before the 1h expiry
+
+/** Deadline for the relay token request — the relay has to answer fast. */
+const RELAY_TOKEN_TIMEOUT_MS = 3000
 
 let cachedToken: string | null = null
 let cachedUntil = 0
@@ -31,22 +35,19 @@ async function fetchRelayToken(id?: string): Promise<string> {
   const restBase = getRestBase(SIGNALING_SEED_URLS[0] || '')
   if (!restBase) return ''
   if (typeof fetch !== 'function') return ''
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 3000)
-  try {
-    const res = await fetch(`${restBase}/api/auth/token`, {
+  const res = await fetchTextWithTimeout(
+    `${restBase}/api/auth/token`,
+    {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(id ? { id } : {}),
-      signal: controller.signal,
-    })
-    if (!res.ok) throw new Error(`relay token fetch failed: ${res.status}`)
-    const data = (await res.json()) as { token?: string }
-    if (!data.token) throw new Error('relay token missing in response')
-    return data.token
-  } finally {
-    clearTimeout(timer)
-  }
+    },
+    RELAY_TOKEN_TIMEOUT_MS,
+  )
+  if (!res.ok) throw new Error(`relay token fetch failed: ${res.status}`)
+  const data = JSON.parse(res.text) as { token?: string }
+  if (!data.token) throw new Error('relay token missing in response')
+  return data.token
 }
 
 export async function getRelayToken(id?: string): Promise<string> {

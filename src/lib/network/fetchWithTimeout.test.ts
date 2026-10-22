@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { DEFAULT_FETCH_TIMEOUT_MS, fetchTextWithTimeout } from './fetchWithTimeout'
+import { DEFAULT_FETCH_TIMEOUT_MS, MEDIA_FETCH_TIMEOUT_MS, fetchArrayBufferWithTimeout, fetchBlobWithTimeout, fetchTextWithTimeout } from './fetchWithTimeout'
 
 const fetchMock = vi.fn()
 
@@ -91,5 +91,66 @@ describe('fetchTextWithTimeout', () => {
   it('exports a sane default budget', () => {
     expect(DEFAULT_FETCH_TIMEOUT_MS).toBeGreaterThan(0)
     expect(DEFAULT_FETCH_TIMEOUT_MS).toBeLessThanOrEqual(30_000)
+  })
+})
+
+describe('fetchBlobWithTimeout', () => {
+  it('returns the blob and the status', async () => {
+    const blob = new Blob(['media'])
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, blob: async () => blob })
+    await expect(fetchBlobWithTimeout('/media')).resolves.toEqual({ ok: true, status: 200, blob })
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/media',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    )
+  })
+
+  it('keeps the deadline while the body is read', async () => {
+    vi.useFakeTimers()
+    let signal: AbortSignal | undefined
+    fetchMock.mockImplementationOnce(async (_url: string, init: RequestInit) => {
+      signal = init.signal as AbortSignal
+      return {
+        ok: true,
+        status: 200,
+        blob: () =>
+          new Promise<Blob>((_resolve, reject) => {
+            signal?.addEventListener(
+              'abort',
+              () => reject(new DOMException('Aborted', 'AbortError')),
+              { once: true },
+            )
+          }),
+      }
+    })
+    const pending = expect(fetchBlobWithTimeout('/media')).rejects.toThrow('Aborted')
+    await vi.advanceTimersByTimeAsync(DEFAULT_FETCH_TIMEOUT_MS + 1)
+    await pending
+  })
+
+  it('skips the timer entirely when the budget is disabled', async () => {
+    const blob = new Blob(['x'])
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, blob: async () => blob })
+    await expect(fetchBlobWithTimeout('/media', {}, 0)).resolves.toMatchObject({ blob })
+    expect(fetchMock).toHaveBeenCalledWith('/media', {})
+  })
+})
+
+describe('fetchArrayBufferWithTimeout', () => {
+  it('returns the decoded buffer', async () => {
+    const buffer = new ArrayBuffer(8)
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, arrayBuffer: async () => buffer })
+    await expect(fetchArrayBufferWithTimeout('/audio')).resolves.toEqual({
+      ok: true,
+      status: 200,
+      buffer,
+    })
+  })
+})
+
+describe('media budget', () => {
+  it('is larger than the default but still bounded', () => {
+    expect(MEDIA_FETCH_TIMEOUT_MS).toBeGreaterThan(DEFAULT_FETCH_TIMEOUT_MS)
+    expect(MEDIA_FETCH_TIMEOUT_MS).toBeLessThanOrEqual(120_000)
   })
 })

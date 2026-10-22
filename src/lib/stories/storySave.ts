@@ -1,5 +1,7 @@
 /** Real "Save story" for photo/video stories — downloads the media to the device. */
 
+import { MEDIA_FETCH_TIMEOUT_MS, fetchBlobWithTimeout } from '../network/fetchWithTimeout';
+
 export function storyFileName(userName: string, storyId: number): string {
   const safe = (userName || 'story').replace(/[^\w\d-_]+/g, '-').toLowerCase();
   return `story-${safe}-${storyId}`;
@@ -19,9 +21,9 @@ function extensionFor(mime: string): string {
 export async function saveStoryMedia(url: string | undefined, baseName: string): Promise<boolean> {
   if (!url) return false;
   try {
-    const res = await fetch(url);
+    const res = await fetchBlobWithTimeout(url, {}, MEDIA_FETCH_TIMEOUT_MS);
     if (!res.ok) throw new Error('fetch failed');
-    const blob = await res.blob();
+    const blob = res.blob;
     const mime = blob.type || 'application/octet-stream';
     const objUrl = URL.createObjectURL(new Blob([blob], { type: mime }));
     const a = document.createElement('a');

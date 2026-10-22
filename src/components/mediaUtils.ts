@@ -1,6 +1,7 @@
 import React from 'react';
 import { Film, FileText, Music, Image as ImageIcon } from 'lucide-react';
 import { toast } from './ui/Toast';
+import { MEDIA_FETCH_TIMEOUT_MS, fetchBlobWithTimeout } from '../lib/network/fetchWithTimeout';
 
 type TranslateFn = (key: string, fallback?: string | Record<string, string | number>) => string;
 
@@ -106,9 +107,9 @@ export const downloadMedia = async (item: MediaItem, t: TranslateFn, message?: a
   }
   const preferredName = buildFileName(item.name || message?.fileName, message?.mime || mimeFromName(item.name));
   try {
-    const res = await fetch(url);
+    const res = await fetchBlobWithTimeout(url, {}, MEDIA_FETCH_TIMEOUT_MS);
     if (!res.ok) throw new Error("fetch failed");
-    const blob = await res.blob();
+    const blob = res.blob;
     const mime = blob.type || message?.mime || mimeFromName(preferredName) || "application/octet-stream";
     const objUrl = URL.createObjectURL(new Blob([blob], { type: mime }));
     const a = document.createElement("a");
@@ -154,7 +155,7 @@ export const shareMedia = async (item: MediaItem, t: TranslateFn, message?: any)
     let files: File[] | undefined;
     if (typeof navigator.canShare === "function") {
       try {
-        const blob = await (await fetch(url)).blob();
+        const blob = (await fetchBlobWithTimeout(url, {}, MEDIA_FETCH_TIMEOUT_MS)).blob;
         const mime = blob.type || message?.mime || mimeFromName(name) || "application/octet-stream";
         const file = new File([blob], name || "media", { type: mime });
         if (navigator.canShare({ files: [file] })) files = [file];
