@@ -20,6 +20,7 @@
     "build:all": "node scripts/build-android.mjs",
     "release": "node scripts/release.mjs",
     "verify": "node scripts/verify-release.mjs",
+    "secrets:rotate": "node scripts/rotate-secrets.mjs",
     "deploy": "pwsh -NoProfile -File scripts/deploy-all.ps1",
     "deploy:web": "pwsh -NoProfile -File scripts/deploy-all.ps1 -SkipAndroid -SkipSignaling",
     "deploy:ios": "node scripts/build-ios.mjs",
