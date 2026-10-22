@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
-import { api } from '../api/client'
+import { api, LoginResponse } from '../api/client'
 
 interface AuthContextType {
   token: string | null
-  login: (username: string, password: string, captchaSession?: string, captchaAnswer?: string) => Promise<{ sessionToken: string }>
+  login: (username: string, password: string, captchaSession?: string, captchaAnswer?: string) => Promise<LoginResponse>
   verify2FA: (code: string) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
@@ -20,9 +20,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string, captchaSession?: string, captchaAnswer?: string) => {
     const res = await api.login(username, password, captchaSession, captchaAnswer)
-    setSessionToken(res.sessionToken)
-    setNeeds2FA(true)
-    return { sessionToken: res.sessionToken }
+    // The server answers a rejected login with HTTP 200 and an `error` field,
+    // so the two-factor state may only be entered when a session really was
+    // issued — otherwise a wrong password bounced the operator to the code
+    // screen with an empty session.
+    if (res.sessionToken) {
+      setSessionToken(res.sessionToken)
+      setNeeds2FA(true)
+    }
+    return res
   }
 
   const verify2FA = async (code: string) => {

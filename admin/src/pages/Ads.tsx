@@ -13,7 +13,7 @@ export default function Ads() {
   const [targetUrl, setTargetUrl] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
 
-  const loadAds = () => api.getAds().then(r => setAds(r.ads)).catch(() => {})
+  const loadAds = () => api.getAds().then(r => setAds(r.ads ?? [])).catch(() => {})
 
   useEffect(() => { loadAds() }, [])
 

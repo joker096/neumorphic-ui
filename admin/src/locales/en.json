@@ -22,7 +22,8 @@
     "captcha": "CAPTCHA",
     "captchaPlaceholder": "Enter answer",
     "captchaInvalid": "Wrong answer. Try again.",
-    "refreshCaptcha": "Refresh"
+    "refreshCaptcha": "Refresh",
+    "timeout": "The server did not respond. Please try again."
   },
   "verify2fa": {
     "title": "Two-Factor Auth",

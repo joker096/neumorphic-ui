@@ -22,7 +22,8 @@
     "captcha": "Капча",
     "captchaPlaceholder": "Введите ответ",
     "captchaInvalid": "Неверный ответ. Попробуйте снова.",
-    "refreshCaptcha": "Обновить"
+    "refreshCaptcha": "Обновить",
+    "timeout": "Сервер не ответил. Попробуйте ещё раз."
   },
   "verify2fa": {
     "title": "Двухфакторная аутентификация",

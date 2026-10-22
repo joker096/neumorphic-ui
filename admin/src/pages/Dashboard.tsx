@@ -14,10 +14,15 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([
-      api.getOverview().then(setOverview).catch(() => {}),
-      api.getCountries().then(r => setCountries(r.countries)).catch(() => {}),
-      api.getDevices().then(r => setDevices(r.devices)).catch(() => {}),
-      api.getAds().then(r => setAds(r.ads)).catch(() => {}),
+      api.getOverview().then(r => setOverview({
+        onlineNow: r.onlineNow ?? 0,
+        today: r.today ?? 0,
+        totalUsers: r.totalUsers ?? 0,
+        countries: r.countries ?? 0,
+      })).catch(() => {}),
+      api.getCountries().then(r => setCountries(r.countries ?? [])).catch(() => {}),
+      api.getDevices().then(r => setDevices(r.devices ?? [])).catch(() => {}),
+      api.getAds().then(r => setAds(r.ads ?? [])).catch(() => {}),
     ]).finally(() => setLoading(false))
   }, [])
 

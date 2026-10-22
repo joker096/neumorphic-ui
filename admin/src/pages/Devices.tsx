@@ -8,7 +8,7 @@ export default function Devices() {
   const [total, setTotal] = useState(0)
 
   useEffect(() => {
-    api.getDevices().then(r => { setDevices(r.devices); setTotal(r.total) }).catch(() => {})
+    api.getDevices().then(r => { setDevices(r.devices ?? []); setTotal(r.total ?? 0) }).catch(() => {})
   }, [])
 
   return (

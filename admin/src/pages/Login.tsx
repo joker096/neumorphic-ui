@@ -59,7 +59,7 @@ export default function Login() {
 
     setLoading(true)
     try {
-      const res = (await login(username, password, captchaSessionId, captchaAnswer)) as any
+      const res = await login(username, password, captchaSessionId, captchaAnswer)
       if (res?.needsCaptcha) {
         await loadCaptcha()
         captchaInputRef.current?.focus()
@@ -91,6 +91,12 @@ export default function Login() {
         await loadCaptcha()
       } else if (message?.includes('Too many attempts')) {
         setError(message)
+      } else if (err?.name === 'AdminApiError' && err?.status === 0) {
+        // The request was aborted after the timeout — the server never answered.
+        setError(t('login.timeout'))
+      } else if (err?.name === 'AdminApiError' && err?.serverMessage) {
+        // The server rejected the request and said why — show its own text.
+        setError(String(err.serverMessage))
       } else {
         setError(t('login.invalidCredentials'))
       }

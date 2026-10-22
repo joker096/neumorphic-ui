@@ -14,8 +14,8 @@ export default function Users() {
   useEffect(() => {
     setLoading(true)
     api.getUsers(page, limit).then(r => {
-      setUsers(r.users)
-      setTotal(r.total)
+      setUsers(r.users ?? [])
+      setTotal(r.total ?? 0)
     }).finally(() => setLoading(false))
   }, [page])
 
