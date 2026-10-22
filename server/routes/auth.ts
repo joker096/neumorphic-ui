@@ -252,14 +252,14 @@ async function handleVerify2FA(req: IncomingMessage, res: ServerResponse): Promi
       payload = verifyAdminToken(sessionToken)
     } catch {
       res.writeHead(401, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ error: 'Invalid or expired session token' }))
+      res.end(JSON.stringify({ error: 'Invalid or expired session token', code: 'session_expired' }))
       return
     }
 
     const admin = getDb().prepare('SELECT * FROM admins WHERE id = ?').get(payload.adminId) as any
     if (!admin || !verifyTotp(admin.totp_secret, code)) {
       res.writeHead(401, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ error: 'Invalid 2FA code' }))
+      res.end(JSON.stringify({ error: 'Invalid 2FA code', code: 'invalid_code' }))
       return
     }
 

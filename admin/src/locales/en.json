@@ -36,7 +36,9 @@
     "subtitle": "Enter code from authenticator app",
     "verifyButton": "Verify & Login",
     "verifying": "Verifying...",
-    "invalidCode": "Invalid verification code"
+    "invalidCode": "Invalid verification code",
+    "sessionExpired": "The sign-in session expired. Please sign in again.",
+    "backToLogin": "Back to login"
   },
   "dashboard": {
     "title": "Dashboard",

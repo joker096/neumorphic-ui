@@ -13,13 +13,28 @@ const REQUEST_TIMEOUT_MS = 15_000
 export class AdminApiError extends Error {
   readonly status: number
   readonly serverMessage?: string
+  /** Machine-readable reason from the server (`session_expired`, `invalid_code`, …). */
+  readonly code?: string
 
-  constructor(status: number, message: string, serverMessage?: string) {
+  constructor(status: number, message: string, serverMessage?: string, code?: string) {
     super(message)
     this.name = 'AdminApiError'
     this.status = status
     this.serverMessage = serverMessage
+    this.code = code
   }
+}
+
+/** How a response should be interpreted. */
+interface RequestBehaviour {
+  /**
+   * A 401 answer means the session is gone (the default): the token is
+   * dropped and the operator is sent back to the login screen.
+   *
+   * Some endpoints answer 401 as a normal result — a wrong 2FA code, for
+   * instance — and must leave the session alone.
+   */
+  unauthorizedIsSessionLoss?: boolean
 }
 
 /** Payload of `POST /api/auth/login` — the error field is sent with HTTP 200. */
@@ -32,7 +47,11 @@ export interface LoginResponse {
   error?: string
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  behaviour: RequestBehaviour = {}
+): Promise<T> {
   const token = sessionStorage.getItem('admin_token')
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -53,12 +72,6 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     clearTimeout(timer)
   }
 
-  if (res.status === 401) {
-    sessionStorage.removeItem('admin_token')
-    window.location.hash = '#/login'
-    throw new Error('Unauthorized')
-  }
-
   // Read the body as text first: a proxy error page (HTML) must not surface as
   // a raw "Unexpected token '<'" syntax error.
   const raw = await res.text()
@@ -76,8 +89,27 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       ? (body as { error: string }).error
       : undefined
 
+  const serverCode =
+    body && typeof (body as { code?: unknown }).code === 'string'
+      ? (body as { code: string }).code
+      : undefined
+
+  // A 401 normally means the session is gone: drop the token and send the
+  // operator back to the login screen. Endpoints that answer 401 as a normal
+  // result (a wrong 2FA code) opt out and keep the session.
+  if (res.status === 401 && behaviour.unauthorizedIsSessionLoss !== false) {
+    sessionStorage.removeItem('admin_token')
+    window.location.hash = '#/login'
+    throw new Error('Unauthorized')
+  }
+
   if (!res.ok) {
-    throw new AdminApiError(res.status, serverMessage || `Request failed (${res.status})`, serverMessage)
+    throw new AdminApiError(
+      res.status,
+      serverMessage || `Request failed (${res.status})`,
+      serverMessage,
+      serverCode
+    )
   }
 
   if (body === null) {
@@ -95,10 +127,16 @@ export const api = {
     }),
 
   verify2FA: (sessionToken: string, code: string) =>
-    request<{ token: string }>('/api/auth/verify-2fa', {
-      method: 'POST',
-      body: JSON.stringify({ sessionToken, code }),
-    }),
+    request<{ token: string }>(
+      '/api/auth/verify-2fa',
+      {
+        method: 'POST',
+        body: JSON.stringify({ sessionToken, code }),
+      },
+      // A 401 here means a wrong code or an expired session — not a lost
+      // session: the operator has to be able to retry or go back.
+      { unauthorizedIsSessionLoss: false }
+    ),
 
   logout: () => request<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
 

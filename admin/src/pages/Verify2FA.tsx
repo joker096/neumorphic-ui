@@ -9,7 +9,7 @@ export default function Verify2FA() {
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { verify2FA } = useAuth()
+  const { verify2FA, resetTwoFactor } = useAuth()
   const { t } = useAdminI18n()
   const navigate = useNavigate()
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -36,13 +36,27 @@ export default function Verify2FA() {
       await verify2FA(fullCode)
       navigate('/')
     } catch (err) {
-      const invalidCode = err instanceof AdminApiError && err.status === 401
-      setError(invalidCode ? t('verify2fa.invalidCode') : (adminErrorMessage(err) ?? t('common.actionFailed')))
+      // The server tells the two reasons apart: a wrong code and a session
+      // that is no longer valid. Reporting both as a wrong code sent the
+      // operator into a loop they could not leave.
+      const reason = err instanceof AdminApiError ? err.code : undefined
+      const message =
+        reason === 'invalid_code'
+          ? t('verify2fa.invalidCode')
+          : reason === 'session_expired'
+            ? t('verify2fa.sessionExpired')
+            : (adminErrorMessage(err) ?? t('common.actionFailed'))
+      setError(message)
       setCode(['', '', '', '', '', ''])
       inputRefs.current[0]?.focus()
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleBackToLogin = () => {
+    resetTwoFactor()
+    navigate('/login')
   }
 
   return (
@@ -68,6 +82,10 @@ export default function Verify2FA() {
           <button type="submit" disabled={loading || code.join('').length !== 6}
             className="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition-all">
             {loading ? t('verify2fa.verifying') : t('verify2fa.verifyButton')}
+          </button>
+          <button type="button" onClick={handleBackToLogin}
+            className="mt-3 w-full py-2 text-xs text-gray-400 hover:text-white transition-colors">
+            {t('verify2fa.backToLogin')}
           </button>
         </form>
       </div>

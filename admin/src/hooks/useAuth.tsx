@@ -5,6 +5,11 @@ interface AuthContextType {
   token: string | null
   login: (username: string, password: string, captchaSession?: string, captchaAnswer?: string) => Promise<LoginResponse>
   verify2FA: (code: string) => Promise<void>
+  /**
+   * Leaves the two-factor step without signing in. The operator gets back to
+   * the login screen instead of being trapped on the code screen.
+   */
+  resetTwoFactor: () => void
   logout: () => void
   isAuthenticated: boolean
   needs2FA: boolean
@@ -39,6 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.setItem('admin_token', res.token)
   }
 
+  const resetTwoFactor = () => {
+    setSessionToken(null)
+    setNeeds2FA(false)
+  }
+
   const logout = () => {
     api.logout().catch(() => {})
     setToken(null)
@@ -49,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      token, login, verify2FA, logout,
+      token, login, verify2FA, resetTwoFactor, logout,
       isAuthenticated: !!token,
       needs2FA, sessionToken,
     }}>
