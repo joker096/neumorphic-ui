@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { api } from '../api/client'
 import { useAdminI18n } from '../lib/i18n'
+import { adminErrorMessage, isSessionLost } from '../lib/errorMessage'
 import StatTable from '../components/StatTable'
+import ErrorState from '../components/ErrorState'
 
 export default function Users() {
   const { t } = useAdminI18n()
@@ -9,15 +11,20 @@ export default function Users() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [reload, setReload] = useState(0)
   const limit = 50
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     api.getUsers(page, limit).then(r => {
       setUsers(r.users ?? [])
       setTotal(r.total ?? 0)
+    }).catch(err => {
+      if (!isSessionLost(err)) setError(adminErrorMessage(err) ?? '')
     }).finally(() => setLoading(false))
-  }, [page])
+  }, [page, reload])
 
   if (loading) return <div className="text-center text-gray-500 py-12">{t('dashboard.loading')}</div>
 
@@ -26,6 +33,7 @@ export default function Users() {
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-bold">{t('users.title')} ({total})</h1>
       </div>
+      {error !== null && <ErrorState message={error} onRetry={() => setReload(r => r + 1)} />}
       <StatTable
         columns={[
           { key: 'public_key', label: t('users.publicKey'), render: (v: string) => v ? v.slice(0, 16) + '...' : '-' },

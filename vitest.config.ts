@@ -25,6 +25,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // The admin SPA carries its own React copy in admin/node_modules. A root
+      // test that renders an admin component would otherwise load two React
+      // instances and the hooks would break ("Cannot read properties of null").
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+      react: path.resolve(__dirname, './node_modules/react'),
     },
   },
 });

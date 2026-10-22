@@ -1,4 +1,9 @@
 {
+  "common": {
+    "loadFailed": "Не удалось загрузить данные",
+    "actionFailed": "Не удалось выполнить действие",
+    "retry": "Повторить"
+  },
   "layout": {
     "adminPanel": "Панель администратора",
     "messenger": "Mess&Anger",

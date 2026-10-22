@@ -1,6 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { api } from '../api/client'
 import { useAdminI18n } from '../lib/i18n'
+import { adminErrorMessage, isSessionLost } from '../lib/errorMessage'
+import ErrorState from '../components/ErrorState'
 
 interface Ad { id: number; title: string; image_url: string; target_url: string; active: number; impressions: number; clicks: number; created_at: string; updated_at: string }
 
@@ -12,21 +14,53 @@ export default function Ads() {
   const [imageUrl, setImageUrl] = useState('')
   const [targetUrl, setTargetUrl] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const loadAds = () => api.getAds().then(r => setAds(r.ads ?? [])).catch(() => {})
+  const loadAds = () => {
+    setError(null)
+    api.getAds().then(r => setAds(r.ads ?? []))
+      .catch(err => { if (!isSessionLost(err)) setError(adminErrorMessage(err) ?? '') })
+  }
 
   useEffect(() => { loadAds() }, [])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (editingId) await api.updateAd(editingId, { title, image_url: imageUrl, target_url: targetUrl })
-    else await api.createAd({ title, image_url: imageUrl, target_url: targetUrl, active: true })
+    setError(null)
+    try {
+      if (editingId) await api.updateAd(editingId, { title, image_url: imageUrl, target_url: targetUrl })
+      else await api.createAd({ title, image_url: imageUrl, target_url: targetUrl, active: true })
+    } catch (err) {
+      if (!isSessionLost(err)) setError(adminErrorMessage(err) ?? t('common.actionFailed'))
+      return
+    }
     setShowForm(false); setEditingId(null); setTitle(''); setImageUrl(''); setTargetUrl('')
     loadAds()
   }
 
-  const toggleActive = async (ad: Ad) => { await api.updateAd(ad.id, { active: !ad.active }); loadAds() }
-  const deleteAd = async (id: number) => { if (confirm(t('ads.confirmDelete'))) { await api.deleteAd(id); loadAds() } }
+  const toggleActive = async (ad: Ad) => {
+    setError(null)
+    try {
+      await api.updateAd(ad.id, { active: !ad.active })
+    } catch (err) {
+      if (!isSessionLost(err)) setError(adminErrorMessage(err) ?? t('common.actionFailed'))
+      return
+    }
+    loadAds()
+  }
+
+  const deleteAd = async (id: number) => {
+    if (!confirm(t('ads.confirmDelete'))) return
+    setError(null)
+    try {
+      await api.deleteAd(id)
+    } catch (err) {
+      if (!isSessionLost(err)) setError(adminErrorMessage(err) ?? t('common.actionFailed'))
+      return
+    }
+    loadAds()
+  }
+
   const editAd = (ad: Ad) => { setTitle(ad.title); setImageUrl(ad.image_url); setTargetUrl(ad.target_url); setEditingId(ad.id); setShowForm(true) }
 
   return (
@@ -36,6 +70,8 @@ export default function Ads() {
         <button onClick={() => { setShowForm(true); setEditingId(null); setTitle(''); setImageUrl(''); setTargetUrl('') }}
           className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-semibold">{t('ads.newAd')}</button>
       </div>
+
+      {error !== null && <ErrorState message={error} onRetry={loadAds} />}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-[var(--bg-tertiary)] rounded-xl p-4 space-y-3 max-w-lg">

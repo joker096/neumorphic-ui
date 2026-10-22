@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { api } from '../api/client'
 import { useAdminI18n } from '../lib/i18n'
+import { adminErrorMessage, isSessionLost } from '../lib/errorMessage'
 import MetricCard from '../components/MetricCard'
 import StatTable from '../components/StatTable'
+import ErrorState from '../components/ErrorState'
 
 export default function Dashboard() {
   const { t } = useAdminI18n()
@@ -11,26 +13,35 @@ export default function Dashboard() {
   const [devices, setDevices] = useState<Array<{ name: string; count: number; percentage: number }>>([])
   const [ads, setAds] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    Promise.all([
+  const load = useCallback(() => {
+    setLoading(true)
+    setError(null)
+    Promise.allSettled([
       api.getOverview().then(r => setOverview({
         onlineNow: r.onlineNow ?? 0,
         today: r.today ?? 0,
         totalUsers: r.totalUsers ?? 0,
         countries: r.countries ?? 0,
-      })).catch(() => {}),
-      api.getCountries().then(r => setCountries(r.countries ?? [])).catch(() => {}),
-      api.getDevices().then(r => setDevices(r.devices ?? [])).catch(() => {}),
-      api.getAds().then(r => setAds(r.ads ?? [])).catch(() => {}),
-    ]).finally(() => setLoading(false))
+      })),
+      api.getCountries().then(r => setCountries(r.countries ?? [])),
+      api.getDevices().then(r => setDevices(r.devices ?? [])),
+      api.getAds().then(r => setAds(r.ads ?? [])),
+    ]).then(results => {
+      const failed = results.find(r => r.status === 'rejected') as PromiseRejectedResult | undefined
+      if (failed && !isSessionLost(failed.reason)) setError(adminErrorMessage(failed.reason) ?? '')
+    }).finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => { load() }, [load])
 
   if (loading) return <div className="text-center text-gray-500 py-12">{t('dashboard.loading')}</div>
 
   return (
     <div className="space-y-6">
       <h1 className="text-lg font-bold">{t('dashboard.title')}</h1>
+      {error !== null && <ErrorState message={error} onRetry={load} />}
       <div className="grid grid-cols-4 gap-4">
         <MetricCard label={t('dashboard.onlineNow')} value={overview.onlineNow} icon="🟢" />
         <MetricCard label={t('dashboard.today')} value={overview.today} icon="📊" />

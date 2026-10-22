@@ -1,4 +1,9 @@
 {
+  "common": {
+    "loadFailed": "Failed to load data",
+    "actionFailed": "The action could not be completed",
+    "retry": "Retry"
+  },
   "layout": {
     "adminPanel": "Admin Panel",
     "messenger": "Mess&Anger",
