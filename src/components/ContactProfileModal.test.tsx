@@ -5,6 +5,19 @@ import '@testing-library/jest-dom/vitest';
 import { act } from 'react';
 import { ContactProfileModal } from './ContactProfileModal';
 import { useAppStore } from '../store';
+import { p2pNetwork } from '../lib/p2p/network';
+
+const identityPinMock = vi.hoisted(() => ({
+  getPinnedIdentity: vi.fn(async (key: string) =>
+    key === 'peer-1' ? 'AABBCCDDEEFF00112233445566778899' : undefined,
+  ),
+}));
+
+vi.mock('../lib/p2p/identityPin', () => ({
+  getPinnedIdentity: identityPinMock.getPinnedIdentity,
+  verifyOrPinPeer: vi.fn(),
+  resetIdentityPins: vi.fn(),
+}));
 
 vi.mock('../lib/i18n', () => ({
   useI18n: () => ({
@@ -492,6 +505,30 @@ describe('chat profile identity', () => {
       expect(screen.queryByText('hash_test_123')).toBeNull();
     } finally {
       useAppStore.getState().setContacts([]);
+    }
+  });
+});
+
+describe('pinned identity lookup', () => {
+  it('looks the pin up by the transport peer id, not by the contact id', async () => {
+    const previousChats = useAppStore.getState().chats;
+    identityPinMock.getPinnedIdentity.mockClear();
+    useAppStore.getState().setChats([{ id: 'chat-1', name: 'Test User', type: 'direct' }] as any);
+    p2pNetwork.rememberChatPeer('chat-1', 'Test User', 'peer-1');
+    try {
+      render(<ContactProfileModal contact={mockContact} onClose={vi.fn()} theme="dark" />);
+      await waitFor(() =>
+        expect(identityPinMock.getPinnedIdentity).toHaveBeenCalledWith('peer-1'),
+      );
+      // The contact id is not a key of the pin store - the pin is stored under
+      // the transport peer id.
+      expect(identityPinMock.getPinnedIdentity).not.toHaveBeenCalledWith('hash_test_123');
+    } finally {
+      const net = p2pNetwork as any;
+      net.chatPeers.delete('chat-1');
+      net.chatNamePeers.delete('Test User');
+      net.peerChats.delete('peer-1');
+      useAppStore.getState().setChats(previousChats);
     }
   });
 });

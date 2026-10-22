@@ -15,6 +15,7 @@ import { SharedMediaTabs } from './chat/SharedMediaTabs';
 import { ToggleSwitch } from './ui/ToggleSwitch';
 import { getMasterKeySet } from '../lib/identity/masterKey';
 import { getPinnedIdentity } from '../lib/p2p/identityPin';
+import { p2pNetwork } from '../lib/p2p/network';
 import { buf2hex } from '../lib/crypto/cryptoCore';
 import { CAPS_LABEL_CLASS, TERTIARY_HINT_CLASS, SECONDARY_CAPTION_CLASS, SECONDARY_TEXT_CLASS, TERTIARY_CAPTION_CLASS } from './ui/textClasses';
 import { TWO_COL_GRID_CLASS } from "./ui/gridClasses";
@@ -78,6 +79,12 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   // The id the user sees and the id the pinned identity is stored under: the
   // real contact id whenever a contact sits behind the profile.
   const resolvedContactId = blockedContact?.id ?? contact?.id ?? '';
+  const dmChat = contact ? (chats || []).find((c: any) => c.name === contact.name && c.type !== 'group') : undefined;
+  // The pinned identity is stored under the TRANSPORT peer id, not under a
+  // contact id. The chat<->peer binding (learned from inbound frames) is the
+  // only place the app knows that id, so the pin is looked up through it; the
+  // contact id stays as a fallback for records that carry the peer id already.
+  const peerId = dmChat ? p2pNetwork.peerForChat(dmChat.id) : undefined;
 
   // Resolve the REAL identity keys, not chat ids: the local Ed25519 public key
   // (master identity) and the peer's pinned identity (TOFU-pinned at first
@@ -93,12 +100,13 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
   useEffect(() => {
     let alive = true
-    if (!resolvedContactId) { setPeerPinned(undefined); return }
-    getPinnedIdentity(resolvedContactId)
+    const pinKey = peerId ?? resolvedContactId;
+    if (!pinKey) { setPeerPinned(undefined); return }
+    getPinnedIdentity(pinKey)
       .then((pinned) => { if (alive) setPeerPinned(pinned) })
       .catch(() => { if (alive) setPeerPinned(undefined) })
     return () => { alive = false }
-  }, [resolvedContactId]);
+  }, [peerId, resolvedContactId]);
 
   useEffect(() => {
     setShowActions(false);
@@ -107,7 +115,6 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   }, [contact?.id]);
 
   const overrideAvatar = contact ? contactAvatars[contact.name] : undefined;
-  const dmChat = contact ? (chats || []).find((c: any) => c.name === contact.name && c.type !== 'group') : undefined;
   const storeContact = contact ? (contacts || []).find((c: any) => c.id === contact.id) : undefined;
   const notificationsOn = storeContact ? !storeContact.muted : dmChat ? !((dmChat as any).muted) : !localMuted;
   const isBlocked = !!blockedContact?.isBlocked;
