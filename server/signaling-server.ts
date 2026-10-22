@@ -21,6 +21,7 @@ import { handlePaymentoRoute } from './routes/paymento.js'
 import { handleIntegrationsRoute } from './routes/integrations.js'
 import { applyCSP } from './csp.js'
 import { resolveClientIp } from './middleware/clientIp.js'
+import { allowConnection, allowPeerLookup } from './middleware/connectionLimit.js'
 
 const PORT = parseInt(process.env.PORT || '8765', 10)
 
@@ -96,33 +97,7 @@ const rooms = new Map<string, Set<WebSocket>>()
 const wsTopics = new Map<WebSocket, Set<string>>()
 
 // Rate limit per client IP (proxy-aware, see middleware/clientIp.ts).
-const connectionAttempts = new Map<string, { count: number; resetAt: number }>()
-// 240/min per *real* client IP. This used to be 60/min keyed on the raw socket
-// peer, which behind nginx is 127.0.0.1 for every user on the internet — 60
-// connects/min fleet-wide, and any burst past it produced self-sustaining 1008
-// "Too many connections" denials. Carrier-grade NAT puts many users on one
-// public IP, so the ceiling has to cover a shared egress, not a single socket.
-const MAX_CONNECTIONS_PER_MINUTE = 240
-
-function checkConnectionRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = connectionAttempts.get(ip)
-  if (!entry || now > entry.resetAt) {
-    connectionAttempts.set(ip, { count: 1, resetAt: now + 60000 })
-    return true
-  }
-  if (entry.count >= MAX_CONNECTIONS_PER_MINUTE) return false
-  entry.count++
-  return true
-}
-
-// Clean up stale connection entries every 5 minutes
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, entry] of connectionAttempts.entries()) {
-    if (now > entry.resetAt) connectionAttempts.delete(key)
-  }
-}, 300000)
+// The buckets live in the shared limiter - see middleware/connectionLimit.ts.
 
 function getClientIp(ws: WebSocket): string {
   const req = (ws as any).request as IncomingMessage | undefined
@@ -186,7 +161,7 @@ const wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 })
 
 wss.on('connection', (ws, req) => {
   const ip = getClientIp(ws)
-  if (!checkConnectionRateLimit(ip)) {
+  if (!allowConnection(ip)) {
     ws.close(1008, 'Too many connections')
     return
   }
@@ -743,6 +718,11 @@ const restServer = createServer((req, res) => {
     // are intentionally not offered — enumerating online identities is an
     // oracle an attacker could use for presence tracking.
     if (path.startsWith('/api/peers/') && req.method === 'GET') {
+      if (!allowPeerLookup(resolveClientIp(req))) {
+        res.writeHead(429, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Too many requests. Try again later.' }))
+        return
+      }
       const key = path.slice('/api/peers/'.length)
       if (!key || key.length > 128 || !/^[A-Za-z0-9+/=_:.-]+$/.test(key)) {
         res.writeHead(400, { 'Content-Type': 'application/json' })
