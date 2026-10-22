@@ -15,7 +15,7 @@ import {
 import { resolveClientIp } from '../middleware/clientIp.js'
 import { getPlan } from '../plans.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
-import { checkRateLimit } from '../middleware/rateLimit.js'
+import { adminRateLimitKey, checkRateLimit } from '../middleware/rateLimit.js'
 
 // Merchant credentials are operator config: set PAYMENTO_API_KEY and PAYMENTO_SECRET_KEY in the
 // server environment. There is no runtime UI or API for changing them.
@@ -47,25 +47,17 @@ function readRawBody(req: IncomingMessage): Promise<string> {
   })
 }
 
-// --- Rate limit for payment creation (external API is billed per call) ---
-const createRateMap = new Map<string, { count: number; resetAt: number }>()
-const CREATE_MAX = 10
-const CREATE_WINDOW = 60000
-function checkCreateRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = createRateMap.get(ip)
-  if (!entry || now > entry.resetAt) {
-    createRateMap.set(ip, { count: 1, resetAt: now + CREATE_WINDOW })
-    return true
-  }
-  if (entry.count >= CREATE_MAX) return false
-  entry.count++
-  return true
-}
-setInterval(() => {
-  const now = Date.now()
-  for (const [k, e] of createRateMap) if (now > e.resetAt) createRateMap.delete(k)
-}, CREATE_WINDOW)
+// --- Rate limits (shared limiter, see server/middleware/rateLimit.ts) ---
+// All budgets live in the shared limiter: one map, one sweeper, one place to audit.
+const RATE_LIMIT_WINDOW_MS = 60000
+// Payment creation bills the external gateway per call, so the budget stays tight.
+const CREATE_RATE_LIMIT_PER_MIN = 10
+// The entitlement lookup is public (the device key is public info) but still bounded.
+const ENTITLEMENT_RATE_LIMIT_PER_MIN = 30
+// The provider retries IPN callbacks, so the budget is generous - but it is bounded.
+const IPN_RATE_LIMIT_PER_MIN = 120
+// The payment list is operator-only: one bucket per administrator.
+const LIST_RATE_LIMIT_PER_MIN = 60
 
 async function readJson<T = any>(req: IncomingMessage): Promise<T> {
   const raw = await readRawBody(req)
@@ -184,7 +176,10 @@ async function callPaymentoVerify(
 export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, path: string): boolean {
   if (path === '/api/paymento/create' && req.method === 'POST') {
     const ip = resolveClientIp(req)
-    if (!checkCreateRateLimit(ip)) {
+    if (!checkRateLimit('paymento-create:' + ip, {
+      windowMs: RATE_LIMIT_WINDOW_MS,
+      maxRequests: CREATE_RATE_LIMIT_PER_MIN,
+    }).allowed) {
       sendJson(res, 429, { error: 'Too many requests. Try again later.' })
       return true
     }
@@ -192,6 +187,14 @@ export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, p
     return true
   }
   if (path === '/api/paymento/ipn' && req.method === 'POST') {
+    const ip = resolveClientIp(req)
+    if (!checkRateLimit('paymento-ipn:' + ip, {
+      windowMs: RATE_LIMIT_WINDOW_MS,
+      maxRequests: IPN_RATE_LIMIT_PER_MIN,
+    }).allowed) {
+      sendJson(res, 429, { error: 'Too many requests. Try again later.' })
+      return true
+    }
     handleIpn(req, res)
     return true
   }
@@ -200,7 +203,20 @@ export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, p
     return true
   }
   if (path === '/api/paymento/list' && req.method === 'GET') {
-    if (!requireAuth(req as AuthenticatedRequest, res)) return true
+    const authReq = req as AuthenticatedRequest
+    if (!requireAuth(authReq, res)) return true
+    const adminId = authReq.admin?.adminId
+    if (adminId === undefined) {
+      sendJson(res, 401, { error: 'Unauthorized' })
+      return true
+    }
+    if (!checkRateLimit('paymento-list:' + adminRateLimitKey(adminId), {
+      windowMs: RATE_LIMIT_WINDOW_MS,
+      maxRequests: LIST_RATE_LIMIT_PER_MIN,
+    }).allowed) {
+      sendJson(res, 429, { error: 'Too many requests. Try again later.' })
+      return true
+    }
     sendJson(res, 200, { payments: listPayments(50) })
     return true
   }
@@ -212,29 +228,13 @@ export function handlePaymentoRoute(req: IncomingMessage, res: ServerResponse, p
 }
 
 // --- Entitlement lookup (device pk is public info, but the endpoint is rate-limited) ---
-const entRateMap = new Map<string, { count: number; resetAt: number }>()
-const ENT_MAX = 30
-const ENT_WINDOW = 60000
-function checkEntitlementRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = entRateMap.get(ip)
-  if (!entry || now > entry.resetAt) {
-    entRateMap.set(ip, { count: 1, resetAt: now + ENT_WINDOW })
-    return true
-  }
-  if (entry.count >= ENT_MAX) return false
-  entry.count++
-  return true
-}
-setInterval(() => {
-  const now = Date.now()
-  for (const [k, e] of entRateMap) if (now > e.resetAt) entRateMap.delete(k)
-}, ENT_WINDOW)
-
 function handleEntitlement(req: IncomingMessage, res: ServerResponse): void {
   try {
     const ip = resolveClientIp(req)
-    if (!checkEntitlementRateLimit(ip)) {
+    if (!checkRateLimit('paymento-entitlement:' + ip, {
+      windowMs: RATE_LIMIT_WINDOW_MS,
+      maxRequests: ENTITLEMENT_RATE_LIMIT_PER_MIN,
+    }).allowed) {
       sendJson(res, 429, { error: 'Too many requests. Try again later.' })
       return
     }
