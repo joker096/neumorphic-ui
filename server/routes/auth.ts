@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from 'node:http'
 import { randomInt, randomUUID } from 'node:crypto'
 import bcrypt from 'bcrypt'
 import { getDb } from '../db.js'
-import { signToken, verifyAdminToken, verifyTotp, createAdminSession, invalidateSession, signRelayToken } from '../auth.js'
+import { signToken, verifyAdminToken, verifyTotp, generateTotpSecret, createAdminSession, invalidateSession, signRelayToken } from '../auth.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 import { resolveClientIp } from '../middleware/clientIp.js'
 
@@ -53,6 +53,7 @@ export function handleAuthRoute(req: IncomingMessage, res: ServerResponse, path:
   if (path === '/api/auth/verify-2fa' && req.method === 'POST') { handleVerify2FA(req, res); return true }
   if (path === '/api/auth/logout' && req.method === 'POST') { handleLogout(req as AuthenticatedRequest, res); return true }
   if (path === '/api/auth/token' && req.method === 'POST') { handleToken(req, res); return true }
+  if (path === '/api/auth/reset-2fa' && req.method === 'POST') { handleReset2FA(req as AuthenticatedRequest, res); return true }
   return false
 }
 
@@ -260,6 +261,36 @@ function handleLogout(req: AuthenticatedRequest, res: ServerResponse): void {
   invalidateSession(token)
   res.writeHead(200, { 'Content-Type': 'application/json' })
   res.end(JSON.stringify({ ok: true }))
+}
+
+/**
+ * Rotate the TOTP secret of the signed-in administrator.
+ *
+ * The old factor stops working immediately: the stored secret is replaced and
+ * every OTHER session of that admin is dropped, so a token minted under the
+ * old secret cannot be reused to keep access. The session that performed the
+ * reset stays alive so the operator can enrol the new secret.
+ */
+function handleReset2FA(req: AuthenticatedRequest, res: ServerResponse): void {
+  if (!requireAuth(req, res)) return
+  const ip = getRemoteAddress(req)
+  if (!checkRateLimit('reset-2fa:' + ip, 5, 60000)) {
+    res.writeHead(429, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Too many attempts. Try again later.' }))
+    return
+  }
+  const adminId = req.admin!.adminId
+  const { secret, uri } = generateTotpSecret()
+  const updated = getDb().prepare('UPDATE admins SET totp_secret = ? WHERE id = ?').run(secret, adminId)
+  if (updated.changes === 0) {
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: 'Admin not found' }))
+    return
+  }
+  const currentToken = req.headers['authorization']!.slice(7)
+  getDb().prepare('DELETE FROM sessions WHERE admin_id = ? AND token != ?').run(adminId, currentToken)
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify({ secret, uri }))
 }
 
 setInterval(() => {

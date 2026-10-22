@@ -1,7 +1,9 @@
 import { useState, useRef, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { AdminApiError } from '../api/client'
 import { useAdminI18n } from '../lib/i18n'
+import { adminErrorMessage } from '../lib/errorMessage'
 
 export default function Verify2FA() {
   const [code, setCode] = useState(['', '', '', '', '', ''])
@@ -33,8 +35,9 @@ export default function Verify2FA() {
     try {
       await verify2FA(fullCode)
       navigate('/')
-    } catch {
-      setError(t('verify2fa.invalidCode'))
+    } catch (err) {
+      const invalidCode = err instanceof AdminApiError && err.status === 401
+      setError(invalidCode ? t('verify2fa.invalidCode') : (adminErrorMessage(err) ?? t('common.actionFailed')))
       setCode(['', '', '', '', '', ''])
       inputRefs.current[0]?.focus()
     } finally {

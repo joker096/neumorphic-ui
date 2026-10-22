@@ -93,7 +93,9 @@
     "title": "Settings",
     "security": "Security",
     "reset2fa": "Reset 2FA Authentication",
-    "reset2faMessage": "2FA reset requested. Use CLI to generate a new secret.",
+    "reset2faBusy": "Resetting...",
+    "reset2faMessage": "The authenticator secret was rotated. Enrol the new secret below - other sessions were signed out.",
+    "reset2faNewSecret": "New authenticator secret",
     "confirmReset2fa": "Reset 2FA? This will invalidate your current authenticator setup."
   }
 }

@@ -102,6 +102,9 @@ export const api = {
 
   logout: () => request<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
 
+  reset2FA: () =>
+    request<{ secret: string; uri: string }>('/api/auth/reset-2fa', { method: 'POST' }),
+
   getOverview: () =>
     request<{ onlineNow: number; today: number; totalUsers: number; countries: number }>('/api/stats/overview'),
 
