@@ -30,6 +30,10 @@ export default defineConfig({
       // instances and the hooks would break ("Cannot read properties of null").
       'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
       react: path.resolve(__dirname, './node_modules/react'),
+      // The router lives in the admin package only. It is aliased as well so a
+      // root test can render an admin page (and mock the router) instead of
+      // failing to resolve the module.
+      'react-router-dom': path.resolve(__dirname, './admin/node_modules/react-router-dom'),
     },
   },
 });

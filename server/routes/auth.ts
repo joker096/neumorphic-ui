@@ -164,17 +164,26 @@ setInterval(cleanupCaptchas, 60000)
 
 async function handleLogin(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const ip = getRemoteAddress(req)
-  if (!checkRateLimit(ip)) {
-    res.writeHead(429, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ error: 'Too many attempts. Try again later.' }))
-    return
-  }
   try {
     const { username, password, captchaSession, captchaAnswer } = await readBody(req)
     if (!captchaSession || captchaAnswer === undefined) {
+      // Issuing a challenge is not an authentication attempt, so it gets its
+      // own budget. Otherwise a shared NAT address (or a reload of the login
+      // form) would spend the credential budget before the operator ever
+      // typed a password.
+      if (!checkRateLimit('captcha:' + ip, 20, 60000)) {
+        res.writeHead(429, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Too many attempts. Try again later.' }))
+        return
+      }
       const challenge = generateCaptchaChallenge()
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ needsCaptcha: true, sessionId: challenge.sessionId, challenge: challenge.challenge }))
+      return
+    }
+    if (!checkRateLimit(ip)) {
+      res.writeHead(429, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: 'Too many attempts. Try again later.' }))
       return
     }
     if (!verifyCaptcha(captchaSession, captchaAnswer)) {

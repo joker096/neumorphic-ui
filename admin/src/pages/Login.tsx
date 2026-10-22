@@ -2,6 +2,7 @@ import { useState, FormEvent, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useAdminI18n } from '../lib/i18n'
+import { adminErrorMessage } from '../lib/errorMessage'
 import { api } from '../api/client'
 import { Lock, User, Shield } from 'lucide-react'
 
@@ -14,6 +15,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [captchaError, setCaptchaError] = useState('')
+  const [captchaLoadError, setCaptchaLoadError] = useState<string | null>(null)
   const { login } = useAuth()
   const { t } = useAdminI18n()
   const navigate = useNavigate()
@@ -22,7 +24,7 @@ export default function Login() {
   // The captcha challenge is issued by the server (CSPRNG) — the client never
   // generates its own. A local Math.random captcha would be bypassable and
   // would not satisfy the server's verification anyway.
-  const loadCaptcha = async () => {
+  const loadCaptcha = async (): Promise<void> => {
     try {
       const res = await api.login('', '')
       if (res.needsCaptcha && res.sessionId && res.challenge) {
@@ -30,10 +32,17 @@ export default function Login() {
         setCaptchaSessionId(res.sessionId)
         setCaptchaAnswer('')
         setCaptchaError('')
+        setCaptchaLoadError(null)
         return
       }
-    } catch {
-      // Network error: keep the current challenge (if any) so the user can retry.
+      setCaptchaLoadError('')
+    } catch (err) {
+      // The challenge could not be loaded. Say why instead of leaving a form
+      // whose submit button silently does nothing. The previous challenge (if
+      // any) stays valid and can still be used. The state keeps the raw reason
+      // (empty when the server sent none) — the fallback text is resolved at
+      // render time, because the locales may load after the request failed.
+      setCaptchaLoadError(adminErrorMessage(err) ?? '')
     }
   }
 
@@ -42,7 +51,7 @@ export default function Login() {
   }, [])
 
   const handleRefreshCaptcha = () => {
-    loadCaptcha()
+    void loadCaptcha()
     captchaInputRef.current?.focus()
   }
 
@@ -153,6 +162,11 @@ export default function Login() {
                 className="w-full bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-xl pl-10 pr-4 py-2.5 border border-[var(--border-color)] focus:border-orange-500/50 outline-none text-sm placeholder:text-gray-600"
                 placeholder={t('login.captchaPlaceholder')} required />
             </div>
+            {captchaLoadError !== null && (
+              <p className="text-red-500 text-xs text-center mt-1">
+                {captchaLoadError || t('login.captchaUnavailable')}
+              </p>
+            )}
           </div>
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           {captchaError && <p className="text-red-500 text-sm text-center">{captchaError}</p>}

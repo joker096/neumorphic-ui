@@ -28,6 +28,7 @@
     "captchaPlaceholder": "Enter answer",
     "captchaInvalid": "Wrong answer. Try again.",
     "refreshCaptcha": "Refresh",
+    "captchaUnavailable": "The verification code could not be loaded. Please refresh and try again.",
     "timeout": "The server did not respond. Please try again."
   },
   "verify2fa": {
