@@ -1,5 +1,6 @@
 {
   "common": {
+    "loading": "Loading...",
     "loadFailed": "Failed to load data",
     "actionFailed": "The action could not be completed",
     "retry": "Retry"
@@ -42,7 +43,6 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "loading": "Loading...",
     "onlineNow": "Online Now",
     "today": "Today",
     "totalUsers": "Total Users",

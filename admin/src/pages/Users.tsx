@@ -26,7 +26,7 @@ export default function Users() {
     }).finally(() => setLoading(false))
   }, [page, reload])
 
-  if (loading) return <div className="text-center text-gray-500 py-12">{t('dashboard.loading')}</div>
+  if (loading) return <div className="text-center text-gray-500 py-12">{t('common.loading')}</div>
 
   return (
     <div className="space-y-6">

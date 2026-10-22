@@ -9,14 +9,21 @@ export default function Devices() {
   const [devices, setDevices] = useState<Array<{ name: string; count: number; percentage: number }>>([])
   const [total, setTotal] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const load = useCallback(() => {
     setError(null)
+    setLoading(true)
     api.getDevices().then(r => { setDevices(r.devices ?? []); setTotal(r.total ?? 0) })
       .catch(err => { if (!isSessionLost(err)) setError(adminErrorMessage(err) ?? '') })
+      .finally(() => setLoading(false))
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  if (loading) {
+    return <div className="text-center text-gray-500 py-12">{t('common.loading')}</div>
+  }
 
   return (
     <div className="space-y-6">
