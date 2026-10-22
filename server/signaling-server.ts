@@ -19,7 +19,6 @@ import { handleStatsRoute } from './routes/stats.js'
 import { handleAdsRoute } from './routes/ads.js'
 import { handlePaymentoRoute } from './routes/paymento.js'
 import { handleIntegrationsRoute } from './routes/integrations.js'
-import { handleAdminRoute } from './routes/admin.js'
 import { applyCSP } from './csp.js'
 import { resolveClientIp } from './middleware/clientIp.js'
 
@@ -767,8 +766,7 @@ const restServer = createServer((req, res) => {
       handleStatsRoute(req, res, path) ||
       handleAdsRoute(req, res, path) ||
       handlePaymentoRoute(req, res, path) ||
-      handleIntegrationsRoute(req, res, path) ||
-      handleAdminRoute(req, res, path)
+      handleIntegrationsRoute(req, res, path)
 
     if (!handled) {
       res.writeHead(404)
