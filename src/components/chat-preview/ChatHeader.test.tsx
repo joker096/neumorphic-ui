@@ -9,7 +9,6 @@ const defaultProps = {
     name: 'Alice Johnson',
     color: 'from-purple-400 to-pink-600',
     online: true,
-    isFavorite: false,
     id: 'chat-1',
   },
   onClose: vi.fn(),

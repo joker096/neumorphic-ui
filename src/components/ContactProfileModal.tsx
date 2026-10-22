@@ -69,6 +69,16 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const [identityHex, setIdentityHex] = useState<string | undefined>(undefined);
   const [peerPinned, setPeerPinned] = useState<string | undefined>(undefined);
 
+  // The chat profile opens with a synthetic contact (a chat is not a contact
+  // record), so the real contact behind it is resolved by name - the same way
+  // the contact to block is resolved.
+  const blockedContact = contact
+    ? (contacts || []).find((c: any) => c.id === contact.id || c.name === contact.name)
+    : undefined;
+  // The id the user sees and the id the pinned identity is stored under: the
+  // real contact id whenever a contact sits behind the profile.
+  const resolvedContactId = blockedContact?.id ?? contact?.id ?? '';
+
   // Resolve the REAL identity keys, not chat ids: the local Ed25519 public key
   // (master identity) and the peer's pinned identity (TOFU-pinned at first
   // verified signaling session). Without both, the safety number cannot be
@@ -83,12 +93,12 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
   useEffect(() => {
     let alive = true
-    if (!contact?.id) { setPeerPinned(undefined); return }
-    getPinnedIdentity(contact.id)
+    if (!resolvedContactId) { setPeerPinned(undefined); return }
+    getPinnedIdentity(resolvedContactId)
       .then((pinned) => { if (alive) setPeerPinned(pinned) })
       .catch(() => { if (alive) setPeerPinned(undefined) })
     return () => { alive = false }
-  }, [contact?.id]);
+  }, [resolvedContactId]);
 
   useEffect(() => {
     setShowActions(false);
@@ -99,7 +109,6 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
   const overrideAvatar = contact ? contactAvatars[contact.name] : undefined;
   const dmChat = contact ? (chats || []).find((c: any) => c.name === contact.name && c.type !== 'group') : undefined;
   const storeContact = contact ? (contacts || []).find((c: any) => c.id === contact.id) : undefined;
-  const blockedContact = contact ? (contacts || []).find((c: any) => c.id === contact.id || c.name === contact.name) : undefined;
   const notificationsOn = storeContact ? !storeContact.muted : dmChat ? !((dmChat as any).muted) : !localMuted;
   const isBlocked = !!blockedContact?.isBlocked;
 
@@ -184,7 +193,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
             </h2>
 
             <div className="mt-1 font-mono text-xs tracking-wider px-3 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)]">
-              {contact.id}
+              {resolvedContactId}
             </div>
 
             {isBlocked && (
@@ -275,7 +284,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
       <SafetyNumberModal
         key="safety"
         open={showSafetyNumber}
-        contactId={contact?.id || ''}
+        contactId={resolvedContactId}
         contactName={contact?.name || ''}
         myPeerId={myPeerId ?? identityHex}
         theirPublicKey={peerPinned}

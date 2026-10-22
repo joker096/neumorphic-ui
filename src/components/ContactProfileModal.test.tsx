@@ -472,3 +472,26 @@ describe('ContactProfileModal', () => {
     expect(screen.queryByRole('button', { name: 'common.addToFavorites' })).toBeNull();
   });
 });
+
+describe('chat profile identity', () => {
+  it('shows the real contact id when a contact sits behind the profile', () => {
+    // The chat profile opens with a synthetic contact (hash_<chatId>); the
+    // real contact behind it is resolved by name and its id is the one shown.
+    const synthetic = {
+      id: 'hash_test_123',
+      name: 'Test User',
+      color: 'from-teal-400 to-emerald-500',
+      lastSeen: 1000,
+      online: true,
+    } as any;
+    useAppStore.getState().setContacts([{ id: 'contact_real_1', name: 'Test User' } as any]);
+    try {
+      render(<ContactProfileModal contact={synthetic} onClose={vi.fn()} theme="dark" />);
+
+      expect(screen.getByText('contact_real_1')).toBeInTheDocument();
+      expect(screen.queryByText('hash_test_123')).toBeNull();
+    } finally {
+      useAppStore.getState().setContacts([]);
+    }
+  });
+});

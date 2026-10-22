@@ -19,7 +19,6 @@ interface ChatHeaderProps {
     name: string;
     color: string;
     online: boolean;
-    isFavorite?: boolean;
     id: string | number;
     type?: string;
     isChannel?: boolean;
