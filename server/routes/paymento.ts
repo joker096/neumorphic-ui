@@ -89,7 +89,7 @@ function verifySignature(rawPayload: string, receivedSignature: string, secret: 
 
 // --- Subscription (pay-per-key) order ids ---
 // Format: sub:<devicePublicKeyB64>:<planId>[:<nonce>]
-const SUB_ORDER_RE = /^sub:([A-Za-z0-9+/=]{40,64}):([a-z][a-z0-9]{0,15})(?::.+)?$/
+const SUB_ORDER_RE = /^sub:([A-Za-z0-9+/=]{40,64}):([a-z][a-z0-9]{0,15})(?::.+|)$/
 // Paymento statuses that mean money is in: 7 = Paid, 8 = Approved (merchant confirmed).
 const PAID_STATUSES = new Set([7, 8])
 

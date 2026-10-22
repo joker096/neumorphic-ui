@@ -13,7 +13,6 @@ export default [
       "*.test.mjs",
       "*.cjs",
       "*.mjs",
-      "server/",
       "src-tauri/target/",
     ],
   },

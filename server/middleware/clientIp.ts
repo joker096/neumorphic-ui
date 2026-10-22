@@ -26,8 +26,8 @@ export function normalizeIp(raw: string | undefined | null): string {
   // Strip an IPv6 zone index (`%eth0`) and a trailing `:port` on bare IPv4.
   const zone = ip.indexOf('%')
   if (zone !== -1) ip = ip.slice(0, zone)
-  if (/^\d{1,3}(\.\d{1,3}){3}:\d+$/.test(ip)) ip = ip.slice(0, ip.lastIndexOf(':'))
-  if (ip.startsWith('::ffff:') && /^\d{1,3}(\.\d{1,3}){3}$/.test(ip.slice(7))) {
+  if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$/.test(ip)) ip = ip.slice(0, ip.lastIndexOf(':'))
+  if (ip.startsWith('::ffff:') && /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip.slice(7))) {
     ip = ip.slice(7)
   }
   return ip
