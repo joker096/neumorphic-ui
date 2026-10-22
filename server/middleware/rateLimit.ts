@@ -3,6 +3,14 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 interface RateLimitEntry {
   count: number;
   resetAt: number;
+  /**
+   * Absolute timestamp until which the key is locked out.
+   *
+   * A lockout outranks the window: while it is active the key is rejected even
+   * if the window already expired. Used by the credential routes, where a
+   * fixed window alone would let a brute-forcer continue after every window.
+   */
+  lockedUntil?: number;
 }
 
 // In-memory rate limiter
@@ -15,6 +23,11 @@ export interface RateLimitConfig {
   windowMs?: number;
   maxRequests?: number;
   key?: string;
+  /**
+   * Optional lockout. When set and the budget is exhausted, the key is locked
+   * for that long and every later attempt is rejected until it expires.
+   */
+  lockoutMs?: number;
 }
 
 export function checkRateLimit(
@@ -23,9 +36,16 @@ export function checkRateLimit(
 ): { allowed: boolean; remaining: number } {
   const window = opts.windowMs ?? DEFAULT_WINDOW;
   const maxRequests = opts.maxRequests ?? DEFAULT_MAX_REQUESTS;
+  const lockoutMs = opts.lockoutMs;
   const now = Date.now();
 
   const existing = rateLimits.get(key);
+
+  // A live lockout outranks the window: the key stays rejected even when the
+  // window already expired.
+  if (existing && existing.lockedUntil && now < existing.lockedUntil) {
+    return { allowed: false, remaining: 0 };
+  }
 
   if (!existing || now > existing.resetAt) {
     rateLimits.set(key, { count: 1, resetAt: now + window });
@@ -33,6 +53,9 @@ export function checkRateLimit(
   }
 
   if (existing.count >= maxRequests) {
+    if (lockoutMs !== undefined) {
+      existing.lockedUntil = now + lockoutMs;
+    }
     return { allowed: false, remaining: 0 };
   }
 
@@ -43,10 +66,20 @@ export function checkRateLimit(
 export function cleanupRateLimits(): void {
   const now = Date.now();
   for (const [key, entry] of rateLimits.entries()) {
-    if (now > entry.resetAt) {
+    // A locked key must survive the sweeper, otherwise the lockout would be
+    // dropped exactly when the brute-force attempt is still running.
+    const locked = entry.lockedUntil !== undefined && now < entry.lockedUntil;
+    if (now > entry.resetAt && !locked) {
       rateLimits.delete(key);
     }
   }
+}
+
+/**
+ * Test seam: drop every bucket (both the plain windows and the lockouts).
+ */
+export function resetRateLimits(): void {
+  rateLimits.clear();
 }
 
 // Start cleanup interval

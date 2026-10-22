@@ -5,38 +5,27 @@ import { getDb } from '../db.js'
 import { signToken, verifyAdminToken, verifyTotp, generateTotpSecret, createAdminSession, invalidateSession, signRelayToken } from '../auth.js'
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth.js'
 import { resolveClientIp } from '../middleware/clientIp.js'
+import {
+  checkRateLimit as sharedCheckRateLimit,
+  resetRateLimits as resetSharedRateLimits,
+} from '../middleware/rateLimit.js'
 
-interface RateLimitEntry {
-  count: number
-  resetAt: number
-  lockedUntil?: number
-}
-
-const rateLimitMap = new Map<string, RateLimitEntry>()
 const LOCKOUT_DURATION = 300000 // 5 minutes lockout after too many attempts
 
-function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 60000): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-
-  // Check if IP is currently locked out
-  if (entry && entry.lockedUntil && now < entry.lockedUntil) {
-    return false
-  }
-
-  // Reset if window has expired
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs })
-    return true
-  }
-
-  if (entry.count >= maxAttempts) {
-    entry.lockedUntil = now + LOCKOUT_DURATION
-    return false
-  }
-
-  entry.count++
-  return true
+/**
+ * Credential budget for one key (client IP, account name, administrator id).
+ *
+ * The bucket itself lives in the shared limiter (server/middleware/rateLimit.ts);
+ * this wrapper only carries the credential semantics: a fixed window plus a
+ * lockout that outranks it, so a brute-force attempt cannot simply wait the
+ * window out.
+ */
+function checkRateLimit(key: string, maxAttempts = 5, windowMs = 60000): boolean {
+  return sharedCheckRateLimit(key, {
+    windowMs,
+    maxRequests: maxAttempts,
+    lockoutMs: LOCKOUT_DURATION,
+  }).allowed
 }
 
 /**
@@ -46,7 +35,7 @@ function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 60000): boolean 
  * otherwise inherit the buckets of the previous case (admin ids restart at 1).
  */
 export function resetRateLimits(): void {
-  rateLimitMap.clear()
+  resetSharedRateLimits()
 }
 
 /**
@@ -312,10 +301,3 @@ function handleReset2FA(req: AuthenticatedRequest, res: ServerResponse): void {
   res.writeHead(200, { 'Content-Type': 'application/json' })
   res.end(JSON.stringify({ secret, uri }))
 }
-
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, entry] of rateLimitMap) {
-    if (now > entry.resetAt) rateLimitMap.delete(key)
-  }
-}, 300000)
