@@ -14,9 +14,10 @@ import { p2pNetwork } from "../lib/p2p/network";
  * each one is put on the wire individually: a P2P frame carries one chat id,
  * so forwarding to N chats is a loop, not a broadcast.
  */
-export function useMessageForward(sourceChat?: any) {
+export function useMessageForward(sourceChat?: any, opts?: { saveToSaved?: (msgs: any[]) => void }) {
   const { t } = useI18n();
   const setChats = useAppStore((s) => s.setChats);
+  const saveToSaved = opts?.saveToSaved;
   const [pending, setPending] = useState<any[] | null>(null);
   const [caption, setCaption] = useState("");
 
@@ -40,8 +41,20 @@ export function useMessageForward(sourceChat?: any) {
       const perTarget = new Map<string, any[]>();
       const captionText = caption.trim();
 
+      // "Saved Messages" is a local pseudo-chat: copies go into the saved
+      // collection, never onto the wire.
+      const savedTargets = valid.filter((t) => t.saved);
+      const chatTargets = valid.filter((t) => !t.saved);
+      if (savedTargets.length && saveToSaved) saveToSaved(messages);
+      if (chatTargets.length === 0) {
+        setPending(null);
+        setCaption("");
+        toast(t("chat.forwarded", "Forwarded"));
+        return;
+      }
+
       let offset = 0;
-      for (const target of valid) {
+      for (const target of chatTargets) {
         const produced: any[] = [];
         if (captionText) {
           // The caption is a normal outgoing text message that lands above the
@@ -77,7 +90,7 @@ export function useMessageForward(sourceChat?: any) {
         }),
       );
 
-      for (const target of valid) {
+      for (const target of chatTargets) {
         for (const copy of perTarget.get(String(target.id)) ?? []) {
           if (!isWireForwardable(copy)) continue;
           void p2pNetwork
@@ -107,7 +120,7 @@ export function useMessageForward(sourceChat?: any) {
           : t("chat.forwarded", "Forwarded"),
       );
     },
-    [pending, caption, setChats, sourceChat?.name, t],
+    [pending, caption, setChats, sourceChat?.name, saveToSaved, t],
   );
 
   const forwardTo = useCallback((target: any) => deliver([target]), [deliver]);

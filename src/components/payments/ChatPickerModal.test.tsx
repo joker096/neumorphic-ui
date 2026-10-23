@@ -16,6 +16,7 @@ vi.mock('../../lib/i18n', () => ({
 vi.mock('lucide-react', () => ({
   X: () => React.createElement('span', { 'data-testid': 'icon-x' }),
   Check: () => React.createElement('span', { 'data-testid': 'icon-check' }),
+  Bookmark: () => React.createElement('span', { 'data-testid': 'icon-bookmark' }),
 }));
 
 import { ChatPickerModal } from './ChatPickerModal';
@@ -166,6 +167,32 @@ describe('ChatPickerModal', () => {
 
     expect(onPickMany).toHaveBeenCalledTimes(1);
     expect(onPickMany.mock.calls[0][0].map((c: any) => c.id)).toEqual(['a', 'b']);
+  });
+
+  it('offers Saved Messages as a forward target and includes it in the selection', () => {
+    chats.push({ id: 'a', name: 'Alice' });
+    const onPickMany = vi.fn();
+    render(
+      <ChatPickerModal
+        open
+        onClose={() => {}}
+        onPick={() => {}}
+        multiSelect
+        onPickMany={onPickMany}
+        savedLabel="Saved Messages"
+      />,
+    );
+
+    expect(screen.getByText('Saved Messages')).toBeInTheDocument();
+    expect(screen.getByTestId('icon-bookmark')).toBeInTheDocument();
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Saved Messages'));
+    fireEvent.click(screen.getByText('Alice'));
+    fireEvent.click(screen.getByText(/chat\.forwardCount/));
+
+    expect(onPickMany).toHaveBeenCalledTimes(1);
+    expect(onPickMany.mock.calls[0][0].map((c: any) => c.id)).toEqual(['__saved_forward__', 'a']);
   });
 
   it('keeps the confirm button disabled while nothing is selected', () => {

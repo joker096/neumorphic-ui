@@ -79,7 +79,9 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const isSharingLiveLocation = useAppStore((s) => s.liveShare?.isLive === true);
   const chatWallpaper = useAppStore((s) => s.chatWallpaper);
 
-  const { forwardOpen, openForward, closeForward, forwardTo, forwardToMany, caption, setCaption } = useMessageForward(chat);
+  const { forwardOpen, openForward, closeForward, forwardTo, forwardToMany, caption, setCaption } = useMessageForward(chat, {
+    saveToSaved: (msgs) => msgs.forEach((m) => onToggleSavedMessage?.(chat, m)),
+  });
   const msgActions = useChatMessageActions({ chatId: chat.id, onForward: openForward, onDelete, onUpdateChat });
   const { selectionMode, selectedIds } = msgActions;
 
@@ -281,6 +283,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         forwardToMany={forwardToMany}
         caption={caption}
         setCaption={setCaption}
+        savedLabel={t('chat.savedMessages')}
       />
     </motion.div>
   );

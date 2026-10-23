@@ -54,6 +54,25 @@ function Harness({ sourceChat, onReady }: { sourceChat: any; onReady: (api: any)
   );
 }
 
+function HarnessWithSaved({ saveToSaved, onReady }: { saveToSaved: (msgs: any[]) => void; onReady: (api: any) => void }) {
+  const api = useMessageForward({ id: "source", name: "Alice" }, { saveToSaved });
+  onReady(api);
+  return (
+    <div>
+      <button type="button" onClick={() => api.openForward([{ id: 2, sender: "me", text: "a" }, { id: 3, sender: "me", text: "b" }])}>
+        forward-batch
+      </button>
+      <button type="button" onClick={() => api.forwardToMany([{ id: "__saved_forward__", name: "Saved Messages", saved: true }])}>
+        deliver-saved
+      </button>
+      <button type="button" onClick={() => api.forwardToMany([{ id: "__saved_forward__", name: "Saved Messages", saved: true }, { id: "target", name: "Bob" }])}>
+        deliver-mixed
+      </button>
+      <span data-testid="state">{api.forwardOpen ? `open:${api.forwardCount}` : "closed"}</span>
+    </div>
+  );
+}
+
 describe("useMessageForward", () => {
   let api: any;
 
@@ -120,6 +139,32 @@ describe("useMessageForward", () => {
     const texts = sent.map((frame) => parseChatText(String(frame)));
     expect(texts[0]).toMatchObject({ type: "chat-text", chatId: "target", chatName: "Bob", text: "a" });
     expect(texts[1]).toMatchObject({ type: "chat-text", chatId: "target", chatName: "Bob", text: "b" });
+  });
+
+  it("routes a Saved Messages target into saveToSaved without writing history or wire", async () => {
+    const saveToSaved = vi.fn();
+    render(<HarnessWithSaved saveToSaved={saveToSaved} onReady={(a) => (api = a)} />);
+
+    fireEvent.click(screen.getByText("forward-batch"));
+    await act(async () => api.forwardToMany([{ id: "__saved_forward__", name: "Saved Messages", saved: true }]));
+
+    expect(saveToSaved).toHaveBeenCalledTimes(1);
+    expect(saveToSaved.mock.calls[0][0].map((m: any) => m.text)).toEqual(["a", "b"]);
+    expect(storeState.chats.find((c) => c.id === "target").history).toHaveLength(0);
+    expect(sent).toHaveLength(0);
+    expect(screen.getByTestId("state")).toHaveTextContent("closed");
+  });
+
+  it("routes a mixed selection: saved target saves, chat target writes history and wire", async () => {
+    const saveToSaved = vi.fn();
+    render(<HarnessWithSaved saveToSaved={saveToSaved} onReady={(a) => (api = a)} />);
+
+    fireEvent.click(screen.getByText("forward-batch"));
+    await act(async () => api.forwardToMany([{ id: "__saved_forward__", name: "Saved Messages", saved: true }, { id: "target", name: "Bob" }]));
+
+    expect(saveToSaved).toHaveBeenCalledTimes(1);
+    expect(storeState.chats.find((c) => c.id === "target").history.map((m: any) => m.text)).toEqual(["a", "b"]);
+    await waitFor(() => expect(sent).toHaveLength(2));
   });
 
   it("ignores an empty payload and a missing target", async () => {

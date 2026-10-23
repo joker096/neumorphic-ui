@@ -17,6 +17,8 @@ interface ChatPreviewDialogsProps {
   /** Caption for the forward (optional). */
   caption?: string;
   setCaption?: (value: string) => void;
+  /** Label for the "Saved Messages" forward target (optional). */
+  savedLabel?: string;
 }
 
 /** Modal layer of the chat preview: delete confirmation and the forward picker. */
@@ -31,6 +33,7 @@ export const ChatPreviewDialogs = ({
   forwardToMany,
   caption,
   setCaption,
+  savedLabel,
 }: ChatPreviewDialogsProps) => {
   const { deleteConfirm, selectedCount, confirmDelete, cancelDelete } = interactions;
 
@@ -63,6 +66,7 @@ export const ChatPreviewDialogs = ({
         excludeChatId={chat.id}
         caption={caption}
         onCaptionChange={setCaption}
+        savedLabel={savedLabel}
       />
     </>
   );

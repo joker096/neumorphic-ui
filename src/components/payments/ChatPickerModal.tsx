@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useAppStore } from '../../store'
 import { createPortal } from 'react-dom'
-import { Check, X } from 'lucide-react'
+import { Bookmark, Check, X } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
 import { useEscapeKey } from '../../hooks/useEscapeKey'
 import { BOLD_LABEL_CLASS } from '../ui/textClasses';
 import { SECTION_HEADER_ROW_CLASS } from '../ui/rowClasses';
+
+/** Sentinel target for Telegram-style "forward to Saved Messages". */
+export const SAVED_FORWARD_ID = '__saved_forward__';
 
 interface ChatPickerModalProps {
   open: boolean
@@ -27,6 +30,8 @@ interface ChatPickerModalProps {
    *  the existing call sites change. */
   caption?: string
   onCaptionChange?: (value: string) => void
+  /** When set, a "Saved Messages" row appears as the first forward target. */
+  savedLabel?: string
 }
 
 export const ChatPickerModal = ({
@@ -39,6 +44,7 @@ export const ChatPickerModal = ({
   onPickMany,
   caption,
   onCaptionChange,
+  savedLabel,
 }: ChatPickerModalProps) => {
   const { t } = useI18n()
   const chats = useAppStore((s: any) => s.chats || [])
@@ -57,12 +63,15 @@ export const ChatPickerModal = ({
     ? chats
     : chats.filter((c: any) => String(c.id) !== String(excludeChatId))
 
+  const savedRow = multiSelect && savedLabel ? [{ id: SAVED_FORWARD_ID, name: savedLabel, saved: true }] : []
+  const allRows = [...savedRow, ...pickableChats]
+
   const toggle = (chat: any) => {
     const id = String(chat.id)
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
   }
 
-  const selectedChats = pickableChats.filter((c: any) => selected.includes(String(c.id)))
+  const selectedChats = allRows.filter((c: any) => selected.includes(String(c.id)))
 
   const confirm = () => {
     if (selectedChats.length === 0) return
@@ -104,12 +113,12 @@ export const ChatPickerModal = ({
           </div>
         )}
         <div className="max-h-[60vh] overflow-y-auto">
-          {pickableChats.length === 0 && (
+          {allRows.length === 0 && (
             <div className="p-4 text-center text-sm text-[var(--text-primary)] opacity-60">
               {t('chat.noChats')}
             </div>
           )}
-          {pickableChats.map((chat: any) => {
+          {allRows.map((chat: any) => {
             const isSelected = multiSelect && selected.includes(String(chat.id))
             return (
               <button
@@ -121,7 +130,7 @@ export const ChatPickerModal = ({
                 }`}
               >
                 <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--accent)] text-[var(--button-primary-text)] font-bold shrink-0">
-                  {(chat.name || chat.title || '?').toString().slice(0, 1).toUpperCase()}
+                  {chat.saved ? <Bookmark size={18} /> : (chat.name || chat.title || '?').toString().slice(0, 1).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium text-[var(--text-primary)] truncate">
