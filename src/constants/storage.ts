@@ -7,6 +7,7 @@ export const STORAGE_KEYS = {
   LOCK_PIN_HASH: 'app_lock_pin_hash',
   LOCK_SALT: 'app_lock_salt',
   DRAFTS: 'mess_drafts',
+  RECENT_STICKERS: 'mess_recent_stickers',
   SAVED_MESSAGES: 'mess_saved_messages',
   DND_ENABLED: 'app_dnd_enabled',
   DND_FROM: 'app_dnd_from',

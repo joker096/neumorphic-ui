@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { StickerPicker } from './StickerPicker';
+import { getRecentStickers, pushRecentSticker } from '../../lib/recentStickers';
 
 const mockGetIcqStickerIds = vi.hoisted(() =>
   vi.fn((premium: boolean) => (premium ? ['icq:1', 'icq:2', 'icq:3'] : ['icq:1', 'icq:2'])),
@@ -24,6 +25,7 @@ vi.mock('../../lib/icqEmojis', () => ({
     { id: 'icq:3', name: 'cry' },
   ],
   getIcqStickerIds: mockGetIcqStickerIds,
+  getIcqStickerTotal: () => 3,
   getICQEmojiPath: vi.fn((id: string) => `/icq/${id}.png`),
   getICQStickerSrc: vi.fn((path: string) => `/stickers/${path}.png`),
 }));
@@ -51,6 +53,7 @@ describe('StickerPicker', () => {
     mockOnClose.mockClear();
     mockGetIcqStickerIds.mockClear();
     mockToast.mockClear();
+    localStorage.clear();
     mockStore = { premiumEntitlement: { premium: false, plan: null, expiresAt: null } };
   });
 
@@ -146,6 +149,19 @@ describe('StickerPicker', () => {
     expect(screen.queryByLabelText('premium.stickerLocked')).not.toBeInTheDocument();
   });
 
+  it('shows the ICQ free limit and an ICQ-specific upsell', () => {
+    render(<StickerPicker {...defaultProps} />);
+    expect(screen.getByText('2/3')).toBeInTheDocument();
+    expect(screen.getByLabelText('stickers.icqUnlock')).toBeInTheDocument();
+  });
+
+  it('shows no ICQ limit or ICQ upsell once premium is on', () => {
+    mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
+    render(<StickerPicker {...defaultProps} />);
+    expect(screen.queryByText('2/3')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('stickers.icqUnlock')).not.toBeInTheDocument();
+  });
+
   it('renders sticker and premium-teaser buttons with 44px tap targets (§2.2)', () => {
     render(<StickerPicker {...defaultProps} />);
     const stickerBtns = document.querySelectorAll('button[class*="min-w-11"]');
@@ -157,5 +173,20 @@ describe('StickerPicker', () => {
       expect(teaser.className).toContain('min-w-11');
       expect(teaser.className).toContain('min-h-11');
     });
+  });
+
+  it('records a sent sticker in the recent row', () => {
+    render(<StickerPicker {...defaultProps} />);
+    const stickerButtons = document.querySelectorAll('[class*="transition-transform"]');
+    fireEvent.click(stickerButtons[0]);
+    expect(getRecentStickers()).toHaveLength(1);
+  });
+
+  it('shows a Recent tab and pack once something was sent', () => {
+    pushRecentSticker('🔥');
+    render(<StickerPicker {...defaultProps} />);
+    // Tab label + pack header.
+    expect(screen.getAllByText('stickers.recent').length).toBe(2);
+    expect(screen.getAllByAltText('🔥').length).toBeGreaterThanOrEqual(2);
   });
 });

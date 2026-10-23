@@ -21,6 +21,15 @@ export function getIcqStickerIds(premium: boolean): string[] {
   return premium ? ids : ids.slice(0, ICQ_FREE_STICKER_COUNT);
 }
 
+/**
+ * Size of the whole ICQ set. The free tier shows only
+ * `ICQ_FREE_STICKER_COUNT` of these, so the picker needs the real total to
+ * tell the user how many are behind the paywall.
+ */
+export function getIcqStickerTotal(): number {
+  return ICQ_EMOJI_DATA.length;
+}
+
 export { ICQ_EMOJI_DATA as ICQ_EMOJI_MAP };
 
 export { preloadICQTheme, getCachedEmoji };

@@ -9,7 +9,9 @@ import {
   getICQEmojiPath,
   getICQStickerSrc,
   getIcqStickerIds,
+  getIcqStickerTotal,
 } from "../../lib/icqEmojis";
+import { getRecentStickers, pushRecentSticker } from "../../lib/recentStickers";
 
 const STICKER_PACKS = [
   { id: 'default', name: 'Default', stickers: ['👍', '❤️', '😂', '🔥', '😢', '🎉', '👋', '💀', '👑', '🔻', '😎', '🥳'] },
@@ -33,13 +35,28 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
   const isDark = theme === 'dark';
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
+  const [recent, setRecent] = useState<string[]>(() => getRecentStickers());
 
   const icqStickers = useMemo(() => getIcqStickerIds(premium), [premium]);
+  /** Upsell wording: the ICQ pack is trimmed by the free limit, not locked as a whole. */
+  const unlockLabelFor = (packId: string) =>
+    packId === 'icq'
+      ? t('stickers.icqUnlock', { total: getIcqStickerTotal() })
+      : t('premium.stickerLocked', 'This sticker pack is available with Premium');
 
   const allPacks = [
+    ...(recent.length > 0 ? [{ id: 'recent', name: t('stickers.recent'), stickers: recent }] : []),
     { id: 'icq', name: t('stickers.icq'), stickers: icqStickers },
     ...STICKER_PACKS,
     { id: 'emoji', name: t('stickers.emoji'), stickers: STICKER_EMOJI },
+  ];
+
+  const tabs = [
+    { id: 'all', label: t('stickers.all') },
+    ...(recent.length > 0 ? [{ id: 'recent', label: t('stickers.recent') }] : []),
+    { id: 'icq', label: t('stickers.icq') },
+    { id: 'default', label: t('stickers.default') },
+    { id: 'animals', label: t('stickers.animals') },
   ];
 
   const filteredPacks = activeTab === 'all' ? allPacks : allPacks.filter(p => p.id === activeTab);
@@ -48,7 +65,7 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
   return (
     <div className="w-full max-w-full flex flex-col gap-3 px-2 sm:px-3 pb-2">
       <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>
-        {[{ id: 'all', label: t('stickers.all') }, { id: 'icq', label: t('stickers.icq') }, { id: 'default', label: t('stickers.default') }, { id: 'animals', label: t('stickers.animals') }].map(tab => (
+        {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -75,14 +92,29 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
       <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
         {visiblePacks.map(pack => (
           <div key={pack.id} className="flex flex-col gap-1">
-            <div className={CAPS_TERTIARY_CLASS}>{pack.name}</div>
+            <div className="flex items-center justify-between gap-2">
+              <div className={CAPS_TERTIARY_CLASS}>{pack.name}</div>
+              {/* Free tier gets only the first ICQ_FREE_STICKER_COUNT stickers;
+                  without this hint the trimmed set looks like the whole pack. */}
+              {pack.id === 'icq' && !premium && (
+                <span className="text-xs text-[var(--text-tertiary)]">
+                  {pack.stickers.length}/{getIcqStickerTotal()}
+                </span>
+              )}
+            </div>
             <div className="flex gap-1 flex-wrap">
               {pack.stickers.map((st, idx) => {
                 const stickerSrc = pack.id === 'icq' ? getICQEmojiPath(st, theme) : getICQStickerSrc(st, theme);
                 return (
                   <button
                     key={`${pack.id}-${idx}`}
-                    onClick={() => { onSelect(pack.id === 'icq' ? `icq:${st}` : st); onClose(); }}
+                    onClick={() => {
+                      // Recent entries already carry the pack prefix.
+                      const value = pack.id === 'icq' ? `icq:${st}` : st;
+                      setRecent(pushRecentSticker(value));
+                      onSelect(value);
+                      onClose();
+                    }}
                     className={`min-w-11 min-h-11 rounded-full flex items-center justify-center text-xl transition-transform active:scale-95 hover:bg-[var(--bg-elevated)]`}
                   >
                     {stickerSrc ? (
@@ -93,7 +125,8 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
                   </button>
                 );
               })}
-              {pack.id !== 'icq' && !premium && (
+              {/* Recent is a view, not a pack: nothing to unlock there. */}
+              {!premium && pack.id !== 'recent' && (
                 <button
                   onClick={() => {
                     if (onOpenPremium) {
@@ -101,9 +134,9 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
                       onClose();
                       return;
                     }
-                    toast(t('premium.stickerLocked', 'This sticker pack is available with Premium'));
+                    toast(unlockLabelFor(pack.id));
                   }}
-                  aria-label={t('premium.stickerLocked', 'This sticker pack is available with Premium')}
+                  aria-label={unlockLabelFor(pack.id)}
                   className="min-w-11 min-h-11 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
                 >
                   <Crown size={16} />
