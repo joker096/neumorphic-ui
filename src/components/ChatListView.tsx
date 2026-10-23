@@ -333,14 +333,15 @@ function PinnedReorderItem({ chat, renderRow, t }: PinnedReorderItemProps) {
     <Reorder.Item value={chat} dragListener={false} dragControls={dragControls}>
       <div className="relative">
         {renderRow(chat, "chat", { disableSwipe: true })}
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={-1}
           aria-label={t("chat.reorderPinned")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-grab"
           onPointerDown={(e) => dragControls.start(e)}
         >
           <GripHorizontal size={16} />
-        </button>
+        </div>
       </div>
     </Reorder.Item>
   );

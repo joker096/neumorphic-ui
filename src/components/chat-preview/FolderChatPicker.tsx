@@ -66,7 +66,7 @@ export const FolderChatPicker = ({ folder, chats, onChange, t }: FolderChatPicke
               }`}
             >
               <span
-                className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 text-[10px] ${
+                className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 text-[11px] ${
                   selected
                     ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--ink-on-saturate)]"
                     : "border-[var(--text-tertiary)]/50"
