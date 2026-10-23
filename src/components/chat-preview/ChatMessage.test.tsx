@@ -127,6 +127,23 @@ describe('ChatMessage', () => {
     vi.useRealTimers();
   });
 
+  it('renders a single-emoji message with the large glyph class', () => {
+    render(<ChatMessage {...baseProps({ msg: { id: 1, text: '🔥' } })} />);
+    const glyph = screen.getByTestId('formatted-text');
+    expect(glyph).toHaveTextContent('🔥');
+    expect(glyph.parentElement).toHaveClass('text-6xl');
+  });
+
+  it('does not enlarge multi-char text or emoji-plus-text', () => {
+    const { unmount } = render(<ChatMessage {...baseProps()} />);
+    const normal = screen.getByTestId('formatted-text');
+    expect(normal.parentElement).not.toHaveClass('text-6xl');
+    unmount();
+    render(<ChatMessage {...baseProps({ msg: { id: 2, text: 'hi 🔥' } })} />);
+    const mixed = screen.getByTestId('formatted-text');
+    expect(mixed.parentElement).not.toHaveClass('text-6xl');
+  });
+
   it('renders text message with formatted text and bubble actions for non-channel', () => {
     render(<ChatMessage {...baseProps()} />);
     expect(screen.getByTestId('formatted-text')).toHaveTextContent('hello');

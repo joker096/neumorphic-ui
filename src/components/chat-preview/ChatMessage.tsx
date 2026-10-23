@@ -12,6 +12,7 @@ import { ChannelCommentsRow } from "./ChannelCommentsRow";
 import { ReplyQuote } from "./ReplyQuote";
 import { PaymentChatBubble } from "../payments/PaymentChatBubble";
 import { decodeMorse } from "../MorseDecoder";
+import { isSingleEmojiText } from "../../utils/emoji";
 import { useMessageBubble } from "./message/useMessageBubble";
 import { executeEditMessage } from "../../hooks/useMessageActions";
 import { MessageGutterAvatar } from "./message/MessageGutterAvatar";
@@ -199,7 +200,7 @@ function ChatMessageImpl({
                 onCancel={() => setEditing(false)}
               />
             ) : (
-            <span className={`pb-1 block ${msg.type ? "font-medium" : ""}`}>
+            <span className={`pb-1 block ${msg.type ? "font-medium" : ""} ${!morseDecoded && isSingleEmojiText(msg.text) ? "text-6xl leading-none -my-1" : ""}`}>
               <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
               {msg.edited && (
                 <span className={"ml-1 align-middle text-xs uppercase tracking-wide text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
