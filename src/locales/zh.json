@@ -536,6 +536,7 @@
     "postsLabel": "帖子",
     "autoDelete": "自动删除消息",
     "autoDeleteSubtitle": "新消息在此时间后消失",
+    "chatWallpaper": "聊天背景",
     "membersCount": {
       "one": "{{count}}位成员",
       "other": "{{count}}位成员"

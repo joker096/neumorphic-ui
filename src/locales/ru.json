@@ -536,6 +536,7 @@
     "postsLabel": "Записи",
     "autoDelete": "Автоудаление сообщений",
     "autoDeleteSubtitle": "Новые сообщения исчезают через это время",
+    "chatWallpaper": "Фон чата",
     "membersCount": {
       "one": "{{count}} участник",
       "other": "{{count}} участников"

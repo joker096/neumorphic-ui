@@ -64,6 +64,8 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
   const chatSelfDestruct = useAppStore((s) => s.chatSelfDestruct);
   const setChatSelfDestruct = useAppStore((s) => s.setChatSelfDestruct);
   const selfDestructDefault = useAppStore((s) => s.selfDestructDefault);
+  const chatWallpaper = useAppStore((s) => s.chatWallpaper);
+  const setChatWallpaper = useAppStore((s) => s.setChatWallpaper);
   const liveChat = (chats as any[]).find((c: any) => c.id === chat.id);
   const blockedContact = kind === 'user' || kind === 'bot'
     ? (contacts || []).find((c: any) => c.id === chat.id || c.name === chat.name)
@@ -194,6 +196,30 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   >
                     {selfDestructLabel(t, autoDeleteValue)}
                   </button>
+                </div>
+                <div className="mt-3 w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] px-4 py-3">
+                  <div className="flex items-center gap-2.5 mb-2.5">
+                    <span className="text-sm font-medium text-[var(--text-primary)]">{t('profile.chatWallpaper', 'Chat background')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {(['default', 'light', 'dark'] as const).map((bg) => {
+                      const active = (chatWallpaper?.[String(chat.id)] ?? 'default') === bg;
+                      return (
+                        <button
+                          key={bg}
+                          onClick={() => setChatWallpaper(chat.id, bg)}
+                          aria-pressed={active}
+                          className={`min-h-11 flex-1 rounded-xl text-sm font-semibold transition-colors active:scale-95 ${
+                            active
+                              ? 'bg-[var(--accent)] text-[var(--ink-on-saturate)]'
+                              : 'bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                          }`}
+                        >
+                          {t(`settings.chatbg.${bg}`)}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
                 <ChatProfileActions
                   kind={kind}

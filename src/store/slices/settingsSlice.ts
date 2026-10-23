@@ -68,6 +68,9 @@ export interface SettingsSlice {
   setChatBackground: (bg: string) => void;
   customChatBackground: string;
   setCustomChatBackground: (dataUrl: string) => void;
+  /** Per-chat background preset override ('default'|'light'|'dark'). */
+  chatWallpaper: Record<string, string>;
+  setChatWallpaper: (chatId: string | number, preset?: string | null) => void;
   density: 'comfortable' | 'compact';
   setDensity: (d: 'comfortable' | 'compact') => void;
   messageRadius: number;
@@ -154,6 +157,7 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   accentColor: savedPrivacySettings.accentColor ?? '#4ede63',
   chatBackground: savedPrivacySettings.chatBackground ?? 'default',
   customChatBackground: savedPrivacySettings.customChatBackground ?? '',
+  chatWallpaper: savedPrivacySettings.chatWallpaper ?? {},
   density: savedPrivacySettings.density ?? 'comfortable',
   messageRadius: savedPrivacySettings.messageRadius ?? 16,
   animationIntensity: savedPrivacySettings.animationIntensity ?? 'high',

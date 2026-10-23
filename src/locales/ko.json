@@ -536,6 +536,7 @@
     "postsLabel": "게시물",
     "autoDelete": "메시지 자동 삭제",
     "autoDeleteSubtitle": "새 메시지는 이 시간이 지나면 사라집니다",
+    "chatWallpaper": "채팅 배경",
     "membersCount": {
       "one": "{{count}}명의 멤버",
       "other": "{{count}}명의 멤버"

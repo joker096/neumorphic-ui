@@ -10,6 +10,7 @@ export const createAppearanceActions = (set: any): Pick<SettingsSlice,
   | 'setDensity'
   | 'setMessageRadius'
   | 'setAnimationIntensity'
+  | 'setChatWallpaper'
 > => ({
   setUiAnimations: (v) => {
     set({ uiAnimations: v });
@@ -42,5 +43,15 @@ export const createAppearanceActions = (set: any): Pick<SettingsSlice,
   setAnimationIntensity: (i) => {
     set({ animationIntensity: i });
     persistSetting('animationIntensity', i);
+  },
+  setChatWallpaper: (chatId, preset) => {
+    set((s: any) => {
+      const key = String(chatId);
+      const next = { ...(s.chatWallpaper || {}) };
+      if (!preset || preset === 'default') delete next[key];
+      else next[key] = preset;
+      persistSetting('chatWallpaper', next);
+      return { chatWallpaper: next };
+    });
   },
 });

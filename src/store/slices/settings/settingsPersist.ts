@@ -53,6 +53,7 @@ const PERSISTED_KEYS = new Set([
   'autoRecordCalls',
   'recordingsRetentionDays',
   'customFolders',
+  'chatWallpaper',
 ]);
 
 export const savedPrivacySettings = (() => {

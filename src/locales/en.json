@@ -536,6 +536,7 @@
     "postsLabel": "Posts",
     "autoDelete": "Auto-delete messages",
     "autoDeleteSubtitle": "New messages disappear after this time",
+    "chatWallpaper": "Chat background",
     "membersCount": {
       "one": "{{count}} member",
       "other": "{{count}} members"

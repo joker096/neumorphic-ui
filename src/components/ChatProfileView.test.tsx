@@ -63,6 +63,8 @@ describe('ChatProfileView block action', () => {
       chatSelfDestruct: {},
       selfDestructDefault: 'Off',
       setChatSelfDestruct: vi.fn(),
+      chatWallpaper: {},
+      setChatWallpaper: vi.fn(),
     };
   });
 
@@ -84,6 +86,13 @@ it('marks the name-matched store contact as blocked on Block click', () => {
     // The store is mocked non-reactively, so the label read-back would need a
     // re-render; the actionable contract is that the override is written.
     expect(mockStore.setChatSelfDestruct).toHaveBeenCalledWith(7, '1 min');
+  });
+
+  it('writes a per-chat wallpaper preset when a background chip is pressed', () => {
+    render(<ChatProfileView {...defaultProps} />);
+    const darkChip = screen.getByRole('button', { name: /dark/i });
+    fireEvent.click(darkChip);
+    expect(mockStore.setChatWallpaper).toHaveBeenCalledWith(7, 'dark');
   });
 
   it('renders into the document body portal so a transformed ancestor cannot trap it (z-index fix)', () => {

@@ -136,6 +136,19 @@ describe('settingsSlice', () => {
     expect(stored.customChatBackground).toBe('data:image/jpeg;base64,AAAA');
   });
 
+  it('setChatWallpaper writes a per-chat preset and persists; default removes it', async () => {
+    const { createSettingsSlice } = await import('./settingsSlice');
+    const { slice, get } = mk(createSettingsSlice);
+    slice.setChatWallpaper(7, 'dark');
+    expect(get().chatWallpaper?.['7']).toBe('dark');
+    let stored = JSON.parse(localStorage.getItem(PRIVACY_KEY)!);
+    expect(stored.chatWallpaper?.['7']).toBe('dark');
+    slice.setChatWallpaper(7, 'default');
+    expect(get().chatWallpaper?.['7']).toBeUndefined();
+    stored = JSON.parse(localStorage.getItem(PRIVACY_KEY)!);
+    expect(stored.chatWallpaper?.['7']).toBeUndefined();
+  });
+
   it('loads a persisted customChatBackground', async () => {
     localStorage.setItem(PRIVACY_KEY, JSON.stringify({ customChatBackground: 'data:image/jpeg;base64,BBBB' }));
     const { createSettingsSlice } = await import('./settingsSlice');

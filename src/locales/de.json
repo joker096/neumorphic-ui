@@ -536,6 +536,7 @@
     "postsLabel": "Beiträge",
     "autoDelete": "Nachrichten automatisch löschen",
     "autoDeleteSubtitle": "Neue Nachrichten verschwinden nach dieser Zeit",
+    "chatWallpaper": "Chat-Hintergrund",
     "membersCount": {
       "one": "{{count}} Mitglied",
       "other": "{{count}} Mitglieder"

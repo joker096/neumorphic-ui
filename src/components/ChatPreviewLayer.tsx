@@ -77,6 +77,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const canAttachFiles = !chat.isChannel || (!!chat.ownerId && chat.ownerId === userProfile?.id);
   const setChannels = useAppStore((s) => s.setChannels);
   const isSharingLiveLocation = useAppStore((s) => s.liveShare?.isLive === true);
+  const chatWallpaper = useAppStore((s) => s.chatWallpaper);
 
   const { forwardOpen, openForward, closeForward, forwardTo, forwardToMany, caption, setCaption } = useMessageForward(chat);
   const msgActions = useChatMessageActions({ chatId: chat.id, onForward: openForward, onDelete, onUpdateChat });
@@ -133,6 +134,8 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const threadRoot = preview.threadRootId != null ? preview.threads.rootOf(preview.threadRootId) : undefined;
   const threadReplies = preview.threadRootId != null ? preview.threads.repliesOf(preview.threadRootId) : [];
 
+  const chatBgPreset = chatWallpaper?.[String(chat.id)] ?? 'default';
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 40, scale: 0.95 }}
@@ -147,6 +150,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
       }}
       onDragOver={canAttachFiles ? (e) => e.preventDefault() : undefined}
       onDrop={canAttachFiles ? (e) => { e.preventDefault(); handleFileDrop(e.dataTransfer?.files, chat, onUpdateChat); } : undefined}
+      data-chat-bg={chatBgPreset !== 'default' ? chatBgPreset : undefined}
       className={`chat-surface glass-panel absolute inset-0 w-full h-full flex flex-col overflow-hidden z-50 md:z-40 rounded-2xl`}
     >
       <ChatPreviewPanels

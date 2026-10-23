@@ -536,6 +536,7 @@
     "postsLabel": "Publicaciones",
     "autoDelete": "Borrado automático de mensajes",
     "autoDeleteSubtitle": "Los mensajes nuevos desaparecen después de este tiempo",
+    "chatWallpaper": "Fondo del chat",
     "membersCount": {
       "one": "{{count}} miembro",
       "other": "{{count}} miembros"
