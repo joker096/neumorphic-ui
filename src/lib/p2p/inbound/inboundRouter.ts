@@ -2,13 +2,13 @@ import { FTR_MAGIC, ALBUM_MAGIC, parseFrame, parseAlbumManifest, type FtrFrame }
 import {
   CALL_MAGIC, MSG_MAGIC, parseCallSignal, parseChatDeliveryAck, parseChatReadReceipt,
   parseChatAudioMeta, parseChatAudioChunk, parseChatAudioEnd,
-  parseChatEdit, parseChatReaction, parseChatPin, parseChatText,
+  parseChatEdit, parseChatReaction, parseChatPin, parseChatDelete, parseChatPollVote, parseChatText, parseChatPoll,
 } from "../chatFrame";
 import { parseChatLocation, parseChatArticle } from "../chatRichFrames";
 import { p2pNetwork, type BroadcastMessage } from "../network";
 import { handleAlbumManifest } from "./inboundAlbum";
-import { handleChatEdit, handleChatPin, handleChatReaction, handleChatText } from "./inboundChatFrames";
-import { handleChatArticle, handleChatLocation } from "./inboundRichFrames";
+import { handleChatDelete, handleChatEdit, handleChatPin, handleChatPollVote, handleChatReaction, handleChatText } from "./inboundChatFrames";
+import { handleChatArticle, handleChatLocation, handleChatPoll } from "./inboundRichFrames";
 import { markOutgoingStatus } from "./inboundChatStore";
 import { handleAudioChunk, handleAudioEnd, handleAudioMeta } from "./inboundVoice";
 import { PROCESSED_ID_LIMIT, processedMessageIds } from "./inboundTransferState";
@@ -81,6 +81,21 @@ export const createInboundMessageHandler = (
       const pin = parseChatPin(raw);
       if (pin) {
         handleChatPin(pin, msg.senderId);
+        return;
+      }
+      const deleted = parseChatDelete(raw);
+      if (deleted) {
+        handleChatDelete(deleted, msg.senderId);
+        return;
+      }
+      const poll = parseChatPoll(raw);
+      if (poll) {
+        handleChatPoll(poll, msg.senderId);
+        return;
+      }
+      const vote = parseChatPollVote(raw);
+      if (vote) {
+        handleChatPollVote(vote, msg.senderId);
         return;
       }
       const text = parseChatText(raw);

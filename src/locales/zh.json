@@ -82,6 +82,15 @@
   },
   "chat": {
     "draft": "草稿",
+    "createPoll": "创建投票",
+    "pollQuestion": "问题",
+    "pollQuestionPlaceholder": "输入问题",
+    "pollOption": "选项 {{n}}",
+    "pollRemoveOption": "删除选项",
+    "pollAddOption": "添加选项",
+    "pollVotes": "{{count}} 票",
+    "pollMultiple": "多选",
+    "pollClosed": "投票已结束",
     "videoNote": "视频笔记",
     "retry": "重试",
     "archive": "归档",
@@ -100,6 +109,10 @@
     "startCall": "开始通话",
     "mute": "静音",
     "unmute": "取消静音",
+    "mute1h": "静音 1 小时",
+    "mute8h": "静音 8 小时",
+    "mute2d": "静音 2 天",
+    "muteForever": "永久静音",
     "pin": "置顶",
     "unpin": "取消置顶",
     "markRead": "标为已读",
@@ -114,6 +127,14 @@
     "pinned": "已置顶",
     "unpinned": "已取消置顶",
     "deleteUnavailable": "删除不可用",
+    "deleteForEveryone": "为所有人删除",
+    "deleteForMe": "仅为我删除",
+    "jumpToDate": "跳转到日期",
+    "markAllRead": "全部标为已读",
+    "export": "导出聊天",
+    "exportDone": "聊天已导出",
+    "clearHistory": "清除历史记录",
+    "clearHistoryConfirm": "将删除此聊天中的所有消息。聊天本身仍保留在列表中。",
     "subscribers": {
       "one": "{{count}} 位订阅者",
       "other": "{{count}} 位订阅者"
@@ -967,7 +988,7 @@
     "cloudSyncPending": "{{count}} 项待同步",
     "cloudSyncSyncing": "同步中…",
     "company": "公司聊天",
-    "companySubtitle": "私人公司消息",
+    "companySubtitle": "团队聊天和网站嵌入代码",
     "companyVisibility": "settings.companyVisibility",
     "confirmClearCache": "将删除可重新下载的媒体和应用缓存。聊天、联系人、草稿、已保存消息和通话录音会保留。",
     "confirmPin": "确认 PIN",
@@ -1465,6 +1486,8 @@
     "tryAgain": "重试"
   },
   "stickers": {
+    "recent": "最近",
+    "icqUnlock": "解锁全部 {{total}} 个 ICQ 贴纸",
     "title": "贴纸",
     "all": "全部",
     "icq": "ICQ",
@@ -1474,6 +1497,7 @@
     "searchPlaceholder": "搜索贴纸..."
   },
   "company": {
+    "siteChatSection": "网站聊天",
     "orgName": "company.orgName",
     "orgId": "company.orgId",
     "connected": "company.connected",

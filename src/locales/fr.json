@@ -82,6 +82,15 @@
   },
   "chat": {
     "draft": "Brouillon",
+    "createPoll": "Créer un sondage",
+    "pollQuestion": "Question",
+    "pollQuestionPlaceholder": "Posez une question",
+    "pollOption": "Option {{n}}",
+    "pollRemoveOption": "Supprimer l'option",
+    "pollAddOption": "Ajouter une option",
+    "pollVotes": "{{count}} votes",
+    "pollMultiple": "Réponses multiples",
+    "pollClosed": "Sondage fermé",
     "videoNote": "Note vidéo",
     "retry": "Réessayer",
     "archive": "Archives",
@@ -100,6 +109,10 @@
     "startCall": "Démarrer l’appel",
     "mute": "Muet",
     "unmute": "Réactiver le son",
+    "mute1h": "Sourdine pendant 1 heure",
+    "mute8h": "Sourdine pendant 8 heures",
+    "mute2d": "Sourdine pendant 2 jours",
+    "muteForever": "Sourdine permanente",
     "pin": "Épingler",
     "unpin": "Désépingler",
     "markRead": "Marquer comme lu",
@@ -114,6 +127,14 @@
     "pinned": "Épinglé",
     "unpinned": "Désépinglé",
     "deleteUnavailable": "Suppression indisponible",
+    "deleteForEveryone": "Supprimer pour tout le monde",
+    "deleteForMe": "Supprimer pour moi",
+    "jumpToDate": "Aller à la date",
+    "markAllRead": "Tout marquer comme lu",
+    "export": "Exporter la discussion",
+    "exportDone": "Discussion exportée",
+    "clearHistory": "Effacer l'historique",
+    "clearHistoryConfirm": "Tous les messages de cette discussion seront supprimés. La discussion reste dans la liste.",
     "subscribers": {
       "one": "{{count}} abonné",
       "other": "{{count}} abonnés"
@@ -967,7 +988,7 @@
     "cloudSyncPending": "{{count}} en attente",
     "cloudSyncSyncing": "Synchronisation…",
     "company": "Chat d'entreprise",
-    "companySubtitle": "Messagerie privée d'entreprise",
+    "companySubtitle": "Chat d'équipe et code d'intégration du site",
     "companyVisibility": "Visibilité de l'entreprise",
     "confirmClearCache": "Les médias retéléchargeables et le cache de l'app seront supprimés. Discussions, contacts, brouillons, messages enregistrés et enregistrements d'appels sont conservés.",
     "confirmPin": "Confirmer le code PIN",
@@ -1465,6 +1486,8 @@
     "tryAgain": "Réessayer"
   },
   "stickers": {
+    "recent": "Récents",
+    "icqUnlock": "Débloquer les {{total}} stickers ICQ",
     "title": "Stickers",
     "all": "Tous",
     "icq": "ICQ",
@@ -1474,6 +1497,7 @@
     "searchPlaceholder": "Rechercher des stickers..."
   },
   "company": {
+    "siteChatSection": "Chat sur votre site",
     "orgName": "Entreprise",
     "orgId": "org_b64test123",
     "connected": "Connecté",

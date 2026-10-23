@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { useAppStore } from '../store'
 import { useI18n } from '../lib/i18n'
 import { releaseMessageMedia } from '../lib/messageMedia'
+import { sendChatDelete } from '../lib/p2p/deleteSync'
 import { toast } from '../components/ui/Toast'
 
 interface UseChatMessageActionsArgs {
@@ -11,6 +12,13 @@ interface UseChatMessageActionsArgs {
   onDelete?: (msg: any) => void
   onUpdateChat?: (chat: any) => void
 }
+
+/**
+ * Who the deletion applies to. `all` retracts the message on the peer too
+ * (only ever possible for our own bubbles), `me` removes it locally and leaves
+ * the other side untouched.
+ */
+export type DeleteScope = 'all' | 'me'
 
 /**
  * Encapsulates message forward / delete / multi-select logic for the chat
@@ -29,7 +37,14 @@ export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateCha
   )
 
   const handleDeleteMessage = useCallback(
-    (msg: any) => {
+    (msg: any, scope: DeleteScope = 'all') => {
+      // Own bubbles disappear on the peer too: a retraction that only cleans the
+      // sender's device is worse than no retraction, because the sender believes
+      // the message is gone. Best-effort — no bound peer means local-only.
+      if (msg?.sender === 'me' && scope === 'all') {
+        const chat = (useAppStore.getState().chats as any[]).find((c) => c.id === chatId)
+        if (chat) sendChatDelete(chat, msg.id)
+      }
       if (onDelete) {
         // A delegated host owns the whole removal, media included — releasing here
         // would be a guess about what it does with the message.
@@ -91,13 +106,18 @@ export function useChatMessageActions({ chatId, onForward, onDelete, onUpdateCha
   )
 
   const handleDeleteSelected = useCallback(
-    (_messages: any[]) => {
+    (_messages: any[], scope: DeleteScope = 'all') => {
       const chats = useAppStore.getState().chats as any[]
       // Read the doomed bubbles from the same source the removal below filters,
       // so the erased set can never drift from the removed set.
-      const doomed = (chats.find((c) => c.id === chatId)?.history ?? []).filter((m: any) =>
-        selectedIds.has(m.id),
-      )
+      const target = chats.find((c) => c.id === chatId)
+      const doomed = (target?.history ?? []).filter((m: any) => selectedIds.has(m.id))
+      // Bulk delete has the same contract as the single one: our own bubbles go
+      // away for the peer as well, otherwise a "cleared" chat still shows them
+      // on the other device with no way to fix it afterwards.
+      if (scope === 'all' && target && (!target.type || target.type === 'direct')) {
+        doomed.filter((m: any) => m.sender === 'me').forEach((m: any) => sendChatDelete(target, m.id))
+      }
       void releaseMessageMedia(doomed)
       const nextChats = chats.map((c) =>
         c.id === chatId

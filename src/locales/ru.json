@@ -82,6 +82,15 @@
   },
   "chat": {
     "draft": "Черновик",
+    "createPoll": "Создать опрос",
+    "pollQuestion": "Вопрос",
+    "pollQuestionPlaceholder": "Задайте вопрос",
+    "pollOption": "Вариант {{n}}",
+    "pollRemoveOption": "Удалить вариант",
+    "pollAddOption": "Добавить вариант",
+    "pollVotes": "Голосов: {{count}}",
+    "pollMultiple": "Несколько ответов",
+    "pollClosed": "Опрос закрыт",
     "videoNote": "Видеозаметка",
     "retry": "Повторить",
     "archive": "Архив",
@@ -100,6 +109,10 @@
     "startCall": "Начать звонок",
     "mute": "Отключить микрофон",
     "unmute": "Включить микрофон",
+    "mute1h": "Без звука на 1 час",
+    "mute8h": "Без звука на 8 часов",
+    "mute2d": "Без звука на 2 дня",
+    "muteForever": "Без звука навсегда",
     "pin": "Закрепить",
     "unpin": "Открепить",
     "markRead": "Отметить прочитанным",
@@ -114,6 +127,14 @@
     "pinned": "Закреплено",
     "unpinned": "Откреплено",
     "deleteUnavailable": "Удаление недоступно",
+    "deleteForEveryone": "Удалить у всех",
+    "deleteForMe": "Удалить у себя",
+    "jumpToDate": "Перейти к дате",
+    "markAllRead": "Отметить всё прочитанным",
+    "export": "Экспорт чата",
+    "exportDone": "Чат экспортирован",
+    "clearHistory": "Очистить историю",
+    "clearHistoryConfirm": "Все сообщения этого чата будут удалены. Сам чат останется в списке.",
     "subscribers": {
       "one": "{{count}} подписчик",
       "other": "{{count}} подписчиков"
@@ -967,7 +988,7 @@
     "cloudSyncPending": "В очереди: {{count}}",
     "cloudSyncSyncing": "Синхронизация…",
     "company": "Компания",
-    "companySubtitle": "Чат для сотрудников",
+    "companySubtitle": "Чат для сотрудников и код встраивания на сайт",
     "companyVisibility": "Видимость компании",
     "confirmClearCache": "Будут удалены перезагружаемые медиа и кэш приложения. Чаты, контакты, черновики, сохранённые сообщения и записи звонков останутся.",
     "confirmPin": "Подтвердите PIN",
@@ -1465,6 +1486,8 @@
     "tryAgain": "Попробовать снова"
   },
   "stickers": {
+    "recent": "Недавние",
+    "icqUnlock": "Открыть все {{total}} стикеров ICQ",
     "title": "Стикеры",
     "all": "Все",
     "icq": "ICQ",
@@ -1474,6 +1497,7 @@
     "searchPlaceholder": "Поиск стикеров..."
   },
   "company": {
+    "siteChatSection": "Чат на вашем сайте",
     "orgName": "Компания",
     "orgId": "org_b64test123",
     "connected": "Подключено",

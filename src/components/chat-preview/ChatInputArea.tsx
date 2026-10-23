@@ -53,6 +53,7 @@ interface ChatInputAreaProps {
   isSharingLiveLocation?: boolean;
   stopLiveLocationShare?: () => void;
   sendArticleMessage?: (url: string, title?: string) => void;
+  sendPoll?: (question: string, optionTexts: string[], multiple: boolean) => void;
   onUpdateChat?: (chat: any) => void;
   onPasteFiles?: (files: FileList | null) => void;
   onAction?: (action: string) => void;
@@ -93,6 +94,7 @@ function ChatInputAreaImpl({
   isSharingLiveLocation,
   stopLiveLocationShare,
   sendArticleMessage,
+  sendPoll,
     handleImageAttach,
     onUpdateChat,
     onPasteFiles,
@@ -213,6 +215,7 @@ function ChatInputAreaImpl({
         isSharingLiveLocation={isSharingLiveLocation}
         stopLiveLocationShare={stopLiveLocationShare}
         sendArticleMessage={sendArticleMessage}
+        sendPoll={sendPoll}
         t={t}
       />
 

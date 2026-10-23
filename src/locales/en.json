@@ -82,6 +82,15 @@
   },
   "chat": {
     "draft": "Draft",
+    "createPoll": "Create poll",
+    "pollQuestion": "Question",
+    "pollQuestionPlaceholder": "Ask a question",
+    "pollOption": "Option {{n}}",
+    "pollRemoveOption": "Remove option",
+    "pollAddOption": "Add option",
+    "pollVotes": "{{count}} votes",
+    "pollMultiple": "Multiple answers",
+    "pollClosed": "Poll closed",
     "videoNote": "Video note",
     "retry": "Retry",
     "archive": "Archive",
@@ -100,6 +109,10 @@
     "startCall": "Start Call",
     "mute": "Mute",
     "unmute": "Unmute",
+    "mute1h": "Mute for 1 hour",
+    "mute8h": "Mute for 8 hours",
+    "mute2d": "Mute for 2 days",
+    "muteForever": "Mute forever",
     "pin": "Pin",
     "unpin": "Unpin",
     "markRead": "Mark Read",
@@ -114,6 +127,14 @@
     "pinned": "Pinned",
     "unpinned": "Unpinned",
     "deleteUnavailable": "Delete unavailable",
+    "deleteForEveryone": "Delete for everyone",
+    "deleteForMe": "Delete for me",
+    "jumpToDate": "Jump to date",
+    "markAllRead": "Mark all as read",
+    "export": "Export chat",
+    "exportDone": "Chat exported",
+    "clearHistory": "Clear history",
+    "clearHistoryConfirm": "This will delete all messages in this chat. The chat itself stays in your list.",
     "subscribers": {
       "one": "{{count}} subscriber",
       "other": "{{count}} subscribers"
@@ -965,7 +986,7 @@
     "cloudSyncPending": "{{count}} pending",
     "cloudSyncSyncing": "Syncing…",
     "company": "Company Chat",
-    "companySubtitle": "Private company messaging",
+    "companySubtitle": "Team chat and website embed code",
     "companyVisibility": "Company Visibility",
     "confirmClearCache": "Re-downloadable media and the app cache will be removed. Chats, contacts, drafts, saved messages and call recordings are kept.",
     "confirmPin": "Confirm PIN",
@@ -1463,6 +1484,8 @@
     "tryAgain": "Try again"
   },
   "stickers": {
+    "recent": "Recent",
+    "icqUnlock": "Unlock all {{total}} ICQ stickers",
     "title": "Stickers",
     "all": "All",
     "icq": "ICQ",
@@ -1472,6 +1495,7 @@
     "searchPlaceholder": "Search stickers..."
   },
   "company": {
+    "siteChatSection": "Chat on your website",
     "orgName": "Company",
     "orgId": "org_b64test123",
     "connected": "Connected",

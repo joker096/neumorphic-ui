@@ -6,6 +6,7 @@ import { OfflineBanner } from "../status/OfflineBanner";
 import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useChatListData } from "../../hooks/useChatListData";
+import { useAppBadge } from "../../hooks/useAppBadge";
 
 export interface AppShellProps {
   theme: "light" | "dark";
@@ -117,6 +118,7 @@ function AppShellImpl({
     setChatSortBy,
     filteredChats,
     filteredChannels,
+    folderUnread,
     bots,
     archivedUnreadCount,
     toggleArchive,
@@ -125,6 +127,10 @@ function AppShellImpl({
     chats,
     setChats,
   } = useChatListData();
+
+  // OS badge + tab-title counter: the only signal a user gets while the tab is
+  // in the background, where an in-app badge is invisible.
+  useAppBadge(chatsUnread + companyUnread);
 
   const handleOpenPremium = () => {
     if (pushView) pushView("settings", "premium");
@@ -143,6 +149,7 @@ function AppShellImpl({
     setChatSortBy,
     filteredChats,
     filteredChannels,
+    folderUnread,
     bots,
     archivedUnreadCount,
     toggleArchive,

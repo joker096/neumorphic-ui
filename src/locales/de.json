@@ -82,6 +82,15 @@
   },
   "chat": {
     "draft": "Entwurf",
+    "createPoll": "Umfrage erstellen",
+    "pollQuestion": "Frage",
+    "pollQuestionPlaceholder": "Stelle eine Frage",
+    "pollOption": "Option {{n}}",
+    "pollRemoveOption": "Option entfernen",
+    "pollAddOption": "Option hinzufügen",
+    "pollVotes": "{{count}} Stimmen",
+    "pollMultiple": "Mehrere Antworten",
+    "pollClosed": "Umfrage beendet",
     "videoNote": "Videonotiz",
     "retry": "Wiederholen",
     "archive": "Archiv",
@@ -100,6 +109,10 @@
     "startCall": "Anruf starten",
     "mute": "Stummschalten",
     "unmute": "Stummschaltung aufheben",
+    "mute1h": "1 Stunde stummschalten",
+    "mute8h": "8 Stunden stummschalten",
+    "mute2d": "2 Tage stummschalten",
+    "muteForever": "Dauerhaft stummschalten",
     "pin": "Anheften",
     "unpin": "Loslösen",
     "markRead": "Als gelesen markieren",
@@ -114,6 +127,14 @@
     "pinned": "Angeheftet",
     "unpinned": "Nicht angeheftet",
     "deleteUnavailable": "Löschen nicht verfügbar",
+    "deleteForEveryone": "Für alle löschen",
+    "deleteForMe": "Für mich löschen",
+    "jumpToDate": "Zum Datum springen",
+    "markAllRead": "Alle als gelesen markieren",
+    "export": "Chat exportieren",
+    "exportDone": "Chat exportiert",
+    "clearHistory": "Verlauf löschen",
+    "clearHistoryConfirm": "Alle Nachrichten dieses Chats werden gelöscht. Der Chat bleibt in der Liste.",
     "subscribers": {
       "one": "{{count}} Abonnent",
       "other": "{{count}} Abonnenten"
@@ -967,7 +988,7 @@
     "cloudSyncPending": "{{count}} ausstehend",
     "cloudSyncSyncing": "Synchronisiere…",
     "company": "Firmen-Chat",
-    "companySubtitle": "Interner Firmenchat",
+    "companySubtitle": "Team-Chat und Website-Einbettungscode",
     "companyVisibility": "Company-Sichtbarkeit",
     "confirmClearCache": "Nachladbare Medien und App-Cache werden entfernt. Chats, Kontakte, Entwürfe, gespeicherte Nachrichten und Gesprächsaufnahmen bleiben erhalten.",
     "confirmPin": "PIN bestätigen",
@@ -1465,6 +1486,8 @@
     "tryAgain": "Erneut versuchen"
   },
   "stickers": {
+    "recent": "Zuletzt",
+    "icqUnlock": "Alle {{total}} ICQ-Sticker freischalten",
     "title": "Sticker",
     "all": "Alle",
     "icq": "ICQ",
@@ -1474,6 +1497,7 @@
     "searchPlaceholder": "Sticker suchen..."
   },
   "company": {
+    "siteChatSection": "Chat auf Ihrer Website",
     "orgName": "Unternehmen",
     "orgId": "org_b64test123",
     "connected": "Verbunden",

@@ -1,4 +1,5 @@
 import { useAppStore } from "../../../store";
+import { isChatMuteActive } from "../../../store/slices/chatSlice";
 import { playSound } from "../../sounds";
 import { sendTimeOf } from "../../../utils/chatUtils";
 import type { NotificationKind } from "../../../store/slices/notificationSlice";
@@ -39,8 +40,9 @@ export function appendIncomingToDmChat(chat: any, newMessage: any) {
 function notifyIncoming(chat: any, freshChat: any | undefined, msg: any) {
   const state = useAppStore.getState();
   const target = freshChat ?? chat;
-  // Muted chats keep their badge (like Telegram) but stay silent.
-  if (target.isMuted || target.muted) return;
+  // Muted chats keep their badge (like Telegram) but stay silent. Timed mutes
+  // are honoured here as well, so a lapse between sweep ticks never rings.
+  if (isChatMuteActive(target)) return;
   // Fall back to the defaults when the store is only partially wired (tests,
   // pre-hydration) instead of throwing on every incoming frame.
   const settings = state.notificationSettings ?? DEFAULT_NOTIFICATION_SETTINGS;

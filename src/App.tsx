@@ -16,6 +16,7 @@ import { useChatPresence } from './hooks/useChatPresence';
 import { useSoundSettingsSync } from './hooks/useSoundSettingsSync';
 import { useP2PMessages } from './hooks/useP2PMessages';
 import { useSelfDestructSweep } from './hooks/useSelfDestructSweep';
+import { useChatMuteExpiry } from './hooks/useChatMuteExpiry';
 import { useLiveLocationSweep } from './hooks/useLiveLocationSweep';
 import { useRefMessageActions } from './hooks/useRefMessageActions';
 import { useActiveChatWorkspace } from './hooks/useActiveChatWorkspace';
@@ -112,6 +113,11 @@ export default function App() {
   // messages + voice/file blobs) — the bubble component only hides expired
   // content, so without this the plaintext would live forever.
   useSelfDestructSweep({ activeChat, setActiveChat, setSavedMessages });
+
+  // Timed chat mutes ("Mute for 1 hour") lapse on their own — the deadline is
+  // absolute, so the sweep also runs once on mount to catch a mute that expired
+  // while the tab was closed.
+  useChatMuteExpiry();
 
   // Retire live-location shares and bubbles that outlived their deadline — the
   // timeout that ends a stream dies with the tab, and a peer that vanishes never

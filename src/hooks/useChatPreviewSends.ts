@@ -19,6 +19,8 @@ export interface ChatSendOverrides {
 import { applySelfDestruct } from './chatPreviewSends/outgoingMessage';
 import { createAttachmentHandlers } from './chatPreviewSends/attachments';
 import { useReactionToggle } from './chatPreviewSends/useReactionToggle';
+import { usePollVote } from './chatPreviewSends/usePollVote';
+import { sendPollMessage } from './chatPreviewSends/sendPoll';
 
 interface UseChatPreviewSendsArgs {
   chat: any;
@@ -41,6 +43,14 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
     onUpdateChat,
     setChatsStore,
   });
+  const { handlePollVote } = usePollVote({ chat, onUpdateChat, setChatsStore });
+  const sendPoll = (question: string, optionTexts: string[], multiple: boolean) =>
+    sendPollMessage(
+      { chat, onUpdateChat, queueOffline, updateMsgStatusInChat, markSendFailure, silent: draft.eSilentMode },
+      question,
+      optionTexts,
+      multiple,
+    );
   const { sendVideoNote, handleImageAttach, handleFileDrop } = createAttachmentHandlers({ sendFile, sendFiles });
 
   const updateMsgStatusInChat = useCallback((chatArg: any, msgId: string | number, status: string) => {
@@ -273,6 +283,8 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
     handleFileDrop,
     retryFailedMessage,
     handleReactionMessage,
+    handlePollVote,
+    sendPoll,
     activeReactionPicker,
     setActiveReactionPicker,
   };

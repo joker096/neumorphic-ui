@@ -22,8 +22,8 @@ interface UseChatPreviewInteractionsArgs {
   setSelectedContact: (contact: any) => void;
   setIsNearBottom: (nearBottom: boolean) => void;
   /** `useChatMessageActions` delete executors. */
-  handleDeleteMessage: (msg: any) => void;
-  handleDeleteSelected: (messages: any[]) => void;
+  handleDeleteMessage: (msg: any, scope?: "all" | "me") => void;
+  handleDeleteSelected: (messages: any[], scope?: "all" | "me") => void;
 }
 
 /**
@@ -47,18 +47,23 @@ export function useChatPreviewInteractions({
   handleDeleteSelected,
 }: UseChatPreviewInteractionsArgs) {
   const [profileOpen, setProfileOpen] = React.useState(false);
-  const [deleteConfirm, setDeleteConfirm] = React.useState<{ kind: "single" | "bulk"; msg?: any } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = React.useState<{
+    kind: "single" | "bulk";
+    msg?: any;
+    scope: "all" | "me";
+  } | null>(null);
 
-  const confirmSingleDelete = (msg: any) => setDeleteConfirm({ kind: "single", msg });
-  const confirmBulkDelete = () => {
+  const confirmSingleDelete = (msg: any, scope: "all" | "me" = "all") =>
+    setDeleteConfirm({ kind: "single", msg, scope });
+  const confirmBulkDelete = (scope: "all" | "me" = "all") => {
     if (selectedIds.size === 0) return;
-    setDeleteConfirm({ kind: "bulk" });
+    setDeleteConfirm({ kind: "bulk", scope });
   };
   const cancelDelete = () => setDeleteConfirm(null);
   const confirmDelete = () => {
     if (!deleteConfirm) return;
-    if (deleteConfirm.kind === "single") handleDeleteMessage(deleteConfirm.msg);
-    else handleDeleteSelected(chat.history || []);
+    if (deleteConfirm.kind === "single") handleDeleteMessage(deleteConfirm.msg, deleteConfirm.scope);
+    else handleDeleteSelected(chat.history || [], deleteConfirm.scope);
     setDeleteConfirm(null);
   };
 

@@ -11,3 +11,5 @@
 export * from './chatFrameCore';
 export * from './chatFrameInteraction';
 export * from './chatFrameVoice';
+export * from './chatFrameDelete';
+export * from './chatFramePoll';

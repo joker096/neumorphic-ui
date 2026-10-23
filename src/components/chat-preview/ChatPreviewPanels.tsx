@@ -46,6 +46,7 @@ export const ChatPreviewPanels = ({
     searchQuery, setSearchQuery,
     searchTypeFilter, setSearchTypeFilter,
     matchCount, activeMatch, goToPrevMatch, goToNextMatch,
+    jumpToDate,
     showMediaPanel,
     showFilterMenu, setShowFilterMenu,
     filterBySender, setFilterBySender,
@@ -97,6 +98,7 @@ export const ChatPreviewPanels = ({
         activeMatch={activeMatch}
         onPrevMatch={goToPrevMatch}
         onNextMatch={goToNextMatch}
+        onJumpToDate={jumpToDate}
       />
 
       <ChatMediaPanel

@@ -28,7 +28,7 @@ export const useChatListData = () => {
   const [chatSortBy, setChatSortBy] = useState<'recent' | 'alpha'>('recent');
   const [chatSearchQuery, setChatSearchQuery] = useState("");
 
-  const { filteredChats, filteredChannels } = useFilteredChats(
+  const { filteredChats, filteredChannels, folderUnread } = useFilteredChats(
     chats,
     chatSearchQuery,
     activeFolder,
@@ -55,6 +55,7 @@ export const useChatListData = () => {
     setChatSortBy,
     filteredChats,
     filteredChannels,
+    folderUnread,
     bots,
     archivedUnreadCount,
     toggleArchive,

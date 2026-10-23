@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createChatSlice, canGroupPermission, getGroupRole, groupPermissionsOf, DEFAULT_GROUP_PERMISSIONS } from './chatSlice';
+import { isChatMuteActive } from './chatSlice';
 
 const makeSlice = (initial: any = {}) => {
   let state: any = { ...initial };
@@ -229,5 +230,93 @@ describe('chatSlice', () => {
     expect(get().chats).toEqual([{ id: 'g1', type: 'group' }]);
     expect(get().archivedChats).toEqual([]);
     expect(get().pinnedMessageList).toEqual([]);
+  });
+});
+describe('chatSlice mute durations', () => {
+  it('setChatMuted writes BOTH keys so the list and the profile agree', () => {
+    const { slice, get } = makeSlice({ chats: [{ id: 'd1' }] });
+    slice.setChatMuted('d1', true);
+    const chat = get().chats[0];
+    expect(chat.isMuted).toBe(true);
+    expect(chat.muted).toBe(true);
+    slice.setChatMuted('d1', false);
+    expect(get().chats[0].isMuted).toBe(false);
+    expect(get().chats[0].muted).toBe(false);
+  });
+
+  it('setChatMuteUntil stores a deadline and "forever" stores no deadline', () => {
+    const { slice, get } = makeSlice({ chats: [{ id: 'd1' }] });
+    slice.setChatMuteUntil('d1', 1_000);
+    expect(get().chats[0].isMuted).toBe(true);
+    expect(get().chats[0].muteUntil).toBe(1_000);
+    slice.setChatMuteUntil('d1', 'forever');
+    expect(get().chats[0].isMuted).toBe(true);
+    expect(get().chats[0].muteUntil).toBeUndefined();
+    slice.setChatMuteUntil('d1', null);
+    expect(get().chats[0].isMuted).toBe(false);
+  });
+
+  it('expireChatMutes clears only the lapsed mutes and writes nothing when idle', () => {
+    const { slice, get } = makeSlice({
+      chats: [
+        { id: 'lapsed', isMuted: true, muted: true, muteUntil: 500 },
+        { id: 'later', isMuted: true, muted: true, muteUntil: 5_000 },
+        { id: 'forever', isMuted: true, muted: true },
+        { id: 'plain', isMuted: false },
+      ],
+    });
+    const before = get().chats;
+    slice.expireChatMutes(100);
+    expect(get().chats).toBe(before); // identity preserved: no persist churn
+    slice.expireChatMutes(1_000);
+    expect(get().chats[0].isMuted).toBe(false);
+    expect(get().chats[1].isMuted).toBe(true);
+    expect(get().chats[2].isMuted).toBe(true);
+    expect(get().chats[3].isMuted).toBe(false);
+  });
+
+  it('isChatMuteActive lapses a timed mute without waiting for the sweep', () => {
+    expect(isChatMuteActive({ isMuted: true, muteUntil: 2_000 }, 1_000)).toBe(true);
+    expect(isChatMuteActive({ isMuted: true, muteUntil: 2_000 }, 2_001)).toBe(false);
+    expect(isChatMuteActive({ muted: true })).toBe(true);
+    expect(isChatMuteActive({}, 0)).toBe(false);
+  });
+});
+
+describe('chatSlice clearChatHistory', () => {
+  it('drops bubbles and unread but keeps the chat and its settings', () => {
+    const { slice, get } = makeSlice({
+      chats: [
+        { id: 'c1', name: 'Ann', isMuted: true, folder: 'work', history: [{ id: 1 }], messages: [{ id: 1 }], unread: 3 },
+        { id: 'c2', name: 'Bob', history: [{ id: 2 }], unread: 5 },
+      ],
+    });
+
+    slice.clearChatHistory('c1');
+
+    const cleared = get().chats.find((c: any) => c.id === 'c1');
+    expect(cleared.history).toEqual([]);
+    expect(cleared.messages).toEqual([]);
+    expect(cleared.unread).toBe(0);
+    // Clearing is not deleting: the chat, its folder and its mute survive.
+    expect(cleared.name).toBe('Ann');
+    expect(cleared.folder).toBe('work');
+    expect(cleared.isMuted).toBe(true);
+    expect(get().chats.find((c: any) => c.id === 'c2')).toEqual({ id: 'c2', name: 'Bob', history: [{ id: 2 }], unread: 5 });
+  });
+
+  it('drops pins of the cleared chat and leaves other chats pinned', () => {
+    const { slice, get } = makeSlice({
+      chats: [{ id: 'c1', history: [] }, { id: 'c2', history: [] }],
+      pinnedMessageList: [
+        { id: 1, chatId: 'c1', pinBy: 'me', pinnedAt: 0 },
+        { id: 2, chatId: 'c2', pinBy: 'me', pinnedAt: 1 },
+      ],
+    });
+
+    slice.clearChatHistory('c1');
+
+    // A pin pointing at an erased bubble would render an empty pinned bar.
+    expect(get().pinnedMessageList).toEqual([{ id: 2, chatId: 'c2', pinBy: 'me', pinnedAt: 1 }]);
   });
 });

@@ -1,5 +1,7 @@
 import { encodeChatDeliveryAck, nextFrameSeq } from "../chatFrame";
 import type { ChatArticleFrame, ChatLocationFrame } from "../chatRichFrames";
+import type { ChatPollFrame } from "../chatFramePoll";
+import { createPoll } from "../../polls";
 import { p2pNetwork } from "../network";
 import { resolveInboundSelfDestruct } from "../../selfDestruct";
 import { formatClockTime } from "../../../utils/chatUtils";
@@ -68,6 +70,37 @@ export const handleChatArticle = (article: ChatArticleFrame, senderId: string) =
     seq: nextFrameSeq(),
     messageId: article.messageId,
     chatId: article.chatId,
+    timestamp: Date.now(),
+  })).catch(() => {});
+};
+
+/**
+ * Inbound poll message.
+ *
+ * Only the ballot is rebuilt locally (`createPoll` gives the same `opt_N` ids
+ * both sides), votes travel separately, so the receiver's totals start empty
+ * exactly like the sender's.
+ */
+export const handleChatPoll = (frame: ChatPollFrame, senderId: string) => {
+  const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "poll");
+  if (!chat) return;
+  appendIncomingToDmChat(chat, {
+    id: frame.messageId,
+    sender: chat.name,
+    type: "poll",
+    poll: createPoll(frame.question, frame.optionTexts, frame.multiple),
+    text: frame.question,
+    ts: frame.timestamp,
+    time: formatClockTime(frame.timestamp),
+    status: "delivered",
+    silent: frame.silent,
+    selfDestructAt: resolveInboundSelfDestruct(frame.ttlMs),
+  });
+  void p2pNetwork.sendAddressed(senderId, encodeChatDeliveryAck({
+    type: "chat-ack",
+    seq: nextFrameSeq(),
+    messageId: frame.messageId,
+    chatId: frame.chatId,
     timestamp: Date.now(),
   })).catch(() => {});
 };

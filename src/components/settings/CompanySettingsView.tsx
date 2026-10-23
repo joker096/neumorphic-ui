@@ -5,6 +5,7 @@ import { useI18n } from '../../lib/i18n'
 import { useAppStore } from '../../store'
 import { SettingsSectionTitle, SettingsToggleRow, SettingsRow, SettingsGroup } from '../ui/SettingsRow'
 import { toast } from '../ui/Toast'
+import { SiteChatManager } from '../company/SiteChatManager'
 import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 
 /** Caps label of a company settings block. */
@@ -149,10 +150,18 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
           </div>
         )}
 
+        {companyId && (
+          <div className="pb-0">
+            <div className="w-full">
+              <SettingsSectionTitle title={t('company.siteChatSection', 'Chat on your website')} isDark={isDark} />
+              <SiteChatManager isDark={isDark} />
+            </div>
+          </div>
+        )}
+
          <div className="pb-16 sm:pb-0">
            <div className="w-full">
-             <SettingsSectionTitle title={t('settings.companyVisibility')} isDark={isDark} />
-             <div className={"rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
+             <SettingsSectionTitle title={t('settings.companyVisibility')} isDark={isDark} />             <div className={"rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
                <SettingsToggleRow
                  icon={<Building2 size={16} />}
                   iconColor="t-accent"

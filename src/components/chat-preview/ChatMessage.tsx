@@ -18,6 +18,7 @@ import { MessageGutterAvatar } from "./message/MessageGutterAvatar";
 import { MessageDateSeparator, ExpiredMessage, MorseToggle } from "./message/MessageTextStates";
 import { MessageEditForm } from "./message/MessageEditForm";
 import { MessageFooter } from "./message/MessageFooter";
+import { MessagePoll } from "./message/MessagePoll";
 import { MESSAGE_SENDER_LABEL_CLASS } from "./chatPreviewClasses";
 
 interface ChatMessageProps {
@@ -45,6 +46,8 @@ interface ChatMessageProps {
   onSetActivePostId: (id: number | null) => void;
   onSetBounceMsgId: (id: string | number | null) => void;
   onReactionMessage: (msgId: string | number, emoji: string) => void;
+  /** Casts or retracts the local vote on a poll option. */
+  onPollVote?: (msgId: string | number, optionId: string) => void;
   onAction?: (action: string) => void;
   onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
@@ -70,7 +73,7 @@ function ChatMessageImpl({
   onSetActiveMediaMsg,
   onSetActiveReactionPicker, onSwipeReplyId,
   onSetVideoOpen, onSetShowComments, onSetActivePostId,
-  onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
+  onSetBounceMsgId, onReactionMessage, onPollVote, onAction, onForward, onDelete,
   onJumpToMessage, threadReplies, onOpenThread,
   selectionMode = false, selected = false, onToggleSelect, onSelect,
   onRetry,
@@ -169,6 +172,12 @@ function ChatMessageImpl({
             onSetActiveMediaMsg={onSetActiveMediaMsg}
           />
           {msg.type === "payment" && <PaymentChatBubble msg={msg} />}
+          {msg.type === "poll" && msg.poll && (
+            <MessagePoll
+              poll={msg.poll}
+              onVote={onPollVote ? (optionId: string) => onPollVote(msg.id, optionId) : undefined}
+            />
+          )}
           {msg.replyTo && (
             <ReplyQuote
               replyTo={msg.replyTo}
@@ -179,7 +188,7 @@ function ChatMessageImpl({
               }
             />
           )}
-          {msg.text && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && (
+          {msg.text && msg.type !== "sticker" && msg.type !== "payment" && msg.type !== "story" && msg.type !== "location" && msg.type !== "article" && msg.type !== "poll" && (
             editing ? (
               <MessageEditForm
                 initialText={typeof msg.text === "string" ? msg.text : ""}

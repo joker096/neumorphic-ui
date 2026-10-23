@@ -1,5 +1,5 @@
 import { useMemo, useRef } from "react";
-import { Trash2, ArrowDownAZ } from "lucide-react";
+import { Trash2, ArrowDownAZ, Eraser, CheckCheck } from "lucide-react";
 import { AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots } from "./chat-preview";
 import { ChatContextMenu } from "./chat-preview/ChatContextMenu";
 import { ConfirmDialog } from "./ui/ConfirmDialog";
@@ -26,6 +26,8 @@ interface ChatListViewProps {
   setChatSearchQuery: (query: string) => void;
   filteredChats: any[];
   filteredChannels: any[];
+  /** Unread totals per folder key, rendered as counters on the folder tabs. */
+  folderUnread?: Record<string, number>;
   bots: any[];
   archivedUnreadCount: number;
   toggleArchive: (id: string | number) => void;
@@ -64,6 +66,7 @@ export const ChatListView = ({
   setChatSearchQuery,
   filteredChats,
   filteredChannels,
+  folderUnread = {},
   bots,
   archivedUnreadCount,
   toggleArchive,
@@ -104,6 +107,7 @@ export const ChatListView = ({
     handleBulkArchive,
     handleBulkMarkRead,
     handleBulkMute,
+    handleMarkAllRead,
     menu,
     openMenu,
     closeMenu,
@@ -122,6 +126,12 @@ export const ChatListView = ({
 
   const pinnedChats = useMemo(() => filteredChats.filter((c: any) => c.pinned), [filteredChats]);
   const regularChats = useMemo(() => filteredChats.filter((c: any) => !c.pinned), [filteredChats]);
+  // "Mark all as read" is only worth a control when the visible list actually
+  // has unread chats — otherwise it is a tap that can never change anything.
+  const hasFilteredUnread = useMemo(
+    () => filteredChats.some((c: any) => Number(c.unread) > 0),
+    [filteredChats],
+  );
 
   const rows = useMemo(
     () => buildChatRows({ view, pinnedChats, regularChats, filteredChannels, t }),
@@ -189,10 +199,26 @@ export const ChatListView = ({
             setShowAdvancedFilterModal={setShowAdvancedFilterModal}
             t={t}
             segments={crmSegments}
+            folderUnread={folderUnread}
           />
-          {setChatSortBy && (
-            <div className="flex justify-end pb-2 -mt-1">
-              <button
+          {(setChatSortBy || hasFilteredUnread) && (
+            <div className="flex justify-end gap-1 pb-2 -mt-1">
+              {hasFilteredUnread && (
+                <button
+                  type="button"
+                  onClick={() => handleMarkAllRead(filteredChats.map((c: any) => c.id))}
+                  aria-label={t("chat.markAllRead", "Mark all as read")}
+                  title={t("chat.markAllRead", "Mark all as read")}
+                  className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full active:scale-95"
+                >
+                  <span className="px-3 py-0.5 rounded-full text-xs font-bold flex items-center gap-1 transition-colors bg-black/5 dark:bg-white/5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+                    <CheckCheck size={12} aria-hidden="true" />
+                    {t("chat.markAllRead", "Mark all as read")}
+                  </span>
+                </button>
+              )}
+              {setChatSortBy && (
+                <button
                 type="button"
                 onClick={() => setChatSortBy(chatSortBy === "alpha" ? "recent" : "alpha")}
                 aria-pressed={chatSortBy === "alpha"}
@@ -211,6 +237,7 @@ export const ChatListView = ({
                   {chatSortBy === "alpha" ? t("chat.sortByName", "By name") : t("chat.sortByRecent", "By date")}
                 </span>
               </button>
+              )}
             </div>
           )}
         </>
@@ -267,14 +294,22 @@ export const ChatListView = ({
         title={
           deleteConfirm?.kind === "bulk"
             ? t("chat.bulkDeleteConfirm", { count: selectedIds.size })
-            : t("chat.deleteChat")
+            : deleteConfirm?.kind === "clear"
+              ? t("chat.clearHistory")
+              : t("chat.deleteChat")
         }
-        message={deleteConfirm?.kind === "bulk" ? "" : t("chat.deleteConfirm")}
+        message={
+          deleteConfirm?.kind === "bulk"
+            ? ""
+            : deleteConfirm?.kind === "clear"
+              ? t("chat.clearHistoryConfirm")
+              : t("chat.deleteConfirm")
+        }
         variant="danger"
         theme={theme}
-        confirmLabel={t("chat.delete")}
+        confirmLabel={deleteConfirm?.kind === "clear" ? t("chat.clearHistory") : t("chat.delete")}
         cancelLabel={t("common.cancel")}
-        confirmIcon={<Trash2 size={18} />}
+        confirmIcon={deleteConfirm?.kind === "clear" ? <Eraser size={18} /> : <Trash2 size={18} />}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />

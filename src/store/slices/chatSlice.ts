@@ -69,7 +69,15 @@ export interface ChatSlice {
   deleteGroup: (chatId: string) => void;
   leaveGroup: (chatId: string, userId: string) => void;
   leaveChannel: (chatId: string | number) => void;
-  setChatMuted: (chatId: string, muted: boolean) => void;
+  setChatMuted: (chatId: string | number, muted: boolean) => void;
+  /**
+   * Timed mute (Telegram/WhatsApp presets). `until` is an absolute ms epoch,
+   * `"forever"` keeps the chat muted until it is unmuted by hand, and `null`
+   * unmutes immediately.
+   */
+  setChatMuteUntil: (chatId: string | number, until: number | "forever" | null) => void;
+  /** Drops timed mutes whose moment has passed; identity-preserving when idle. */
+  expireChatMutes: (now?: number) => void;
   setChats: (updater: any[] | ((prev: any[]) => any[])) => void;
   forwardMessage: (message: any, targetChatId: string) => void;
   contacts: Contact[];
@@ -85,11 +93,43 @@ export interface ChatSlice {
   toggleArchive: (id: string | number) => void;
   /** Mark a chat read (`unread = false`) or unread (`unread = true`, at least 1). */
   setChatUnread: (id: string | number, unread: boolean) => void;
+  /** Drop every bubble of one chat while keeping the chat itself in the list. */
+  clearChatHistory: (chatId: string | number) => void;
   pinChat: (chatId: string | number) => void;
   pinnedMessageList: Array<{ id: number; chatId: string | number; pinBy: string; pinnedAt: number }>;
   addPinnedMessage: (pin: { id: number; chatId: string | number; pinBy: string }) => void;
   removePinnedMessage: (id: number, chatId?: string | number) => void;
 }
+
+/**
+ * Chat mute is stored through ONE helper so the two historical keys stay in
+ * sync: `isMuted` is what the chat list, the swipe drawer and the mute icon
+ * read, while `muted` is still written for older persisted snapshots and for
+ * the notification gate that predates the rename. Writing either key alone made
+ * "mute from the profile" invisible in the list — a mute that never reached its
+ * own reader.
+ *
+ * A timed mute additionally carries `muteUntil` (absolute ms epoch); passing
+ * `undefined` clears it, which is how "forever" and "unmuted" differ.
+ */
+export const applyChatMute = (chat: any, muted: boolean, muteUntil?: number) => {
+  const next: any = { ...chat, isMuted: muted, muted };
+  if (muteUntil === undefined) delete next.muteUntil;
+  else next.muteUntil = muteUntil;
+  return next;
+};
+
+/**
+ * True while a chat's mute is in force. Timed mutes lapse on their own, so
+ * readers that must stay quiet even between sweep ticks (notifications) use
+ * this instead of the raw boolean.
+ */
+export const isChatMuteActive = (chat: any, now: number = Date.now()): boolean => {
+  if (!chat) return false;
+  const muted = !!(chat.isMuted ?? chat.muted);
+  if (!muted) return false;
+  return typeof chat.muteUntil === "number" ? chat.muteUntil > now : true;
+};
 
 export const createChatSlice = (set: any, get: any): ChatSlice => ({
   chats: [],
@@ -163,8 +203,26 @@ export const createChatSlice = (set: any, get: any): ChatSlice => ({
     pinnedMessageList: state.pinnedMessageList.filter((p: any) => p.chatId !== chatId),
   })),
   setChatMuted: (chatId, muted) => set((state: any) => ({
-    chats: state.chats.map((chat: any) => (chat.id === chatId ? { ...chat, muted } : chat)),
+    chats: state.chats.map((chat: any) => (chat.id === chatId ? applyChatMute(chat, muted) : chat)),
   })),
+  setChatMuteUntil: (chatId, until) => set((state: any) => ({
+    chats: state.chats.map((chat: any) => (chat.id === chatId
+      ? applyChatMute(chat, until !== null, typeof until === "number" ? until : undefined)
+      : chat)),
+  })),
+  expireChatMutes: (now = Date.now()) => set((state: any) => {
+    let changed = false;
+    const chats = state.chats.map((chat: any) => {
+      if (typeof chat.muteUntil === "number" && chat.muteUntil <= now) {
+        changed = true;
+        return applyChatMute(chat, false);
+      }
+      return chat;
+    });
+    // No expired mute → return no patch at all, so the persist subscriber does
+    // not write an identical snapshot every sweep tick.
+    return changed ? { chats } : {};
+  }),
   forwardMessage: (message: any, targetChatId: string) => {
     set((storeState: any) => {
       const anonymized = storeState.forwardAnonymization ? {
@@ -210,6 +268,14 @@ export const createChatSlice = (set: any, get: any): ChatSlice => ({
     chats: state.chats.map((c: any) => (
       c.id === id ? { ...c, unread: unread ? Math.max(1, Number(c.unread) || 0) : 0 } : c
     ))
+  })),
+  clearChatHistory: (chatId) => set((state: any) => ({
+    chats: state.chats.map((c: any) => (
+      c.id === chatId ? { ...c, history: [], messages: [], unread: 0 } : c
+    )),
+    // A pin points at a bubble that no longer exists; keeping it renders an
+    // empty pinned bar the user cannot dismiss from the chat header.
+    pinnedMessageList: state.pinnedMessageList.filter((p: any) => p.chatId !== chatId)
   })),
   pinChat: (chatId) => set((state: any) => {
     const pinnedCount = state.chats.filter((c: any) => c.pinned).length;

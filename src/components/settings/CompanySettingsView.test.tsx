@@ -36,6 +36,10 @@ vi.mock("../ui/Toast", () => ({
   toast: toastMock,
 }));
 
+vi.mock("../company/SiteChatManager", () => ({
+  SiteChatManager: () => <div data-testid="site-chat-manager" />,
+}));
+
 describe("CompanySettingsView", () => {
   beforeEach(() => {
     store.hideWhenOfficeOnly = false;
@@ -108,6 +112,15 @@ describe("CompanySettingsView", () => {
     expect(screen.queryByRole("button", { name: "Create Company" })).toBeNull();
     expect(screen.getByText("org_1")).toBeInTheDocument();
     expect(screen.getByText("Acme Corp")).toBeInTheDocument();
+  });
+
+  it("mounts the website-embed section only when a company exists", () => {
+    const { rerender } = render(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    expect(screen.queryByTestId("site-chat-manager")).toBeNull();
+
+    store.companyId = "org_1";
+    rerender(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    expect(screen.getByTestId("site-chat-manager")).toBeInTheDocument();
   });
 
   it("toggles the office-only visibility setting", () => {

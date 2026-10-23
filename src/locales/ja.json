@@ -82,6 +82,15 @@
   },
   "chat": {
     "draft": "下書き",
+    "createPoll": "投票を作成",
+    "pollQuestion": "質問",
+    "pollQuestionPlaceholder": "質問を入力",
+    "pollOption": "選択肢 {{n}}",
+    "pollRemoveOption": "選択肢を削除",
+    "pollAddOption": "選択肢を追加",
+    "pollVotes": "{{count}} 票",
+    "pollMultiple": "複数回答",
+    "pollClosed": "投票終了",
     "videoNote": "ビデオノート",
     "retry": "再試行",
     "archive": "アーカイブ",
@@ -100,6 +109,10 @@
     "startCall": "通話を開始",
     "mute": "ミュート",
     "unmute": "ミュート解除",
+    "mute1h": "1時間ミュート",
+    "mute8h": "8時間ミュート",
+    "mute2d": "2日間ミュート",
+    "muteForever": "常にミュート",
     "pin": "ピン留め",
     "unpin": "ピン解除",
     "markRead": "既読にする",
@@ -114,6 +127,14 @@
     "pinned": "ピン留め",
     "unpinned": "ピン留め解除",
     "deleteUnavailable": "削除は利用できません",
+    "deleteForEveryone": "全員から削除",
+    "deleteForMe": "自分のみ削除",
+    "jumpToDate": "日付へ移動",
+    "markAllRead": "すべて既読にする",
+    "export": "チャットをエクスポート",
+    "exportDone": "チャットをエクスポートしました",
+    "clearHistory": "履歴を消去",
+    "clearHistoryConfirm": "このチャットのすべてのメッセージを削除します。チャット自体は一覧に残ります。",
     "subscribers": {
       "one": "{{count}}人の購読者",
       "other": "{{count}}人の購読者"
@@ -967,7 +988,7 @@
     "cloudSyncPending": "{{count}} 件保留中",
     "cloudSyncSyncing": "同期中…",
     "company": "会社チャット",
-    "companySubtitle": "社内メッセージ",
+    "companySubtitle": "チームチャットとサイト埋め込みコード",
     "companyVisibility": "会社の表示設定",
     "confirmClearCache": "再ダウンロード可能なメディアとアプリキャッシュを削除します。チャット、連絡先、下書き、保存メッセージ、通話録音は保持されます。",
     "confirmPin": "PINを確認",
@@ -1465,6 +1486,8 @@
     "tryAgain": "再試行"
   },
   "stickers": {
+    "recent": "最近",
+    "icqUnlock": "ICQ ステッカー {{total}} 個を解放",
     "title": "ステッカー",
     "all": "すべて",
     "icq": "ICQ",
@@ -1474,6 +1497,7 @@
     "searchPlaceholder": "ステッカーを検索..."
   },
   "company": {
+    "siteChatSection": "ウェブサイトのチャット",
     "orgName": "会社",
     "orgId": "org_b64test123",
     "connected": "接続済み",

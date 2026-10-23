@@ -1,7 +1,7 @@
 import React from 'react'
 import { SearchInput } from '../ui/SearchInput'
 import { useI18n } from '../../lib/i18n'
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, CalendarDays } from "lucide-react";
 
 /** Round icon button of the chat search bar. */
 const ICON_BTN_CLASS = 'shrink-0 w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-40 enabled:hover:bg-black/10 dark:enabled:hover:bg-white/10 transition-colors cursor-pointer';
@@ -18,6 +18,7 @@ interface SearchBarProps {
   activeMatch?: number
   onPrevMatch?: () => void
   onNextMatch?: () => void
+  onJumpToDate?: (value: string) => void
 }
 
 const FILTERS: Array<{ key: 'all' | 'media' | 'files' | 'links'; labelKey: string; fallback: string }> = [
@@ -27,7 +28,7 @@ const FILTERS: Array<{ key: 'all' | 'media' | 'files' | 'links'; labelKey: strin
   { key: 'links', labelKey: 'chat.filters.links', fallback: 'Links' },
 ]
 
-export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchChange = () => {}, placeholder, searchTypeFilter = 'all', onSearchTypeChange = () => {}, matchCount = 0, activeMatch = 0, onPrevMatch, onNextMatch }: SearchBarProps) => {
+export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchChange = () => {}, placeholder, searchTypeFilter = 'all', onSearchTypeChange = () => {}, matchCount = 0, activeMatch = 0, onPrevMatch, onNextMatch, onJumpToDate }: SearchBarProps) => {
   const { t } = useI18n();
   if (!showSearch) return null
 
@@ -68,6 +69,19 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
             </button>
           );
         })}
+
+        {onJumpToDate && (
+          <label className="shrink-0 flex items-center gap-1.5 min-h-11 rounded-full px-3 border border-[var(--border-color)] text-[var(--text-secondary)]">
+            <CalendarDays size={14} aria-hidden="true" />
+            <input
+              type="date"
+              aria-label={t('chat.jumpToDate', 'Jump to date')}
+              title={t('chat.jumpToDate', 'Jump to date')}
+              onChange={(e) => { if (e.target.value) onJumpToDate(e.target.value); }}
+              className="bg-transparent text-xs text-[var(--text-primary)] outline-none"
+            />
+          </label>
+        )}
 
         {searchQuery.trim() !== '' && (
           <div className="shrink-0 ml-auto flex items-center gap-1 pl-2">

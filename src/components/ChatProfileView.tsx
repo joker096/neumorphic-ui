@@ -75,7 +75,7 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
   const ownerName = ownerMember?.name || (liveGroup?.ownerId === userProfile.id ? (userProfile.name || t('profile.you', 'You')) : undefined);
   const groupCreatedAt: number | undefined = liveChat?.createdAt;
   const groupPinned = kind === 'group' ? pinnedMessageList.filter((p: any) => p.chatId === chat.id) : [];
-  const isChatMuted = kind === 'group' || kind === 'channel' ? !!liveChat?.muted : muted;
+  const isChatMuted = kind === 'group' || kind === 'channel' ? !!((liveChat as any)?.isMuted ?? (liveChat as any)?.muted) : muted;
   const crmContacts = useAppStore((s) => s.crmContacts);
   const crmDeals = useAppStore((s) => s.crmDeals);
   const crmTasks = useAppStore((s) => s.crmTasks);

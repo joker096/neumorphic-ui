@@ -43,6 +43,8 @@ vi.mock('./ui/ConfirmDialog', () => ({
     props.isOpen ? (
       <div role="dialog">
         <span data-testid="confirm-title">{props.title}</span>
+        <span data-testid="confirm-message">{props.message}</span>
+        <span data-testid="confirm-label">{props.confirmLabel}</span>
         <button type="button" data-testid="confirm-cancel" onClick={props.onCancel}>{props.cancelLabel}</button>
         <button type="button" data-testid="confirm-confirm" onClick={props.onConfirm}>{props.confirmLabel}</button>
       </div>
@@ -58,6 +60,7 @@ const hookWith = vi.hoisted(() => (overrides: Record<string, any> = {}) => ({
   handleBulkDelete: vi.fn(),
   handleBulkMarkRead: vi.fn(),
   handleBulkMute: vi.fn(),
+  handleMarkAllRead: vi.fn(),
   menu: null,
   openMenu: vi.fn(),
   closeMenu: vi.fn(),
@@ -67,8 +70,10 @@ const hookWith = vi.hoisted(() => (overrides: Record<string, any> = {}) => ({
   handleMenuToggleUnread: vi.fn(),
   handleChatOpen: vi.fn(),
   handleMenuDelete: vi.fn(),
+  handleMenuClearHistory: vi.fn(),
   deleteConfirm: null,
   requestMenuDelete: vi.fn(),
+  requestClearHistory: vi.fn(),
   requestBulkDelete: vi.fn(),
   cancelDelete: vi.fn(),
   confirmDelete: vi.fn(),
@@ -239,6 +244,17 @@ describe('ChatListView delete confirmation (lifted ConfirmDialog)', () => {
     expect(screen.getByTestId('confirm-title')).toHaveTextContent('chat.bulkDeleteConfirm');
     fireEvent.click(screen.getByTestId('confirm-confirm'));
     expect(confirmDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('asks about history only, never about deleting the chat', () => {
+    vi.mocked(useChatListActions).mockImplementation(
+      () => hookWith({ deleteConfirm: { kind: 'clear', chat: { id: 'dm-1', name: 'Alice' } } }),
+    );
+
+    render(<ChatListView {...baseProps} />);
+
+    expect(screen.getByTestId('confirm-title')).toHaveTextContent('chat.clearHistory');
+    expect(screen.getByTestId('confirm-message')).toHaveTextContent('chat.clearHistoryConfirm');
   });
 });
 

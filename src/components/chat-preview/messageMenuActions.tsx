@@ -17,7 +17,7 @@ interface BuildMessageMenuArgs {
   onReply: (msg: any) => void;
   onToggleSavedMessage: (chat: any, msg: any) => void;
   onForward?: (msg: any) => void;
-  onDelete?: (msg: any) => void;
+  onDelete?: (msg: any, scope?: "all" | "me") => void;
   onTranslate: () => void;
   onEdit?: (msg: any) => void;
 }
@@ -30,6 +30,12 @@ export function buildMessageMenuActions({
     (p: any) => p.id === msg.id && p.chatId === chat.id,
   );
   const isSaved = chatSavedMessages.some((s: any) => s.messageId === msg.id);
+  // Retraction at the peer only exists for direct chats: the `chat-delete`
+  // frame is addressed to one peer, and group delivery has no per-member
+  // transport binding yet. Offering "delete for everyone" in a group would be
+  // a control that promises an effect it cannot have, so the row degrades to a
+  // plain local delete there.
+  const canRetract = !chat?.type || chat.type === "direct";
 
   return [
     ...(onSelect
@@ -105,13 +111,42 @@ export function buildMessageMenuActions({
         }]
       : []),
     ...(isMe
-      ? [{
-          key: "delete",
-          label: t("chat.delete", "Delete"),
-          icon: <Trash2 size={16} />,
-          danger: true,
-          onClick: () => (onDelete ? onDelete(msg) : toast(t("chat.deleteUnavailable", "Delete not available"))),
-        }]
-      : []),
+      ? canRetract
+        ? [
+            {
+              key: "delete",
+              label: t("chat.deleteForEveryone", "Delete for everyone"),
+              icon: <Trash2 size={16} />,
+              danger: true,
+              onClick: () => (onDelete ? onDelete(msg, "all") : toast(t("chat.deleteUnavailable", "Delete not available"))),
+            },
+            {
+              key: "delete-me",
+              label: t("chat.deleteForMe", "Delete for me"),
+              icon: <Trash2 size={16} />,
+              danger: true,
+              onClick: () => (onDelete ? onDelete(msg, "me") : toast(t("chat.deleteUnavailable", "Delete not available"))),
+            },
+          ]
+        : [
+            {
+              key: "delete",
+              label: t("chat.delete", "Delete"),
+              icon: <Trash2 size={16} />,
+              danger: true,
+              onClick: () => (onDelete ? onDelete(msg, "me") : toast(t("chat.deleteUnavailable", "Delete not available"))),
+            },
+          ]
+      : isChannel
+        ? []
+        : [
+            {
+              key: "delete",
+              label: t("chat.delete", "Delete"),
+              icon: <Trash2 size={16} />,
+              danger: true,
+              onClick: () => (onDelete ? onDelete(msg, "me") : toast(t("chat.deleteUnavailable", "Delete not available"))),
+            },
+          ]),
   ];
 }

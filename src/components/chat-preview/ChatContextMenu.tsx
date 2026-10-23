@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ComponentType } from "react";
-import { Pin, PinOff, BellOff, Bell, CheckCheck, Mail, Archive, ArchiveRestore, Trash2, CheckSquare } from "lucide-react";
+import { Pin, PinOff, BellOff, Bell, CheckCheck, Mail, Archive, ArchiveRestore, Trash2, CheckSquare, Eraser, Download } from "lucide-react";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useCoarsePointer } from "../../hooks/useCoarsePointer";
 import { MENU_WIDTH, MOUSE_ROW_HEIGHT, TOUCH_ROW_HEIGHT, VIEWPORT_MARGIN, resolveMenuPosition, type MenuAnchorRect } from "./menuPosition";
@@ -37,6 +37,8 @@ const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>
   unarchive: ArchiveRestore,
   delete: Trash2,
   select: CheckSquare,
+  clearHistory: Eraser,
+  export: Download,
 };
 
 export const buildMenuIcon = (id: string) => ICONS[id] ?? Pin;

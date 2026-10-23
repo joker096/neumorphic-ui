@@ -46,9 +46,9 @@ describe('buildMessageMenuActions', () => {
     h.pinned = [];
   });
 
-  it('builds reply/copy/translate/save/pin/forward without select', () => {
+  it('builds reply/copy/translate/save/pin/forward/delete without select', () => {
     const actions = buildMessageMenuActions(baseArgs());
-    expect(actions.map(a => a.key)).toEqual(['reply', 'copy', 'translate', 'save', 'pin', 'forward']);
+    expect(actions.map(a => a.key)).toEqual(['reply', 'copy', 'translate', 'save', 'pin', 'forward', 'delete']);
     expect(actions.find(a => a.key === 'reply')!.label).toBe('chat.reply');
   });
 
@@ -153,12 +153,18 @@ describe('buildMessageMenuActions', () => {
     expect(toast).toHaveBeenCalledWith('Forward not available');
   });
 
-  it('delete action for own messages calls onDelete', () => {
+  it('own messages offer delete-for-everyone and delete-for-me', () => {
     const onDelete = vi.fn();
     const actions = buildMessageMenuActions(baseArgs({ isMe: true, onDelete }));
-    expect(actions.map(a => a.key)).toContain('delete');
+    const keys = actions.map(a => a.key);
+    expect(keys).toContain('delete');
+    expect(keys).toContain('delete-me');
+
     actions.find(a => a.key === 'delete')!.onClick();
-    expect(onDelete).toHaveBeenCalledWith({ id: 1, text: 'hello' });
+    expect(onDelete).toHaveBeenLastCalledWith({ id: 1, text: 'hello' }, 'all');
+
+    actions.find(a => a.key === 'delete-me')!.onClick();
+    expect(onDelete).toHaveBeenLastCalledWith({ id: 1, text: 'hello' }, 'me');
   });
 
   it('delete action toasts when unavailable', () => {
@@ -167,10 +173,30 @@ describe('buildMessageMenuActions', () => {
     expect(toast).toHaveBeenCalledWith('Delete not available');
   });
 
-  it('foreign messages show no delete and no report stub', () => {
-    const actions = buildMessageMenuActions(baseArgs());
-    expect(actions.map(a => a.key)).not.toContain('delete');
-    expect(actions.map(a => a.key)).not.toContain('report');
+  it('foreign messages can be deleted locally only, and have no report stub', () => {
+    const onDelete = vi.fn();
+    const actions = buildMessageMenuActions(baseArgs({ onDelete }));
+    const keys = actions.map(a => a.key);
+    expect(keys).not.toContain('delete-me');
+    expect(keys).not.toContain('report');
+
+    actions.find(a => a.key === 'delete')!.onClick();
+    expect(onDelete).toHaveBeenCalledWith({ id: 1, text: 'hello' }, 'me');
+  });
+
+  it('groups get a plain local delete instead of an unkeepable "for everyone" promise', () => {
+    const onDelete = vi.fn();
+    const actions = buildMessageMenuActions(baseArgs({
+      isMe: true,
+      onDelete,
+      chat: { id: 'g1', name: 'Squad', type: 'group' },
+    }));
+    const keys = actions.map(a => a.key);
+    expect(keys).toContain('delete');
+    expect(keys).not.toContain('delete-me');
+
+    actions.find(a => a.key === 'delete')!.onClick();
+    expect(onDelete).toHaveBeenCalledWith({ id: 1, text: 'hello' }, 'me');
   });
 
   it('edit action appears for own text messages when onEdit given', () => {

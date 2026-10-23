@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Phone, Video, MessageSquare, Ban, Mail, Send, Star, StarOff, ShieldCheck, Bell, BellOff } from 'lucide-react';
 import { useAppStore } from '../store';
+import { isChatMuteActive } from '../store/slices/chatSlice';
 import { useI18n } from '../lib/i18n';
 import { SafetyNumberModal } from './SafetyNumberModal';
 import type { ContactField } from '../types/contact';
@@ -116,7 +117,7 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
 
   const overrideAvatar = contact ? contactAvatars[contact.name] : undefined;
   const storeContact = contact ? (contacts || []).find((c: any) => c.id === contact.id) : undefined;
-  const notificationsOn = storeContact ? !storeContact.muted : dmChat ? !((dmChat as any).muted) : !localMuted;
+  const notificationsOn = storeContact ? !storeContact.muted : dmChat ? !isChatMuteActive(dmChat) : !localMuted;
   const isBlocked = !!blockedContact?.isBlocked;
 
   const handleDelete = () => { onDelete?.(); onClose(); setConfirmAction(null); };

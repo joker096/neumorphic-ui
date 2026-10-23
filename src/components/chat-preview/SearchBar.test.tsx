@@ -38,4 +38,19 @@ describe('SearchBar', () => {
     render(<SearchBar {...base} />);
     expect(screen.getByRole('searchbox')).toBeInTheDocument();
   });
+
+  it('has no date control unless a jump handler is given', () => {
+    render(<SearchBar {...base} />);
+    expect(screen.queryByLabelText('chat.jumpToDate')).not.toBeInTheDocument();
+  });
+
+  it('jumps to the picked day and ignores an empty value', () => {
+    const onJumpToDate = vi.fn();
+    render(<SearchBar {...base} onJumpToDate={onJumpToDate} />);
+    const input = screen.getByLabelText('chat.jumpToDate');
+    fireEvent.change(input, { target: { value: '' } });
+    expect(onJumpToDate).not.toHaveBeenCalled();
+    fireEvent.change(input, { target: { value: '2024-05-10' } });
+    expect(onJumpToDate).toHaveBeenCalledWith('2024-05-10');
+  });
 });

@@ -124,6 +124,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     setShowComments, setActivePostId, setBounceMsgId,
     handleFileDrop,
     handleReactionMessage,
+    handlePollVote,
     retryFailedMessage,
     chatSavedMessages,
     stealthMode,
@@ -190,6 +191,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onSetActivePostId={setActivePostId}
         onSetBounceMsgId={setBounceMsgId}
         onReactionMessage={handleReactionMessage}
+        onPollVote={handlePollVote}
         onAction={onAction}
         onForward={msgActions.handleForwardMessage}
         onDelete={interactions.confirmSingleDelete}

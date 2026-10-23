@@ -67,6 +67,7 @@ export const ChatPreviewComposer = ({
     startLiveLocationShare,
     stopLiveLocationShare,
     sendArticleMessage,
+    sendPoll,
     handleImageAttach,
     handleFileDrop,
     sendVideoNote,
@@ -121,6 +122,7 @@ export const ChatPreviewComposer = ({
         stopLiveLocationShare={stopLiveLocationShare}
         isSharingLiveLocation={isSharingLiveLocation}
         sendArticleMessage={sendArticleMessage}
+        sendPoll={sendPoll}
         sendVoiceMessage={sendVoiceMessage}
         sendStickerMessage={sendStickerMessage}
         handleImageAttach={handleImageAttach}

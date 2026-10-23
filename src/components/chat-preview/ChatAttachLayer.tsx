@@ -1,6 +1,7 @@
 import React from "react";
-import { ChevronRight, FileText, Image as ImageIcon, Link2, MapPin, Music, Radio, Video as VideoIcon, X } from "lucide-react";
+import { BarChart3, ChevronRight, FileText, Image as ImageIcon, Link2, MapPin, Music, Radio, Video as VideoIcon, X } from "lucide-react";
 import { LiveLocationSheet } from "./LiveLocationSheet";
+import { PollComposerModal } from "./PollComposerModal";
 
 export interface ChatAttachLayerProps {
   /** Whether the attach menu is open. The layer itself stays mounted so a
@@ -19,6 +20,7 @@ export interface ChatAttachLayerProps {
   isSharingLiveLocation?: boolean;
   stopLiveLocationShare?: () => void;
   sendArticleMessage?: (url: string, title?: string) => void;
+  sendPoll?: (question: string, optionTexts: string[], multiple: boolean) => void;
   t: (key: string, opts?: any) => string;
 }
 
@@ -52,10 +54,12 @@ export function ChatAttachLayer({
   isSharingLiveLocation,
   stopLiveLocationShare,
   sendArticleMessage,
+  sendPoll,
   t,
 }: ChatAttachLayerProps) {
   const [showArticleInput, setShowArticleInput] = React.useState(false);
   const [showLiveSheet, setShowLiveSheet] = React.useState(false);
+  const [showPollComposer, setShowPollComposer] = React.useState(false);
   const [articleUrl, setArticleUrl] = React.useState("");
   const [error, setError] = React.useState("");
   const articleInputRef = React.useRef<HTMLInputElement>(null);
@@ -66,6 +70,16 @@ export function ChatAttachLayer({
 
   // The consent sheet is a separate overlay, so it must not be hidden by the
   // menu-closed early return below.
+  if (showPollComposer) {
+    return (
+      <PollComposerModal
+        open
+        onClose={() => setShowPollComposer(false)}
+        onSubmit={(question, optionTexts, multiple) => sendPoll?.(question, optionTexts, multiple)}
+      />
+    );
+  }
+
   if (showLiveSheet) {
     return (
       <LiveLocationSheet
@@ -186,6 +200,19 @@ export function ChatAttachLayer({
             >
               <Link2 size={24} className="text-[var(--accent)]" />
               {t("chat.article")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setError("");
+                setShowArticleInput(false);
+                onClose();
+                setShowPollComposer(true);
+              }}
+              className={tileClass}
+            >
+              <BarChart3 size={24} className="text-[var(--accent)]" />
+              {t("chat.createPoll")}
             </button>
           </div>
 

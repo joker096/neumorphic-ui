@@ -1,6 +1,8 @@
-import { encodeChatDeliveryAck, nextFrameSeq, type ChatEditFrame, type ChatPinFrame, type ChatReactionFrame, type ChatTextFrame } from "../chatFrame";
+import { encodeChatDeliveryAck, nextFrameSeq, type ChatDeleteFrame, type ChatEditFrame, type ChatPinFrame, type ChatPollVoteFrame, type ChatReactionFrame, type ChatTextFrame } from "../chatFrame";
 import { p2pNetwork } from "../network";
+import { applyVote } from "../../polls";
 import { resolveInboundSelfDestruct } from "../../selfDestruct";
+import { releaseMessageMedia } from "../../messageMedia";
 import { formatClockTime } from "../../../utils/chatUtils";
 import { useAppStore } from "../../../store";
 import { authorizeInboundChatFrame } from "./inboundGate";
@@ -120,4 +122,54 @@ export const handleChatPin = (frame: ChatPinFrame | null, senderId: string) => {
   } else {
     removePinnedMessage(target.id, chat.id);
   }
+};
+
+/**
+ * Inbound "delete for everyone".
+ *
+ * Only bubbles authored by the peer are removable: a frame must never erase
+ * what the local user wrote, so `sender === "me"` is dropped even when the id
+ * matches. Media (voice blob / file transfer / object URL) is released through
+ * the same helper the local delete path uses, otherwise the retraction would
+ * clean the bubble but leave the bytes behind. Unknown chats and messages are
+ * ignored, which makes a duplicated or late frame harmless.
+ */
+export const handleChatDelete = (frame: ChatDeleteFrame | null, senderId: string) => {
+  if (!frame) return;
+  const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "chat-delete");
+  if (!chat) return;
+  const state = useAppStore.getState();
+  const localChat = (state.chats || []).find((c: any) => String(c.id) === String(chat.id));
+  const target = (localChat?.history || []).find((m: any) => String(m.id) === frame.messageId);
+  if (!target || target.sender === "me") return;
+  void releaseMessageMedia([target]);
+  state.removePinnedMessage?.(target.id, chat.id);
+  state.setChats((prev: any[]) => prev.map((c: any) => (String(c.id) === String(chat.id)
+    ? { ...c, history: (c.history || []).filter((m: any) => String(m.id) !== String(target.id)) }
+    : c)));
+};
+
+/**
+ * Inbound poll vote.
+ *
+ * Only the poll payload is touched: the question/options belong to the sender's
+ * copy of the message, so a vote can never rewrite them. The voter identity is
+ * the frame's display name (the local user is never a remote voter), and votes
+ * on a closed poll are dropped — the sender's `closed` flag is authoritative.
+ */
+export const handleChatPollVote = (frame: ChatPollVoteFrame | null, senderId: string) => {
+  if (!frame) return;
+  const chat = authorizeInboundChatFrame(frame.chatId, frame.chatName, senderId, "chat-poll-vote");
+  if (!chat) return;
+  const state = useAppStore.getState();
+  const localChat = (state.chats || []).find((c: any) => String(c.id) === String(chat.id));
+  const target = (localChat?.history || []).find((m: any) => String(m.id) === frame.messageId);
+  if (!target?.poll || target.poll.closed) return;
+  const poll = applyVote(target.poll, frame.optionId, frame.senderName, frame.op);
+  state.setChats((prev: any[]) => prev.map((c: any) => (String(c.id) === String(chat.id)
+    ? {
+      ...c,
+      history: (c.history || []).map((m: any) => (String(m.id) === String(target.id) ? { ...m, poll } : m)),
+    }
+    : c)));
 };

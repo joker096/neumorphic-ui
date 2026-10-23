@@ -31,6 +31,8 @@ interface ChatMessageListProps {
   onSetActivePostId: (id: number | null) => void;
   onSetBounceMsgId: (id: string | number | null) => void;
   onReactionMessage: (msgId: string | number, emoji: string) => void;
+  /** Casts or retracts the local vote on a poll option. */
+  onPollVote?: (msgId: string | number, optionId: string) => void;
   onAction?: (action: string) => void;
   onForward?: (msg: any) => void;
   onDelete?: (msg: any) => void;
@@ -54,7 +56,7 @@ export function ChatMessageList({
   onReply, onToggleSavedMessage, onSetActivePhotoUrl, onSetPhotoOpen,
   onSetActiveMediaMsg,
   onSetActiveReactionPicker, onSwipeReplyId, onSetVideoOpen, onSetShowComments,
-  onSetActivePostId,   onSetBounceMsgId, onReactionMessage, onAction, onForward, onDelete,
+  onSetActivePostId,   onSetBounceMsgId, onReactionMessage, onPollVote, onAction, onForward, onDelete,
   onJumpToMessage, threadCountOf, onOpenThread,
   selectionMode, selectedIds, onToggleSelect, onSelect,
   onScrollPosition,
@@ -124,6 +126,7 @@ export function ChatMessageList({
           onSetActivePostId={onSetActivePostId}
           onSetBounceMsgId={onSetBounceMsgId}
           onReactionMessage={onReactionMessage}
+          onPollVote={onPollVote}
           onAction={onAction}
           onForward={onForward}
           onDelete={onDelete}
