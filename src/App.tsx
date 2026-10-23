@@ -26,6 +26,7 @@ import { useAppStoreBindings } from './hooks/useAppStoreBindings';
 import { useAppBootEffects } from './hooks/useAppBootEffects';
 import { useAppViewNavigation } from './hooks/useAppViewNavigation';
 import { useChatDraftSync } from './hooks/useChatDraftSync';
+import { useMessageLinkBoot } from './hooks/useMessageLinkBoot';
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { AppShell } from './components/app/AppShell';
 import { AppChrome } from './components/app/AppChrome';
@@ -108,6 +109,10 @@ export default function App() {
     view, setView, subView, setSubView, setNavOrigin,
     openChat, closeChat, pushView, goBack, openPremium,
   } = useAppViewNavigation({ contacts, chatReturnContext, setChatReturnContext, setActiveChat });
+
+  // `#nexus://chat/<chatId>/<messageId>` links (copied from the message menu)
+  // open the chat and scroll to the bubble once at boot.
+  useMessageLinkBoot({ openChat });
 
   // Self-destruct deadlines actually erase the message (store list + saved
   // messages + voice/file blobs) — the bubble component only hides expired

@@ -1,9 +1,10 @@
 import {
-  Check, Reply, Copy, Languages, Bookmark, Pin, Forward, Trash2, Pencil,
+  Check, Reply, Copy, Languages, Bookmark, Pin, Forward, Trash2, Pencil, Link2,
 } from "lucide-react";
 import { toast } from "../ui/Toast";
 import { useAppStore } from "../../store";
 import { sendChatPin } from "../../lib/p2p/pinSync";
+import { buildMessageLink } from "../../lib/chat/messageLink";
 import { type MessageContextAction } from "./MessageContextMenu";
 
 interface BuildMessageMenuArgs {
@@ -60,6 +61,17 @@ export function buildMessageMenuActions({
           onClick: () => {
             navigator.clipboard?.writeText(msg.text).catch(() => {});
             toast(t("chat.copied", "Copied"));
+          },
+        }]
+      : []),
+    ...(chat?.id != null && msg?.id != null
+      ? [{
+          key: "copy-link",
+          label: t("chat.copyLink", "Copy link"),
+          icon: <Link2 size={16} />,
+          onClick: () => {
+            navigator.clipboard?.writeText(buildMessageLink(chat.id, msg.id)).catch(() => {});
+            toast(t("chat.linkCopied", "Link copied"));
           },
         }]
       : []),

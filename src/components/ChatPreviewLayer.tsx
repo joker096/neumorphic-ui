@@ -78,7 +78,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
   const setChannels = useAppStore((s) => s.setChannels);
   const isSharingLiveLocation = useAppStore((s) => s.liveShare?.isLive === true);
 
-  const { forwardOpen, openForward, closeForward, forwardTo } = useMessageForward(chat);
+  const { forwardOpen, openForward, closeForward, forwardTo, forwardToMany } = useMessageForward(chat);
   const msgActions = useChatMessageActions({ chatId: chat.id, onForward: openForward, onDelete, onUpdateChat });
   const { selectionMode, selectedIds } = msgActions;
 
@@ -274,6 +274,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         forwardOpen={forwardOpen}
         closeForward={closeForward}
         forwardTo={forwardTo}
+        forwardToMany={forwardToMany}
       />
     </motion.div>
   );

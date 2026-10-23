@@ -48,7 +48,7 @@ describe('buildMessageMenuActions', () => {
 
   it('builds reply/copy/translate/save/pin/forward/delete without select', () => {
     const actions = buildMessageMenuActions(baseArgs());
-    expect(actions.map(a => a.key)).toEqual(['reply', 'copy', 'translate', 'save', 'pin', 'forward', 'delete']);
+    expect(actions.map(a => a.key)).toEqual(['reply', 'copy', 'copy-link', 'translate', 'save', 'pin', 'forward', 'delete']);
     expect(actions.find(a => a.key === 'reply')!.label).toBe('chat.reply');
   });
 
@@ -75,6 +75,20 @@ describe('buildMessageMenuActions', () => {
     actions.find(a => a.key === 'copy')!.onClick();
     expect(writeText).toHaveBeenCalledWith('secret text');
     expect(toast).toHaveBeenCalledWith('Copied');
+  });
+
+  it('copy-link action copies a deep link to the message', () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    (navigator as any).clipboard = { writeText };
+    const actions = buildMessageMenuActions(baseArgs({ msg: { id: 9, type: 'image' }, chat: { id: 'c1' } }));
+    actions.find(a => a.key === 'copy-link')!.onClick();
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('#nexus://chat/c1/9'));
+    expect(toast).toHaveBeenCalledWith('Link copied');
+  });
+
+  it('hides copy-link when the chat id is missing', () => {
+    const actions = buildMessageMenuActions(baseArgs({ chat: {} }));
+    expect(actions.map(a => a.key)).not.toContain('copy-link');
   });
 
   it('skips copy when clipboard missing', () => {

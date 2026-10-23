@@ -7,13 +7,11 @@ import { encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
 
 /**
- * Forwarding of one or many messages into a user-picked chat.
+ * Forwarding of one or many messages into one or several user-picked chats.
  *
- * The previous behaviour picked a chat on the user's behalf (Saved Messages
- * first, otherwise the first other chat) and wrote the copy into the legacy
- * `chat.messages` array, which no view renders — forwarded messages were
- * invisible. This hook keeps the choice with the user and writes to
- * `chat.history`, the field the message list actually reads.
+ * Copies are written to `chat.history` (the field the message list reads) and
+ * each one is put on the wire individually: a P2P frame carries one chat id,
+ * so forwarding to N chats is a loop, not a broadcast.
  */
 export function useMessageForward(sourceChat?: any) {
   const { t } = useI18n();
@@ -28,49 +26,70 @@ export function useMessageForward(sourceChat?: any) {
 
   const closeForward = useCallback(() => setPending(null), []);
 
-  const forwardTo = useCallback(
-    (target: any) => {
+  const deliver = useCallback(
+    (targets: any[]) => {
       const messages = pending;
-      if (!target || !messages?.length) return;
+      const valid = targets.filter(Boolean);
+      if (!messages?.length || valid.length === 0) return;
 
-      const now = Date.now();
       const status = navigator.onLine ? "sent" : "queued";
-      const copies = messages.map((msg, index) =>
-        buildForwardedMessage(msg, { now: now + index, status, sourceChatName: sourceChat?.name }),
-      );
+      const sender = useAppStore.getState().userProfile;
+      const perTarget = new Map<string, any[]>();
+
+      let offset = 0;
+      for (const target of valid) {
+        const copies = messages.map((msg, index) =>
+          buildForwardedMessage(msg, {
+            now: Date.now() + offset + index,
+            status,
+            sourceChatName: sourceChat?.name,
+          }),
+        );
+        offset += messages.length;
+        perTarget.set(String(target.id), copies);
+      }
 
       setChats((prev: any[]) =>
-        prev.map((c: any) =>
-          c.id === target.id ? { ...c, history: [...(c.history || []), ...copies] } : c,
-        ),
+        prev.map((c: any) => {
+          const copies = perTarget.get(String(c.id));
+          return copies ? { ...c, history: [...(c.history || []), ...copies] } : c;
+        }),
       );
 
-      const sender = useAppStore.getState().userProfile;
-      for (const copy of copies) {
-        if (!isWireForwardable(copy)) continue;
-        void p2pNetwork
-          .sendAddressed(
-            p2pNetwork.peerForChat(target.id) ?? p2pNetwork.peerForChatName(target.name),
-            encodeChatText({
-              type: "chat-text",
-              seq: nextFrameSeq(),
-              messageId: String(copy.id),
-              chatId: String(target.id),
-              chatName: String(target.name || ""),
-              senderName: sender?.name || sender?.username || "User",
-              text: String(copy.text || ""),
-              silent: false,
-              timestamp: copy.id,
-            }),
-          )
-          .catch(() => {});
+      for (const target of valid) {
+        for (const copy of perTarget.get(String(target.id)) ?? []) {
+          if (!isWireForwardable(copy)) continue;
+          void p2pNetwork
+            .sendAddressed(
+              p2pNetwork.peerForChat(target.id) ?? p2pNetwork.peerForChatName(target.name),
+              encodeChatText({
+                type: "chat-text",
+                seq: nextFrameSeq(),
+                messageId: String(copy.id),
+                chatId: String(target.id),
+                chatName: String(target.name || ""),
+                senderName: sender?.name || sender?.username || "User",
+                text: String(copy.text || ""),
+                silent: false,
+                timestamp: copy.id,
+              }),
+            )
+            .catch(() => {});
+        }
       }
 
       setPending(null);
-      toast(t("chat.forwarded", "Forwarded"));
+      toast(
+        valid.length > 1
+          ? t("chat.forwardedTo", { count: valid.length })
+          : t("chat.forwarded", "Forwarded"),
+      );
     },
     [pending, setChats, sourceChat?.name, t],
   );
+
+  const forwardTo = useCallback((target: any) => deliver([target]), [deliver]);
+  const forwardToMany = useCallback((targets: any[]) => deliver(targets), [deliver]);
 
   return {
     forwardOpen: pending !== null,
@@ -78,5 +97,6 @@ export function useMessageForward(sourceChat?: any) {
     openForward,
     closeForward,
     forwardTo,
+    forwardToMany,
   };
 }

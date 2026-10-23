@@ -62,6 +62,7 @@ describe("useMessageForward", () => {
     storeState.chats = [
       { id: "source", name: "Alice", history: [{ id: 1, sender: "Alice", type: "image" }] },
       { id: "target", name: "Bob", history: [] },
+      { id: "third", name: "Carol", history: [] },
     ];
     storeState.setChats.mockImplementation((updater: any) => {
       storeState.chats = updater(storeState.chats);
@@ -132,5 +133,44 @@ describe("useMessageForward", () => {
     expect(storeState.chats.find((c) => c.id === "target").history).toHaveLength(0);
     // The picker stays open so the user can retry with another chat.
     expect(screen.getByTestId("state")).toHaveTextContent("open:1");
+  });
+
+  it("fans a batch out to several chats at once", async () => {
+    render(<Harness sourceChat={{ id: "source", name: "Alice" }} onReady={(a) => (api = a)} />);
+
+    fireEvent.click(screen.getByText("forward-batch"));
+    await act(async () => {
+      api.forwardToMany([
+        { id: "target", name: "Bob" },
+        { id: "third", name: "Carol" },
+      ]);
+    });
+
+    const target = storeState.chats.find((c) => c.id === "target");
+    const third = storeState.chats.find((c) => c.id === "third");
+    expect(target.history.map((m: any) => m.text)).toEqual(["a", "b"]);
+    expect(third.history.map((m: any) => m.text)).toEqual(["a", "b"]);
+    // Copies keep the display order inside each chat and never share an id.
+    expect(target.history[0].id).toBeLessThan(target.history[1].id);
+    expect(new Set([...target.history, ...third.history].map((m: any) => m.id)).size).toBe(4);
+    expect(storeState.chats.find((c) => c.id === "source").history).toHaveLength(1);
+    expect(screen.getByTestId("state")).toHaveTextContent("closed");
+    await waitFor(() => expect(sent).toHaveLength(4));
+    expect(sent.map((frame) => parseChatText(String(frame)).chatId)).toEqual([
+      "target",
+      "target",
+      "third",
+      "third",
+    ]);
+  });
+
+  it("keeps the picker open when the multi-forward target list is empty", async () => {
+    render(<Harness sourceChat={{ id: "source", name: "Alice" }} onReady={(a) => (api = a)} />);
+
+    fireEvent.click(screen.getByText("forward-photo"));
+    await act(async () => api.forwardToMany([]));
+
+    expect(screen.getByTestId("state")).toHaveTextContent("open:1");
+    expect(storeState.chats.find((c) => c.id === "target").history).toHaveLength(0);
   });
 });

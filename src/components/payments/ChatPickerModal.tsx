@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react'
 import { useAppStore } from '../../store'
 import { createPortal } from 'react-dom'
-import { X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { useI18n } from '../../lib/i18n'
 import { useEscapeKey } from '../../hooks/useEscapeKey'
 import { BOLD_LABEL_CLASS } from '../ui/textClasses';
@@ -13,18 +14,54 @@ interface ChatPickerModalProps {
   title?: string
   /** Chat that cannot be picked, e.g. the source chat of a forward. */
   excludeChatId?: string | number | null
+  /**
+   * Turns the picker into a checkbox list with one confirm button, so a single
+   * action can reach several chats at once. Tapping a row only toggles it —
+   * nothing is sent until the footer button is pressed.
+   */
+  multiSelect?: boolean
+  /** Receives the whole selection in multi-select mode. */
+  onPickMany?: (chats: any[]) => void
 }
 
-export const ChatPickerModal = ({ open, onClose, onPick, title, excludeChatId }: ChatPickerModalProps) => {
+export const ChatPickerModal = ({
+  open,
+  onClose,
+  onPick,
+  title,
+  excludeChatId,
+  multiSelect = false,
+  onPickMany,
+}: ChatPickerModalProps) => {
   const { t } = useI18n()
   const chats = useAppStore((s: any) => s.chats || [])
+  const [selected, setSelected] = useState<string[]>([])
   useEscapeKey(onClose, open)
+
+  // A fresh open starts from an empty selection; reopening must not inherit
+  // the previous action's targets.
+  useEffect(() => {
+    if (!open) setSelected([])
+  }, [open])
 
   if (!open) return null
 
   const pickableChats = excludeChatId == null
     ? chats
     : chats.filter((c: any) => String(c.id) !== String(excludeChatId))
+
+  const toggle = (chat: any) => {
+    const id = String(chat.id)
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
+  }
+
+  const selectedChats = pickableChats.filter((c: any) => selected.includes(String(c.id)))
+
+  const confirm = () => {
+    if (selectedChats.length === 0) return
+    onPickMany?.(selectedChats)
+    setSelected([])
+  }
 
   return createPortal(
     <div
@@ -54,26 +91,55 @@ export const ChatPickerModal = ({ open, onClose, onPick, title, excludeChatId }:
               {t('chat.noChats')}
             </div>
           )}
-          {pickableChats.map((chat: any) => (
-            <button
-              key={chat.id}
-              onClick={() => onPick(chat)}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--bg-tertiary)] active:scale-[0.99] transition-transform"
-            >
-              <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--accent)] text-[var(--button-primary-text)] font-bold shrink-0">
-                {(chat.name || chat.title || '?').toString().slice(0, 1).toUpperCase()}
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-medium text-[var(--text-primary)] truncate">
-                  {chat.name || chat.title || t('chat.chatName', { id: chat.id })}
+          {pickableChats.map((chat: any) => {
+            const isSelected = multiSelect && selected.includes(String(chat.id))
+            return (
+              <button
+                key={chat.id}
+                onClick={() => (multiSelect ? toggle(chat) : onPick(chat))}
+                aria-pressed={multiSelect ? isSelected : undefined}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[var(--bg-tertiary)] active:scale-[0.99] transition-transform ${
+                  isSelected ? 'bg-[var(--accent-soft)]' : ''
+                }`}
+              >
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--accent)] text-[var(--button-primary-text)] font-bold shrink-0">
+                  {(chat.name || chat.title || '?').toString().slice(0, 1).toUpperCase()}
                 </span>
-                {chat.lastMessage && (
-                  <span className="block text-xs opacity-60 truncate">{chat.lastMessage}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-medium text-[var(--text-primary)] truncate">
+                    {chat.name || chat.title || t('chat.chatName', { id: chat.id })}
+                  </span>
+                  {chat.lastMessage && (
+                    <span className="block text-xs opacity-60 truncate">{chat.lastMessage}</span>
+                  )}
+                </span>
+                {multiSelect && (
+                  <span
+                    className={`flex items-center justify-center w-6 h-6 rounded-full border shrink-0 ${
+                      isSelected
+                        ? 'bg-[var(--accent)] border-[var(--accent)] text-[var(--ink-on-saturate)]'
+                        : 'border-[var(--text-tertiary)]/60 text-transparent'
+                    }`}
+                  >
+                    <Check size={14} />
+                  </span>
                 )}
-              </span>
-            </button>
-          ))}
+              </button>
+            )
+          })}
         </div>
+        {multiSelect && (
+          <div className="p-3 border-t border-[var(--border-color)]">
+            <button
+              type="button"
+              onClick={confirm}
+              disabled={selectedChats.length === 0}
+              className="w-full min-h-11 rounded-xl bg-[var(--accent)] text-[var(--ink-on-saturate)] text-sm font-semibold active:scale-[0.99] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {t('chat.forwardCount', { count: selectedChats.length })}
+            </button>
+          </div>
+        )}
       </div>
     </div>,
     document.body

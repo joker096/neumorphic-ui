@@ -15,6 +15,7 @@ vi.mock('../../lib/i18n', () => ({
 }));
 vi.mock('lucide-react', () => ({
   X: () => React.createElement('span', { 'data-testid': 'icon-x' }),
+  Check: () => React.createElement('span', { 'data-testid': 'icon-check' }),
 }));
 
 import { ChatPickerModal } from './ChatPickerModal';
@@ -139,5 +140,61 @@ describe('ChatPickerModal', () => {
 
     expect(screen.getByText('chat.noChats')).toBeInTheDocument();
     expect(screen.queryByText('Only chat')).not.toBeInTheDocument();
+  });
+
+  it('toggles rows instead of forwarding on tap in multi-select mode', () => {
+    chats.push({ id: 'a', name: 'Alice' });
+    const onPick = vi.fn();
+    render(<ChatPickerModal open onClose={() => {}} onPick={onPick} multiSelect onPickMany={() => {}} />);
+
+    fireEvent.click(screen.getByText('Alice'));
+
+    expect(onPick).not.toHaveBeenCalled();
+    expect(screen.getByText('Alice').closest('button')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('confirms the whole selection in one call', () => {
+    chats.push({ id: 'a', name: 'Alice' }, { id: 'b', name: 'Bob' });
+    const onPickMany = vi.fn();
+    render(
+      <ChatPickerModal open onClose={() => {}} onPick={() => {}} multiSelect onPickMany={onPickMany} />,
+    );
+
+    fireEvent.click(screen.getByText('Alice'));
+    fireEvent.click(screen.getByText('Bob'));
+    fireEvent.click(screen.getByText(/chat\.forwardCount/));
+
+    expect(onPickMany).toHaveBeenCalledTimes(1);
+    expect(onPickMany.mock.calls[0][0].map((c: any) => c.id)).toEqual(['a', 'b']);
+  });
+
+  it('keeps the confirm button disabled while nothing is selected', () => {
+    chats.push({ id: 'a', name: 'Alice' });
+    render(<ChatPickerModal open onClose={() => {}} onPick={() => {}} multiSelect onPickMany={() => {}} />);
+
+    expect(screen.getByText(/chat\.forwardCount/)).toBeDisabled();
+    fireEvent.click(screen.getByText('Alice'));
+    expect(screen.getByText(/chat\.forwardCount/)).not.toBeDisabled();
+  });
+
+  it('drops the previous selection when the picker closes', () => {
+    chats.push({ id: 'a', name: 'Alice' });
+    const { rerender } = render(
+      <ChatPickerModal open onClose={() => {}} onPick={() => {}} multiSelect onPickMany={() => {}} />,
+    );
+
+    fireEvent.click(screen.getByText('Alice'));
+    rerender(<ChatPickerModal open={false} onClose={() => {}} onPick={() => {}} multiSelect onPickMany={() => {}} />);
+    rerender(<ChatPickerModal open onClose={() => {}} onPick={() => {}} multiSelect onPickMany={() => {}} />);
+
+    expect(screen.getByText(/chat\.forwardCount/)).toBeDisabled();
+    expect(screen.getByText('Alice').closest('button')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('stays single-pick (no confirm button) outside multi-select mode', () => {
+    chats.push({ id: 'a', name: 'Alice' });
+    render(<ChatPickerModal open onClose={() => {}} onPick={() => {}} />);
+
+    expect(screen.queryByText(/chat\.forwardCount/)).not.toBeInTheDocument();
   });
 });
