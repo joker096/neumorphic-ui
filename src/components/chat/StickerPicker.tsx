@@ -9,7 +9,6 @@ import {
   getICQEmojiPath,
   getICQStickerSrc,
   getIcqStickerIds,
-  getIcqStickerTotal,
 } from "../../lib/icqEmojis";
 import { getRecentStickers, pushRecentSticker } from "../../lib/recentStickers";
 
@@ -37,12 +36,9 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
   const [search, setSearch] = useState('');
   const [recent, setRecent] = useState<string[]>(() => getRecentStickers());
 
-  const icqStickers = useMemo(() => getIcqStickerIds(premium), [premium]);
-  /** Upsell wording: the ICQ pack is trimmed by the free limit, not locked as a whole. */
-  const unlockLabelFor = (packId: string) =>
-    packId === 'icq'
-      ? t('stickers.icqUnlock', { total: getIcqStickerTotal() })
-      : t('premium.stickerLocked', 'This sticker pack is available with Premium');
+  const icqStickers = useMemo(() => getIcqStickerIds(), []);
+  /** Upsell wording for the generic locked packs (ICQ is fully unlocked now). */
+  const unlockLabelFor = (_packId: string) => t('premium.stickerLocked', 'This sticker pack is available with Premium');
 
   const allPacks = [
     ...(recent.length > 0 ? [{ id: 'recent', name: t('stickers.recent'), stickers: recent }] : []),
@@ -94,13 +90,6 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
           <div key={pack.id} className="flex flex-col gap-1">
             <div className="flex items-center justify-between gap-2">
               <div className={CAPS_TERTIARY_CLASS}>{pack.name}</div>
-              {/* Free tier gets only the first ICQ_FREE_STICKER_COUNT stickers;
-                  without this hint the trimmed set looks like the whole pack. */}
-              {pack.id === 'icq' && !premium && (
-                <span className="text-xs text-[var(--text-tertiary)]">
-                  {pack.stickers.length}/{getIcqStickerTotal()}
-                </span>
-              )}
             </div>
             <div className="flex gap-1 flex-wrap">
               {pack.stickers.map((st, idx) => {
@@ -125,8 +114,8 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
                   </button>
                 );
               })}
-              {/* Recent is a view, not a pack: nothing to unlock there. */}
-              {!premium && pack.id !== 'recent' && (
+              {/* Recent and ICQ (fully unlocked) are views, not locked packs. */}
+              {!premium && pack.id !== 'recent' && pack.id !== 'icq' && (
                 <button
                   onClick={() => {
                     if (onOpenPremium) {

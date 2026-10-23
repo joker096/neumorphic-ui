@@ -1,5 +1,4 @@
 import { ICQ_EMOJI_MAP as ICQ_EMOJI_DATA } from '../data/emojis/icq';
-import { ICQ_FREE_STICKER_COUNT } from '../config/premium';
 import { preloadICQTheme, getCachedEmoji } from './emojiCache';
 
 const UNICODE_TO_ICQ: Record<string, string> = {};
@@ -16,20 +15,10 @@ export function getICQStickerSrc(sticker: string, theme: 'light' | 'dark'): stri
   return icqId ? getICQEmojiPath(icqId, theme) : null;
 }
 
-export function getIcqStickerIds(premium: boolean): string[] {
-  const ids = ICQ_EMOJI_DATA.map(e => e.id);
-  return premium ? ids : ids.slice(0, ICQ_FREE_STICKER_COUNT);
-}
-
-/**
- * Size of the whole ICQ set. The free tier shows only
- * `ICQ_FREE_STICKER_COUNT` of these, so the picker needs the real total to
- * tell the user how many are behind the paywall.
- */
-export function getIcqStickerTotal(): number {
-  return ICQ_EMOJI_DATA.length;
+/** The whole ICQ set — available to every tier, not gated behind premium. */
+export function getIcqStickerIds(_premium?: boolean): string[] {
+  return ICQ_EMOJI_DATA.map(e => e.id);
 }
 
 export { ICQ_EMOJI_DATA as ICQ_EMOJI_MAP };
-
 export { preloadICQTheme, getCachedEmoji };

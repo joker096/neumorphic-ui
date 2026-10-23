@@ -27,9 +27,6 @@ export function getAttachmentLimit(premium: boolean): number {
   return premium ? PREMIUM_FILE_LIMITS.premium : PREMIUM_FILE_LIMITS.free
 }
 
-// Free tier unlocks the first N ICQ animated stickers; Premium unlocks the full pack.
-export const ICQ_FREE_STICKER_COUNT = 24
-
 // CRM tiering: free tier keeps the people directory; Premium unlocks the pipeline.
 export type CrmTabId = 'people' | 'deals' | 'tasks' | 'roles'
 

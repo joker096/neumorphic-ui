@@ -5,7 +5,7 @@ import { StickerPicker } from './StickerPicker';
 import { getRecentStickers, pushRecentSticker } from '../../lib/recentStickers';
 
 const mockGetIcqStickerIds = vi.hoisted(() =>
-  vi.fn((premium: boolean) => (premium ? ['icq:1', 'icq:2', 'icq:3'] : ['icq:1', 'icq:2'])),
+  vi.fn(() => ['icq:1', 'icq:2', 'icq:3']),
 );
 
 const mockToast = vi.hoisted(() => vi.fn());
@@ -112,15 +112,11 @@ describe('StickerPicker', () => {
     expect(screen.getAllByText('stickers.icq').length).toBe(2);
   });
 
-  it('limits the ICQ pack for the free tier', () => {
+  it('shows the full ICQ pack on every tier', () => {
     render(<StickerPicker {...defaultProps} />);
-    expect(mockGetIcqStickerIds).toHaveBeenCalledWith(false);
-  });
-
-  it('unlocks the full ICQ pack for premium', () => {
-    mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
-    render(<StickerPicker {...defaultProps} />);
-    expect(mockGetIcqStickerIds).toHaveBeenCalledWith(true);
+    expect(screen.getByAltText('icq:1')).toBeInTheDocument();
+    expect(screen.getByAltText('icq:2')).toBeInTheDocument();
+    expect(screen.getByAltText('icq:3')).toBeInTheDocument();
   });
 
   it('shows the premium teaser on non-ICQ packs for the free tier and toasts on click', () => {
@@ -147,19 +143,6 @@ describe('StickerPicker', () => {
     mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
     render(<StickerPicker {...defaultProps} />);
     expect(screen.queryByLabelText('premium.stickerLocked')).not.toBeInTheDocument();
-  });
-
-  it('shows the ICQ free limit and an ICQ-specific upsell', () => {
-    render(<StickerPicker {...defaultProps} />);
-    expect(screen.getByText('2/3')).toBeInTheDocument();
-    expect(screen.getByLabelText('stickers.icqUnlock')).toBeInTheDocument();
-  });
-
-  it('shows no ICQ limit or ICQ upsell once premium is on', () => {
-    mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
-    render(<StickerPicker {...defaultProps} />);
-    expect(screen.queryByText('2/3')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('stickers.icqUnlock')).not.toBeInTheDocument();
   });
 
   it('renders sticker and premium-teaser buttons with 44px tap targets (§2.2)', () => {
