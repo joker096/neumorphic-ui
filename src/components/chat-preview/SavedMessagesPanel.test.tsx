@@ -26,6 +26,8 @@ const baseProps = {
       'chat.savedItems': options ? `${options.n} items from ${options.chatName}` : '',
       'chat.unsave': 'Unsave',
       'chat.noSavedMessages': 'No saved messages yet',
+      'chat.savedNoResults': 'No matches',
+      'search.chatsOrMessages': 'Search',
     };
     return map[key] || key;
   },
@@ -85,5 +87,30 @@ describe('SavedMessagesPanel', () => {
       <SavedMessagesPanel {...baseProps} chatSavedMessages={[]} />,
     );
     expect(screen.getByText('No saved messages yet')).toBeInTheDocument();
+  });
+
+  it('filters saved messages by search query', () => {
+    render(<SavedMessagesPanel {...baseProps} />);
+    const input = screen.getByRole('searchbox');
+    fireEvent.change(input, { target: { value: 'Bob' } });
+    expect(screen.queryByText('Hey, how are you?')).not.toBeInTheDocument();
+    expect(screen.getByText('Sounds good!')).toBeInTheDocument();
+  });
+
+  it('shows a no-results hint when nothing matches', () => {
+    render(<SavedMessagesPanel {...baseProps} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'zzz' } });
+    expect(screen.getByText('No matches')).toBeInTheDocument();
+    expect(screen.queryByText('Hey, how are you?')).not.toBeInTheDocument();
+  });
+
+  it('clearing the query restores the full list', () => {
+    render(<SavedMessagesPanel {...baseProps} />);
+    const input = screen.getByRole('searchbox');
+    fireEvent.change(input, { target: { value: 'Alice' } });
+    expect(screen.queryByText('Sounds good!')).not.toBeInTheDocument();
+    fireEvent.change(input, { target: { value: '' } });
+    expect(screen.getByText('Sounds good!')).toBeInTheDocument();
+    expect(screen.getByText('Hey, how are you?')).toBeInTheDocument();
   });
 });

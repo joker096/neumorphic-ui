@@ -376,6 +376,7 @@
     "sectionPinned": "Pinned",
     "startVideoCall": "Start Video Call",
     "unsave": "Unsave",
+    "savedNoResults": "No matches",
     "noSavedMessages": "No saved messages yet",
     "openChat": "Open Chat",
     "noBotsHint": "Create a bot to automate tasks",

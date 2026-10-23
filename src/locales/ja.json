@@ -376,6 +376,7 @@
     "sectionPinned": "ピン留め",
     "startVideoCall": "ビデオ通話を開始",
     "unsave": "取消保存",
+    "savedNoResults": "該当なし",
     "noSavedMessages": "暂无保存的消息",
     "openChat": "チャットを開く",
     "noBotsHint": "タスクの自動化のためにボットを作成",

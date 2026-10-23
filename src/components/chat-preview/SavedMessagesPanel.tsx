@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Bookmark } from "lucide-react";
 import { sheetSurface, modalCloseClass } from "../ui/modalShared";
+import { SearchInput } from "../ui/SearchInput";
 import { CAPS_TERTIARY_CLASS, PRIMARY_TEXT_CLASS } from "../ui/textClasses";
 
 interface SavedMessagesPanelProps {
@@ -14,6 +15,13 @@ interface SavedMessagesPanelProps {
 }
 
 export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose, onToggleSavedMessage, t }: SavedMessagesPanelProps) => {
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? chatSavedMessages.filter((s: any) =>
+        [s.preview, s.sourceLabel, s.chatName].filter(Boolean).join(" ").toLowerCase().includes(q),
+      )
+    : chatSavedMessages;
   return (
     <AnimatePresence>
       {show && (
@@ -46,9 +54,26 @@ export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose,
 </button>
             </div>
             <div className="p-4 overflow-y-auto max-h-[calc(78vh-76px)]">
+              {chatSavedMessages.length > 0 && (
+                <div className="mb-3">
+                  <SearchInput
+                    value={query}
+                    onChange={setQuery}
+                    placeholder={t('search.chatsOrMessages', 'Search')}
+                    isDark={false}
+                    shape="pill"
+                    role="searchbox"
+                  />
+                </div>
+              )}
               {chatSavedMessages.length > 0 ? (
                 <div className="flex flex-col gap-3">
-                  {chatSavedMessages.slice().reverse().map((saved: any) => (
+                  {filtered.length === 0 ? (
+                    <div className={`py-12 text-center text-[var(--text-secondary)]`}>
+                      {t('chat.savedNoResults')}
+                    </div>
+                  ) : (
+                  filtered.slice().reverse().map((saved: any) => (
                     <div key={saved.key} className={`p-4 rounded-xl border bg-[var(--bg-tertiary)] border-[var(--border-color)]`}>
                       <div className="flex items-center justify-between gap-3 mb-2">
                         <div className={CAPS_TERTIARY_CLASS}>
@@ -71,7 +96,7 @@ export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose,
                         {saved.time}
                       </div>
                     </div>
-                  ))}
+                  )))}
                 </div>
               ) : (
                  <div className={`py-12 text-center text-[var(--text-secondary)]`}>
