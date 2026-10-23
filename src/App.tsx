@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { AppOverlays } from "./components/app";
 import { useMessageActions } from "./hooks/useMessageActions";
 import { useProfileActions } from "./hooks/useProfileActions";
@@ -28,6 +28,7 @@ import { useAppViewNavigation } from './hooks/useAppViewNavigation';
 import { useChatDraftSync } from './hooks/useChatDraftSync';
 import { useMessageLinkBoot } from './hooks/useMessageLinkBoot';
 import { useAppLocalUiState } from './hooks/useAppLocalUiState';
+import { useAppCallbacks } from './hooks/useAppCallbacks';
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { AppShell } from './components/app/AppShell';
 import { AppChrome } from './components/app/AppChrome';
@@ -153,11 +154,15 @@ export default function App() {
     view, chats, activeChat, setView, setSubView, setActiveChat, setChats, setActiveCall, openChat,
   );
 
-  // Top-level navigation is explicit (not drill-down): drop any recorded origin.
-  const handleNavigate = useCallback((target: string) => {
-    setNavOrigin(null);
-    baseHandleNavigate(target);
-  }, [baseHandleNavigate, setNavOrigin]);
+  const { handleNavigate, handleAddContactFromChat, onOpenSavedMessage } = useAppCallbacks({
+    baseHandleNavigate,
+    setNavOrigin,
+    setContacts,
+    uiSetShowAddContactFromChat: ui.setShowAddContactFromChat,
+    openChat,
+    chats,
+    channels,
+  });
 
   const {
     handleProfileCall,
@@ -173,12 +178,6 @@ export default function App() {
     handlePreviewCall, handlePreviewMessage,
   );
 
-  const handleAddContactFromChat = useCallback((name: string, id: string, color?: string, localFields?: any[]) => {
-    const newContact = { name, id, color: color || 'from-teal-400 to-emerald-500', lastSeen: Date.now(), localFields };
-    setContacts(prev => [newContact, ...prev]);
-    ui.setShowAddContactFromChat(false);
-  }, [setContacts, ui.setShowAddContactFromChat]);
-
   const refActions = useRefMessageActions({
     handleSendMessage,
     sendVoiceMessage,
@@ -186,12 +185,6 @@ export default function App() {
     handlePreviewCall,
     handlePreviewMessage,
   });
-
-  const onOpenSavedMessage = useCallback((chatId: string | number, messageId: string | number) => {
-    const chat = [...(chats ?? []), ...(channels ?? [])].find((c: any) => String(c?.id) === String(chatId));
-    if (!chat) return;
-    openChat({ ...chat, __jumpToMessageId: messageId });
-  }, [chats, channels, openChat]);
 
   const activeChatWorkspaceProps = useActiveChatWorkspace({
     theme,

@@ -11,9 +11,6 @@ import {
 } from './chatGroupActions';
 
 export {
-  type GroupRole,
-  type GroupPermission,
-  GROUP_ROLE_PERMISSIONS,
   type GroupPermissions,
   DEFAULT_GROUP_PERMISSIONS,
   type GroupMember,
