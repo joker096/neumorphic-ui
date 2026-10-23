@@ -1,23 +1,11 @@
 import { useState, useMemo } from "react";
 import { useAppStore } from "../store";
-import { isChatMuteActive, applyChatMute } from "../store/slices/chatSlice";
-import { HOUR_MS, DAY_MS } from "../constants/time";
+import { applyChatMute, isChatMuteActive } from "../store/slices/chatSlice";
 import { releaseMessageMedia } from "../lib/messageMedia";
 import { downloadChatExport } from "../lib/chatExport";
 import { toast } from "../components/ui/Toast";
-import { buildMenuIcon, type ContextMenuItem, type MenuAnchorRect } from "../components/chat-preview/ChatContextMenu";
-
-/**
- * Telegram-style mute presets offered by the chat context menu. "Forever" is
- * the historical behaviour (a plain muted flag), the rest store an absolute
- * deadline that `useChatMuteExpiry` clears once it passes.
- */
-const MUTE_PRESETS: Array<{ id: string; label: string; ms: number | "forever" }> = [
-  { id: "mute1h", label: "chat.mute1h", ms: HOUR_MS },
-  { id: "mute8h", label: "chat.mute8h", ms: 8 * HOUR_MS },
-  { id: "mute2d", label: "chat.mute2d", ms: 2 * DAY_MS },
-  { id: "muteForever", label: "chat.muteForever", ms: "forever" },
-];
+import { type MenuAnchorRect } from "../components/chat-preview/ChatContextMenu";
+import { buildChatListMenuItems, type ContextMenuItem } from "./chatListMenuItems";
 
 interface UseChatListActionsArgs {
   t: (key: string, options?: any) => string;
@@ -210,65 +198,21 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
 
   const menuItems: ContextMenuItem[] = useMemo(() => {
     if (!menu) return [];
-    return [
-      {
-        id: menu.chat.pinned ? "unpin" : "pin",
-        label: t(menu.chat.pinned ? "chat.unpin" : "chat.pin"),
-        icon: buildMenuIcon(menu.chat.pinned ? "unpin" : "pin"),
-        onClick: () => handleMenuPin(menu.chat),
-      },
-      ...(isChatMuteActive(menu.chat)
-        ? [{
-            id: "unmute",
-            label: t("chat.unmute"),
-            icon: buildMenuIcon("unmute"),
-            onClick: () => handleMenuMute(menu.chat),
-          }]
-        : MUTE_PRESETS.map(({ id, label, ms }) => ({
-            id,
-            label: t(label),
-            icon: buildMenuIcon("mute"),
-            onClick: () => handleMenuMuteFor(menu.chat, ms),
-          }))),
-      {
-        id: menu.chat.unread ? "markRead" : "markUnread",
-        label: t(menu.chat.unread ? "chat.markRead" : "chat.markUnread"),
-        icon: buildMenuIcon(menu.chat.unread ? "markRead" : "markUnread"),
-        onClick: () => handleMenuToggleUnread(menu.chat),
-      },
-      {
-        id: activeFolder === "archived" ? "unarchive" : "archive",
-        label: activeFolder === "archived" ? t("chat.unarchive") : t("chat.archive"),
-        icon: buildMenuIcon(activeFolder === "archived" ? "unarchive" : "archive"),
-        onClick: () => toggleArchive(menu.chat.id),
-      },
-      {
-        id: "select",
-        label: t("chat.select"),
-        icon: buildMenuIcon("select"),
-        onClick: () => handleMenuSelect(menu.chat),
-      },
-      {
-        id: "export",
-        label: t("chat.export"),
-        icon: buildMenuIcon("export"),
-        onClick: () => handleMenuExport(menu.chat),
-      },
-      {
-        id: "clearHistory",
-        label: t("chat.clearHistory"),
-        icon: buildMenuIcon("clearHistory"),
-        onClick: () => requestClearHistory(menu.chat),
-      },
-      {
-        id: "delete",
-        label: t("chat.delete"),
-        icon: buildMenuIcon("delete"),
-        danger: true,
-        onClick: () => requestMenuDelete(menu.chat),
-      },
-    ];
-  }, [menu, t, activeFolder, toggleArchive, activeChatId, setChatUnread]);
+    return buildChatListMenuItems({
+      chat: menu.chat,
+      activeFolder,
+      toggleArchive,
+      t,
+      onPin: handleMenuPin,
+      onMute: handleMenuMute,
+      onMuteFor: handleMenuMuteFor,
+      onToggleUnread: handleMenuToggleUnread,
+      onSelect: handleMenuSelect,
+      onExport: handleMenuExport,
+      onClearHistory: requestClearHistory,
+      onDelete: requestMenuDelete,
+    });
+  }, [menu, t, activeFolder, toggleArchive]);
 
   return {
     selectMode,
