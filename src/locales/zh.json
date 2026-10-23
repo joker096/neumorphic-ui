@@ -133,6 +133,7 @@
     "deleteUnavailable": "删除不可用",
     "deleteForEveryone": "为所有人删除",
     "deleteForMe": "仅为我删除",
+    "captionPlaceholder": "添加说明",
     "jumpToDate": "跳转到日期",
     "markAllRead": "全部标为已读",
     "export": "导出聊天",

@@ -3,6 +3,7 @@ import { useAppStore } from "../store";
 import { useI18n } from "../lib/i18n";
 import { toast } from "../components/ui/Toast";
 import { buildForwardedMessage, isWireForwardable } from "../utils/messageForward";
+import { formatClockTime } from "../utils/chatUtils";
 import { encodeChatText, nextFrameSeq } from "../lib/p2p/chatFrame";
 import { p2pNetwork } from "../lib/p2p/network";
 
@@ -17,10 +18,12 @@ export function useMessageForward(sourceChat?: any) {
   const { t } = useI18n();
   const setChats = useAppStore((s) => s.setChats);
   const [pending, setPending] = useState<any[] | null>(null);
+  const [caption, setCaption] = useState("");
 
   const openForward = useCallback((payload: any) => {
     const list = (Array.isArray(payload) ? payload : [payload]).filter(Boolean);
     if (list.length === 0) return;
+    setCaption("");
     setPending(list);
   }, []);
 
@@ -35,18 +38,36 @@ export function useMessageForward(sourceChat?: any) {
       const status = navigator.onLine ? "sent" : "queued";
       const sender = useAppStore.getState().userProfile;
       const perTarget = new Map<string, any[]>();
+      const captionText = caption.trim();
 
       let offset = 0;
       for (const target of valid) {
-        const copies = messages.map((msg, index) =>
-          buildForwardedMessage(msg, {
-            now: Date.now() + offset + index,
+        const produced: any[] = [];
+        if (captionText) {
+          // The caption is a normal outgoing text message that lands above the
+          // forwarded copies, like Telegram's "add your own text" on forward.
+          produced.push({
+            id: Date.now() + offset,
+            sender: "me",
+            ts: Date.now() + offset,
+            time: formatClockTime(Date.now() + offset),
             status,
-            sourceChatName: sourceChat?.name,
-          }),
-        );
+            silent: false,
+            text: captionText,
+          });
+          offset += 1;
+        }
+        messages.forEach((msg, index) => {
+          produced.push(
+            buildForwardedMessage(msg, {
+              now: Date.now() + offset + index,
+              status,
+              sourceChatName: sourceChat?.name,
+            }),
+          );
+        });
         offset += messages.length;
-        perTarget.set(String(target.id), copies);
+        perTarget.set(String(target.id), produced);
       }
 
       setChats((prev: any[]) =>
@@ -79,13 +100,14 @@ export function useMessageForward(sourceChat?: any) {
       }
 
       setPending(null);
+      setCaption("");
       toast(
         valid.length > 1
           ? t("chat.forwardedTo", { count: valid.length })
           : t("chat.forwarded", "Forwarded"),
       );
     },
-    [pending, setChats, sourceChat?.name, t],
+    [pending, caption, setChats, sourceChat?.name, t],
   );
 
   const forwardTo = useCallback((target: any) => deliver([target]), [deliver]);
@@ -98,5 +120,7 @@ export function useMessageForward(sourceChat?: any) {
     closeForward,
     forwardTo,
     forwardToMany,
+    caption,
+    setCaption,
   };
 }

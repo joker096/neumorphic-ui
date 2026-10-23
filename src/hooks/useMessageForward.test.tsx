@@ -173,4 +173,25 @@ describe("useMessageForward", () => {
     expect(screen.getByTestId("state")).toHaveTextContent("open:1");
     expect(storeState.chats.find((c) => c.id === "target").history).toHaveLength(0);
   });
+
+  it("prepends the caption as a normal outgoing text message above the copies", async () => {
+    render(<Harness sourceChat={{ id: "source", name: "Alice" }} onReady={(a) => (api = a)} />);
+
+    fireEvent.click(screen.getByText("forward-batch"));
+    await act(async () => api.setCaption("note"));
+    await act(async () => api.forwardTo({ id: "target", name: "Bob" }));
+
+    const target = storeState.chats.find((c) => c.id === "target");
+    expect(target.history).toHaveLength(3);
+    // Caption is a plain outgoing text message — no "forwarded" marker.
+    expect(target.history[0]).toMatchObject({ sender: "me", text: "note" });
+    expect(target.history[0].forwarded).toBeUndefined();
+    expect(target.history[1].text).toBe("a");
+    expect(target.history[2].text).toBe("b");
+
+    // The caption goes on the wire first, followed by the copies.
+    await waitFor(() => expect(sent).toHaveLength(3));
+    const texts = sent.map((frame) => parseChatText(String(frame)).text);
+    expect(texts).toEqual(["note", "a", "b"]);
+  });
 });

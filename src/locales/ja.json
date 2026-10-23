@@ -133,6 +133,7 @@
     "deleteUnavailable": "削除は利用できません",
     "deleteForEveryone": "全員から削除",
     "deleteForMe": "自分のみ削除",
+    "captionPlaceholder": "キャプションを追加",
     "jumpToDate": "日付へ移動",
     "markAllRead": "すべて既読にする",
     "export": "チャットをエクスポート",

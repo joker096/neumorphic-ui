@@ -133,6 +133,7 @@
     "deleteUnavailable": "삭제 사용 불가",
     "deleteForEveryone": "모두에게서 삭제",
     "deleteForMe": "나에게서만 삭제",
+    "captionPlaceholder": "캡션 추가",
     "jumpToDate": "날짜로 이동",
     "markAllRead": "모두 읽음으로 표시",
     "export": "채팅 내보내기",

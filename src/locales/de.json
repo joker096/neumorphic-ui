@@ -133,6 +133,7 @@
     "deleteUnavailable": "Löschen nicht verfügbar",
     "deleteForEveryone": "Für alle löschen",
     "deleteForMe": "Für mich löschen",
+    "captionPlaceholder": "Untertitel hinzufügen",
     "jumpToDate": "Zum Datum springen",
     "markAllRead": "Alle als gelesen markieren",
     "export": "Chat exportieren",

@@ -133,6 +133,7 @@
     "deleteUnavailable": "Delete unavailable",
     "deleteForEveryone": "Delete for everyone",
     "deleteForMe": "Delete for me",
+    "captionPlaceholder": "Add a caption",
     "jumpToDate": "Jump to date",
     "markAllRead": "Mark all as read",
     "export": "Export chat",

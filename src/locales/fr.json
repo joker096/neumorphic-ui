@@ -133,6 +133,7 @@
     "deleteUnavailable": "Suppression indisponible",
     "deleteForEveryone": "Supprimer pour tout le monde",
     "deleteForMe": "Supprimer pour moi",
+    "captionPlaceholder": "Ajouter une légende",
     "jumpToDate": "Aller à la date",
     "markAllRead": "Tout marquer comme lu",
     "export": "Exporter la discussion",

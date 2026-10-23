@@ -14,6 +14,9 @@ interface ChatPreviewDialogsProps {
   forwardTo: (chatId: string | number) => void;
   /** Multi-target forward: one action may reach several chats. */
   forwardToMany?: (chats: any[]) => void;
+  /** Caption for the forward (optional). */
+  caption?: string;
+  setCaption?: (value: string) => void;
 }
 
 /** Modal layer of the chat preview: delete confirmation and the forward picker. */
@@ -26,6 +29,8 @@ export const ChatPreviewDialogs = ({
   closeForward,
   forwardTo,
   forwardToMany,
+  caption,
+  setCaption,
 }: ChatPreviewDialogsProps) => {
   const { deleteConfirm, selectedCount, confirmDelete, cancelDelete } = interactions;
 
@@ -56,6 +61,8 @@ export const ChatPreviewDialogs = ({
         multiSelect={Boolean(forwardToMany)}
         title={t("chat.forward", "Forward")}
         excludeChatId={chat.id}
+        caption={caption}
+        onCaptionChange={setCaption}
       />
     </>
   );

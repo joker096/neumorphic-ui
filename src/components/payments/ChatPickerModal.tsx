@@ -22,6 +22,11 @@ interface ChatPickerModalProps {
   multiSelect?: boolean
   /** Receives the whole selection in multi-select mode. */
   onPickMany?: (chats: any[]) => void
+  /** Optional caption for a forward: rendered above the list when both caption
+   *  props are present. Payments single-select never passes them, so none of
+   *  the existing call sites change. */
+  caption?: string
+  onCaptionChange?: (value: string) => void
 }
 
 export const ChatPickerModal = ({
@@ -32,6 +37,8 @@ export const ChatPickerModal = ({
   excludeChatId,
   multiSelect = false,
   onPickMany,
+  caption,
+  onCaptionChange,
 }: ChatPickerModalProps) => {
   const { t } = useI18n()
   const chats = useAppStore((s: any) => s.chats || [])
@@ -85,6 +92,17 @@ export const ChatPickerModal = ({
   <X size={18} />
 </button>
         </div>
+        {onCaptionChange && (
+          <div className="px-4 pb-1">
+            <textarea
+              value={caption ?? ""}
+              onChange={(e) => onCaptionChange(e.target.value)}
+              placeholder={t('chat.captionPlaceholder')}
+              rows={2}
+              className="w-full resize-none rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-color)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--accent)]"
+            />
+          </div>
+        )}
         <div className="max-h-[60vh] overflow-y-auto">
           {pickableChats.length === 0 && (
             <div className="p-4 text-center text-sm text-[var(--text-primary)] opacity-60">

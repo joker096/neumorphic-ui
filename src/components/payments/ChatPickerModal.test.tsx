@@ -197,4 +197,28 @@ describe('ChatPickerModal', () => {
 
     expect(screen.queryByText(/chat\.forwardCount/)).not.toBeInTheDocument();
   });
+
+  it('renders a caption textarea only when caption props are present and wires changes', () => {
+    const onCaptionChange = vi.fn();
+    render(
+      <ChatPickerModal
+        open
+        onClose={() => {}}
+        onPick={() => {}}
+        caption=""
+        onCaptionChange={onCaptionChange}
+      />,
+    );
+
+    expect(screen.getByPlaceholderText('chat.captionPlaceholder')).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText('chat.captionPlaceholder'), {
+      target: { value: 'note' },
+    });
+    expect(onCaptionChange).toHaveBeenCalledWith('note');
+  });
+
+  it('omits the caption textarea in the payments single-pick mode', () => {
+    render(<ChatPickerModal open onClose={() => {}} onPick={() => {}} />);
+    expect(screen.queryByPlaceholderText('chat.captionPlaceholder')).not.toBeInTheDocument();
+  });
 });
