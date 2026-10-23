@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { modalOverlay } from './ui/modalShared';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Phone, Video, MessageSquare, Ban, Mail, Send, Star, StarOff, ShieldCheck, Bell, BellOff } from 'lucide-react';
+import { X, Phone, Ban, Mail, Send, Star, StarOff, Bell, BellOff } from 'lucide-react';
 import { useAppStore } from '../store';
 import { isChatMuteActive } from '../store/slices/chatSlice';
 import { useI18n } from '../lib/i18n';
@@ -11,6 +11,7 @@ import type { ContactField } from '../types/contact';
 import { ContactConfirmDialogs, type ContactConfirmAction } from './contact-profile/ContactConfirmDialogs';
 import { ContactActionsMenu } from './contact-profile/ContactActionsMenu';
 import { ContactAvatarPicker } from './contact-profile/ContactAvatarPicker';
+import { ContactProfileActions } from './contact-profile/ContactProfileActions';
 import { formatLastSeen } from './contact-profile/lastSeen';
 import { SharedMediaTabs } from './chat/SharedMediaTabs';
 import { ToggleSwitch } from './ui/ToggleSwitch';
@@ -19,7 +20,6 @@ import { getPinnedIdentity } from '../lib/p2p/identityPin';
 import { p2pNetwork } from '../lib/p2p/network';
 import { buf2hex } from '../lib/crypto/cryptoCore';
 import { CAPS_LABEL_CLASS, TERTIARY_HINT_CLASS, SECONDARY_CAPTION_CLASS, SECONDARY_TEXT_CLASS, TERTIARY_CAPTION_CLASS } from './ui/textClasses';
-import { TWO_COL_GRID_CLASS } from "./ui/gridClasses";
 export type ContactProfile = {
   id: string;
   name: string;
@@ -265,26 +265,13 @@ export const ContactProfileModal = ({ contact, myPeerId, onClose, onCall, onVide
               </div>
             )}
 
-            <div className="w-full mt-6 space-y-3">
-              <div className={TWO_COL_GRID_CLASS}>
-                <button onClick={() => { onCall?.(); onClose(); }} className="h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 bg-[var(--color-success-soft)] hover:bg-[var(--color-success)]/20 text-[var(--color-success)] border border-[var(--color-success)]/25">
-                  <Phone size={20} fill="currentColor" />
-                  <span className={CAPS_LABEL_CLASS}>{t('contacts.call')}</span>
-                </button>
-                <button onClick={() => { onVideoCall?.(); onClose(); }} className="h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 bg-[var(--blue)]/15 hover:bg-[var(--blue)]/25 text-[var(--blue)] border border-[var(--blue)]/25">
-                  <Video size={20} fill="currentColor" />
-                  <span className={CAPS_LABEL_CLASS}>{t('contacts.videoCall')}</span>
-                </button>
-              </div>
-              <button onClick={() => { onMessage?.(); onClose(); }} className="w-full h-14 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 bg-[var(--accent-soft)] hover:bg-[var(--accent)] hover:text-[var(--ink-on-saturate)] text-[var(--accent)] border border-[var(--accent-soft)]">
-                <MessageSquare size={20} fill="currentColor" />
-                <span className={CAPS_LABEL_CLASS}>{t('contacts.message')}</span>
-              </button>
-              <button onClick={() => setShowSafetyNumber(true)} title={t('contacts.verifySecurityDesc')} className="w-full min-h-11 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 bg-[var(--msg-bg-panel)] hover:bg-[var(--msg-bg-panel-hover)] text-[var(--text-secondary)]">
-                <ShieldCheck size={16} />
-                <span className={CAPS_LABEL_CLASS}>{t('contacts.verifySecurity')}</span>
-              </button>
-            </div>
+            <ContactProfileActions
+              onCall={() => { onCall?.(); onClose(); }}
+              onVideoCall={() => { onVideoCall?.(); onClose(); }}
+              onMessage={() => { onMessage?.(); onClose(); }}
+              onShowSafetyNumber={() => setShowSafetyNumber(true)}
+              t={t}
+            />
             </div>
           </motion.div>
         </motion.div>

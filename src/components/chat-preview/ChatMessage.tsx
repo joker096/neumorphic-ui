@@ -19,6 +19,7 @@ import { MessageDateSeparator, ExpiredMessage, MorseToggle } from "./message/Mes
 import { MessageEditForm } from "./message/MessageEditForm";
 import { MessageFooter } from "./message/MessageFooter";
 import { MessagePoll } from "./message/MessagePoll";
+import { MessageInlineKeyboard } from "./message/MessageInlineKeyboard";
 import { MESSAGE_SENDER_LABEL_CLASS } from "./chatPreviewClasses";
 
 interface ChatMessageProps {
@@ -212,21 +213,7 @@ function ChatMessageImpl({
             <MorseToggle decoded={morseDecoded} t={t} onToggle={toggleMorse} />
           )}
           {msg.keyboard && (
-            <div className="flex flex-col gap-1.5 mt-3 mb-1 w-full shrink-0">
-              {msg.keyboard.map((row: any[], i: number) => (
-                <div key={i} className="flex gap-1.5 w-full">
-                  {row.map((btn: any, j: number) => (
-                    <button
-                      key={j}
-                      onClick={() => { if (onAction) onAction(btn.action || btn.text); }}
-                                             className={"flex-1 min-h-11 flex items-center justify-center rounded-lg text-xs font-bold transition-all active:scale-95 bg-[var(--bg-primary)] hover:bg-black/10 text-[var(--text-secondary)] border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)] dark:hover:bg-[var(--hover-bg-dark)] dark:text-[var(--text-primary)]"}
-                    >
-                      {btn.text}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
+            <MessageInlineKeyboard rows={msg.keyboard} onAction={onAction} />
           )}
           {!isChannel && (threadReplies ?? 0) > 0 && onOpenThread && (
             <button

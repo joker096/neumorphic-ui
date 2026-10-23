@@ -27,6 +27,7 @@ import { useAppBootEffects } from './hooks/useAppBootEffects';
 import { useAppViewNavigation } from './hooks/useAppViewNavigation';
 import { useChatDraftSync } from './hooks/useChatDraftSync';
 import { useMessageLinkBoot } from './hooks/useMessageLinkBoot';
+import { useAppLocalUiState } from './hooks/useAppLocalUiState';
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { AppShell } from './components/app/AppShell';
 import { AppChrome } from './components/app/AppChrome';
@@ -53,12 +54,15 @@ export default function App() {
   const ui = useUiStore();
   const { chatReturnContext, setChatReturnContext } = ui;
 
-  const [activeStory, setActiveStory] = useState<{ id: number | string, name: string, color: string } | null>(null);
-  const [showStoryComposer, setShowStoryComposer] = useState(false);
-  const [activeBotId, setActiveBotId] = useState<string | null>(null);
-  const [miniAppBotId, setMiniAppBotId] = useState<string | null>(null);
-  const [replyTarget, setReplyTarget] = useState<any>(null);
-  const [savedMessages, setSavedMessages] = useLocalStorage<any[]>(STORAGE_KEYS.SAVED_MESSAGES, []);
+  const {
+    activeStory, setActiveStory, showStoryComposer, setShowStoryComposer,
+    activeBotId, setActiveBotId, miniAppBotId, setMiniAppBotId,
+    replyTarget, setReplyTarget, savedMessages, setSavedMessages,
+    messageText, setMessageText, isRecordingVoice, setIsRecordingVoice,
+    voiceNoteError, setVoiceNoteError, showSchedulePopup, setShowSchedulePopup,
+    scheduleDateTime, setScheduleDateTime, morseMode, setMorseMode,
+    silentMode, setSilentMode, showStickerPicker, setShowStickerPicker,
+  } = useAppLocalUiState();
   useScreenshotProtection(stealthMode);
   usePremiumEntitlementRefresh();
 
@@ -96,14 +100,6 @@ export default function App() {
   // Scheduled-fire needs the open conversation to append into — defined after
   // the `activeChat` state above (same hook-order constraint as the mirror).
   useScheduledMessages(setActiveChat);
-  const [messageText, setMessageText] = useState("");
-  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
-  const [voiceNoteError, setVoiceNoteError] = useState("");
-  const [showSchedulePopup, setShowSchedulePopup] = useState(false);
-  const [scheduleDateTime, setScheduleDateTime] = useState("");
-  const [morseMode, setMorseMode] = useState(false);
-  const [silentMode, setSilentMode] = useState(false);
-  const [showStickerPicker, setShowStickerPicker] = useState(false);
 
   const {
     view, setView, subView, setSubView, setNavOrigin,

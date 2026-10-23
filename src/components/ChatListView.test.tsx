@@ -32,6 +32,33 @@ vi.mock('./chat-preview', () => ({
   ViewTabs: () => <div data-testid="view-tabs" />,
   ChatListSearchHeader: () => <div data-testid="chat-list-search-header" />,
   ChatListBots: () => <div data-testid="chat-list-bots" />,
+  ChatListSortControls: () => <div data-testid="chat-list-sort-controls" />,
+  ChatListConfirmDialog: (props: any) => {
+    const dc = props.deleteConfirm;
+    if (!dc) return null;
+    const title =
+      dc.kind === "bulk"
+        ? props.t("chat.bulkDeleteConfirm", { count: props.selectedCount })
+        : dc.kind === "clear"
+          ? props.t("chat.clearHistory")
+          : props.t("chat.deleteChat");
+    const message =
+      dc.kind === "bulk"
+        ? ""
+        : dc.kind === "clear"
+          ? props.t("chat.clearHistoryConfirm")
+          : props.t("chat.deleteConfirm");
+    const confirmLabel = dc.kind === "clear" ? props.t("chat.clearHistory") : props.t("chat.delete");
+    return (
+      <div role="dialog">
+        <span data-testid="confirm-title">{title}</span>
+        <span data-testid="confirm-message">{message}</span>
+        <span data-testid="confirm-label">{confirmLabel}</span>
+        <button type="button" data-testid="confirm-cancel" onClick={props.onCancel}>{props.cancelLabel}</button>
+        <button type="button" data-testid="confirm-confirm" onClick={props.onConfirm}>{confirmLabel}</button>
+      </div>
+    );
+  },
 }));
 
 vi.mock('./chat-preview/ChatContextMenu', () => ({

@@ -23,14 +23,10 @@ import {
   acceptInboundOffer,
   connectToPeer,
   disconnectPeer,
-  getNetworkMetrics,
-  getPeerCount,
-  getPeers,
 } from './p2pNetworkPeers';
 import {
   broadcastMessage,
   broadcastRawFrame,
-  isPeerConnected,
   sendAddressed,
   sendToPeer,
 } from './p2pNetworkDelivery';
@@ -48,7 +44,19 @@ import {
   sendPresenceSignal,
   sendTypingIndicator,
 } from './p2pNetworkSignals';
-import { getDHTTable, getMeshRoutes, rebindRouterForward } from './p2pNetworkRouter';
+import { rebindRouterForward } from './p2pNetworkRouter';
+import {
+  getTransport,
+  getPeersList,
+  getPeerId,
+  getPeerCount,
+  isConnected,
+  getMetrics,
+  getDHTTable as getDHTTableFn,
+  getMeshRoutes as getMeshRoutesFn,
+  getRouter,
+  cleanup as cleanupFn,
+} from './p2pNetworkGetters';
 
 export type {
   BroadcastMessage,
@@ -122,13 +130,7 @@ export class P2PNetwork implements P2PNetworkInternals {
     broadcastRawFrame(this, data);
   }
 
-  /**
-   * Connect to a peer.
-   * In a Kadabra network, this involves:
-   * 1. Looking up the peer in the DHT
-   * 2. Establishing a direct WebRTC connection
-   * 3. Adding the peer to the routing table
-   */
+  /** Connect to a peer (DHT lookup + WebRTC + routing table). */
   async connect(peerId: string): Promise<void> {
     return this.connectToPeer(peerId);
   }
@@ -137,8 +139,7 @@ export class P2PNetwork implements P2PNetworkInternals {
     return connectToPeer(this, peerId);
   }
 
-  /** Inbound dial-back: answer an offer that arrived on the signaling WS (see
-   * `acceptInboundOffer` in p2pNetworkPeers). */
+  /** Inbound dial-back: answer an offer from the signaling WS. */
   acceptInboundOffer(peerId: string, frame: any): Promise<void> {
     return acceptInboundOffer(this, peerId, frame);
   }
@@ -162,7 +163,7 @@ export class P2PNetwork implements P2PNetworkInternals {
 
   /** Live transport for a peer, if one is established. */
   getTransport(peerId: string): P2PTransport | null {
-    return this.transports.get(peerId) ?? null;
+    return getTransport(this, peerId);
   }
 
   /** Addressed delivery: send to a single connected peer instead of broadcasting to the mesh. */
@@ -179,12 +180,7 @@ export class P2PNetwork implements P2PNetworkInternals {
     return getPeerName(this, peerId);
   }
 
-  /**
- * Learn the peer that owns a chat (chatId primary, chatName fallback).
- *
- * Bindings are **first-write-wins** — see `rememberChatPeer` in
- * p2pNetworkChatBindings for why a conflicting claim must be refused.
- */
+  /** Learn the peer owning a chat (id primary, name fallback). First-write-wins. */
   rememberChatPeer(chatId: string | number, chatName: string, peerId: string): boolean {
     return rememberChatPeer(this, chatId, chatName, peerId);
   }
@@ -199,13 +195,7 @@ export class P2PNetwork implements P2PNetworkInternals {
     return peerForChatName(this, chatName);
   }
 
-  /**
-   * The local chat a transport peer owns (learned from inbound frames).
-   *
-   * Stronger than the name lookup: the binding exists only because the peer
-   * passed the display-name check of an earlier frame, so an inbound frame can
-   * be routed by the authenticated peer instead of by a renameable name.
-   */
+  /** The local chat a transport peer owns (learned from inbound frames). */
   chatForPeer(peerId: string): string | undefined {
     return chatForPeer(this, peerId);
   }
@@ -225,11 +215,7 @@ export class P2PNetwork implements P2PNetworkInternals {
     return () => this.disconnectionCallbacks.delete(callback);
   }
 
-  /**
-   * Subscribe to incoming typing-indicator signals from any connected peer.
-   * Handler receives the sending contact's `name` and the typing state.
-   * Returns an unsubscribe function.
-   */
+  /** Subscribe to typing-indicator signals; handler gets `name` + typing state. */
   onTypingIndicator(callback: (name: string, isTyping: boolean) => void): () => void {
     return onTypingIndicator(this, callback);
   }
@@ -244,21 +230,17 @@ export class P2PNetwork implements P2PNetworkInternals {
     sendPresenceSignal(this, online);
   }
 
-  /**
-   * Subscribe to incoming `online-status` metadata signals from peers.
-   * Handler receives the peer id and whether they reported online.
-   * Returns an unsubscribe function.
-   */
+  /** Subscribe to `online-status` signals; handler gets peer id + online state. */
   onPresence(callback: (peerId: string, online: boolean) => void): () => void {
     return onPresence(this, callback);
   }
 
   getPeers(): PeerConnection[] {
-    return getPeers(this);
+    return getPeersList(this);
   }
 
   getPeerId(): string {
-    return this.peerId;
+    return getPeerId(this);
   }
 
   getPeerCount(): number {
@@ -266,7 +248,7 @@ export class P2PNetwork implements P2PNetworkInternals {
   }
 
   isConnected(peerId: string): boolean {
-    return isPeerConnected(this, peerId);
+    return isConnected(this, peerId);
   }
 
   getMetrics(): {
@@ -275,33 +257,27 @@ export class P2PNetwork implements P2PNetworkInternals {
     totalMessagesSent: number;
     totalMessagesReceived: number;
   } {
-    return getNetworkMetrics(this);
+    return getMetrics(this);
   }
 
   /** DHT routing table. */
   getDHTTable(): Map<string, any> {
-    return getDHTTable();
+    return getDHTTableFn();
   }
 
   /** Mesh routing table. */
   getMeshRoutes(): any[] {
-    return getMeshRoutes(this);
+    return getMeshRoutesFn(this);
   }
 
   /** Mesh router instance. */
   getRouter(): MeshRouterCore {
-    return this.router;
+    return getRouter(this);
   }
 
   /** Clean up and disconnect. */
   cleanup(): void {
-    for (const transport of this.transports.values()) {
-      transport.disconnect();
-    }
-    this.transports.clear();
-    this.peers.clear();
-    this.router.stop();
-    MeshDHT.cleanup();
+    cleanupFn(this);
   }
 }
 

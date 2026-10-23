@@ -1,8 +1,6 @@
 import { useMemo, useRef } from "react";
-import { Trash2, ArrowDownAZ, Eraser, CheckCheck } from "lucide-react";
-import { AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots } from "./chat-preview";
+import { AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots, ChatListSortControls, ChatListConfirmDialog } from "./chat-preview";
 import { ChatContextMenu } from "./chat-preview/ChatContextMenu";
-import { ConfirmDialog } from "./ui/ConfirmDialog";
 import { useChatListActions } from "../hooks/useChatListActions";
 import { buildChatRows } from "./chat-list/buildChatRows";
 import { ChatListVirtualRows, useChatListRowRenderer } from "./chat-list/ChatListBody";
@@ -201,45 +199,14 @@ export const ChatListView = ({
             segments={crmSegments}
             folderUnread={folderUnread}
           />
-          {(setChatSortBy || hasFilteredUnread) && (
-            <div className="flex justify-end gap-1 pb-2 -mt-1">
-              {hasFilteredUnread && (
-                <button
-                  type="button"
-                  onClick={() => handleMarkAllRead(filteredChats.map((c: any) => c.id))}
-                  aria-label={t("chat.markAllRead", "Mark all as read")}
-                  title={t("chat.markAllRead", "Mark all as read")}
-                  className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full active:scale-95"
-                >
-                  <span className="px-3 py-0.5 rounded-full text-xs font-bold flex items-center gap-1 transition-colors bg-black/5 dark:bg-white/5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
-                    <CheckCheck size={12} aria-hidden="true" />
-                    {t("chat.markAllRead", "Mark all as read")}
-                  </span>
-                </button>
-              )}
-              {setChatSortBy && (
-                <button
-                type="button"
-                onClick={() => setChatSortBy(chatSortBy === "alpha" ? "recent" : "alpha")}
-                aria-pressed={chatSortBy === "alpha"}
-                aria-label={chatSortBy === "alpha" ? t("chat.sortByRecent", "Sort by date") : t("chat.sortByName", "Sort by name")}
-                title={chatSortBy === "alpha" ? t("chat.sortByRecent", "Sort by date") : t("chat.sortByName", "Sort by name")}
-                className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full active:scale-95"
-              >
-                <span className={`px-3 py-0.5 rounded-full text-xs font-bold flex items-center gap-1 transition-colors ${
-                  chatSortBy === "alpha"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-                    : isDark
-                      ? "bg-black/5 dark:bg-white/5 text-[var(--text-tertiary)]"
-                      : "bg-black/5 text-[var(--text-tertiary)]"
-                }`}>
-                  <ArrowDownAZ size={12} aria-hidden="true" />
-                  {chatSortBy === "alpha" ? t("chat.sortByName", "By name") : t("chat.sortByRecent", "By date")}
-                </span>
-              </button>
-              )}
-            </div>
-          )}
+          <ChatListSortControls
+            chatSortBy={chatSortBy}
+            setChatSortBy={setChatSortBy}
+            hasFilteredUnread={hasFilteredUnread}
+            onMarkAllRead={() => handleMarkAllRead(filteredChats.map((c: any) => c.id))}
+            t={t}
+            isDark={isDark}
+          />
         </>
       )}
 
@@ -289,27 +256,11 @@ export const ChatListView = ({
 
       )}
 
-      <ConfirmDialog
-        isOpen={deleteConfirm !== null}
-        title={
-          deleteConfirm?.kind === "bulk"
-            ? t("chat.bulkDeleteConfirm", { count: selectedIds.size })
-            : deleteConfirm?.kind === "clear"
-              ? t("chat.clearHistory")
-              : t("chat.deleteChat")
-        }
-        message={
-          deleteConfirm?.kind === "bulk"
-            ? ""
-            : deleteConfirm?.kind === "clear"
-              ? t("chat.clearHistoryConfirm")
-              : t("chat.deleteConfirm")
-        }
-        variant="danger"
+      <ChatListConfirmDialog
+        deleteConfirm={deleteConfirm}
+        selectedCount={selectedIds.size}
         theme={theme}
-        confirmLabel={deleteConfirm?.kind === "clear" ? t("chat.clearHistory") : t("chat.delete")}
-        cancelLabel={t("common.cancel")}
-        confirmIcon={deleteConfirm?.kind === "clear" ? <Eraser size={18} /> : <Trash2 size={18} />}
+        t={t}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
