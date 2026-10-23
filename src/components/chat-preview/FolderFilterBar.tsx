@@ -9,9 +9,11 @@ interface FolderFilterBarProps {
   t: (key: string, options?: any) => string;
   /** CRM sales-segment folders rendered before `archived`. */
   segments?: readonly string[];
+  /** Unread totals per folder key; a non-zero value renders a counter on the pill. */
+  folderUnread?: Record<string, number>;
 }
 
-export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t, segments = [] }: FolderFilterBarProps) => {
+export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t, segments = [], folderUnread = {} }: FolderFilterBarProps) => {
   const folders: readonly string[] = segments.length
     ? [...CHAT_FOLDER_KEYS.filter((f) => f !== "archived"), ...segments, "archived"]
     : CHAT_FOLDER_KEYS;
@@ -23,11 +25,14 @@ export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters
     >
       {folders.map((folder) => {
         const isActive = activeFolder === folder;
+        const label = t(`chat.folders.${folder}`);
+        const unread = Number(folderUnread[folder]) || 0;
         return (
           <button
             key={folder}
             type="button"
             aria-pressed={isActive}
+            aria-label={unread > 0 ? `${label} (${unread})` : undefined}
             onClick={() => setActiveFolder(folder)}
             className="group min-h-11 min-w-11 p-1 flex items-center justify-center cursor-pointer transition-all shrink-0 active:scale-95"
           >
@@ -38,7 +43,10 @@ export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters
                   : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] group-hover:bg-[var(--msg-bg-panel-hover)] border border-[var(--border-color)]"
               }`}
             >
-              {t(`chat.folders.${folder}`)}
+              {label}
+              {unread > 0 && (
+                <span className="ml-1 tabular-nums opacity-80">{unread > 99 ? '99+' : unread}</span>
+              )}
             </span>
           </button>
         );

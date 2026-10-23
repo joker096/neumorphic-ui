@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { groupMessages, formatDateLabel } from "../utils/chatUtils";
+import { groupMessages, formatDateLabel, sendTimeOf, dayBounds } from "../utils/chatUtils";
 import { useDebounce } from "./useDebounce";
 
 interface UseChatPreviewSearchArgs {
@@ -38,13 +38,21 @@ export function useChatPreviewSearch({ chat, savedMessages, scheduledMessages, l
   const debouncedSearch = useDebounce(searchQuery, 200);
 
   const filteredHistory = useMemo(() =>
-    chat.history?.filter((msg: any, idx: number) => {
+    chat.history?.filter((msg: any) => {
       if (filterBySender === 'me' && msg.sender !== 'me') return false;
       if (filterBySender === 'them' && msg.sender === 'me') return false;
       if (filterStartDate || filterEndDate) {
-        const msgDate = new Date(idx * 86400000 + Date.now());
-        if (filterStartDate && msgDate < new Date(filterStartDate)) return false;
-        if (filterEndDate && msgDate > new Date(filterEndDate)) return false;
+        const ts = sendTimeOf(msg);
+        // No trustworthy send time → cannot claim it belongs to any day.
+        if (!ts) return false;
+        if (filterStartDate) {
+          const from = dayBounds(filterStartDate);
+          if (from && ts < from.start) return false;
+        }
+        if (filterEndDate) {
+          const to = dayBounds(filterEndDate);
+          if (to && ts >= to.end) return false;
+        }
       }
       const matchesType =
         searchTypeFilter === 'all' ? true :
@@ -134,7 +142,24 @@ export function useChatPreviewSearch({ chat, savedMessages, scheduledMessages, l
     msgListRef.current?.scrollToIndex?.(matchIndices[next], 'center');
   }, [activeMatch, matchIndices, msgListRef]);
 
+  /**
+   * Scroll to the first bubble of the given local day — Telegram's
+   * "jump to date". Returns false when nothing in the chat is that recent,
+   * so the caller can tell the user instead of silently doing nothing.
+   */
+  const jumpToDate = useCallback((date: string) => {
+    const bounds = dayBounds(date);
+    if (!bounds) return false;
+    const idx = flatItems.findIndex(
+      (item: any) => !item._isDateSeparator && sendTimeOf(item) >= bounds.start,
+    );
+    if (idx < 0) return false;
+    msgListRef.current?.scrollToIndex?.(idx, 'center');
+    return true;
+  }, [flatItems]);
+
   return {
+    jumpToDate,
     searchQuery, setSearchQuery,
     showSearch, setShowSearch,
     mediaTab, setMediaTab,

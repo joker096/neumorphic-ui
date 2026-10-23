@@ -20,6 +20,37 @@ const CLIENTS = CRM_SEGMENT_KEYS[1];
  */
 export type ChatSortBy = 'recent' | 'alpha';
 
+/**
+ * Folder membership of a chat. Kept outside the hook because the tab badges
+ * have to agree with the list itself: a tab that claims "3 unread" must open
+ * on exactly those three chats, not on a differently-filtered set.
+ */
+function chatInFolder(chat: any, folder: string, archivedChats: any[], crmContacts: any[]): boolean {
+  const isArchived = archivedChats.includes(chat.id);
+  if (folder === ARCHIVED) return isArchived;
+  if (isArchived) return false;
+  if (folder === UNREAD) return Number(chat.unread) > 0;
+  if (folder === PERSONAL) return chat.type === 'dm' || chat.type === 'direct';
+  if (folder === WORK || folder === GROUPS) return chat.type === 'group';
+  // CRM sales segments: a chat belongs to the segment when its matched CRM
+  // contact carries the segment's status (`leads` → `lead`, `clients` → `client`).
+  if (folder === LEADS || folder === CLIENTS) {
+    const match = findCrmContactByChat(crmContacts, chat);
+    if (!match) return false;
+    return match.status === (folder === LEADS ? 'lead' : 'client');
+  }
+  return true;
+}
+
+/** Channel membership, mirroring `filteredChannels` (channels live in every non-segment folder). */
+function channelInFolder(channel: any, folder: string, archivedChats: any[]): boolean {
+  const isArchived = archivedChats.includes(channel.id);
+  if (folder === ARCHIVED) return isArchived;
+  if (isArchived) return false;
+  if (folder === LEADS || folder === CLIENTS) return false;
+  return true;
+}
+
 export function useFilteredChats(
   currentChatList: any[],
   chatSearchQuery: string,
@@ -94,21 +125,7 @@ export function useFilteredChats(
     if (advancedFilters.hasReplies && !(chat.history || []).some((m: any) => !!m.replyTo)) return false;
     if (advancedFilters.fromBots && chat.type !== 'bot') return false;
     if (advancedFilters.priority && !chat.isPriority) return false;
-    const isArchived = archivedChats.includes(chat.id);
-    if (activeFolder === ARCHIVED) return isArchived;
-    if (isArchived) return false;
-    if (activeFolder === UNREAD) return chat.unread > 0;
-    if (activeFolder === PERSONAL) return chat.type === 'dm' || chat.type === 'direct';
-    if (activeFolder === WORK) return chat.type === 'group';
-    if (activeFolder === GROUPS) return chat.type === 'group';
-    // CRM sales segments: a chat belongs to the segment when its matched CRM
-    // contact carries the segment's status (`leads` → `lead`, `clients` → `client`).
-    if (activeFolder === LEADS || activeFolder === CLIENTS) {
-      const match = findCrmContactByChat(crmContacts, chat);
-      if (!match) return false;
-      return match.status === (activeFolder === LEADS ? 'lead' : 'client');
-    }
-    return true;
+    return chatInFolder(chat, activeFolder, archivedChats, crmContacts);
   }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters, isSpamChat, crmContacts]);
 
   const filteredChannels = useMemo(() => channels.filter(channel => {
@@ -147,5 +164,30 @@ export function useFilteredChats(
     );
   }, [filteredChannels, sortBy]);
 
-  return { filteredChats: sortedChats, filteredChannels: sortedChannels, mentionCounts };
+  /**
+   * Unread totals per folder tab. Telegram shows the counter on the tab so the
+   * user does not have to open every folder to find the new messages. Spam
+   * chats are excluded (they are hidden from the list), and archived chats only
+   * count toward `archived` — exactly the same rules the tabs filter by.
+   */
+  const folderUnread = useMemo(() => {
+    const counts: Record<string, number> = {};
+    CHAT_FOLDER_KEYS.forEach((folder) => {
+      let total = 0;
+      currentChatList.forEach((chat) => {
+        const unread = Number(chat.unread) || 0;
+        if (unread > 0 && !isSpamChat(chat) && chatInFolder(chat, folder, archivedChats, crmContacts)) {
+          total += unread;
+        }
+      });
+      channels.forEach((channel) => {
+        const unread = Number((channel as any).unread) || 0;
+        if (unread > 0 && channelInFolder(channel, folder, archivedChats)) total += unread;
+      });
+      counts[folder] = total;
+    });
+    return counts;
+  }, [currentChatList, channels, archivedChats, crmContacts, isSpamChat]);
+
+  return { filteredChats: sortedChats, filteredChannels: sortedChannels, mentionCounts, folderUnread };
 }

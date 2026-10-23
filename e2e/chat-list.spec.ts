@@ -75,7 +75,9 @@ test.describe('Chat list', () => {
 
   test('"Unread" folder filter keeps only unread chats', async ({ page }) => {
     await gotoChats(page);
-    const unread = page.getByText('Unread', { exact: true }).first();
+    // The tab shows an unread counter, so match the accessible name by prefix
+    // (label alone, or "Unread (N)" when the folder has unread chats).
+    const unread = page.getByRole('button', { name: /^Unread/ }).first();
     await unread.click();
     await expect(page.getByText('Alice Freeman').first()).toBeVisible();
     // Victor has unread: 0 in mocks -> filtered out of the list area

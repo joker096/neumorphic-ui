@@ -94,8 +94,9 @@ export function formatDateLabel(timeStr: string, ts?: number, opts?: DayLabelOpt
     if (relative) return relative;
     return longDayDate(new Date(ts), opts?.lang);
   }
-  const match = timeStr.match(/(\d{1,2}):(\d{2})/);
-  if (!match) return timeStr;
+  const text = String(timeStr ?? '');
+  const match = text.match(/(\d{1,2}):(\d{2})/);
+  if (!match) return text;
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(match[1]), parseInt(match[2]));
   const relative = relativeDayLabel(opts, Math.round((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)));
@@ -138,6 +139,24 @@ export function fuzzTime(timeStr: string, id: number): string {
  */
 export function sendTimeOf(m: any): number {
   return Number(m?.ts) || Number(m?.id) || Number(m?.timestamp) || 0;
+}
+
+/**
+ * Local-day bounds of a `YYYY-MM-DD` value from `<input type="date">`:
+ * `start` = local midnight of that day, `end` = local midnight of the next
+ * day. "On this day" is then `start <= ts < end`; `new Date(str)` is UTC
+ * midnight and would shift the boundary by the timezone offset. Invalid input
+ * returns `null`, so callers treat it as "no constraint" instead of guessing.
+ */
+export function dayBounds(date: string): { start: number; end: number } | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(date ?? '').trim());
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]) - 1;
+  const d = Number(m[3]);
+  const start = new Date(y, mo, d).getTime();
+  if (!Number.isFinite(start)) return null;
+  return { start, end: new Date(y, mo, d + 1).getTime() };
 }
 
 /**
