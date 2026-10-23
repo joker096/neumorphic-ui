@@ -96,6 +96,12 @@ export interface ChatSlice {
   /** Drop every bubble of one chat while keeping the chat itself in the list. */
   clearChatHistory: (chatId: string | number) => void;
   pinChat: (chatId: string | number) => void;
+  /**
+   * Persists the manual order of pinned chats. Each pinned chat carries a
+   * `pinRank` (0-based) used by the list to sort the pinned section; the order
+   * is a list of chat ids in the desired top-to-bottom sequence.
+   */
+  setPinnedOrder: (orderedIds: Array<string | number>) => void;
   pinnedMessageList: Array<{ id: number; chatId: string | number; pinBy: string; pinnedAt: number }>;
   addPinnedMessage: (pin: { id: number; chatId: string | number; pinBy: string }) => void;
   removePinnedMessage: (id: number, chatId?: string | number) => void;
@@ -285,6 +291,13 @@ export const createChatSlice = (set: any, get: any): ChatSlice => ({
     if (pinnedCount >= 3) return state;
     return { chats: state.chats.map((c: any) => c.id === chatId ? { ...c, pinned: true } : c) };
   }),
+  setPinnedOrder: (orderedIds) => set((state: any) => ({
+    chats: state.chats.map((c: any) => {
+      if (!c.pinned) return c;
+      const idx = orderedIds.findIndex((id: string | number) => String(id) === String(c.id));
+      return idx >= 0 ? { ...c, pinRank: idx } : c;
+    }),
+  })),
   pinnedMessageList: [],
   addPinnedMessage: (pin) => set((state: any) => (
     state.pinnedMessageList.some((p: any) => p.id === pin.id && p.chatId === pin.chatId)

@@ -6,6 +6,7 @@ const setChatsMock = vi.hoisted(() => vi.fn());
 const setChatUnreadMock = vi.hoisted(() => vi.fn());
 const setChatMuteUntilMock = vi.hoisted(() => vi.fn());
 const clearChatHistoryMock = vi.hoisted(() => vi.fn());
+const setPinnedOrderMock = vi.hoisted(() => vi.fn());
 
 vi.mock("../store", () => ({
   useAppStore: () => ({
@@ -13,6 +14,7 @@ vi.mock("../store", () => ({
     setChatUnread: setChatUnreadMock,
     setChatMuteUntil: setChatMuteUntilMock,
     clearChatHistory: clearChatHistoryMock,
+    setPinnedOrder: setPinnedOrderMock,
   }),
 }));
 
@@ -48,6 +50,7 @@ beforeEach(() => {
   setChatMuteUntilMock.mockReset();
   clearChatHistoryMock.mockReset();
   releaseMediaMock.mockReset();
+  setPinnedOrderMock.mockReset();
 });
 
 describe("useChatListActions mark all read", () => {
@@ -307,5 +310,36 @@ describe("useChatListActions delete confirmation", () => {
       labels: expect.objectContaining({ selfName: "me", title: "chat.export" }),
     }));
     expect(toastMock).toHaveBeenCalledWith("chat.exportDone", "success");
+  });
+});
+
+describe("useChatListActions pinned reorder", () => {
+  it("pin assigns the next numeric rank after the max existing", () => {
+    const { result } = renderActions();
+    act(() => result.current.handleMenuPin({ id: "dm-1", name: "Alice" }));
+    expect(setChatsMock).toHaveBeenCalledTimes(1);
+    const updater = setChatsMock.mock.calls[0][0];
+    const next = updater([
+      { id: "dm-1", pinned: false },
+      { id: "dm-2", pinned: true, pinRank: 1 },
+      { id: "dm-3", pinned: false },
+    ]);
+    expect(next.find((c: any) => c.id === "dm-1")).toEqual({ id: "dm-1", pinned: true, pinRank: 2 });
+    expect(next.find((c: any) => c.id === "dm-2")).toEqual({ id: "dm-2", pinned: true, pinRank: 1 });
+    expect(next.find((c: any) => c.id === "dm-3")).toEqual({ id: "dm-3", pinned: false });
+  });
+
+  it("unpin drops the pinRank", () => {
+    const { result } = renderActions();
+    act(() => result.current.handleMenuPin({ id: "dm-1", pinned: true, pinRank: 0 }));
+    const updater = setChatsMock.mock.calls[0][0];
+    const next = updater([{ id: "dm-1", pinned: true, pinRank: 0 }]);
+    expect(next).toEqual([{ id: "dm-1", pinned: false }]);
+  });
+
+  it("handleReorderPinned forwards the dragged order as ids", () => {
+    const { result } = renderActions();
+    act(() => result.current.handleReorderPinned([{ id: "b" }, { id: "a" }]));
+    expect(setPinnedOrderMock).toHaveBeenCalledWith(["b", "a"]);
   });
 });

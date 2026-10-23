@@ -136,6 +136,7 @@
     "jumpToDate": "日付へ移動",
     "markAllRead": "すべて既読にする",
     "export": "チャットをエクスポート",
+    "reorderPinned": "固定チャットを並べ替え",
     "exportDone": "チャットをエクスポートしました",
     "clearHistory": "履歴を消去",
     "clearHistoryConfirm": "このチャットのすべてのメッセージを削除します。チャット自体は一覧に残ります。",

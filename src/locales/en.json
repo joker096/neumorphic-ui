@@ -136,6 +136,7 @@
     "jumpToDate": "Jump to date",
     "markAllRead": "Mark all as read",
     "export": "Export chat",
+    "reorderPinned": "Reorder pinned chats",
     "exportDone": "Chat exported",
     "clearHistory": "Clear history",
     "clearHistoryConfirm": "This will delete all messages in this chat. The chat itself stays in your list.",

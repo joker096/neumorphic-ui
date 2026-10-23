@@ -27,6 +27,9 @@ interface ChatListItemProps {
   onVideoCall?: (name: string, color?: string) => void;
   t: (key: string, options?: any) => string;
   pinned?: boolean;
+  /** For pinned-chat reorder rows: vertical drag is handled by the reorder
+   *  container, so the x-swipe must be disabled to avoid conflicting drags. */
+  disableSwipe?: boolean;
   selectMode?: boolean;
   selected?: boolean;
   onToggleSelect?: () => void;
@@ -49,6 +52,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
   onVideoCall,
   t,
   pinned: _pinned,
+  disableSwipe = false,
   selectMode = false,
   selected = false,
   onToggleSelect,
@@ -162,7 +166,7 @@ export const ChatListItem: React.FC<ChatListItemProps> = React.memo(({
         onAction={handleSwipeAction}
       />
       <motion.div
-        drag={selectMode ? false : "x"}
+        drag={selectMode || disableSwipe ? false : "x"}
         dragConstraints={{ left: -260, right: 240 }}
         dragElastic={0.05}
         onDragStart={() => {

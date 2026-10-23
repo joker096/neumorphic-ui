@@ -28,7 +28,7 @@ interface UseChatListActionsArgs {
 }
 
 export function useChatListActions({ t, activeFolder, toggleArchive, setActiveChat, activeChatId }: UseChatListActionsArgs) {
-  const { setChats, setChatUnread, setChatMuteUntil, clearChatHistory, userProfile } = useAppStore();
+  const { setChats, setChatUnread, setChatMuteUntil, clearChatHistory, userProfile, setPinnedOrder } = useAppStore();
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
   const [menu, setMenu] = useState<{ chat: any; anchor: { x: number; y: number } | null; anchorRect: MenuAnchorRect | null } | null>(null);
@@ -96,7 +96,25 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
   };
 
   const handleMenuPin = (chat: any) => {
-    setChats(prev => prev.map((c: any) => c.id === chat.id ? { ...c, pinned: !c.pinned } : c));
+    setChats(prev => {
+      const willPin = !chat.pinned;
+      if (!willPin) {
+        // Unpin: drop the rank too, so the next pin finds a clean slot.
+        return prev.map((c: any) => c.id === chat.id ? { ...c, pinned: false, pinRank: undefined } : c);
+      }
+      const nextRank = prev.reduce(
+        (mx: number, c: any) => (c.pinned && typeof c.pinRank === "number" ? Math.max(mx, c.pinRank) : mx),
+        -1,
+      );
+      return prev.map((c: any) => c.id === chat.id ? { ...c, pinned: true, pinRank: nextRank + 1 } : c);
+    });
+  };
+  /**
+   * Framer `Reorder` hands us the pinned chats in their new visual order; we
+   * persist the ids so the section keeps the user's arrangement across reloads.
+   */
+  const handleReorderPinned = (ordered: any[]) => {
+    setPinnedOrder(ordered.map((c: any) => c.id));
   };
   /** Toggle used by the swipe drawer: mute forever, or unmute a mute of any kind. */
   const handleMenuMute = (chat: any) => {
@@ -268,6 +286,7 @@ export function useChatListActions({ t, activeFolder, toggleArchive, setActiveCh
     menuItems,
     handleMenuMute,
     handleMenuPin,
+    handleReorderPinned,
     handleMenuToggleUnread,
     handleChatOpen,
     handleMenuDelete,

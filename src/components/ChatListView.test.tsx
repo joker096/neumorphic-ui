@@ -94,6 +94,7 @@ const hookWith = vi.hoisted(() => (overrides: Record<string, any> = {}) => ({
   menuItems: [],
   handleMenuMute: vi.fn(),
   handleMenuPin: vi.fn(),
+  handleReorderPinned: vi.fn(),
   handleMenuToggleUnread: vi.fn(),
   handleChatOpen: vi.fn(),
   handleMenuDelete: vi.fn(),
@@ -343,5 +344,35 @@ describe('ChatListView CRM sales-segment folders', () => {
     useAppStore.setState({ crmContacts: [{ userId: '1', displayName: 'A', status: 'lead' }] as any });
     render(<ChatListView {...baseProps} />);
     expect(screen.getByTestId('folder-filter-bar').getAttribute('data-segments')).toBe('leads,clients');
+  });
+});
+
+describe('ChatListView pinned section (drag reorder)', () => {
+  it('renders pinned chats above the virtual list, sorted by pinRank', () => {
+    const base = {
+      ...baseProps,
+      filteredChats: [
+        { id: 'a', name: 'Alice', pinned: true, pinRank: 1 },
+        { id: 'b', name: 'Bob', pinned: true, pinRank: 0 },
+        { id: 'c', name: 'Carl', pinned: false },
+      ],
+    };
+    render(<ChatListView {...base} />);
+
+    const section = screen.getByTestId('pinned-chat-section');
+    expect(section).toBeInTheDocument();
+
+    // pinRank 0 renders first → Bob before Alice.
+    const names = [...section.querySelectorAll('[data-testid="chat-list-item"]')].map((el) => el.textContent);
+    expect(names[0]).toContain('Bob');
+    expect(names[1]).toContain('Alice');
+
+    // Each pinned row carries a drag handle.
+    expect(section.querySelectorAll('[aria-label="chat.reorderPinned"]')).toHaveLength(2);
+  });
+
+  it('hides the pinned section when nothing is pinned', () => {
+    render(<ChatListView {...baseProps} />);
+    expect(screen.queryByTestId('pinned-chat-section')).not.toBeInTheDocument();
   });
 });

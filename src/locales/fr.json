@@ -136,6 +136,7 @@
     "jumpToDate": "Aller à la date",
     "markAllRead": "Tout marquer comme lu",
     "export": "Exporter la discussion",
+    "reorderPinned": "Réorganiser les épinglés",
     "exportDone": "Discussion exportée",
     "clearHistory": "Effacer l'historique",
     "clearHistoryConfirm": "Tous les messages de cette discussion seront supprimés. La discussion reste dans la liste.",

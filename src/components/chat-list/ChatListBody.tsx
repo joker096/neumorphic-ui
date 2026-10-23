@@ -36,12 +36,13 @@ export function useChatListRowRenderer(deps: RowRendererDeps) {
     handleMenuDelete, onCall, onVideoCall, handleToggleSelect, openMenu, setGlobalSelectedContact,
   } = deps;
 
-  return useCallback((chat: any, type: "chat" | "channel") => (
+  return useCallback((chat: any, type: "chat" | "channel", opts?: { disableSwipe?: boolean }) => (
     <ChatListItem
       chat={chat}
       theme={theme}
       type={type}
       active={activeChatId === chat.id}
+      disableSwipe={opts?.disableSwipe}
       onClick={() => {
         handleChatOpen(chat);
         onOpenChat?.(chat);
@@ -85,7 +86,7 @@ export function useChatListRowRenderer(deps: RowRendererDeps) {
 interface ChatListVirtualRowsProps {
   rows: ChatRow[];
   scrollRef: React.RefObject<HTMLDivElement | null>;
-  renderRow: (chat: any, type: "chat" | "channel") => ReactElement;
+  renderRow: (chat: any, type: "chat" | "channel", opts?: { disableSwipe?: boolean }) => ReactElement;
 }
 
 /** Absolutely-positioned virtualized rows over a spacer sized to the virtualizer total. */

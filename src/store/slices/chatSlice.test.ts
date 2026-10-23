@@ -320,3 +320,36 @@ describe('chatSlice clearChatHistory', () => {
     expect(get().pinnedMessageList).toEqual([{ id: 2, chatId: 'c2', pinBy: 'me', pinnedAt: 1 }]);
   });
 });
+
+describe('chatSlice setPinnedOrder', () => {
+  it('reassigns pinRank by the given id order', () => {
+    const { slice, get } = makeSlice({
+      chats: [
+        { id: 'c1', pinned: true, pinRank: 5 },
+        { id: 'c2', pinned: true, pinRank: 1 },
+        { id: 'c3', pinned: false },
+      ],
+    });
+
+    slice.setPinnedOrder(['c2', 'c1']);
+
+    const chats = get().chats;
+    expect(chats.find((c: any) => c.id === 'c1')).toEqual({ id: 'c1', pinned: true, pinRank: 1 });
+    expect(chats.find((c: any) => c.id === 'c2')).toEqual({ id: 'c2', pinned: true, pinRank: 0 });
+    // Non-pinned chats are not in the order and stay untouched.
+    expect(chats.find((c: any) => c.id === 'c3')).toEqual({ id: 'c3', pinned: false });
+  });
+
+  it('does not add ranks to chats absent from the order', () => {
+    const { slice, get } = makeSlice({
+      chats: [
+        { id: 'c1', pinned: true, pinRank: 0 },
+        { id: 'c2', pinned: false },
+      ],
+    });
+
+    slice.setPinnedOrder(['c1']);
+
+    expect(get().chats.find((c: any) => c.id === 'c2')).toEqual({ id: 'c2', pinned: false });
+  });
+});

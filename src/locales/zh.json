@@ -136,6 +136,7 @@
     "jumpToDate": "跳转到日期",
     "markAllRead": "全部标为已读",
     "export": "导出聊天",
+    "reorderPinned": "重新排序置顶聊天",
     "exportDone": "聊天已导出",
     "clearHistory": "清除历史记录",
     "clearHistoryConfirm": "将删除此聊天中的所有消息。聊天本身仍保留在列表中。",

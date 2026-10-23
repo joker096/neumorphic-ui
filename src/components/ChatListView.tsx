@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactElement } from "react";
 import { AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots, ChatListSortControls, ChatListConfirmDialog } from "./chat-preview";
 import { FolderManagerModal } from "./chat-preview/FolderManagerModal";
 import type { ChatFolder } from "../lib/chat/customFolders";
@@ -12,6 +12,8 @@ import { CrmNextStepsBanner } from "./crm/CrmNextStepsBanner";
 import { useAppStore } from "../store";
 import { useUiStore } from "../store/uiStore";
 import { CRM_SEGMENT_KEYS } from "../constants/chatConstants";
+import { Reorder, useDragControls } from "motion/react";
+import { GripHorizontal } from "lucide-react";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -118,6 +120,7 @@ export const ChatListView = ({
     menuItems,
     handleMenuMute,
     handleMenuPin,
+    handleReorderPinned,
     handleMenuToggleUnread,
     handleChatOpen,
     handleMenuDelete,
@@ -128,7 +131,10 @@ export const ChatListView = ({
     confirmDelete,
   } = useChatListActions({ t, activeFolder, toggleArchive, setActiveChat, activeChatId });
 
-  const pinnedChats = useMemo(() => filteredChats.filter((c: any) => c.pinned), [filteredChats]);
+  const pinnedChats = useMemo(
+    () => filteredChats.filter((c: any) => c.pinned).sort((a: any, b: any) => (a.pinRank ?? Infinity) - (b.pinRank ?? Infinity)),
+    [filteredChats],
+  );
   const regularChats = useMemo(() => filteredChats.filter((c: any) => !c.pinned), [filteredChats]);
   // "Mark all as read" is only worth a control when the visible list actually
   // has unread chats — otherwise it is a tap that can never change anything.
@@ -138,8 +144,8 @@ export const ChatListView = ({
   );
 
   const rows = useMemo(
-    () => buildChatRows({ view, pinnedChats, regularChats, filteredChannels, t }),
-    [view, pinnedChats, regularChats, filteredChannels, t]
+    () => buildChatRows({ view, regularChats, filteredChannels, t }),
+    [view, regularChats, filteredChannels, t]
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -233,6 +239,20 @@ export const ChatListView = ({
       )}
 
       <div ref={scrollRef} className="chat-list flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+        {view === "chats" && pinnedChats.length > 0 && !selectMode && (
+          <div data-testid="pinned-chat-section" className="pb-2">
+            <div className="pb-3 sm:pb-4 text-xs sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[var(--accent)]">
+              {t("chat.sectionPinned")}
+            </div>
+            <Reorder.Group axis="y" values={pinnedChats} onReorder={handleReorderPinned} className="flex flex-col">
+              {pinnedChats.map((chat) => (
+                <PinnedReorderItem key={String(chat.id)} chat={chat} renderRow={renderRow} t={t} />
+              ))}
+            </Reorder.Group>
+            <div className="h-px w-full bg-black/5 dark:bg-white/5 my-2" />
+          </div>
+        )}
+
         <ChatListVirtualRows rows={rows} scrollRef={scrollRef} renderRow={renderRow} />
 
         {view === "bots" && (
@@ -299,3 +319,29 @@ export const ChatListView = ({
     </div>
   );
 };
+
+interface PinnedReorderItemProps {
+  chat: any;
+  renderRow: (chat: any, type: "chat" | "channel", opts?: { disableSwipe?: boolean }) => ReactElement;
+  t: Translate;
+}
+
+/** One pinned chat row with a drag handle that reorders via Reorder.Item. */
+function PinnedReorderItem({ chat, renderRow, t }: PinnedReorderItemProps) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item value={chat} dragListener={false} dragControls={dragControls}>
+      <div className="relative">
+        {renderRow(chat, "chat", { disableSwipe: true })}
+        <button
+          type="button"
+          aria-label={t("chat.reorderPinned")}
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+          onPointerDown={(e) => dragControls.start(e)}
+        >
+          <GripHorizontal size={16} />
+        </button>
+      </div>
+    </Reorder.Item>
+  );
+}
