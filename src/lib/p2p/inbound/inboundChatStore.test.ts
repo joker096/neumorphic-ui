@@ -10,6 +10,8 @@ const play = vi.mocked(playSound);
 const dm = (over: any = {}) => ({ id: 'c1', name: 'Bob', type: 'direct', history: [], unread: 0, ...over });
 const msg = (over: any = {}) => ({ id: 1000, ts: 1000, text: 'hi', sender: 'Bob', time: '10:00', ...over });
 
+const defaultPush = useAppStore.getState().pushNotification;
+
 beforeEach(() => {
   useAppStore.setState({
     chats: [dm()],
@@ -17,6 +19,7 @@ beforeEach(() => {
     notificationItems: [],
     unreadCount: 0,
     notificationSettings: { ...DEFAULT_NOTIFICATION_SETTINGS },
+    pushNotification: defaultPush,
   });
   vi.restoreAllMocks();
 });
@@ -83,6 +86,20 @@ describe('appendIncomingToDmChat', () => {
     useAppStore.setState({ notificationSettings: { ...DEFAULT_NOTIFICATION_SETTINGS, sounds: false } });
     appendIncomingToDmChat(dm(), msg({ id: 1002, ts: 1002 }));
     expect(play).not.toHaveBeenCalled();
+  });
+
+  it('gates the notification body on the message-preview setting', () => {
+    const pushMock = vi.fn();
+    useAppStore.setState({ pushNotification: pushMock });
+
+    useAppStore.setState({ notificationSettings: { ...DEFAULT_NOTIFICATION_SETTINGS, messagePreview: true } });
+    appendIncomingToDmChat(dm(), msg({ id: 1001, ts: 1001, text: 'secret' }));
+    expect(pushMock).toHaveBeenLastCalledWith(expect.objectContaining({ title: 'Bob', body: 'secret' }));
+
+    pushMock.mockClear();
+    useAppStore.setState({ notificationSettings: { ...DEFAULT_NOTIFICATION_SETTINGS, messagePreview: false } });
+    appendIncomingToDmChat(dm(), msg({ id: 1002, ts: 1002, text: 'secret' }));
+    expect(pushMock).toHaveBeenLastCalledWith(expect.objectContaining({ title: 'Bob', body: undefined }));
   });
 
   it('inserts a late arrival in send-time order instead of appending', () => {

@@ -4,6 +4,7 @@ import {
   Eye, Moon, Timer, Music,
 } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import { useAppStore } from '../../store';
 import { SettingsGroup, SettingsSectionTitle, SettingsRow, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
 import { toast } from '../ui/Toast';
@@ -43,13 +44,16 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
   const [channels, setChannels] = useState(false);
   const [mentions, setMentions] = useState(true);
   const [inAppSound, setInAppSound] = useState(true);
-  const [preview, setPreview] = useState(true);
   const [quietHours, setQuietHours] = useState(false);
   const [customTone, setCustomTone] = useState(false);
   const [customToneId, setCustomToneId] = useState<SoundEventType>('incoming-chat');
   const [badgeMode, setBadgeMode] = useState<BadgeMode>('all');
   const [quietFrom, setQuietFrom] = useState('22:00');
   const [quietTo, setQuietTo] = useState('08:00');
+
+  const notificationSettings = useAppStore((s) => s.notificationSettings);
+  const setNotificationSettings = useAppStore((s) => s.setNotificationSettings);
+  const preview = notificationSettings?.messagePreview ?? true;
 
   const playTone = (id: SoundEventType) => {
     try {
@@ -124,7 +128,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           subtitle={t('settings.messagePreviewSub', 'Show text in notifications')}
           isOn={preview}
           isDark={isDark}
-          onToggle={() => setPreview(v => !v)}
+          onToggle={() => setNotificationSettings({ messagePreview: !preview })}
         />
         <SettingsToggleRow
           icon={<Music size={16} />}

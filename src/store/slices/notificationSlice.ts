@@ -20,6 +20,7 @@ export interface NotificationSettings {
   sounds: boolean;
   desktop: boolean;
   mobile: boolean;
+  messagePreview: boolean;
 }
 
 export interface NotificationSlice {
@@ -44,6 +45,7 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   sounds: true,
   desktop: true,
   mobile: true,
+  messagePreview: true,
 };
 
 export function isNotificationKindEnabled(kind: NotificationKind, s: NotificationSettings): boolean {

@@ -5,6 +5,8 @@ import '@testing-library/jest-dom/vitest';
 
 const storeState = vi.hoisted(() => ({
   chats: [{ id: 1, name: 'Duplicate Chat' }, { id: 10, name: 'Chat A' }],
+  notificationSettings: { messagePreview: true },
+  setNotificationSettings: vi.fn(),
 }));
 
 vi.mock('lucide-react', () => ({
@@ -33,6 +35,7 @@ describe('NotificationsSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     storeState.chats = [{ id: 1, name: 'Duplicate Chat' }, { id: 10, name: 'Chat A' }];
+    storeState.notificationSettings = { messagePreview: true };
   });
 
   it('renders header, sections and back button', () => {
@@ -56,6 +59,13 @@ describe('NotificationsSection', () => {
     expect(screen.getByRole('switch', { name: t('settings.messagePreview', 'Message preview') })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByRole('switch', { name: t('settings.customTone', 'Custom notification tone') })).toHaveAttribute('aria-checked', 'false');
     expect(screen.getAllByRole('switch')).toHaveLength(8); // + quiet hours
+  });
+
+  it('wires the message-preview toggle to the notification settings store', () => {
+    renderSection();
+    const sw = screen.getByRole('switch', { name: t('settings.messagePreview', 'Message preview') });
+    fireEvent.click(sw);
+    expect(storeState.setNotificationSettings).toHaveBeenCalledWith({ messagePreview: false });
   });
 
   it('toggles private chats switch', () => {

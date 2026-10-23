@@ -58,7 +58,8 @@ function notifyIncoming(chat: any, freshChat: any | undefined, msg: any) {
         ? "channel"
         : "message";
   if (!isNotificationKindEnabled(kind, settings)) return;
-  state.pushNotification?.({ title: target.name || "", body: text || undefined, kind, chatId: String(chat.id) });
+  const showPreview = settings.messagePreview !== false;
+  state.pushNotification?.({ title: target.name || "", body: showPreview ? text || undefined : undefined, kind, chatId: String(chat.id) });
   if (settings.sounds && !msg.silent) playSound("incoming-chat");
 }
 
