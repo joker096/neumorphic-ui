@@ -532,6 +532,8 @@
     },
     "subscribersLabel": "登録者",
     "postsLabel": "投稿",
+    "autoDelete": "メッセージを自動削除",
+    "autoDeleteSubtitle": "新しいメッセージはこの時間が経過すると消えます",
     "membersCount": {
       "one": "{{count}}人のメンバー",
       "other": "{{count}}人のメンバー"

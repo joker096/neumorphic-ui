@@ -532,6 +532,8 @@
     },
     "subscribersLabel": "Подписчики",
     "postsLabel": "Записи",
+    "autoDelete": "Автоудаление сообщений",
+    "autoDeleteSubtitle": "Новые сообщения исчезают через это время",
     "membersCount": {
       "one": "{{count}} участник",
       "other": "{{count}} участников"

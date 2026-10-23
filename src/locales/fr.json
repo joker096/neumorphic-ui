@@ -532,6 +532,8 @@
     },
     "subscribersLabel": "Abonnés",
     "postsLabel": "Publications",
+    "autoDelete": "Suppression automatique des messages",
+    "autoDeleteSubtitle": "Les nouveaux messages disparaissent après ce délai",
     "membersCount": {
       "one": "{{count}} membre",
       "other": "{{count}} membres"

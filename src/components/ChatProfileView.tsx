@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, MessageCircle, Phone, Video, UserX, LogOut, Volume2, VolumeX,
-  Bot as BotIcon, Globe, Lock, Trash2, UserPlus, BadgeCheck,
+  Bot as BotIcon, Globe, Lock, Trash2, UserPlus, BadgeCheck, Clock,
 } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 import { useAppStore } from '../store';
@@ -22,6 +22,7 @@ import {
 } from '../constants/chatConstants';
 import { ChatProfileBody, type ChatProfileKind, type ProfileChat } from './chat-profile/ChatProfileBody';
 import { ChatProfileActions } from './chat-profile/ChatProfileActions';
+import { selfDestructOptions, selfDestructLabel } from '../lib/selfDestruct';
 import { HINT_TEXT_TIGHT_CLASS, SECONDARY_TEXT_CLASS } from './ui/textClasses';
 /** Destructive action button in the chat profile footer (block, leave). */
 const DANGER_BTN_CLASS =
@@ -59,6 +60,10 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
   const updateGroup = useAppStore((s) => s.updateGroup);
   const pinnedMessageList = useAppStore((s) => s.pinnedMessageList);
   const removePinnedMessage = useAppStore((s) => s.removePinnedMessage);
+  const premium = useAppStore((s) => s.premiumEntitlement?.premium);
+  const chatSelfDestruct = useAppStore((s) => s.chatSelfDestruct);
+  const setChatSelfDestruct = useAppStore((s) => s.setChatSelfDestruct);
+  const selfDestructDefault = useAppStore((s) => s.selfDestructDefault);
   const liveChat = (chats as any[]).find((c: any) => c.id === chat.id);
   const blockedContact = kind === 'user' || kind === 'bot'
     ? (contacts || []).find((c: any) => c.id === chat.id || c.name === chat.name)
@@ -114,6 +119,14 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
     onClose();
   };
 
+  const autoDeleteValue = chatSelfDestruct?.[String(chat.id)] ?? selfDestructDefault ?? 'Off';
+  const cycleAutoDelete = () => {
+    const options = selfDestructOptions(!!premium);
+    const idx = options.indexOf(autoDeleteValue);
+    const next = options[(idx + 1) % options.length];
+    setChatSelfDestruct(chat.id, next);
+  };
+
   const subtitle = () => {
     if (kind === 'channel') {
       const subscriberCount = chat.subscriberCount ?? chat.subscribers ?? CHAT_PROFILE_DEFAULT_SUBSCRIBERS;
@@ -166,6 +179,22 @@ export const ChatProfileView = ({ open, chat, isDark = false, onClose, onMessage
                   </div>
                 )}
                 {chat.description && <div className="mt-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">{chat.description}</div>}
+                <div className="mt-4 w-full flex items-center justify-between gap-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] px-4 py-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Clock size={16} className="shrink-0 text-[var(--accent)]" />
+                    <div className="min-w-0 text-left">
+                      <div className="text-sm font-medium text-[var(--text-primary)]">{t('profile.autoDelete', 'Auto-delete messages')}</div>
+                      <div className={HINT_TEXT_TIGHT_CLASS}>{t('profile.autoDeleteSubtitle', 'New messages disappear after this time')}</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={cycleAutoDelete}
+                    aria-label={t('profile.autoDelete', 'Auto-delete messages')}
+                    className="shrink-0 min-h-11 px-3 rounded-xl bg-[var(--msg-bg-panel)] text-sm font-semibold text-[var(--accent)] active:scale-95 transition-transform"
+                  >
+                    {selfDestructLabel(t, autoDeleteValue)}
+                  </button>
+                </div>
                 <ChatProfileActions
                   kind={kind}
                   isChatMuted={isChatMuted}

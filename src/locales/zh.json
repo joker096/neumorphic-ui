@@ -532,6 +532,8 @@
     },
     "subscribersLabel": "订阅者",
     "postsLabel": "帖子",
+    "autoDelete": "自动删除消息",
+    "autoDeleteSubtitle": "新消息在此时间后消失",
     "membersCount": {
       "one": "{{count}}位成员",
       "other": "{{count}}位成员"

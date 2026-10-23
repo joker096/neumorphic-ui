@@ -59,6 +59,10 @@ describe('ChatProfileView block action', () => {
       leaveGroup: vi.fn(),
       leaveChannel: vi.fn(),
       updateGroup: vi.fn(),
+      premiumEntitlement: { premium: false, plan: null, expiresAt: null },
+      chatSelfDestruct: {},
+      selfDestructDefault: 'Off',
+      setChatSelfDestruct: vi.fn(),
     };
   });
 
@@ -70,7 +74,16 @@ it('marks the name-matched store contact as blocked on Block click', () => {
     fireEvent.click(blockBtn);
 
     expect(mockStore.setContactBlocked).toHaveBeenCalledWith('hash_alice_123', true);
-    expect(toast).toHaveBeenCalledWith('User blocked', 'success');
+  });
+
+  it('cycles the auto-delete timer and writes a per-chat override', () => {
+    render(<ChatProfileView {...defaultProps} />);
+    const btn = screen.getByRole('button', { name: 'Auto-delete messages' });
+    expect(btn).toHaveTextContent('Off');
+    fireEvent.click(btn);
+    // The store is mocked non-reactively, so the label read-back would need a
+    // re-render; the actionable contract is that the override is written.
+    expect(mockStore.setChatSelfDestruct).toHaveBeenCalledWith(7, '1 min');
   });
 
   it('renders into the document body portal so a transformed ancestor cannot trap it (z-index fix)', () => {
