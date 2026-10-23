@@ -52,6 +52,7 @@ const PERSISTED_KEYS = new Set([
   'saveVideoRecordings',
   'autoRecordCalls',
   'recordingsRetentionDays',
+  'customFolders',
 ]);
 
 export const savedPrivacySettings = (() => {

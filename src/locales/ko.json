@@ -185,6 +185,10 @@
       "cancel": "취소",
       "yourFolders": "내 폴더",
       "noCalls": "통화 기록이 없습니다",
+      "chats": "채팅",
+      "empty": "아직 맞춤 폴더가 없습니다. 첫 번째 폴더를 만드세요.",
+      "noChats": "할당할 채팅이 없습니다.",
+      "searchEmpty": "찾는 결과가 없습니다.",
       "newFolder": "+ 새 폴더"
     },
     "goBack": "뒤로",

@@ -1,5 +1,7 @@
-import { ListFilter } from "lucide-react";
+import { ListFilter, Pencil } from "lucide-react";
+import { useMemo } from "react";
 import { CHAT_FOLDER_KEYS } from "../../constants/chatConstants";
+import type { ChatFolder } from "../../lib/chat/customFolders";
 
 interface FolderFilterBarProps {
   activeFolder: string;
@@ -11,21 +13,32 @@ interface FolderFilterBarProps {
   segments?: readonly string[];
   /** Unread totals per folder key; a non-zero value renders a counter on the pill. */
   folderUnread?: Record<string, number>;
+  /** User-created folders rendered after the built-in set. */
+  customFolders?: ChatFolder[];
+  /** Opens the folder manager. */
+  onEditFolders?: () => void;
 }
 
-export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t, segments = [], folderUnread = {} }: FolderFilterBarProps) => {
+export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters, setShowAdvancedFilterModal, t, segments = [], folderUnread = {}, customFolders = [], onEditFolders }: FolderFilterBarProps) => {
   const folders: readonly string[] = segments.length
     ? [...CHAT_FOLDER_KEYS.filter((f) => f !== "archived"), ...segments, "archived"]
     : CHAT_FOLDER_KEYS;
+  const customIds = customFolders.map((f) => f.id);
+  const allFolders: readonly string[] = [...folders, ...customIds];
+  const customFolderById = useMemo(
+    () => new Map<string, ChatFolder>(customFolders.map((f) => [f.id, f])),
+    [customFolders],
+  );
   return (
     <div className="flex items-center gap-2 mb-3 sm:mb-4 shrink-0">
     <div
       className="flex-1 flex gap-1.5 overflow-x-auto scrollbar-none pb-1 -mx-1 px-1"
       onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}
     >
-      {folders.map((folder) => {
+      {allFolders.map((folder) => {
         const isActive = activeFolder === folder;
-        const label = t(`chat.folders.${folder}`);
+        const custom = customFolderById.get(folder);
+        const label = custom ? custom.name : t(`chat.folders.${folder}`);
         const unread = Number(folderUnread[folder]) || 0;
         return (
           <button
@@ -52,6 +65,16 @@ export const FolderFilterBar = ({ activeFolder, setActiveFolder, advancedFilters
         );
       })}
     </div>
+    {onEditFolders && (
+      <button
+        type="button"
+        aria-label={t("chat.folders.editFolder", "Папки")}
+        onClick={onEditFolders}
+        className="min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] p-2 rounded-full cursor-pointer shrink-0 transition-all active:scale-95 flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)] border border-[var(--border-color)]"
+      >
+        <Pencil size={16} />
+      </button>
+    )}
     <button
       type="button"
       aria-label={t('chat.advancedFilters', 'Filters')}

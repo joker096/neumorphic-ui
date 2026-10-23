@@ -1,5 +1,7 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots, ChatListSortControls, ChatListConfirmDialog } from "./chat-preview";
+import { FolderManagerModal } from "./chat-preview/FolderManagerModal";
+import type { ChatFolder } from "../lib/chat/customFolders";
 import { ChatContextMenu } from "./chat-preview/ChatContextMenu";
 import { useChatListActions } from "../hooks/useChatListActions";
 import { buildChatRows } from "./chat-list/buildChatRows";
@@ -26,6 +28,8 @@ interface ChatListViewProps {
   filteredChannels: any[];
   /** Unread totals per folder key, rendered as counters on the folder tabs. */
   folderUnread?: Record<string, number>;
+  /** User-created folders; rendered in the filter bar and editable via the manager. */
+  customFolders?: ChatFolder[];
   bots: any[];
   archivedUnreadCount: number;
   toggleArchive: (id: string | number) => void;
@@ -65,6 +69,7 @@ export const ChatListView = ({
   filteredChats,
   filteredChannels,
   folderUnread = {},
+  customFolders = [],
   bots,
   archivedUnreadCount,
   toggleArchive,
@@ -92,6 +97,7 @@ export const ChatListView = ({
   draftTextByChat,
 }: ChatListViewProps) => {
   const [globalSearchOpen, setGlobalSearchOpen] = useGlobalSearchToggle();
+  const [folderManagerOpen, setFolderManagerOpen] = useState(false);
   const premium = Boolean(useAppStore((s) => s.premiumEntitlement?.premium));
   const crmContacts = useAppStore((s) => s.crmContacts);
   const crmSegments = crmContacts.length ? CRM_SEGMENT_KEYS : [];
@@ -198,6 +204,8 @@ export const ChatListView = ({
             t={t}
             segments={crmSegments}
             folderUnread={folderUnread}
+            customFolders={customFolders}
+            onEditFolders={() => setFolderManagerOpen(true)}
           />
           <ChatListSortControls
             chatSortBy={chatSortBy}
@@ -263,6 +271,14 @@ export const ChatListView = ({
         t={t}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+      />
+
+      <FolderManagerModal
+        open={folderManagerOpen}
+        onClose={() => setFolderManagerOpen(false)}
+        activeFolder={activeFolder}
+        setActiveFolder={setActiveFolder}
+        t={t}
       />
 
       {globalSearchOpen && (

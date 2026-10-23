@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { CHAT_FOLDER_KEYS, CRM_SEGMENT_KEYS } from "../constants/chatConstants";
 import { findCrmContactByChat } from "../lib/crm/bridge";
 import { chatActivityOf } from "../utils/chatUtils";
+import { folderHasChat, type ChatFolder } from "../lib/chat/customFolders";
 const ARCHIVED = CHAT_FOLDER_KEYS[5];
 const UNREAD = CHAT_FOLDER_KEYS[2];
 const PERSONAL = CHAT_FOLDER_KEYS[1];
@@ -62,8 +63,17 @@ export function useFilteredChats(
   spamFilter = false,
   sortBy: ChatSortBy = 'recent',
   crmContacts: any[] = [],
+  customFolders: ChatFolder[] = [],
 ) {
   const MENTIONED_USER = "user";
+
+  // Custom folders are exact-id membership. Keyed by id so the filter and the
+  // tab badges both resolve the active folder the same way.
+  const customFolderById = useMemo(
+    () => new Map<string, ChatFolder>(customFolders.map((f) => [f.id, f])),
+    [customFolders],
+  );
+  const activeCustomFolder = customFolderById.get(activeFolder);
 
   /**
    * settings.spamFilter: a direct chat with somebody who is not in the contact
@@ -125,8 +135,9 @@ export function useFilteredChats(
     if (advancedFilters.hasReplies && !(chat.history || []).some((m: any) => !!m.replyTo)) return false;
     if (advancedFilters.fromBots && chat.type !== 'bot') return false;
     if (advancedFilters.priority && !chat.isPriority) return false;
+    if (activeCustomFolder) return folderHasChat(activeCustomFolder, chat.id);
     return chatInFolder(chat, activeFolder, archivedChats, crmContacts);
-  }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters, isSpamChat, crmContacts]);
+  }), [currentChatList, chatSearchQuery, activeFolder, archivedChats, advancedFilters, isSpamChat, crmContacts, activeCustomFolder]);
 
   const filteredChannels = useMemo(() => channels.filter(channel => {
     const query = chatSearchQuery.toLowerCase().trim();
@@ -141,8 +152,9 @@ export function useFilteredChats(
     if (isArchived) return false;
     // Sales segments are contact-based; channels never belong to one.
     if (activeFolder === LEADS || activeFolder === CLIENTS) return false;
+    if (activeCustomFolder) return folderHasChat(activeCustomFolder, channel.id);
     return true;
-  }), [channels, chatSearchQuery, activeFolder, archivedChats]);
+  }), [channels, chatSearchQuery, activeFolder, archivedChats, activeCustomFolder]);
 
   const sortedChats = useMemo(() => {
     // Copy first — `filteredChats` items are the live store objects, and sort
@@ -186,8 +198,22 @@ export function useFilteredChats(
       });
       counts[folder] = total;
     });
+    customFolders.forEach((folder) => {
+      let total = 0;
+      currentChatList.forEach((chat) => {
+        const unread = Number(chat.unread) || 0;
+        if (unread > 0 && !isSpamChat(chat) && folderHasChat(folder, chat.id)) {
+          total += unread;
+        }
+      });
+      channels.forEach((channel) => {
+        const unread = Number((channel as any).unread) || 0;
+        if (unread > 0 && folderHasChat(folder, channel.id)) total += unread;
+      });
+      counts[folder.id] = total;
+    });
     return counts;
-  }, [currentChatList, channels, archivedChats, crmContacts, isSpamChat]);
+  }, [currentChatList, channels, archivedChats, crmContacts, isSpamChat, customFolders]);
 
   return { filteredChats: sortedChats, filteredChannels: sortedChannels, mentionCounts, folderUnread };
 }

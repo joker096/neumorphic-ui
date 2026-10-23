@@ -185,6 +185,10 @@
       "cancel": "取消",
       "yourFolders": "你的文件夹",
       "noCalls": "未找到通话",
+      "chats": "聊天",
+      "empty": "还没有自定义文件夹，请创建第一个。",
+      "noChats": "没有可分配的聊天。",
+      "searchEmpty": "未找到结果。",
       "newFolder": "+ 新建文件夹"
     },
     "goBack": "返回",

@@ -8,6 +8,8 @@ import { createNetworkActions } from './settings/settingsNetworkActions';
 import { createMediaActions } from './settings/settingsMediaActions';
 import { createMessagingActions } from './settings/settingsMessagingActions';
 import { createUpdateActions } from './settings/settingsUpdate';
+import { createFoldersActions } from './settings/settingsFoldersActions';
+import type { ChatFolder } from '../../lib/chat/customFolders';
 
 export { persistEncryptedSetting, hydrateSecurePrivacyFields } from './settings/settingsPersist';
 
@@ -106,6 +108,12 @@ export interface SettingsSlice {
   setSaveVideoRecordings: (enabled: boolean) => void;
   setAutoRecordCalls: (enabled: boolean) => void;
   setRecordingsRetentionDays: (days: number) => void;
+  /** User-created chat folders (name + explicit member chat ids). */
+  customFolders: ChatFolder[];
+  addCustomFolder: (name: string) => void;
+  renameCustomFolder: (id: string, name: string) => void;
+  deleteCustomFolder: (id: string) => void;
+  setCustomFolderChats: (id: string, chatIds: Array<string | number>) => void;
 }
 
 export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
@@ -157,6 +165,7 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   saveVideoRecordings: savedPrivacySettings.saveVideoRecordings ?? true,
   autoRecordCalls: savedPrivacySettings.autoRecordCalls ?? true,
   recordingsRetentionDays: savedPrivacySettings.recordingsRetentionDays ?? 0,
+  customFolders: Array.isArray(savedPrivacySettings.customFolders) ? savedPrivacySettings.customFolders : [],
   ...createSecurityActions(set, get),
   ...createPrivacyActions(set),
   ...createMessagingActions(set),
@@ -165,4 +174,5 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   ...createNetworkActions(set),
   ...createMediaActions(set),
   ...createUpdateActions(set),
+  ...createFoldersActions(set, get),
 });

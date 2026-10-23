@@ -23,6 +23,7 @@ export const useChatListData = () => {
   const spamFilter = useAppStore(s => s.spamFilter);
   const crmContacts = useAppStore(s => s.crmContacts);
   const toggleArchive = useAppStore(s => s.toggleArchive);
+  const customFolders = useAppStore(s => s.customFolders);
 
   const [activeFolder, setActiveFolder] = useState<string>('all');
   const [chatSortBy, setChatSortBy] = useState<'recent' | 'alpha'>('recent');
@@ -39,6 +40,7 @@ export const useChatListData = () => {
     spamFilter,
     chatSortBy,
     crmContacts,
+    customFolders,
   );
 
   const { chatsUnread, companyUnread } = useUnreadCount(chats, channels);
@@ -56,6 +58,7 @@ export const useChatListData = () => {
     filteredChats,
     filteredChannels,
     folderUnread,
+    customFolders,
     bots,
     archivedUnreadCount,
     toggleArchive,
