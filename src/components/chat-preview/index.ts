@@ -6,4 +6,3 @@ export { ViewTabs } from './ViewTabs';
 export { ChatListSearchHeader } from './ChatListSearchHeader';
 export { ChatListBots } from './ChatListBots';
 export { ChatListSortControls } from './ChatListSortControls';
-export { ChatListConfirmDialog } from './ChatListConfirmDialog';

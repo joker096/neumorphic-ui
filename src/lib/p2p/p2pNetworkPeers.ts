@@ -79,8 +79,6 @@ export const disconnectPeer = (self: P2PNetworkInternals, peerId: string): void 
 export const getPeers = (self: P2PNetworkInternals): PeerConnection[] =>
   Array.from(self.peers.values());
 
-export const getPeerCount = (self: P2PNetworkInternals): number => self.peers.size;
-
 export const getNetworkMetrics = (
   self: P2PNetworkInternals,
 ): {
