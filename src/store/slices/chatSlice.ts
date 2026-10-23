@@ -88,7 +88,7 @@ export interface ChatSlice {
   setChannels: (updater: P2PChannel[] | ((prev: P2PChannel[]) => P2PChannel[])) => void;
   bots: BotConfig[];
   setBots: (updater: BotConfig[] | ((prev: BotConfig[]) => BotConfig[])) => void;
-  scheduledQueue: { messages: ScheduledMessage[]; addMessage: (msg: ScheduledMessage) => void; removeMessage: (id: string) => void };
+  scheduledQueue: { messages: ScheduledMessage[]; addMessage: (msg: ScheduledMessage) => void; removeMessage: (id: string) => void; rescheduleMessage: (id: string, at: number) => void };
   archivedChats: (string | number)[];
   toggleArchive: (id: string | number) => void;
   /** Mark a chat read (`unread = false`) or unread (`unread = true`, at least 1). */
@@ -264,7 +264,8 @@ export const createChatSlice = (set: any, get: any): ChatSlice => ({
   scheduledQueue: {
     messages: [],
     addMessage: (msg) => set((state: any) => ({ scheduledQueue: { ...state.scheduledQueue, messages: [...state.scheduledQueue.messages, msg] } })),
-    removeMessage: (id) => set((state: any) => ({ scheduledQueue: { ...state.scheduledQueue, messages: state.scheduledQueue.messages.filter((m: any) => m.id !== id) } }))
+    removeMessage: (id) => set((state: any) => ({ scheduledQueue: { ...state.scheduledQueue, messages: state.scheduledQueue.messages.filter((m: any) => m.id !== id) } })),
+    rescheduleMessage: (id, at) => set((state: any) => ({ scheduledQueue: { ...state.scheduledQueue, messages: state.scheduledQueue.messages.map((m: any) => m.id === id ? { ...m, scheduledAt: at } : m) } }))
   },
   archivedChats: [],
   toggleArchive: (id) => set((state: any) => ({

@@ -404,6 +404,8 @@
     "removeMedia": "Удалить медиа",
     "morse": "Азбука Морзе",
     "removeScheduledMessage": "Удалить отложенное сообщение",
+    "sendNow": "Отправить сейчас",
+    "reschedule": "Изменить время",
     "removeScheduled": "Удалить",
     "noChats": "Чатов пока нет",
     "sharedImage": "Общее изображение",

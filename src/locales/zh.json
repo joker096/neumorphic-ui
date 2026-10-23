@@ -404,6 +404,8 @@
     "removeMedia": "移除媒体",
     "morse": "摩尔斯",
     "removeScheduledMessage": "删除定时消息",
+    "sendNow": "立即发送",
+    "reschedule": "重新安排",
     "removeScheduled": "删除",
     "noChats": "暂无聊天",
     "sharedImage": "共享图片",

@@ -404,6 +404,8 @@
     "removeMedia": "メディアを削除",
     "morse": "モールス",
     "removeScheduledMessage": "予約メッセージを削除",
+    "sendNow": "今すぐ送信",
+    "reschedule": "再予約",
     "removeScheduled": "削除",
     "noChats": "チャットはまだありません",
     "sharedImage": "共有画像",

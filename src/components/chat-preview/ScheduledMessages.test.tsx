@@ -89,4 +89,36 @@ describe('ScheduledMessages', () => {
     const clockIcons = container.querySelectorAll('.lucide-clock');
     expect(clockIcons.length).toBe(2);
   });
+
+  it('fires a message immediately when Send now is clicked', () => {
+    const rescheduleMessage = vi.fn();
+    render(
+      <ScheduledMessages
+        messages={[]}
+        chatScheduledMessages={mockScheduledMessages}
+        scheduledQueue={{ removeMessage: vi.fn(), rescheduleMessage }}
+      />,
+    );
+    const nowButtons = document.querySelectorAll('[aria-label="chat.sendNow"]');
+    expect(nowButtons).toHaveLength(2);
+    fireEvent.click(nowButtons[0]);
+    expect(rescheduleMessage).toHaveBeenCalledWith(1, expect.any(Number));
+  });
+
+  it('reschedules when a new time is picked', () => {
+    const rescheduleMessage = vi.fn();
+    render(
+      <ScheduledMessages
+        messages={[]}
+        chatScheduledMessages={mockScheduledMessages}
+        scheduledQueue={{ removeMessage: vi.fn(), rescheduleMessage }}
+      />,
+    );
+    const reschedButtons = document.querySelectorAll('[aria-label="chat.reschedule"]');
+    fireEvent.click(reschedButtons[0]);
+    const input = document.querySelector('input[type="datetime-local"]') as HTMLInputElement;
+    expect(input).toBeTruthy();
+    fireEvent.change(input, { target: { value: '2025-01-20T09:00' } });
+    expect(rescheduleMessage).toHaveBeenCalledWith(1, expect.any(Number));
+  });
 });

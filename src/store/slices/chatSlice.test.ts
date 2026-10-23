@@ -82,6 +82,16 @@ describe('chatSlice', () => {
     expect(get().scheduledQueue.messages).toHaveLength(0);
   });
 
+  it('scheduledQueue rescheduleMessage updates only the target', () => {
+    const { slice, get } = makeSlice();
+    slice.scheduledQueue.addMessage({ id: 's1', scheduledAt: 100 } as any);
+    slice.scheduledQueue.addMessage({ id: 's2', scheduledAt: 200 } as any);
+    slice.scheduledQueue.rescheduleMessage('s1', 999);
+    const messages = get().scheduledQueue.messages;
+    expect(messages.find((m: any) => m.id === 's1').scheduledAt).toBe(999);
+    expect(messages.find((m: any) => m.id === 's2').scheduledAt).toBe(200);
+  });
+
   it('deleteGroup removes the group chat and its dangling references', () => {
     const { slice, get } = makeSlice({
       chats: [

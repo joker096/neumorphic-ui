@@ -404,6 +404,8 @@
     "removeMedia": "Remove media",
     "morse": "Morse",
     "removeScheduledMessage": "Remove scheduled message",
+    "sendNow": "Send now",
+    "reschedule": "Reschedule",
     "removeScheduled": "Remove",
     "noChats": "No chats yet",
     "sharedImage": "Shared image",

@@ -404,6 +404,8 @@
     "removeMedia": "미디어 삭제",
     "morse": "모스",
     "removeScheduledMessage": "예약 메시지 삭제",
+    "sendNow": "지금 보내기",
+    "reschedule": "다시 예약",
     "removeScheduled": "삭제",
     "noChats": "아직 채팅 없음",
     "sharedImage": "공유 이미지",
