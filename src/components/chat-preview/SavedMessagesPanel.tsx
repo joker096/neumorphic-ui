@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Bookmark } from "lucide-react";
+import { X, Bookmark, ExternalLink } from "lucide-react";
 import { sheetSurface, modalCloseClass } from "../ui/modalShared";
 import { SearchInput } from "../ui/SearchInput";
 import { CAPS_TERTIARY_CLASS, PRIMARY_TEXT_CLASS } from "../ui/textClasses";
@@ -11,10 +11,12 @@ interface SavedMessagesPanelProps {
   chatName: string;
   onClose: () => void;
   onToggleSavedMessage: (chat: any, msg: any) => void;
+  /** Jump to the original message in its chat (Saved → original). */
+  onOpenSavedMessage?: (chatId: string | number, messageId: string | number) => void;
   t: (key: string, options?: any) => string;
 }
 
-export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose, onToggleSavedMessage, t }: SavedMessagesPanelProps) => {
+export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose, onToggleSavedMessage, onOpenSavedMessage, t }: SavedMessagesPanelProps) => {
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
   const filtered = q
@@ -79,15 +81,28 @@ export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose,
                         <div className={CAPS_TERTIARY_CLASS}>
                           {saved.sourceLabel || chatName}
                         </div>
-                        <button
-                          onClick={() => onToggleSavedMessage?.({ id: chatName }, { id: saved.messageId })}
-                          aria-label={t('chat.unsave')}
-                          title={t('chat.unsave')}
-                          className={`min-w-11 min-h-11 flex items-center justify-center rounded-full bg-[var(--msg-bg-panel-hover)] text-[var(--text-secondary)] hover:text-[var(--danger)] active:scale-95 transition-colors`}
-                        >
-                          <Bookmark size={16} />
-                          <span className="sr-only">{t('chat.unsave')}</span>
-                        </button>
+                        <div className="flex items-center gap-1">
+                          {onOpenSavedMessage && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onOpenSavedMessage(saved.chatId, saved.messageId); }}
+                              aria-label={t('chat.openOriginal')}
+                              title={t('chat.openOriginal')}
+                              className={`min-w-11 min-h-11 flex items-center justify-center rounded-full bg-[var(--msg-bg-panel-hover)] text-[var(--text-secondary)] hover:text-[var(--accent)] active:scale-95 transition-colors`}
+                            >
+                              <ExternalLink size={16} />
+                              <span className="sr-only">{t('chat.openOriginal')}</span>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => onToggleSavedMessage?.({ id: chatName }, { id: saved.messageId })}
+                            aria-label={t('chat.unsave')}
+                            title={t('chat.unsave')}
+                            className={`min-w-11 min-h-11 flex items-center justify-center rounded-full bg-[var(--msg-bg-panel-hover)] text-[var(--text-secondary)] hover:text-[var(--danger)] active:scale-95 transition-colors`}
+                          >
+                            <Bookmark size={16} />
+                            <span className="sr-only">{t('chat.unsave')}</span>
+                          </button>
+                        </div>
                       </div>
                       <div className={PRIMARY_TEXT_CLASS}>
                         {saved.preview}

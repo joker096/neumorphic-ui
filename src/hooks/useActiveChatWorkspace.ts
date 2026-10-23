@@ -29,6 +29,8 @@ export interface ActiveChatWorkspaceArgs {
   setMorseMode: (mode: boolean) => void;
   savedMessages: any[];
   toggleSavedMessage?: (chat: any, message: any) => void;
+  /** Jump to the original message in its chat (Saved → original). */
+  openSavedMessage?: (chatId: string | number, messageId: string | number) => void;
   handleSendMessage: () => void;
   sendVoiceMessage: (url: string, duration: string, blob?: Blob) => void;
   sendStickerMessage: (sticker: string) => void;
@@ -46,7 +48,7 @@ export function useActiveChatWorkspace(args: ActiveChatWorkspaceArgs) {
     isRecordingVoice, setIsRecordingVoice, voiceNoteError, showStickerPicker,
     setShowStickerPicker, morseMode, silentMode, replyTarget, setReplyTarget,
     draftTextByChat, setDraftTextByChat, setChats, setChannels, setVoiceNoteError,
-    setSilentMode, setMorseMode, savedMessages, toggleSavedMessage,
+    setSilentMode, setMorseMode, savedMessages, toggleSavedMessage, openSavedMessage,
     handleSendMessage, sendVoiceMessage, sendStickerMessage,
     handlePreviewCall, handlePreviewMessage, setEditingContact, onOpenPremium,
   } = args;
@@ -82,6 +84,7 @@ export function useActiveChatWorkspace(args: ActiveChatWorkspaceArgs) {
     sendStickerMessage,
     savedMessages,
     onToggleSavedMessage: toggleSavedMessage,
+    onOpenSavedMessage: openSavedMessage,
     onPreviewCall: handlePreviewCall,
     onPreviewVideoCall: (name: string, color?: string) => handlePreviewCall(name, color, 'video'),
     onPreviewMessage: handlePreviewMessage,
@@ -104,7 +107,7 @@ export function useActiveChatWorkspace(args: ActiveChatWorkspaceArgs) {
     setIsRecordingVoice, voiceNoteError, showStickerPicker, setShowStickerPicker,
     morseMode, silentMode, replyTarget, setReplyTarget, draftTextByChat,
     setDraftTextByChat, setChats, setChannels, setVoiceNoteError, setSilentMode,
-    setMorseMode, toggleSavedMessage, savedMessages, activeChat?.isMuted, setEditingContact,
+    setMorseMode, toggleSavedMessage, openSavedMessage, savedMessages, activeChat?.isMuted, setEditingContact,
     handleSendMessage, sendVoiceMessage, sendStickerMessage, handlePreviewCall, handlePreviewMessage,
     onOpenPremium,
   ]);

@@ -31,6 +31,8 @@ interface ChatPreviewOverlaysProps {
   setShowSavedPanel: (show: boolean) => void;
   chatSavedMessages: any[];
   onToggleSavedMessage?: (chat: any, message: any) => void;
+  /** Jump to the original message in its chat (Saved → original). */
+  onOpenSavedMessage?: (chatId: string | number, messageId: string | number) => void;
   t: TranslateFn;
   selectedContact: ContactProfile | null;
   setSelectedContact: React.Dispatch<React.SetStateAction<ContactProfile | null>>;
@@ -54,7 +56,7 @@ export function ChatPreviewOverlays({
   activeMediaMsg, setActiveMediaMsg,
   setPhotoOpen, setVideoOpen,
   showComments, activePostId, setShowComments,
-  showSavedPanel, setShowSavedPanel, chatSavedMessages, onToggleSavedMessage,
+  showSavedPanel, setShowSavedPanel, chatSavedMessages, onToggleSavedMessage, onOpenSavedMessage,
   t,
   selectedContact, setSelectedContact, setEditingContact,
   onCall, onVideoCall, onMessage,
@@ -122,7 +124,7 @@ export function ChatPreviewOverlays({
         </React.Suspense>
       )}
       <ChannelCommentsView isOpen={showComments} postId={activePostId || 0} onClose={() => setShowComments(false)} />
-      <SavedMessagesPanel show={showSavedPanel} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(c, msg) => onToggleSavedMessage?.(c, msg)} t={t} />
+      <SavedMessagesPanel show={showSavedPanel} chatSavedMessages={chatSavedMessages} chatName={chat.name} onClose={() => setShowSavedPanel(false)} onToggleSavedMessage={(c, msg) => onToggleSavedMessage?.(c, msg)} onOpenSavedMessage={onOpenSavedMessage} t={t} />
       <MessageThreadPanel
         open={threadOpen}
         rootMessage={threadRoot}

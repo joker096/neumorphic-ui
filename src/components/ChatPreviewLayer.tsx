@@ -28,6 +28,8 @@ interface ChatPreviewLayerProps {
   onReply?: (message: any) => void;
   savedMessages?: any[];
   onToggleSavedMessage?: (chat: any, message: any) => void;
+  /** Jump to the original message in its chat (Saved → original). */
+  onOpenSavedMessage?: (chatId: string | number, messageId: string | number) => void;
   deliveryReceipts?: boolean;
   readReceipts?: boolean;
   setEditingContact: (contact: ContactProfile | null) => void;
@@ -67,7 +69,7 @@ interface ChatPreviewLayerProps {
   onOpenPremium?: () => void;
 }
 
-export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onToggleStickerPicker, onDelete, onOpenPremium }: ChatPreviewLayerProps) => {
+export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, onOpenSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onToggleStickerPicker, onDelete, onOpenPremium }: ChatPreviewLayerProps) => {
   const isDark = theme === "dark";
   const { t } = useI18n();
   const isMobile = useIsMobile();
@@ -253,6 +255,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         setShowSavedPanel={preview.setShowSavedPanel}
         chatSavedMessages={chatSavedMessages}
         onToggleSavedMessage={onToggleSavedMessage}
+        onOpenSavedMessage={onOpenSavedMessage}
         onForward={msgActions.handleForwardMessage}
         onDelete={interactions.confirmSingleDelete}
         t={t}

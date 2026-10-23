@@ -187,6 +187,12 @@ export default function App() {
     handlePreviewMessage,
   });
 
+  const onOpenSavedMessage = useCallback((chatId: string | number, messageId: string | number) => {
+    const chat = [...(chats ?? []), ...(channels ?? [])].find((c: any) => String(c?.id) === String(chatId));
+    if (!chat) return;
+    openChat({ ...chat, __jumpToMessageId: messageId });
+  }, [chats, channels, openChat]);
+
   const activeChatWorkspaceProps = useActiveChatWorkspace({
     theme,
     activeChat,
@@ -215,6 +221,7 @@ export default function App() {
     setMorseMode,
     savedMessages,
     toggleSavedMessage,
+    openSavedMessage: onOpenSavedMessage,
     handleSendMessage: refActions.handleSendMessageRef,
     sendVoiceMessage: refActions.sendVoiceMessageRef,
     sendStickerMessage: refActions.sendStickerMessageRef,

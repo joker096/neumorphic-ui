@@ -42,6 +42,8 @@ type ActiveChatWorkspaceProps = {
   sendStickerMessage: (sticker: string) => void;
   savedMessages: any[];
   onToggleSavedMessage: (chatContext: any, message: any) => void;
+  /** Jump to the original message in its chat (Saved → original). */
+  onOpenSavedMessage?: (chatId: string | number, messageId: string | number) => void;
   onPreviewCall: (name: string, color?: string) => void;
   onPreviewVideoCall: (name: string, color?: string) => void;
   onPreviewMessage: (name: string, color?: string) => void;
@@ -85,7 +87,7 @@ export const ActiveChatWorkspace = ({
   sendVoiceMessage,
   sendStickerMessage,
   savedMessages,
-  onToggleSavedMessage,
+  onToggleSavedMessage, onOpenSavedMessage,
   onPreviewCall,
   onPreviewVideoCall,
   onPreviewMessage,
@@ -112,6 +114,7 @@ export const ActiveChatWorkspace = ({
       onReply={(message: any) => setReplyTarget(message)}
       savedMessages={savedMessages}
       onToggleSavedMessage={onToggleSavedMessage}
+      onOpenSavedMessage={onOpenSavedMessage}
       deliveryReceipts
       readReceipts
       setEditingContact={setEditingContact}
