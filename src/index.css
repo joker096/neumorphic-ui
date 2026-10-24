@@ -98,6 +98,18 @@ button {
   font: inherit;
 }
 
+/* Remove double-tap zoom delay on interactive chrome (Telegram-parity).
+   `manipulation` keeps pan/pinch-zoom while disabling double-tap-to-zoom, so
+   rapid taps on reactions, emoji/sticker grids and swipe tiles are 1:1. */
+button,
+[role="button"],
+[role="switch"],
+input,
+textarea,
+select {
+  touch-action: manipulation;
+}
+
 /* Form controls (text entry) default to a compact 12px so filter bars,
    search fields and inputs never inherit the large base body font.
    Intentionally large inputs (PIN pad, dialer) set their own utility class,

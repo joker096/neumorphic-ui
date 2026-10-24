@@ -30,9 +30,22 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
   const profileLabel = userProfile.name || (userProfile.username ? `@${userProfile.username}` : t("settings.defaultUserName"));
   const isSettingsActive = activeView === "settings";
 
+  // Hide the fixed bottom nav while the virtual keyboard is open (Android iOS
+  // resizes the *visual* viewport, not innerHeight). Telegram/WhatsApp collapse
+  // the bottom chrome under the keyboard so the composer is never obscured.
+  const [kbOpen, setKbOpen] = React.useState(false);
+  React.useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => setKbOpen(vv.height < window.innerHeight * 0.7);
+    update();
+    vv.addEventListener("resize", update);
+    return () => vv.removeEventListener("resize", update);
+  }, []);
+
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around pl-[calc(0.5rem+env(safe-area-inset-left,0px))] pr-[calc(0.5rem+env(safe-area-inset-right,0px))] pb-[env(safe-area-inset-bottom,0px)] pt-2 md:hidden bg-[var(--msg-bg-secondary)]/90 backdrop-blur-[var(--msg-glass-blur)] border-t border-[var(--msg-border-soft)]"
+      className={`fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around pl-[calc(0.5rem+env(safe-area-inset-left,0px))] pr-[calc(0.5rem+env(safe-area-inset-right,0px))] pb-[env(safe-area-inset-bottom,0px)] pt-2 md:hidden transition-transform duration-200 bg-[var(--msg-bg-secondary)]/90 backdrop-blur-[var(--msg-glass-blur)] border-t border-[var(--msg-border-soft)] ${kbOpen ? "translate-y-full opacity-0 pointer-events-none" : ""}`}
       style={{ height: "calc(56px + env(safe-area-inset-bottom, 0px))" }}
     >
       {filteredItems.map((item) => {

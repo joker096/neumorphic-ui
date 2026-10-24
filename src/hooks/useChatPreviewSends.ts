@@ -21,6 +21,7 @@ import { createAttachmentHandlers } from './chatPreviewSends/attachments';
 import { useReactionToggle } from './chatPreviewSends/useReactionToggle';
 import { usePollVote } from './chatPreviewSends/usePollVote';
 import { sendPollMessage } from './chatPreviewSends/sendPoll';
+import { vibrate } from '../lib/haptics';
 
 interface UseChatPreviewSendsArgs {
   chat: any;
@@ -91,6 +92,8 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
     const hasAttachment = attachments.length > 0;
     if (!textToSend && !hasAttachment) return;
     if (textToSend && textToSend.length > 20000) return;
+    // Short haptic confirmation on send (Telegram-parity).
+    vibrate(14);
     const newMessage: any = {
       id: Date.now(),
       sender: "me",
