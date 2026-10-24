@@ -39,6 +39,7 @@
     "*.tmp",
     ".tmp",
     "test-server.mjs",
-    "src-tauri/target"
+    "src-tauri/target",
+    "prototype"
   ]
 }

@@ -19,7 +19,7 @@ export default defineConfig({
     // explicitly: a build output can carry test-named artifacts (stale copies
     // or hashed chunks) that would otherwise be collected as duplicate suites
     // and make the run counts depend on whatever the last build left behind.
-    exclude: ['e2e/**', 'admin/**', 'dist/**', 'android/**', 'node_modules/**', '.kilo/**', '.agents/**', '.qwen/**', '.kilocode/**'],
+    exclude: ['e2e/**', 'admin/**', 'dist/**', 'android/**', 'node_modules/**', 'prototype/**', '.kilo/**', '.agents/**', '.qwen/**', '.kilocode/**'],
     hookTimeout: 30000,
   },
   resolve: {

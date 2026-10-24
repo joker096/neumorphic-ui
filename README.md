@@ -32,6 +32,11 @@ npm run dev
 - **Offline** — Service worker, IndexedDB cache, graceful degradation
 - **Accessible** — WCAG 44x44px touch targets, aria-labels, reduced motion
 - **Secure** — CSP, HSTS, X-Frame-Options, input sanitization
+- **Embed** — standalone widget bundle for third-party sites (per-site chats, premium remove-branding)
+
+## Embed
+
+Site owners embed the chat widget on any page via a snippet (copy from **Настройки → Website Embed**, `PersonalSiteChatManager`). The snippet is an inline bootstrap that sets `window.__MESSANGER_TOKEN__` and dynamically imports the standalone bundle `dist/embed.js` (a separate Vite entry — the widget does not pull in the main app bundle). Each site chat is independent (own X25519 channel keypair, token, config) and includes an operator inbox + website-contact list. Premium removes the "Powered by Mess&Anger" footer (`hideBrand`); a widget title and canned quick replies are configurable per site.
 
 ## Commands
 
@@ -89,6 +94,6 @@ RELEASE_SIGN_KEY=
 
 ## Tests
 
-- **Unit:** 6577 tests across 381 files (Vitest)
-- **E2E:** 210 Playwright tests in 23 spec files (`e2e/`)
+- **Unit:** 6890 tests across 430 files (Vitest)
+- **E2E:** 213 Playwright tests in 24 spec files (`e2e/`)
 - **Lint:** ESLint + TypeScript — 0 errors
