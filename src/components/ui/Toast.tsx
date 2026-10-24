@@ -1,8 +1,10 @@
 import { toast as sonnerToast } from 'sonner';
+import { announce } from '../../lib/announce';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'progress';
 
 export function toast(message: string, type: ToastType = 'info', id?: string): string | undefined {
+  announce(message);
   switch (type) {
     case 'success':
       sonnerToast.success(message);

@@ -251,7 +251,7 @@ export function ChatAttachLayer({
             size={16}
             className="-mx-2 -my-1 min-h-11 min-w-11 flex-shrink-0 cursor-pointer p-3"
             onClick={() => setError("")}
-            aria-label="Dismiss"
+            aria-label={t('common.close', 'Close')}
           />
           <span>{error}</span>
         </div>

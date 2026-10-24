@@ -45,6 +45,7 @@ export const StoryViewer = ({ activeUser, onClose, isStealthMode = false }: Stor
           className={BACKDROP_CLASS}
           role="dialog"
           aria-modal="true"
+          aria-label={t('story.noStories', 'No stories to show')}
         >
           <div className="relative w-full max-w-md h-full max-h-[90vh] flex flex-col items-center justify-center gap-3 text-white/80 px-6 text-center">
             <p className="text-lg font-medium">{t('story.noStories', 'No stories to show')}</p>

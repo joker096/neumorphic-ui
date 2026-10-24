@@ -79,6 +79,7 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
               onClick={clearCallHistory}
               className={`p-3 min-w-11 min-h-11 flex items-center justify-center rounded-xl transition-colors bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--danger-soft)] hover:text-[var(--danger)]`}
               title={t('call.clearAll')}
+              aria-label={t('call.clearAll')}
             >
               <Trash2 size={18} />
             </button>

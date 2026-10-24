@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { useI18n } from "../../lib/i18n";
+import { makeId } from "../../lib/id";
 
 type AddStationModalProps = {
   textColor?: string;
@@ -25,7 +26,31 @@ textColor, showAddStationModal, setShowAddStationModal,
   setRadioStations, radioStations, setRadioStationIndex, setIsPlaying, setIsRadioMode
 }: AddStationModalProps) => {
   const { t } = useI18n();
+  const modalRef = React.useRef<HTMLDivElement>(null);
   if (!showAddStationModal) return null;
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setShowAddStationModal(false);
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const node = modalRef.current;
+    if (!node) return;
+    const focusables = Array.from(
+      node.querySelectorAll<HTMLElement>('button, input, [href], textarea, select, [tabindex]:not([tabindex="-1"])'),
+    ).filter((el) => !el.hasAttribute("disabled"));
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
 
   const handleSubmit = () => {
     if (!stationName.trim()) {
@@ -40,7 +65,7 @@ textColor, showAddStationModal, setShowAddStationModal,
       setStationAddError(t('systemPlayer.urlInvalid'));
       return;
     }
-    const newStation = { id: Math.random().toString(36).substr(2, 9), name: stationName.trim(), url: stationUrl.trim(), time: "LIVE", file: null };
+    const newStation = { id: makeId(), name: stationName.trim(), url: stationUrl.trim(), time: "LIVE", file: null };
     setRadioStations((prev) => [...prev, newStation]);
     setRadioStationIndex(radioStations.length);
     setIsPlaying(true);
@@ -51,11 +76,16 @@ textColor, showAddStationModal, setShowAddStationModal,
   return (
     <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
       <motion.div
+        ref={modalRef}
+        onKeyDown={handleKeyDown}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-station-title"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className={`w-[90%] max-w-[320px] rounded-2xl p-6 bg-[var(--player-station-modal-light)] dark:bg-[var(--player-station-modal)]`}
       >
-        <h3 className={`text-lg font-bold mb-4 ${textColor}`}>{t('systemPlayer.addRadioStation')}</h3>
+        <h3 id="add-station-title" className={`text-lg font-bold mb-4 ${textColor}`}>{t('systemPlayer.addRadioStation')}</h3>
         <div className="mb-3">
           <label className={`text-xs font-medium ${textColor} opacity-70`}>{t('systemPlayer.stationName')}</label>
           <input
@@ -78,7 +108,7 @@ textColor, showAddStationModal, setShowAddStationModal,
             placeholder={t('systemPlayer.streamUrlPlaceholder')}
             className={`w-full mt-1 px-3 py-2 rounded-xl text-sm outline-none bg-white text-[var(--text-primary)] border border-[var(--border-color)] dark:bg-[var(--bg-tertiary)]`}
           />
-          {stationAddError && <p className="text-xs text-red-400 mt-1">{stationAddError}</p>}
+          {stationAddError && <p role="alert" className="text-xs text-red-400 mt-1">{stationAddError}</p>}
         </div>
         <div className="flex gap-2 mt-4">
           <button

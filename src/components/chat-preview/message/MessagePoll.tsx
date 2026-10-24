@@ -52,7 +52,7 @@ export const MessagePoll = ({ poll, onVote }: MessagePollProps) => {
             <span className="relative flex items-center gap-2">
               <span className="flex-1 min-w-0 text-sm text-[var(--text-primary)] break-words">{option.text}</span>
               {mine && <Check size={14} className="shrink-0 text-[var(--accent)]" />}
-              <span className="shrink-0 text-xs tabular-nums text-[var(--text-secondary)]">{option.voters.length}</span>
+              <span aria-live="polite" className="shrink-0 text-xs tabular-nums text-[var(--text-secondary)]">{option.voters.length}</span>
             </span>
           </button>
         );

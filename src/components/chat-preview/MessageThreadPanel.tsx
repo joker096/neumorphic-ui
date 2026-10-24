@@ -95,6 +95,7 @@ export function MessageThreadPanel({
           exit={{ x: "100%", opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           role="dialog"
+          aria-modal="true"
           aria-label={t("chat.threadTitle", "Thread")}
           className={`absolute inset-0 z-[55] flex flex-col bg-[var(--bg-primary)]`}
         >
