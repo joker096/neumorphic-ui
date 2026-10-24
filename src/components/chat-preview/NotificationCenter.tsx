@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Bell, BellOff, Check, Trash2, X, MessageSquare, Phone, AtSign, Reply, Users, Megaphone, Info } from "lucide-react";
 import { useAppStore } from "../../store";
 import { useI18n } from "../../lib/i18n";
+import { emitOpenChat } from "../../lib/notifications/osNotify";
 import type { NotificationKind, NotificationSettings } from "../../store/slices/notificationSlice";
 import { DataState } from "../ui/DataState";
 import { UNREAD_BADGE_CLASS } from "./chatPreviewClasses";
@@ -163,7 +164,14 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
                       <button
                         key={n.id}
                         type="button"
-                        onClick={markRead}
+                        onClick={() => {
+                          if (n.chatId != null) {
+                            emitOpenChat(n.chatId);
+                            setOpen(false);
+                          } else {
+                            markRead();
+                          }
+                        }}
                         className={`w-full flex items-start gap-2 px-3 py-2 text-left border-b border-black/5 dark:border-white/5 ${n.read ? "opacity-50" : "bg-[var(--accent)]/5"}`}
                       >
                         <Icon size={16} className="mt-0.5 flex-shrink-0 text-[var(--accent)]" />

@@ -29,6 +29,7 @@ import { useChatDraftSync } from './hooks/useChatDraftSync';
 import { useMessageLinkBoot } from './hooks/useMessageLinkBoot';
 import { useAppLocalUiState } from './hooks/useAppLocalUiState';
 import { useAppCallbacks } from './hooks/useAppCallbacks';
+import { OPEN_CHAT_EVENT } from './lib/notifications/osNotify';
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { AppShell } from './components/app/AppShell';
 import { AppChrome } from './components/app/AppChrome';
@@ -110,6 +111,22 @@ export default function App() {
   // `#nexus://chat/<chatId>/<messageId>` links (copied from the message menu)
   // open the chat and scroll to the bubble once at boot.
   useMessageLinkBoot({ openChat });
+
+  // System notifications (OS `Notification` tapped from the notification tray)
+  // and in-app notification rows with a chat route here — Telegram/WhatsApp
+  // tap-to-open. `openChat` gets the found chat so the same deep-link scroll
+  // machinery applies.
+  useEffect(() => {
+    const onOpenChat = (e: Event) => {
+      const chatId = (e as CustomEvent<{ chatId?: string | number }>).detail?.chatId;
+      if (chatId == null) return;
+      const { chats, channels } = useAppStore.getState();
+      const target = [...chats, ...channels].find((c: any) => String(c.id) === String(chatId));
+      if (target) openChat(target);
+    };
+    window.addEventListener(OPEN_CHAT_EVENT, onOpenChat);
+    return () => window.removeEventListener(OPEN_CHAT_EVENT, onOpenChat);
+  }, [openChat]);
 
   // Self-destruct deadlines actually erase the message (store list + saved
   // messages + voice/file blobs) — the bubble component only hides expired

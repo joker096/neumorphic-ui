@@ -1,3 +1,5 @@
+import { fireOsNotification } from '../../lib/notifications/osNotify';
+
 export type NotificationKind = 'message' | 'mention' | 'reply' | 'call' | 'group' | 'channel' | 'system';
 
 export interface NotificationItem {
@@ -66,7 +68,8 @@ export const createNotificationSlice = (set: any, get: any): NotificationSlice =
   notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
   browserPermission: typeof Notification !== 'undefined' ? Notification.permission : 'default',
   pushNotification: ({ title, body, kind = 'system', chatId }) => {
-    const settings = get().notificationSettings as NotificationSettings;
+    const st = get();
+    const settings = st.notificationSettings as NotificationSettings;
     if (!isNotificationKindEnabled(kind, settings)) return;
     const item: NotificationItem = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -77,10 +80,17 @@ export const createNotificationSlice = (set: any, get: any): NotificationSlice =
       createdAt: Date.now(),
       read: false,
     };
-    set((st: any) => ({
-      notificationItems: [item, ...st.notificationItems].slice(0, 100),
-      unreadCount: st.unreadCount + 1,
+    set((s: any) => ({
+      notificationItems: [item, ...s.notificationItems].slice(0, 100),
+      unreadCount: s.unreadCount + 1,
     }));
+    // Mirror to an OS notification when permission is granted and the user has
+    // mobile/desktop notifications enabled. The body is withheld when the
+    // "message preview" setting is off; the chat id always travels for
+    // tap-to-open.
+    if (st.browserPermission === 'granted' && (settings.mobile || settings.desktop)) {
+      fireOsNotification(title, settings.messagePreview ? body : undefined, chatId);
+    }
   },
   markNotificationsRead: () =>
     set((st: any) => ({
