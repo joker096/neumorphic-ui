@@ -79,6 +79,7 @@ export function PollComposerModal({ open, onClose, onSubmit }: PollComposerModal
         <input
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
+          aria-label={t("chat.pollQuestion")}
           placeholder={t("chat.pollQuestionPlaceholder")}
           className="mb-3 w-full min-h-11 rounded-xl bg-[var(--bg-tertiary)] px-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)] focus:ring-2 focus:ring-[var(--accent)]/50"
         />
