@@ -53,16 +53,33 @@ export function VirtualizedMessageListInner<T>(
     }
   }, [virtualizer]);
 
+  // Throttle scroll → setState to a single rAF per frame so scrolling near the
+  // bottom doesn't re-render the parent on every scroll event.
+  const scrollRafRef = useRef<number | null>(null);
+
   const handleScroll = useCallback(() => {
     const el = scrollRef.current
     if (!el || !onScrollPosition) return
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
-    onScrollPosition(distanceFromBottom < 200)
+    if (scrollRafRef.current !== null) return
+    scrollRafRef.current = window.requestAnimationFrame(() => {
+      scrollRafRef.current = null
+      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+      onScrollPosition(distanceFromBottom < 200)
+    })
   }, [onScrollPosition])
 
   useEffect(() => {
     handleScroll();
   }, [handleScroll, items.length]);
+
+  useEffect(() => {
+    return () => {
+      if (scrollRafRef.current !== null) {
+        window.cancelAnimationFrame(scrollRafRef.current)
+        scrollRafRef.current = null
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!stickToBottom || items.length === 0) return;

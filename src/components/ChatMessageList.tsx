@@ -114,8 +114,8 @@ export function ChatMessageList({
           swipeReplyId={swipeReplyId}
           activeReactionPicker={activeReactionPicker}
           theme={theme}
-          onReply={(m) => onReply?.(m)}
-          onToggleSavedMessage={(c, m) => onToggleSavedMessage?.(c, m)}
+          onReply={onReply}
+          onToggleSavedMessage={onToggleSavedMessage}
           onSetActivePhotoUrl={onSetActivePhotoUrl}
           onSetPhotoOpen={onSetPhotoOpen}
           onSetActiveMediaMsg={onSetActiveMediaMsg}

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { VirtualizedMessageListInner, VirtualizedMessageList } from './VirtualizedMessageList';
 
@@ -66,7 +66,7 @@ describe('VirtualizedMessageList', () => {
     expect(scrollContainer).toBeInTheDocument();
   });
 
-  it('calls onScrollPosition callback when scrolling', () => {
+  it('calls onScrollPosition callback when scrolling', async () => {
     const onScrollPosition = vi.fn();
     renderList(true, { onScrollPosition });
 
@@ -77,10 +77,11 @@ describe('VirtualizedMessageList', () => {
 
     fireEvent.scroll(scrollContainer!);
 
-    expect(onScrollPosition).toHaveBeenCalledWith(true);
+    // scroll → setState is rAF-throttled (one update per frame).
+    await waitFor(() => expect(onScrollPosition).toHaveBeenCalledWith(true));
   });
 
-  it('calls onScrollPosition with false when far from bottom', () => {
+  it('calls onScrollPosition with false when far from bottom', async () => {
     const onScrollPosition = vi.fn();
     renderList(true, { onScrollPosition });
 
@@ -91,7 +92,7 @@ describe('VirtualizedMessageList', () => {
 
     fireEvent.scroll(scrollContainer!);
 
-    expect(onScrollPosition).toHaveBeenCalledWith(false);
+    await waitFor(() => expect(onScrollPosition).toHaveBeenCalledWith(false));
   });
 
   it('renders with custom estimateSize', () => {
