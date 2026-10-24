@@ -1,4 +1,5 @@
 import { PAYMENTO_BACKEND_BASE, PAYMENT_REQUEST_TIMEOUT_MS, buildGatewayUrl } from '../config/paymento'
+import { makeId } from '../lib/id'
 import { fetchTextWithTimeout } from '../lib/network/fetchWithTimeout'
 import { formatClockTime } from '../utils/chatUtils'
 import type {
@@ -114,7 +115,7 @@ export function buildPaymentMessage(input: PaymentMessageInput): any {
       ? `Payment request · ${input.amount} ${input.currency || ''}`.trim()
       : 'Payment request')
   return {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    id: makeId(),
     type: 'payment',
     sender: 'me',
     text: label,

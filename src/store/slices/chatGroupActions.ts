@@ -1,5 +1,6 @@
 import type { Contact } from '../../types/contact';
 import type { ChatSlice } from './chatSlice';
+import { makeId } from '../../lib/id';
 
 export type GroupRole = 'owner' | 'admin' | 'member';
 
@@ -69,7 +70,7 @@ export function chatGroupActions(set: any, get: any): ChatGroupActions {
     createGroup: ({ name, memberIds }) => {
       const profile = get().userProfile;
       const contacts = get().contacts;
-      const id = `group_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const id = `group_${makeId()}`;
       const members: GroupMember[] = contacts
         .filter((c: Contact) => memberIds.includes(c.id))
         .map((c: Contact, i: number) => ({

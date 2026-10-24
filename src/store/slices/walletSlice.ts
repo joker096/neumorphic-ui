@@ -1,3 +1,5 @@
+import { makeId } from '../../lib/id';
+
 export type WalletTxType = 'topup' | 'send';
 
 export interface WalletTransaction {
@@ -21,8 +23,7 @@ export interface WalletSlice {
   setBiometricEnabled: (v: boolean) => void;
 }
 
-const newId = () =>
-  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+const newId = () => makeId();
 
 export const selectWalletBalance = (transactions: WalletTransaction[]): number =>
   transactions.reduce((sum, tx) => (tx.status === 'success' ? sum + tx.amount : sum), 0);

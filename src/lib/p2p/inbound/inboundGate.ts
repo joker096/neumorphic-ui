@@ -81,7 +81,13 @@ export function authorizeInboundChatFrame(
   const resolved = resolveInboundChat(chatId, chatName, senderId);
   if (!resolved) return null;
   const chat = resolved.chat;
-  if (resolved.via !== "bound" && chatName && normName(chat.name) !== normName(chatName)) return null;
+  // An unbound peer must prove knowledge of the chat's display name — even when
+  // the frame names a local chat id. ids are device-local and guessable
+  // (Date.now()), so bare-id resolution must NOT grant access without name
+  // agreement. Only the peer binding (transport-authenticated, written after a
+  // successful name check) may skip the name check, so a rename of the contact
+  // does not break delivery.
+  if (resolved.via !== "bound" && (!chatName || normName(chat.name) !== normName(chatName))) return null;
   if (!p2pNetwork.rememberChatPeer(chat.id, chat.name, senderId)) {
     console.warn(`[p2p] dropped ${kind} frame: chat "${chat.name}" is already bound to another peer`);
     return null;

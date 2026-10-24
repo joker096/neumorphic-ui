@@ -63,6 +63,15 @@ describe('inbound chat gate', () => {
     expect(authorizeInboundChatFrame('dm-1', 'Bob', 'peer-3', 'text')).toBeNull();
   });
 
+  it('drops a bare-id frame with an empty display name from an unbound peer', () => {
+    // Guessing a local chat id (ids are Date.now()-based, guessable) must not
+    // grant access when the sender cannot name the chat — same bar as the name
+    // bootstrap path. An empty chatName previously skipped the name agreement
+    // check entirely and let an attacker bind + inject into a guessed chat.
+    expect(authorizeInboundChatFrame('dm-1', '', 'peer-bare', 'text')).toBeNull();
+    expect(p2pNetwork.chatForPeer('peer-bare')).toBeUndefined();
+  });
+
   it('keeps the binding first-write-wins', () => {
     authorizeInboundChatFrame('dm-1', 'Alice', 'peer-1', 'text');
 

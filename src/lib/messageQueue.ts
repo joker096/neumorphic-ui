@@ -3,6 +3,8 @@
  * Stores messages in IndexedDB and sends them when online
  */
 
+import { makeId } from './id';
+
 const QUEUE_IDB = 'messanger-queue-v2';
 const QUEUE_STORE = 'pendingMessages';
 
@@ -50,7 +52,7 @@ export async function queueMessage(message: any, maxItems: number = MAX_QUEUE_IT
         if (oldest) store.delete(oldest.key);
       }
       const request = store.add({
-        id: `msg_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        id: `msg_${makeId()}`,
         data: message,
         timestamp: Date.now(),
         sent: false,
