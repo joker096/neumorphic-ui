@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Send, X, MessageSquare } from 'lucide-react';
 import { RelayClient } from '../../lib/company/relayClient';
@@ -19,6 +19,7 @@ interface WidgetMessage {
   id: string;
   text: string;
   own: boolean;
+  ts: number;
 }
 
 let guestIdentity: X25519KeyPair | null = null;
@@ -32,12 +33,41 @@ function contactSentKey(channelId: string): string {
   return `messanger_contact_${channelId}`;
 }
 
+/** Persisted prefill for repeat visitors (name/email/phone last used on this channel). */
+function prefillKey(channelId: string): string {
+  return `messanger_prefill_${channelId}`;
+}
+
+const URL_RE = /(https?:\/\/[^\s]+)/g;
+/** Render message text, turning bare links into real <a> anchors (new tab). */
+function autolink(text: string): ReactNode {
+  const parts = text.split(URL_RE);
+  if (parts.length === 1) return text;
+  return parts.map((part, i) =>
+    URL_RE.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ew-link"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    ),
+  );
+}
+
 type EmbedWidgetProps = {
   token: string;
   theme?: 'light' | 'dark';
 };
 
 const DEFAULT_ACCENT = '#6C5CE7';
+const BRAND = 'Mess&Anger';
 
 export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const { t } = useI18n();
@@ -49,19 +79,52 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const [contact, setContact] = useState<WidgetContact>({ name: '', email: '', phone: '' });
   const [contactSent, setContactSent] = useState(false);
   const [sendingContact, setSendingContact] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<number | null>(null);
   const relayRef = useRef<RelayClient | null>(null);
   const cfgRef = useRef<EmbedConfig | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const openRef = useRef(false);
+  openRef.current = open;
 
   useEffect(() => {
     if (!open) return;
     inputRef.current?.focus();
+    setUnread(0);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        setOpen(false);
+        return;
+      }
+      if (e.key === 'Tab' && panelRef.current) {
+        const focusables = Array.from(
+          panelRef.current.querySelectorAll('button, input, textarea, a[href], [tabindex]:not([tabindex="-1"])'),
+        ).filter((el) => !(el as HTMLElement).hasAttribute('disabled')) as HTMLElement[];
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
+
+  // Auto-scroll to the newest message whenever the thread grows while open.
+  useEffect(() => {
+    if (!open) return;
+    const el = messagesRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, open]);
 
   useEffect(() => {
     let cfg: EmbedConfig;
@@ -75,6 +138,15 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
     try {
       if (typeof localStorage !== 'undefined') {
         setContactSent(localStorage.getItem(contactSentKey(cfg.channelId)) === '1');
+        try {
+          const saved = localStorage.getItem(prefillKey(cfg.channelId));
+          if (saved) {
+            const p = JSON.parse(saved) as Partial<WidgetContact>;
+            setContact((c) => ({ ...c, ...p }));
+          }
+        } catch {
+          /* ignore malformed prefill */
+        }
       }
     } catch {
       /* storage unavailable */
@@ -87,8 +159,14 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
         const text = await openFromChannel(b64encode(guest.secretKey), sealed);
         setMessages((prev) => [
           ...prev,
-          { id: `r_${Date.now()}`, text, own: false },
+          { id: `r_${Date.now()}`, text, own: false, ts: Date.now() },
         ]);
+        if (!openRef.current) {
+          setUnread((n) => n + 1);
+          setToast(text.length > 80 ? `${text.slice(0, 80)}…` : text);
+          if (toastTimer.current) window.clearTimeout(toastTimer.current);
+          toastTimer.current = window.setTimeout(() => setToast(null), 4000);
+        }
       } catch {
         /* ignore undecryptable */
       }
@@ -99,6 +177,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
     return () => {
       client.stop();
       relayRef.current = null;
+      if (toastTimer.current) window.clearTimeout(toastTimer.current);
     };
   }, [token]);
 
@@ -111,7 +190,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
       // `publish` is the delivery proof: a dropped frame (relay down) must not
       // become a fake "sent" bubble — the draft stays for the retry.
       if (!relayRef.current?.publish(sealed)) return;
-      setMessages((prev) => [...prev, { id: `s_${Date.now()}`, text, own: true }]);
+      setMessages((prev) => [...prev, { id: `s_${Date.now()}`, text, own: true, ts: Date.now() }]);
     } catch {
       setOffline(true);
       return; // keep the draft — the message was never delivered
@@ -152,6 +231,10 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
       setContactSent(true);
       try {
         localStorage.setItem(contactSentKey(cfg.channelId), '1');
+        localStorage.setItem(
+          prefillKey(cfg.channelId),
+          JSON.stringify({ name: contact.name.trim(), email: contact.email.trim(), phone: contact.phone.trim() }),
+        );
       } catch {
         /* ignore */
       }
@@ -166,6 +249,8 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const accent = cfgRef.current?.config?.accent || DEFAULT_ACCENT;
   const position = cfgRef.current?.config?.position || 'bottom-right';
   const greeting = cfgRef.current?.config?.greeting;
+  const hideBrand = cfgRef.current?.config?.hideBrand ?? false;
+  const title = cfgRef.current?.config?.title || cfgRef.current?.label || t('embed.chat');
   const isDark = theme === 'dark';
   const showContactForm = collectContact && !contactSent && open;
   // Relay down / still handshaking → show the note, keep the composer usable so
@@ -186,12 +271,18 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
       style={{ '--ew-accent': accent } as CSSProperties}
     >
       {open && (
-        <div className="ew-panel">
+        <div className="ew-panel" ref={panelRef}>
           <div
             className="ew-header"
             style={{ backgroundColor: accent, color: '#ffffff' }}
           >
-            <span className="ew-header-title">{cfgRef.current?.label || t('embed.chat')}</span>
+            <div className="ew-header-left">
+              <div className="ew-header-avatar">
+                {title.charAt(0).toUpperCase()}
+              </div>
+              <span className="ew-header-title">{title}</span>
+              {relayStatus === 'online' && <div className="ew-online-dot" aria-label="online" />}
+            </div>
             <button onClick={() => setOpen(false)} aria-label={t('embed.close')} title={t('embed.close')} className="ew-close">
               <X size={18} />
             </button>
@@ -208,14 +299,14 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
               sending={sendingContact}
             />
           )}
-          <div className="ew-messages">
+          <div className="ew-messages" ref={messagesRef} aria-live="polite">
             {relayNote && (
               <div className="ew-offline-note">{relayNote}</div>
             )}
             {greeting && messages.length === 0 && (
               <div className="ew-msg-row ew-msg-other">
                 <div className="ew-msg">
-                  {greeting}
+                  {autolink(greeting)}
                 </div>
               </div>
             )}
@@ -225,7 +316,10 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
               messages.map((m) => (
                 <div key={m.id} className={`ew-msg-row ${m.own ? 'ew-msg-own' : 'ew-msg-other'}`}>
                   <div className={`ew-msg ${m.own ? 'ew-msg-own-bubble' : ''}`}>
-                    {m.text}
+                    {autolink(m.text)}
+                  </div>
+                  <div className="ew-time">
+                    {new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               ))
@@ -257,6 +351,11 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
               <Send size={16} />
             </button>
           </div>
+          {!hideBrand && (
+            <div className="ew-footer">
+              {t('embed.poweredBy', `Powered by `)}<b>{BRAND}</b>
+            </div>
+          )}
         </div>
       )}
       <button
@@ -266,7 +365,13 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
         style={{ backgroundColor: accent }}
       >
         {open ? <X size={24} /> : <MessageSquare size={24} />}
+        {!open && unread > 0 && <span className="ew-fab-badge">{unread > 9 ? '9+' : unread}</span>}
       </button>
+      {toast && !open && (
+        <button className="ew-toast" onClick={() => setOpen(true)} aria-label={t('embed.openChat')}>
+          {toast}
+        </button>
+      )}
     </div>
   );
 };

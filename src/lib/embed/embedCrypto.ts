@@ -58,6 +58,28 @@ export async function openFromChannel(
   return cryptoCore.decryptData(sealed.cipher, sealed.iv, key);
 }
 
+/**
+ * Company: encrypt a reply addressed to ONE specific visitor.
+ *
+ * The guest identity is ephemeral per browser, so a reply is sealed to the
+ * visitor's public key (carried by their latest sealed message) using the
+ * channel secret — the same ECDH shared secret the guest derives on their
+ * side. The resulting frame carries `senderPubKey = channel.publicKeyB64`,
+ * so the visitor's `openFromChannel(guestSecret, frame)` decrypts it.
+ * Other subscribers on the topic fail to decrypt (they lack that guest's
+ * secret) and the frame is silently ignored.
+ */
+export async function sealToGuest(
+  channel: ChannelKeyPair,
+  guestPubB64: string,
+  text: string,
+): Promise<SealedMessage> {
+  const shared = x25519DH(b64decode(channel.secretKeyB64), b64decode(guestPubB64));
+  const key = await importKeyRaw(shared);
+  const enc = await cryptoCore.encryptData(text, key);
+  return { senderPubKey: channel.publicKeyB64, cipher: enc.cipher, iv: enc.iv };
+}
+
 export function makeGuestIdentity(): X25519KeyPair {
   return generateX25519KeyPair();
 }

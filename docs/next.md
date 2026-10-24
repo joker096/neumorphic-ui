@@ -179,3 +179,15 @@ Strict frame validation и anti-replay для всех каналов. — за�
 Безопасное хранение master seed/TOTP/TURN. — закрыто (H1/S3/P6).
 Production peer discovery/reconnect. — закрыто (P7).
 Полный E2E/security тестовый контур. — закрыто (2026-09-21): security unit-набор P8; браузерные dual-peer + reconnect + inbound dial-back (M021); остальные браузерные векторы (ACK/read receipt/replay/out-of-order/file corruption/call) — unit-покрытие, браузерный дубль опционален.
+
+Дорожная карта (2026-10-24):
+- Групповой веер (delete/pin/typing) — ОТЛОЖЕНО. Полная групповая идентичность не нужна: узкое место — per-member peer-привязка (peer id узнаётся только после прямой переписки; не-адресуемые участники). Транспортный веер уже есть (forward-to-many). Требует проектного решения по адресуемости группы.
+- GIF-поиск / транскрипция голосовых — ждёт явного решения по внешнему сервису + расширению CSP.
+
+Интеграция чата на сайты (embed) — закрыто (2026-10-24):
+- Личный сайт-чат (`PersonalSiteChatManager` в Настройки → Website Embed): создание нескольких независимых сайт-чатов, per-site конфиг (акцент, позиция, приветствие, collectContact, заголовок виджета, quick replies для оператора), сниппет с токеном, копирование, диалог оператора и веб-контакты.
+- Виджет `EmbedWidget` (отдельный бандл `dist/embed.js`): самодостаточный (свой inline-CSS), изолирован от main-бандла (импорт-гейт: нет `src/store`/`src/lib/p2p` в графе), пре-чат контактная форма (сохранение prefill), toast при входящем на фоне, unread-бейдж на FAB, auto-scroll, `aria-live`, focus-trap + Escape/Tab, focus-visible.
+- Премиум-перк: `hideBrand` скрывает «Powered by Mess&Anger» (включение в менеджере, гейтится `premiumEntitlement.premium`).
+- Сниппет: inline-бутстрап через `window.__MESSANGER_TOKEN__` + динамический `import("embed.js")` (обязателен, т.к. `document.currentScript`==null внутри module-скриптов).
+- E2E `e2e/siteembed.spec.ts` (3 теста) + скриншоты под `docs/design/embed-screenshots/` (manager dark/light × 375/414, widget dark 375).
+- Открытый остаток: постоянная привязка «контакт ↔ peer id» (сейчас пин по transport peer id, живой в памяти); группа-осведомлённый relay-прокси; транскрипция голосовых/медиа в embed.

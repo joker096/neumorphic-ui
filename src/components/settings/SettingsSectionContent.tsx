@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { CompanySettingsView } from './CompanySettingsView';
+import { PersonalSiteChatManager } from '../company/PersonalSiteChatManager';
 import { AnimatePresence } from 'motion/react';
 import { AppearanceSettings } from './AppearanceSettings';
 import { LanguageSection } from './LanguageSection';
@@ -254,6 +256,26 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     />
   );
 
+  const renderPersonalSiteChatSettings = () => (
+    <div className="w-full max-w-[500px] flex flex-col p-5 mb-8 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8">
+      <div className="w-full shrink-0 mb-4 flex items-center gap-3">
+        <button
+          onClick={() => setActiveSection('main')}
+          aria-label={t('common.back')}
+          className={"min-w-11 min-h-11 rounded-full flex items-center justify-center transition-all duration-200 bg-[var(--bg-primary)] hover:bg-white text-[var(--text-secondary)] shadow-sm dark:bg-[var(--bg-tertiary)] dark:hover:bg-[var(--hover-bg-dark)] dark:shadow-none"}
+        >
+          <ChevronLeft size={16} />
+        </button>
+        <div className="flex-1">
+          <div className="text-lg font-bold text-[var(--text-primary)]">{t('settings.siteEmbed', 'Website Embed')}</div>
+        </div>
+      </div>
+      <div className="overflow-x-hidden pr-1 flex flex-col gap-4">
+        <PersonalSiteChatManager isDark={isDark} onOpenPremium={() => setActiveSection('premium')} />
+      </div>
+    </div>
+  );
+
   const renderCompanyGuideSettings = () => (
     <CompanyGuideSection
       isDark={isDark}
@@ -277,6 +299,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'bots' && <Suspense fallback={fallback}>{renderBotsSettings()}</Suspense>}
       {activeSection === 'systemStatus' && <Suspense fallback={fallback}>{renderSystemStatusSettings()}</Suspense>}
       {activeSection === 'company' && <Suspense fallback={fallback}>{renderCompanySettings()}</Suspense>}
+      {activeSection === 'siteembed' && <Suspense fallback={fallback}>{renderPersonalSiteChatSettings()}</Suspense>}
       {activeSection === 'companyGuide' && <Suspense fallback={fallback}>{renderCompanyGuideSettings()}</Suspense>}
       {activeSection === 'storage' && <Suspense fallback={fallback}><StorageSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
       {activeSection === 'notifications' && <Suspense fallback={fallback}><NotificationsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}

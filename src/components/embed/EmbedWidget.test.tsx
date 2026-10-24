@@ -61,6 +61,14 @@ const token = createEmbedToken({
   label: 'Sales',
 });
 
+const hideBrandToken = createEmbedToken({
+  companyId: 'c1',
+  channelId: 'ch1',
+  channelPubKeyB64: 'PUB',
+  label: 'Sales',
+  config: { accent: '#2563EB', position: 'bottom-right', greeting: 'Hi', collectContact: false, hideBrand: true },
+});
+
 describe('EmbedWidget', () => {
   beforeEach(() => {
     lastClient = null;
@@ -233,5 +241,58 @@ describe('EmbedWidget', () => {
       fireEvent.keyDown(window, { key: 'Escape' });
     });
     expect(document.querySelector('.ew-fab')?.getAttribute('aria-label')).toBe('embed.openChat');
+  });
+
+  it('shows the branded footer by default', async () => {
+    render(<EmbedWidget token={token} />);
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+    expect(await screen.findByText(/Mess&Anger/)).toBeTruthy();
+  });
+
+  it('hides the branded footer when config.hideBrand is set', async () => {
+    render(<EmbedWidget token={hideBrandToken} />);
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+    await screen.findByPlaceholderText('embed.typeMessage');
+    expect(screen.queryByText(/Mess&Anger/)).toBeNull();
+  });
+
+  it('shows an unread badge when a message arrives while closed', async () => {
+    render(<EmbedWidget token={token} />);
+    // Receive a direct message while the panel is closed.
+    await act(async () => {
+      lastClient._cb({ senderPubKey: 'g', cipher: 'c', iv: 'i' });
+    });
+    const badge = await screen.findByText('1');
+    expect(badge.className).toContain('ew-fab-badge');
+  });
+
+  it('shows an incoming-message toast while the panel is closed and opens on click', async () => {
+    render(<EmbedWidget token={token} />);
+    await act(async () => {
+      lastClient._cb({ senderPubKey: 'g', cipher: 'c', iv: 'i' });
+    });
+    const toast = await screen.findByText('reply from company');
+    expect(toast.className).toContain('ew-toast');
+    await act(async () => {
+      fireEvent.click(toast);
+    });
+    expect(await screen.findByPlaceholderText('embed.typeMessage')).toBeTruthy();
+  });
+
+  it('restores contact prefill for repeat visitors', async () => {
+    localStorage.setItem(
+      'messanger_prefill_ch1',
+      JSON.stringify({ name: 'Bob', email: 'bob@x.com', phone: '' }),
+    );
+    render(<EmbedWidget token={token} />);
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('embed.openChat'));
+    });
+    expect(await screen.findByDisplayValue('Bob')).toBeTruthy();
+    expect(screen.getByDisplayValue('bob@x.com')).toBeTruthy();
   });
 });

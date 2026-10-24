@@ -52,3 +52,10 @@ export const COMPANY_MUTED_NOTE_CLASS = 'text-xs text-[var(--text-secondary)] mt
 
 /** Hint block above the fields of a company dialog. */
 export const COMPANY_MODAL_HINT_CLASS = 'text-xs text-[var(--text-secondary)] mb-5';
+
+/**
+ * Widget accent presets — shared by the site-chat managers (SiteChatManager,
+ * PersonalSiteChatManager) so the palette cannot drift between the two
+ * implementations.
+ */
+export const ACCENT_PRESETS = ['#6C5CE7', '#2563EB', '#16A34A', '#EA580C', '#DC2626', '#0F172A'];

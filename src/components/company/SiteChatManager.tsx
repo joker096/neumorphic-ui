@@ -4,10 +4,8 @@ import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
 import { formatDate } from '../../utils/dateTime';
 import { toast } from 'sonner';
-import { COMPANY_INPUT_CLASS } from "./companyClasses";
+import { COMPANY_INPUT_CLASS, ACCENT_PRESETS } from "./companyClasses";
 import { SECONDARY_CAPTION_CLASS } from "../ui/textClasses";
-
-const ACCENT_PRESETS = ['#6C5CE7', '#2563EB', '#16A34A', '#EA580C', '#DC2626', '#0F172A'];
 
 type SiteChatManagerProps = {
   isDark?: boolean;
@@ -93,7 +91,7 @@ export const SiteChatManager = ({ isDark = false }: SiteChatManagerProps) => {
                     <button
                       key={c}
                       onClick={() => saveConfig(sc.id, { accent: c })}
-                      aria-label={c}
+                      aria-label={`${t('company.accent', 'Widget color')} ${c}`}
                       className="flex items-center justify-center min-w-11 min-h-11 p-1 rounded-full cursor-pointer"
                     >
                       <span

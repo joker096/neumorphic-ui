@@ -15,6 +15,20 @@ export interface EmbedWidgetConfig {
   position: 'bottom-right' | 'bottom-left';
   greeting: string;
   collectContact: boolean;
+  /**
+   * Hide the "Powered by" footer label. This is a cosmetic premium perk: it is
+   * enforced at widget-generation time in the app (non-premium users cannot turn
+   * it on), not cryptographically — the token is client-readable by design and
+   * the label is purely presentational, matching how analog chat widgets handle
+   * watermark removal at the account level.
+   */
+  hideBrand?: boolean;
+  /**
+   * Optional widget header title. Falls back to the embed token label when
+   * unset. Lets site owners name the widget independently of the site-chat
+   * record (e.g. "Sales", "Support").
+   */
+  title?: string;
 }
 
 export interface EmbedConfig {
@@ -59,5 +73,19 @@ export function generateEmbedSnippet(
   widgetUrl: string = EMBED_WIDGET_URL ||
     (typeof window !== 'undefined' ? `${window.location.origin}/embed.js` : ''),
 ): string {
-  return `<script src="${widgetUrl}" data-messanger-token="${token}" async></script>`;
+  if (!widgetUrl) return '';
+  // `dist/embed.js` is an ES module (static imports of shared chunks), so it
+  // cannot be loaded as a classic <script>. The snippet ships a tiny inline
+  // bootstrap that pins the token on `window.__MESSANGER_TOKEN__` and then
+  // dynamically imports the widget module. `document.currentScript` is null
+  // inside module scripts, hence the global hand-off rather than a data
+  // attribute. The token holds only public material (channel inbox pubkey +
+  // widget config), so inlining it in the host page is safe by design.
+  return `<script>
+  (function () {
+    var t = "${token}";
+    window.__MESSANGER_TOKEN__ = t;
+    import("${widgetUrl}").catch(function (e) { console.error("[Mess&Anger embed]", e); });
+  })();
+</script>`;
 }

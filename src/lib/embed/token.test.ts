@@ -24,9 +24,13 @@ describe('embed token', () => {
   });
 
   it('generates an embed snippet containing the token', () => {
-    const snippet = generateEmbedSnippet('TOKENXYZ');
+    const snippet = generateEmbedSnippet('TOKENXYZ', '/embed.js');
+
     expect(snippet).toContain('<script');
     expect(snippet).toContain('TOKENXYZ');
-    expect(snippet).toContain('data-messanger-token');
+    // Inline bootstrap: pins the token on window.__MESSANGER_TOKEN__ then
+    // dynamically imports the widget module.
+    expect(snippet).toContain('window.__MESSANGER_TOKEN__');
+    expect(snippet).toContain('import("');
   });
 });

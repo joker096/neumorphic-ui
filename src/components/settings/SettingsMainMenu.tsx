@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { SearchInput } from "../ui/SearchInput";
 import { SettingsSectionTitle, ToggleSwitch } from "../ui/SettingsRow";
 import {
-  Bell, BellOff, Building2, Cloud, Download, HardDrive, Smartphone, User,
+  Bell, BellOff, Building2, Cloud, Download, Globe, HardDrive, Smartphone, User,
 } from "lucide-react";
 import { SettingsCard, SettingsDivider, SettingsNavItem } from "./SettingsMenuPrimitives";
 import { BigMenuButton, NavGroup, NavItemDef } from "./SettingsMenuParts";
@@ -72,6 +72,7 @@ export function SettingsMainMenu({
   const storageMatches = matches(t('settings.dataStorage'), t('settings.dataStorageSubtitle'));
   const storageSectionMatches = backupMatches || storageMatches;
   const companyMatches = matches(t('settings.company'), t('settings.companySubtitle'));
+  const siteEmbedMatches = matches(t('settings.siteEmbed', 'Website Embed'), t('settings.siteEmbedSubtitle', 'Embed chat on any site'));
 
   const hasResults =
     profileMatches ||
@@ -82,6 +83,7 @@ export function SettingsMainMenu({
     filteredCallsItems.length > 0 ||
     storageSectionMatches ||
     companyMatches ||
+    siteEmbedMatches ||
     filteredServicesItems.length > 0 ||
     filteredAdvancedItems.length > 0;
 
@@ -256,6 +258,18 @@ export function SettingsMainMenu({
             title={t('settings.company')}
             subtitle={t('settings.companySubtitle')}
             onClick={() => setActiveSection('company')}
+          />
+        )}
+
+        {siteEmbedMatches && (
+          <BigMenuButton
+            isDark={isDark}
+            tone="purple"
+            icon={<Globe size={18} className="text-cyan-600 dark:text-cyan-400" />}
+            iconBg="bg-cyan-100 dark:bg-cyan-500/20"
+            title={t('settings.siteEmbed', 'Website Embed')}
+            subtitle={t('settings.siteEmbedSubtitle', 'Embed chat on any site')}
+            onClick={() => setActiveSection('siteembed')}
           />
         )}
 

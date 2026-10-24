@@ -1,8 +1,9 @@
 /**
  * Standalone embed entry — built to a stable `dist/embed.js`.
  *
- * Loaded by third-party sites via the generated snippet:
- *   <script src="/embed.js" data-messanger-token="…" async></script>
+ * Loaded by third-party sites via the generated snippet (inline bootstrap that
+ * pins the token on `window.__MESSANGER_TOKEN__` and dynamically imports this
+ * module). Avoids `document.currentScript`, which is null inside module scripts.
  *
  * MUST stay dependency-light and side-effect driven: no app store, no router.
  */
@@ -25,8 +26,9 @@ function detectTheme(): 'light' | 'dark' {
 }
 
 function boot(): void {
-  const script = document.currentScript as HTMLScriptElement | null;
-  const token = script?.dataset?.messangerToken;
+  const w = window as unknown as { __MESSANGER_TOKEN__?: string };
+  const token = (typeof w.__MESSANGER_TOKEN__ === 'string' && w.__MESSANGER_TOKEN__) ||
+    (document.currentScript as HTMLScriptElement | null)?.dataset?.messangerToken;
   if (!token) return;
 
   ensureStyles();
