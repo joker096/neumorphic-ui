@@ -1,0 +1,64 @@
+name: Security CI
+
+on: [push, pull_request]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npx vitest run
+
+      - name: Run ESLint security checks
+        # The flat config already enables the `security/*` rules for TS, TSX
+        # and MJS (see eslint.config.mjs). The old `--plugin security --rule
+        # ...` flags are ESLint 8 syntax and are rejected by ESLint 9+ flat
+        # config, so the step used to fail before it linted anything.
+        run: npx eslint .
+
+      - name: Run npm audit (production dependencies)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Run npm audit (dev dependencies, informational)
+        # The remaining advisories live in the dev-only Android build chain
+        # (@bubblewrap/core -> jimp) and have no fixed version; they are
+        # documented as an accepted risk in AGENTS.md, so this step reports
+        # them without failing the job.
+        run: npm audit --audit-level=high || echo "known dev-only advisories - see AGENTS.md"
+
+      - name: Run known-answer crypto tests
+        run: npx vitest run tests/crypto-core.test.ts
+
+  codeql:
+    name: CodeQL SAST
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"

@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Minimal capability for the Mess&Anger desktop shell (webview-only, no exposed IPC commands).","local":true,"windows":["main"],"permissions":["core:default"]}}

@@ -1,0 +1,86 @@
+<h2>Секция 3: Реклама в UI мессенджера</h2>
+<p class="subtitle">Где показывать баннеры? Выберите слоты:</p>
+
+<div class="mockup" style="margin-bottom:1rem;">
+  <div class="mockup-header">Макет: Messenger с рекламными слотами</div>
+  <div class="mockup-body" style="padding:1rem;">
+    <div style="display:flex;gap:1rem;">
+      <!-- Left: Chat list -->
+      <div style="flex:1;background:var(--surface);border-radius:8px;overflow:hidden;">
+        <div style="padding:0.75rem;font-weight:700;border-bottom:1px solid var(--border);font-size:0.9rem;">💬 Chats</div>
+        <div style="display:flex;flex-direction:column;">
+          <div class="placeholder" style="margin:0.25rem 0.5rem;padding:0.5rem;font-size:0.85rem;">👤 Alice — Hey there!</div>
+          <div class="placeholder" style="margin:0.25rem 0.5rem;padding:0.5rem;font-size:0.85rem;">👤 Bob — See you tomorrow</div>
+          
+          <!-- AD SLOT 1: between chats -->
+          <div style="margin:0.25rem 0.5rem;padding:0.5rem;background:linear-gradient(135deg,var(--accent-bg),var(--surface));border-radius:8px;border:1px dashed var(--accent);display:flex;gap:0.75rem;align-items:center;">
+            <div style="width:40px;height:40px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📢</div>
+            <div style="flex:1;">
+              <div style="font-size:0.85rem;font-weight:600;">Summer Sale — 50% Off</div>
+              <div style="font-size:0.75rem;color:var(--muted);">sponsored</div>
+            </div>
+            <div style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:4px;background:var(--accent);">AD</div>
+          </div>
+          
+          <div class="placeholder" style="margin:0.25rem 0.5rem;padding:0.5rem;font-size:0.85rem;">👤 Carol — Sounds good!</div>
+          <div class="placeholder" style="margin:0.25rem 0.5rem;padding:0.5rem;font-size:0.85rem;">👤 Dave — Call me later</div>
+          
+          <!-- AD SLOT 2: between chats -->
+          <div style="margin:0.25rem 0.5rem;padding:0.5rem;background:linear-gradient(135deg,var(--accent-bg),var(--surface));border-radius:8px;border:1px dashed var(--accent);display:flex;gap:0.75rem;align-items:center;">
+            <div style="width:40px;height:40px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📢</div>
+            <div style="flex:1;">
+              <div style="font-size:0.85rem;font-weight:600;">New Feature: Voice Rooms</div>
+              <div style="font-size:0.75rem;color:var(--muted);">sponsored</div>
+            </div>
+            <div style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:4px;background:var(--accent);">AD</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right: Chat view -->
+      <div style="flex:1.5;background:var(--surface);border-radius:8px;overflow:hidden;">
+        <div style="padding:0.75rem;font-weight:700;border-bottom:1px solid var(--border);font-size:0.9rem;">👤 Alice</div>
+        <div style="padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;">
+          <div class="placeholder" style="padding:0.5rem;font-size:0.85rem;align-self:flex-start;max-width:70%;">Hi! How are you?</div>
+          <div class="placeholder" style="padding:0.5rem;font-size:0.85rem;align-self:flex-end;max-width:70%;">I'm good, thanks!</div>
+          <div class="placeholder" style="padding:0.5rem;font-size:0.85rem;align-self:flex-start;max-width:70%;">Want to grab coffee?</div>
+          <div class="placeholder" style="padding:0.5rem;font-size:0.85rem;align-self:flex-end;max-width:70%;">Sure! ☕</div>
+
+          <!-- AD SLOT 3: inline banner in chat -->
+          <div style="padding:0.5rem;background:linear-gradient(135deg,var(--accent-bg),var(--surface));border-radius:8px;border:1px dashed var(--accent);display:flex;gap:0.75rem;align-items:center;margin-top:0.25rem;">
+            <div style="width:40px;height:40px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📢</div>
+            <div style="flex:1;">
+              <div style="font-size:0.85rem;font-weight:600;">Try Premium — No Ads</div>
+              <div style="font-size:0.75rem;color:var(--muted);">sponsored</div>
+            </div>
+            <div style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:4px;background:var(--accent);">AD</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:1.5rem;">
+  <h3>Выберите слоты для рекламы:</h3>
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="slot-list" onclick="toggleSelect(this)">
+      <div class="letter">1️⃣</div>
+      <div class="content"><h3>Между чатами</h3><p>Баннер в списке чатов после 2-3 диалогов</p></div>
+    </div>
+    <div class="option" data-choice="slot-chat" onclick="toggleSelect(this)">
+      <div class="letter">2️⃣</div>
+      <div class="content"><h3>Внутри чата</h3><p>Баннер inline после последних сообщений</p></div>
+    </div>
+    <div class="option" data-choice="slot-banner" onclick="toggleSelect(this)">
+      <div class="letter">3️⃣</div>
+      <div class="content"><h3>Верхний баннер</h3><p>Полоска сверху над списком чатов</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:1rem;">
+  <h3>Логика показа</h3>
+  <p class="subtitle">Клиент при загрузке запрашивает GET /api/ads/active. Сервер возвращает активное объявление (или null).<br>
+  При показе → POST /api/ads/&lt;id&gt;/impression. При клике → POST /api/ads/&lt;id&gt;/click.</p>
+</div>
