@@ -9,7 +9,7 @@ import { ensureAppReady } from './test-utils';
 async function gotoChats(page: Page) {
   await ensureAppReady(page);
   await expect(
-    page.getByPlaceholder('Search chats or messages...').first()
+    page.getByRole('button', { name: 'Search' }).first()
   ).toBeVisible();
 }
 
@@ -23,43 +23,39 @@ test.describe('Chat list', () => {
     await expect(page.getByText('2').first()).toBeVisible();
   });
 
-  test('search filters chats by name', async ({ page }) => {
+  test('global search finds a chat by name', async ({ page }) => {
     await gotoChats(page);
-    const search = page.getByPlaceholder('Search chats or messages...').first();
+    await page.getByRole('button', { name: 'Search' }).first().click();
+    const dialog = page.getByRole('dialog', { name: 'Search' });
+    const input = dialog.getByPlaceholder('Search chats, messages, contacts…');
     // "Freeman" matches only the contact name, no message contents
-    await search.fill('Freeman');
-    const listItems = page.locator('.chat-list-item');
-    await expect(listItems.getByText('Alice Freeman')).toBeVisible();
-    await expect(listItems.getByText('Victor')).toHaveCount(0);
+    await input.fill('Freeman');
+    await expect(dialog.getByText('Alice Freeman').first()).toBeVisible();
+    await expect(dialog.getByText('Victor')).toHaveCount(0);
     // Clear button resets
-    await page.getByLabel('Clear').first().click();
-    await expect(listItems.getByText('Victor')).toBeVisible();
+    await dialog.getByLabel('Clear').first().click();
+    await expect(dialog.getByText('Search across all chats, channels and contacts')).toBeVisible();
   });
 
-  test('search with no matches shows "No results found"', async ({ page }) => {
+  test('global search with no matches shows "Nothing found"', async ({ page }) => {
     await gotoChats(page);
-    await page
-      .getByPlaceholder('Search chats or messages...')
-      .first()
-      .fill('zzz-nonexistent-zzz');
-    await expect(page.getByText('No results found').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Search' }).first().click();
+    const dialog = page.getByRole('dialog', { name: 'Search' });
+    await dialog.getByPlaceholder('Search chats, messages, contacts…').fill('zzz-nonexistent-zzz');
+    await expect(dialog.getByText('Nothing found').first()).toBeVisible();
   });
 
   test('view tabs switch between Stories/Chats/Channels/Bots', async ({ page }) => {
     await gotoChats(page);
 
     await page.getByText('Channels', { exact: true }).first().click();
-    await expect(page.getByPlaceholder('Search channels...').first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Create Channel' })).toBeVisible();
 
     await page.getByText('Bots', { exact: true }).first().click();
-    await expect(
-      page.getByPlaceholder('Search bots or services...').first()
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Create Bot' })).toBeVisible();
 
     await page.getByText('Chats', { exact: true }).first().click();
-    await expect(
-      page.getByPlaceholder('Search chats or messages...').first()
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Search' }).first()).toBeVisible();
   });
 
   test('folder filter pills are clickable', async ({ page }) => {
@@ -129,10 +125,8 @@ test.describe('Chat list', () => {
     await expect(page.getByLabel('Search Messages').first()).toBeVisible();
     // Composer present
     await expect(page.getByPlaceholder('Message...').first()).toBeVisible();
-    // Back to list
+    // Back to list — single global search entry
     await page.getByLabel('Go Back').first().click();
-    await expect(
-      page.getByPlaceholder('Search chats or messages...').first()
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Search' }).first()).toBeVisible();
   });
 });

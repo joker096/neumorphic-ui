@@ -65,7 +65,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
         await gotoApp(page);
         await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'dark');
-        await expect(page.getByPlaceholder('Search chats or messages...').first()).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Search' }).first()).toBeVisible();
       });
     }
 
@@ -195,7 +195,8 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
 
     test('text inputs are focusable', async ({ page }) => {
       await gotoApp(page);
-      const searchInput = page.getByPlaceholder('Search chats or messages...').first();
+      await page.getByRole('button', { name: 'Search' }).first().click();
+      const searchInput = page.getByRole('dialog', { name: 'Search' }).getByPlaceholder(/search/i);
       await searchInput.click();
       await expect(searchInput).toBeFocused();
     });
@@ -247,7 +248,7 @@ test.describe('Usability & Accessibility (Stage 2)', () => {
       await page.waitForTimeout(600);
       await page.getByRole('button', { name: 'Chats' }).first().click();
       await page.waitForTimeout(600);
-      await expect(page.getByPlaceholder('Search chats or messages...').first()).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Search' }).first()).toBeVisible();
     });
 
     test('rapid nav clicks do not crash app', async ({ page }) => {

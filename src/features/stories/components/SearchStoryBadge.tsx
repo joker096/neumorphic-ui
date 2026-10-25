@@ -30,8 +30,7 @@ export function SearchStoryBadge({ size = 28, t }: SearchStoryBadgeProps) {
         e.stopPropagation();
         openViewer(target.id);
       }}
-      className="shrink-0 flex items-center justify-center cursor-pointer transition-transform active:scale-95"
-      style={{ width: size + 6, height: size + 6 }}
+      className="shrink-0 min-w-11 min-h-11 flex items-center justify-center cursor-pointer transition-transform active:scale-95"
     >
       <StoryRing stories={target.stories} size={size}>
         <span

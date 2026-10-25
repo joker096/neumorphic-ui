@@ -31,11 +31,14 @@ test.describe('Navigation & chrome', () => {
     await expect(page.getByRole('button', { name: 'User', exact: true }).first()).toBeVisible();
   });
 
-  test('nav: Chats shows the chat list with search', async ({ page }) => {
+  test('nav: Chats shows the chat list with global search entry', async ({ page }) => {
     await gotoApp(page);
     await page.getByRole('button', { name: 'Chats' }).first().click();
+    // Single search entry point: the Globe button opens the global search overlay
+    await expect(page.getByRole('button', { name: 'Search' }).first()).toBeVisible();
+    await page.getByRole('button', { name: 'Search' }).first().click();
     await expect(
-      page.getByPlaceholder('Search chats or messages...').first()
+      page.getByRole('dialog', { name: 'Search' }).getByPlaceholder('Search chats, messages, contacts…')
     ).toBeVisible();
   });
 
@@ -88,9 +91,7 @@ test.describe('Navigation & chrome', () => {
       await page.getByRole('button', { name: label }).first().click();
       await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
     }
-    // Back on chats with mock data the search must be visible again
-    await expect(
-      page.getByPlaceholder('Search chats or messages...').first()
-    ).toBeVisible();
+    // Back on chats with mock data the global search entry must be visible again
+    await expect(page.getByRole('button', { name: 'Search' }).first()).toBeVisible();
   });
 });

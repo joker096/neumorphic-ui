@@ -5,7 +5,8 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   test('chat search filters messages', async ({ page }) => {
     await ensureAppReady(page);
     await page.getByRole('button', { name: /chats/i }).click();
-    const searchInput = page.getByPlaceholder(/search/i);
+    await page.getByRole('button', { name: 'Search' }).first().click();
+    const searchInput = page.getByRole('dialog', { name: 'Search' }).getByPlaceholder(/search/i);
     await searchInput.fill('test');
     await expect(searchInput).toHaveValue('test');
   });

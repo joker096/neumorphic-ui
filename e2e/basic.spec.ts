@@ -15,7 +15,7 @@ test.describe('Mess&Anger basic smoke tests', () => {
   test('chat list is displayed', async ({ page }) => {
     await ensureAppReady(page);
     await page.getByRole('button', { name: /chats/i }).click();
-    await expect(page.getByPlaceholder(/search/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Search' }).first()).toBeVisible();
   });
 
   test('theme toggle switches between dark and light', async ({ page }) => {
