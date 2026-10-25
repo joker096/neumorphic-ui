@@ -26,8 +26,6 @@ interface ChatListViewProps {
   setActiveFolder: (folder: string) => void;
   chatSortBy?: "recent" | "alpha";
   setChatSortBy?: (sort: "recent" | "alpha") => void;
-  chatSearchQuery: string;
-  setChatSearchQuery: (query: string) => void;
   filteredChats: any[];
   filteredChannels: any[];
   /** Unread totals per folder key, rendered as counters on the folder tabs. */
@@ -68,8 +66,6 @@ export const ChatListView = ({
   setActiveFolder,
   chatSortBy = "recent",
   setChatSortBy,
-  chatSearchQuery,
-  setChatSearchQuery,
   filteredChats,
   filteredChannels,
   folderUnread = {},
@@ -184,8 +180,6 @@ export const ChatListView = ({
       <ChatListSearchHeader
         isDark={isDark}
         view={view}
-        chatSearchQuery={chatSearchQuery}
-        setChatSearchQuery={setChatSearchQuery}
         archivedUnreadCount={archivedUnreadCount}
         t={t}
         setView={setView}
@@ -271,10 +265,8 @@ export const ChatListView = ({
           <ChatListEmptyState
             view={view}
             isDark={isDark}
-            hasSearchQuery={!!chatSearchQuery.trim()}
             activeFolder={activeFolder}
             t={t}
-            onClearSearch={() => setChatSearchQuery("")}
             setShowCreateGroup={setShowCreateGroup}
             setShowCreateChannel={setShowCreateChannel}
             setShowAddContactFromChat={setShowAddContactFromChat}

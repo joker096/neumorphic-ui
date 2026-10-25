@@ -5,8 +5,6 @@ type ChatListWorkspaceProps = {
   view: string;
   activeFolder: string;
   setActiveFolder: (folder: string) => void;
-  chatSearchQuery: string;
-  setChatSearchQuery: (query: string) => void;
   filteredChats: any[];
   filteredChannels: any[];
   bots: any[];

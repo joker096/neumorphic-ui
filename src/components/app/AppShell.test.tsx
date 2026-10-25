@@ -66,8 +66,6 @@ const chatListData = {
   companyUnread: 5,
   activeFolder: "all",
   setActiveFolder: vi.fn(),
-  chatSearchQuery: "",
-  setChatSearchQuery: vi.fn(),
   chatSortBy: "recent" as const,
   setChatSortBy: vi.fn(),
   filteredChats: [],

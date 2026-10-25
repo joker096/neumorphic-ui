@@ -27,11 +27,10 @@ export const useChatListData = () => {
 
   const [activeFolder, setActiveFolder] = useState<string>('all');
   const [chatSortBy, setChatSortBy] = useState<'recent' | 'alpha'>('recent');
-  const [chatSearchQuery, setChatSearchQuery] = useState("");
 
   const { filteredChats, filteredChannels, folderUnread } = useFilteredChats(
     chats,
-    chatSearchQuery,
+    "",
     activeFolder,
     archivedChats,
     advancedFilters,
@@ -51,8 +50,6 @@ export const useChatListData = () => {
     companyUnread,
     activeFolder,
     setActiveFolder,
-    chatSearchQuery,
-    setChatSearchQuery,
     chatSortBy,
     setChatSortBy,
     filteredChats,

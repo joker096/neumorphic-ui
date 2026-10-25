@@ -1,5 +1,4 @@
 import { Archive, Plus, Globe, Users } from "lucide-react";
-import { SearchInput } from "../ui/SearchInput";
 import { NotificationCenter } from "./NotificationCenter";
 import { UNREAD_BADGE_CLASS } from "./chatPreviewClasses";
 import { useStoriesStore } from "../../features/stories/storiesStore";
@@ -8,8 +7,6 @@ import { SearchStoryBadge } from "../../features/stories/components/SearchStoryB
 interface ChatListSearchHeaderProps {
   isDark: boolean;
   view: string;
-  chatSearchQuery: string;
-  setChatSearchQuery: (q: string) => void;
   archivedUnreadCount: number;
   t: (key: string, options?: any) => string;
   setView: (v: string) => void;
@@ -21,7 +18,7 @@ interface ChatListSearchHeaderProps {
 }
 
 export const ChatListSearchHeader = ({
-  isDark, view, chatSearchQuery, setChatSearchQuery, archivedUnreadCount,
+  isDark, view, archivedUnreadCount,
   t, setView, setActiveFolder, setShowCreateChannel, setShowCreateBot, setShowCreateGroup, onOpenGlobalSearch,
 }: ChatListSearchHeaderProps) => {
   const storyAuthors = useStoriesStore((s) => s.authors);
@@ -29,16 +26,7 @@ export const ChatListSearchHeader = ({
 
   return (
     <div className="mb-4 sm:mb-6 relative z-30 flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
-      <div className="flex-1 min-w-[120px]">
-        <SearchInput
-          value={chatSearchQuery}
-          onChange={setChatSearchQuery}
-          placeholder={view === "channels" ? t("chat.searchChannelsPlaceholder") : view === "bots" ? t("chat.searchBotsPlaceholder") : t("chat.searchPlaceholder")}
-          isDark={isDark}
-          shape="pill"
-          rightElement={showStoryBadge ? <SearchStoryBadge t={t} /> : undefined}
-        />
-      </div>
+      {showStoryBadge && <SearchStoryBadge t={t} />}
       {(view === "channels" || view === "bots") ? (
         <button
           type="button"

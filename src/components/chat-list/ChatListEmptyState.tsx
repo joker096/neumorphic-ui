@@ -9,22 +9,17 @@ type Translate = (key: string, options?: any) => string;
 interface ChatListEmptyStateProps {
   view: string;
   isDark: boolean;
-  hasSearchQuery: boolean;
   activeFolder: string;
   t: Translate;
-  onClearSearch: () => void;
   setShowCreateGroup?: (show: boolean) => void;
   setShowCreateChannel: (show: boolean) => void;
   setShowAddContactFromChat?: (show: boolean) => void;
 }
 
-/** Empty-list ladder: search miss, empty groups, onboarding for chats, onboarding for channels. */
-export function ChatListEmptyState({ view, isDark, hasSearchQuery, activeFolder, t, onClearSearch, setShowCreateGroup, setShowCreateChannel, setShowAddContactFromChat }: ChatListEmptyStateProps) {
+/** Empty-list ladder: empty groups, onboarding for chats, onboarding for channels. */
+export function ChatListEmptyState({ view, isDark, activeFolder, t, setShowCreateGroup, setShowCreateChannel, setShowAddContactFromChat }: ChatListEmptyStateProps) {
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  if (hasSearchQuery) {
-    return <DataState status="empty" isDark={isDark} emptyIcon="search" title={t("chat.noResults")} description={t("chat.noResultsHint", "Try a different keyword or clear your search")} action={{ label: t("search.clear", "Clear"), onClick: onClearSearch }} />;
-  }
   if (activeFolder === "groups") {
     return <DataState status="empty" isDark={isDark} title={t("chat.noGroups")} description={t("chat.noGroupsHint")} action={setShowCreateGroup ? { label: t("chat.createGroup"), onClick: () => setShowCreateGroup(true) } : undefined} />;
   }

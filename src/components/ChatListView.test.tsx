@@ -131,8 +131,6 @@ const baseProps = {
   view: 'chats',
   activeFolder: 'all',
   setActiveFolder: vi.fn(),
-  chatSearchQuery: '',
-  setChatSearchQuery: vi.fn(),
   filteredChats: [],
   filteredChannels: [],
   bots: [],
