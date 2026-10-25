@@ -13,6 +13,7 @@ import {
   type TypeFilter,
 } from "./search/searchEngine";
 import { useBodyScrollLock } from "../lib/a11y";
+import { StoriesStrip } from "../features/stories/components/StoriesStrip";
 
 /** Caps label above a global search section. */
 const SECTION_LABEL_CLASS = 'mr-1 text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]';
@@ -179,6 +180,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
             </button>
           )}
         </div>
+
+        {!hasQuery && <StoriesStrip t={t} />}
 
         {hasQuery && (
           <div className="flex flex-col gap-1.5 px-2 py-2 border-b border-[var(--border-color)]">

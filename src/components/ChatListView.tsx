@@ -1,4 +1,8 @@
-import { useMemo, useRef, useState, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { useStoriesStore } from "../features/stories/storiesStore";
+import { StoriesArchiveRow } from "../features/stories/components/StoriesArchiveRow";
+import { StoriesStrip } from "../features/stories/components/StoriesStrip";
+import { StoryViewer } from "../features/stories/components/StoryViewer";
 import { AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots, ChatListSortControls } from "./chat-preview";
 import { ChatListDialogs } from "./chat-list/ChatListDialogs";
 import type { ChatFolder } from "../lib/chat/customFolders";
@@ -98,6 +102,10 @@ export const ChatListView = ({
 }: ChatListViewProps) => {
   const [globalSearchOpen, setGlobalSearchOpen] = useGlobalSearchToggle();
   const [folderManagerOpen, setFolderManagerOpen] = useState(false);
+
+  useEffect(() => {
+    void useStoriesStore.getState().init();
+  }, []);
   const premium = Boolean(useAppStore((s) => s.premiumEntitlement?.premium));
   const crmContacts = useAppStore((s) => s.crmContacts);
   const crmSegments = crmContacts.length ? CRM_SEGMENT_KEYS : [];
@@ -222,6 +230,13 @@ export const ChatListView = ({
         </>
       )}
 
+      {view === "chats" && (
+        <>
+          <StoriesArchiveRow t={t} />
+          <StoriesStrip t={t} />
+        </>
+      )}
+
       {view === "chats" && <AvatarRow theme={theme} onStoryClick={setActiveStory} onComposeStory={onComposeStory} t={t} />}
 
       {view === "chats" && filteredChats.length > 0 && selectMode && (
@@ -266,6 +281,8 @@ export const ChatListView = ({
           />
         )}
       </div>
+
+      <StoryViewer />
 
       <ChatListDialogs
         menu={menu}

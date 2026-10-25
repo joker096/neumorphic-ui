@@ -181,6 +181,8 @@
   --accent-soft: rgba(78,222,99,0.13);
   --accent2: #10b981;
   --accent2-rgb: 16,185,129;
+  --story-ring-unseen: #10b981;
+  --story-ring-seen: #3a4344;
   --success: #38d69a;
   --success-soft: rgba(56,214,154,0.12);
   --danger: #ff4d5e;
@@ -328,6 +330,8 @@
   --accent-rgb: 5,150,102;
   --accent2: #047857;
   --accent2-rgb: 4,120,87;
+  --story-ring-unseen: #059669;
+  --story-ring-seen: #cbd5e1;
   --accent-soft: rgba(5,150,102,0.12);
   --accent-warm: #ea580c;
   --accent-warm-soft: rgba(234,88,12,0.15);
