@@ -181,8 +181,6 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
           )}
         </div>
 
-        {!hasQuery && <StoriesStrip t={t} />}
-
         {hasQuery && (
           <div className="flex flex-col gap-1.5 px-2 py-2 border-b border-[var(--border-color)]">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -225,6 +223,41 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
         )}
 
         <div className="overflow-y-auto flex-1 p-2">
+          {!hasQuery && (
+            <>
+              <StoriesStrip t={t} />
+              {contacts.length > 0 && (
+                <div className="mb-2">
+                  <div className="flex items-center justify-between px-2 py-1.5">
+                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
+                      {t("search.frequent", "Frequent contacts")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 overflow-x-auto px-1 no-scrollbar">
+                    {contacts.slice(0, 6).map((c: any) => (
+                      <button
+                        key={c.id ?? c.name}
+                        type="button"
+                        onClick={() => selectContact(c)}
+                        className="shrink-0 flex flex-col items-center gap-1 cursor-pointer group"
+                        style={{ width: 64 }}
+                      >
+                        <span
+                          className={`flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br text-lg font-bold text-white ${c.avatarColor ?? 'from-[var(--accent)] to-purple-500'}`}
+                        >
+                          {String(c.name ?? '?').charAt(0).toUpperCase()}
+                        </span>
+                        <span className="w-full truncate text-center text-xs text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+                          {c.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           {!hasQuery && history.length > 0 && (
             <div className="mb-2">
               <div className="flex items-center justify-between px-2 py-1.5">
