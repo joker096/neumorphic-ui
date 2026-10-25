@@ -2,6 +2,7 @@ import React from "react";
 import { X } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 import { ACCENT_CAPS_BOLD_CLASS } from "../ui/textClasses";
+import { SwipeDismissPanel } from "../ui/SwipeDismissPanel";
 
 interface ChatInputSchedulePopupProps {
   scheduleDateTime: string;
@@ -15,7 +16,10 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
   const { t: translate } = useI18n();
   if (!showSchedulePopup) return null;
   return (
-    <div className="mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-xl flex flex-col gap-2 bg-[var(--bg-secondary)] border border-[var(--border-color)]">
+    <SwipeDismissPanel
+      onClose={() => setShowSchedulePopup(false)}
+      className="mx-2 sm:mx-3 mb-2 p-2 sm:p-3 rounded-xl flex flex-col gap-2 bg-[var(--bg-secondary)] border border-[var(--border-color)]"
+    >
       <div className="flex justify-between items-center">
         <span className={ACCENT_CAPS_BOLD_CLASS}>{t("chat.scheduleSend")}</span>
         <button
@@ -53,6 +57,6 @@ export function ChatInputSchedulePopup({ scheduleDateTime, setScheduleDateTime, 
           {t("chat.setTime")}
         </button>
       </div>
-    </div>
+    </SwipeDismissPanel>
   );
 }

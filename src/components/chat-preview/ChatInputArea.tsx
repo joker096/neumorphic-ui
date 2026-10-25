@@ -1,5 +1,7 @@
 import React from "react";
+import { AnimatePresence } from "motion/react";
 import { BellOff, ChevronRight, Clock, Mic, Radio } from "lucide-react";
+import { SwipeDismissPanel } from "../ui/SwipeDismissPanel";
 import { useI18n } from "../../lib/i18n";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { StickerPicker } from "../chat/StickerPicker";
@@ -275,19 +277,24 @@ function ChatInputAreaImpl({
       <ChatInputVoiceError voiceNoteError={eVoiceNoteError} />
       {eMorseMode && <MorsePreview msgText={eMsgText} />}
 
-      {eShowStickerPicker && (
-        <div className="animate-fade-in">
-          <StickerPicker
-            theme={theme}
-            onSelect={(sticker: string) => {
-              if (sendStickerMessage) sendStickerMessage(sticker);
-              setShowStickerPickerFn2(false);
-            }}
+      <AnimatePresence>
+        {eShowStickerPicker && (
+          <SwipeDismissPanel
             onClose={() => setShowStickerPickerFn2(false)}
-            onOpenPremium={onOpenPremium}
-          />
-        </div>
-      )}
+            className="w-full"
+          >
+            <StickerPicker
+              theme={theme}
+              onSelect={(sticker: string) => {
+                if (sendStickerMessage) sendStickerMessage(sticker);
+                setShowStickerPickerFn2(false);
+              }}
+              onClose={() => setShowStickerPickerFn2(false)}
+              onOpenPremium={onOpenPremium}
+            />
+          </SwipeDismissPanel>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -2,6 +2,7 @@ import React from "react";
 import { BarChart3, ChevronRight, FileText, Image as ImageIcon, Link2, MapPin, Music, Radio, Video as VideoIcon, X } from "lucide-react";
 import { LiveLocationSheet } from "./LiveLocationSheet";
 import { PollComposerModal } from "./PollComposerModal";
+import { SwipeDismissPanel } from "../ui/SwipeDismissPanel";
 
 export interface ChatAttachLayerProps {
   /** Whether the attach menu is open. The layer itself stays mounted so a
@@ -129,7 +130,10 @@ export function ChatAttachLayer({
   return (
     <>
       {open && (
-        <div className="mx-2 sm:mx-3 mb-2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-2">
+        <SwipeDismissPanel
+          onClose={onClose}
+          className="mx-2 sm:mx-3 mb-2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] p-2"
+        >
           <div className="grid grid-cols-4 gap-1">
             <button
               type="button"
@@ -242,7 +246,7 @@ export function ChatAttachLayer({
               </button>
             </div>
           )}
-        </div>
+        </SwipeDismissPanel>
       )}
 
       {error && (
