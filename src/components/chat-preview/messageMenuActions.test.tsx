@@ -46,10 +46,9 @@ describe('buildMessageMenuActions', () => {
     h.pinned = [];
   });
 
-  it('builds reply/copy/translate/save/pin/forward/delete without select', () => {
+  it('builds copy/translate/pin/forward/delete without select or hover-only actions', () => {
     const actions = buildMessageMenuActions(baseArgs());
-    expect(actions.map(a => a.key)).toEqual(['reply', 'copy', 'copy-link', 'translate', 'save', 'pin', 'forward', 'delete']);
-    expect(actions.find(a => a.key === 'reply')!.label).toBe('chat.reply');
+    expect(actions.map(a => a.key)).toEqual(['copy', 'copy-link', 'translate', 'pin', 'forward', 'delete']);
   });
 
   it('prepends select action when onSelect given', () => {
@@ -58,14 +57,6 @@ describe('buildMessageMenuActions', () => {
     expect(actions[0].key).toBe('select');
     actions[0].onClick();
     expect(onSelect).toHaveBeenCalledWith({ id: 1, text: 'hello' });
-  });
-
-  it('reply action calls onReply with msg', () => {
-    const msg = { id: 5, text: 'yo' };
-    const onReply = vi.fn();
-    const actions = buildMessageMenuActions(baseArgs({ msg, onReply }));
-    actions.find(a => a.key === 'reply')!.onClick();
-    expect(onReply).toHaveBeenCalledWith(msg);
   });
 
   it('copy action writes to clipboard and toasts', () => {
@@ -109,24 +100,6 @@ describe('buildMessageMenuActions', () => {
     const actions = buildMessageMenuActions(baseArgs({ onTranslate }));
     actions.find(a => a.key === 'translate')!.onClick();
     expect(onTranslate).toHaveBeenCalledTimes(1);
-  });
-
-  it('omits save action for channels', () => {
-    const actions = buildMessageMenuActions(baseArgs({ isChannel: true }));
-    expect(actions.map(a => a.key)).not.toContain('save');
-  });
-
-  it('save action toggles saved message', () => {
-    const onToggleSavedMessage = vi.fn();
-    const actions = buildMessageMenuActions(baseArgs({ onToggleSavedMessage }));
-    actions.find(a => a.key === 'save')!.onClick();
-    expect(onToggleSavedMessage).toHaveBeenCalledWith({ id: 'c1' }, { id: 1, text: 'hello' });
-  });
-
-  it('labels save action as saved when message already saved', () => {
-    const chatSavedMessages = [{ messageId: 1 }];
-    const actions = buildMessageMenuActions(baseArgs({ chatSavedMessages }));
-    expect(actions.find(a => a.key === 'save')!.label).toBe('chat.saved');
   });
 
   it('pin action adds pinned message and toasts', () => {

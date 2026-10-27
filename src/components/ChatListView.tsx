@@ -1,18 +1,17 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { useStoriesStore } from "../features/stories/storiesStore";
-import { StoriesArchiveRow } from "../features/stories/components/StoriesArchiveRow";
-import { StoriesStrip } from "../features/stories/components/StoriesStrip";
-import { StoryViewer } from "../features/stories/components/StoryViewer";
-import { AvatarRow, BulkActionsBar, FolderFilterBar, ViewTabs, ChatListSearchHeader, ChatListBots, ChatListSortControls } from "./chat-preview";
+
+import { ChatListBots } from "./chat-preview";
+import { ChatListHeader } from "./chat-list/ChatListHeader";
 import { ChatListDialogs } from "./chat-list/ChatListDialogs";
 import type { ChatFolder } from "../lib/chat/customFolders";
 import { useGlobalSearchToggle } from "./chat-list/ChatListOverlays";
 import { useChatListActions } from "../hooks/useChatListActions";
+import { useChatListKeyboardNavBinding } from "../hooks/useChatListKeyboardNav";
 import { buildChatRows } from "./chat-list/buildChatRows";
 import { ChatListVirtualRows, useChatListRowRenderer } from "./chat-list/ChatListBody";
 import { ChatListEmptyState } from "./chat-list/ChatListEmptyState";
 import { ChatListPinnedSection } from "./chat-list/ChatListPinnedSection";
-import { CrmNextStepsBanner } from "./crm/CrmNextStepsBanner";
 import { useAppStore } from "../store";
 import { useUiStore } from "../store/uiStore";
 import { CRM_SEGMENT_KEYS } from "../constants/chatConstants";
@@ -41,7 +40,6 @@ interface ChatListViewProps {
   onOpenChat?: (chat: any, opts?: { returnTo?: { view: string; subView?: string | null }; forceView?: string }) => void;
   activeChatId?: string | number | null;
   setView: (view: string) => void;
-  setActiveStory: (story: any) => void;
   onComposeStory?: () => void;
   setShowCreateChannel: (show: boolean) => void;
   setShowCreateBot: (show: boolean) => void;
@@ -79,7 +77,6 @@ export const ChatListView = ({
   onOpenChat,
   activeChatId,
   setView,
-  setActiveStory,
   onComposeStory,
   setShowCreateChannel,
   setShowCreateBot,
@@ -152,6 +149,21 @@ export const ChatListView = ({
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // ↑/↓ + Enter navigation over the chat/channel rows (auto-disabled while an
+  // overlay, menu, or selection is active).
+  useChatListKeyboardNavBinding({
+    rows,
+    view,
+    globalSearchOpen,
+    folderManagerOpen,
+    menu: Boolean(menu),
+    deleteConfirm: Boolean(deleteConfirm),
+    selectMode,
+    scrollRef,
+    handleChatOpen,
+    onOpenChat,
+  });
+
   const renderRow = useChatListRowRenderer({
     theme,
     t,
@@ -177,7 +189,7 @@ export const ChatListView = ({
 
   return (
     <div className={"w-full flex-1 flex flex-col overflow-hidden px-3 md:px-5 py-3 md:py-5 bg-[var(--bg-secondary)]/50 dark:bg-[var(--bg-primary)]/50"}>
-      <ChatListSearchHeader
+      <ChatListHeader
         isDark={isDark}
         view={view}
         archivedUnreadCount={archivedUnreadCount}
@@ -188,62 +200,32 @@ export const ChatListView = ({
         setShowCreateBot={setShowCreateBot}
         setShowCreateGroup={setShowCreateGroup}
         onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
+        premium={premium}
+        onOpenTasks={() => {
+          requestCrmTab("tasks");
+          setView("company");
+        }}
+        activeFolder={activeFolder}
+        advancedFilters={advancedFilters}
+        setShowAdvancedFilterModal={setShowAdvancedFilterModal}
+        segments={crmSegments}
+        folderUnread={folderUnread}
+        customFolders={customFolders}
+        onEditFolders={() => setFolderManagerOpen(true)}
+        chatSortBy={chatSortBy}
+        setChatSortBy={setChatSortBy}
+        hasFilteredUnread={hasFilteredUnread}
+        onMarkAllRead={() => handleMarkAllRead(filteredChats.map((c: any) => c.id))}
+        onComposeStory={onComposeStory}
+        canShowBulk={filteredChats.length > 0}
+        selectMode={selectMode}
+        selectedIds={selectedIds}
+        onCancel={handleCancelSelect}
+        onArchive={handleBulkArchive}
+        onDelete={requestBulkDelete}
+        onMarkRead={handleBulkMarkRead}
+        onToggleMute={handleBulkMute}
       />
-      <ViewTabs view={view} onSelect={setView} t={t} />
-
-      {view === "chats" && premium && (
-        <CrmNextStepsBanner
-          onOpenTasks={() => {
-            requestCrmTab("tasks");
-            setView("company");
-          }}
-        />
-      )}
-
-      {view === "chats" && (
-        <>
-          <FolderFilterBar
-                        activeFolder={activeFolder}
-            setActiveFolder={setActiveFolder}
-            advancedFilters={advancedFilters}
-            setShowAdvancedFilterModal={setShowAdvancedFilterModal}
-            t={t}
-            segments={crmSegments}
-            folderUnread={folderUnread}
-            customFolders={customFolders}
-            onEditFolders={() => setFolderManagerOpen(true)}
-          />
-          <ChatListSortControls
-            chatSortBy={chatSortBy}
-            setChatSortBy={setChatSortBy}
-            hasFilteredUnread={hasFilteredUnread}
-            onMarkAllRead={() => handleMarkAllRead(filteredChats.map((c: any) => c.id))}
-            t={t}
-            isDark={isDark}
-          />
-        </>
-      )}
-
-      {view === "chats" && (
-        <>
-          <StoriesArchiveRow t={t} />
-          <StoriesStrip t={t} />
-        </>
-      )}
-
-      {view === "chats" && <AvatarRow theme={theme} onStoryClick={setActiveStory} onComposeStory={onComposeStory} t={t} />}
-
-      {view === "chats" && filteredChats.length > 0 && selectMode && (
-        <BulkActionsBar
-                    selectedIds={selectedIds}
-          t={t}
-          onCancel={handleCancelSelect}
-          onArchive={handleBulkArchive}
-          onDelete={requestBulkDelete}
-          onMarkRead={handleBulkMarkRead}
-          onToggleMute={handleBulkMute}
-        />
-      )}
 
       <div ref={scrollRef} className="chat-list flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {view === "chats" && pinnedChats.length > 0 && !selectMode && (
@@ -274,8 +256,6 @@ export const ChatListView = ({
         )}
       </div>
 
-      <StoryViewer />
-
       <ChatListDialogs
         menu={menu}
         menuItems={menuItems}
@@ -290,17 +270,6 @@ export const ChatListView = ({
         setFolderManagerOpen={setFolderManagerOpen}
         activeFolder={activeFolder}
         setActiveFolder={setActiveFolder}
-        globalSearchOpen={globalSearchOpen}
-        isDark={isDark}
-        filteredChats={filteredChats}
-        filteredChannels={filteredChannels}
-        contacts={contacts}
-        onCloseGlobalSearch={() => setGlobalSearchOpen(false)}
-        onOpenChatFromSearch={(c) => {
-          handleChatOpen(c);
-          onOpenChat?.(c);
-        }}
-        onOpenContact={(c) => setGlobalSelectedContact(c)}
       />
     </div>
   );

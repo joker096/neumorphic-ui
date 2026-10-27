@@ -205,7 +205,7 @@ describe('LiveVoiceRecorder', () => {
     expect(addListenerSpy).not.toHaveBeenCalledWith('touchcancel', expect.any(Function));
   });
 
-  it('cancels when released before getUserMedia resolves', async () => {
+  it('starts hands-free recording when released before getUserMedia resolves', async () => {
     let resolveStream!: (s: MediaStream) => void;
     const streamPromise = new Promise<MediaStream>((resolve) => {
       resolveStream = resolve;
@@ -224,12 +224,19 @@ describe('LiveVoiceRecorder', () => {
       expect(getUserMedia).toHaveBeenCalled();
     });
 
+    // Release BEFORE the mic grant resolves: not a silent cancel — the
+    // recording starts hands-free and waits for Stop & Send.
     fireEvent.pointerUp(window);
+
+    const RecorderMock = (window as any).MediaRecorder;
+    expect(RecorderMock).not.toHaveBeenCalled();
+
     resolveStream({ getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream);
 
     await waitFor(() => {
-      expect(defaultProps.onCancel).toHaveBeenCalled();
+      expect(RecorderMock).toHaveBeenCalled();
     });
+    expect(defaultProps.onCancel).not.toHaveBeenCalled();
     expect(defaultProps.onSend).not.toHaveBeenCalled();
   });
 

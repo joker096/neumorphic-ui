@@ -62,7 +62,6 @@ export const SavedMessagesPanel = ({ show, chatSavedMessages, chatName, onClose,
                     value={query}
                     onChange={setQuery}
                     placeholder={t('search.chatsOrMessages', 'Search')}
-                    isDark={false}
                     shape="pill"
                     role="searchbox"
                   />

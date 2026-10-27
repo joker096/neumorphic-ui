@@ -8,6 +8,7 @@ import type { NotificationKind, NotificationSettings } from "../../store/slices/
 import { DataState } from "../ui/DataState";
 import { UNREAD_BADGE_CLASS } from "./chatPreviewClasses";
 import { TRUNCATE_MEDIUM_CLASS } from "../ui/textClasses";
+import { formatRelativeTime } from "../../utils/relativeTime";
 
 /** Square icon button in the notification panel header. */
 const ICON_BTN_CLASS =
@@ -34,15 +35,6 @@ const SETTING_KEYS: { key: keyof NotificationSettings; labelKey: string; label: 
   { key: "desktop", labelKey: "notif.settings.desktop", label: "Desktop" },
   { key: "mobile", labelKey: "notif.settings.mobile", label: "Mobile" },
 ];
-
-function relTime(ts: number, t: (k: string, o?: any) => string): string {
-  const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 60) return t("notif.relNow", "now");
-  if (s < 3600) return t("notif.relMin", { n: Math.floor(s / 60) });
-  if (s < 86400) return t("notif.relHour", { n: Math.floor(s / 3600) });
-  return t("notif.relDay", { n: Math.floor(s / 86400) });
-}
-
 export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: string, o?: any) => string }) {
   const notificationItems = useAppStore((s) => s.notificationItems);
   const unreadCount = useAppStore((s) => s.unreadCount);
@@ -55,18 +47,26 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
   const [open, setOpen] = React.useState(false);
   const [showSettings, setShowSettings] = React.useState(false);
   const btnRef = React.useRef<HTMLButtonElement>(null);
-  const [pos, setPos] = React.useState<{ top: number; right: number; flip: boolean } | null>(null);
+  const [pos, setPos] = React.useState<{ top: number; left: number; flip: boolean } | null>(null);
 
   // Fixed positioning (escapes ancestor overflow-hidden clipping) with
-  // up/down flip when there is no room below the bell button.
+  // up/down flip when there is no room below the bell button. The panel is
+  // anchored by its LEFT edge to the bell's left edge and clamped to the
+  // viewport, so it never drifts away from the bell (a right-relative anchor
+  // would push the dropdown far across the screen when the bell sits in a
+  // left-side column).
   React.useLayoutEffect(() => {
     if (!open || !btnRef.current) return;
     const calc = () => {
       const b = btnRef.current;
       if (!b) return;
       const r = b.getBoundingClientRect();
+      const PANEL_W = 320;
+      const MARGIN = 8;
       const flip = r.bottom + 400 > window.innerHeight;
-      setPos({ top: flip ? r.top - 8 : r.bottom + 8, right: Math.max(8, window.innerWidth - r.right), flip });
+      const top = flip ? r.top - MARGIN : r.bottom + MARGIN;
+      const left = Math.min(Math.max(MARGIN, r.left), window.innerWidth - PANEL_W - MARGIN);
+      setPos({ top, left, flip });
     };
     calc();
     window.addEventListener("resize", calc);
@@ -101,8 +101,8 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
         <>
           <div className="fixed inset-0 z-[var(--z-tooltip)]" onClick={() => setOpen(false)} aria-hidden />
           <div
-            className={`glass-panel fixed z-[var(--z-toast)] w-[320px] max-w-[90vw] rounded-2xl overflow-hidden text-[var(--text-primary)]`}
-            style={{ top: pos?.top, right: pos?.right, transform: pos?.flip ? "translateY(-100%)" : undefined }}
+            className={`fixed z-[var(--z-toast)] w-[320px] max-w-[90vw] rounded-2xl overflow-hidden border border-[var(--border-color)] bg-[var(--bg-elevated)] text-[var(--text-primary)] shadow-[var(--shadow-panel)]`}
+            style={{ top: pos?.top, left: pos?.left, transform: pos?.flip ? "translateY(-100%)" : undefined }}
             role="dialog"
             aria-label={t("notif.title", "Notifications")}
           >
@@ -179,7 +179,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
                           <div className={TRUNCATE_MEDIUM_CLASS}>{n.title}</div>
                           {n.body && <div className="text-xs opacity-70 truncate">{n.body}</div>}
                         </div>
-                        <span className="text-xs opacity-50 flex-shrink-0">{relTime(n.createdAt, t)}</span>
+                        <span className="text-xs opacity-50 flex-shrink-0">{formatRelativeTime(n.createdAt, t)}</span>
                       </button>
                     );
                   })

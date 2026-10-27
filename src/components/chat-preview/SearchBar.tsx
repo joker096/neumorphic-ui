@@ -41,7 +41,6 @@ export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchCha
           value={searchQuery}
           onChange={onSearchChange}
           placeholder={placeholder || t('search.chatsOrMessages', 'Search')}
-          isDark={isDark}
           shape="pill"
           role="searchbox"
         />

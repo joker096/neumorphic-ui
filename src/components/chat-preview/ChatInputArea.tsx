@@ -193,7 +193,6 @@ function ChatInputAreaImpl({
         setShowSchedulePopup={setShowSchedulePopupFn2}
         t={t}
       />
-
       <DmRecorderSlots
         isDark={isDark}
         showVideoRecorder={showVideoRecorder}
@@ -221,8 +220,7 @@ function ChatInputAreaImpl({
         t={t}
       />
 
-      <div className="message-composer relative shrink-0 mx-2 sm:mx-3 mb-3 mt-1 flex flex-wrap sm:flex-nowrap">
-        <MentionSuggestionsMenu
+      <div className="message-composer relative shrink-0 mx-2 sm:mx-3 mb-3 mt-1 flex flex-wrap sm:flex-nowrap">        <MentionSuggestionsMenu
           open={mentions.open}
           suggestions={mentions.suggestions}
           activeIndex={mentions.activeIndex}
@@ -272,11 +270,9 @@ function ChatInputAreaImpl({
           t={t}
         />
       </div>
-
       <ChatInputReplyBar replyTarget={eReplyTarget} setReplyTarget={setLocalReplyTarget} t={t} />
       <ChatInputVoiceError voiceNoteError={eVoiceNoteError} />
       {eMorseMode && <MorsePreview msgText={eMsgText} />}
-
       <AnimatePresence>
         {eShowStickerPicker && (
           <SwipeDismissPanel

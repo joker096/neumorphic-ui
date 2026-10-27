@@ -26,7 +26,6 @@ export const LiveVoiceRecorder = ({ onCancel, onSend, onPermissionDenied, holdTo
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<BlobPart[]>([]);
     const durationRef = useRef(0);
-    const releasedRef = useRef(false);
     
     useEffect(() => {
        startRecording();
@@ -68,11 +67,14 @@ const removeStopListeners = () => {
      };
 
      const handleRelease = () => {
+        // When released AFTER recording started -> send (hold-to-record).
+        // When released before the mic grant resolves -> remove the auto-send
+        // listeners and leave the recording to start hands-free; the user
+        // finishes with Stop & Send. This avoids silently discarding a quick
+        // tap (the previous releasedRef early-cancel made a plain click a no-op).
         removeStopListeners();
         if (mediaRecorderRef.current?.state === "recording") {
           handleStopAndSend();
-        } else {
-          releasedRef.current = true;
         }
      };
 
@@ -90,12 +92,6 @@ const removeStopListeners = () => {
     const startRecording = async () => {
        try {
            const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-           if (releasedRef.current) {
-              mediaStream.getTracks().forEach(t => t.stop());
-              removeStopListeners();
-              onCancel();
-              return;
-           }
            setStream(mediaStream);
           const mr = new MediaRecorder(mediaStream);
           mediaRecorderRef.current = mr;

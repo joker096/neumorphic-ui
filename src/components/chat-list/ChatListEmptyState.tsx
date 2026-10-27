@@ -27,7 +27,6 @@ export function ChatListEmptyState({ view, isDark, activeFolder, t, setShowCreat
     return (
       <>
         <OnboardingPanel
-          isDark={isDark}
           t={t}
           onStartChat={() => setShowAddContactFromChat?.(true)}
           onInvite={() => setShowInviteModal(true)}
@@ -45,11 +44,9 @@ export function ChatListEmptyState({ view, isDark, activeFolder, t, setShowCreat
     );
   }
   if (view === "channels") {
-    return (
-      <OnboardingPanel
-        isDark={isDark}
-        variant="channels"
-        t={t}
+    return (        <OnboardingPanel
+          variant="channels"
+          t={t}
         onStartChat={() => setShowCreateChannel(true)}
       />
     );

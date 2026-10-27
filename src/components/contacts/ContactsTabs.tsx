@@ -30,7 +30,7 @@ export function ContactsTabs({ contacts, filteredCount, searchQuery, activeTab, 
     <div className="w-full mb-4">
       <div className="mb-3">
         <SearchInput value={searchQuery} onChange={onSearchChange}
-          placeholder={t('contacts.searchPlaceholder')} isDark={isDark} shape="pill" />
+          placeholder={t('contacts.searchPlaceholder')} shape="pill" />
       </div>
 
       <div className="flex rounded-full p-1 overflow-x-auto scrollbar-none bg-[var(--msg-bg-input)]" onWheel={(e) => { e.currentTarget.scrollLeft += e.deltaY; }}>

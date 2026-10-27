@@ -117,7 +117,7 @@ export const ChatProfileBody = ({
 
 {/* Quick toggles */}
 <div className="px-4 mt-4 space-y-2">
-  <Row icon={isChatMuted ? <BellOff size={16} /> : <Bell size={16} />} title={t('profile.mute', 'Mute')} right={<ToggleSwitch isOn={isChatMuted} onToggle={onToggleMute} ariaLabel={t('profile.mute', 'Mute')} isDark={isDark} />} />
+  <Row icon={isChatMuted ? <BellOff size={16} /> : <Bell size={16} />} title={t('profile.mute', 'Mute')} right={<ToggleSwitch isOn={isChatMuted} onToggle={onToggleMute} ariaLabel={t('profile.mute', 'Mute')} />} />
 </div>
 
 {/* In-chat CRM card */}
@@ -130,7 +130,7 @@ export const ChatProfileBody = ({
       onCall={onCall}
       onVideoCall={onVideoCall}
       onMessage={onMessage}
-      isDark={isDark}
+      
     />
   </div>
 )}
@@ -212,7 +212,7 @@ export const ChatProfileBody = ({
   <div className="px-4 mt-5">
     <SectionTitle icon={<Pin size={16} />} title={t('profile.pinnedMessages', 'Pinned messages')} />
     {groupPinned.length === 0 ? (
-      <DataState status="empty" isDark={isDark} title={t('group.noPinned', 'No pinned messages')} action={{ label: t('chat.openChat', 'Open chat'), onClick: () => { onMessage?.(); onClose(); } }} />
+      <DataState status="empty"  title={t('group.noPinned', 'No pinned messages')} action={{ label: t('chat.openChat', 'Open chat'), onClick: () => { onMessage?.(); onClose(); } }} />
     ) : (
       <div className={CARD}>
         {groupPinned.map((p: any) => (
@@ -238,9 +238,9 @@ export const ChatProfileBody = ({
 <div className="px-4 mt-5">
   <SectionTitle icon={<Shield size={16} />} title={t('profile.permissions', 'Permissions')} />
   <div className={CARD}>
-    <Row icon={<MessageCircle size={16} />} title={t('profile.sendMessages', 'Send messages')} right={<ToggleSwitch isOn={groupPerms.sendMessages} ariaLabel={t('profile.sendMessages', 'Send messages')} onToggle={() => toggleGroupPermission('sendMessages')} isDark={isDark} />} />
-    <Row icon={<Users size={16} />} title={t('profile.addMembers', 'Add members')} right={<ToggleSwitch isOn={groupPerms.addMembers} ariaLabel={t('profile.addMembers', 'Add members')} onToggle={() => toggleGroupPermission('addMembers')} isDark={isDark} />} />
-    <Row icon={<AtSign size={16} />} title={t('profile.mentionEveryone', 'Mention everyone')} right={<ToggleSwitch isOn={groupPerms.mentionEveryone} ariaLabel={t('profile.mentionEveryone', 'Mention everyone')} onToggle={() => toggleGroupPermission('mentionEveryone')} isDark={isDark} />} />
+    <Row icon={<MessageCircle size={16} />} title={t('profile.sendMessages', 'Send messages')} right={<ToggleSwitch isOn={groupPerms.sendMessages} ariaLabel={t('profile.sendMessages', 'Send messages')} onToggle={() => toggleGroupPermission('sendMessages')}  />} />
+    <Row icon={<Users size={16} />} title={t('profile.addMembers', 'Add members')} right={<ToggleSwitch isOn={groupPerms.addMembers} ariaLabel={t('profile.addMembers', 'Add members')} onToggle={() => toggleGroupPermission('addMembers')}  />} />
+    <Row icon={<AtSign size={16} />} title={t('profile.mentionEveryone', 'Mention everyone')} right={<ToggleSwitch isOn={groupPerms.mentionEveryone} ariaLabel={t('profile.mentionEveryone', 'Mention everyone')} onToggle={() => toggleGroupPermission('mentionEveryone')}  />} />
   </div>
 </div>
 )}

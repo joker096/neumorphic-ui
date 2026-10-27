@@ -1,5 +1,5 @@
 import {
-  Check, Reply, Copy, Languages, Bookmark, Pin, Forward, Trash2, Pencil, Link2,
+  Check, Copy, Languages, Pin, Forward, Trash2, Pencil, Link2,
 } from "lucide-react";
 import { toast } from "../ui/Toast";
 import { useAppStore } from "../../store";
@@ -24,13 +24,12 @@ interface BuildMessageMenuArgs {
 }
 
 export function buildMessageMenuActions({
-  msg, isMe, t, isChannel, chat, chatSavedMessages,
-  onSelect, onReply, onToggleSavedMessage, onForward, onDelete, onTranslate, onEdit,
+  msg, isMe, t, isChannel, chat,
+  onSelect, onForward, onDelete, onTranslate, onEdit,
 }: BuildMessageMenuArgs): MessageContextAction[] {
   const isPinned = useAppStore.getState().pinnedMessageList.some(
     (p: any) => p.id === msg.id && p.chatId === chat.id,
   );
-  const isSaved = chatSavedMessages.some((s: any) => s.messageId === msg.id);
   // Retraction at the peer only exists for direct chats: the `chat-delete`
   // frame is addressed to one peer, and group delivery has no per-member
   // transport binding yet. Offering "delete for everyone" in a group would be
@@ -47,12 +46,6 @@ export function buildMessageMenuActions({
           onClick: () => onSelect(msg),
         }]
       : []),
-    {
-      key: "reply",
-      label: t("chat.reply"),
-      icon: <Reply size={16} />,
-      onClick: () => onReply(msg),
-    },
     ...(typeof msg.text === "string" && msg.text
       ? [{
           key: "copy",
@@ -83,14 +76,6 @@ export function buildMessageMenuActions({
           onClick: () => onTranslate(),
         }]
       : []),
-    ...(isChannel
-      ? []
-      : [{
-          key: "save",
-          label: isSaved ? t("chat.saved") : t("chat.save"),
-          icon: <Bookmark size={16} />,
-          onClick: () => onToggleSavedMessage(chat, msg),
-        }]),
     {
       key: "pin",
       label: isPinned ? t("chat.unpin", "Unpin") : t("chat.pin", "Pin"),

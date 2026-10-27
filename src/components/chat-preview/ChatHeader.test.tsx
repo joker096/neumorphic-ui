@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { ChatHeader } from './ChatHeader';
+import * as storeModule from '../../store';
 
 const defaultProps = {
   chat: {
@@ -10,7 +11,7 @@ const defaultProps = {
     color: 'from-purple-400 to-pink-600',
     online: true,
     id: 'chat-1',
-  },
+  } as any,
   onClose: vi.fn(),
   onProfileClick: vi.fn(),
   t: (key: string, opts?: any) => {
@@ -42,7 +43,7 @@ describe('ChatHeader', () => {
     render(
       <ChatHeader
         {...defaultProps}
-        chat={{ ...defaultProps.chat, online: false }}
+        chat={( { ...defaultProps.chat, online: false } as any )}
       />,
     );
     expect(screen.getByText('Offline')).toBeInTheDocument();
@@ -71,6 +72,26 @@ describe('ChatHeader', () => {
     const avatarDiv = screen.getByText('A');
     fireEvent.click(avatarDiv.closest('div[cursor-pointer]') || avatarDiv);
     expect(onProfileClick).toHaveBeenCalled();
+  });
+
+  it('shows granular last-seen subtitle for 1:1 chats when profile has lastSeen', () => {
+    vi.spyOn(storeModule, 'useAppStore').mockImplementation((selector: any) => selector({
+      contacts: [{ name: 'Alice Johnson', id: 'c-alice', color: 'from-blue-400 to-cyan-500', lastSeen: Date.now() - 5 * 60 * 1000, online: false, isFavorite: false, localFields: [] }],
+      contactAvatars: {},
+    }));
+    render(
+      <ChatHeader
+        {...defaultProps}
+        chat={{ ...defaultProps.chat, online: false } as any}
+        t={(k: string, o?: any) => {
+          if (k === 'chat.filters.online') return 'Online';
+          if (k === 'chat.filters.offline') return 'Offline';
+          if (k === 'chat.minutesAgo') return `Last seen ${o?.count ?? 0} minutes ago`;
+          return k;
+        }}
+      />,
+    );
+    expect(screen.getByText(/Last seen/)).toBeInTheDocument();
   });
 
   it('renders chat initial avatar letter', () => {

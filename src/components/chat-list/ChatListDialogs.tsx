@@ -1,7 +1,6 @@
 import { ChatContextMenu, type MenuAnchorRect } from "../chat-preview/ChatContextMenu";
 import { ChatListConfirmDialog } from "../chat-preview/ChatListConfirmDialog";
 import { FolderManagerModal } from "../chat-preview/FolderManagerModal";
-import { ChatListOverlays } from "./ChatListOverlays";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -19,14 +18,6 @@ interface ChatListDialogsProps {
   setFolderManagerOpen: (open: boolean) => void;
   activeFolder: string;
   setActiveFolder: (folder: string) => void;
-  globalSearchOpen: boolean;
-  isDark: boolean;
-  filteredChats: any[];
-  filteredChannels: any[];
-  contacts: any[];
-  onCloseGlobalSearch: () => void;
-  onOpenChatFromSearch: (chat: any) => void;
-  onOpenContact: (contact: any) => void;
 }
 
 /**
@@ -48,14 +39,6 @@ export function ChatListDialogs({
   setFolderManagerOpen,
   activeFolder,
   setActiveFolder,
-  globalSearchOpen,
-  isDark,
-  filteredChats,
-  filteredChannels,
-  contacts,
-  onCloseGlobalSearch,
-  onOpenChatFromSearch,
-  onOpenContact,
 }: ChatListDialogsProps) {
   return (
     <>
@@ -84,19 +67,6 @@ export function ChatListDialogs({
         setActiveFolder={setActiveFolder}
         t={t}
       />
-
-      {globalSearchOpen && (
-        <ChatListOverlays
-          isDark={isDark}
-          chats={filteredChats}
-          channels={filteredChannels}
-          contacts={contacts}
-          onClose={onCloseGlobalSearch}
-          onOpenChat={onOpenChatFromSearch}
-          onOpenContact={onOpenContact}
-          t={t}
-        />
-      )}
     </>
   );
 }

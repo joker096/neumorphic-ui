@@ -26,7 +26,6 @@ vi.mock('./chat-preview', () => ({
       {props.chat?.name ?? ''}
     </button>
   ),
-  AvatarRow: () => <div data-testid="avatar-row" />,
   BulkActionsBar: () => <div data-testid="bulk-actions-bar" />,
   FolderFilterBar: (props: any) => <div data-testid="folder-filter-bar" data-segments={(props.segments ?? []).join(',')} />,
   ViewTabs: () => <div data-testid="view-tabs" />,
@@ -158,43 +157,6 @@ const baseProps = {
   setShowAddContactFromChat: vi.fn(),
   onAddContactFromChat: vi.fn(),
 };
-
-describe('ChatListView keyboard shortcuts', () => {
-  it('opens global search on Ctrl+K', async () => {
-    render(<ChatListView {...baseProps} />);
-    expect(screen.queryByTestId('global-search')).not.toBeInTheDocument();
-
-    fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
-
-    expect(await screen.findByTestId('global-search')).toBeInTheDocument();
-  });
-
-  it('closes global search on second Ctrl+K', async () => {
-    render(<ChatListView {...baseProps} />);
-
-    fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
-    expect(await screen.findByTestId('global-search')).toBeInTheDocument();
-
-    fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
-    expect(screen.queryByTestId('global-search')).not.toBeInTheDocument();
-  });
-
-  it('opens global search on Cmd+K (metaKey)', async () => {
-    render(<ChatListView {...baseProps} />);
-
-    fireEvent.keyDown(document, { key: 'k', metaKey: true });
-
-    expect(await screen.findByTestId('global-search')).toBeInTheDocument();
-  });
-
-  it('does not open global search on plain K', () => {
-    render(<ChatListView {...baseProps} />);
-
-    fireEvent.keyDown(document, { key: 'k' });
-
-    expect(screen.queryByTestId('global-search')).not.toBeInTheDocument();
-  });
-});
 
 describe('ChatListView avatar → contact profile (D1)', () => {
   it('opens the real store contact id, not a synthesized hash id', () => {

@@ -3,6 +3,7 @@ import { ChevronRight, Search, Phone, Video, Users, MoreVertical } from "lucide-
 import { IconButton } from "../ui/IconButton";
 import { useAppStore } from "../../store";
 import { MEDIA_COVER_CLASS } from "../ui/mediaClasses";
+import { formatLastSeen } from "../contact-profile/lastSeen";
 
 /** Accent coloured status label in the chat header. */
 const ACCENT_LABEL_CLASS = 'text-xs font-semibold shrink-0 text-[var(--accent)]/90';
@@ -43,6 +44,9 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
   const isChannelChat = chat.isChannel || chat.type === "channel";
   const subscriberCount = chat.subscriberCount ?? chat.subscribers ?? 0;
   const overrideAvatar = useAppStore((state) => state.contactAvatars)[chat.name];
+  // Granular presence: look up contact by chat name for lastSeen (Telegram-style header subtitle)
+  const profileContact = useAppStore((state) => state.contacts.find((c: any) => c.name === chat.name));
+  const subtitleGranular = profileContact && !typing && !isChannelChat && !chat.online && profileContact.lastSeen ? formatLastSeen(t, profileContact.online, profileContact.lastSeen) : undefined;
 
   const secondaryActions = [
     canCall && onCall && { key: "call", icon: <Phone />, label: t("chat.startCall"), onClick: () => onCall(chat.name, chat.color) },
@@ -150,7 +154,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
                 <span
                   className={ACCENT_LABEL_CLASS}
                 >
-                  {chat.online ? t("chat.filters.online") : t("chat.filters.offline")}
+                  {subtitleGranular || (chat.online ? t("chat.filters.online") : t("chat.filters.offline"))}
                 </span>
               </>
             )}

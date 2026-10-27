@@ -1,8 +1,8 @@
 import { Bookmark, Reply } from "lucide-react";
 import { useI18n } from "../../lib/i18n";
 
-/** Round bubble action trigger revealed on hover. */
-const BUBBLE_BTN_CLASS = 'min-w-11 min-h-11 flex items-center justify-center rounded-full transition-colors pointer-events-none group-hover:pointer-events-auto focus-within:pointer-events-auto';
+/** Round bubble action trigger, always visible (desktop + touch). */
+const BUBBLE_BTN_CLASS = 'min-w-11 min-h-11 flex items-center justify-center rounded-full transition-colors';
 
 interface BubbleActionsProps {
   msg: any;
@@ -21,7 +21,7 @@ export function BubbleActions({
   const saved = chatSavedMessages.some((savedMsg: any) => savedMsg.messageId === msg.id);
   const chip = "bg-[var(--msg-bg-panel)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-color)] border shadow-sm backdrop-blur-sm";
   return (
-    <div className="hidden sm:flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
+    <div className="flex items-center gap-0.5">
       <button
         type="button"
         aria-label={t('chat.reply')}

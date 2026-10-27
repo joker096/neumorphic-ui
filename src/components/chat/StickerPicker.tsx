@@ -82,7 +82,6 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
         value={search}
         onChange={setSearch}
         placeholder={t('stickers.searchPlaceholder')}
-        isDark={isDark}
       />
 
       <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">

@@ -1,6 +1,4 @@
 import { Check, Megaphone } from "lucide-react";
-import { STORY_USERS } from "../../stories/storiesData";
-import { getUnseenCount } from "../../../lib/stories/storySeen";
 
 type Translate = (key: string, options?: any) => string;
 
@@ -31,14 +29,6 @@ const CELL_COLORS = [
  * plus the online and channel badges.
  */
 export function ChatListItemAvatar({ chat, active, type, selectMode, selected, overrideAvatar, t, onToggleSelect, onAvatarClick }: ChatListItemAvatarProps) {
-  // Telegram marks the contact's avatar when they have an unseen story. Stories here
-  // are name-matched against the demo `STORY_USERS` (same fallback used elsewhere).
-  const storyUser =
-    !selectMode && type !== "channel" && typeof chat.name === "string"
-      ? STORY_USERS.find((u) => chat.name.toLowerCase().startsWith(u.name.toLowerCase()))
-      : undefined;
-  const hasUnseenStory = !!storyUser && getUnseenCount(storyUser) > 0;
-
   // Telegram paints a group chat as a collage of its speakers instead of a single
   // initial, so the row reads as "several people" before the name is parsed. Only
   // real members (not the demo seed) qualify, and only when a second face exists —
@@ -62,8 +52,7 @@ export function ChatListItemAvatar({ chat, active, type, selectMode, selected, o
           onAvatarClick(chat);
         }
       }}
-      className={`relative shrink-0 ${ROUNDED} avatar transition-transform duration-200 ${active ? "scale-95" : ""} ${hasUnseenStory ? "ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg-secondary)]" : ""}`}
-      data-story-ring={hasUnseenStory ? "unseen" : undefined}
+      className={`relative shrink-0 ${ROUNDED} avatar transition-transform duration-200 ${active ? "scale-95" : ""}`}
     >
       {selectMode ? (
         <div
