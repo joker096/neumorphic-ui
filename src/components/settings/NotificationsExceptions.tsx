@@ -48,8 +48,8 @@ export const NotificationsExceptions = ({ isDark = false }: NotificationsExcepti
 
   return (
     <>
-      <SettingsSectionTitle title={t('settings.exceptions', 'Exceptions')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.exceptions', 'Exceptions')} />
+      <SettingsGroup >
         {exceptions.length === 0 && (
           <div className={"px-4 py-6 text-center text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>{t('settings.noExceptions', 'No exceptions yet')}</div>
         )}

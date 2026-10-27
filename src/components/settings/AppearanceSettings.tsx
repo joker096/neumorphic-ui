@@ -92,9 +92,9 @@ export const AppearanceSettings = ({
       : v;
 
   return (
-    <SubView title={t('settings.appearance')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.appearanceDescription')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+    <SubView title={t('settings.appearance')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.appearanceDescription')} />
+      <SettingsGroup >
         <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-100 dark:bg-emerald-500/10`}>
@@ -120,7 +120,7 @@ export const AppearanceSettings = ({
           iconColor="t-accent"
           title={t('settings.fontSize')}
           subtitle={t('settings.fontSizeSubtitle')}
-          isDark={isDark}
+          
           value={fontSizeLabel(fontSize)}
           onClick={() => setFontSize(fontSize === 'Small' ? 'Medium' : fontSize === 'Medium' ? 'Large' : 'Small')}
         />
@@ -153,7 +153,7 @@ export const AppearanceSettings = ({
               <div className={MUTED_CAPTION_CLASS}>{t('settings.uiAnimationsSubtitle')}</div>
             </div>
           </div>
-          <ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations?.(!uiAnimations)} isDark={isDark} ariaLabel={t('settings.uiAnimations')} />
+          <ToggleSwitch isOn={uiAnimations} onToggle={() => setUiAnimations?.(!uiAnimations)} ariaLabel={t('settings.uiAnimations')} />
         </div>
         <div className={ROW_SHELL_CLASS}>
           <div className="flex items-center gap-3">

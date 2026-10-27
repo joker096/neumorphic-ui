@@ -63,53 +63,53 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
       : undefined
 
   return (
-    <SubView title={t('premium.title', 'Premium')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('premium.statusLabel', 'Premium status')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+    <SubView title={t('premium.title', 'Premium')} onBack={onBack}>
+      <SettingsSectionTitle title={t('premium.statusLabel', 'Premium status')} />
+      <SettingsGroup className="mb-6">
         <SettingsRow
           icon={<Crown size={16} />}
           iconBg="bg-amber-100 dark:bg-amber-500/10"
           iconColor="text-amber-600 dark:text-amber-400"
           title={premiumEntitlement.premium ? t('premium.active', 'Active') : t('premium.inactive', 'Inactive')}
           subtitle={expiresLabel}
-          isDark={isDark}
+          
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('premium.perksTitle', 'What Premium unlocks')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('premium.perksTitle', 'What Premium unlocks')} />
+      <SettingsGroup className="mb-6">
         <SettingsRow
           icon={<Crown size={16} />}
           iconBg="bg-amber-100 dark:bg-amber-500/10"
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('premium.perkStickers', 'Full ICQ sticker pack')}
-          isDark={isDark}
+          
         />
         <SettingsRow
           icon={<Smile size={16} />}
           iconBg="bg-amber-100 dark:bg-amber-500/10"
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('premium.perkReactions', 'Extended reaction set')}
-          isDark={isDark}
+          
         />
         <SettingsRow
           icon={<FileUp size={16} />}
           iconBg="bg-amber-100 dark:bg-amber-500/10"
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('premium.perkFiles', 'Attachments up to 500 MB')}
-          isDark={isDark}
+          
         />
         <SettingsRow
           icon={<TrendingUp size={16} />}
           iconBg="bg-amber-100 dark:bg-amber-500/10"
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('premium.perkCrm', 'CRM deals, tasks and roles')}
-          isDark={isDark}
+          
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('premium.plans', 'Plans')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('premium.plans', 'Plans')} />
+      <SettingsGroup className="mb-6">
         {Object.values(PREMIUM_PLANS).map((plan) => (
           <SettingsRow
             key={plan.id}
@@ -118,7 +118,7 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
             iconColor="text-amber-600 dark:text-amber-400"
             title={plan.id === 'premium90' ? t('premium.plan90', 'Premium · 90 days') : t('premium.plan30', 'Premium · 30 days')}
             value={paying ? t('premium.paying', 'Creating payment…') : t('premium.pay', { amount: formatCurrency(plan.price, plan.currency, lang) })}
-            isDark={isDark}
+            
             onClick={() => void handlePay(plan.id)}
           />
         ))}
@@ -130,7 +130,7 @@ export const PremiumSection = ({ isDark = false, onBack }: PremiumSectionProps) 
             token={active.token}
             amount={active.plan.price}
             currency={active.plan.currency}
-            isDark={isDark}
+            
             onStatus={handleStatus}
           />
           <div className="text-center text-xs py-2 text-[var(--text-secondary)]">

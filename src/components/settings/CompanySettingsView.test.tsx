@@ -53,20 +53,20 @@ describe("CompanySettingsView", () => {
 
   it("calls onBack via the back button", () => {
     const onBack = vi.fn();
-    render(<CompanySettingsView isDark={false} onBack={onBack} />);
+    render(<CompanySettingsView onBack={onBack} />);
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
   it("opens the guide via the guide row", () => {
     const onOpenGuide = vi.fn();
-    render(<CompanySettingsView isDark={false} onBack={() => {}} onOpenGuide={onOpenGuide} />);
+    render(<CompanySettingsView onBack={() => {}} onOpenGuide={onOpenGuide} />);
     fireEvent.click(screen.getByRole("button", { name: /Company guide/ }));
     expect(onOpenGuide).toHaveBeenCalledTimes(1);
   });
 
   it("opens the create form from the CTA and creates the company", async () => {
-    render(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    render(<CompanySettingsView onBack={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Create Company" }));
 
     const createBtn = screen.getByRole("button", { name: "Create Company" });
@@ -85,7 +85,7 @@ describe("CompanySettingsView", () => {
   });
 
   it("closes the create form via cancel", () => {
-    render(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    render(<CompanySettingsView onBack={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Create Company" }));
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByPlaceholderText("Acme Inc.")).toBeNull();
@@ -93,7 +93,7 @@ describe("CompanySettingsView", () => {
 
   it("shows an error toast when creation fails", async () => {
     store.createCompany.mockRejectedValue(new Error("boom"));
-    render(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    render(<CompanySettingsView onBack={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Create Company" }));
     fireEvent.change(screen.getByPlaceholderText("Acme Inc."), { target: { value: "Acme" } });
     fireEvent.change(screen.getByPlaceholderText("John Doe"), { target: { value: "John" } });
@@ -108,23 +108,23 @@ describe("CompanySettingsView", () => {
   it("shows the company id and name instead of the CTA when a company exists", () => {
     store.companyId = "org_1";
     store.companySettings = { name: "Acme Corp" };
-    render(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    render(<CompanySettingsView onBack={() => {}} />);
     expect(screen.queryByRole("button", { name: "Create Company" })).toBeNull();
     expect(screen.getByText("org_1")).toBeInTheDocument();
     expect(screen.getByText("Acme Corp")).toBeInTheDocument();
   });
 
   it("mounts the website-embed section only when a company exists", () => {
-    const { rerender } = render(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    const { rerender } = render(<CompanySettingsView onBack={() => {}} />);
     expect(screen.queryByTestId("site-chat-manager")).toBeNull();
 
     store.companyId = "org_1";
-    rerender(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    rerender(<CompanySettingsView onBack={() => {}} />);
     expect(screen.getByTestId("site-chat-manager")).toBeInTheDocument();
   });
 
   it("toggles the office-only visibility setting", () => {
-    render(<CompanySettingsView isDark={false} onBack={() => {}} />);
+    render(<CompanySettingsView onBack={() => {}} />);
     fireEvent.click(screen.getByRole("switch", { name: "Hide when office only" }));
     expect(store.setHideWhenOfficeOnly).toHaveBeenCalledWith(true);
   });

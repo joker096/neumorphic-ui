@@ -1,34 +1,29 @@
 import {
-  Activity, Bot, CreditCard, Crown, FolderTree, Globe, HelpCircle, Lock,
+  Activity, Bot, CreditCard, Crown, FolderTree, HelpCircle, Lock,
   Monitor, Network, Palette, Phone, Radar, Receipt, Shield,
 } from "lucide-react";
 import type { NavItemDef } from "./SettingsMenuParts";
 
 interface SettingsMenuItemsArgs {
   t: (key: string, options?: any) => string;
-  language: string;
   setActiveSection: (section: string) => void;
   setSubView: (view: string | null) => void;
   premiumActive: boolean;
 }
 
 export function buildSettingsMenuItems({
-  t, language, setActiveSection, setSubView, premiumActive,
+  t, setActiveSection, setSubView, premiumActive,
 }: SettingsMenuItemsArgs) {
+  // Language switching lives in the quick-controls card (inline picker with
+  // `language-select-toggle`), so the appearance group carries the single
+  // "Appearance" entry that opens the full section (font size, animations…).
   const appearanceItems: NavItemDef[] = [
     {
       icon: <Palette size={18} className={"text-emerald-600 dark:text-emerald-400"} />,
       iconBg: "bg-emerald-100 dark:bg-emerald-500/undefined",
-      title: t('settings.theme'),
-      subtitle: t('settings.appearanceTheme'),
+      title: t('settings.appearance', 'Appearance'),
+      subtitle: t('settings.appearanceDescription', 'Theme, text size, animations, and PWA prompt'),
       onClick: () => setActiveSection('appearance'),
-    },
-    {
-      icon: <Globe size={16} className="t-accent" />,
-      iconBg: "t-accent-bg",
-      title: t('settings.language'),
-      subtitle: language,
-      onClick: () => setActiveSection('language'),
     },
   ];
 

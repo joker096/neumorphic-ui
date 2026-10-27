@@ -56,11 +56,11 @@ export function BigMenuButton({
   );
 }
 
-export function NavGroup({ isDark, title, items }: { isDark: boolean; title: string; items: NavItemDef[] }) {
+export function NavGroup({ title, items }: { title: string; items: NavItemDef[] }) {
   return (
     <div className="w-full">
-      <SettingsSectionTitle title={title} isDark={isDark} />
-      <SettingsCard isDark={isDark}>
+      <SettingsSectionTitle title={title} />
+      <SettingsCard >
         {items.map((it, i) => (
           <React.Fragment key={i}>
             {i > 0 && <SettingsDivider />}
@@ -69,7 +69,6 @@ export function NavGroup({ isDark, title, items }: { isDark: boolean; title: str
               iconBg={it.iconBg}
               title={it.title}
               subtitle={it.subtitle}
-              isDark={isDark}
               onClick={it.onClick}
             />
           </React.Fragment>

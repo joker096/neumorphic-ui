@@ -12,12 +12,11 @@ import { MEDIUM_LABEL_CLASS } from '../ui/textClasses';
 const SECTION_LABEL_CLASS = 'text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-1.5 block';
 
 type CompanySettingsViewProps = {
-  isDark: boolean
   onBack: () => void
   onOpenGuide?: () => void
 }
 
-export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySettingsViewProps) => {
+export const CompanySettingsView = ({ onBack, onOpenGuide }: CompanySettingsViewProps) => {
   const { t } = useI18n()
   const hideWhenOfficeOnly = useAppStore(s => s.hideWhenOfficeOnly)
   const setHideWhenOfficeOnly = useAppStore(s => s.setHideWhenOfficeOnly)
@@ -65,7 +64,7 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
 
 {/* Scrolling is handled by the parent SettingsView root (overflow-y-auto). */}
 <div className="overflow-x-hidden pr-1 flex flex-col gap-6">
-        <SettingsGroup isDark={isDark}>
+        <SettingsGroup >
           <button
             onClick={onOpenGuide}
             className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors active:scale-[0.99] hover:bg-black/5"
@@ -153,15 +152,15 @@ export const CompanySettingsView = ({ isDark, onBack, onOpenGuide }: CompanySett
         {companyId && (
           <div className="pb-0">
             <div className="w-full">
-              <SettingsSectionTitle title={t('company.siteChatSection', 'Chat on your website')} isDark={isDark} />
-              <SiteChatManager isDark={isDark} />
+              <SettingsSectionTitle title={t('company.siteChatSection', 'Chat on your website')} />
+              <SiteChatManager />
             </div>
           </div>
         )}
 
          <div className="pb-16 sm:pb-0">
            <div className="w-full">
-             <SettingsSectionTitle title={t('settings.companyVisibility')} isDark={isDark} />             <div className={"rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
+             <SettingsSectionTitle title={t('settings.companyVisibility')} />             <div className={"rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
                <SettingsToggleRow
                  icon={<Building2 size={16} />}
                   iconColor="t-accent"
@@ -170,7 +169,7 @@ title={t('settings.hideWhenOfficeOnly')}
                   subtitle={t('settings.hideWhenOfficeOnlySubtitle')}
                  isOn={hideWhenOfficeOnly}
                  onToggle={() => setHideWhenOfficeOnly(!hideWhenOfficeOnly)}
-                 isDark={isDark}
+
                />
              </div>
            </div>

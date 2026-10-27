@@ -87,52 +87,52 @@ describe('SecuritySection - additional tests', () => {
       return state;
     });
 
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(document.querySelector('[class*="lucide"]') || document.querySelector('svg')).toBeInTheDocument();
   });
 
   it('renders unlock icon when no pin', () => {
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(document.querySelector('[class*="lucide"]') || document.querySelector('svg')).toBeInTheDocument();
   });
 
   it('renders dark theme styles', () => {
-    const { container } = render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    const { container } = render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(container.querySelector('[class*="bg-[#1a1d24]"]') || container.querySelector('[class*="border-white/5"]') || container.querySelector('[class*="flex-1"]') || container.querySelector('[class*="w-full"]')).toBeInTheDocument();
   });
 
   it('renders light theme styles', () => {
-    const { container } = render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    const { container } = render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(container.querySelector('[class*="bg-white"]') || container.querySelector('[class*="border-black/5"]') || container.querySelector('[class*="flex-1"]') || container.querySelector('[class*="w-full"]')).toBeInTheDocument();
   });
 
   it('renders confirm dialog', () => {
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(screen.getByText('settings.security')).toBeInTheDocument();
   });
 
   it('renders section title', () => {
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(screen.getByText('settings.security')).toBeInTheDocument();
   });
 
   it('renders danger zone title', () => {
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(screen.getByText('settings.dangerZone')).toBeInTheDocument();
   });
 
   it('renders all groups', () => {
-    const { container } = render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    const { container } = render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(container.querySelectorAll('button, input, [class*="group"]').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders shield icon', () => {
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(document.querySelector('[class*="lucide-shield"]') || document.querySelector('svg')).toBeInTheDocument();
   });
 
   it('renders Lock/Unlock icons', () => {
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     expect(document.querySelector('[class*="lucide"]') || document.querySelector('svg')).toBeInTheDocument();
   });
 
@@ -155,7 +155,7 @@ describe('SecuritySection - additional tests', () => {
       return state;
     });
 
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
 
     const toggle = screen.getByText('settings.twoFactorAuth');
     fireEvent.click(toggle);
@@ -196,7 +196,7 @@ describe('SecuritySection - additional tests', () => {
       return state;
     });
 
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
 
     fireEvent.click(screen.getByText('settings.twoFactorAuth'));
 
@@ -227,7 +227,7 @@ describe('SecuritySection - additional tests', () => {
       return state;
     });
 
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
 
     fireEvent.click(screen.getByText('settings.twoFactorAuth'));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -263,7 +263,7 @@ describe('SecuritySection - additional tests', () => {
       return state;
     });
 
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
 
     const toggle = screen.getByRole('switch', { name: 'settings.biometricUnlock' });
     await waitFor(() => expect(toggle).toBeEnabled());
@@ -302,7 +302,7 @@ describe('SecuritySection - additional tests', () => {
       return state;
     });
 
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
 
     // A single merged destructive control — no separate "wipe" row.
     expect(screen.queryByText('settings.wipeAllData')).not.toBeInTheDocument();
@@ -332,7 +332,7 @@ describe('SecuritySection - additional tests', () => {
       () => new Promise((resolve) => { releaseHash = resolve; }),
     );
 
-    render(<SecuritySection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<SecuritySection onBack={vi.fn()} t={(k: string) => k} />);
     fireEvent.click(screen.getAllByRole('switch')[0]);
 
     fireEvent.change(screen.getByPlaceholderText('settings.enterPin'), {

@@ -44,20 +44,20 @@ export const DangerZonePanel = ({ isDark = false, t }: DangerZonePanelProps) => 
 
   return (
     <>
-      <SettingsSectionTitle title={t('settings.dangerZone')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.dangerZone')}  />
+      <SettingsGroup >
         <SettingsRow
           icon={<Trash2 size={16} />}
           iconBg="bg-red-100 dark:bg-red-500/10"
           iconColor="text-red-600 dark:text-red-400"
           title={t('settings.deleteAccount')}
           subtitle={t('settings.deleteAccountSubtitle')}
-          isDark={isDark}
+          
           onClick={requestDelete}
         />
       </SettingsGroup>
 
-      <SecurityChallengeModal {...challenge} isDark={isDark} t={t} />
+      <SecurityChallengeModal {...challenge}  t={t} />
     </>
   );
 };

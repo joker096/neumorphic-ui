@@ -67,8 +67,8 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
   const [openStep, setOpenStep] = useState<string | null>('create');
 
   return (
-    <SubView title={t('company.guide.title', 'Company guide')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('company.guide.subtitle', 'How companies & roles work')} isDark={isDark} />
+    <SubView title={t('company.guide.title', 'Company guide')} onBack={onBack}>
+      <SettingsSectionTitle title={t('company.guide.subtitle', 'How companies & roles work')} />
 
       {onCreateCompany && (
         <button
@@ -82,7 +82,7 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
         </button>
       )}
 
-      <SettingsGroup isDark={isDark}>
+      <SettingsGroup >
         {STEPS.map((step) => {
           const isOpen = openStep === step.key;
           return (
@@ -111,28 +111,28 @@ export const CompanyGuideSection = ({ isDark = false, onBack, onCreateCompany }:
         })}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('company.guide.tipsTitle', 'Quick notes')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('company.guide.tipsTitle', 'Quick notes')} />
+      <SettingsGroup >
         <SettingsRow
           icon={<BookOpen size={16} />}
           iconBg="bg-emerald-100 dark:bg-emerald-500/10"
           iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('company.guide.note1', 'The first person to create a company is its Admin')}
-          isDark={isDark}
+
         />
         <SettingsRow
           icon={<ShieldCheck size={16} />}
           iconBg="t-accent-bg"
           iconColor="t-accent"
           title={t('company.guide.note2', 'Only an Admin can confirm or change someone’s role')}
-          isDark={isDark}
+
         />
         <SettingsRow
           icon={<KeyRound size={16} />}
           iconBg="bg-amber-100 dark:bg-amber-500/10"
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('company.guide.note3', 'Joining always requires the Admin’s signed invite')}
-          isDark={isDark}
+
         />
       </SettingsGroup>
     </SubView>

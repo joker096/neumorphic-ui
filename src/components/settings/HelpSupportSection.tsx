@@ -97,16 +97,15 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
   };
 
   return (
-    <SubView title={t('settings.helpSupport', 'Help & Support')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.quickHelp', 'Quick help')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+    <SubView title={t('settings.helpSupport', 'Help & Support')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.quickHelp', 'Quick help')} />
+      <SettingsGroup >
         <SettingsRow
           icon={<ExternalLink size={16} />}
           iconBg="bg-purple-100 dark:bg-purple-500/10"
           iconColor="text-purple-600 dark:text-purple-400"
           title={t('settings.statusPage', 'Service status')}
           subtitle={t('settings.statusSub', 'All systems operational')}
-          isDark={isDark}
           rightElement={
             <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-500">
               <span className="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true" />
@@ -116,8 +115,8 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.faq', 'FAQ')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.faq', 'FAQ')} />
+      <SettingsGroup >
         {FAQ.map((item, i) => (
           <div key={i}>
             {i > 0 && <div className="border-t border-[var(--border-color)]" />}
@@ -137,8 +136,8 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
         ))}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.contactUs', 'Contact us')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.contactUs', 'Contact us')} />
+      <SettingsGroup >
         <div ref={formRef} className="p-4 flex flex-col gap-3">
           {sent ? (
             <EmptyState

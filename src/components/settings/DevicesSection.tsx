@@ -37,16 +37,15 @@ export const DevicesSection = ({ isDark = false, onBack, t }: DevicesSectionProp
   };
 
   return (
-    <SubView title={t('settings.devices', 'Devices')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.thisDevice', 'This device')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+    <SubView title={t('settings.devices', 'Devices')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.thisDevice', 'This device')} />
+      <SettingsGroup className="mb-6">
         <SettingsRow
           icon={<Monitor size={16} />}
           iconBg="bg-emerald-100 dark:bg-emerald-500/10"
           iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.thisDevice', 'This device')}
           subtitle={deviceInfo}
-          isDark={isDark}
         />
         <SettingsRow
           icon={<Clock size={16} />}
@@ -54,7 +53,6 @@ export const DevicesSection = ({ isDark = false, onBack, t }: DevicesSectionProp
           iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.lastActive', 'Last active')}
           subtitle={t('settings.lastActiveNow', 'Just now')}
-          isDark={isDark}
         />
         <SettingsRow
           icon={<X size={16} />}
@@ -62,7 +60,6 @@ export const DevicesSection = ({ isDark = false, onBack, t }: DevicesSectionProp
           iconColor="text-red-600 dark:text-red-400"
           title={t('settings.terminateSession', 'Terminate session')}
           subtitle={t('settings.terminateCurrentSubtitle', 'End this session and wipe local data')}
-          isDark={isDark}
           onClick={() => setShowTerminateCurrent(true)}
         />
       </SettingsGroup>

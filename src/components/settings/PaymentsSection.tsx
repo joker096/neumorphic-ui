@@ -131,8 +131,8 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
     type === 'topup' ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />;
 
   return (
-    <SubView title={t('settings.payments', 'Payments & Billing')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('wallet.title', 'Wallet')} isDark={isDark} />
+    <SubView title={t('settings.payments', 'Payments & Billing')} onBack={onBack}>
+      <SettingsSectionTitle title={t('wallet.title', 'Wallet')} />
       <div className="rounded-2xl p-5 mb-2 bg-gradient-to-br from-[var(--accent)]/10 to-transparent border border-[var(--accent)]/20 dark:from-[var(--accent)]/20 dark:border-[var(--border-color)]">
         <div className="text-xs uppercase tracking-widest font-bold opacity-60 text-[var(--text-secondary)]">{t('wallet.balance', 'Balance')}</div>
         <div className="text-[32px] font-bold mt-1 text-[var(--text-primary)]">{formatCurrency(balance, walletCurrency, lang, 2)}</div>
@@ -209,8 +209,8 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
         </div>
       )}
 
-      <SettingsSectionTitle title={t('settings.paymentSettings', 'Settings')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.paymentSettings', 'Settings')} />
+      <SettingsGroup >
         <SettingsToggleRow
           icon={<CreditCard size={16} />}
           iconBg="bg-emerald-100 dark:bg-emerald-500/10"
@@ -218,7 +218,6 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
           title={t('settings.paymentsEnabled', 'Payments')}
           subtitle={t('settings.paymentsEnabledSub', 'Send and receive money')}
           isOn={walletEnabled}
-          isDark={isDark}
           onToggle={() => { setWalletEnabled(!walletEnabled); toast(t('settings.saved', 'Saved'), 'success'); }}
         />
         <SettingsToggleRow
@@ -228,7 +227,6 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
           title={t('settings.biometricPay', 'Biometric confirmation')}
           subtitle={t('settings.biometricPaySub', 'Require Face ID / fingerprint')}
           isOn={biometricEnabled}
-          isDark={isDark}
           onToggle={() => setBiometricEnabled(!biometricEnabled)}
         />
         <SettingsRow
@@ -237,12 +235,11 @@ export const PaymentsSection = ({ isDark = false, onBack }: PaymentsSectionProps
           iconColor="text-purple-600 dark:text-purple-400"
           title={t('settings.paymentSecurity', 'Security')}
           subtitle={t('settings.paymentSecuritySub', 'Encrypted & tokenized')}
-          isDark={isDark}
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('wallet.transactions', 'Transactions')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('wallet.transactions', 'Transactions')} />
+      <SettingsGroup >
         {transactions.length === 0 && (
           <div className="px-4 py-6 text-center text-sm text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]">
             {t('wallet.empty', 'No transactions yet')}

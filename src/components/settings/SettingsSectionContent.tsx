@@ -118,6 +118,15 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setCloudSyncEnabled={setCloudSyncEnabled}
       language={language}
       lang={lang}
+      themeMode={themeMode}
+      setThemeMode={setThemeMode}
+      setTheme={setTheme}
+      onSelectLanguage={setLanguage}
+      dndEnabled={dndEnabled}
+      setDndEnabled={setDndEnabled}
+      connectionStatus={connectionStatus}
+      transportBackend={transportBackend}
+      latencyMs={latencyMs}
     />
   );
 
@@ -250,7 +259,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
 
   const renderCompanySettings = () => (
     <CompanySettingsView
-      isDark={isDark}
       onBack={() => setActiveSection('main')}
       onOpenGuide={() => setActiveSection('companyGuide')}
     />
@@ -271,7 +279,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
         </div>
       </div>
       <div className="overflow-x-hidden pr-1 flex flex-col gap-4">
-        <PersonalSiteChatManager isDark={isDark} onOpenPremium={() => setActiveSection('premium')} />
+        <PersonalSiteChatManager onOpenPremium={() => setActiveSection('premium')} />
       </div>
     </div>
   );
@@ -293,7 +301,7 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'appearance' && renderAppearanceSettings()}
       {activeSection === 'language' && renderLanguageSettings()}
       {activeSection === 'security' && <Suspense fallback={fallback}>{renderSecuritySettings()}</Suspense>}
-      {activeSection === 'devices' && <Suspense fallback={fallback}><DevicesSection isDark={isDark} onBack={() => setActiveSection('main')} t={t} /></Suspense>}
+      {activeSection === 'devices' && <Suspense fallback={fallback}><DevicesSection onBack={() => setActiveSection('main')} t={t} /></Suspense>}
       {activeSection === 'privacy' && renderPrivacySettings()}
       {activeSection === 'network' && <Suspense fallback={fallback}>{renderNetworkSettings()}</Suspense>}
       {activeSection === 'bots' && <Suspense fallback={fallback}>{renderBotsSettings()}</Suspense>}
@@ -301,16 +309,16 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'company' && <Suspense fallback={fallback}>{renderCompanySettings()}</Suspense>}
       {activeSection === 'siteembed' && <Suspense fallback={fallback}>{renderPersonalSiteChatSettings()}</Suspense>}
       {activeSection === 'companyGuide' && <Suspense fallback={fallback}>{renderCompanyGuideSettings()}</Suspense>}
-      {activeSection === 'storage' && <Suspense fallback={fallback}><StorageSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'notifications' && <Suspense fallback={fallback}><NotificationsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'folders' && <Suspense fallback={fallback}><FoldersSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'backup' && <Suspense fallback={fallback}><BackupExportSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'help' && <Suspense fallback={fallback}><HelpSupportSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'payments' && <Suspense fallback={fallback}><PaymentsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'paymentRequests' && <Suspense fallback={fallback}><PaymentRequestsSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'calls' && <Suspense fallback={fallback}><CallsSection isDark={isDark} onBack={() => setActiveSection('main')} setSubView={setSubView} /></Suspense>}
-      {activeSection === 'premium' && <Suspense fallback={fallback}><PremiumSection isDark={isDark} onBack={() => setActiveSection('main')} /></Suspense>}
-      {activeSection === 'mesh' && <Suspense fallback={fallback}><MeshSection isDark={isDark} onBack={() => setActiveSection('main')} t={t} /></Suspense>}
+      {activeSection === 'storage' && <Suspense fallback={fallback}><StorageSection onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'notifications' && <Suspense fallback={fallback}><NotificationsSection onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'folders' && <Suspense fallback={fallback}><FoldersSection onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'backup' && <Suspense fallback={fallback}><BackupExportSection onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'help' && <Suspense fallback={fallback}><HelpSupportSection onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'payments' && <Suspense fallback={fallback}><PaymentsSection onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'paymentRequests' && <Suspense fallback={fallback}><PaymentRequestsSection onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'calls' && <Suspense fallback={fallback}><CallsSection onBack={() => setActiveSection('main')} setSubView={setSubView} /></Suspense>}
+      {activeSection === 'premium' && <Suspense fallback={fallback}><PremiumSection onBack={() => setActiveSection('main')} /></Suspense>}
+      {activeSection === 'mesh' && <Suspense fallback={fallback}><MeshSection onBack={() => setActiveSection('main')} t={t} /></Suspense>}
     </AnimatePresence>
   );
 };

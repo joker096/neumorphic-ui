@@ -65,9 +65,9 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
   };
 
   return (
-    <SubView title={t('settings.notifications', 'Notifications')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.notifyScope', 'Notify me about')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+    <SubView title={t('settings.notifications', 'Notifications')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.notifyScope', 'Notify me about')} />
+      <SettingsGroup >
         <SettingsToggleRow
           icon={<MessageCircle size={16} />}
           iconBg="bg-emerald-100 dark:bg-emerald-500/10"
@@ -75,7 +75,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           title={t('settings.privateChats', 'Private chats')}
           subtitle={t('settings.privateChatsSub', 'Messages from contacts')}
           isOn={privateChats}
-          isDark={isDark}
+          
           onToggle={() => setPrivateChats(v => !v)}
         />
         <SettingsRow
@@ -84,7 +84,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           iconColor="t-accent"
           title={t('settings.groups', 'Groups')}
           subtitle={t('settings.groupsSub', 'Group conversations')}
-          isDark={isDark}
+          
           rightElement={<ToggleSwitchLoose isOn={groups} onToggle={() => setGroups(v => !v)} ariaLabel={t('settings.groups', 'Groups')} />}
         />
         <SettingsRow
@@ -93,7 +93,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           iconColor="text-purple-600 dark:text-purple-400"
           title={t('settings.channels', 'Channels')}
           subtitle={t('settings.channelsSub', 'Broadcast channels')}
-          isDark={isDark}
+          
           rightElement={<ToggleSwitchLoose isOn={channels} onToggle={() => setChannels(v => !v)} ariaLabel={t('settings.channels', 'Channels')} />}
         />
         <SettingsToggleRow
@@ -103,13 +103,13 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           title={t('settings.mentions', 'Mentions & replies')}
           subtitle={t('settings.mentionsSub', '@you and replies')}
           isOn={mentions}
-          isDark={isDark}
+          
           onToggle={() => setMentions(v => !v)}
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.notifyBehavior', 'Behavior')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.notifyBehavior', 'Behavior')} />
+      <SettingsGroup >
         <SettingsToggleRow
           icon={<Volume2 size={16} />}
           iconBg="bg-cyan-100 dark:bg-cyan-500/10"
@@ -117,7 +117,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           title={t('settings.inAppSound', 'In-app sound')}
           subtitle={t('settings.inAppSoundSub', 'Play sound while app is open')}
           isOn={inAppSound}
-          isDark={isDark}
+          
           onToggle={() => setInAppSound(v => !v)}
         />
         <SettingsToggleRow
@@ -127,7 +127,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           title={t('settings.messagePreview', 'Message preview')}
           subtitle={t('settings.messagePreviewSub', 'Show text in notifications')}
           isOn={preview}
-          isDark={isDark}
+          
           onToggle={() => setNotificationSettings({ messagePreview: !preview })}
         />
         <SettingsToggleRow
@@ -137,7 +137,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           title={t('settings.customTone', 'Custom notification tone')}
           subtitle={t('settings.customToneSub', 'Use a distinct sound')}
           isOn={customTone}
-          isDark={isDark}
+          
           onToggle={() => setCustomTone(v => !v)}
         />
         {customTone && NOTIFY_TONES.map((tone, i) => (
@@ -171,8 +171,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         ))}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.badgeBehavior', 'Badge counter')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.badgeBehavior', 'Badge counter')} />
+      <SettingsGroup >
         {BADGE_MODES.map((mode, i) => (
           <div key={mode.id}>
             {i > 0 && <div className={"border-t border-[var(--border-color)]"} />}
@@ -189,8 +189,8 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         ))}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.quietHours', 'Quiet hours')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.quietHours', 'Quiet hours')} />
+      <SettingsGroup >
         <SettingsToggleRow
           icon={<Moon size={16} />}
           iconBg="bg-indigo-100 dark:bg-indigo-500/10"
@@ -198,7 +198,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
           title={t('settings.quietHoursTitle', 'Enable quiet hours')}
           subtitle={t('settings.quietHoursSub', 'Mute notifications on schedule')}
           isOn={quietHours}
-          isDark={isDark}
+          
           onToggle={() => { setQuietHours(v => !v); toast(t('settings.saved', 'Saved'), 'success'); }}
         />
         {quietHours && (
@@ -224,7 +224,7 @@ export const NotificationsSection = ({ isDark = false, onBack }: NotificationsSe
         )}
       </SettingsGroup>
 
-      <NotificationsExceptions isDark={isDark} />
+      <NotificationsExceptions />
     </SubView>
   );
 };

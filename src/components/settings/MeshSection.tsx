@@ -143,13 +143,13 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
   const actionCls = `min-h-11 px-4 rounded-lg text-sm font-medium transition active:scale-[0.97] disabled:opacity-50 bg-[var(--accent)] text-[var(--ink-on-saturate)] hover:opacity-90`;
 
   return (
-    <SubView key="mesh" title={t('mesh.title', 'LAN Mesh')} isDark={isDark} onBack={onBack}>
+    <SubView key="mesh" title={t('mesh.title', 'LAN Mesh')} onBack={onBack}>
       <p className={`mb-4 text-sm leading-relaxed text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]`}>
         {t('mesh.hint', 'Serverless peer-to-peer: two devices on the same network exchange an invite QR and an answer QR. No signaling server involved — the session is encrypted with an ephemeral ECDH (X25519) + AES-GCM key pair derived locally on both sides.')}
       </p>
 
-      <SettingsSectionTitle title={t('mesh.stepCaller', 'Step 1 — Inviter')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('mesh.stepCaller', 'Step 1 — Inviter')} />
+      <SettingsGroup className="mb-6">
         <div className="p-4">
           <button className={actionCls} onClick={handleCreateOffer} disabled={inviteBusy}>
             {inviteBusy ? t('common.loading', 'Loading…') : t('mesh.createInvite', 'Create invite QR')}
@@ -173,8 +173,8 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
         </div>
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('mesh.stepGuest', 'Step 2 — Guest (same network only)')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('mesh.stepGuest', 'Step 2 — Guest (same network only)')} />
+      <SettingsGroup className="mb-6">
         <div className="p-4 flex flex-col gap-3">
           <textarea
             value={guestOfferDraft}
@@ -203,8 +203,8 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
         </div>
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('mesh.stepCallerFinal', 'Step 3 — Inviter (finish)')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('mesh.stepCallerFinal', 'Step 3 — Inviter (finish)')} />
+      <SettingsGroup className="mb-6">
         <div className="p-4 flex flex-col gap-3">
           <textarea
             value={callerAnswerDraft}
@@ -219,7 +219,7 @@ export const MeshSection = ({ isDark = false, onBack, t = (k: string, fallback?:
         </div>
       </SettingsGroup>
 
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsGroup className="mb-6">
         <div className="p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className={`text-sm font-medium text-[var(--text-secondary)] dark:text-[var(--text-primary)]`}>{t('mesh.session', 'Session')}</span>

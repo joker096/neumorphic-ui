@@ -29,7 +29,7 @@ export const BotEditModal = ({ bot, theme = 'dark', onSave, onClose }: BotEditMo
   };
 
   return (
-    <AppModal isOpen={true} onClose={onClose} isDark={isDark} icon={<Bot size={18} />} title={t('bot.editTitle')} maxWidth="max-w-sm">
+    <AppModal isOpen={true} onClose={onClose} icon={<Bot size={18} />} title={t('bot.editTitle')} maxWidth="max-w-sm">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <label className={modalLabelClass}>{t('bot.nameLabel')}</label>

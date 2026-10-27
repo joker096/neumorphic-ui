@@ -24,9 +24,9 @@ export const FoldersSection = ({ isDark = false, onBack }: NotificationsSectionP
   const { t } = useI18n();
 
   return (
-    <SubView title={t('settings.folders', 'Folders')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.chatFilters', 'Chat filters')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+    <SubView title={t('settings.folders', 'Folders')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.chatFilters', 'Chat filters')} />
+      <SettingsGroup >
         {CHAT_FOLDER_KEYS.map((key, i) => {
           const meta = FOLDER_META[key];
           return (

@@ -53,16 +53,16 @@ export const SystemStatusSection = ({
 
   return (
     <>
-      <SubView title={t('settings.systemStatus')} isDark={isDark} onBack={onBack}>
-        <SettingsSectionTitle title={t('settings.connection')} isDark={isDark} />
-        <SettingsGroup isDark={isDark} className="mb-6">
+      <SubView title={t('settings.systemStatus')} onBack={onBack}>
+        <SettingsSectionTitle title={t('settings.connection')} />
+        <SettingsGroup className="mb-6">
           <SettingsRow
             icon={<Wifi size={16} />}
             iconBg="bg-emerald-100 dark:bg-emerald-500/10"
             iconColor="text-emerald-600 dark:text-emerald-400"
             title={t('settings.connectionStatus')}
             subtitle={connectionStatusLabel}
-            isDark={isDark}
+            
             rightElement={
               <span className={`text-lg ${statusColors[connectionStatus] || 'text-gray-400'}`}>
                 {statusIcons[connectionStatus] || '○'}
@@ -75,7 +75,7 @@ export const SystemStatusSection = ({
             iconColor="text-[var(--accent)]"
             title={t('settings.transportBackend')}
             rightElement={<span className={STATUS_HINT_CLASS}>{transportBackend}</span>}
-            isDark={isDark}
+            
           />
           <SettingsRow
             icon={<Clock size={16} />}
@@ -83,20 +83,20 @@ export const SystemStatusSection = ({
             iconColor="text-amber-600 dark:text-amber-400"
             title={t('settings.latency')}
             rightElement={<span className={STATUS_HINT_CLASS}>{`${latencyMs} ms`}</span>}
-            isDark={isDark}
+            
           />
         </SettingsGroup>
 
         {blockedBackends.length > 0 && (
           <>
-            <SettingsSectionTitle title={t('settings.blockedBackends')} isDark={isDark} />
-            <SettingsGroup isDark={isDark} className="mb-6">
+            <SettingsSectionTitle title={t('settings.blockedBackends')} />
+            <SettingsGroup className="mb-6">
               {blockedBackends.map(backend => (
                 <SettingsRow
                   key={backend}
                   icon={<span className="text-red-400 font-bold">✕</span>}
                   title={backend}
-                  isDark={isDark}
+                  
                 />
               ))}
             </SettingsGroup>
@@ -104,23 +104,23 @@ export const SystemStatusSection = ({
         )}
 
         {regionBlocked && (
-          <SettingsGroup isDark={isDark} className="mb-6">
+          <SettingsGroup className="mb-6">
             <SettingsRow
               icon={<span className="text-red-400 font-bold">⚠</span>}
               title={t('settings.regionBlocked')}
               subtitle={t('settings.regionBlockedSubtitle')}
-              isDark={isDark}
+              
             />
           </SettingsGroup>
         )}
 
-        <SettingsSectionTitle title={t('settings.about')} isDark={isDark} />
-        <SettingsGroup isDark={isDark}>
+        <SettingsSectionTitle title={t('settings.about')} />
+        <SettingsGroup >
           <SettingsRow
             icon={<Smartphone size={16} />}
             title={t('settings.about')}
             subtitle={`${t('settings.build', 'Build')}: ${APP_INFO.BUILD_DATE}`}
-            isDark={isDark}
+            
             onClick={() => setShowAbout(true)}
           />
         </SettingsGroup>
@@ -132,7 +132,7 @@ export const SystemStatusSection = ({
         title={APP_INFO.NAME}
         subtitle={t('settings.aboutSubtitle')}
         icon={<Smartphone size={24} />}
-        isDark={isDark}
+        
         size="sm"
         closeLabel={t('common.close')}
         ariaLabel={t('settings.about')}

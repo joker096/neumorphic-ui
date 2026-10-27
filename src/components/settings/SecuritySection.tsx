@@ -14,12 +14,12 @@ interface SecuritySectionProps {
 
 export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionProps) => {
   return (
-    <SubView title={t('settings.security')} isDark={isDark} onBack={onBack}>
-      <AppLockPanel isDark={isDark} t={t} />
+    <SubView title={t('settings.security')} onBack={onBack}>
+      <AppLockPanel t={t} />
 
-      <TwoFactorPanel isDark={isDark} t={t} />
+      <TwoFactorPanel t={t} />
 
-      <KeyRecoveryPanel isDark={isDark} t={t} />
+      <KeyRecoveryPanel t={t} />
 
       {/* Only facts we can actually observe are shown. The previous
           "Active sessions — no other active sessions" and "Login history"
@@ -27,19 +27,19 @@ export const SecuritySection = ({ isDark = false, onBack, t }: SecuritySectionPr
           have: there is no session registry to read, so the first row asserted
           something unverifiable (and wrong as soon as a second peer connects)
           and the second advertised a log that does not exist. */}
-      <SettingsSectionTitle title={t('settings.sessionsDevices')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('settings.sessionsDevices')} />
+      <SettingsGroup className="mb-6">
         <SettingsRow
           icon={<Monitor size={16} />}
           iconBg="bg-emerald-100 dark:bg-emerald-500/10"
           iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.thisDevice')}
           subtitle={t('settings.thisDeviceSubtitle')}
-          isDark={isDark}
+          
         />
       </SettingsGroup>
 
-      <DangerZonePanel isDark={isDark} t={t} />
+      <DangerZonePanel t={t} />
     </SubView>
   );
 };

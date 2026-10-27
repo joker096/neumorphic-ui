@@ -131,15 +131,15 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
 
   return (
     <>
-      <SettingsSectionTitle title={t('settings.appLock')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('settings.appLock')}  />
+      <SettingsGroup  className="mb-6">
         <SettingsRow
           icon={hasPin ? <Lock size={16} /> : <Unlock size={16} />}
           iconBg={hasPin ? "bg-emerald-100 dark:bg-emerald-500/10" : "bg-gray-100 dark:bg-gray-500/10"}
           iconColor={hasPin ? "text-emerald-600 dark:text-emerald-400" : "text-gray-500 dark:text-gray-400"}
           title={t('settings.pinLock')}
           subtitle={hasPin ? t('settings.pinEnabled') : t('settings.pinDisabled')}
-          isDark={isDark}
+          
           rightElement={
             <ToggleSwitch
               isOn={hasPin}
@@ -147,7 +147,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
                 if (hasPin) startPinAction('remove');
                 else startPinAction('set');
               }}
-              isDark={isDark}
+              
               onIcon={<Lock size={14} />}
               offIcon={<Unlock size={14} />}
               ariaLabel={t('settings.pinLock')}
@@ -205,12 +205,12 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
           subtitle={biometricSupported
             ? (biometricEnabled ? t('settings.biometricEnabled') : t('settings.biometricDisabledSetting'))
             : t('settings.biometricUnavailable')}
-          isDark={isDark}
+          
           rightElement={
             <ToggleSwitch
               isOn={biometricEnabled}
               onToggle={handleToggleBiometric}
-              isDark={isDark}
+              
                onIcon={<Fingerprint size={14} />}
                offIcon={<Fingerprint size={14} />}
                ariaLabel={t('settings.biometricUnlock')}
@@ -224,7 +224,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('settings.lockNow')}
           subtitle={t('settings.lockNowSubtitle')}
-          isDark={isDark}
+          
           onClick={() => {
             if (!hasMethod) {
               toast.error(t('settings.lockNowNeedsMethod'));
@@ -240,7 +240,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
           subtitle={t('settings.autoLockBackgroundSubtitle')}
           isOn={autoLockOnBackground}
           onToggle={() => setAppLockAutoLock(!autoLockOnBackground, idleSeconds)}
-          isDark={isDark}
+          
         />
 
         <SettingsRow
@@ -249,7 +249,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
           iconColor="text-violet-600 dark:text-violet-400"
           title={t('settings.idleLock')}
           subtitle={t('settings.idleLockSubtitle')}
-          isDark={isDark}
+          
           rightElement={
             <select
               value={String(idleSeconds)}
@@ -267,7 +267,7 @@ export const AppLockPanel = ({ isDark = false, t }: AppLockPanelProps) => {
           }
         />
       </SettingsGroup>
-      <SecurityChallengeModal {...challenge} isDark={isDark} t={t} />
+      <SecurityChallengeModal {...challenge}  t={t} />
     </>
   );
 };

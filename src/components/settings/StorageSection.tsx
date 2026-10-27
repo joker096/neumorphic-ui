@@ -33,16 +33,16 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
   };
 
   return (
-    <SubView title={t('settings.dataStorage')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.storageSecuritySection', 'Storage')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+    <SubView title={t('settings.dataStorage')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.storageSecuritySection', 'Storage')} />
+      <SettingsGroup >
         <SettingsRow
           icon={<Shield size={16} />}
           iconBg="bg-emerald-100 dark:bg-emerald-500/10"
           iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.localEncryption', 'Local encryption at rest')}
           subtitle={t('settings.localEncryptionSubtitle', 'Secrets (2FA, TURN) encrypted with AES-256-GCM. Chats stay readable to the browser')}
-          isDark={isDark}
+          
           value={t('settings.enabled', 'On')}
         />
         <SettingsToggleRow
@@ -53,7 +53,7 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
           subtitle={t('settings.offlineModeSubtitle', 'Keep messages on this device and send them when the connection returns')}
           isOn={offlineMode}
           onToggle={() => setOfflineMode(!offlineMode)}
-          isDark={isDark}
+          
         />
         <SettingsToggleRow
           icon={<FileText size={16} />}
@@ -63,7 +63,7 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
           subtitle={t('settings.draftsSavedSubtitle', 'Unsent messages saved per chat')}
           isOn={draftsEnabled}
           onToggle={() => setDraftsEnabled(!draftsEnabled)}
-          isDark={isDark}
+          
         />
         <SettingsRow
           icon={<Trash2 size={16} />}
@@ -71,7 +71,7 @@ export const StorageSection = ({ isDark = false, onBack }: StorageSectionProps) 
           iconColor="text-rose-600 dark:text-rose-400"
           title={t('settings.clearCache', 'Clear cache')}
           subtitle={t('settings.clearCacheSubtitle', 'Re-downloadable media and app cache only. Recordings, drafts and chats are kept')}
-          isDark={isDark}
+          
           onClick={() => setConfirmOpen(true)}
         />
       </SettingsGroup>

@@ -28,9 +28,10 @@ vi.mock('motion/react', () => ({
 
 vi.mock('lucide-react', () => ({
   Activity: 'div', Bell: 'div', BellOff: 'div', Bot: 'div', Building2: 'div',
-  ChevronRight: 'div', Cloud: 'div', Globe: 'div', HardDrive: 'div', Lock: 'div',
-  Monitor: 'div', Network: 'div', Palette: 'div', Phone: 'div', Radar: 'div',
-  Search: 'div', Shield: 'div', ShieldAlert: 'div', Smartphone: 'div', User: 'div',
+  Check: 'div', ChevronDown: 'div', ChevronRight: 'div', Clock: 'div', Cloud: 'div',
+  Globe: 'div', HardDrive: 'div', Lock: 'div', Monitor: 'div', Moon: 'div',
+  Network: 'div', Palette: 'div', Phone: 'div', Radar: 'div', Search: 'div',
+  Shield: 'div', ShieldAlert: 'div', Smartphone: 'div', User: 'div', Zap: 'div',
   FolderTree: 'div', Download: 'div', HelpCircle: 'div', CreditCard: 'div',
   Receipt: 'div', Crown: 'div', X: 'div',
 }));
@@ -56,6 +57,7 @@ const baseProps = {
   } as CloudSyncState,
   setCloudSyncEnabled: vi.fn(),
   language: 'en',
+  onSelectLanguage: vi.fn(),
 };
 
 type MenuProps = typeof baseProps;
@@ -119,17 +121,19 @@ describe('SettingsMainMenu — big menu buttons', () => {
 });
 
 describe('SettingsMainMenu — appearance group', () => {
-  it('theme item opens appearance section', () => {
+  it('appearance item opens appearance section', () => {
     renderMenu();
-    fireEvent.click(screen.getByText('settings.theme'));
+    fireEvent.click(screen.getByText('Appearance'));
     expect(baseProps.setActiveSection).toHaveBeenCalledWith('appearance');
   });
 
-  it('language item opens language section and shows current language as subtitle', () => {
+  it('quick-controls language row opens the inline picker and switches language', () => {
     renderMenu({ language: 'ru' });
-    expect(screen.getByText('ru')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('settings.language'));
-    expect(baseProps.setActiveSection).toHaveBeenCalledWith('language');
+    // Current language name is shown in the quick-controls row.
+    expect(screen.getByText('Русский')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('language-select-toggle'));
+    fireEvent.click(screen.getByText('English'));
+    expect(baseProps.onSelectLanguage).toHaveBeenCalledWith('en');
   });
 });
 

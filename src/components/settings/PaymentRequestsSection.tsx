@@ -70,8 +70,8 @@ export const PaymentRequestsSection = ({ isDark = false, onBack }: PaymentReques
   }
 
   return (
-    <SubView title={t('payRequests.title', 'Payment Requests')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('payRequests.new', 'New payment request')} isDark={isDark} />
+    <SubView title={t('payRequests.title', 'Payment Requests')} onBack={onBack}>
+      <SettingsSectionTitle title={t('payRequests.new', 'New payment request')} />
       <div
         className={"rounded-2xl p-4 mb-2 border bg-[var(--bg-tertiary)] border-[var(--border-color)]"}
       >

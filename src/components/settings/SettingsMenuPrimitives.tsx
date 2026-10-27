@@ -5,12 +5,11 @@ import { PRIMARY_LABEL_CLASS } from '../ui/textClasses';
 
 interface SettingsCardProps {
   children: ReactNode;
-  isDark: boolean;
   className?: string;
   onClick?: () => void;
 }
 
-export const SettingsCard = ({ children, isDark, className = '', onClick }: SettingsCardProps) => (
+export const SettingsCard = ({ children, className = '', onClick }: SettingsCardProps) => (
   <div
     onClick={onClick}
     role={onClick ? 'button' : undefined}
@@ -27,13 +26,12 @@ interface SettingsNavItemProps {
   iconBg?: string;
   title: string;
   subtitle?: string;
-  isDark: boolean;
   onClick?: () => void;
   rightElement?: ReactNode;
   className?: string;
 }
 
-export const SettingsNavItem = ({ icon, iconBg, title, subtitle, isDark, onClick, rightElement, className = '' }: SettingsNavItemProps) => (
+export const SettingsNavItem = ({ icon, iconBg, title, subtitle, onClick, rightElement, className = '' }: SettingsNavItemProps) => (
   <div
     onClick={onClick}
     className={`flex items-center gap-3 px-4 py-3 min-h-11 cursor-pointer transition-colors hover:opacity-80 ${className}`}

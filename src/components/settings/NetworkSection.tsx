@@ -38,15 +38,15 @@ export const NetworkSection = ({
   };
 
   return (
-    <SubView key="network" title={t('settings.network')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.relaySection')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+    <SubView key="network" title={t('settings.network')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.relaySection')} />
+      <SettingsGroup className="mb-6">
         <SettingsToggleRow
           title={t('settings.obfuscation')}
           subtitle={obfuscationEnabled ? t('settings.obfuscationActive') : t('settings.obfuscationDisabled')}
           isOn={obfuscationEnabled}
           onToggle={() => setObfuscationEnabled(!obfuscationEnabled)}
-          isDark={isDark}
+          
         />
         {IS_RELAY_PROXY_CONFIGURED && (
           <SettingsRow
@@ -56,27 +56,27 @@ export const NetworkSection = ({
             icon={<Radio size={16} />}
             iconBg="t-accent-bg"
             iconColor="t-accent"
-            isDark={isDark}
+            
             onClick={cycleRelayBackend}
           />
         )}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.transportOptions')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('settings.transportOptions')} />
+      <SettingsGroup className="mb-6">
         <SettingsToggleRow
           title={t('settings.autoReconnect')}
           subtitle={t('settings.autoReconnectSubtitle')}
           isOn={autoReconnectEnabled}
           onToggle={() => setAutoReconnectEnabled(!autoReconnectEnabled)}
-          isDark={isDark}
+          
           toggleOnIcon={<RefreshCw size={14} />}
           toggleOffIcon={<RefreshCw size={14} />}
         />
       </SettingsGroup>
       
-      <SettingsSectionTitle title={t('settings.turnServer')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.turnServer')} />
+      <SettingsGroup >
         <input
           aria-label={t('settings.turnServerExample')}
           placeholder={t('settings.turnServerExample')}

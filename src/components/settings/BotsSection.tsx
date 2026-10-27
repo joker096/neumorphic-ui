@@ -60,14 +60,14 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
   };
 
   return (
-    <SubView title={t('settings.bots')} isDark={isDark} onBack={onBack}>
+    <SubView title={t('settings.bots')} onBack={onBack}>
       {bots.length === 0 ? (
         <div className="text-center py-8 text-sm text-[var(--text-tertiary)]">
           <Bot size={32} className="mx-auto mb-3 opacity-40" />
           {t('settings.noBots')}
         </div>
       ) : (
-        <SettingsGroup isDark={isDark} className="mb-6">
+        <SettingsGroup className="mb-6">
           {bots.map(bot => (
             <SettingsRow
               key={bot.id}
@@ -76,13 +76,13 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
               iconColor={bot.isRunning ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--text-secondary)]"}
               title={bot.name}
               subtitle={bot.isRunning ? t('settings.botRunning') : t('settings.botStopped')}
-              isDark={isDark}
+              
               rightElement={
                 <div className="flex items-center" onClick={e => e.stopPropagation()}>
                   <ToggleSwitch
                     isOn={bot.isRunning}
                     onToggle={() => handleToggleBot(bot.id)}
-                    isDark={isDark}
+    
                     ariaLabel={bot.name}
                   />
                   <button
@@ -101,14 +101,14 @@ export const BotsSection = ({ isDark = false, bots, setBots, onBack, t }: BotsSe
         </SettingsGroup>
       )}
 
-      <SettingsGroup isDark={isDark}>
+      <SettingsGroup >
         <SettingsRow
           icon={<Plus size={16} />}
           iconBg="t-accent-bg"
           iconColor="t-accent"
           title={t('settings.addBot')}
           subtitle={t('settings.addBotSubtitle')}
-          isDark={isDark}
+          
           onClick={() => setShowCreateBotModal(true)}
         />
       </SettingsGroup>

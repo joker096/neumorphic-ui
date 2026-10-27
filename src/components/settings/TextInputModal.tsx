@@ -50,7 +50,7 @@ export const TextInputModal = ({
   };
 
   return (
-    <AppModal isOpen={isOpen} onClose={onCancel} isDark={true} title={title} maxWidth="max-w-[340px]">
+    <AppModal isOpen={isOpen} onClose={onCancel} title={title} maxWidth="max-w-[340px]">
       <div className="relative mb-4">
           <div
             className={`w-full h-[var(--control-height-lg)] rounded-full px-4 flex items-center border transition-all duration-300 ${

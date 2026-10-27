@@ -80,13 +80,13 @@ export const PrivacySection = ({
 
 
   return (
-    <SubView key="privacy" title={t('settings.privacy')} isDark={isDark} onBack={onBack}>
-      <SettingsGroup isDark={isDark} className="mb-6">
+    <SubView key="privacy" title={t('settings.privacy')} onBack={onBack}>
+      <SettingsGroup className="mb-6">
         <SettingsRow
           title={t('settings.ghostViewMode')}
           subtitle={t('settings.ghostViewModeSubtitle')}
-          isDark={isDark}
-          rightElement={<ToggleSwitch isOn={ghostViewMode || false} onToggle={() => onUpdateSettings({ ghostViewMode: !ghostViewMode })} isDark={isDark} onIcon={<Eye size={14} />} offIcon={<EyeOff size={14} />} ariaLabel={t('settings.ghostViewMode')} />}
+          
+          rightElement={<ToggleSwitch isOn={ghostViewMode || false} onToggle={() => onUpdateSettings({ ghostViewMode: !ghostViewMode })} onIcon={<Eye size={14} />} offIcon={<EyeOff size={14} />} ariaLabel={t('settings.ghostViewMode')} />}
           onClick={() => onUpdateSettings({ ghostViewMode: !ghostViewMode })}
         />
         <SettingsRow
@@ -95,32 +95,32 @@ export const PrivacySection = ({
           iconColor="text-rose-600 dark:text-rose-400"
           title={t('settings.blacklist')}
           value={blockedCount > 0 ? t('settings.blacklistCount', { n: blockedCount }) : t('settings.blacklistEmpty', 'Empty')}
-          isDark={isDark}
+          
           onClick={blockedCount > 0 ? () => setShowBlacklist(true) : undefined}
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.spamProtection', 'Spam Protection')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('settings.spamProtection', 'Spam Protection')} />
+      <SettingsGroup className="mb-6">
         <SettingsRow
           icon={<ShieldOff size={16} />}
           iconBg="bg-amber-100 dark:bg-amber-500/10"
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('settings.spamFilter')}
           subtitle={t('settings.spamFilterSubtitle')}
-          isDark={isDark}
-          rightElement={<ToggleSwitch isOn={spamFilter} onToggle={() => setSpamFilter(!spamFilter)} isDark={isDark} onIcon={<Shield size={14} />} offIcon={<ShieldOff size={14} />} ariaLabel={t('settings.spamFilter')} />}
+          
+          rightElement={<ToggleSwitch isOn={spamFilter} onToggle={() => setSpamFilter(!spamFilter)} onIcon={<Shield size={14} />} offIcon={<ShieldOff size={14} />} ariaLabel={t('settings.spamFilter')} />}
           onClick={() => setSpamFilter(!spamFilter)}
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.dndMode')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('settings.dndMode')} />
+      <SettingsGroup className="mb-6">
         <SettingsRow
           title={t('settings.dnd')}
           subtitle={t('settings.dndSubtitle')}
-          isDark={isDark}
-          rightElement={<ToggleSwitch isOn={dndEnabled} onToggle={() => setDndEnabled(!dndEnabled)} isDark={isDark} onIcon={<BellOff size={14} />} offIcon={<Bell size={14} />} ariaLabel={t('settings.dnd')} />}
+          
+          rightElement={<ToggleSwitch isOn={dndEnabled} onToggle={() => setDndEnabled(!dndEnabled)} onIcon={<BellOff size={14} />} offIcon={<Bell size={14} />} ariaLabel={t('settings.dnd')} />}
           onClick={() => setDndEnabled(!dndEnabled)}
         />
         {dndFrom && dndTo && setDndFrom && setDndTo && (
@@ -128,13 +128,13 @@ export const PrivacySection = ({
             <SettingsRow
               title={t('settings.dndFrom')}
               value={dndFrom}
-              isDark={isDark}
+              
               onClick={() => setTimePrompt('from')}
             />
             <SettingsRow
               title={t('settings.dndTo')}
               value={dndTo}
-              isDark={isDark}
+              
               onClick={() => setTimePrompt('to')}
             />
           </>
@@ -143,14 +143,14 @@ export const PrivacySection = ({
           <SettingsRow
             title={t('settings.priorityContacts')}
             subtitle={priorityContacts || t('settings.noPriorityContacts')}
-            isDark={isDark}
+            
             onClick={() => setShowPriorityModal(true)}
           />
         )}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.mediaAndMessages')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('settings.mediaAndMessages')} />
+      <SettingsGroup className="mb-6">
         {mediaAutoLoad !== undefined && setMediaAutoLoad && (
           <SettingsRow
             icon={<Download size={16} />}
@@ -159,7 +159,7 @@ export const PrivacySection = ({
             title={t('settings.mediaAutoLoad')}
             subtitle={t('settings.mediaAutoLoadSubtitle')}
             value={mediaAutoLoadLabel(mediaAutoLoad as string)}
-            isDark={isDark}
+            
             onClick={cycleMediaAutoLoad}
           />
         )}
@@ -171,48 +171,48 @@ export const PrivacySection = ({
             title={t('settings.selfDestructDefault')}
             subtitle={premium ? t('settings.selfDestructDefaultSubtitle') : t('premium.gatingSelfDestruct')}
             value={selfDestructLabel(selfDestructDefault as string)}
-            isDark={isDark}
+            
             onClick={cycleSelfDestructDefault}
           />
         )}
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.advancedPrivacy')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.advancedPrivacy')} />
+      <SettingsGroup >
         <SettingsRow
           title={t('settings.stealthMode')}
           subtitle={t('settings.stealthModeSubtitle')}
-          isDark={isDark}
-          rightElement={<ToggleSwitch isOn={stealthMode} onToggle={() => onUpdateSettings({ stealthMode: !stealthMode })} isDark={isDark} onIcon={<ShieldOff size={14} />} offIcon={<Shield size={14} />} ariaLabel={t('settings.stealthMode')} />}
+          
+          rightElement={<ToggleSwitch isOn={stealthMode} onToggle={() => onUpdateSettings({ stealthMode: !stealthMode })} onIcon={<ShieldOff size={14} />} offIcon={<Shield size={14} />} ariaLabel={t('settings.stealthMode')} />}
           onClick={() => onUpdateSettings({ stealthMode: !stealthMode })}
         />
         <SettingsRow
           title={t('settings.deliveryReceipts')}
           subtitle={t('settings.deliveryReceiptsSubtitle')}
-          isDark={isDark}
-          rightElement={<ToggleSwitch isOn={deliveryReceipts} onToggle={() => onUpdateSettings({ deliveryReceipts: !deliveryReceipts })} isDark={isDark} onIcon={<Check size={14} />} offIcon={<X size={14} />} ariaLabel={t('settings.deliveryReceipts')} />}
+          
+          rightElement={<ToggleSwitch isOn={deliveryReceipts} onToggle={() => onUpdateSettings({ deliveryReceipts: !deliveryReceipts })} onIcon={<Check size={14} />} offIcon={<X size={14} />} ariaLabel={t('settings.deliveryReceipts')} />}
           onClick={() => onUpdateSettings({ deliveryReceipts: !deliveryReceipts })}
         />
         <SettingsRow
           title={t('settings.receipts')}
           subtitle={t('settings.receiptsEnableSubtitle')}
-          isDark={isDark}
-          rightElement={<ToggleSwitch isOn={readReceipts} onToggle={() => onUpdateSettings({ readReceipts: !readReceipts })} isDark={isDark} onIcon={<Check size={14} />} offIcon={<X size={14} />} ariaLabel={t('settings.receipts')} />}
+          
+          rightElement={<ToggleSwitch isOn={readReceipts} onToggle={() => onUpdateSettings({ readReceipts: !readReceipts })} onIcon={<Check size={14} />} offIcon={<X size={14} />} ariaLabel={t('settings.receipts')} />}
           onClick={() => onUpdateSettings({ readReceipts: !readReceipts })}
         />
         <SettingsRow
           title={t('settings.typingIndicators')}
           subtitle={t('settings.typingIndicatorsSubtitle')}
-          isDark={isDark}
-          rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => onUpdateSettings({ typingIndicators: !typingIndicators })} isDark={isDark} onIcon={<MessageSquare size={14} />} offIcon={<MessageSquare size={14} />} ariaLabel={t('settings.typingIndicators')} />}
+          
+          rightElement={<ToggleSwitch isOn={typingIndicators} onToggle={() => onUpdateSettings({ typingIndicators: !typingIndicators })} onIcon={<MessageSquare size={14} />} offIcon={<MessageSquare size={14} />} ariaLabel={t('settings.typingIndicators')} />}
           onClick={() => onUpdateSettings({ typingIndicators: !typingIndicators })}
         />
         {onlineStatus !== undefined && (
           <SettingsRow
             title={t('settings.onlineStatus')}
             subtitle={t('settings.onlineStatusSubtitle')}
-            isDark={isDark}
-            rightElement={<ToggleSwitch isOn={onlineStatus} onToggle={() => onUpdateSettings({ onlineStatus: !onlineStatus })} isDark={isDark} onIcon={<Wifi size={14} />} offIcon={<WifiOff size={14} />} ariaLabel={t('settings.onlineStatus')} />}
+            
+            rightElement={<ToggleSwitch isOn={onlineStatus} onToggle={() => onUpdateSettings({ onlineStatus: !onlineStatus })} onIcon={<Wifi size={14} />} offIcon={<WifiOff size={14} />} ariaLabel={t('settings.onlineStatus')} />}
             onClick={() => onUpdateSettings({ onlineStatus: !onlineStatus })}
           />
         )}
@@ -220,8 +220,8 @@ export const PrivacySection = ({
           <SettingsRow
             title={t('settings.forwardAnonymization')}
             subtitle={t('settings.forwardAnonymizationSubtitle')}
-            isDark={isDark}
-            rightElement={<ToggleSwitch isOn={forwardAnonymization} onToggle={() => setForwardAnonymization(!forwardAnonymization)} isDark={isDark} onIcon={<Share size={14} />} offIcon={<Share size={14} />} ariaLabel={t('settings.forwardAnonymization')} />}
+            
+            rightElement={<ToggleSwitch isOn={forwardAnonymization} onToggle={() => setForwardAnonymization(!forwardAnonymization)} onIcon={<Share size={14} />} offIcon={<Share size={14} />} ariaLabel={t('settings.forwardAnonymization')} />}
             onClick={() => setForwardAnonymization(!forwardAnonymization)}
           />
         )}
@@ -262,7 +262,7 @@ export const PrivacySection = ({
           isOpen={showBlacklist}
           onClose={() => setShowBlacklist(false)}
           title={t('settings.blacklist')}
-          isDark={isDark}
+          
           size="sm"
         >
           <ul className="flex flex-col divide-y divide-[var(--border-color)]">

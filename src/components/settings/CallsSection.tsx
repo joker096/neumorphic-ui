@@ -51,16 +51,16 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
   };
 
   return (
-    <SubView title={t('call.callsSettings', 'Call settings')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.callNavSection', 'Call tools')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+    <SubView title={t('call.callsSettings', 'Call settings')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.callNavSection', 'Call tools')} />
+      <SettingsGroup >
         <SettingsRow
           icon={<History size={16} />}
           iconBg="bg-sky-100 dark:bg-sky-500/10"
           iconColor="text-sky-600 dark:text-sky-400"
           title={t('call.callHistory')}
           subtitle={t('call.callHistorySubtitle', 'Recent calls and meetings')}
-          isDark={isDark}
+
           onClick={() => setSubView?.('callLog')}
         />
         <SettingsRow
@@ -69,7 +69,7 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
           iconColor="text-cyan-600 dark:text-cyan-400"
           title={t('call.simulateIncoming')}
           subtitle={t('call.incomingCall')}
-          isDark={isDark}
+
           onClick={() => callManager.startIncomingCall('incoming_demo', MOCK_CALLS[0].name, 'audio')}
         />
         <SettingsRow
@@ -78,13 +78,13 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('nav.recordings', 'Call Log')}
           subtitle={t('hub.recordingsSubtitle', 'Call Logs')}
-          isDark={isDark}
+
           onClick={() => setSubView?.('recordings')}
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.recordingsSaveSection', 'Save recordings')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.recordingsSaveSection', 'Save recordings')} />
+      <SettingsGroup >
         <SettingsToggleRow
           icon={<Mic size={16} />}
           iconBg="bg-teal-100 dark:bg-teal-500/10"
@@ -92,7 +92,7 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
           title={t('settings.autoRecordCalls', 'Record calls automatically')}
           subtitle={t('settings.autoRecordCallsSubtitle', 'Start recording when a call connects')}
           isOn={autoRecordCalls}
-          isDark={isDark}
+
           onToggle={() => setAutoRecordCalls(!autoRecordCalls)}
         />
         <SettingsToggleRow
@@ -102,7 +102,7 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
           title={t('settings.saveAudioCalls', 'Save audio calls')}
           subtitle={t('settings.saveAudioCallsSubtitle', 'Keep audio call recordings on this device')}
           isOn={saveAudioRecordings}
-          isDark={isDark}
+
           onToggle={() => setSaveAudioRecordings(!saveAudioRecordings)}
         />
         <SettingsToggleRow
@@ -112,20 +112,20 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
           title={t('settings.saveVideoCalls', 'Save video calls')}
           subtitle={t('settings.saveVideoCallsSubtitle', 'Video recordings use a lot of storage space')}
           isOn={saveVideoRecordings}
-          isDark={isDark}
+
           onToggle={() => setSaveVideoRecordings(!saveVideoRecordings)}
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.recordingsCleanupSection', 'Automatic cleanup')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.recordingsCleanupSection', 'Automatic cleanup')} />
+      <SettingsGroup >
         <SettingsRow
           icon={<Clock size={16} />}
           iconBg="bg-purple-100 dark:bg-purple-500/10"
           iconColor="text-purple-600 dark:text-purple-400"
           title={t('settings.recordingsRetention', 'Delete recordings older than')}
           subtitle={premium ? t('settings.recordingsRetentionSubtitle', 'Periodically remove old calls and video calls') : t('premium.gatingRetention', 'Longer retention is available with Premium')}
-          isDark={isDark}
+
           value={retentionLabel}
           onClick={cycleRetention}
         />
@@ -135,7 +135,7 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
           iconColor="text-rose-600 dark:text-rose-400"
           title={t('settings.recordingsCleanNow', 'Delete old recordings now')}
           subtitle={t('settings.recordingsCleanNowSubtitle', 'Remove recordings past the retention period immediately')}
-          isDark={isDark}
+
           onClick={handleCleanNow}
         />
       </SettingsGroup>

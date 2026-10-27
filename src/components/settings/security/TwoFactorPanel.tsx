@@ -87,8 +87,8 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
 
   return (
     <>
-      <SettingsSectionTitle title={t('settings.twoFactor')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('settings.twoFactor')}  />
+      <SettingsGroup  className="mb-6">
         <SettingsToggleRow
           title={t('settings.twoFactorAuth')}
           subtitle={t('settings.twoFactorSubtitle')}
@@ -97,7 +97,7 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
             if (twoFactor) disableTwoFactor();
             else openTotpSetup();
           }}
-          isDark={isDark}
+          
         />
         {showTotpSetup && (
           <div className={PANEL_FOOTER_CLASS}>
@@ -156,7 +156,7 @@ export const TwoFactorPanel = ({ isDark = false, t }: TwoFactorPanelProps) => {
           </div>
         )}
       </SettingsGroup>
-      <SecurityChallengeModal {...challenge} isDark={isDark} t={t} />
+      <SecurityChallengeModal {...challenge}  t={t} />
     </>
   );
 };

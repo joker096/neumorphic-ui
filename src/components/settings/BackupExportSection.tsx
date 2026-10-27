@@ -157,16 +157,16 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
     : t('toast.enterBackupPassword', 'Enter a password to encrypt your backup');
 
   return (
-    <SubView title={t('settings.backupExport', 'Backup & Export')} isDark={isDark} onBack={onBack}>
-      <SettingsSectionTitle title={t('settings.backup', 'Backup')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+    <SubView title={t('settings.backupExport', 'Backup & Export')} onBack={onBack}>
+      <SettingsSectionTitle title={t('settings.backup', 'Backup')} />
+      <SettingsGroup >
         <SettingsRow
           icon={<Database size={16} />}
           iconBg="bg-purple-100 dark:bg-purple-500/10"
           iconColor="text-purple-600 dark:text-purple-400"
           title={t('settings.lastBackup', 'Last backup')}
           subtitle={formatLastBackup(lastBackup)}
-          isDark={isDark}
+
         />
         <SettingsRow
           icon={<Upload size={16} />}
@@ -174,7 +174,7 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
           iconColor="text-emerald-600 dark:text-emerald-400"
           title={busy === 'backup' ? t('settings.working', 'Working…') : t('settings.createBackup', 'Back up now')}
           subtitle={t('settings.backupHowToExport', 'Create an encrypted backup file with all your data')}
-          isDark={isDark}
+
           onClick={handleBackup}
         />
         <SettingsRow
@@ -183,25 +183,25 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('settings.backupPasswordNote', 'Backups are encrypted with your password')}
           subtitle={t('settings.backupStoreSecurely', 'Store the backup file in a safe place')}
-          isDark={isDark}
+
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.exportData', 'Export data')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.exportData', 'Export data')} />
+      <SettingsGroup >
         <SettingsRow
           icon={<FileJson size={16} />}
           iconBg="bg-cyan-100 dark:bg-cyan-500/10"
           iconColor="text-cyan-600 dark:text-cyan-400"
           title={t('settings.exportJson', 'Export chat history (encrypted)')}
           subtitle={busy === 'export' ? t('settings.working', 'Working…') : t('settings.exportJsonSub', 'Messages, media links, settings')}
-          isDark={isDark}
+
           onClick={handleExportChats}
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.importBackupFile', 'Import from backup file')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.importBackupFile', 'Import from backup file')} />
+      <SettingsGroup >
         <input
           ref={fileInputRef}
           type="file"
@@ -215,20 +215,20 @@ export const BackupExportSection = ({ isDark = false, onBack }: BackupExportSect
           iconColor="text-emerald-600 dark:text-emerald-400"
           title={busy === 'import' ? t('settings.importing', 'Importing...') : t('settings.importBackupFile', 'Import from backup file')}
           subtitle={t('settings.importHowToImport', 'Select an encrypted backup file to restore')}
-          isDark={isDark}
+
           onClick={() => fileInputRef.current?.click()}
         />
       </SettingsGroup>
 
-      <SettingsSectionTitle title={t('settings.dangerZone', 'Danger Zone')} isDark={isDark} />
-      <SettingsGroup isDark={isDark}>
+      <SettingsSectionTitle title={t('settings.dangerZone', 'Danger Zone')} />
+      <SettingsGroup >
         <SettingsRow
           icon={<Trash2 size={16} />}
           iconBg="bg-rose-100 dark:bg-rose-500/10"
           iconColor="text-rose-600 dark:text-rose-400"
           title={t('settings.eraseAllData', 'Erase all local data')}
           subtitle={t('settings.eraseAllDataSubtitle', 'Deletes chats, contacts, company and CRM data from this device')}
-          isDark={isDark}
+
           onClick={() => setClearPending(true)}
         />
       </SettingsGroup>

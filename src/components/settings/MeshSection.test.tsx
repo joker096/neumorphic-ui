@@ -33,7 +33,7 @@ describe('MeshSection (LAN pairing UI)', () => {
   });
 
   const renderMesh = () =>
-    render(<MeshSection isDark={false} onBack={vi.fn()} t={(k: string) => k} />);
+    render(<MeshSection onBack={vi.fn()} t={(k: string) => k} />);
 
   it('renders the three steps and session status', () => {
     renderMesh();

@@ -114,15 +114,15 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
 
   return (
     <>
-      <SettingsSectionTitle title={t('settings.keyRecovery.title')} isDark={isDark} />
-      <SettingsGroup isDark={isDark} className="mb-6">
+      <SettingsSectionTitle title={t('settings.keyRecovery.title')}  />
+      <SettingsGroup  className="mb-6">
         <SettingsRow
           icon={<Key size={16} />}
           iconBg="bg-emerald-100 dark:bg-emerald-500/10"
           iconColor="text-emerald-600 dark:text-emerald-400"
           title={t('settings.keyRecovery.export')}
           subtitle={t('settings.keyRecovery.subtitle')}
-          isDark={isDark}
+          
           onClick={() => setShowKeyRecovery(v => !v)}
         />
         {showKeyRecovery && (
@@ -218,12 +218,12 @@ export const KeyRecoveryPanel = ({ isDark = false, t }: KeyRecoveryPanelProps) =
           iconColor="text-amber-600 dark:text-amber-400"
           title={t('settings.keyRecovery.restore')}
           subtitle={t('settings.keyRecovery.restoreSubtitle')}
-          isDark={isDark}
+          
           onClick={restoreDeviceKey}
         />
       </SettingsGroup>
 
-      <SecurityChallengeModal {...challenge} isDark={isDark} t={t} />
+      <SecurityChallengeModal {...challenge}  t={t} />
     </>
   );
 };

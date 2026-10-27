@@ -27,13 +27,12 @@ const LANGUAGES = [
 ];
 
 export const LanguageSection = ({ isDark = false, language, setLanguage, setLang, onBack, t }: LanguageSectionProps) => (
-  <SubView title={t('settings.language')} isDark={isDark} onBack={onBack}>
+  <SubView title={t('settings.language')} onBack={onBack}>
     <div className={"rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)]"}>
       {LANGUAGES.map(lang => (
         <SettingsRow 
           key={lang.code}
           title={lang.name}
-          isDark={isDark}
           rightElement={language === lang.code ? <Check size={16} className="text-emerald-500" /> : <div className="w-4 h-4" />}
           onClick={() => { setLanguage(lang.code); setLang(lang.code); }}
         />
