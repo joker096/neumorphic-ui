@@ -1,8 +1,8 @@
 import { motion } from "motion/react";
-import { lazy, Suspense, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 import { useAnimationsEnabled, useAnimationDuration } from "../../contexts/AnimationContext";
+import { useStoriesStore } from "../../features/stories/storiesStore";
 
-const StoryViewer = lazy(() => import("../stories/StoryViewer").then(m => ({ default: m.StoryViewer })));
 const StoryComposer = lazy(() => import("../stories/StoryComposer").then(m => ({ default: m.StoryComposer })));
 
 type Story = {
@@ -27,6 +27,14 @@ const contentVariants = {
   exit: { opacity: 0, y: 40 },
 };
 
+function storyAuthorId(activeStory: Story): string | null {
+  const authors = useStoriesStore.getState().authors;
+  const byName = authors.find((a) => a.name.toLowerCase() === String(activeStory.name).toLowerCase());
+  if (byName) return byName.id;
+  const byId = authors.find((a) => String(a.id) === String(activeStory.id));
+  return byId ? byId.id : null;
+}
+
 export const ContentView = ({
   children,
   isDark = false,
@@ -38,6 +46,18 @@ export const ContentView = ({
 }: ContentViewProps) => {
   const enabled = useAnimationsEnabled();
   const duration = useAnimationDuration();
+  const openViewer = useStoriesStore((s) => s.openViewer);
+
+  // Single story system: opening a story from the content area delegates to the
+  // store-based viewer (the same one the chat-list strip uses). The old
+  // props-based `StoryViewer` is gone, so there is exactly one look & feel.
+  useEffect(() => {
+    if (!activeStory) return;
+    const store = useStoriesStore.getState();
+    if (store.authors.length === 0) store.init();
+    const authorId = storyAuthorId(activeStory);
+    if (authorId) openViewer(authorId);
+  }, [activeStory, openViewer]);
 
   return (
     <motion.div
@@ -53,7 +73,6 @@ export const ContentView = ({
         {children}
       </div>
       <Suspense fallback={null}>
-        <StoryViewer activeUser={activeStory} onClose={onCloseStory} isDark={isDark} isStealthMode={isStealthMode} />
         <StoryComposer open={showStoryComposer} onClose={onCloseComposer ?? (() => {})} />
       </Suspense>
     </motion.div>

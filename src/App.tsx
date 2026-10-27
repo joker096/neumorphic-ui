@@ -1,5 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from "react";
-import { AppOverlays } from "./components/app";
+import { useState, useEffect } from "react";
 import { useMessageActions } from "./hooks/useMessageActions";
 import { useProfileActions } from "./hooks/useProfileActions";
 import { useScreenshotProtection } from "./hooks/useScreenshotProtection";
@@ -31,16 +30,8 @@ import { useAppLocalUiState } from './hooks/useAppLocalUiState';
 import { useAppCallbacks } from './hooks/useAppCallbacks';
 import { OPEN_CHAT_EVENT } from './lib/notifications/osNotify';
 import { useLocalStorage } from "./hooks/useLocalStorage";
-import { AppShell } from './components/app/AppShell';
-import { AppChrome } from './components/app/AppChrome';
-import { PendingInviteGate } from './components/app/PendingInviteGate';
+import { AppLayout } from './components/app/AppLayout';
 import { STORAGE_KEYS } from './constants/storage';
-import { ThemeContext } from './contexts/ThemeContext';
-import { AppAuthGate } from './components/app/AppAuthGate';
-import { ServicesProvider } from './services';
-import { createLocalServices } from './services/localServices';
-
-const LazyCallOverlay = lazy(() => import("./components/app/CallOverlay").then((m) => ({ default: m.CallOverlay })));
 
 export default function App() {
   const { theme, setTheme, isDark, fontSize, setFontSize, t } = useAppSettings();
@@ -242,76 +233,57 @@ export default function App() {
   });
 
   return (
-    <ServicesProvider services={createLocalServices()}>
-    <AppAuthGate>
-      <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
-        <AppChrome isDark={isDark} />
-        <AppShell
-          {...ui}
-          theme={theme}
-          isDark={isDark}
-          connectionStatus={connectionStatus}
-          connectionError={connectionError}
-          fontSize={fontSize}
-          view={view}
-          subView={subView}
-          setSubView={setSubView}
-          activeStory={activeStory}
-          setActiveStory={setActiveStory}
-          onComposeStory={() => setShowStoryComposer(true)}
-          showStoryComposer={showStoryComposer}
-          onCloseComposer={() => setShowStoryComposer(false)}
-          stealthMode={stealthMode}
-          hideWhenOfficeOnly={hideWhenOfficeOnly}
-          handleNavigate={handleNavigate}
-          isChatListRoute={isChatListRoute}
-          activeChat={activeChat}
-          setActiveChat={setActiveChat}
-          activeChatWorkspaceProps={activeChatWorkspaceProps}
-          onOpenChat={openChat}
-          onCloseChat={closeChat}
-          setView={setView}
-          goBack={goBack}
-          pushView={pushView}
-          handlePreviewCall={handlePreviewCall}
-          handlePreviewMessage={handlePreviewMessage}
-          setFontSize={setFontSize}
-          t={t}
-          onAddContactFromChat={handleAddContactFromChat}
-          draftTextByChat={draftTextByChat}
-           activeBotId={activeBotId}
-           setActiveBotId={setActiveBotId}
-           miniAppBotId={miniAppBotId}
-           setMiniAppBotId={setMiniAppBotId}
-         />
-        <AppOverlays
-          {...ui}
-          setAdvancedFilters={ui.setAdvancedFilters as any}
-          isDark={isDark}
-          view={view}
-          activeChat={activeChat}
-          setActiveChat={setActiveChat}
-          contacts={contacts}
-          setContacts={setContacts as any}
-          chats={chats}
-          setChats={setChats as any}
-          t={t}
-          onProfileCall={handleProfileCall}
-          onProfileVideoCall={handleProfileVideoCall}
-          onProfileMessage={handleProfileMessage}
-          onProfileDelete={handleProfileDelete}
-           onProfileEdit={handleProfileEdit}
-           onProfileBlock={handleProfileBlock}
-           onProfileToggleFavorite={handleProfileToggleFavorite}
-          onAddContactFromChat={handleAddContactFromChat}
-        />
-
-        {pendingInvite && (
-          <PendingInviteGate code={pendingInvite} t={t} onDismiss={() => setPendingInvite(null)} />
-        )}
-      </ThemeContext.Provider>
-    </AppAuthGate>
-    <Suspense fallback={null}><LazyCallOverlay /></Suspense>
-    </ServicesProvider>
+    <AppLayout
+      ui={ui}
+      theme={theme}
+      isDark={isDark}
+      setTheme={setTheme}
+      connectionStatus={connectionStatus}
+      connectionError={connectionError}
+      fontSize={fontSize}
+      view={view}
+      subView={subView}
+      setSubView={setSubView}
+      activeStory={activeStory}
+      setActiveStory={setActiveStory}
+      showStoryComposer={showStoryComposer}
+      onComposeStory={() => setShowStoryComposer(true)}
+      onCloseComposer={() => setShowStoryComposer(false)}
+      stealthMode={stealthMode}
+      hideWhenOfficeOnly={hideWhenOfficeOnly}
+      handleNavigate={handleNavigate}
+      isChatListRoute={isChatListRoute}
+      activeChat={activeChat}
+      setActiveChat={setActiveChat}
+      activeChatWorkspaceProps={activeChatWorkspaceProps}
+      onOpenChat={openChat}
+      onCloseChat={closeChat}
+      setView={setView}
+      goBack={goBack}
+      pushView={pushView}
+      handlePreviewCall={handlePreviewCall}
+      handlePreviewMessage={handlePreviewMessage}
+      setFontSize={setFontSize}
+      t={t}
+      onAddContactFromChat={handleAddContactFromChat}
+      draftTextByChat={draftTextByChat}
+      activeBotId={activeBotId}
+      setActiveBotId={setActiveBotId}
+      miniAppBotId={miniAppBotId}
+      setMiniAppBotId={setMiniAppBotId}
+      contacts={contacts}
+      setContacts={setContacts}
+      chats={chats}
+      setChats={setChats}
+      handleProfileCall={handleProfileCall}
+      handleProfileVideoCall={handleProfileVideoCall}
+      handleProfileMessage={handleProfileMessage}
+      handleProfileDelete={handleProfileDelete}
+      handleProfileEdit={handleProfileEdit}
+      handleProfileBlock={handleProfileBlock}
+      handleProfileToggleFavorite={handleProfileToggleFavorite}
+      pendingInvite={pendingInvite}
+      onDismissPendingInvite={() => setPendingInvite(null)}
+    />
   );
 }

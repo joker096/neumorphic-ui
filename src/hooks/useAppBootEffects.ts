@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { findStoryUser } from "../components/stories/storiesData";
+import { useStoriesStore } from "../features/stories/storiesStore";
 import { toast } from "../components/ui/Toast";
 
 export interface AppBootStoryUser { id: number | string; name: string; color: string }
@@ -32,8 +32,9 @@ export const useAppBootEffects = ({ setActiveStory }: { setActiveStory: (user: A
         if (invite) setPendingInvite(invite);
         const storyLink = storyDeepLinkModule.parseStoryDeepLink(window.location.hash, window.location.search);
         if (storyLink) {
-          const u = findStoryUser(storyLink.userId);
-          setActiveStory({ id: u.id, name: u.name, color: u.color });
+          const store = useStoriesStore.getState();
+          if (store.authors.length === 0) store.init();
+          store.openViewer(String(storyLink.userId));
           storyDeepLinkModule.clearStoryDeepLink();
         }
       }

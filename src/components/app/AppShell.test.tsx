@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { AppShell } from "./AppShell";
 import type { AppShellProps } from "./AppShell";
+import { useUiStore } from "../../store/uiStore";
 
 const mobileFlags = vi.hoisted(() => ({ isMobile: false }));
 vi.mock("../../hooks/useMediaQuery", () => ({
@@ -53,6 +54,10 @@ vi.mock("../navigation", () => ({
 
 vi.mock("../status/OfflineBanner", () => ({
   OfflineBanner: () => React.createElement("div", { "data-testid": "offline-banner" }),
+}));
+
+vi.mock("../GlobalSearch", () => ({
+  GlobalSearch: () => React.createElement("div", { "data-testid": "app-global-search" }),
 }));
 
 // Chat-list data is store-sourced inside AppShell (useChatListData), so the
@@ -270,6 +275,7 @@ describe("AppShell", () => {
   });
 
   it("renders offline banner and mobile bottom nav", () => {
+    mobileFlags.isMobile = true;
     render(<AppShell {...baseProps} />);
     expect(screen.getByTestId("offline-banner")).toBeInTheDocument();
     expect(captured.bottomNav).toMatchObject({
@@ -277,5 +283,27 @@ describe("AppShell", () => {
       companyUnreadCount: 5,
     });
     expect(captured.bottomNav.onNavigate).toBe(baseProps.handleNavigate);
+  });
+
+  it("does not render the mobile bottom nav on desktop (isMobile=false)", () => {
+    mobileFlags.isMobile = false;
+    render(<AppShell {...baseProps} />);
+    expect(captured.bottomNav).toBeNull();
+  });
+
+  it("renders the app-wide global search overlay when the store is open", async () => {
+    useUiStore.setState({ globalSearchOpen: true });
+    try {
+      render(<AppShell {...baseProps} />);
+      expect(await screen.findByTestId("app-global-search")).toBeInTheDocument();
+    } finally {
+      useUiStore.setState({ globalSearchOpen: false });
+    }
+  });
+
+  it("does not render global search overlay when the store is closed", () => {
+    useUiStore.setState({ globalSearchOpen: false });
+    render(<AppShell {...baseProps} />);
+    expect(screen.queryByTestId("app-global-search")).not.toBeInTheDocument();
   });
 });

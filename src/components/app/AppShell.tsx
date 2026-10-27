@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { AppMainContent } from "./AppMainContent";
 import { AppShellDesktop } from "./AppShellDesktop";
 import { BottomNav } from "../navigation";
@@ -7,6 +7,10 @@ import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useChatListData } from "../../hooks/useChatListData";
 import { useAppBadge } from "../../hooks/useAppBadge";
+import { useGlobalSearchShortcut } from "../../hooks/useGlobalSearchShortcut";
+import { useUiStore } from "../../store/uiStore";
+
+const GlobalSearchLazy = lazy(() => import("../GlobalSearch").then((m) => ({ default: m.GlobalSearch })));
 
 export interface AppShellProps {
   theme: "light" | "dark";
@@ -131,6 +135,11 @@ function AppShellImpl({
   // in the background, where an in-app badge is invisible.
   useAppBadge(chatsUnread + companyUnread);
 
+  // App-wide Ctrl/Cmd+K for global search (works from any view).
+  useGlobalSearchShortcut();
+  const globalSearchOpen = useUiStore((s) => s.globalSearchOpen);
+  const setGlobalSearchOpen = useUiStore((s) => s.setGlobalSearchOpen);
+
   const handleOpenPremium = () => {
     if (pushView) pushView("settings", "premium");
     else { setSubView('premium'); setView('settings'); }
@@ -253,19 +262,36 @@ function AppShellImpl({
       {isMobile && <AppMainContent isMobile isChatListRoute={isChatListRoute} {...mainContentProps} />}
       </div>
 
-      <footer aria-label={t("a11y.navMobile")} className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-        <BottomNav
-          activeView={view}
-          isDark={isDark}
-          unreadCount={chatsUnread}
-          companyUnreadCount={companyUnread}
-          onNavigate={handleNavigate}
-          t={t}
-          hideCompany={hideWhenOfficeOnly}
-          connectionStatus={connectionStatus}
-          connectionError={connectionError}
-        />
-      </footer>
+      {isMobile && (
+        <footer aria-label={t("a11y.navMobile")} className="fixed bottom-0 left-0 right-0 z-50">
+          <BottomNav
+            activeView={view}
+            isDark={isDark}
+            unreadCount={chatsUnread}
+            companyUnreadCount={companyUnread}
+            onNavigate={handleNavigate}
+            t={t}
+            hideCompany={hideWhenOfficeOnly}
+            connectionStatus={connectionStatus}
+            connectionError={connectionError}
+          />
+        </footer>
+      )}
+
+      {globalSearchOpen && (
+        <Suspense fallback={null}>
+          <GlobalSearchLazy
+            isDark={isDark}
+            chats={chats}
+            channels={filteredChannels}
+            contacts={contacts}
+            onClose={() => setGlobalSearchOpen(false)}
+            onOpenChat={onOpenChat}
+            onOpenContact={setGlobalSelectedContact}
+            t={t}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
