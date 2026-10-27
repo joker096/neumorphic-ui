@@ -25,6 +25,8 @@ export interface UIState {
   setChatReturnContext: (ctx: { view: string; subView: string | null } | null) => void;
   crmTabRequest: 'people' | 'deals' | 'tasks' | 'roles' | null;
   requestCrmTab: (tab: 'people' | 'deals' | 'tasks' | 'roles' | null) => void;
+  globalSearchOpen: boolean;
+  setGlobalSearchOpen: (open: boolean) => void;
 }
 
 export const useUiStore = create<UIState>()(
@@ -55,6 +57,8 @@ export const useUiStore = create<UIState>()(
       setChatReturnContext: (ctx) => set({ chatReturnContext: ctx }),
       crmTabRequest: null,
       requestCrmTab: (tab) => set({ crmTabRequest: tab }),
+      globalSearchOpen: false,
+      setGlobalSearchOpen: (open) => set({ globalSearchOpen: open }),
     }),
     {
       name: 'ui-storage',

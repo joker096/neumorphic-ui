@@ -1,22 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { Search, X, Clock } from "lucide-react";
-import { DataState } from "./ui/DataState";
-import { FilterChip, SearchResultSections } from "./search/SearchResults";
-import {
-  DATE_FILTERS,
-  SENDER_FILTERS,
-  TYPE_FILTERS,
-  useSearchResults,
-  type DateFilter,
-  type SenderFilter,
-  type TypeFilter,
-} from "./search/searchEngine";
+import { useSearchResults, type DateFilter, type SenderFilter, type TypeFilter } from "./search/searchEngine";
 import { useBodyScrollLock } from "../lib/a11y";
-import { StoriesStrip } from "../features/stories/components/StoriesStrip";
-
-/** Caps label above a global search section. */
-const SECTION_LABEL_CLASS = 'mr-1 text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]';
+import { GlobalSearchDialog } from "./search/GlobalSearchDialog";
 
 const SEARCH_HISTORY_KEY = "mess_search_history";
 const HISTORY_LIMIT = 10;
@@ -144,181 +129,41 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
       }
       const dir = e.key === "ArrowDown" ? 1 : -1;
       setActiveIndex((prev) => (prev + dir + flatRows.length) % flatRows.length);
-    } else if (e.key === "Enter" && activeIndex >= 0 && flatRows[activeIndex]) {
+    } else if (e.key === "Enter" && flatRows.length > 0) {
       e.preventDefault();
-      flatRows[activeIndex]();
+      // Enter opens the highlighted row; with no keyboard selection it opens the first match.
+      const idx = activeIndex >= 0 ? activeIndex : 0;
+      if (flatRows[idx]) flatRows[idx]();
     }
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[var(--z-drawer)] flex items-start justify-center p-3 sm:p-6 pt-[8vh]">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={close} />
-      <div
-        role="dialog"
-        aria-label={t("search.title", "Search")}
-        className="glass-panel relative w-full max-w-[560px] rounded-2xl shadow-2xl flex flex-col max-h-[80vh]"
-      >
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border-color)]">
-          <Search size={18} className="text-[var(--text-tertiary)]" />
-          <input
-            aria-label={t("search.placeholder", "Search chats, messages, contacts…")}
-            ref={inputRef}
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setActiveIndex(-1); }}
-            onKeyDown={handleKeyDown}
-            placeholder={t("search.placeholder", "Search chats, messages, contacts…")}
-            className="flex-1 bg-transparent outline-none text-xs py-1 text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
-          />
-          {query && (
-            <button
-              type="button"
-              aria-label={t("search.clear", "Clear")}
-              onClick={() => setQuery("")}
-              className="min-w-11 min-h-11 flex items-center justify-center rounded-full cursor-pointer transition-colors hover:bg-[var(--msg-bg-panel-hover)]"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-
-        {hasQuery && (
-          <div className="flex flex-col gap-1.5 px-2 py-2 border-b border-[var(--border-color)]">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {DATE_FILTERS.map((f) => (
-                <FilterChip
-                  key={f.value}
-                  label={t(f.key, f.fallback)}
-                  active={dateFilter === f.value}
-                  onClick={() => { setDateFilter(f.value); setActiveIndex(-1); }}
-                />
-              ))}
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className={SECTION_LABEL_CLASS}>
-                {t("search.senderFilters.from", "From")}
-              </span>
-              {SENDER_FILTERS.map((f) => (
-                <FilterChip
-                  key={f.value}
-                  label={t(f.key, f.fallback)}
-                  active={senderFilter === f.value}
-                  onClick={() => { setSenderFilter(f.value); setActiveIndex(-1); }}
-                />
-              ))}
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className={SECTION_LABEL_CLASS}>
-                {t("search.typeFilters.type", "Type")}
-              </span>
-              {TYPE_FILTERS.map((f) => (
-                <FilterChip
-                  key={f.value}
-                  label={t(f.key, f.fallback)}
-                  active={typeFilter === f.value}
-                  onClick={() => { setTypeFilter(f.value); setActiveIndex(-1); }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="overflow-y-auto flex-1 p-2">
-          {!hasQuery && (
-            <>
-              <StoriesStrip t={t} />
-              {contacts.length > 0 && (
-                <div className="mb-2">
-                  <div className="flex items-center justify-between px-2 py-1.5">
-                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)]">
-                      {t("search.frequent", "Frequent contacts")}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 overflow-x-auto px-1 no-scrollbar">
-                    {contacts.slice(0, 6).map((c: any) => (
-                      <button
-                        key={c.id ?? c.name}
-                        type="button"
-                        onClick={() => selectContact(c)}
-                        className="shrink-0 flex flex-col items-center gap-1 cursor-pointer group"
-                        style={{ width: 64 }}
-                      >
-                        <span
-                          className={`flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br text-lg font-bold text-white ${c.avatarColor ?? 'from-[var(--accent)] to-purple-500'}`}
-                        >
-                          {String(c.name ?? '?').charAt(0).toUpperCase()}
-                        </span>
-                        <span className="w-full truncate text-center text-xs text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                          {c.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {!hasQuery && history.length > 0 && (
-            <div className="mb-2">
-              <div className="flex items-center justify-between px-2 py-1.5">
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.15em] text-[var(--accent)]">
-                  <Clock size={12} />
-                  {t("search.history", "Recent searches")}
-                </div>
-                <button
-                  type="button"
-                  aria-label={t("search.historyClear", "Clear history")}
-                  onClick={clearHistory}
-                  className="min-w-11 min-h-11 flex items-center justify-center rounded-full cursor-pointer hover:bg-[var(--msg-bg-panel-hover)]"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-              {history.map((h) => (
-                <button
-                  key={h}
-                  type="button"
-                  onClick={() => setQuery(h)}
-                  className="w-full flex items-center gap-3 px-3 min-h-11 rounded-xl text-left text-sm cursor-pointer text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/[0.05]"
-                >
-                  <Clock size={14} className="text-[var(--text-tertiary)]" />
-                  <span className="truncate">{h}</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {!hasQuery && history.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 opacity-60 text-sm text-[var(--text-tertiary)]">
-              <Search size={32} className="mb-3" />
-              {t("search.hint", "Search across all chats, channels and contacts")}
-            </div>
-          )}
-
-          {isEmpty && (
-            <DataState
-              status="empty"
-              isDark={isDark}
-              emptyIcon="search"
-              title={t("search.noResults", "Nothing found")}
-              description={t("search.noResultsHint", "Try a different keyword")}
-              action={{ label: t("search.clear", "Clear"), onClick: () => setQuery("") }}
-            />
-          )}
-
-          <SearchResultSections
-            results={{ chatResults, groupResults, channelResults, fileResults, linkResults, contactResults }}
-            q={q}
-            activeIndex={activeIndex}
-            rowRefs={rowRefs}
-            t={t}
-            onSelectChat={selectChat}
-            onSelectChannel={selectChannel}
-            onSelectContact={selectContact}
-          />
-        </div>
-      </div>
-    </div>,
-    document.body
+  return (
+    <GlobalSearchDialog
+      isDark={isDark}
+      t={t}
+      query={query}
+      onQueryChange={(v) => { setQuery(v); setActiveIndex(-1); }}
+      dateFilter={dateFilter}
+      onDateFilter={(f) => { setDateFilter(f); setActiveIndex(-1); }}
+      senderFilter={senderFilter}
+      onSenderFilter={(f) => { setSenderFilter(f); setActiveIndex(-1); }}
+      typeFilter={typeFilter}
+      onTypeFilter={(f) => { setTypeFilter(f); setActiveIndex(-1); }}
+      hasQuery={hasQuery}
+      isEmpty={isEmpty}
+      contacts={contacts}
+      history={history}
+      onClearQuery={() => setQuery("")}
+      onClearHistory={clearHistory}
+      activeIndex={activeIndex}
+      rowRefs={rowRefs}
+      inputRef={inputRef}
+      onKeyDown={handleKeyDown}
+      onClose={close}
+      onSelectContact={selectContact}
+      results={{ chatResults, groupResults, channelResults, fileResults, linkResults, contactResults }}
+      onSelectChat={selectChat}
+      onSelectChannel={selectChannel}
+    />
   );
 };

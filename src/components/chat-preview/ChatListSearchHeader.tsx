@@ -1,8 +1,6 @@
 import { Archive, Plus, Globe, Users } from "lucide-react";
 import { NotificationCenter } from "./NotificationCenter";
 import { UNREAD_BADGE_CLASS } from "./chatPreviewClasses";
-import { useStoriesStore } from "../../features/stories/storiesStore";
-import { SearchStoryBadge } from "../../features/stories/components/SearchStoryBadge";
 
 interface ChatListSearchHeaderProps {
   isDark: boolean;
@@ -21,12 +19,8 @@ export const ChatListSearchHeader = ({
   isDark, view, archivedUnreadCount,
   t, setView, setActiveFolder, setShowCreateChannel, setShowCreateBot, setShowCreateGroup, onOpenGlobalSearch,
 }: ChatListSearchHeaderProps) => {
-  const storyAuthors = useStoriesStore((s) => s.authors);
-  const showStoryBadge = view === "chats" && storyAuthors.length > 0;
-
   return (
     <div className="mb-4 sm:mb-6 relative z-30 flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
-      {showStoryBadge && <SearchStoryBadge t={t} />}
       {(view === "channels" || view === "bots") ? (
         <button
           type="button"
