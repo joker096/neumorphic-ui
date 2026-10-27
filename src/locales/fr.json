@@ -78,7 +78,8 @@
       "links": "Liens"
     },
     "contacts": "Contacts",
-    "contact": "Contact"
+    "contact": "Contact",
+    "frequent": "Frequent"
   },
   "chat": {
     "draft": "Brouillon",
@@ -419,7 +420,8 @@
     "dndBlockedVoice": "Message vocal bloqué - DND actif. Les contacts prioritaires peuvent contourner.",
     "edit": "Edit",
     "editMessage": "Edit message",
-    "edited": "edited"
+    "edited": "edited",
+    "typeMessage": "Type a message…"
   },
   "call": {
     "acceptCall": "Accepter l'appel",
@@ -489,7 +491,8 @@
     "copied": "Copié",
     "copy": "Copier le fragment",
     "open": "Ouvrir",
-    "searchPlaceholder": "Rechercher..."
+    "searchPlaceholder": "Rechercher...",
+    "remove": "Remove"
   },
   "profile": {
     "bot": "Bot",
@@ -676,7 +679,18 @@
     "sharedBy": "Histoire",
     "moreTitle": "Options de l'histoire",
     "unsupportedMedia": "Type de fichier non pris en charge",
-    "removeMedia": "Supprimer le média"
+    "removeMedia": "Supprimer le média",
+    "media": "Médias",
+    "play": "Lire",
+    "pause": "Pause",
+    "mute": "Mettre en sourdine",
+    "unmute": "Rétablir le son",
+    "close": "Fermer",
+    "like": "J'aime",
+    "unlike": "Retirer la réaction",
+    "previous": "Histoire précédente",
+    "next": "Histoire suivante",
+    "progress": "Progression de l'histoire"
   },
   "systemPlayer": {
     "equalizerSettings": "Égaliseur et paramètres",
@@ -1477,6 +1491,7 @@
       "system": "Système"
     },
     "themeModeSubtitle": "Apparence claire, sombre ou système",
+    "quickSection": "Contrôles rapides",
     "thisDevice": "Cet appareil",
     "thisDeviceSubtitle": "L'appareil que vous utilisez actuellement",
     "densityMode": {
@@ -1677,9 +1692,6 @@
     "bottomRight": "En bas à droite",
     "bottomLeft": "En bas à gauche",
     "greeting": "Message d'accueil",
-    "company.widgetName": "Widget name",
-    "company.quickReplies": "Quick replies",
-    "company.addQuickReply": "Add quick reply…",
     "collectContact": "Demander les coordonnées aux visiteurs",
     "widgetHint": "Modifier les paramètres → le snippet se met à jour. Re-collez-le sur votre site.",
     "websiteContacts": "Contacts du site web",
@@ -1695,7 +1707,13 @@
     "embedStep1": "Copiez l’extrait ci-dessous.",
     "embedStep2": "Collez-le avant la balise </body> fermante de n’importe quelle page de votre site.",
     "embedStep3": "Les messages et contacts des visiteurs arrivent ici et dans le CRM comme prospects du site.",
-    "siteChatOffline": "Widget du site hors ligne : les réponses ne parviendront pas aux visiteurs"
+    "siteChatOffline": "Widget du site hors ligne : les réponses ne parviendront pas aux visiteurs",
+    "widgetName": "Widget name",
+    "quickReplies": "Quick replies",
+    "addQuickReply": "Add quick reply…",
+    "removeBranding": "Remove branding",
+    "removeBrandingSub": "Remove the \"Powered by\" label from the widget",
+    "widgetPreview": "Widget preview"
   },
   "login": {
     "title": "Connexion",
@@ -2229,7 +2247,8 @@
     "contactStart": "Démarrer le chat",
     "contactSkip": "Passer",
     "send": "Envoyer",
-    "connecting": "connexion…"
+    "connecting": "connexion…",
+    "poweredBy": "Powered by"
   },
   "bot": {
     "profileTitle": "Profil",
@@ -2313,6 +2332,8 @@
     "sendFailed": "L'envoi du fichier a échoué"
   },
   "cancel": "Annuler",
-  "invite": "Inviter"
+  "invite": "Inviter",
+  "stories": {
+    "strip": "Stories"
+  }
 }
-

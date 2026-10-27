@@ -78,7 +78,8 @@
       "links": "링크"
     },
     "contacts": "연락처",
-    "contact": "연락처"
+    "contact": "연락처",
+    "frequent": "Frequent"
   },
   "chat": {
     "draft": "초안",
@@ -419,7 +420,8 @@
     "dndBlockedVoice": "음성 메시지 차단됨 - DND 활성. 우선 연락처는 우회할 수 있습니다.",
     "edit": "Edit",
     "editMessage": "Edit message",
-    "edited": "edited"
+    "edited": "edited",
+    "typeMessage": "Type a message…"
   },
   "call": {
     "acceptCall": "통화 수락",
@@ -489,7 +491,8 @@
     "copied": "복사됨",
     "copy": "스니펫 복사",
     "open": "열기",
-    "searchPlaceholder": "검색..."
+    "searchPlaceholder": "검색...",
+    "remove": "Remove"
   },
   "profile": {
     "bot": "봇",
@@ -676,7 +679,18 @@
     "sharedBy": "스토리",
     "moreTitle": "스토리 옵션",
     "unsupportedMedia": "Unsupported file type",
-    "removeMedia": "Remove media"
+    "removeMedia": "Remove media",
+    "media": "미디어",
+    "play": "재생",
+    "pause": "일시정지",
+    "mute": "음소거",
+    "unmute": "음소거 해제",
+    "close": "닫기",
+    "like": "좋아요",
+    "unlike": "반응 취소",
+    "previous": "이전 스토리",
+    "next": "다음 스토리",
+    "progress": "스토리 진행률"
   },
   "systemPlayer": {
     "equalizerSettings": "이퀄라이저 및 설정",
@@ -1477,6 +1491,7 @@
       "system": "시스템"
     },
     "themeModeSubtitle": "라이트, 다크 또는 시스템 외관",
+    "quickSection": "빠른 설정",
     "thisDevice": "이 기기",
     "thisDeviceSubtitle": "지금 사용 중인 기기",
     "densityMode": {
@@ -1677,9 +1692,6 @@
     "bottomRight": "오른쪽 아래",
     "bottomLeft": "왼쪽 아래",
     "greeting": "인사 메시지",
-    "company.widgetName": "Widget name",
-    "company.quickReplies": "Quick replies",
-    "company.addQuickReply": "Add quick reply…",
     "collectContact": "방문자에게 연락처 요청",
     "widgetHint": "설정 변경 → 임베드 스니펫이 업데이트됩니다. 사이트에 다시 붙여넣으세요.",
     "websiteContacts": "웹사이트 연락처",
@@ -1695,7 +1707,13 @@
     "embedStep1": "아래 코드를 복사하세요.",
     "embedStep2": "웹사이트의 아무 페이지에서 닫는 </body> 태그 앞에 붙여넣으세요.",
     "embedStep3": "방문자 채팅과 연락처는 여기와 CRM에 웹 리드로 들어옵니다.",
-    "siteChatOffline": "사이트 임베드가 오프라인 상태입니다. 답변이 방문자에게 전달되지 않습니다"
+    "siteChatOffline": "사이트 임베드가 오프라인 상태입니다. 답변이 방문자에게 전달되지 않습니다",
+    "widgetName": "Widget name",
+    "quickReplies": "Quick replies",
+    "addQuickReply": "Add quick reply…",
+    "removeBranding": "Remove branding",
+    "removeBrandingSub": "Remove the \"Powered by\" label from the widget",
+    "widgetPreview": "Widget preview"
   },
   "login": {
     "title": "로그인",
@@ -2229,7 +2247,8 @@
     "contactStart": "채팅 시작",
     "contactSkip": "건너뛰기",
     "send": "보내기",
-    "connecting": "연결 중…"
+    "connecting": "연결 중…",
+    "poweredBy": "Powered by"
   },
   "bot": {
     "profileTitle": "프로필",
@@ -2313,6 +2332,8 @@
     "sendFailed": "파일 전송에 실패했습니다"
   },
   "cancel": "Cancel",
-  "invite": "초대"
+  "invite": "초대",
+  "stories": {
+    "strip": "스토리"
+  }
 }
-

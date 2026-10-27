@@ -78,7 +78,8 @@
       "links": "链接"
     },
     "contacts": "联系人",
-    "contact": "联系人"
+    "contact": "联系人",
+    "frequent": "Frequent"
   },
   "chat": {
     "draft": "草稿",
@@ -419,7 +420,8 @@
     "dndBlockedVoice": "语音消息已被阻止 - DND已开启。优先联系人可以绕过。",
     "edit": "Edit",
     "editMessage": "Edit message",
-    "edited": "edited"
+    "edited": "edited",
+    "typeMessage": "Type a message…"
   },
   "call": {
     "acceptCall": "接听通话",
@@ -489,7 +491,8 @@
     "copied": "已复制",
     "copy": "复制代码片段",
     "open": "打开",
-    "searchPlaceholder": "搜索..."
+    "searchPlaceholder": "搜索...",
+    "remove": "Remove"
   },
   "profile": {
     "bot": "机器人",
@@ -676,7 +679,18 @@
     "sharedBy": "故事",
     "moreTitle": "故事选项",
     "unsupportedMedia": "Unsupported file type",
-    "removeMedia": "Remove media"
+    "removeMedia": "Remove media",
+    "media": "媒体",
+    "play": "播放",
+    "pause": "暂停",
+    "mute": "静音",
+    "unmute": "取消静音",
+    "close": "关闭",
+    "like": "点赞",
+    "unlike": "取消反应",
+    "previous": "上一条故事",
+    "next": "下一条故事",
+    "progress": "故事进度"
   },
   "systemPlayer": {
     "equalizerSettings": "均衡器与设置",
@@ -1477,6 +1491,7 @@
       "system": "系统"
     },
     "themeModeSubtitle": "浅色、深色或系统外观",
+    "quickSection": "快速控制",
     "thisDevice": "此设备",
     "thisDeviceSubtitle": "你当前正在使用的设备",
     "densityMode": {
@@ -1677,9 +1692,6 @@
     "bottomRight": "右下",
     "bottomLeft": "左下",
     "greeting": "问候消息",
-    "company.widgetName": "Widget name",
-    "company.quickReplies": "Quick replies",
-    "company.addQuickReply": "Add quick reply…",
     "collectContact": "向访客询问联系方式",
     "widgetHint": "更改设置 → 嵌入代码将更新。请重新粘贴到您的网站。",
     "websiteContacts": "网站联系人",
@@ -1695,7 +1707,13 @@
     "embedStep1": "复制下面的代码。",
     "embedStep2": "将其粘贴到您网站任意页面的结束 </body> 标签之前。",
     "embedStep3": "访客聊天和联系人随后会出现在这里，并作为网站线索进入 CRM。",
-    "siteChatOffline": "网站组件已离线，回复无法送达访客"
+    "siteChatOffline": "网站组件已离线，回复无法送达访客",
+    "widgetName": "Widget name",
+    "quickReplies": "Quick replies",
+    "addQuickReply": "Add quick reply…",
+    "removeBranding": "Remove branding",
+    "removeBrandingSub": "Remove the \"Powered by\" label from the widget",
+    "widgetPreview": "Widget preview"
   },
   "login": {
     "title": "登录",
@@ -2229,7 +2247,8 @@
     "contactStart": "开始聊天",
     "contactSkip": "跳过",
     "send": "发送",
-    "connecting": "连接中…"
+    "connecting": "连接中…",
+    "poweredBy": "Powered by"
   },
   "bot": {
     "profileTitle": "资料",
@@ -2313,6 +2332,8 @@
     "sendFailed": "文件传输失败"
   },
   "cancel": "Cancel",
-  "invite": "邀请"
+  "invite": "邀请",
+  "stories": {
+    "strip": "故事"
+  }
 }
-

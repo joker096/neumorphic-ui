@@ -78,7 +78,8 @@
       "links": "リンク"
     },
     "contacts": "連絡先",
-    "contact": "連絡先"
+    "contact": "連絡先",
+    "frequent": "Frequent"
   },
   "chat": {
     "draft": "下書き",
@@ -419,7 +420,8 @@
     "dndBlockedVoice": "音声メッセージはブロックされました - DNDが有効です。優先連絡先は許可されます。",
     "edit": "Edit",
     "editMessage": "Edit message",
-    "edited": "edited"
+    "edited": "edited",
+    "typeMessage": "Type a message…"
   },
   "call": {
     "acceptCall": "通話を受ける",
@@ -489,7 +491,8 @@
     "copied": "コピー済み",
     "copy": "スニペットをコピー",
     "open": "開く",
-    "searchPlaceholder": "検索..."
+    "searchPlaceholder": "検索...",
+    "remove": "Remove"
   },
   "profile": {
     "bot": "ボット",
@@ -676,7 +679,18 @@
     "sharedBy": "ストーリー",
     "moreTitle": "ストーリーのオプション",
     "unsupportedMedia": "対応しないファイル形式",
-    "removeMedia": "メディアを削除"
+    "removeMedia": "メディアを削除",
+    "media": "メディア",
+    "play": "再生",
+    "pause": "一時停止",
+    "mute": "ミュート",
+    "unmute": "ミュート解除",
+    "close": "閉じる",
+    "like": "いいね",
+    "unlike": "リアクションを外す",
+    "previous": "前のストーリー",
+    "next": "次のストーリー",
+    "progress": "ストーリーの進捗"
   },
   "systemPlayer": {
     "equalizerSettings": "イコライザーと設定",
@@ -1477,6 +1491,7 @@
       "system": "システム"
     },
     "themeModeSubtitle": "ライト、ダーク、またはシステムの表示",
+    "quickSection": "クイック設定",
     "thisDevice": "このデバイス",
     "thisDeviceSubtitle": "現在使用中のデバイス",
     "densityMode": {
@@ -1677,9 +1692,6 @@
     "bottomRight": "右下",
     "bottomLeft": "左下",
     "greeting": "挨拶メッセージ",
-    "company.widgetName": "Widget name",
-    "company.quickReplies": "Quick replies",
-    "company.addQuickReply": "Add quick reply…",
     "collectContact": "訪問者に連絡先を尋ねる",
     "widgetHint": "設定を変更 → 埋め込みスニペットが更新されます。サイトに再貼り付けしてください。",
     "websiteContacts": "ウェブサイトのコンタクト",
@@ -1695,7 +1707,13 @@
     "embedStep1": "下のコードをコピーします。",
     "embedStep2": "ウェブサイトの任意のページの終了 </body> タグの前に貼り付けます。",
     "embedStep3": "訪問者のチャットと連絡先はここに入り、ウェブリードとして CRM にも届きます。",
-    "siteChatOffline": "サイト埋め込みはオフラインです。返信は訪問者に届きません"
+    "siteChatOffline": "サイト埋め込みはオフラインです。返信は訪問者に届きません",
+    "widgetName": "Widget name",
+    "quickReplies": "Quick replies",
+    "addQuickReply": "Add quick reply…",
+    "removeBranding": "Remove branding",
+    "removeBrandingSub": "Remove the \"Powered by\" label from the widget",
+    "widgetPreview": "Widget preview"
   },
   "login": {
     "title": "ログイン",
@@ -2229,7 +2247,8 @@
     "contactStart": "チャット開始",
     "contactSkip": "スキップ",
     "send": "送信",
-    "connecting": "接続中…"
+    "connecting": "接続中…",
+    "poweredBy": "Powered by"
   },
   "bot": {
     "profileTitle": "プロファイル",
@@ -2313,6 +2332,8 @@
     "sendFailed": "ファイルの送信に失敗しました"
   },
   "cancel": "キャンセル",
-  "invite": "招待"
+  "invite": "招待",
+  "stories": {
+    "strip": "ストーリー"
+  }
 }
-

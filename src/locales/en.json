@@ -78,7 +78,8 @@
       "links": "Links"
     },
     "contacts": "Contacts",
-    "contact": "Contact"
+    "contact": "Contact",
+    "frequent": "Frequent"
   },
   "chat": {
     "draft": "Draft",
@@ -419,7 +420,8 @@
     "dndBlockedVoice": "Voice message blocked - DND is active. Priority contacts can bypass.",
     "edit": "Edit",
     "editMessage": "Edit message",
-    "edited": "edited"
+    "edited": "edited",
+    "typeMessage": "Type a message…"
   },
   "call": {
     "acceptCall": "Accept call",
@@ -489,7 +491,8 @@
     "copied": "Copied",
     "copy": "Copy snippet",
     "open": "Open",
-    "searchPlaceholder": "Search..."
+    "searchPlaceholder": "Search...",
+    "remove": "Remove"
   },
   "profile": {
     "bot": "Bot",
@@ -674,7 +677,18 @@
     "sharedBy": "Story",
     "moreTitle": "Story options",
     "unsupportedMedia": "Unsupported file type",
-    "removeMedia": "Remove media"
+    "removeMedia": "Remove media",
+    "media": "Media",
+    "play": "Play",
+    "pause": "Pause",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "close": "Close",
+    "like": "Like",
+    "unlike": "Unlike",
+    "previous": "Previous story",
+    "next": "Next story",
+    "progress": "Story progress"
   },
   "systemPlayer": {
     "equalizerSettings": "Equalizer & Settings",
@@ -1477,6 +1491,7 @@
       "system": "System"
     },
     "themeModeSubtitle": "Light, dark, or system appearance",
+    "quickSection": "Quick controls",
     "thisDevice": "This device",
     "thisDeviceSubtitle": "The device you are using right now",
     "densityMode": {
@@ -1675,9 +1690,6 @@
     "bottomRight": "Bottom right",
     "bottomLeft": "Bottom left",
     "greeting": "Greeting message",
-    "company.widgetName": "Widget name",
-    "company.quickReplies": "Quick replies",
-    "company.addQuickReply": "Add quick reply…",
     "collectContact": "Ask visitors for contact details",
     "widgetHint": "Change settings → the embed snippet updates. Re-paste it into your site.",
     "websiteContacts": "Website contacts",
@@ -1693,7 +1705,13 @@
     "embedStep1": "Copy the snippet below.",
     "embedStep2": "Paste it before the closing </body> tag of any page on your website.",
     "embedStep3": "Visitor chats and contacts then arrive here and in CRM as website leads.",
-    "siteChatOffline": "Website embed is offline — replies will not reach visitors"
+    "siteChatOffline": "Website embed is offline — replies will not reach visitors",
+    "widgetName": "Widget name",
+    "quickReplies": "Quick replies",
+    "addQuickReply": "Add quick reply…",
+    "removeBranding": "Remove branding",
+    "removeBrandingSub": "Remove the \"Powered by\" label from the widget",
+    "widgetPreview": "Widget preview"
   },
   "login": {
     "title": "Login",
@@ -2227,7 +2245,8 @@
     "contactStart": "Start chat",
     "contactSkip": "Skip",
     "send": "Send",
-    "connecting": "connecting…"
+    "connecting": "connecting…",
+    "poweredBy": "Powered by"
   },
   "bot": {
     "profileTitle": "Profile",
@@ -2311,6 +2330,8 @@
     "sendFailed": "File transfer failed"
   },
   "cancel": "Cancel",
-  "invite": "Invite"
+  "invite": "Invite",
+  "stories": {
+    "strip": "Stories"
+  }
 }
-

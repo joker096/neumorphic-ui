@@ -78,7 +78,8 @@
       "links": "Links"
     },
     "contacts": "Kontakte",
-    "contact": "Kontakt"
+    "contact": "Kontakt",
+    "frequent": "Frequent"
   },
   "chat": {
     "draft": "Entwurf",
@@ -419,7 +420,8 @@
     "dndBlockedVoice": "Sprachnachricht blockiert - DND ist aktiv. Prioritätskontakte können umgehen.",
     "edit": "Edit",
     "editMessage": "Edit message",
-    "edited": "edited"
+    "edited": "edited",
+    "typeMessage": "Type a message…"
   },
   "call": {
     "acceptCall": "Anruf annehmen",
@@ -489,7 +491,8 @@
     "copied": "Kopiert",
     "copy": "Snippet kopieren",
     "open": "Öffnen",
-    "searchPlaceholder": "Suchen..."
+    "searchPlaceholder": "Suchen...",
+    "remove": "Remove"
   },
   "profile": {
     "bot": "Bot",
@@ -676,7 +679,18 @@
     "sharedBy": "Story",
     "moreTitle": "Story-Optionen",
     "unsupportedMedia": "Nicht unterstützter Dateityp",
-    "removeMedia": "Medium entfernen"
+    "removeMedia": "Medium entfernen",
+    "media": "Medien",
+    "play": "Abspielen",
+    "pause": "Pause",
+    "mute": "Stumm",
+    "unmute": "Ton an",
+    "close": "Schließen",
+    "like": "Gefällt mir",
+    "unlike": "Reaktion entfernen",
+    "previous": "Vorherige Story",
+    "next": "Nächste Story",
+    "progress": "Story-Fortschritt"
   },
   "systemPlayer": {
     "equalizerSettings": "Equalizer & Einstellungen",
@@ -1477,6 +1491,7 @@
       "system": "System"
     },
     "themeModeSubtitle": "Helles, dunkles oder systembasiertes Aussehen",
+    "quickSection": "Schnellzugriff",
     "thisDevice": "Dieses Gerät",
     "thisDeviceSubtitle": "Das Gerät, das du gerade nutzt",
     "densityMode": {
@@ -1677,9 +1692,6 @@
     "bottomRight": "Unten rechts",
     "bottomLeft": "Unten links",
     "greeting": "Begrüßungsnachricht",
-    "company.widgetName": "Widget name",
-    "company.quickReplies": "Quick replies",
-    "company.addQuickReply": "Add quick reply…",
     "collectContact": "Besucher nach Kontaktdaten fragen",
     "widgetHint": "Einstellungen ändern → Embed-Snippet aktualisiert. Erneut auf der Seite einfügen.",
     "websiteContacts": "Website-Kontakte",
@@ -1695,7 +1707,13 @@
     "embedStep1": "Kopiere das Snippet unten.",
     "embedStep2": "Füge es vor dem schließenden </body>-Tag einer beliebigen Seite deiner Website ein.",
     "embedStep3": "Besuchernachrichten und Kontakte erscheinen dann hier und im CRM als Website-Leads.",
-    "siteChatOffline": "Website-Widget ist offline — Antworten erreichen die Besucher nicht"
+    "siteChatOffline": "Website-Widget ist offline — Antworten erreichen die Besucher nicht",
+    "widgetName": "Widget name",
+    "quickReplies": "Quick replies",
+    "addQuickReply": "Add quick reply…",
+    "removeBranding": "Remove branding",
+    "removeBrandingSub": "Remove the \"Powered by\" label from the widget",
+    "widgetPreview": "Widget preview"
   },
   "login": {
     "title": "Anmelden",
@@ -2229,7 +2247,8 @@
     "contactStart": "Chat starten",
     "contactSkip": "Überspringen",
     "send": "Senden",
-    "connecting": "Verbindung wird aufgebaut…"
+    "connecting": "Verbindung wird aufgebaut…",
+    "poweredBy": "Powered by"
   },
   "bot": {
     "profileTitle": "Profil",
@@ -2313,6 +2332,8 @@
     "sendFailed": "Dateiübermittlung fehlgeschlagen"
   },
   "cancel": "Abbrechen",
-  "invite": "Einladen"
+  "invite": "Einladen",
+  "stories": {
+    "strip": "Storys"
+  }
 }
-

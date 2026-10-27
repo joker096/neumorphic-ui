@@ -78,7 +78,8 @@
       "links": "Enlaces"
     },
     "contacts": "Contactos",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "frequent": "Frequent"
   },
   "chat": {
     "draft": "Borrador",
@@ -419,7 +420,8 @@
     "dndBlockedVoice": "Mensaje de voz bloqueado - DND está activo. Los contactos prioritarios pueden omitirlo.",
     "edit": "Edit",
     "editMessage": "Edit message",
-    "edited": "edited"
+    "edited": "edited",
+    "typeMessage": "Type a message…"
   },
   "call": {
     "acceptCall": "Aceptar llamada",
@@ -489,7 +491,8 @@
     "copied": "Copiado",
     "copy": "Copiar fragmento",
     "open": "Abrir",
-    "searchPlaceholder": "Buscar..."
+    "searchPlaceholder": "Buscar...",
+    "remove": "Remove"
   },
   "profile": {
     "bot": "Bot",
@@ -676,7 +679,18 @@
     "sharedBy": "Historia",
     "moreTitle": "Opciones de la historia",
     "unsupportedMedia": "Tipo de archivo no compatible",
-    "removeMedia": "Quitar medio"
+    "removeMedia": "Quitar medio",
+    "media": "Medios",
+    "play": "Reproducir",
+    "pause": "Pausa",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido",
+    "close": "Cerrar",
+    "like": "Me gusta",
+    "unlike": "Quitar reacción",
+    "previous": "Historia anterior",
+    "next": "Siguiente historia",
+    "progress": "Progreso de la historia"
   },
   "systemPlayer": {
     "equalizerSettings": "Ecualizador y ajustes",
@@ -1477,6 +1491,7 @@
       "system": "Sistema"
     },
     "themeModeSubtitle": "Aspecto claro, oscuro o del sistema",
+    "quickSection": "Controles rápidos",
     "thisDevice": "Este dispositivo",
     "thisDeviceSubtitle": "El dispositivo que estás usando ahora",
     "densityMode": {
@@ -1677,9 +1692,6 @@
     "bottomRight": "Abajo a la derecha",
     "bottomLeft": "Abajo a la izquierda",
     "greeting": "Mensaje de saludo",
-    "company.widgetName": "Widget name",
-    "company.quickReplies": "Quick replies",
-    "company.addQuickReply": "Add quick reply…",
     "collectContact": "Pedir datos de contacto a los visitantes",
     "widgetHint": "Cambiar configuración → el snippet se actualiza. Vuelve a pegarlo en tu sitio.",
     "websiteContacts": "Contactos del sitio web",
@@ -1695,7 +1707,13 @@
     "embedStep1": "Copia el fragmento de abajo.",
     "embedStep2": "Pégalo antes de la etiqueta de cierre </body> en cualquier página de tu web.",
     "embedStep3": "Los mensajes y contactos de visitantes llegan aquí y al CRM como clientes potenciales del sitio.",
-    "siteChatOffline": "El widget del sitio está desconectado: las respuestas no llegarán a los visitantes"
+    "siteChatOffline": "El widget del sitio está desconectado: las respuestas no llegarán a los visitantes",
+    "widgetName": "Widget name",
+    "quickReplies": "Quick replies",
+    "addQuickReply": "Add quick reply…",
+    "removeBranding": "Remove branding",
+    "removeBrandingSub": "Remove the \"Powered by\" label from the widget",
+    "widgetPreview": "Widget preview"
   },
   "login": {
     "title": "Iniciar sesión",
@@ -2229,7 +2247,8 @@
     "contactStart": "Iniciar chat",
     "contactSkip": "Omitir",
     "send": "Enviar",
-    "connecting": "conectando…"
+    "connecting": "conectando…",
+    "poweredBy": "Powered by"
   },
   "bot": {
     "profileTitle": "Perfil",
@@ -2313,6 +2332,8 @@
     "sendFailed": "La transferencia de archivo falló"
   },
   "cancel": "Cancelar",
-  "invite": "Invitar"
+  "invite": "Invitar",
+  "stories": {
+    "strip": "Historias"
+  }
 }
-
