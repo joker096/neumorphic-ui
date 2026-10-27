@@ -19,7 +19,9 @@ import { fileURLToPath } from 'node:url';
  * route (the embed bundle only exists as a build artifact).
  */
 
-const SHOT_DIR = 'docs/design/embed-screenshots';
+const SHOT_DIR = process.env.UPDATE_EMBED_SCREENSHOTS === '1'
+  ? 'docs/design/embed-screenshots'
+  : 'test-results/embed-screenshots';
 const DIST_DIR = join(fileURLToPath(new URL('.', import.meta.url)), '..', 'dist');
 const EMBED_JS = join(DIST_DIR, 'embed.js');
 
