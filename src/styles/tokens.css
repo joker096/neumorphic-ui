@@ -58,6 +58,10 @@
   --shadow-logo-glow-light: 0 3px 10px rgba(var(--accent-rgb),0.3);
   --shadow-logo-glow-dark: 0 4px 14px rgba(var(--accent-rgb),0.35);
   --shadow-voice-play: 0 0 15px rgba(var(--accent-rgb),0.4);
+
+  /* EQ slider track colors */
+  --player-eq-bar: var(--accent);
+  --player-eq-track: rgba(255,255,255,0.1);
   /* Player shell geometry: the neumorphic radii and LED glows of the pulse player. */
   --player-neo-dot: 2px 2px 4px rgba(0,0,0,0.5);
   --player-neo-dot-inset: inset 2px 2px 4px rgba(0,0,0,0.3);

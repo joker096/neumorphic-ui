@@ -104,10 +104,10 @@ export function Modal({
             {hasHeader && (
               <div className="flex items-start justify-between gap-[var(--spacing-12)]">
                 <ModalHeader
+                  isDark={dark}
                   title={title}
                   subtitle={subtitle}
                   icon={icon}
-                  isDark={dark}
                   align={headerAlign}
                   iconSize={iconSize}
                 />

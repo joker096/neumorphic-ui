@@ -44,7 +44,6 @@ export function ConfirmDialog({
       isOpen={isOpen}
       onClose={onCancel}
       title={title}
-      isDark={isDark}
       maxWidth="max-w-sm"
       zIndex={zIndex}
       footer={

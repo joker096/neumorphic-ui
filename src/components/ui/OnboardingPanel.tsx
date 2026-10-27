@@ -5,14 +5,13 @@ import { PANEL_TITLE_CLASS } from "./textClasses";
 type OnboardingPanelVariant = "contacts" | "channels";
 
 type OnboardingPanelProps = {
-  isDark?: boolean;
   variant?: OnboardingPanelVariant;
   t: (key: string) => string;
   onStartChat?: () => void;
   onInvite?: () => void;
 };
 
-export const OnboardingPanel = ({ isDark = false, variant = "contacts", t, onStartChat, onInvite }: OnboardingPanelProps) => {
+export const OnboardingPanel = ({ variant = "contacts", t, onStartChat, onInvite }: OnboardingPanelProps) => {
   const isChannels = variant === "channels";
   return (
    <div className="flex flex-col items-center justify-center py-10 px-6 text-center flex-1">
@@ -51,11 +50,7 @@ export const OnboardingPanel = ({ isDark = false, variant = "contacts", t, onSta
           <button
             type="button"
             onClick={onStartChat}
-            className={`w-full min-h-11 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/60 ${
-              isDark
-                ? "bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-lg hover:brightness-110"
-                : "bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-md hover:brightness-105"
-            }`}
+            className="w-full min-h-11 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/60 bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] text-[var(--text-primary)] shadow-[var(--shadow-btn-primary)] hover:brightness-105"
           >
             {isChannels ? <Plus size={16} /> : <UserPlus size={16} />}
             {isChannels
@@ -67,11 +62,7 @@ export const OnboardingPanel = ({ isDark = false, variant = "contacts", t, onSta
           <button
             type="button"
             onClick={onInvite}
-            className={`w-full min-h-11 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 text-[var(--text-primary)] ${
-              isDark
-                ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-white/5"
-                : "bg-white border border-[var(--border-color)] hover:bg-black/5 shadow-sm"
-            }`}
+            className="w-full min-h-11 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 text-[var(--text-primary)] bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-black/5 dark:hover:bg-white/5 shadow-sm"
           >
            <QrCode size={16} />
            {t("onboarding.invite") || "Invite friends"}

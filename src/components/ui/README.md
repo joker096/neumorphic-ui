@@ -14,7 +14,6 @@ Atomic UI components — each file exports a single, focused component following
 | `Modal.tsx` | Modal dialog with focus trap and escape handling |
 | `Select.tsx` | Dropdown selector with keyboard navigation |
 | `Avatar.tsx` | User avatar with status indicators |
-| `AvatarRow.tsx` | Story/avatar row with theme-aware styling |
 | `FormModal.tsx` | Form modal with cancel/submit actions |
 | `FormField.tsx` | Form field with label, input, and error state |
 | `FormActions.tsx` | Submit/cancel button row with loading state |

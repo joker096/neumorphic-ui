@@ -131,6 +131,7 @@ vi.mock('../lib/i18n', () => {
     'settings.pwaFasterLoading': 'Faster loading',
     'settings.pwaAddToHomeScreen': 'Add to home screen',
     'settings.quickOptions': 'Quick options',
+    'settings.quickSection': 'Quick controls',
     'settings.notifications': 'Notifications',
     'settings.notificationsSection': 'Notifications section',
     'settings.notificationsOption': 'Message notifications',
@@ -288,14 +289,16 @@ describe('SettingsView', () => {
     expect(screen.getByText('Your identity and accounts')).toBeInTheDocument();
   });
 
-  it('shows Appearance section', () => {
+  it('shows Quick controls section with inline theme/language/DND', () => {
     render(
     <ThemeContext.Provider value={{ theme: 'dark', isDark: true, setTheme: vi.fn() }}>
       <SettingsView theme="dark" />
     </ThemeContext.Provider>
   );
 
-    expect(screen.getByText('Appearance')).toBeInTheDocument();
+    expect(screen.getByText('Quick controls')).toBeInTheDocument();
+    expect(screen.getByText('Dark theme')).toBeInTheDocument();
+    expect(screen.getByText('Language')).toBeInTheDocument();
   });
 
   it('shows Notifications section with sound and cloud sync', () => {

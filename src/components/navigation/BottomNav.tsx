@@ -1,6 +1,8 @@
 import React from "react";
 import { NAV_ITEMS, isCompanyAdmin } from "../../config/navigation";
+import { Search } from "lucide-react";
 import { useAppStore } from "../../store";
+import { useUiStore } from "../../store/uiStore";
 import { NavItemButton } from "./NavItemButton";
 import { TransportIndicator } from "../status/TransportIndicator";
 
@@ -29,6 +31,7 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
   );
   const profileLabel = userProfile.name || (userProfile.username ? `@${userProfile.username}` : t("settings.defaultUserName"));
   const isSettingsActive = activeView === "settings";
+  const setGlobalSearchOpen = useUiStore((s) => s.setGlobalSearchOpen);
 
   // Hide the fixed bottom nav while the virtual keyboard is open (Android iOS
   // resizes the *visual* viewport, not innerHeight). Telegram/WhatsApp collapse
@@ -68,6 +71,16 @@ export const BottomNav = React.memo(({ activeView, isDark = false, unreadCount, 
           />
         );
       })}
+      <button
+        type="button"
+        aria-label={t("search.chats")}
+        onClick={() => setGlobalSearchOpen(true)}
+        className={`flex h-full w-[44px] min-w-11 min-h-11 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] ${
+          isDark ? "hover:bg-white/[0.04]" : "hover:bg-black/[0.03]"
+        }`}
+      >
+        <Search size={20} />
+      </button>
       <TransportIndicator status={connectionStatus} detail={connectionError} relayed={relayed} />
       <button
         type="button"

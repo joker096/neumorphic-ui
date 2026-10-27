@@ -6,7 +6,7 @@ export interface SearchInputProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  isDark?: boolean
+ 
   /** rounded = rounded-xl (default), pill = rounded-full */
   shape?: 'pill' | 'rounded'
   /** Show search icon on the left */

@@ -43,12 +43,12 @@ export const ToggleSwitch = ({
         disabled ? 'opacity-50 cursor-not-allowed' : ''
       } ${disabled ? '' : 'active:scale-95'}`}
     >
-      <div className={`relative w-full max-w-12 h-6 inline-flex items-center rounded-full border transition-all ${
+      <div className={`relative w-full max-w-12 h-7 inline-flex items-center rounded-full border transition-all duration-300 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)] ${
         isOn
-          ? 'bg-primary border-transparent'
-          : 'bg-muted border-border'
+          ? 'bg-[var(--accent)] border-transparent shadow-[0_0_12px_rgba(var(--accent-rgb),0.35)]'
+          : 'bg-[var(--msg-bg-input)] border-[var(--msg-border-soft)]'
       }`}>
-        <span className={`absolute top-0.5 w-5 h-5 rounded-full shadow-md transition-all bg-background ${isOn ? 'right-0.5' : 'left-0.5'}`} />
+        <span className={`absolute top-0.5 w-5 h-5 rounded-full shadow-lg transition-all duration-300 bg-[var(--toggle-thumb-bg)] ${isOn ? 'right-0.5' : 'left-0.5'} ring-1 ring-[var(--msg-border)]`} />
       </div>
     </div>
   );

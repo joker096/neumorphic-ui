@@ -22,6 +22,7 @@ vi.mock('../status/TransportIndicator', () => ({
 }));
 
 import { BottomNav } from './BottomNav';
+import { useUiStore } from '../../store/uiStore';
 
 const t = (key: string) => key;
 
@@ -117,5 +118,12 @@ describe('BottomNav', () => {
   it('keeps the indicator non-relayed for direct transport', () => {
     render(<BottomNav activeView="chats" connectionStatus="connected" unreadCount={0} onNavigate={vi.fn()} t={t} />);
     expect(screen.getByTestId('transport-indicator')).not.toHaveTextContent('relayed');
+  });
+
+  it('opens the app-wide global search from the Search button', () => {
+    useUiStore.setState({ globalSearchOpen: false });
+    render(<BottomNav activeView="chats" unreadCount={0} onNavigate={vi.fn()} t={t} />);
+    fireEvent.click(screen.getByRole('button', { name: 'search.chats' }));
+    expect(useUiStore.getState().globalSearchOpen).toBe(true);
   });
 });

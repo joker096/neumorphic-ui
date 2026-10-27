@@ -527,6 +527,44 @@
     outline-offset: -2px;
   }
 
+  /* -----------------------------------------------------------------
+     Slider vertical — EQ band (EqualizerPanel)
+     ----------------------------------------------------------------- */
+  .slider-vertical {
+    -webkit-appearance: slider-vertical;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    background: linear-gradient(to bottom, var(--player-eq-bar) 0%, var(--player-eq-track) 100%);
+    border-radius: 9999px;
+    outline: none;
+  }
+  .slider-vertical::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--msg-accent), var(--msg-accent-dark));
+    box-shadow: 0 2px 8px rgba(var(--accent-rgb, 78,222,99), 0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.12);
+    cursor: pointer;
+    transition: transform 120ms ease;
+  }
+  .slider-vertical::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+  }
+  .slider-vertical::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--msg-accent), var(--msg-accent-dark));
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 2px 8px rgba(var(--accent-rgb, 78,222,99), 0.45);
+  }
+  .slider-vertical:focus-visible {
+    outline: 2px solid var(--msg-accent);
+    outline-offset: 4px;
+  }
+
   .glass-menu-item.danger {
     color: var(--msg-danger);
   }

@@ -71,7 +71,7 @@ describe("IconButton", () => {
 
   it("respects explicit isDark prop", () => {
     render(
-      <IconButton icon={<X />} aria-label="Close" isDark={false} variant="ghost" />,
+      <IconButton icon={<X />} aria-label="Close" variant="ghost" />,
     );
     const btn = screen.getByRole("button");
     expect(btn.className).toContain("text-muted-foreground");

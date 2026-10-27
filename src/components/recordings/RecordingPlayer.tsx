@@ -9,7 +9,7 @@ import { formatDuration } from './recordingUtils';
 const CARD_CLASS = 'w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 pb-8 shadow-2xl border border-[var(--border-color)] bg-[var(--bg-tertiary)]';
 const HIT_CLASS = 'min-w-11 min-h-11 flex items-center justify-center rounded-full hover:bg-[var(--msg-bg-panel-hover)] active:scale-95';
 const SKIP_CLASS = 'w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center text-xs font-medium hover:bg-[var(--msg-bg-panel-hover)] text-[var(--text-secondary)]';
-const RANGE_CLASS = 'w-full h-1.5 cursor-pointer mb-1.5 rounded-full appearance-none bg-[var(--msg-bg-input)] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--accent)] [&::-webkit-slider-thumb]:shadow-md';
+const RANGE_CLASS = 'w-full h-2.5 rounded-full appearance-none outline-none cursor-pointer bg-[linear-gradient(to_right,var(--player-eq-bar)_var(--volume)%,var(--msg-bg-input)_var(--volume)%)] transition-all duration-150 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-9 [&::-webkit-slider-thumb]:h-9 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--accent)] [&::-webkit-slider-thumb]:shadow-[0_2px_8px_rgba(var(--accent-rgb),0.45)] [&::-webkit-slider-thumb]:border-[2px_solid_rgba(255,255,255,0.15)] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 focus-visible:ring-2 focus-visible:ring-[var(--msg-accent)]';
 
 export function RecordingPlayer({ recording, blobUrl, onClose, onDelete, onExport }: {
   recording: CallRecording;

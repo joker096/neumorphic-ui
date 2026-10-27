@@ -8,14 +8,13 @@ export interface SettingsRowProps {
   iconColor?: string;
   title: string;
   subtitle?: string;
-  isDark?: boolean;
   value?: string;
   rightElement?: React.ReactNode;
   onClick?: () => void;
   className?: string;
 }
 
-export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark = false, value, rightElement, onClick, className = "" }: SettingsRowProps) => {
+export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, value, rightElement, onClick, className = "" }: SettingsRowProps) => {
   const hasRightAction = Boolean(rightElement);
   const interactive = Boolean(onClick);
 
@@ -76,19 +75,19 @@ export const SettingsRow = ({ icon, iconBg, iconColor, title, subtitle, isDark =
   );
 };
 
-export const SettingsSectionTitle = ({ title, isDark = false }: { title: string; isDark?: boolean }) => (
+export const SettingsSectionTitle = ({ title }: { title: string }) => (
   <div className={`font-mono text-xs uppercase tracking-widest font-bold mb-2 opacity-50 px-2 text-foreground`}>
     {title}
   </div>
 );
 
-export const SettingsGroup = ({ children, isDark = false, className = "" }: { children: React.ReactNode; isDark?: boolean; className?: string }) => (
+export const SettingsGroup = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <div className={`rounded-xl overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-color)] ${className}`}>
     {children}
   </div>
 );
 
-export const ToggleSwitch = ({ isOn, onToggle, isDark = false, onIcon, offIcon, ariaLabel }: { isOn: boolean; onToggle: () => void; isDark?: boolean; onIcon?: React.ReactNode; offIcon?: React.ReactNode; ariaLabel?: string }) => {
+export const ToggleSwitch = ({ isOn, onToggle, onIcon, offIcon, ariaLabel }: { isOn: boolean; onToggle: () => void; onIcon?: React.ReactNode; offIcon?: React.ReactNode; ariaLabel?: string }) => {
   const handleToggle = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
     onToggle();
@@ -109,12 +108,12 @@ export const ToggleSwitch = ({ isOn, onToggle, isDark = false, onIcon, offIcon, 
       aria-label={ariaLabel}
       onClick={handleToggle}
       onKeyDown={handleKeyDown}
-      className={`relative inline-flex items-center justify-center my-[-10px] min-w-[var(--control-size-xl)] min-h-[var(--control-height-md)] cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 rounded-full`}
+      className={`relative inline-flex items-center justify-center my-[-10px] min-w-[var(--control-size-xl)] min-h-[var(--control-height-md)] cursor-pointer transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--msg-accent)]/50 rounded-full`}
       aria-checked={isOn}
     >
-      <div className={`w-11 h-6 flex items-center rounded-full px-1 transition-colors duration-200 ${isOn ? 'bg-emerald-500 justify-end' : 'bg-muted justify-start'}`}>
+      <div className={`w-11 h-6 flex items-center rounded-full px-1 transition-colors duration-200 ${isOn ? 'bg-[var(--accent)] justify-end' : 'bg-[var(--msg-bg-input)] border border-[var(--msg-border)] justify-start'}`}>
         <div
-          className={`w-4 h-4 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0 [&>svg]:w-2.5 [&>svg]:h-2.5 ${isOn ? "text-emerald-600" : "text-muted-foreground"}`}
+          className={`w-4 h-4 rounded-full bg-[var(--ink-on-saturate)] shadow-sm flex items-center justify-center shrink-0 ${isOn ? "text-[var(--accent-dark)]" : "text-[var(--text-muted)]"}`}
         >
           {isOn ? onIcon : offIcon}
         </div>
@@ -131,15 +130,14 @@ interface SettingsToggleRowProps extends Omit<SettingsRowProps, 'rightElement' |
   toggleOffIcon?: React.ReactNode;
 }
 
-export const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, isOn, isDark = false, onToggle, toggleOnIcon, toggleOffIcon }: SettingsToggleRowProps) => (
+export const SettingsToggleRow = ({ icon, iconBg, iconColor, title, subtitle, isOn, onToggle, toggleOnIcon, toggleOffIcon }: SettingsToggleRowProps) => (
   <SettingsRow
     icon={icon}
     iconBg={iconBg}
     iconColor={iconColor}
     title={title}
     subtitle={subtitle}
-    isDark={isDark}
-    rightElement={<ToggleSwitch isOn={isOn} onToggle={onToggle} isDark={isDark} onIcon={toggleOnIcon} offIcon={toggleOffIcon} ariaLabel={typeof title === 'string' ? title : undefined} />}
+    rightElement={<ToggleSwitch isOn={isOn} onToggle={onToggle} onIcon={toggleOnIcon} offIcon={toggleOffIcon} ariaLabel={typeof title === 'string' ? title : undefined} />}
     onClick={onToggle}
   />
 );
