@@ -1,34 +1,36 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { StoryComposer } from './StoryComposer';
-import { publishMyStory } from './storiesData';
 
 vi.mock('lucide-react', () => {
   const icon = (name: string) => (p: any) => <span data-testid={`icon-${name}`} {...p} />;
   return {
     Image: icon('Image'),
-    Type: icon('Type'),
     Send: icon('Send'),
     X: icon('X'),
-    Globe: icon('Globe'),
-    Users: icon('Users'),
-    UserCheck: icon('UserCheck'),
-    EyeOff: icon('EyeOff'),
   };
 });
 vi.mock('../../lib/i18n', () => ({ useI18n: () => ({ t: (k: string, fallback?: string) => fallback ?? k }) }));
 vi.mock('../ui/Toast', () => ({ toast: vi.fn() }));
 vi.mock('../ui/Button', () => ({ Button: ({ children, ...p }: any) => <button {...p}>{children}</button> }));
 vi.mock('../ui/CloseButton', () => ({ CloseButton: ({ children, ...p }: any) => <button {...p}>{children}</button> }));
-vi.mock('./storiesData', async () => {
-  const actual = await vi.importActual('./storiesData');
-  return { ...actual, publishMyStory: vi.fn() };
-});
+
+const mockPublish = vi.fn();
+vi.mock('../../features/stories/storiesStore', () => ({
+  useStoriesStore: Object.assign(
+    (selector?: any) => (selector ? { publishMyStory: mockPublish } : {}),
+    { getState: () => ({ publishMyStory: mockPublish }) }
+  ),
+}));
 
 describe('StoryComposer', () => {
   beforeEach(() => {
-    vi.mocked(publishMyStory).mockClear();
-    vi.mocked(publishMyStory).mockReturnValue({} as any);
+    mockPublish.mockClear();
+    mockPublish.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   function pickFile(kind: 'image' | 'video') {
@@ -46,14 +48,10 @@ describe('StoryComposer', () => {
     pickFile('video');
     expect(document.body.querySelector('video')?.getAttribute('src')).toBe('blob:video-1');
     fireEvent.click(screen.getByText('Add to story'));
-    expect(publishMyStory).toHaveBeenCalledWith(
-      expect.any(String),
-      '',
-      expect.any(String),
-      expect.any(String),
-      undefined,
-      'blob:video-1',
-    );
+    expect(mockPublish).toHaveBeenCalledWith({
+      media: { kind: 'video', src: 'blob:video-1' },
+      caption: '',
+    });
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
   });
 
@@ -62,25 +60,38 @@ describe('StoryComposer', () => {
     URL.revokeObjectURL = vi.fn();
     pickFile('image');
     fireEvent.click(screen.getByText('Add to story'));
-    expect(publishMyStory).toHaveBeenCalledWith(
-      expect.any(String),
-      '',
-      expect.any(String),
-      expect.any(String),
-      'blob:img-1',
-      undefined,
-    );
+    expect(mockPublish).toHaveBeenCalledWith({
+      media: { kind: 'image', src: 'blob:img-1' },
+      caption: '',
+    });
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
   });
 
-  it('still revokes the blob on explicit remove (media untouched by publish)', () => {
+  it('does not publish when no media is selected', () => {
+    render(<StoryComposer open onClose={() => {}} />);
+    expect(screen.getByText('Add to story')).toBeDisabled();
+    fireEvent.click(screen.getByText('Add to story'));
+    expect(mockPublish).not.toHaveBeenCalled();
+  });
+
+  it('revokes the blob on explicit remove', () => {
     URL.createObjectURL = vi.fn(() => 'blob:img-2');
     URL.revokeObjectURL = vi.fn();
-    const { input } = pickFile('image');
-    const videos = document.body.querySelectorAll('video');
-    expect(videos.length).toBe(0);
-    expect(screen.getByLabelText('Remove media')).toBeTruthy();
+    pickFile('image');
+    fireEvent.click(screen.getByLabelText('Remove media'));
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:img-2');
+    expect(mockPublish).not.toHaveBeenCalled();
+  });
+
+  it('passes trimmed caption through to store', () => {
+    URL.createObjectURL = vi.fn(() => 'blob:img-3');
+    URL.revokeObjectURL = vi.fn();
+    pickFile('image');
+    fireEvent.change(document.body.querySelector('textarea') as HTMLTextAreaElement, { target: { value: '  Hello stories  ' } });
     fireEvent.click(screen.getByText('Add to story'));
-    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+    expect(mockPublish).toHaveBeenCalledWith({
+      media: { kind: 'image', src: 'blob:img-3' },
+      caption: 'Hello stories',
+    });
   });
 });

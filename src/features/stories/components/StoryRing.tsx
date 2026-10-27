@@ -19,6 +19,8 @@ interface StoryRingProps {
   stories: Story[];
   size?: number;
   className?: string;
+  /** Localized accessible name; falls back to a generated English one. */
+  label?: string;
   children?: ReactNode;
 }
 
@@ -26,9 +28,10 @@ interface StoryRingProps {
  * Segmented ring around an avatar. A single story draws a solid ring;
  * multiple stories draw arcs with a small gap. Seen arcs are muted, unseen accent.
  */
-export function StoryRing({ stories, size = 56, className = '', children }: StoryRingProps) {
+export function StoryRing({ stories, size = 56, className = '', label, children }: StoryRingProps) {
   const seenCount = stories.filter((s) => s.viewedByMe).length;
   const segments = stories.length;
+  const allSeen = segments > 0 && seenCount === segments;
   const stroke = Math.max(2, Math.round(size * 0.036));
   const r = (size - stroke) / 2;
   const cx = size / 2;
@@ -46,7 +49,7 @@ export function StoryRing({ stories, size = 56, className = '', children }: Stor
       className={`relative inline-flex items-center justify-center ${className}`}
       style={{ width: size, height: size }}
       role="img"
-      aria-label={`${segments} ${segments === 1 ? 'story' : 'stories'}, ${seenCount} seen`}
+      aria-label={label ?? `${segments} ${segments === 1 ? 'story' : 'stories'}, ${seenCount} seen`}
     >
       {children}
       <svg
@@ -58,7 +61,7 @@ export function StoryRing({ stories, size = 56, className = '', children }: Stor
         aria-hidden="true"
       >
         {segments === 1 ? (
-          <circle cx={cx} cy={cy} r={r} stroke="var(--story-ring-unseen)" strokeWidth={stroke} />
+          <circle cx={cx} cy={cy} r={r} stroke={allSeen ? 'var(--story-ring-seen)' : 'var(--story-ring-unseen)'} strokeWidth={stroke} />
         ) : (
           <>
             <circle cx={cx} cy={cy} r={r} stroke="var(--story-ring-seen)" strokeWidth={stroke} opacity={0.55} />

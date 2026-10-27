@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
-import { Image as ImageIcon, Type, Send, X } from 'lucide-react';
+import { Image as ImageIcon, Send, X } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { CloseButton } from '../ui/CloseButton';
 import { Button } from '../ui/Button';
 import { toast } from '../ui/Toast';
-import { STORY_GRADIENTS, AUDIENCE_OPTIONS, EXPIRATION_OPTIONS, DEFAULT_AUDIENCE, DEFAULT_EXPIRATION, STORY_CAPTION_MAX_LENGTH } from '../../constants/storyConstants';
-import { publishMyStory } from './storiesData';
+import { STORY_CAPTION_MAX_LENGTH } from '../../constants/storyConstants';
+import { useStoriesStore } from '../../features/stories/storiesStore';
 import { STORY_MEDIA_COVER_CLASS } from './storyClasses';
 import { SECTION_HEADER_ROW_CLASS } from '../ui/rowClasses';
 
@@ -23,20 +23,14 @@ interface MediaState {
 
 export const StoryComposer = ({ open, onClose }: StoryComposerProps) => {
   const { t } = useI18n();
-  const [bg, setBg] = useState(STORY_GRADIENTS[0]);
   const [caption, setCaption] = useState('');
-  const [audience, setAudience] = useState(DEFAULT_AUDIENCE);
-  const [expiration, setExpiration] = useState<string>(DEFAULT_EXPIRATION);
   const [media, setMedia] = useState<MediaState | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Reset draft state each time the composer is opened.
   useEffect(() => {
     if (open) {
-      setBg(STORY_GRADIENTS[0]);
       setCaption('');
-      setAudience(DEFAULT_AUDIENCE);
-      setExpiration(DEFAULT_EXPIRATION);
       setMedia(null);
     }
   }, [open]);
@@ -62,22 +56,17 @@ export const StoryComposer = ({ open, onClose }: StoryComposerProps) => {
   };
 
   const publish = () => {
-    publishMyStory(
-      bg,
-      caption.trim(),
-      audience,
-      expiration,
-      media?.kind === 'image' ? media.url : undefined,
-      media?.kind === 'video' ? media.url : undefined,
-    );
+    if (!media) return;
+    void useStoriesStore.getState().publishMyStory({
+      media: { kind: media.kind, src: media.url },
+      caption: caption.trim(),
+    });
     toast(t('story.published', 'Story published'), 'success');
     onClose();
   };
 
   const surfaceClass = 'bg-[var(--bg-secondary)] border border-[var(--border-color)]';
   const labelClass = 'text-xs uppercase tracking-widest font-bold mb-2 opacity-50 text-[var(--text-primary)]';
-  const chipBase = 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]';
-  const activeChip = 'bg-[var(--accent)] text-[var(--button-primary-text)]';
 
   return createPortal(
     <motion.div
@@ -96,14 +85,14 @@ export const StoryComposer = ({ open, onClose }: StoryComposerProps) => {
         </div>
 
         <div className="p-4">
-          <div className={`relative rounded-xl h-56 flex items-center justify-center overflow-hidden bg-gradient-to-br ${bg}`}>
+          <div className="relative rounded-xl h-56 flex items-center justify-center overflow-hidden bg-black/40">
             {media?.kind === 'image' && (
               <img src={media.url} alt="" className={STORY_MEDIA_COVER_CLASS} />
             )}
             {media?.kind === 'video' && (
               <video src={media.url} className={STORY_MEDIA_COVER_CLASS} autoPlay muted loop playsInline />
             )}
-            {!media && <Type size={32} className="text-white/70" aria-hidden="true" />}
+            {!media && <ImageIcon size={32} className="text-white/70" aria-hidden="true" />}
             {media && (
               <button
                 type="button"
@@ -128,81 +117,29 @@ export const StoryComposer = ({ open, onClose }: StoryComposerProps) => {
           </div>
 
           <div className="mt-4">
-            <div className={labelClass}>{t('story.background', 'Background')}</div>
-            <div className="flex gap-2 flex-wrap">
-              {STORY_GRADIENTS.map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() => setBg(g)}
-                  aria-label={t('story.pickBackground', 'Pick background')}
-                  aria-pressed={bg === g}
-                  className={`w-10 h-10 min-w-11 min-h-11 rounded-full bg-gradient-to-br ${g} transition-transform active:scale-90 ${bg === g ? 'ring-2 ring-offset-2 ring-[var(--accent)] ring-offset-[var(--bg-secondary)]' : ''}`}
-                />
-              ))}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-10 h-10 min-w-11 min-h-11 rounded-full flex items-center justify-center border border-dashed border-[var(--border-color)] text-[var(--text-tertiary)] cursor-pointer transition-colors hover:text-[var(--accent)]"
-                aria-label={t('story.fromGallery', 'From gallery')}
-              >
-                <ImageIcon size={16} />
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,video/*"
-                className="hidden"
-                onChange={handleFile}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <div className={labelClass}>{t('story.audienceLabel', 'Who can see')}</div>
-            <div className="grid grid-cols-2 gap-2">
-              {AUDIENCE_OPTIONS.map((a) => {
-                const Icon = a.icon;
-                const active = audience === a.id;
-                return (
-                  <button
-                    key={a.id}
-                    type="button"
-                    onClick={() => setAudience(a.id)}
-                    aria-pressed={active}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm min-h-11 transition-colors ${active ? activeChip : chipBase}`}
-                  >
-                    <Icon size={16} aria-hidden="true" />
-                    {t(a.labelKey, a.fallback)}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <div className={labelClass}>{t('story.expires', 'Expires after')}</div>
-            <div className="flex gap-2">
-              {EXPIRATION_OPTIONS.map((e) => {
-                const active = expiration === e;
-                return (
-                  <button
-                    key={e}
-                    type="button"
-                    onClick={() => setExpiration(e)}
-                    aria-pressed={active}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium min-h-[var(--control-height-sm)] transition-colors ${active ? activeChip : chipBase}`}
-                  >
-                    {e}
-                  </button>
-                );
-              })}
-            </div>
+            <div className={labelClass}>{t('story.media', 'Media')}</div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={Boolean(media)}
+              className="w-full min-h-11 rounded-xl flex items-center justify-center gap-2 border border-dashed border-[var(--border-color)] text-[var(--text-tertiary)] cursor-pointer transition-colors hover:text-[var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label={t('story.fromGallery', 'From gallery')}
+            >
+              <ImageIcon size={16} />
+              {t('story.fromGallery', 'From gallery')}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              className="hidden"
+              onChange={handleFile}
+            />
           </div>
         </div>
 
         <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--border-color)]">
-          <Button variant="primary" className="flex-1" icon={<Send size={16} />} onClick={publish}>
+          <Button variant="primary" className="flex-1" icon={<Send size={16} />} onClick={publish} disabled={!media}>
             {t('story.addToStory', 'Add to story')}
           </Button>
         </div>
