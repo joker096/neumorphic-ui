@@ -26,7 +26,6 @@ test.describe('Visual snapshots', () => {
   test('chat list — light theme', async ({ page }) => {
     await gotoApp(page);
     await openSettingsViaProfile(page);
-    await page.getByText('Theme').first().click();
     await page.getByTestId('theme-mode-light').click();
     await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'light');
     await page.getByRole('button', { name: 'Chats' }).first().click();

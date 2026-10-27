@@ -41,8 +41,6 @@ test.describe('Settings', () => {
 
   test('appearance: dark theme toggle switches to light and back', async ({ page }) => {
     await gotoSettings(page);
-    await page.getByText('Theme').first().click();
-    await expect(page.getByText('Appearance').first()).toBeVisible();
 
     const toggle = page.getByTestId('theme-mode-light');
     await expect(toggle).toBeVisible();
@@ -55,7 +53,7 @@ test.describe('Settings', () => {
 
   test('appearance: font size cycles Small -> Medium -> Large', async ({ page }) => {
     await gotoSettings(page);
-    await page.getByText('Theme').first().click();
+    await page.getByText('Appearance').last().click();
     const fontRow = page.getByText('Font size').first();
     await expect(fontRow).toBeVisible();
     // Default is Medium from app defaults; clicking cycles
@@ -65,9 +63,9 @@ test.describe('Settings', () => {
     expect(size).toBeTruthy();
   });
 
-  test('language section lists all languages and switches to Russian', async ({ page }) => {
+  test('language popover lists all languages and switches to Russian', async ({ page }) => {
     await gotoSettings(page);
-    await page.getByText('Language').first().click();
+    await page.getByTestId('language-select-toggle').click();
     await expect(page.getByText('Русский').first()).toBeVisible();
     await expect(page.getByText('Español').first()).toBeVisible();
     await expect(page.getByText('中文').first()).toBeVisible();
@@ -214,11 +212,12 @@ test.describe('Settings', () => {
     });
   });
 
-  test('system status section shows connection info', async ({ page }) => {
+  test('system status card shows connection info in main menu', async ({ page }) => {
     await gotoSettings(page);
-    const status = page.getByText('System Status').first();
-    await status.click();
-    // Section should render without crash
+    // Collapsed into main menu: connection card title is visible without entering a section
+    await expect(page.getByText('System Status').first()).toBeVisible();
+    await expect(page.getByRole('status', { name: /^Connection:/ }).first()).toBeVisible();
+    // Card should render without crash
     await expect(page.getByText('error.somethingWentWrong')).toHaveCount(0);
   });
 

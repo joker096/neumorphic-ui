@@ -21,7 +21,6 @@ test.describe('Mess&Anger basic smoke tests', () => {
   test('theme toggle switches between dark and light', async ({ page }) => {
     await gotoSettings(page);
     await expect(page.locator('html[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
-    await page.getByText('Theme', { exact: true }).first().click();
     await page.getByTestId('theme-mode-light').click();
     await expect(page.locator('html[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
     await page.getByTestId('theme-mode-dark').click();

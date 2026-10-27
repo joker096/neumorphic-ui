@@ -35,8 +35,9 @@ async function trapErrors(page: Page) {
 
 async function openSection(page: Page, menu: string) {
   const item = main(page).getByText(menu, { exact: true });
-  // 'Notifications' also matches the group title; the menu row is the last match.
-  const el = menu === 'Notifications' ? item.last() : item.first();
+  // Group headers can duplicate the menu label ('Notifications', 'Appearance');
+  // the clickable row is the last match — same rule as settings-cycle.
+  const el = menu === 'Notifications' || menu === 'Appearance' ? item.last() : item.first();
   await el.click();
   // Section views replace the searchable menu list entirely.
   await expect(main(page).getByPlaceholder('Search settings')).toHaveCount(0, { timeout: 5000 });
@@ -106,8 +107,15 @@ test.describe('Settings feature cycle', () => {
   test('Theme: switches flip, Font size cycles back', async ({ page }) => {
     const assertNoErrors = await trapErrors(page);
     await gotoSettings(page);
-    await openSection(page, 'Theme');
-    await auditSwitches(page, 'Theme');
+    // Theme moved into the settings main-menu quick controls (segment buttons); no standalone 'Theme' section.
+    const darkBtn = page.getByTestId('theme-mode-dark');
+    await expect(darkBtn).toBeVisible({ timeout: 5000 });
+    await darkBtn.click();
+    await expect(page.locator('html[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
+    await page.getByTestId('theme-mode-light').click();
+    await expect(page.locator('html[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
+    // Font size lives in the Appearance section.
+    await openSection(page, 'Appearance');
     await auditCycleRow(page, 'Font size');
     await backToMainMenu(page);
     await assertNoErrors();

@@ -14,7 +14,6 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   test('theme toggle switches theme', async ({ page }) => {
     await gotoSettings(page);
     await expect(page.locator('html[data-theme="dark"]')).toHaveAttribute('data-theme', 'dark');
-    await page.getByText('Theme', { exact: true }).first().click();
     const toggle = page.getByTestId('theme-mode-light');
     await toggle.click();
     await expect(page.locator('html[data-theme="light"]')).toHaveAttribute('data-theme', 'light');
@@ -73,7 +72,8 @@ test.describe('Mess&Anger E2E - Additional Scenarios', () => {
     await ensureAppReady(page);
     await page.getByRole('button', { name: 'Chats', exact: true }).click();
     await expect(page.getByRole('button', { name: 'My Story', exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Alice', exact: true }).first()).toBeVisible();
+    // Mock seed renders story-author button names in the UI locale (Cyrillic «Алиса»).
+    await expect(page.getByRole('button', { name: 'Алиса', exact: true }).first()).toBeVisible();
   });
 
   test('recordings view loads', async ({ page }) => {

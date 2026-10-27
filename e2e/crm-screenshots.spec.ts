@@ -43,6 +43,21 @@ async function seedPremium(page: Page) {
     },
     { inviteCode: FIXED_INVITE_CODE },
   );
+  // The premium slice refreshes the entitlement on mount via `fetchEntitlement`
+  // which, under the mock backend, resolves to no-premium and overwrites the
+  // cache seeded above. Pin the endpoint to a premium response so the CRM tabs/
+  // buttons that require premium stay deterministic.
+  await page.route(/entitlement(?:\?|$)/, (route) => {
+    void route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        premium: true,
+        plan: 'premium',
+        expiresAt: Date.now() + 90 * 24 * 3600 * 1000,
+      }),
+    });
+  });
 }
 
 async function gotoCrm(page: Page) {
@@ -67,6 +82,10 @@ async function shot(page: Page, name: string) {
 }
 
 test.describe('CRM Screenshots', () => {
+  // Cold-start Vite transform can push the first CRM test near the 45s
+  // default; give this suite headroom.
+  test.describe.configure({ timeout: 120_000 });
+
   test.beforeEach(async ({ page }) => {
     // The app already honours `prefers-reduced-motion: reduce` (see
     // src/index.css and AnimationContext), so emulating it renders every

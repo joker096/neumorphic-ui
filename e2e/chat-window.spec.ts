@@ -134,8 +134,8 @@ test.describe('Chat window', () => {
 
   test('reply action on a message shows the reply bar', async ({ page }) => {
     await openAliceChat(page);
-    // Message action buttons render under the last message group
-    const replyBtn = page.getByText('Reply', { exact: true }).first();
+    // Bubble action buttons are always visible (desktop + touch)
+    const replyBtn = page.getByRole('button', { name: 'Reply' }).first();
     if (await replyBtn.count()) {
       await replyBtn.click();
       await expect(page.getByText(/replying to/i).first()).toBeVisible();
@@ -147,13 +147,15 @@ test.describe('Chat window', () => {
 
   test('save action marks a message saved', async ({ page }) => {
     await openAliceChat(page);
-    const saveBtn = page.getByText('Save', { exact: true }).first();
-    if (await saveBtn.count()) {
-      await saveBtn.click();
-      await expect(page.getByText('Saved', { exact: true }).first()).toBeVisible({
-        timeout: 5000,
-      });
-    }
+    const saveBtn = page.getByRole('button', { name: 'Save' }).first();
+    await expect(saveBtn).toBeVisible();
+    const bookmark = saveBtn.locator('svg');
+    // Single-save toggles the bookmark state (fill-current), not a toast.
+    await saveBtn.click();
+    await expect(bookmark).toHaveClass(/fill-current/);
+    // Config again removes it.
+    await saveBtn.click();
+    await expect(bookmark).not.toHaveClass(/fill-current/);
   });
 
   test('avatar opens contact profile modal with actions', async ({ page }) => {

@@ -1,6 +1,12 @@
 import { test, expect, type Page } from '@playwright/test';
 import { gotoSettings, ensureAppReady, openSettingsViaProfile } from './test-utils';
 
+// The first navigation in this file pays Vite's cold dev transform cost (the
+// dev server is considered ready when its TCP port opens, which happens before
+// its module graph / optimize-deps pass has finished). Give the whole file
+// generous headroom so that cold load doesn't trip the default 45s test timeout.
+test.describe.configure({ timeout: 120000 });
+
 /**
  * Settings cycle: one pass through EVERY settings section/toggle/subview.
  *
@@ -20,8 +26,7 @@ type SectionDef = {
 
 const SECTIONS: SectionDef[] = [
   { menu: 'Profile & Accounts', anchor: 'Profile & Accounts' },
-  { menu: 'Theme', anchor: 'Appearance', rows: ['Font size', 'UI Animations'] },
-  { menu: 'Language', anchor: 'Language', rows: ['Русский', 'English'] },
+  { menu: 'Appearance', anchor: 'Appearance', rows: ['Font size', 'UI Animations'] },
   { menu: 'Notifications', anchor: 'Notifications' },
   { menu: 'Security', anchor: 'Security', rows: ['PIN Lock', 'App Lock'] },
   { menu: 'Privacy', anchor: 'Privacy', rows: ['Ghost View Mode', 'Blacklist'] },
@@ -34,7 +39,6 @@ const SECTIONS: SectionDef[] = [
   { menu: 'Mesh Radar', anchor: 'Mesh Radar' },
   { menu: 'Payments & Billing', anchor: 'Payments & Billing' },
   { menu: 'Proxy and Network', anchor: 'Proxy and Network', rows: ['Obfuscation'] },
-  { menu: 'System Status', anchor: 'System Status' },
   { menu: 'Help & Support', anchor: 'Help & Support' },
 ];
 
@@ -56,10 +60,10 @@ test.describe('Settings cycle', () => {
     await gotoSettings(page);
 
     for (const section of SECTIONS) {
-      // 'Notifications' matches the group title too; the row is the last match.
       const menuItem = main(page).getByText(section.menu, { exact: true });
-      // 'Notifications' matches the group title too; the menu row is the last match.
-      const item = section.menu === 'Notifications' ? menuItem.last() : menuItem.first();
+      // When the menu label equals the section title, the group header duplicates it;
+      // the clickable row is the last match.
+      const item = section.menu === section.anchor ? menuItem.last() : menuItem.first();
       await expect(item).toBeVisible();
       await item.click();
 
@@ -91,8 +95,6 @@ test.describe('Settings cycle', () => {
 
   test('theme toggle switches dark -> light -> dark', async ({ page }) => {
     await gotoSettings(page);
-    await main(page).getByText('Theme', { exact: true }).first().click();
-    await expect(main(page).getByText('Appearance', { exact: true }).first()).toBeVisible();
 
     const toLight = page.getByTestId('theme-mode-light');
     await expect(toLight).toBeVisible();
@@ -105,17 +107,16 @@ test.describe('Settings cycle', () => {
 
   test('language switch to Russian and back to English', async ({ page }) => {
     await gotoSettings(page);
-    await main(page).getByText('Language', { exact: true }).first().click();
-    await expect(main(page).getByText('Language', { exact: true }).first()).toBeVisible();
+    await main(page).getByTestId('language-select-toggle').click();
+    await expect(main(page).getByText('English', { exact: true }).first()).toBeVisible();
 
     await main(page).getByText('Русский', { exact: true }).first().click();
     await expect(page.getByRole('button', { name: 'Чаты' }).first()).toBeVisible({ timeout: 5000 });
 
-    // Section stays open; language names are native, so 'English' is stable.
-    await page.getByText('English', { exact: true }).first().click();
+    // Reopen popover; language names are native, so 'English' is stable.
+    await main(page).getByTestId('language-select-toggle').click();
+    await main(page).getByText('English', { exact: true }).first().click();
     await expect(page.getByRole('button', { name: 'Chats' }).first()).toBeVisible({ timeout: 5000 });
-
-    await backToMainMenu(page);
   });
 
   test('sound toggle persists across reload', async ({ page }) => {

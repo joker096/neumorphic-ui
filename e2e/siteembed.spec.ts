@@ -115,6 +115,10 @@ async function createSiteChat(page: Page, name: string) {
 }
 
 test.describe('personal site-chat embed', () => {
+  // Cold-start Vite transform + webServer boot push the first snippet test near
+  // the default 45s; give this suite headroom (isolated run took 45.3s).
+  test.describe.configure({ timeout: 120_000 });
+
   test('creates a site chat and emits a module snippet', async ({ page }) => {
     const assertNoErrors = await trapErrors(page);
     await openSiteEmbed(page);
@@ -136,10 +140,8 @@ test.describe('personal site-chat embed', () => {
       if (theme === 'light') {
         // Switch to light theme via Settings → Theme, then return to the embed section.
         await gotoSettings(page);
-        await page.getByText('Theme').first().click();
         await page.getByTestId('theme-mode-light').click();
         await expect(page.locator('html[data-theme]')).toHaveAttribute('data-theme', 'light');
-        await page.getByLabel('Back').first().click();
         await page.getByRole('button', { name: /Website Embed/ }).click();
         await expect(page.getByPlaceholder('Site chat name')).toBeVisible();
       }
