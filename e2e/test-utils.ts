@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 
 export async function ensureAppReady(page: Page) {
-  await page.goto('/?e2e=1', { waitUntil: 'domcontentloaded' });
+  await page.goto('/?e2e=1', { waitUntil: 'domcontentloaded', timeout: 90_000 });
 
   // Wait for the React app to actually mount. `domcontentloaded` fires on the
   // shell HTML before Vite's cold dev transform has finished serving the JS,

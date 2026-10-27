@@ -4,8 +4,9 @@ import { ensureAppReady, gotoSettings } from './test-utils';
 test.describe('Mess&Anger E2E - Additional Scenarios', () => {
   test('chat search filters messages', async ({ page }) => {
     await ensureAppReady(page);
-    await page.getByRole('button', { name: /chats/i }).click();
-    await page.getByRole('button', { name: 'Search' }).first().click();
+    // The chat-list filter is gone: the single entry point is the app-wide
+    // global search dialog, reachable from the nav rail.
+    await page.getByRole('complementary', { name: 'Navigation sidebar' }).getByRole('button', { name: 'Search' }).click();
     const searchInput = page.getByRole('dialog', { name: 'Search' }).getByPlaceholder(/search/i);
     await searchInput.fill('test');
     await expect(searchInput).toHaveValue('test');

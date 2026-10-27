@@ -31,10 +31,13 @@ interface SettingsNavItemProps {
   className?: string;
 }
 
-export const SettingsNavItem = ({ icon, iconBg, title, subtitle, onClick, rightElement, className = '' }: SettingsNavItemProps) => (
-  <div
+export const SettingsNavItem = ({ icon, iconBg, title, subtitle, onClick, rightElement, className = '' }: SettingsNavItemProps) => {
+  const Tag = onClick ? 'button' : 'div';
+  return (
+  <Tag
+    {...(onClick ? { type: 'button' as const } : {})}
     onClick={onClick}
-    className={`flex items-center gap-3 px-4 py-3 min-h-11 cursor-pointer transition-colors hover:opacity-80 ${className}`}
+    className={`w-full text-left flex items-center gap-3 px-4 py-3 min-h-11 transition-colors hover:opacity-80 ${onClick ? 'cursor-pointer' : ''} ${className}`}
   >
     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg || ''}`}>
       {icon}
@@ -45,8 +48,9 @@ export const SettingsNavItem = ({ icon, iconBg, title, subtitle, onClick, rightE
     </div>
     {rightElement}
     {onClick && !rightElement && <ChevronRight size={16} className="shrink-0 opacity-30 text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]" />}
-  </div>
-);
+  </Tag>
+  );
+};
 
 export const SettingsDivider = () => (
   <div className="border-t border-[var(--border-color)]" />

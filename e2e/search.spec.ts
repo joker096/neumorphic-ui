@@ -8,7 +8,7 @@ import { ensureAppReady } from './test-utils';
 
 async function openGlobalSearch(page: Page) {
   await ensureAppReady(page);
-  await page.getByRole('button', { name: 'Search', exact: true }).click();
+  await page.getByRole('complementary', { name: 'Navigation sidebar' }).getByRole('button', { name: 'Search' }).click();
   const dialog = page.getByRole('dialog', { name: 'Search' });
   await expect(dialog).toBeVisible();
   return dialog;

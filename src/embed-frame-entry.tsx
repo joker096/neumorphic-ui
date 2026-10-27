@@ -173,8 +173,8 @@ function EmbedChatApp() {
       {showPrechat ? (
         <div className="ec-prechat">
           <div className="ec-prechat-title">Как к вам обращаться?</div>
-          <input className="ec-input" placeholder="Имя" value={name} onChange={(e) => setName(e.target.value)} />
-          <input className="ec-input" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className="ec-input" placeholder="Имя" aria-label="Имя" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className="ec-input" placeholder="Email" aria-label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           <button className="ec-btn" onClick={submitPrechat}>Начать чат</button>
         </div>
       ) : (
@@ -191,6 +191,7 @@ function EmbedChatApp() {
             <input
               className="ec-input"
               placeholder="Напишите сообщение..."
+              aria-label="Напишите сообщение..."
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send() } }}

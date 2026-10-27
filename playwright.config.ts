@@ -15,7 +15,10 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  timeout: 45_000,
+  // 90s: the very first navigation of a run races Vite's cold dependency
+  // transform (which can exceed the 45s default on a cold cache), while every
+  // later test reuses the warm dev server and finishes far sooner.
+  timeout: 90_000,
   expect: { timeout: 10_000 },
   outputDir: './test-results',
   use: {

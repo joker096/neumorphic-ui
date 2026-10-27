@@ -6,6 +6,10 @@ import { gotoSettings } from './test-utils';
  * security (PIN + wipe dialog), privacy, network, storage sections.
  */
 
+// The first navigation of the file races Vite's cold dev transform: give the
+// file enough budget for that single slow load (later tests reuse the server).
+test.describe.configure({ timeout: 120_000 });
+
 async function openSettingsItem(page: Page, title: string) {
   await page.getByText(title, { exact: true }).first().click();
 }
@@ -18,10 +22,7 @@ test.describe('Settings', () => {
       'Bots',
       'Call settings',
       'Mesh Radar',
-      'Theme',
-      'Language',
       'Notifications',
-      'Sound',
       'Local data snapshot',
       'Security',
       'Privacy',
@@ -31,6 +32,9 @@ test.describe('Settings', () => {
     ]) {
       await expect(page.getByText(text).first()).toBeVisible();
     }
+    // Theme, language and DND live in the quick-controls card, not as rows.
+    await expect(page.getByTestId('theme-mode-light')).toBeVisible();
+    await expect(page.getByTestId('language-select-toggle')).toBeVisible();
   });
 
   test('settings search filters sections', async ({ page }) => {
@@ -53,7 +57,7 @@ test.describe('Settings', () => {
 
   test('appearance: font size cycles Small -> Medium -> Large', async ({ page }) => {
     await gotoSettings(page);
-    await page.getByText('Appearance').last().click();
+    await page.getByRole('button', { name: /Appearance/ }).last().click();
     const fontRow = page.getByText('Font size').first();
     await expect(fontRow).toBeVisible();
     // Default is Medium from app defaults; clicking cycles

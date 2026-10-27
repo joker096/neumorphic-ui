@@ -32,7 +32,7 @@ export function WidgetPreview({ name, config, t }: { name: string; config: Perso
           )}
         </div>
         <div className="ew-composer">
-          <input className="ew-input" placeholder={t('chat.typeMessage', 'Type a message…')} readOnly tabIndex={-1} />
+          <input className="ew-input" placeholder={t('chat.typeMessage', 'Type a message…')} aria-label={t('chat.typeMessage', 'Type a message…')} readOnly tabIndex={-1} />
           <span className="ew-send" style={{ backgroundColor: config.accent }} aria-hidden="true"><Send size={16} /></span>
         </div>
         {!config.hideBrand && <div className="ew-footer">Powered by <b>Mess&Anger</b></div>}
