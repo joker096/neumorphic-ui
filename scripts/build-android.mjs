@@ -198,9 +198,10 @@ function patchGradleDeps() {
   const appGradlePath = path.join(ANDROID_DIR, 'app', 'build.gradle');
   let appGradle = fs.readFileSync(appGradlePath, 'utf-8');
   appGradle = appGradle
-    // 2.7.3 declares minSdkVersion 23 and fixes deprecated Window bar-color APIs
+    // 2.7.3 declares minSdkVersion 23 and fixes deprecated Window bar-color APIs;
+    // Play requires minSdk >= 24 for automatic protection, so we force 24.
     .replace(/com\.google\.androidbrowserhelper:androidbrowserhelper:\d+\.\d+\.\d+/, 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.3')
-    .replace(/\bminSdkVersion \d+/, 'minSdkVersion 23')
+    .replace(/\bminSdkVersion \d+/, 'minSdkVersion 24')
     // AGP 9 gates resValue behind an opt-in build feature
     .replace(/(\bcompileOptions\s*\{)/, 'buildFeatures {\n            resValues = true\n        }\n    $1')
     // Gradle 9 deprecates the Groovy space-assignment syntax (removed in 10)
@@ -213,7 +214,7 @@ function patchGradleDeps() {
   wrapper = wrapper.replace(/gradle-\d+\.\d+(?:\.\d+)?-bin\.zip/, 'gradle-9.1.0-bin.zip');
   fs.writeFileSync(wrapperPath, wrapper);
 
-  log.info('Gradle deps patched (AGP 9.0.1, browserhelper 2.7.3, minSdk 23, resValues, wrapper 9.1.0)');
+  log.info('Gradle deps patched (AGP 9.0.1, browserhelper 2.7.3, minSdk 24, resValues, wrapper 9.1.0)');
 }
 
 // Recursive glob for a single file name (used to find the cached browserhelper AAR).

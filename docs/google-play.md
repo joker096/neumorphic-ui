@@ -16,7 +16,7 @@ Artifacts, store listing, Data Safety answers, rating guidance, and the upload r
 | App icon | `public/icons/pwa-512x512.png` | 512×512 PNG, no alpha in corners |
 | Feature graphic | `android/feature-graphic.png` (gen: `node scripts/generate-feature-graphic.mjs`) | 1024×500 PNG, < 1 MB |
 | Phone screenshots | `android/screenshots/phone-1-chat-list.png`, `phone-2-conversation.png`, `phone-3-contacts.png`, `phone-4-calls.png` (gen: `node scripts/phone-screenshots.mjs`) | 1080×1920 (9:16) PNG, each < 1 MB |
-| AAB | `app-release-bundle.aab` | versionCode 4, minSdk 21, targetSdk 36 |
+| AAB | `app-release-bundle.aab` | versionCode 4, minSdk 24, targetSdk 36 |
 
 Regenerate screenshots after any UI change: `node scripts/phone-screenshots.mjs`
 (vite boots on port 5199 with `VITE_USE_MOCK=true`; no state left behind).
