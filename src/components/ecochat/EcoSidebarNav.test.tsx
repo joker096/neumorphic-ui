@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { EcoSidebarNav } from "./EcoSidebarNav";
+import { useUiStore } from "../../store/uiStore";
 
 const state = vi.hoisted(() => ({
   userProfile: {
@@ -206,5 +207,12 @@ describe("EcoSidebarNav", () => {
   it("keeps the indicator non-relayed for direct transport", () => {
     render(<EcoSidebarNav activeView="chats" connectionStatus="connected" t={t} />);
     expect(screen.getByTestId("transport-indicator")).not.toHaveTextContent("relayed");
+  });
+
+  it("opens the app-wide global search from the Search button", () => {
+    useUiStore.setState({ globalSearchOpen: false });
+    render(<EcoSidebarNav activeView="chats" t={t} />);
+    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+    expect(useUiStore.getState().globalSearchOpen).toBe(true);
   });
 });

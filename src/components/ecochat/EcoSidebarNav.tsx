@@ -1,6 +1,8 @@
 import type { NavItem } from "../../config/navigation";
 import { NAV_ITEMS, isCompanyAdmin } from "../../config/navigation";
+import { Search } from "lucide-react";
 import { useAppStore } from "../../store";
+import { useUiStore } from "../../store/uiStore";
 import { AppIcon } from "../ui/AppIcon";
 import { TransportIndicator } from "../status/TransportIndicator";
 
@@ -44,6 +46,7 @@ export const EcoSidebarNav = ({
   const footerStatusRing = isDark ? "#070a0f" : "#ffffff";
 
   const handleProfileClick = () => onNavigate?.("settings");
+  const setGlobalSearchOpen = useUiStore((s) => s.setGlobalSearchOpen);
 
   return (
     <aside
@@ -104,6 +107,15 @@ export const EcoSidebarNav = ({
             </button>
           );
         })}
+        <button
+          type="button"
+          aria-label={effectiveT("search.title", "Search")}
+          title={effectiveT("search.title", "Search")}
+          onClick={() => setGlobalSearchOpen(true)}
+          className={`relative w-full flex flex-col items-center justify-center gap-1 min-h-12 rounded-xl py-2 px-1 transition-all duration-200 active:scale-[0.94] cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] ${hoverBg}`}
+        >
+          <Search size={20} />
+        </button>
       </nav>
 
       {/* Footer - Status + Profile */}
