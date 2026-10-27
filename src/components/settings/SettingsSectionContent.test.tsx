@@ -87,8 +87,8 @@ vi.mock('./CompanySettingsView', () => ({
 vi.mock('./AppearanceSettings', () => ({
   AppearanceSettings: () => <div data-testid="section-appearance" />,
 }));
-vi.mock('./LanguageSection', () => ({
-  LanguageSection: () => <div data-testid="section-language" />,
+vi.mock('./personalSiteChatView', () => ({
+  PersonalSiteChatView: () => <div data-testid="section-siteembed" />,
 }));
 vi.mock('./PrivacySection', () => ({
   PrivacySection: () => <div data-testid="section-privacy" />,
@@ -155,7 +155,7 @@ describe('SettingsSectionContent', () => {
     ['main', 'section-main'],
     ['profile', 'section-profile'],
     ['appearance', 'section-appearance'],
-    ['language', 'section-language'],
+    ['siteembed', 'section-siteembed'],
     ['security', 'section-security'],
     ['devices', 'section-devices'],
     ['privacy', 'section-privacy'],

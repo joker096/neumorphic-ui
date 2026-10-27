@@ -1,10 +1,8 @@
 import { Suspense } from 'react';
-import { ChevronLeft } from 'lucide-react';
 import { CompanySettingsView } from './CompanySettingsView';
-import { PersonalSiteChatManager } from '../company/PersonalSiteChatManager';
 import { AnimatePresence } from 'motion/react';
 import { AppearanceSettings } from './AppearanceSettings';
-import { LanguageSection } from './LanguageSection';
+import { PersonalSiteChatView } from './personalSiteChatView';
 import { PrivacySection } from './PrivacySection';
 import { ProfileSection } from './ProfileSection';
 import { SettingsMainMenu } from './SettingsMainMenu';
@@ -158,17 +156,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
     />
   );
 
-  const renderLanguageSettings = () => (
-    <LanguageSection
-      isDark={isDark}
-      language={language}
-      setLanguage={setLanguage}
-      setLang={setLang}
-      onBack={() => setActiveSection('main')}
-      t={t}
-    />
-  );
-
   const renderProfileSettings = () => (
     <ProfileSection
       isDark={isDark}
@@ -265,23 +252,11 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
   );
 
   const renderPersonalSiteChatSettings = () => (
-    <div className="w-full max-w-[500px] flex flex-col p-5 mb-8 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8">
-      <div className="w-full shrink-0 mb-4 flex items-center gap-3">
-        <button
-          onClick={() => setActiveSection('main')}
-          aria-label={t('common.back')}
-          className={"min-w-11 min-h-11 rounded-full flex items-center justify-center transition-all duration-200 bg-[var(--bg-primary)] hover:bg-white text-[var(--text-secondary)] shadow-sm dark:bg-[var(--bg-tertiary)] dark:hover:bg-[var(--hover-bg-dark)] dark:shadow-none"}
-        >
-          <ChevronLeft size={16} />
-        </button>
-        <div className="flex-1">
-          <div className="text-lg font-bold text-[var(--text-primary)]">{t('settings.siteEmbed', 'Website Embed')}</div>
-        </div>
-      </div>
-      <div className="overflow-x-hidden pr-1 flex flex-col gap-4">
-        <PersonalSiteChatManager onOpenPremium={() => setActiveSection('premium')} />
-      </div>
-    </div>
+    <PersonalSiteChatView
+      onBack={() => setActiveSection('main')}
+      onOpenPremium={() => setActiveSection('premium')}
+      t={t}
+    />
   );
 
   const renderCompanyGuideSettings = () => (
@@ -299,7 +274,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       {activeSection === 'main' && renderMainSettings()}
       {activeSection === 'profile' && renderProfileSettings()}
       {activeSection === 'appearance' && renderAppearanceSettings()}
-      {activeSection === 'language' && renderLanguageSettings()}
       {activeSection === 'security' && <Suspense fallback={fallback}>{renderSecuritySettings()}</Suspense>}
       {activeSection === 'devices' && <Suspense fallback={fallback}><DevicesSection onBack={() => setActiveSection('main')} t={t} /></Suspense>}
       {activeSection === 'privacy' && renderPrivacySettings()}

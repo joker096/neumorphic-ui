@@ -6,17 +6,9 @@ import { StoryHeader } from './StoryHeader';
 import { StoryFooter } from './StoryFooter';
 import { useI18n } from '../../../lib/i18n';
 import { formatRelativeTime } from '../../../utils/relativeTime';
+import { DRAG_FOLLOW_X, DRAG_FOLLOW_Y, useStoryGestures } from './storyGestures';
 
 const TICK = 80;
-/** Minimum travel (px) for a swipe to count as navigation. */
-const SWIPE_MIN = 70;
-/** Downward travel (px) that dismisses the viewer — Telegram drag-to-close. */
-const DISMISS_MIN = 90;
-/** Travel (px) after which a gesture stops counting as a tap. */
-const TAP_SLOP = 10;
-/** The card follows the finger at a fraction of the travel (0.25 vertical, 0.35 horizontal). */
-const DRAG_FOLLOW_Y = 0.45;
-const DRAG_FOLLOW_X = 0.25;
 
 /** Full-screen story viewer (9:16 card, modal). */
 export function StoryViewer() {
@@ -40,15 +32,17 @@ export function StoryViewer() {
   const { t } = useI18n();
 
   const [elapsed, setElapsed] = useState(0);
-  const [holding, setHolding] = useState(false);
-  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const gesture = useRef<{ x: number; y: number } | null>(null);
-  /** True while the current gesture has already travelled past a tap. */
-  const swiped = useRef(false);
-  const [drag, setDrag] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
   const durations = useRef<Record<string, number>>({});
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const { drag, dragging, holding, rootHandlers } = useStoryGestures({
+    pause,
+    resume,
+    closeViewer,
+    next,
+    prev,
+    nextAuthor,
+  });
 
   useEffect(() => {
     if (authors.length === 0 && !loading) void init();
@@ -114,94 +108,7 @@ export function StoryViewer() {
     };
   }, [author, paused, next, prev, nextAuthor, resume, pause, closeViewer]);
 
-  const beginHold = () => {
-    if (holdTimer.current) clearTimeout(holdTimer.current);
-    holdTimer.current = setTimeout(() => {
-      pause();
-      setHolding(true);
-    }, 200);
-  };
-  const endHold = () => {
-    if (holdTimer.current) clearTimeout(holdTimer.current);
-    holdTimer.current = null;
-    if (holding) {
-      setHolding(false);
-      resume();
-    }
-  };
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    if (!touch) return;
-    gesture.current = { x: touch.clientX, y: touch.clientY };
-    swiped.current = false;
-    setDragging(true);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    const start = gesture.current;
-    const touch = e.touches[0];
-    if (!start || !touch) return;
-    const dx = touch.clientX - start.x;
-    const dy = touch.clientY - start.y;
-    if (!swiped.current && Math.hypot(dx, dy) > TAP_SLOP) {
-      swiped.current = true;
-      // A drag is not a press-and-hold: drop the pause timer so a swipe
-      // cannot leave the story frozen.
-      if (holdTimer.current) {
-        clearTimeout(holdTimer.current);
-        holdTimer.current = null;
-      }
-      if (holding) {
-        setHolding(false);
-        resume();
-      }
-    }
-    setDrag({ x: dx, y: dy });
-  };
-
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const start = gesture.current;
-    gesture.current = null;
-    setDragging(false);
-    const touch = e.changedTouches[0];
-    if (!start || !touch) {
-      setDrag({ x: 0, y: 0 });
-      return;
-    }
-    const dx = touch.clientX - start.x;
-    const dy = touch.clientY - start.y;
-    const ax = Math.abs(dx);
-    const ay = Math.abs(dy);
-    // Telegram: a downward drag dismisses the viewer (the card leaves in the
-    // swipe direction), an upward swipe goes to the next author. Down never
-    // jumps back to the previous author.
-    if (dy > 0 && ay > ax && ay > DISMISS_MIN) {
-      setDrag({ x: 0, y: dy });
-      closeViewer();
-      return;
-    }
-    setDrag({ x: 0, y: 0 });
-    if (ay > SWIPE_MIN && ay > ax) {
-      if (dy < 0) nextAuthor();
-      return;
-    }
-    if (ax > SWIPE_MIN && ax > ay) {
-      if (dx < 0) next();
-      else prev();
-    }
-  };
-
-  /**
-   * A completed swipe must not also fire the tap-zone click underneath the
-   * finger (that would advance the story right after the gesture).
-   */
-  const swallowClickAfterSwipe = (e: React.MouseEvent) => {
-    if (!swiped.current) return;
-    swiped.current = false;
-    e.stopPropagation();
-    e.preventDefault();
-  };
+  if (!author || !story || storyIdx === null) return null;
 
   if (!author || !story || storyIdx === null) return null;
 
@@ -220,15 +127,7 @@ export function StoryViewer() {
       aria-modal="true"
       aria-label={author.name}
       onClick={closeViewer}
-      onClickCapture={swallowClickAfterSwipe}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-      onTouchCancel={onTouchEnd}
-      onPointerDown={beginHold}
-      onPointerUp={endHold}
-      onPointerCancel={endHold}
-      onPointerLeave={endHold}
+      {...rootHandlers}
     >
       <div
         ref={cardRef}

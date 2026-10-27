@@ -1,7 +1,7 @@
-import React, { Suspense, lazy } from "react";
+import React from "react";
 import { AppMainContent } from "./AppMainContent";
 import { AppShellDesktop } from "./AppShellDesktop";
-import { BottomNav } from "../navigation";
+import { ShellGlobalSearch, ShellMobileNav } from "./AppShellChrome";
 import { OfflineBanner } from "../status/OfflineBanner";
 import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
@@ -9,8 +9,6 @@ import { useChatListData } from "../../hooks/useChatListData";
 import { useAppBadge } from "../../hooks/useAppBadge";
 import { useGlobalSearchShortcut } from "../../hooks/useGlobalSearchShortcut";
 import { useUiStore } from "../../store/uiStore";
-
-const GlobalSearchLazy = lazy(() => import("../GlobalSearch").then((m) => ({ default: m.GlobalSearch })));
 
 export interface AppShellProps {
   theme: "light" | "dark";
@@ -263,34 +261,30 @@ function AppShellImpl({
       </div>
 
       {isMobile && (
-        <footer aria-label={t("a11y.navMobile")} className="fixed bottom-0 left-0 right-0 z-50">
-          <BottomNav
-            activeView={view}
-            isDark={isDark}
-            unreadCount={chatsUnread}
-            companyUnreadCount={companyUnread}
-            onNavigate={handleNavigate}
-            t={t}
-            hideCompany={hideWhenOfficeOnly}
-            connectionStatus={connectionStatus}
-            connectionError={connectionError}
-          />
-        </footer>
+        <ShellMobileNav
+          view={view}
+          isDark={isDark}
+          chatsUnread={chatsUnread}
+          companyUnread={companyUnread}
+          hideWhenOfficeOnly={hideWhenOfficeOnly}
+          connectionStatus={connectionStatus}
+          connectionError={connectionError}
+          onNavigate={handleNavigate}
+          t={t}
+        />
       )}
 
       {globalSearchOpen && (
-        <Suspense fallback={null}>
-          <GlobalSearchLazy
-            isDark={isDark}
-            chats={chats}
-            channels={filteredChannels}
-            contacts={contacts}
-            onClose={() => setGlobalSearchOpen(false)}
-            onOpenChat={onOpenChat}
-            onOpenContact={setGlobalSelectedContact}
-            t={t}
-          />
-        </Suspense>
+        <ShellGlobalSearch
+          isDark={isDark}
+          chats={chats}
+          channels={filteredChannels}
+          contacts={contacts}
+          onClose={() => setGlobalSearchOpen(false)}
+          onOpenChat={onOpenChat}
+          onOpenContact={setGlobalSelectedContact}
+          t={t}
+        />
       )}
     </div>
   );
