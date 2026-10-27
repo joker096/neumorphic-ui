@@ -171,31 +171,34 @@ User A ←→ Relay Node ←→ User B
 
 ## Stories Feature
 
-Ephemeral status posts (Telegram-style): gradient / photo / video. Single-user **mock** — no backend, no P2P distribution.
+Ephemeral status posts (Telegram-style): photo / video, 24 h lifetime. Single-user **mock** — no backend, no P2P distribution.
 
 ```
-StoryComposer (modal)
-  ├─ file input (accept="image/*,video/*") → object URL preview + remove
-  └─ publishMyStory(bg, caption, audience, expiration, image?, video?)
-        → unshift into MY_STORY_USER.stories (type derived: video > photo > gradient)
-        → saveMyStories()                     ← localStorage 'nm_stories_v1'
+src/features/stories
+  ├─ api.ts           fetchStories() → 5 mock authors; filterVisibleAuthors() drops >24h
+  ├─ placeholder.ts   storyImage(seed,{width,height,label}) → data:image/svg+xml (CSP-safe)
+  └─ storiesStore     zustand: openViewer / closeViewer / next / prev
+                      nextAuthor / prevAuthor / pause / resume / toggleMute
+                      markViewed / toggleLike / publishMyStory({media,caption})
 
-StoryViewer / StoryContent
-  ├─ renders: gradient │ <img> │ <video> (muted, loop, playsInline)
-  ├─ expiry: isStoryExpired() hides expired stories
-  └─ deleteMyStory(id) → splice + saveMyStories()
+ChatListHeader (chats view)
+  └─ StoriesStrip  ← the ONLY story surface, above FolderFilterBar / sort row
+       ├─ compose tile (onComposeStory) → StoryComposer
+       └─ per author: StoryRing + avatar + name → openViewer(author.id)
 
-chat-preview/AvatarRow (tray)
-  ├─ getVisibleStories(user) → only non-expired
-  ├─ lists STORY_USERS + MY_STORY_USER (when it has visible stories)
-  └─ onStoryClick → opens StoryViewer with the matching user id
+StoryViewer (mounted in AppLayout as LazyStoryViewer)
+  ├─ renders <img> | <video muted loop playsInline>
+  ├─ taps: left 1/3 → prev, right 2/3 → next
+  ├─ swipes: up → nextAuthor, down → prevAuthor (close on first), horizontal → next/prev
+  ├─ keys: Esc close, Space pause, ←/→ prev/next
+  └─ markViewed after 300 ms
 ```
 
-State: in-memory `STORY_USERS` (seed) + `MY_STORY_USER`; my stories are hydrated from / persisted to `localStorage` (`nm_stories_v1`). Media (`blob:` URLs) is session-only — stripped on persist and degrades to gradient/text after reload.
+State: in-memory only (`storiesStore`), seeded by `fetchStories()`. Mock imagery is generated locally as `data:` SVG — no remote hosts, so the strict `img-src 'self' data: blob:` CSP stays as-is.
 
-Key files: `src/components/stories/storiesData.ts` (model + persistence), `StoryComposer.tsx`, `StoryContent.tsx`, `StoryViewer.tsx`, `src/components/chat-preview/AvatarRow.tsx`.
+Key files: `src/features/stories/{types,api,storiesStore,placeholder}.ts`, `components/{StoriesStrip,StoryRing,StoryProgressBar,StoryHeader,StoryFooter,StoryViewer}.tsx`.
 
-> Flagged: `audience` is stored but **not enforced** (single-user mock, no viewer identity). Reactions/views, story replies, and P2P sync are backend-dependent and out of scope.
+> Flagged: stories are mock-only — no backend, no P2P distribution, no reply delivery. The demo video uses the MDN CC0 sample.
 
 ## Known Limitations
 

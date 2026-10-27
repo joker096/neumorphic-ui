@@ -5,7 +5,7 @@
 - **Elements:**
   - `ChatListSearchHeader` — поиск (фильтр списка), create-channel/create-bot FAB
   - Folder tabs: All / Personal / Work / Channels / Bots / Archived (`useFilteredChats.ts`, `activeFolder`)
-  - `AvatarRow` (stories) при `view=chats|stories`
+  - `StoriesStrip` (stories) над фильтрами папок при `view=chats`
   - `ListItem` строки чата: avatar, title, preview, time, unread badge, mute/pin/verified icons
   - Pinned section, Archive entry
 - **States:** loading (lazy) / loaded / empty / error / offline (banner) / partial

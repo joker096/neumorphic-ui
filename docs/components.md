@@ -35,7 +35,7 @@
 | `ContactsView` | §5.7 | `ContactsView.tsx` |
 | `CallLogView` / Call UI | §5.8 | `call/*`, `FloatingCallWidget.tsx` |
 | `MediaViewer` | §5.11 | `MediaViewer.tsx` |
-| `Stories` | §5.9 | `stories/*`, `AvatarRow.tsx` |
+| `Stories` | §5.9 | `features/stories/*` |
 | `SettingsView` | §5.10 | `SettingsView.tsx` + `settings/*` |
 | `LiveVoiceRecorder` | §5.4 | `LiveVoiceRecorder.tsx` |
 | `SystemPulsePlayer` | §4.1 | `SystemPulsePlayer/*` |

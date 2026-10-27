@@ -18,7 +18,7 @@
 | `settings` | Настройки | ✅ | `SettingsView.tsx` |
 | `profile` | Профиль пользователя | ✅ | `ProfileView.tsx` |
 | `contacts` | Контакты | ✅ | `ContactsView.tsx` |
-| `stories` | Сторис (лента) | ✅ | `stories/*`, `AvatarRow` |
+| `stories` | Сторис (лента) | ✅ | `features/stories/*` |
 | `recordings` | Записи звонков | ✅ | `recordings/*`, `RecordingsScreen.tsx` |
 | `company` | Компания / B2B контакты | ✅ | `CompanyContactsView.tsx` |
 
