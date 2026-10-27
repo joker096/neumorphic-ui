@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Мессенджер — демо встраиваемого чата</title>
+  <style>
+    :root { --demo-accent: #2563eb; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #e6eceb; background: #0d1112;
+      display: flex; flex-direction: column;
+    }
+    header {
+      padding: 20px 28px; background: #121718;
+      border-bottom: 1px solid #232a2b;
+    }
+    header h1 { margin: 0; font-size: 20px; color: #f4f7f6; }
+    header p { margin: 4px 0 0; color: #aab2b2; font-size: 13px; }
+    main { flex: 1; padding: 32px 28px; max-width: 860px; width: 100%; margin: 0 auto; }
+    .card {
+      background: #171c1d; border: 1px solid #232a2b;
+      border-radius: 16px; padding: 20px 22px; margin-bottom: 16px;
+    }
+    .card h2 { margin: 0 0 8px; font-size: 15px; color: #f4f7f6; }
+    .card p { margin: 0 0 10px; color: #aab2b2; font-size: 14px; line-height: 1.5; }
+    code {
+      background: #0d1112; border: 1px solid #232a2b;
+      border-radius: 6px; padding: 1px 6px;
+      font-size: 13px; color: #7dd3fc;
+    }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .controls button {
+      background: #232a2b; color: #f4f7f6;
+      border: 1px solid #2e3738; border-radius: 10px;
+      padding: 8px 14px; font-size: 13px; cursor: pointer;
+      min-height: 44px; transition: filter .15s;
+    }
+    .controls button:hover { filter: brightness(1.15); }
+    .controls button.primary { background: var(--demo-accent); border-color: transparent; }
+    footer { padding: 16px 28px; color: #737d7e; font-size: 12px; border-top: 1px solid #232a2b; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Встраиваемый чат мессенджера</h1>
+    <p>Демо виджета. Нажмите кнопку справа внизу, чтобы открыть чат.</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Кнопки управления виджетом</h2>
+      <p>Виджет загружается из <code>widget.js</code> и монтируется в <code>#mm-root</code>.</p>
+      <div class="controls">
+        <button class="primary" onclick="window.MyMessengerChat?.open()">Открыть</button>
+        <button onclick="window.MyMessengerChat?.close()">Закрыть</button>
+        <button onclick="window.MyMessengerChat?.toggle()">Переключить</button>
+        <button onclick="window.MyMessengerChat?.setVisitor({email:'demo@example.com', name:'Демо'})">Задать посетителя</button>
+        <button onclick="window.MyMessengerChat?.sendMessage('Привет! Это тестовое сообщение.')">Отправить сообщение</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Что реализовано</h2>
+      <p>Обращение к REST-API (<code>/api/v1/embed</code>): конфиг виджета, сессия посетителя, диалог, история сообщений, отправка, индикатор набора, оценка, загрузка файлов (белый список MIME, до 10 МБ).</p>
+      <p>Полная поддержка темы (акцентный цвет), локали, prechat-формы и офлайн-формы из настроек виджета.</p>
+      <p>Если за виджетом не закреплён «живой» оператор — сообщения сохраняются в БД и появятся вам в панели оператора.</p>
+    </div>
+
+    <div class="card">
+      <h2>Пример сниппета</h2>
+      <pre style="background:#0d1112;border:1px solid #232a2b;border-radius:10px;padding:14px;overflow:auto;font-size:12px;color:#aab2b2;"><code>&lt;script src="/widget.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  window.MyMessengerChat?.init({ widgetId: "demo" });
+&lt;/script&gt;</code></pre>
+    </div>
+  </main>
+
+  <footer>F:\AISTUDIO\neumorphic-ui · embed widget demo</footer>
+
+  <!-- Виджет: снеппет из public/widget.js, встраиваемый на любой сайт -->
+  <script src="/widget.js"></script>
+  <script>
+    // widgetId берётся из query-параметра ?widgetId=, по умолчанию — "demo"
+    const params = new URLSearchParams(window.location.search);
+    window.MyMessengerChat?.init({ widgetId: params.get("widgetId") || "demo" });
+  </script>
+</body>
+</html>

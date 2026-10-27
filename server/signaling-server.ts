@@ -19,6 +19,7 @@ import { handleStatsRoute } from './routes/stats.js'
 import { handleAdsRoute } from './routes/ads.js'
 import { handlePaymentoRoute } from './routes/paymento.js'
 import { handleIntegrationsRoute } from './routes/integrations.js'
+import { handleEmbedRoute, registeredEmbedRealtime } from './embed.js'
 import { applyCSP } from './csp.js'
 import { resolveClientIp } from './middleware/clientIp.js'
 import { allowConnection, allowPeerLookup } from './middleware/connectionLimit.js'
@@ -158,6 +159,18 @@ function isWsOriginAllowed(req: any): boolean {
 
 const server = createServer()
 const wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 })
+
+// Embed chat realtime bridge: server-side publish to a topic room (used by the
+// embed REST handler to fan out operator/widget messages without a client socket).
+function publishToTopic(topic: string, frame: object): void {
+  const subscribers = rooms.get(topic)
+  if (!subscribers) return
+  const envelope = JSON.stringify({ type: 'publish', topic, from: 'server', data: frame })
+  for (const peer of subscribers) {
+    if (peer.readyState === WebSocket.OPEN) peer.send(envelope)
+  }
+}
+registeredEmbedRealtime.publishToTopic = publishToTopic
 
 wss.on('connection', (ws, req) => {
   const ip = getClientIp(ws)
@@ -740,13 +753,30 @@ const restServer = createServer((req, res) => {
     // Try serving admin static files first
     if (serveAdminFile(res, req, path)) return
 
+    // Static uploads (embed attachments)
+    if (path.startsWith('/uploads/') && req.method === 'GET') {
+      const name = path.slice('/uploads/'.length)
+      if (!name || name.includes('..') || name.includes('/') || name.includes('\\')) {
+        res.writeHead(400); res.end(JSON.stringify({ error: 'Bad request' })); return
+      }
+      const upDir = join(process.cwd(), 'data', 'uploads')
+      const file = join(upDir, name)
+      if (!file.startsWith(upDir) || !existsSync(file) || statSync(file).isDirectory()) {
+        res.writeHead(404); res.end(JSON.stringify({ error: 'Not found' })); return
+      }
+      res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'public, max-age=3600' })
+      res.end(readFileSync(file))
+      return
+    }
+
     // Handle API routes
     const handled =
       handleAuthRoute(req, res, path) ||
       handleStatsRoute(req, res, path) ||
       handleAdsRoute(req, res, path) ||
       handlePaymentoRoute(req, res, path) ||
-      handleIntegrationsRoute(req, res, path)
+      handleIntegrationsRoute(req, res, path) ||
+      handleEmbedRoute(req, res, path)
 
     if (!handled) {
       res.writeHead(404)

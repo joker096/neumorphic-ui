@@ -12,6 +12,7 @@
     "users": "Users",
     "devices": "Devices",
     "ads": "Ads",
+    "embedChats": "Website chats",
     "settings": "Settings",
     "logout": "Logout"
   },
@@ -91,6 +92,29 @@
     "noAds": "No ads created yet",
     "impressions": "impressions",
     "clicks": "clicks"
+  },
+  "embedChats": {
+    "title": "Website chats",
+    "filter": {
+      "all": "All",
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "visitor": "Visitor",
+    "open": "Open",
+    "closed": "Closed",
+    "messages": "messages",
+    "started": "started",
+    "rating": "Rating",
+    "noConversations": "No conversations yet",
+    "selectConversation": "Select a conversation",
+    "noMessages": "No messages in this conversation",
+    "reply": "Reply as operator",
+    "replyPlaceholder": "Type a reply…",
+    "send": "Send",
+    "sending": "Sending…",
+    "closeConversation": "Close",
+    "reopenConversation": "Reopen"
   },
   "settings": {
     "title": "Settings",

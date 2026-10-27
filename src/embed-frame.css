@@ -1,0 +1,85 @@
+/* Embed widget iframe app styles — fully scoped to the frame document (the
+ * host page never sees these, and these never touch host styles). */
+
+.ec-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: #fff;
+  color: #111827;
+}
+
+.ec-header {
+  padding: 14px 16px;
+  background: var(--ec-accent);
+  color: #fff;
+}
+
+.ec-title { font-weight: 600; font-size: 15px; }
+.ec-subtitle { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+
+.ec-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f9fafb;
+}
+
+.ec-msg {
+  max-width: 78%;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.ec-msg-own { align-self: flex-end; background: var(--ec-accent); color: #fff; }
+.ec-msg-other { align-self: flex-start; background: #fff; border: 1px solid #e5e7eb; }
+
+.ec-composer {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.ec-input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-height: 44px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.ec-btn {
+  border: none;
+  background: var(--ec-accent);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0 18px;
+  cursor: pointer;
+  font-size: 15px;
+  min-height: 44px;
+}
+
+.ec-btn:disabled { opacity: 0.5; cursor: default; }
+
+.ec-error { color: #dc2626; font-size: 13px; text-align: center; padding: 8px; }
+
+.ec-prechat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 16px;
+  background: #f9fafb;
+}
+.ec-prechat-title { font-weight: 600; margin-bottom: 4px; }

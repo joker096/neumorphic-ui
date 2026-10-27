@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Send, X, MessageSquare } from 'lucide-react';
 import { RelayClient } from '../../lib/company/relayClient';
 import type { RelayStatus } from '../../lib/company/relaySocket';
 import {
@@ -13,14 +12,8 @@ import { parseEmbedToken, type EmbedConfig } from '../../lib/embed/token';
 import { b64encode } from '../../lib/crypto/cryptoCore';
 import { useI18n, I18nProvider } from '../../lib/i18n';
 import type { X25519KeyPair } from '../../lib/crypto/types';
-import { EmbedContactForm, type WidgetContact } from './EmbedContactForm';
-
-interface WidgetMessage {
-  id: string;
-  text: string;
-  own: boolean;
-  ts: number;
-}
+import { type WidgetContact } from './EmbedContactForm';
+import { EmbedPanel, type WidgetMessage } from './embedPanel';
 
 let guestIdentity: X25519KeyPair | null = null;
 function getGuest(): X25519KeyPair {
@@ -38,36 +31,12 @@ function prefillKey(channelId: string): string {
   return `messanger_prefill_${channelId}`;
 }
 
-const URL_RE = /(https?:\/\/[^\s]+)/g;
-/** Render message text, turning bare links into real <a> anchors (new tab). */
-function autolink(text: string): ReactNode {
-  const parts = text.split(URL_RE);
-  if (parts.length === 1) return text;
-  return parts.map((part, i) =>
-    URL_RE.test(part) ? (
-      <a
-        key={i}
-        href={part}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="ew-link"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {part}
-      </a>
-    ) : (
-      part
-    ),
-  );
-}
-
 type EmbedWidgetProps = {
   token: string;
   theme?: 'light' | 'dark';
 };
 
 const DEFAULT_ACCENT = '#6C5CE7';
-const BRAND = 'Mess&Anger';
 
 export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const { t } = useI18n();
@@ -251,7 +220,6 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const greeting = cfgRef.current?.config?.greeting;
   const hideBrand = cfgRef.current?.config?.hideBrand ?? false;
   const title = cfgRef.current?.config?.title || cfgRef.current?.label || t('embed.chat');
-  const isDark = theme === 'dark';
   const showContactForm = collectContact && !contactSent && open;
   // Relay down / still handshaking → show the note, keep the composer usable so
   // the visitor can prepare a message instead of writing into a black hole.
@@ -264,115 +232,35 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
         : null;
 
   return (
-    <div
-      data-ew-theme={isDark ? 'dark' : 'light'}
-      data-ew-pos={position}
-      className={`ew-root ${position === 'bottom-left' ? 'ew-bot-left' : 'ew-bot-right'}`}
-      style={{ '--ew-accent': accent } as CSSProperties}
-    >
-      {open && (
-        <div className="ew-panel" ref={panelRef}>
-          <div
-            className="ew-header"
-            style={{ backgroundColor: accent, color: '#ffffff' }}
-          >
-            <div className="ew-header-left">
-              <div className="ew-header-avatar">
-                {title.charAt(0).toUpperCase()}
-              </div>
-              <span className="ew-header-title">{title}</span>
-              {relayStatus === 'online' && <div className="ew-online-dot" aria-label="online" />}
-            </div>
-            <button onClick={() => setOpen(false)} aria-label={t('embed.close')} title={t('embed.close')} className="ew-close">
-              <X size={18} />
-            </button>
-          </div>
-          {showContactForm && (
-            <EmbedContactForm
-              t={t}
-              accent={accent}
-              contact={contact}
-              onChange={(field, value) =>
-                setContact((c) => ({ ...c, [field]: value }))
-              }
-              onSend={() => void sendContact()}
-              sending={sendingContact}
-            />
-          )}
-          <div className="ew-messages" ref={messagesRef} aria-live="polite">
-            {relayNote && (
-              <div className="ew-offline-note">{relayNote}</div>
-            )}
-            {greeting && messages.length === 0 && (
-              <div className="ew-msg-row ew-msg-other">
-                <div className="ew-msg">
-                  {autolink(greeting)}
-                </div>
-              </div>
-            )}
-            {messages.length === 0 && !greeting ? (
-              <div className="ew-empty">{t('embed.start')}</div>
-            ) : (
-              messages.map((m) => (
-                <div key={m.id} className={`ew-msg-row ${m.own ? 'ew-msg-own' : 'ew-msg-other'}`}>
-                  <div className={`ew-msg ${m.own ? 'ew-msg-own-bubble' : ''}`}>
-                    {autolink(m.text)}
-                  </div>
-                  <div className="ew-time">
-                    {new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          <div className="ew-composer">
-            <input
-              aria-label={t('embed.typeMessage')}
-              ref={inputRef}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  void send();
-                }
-              }}
-              placeholder={t('embed.typeMessage')}
-              className="ew-input"
-            />
-            <button
-              onClick={() => void send()}
-              disabled={!draft.trim()}
-              aria-label={t('embed.send', 'Send')}
-              title={t('embed.send', 'Send')}
-              className="ew-send"
-              style={{ backgroundColor: accent }}
-            >
-              <Send size={16} />
-            </button>
-          </div>
-          {!hideBrand && (
-            <div className="ew-footer">
-              {t('embed.poweredBy', `Powered by `)}<b>{BRAND}</b>
-            </div>
-          )}
-        </div>
-      )}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label={open ? t('embed.close') : t('embed.openChat')}
-        className="ew-fab"
-        style={{ backgroundColor: accent }}
-      >
-        {open ? <X size={24} /> : <MessageSquare size={24} />}
-        {!open && unread > 0 && <span className="ew-fab-badge">{unread > 9 ? '9+' : unread}</span>}
-      </button>
-      {toast && !open && (
-        <button className="ew-toast" onClick={() => setOpen(true)} aria-label={t('embed.openChat')}>
-          {toast}
-        </button>
-      )}
-    </div>
+    <EmbedPanel
+      open={open}
+      title={title}
+      accent={accent}
+      position={position}
+      isDark={theme === 'dark'}
+      relayStatus={relayStatus}
+      showContactForm={showContactForm}
+      contact={contact}
+      onContactChange={(field, value) => setContact((c) => ({ ...c, [field]: value }))}
+      sendingContact={sendingContact}
+      onSendContact={() => void sendContact()}
+      relayNote={relayNote}
+      greeting={greeting}
+      messages={messages}
+      draft={draft}
+      onDraftChange={setDraft}
+      onSend={() => void send()}
+      hideBrand={hideBrand}
+      unread={unread}
+      toast={toast}
+      onToggleOpen={() => setOpen((v) => !v)}
+      onClose={() => setOpen(false)}
+      onOpenToast={() => setOpen(true)}
+      t={t}
+      panelRef={panelRef}
+      inputRef={inputRef}
+      messagesRef={messagesRef}
+    />
   );
 };
 

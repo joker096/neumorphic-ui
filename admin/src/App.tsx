@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Users from './pages/Users'
 import Devices from './pages/Devices'
 import Ads from './pages/Ads'
+import EmbedChats from './pages/EmbedChats'
 import Settings from './pages/Settings'
 import Layout from './components/Layout'
 
@@ -37,6 +38,7 @@ function AppRoutes() {
         <Route path="/users" element={<Users />} />
         <Route path="/devices" element={<Devices />} />
         <Route path="/ads" element={<Ads />} />
+        <Route path="/embed-chats" element={<EmbedChats />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -164,4 +164,75 @@ export const api = {
     request<{ ok: boolean }>(`/api/ads/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
   deleteAd: (id: number) => request<{ ok: boolean }>(`/api/ads/${id}`, { method: 'DELETE' }),
+
+  // ── Embed website-chat (operator console) ────────────────────────────────
+  embedWidgets: () => request<EmbedWidgetRow[]>('/api/v1/embed/operator/widgets'),
+
+  embedConversations: (opts: { status?: string; widget?: string } = {}) => {
+    const params = new URLSearchParams()
+    if (opts.status) params.set('status', opts.status)
+    if (opts.widget) params.set('widget', opts.widget)
+    const qs = params.toString()
+    return request<EmbedConversation[]>(`/api/v1/embed/operator/conversations${qs ? `?${qs}` : ''}`)
+  },
+
+  embedThread: (conversationId: string) =>
+    request<EmbedMessage[]>(`/api/v1/embed/operator/conversations/${conversationId}/messages`),
+
+  embedReply: (conversationId: string, body: string) =>
+    request<{ message_id: string }>(`/api/v1/embed/operator/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ type: 'text', body }),
+    }),
+
+  embedUpdateConversation: (conversationId: string, data: { status?: string; assignee_id?: string }) =>
+    request<{ ok: boolean }>(`/api/v1/embed/operator/conversations/${conversationId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+}
+
+export interface EmbedWidgetRow {
+  widget_id: string
+  name: string
+  title: string
+  enabled: number
+  created_at: string
+}
+
+export interface EmbedVisitorInfo {
+  name?: string
+  email?: string
+  phone?: string
+  attributes?: Record<string, unknown>
+  last_seen_at?: string
+  identity?: { uid?: string; exp?: number } | null
+}
+
+export interface EmbedConversation {
+  conversation_id: string
+  widget_id: string
+  status: string
+  assignee_id?: string
+  source: string
+  started_at: string
+  closed_at?: string
+  rating?: number
+  rating_comment?: string
+  metadata?: unknown
+  visitor: EmbedVisitorInfo
+  message_count: number
+  last_message: { body?: string; sender_type?: string } | null
+}
+
+export interface EmbedMessage {
+  id: string
+  conversation_id: string
+  sender_type: 'visitor' | 'operator' | 'bot' | 'system'
+  sender_id?: string
+  type: string
+  body?: string
+  attachments?: unknown
+  status?: string
+  created_at: string
 }

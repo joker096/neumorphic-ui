@@ -17,6 +17,7 @@ export interface Contact {
   id: string;
   color: string;
   lastSeen: number;
+  online?: boolean;
   isFavorite?: boolean;
   isBlocked?: boolean;
   muted?: boolean;

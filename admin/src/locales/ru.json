@@ -12,6 +12,7 @@
     "users": "Пользователи",
     "devices": "Устройства",
     "ads": "Реклама",
+    "embedChats": "Чаты сайта",
     "settings": "Настройки",
     "logout": "Выйти"
   },
@@ -91,6 +92,29 @@
     "noAds": "Объявлений еще не создано",
     "impressions": "показов",
     "clicks": "кликов"
+  },
+  "embedChats": {
+    "title": "Чаты сайта",
+    "filter": {
+      "all": "Все",
+      "open": "Открытые",
+      "closed": "Закрытые"
+    },
+    "visitor": "Посетитель",
+    "open": "Открыт",
+    "closed": "Закрыт",
+    "messages": "сообщ.",
+    "started": "начало",
+    "rating": "Оценка",
+    "noConversations": "Диалогов пока нет",
+    "selectConversation": "Выберите диалог",
+    "noMessages": "В диалоге нет сообщений",
+    "reply": "Ответ оператора",
+    "replyPlaceholder": "Введите ответ…",
+    "send": "Отправить",
+    "sending": "Отправка…",
+    "closeConversation": "Закрыть",
+    "reopenConversation": "Открыть"
   },
   "settings": {
     "title": "Настройки",

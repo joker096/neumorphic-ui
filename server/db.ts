@@ -124,7 +124,89 @@ function initSchema(): void {
     CREATE INDEX IF NOT EXISTS idx_ad_events_ad ON ad_events(ad_id);
     CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
     CREATE INDEX IF NOT EXISTS idx_payments_token ON payments(token);
+
+    -- Embed chat widget (site-chat) — see server/embed.ts
+    CREATE TABLE IF NOT EXISTS embed_widgets (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL DEFAULT '',
+      website_domains TEXT NOT NULL DEFAULT '',
+      title TEXT NOT NULL DEFAULT '',
+      subtitle TEXT NOT NULL DEFAULT '',
+      position TEXT NOT NULL DEFAULT 'bottom-right',
+      theme TEXT NOT NULL DEFAULT '{}',
+      locale TEXT NOT NULL DEFAULT 'ru',
+      require_prechat_form INTEGER NOT NULL DEFAULT 1,
+      offline_form_enabled INTEGER NOT NULL DEFAULT 1,
+      file_upload INTEGER NOT NULL DEFAULT 1,
+      emoji INTEGER NOT NULL DEFAULT 1,
+      rating_enabled INTEGER NOT NULL DEFAULT 1,
+      operators_online INTEGER NOT NULL DEFAULT 1,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS embed_visitor_sessions (
+      id TEXT PRIMARY KEY,
+      widget_id TEXT NOT NULL REFERENCES embed_widgets(id),
+      visitor_token TEXT NOT NULL,
+      name TEXT NOT NULL DEFAULT '',
+      email TEXT NOT NULL DEFAULT '',
+      phone TEXT NOT NULL DEFAULT '',
+      attributes TEXT NOT NULL DEFAULT '{}',
+      first_seen_at TEXT NOT NULL DEFAULT (datetime('now')),
+      last_seen_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(widget_id, visitor_token)
+    );
+    CREATE TABLE IF NOT EXISTS embed_conversations (
+      id TEXT PRIMARY KEY,
+      widget_id TEXT NOT NULL REFERENCES embed_widgets(id),
+      visitor_session_id TEXT NOT NULL REFERENCES embed_visitor_sessions(id),
+      status TEXT NOT NULL DEFAULT 'open',
+      assignee_id TEXT,
+      source TEXT NOT NULL DEFAULT 'website',
+      started_at TEXT NOT NULL DEFAULT (datetime('now')),
+      closed_at TEXT,
+      metadata TEXT NOT NULL DEFAULT '{}',
+      rating INTEGER,
+      rating_comment TEXT
+    );
+    CREATE TABLE IF NOT EXISTS embed_messages (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL REFERENCES embed_conversations(id),
+      sender_type TEXT NOT NULL CHECK(sender_type IN ('visitor', 'operator', 'bot', 'system')),
+      sender_id TEXT,
+      type TEXT NOT NULL DEFAULT 'text',
+      body TEXT NOT NULL DEFAULT '',
+      attachments TEXT NOT NULL DEFAULT '[]',
+      status TEXT NOT NULL DEFAULT 'sent',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS embed_attachments (
+      id TEXT PRIMARY KEY,
+      file_name TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      size_bytes INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_embed_conv_session ON embed_conversations(visitor_session_id);
+    CREATE INDEX IF NOT EXISTS idx_embed_msg_conv ON embed_messages(conversation_id);
   `)
+
+  // Migration guard: CREATE TABLE IF NOT EXISTS never alters existing tables, so
+  // freshly-introduced columns are added explicitly when missing. A failing
+  // ALTER (e.g. a half-migrated DB) must not block boot — the app still works
+  // without the new columns, just degrades.
+  const ensureColumn = (table: string, name: string, ddl: string): void => {
+    try {
+      const cols = d.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>
+      if (!cols.some((c) => c.name === name)) {
+        d.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`)
+      }
+    } catch {
+      /* non-fatal: leave the table as-is */
+    }
+  }
+  ensureColumn('embed_widgets', 'hmac_secret', 'hmac_secret TEXT')
+  ensureColumn('embed_visitor_sessions', 'identity', 'identity TEXT')
 }
 
 export interface Entitlement {

@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useAdminI18n } from '../lib/i18n'
-import { LayoutDashboard, Users, Monitor, Megaphone, Settings, LogOut, ChevronRight, ChevronLeft } from 'lucide-react'
+import { LayoutDashboard, Users, Monitor, Megaphone, Settings, MessageSquareText, LogOut, ChevronRight, ChevronLeft } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 const navItems = [
@@ -9,6 +9,7 @@ const navItems = [
   { path: '/users', label: 'layout.users', icon: Users },
   { path: '/devices', label: 'layout.devices', icon: Monitor },
   { path: '/ads', label: 'layout.ads', icon: Megaphone },
+  { path: '/embed-chats', label: 'layout.embedChats', icon: MessageSquareText },
   { path: '/settings', label: 'layout.settings', icon: Settings },
 ]
 
