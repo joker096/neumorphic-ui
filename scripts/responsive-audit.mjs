@@ -154,7 +154,7 @@ try {
     env: { ...process.env, VITE_USE_MOCK: 'true' },
     stdio: ['ignore', 'inherit', 'inherit'],
   });
-  await waitForServer(`${BASE}/`, 90_000);
+  await waitForServer(`${BASE}/`, 180_000);
   browser = await chromium.launch();
 
   for (const vp of VIEWPORTS) {
@@ -189,6 +189,6 @@ try {
   await writeFile(path.join(OUT, 'report.json'), JSON.stringify(report, null, 2));
   console.log(`\nReport: ${path.join(OUT, 'report.json')}`);
 } finally {
-  await browser?.close();
-  vite?.kill();
+  try { await browser?.close(); } catch { /* ignore */ }
+  try { vite?.kill('SIGTERM'); setTimeout(() => vite?.kill('SIGKILL'), 3000); } catch { /* ignore */ }
 }
