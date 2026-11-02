@@ -291,7 +291,7 @@
 - Fixes:
   - Dedup: `ChatInputOverlay.tsx` + test DELETED; import/render removed from `ActiveChatWorkspace.tsx`; `setChannels` dropped from its props.
   - `ChatInputArea.tsx`: silent button 40→44px; input `flex-1 min-w-0 h-full`; button container absolute→static `flex items-center gap-1 flex-shrink-0`; mobile 2-row layout: container `flex flex-wrap sm:flex-nowrap`, pill `order-first w-full flex-shrink-0` (own row, input never squeezed), sm+ single row `sm:flex-1`; send button `order-last ml-auto sm:ml-0`.
-  - `VoiceWaveform.tsx` + `index.css`: range seek → `.voice-seek` (44px touch height, 6px track, orange thumb, fill via `--seek-progress`).
+  - `VoiceWaveform.tsx`: single seek control — the waveform canvas doubles as the track, with one invisible focusable range input overlaid (`absolute inset-0`, `appearance-none`), no inner avatar (sender identity comes from `MessageGutterAvatar`), no `.voice-seek` styles.
 - Verified: 3 consecutive clean full-audit runs (14/14 pass each), `npm test` 3992/3992 (154 files), `npm run lint` (eslint+tsc) clean.
 
 ### E2E full suite (2026-08-21) — GREEN 141/141 (uncommitted):

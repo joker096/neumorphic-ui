@@ -86,7 +86,7 @@
 
 Покрыто: `useAppLock`, `useAppView`, `useCall`, `useDebounce`, `useFilteredChats`, `useGlobalErrorHandler`, `useLocalStorage`, `useScheduledMessages`, `useScreenshotProtection`, `useUndoDelete`.
 
-Gap (P1, pass2): `useAppConnection`, `useAppNavigation`, `useAppSettings`, `useAsyncState`, `useHealthCheck`, `useIdentityAuth`, `useUnreadCount`, `useMessageActions`.
+Gap (P1, pass2): `useAppConnection`, `useAppNavigation`, `useAppSettings`, `useIdentityAuth`, `useUnreadCount`, `useMessageActions`.
 
 Gap (P2, pass3): `useChatListActions`, `useChatListWorkspace`, `useChatPreviewState`, `useChatPreviewTyping`, `useChatMessageActions`, `useChatInteraction`, `useKeyboardScroll`, `useMediaQuery`, `useMeshPeers`, `useProfileActions`, `useRefMessageActions`, `useVoiceWaveformAudio`, `useAppEffects`, `useActiveChatWorkspace`.
 

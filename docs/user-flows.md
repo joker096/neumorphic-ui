@@ -14,7 +14,7 @@
 
 ## 2. Открытие диалога и отправка (§14.2)
 
-`ChatListView` tap chat → `ChatMessageList` + `ChatInputOverlay` →
+`ChatListView` tap chat → `ChatMessageList` + `ChatInputArea` →
 - ввод текста, emoji picker, attach menu
 - send → optimistic `queued → sending → sent → delivered → read` (бриф §9.1)
 - ошибка → `failed` + retry

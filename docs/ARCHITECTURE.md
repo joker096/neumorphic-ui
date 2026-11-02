@@ -41,6 +41,11 @@ The messenger client UI map is documented in [`architecture-messenger-schema.md`
 - `src/lib/recovery/MnemonicGenerator.ts` - BIP39-style mnemonic generation
 - `src/lib/security/` - Rate limiter, sanitizer, spam detector, logger
 - `src/lib/` - Device security, device attestation, multi-device sync
+- `src/components/app/AppShell.tsx` / `AppMainContent.tsx` / `AppOverlays.tsx` - Main layout + overlays (auth gate, side nav, preview layers)
+- `src/components/chat-preview/ChatPreviewLayer.tsx` / `ChatPreviewOverlays.tsx` - Chat workspace + preview overlays
+- `src/components/chat-list/ChatListView.tsx` - Chat list (folder filtering, unread counts, swipe actions, reorder)
+- `src/store/slices/chatSlice.ts` / `settingsSlice.ts` / `companySlice.ts` / `crmSlice.ts` - State slices (chat settings, company/contact/CRM settings)
+- `src/lib/p2p/network.ts` (split) / `P2PTransport.ts` / `p2p/inbound/` - P2P network, inbound routing, pairing session, signaling handlers
 
 ## Signaling Server
 - Self-hosted Node.js WebSocket server (port 8765)

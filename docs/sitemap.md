@@ -32,7 +32,7 @@
 ## 2. Conversation Screen (оверлей/контент)
 
 - `ChatMessageList.tsx` — лента сообщений ✅
-- `ChatInputOverlay.tsx` — поле ввода ✅
+- `chat-preview/ChatInputArea.tsx` — поле ввода ✅
 - `ChatProfileView.tsx` — профиль чата/группы/канала ✅
 - Контекстное меню сообщения, reply/edit/forward/delete/reactions/selection ✅ (см. `useMessageActions.ts`)
 - Scroll-to-bottom, unread divider, date separators ✅
@@ -48,7 +48,7 @@
 
 ## 5. Overlay Layers
 
-- ContextMenu ✅ · ActionSheet/BottomSheet ✅ · Modal ✅ · Toast/Snackbar (`sonner`) ✅
+- ContextMenu ✅ · нижние листы (ветки `ChatContextMenu`/`MessageContextMenu` + `modalShared`) ✅ · Modal ✅ · Toast/Snackbar (`sonner`) ✅
 - Loading/Error/Empty states — ✅ единый `ui/DataState` (§16.2) на ключевых экранах
 
 ## 6. Системные модули (System Feature Containers, бриф §4.1 / §13)

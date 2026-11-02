@@ -8,7 +8,7 @@
 - [x] Полный список экранов и состояний — `docs/sitemap.md` создан
 - [x] Chat list: folders, search, archive, pinned, unread, mute — ✅ (`useFilteredChats.ts`, `ChatListView.tsx`)
 - [x] Conversation: reply, edit, forward, delete, reactions, selection — ✅ (`useMessageActions.ts`)
-- [x] Input bar: text, emoji, attachments, voice/video note, custom modules — ✅ (`ChatInputOverlay.tsx`, `LiveVoiceRecorder.tsx`)
+- [x] Input bar: text, emoji, attachments, voice/video note, custom modules — ✅ (`chat-preview/ChatInputArea.tsx` 297, `LiveVoiceRecorder.tsx` 214)
 - [x] Light/dark themes — ✅ (`ThemeContext.tsx`, `tokens.css`)
 - [x] Все ключевые экраны имеют loading/empty/error/offline — 🟡 (есть skeleton/spinner/localStorage кэш, но не везде явно; нужен аудит per-screen, см. data_states)
 - [x] Touch targets ≥ 44 dp — ✅ (базово; ❓ проверить на мелких элементах UI)
@@ -51,7 +51,7 @@
 - [ ] restricted
 - [ ] deleted
 
-> ❗ Не покрыто централизованно. Рекомендация: ввести `useAsyncState` + единый `EmptyState`/`ErrorState` (бриф §8.10/§8.11) и пройтись по всем экранам.
+> ❗ Не покрыто централизованно. Рекомендация: общий `ui/DataState` + `ui/States` (`EmptyState`/`ErrorState`) (бриф §8.10/§8.11) и пройтись по всем экранам.
 
 ## D. Performance checklist (бриф §16.1, §4 ETAP 4)
 
@@ -68,7 +68,7 @@
 > По брифу §2.0 / §13.2 / §20 функции, отсутствующие в `system_context.existing_features`, **запрещено выдумывать** — они помечены `missing_context`.
 
 ### Genuine code gaps (реально можно доработать без внешних зависимостей)
-1. ✅ `data_states` (§16.2): инфраструктура + **применено на экранах** — `ChatListView`, `ContactsView`, `CallLogView`, `GlobalSearch`, `ProfileView` (loading) используют `ui/DataState`/`useAsyncState`.
+1. ✅ `data_states` (§16.2): инфраструктура + **применено на экранах** — `ChatListView`, `ContactsView`, `CallLogView`, `GlobalSearch`, `ProfileView` (loading) используют `ui/DataState` (хук `useAsyncState` удалён 2026-09-13 как мёртвый).
 2. ✅ `search_match_nav` (§5.4): навигатор совпадений в `SearchBar` + `scrollToIndex` в `VirtualizedMessageList`.
 3. ✅ `bot_profile_mini_app` (§5.5): `BotProfileView` (профиль + команды), `InlineKeyboard` (рендер/обработка кнопок), `MiniApp` (iframe + WebApp bridge). Открывается из списка ботов (`ChatListView`).
 

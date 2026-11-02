@@ -1,13 +1,13 @@
 ## Conversation Screen
 
-- **View/Route:** overlay/content при `activeChat` (`ChatMessageList.tsx` + `ChatInputOverlay.tsx`)
+- **View/Route:** overlay/content при `activeChat` (`ChatMessageList.tsx` + `chat-preview/ChatInputArea.tsx`)
 - **Purpose:** Переписка: чтение, отправка, управление сообщениями.
 - **Elements:**
   - TopBar: back, avatar, title, status (online/typing/members), call actions, search, menu
   - `ChatMessageList`: date separators, unread divider, grouped bubbles, reactions
   - Scroll-to-bottom button с unread badge
   - Reply/Edit bar
-  - `ChatInputOverlay`: attach, text (multiline auto-expand), emoji/modules, voice/video note, send
+  - `ChatInputArea`: attach, text (multiline auto-expand), emoji/modules, voice/video note, send (+ `ChannelComposer` для каналов)
   - Attachment sheet, ContextMenu, Selection mode, Forward panel
 - **Message types (бриф §5.4):** text/reply/forwarded/edited/image/video/file/voice/video_note/location/contact/link_preview/poll/bot/custom_card — 🟡 (часть через store types; проверить рендер всех)
 - **Send lifecycle (бриф §9.1):** queued → sending → sent → delivered → read → failed+retry ✅

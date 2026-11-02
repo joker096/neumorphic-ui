@@ -22,18 +22,22 @@
 | `--muted` | `rgba(240,236,228,0.55)` | `rgba(26,29,34,0.65)` |
 | `--bd` | `rgba(255,255,255,0.07)` | `rgba(0,0,0,0.1)` |
 
-### 2.2 App (Modern / Orange)
+### 2.2 App (Modern / Emerald — green token system, 2026-09)
 
-| Token | Dark | Light |
-|-------|------|-------|
-| `--bg-primary` | `#0d1017` | `#f8fafc` |
-| `--bg-secondary` | `#13151b` | `#ffffff` |
-| `--bg-tertiary` | `#1a1d24` | `#f1f5f9` |
-| `--text-primary` | `#f0f2f5` | `#0f172a` |
-| `--text-secondary` | `#9ca3af` | `#475569` |
-| `--text-tertiary` | `#8b95a5` | `#94a3b8` |
-| `--accent` | `#f97316` | `#f97316` |
-| `--border-color` | `rgba(255,255,255,0.06)` | `rgba(0,0,0,0.08)` |
+| Token | Dark (`#080b0c` base) | Light (`#f4f7f6` base) |
+|-------|----------------------|------------------------|
+| `--bg-primary` | `#080b0c` | `#f4f7f6` |
+| `--bg-secondary` | `#0d1112` | `#ffffff` |
+| `--bg-tertiary` | `#121718` | `#f1f5f9` |
+| `--text-primary` | `#f4f7f6` | `#0f172a` |
+| `--text-secondary` | `#aab2b2` | `#475569` |
+| `--text-tertiary` | `#849091` | `#94a3b8` |
+| `--accent` | `#4ede63` (dark) / `#059669` (light-accent) | `#059669` |
+| `--accent-soft` | `rgba(78,222,99,0.13)` | `rgba(5,150,105,0.13)` |
+| `--border-color` | `rgba(255,255,255,0.11)` | `rgba(0,0,0,0.08)` |
+| `--ink-on-saturate` | `#0d1017` (dark ink) / `#080b0c` | `#0d1017` |
+
+> Палитра синхронизирована с `src/styles/tokens.css` (dark `#0d1017`→`#080b0c`, `--accent` `#6f7fff`→`#4ede63`, light `#ea580c`→`#059669`). `DESIGN.md` (v2) и `messenger.css` уже в зелёном; это исправление закрывает рассинхрон этого файла.
 
 > **Важно**: Landing и App используют разные акцентные цвета (gold vs orange) и разные фоны. Это осознанное разделение: landing — editorial/high-end, app — productivity/modern.
 

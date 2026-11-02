@@ -90,7 +90,7 @@ ChatWorkspace
 ├── ChatListWorkspace — chat list view with filters
 └── ActiveChatWorkspace — active chat view with preview & input
     ├── ChatPreviewLayer — message preview
-    └── ChatInputOverlay — message input, stickers, voice
+    └── ChatInputArea — message input, stickers, voice
 ```
 
 ### 2.4 Resilience Components
