@@ -1,4 +1,4 @@
-import { Video, Phone, Clock, Trash2, History, FolderOpen, PhoneIncoming, Mic } from 'lucide-react';
+import { Video, Phone, Clock, Trash2, FolderOpen, PhoneIncoming, Mic } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { SettingsRow, SettingsGroup, SettingsSectionTitle, SettingsToggleRow } from '../ui/SettingsRow';
 import { SubView } from '../ui/SubView';
@@ -54,15 +54,6 @@ export const CallsSection = ({ isDark = false, onBack, setSubView }: CallsSectio
     <SubView title={t('call.callsSettings', 'Call settings')} onBack={onBack}>
       <SettingsSectionTitle title={t('settings.callNavSection', 'Call tools')} />
       <SettingsGroup >
-        <SettingsRow
-          icon={<History size={16} />}
-          iconBg="bg-sky-100 dark:bg-sky-500/10"
-          iconColor="text-sky-600 dark:text-sky-400"
-          title={t('call.callHistory')}
-          subtitle={t('call.callHistorySubtitle', 'Recent calls and meetings')}
-
-          onClick={() => setSubView?.('callLog')}
-        />
         <SettingsRow
           icon={<PhoneIncoming size={16} />}
           iconBg="bg-cyan-100 dark:bg-cyan-500/10"

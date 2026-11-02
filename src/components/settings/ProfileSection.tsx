@@ -30,13 +30,12 @@ interface Account {
 }
 
 interface ProfileSectionProps {
-  isDark?: boolean;
   onBack: () => void;
   t: (key: string, options?: any) => string;
   onOpenPremium?: () => void;
 }
 
-export const ProfileSection = ({ isDark = false, onBack, t, onOpenPremium }: ProfileSectionProps) => {
+export const ProfileSection = ({ onBack, t, onOpenPremium }: ProfileSectionProps) => {
   const userProfile = useAppStore((s) => s.userProfile);
   const setUserProfile = useAppStore((s) => s.setUserProfile);
   const premium = useAppStore((s) => s.premiumEntitlement.premium);
@@ -185,7 +184,6 @@ const handleSelectAccount = (id: number) => {
           />
         ) : (
           <ProfileEditForm
-            isDark={isDark}
             t={t}
             editName={editName}
             editUsername={editUsername}

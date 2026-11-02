@@ -146,14 +146,4 @@ describe('FeatureViews', () => {
     expect(setView).toHaveBeenCalledWith('contacts');
   });
 
-  it('settings callLog subview View contacts closes subview and navigates (D5 mobile regress)', async () => {
-    const setView = vi.fn();
-    const setSubView = vi.fn();
-    capturedCallLogOpenContacts = undefined;
-    render(<FeatureViews {...defaultProps} view="settings" subView="callLog" setView={setView} setSubView={setSubView} />);
-    expect(await screen.findByTestId('call-log-view')).toBeInTheDocument();
-    capturedCallLogOpenContacts?.();
-    expect(setSubView).toHaveBeenCalledWith(null);
-    expect(setView).toHaveBeenCalledWith('contacts');
-  });
 });

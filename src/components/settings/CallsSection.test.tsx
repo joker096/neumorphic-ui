@@ -85,18 +85,9 @@ describe('CallsSection', () => {
 
   it('renders call tool rows', () => {
     renderSection();
-    expect(screen.getByText('call.callHistory')).toBeInTheDocument();
-    expect(screen.getByText(t('call.callHistorySubtitle', 'Recent calls and meetings'))).toBeInTheDocument();
     expect(screen.getByText('call.simulateIncoming')).toBeInTheDocument();
     expect(screen.getByText('call.incomingCall')).toBeInTheDocument();
     expect(screen.getByText(t('nav.recordings', 'Call Log'))).toBeInTheDocument();
-  });
-
-  it('opens call log via setSubView', () => {
-    const setSubView = vi.fn();
-    renderSection({ setSubView });
-    fireEvent.click(screen.getByText('call.callHistory'));
-    expect(setSubView).toHaveBeenCalledWith('callLog');
   });
 
   it('opens recordings via setSubView', () => {

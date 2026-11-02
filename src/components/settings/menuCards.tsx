@@ -13,7 +13,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 
 export interface MenuCardVisible {
   quick: boolean;
-  quickRows: { theme: boolean; lang: boolean; dnd: boolean; accounts: boolean };
+  quickRows: { theme: boolean; lang: boolean; dnd: boolean };
   notif: boolean;
   notifRows: { notif: boolean; sound: boolean; volume: boolean; cloudSync: boolean };
   conn: boolean;
@@ -28,14 +28,6 @@ interface MenuCardsProps {
   language: string;
   dndEnabled?: boolean;
   setDndEnabled?: (v: boolean) => void;
-  accounts?: { id: number; name: string; color: string; username?: string; bio?: string }[];
-  activeId?: number;
-  onSelectAccount?: (id: number) => void;
-  onAddAccount?: (draft: { name: string; username?: string; bio?: string }) => void;
-  onUpdateAccount?: (id: number, partial: { name?: string; username?: string; bio?: string; color?: string }) => void;
-  onDeleteAccount?: (id: number) => void;
-  canAddAccounts?: boolean;
-  onGetPremium?: () => void;
   notificationsEnabled: boolean;
   setNotificationsEnabled: (v: boolean) => void;
   soundEnabled: boolean;
@@ -56,7 +48,6 @@ export function MenuCards({
   t,
   themeMode, setThemeMode, setTheme, onSelectLanguage, language,
   dndEnabled, setDndEnabled,
-  accounts = [], activeId = -1, onSelectAccount, onAddAccount, onUpdateAccount, onDeleteAccount, canAddAccounts = true, onGetPremium,
   notificationsEnabled, setNotificationsEnabled, soundEnabled, setSoundEnabled, soundVolume, setSoundVolume,
   cloudSync, setCloudSyncEnabled, lang,
   connectionStatus = "disconnected", transportBackend = "direct", latencyMs = 0,
@@ -76,14 +67,6 @@ export function MenuCards({
             language={language}
             dndEnabled={dndEnabled}
             setDndEnabled={setDndEnabled}
-            accounts={accounts}
-            activeId={activeId}
-            onSelectAccount={onSelectAccount}
-            onAddAccount={onAddAccount}
-            onUpdateAccount={onUpdateAccount}
-            onDeleteAccount={onDeleteAccount}
-            canAddAccounts={canAddAccounts}
-            onGetPremium={onGetPremium}
             visible={visible.quickRows}
           />
         </Section>

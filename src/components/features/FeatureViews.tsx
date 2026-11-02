@@ -98,13 +98,6 @@ export const FeatureViews = ({
           </Suspense>
         );
       }
-      if (subView === 'callLog') {
-        return (
-          <Suspense fallback={<Loader />}>
-            <LazyCallLogView isDark={theme === 'dark'} onBack={() => setSubView?.(null)} onOpenContacts={() => { setSubView?.(null); setView('contacts'); }} />
-          </Suspense>
-        );
-      }
       if (subView === 'radar') {
         return (
           <Suspense fallback={<Loader />}>

@@ -10,7 +10,6 @@ const INPUT_CLASS =
   'w-full px-3 py-2.5 rounded-lg text-sm outline-none bg-[var(--bg-secondary)] text-[var(--text-primary)] transition-colors';
 
 interface ProfileEditFormProps {
-  isDark: boolean;
   t: (key: string, fallback?: string) => string;
   editName: string;
   editUsername: string;
@@ -37,7 +36,7 @@ interface ProfileEditFormProps {
 }
 
 export const ProfileEditForm = ({
-  isDark, t, editName, editUsername, editBio, editAvatar, editStatus, editColor, editFields,
+  t, editName, editUsername, editBio, editAvatar, editStatus, editColor, editFields,
   newFieldVisibility, setEditName, setEditUsername, setEditBio, setEditAvatar, setEditStatus, setEditColor,
   setNewFieldVisibility, fileInputRef, onFileChange, onAddField,
   onRemoveField, onUpdateField, onCancel, onSave,
@@ -139,7 +138,7 @@ export const ProfileEditForm = ({
                 key={color}
                 type="button"
                 onClick={() => setEditColor(color)}
-                className={`w-10 h-10 min-w-11 min-h-11 rounded-full bg-gradient-to-br ${color} flex items-center justify-center transition-all ${editColor === color ? 'ring-2 ring-orange-500 ring-offset-2 scale-110' : 'opacity-70 hover:opacity-100'}`}
+                className={`w-10 h-10 min-w-11 min-h-11 rounded-full bg-gradient-to-br ${color} flex items-center justify-center transition-all ${editColor === color ? 'ring-2 ring-[var(--accent)] ring-offset-2 scale-110' : 'opacity-70 hover:opacity-100'}`}
               >
                 {editColor === color && <Check size={14} className="text-[var(--text-primary)]" />}
               </button>

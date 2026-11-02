@@ -1,22 +1,6 @@
 import { useState } from 'react';
 import { useAppStore } from '../../store';
 import { useI18n } from '../../lib/i18n';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { ACCOUNT_COLORS, FREE_ACCOUNTS_LIMIT } from '../../constants/settingsConstants';
-
-interface Account {
-  id: number;
-  name: string;
-  color: string;
-  username?: string;
-  bio?: string;
-}
-
-interface AccountDraft {
-  name: string;
-  username?: string;
-  bio?: string;
-}
 
 export const useSettingsSectionData = () => {
   const { t, setLang, lang } = useI18n();
@@ -73,47 +57,6 @@ export const useSettingsSectionData = () => {
   const recordingsRetentionDays = useAppStore(state => state.recordingsRetentionDays);
   const setRecordingsRetentionDays = useAppStore(state => state.setRecordingsRetentionDays);
   const premiumEntitlement = useAppStore(state => state.premiumEntitlement);
-  const setUserProfile = useAppStore(state => state.setUserProfile);
-
-  const [accounts, setAccounts] = useLocalStorage<Account[]>('app_accounts', [
-    { id: 1, name: 'Nexus Terminal', color: 'from-blue-500 to-cyan-500' },
-    { id: 2, name: 'Work Node', color: 'from-purple-500 to-indigo-500' },
-  ]);
-  const [activeId, setActiveId] = useState<number>(1);
-
-  const syncProfileToAccount = (acc: Account) => {
-    setUserProfile({ name: acc.name, username: acc.username || '', bio: acc.bio || '', avatarColor: acc.color });
-  };
-
-  const handleSelectAccount = (id: number) => {
-    setActiveId(id);
-    const acc = accounts.find(a => a.id === id);
-    if (acc) syncProfileToAccount(acc);
-  };
-
-  const handleAddAccount = (draft: AccountDraft) => {
-    const color = ACCOUNT_COLORS[accounts.length % ACCOUNT_COLORS.length];
-    const newAcc: Account = { id: Date.now(), name: draft.name, color, username: draft.username, bio: draft.bio };
-    setAccounts([...accounts, newAcc]);
-    setActiveId(newAcc.id);
-    syncProfileToAccount(newAcc);
-  };
-
-  const handleDeleteAccount = (id: number) => {
-    const remaining = accounts.filter(acc => acc.id !== id);
-    setAccounts(remaining);
-    if (activeId === id && remaining.length > 0) {
-      const next = remaining[0];
-      setActiveId(next.id);
-      syncProfileToAccount(next);
-    }
-  };
-
-  const handleUpdateAccount = (id: number, partial: Partial<Account>) => {
-    setAccounts(accounts.map(acc => (acc.id === id ? { ...acc, ...partial } : acc)));
-  };
-
-  const canAddAccounts = Boolean(premiumEntitlement?.premium) || accounts.length < FREE_ACCOUNTS_LIMIT;
 
   const {
     stealthMode,
@@ -229,12 +172,5 @@ export const useSettingsSectionData = () => {
     latencyMs,
     blockedBackends,
     regionBlocked,
-    accounts,
-    activeId,
-    handleSelectAccount,
-    handleAddAccount,
-    handleUpdateAccount,
-    handleDeleteAccount,
-    canAddAccounts,
   };
 };

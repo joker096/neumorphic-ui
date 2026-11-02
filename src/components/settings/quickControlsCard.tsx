@@ -5,12 +5,8 @@ import { SettingsToggleRow } from "../ui/SettingsRow";
 import { ROW_SHELL_CLASS, SEGMENTED_TRACK_CLASS } from '../ui/rowClasses';
 import { MUTED_CAPTION_CLASS, PRIMARY_LABEL_CLASS } from '../ui/textClasses';
 import { LANGUAGES } from "./languages";
-import { AccountAddSection } from "./accountForms";
 
 type T = (key: string, options?: any) => string;
-
-type QuickAccount = { id: number; name: string; color: string; username?: string; bio?: string };
-type QuickAccountDraft = { name: string; username?: string; bio?: string };
 
 interface QuickControlsCardProps {
   t: T;
@@ -21,27 +17,16 @@ interface QuickControlsCardProps {
   language: string;
   dndEnabled?: boolean;
   setDndEnabled?: (v: boolean) => void;
-  accounts?: QuickAccount[];
-  activeId?: number;
-  onSelectAccount?: (id: number) => void;
-  onAddAccount?: (draft: QuickAccountDraft) => void;
-  onUpdateAccount?: (id: number, partial: Partial<QuickAccount>) => void;
-  onDeleteAccount?: (id: number) => void;
-  canAddAccounts?: boolean;
-  onGetPremium?: () => void;
   visible: {
     theme: boolean;
     lang: boolean;
     dnd: boolean;
-    accounts: boolean;
   };
 }
 
 export function QuickControlsCard({
   t, themeMode, setThemeMode, setTheme, onSelectLanguage, language,
   dndEnabled, setDndEnabled, visible,
-  accounts = [], activeId = -1, onSelectAccount, onAddAccount, onUpdateAccount, onDeleteAccount,
-  canAddAccounts = true, onGetPremium,
 }: QuickControlsCardProps) {
   const [langOpen, setLangOpen] = useState(false);
 
@@ -124,38 +109,7 @@ export function QuickControlsCard({
           subtitle={t('settings.dndSubtitle')}
           isOn={Boolean(dndEnabled)}
           onToggle={() => setDndEnabled?.(!dndEnabled)}
-         
         />
-      )}
-
-      {visible.accounts && (
-        <>
-          <div className="border-t border-[var(--border-color)] px-3 py-2">
-            <div className={PRIMARY_LABEL_CLASS}>{t('settings.accounts', 'Accounts')}</div>
-            <div className="flex flex-col gap-1 mt-1">
-              {accounts.map((acc) => (
-                <button
-                  key={acc.id}
-                  type="button"
-                  onClick={() => onSelectAccount?.(acc.id)}
-                  className="w-full flex items-center gap-3 p-2 min-h-11 rounded-xl text-left transition-colors hover:bg-[var(--msg-bg-panel-hover)]"
-                >
-                  <div className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-sm font-bold text-[var(--text-primary)] bg-gradient-to-br ${acc.color}`}>
-                    {acc.name.charAt(0)}
-                  </div>
-                  <span className="flex-1 truncate text-sm font-medium text-[var(--text-primary)]">{acc.name}</span>
-                  {activeId === acc.id && <Check size={16} className="text-[var(--accent)]" />}
-                </button>
-              ))}
-            </div>
-            <AccountAddSection
-              t={t}
-              canAdd={canAddAccounts}
-              onAddAccount={(draft) => onAddAccount?.(draft)}
-              onGetPremium={onGetPremium}
-            />
-          </div>
-        </>
       )}
     </SettingsCard>
   );

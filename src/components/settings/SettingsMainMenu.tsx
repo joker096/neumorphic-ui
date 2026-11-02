@@ -166,7 +166,7 @@ export function SettingsMainMenu({
             quick: quickMatches,
             // The accounts row needs store-backed account handlers this menu
             // does not own — hidden rather than rendered dead.
-            quickRows: { theme: quickRowTheme, lang: quickRowLang, dnd: quickRowDnd, accounts: false },
+            quickRows: { theme: quickRowTheme, lang: quickRowLang, dnd: quickRowDnd },
             notif: notificationsCardMatches,
             notifRows: { notif: notifMatches, sound: soundMatches, volume: volumeMatches, cloudSync: cloudSyncMatches },
             conn: connMatches,

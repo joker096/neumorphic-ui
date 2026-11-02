@@ -36,7 +36,7 @@ export const ProfileView: ComponentType<ProfileViewProps> = ({
       className={`glass-panel w-full max-w-none md:max-w-[640px] flex-1 flex flex-col p-4 sm:p-6 mb-8 h-full min-h-0 pb-[calc(56px+var(--spacing-16)+env(safe-area-inset-bottom,0px))] sm:pb-8 rounded-2xl`}
     >
       <Suspense fallback={<Loader />}>
-        <ProfileSection isDark={isDark} onBack={handleBack} t={tFn} />
+        <ProfileSection onBack={handleBack} t={tFn} />
       </Suspense>
     </div>
   );

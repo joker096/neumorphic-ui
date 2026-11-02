@@ -207,9 +207,4 @@ describe('SettingsSectionContent', () => {
     });
   });
 
-  it('uses prop language over hook lang', () => {
-    activeSection = 'main';
-    renderContent({ language: 'de' });
-    expect((SettingsMainMenu as any).mock.calls[0][0]).toMatchObject({ language: 'de' });
-  });
 });

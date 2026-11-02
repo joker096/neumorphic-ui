@@ -16,11 +16,9 @@ export type SettingsSectionContentProps = {
   setSubView?: (view: string | null) => void;
   fontSize?: string;
   setFontSize?: (s: string) => void;
-  language?: string;
-  setLanguage?: (l: string) => void;
 };
 
-export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: fontSizeProp, setFontSize: setFontSizeProp, language: languageProp, setLanguage: setLanguageProp }: SettingsSectionContentProps) => {
+export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: fontSizeProp, setFontSize: setFontSizeProp }: SettingsSectionContentProps) => {
   const {
     t,
     setLang,
@@ -93,8 +91,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
   } = useSettingsSectionData();
 
   const isDark = theme === 'dark';
-  const language = languageProp ?? lang;
-  const setLanguage = setLanguageProp ?? setLang;
   const fontSize = fontSizeProp ?? 'Medium';
   const setFontSize = setFontSizeProp ?? (() => {});
 
@@ -114,12 +110,12 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
       setSoundVolume={setSoundVolume}
       cloudSync={cloudSync}
       setCloudSyncEnabled={setCloudSyncEnabled}
-      language={language}
+      language={lang}
       lang={lang}
       themeMode={themeMode}
       setThemeMode={setThemeMode}
       setTheme={setTheme}
-      onSelectLanguage={setLanguage}
+      onSelectLanguage={setLang}
       dndEnabled={dndEnabled}
       setDndEnabled={setDndEnabled}
       connectionStatus={connectionStatus}
@@ -158,7 +154,6 @@ export const SettingsSectionContent = ({ theme, setTheme, setSubView, fontSize: 
 
   const renderProfileSettings = () => (
     <ProfileSection
-      isDark={isDark}
       onBack={() => setActiveSection('main')}
       onOpenPremium={() => setActiveSection('premium')}
       t={t}
