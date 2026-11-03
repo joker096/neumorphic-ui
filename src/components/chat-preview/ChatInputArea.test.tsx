@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { ChatInputArea } from './ChatInputArea';
+import { ComposerToolbar } from './ComposerToolbar';
+import { DmComposerRow } from './DmComposerRow';
 import { useAppStore } from '../../store';
 
 const OWNER_ID = 'owner-test-id';
@@ -105,6 +107,105 @@ describe('ChatInputArea (channel)', () => {
       expect(input.className).toContain('hidden');
       expect(input.className).not.toContain('opacity-0');
     }
+  });
+
+  it('keeps the composer icon buttons on the unified state classes in every toggle state', () => {
+    const noop = vi.fn();
+    const noopFn = () => {};
+    const t = (key: string) => key;
+    const mentions: import('./useChatMentions').ChatMentions = {
+      open: false,
+      activeIndex: 0,
+      suggestions: [],
+      applyMention: noopFn,
+      trackCaret: noopFn,
+      handleKeyDown: noopFn,
+    };
+    const inputRef = React.createRef<HTMLTextAreaElement>();
+    const fileRef = React.createRef<HTMLInputElement>();
+
+    const renderComposer = (opts: {
+      msgText?: string;
+      scheduleDateTime?: string;
+      scheduleActive?: boolean;
+      stickersOpen?: boolean;
+    }) => (
+      <div>
+        <ComposerToolbar
+          hidden={false}
+          attachOpen={false}
+          onToggleAttach={noop}
+          scheduleActive={opts.scheduleActive ?? false}
+          onToggleSchedule={noop}
+          stickersOpen={opts.stickersOpen ?? false}
+          onToggleStickers={noop}
+          mediaInputRef={fileRef}
+          docInputRef={fileRef}
+          audioInputRef={fileRef}
+          onPickFiles={noop as never}
+          t={t}
+        />
+        <DmComposerRow
+          msgText={opts.msgText ?? ''}
+          setMsgText={noop}
+          morseMode={false}
+          silentMode={false}
+          scheduleDateTime={opts.scheduleDateTime ?? ''}
+          onSend={noop}
+          onStartVoiceRecording={noop}
+          inputRef={inputRef}
+          mentions={mentions}
+          t={t}
+        />
+      </div>
+    );
+
+    const { rerender } = render(renderComposer({}));
+    // The send/mic button label changes with msgText/scheduleDateTime; find it
+    // as the last button in the document (it is the last child of DmComposerRow).
+    const send = () => {
+      const buttons = screen.queryAllByRole('button');
+      return buttons[buttons.length - 1]! as HTMLButtonElement;
+    };
+    const schedule = () => screen.getByLabelText('chat.scheduleMessage') as HTMLButtonElement;
+    const stickers = () => screen.getByLabelText('stickers.title') as HTMLButtonElement;
+
+    const assertNoAdHocState = () => {
+      for (const button of [send(), schedule(), stickers()]) {
+        expect(button.className).toContain('icon-button');
+        expect(button.className).not.toMatch(/bg-\[|text-\[/);
+      }
+    };
+
+    // Rest states: send button is the mic (icon-button-state); toolbar buttons idle.
+    expect(send().className).toContain('icon-button-state');
+    expect(schedule().className).not.toContain('icon-button-state');
+    expect(stickers().className).not.toContain('icon-button-state');
+
+    // Stored schedule datetime → unified modifier on schedule button.
+    rerender(renderComposer({ scheduleActive: true }));
+    expect(schedule().className).toContain('icon-button-state');
+    assertNoAdHocState();
+
+    // Back to rest.
+    rerender(renderComposer({}));
+    expect(schedule().className).not.toContain('icon-button-state');
+
+    // Stickers open → unified modifier.
+    rerender(renderComposer({ stickersOpen: true }));
+    expect(stickers().className).toContain('icon-button-state');
+    assertNoAdHocState();
+
+    // Typing text switches send→primary (no schedule).
+    rerender(renderComposer({ msgText: 'hi' }));
+    expect(send().className).toContain('primary');
+    expect(send().className).not.toContain('icon-button-schedule-state');
+
+    // Scheduled send keeps primary shape with the schedule modifier.
+    rerender(renderComposer({ msgText: 'hi', scheduleDateTime: '2026-11-03T12:00', scheduleActive: true }));
+    expect(send().className).toContain('primary');
+    expect(send().className).toContain('icon-button-schedule-state');
+    assertNoAdHocState();
   });
 
   it('opens the attach menu on plus click and closes it on Escape', () => {

@@ -21,6 +21,19 @@ export const DEFAULT_FETCH_TIMEOUT_MS = 15_000
  */
 export const MEDIA_FETCH_TIMEOUT_MS = 60_000
 
+/**
+ * True for in-process sources (`blob:` / `file:` URLs created by the app).
+ *
+ * Those URLs do not cross a network, so the connect/headers/body deadline does
+ * not apply to them: a blob is either still alive (the fetch settles
+ * immediately) or already revoked (the fetch rejects promptly). Callers use
+ * this to fall back to locally stored copies instead of surfacing a
+ * network-style error.
+ */
+export function isBlobUrl(url: string): boolean {
+  return url.startsWith('blob:') || url.startsWith('file:')
+}
+
 export interface TimedTextResponse {
   ok: boolean
   status: number

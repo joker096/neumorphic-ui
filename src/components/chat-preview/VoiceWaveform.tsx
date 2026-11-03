@@ -1,22 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Play, Pause, Loader2 } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
 import { useVoiceWaveformAudio } from '../../hooks/useVoiceWaveformAudio';
-import { useAppStore } from '../../store';
-import { Avatar } from '../ui/Avatar';
 
 interface VoiceWaveformProps {
   duration?: string;
   isMe?: boolean;
   audioUrl?: string;
   stream?: MediaStream | null;
-  name?: string;
+  /** Stable id of a recorded note — used to rebuild a dead blob URL from IndexedDB. */
+  voiceId?: string | number;
 }
 
-export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name }: VoiceWaveformProps) => {
+export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, voiceId }: VoiceWaveformProps) => {
   const { t } = useI18n();
-  const contactAvatars = useAppStore((s) => s.contactAvatars);
-  const userProfile = useAppStore((s) => s.userProfile);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const durationSec = duration ? duration.split(':').reduce((acc, time) => (60 * acc) + +time, 0) : 0;
   const widthClass = stream
@@ -33,7 +30,7 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name 
     isPlaying, progress, isReady, loadError, staticWave,
     analyserRef, audioCtxRef, startTimeRef, animationRef,
     togglePlayback, handleSeek, speed, changeSpeed,
-  } = useVoiceWaveformAudio(audioUrl, stream, durationSec);
+  } = useVoiceWaveformAudio(audioUrl, stream, durationSec, voiceId);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -154,19 +151,11 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name 
   };
   const timeLabel = isPlaying || progress > 0.001 ? formatClock(remainingSec) : duration;
   const colorCls = isMe ? "text-[var(--waveform-played-self)]" : "text-[var(--text-secondary)]";
-  const avatarSrc = isMe ? userProfile?.avatar : contactAvatars?.[String(name ?? "")];
   const nextSpeed = speed >= 2 ? 1 : speed >= 1.5 ? 2 : 1.5;
-  const handleCanvasSeek = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    e.stopPropagation();
-    const rect = e.currentTarget.getBoundingClientRect();
-    if (rect.width > 0 && isReady) void handleSeek((e.clientX - rect.left) / rect.width);
-  };
+  const seekable = !stream && !!audioUrl && !loadError;
 
   return (
     <div className={`flex items-center gap-3 max-w-full ${widthClass}`}>
-      {!stream && name && (
-        <Avatar name={name} src={avatarSrc} size="sm" className="shrink-0" />
-      )}
       {!stream && (
         <button
           type="button"
@@ -193,11 +182,29 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name 
       )}
 
       <div className="flex-1 flex flex-col justify-center">
-         <canvas
-           ref={canvasRef}
-           className={`w-full h-8 block${!stream && isReady ? ' cursor-pointer' : ''}`}
-           onClick={!stream && isReady ? handleCanvasSeek : undefined}
-         />
+         <div className="relative flex items-center min-h-11 rounded-md focus-within:ring-2 focus-within:ring-[var(--accent)]/40">
+           <canvas
+             ref={canvasRef}
+             className="w-full h-8 block"
+             aria-hidden="true"
+           />
+           {seekable && (
+             <input
+                data-testid="seek-slider"
+                aria-label={t("a11y.seekVoiceNote")}
+                type="range"
+                min={0}
+                max={100}
+                value={Math.round((progress || 0) * 100)}
+                disabled={!isReady}
+                onChange={(e) => {
+                  void handleSeek(Number(e.target.value) / 100);
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="absolute inset-0 w-full h-full appearance-none bg-transparent cursor-pointer disabled:cursor-default focus-visible:outline-none"
+             />
+           )}
+         </div>
          {!stream && (
            <div className="flex items-center gap-2 mt-1">
              {!isMe && (progress || 0) < 0.001 && !isPlaying && (
@@ -221,24 +228,8 @@ export const VoiceWaveform = ({ duration = "0:12", isMe, audioUrl, stream, name 
            </div>
          )}
          {!stream && loadError && (
-           <div className="text-xs font-medium mt-1 text-rose-400">{t('chat.voiceUnavailable', 'Voice message unavailable')}</div>
+           <div className="text-xs font-medium mt-1 text-[var(--danger)]">{t('chat.voiceUnavailable', 'Voice message unavailable')}</div>
          )}
-         {!stream && !loadError && audioUrl && (
-            <input
-               data-testid="seek-slider"
-               aria-label={t("a11y.seekVoiceNote")}
-               type="range"
-               min={0}
-               max={100}
-               value={Math.round((progress || 0) * 100)}
-               disabled={!isReady}
-               onChange={(e) => {
-                 void handleSeek(Number(e.target.value) / 100);
-               }}
-               className="voice-seek mt-2 w-full disabled:opacity-40"
-               style={{ "--seek-progress": `${Math.round((progress || 0) * 100)}%` } as React.CSSProperties}
-            />
-          )}
       </div>
     </div>
   );

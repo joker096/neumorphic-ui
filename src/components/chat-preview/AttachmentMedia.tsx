@@ -33,11 +33,12 @@ interface AttachmentMediaProps {
   onSetPhotoOpen: (open: boolean) => void;
   onSetVideoOpen: (open: boolean) => void;
   onSetActiveMediaMsg?: (msg: any) => void;
+  onOpenAlbum?: (msg: any) => void;
 }
 
 export function AttachmentMedia({
   msg, isMe, stickerSrc,
-  onSetActivePhotoUrl, onSetPhotoOpen, onSetVideoOpen, onSetActiveMediaMsg,
+  onSetActivePhotoUrl, onSetPhotoOpen, onSetVideoOpen, onSetActiveMediaMsg, onOpenAlbum,
 }: AttachmentMediaProps) {
   const { t } = useI18n();
   const mediaAutoLoad = useAppStore((s) => s.mediaAutoLoad);
@@ -94,14 +95,14 @@ export function AttachmentMedia({
   }
 
   if (msg.type === "audio") {
-    return <VoiceWaveform duration={msg.duration} isMe={isMe} audioUrl={voiceUrl} name={String(msg.sender || "")} />;
+    return <VoiceWaveform duration={msg.duration} isMe={isMe} audioUrl={voiceUrl} voiceId={msg.voiceId} />;
   }
 
   if (msg.type === "sticker") {
     return (
       <div className="flex items-center justify-center">
         {stickerSrc ? (
-          <img src={stickerSrc} alt={t("a11y.sticker")} className="w-auto h-auto max-w-[3rem] max-h-[3rem] sm:max-w-[3.5rem] sm:max-h-[3.5rem] object-contain" loading="eager" decoding="async" />
+          <img src={stickerSrc} alt={t("a11y.sticker")} className="w-auto h-auto max-w-[7rem] max-h-[7rem] sm:max-w-[8.75rem] sm:max-h-[8.75rem] object-contain" loading="eager" decoding="async" />
         ) : (
           <span className="text-[32px] leading-none">{msg.text}</span>
         )}
@@ -123,7 +124,10 @@ export function AttachmentMedia({
           alt={msg.text ? t("chat.sharedImageText", { text: msg.text }) : t("chat.sharedImage")}
           failed={albumFailed}
           onItemError={(i) => setAlbumFailed((prev) => (prev.includes(i) ? prev : [...prev, i]))}
-          onOpen={(url) => { onSetActiveMediaMsg?.(msg); onSetActivePhotoUrl(url); onSetPhotoOpen(true); }}
+          onOpen={(albumData: any) => {
+            onSetActiveMediaMsg?.(msg);
+            onOpenAlbum?.({ ...albumData, sourceMsg: msg });
+          }}
         />
       );
     }

@@ -98,7 +98,6 @@ isRadioMode, textColor, volume, setVolume, eqGains, setEqGains,
                   style={{
                     writingMode: 'vertical-lr',
                     direction: 'rtl',
-                    WebkitAppearance: 'slider-vertical',
                     background: 'var(--player-eq-bar)'
                   }}
                 />

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { DEFAULT_FETCH_TIMEOUT_MS, MEDIA_FETCH_TIMEOUT_MS, fetchArrayBufferWithTimeout, fetchBlobWithTimeout, fetchTextWithTimeout } from './fetchWithTimeout'
+import { DEFAULT_FETCH_TIMEOUT_MS, MEDIA_FETCH_TIMEOUT_MS, fetchArrayBufferWithTimeout, fetchBlobWithTimeout, fetchTextWithTimeout, isBlobUrl } from './fetchWithTimeout'
 
 const fetchMock = vi.fn()
 
@@ -152,5 +152,14 @@ describe('media budget', () => {
   it('is larger than the default but still bounded', () => {
     expect(MEDIA_FETCH_TIMEOUT_MS).toBeGreaterThan(DEFAULT_FETCH_TIMEOUT_MS)
     expect(MEDIA_FETCH_TIMEOUT_MS).toBeLessThanOrEqual(120_000)
+  })
+})
+
+describe('isBlobUrl', () => {
+  it('recognizes object and file URLs', () => {
+    expect(isBlobUrl('blob:https://example.com/1234')).toBe(true)
+    expect(isBlobUrl('blob:1234')).toBe(true)
+    expect(isBlobUrl('file:///C:/x')).toBe(true)
+    expect(isBlobUrl('https://example.com/media')).toBe(false)
   })
 })

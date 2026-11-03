@@ -372,6 +372,16 @@
     border: 1px solid rgba(16, 185, 129, 0.3);
   }
 
+  /* Telegram parity: a sticker is drawn bare — no bubble fill, border or padding. */
+  .message.message-bare,
+  .message.outgoing.message-bare,
+  [data-theme="light"] .message.outgoing.message-bare {
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
   .message-meta {
     margin-top: 2px;
     font-size: 12px;
@@ -479,6 +489,37 @@
   }
 
   /* -----------------------------------------------------------------
+     Icon button states
+
+     Every toggleable icon button (attach, schedule, timer, stickers, mic)
+     shares the `.icon-button-state` modifier for its "armed/active" look,
+     so the glyph stays pinned to the same box no matter what the button
+     is doing — tapping a mic/send button must never shift the row.
+     ----------------------------------------------------------------- */
+  .icon-button-state {
+    /* Tailwind arbitrary utilities (bg-[var(--accent)]/20 etc.) write a
+       literal background-color; keep it and override the base panel. */
+    background-color: color-mix(in srgb, var(--msg-accent) 20%, transparent);
+    color: var(--msg-accent);
+  }
+
+  .icon-button-state:hover {
+    background-color: color-mix(in srgb, var(--msg-accent) 30%, transparent);
+    color: var(--msg-accent);
+  }
+
+  .icon-button-state:active {
+    transform: scale(0.92);
+  }
+
+  /* "Send is scheduled" state: same soft-fill shape, cyan instead of accent. */
+  .icon-button-schedule-state,
+  .icon-button-schedule-state:hover {
+    background-color: color-mix(in srgb, var(--msg-cyan, var(--msg-accent)) 20%, transparent);
+    color: var(--msg-cyan, var(--msg-accent));
+  }
+
+  /* -----------------------------------------------------------------
      Dropdown / context menu
      ----------------------------------------------------------------- */
   .glass-menu {
@@ -530,8 +571,16 @@
   /* -----------------------------------------------------------------
      Slider vertical — EQ band (EqualizerPanel)
      ----------------------------------------------------------------- */
+  /*
+     Vertical EQ band slider.
+
+     `-webkit-appearance: slider-vertical` is deprecated and triggers a
+     console warning in modern browsers; the same vertical track + rtl
+     direction is achieved with the standardized `writing-mode` pair, so the
+     keyword is no longer emitted (neither here nor in the component style).
+  */
   .slider-vertical {
-    -webkit-appearance: slider-vertical;
+    appearance: none;
     writing-mode: vertical-lr;
     direction: rtl;
     background: linear-gradient(to bottom, var(--player-eq-bar) 0%, var(--player-eq-track) 100%);

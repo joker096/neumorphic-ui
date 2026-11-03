@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { fetchArrayBufferWithTimeout } from '../lib/network/fetchWithTimeout';
+import { fetchArrayBufferWithTimeout, isBlobUrl } from '../lib/network/fetchWithTimeout';
+import { getVoiceBlob } from '../lib/voiceStore';
 
-export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | null, durationSec = 0) {
+export function useVoiceWaveformAudio(
+  audioUrl?: string,
+  stream?: MediaStream | null,
+  durationSec = 0,
+  voiceId?: string | number,
+) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isReady, setIsReady] = useState(false);
@@ -38,23 +44,49 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
         sourceRef.current = source;
         setIsPlaying(true);
       } else if (audioUrl) {
+        // One deadline for connect, headers AND the body read: an inline
+        // AbortController cleared right after the headers arrive covers only
+        // the headers, so a stalled body could hang forever.
+        let arrayBuffer: ArrayBuffer | undefined;
         try {
-          // One deadline for connect, headers AND the body read: an inline
-          // AbortController cleared right after the headers arrive covers only
-          // the headers, so a stalled body could hang forever.
           const resp = await fetchArrayBufferWithTimeout(audioUrl);
           if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-          const arrayBuffer = resp.buffer;
-          if (!active) return;
-          bufferRef.current = await ctx.decodeAudioData(arrayBuffer);
-          setIsReady(true);
+          arrayBuffer = resp.buffer;
         } catch {
+          arrayBuffer = undefined;
+        }
+        if (arrayBuffer === undefined && isBlobUrl(audioUrl) && voiceId !== undefined && voiceId !== null && voiceId !== '') {
+          // The object URL died (revoked after reload / player unmount). The
+          // blob is persisted in IndexedDB, so silently rebuild a fresh URL —
+          // no error surfacing for a source that is simply gone from memory.
+          const blob = await getVoiceBlob(voiceId);
+          if (!active) return;
+          if (blob) {
+            try {
+              arrayBuffer = await blob.arrayBuffer();
+            } catch {
+              arrayBuffer = undefined;
+            }
+          }
+        }
+        if (arrayBuffer === undefined) {
           // Never synthesize audio: unavailable source must stay silent and be
           // surfaced as unavailable instead of playing noise.
           if (!active) return;
           setLoadError(true);
           setIsReady(false);
+          return;
         }
+        try {
+          bufferRef.current = await ctx.decodeAudioData(arrayBuffer);
+        } catch {
+          if (!active) return;
+          setLoadError(true);
+          setIsReady(false);
+          return;
+        }
+        if (!active) return;
+        setIsReady(true);
       }
     };
 
@@ -67,7 +99,7 @@ export function useVoiceWaveformAudio(audioUrl?: string, stream?: MediaStream | 
       }
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [durationSec, audioUrl, stream]);
+  }, [durationSec, audioUrl, stream, voiceId]);
 
   useEffect(() => {
     if (bufferRef.current) {
