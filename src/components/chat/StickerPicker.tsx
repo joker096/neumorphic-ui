@@ -65,7 +65,7 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className="group min-h-11 min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-all shrink-0 active:scale-95"
+            className="group min-h-9 min-w-9 sm:min-h-11 sm:min-w-11 p-1 flex items-center justify-center rounded-full cursor-pointer transition-all shrink-0 active:scale-95"
           >
             <span className={`flex items-center px-3 py-0.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
               activeTab === tab.id
@@ -103,10 +103,10 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
                       onSelect(value);
                       onClose();
                     }}
-                    className={`min-w-11 min-h-11 rounded-full flex items-center justify-center text-xl transition-transform active:scale-95 hover:bg-[var(--bg-elevated)]`}
+                    className={`min-w-9 min-h-9 sm:min-w-11 sm:min-h-11 rounded-full flex items-center justify-center text-lg sm:text-xl transition-transform active:scale-95 hover:bg-[var(--bg-elevated)]`}
                   >
                     {stickerSrc ? (
-                      <img src={stickerSrc} alt={st} className="w-7 h-7 object-contain" loading="lazy" decoding="async" />
+                      <img src={stickerSrc} alt={st} className="w-6 h-6 sm:w-7 sm:h-7 object-contain" loading="lazy" decoding="async" />
                     ) : (
                       st
                     )}
@@ -125,7 +125,7 @@ export const StickerPicker = ({ theme, onSelect, onClose, onOpenPremium }: Stick
                     toast(unlockLabelFor(pack.id));
                   }}
                   aria-label={unlockLabelFor(pack.id)}
-                  className="min-w-11 min-h-11 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
+                  className="min-w-9 min-h-9 sm:min-w-11 sm:min-h-11 rounded-full flex items-center justify-center bg-[var(--bg-tertiary)] text-[var(--text-tertiary)]"
                 >
                   <Crown size={16} />
                 </button>

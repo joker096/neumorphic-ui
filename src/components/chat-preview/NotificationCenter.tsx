@@ -12,7 +12,7 @@ import { formatRelativeTime } from "../../utils/relativeTime";
 
 /** Square icon button in the notification panel header. */
 const ICON_BTN_CLASS =
-  'flex items-center justify-center min-w-11 min-h-11 -my-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10';
+  'flex items-center justify-center min-w-11 min-h-11 -my-1 rounded-lg hover:bg-[var(--msg-bg-panel-hover)]';
 
 const KIND_ICON: Record<NotificationKind, React.ComponentType<{ size?: number; className?: string }>> = {
   message: MessageSquare,
@@ -35,7 +35,7 @@ const SETTING_KEYS: { key: keyof NotificationSettings; labelKey: string; label: 
   { key: "desktop", labelKey: "notif.settings.desktop", label: "Desktop" },
   { key: "mobile", labelKey: "notif.settings.mobile", label: "Mobile" },
 ];
-export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: string, o?: any) => string }) {
+export function NotificationCenter({ t, isDark }: { t: (k: string, o?: any) => string; isDark?: boolean }) {
   const notificationItems = useAppStore((s) => s.notificationItems);
   const unreadCount = useAppStore((s) => s.unreadCount);
   const settings = useAppStore((s) => s.notificationSettings);
@@ -156,7 +156,7 @@ export function NotificationCenter({ isDark, t }: { isDark: boolean; t: (k: stri
             ) : (
               <div className="max-h-[320px] overflow-y-auto">
                 {notificationItems.length === 0 ? (
-                  <DataState status="empty" isDark={isDark} title={t("notif.empty", "No notifications")} description={t("notif.emptyHint")} action={{ label: t("notif.settingsTitle", "Settings"), onClick: () => setShowSettings(true) }} />
+                  <DataState status="empty" title={t("notif.empty", "No notifications")} description={t("notif.emptyHint")} action={{ label: t("notif.settingsTitle", "Settings"), onClick: () => setShowSettings(true) }} />
                 ) : (
                   notificationItems.map((n) => {
                     const Icon = KIND_ICON[n.kind];

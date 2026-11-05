@@ -29,7 +29,7 @@ export function buildCSP(options: CSPOptions = {}): string {
     "style-src 'self'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self' wss:",
+    "connect-src 'self' blob: wss:",
     "media-src 'self' blob: data:",
     "object-src 'none'",
     "base-uri 'self'",

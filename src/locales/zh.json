@@ -82,6 +82,7 @@
     "frequent": "Frequent"
   },
   "chat": {
+    "album": "相册",
     "draft": "草稿",
     "createPoll": "创建投票",
     "pollQuestion": "问题",
@@ -396,6 +397,8 @@
     "forwarded": "Forwarded",
     "forwardedFrom": "转发自 {{name}}",
     "jumpToMessage": "跳转到消息",
+    "jumpToBottom": "跳到最新消息",
+    "jumpToUnread": "跳到未读消息",
     "deleted": "Deleted",
     "reactions": "Reactions",
     "reactionTooltip": {

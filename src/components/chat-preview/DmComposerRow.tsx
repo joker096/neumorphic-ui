@@ -7,10 +7,10 @@ import { composerInputStyle, growTextarea } from "./composerInput";
 export interface DmComposerRowProps {
   msgText: string;
   setMsgText: (value: string) => void;
+  /** Active composer modes are only marked here; they are toggled from the
+   *  attach menu so the row stays a plain field + send button. */
   morseMode: boolean;
-  onToggleMorse: () => void;
   silentMode: boolean;
-  onToggleSilent: () => void;
   scheduleDateTime: string;
   onSend: () => void;
   /** Clears the stale voice error, then arms the hold-to-record gesture. */
@@ -33,9 +33,7 @@ export function DmComposerRow({
   msgText,
   setMsgText,
   morseMode,
-  onToggleMorse,
   silentMode,
-  onToggleSilent,
   scheduleDateTime,
   onSend,
   onStartVoiceRecording,
@@ -49,7 +47,7 @@ export function DmComposerRow({
 
   return (
     <>
-      <div className="order-first sm:order-none w-full sm:flex-1 min-w-0 min-h-11 max-h-[132px] flex items-center gap-1">
+      <div className="flex-1 min-w-0 min-h-11 max-h-[132px] flex items-center gap-1">
         <textarea
           ref={inputRef}
           rows={1}
@@ -81,29 +79,15 @@ export function DmComposerRow({
           style={inputStyle}
         />
         <div className="flex items-center gap-1 flex-shrink-0">
-          <button
-            type="button"
-            title={t("chat.silentMessage")}
-            aria-label={t("chat.silentMessage")}
-            aria-pressed={silentMode}
-            onClick={onToggleSilent}
-            className={`icon-button ${silentMode ? "bg-amber-500 text-[var(--ink-on-saturate)]" : ""}`}
-          >
-            <BellOff size={14} />
-          </button>
-          <button
-            type="button"
-            title={t("chat.toggleMorseEncoder")}
-            aria-label={t("chat.toggleMorseEncoder")}
-            aria-pressed={morseMode}
-            onClick={onToggleMorse}
-            className={`icon-button text-xs font-mono font-bold ${
-              morseMode ? "bg-amber-500 text-[var(--ink-on-saturate)]" : ""
-            }`}
-          >
-            <Radio size={14} />
-            <span className="sr-only">{t("chat.morse")}</span>
-          </button>
+          {(silentMode || morseMode) && (
+            <span
+              aria-hidden="true"
+              data-testid="composer-mode-marker"
+              className="flex h-11 items-center text-[var(--amber)]"
+            >
+              {morseMode ? <Radio size={14} /> : <BellOff size={14} />}
+            </span>
+          )}
         </div>
       </div>
 
@@ -124,12 +108,12 @@ export function DmComposerRow({
           if (!msgText) onStartVoiceRecording();
         }}
         onContextMenu={(e) => e.preventDefault()}
-        className={`icon-button order-last sm:order-none ml-auto sm:ml-0 select-none ${
+        className={`icon-button order-last sm:order-none select-none ${
           scheduleDateTime && msgText
-            ? "bg-[var(--cyan)] text-[var(--bg-primary)]"
+            ? "primary icon-button-schedule-state"
             : msgText
               ? "primary"
-              : "bg-[var(--accent)]/20 text-[var(--accent)]"
+              : "icon-button-state"
         }`}
       >
         {msgText ? (scheduleDateTime ? <Clock size={16} /> : <Send size={18} />) : <Mic size={18} />}

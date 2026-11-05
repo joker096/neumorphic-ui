@@ -152,7 +152,6 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <DataState
                   status="empty"
-                  isDark={isDark}
                   title={t('contacts.noBlocked')}
                   description={t('contacts.noBlockedHint')}
                   action={{ label: t('contacts.viewAll'), onClick: () => setActiveTab('all') }}
@@ -162,7 +161,6 @@ export const ContactsView = ({ theme, contacts, setContacts, onCall, onVideoCall
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <DataState
                   status="empty"
-                  isDark={isDark}
                   title={t('contacts.noContacts')}
                   description={t('contacts.noContactsSubtitle')}
                   action={{ label: t('contacts.addContact'), onClick: () => setShowAddForm(true) }}

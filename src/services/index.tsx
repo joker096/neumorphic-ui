@@ -130,7 +130,6 @@ export function NotConfiguredState({
   return (
     <DataState
       status="empty"
-      isDark={isDark}
       title={t('integrations.notConnected')}
       description={
         hint ??

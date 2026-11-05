@@ -24,7 +24,6 @@ import { DmRecorderSlots } from "./DmRecorderSlots";
 import { useChatSelfDestructTimer } from "./useChatSelfDestructTimer";
 
 interface ChatInputAreaProps {
-  isDark: boolean;
   isChannel: boolean;
   chat: any;
   eMsgText: string;
@@ -67,7 +66,6 @@ interface ChatInputAreaProps {
 }
 
 function ChatInputAreaImpl({
-  isDark,
   isChannel,
   chat,
   eMsgText,
@@ -194,7 +192,6 @@ function ChatInputAreaImpl({
         t={t}
       />
       <DmRecorderSlots
-        isDark={isDark}
         showVideoRecorder={showVideoRecorder}
         recordingVoice={eIsRecordingVoice}
         onStopVideo={() => setShowVideoRecorder(false)}
@@ -217,10 +214,14 @@ function ChatInputAreaImpl({
         stopLiveLocationShare={stopLiveLocationShare}
         sendArticleMessage={sendArticleMessage}
         sendPoll={sendPoll}
+        silentMode={eSilentMode}
+        onToggleSilent={() => setSilentModeFn2(!eSilentMode)}
+        morseMode={eMorseMode}
+        onToggleMorse={() => setMorseModeFn2(!eMorseMode)}
         t={t}
       />
 
-      <div className="message-composer relative shrink-0 mx-2 sm:mx-3 mb-3 mt-1 flex flex-wrap sm:flex-nowrap">        <MentionSuggestionsMenu
+      <div className="message-composer relative shrink-0 mx-2 sm:mx-3 mb-3 mt-1 flex flex-nowrap"><MentionSuggestionsMenu
           open={mentions.open}
           suggestions={mentions.suggestions}
           activeIndex={mentions.activeIndex}
@@ -255,9 +256,7 @@ function ChatInputAreaImpl({
           msgText={eMsgText}
           setMsgText={setMsgTextFn}
           morseMode={eMorseMode}
-          onToggleMorse={() => setMorseModeFn2(!eMorseMode)}
           silentMode={eSilentMode}
-          onToggleSilent={() => setSilentModeFn2(!eSilentMode)}
           scheduleDateTime={eScheduleDateTime}
           onSend={() => sendMessage()}
           onStartVoiceRecording={() => {

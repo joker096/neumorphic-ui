@@ -24,7 +24,7 @@ vi.mock('../store', () => ({
 }));
 
 vi.mock('../lib/voiceStore', () => ({
-  persistVoiceBlob: vi.fn().mockResolvedValue(undefined),
+  persistVoiceBlob: vi.fn().mockResolvedValue(true),
   getVoiceBlob: vi.fn().mockResolvedValue(undefined),
 }));
 

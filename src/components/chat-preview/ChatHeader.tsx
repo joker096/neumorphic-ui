@@ -28,7 +28,6 @@ interface ChatHeaderProps {
     postCount?: number;
     history?: any[];
   };
-  isDark?: boolean;
   onClose: () => void;
   onProfileClick: () => void;
   onSearchToggle?: () => void;
@@ -38,7 +37,7 @@ interface ChatHeaderProps {
   typing?: boolean;
 }
 
-export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSearchToggle, onCall, onVideoCall, t, typing }: ChatHeaderProps) => {
+export const ChatHeader = ({ chat, onClose, onProfileClick, onSearchToggle, onCall, onVideoCall, t, typing }: ChatHeaderProps) => {
   const [moreOpen, setMoreOpen] = useState(false);
   const canCall = !(chat.type === "group" || chat.type === "channel" || chat.type === "bot" || chat.isChannel);
   const isChannelChat = chat.isChannel || chat.type === "channel";
@@ -55,20 +54,15 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
   ].filter(Boolean) as { key: string; icon: React.ReactNode; label: string; onClick: () => void }[];
   return (
     <div
-      className={`px-2 sm:px-3 py-2 flex items-center gap-2 sm:gap-3 relative z-10 ${
-        isDark
-          ? "bg-gradient-to-b from-[var(--bg-tertiary)] to-[var(--bg-tertiary)]/80 border-b border-[var(--border-color)]/70 backdrop-blur-md"
-          : "bg-gradient-to-b from-[var(--bg-primary)] to-[var(--bg-primary)]/80 border-b border-[var(--border-color)]/70 backdrop-blur-md"
-      }`}
+      className="px-2 sm:px-3 py-2 flex items-center gap-2 sm:gap-3 relative z-10 bg-[var(--bg-tertiary)] border-b border-[var(--border-color)]/70 backdrop-blur-md"
     >
       <IconButton
         icon={<ChevronRight className="rotate-180" />}
         aria-label={t("chat.goBack")}
         onClick={onClose}
-        isDark={isDark}
         variant="ghost"
         size="md"
-        className="shrink-0"
+        className="shrink-0 sm:hidden"
       />
 
       <div
@@ -168,7 +162,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             icon={<Phone />}
             aria-label={t("chat.startCall")}
             onClick={() => onCall(chat.name, chat.color)}
-            isDark={isDark}
+            
             variant="ghost"
             size="md"
             className={HEADER_BTN_SHADOW_CLASS}
@@ -182,7 +176,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             icon={<Video />}
             aria-label={t("chat.startVideoCall")}
             onClick={() => onVideoCall(chat.name, chat.color)}
-            isDark={isDark}
+            
             variant="ghost"
             size="md"
             className={HEADER_BTN_SHADOW_CLASS}
@@ -196,7 +190,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             icon={<Search />}
             aria-label={t("chat.searchMessages")}
             onClick={onSearchToggle}
-            isDark={isDark}
+            
             variant="ghost"
             size="md"
             className={HEADER_BTN_SHADOW_CLASS}
@@ -211,7 +205,7 @@ export const ChatHeader = ({ chat, isDark = false, onClose, onProfileClick, onSe
             aria-label={t("chat.more")}
             aria-expanded={moreOpen}
             onClick={() => setMoreOpen((o) => !o)}
-            isDark={isDark}
+            
             variant="ghost"
             size="md"
             className={HEADER_BTN_SHADOW_CLASS}

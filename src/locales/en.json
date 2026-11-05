@@ -82,6 +82,7 @@
     "frequent": "Frequent"
   },
   "chat": {
+    "album": "Album",
     "draft": "Draft",
     "createPoll": "Create poll",
     "pollQuestion": "Question",
@@ -396,6 +397,8 @@
     "forwarded": "Forwarded",
     "forwardedFrom": "Forwarded from {{name}}",
     "jumpToMessage": "Go to message",
+    "jumpToBottom": "Scroll to latest message",
+    "jumpToUnread": "Scroll to unread messages",
     "deleted": "Deleted",
     "reactions": "Reactions",
     "reactionTooltip": {

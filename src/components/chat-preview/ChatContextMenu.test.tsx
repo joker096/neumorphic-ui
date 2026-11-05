@@ -157,7 +157,7 @@ describe('ChatContextMenu', () => {
 
       setCoarse(false);
       render(<ChatContextMenu anchor={{ x: 10, y: 10 }} items={baseItems()} onClose={vi.fn()} />);
-      expect(screen.getByRole('menuitem', { name: 'Pin' }).className).toContain('min-h-9');
+      expect(screen.getByRole('menuitem', { name: 'Pin' }).className).toContain('min-h-11');
     } finally {
       window.matchMedia = original;
     }

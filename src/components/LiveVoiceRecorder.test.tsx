@@ -12,7 +12,6 @@ if (typeof URL.createObjectURL !== 'function') {
 }
 
 const defaultProps = {
-  isDark: true,
   onCancel: vi.fn(),
   onSend: vi.fn(),
   onPermissionDenied: vi.fn(),
@@ -64,7 +63,7 @@ describe('LiveVoiceRecorder', () => {
   it('renders recording UI initially', () => {
     render(<LiveVoiceRecorder {...defaultProps} />);
     // Just check the recording UI is rendered, don't worry about specific time
-    expect(screen.getByTitle('Discard')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Discard/i })).toBeInTheDocument();
     expect(screen.getByTitle('Stop and Send')).toBeInTheDocument();
   });
 
@@ -107,8 +106,8 @@ describe('LiveVoiceRecorder', () => {
       expect(screen.getByTitle('Pause')).toBeInTheDocument();
     });
     const pauseBtn = screen.getByTitle('Pause') as HTMLElement;
-    expect(pauseBtn.className).toContain('min-h-11');
-    expect(pauseBtn.className).toContain('min-w-11');
+    expect(pauseBtn.className).toContain('min-h-[44px]');
+    expect(pauseBtn.className).toContain('min-w-[44px]');
   });
 
   it('calls onPermissionDenied and onCancel when mic access fails', async () => {
@@ -135,7 +134,7 @@ describe('LiveVoiceRecorder', () => {
   it('handles pause/resume button display', () => {
     render(<LiveVoiceRecorder {...defaultProps} />);
     // Component renders with recording controls
-    expect(screen.getByTitle('Discard')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Discard/i })).toBeInTheDocument();
   });
 
   it('sends the live blob with url and duration on stop', async () => {
@@ -172,10 +171,10 @@ describe('LiveVoiceRecorder', () => {
     render(<LiveVoiceRecorder {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTitle('Discard')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Discard/i })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTitle('Discard'));
+    fireEvent.click(screen.getByRole('button', { name: /Discard/i }));
     expect(defaultProps.onCancel).toHaveBeenCalled();
   });
 
@@ -196,7 +195,7 @@ describe('LiveVoiceRecorder', () => {
     render(<LiveVoiceRecorder {...defaultProps} holdToRecord={false} />);
 
     await waitFor(() => {
-      expect(screen.getByTitle('Discard')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Discard/i })).toBeInTheDocument();
     });
 
     expect(addListenerSpy).not.toHaveBeenCalledWith('pointerup', expect.any(Function));

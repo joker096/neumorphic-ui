@@ -1,4 +1,4 @@
-import { Clock } from "lucide-react";
+import { Clock, Forward, MessageSquare } from "lucide-react";
 
 /** Horizontal rule inside a separator row. */
 const SEPARATOR_LINE_CLASS = 'flex-1 h-px bg-[var(--border-color)]';
@@ -27,6 +27,44 @@ export function ExpiredMessage({ isMe, t }: { isMe: boolean; t: Translate }) {
         <span>{t("chat.messageExpired", "Message expired")}</span>
       </div>
     </div>
+  );
+}
+
+/** "Forwarded from …" caption painted at the top of a bubble. */
+export function ForwardedLabel({ forwardedFrom, t }: { forwardedFrom?: string; t: Translate }) {
+  return (
+    <div className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+      <Forward size={12} aria-hidden="true" />
+      <span className="truncate max-w-[200px]">
+        {forwardedFrom
+          ? t("chat.forwardedFrom", { name: forwardedFrom })
+          : t("chat.forwarded", "Forwarded")}
+      </span>
+    </div>
+  );
+}
+
+interface ThreadRepliesChipProps {
+  isMe: boolean;
+  count: number;
+  t: Translate;
+  onOpen: () => void;
+}
+
+/** Chip under a bubble that opens the reply thread rooted at it. */
+export function ThreadRepliesChip({ isMe, count, t, onOpen }: ThreadRepliesChipProps) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onOpen(); }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+      aria-label={t("chat.threadOpen", "Open thread")}
+      className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${isMe ? "text-[var(--text-primary)] hover:bg-black/10" : "text-[var(--accent)] hover:bg-black/10"}`}
+    >
+      <MessageSquare size={12} aria-hidden="true" />
+      {t("chat.threadReplies", { count })}
+    </button>
   );
 }
 

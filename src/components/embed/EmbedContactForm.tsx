@@ -1,4 +1,11 @@
-import { UserRound } from 'lucide-react';
+function IconUser({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
 
 export interface WidgetContact {
   name: string;
@@ -34,7 +41,7 @@ export function EmbedContactForm({
       }}
     >
       <div className="ew-contact-head">
-        <UserRound size={14} />
+        <IconUser size={14} />
         <span>{t('embed.contactTitle')}</span>
       </div>
       <input

@@ -1,0 +1,75 @@
+.wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--bg);
+}
+
+.thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 0 12px;
+  scrollbar-width: none;
+}
+
+.thread::-webkit-scrollbar {
+  display: none;
+}
+
+.day {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 12px;
+}
+
+.day span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.holder {
+  cursor: default;
+}
+
+.selectionBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.counter {
+  min-width: 24px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.barActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.barIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: inherit;
+}
+
+.barIcon:active {
+  background: rgba(255, 255, 255, 0.18);
+}

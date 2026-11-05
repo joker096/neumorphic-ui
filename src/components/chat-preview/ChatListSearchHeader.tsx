@@ -1,11 +1,9 @@
-import { Archive, Plus, Globe, Users } from "lucide-react";
+import { Plus, Globe, Users } from "lucide-react";
 import { NotificationCenter } from "./NotificationCenter";
-import { UNREAD_BADGE_CLASS } from "./chatPreviewClasses";
 
 interface ChatListSearchHeaderProps {
-  isDark: boolean;
+  isDark?: boolean;
   view: string;
-  archivedUnreadCount: number;
   t: (key: string, options?: any) => string;
   setView: (v: string) => void;
   setActiveFolder: (f: string) => void;
@@ -16,7 +14,7 @@ interface ChatListSearchHeaderProps {
 }
 
 export const ChatListSearchHeader = ({
-  isDark, view, archivedUnreadCount,
+  view,
   t, setView, setActiveFolder, setShowCreateChannel, setShowCreateBot, setShowCreateGroup, onOpenGlobalSearch,
 }: ChatListSearchHeaderProps) => {
   return (
@@ -44,20 +42,7 @@ export const ChatListSearchHeader = ({
             <Users size={16} />
           </button>
         )}
-        <button
-          type="button"
-          aria-label={t("chat.archived")}
-          title={t("chat.archived")}
-          onClick={() => { setView("chats"); setActiveFolder("archived"); }}
-          className={`min-w-[var(--control-height-md)] min-h-[var(--control-height-md)] rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 flex-shrink-0 relative bg-[var(--bg-tertiary)] border border-[var(--border-color)] hover:bg-[var(--msg-bg-panel-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]`}
-        >
-          <Archive size={16} />
-          {archivedUnreadCount > 0 && (
-            <div className={UNREAD_BADGE_CLASS}>
-              {archivedUnreadCount}
-            </div>
-          )}
-        </button>
+
         </>
       )}
       {onOpenGlobalSearch && (
@@ -71,7 +56,7 @@ export const ChatListSearchHeader = ({
           <Globe size={16} />
         </button>
       )}
-      <NotificationCenter isDark={isDark} t={t} />
+      <NotificationCenter t={t} />
     </div>
   );
 };

@@ -1,10 +1,10 @@
 import { lazy, Suspense } from 'react';
+import { SMALL_SPINNER_CLASS } from '../ui/spinnerClasses';
 
 const LazyLiveVoiceRecorder = lazy(() => import('../LiveVoiceRecorder').then(m => ({ default: m.LiveVoiceRecorder })));
 const LazyLiveVideoRecorder = lazy(() => import('../LiveVideoRecorder').then(m => ({ default: m.LiveVideoRecorder })));
 
 interface DmRecorderSlotsProps {
-  isDark: boolean;
   showVideoRecorder: boolean;
   recordingVoice: boolean;
   onStopVideo: () => void;
@@ -15,7 +15,6 @@ interface DmRecorderSlotsProps {
 }
 
 export function DmRecorderSlots({
-  isDark,
   showVideoRecorder,
   recordingVoice,
   onStopVideo,
@@ -50,9 +49,8 @@ export function DmRecorderSlots({
 
       {recordingVoice ? (
         <div className="px-3 pb-2">
-          <Suspense fallback={null}>
+          <Suspense fallback={<span aria-hidden="true" className={SMALL_SPINNER_CLASS} data-testid="lazy-voice-fallback" />}>
             <LazyLiveVoiceRecorder
-              isDark={isDark}
               onCancel={onStopVoice}
               onPermissionDenied={(msg: string) => {
                 onStopVoice();

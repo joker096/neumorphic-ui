@@ -181,40 +181,45 @@ describe('fuzzTime', () => {
 });
 
 describe('getBubbleCornerClass', () => {
-  it('returns correct class for single me message', () => {
+  it('draws the tail on the author side for a single outgoing bubble', () => {
     expect(getBubbleCornerClass('single', true)).toBe('rounded-xl rounded-br-sm');
   });
 
-  it('returns correct class for first me message', () => {
-    expect(getBubbleCornerClass('first', true)).toBe('rounded-t-xl rounded-bl-xl rounded-br-xl rounded-bl-sm');
+  it('draws a reduced-corner opening on the first message of a group (first in run)', () => {
+    // Grouped radius: first bubble keeps full top-radius and full bottom-radius,
+    // but does not draw the tail (tail belongs to the last bubble of a run).
+    expect(getBubbleCornerClass('first', true)).toBe('rounded-t-xl rounded-b-xl');
   });
 
-  it('returns correct class for middle me message', () => {
-    expect(getBubbleCornerClass('middle', true)).toBe('rounded-l-xl rounded-r-xl rounded-br-xl rounded-bl-xl');
+  it('draws a reduced-corner middle bubble in an outgoing run', () => {
+    // Grouped radius: middle bubbles have smaller adjacent-corner radii.
+    expect(getBubbleCornerClass('middle', true)).toBe('rounded-xl rounded-t-sm rounded-b-sm');
   });
 
-  it('returns correct class for last me message', () => {
-    expect(getBubbleCornerClass('last', true)).toBe('rounded-tl-xl rounded-tr-xl rounded-br-sm rounded-bl-xl');
+  it('draws the tail only on the last outgoing bubble', () => {
+    expect(getBubbleCornerClass('last', true)).toBe('rounded-xl rounded-br-sm');
   });
 
-  it('returns correct class for single them message', () => {
+  it('draws the tail on the author side for a single incoming bubble', () => {
     expect(getBubbleCornerClass('single', false)).toBe('rounded-xl rounded-bl-sm');
   });
 
-  it('returns correct class for first them message', () => {
-    expect(getBubbleCornerClass('first', false)).toBe('rounded-t-xl rounded-br-xl rounded-br-sm rounded-bl-xl');
+  it('draws a reduced-corner opening on the first message of an incoming group', () => {
+    // Incoming group: same grouped-radius logic (sharp-touch at bottom of first).
+    expect(getBubbleCornerClass('first', false)).toBe('rounded-t-xl rounded-b-xl');
   });
 
-  it('returns correct class for middle them message', () => {
-    expect(getBubbleCornerClass('middle', false)).toBe('rounded-r-xl rounded-l-xl rounded-bl-xl rounded-br-xl');
+  it('draws a reduced-corner middle bubble in an incoming group run', () => {
+    expect(getBubbleCornerClass('middle', false)).toBe('rounded-xl rounded-t-sm rounded-b-sm');
   });
 
-  it('returns correct class for last them message', () => {
-    expect(getBubbleCornerClass('last', false)).toBe('rounded-tr-xl rounded-tl-xl rounded-bl-sm rounded-br-xl');
+  it('draws the tail only on the last incoming bubble', () => {
+    expect(getBubbleCornerClass('last', false)).toBe('rounded-xl rounded-bl-sm');
   });
 
-  it('falls back to single for invalid group position', () => {
-    expect(getBubbleCornerClass('invalid' as any, true)).toBe('rounded-xl rounded-br-sm');
+  it('falls back to a single outgoing tail for an invalid group position', () => {
+    // Invalid group positions fall back to the middle-style reduced-corner.
+    expect(getBubbleCornerClass('invalid' as any, true)).toBe('rounded-xl rounded-t-sm rounded-b-sm');
   });
 });
 

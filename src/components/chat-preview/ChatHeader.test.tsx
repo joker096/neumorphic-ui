@@ -55,6 +55,12 @@ describe('ChatHeader', () => {
     expect(chevronLeft || container.querySelector('[class*="cursor-pointer"]')).toBeInTheDocument();
   });
 
+  it('keeps the back chevron for mobile only', () => {
+    render(<ChatHeader {...defaultProps} />);
+    // Desktop chat lives in a pane of its own — a back arrow there is a dead cue.
+    expect(screen.getByLabelText('chat.goBack')).toHaveClass('sm:hidden');
+  });
+
   it('fires onClose when back button is clicked', () => {
     const onClose = vi.fn();
     render(<ChatHeader {...defaultProps} onClose={onClose} />);

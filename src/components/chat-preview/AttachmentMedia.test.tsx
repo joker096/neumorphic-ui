@@ -28,6 +28,7 @@ function baseProps(over: any = {}) {
     isMe: true,
     stickerSrc: null,
     onSetActivePhotoUrl: vi.fn(),
+    onOpenAlbum: vi.fn(),
     onSetPhotoOpen: vi.fn(),
     onSetVideoOpen: vi.fn(),
     ...over,
@@ -107,12 +108,11 @@ describe('AttachmentMedia album grid', () => {
     expect(screen.queryByText(/^\+\d+$/)).toBeNull();
   });
 
-  it('opens the photo viewer with the first album item on grid click', () => {
+  it('calls onOpenAlbum with the album data on grid click', () => {
     const props = baseProps({ msg: albumMsg([{ url: 'http://x/a.png' }, { url: 'http://x/b.png' }]) });
     render(<AttachmentMedia {...props} />);
     fireEvent.click(screen.getAllByAltText('chat.sharedImage')[0]!);
-    expect(props.onSetActivePhotoUrl).toHaveBeenCalledWith('http://x/a.png');
-    expect(props.onSetPhotoOpen).toHaveBeenCalledWith(true);
+    expect(props.onOpenAlbum).toHaveBeenCalled();
   });
 });
 

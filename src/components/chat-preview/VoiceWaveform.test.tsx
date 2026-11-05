@@ -253,4 +253,23 @@ describe('VoiceWaveform', () => {
       expect(screen.getByText('0:06')).toBeInTheDocument();
     });
   });
+
+  it('renders exactly one seek control over the waveform', () => {
+    const { container } = render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
+    expect(screen.getAllByTestId('seek-slider')).toHaveLength(1);
+    // The waveform itself is the seek surface: the range input is an invisible
+    // overlay, so no second visible slider (with its own thumb) may exist.
+    expect(container.querySelector('.voice-seek')).toBeNull();
+  });
+
+  it('does not repeat the sender avatar inside the bubble', () => {
+    const { container } = render(<VoiceWaveform audioUrl="test.mp3" duration="0:12" />);
+    // Sender identity is painted once, by MessageGutterAvatar.
+    expect(container.querySelector('.avatar')).toBeNull();
+  });
+
+  it('keeps the live stream waveform non-seekable', () => {
+    render(<VoiceWaveform stream={mockStream as any} />);
+    expect(screen.queryByTestId('seek-slider')).not.toBeInTheDocument();
+  });
 });

@@ -3,12 +3,12 @@ import { ArrowDownAZ, CheckCheck } from "lucide-react";
 type Translate = (key: string, options?: any) => string;
 
 interface ChatListSortControlsProps {
+  isDark?: boolean;
   chatSortBy: "recent" | "alpha";
   setChatSortBy: (sort: "recent" | "alpha") => void;
   hasFilteredUnread: boolean;
   onMarkAllRead: () => void;
   t: Translate;
-  isDark?: boolean;
 }
 
 export const ChatListSortControls = ({
@@ -17,7 +17,6 @@ export const ChatListSortControls = ({
   hasFilteredUnread,
   onMarkAllRead,
   t,
-  isDark = false,
 }: ChatListSortControlsProps) => {
   if (!hasFilteredUnread && !setChatSortBy) return null;
 
@@ -49,9 +48,7 @@ export const ChatListSortControls = ({
           <span className={`px-3 py-0.5 rounded-full text-xs font-bold flex items-center gap-1 transition-colors ${
             chatSortBy === "alpha"
               ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-              : isDark
-                ? "bg-black/5 dark:bg-white/5 text-[var(--text-tertiary)]"
-                : "bg-black/5 text-[var(--text-tertiary)]"
+              : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--msg-bg-panel-hover)]"
           }`}>
             <ArrowDownAZ size={12} aria-hidden="true" />
             {chatSortBy === "alpha" ? t("chat.sortByName", "By name") : t("chat.sortByRecent", "By date")}

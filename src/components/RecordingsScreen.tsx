@@ -114,7 +114,6 @@ export const RecordingsScreen = ({ isDark = false, onBack }: { isDark?: boolean;
         {filtered.length === 0 ? (
           <DataState
             status="empty"
-            isDark={isDark}
             title={t('recordings.empty', 'Your call recordings will appear here')}
           />
         ) : (

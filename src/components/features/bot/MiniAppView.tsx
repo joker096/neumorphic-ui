@@ -17,7 +17,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
   const state = useServiceData(() => bot.getMiniApp(botId), [botId, reloadTick]);
 
   if (state.status === "loading") {
-    return <DataState status="loading" isDark={isDark} />;
+    return <DataState status="loading" />;
   }
   if (state.status === "notConfigured") {
     return (
@@ -35,8 +35,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
           </div>
         )}
         <NotConfiguredState
-          isDark={isDark}
-          feature="bot"
+                   feature="bot"
           hint={t("bot.notConfiguredMiniAppHint", "Mini-app requires BotService.getMiniApp (app url + WebApp bridge).")}
         />
       </div>
@@ -46,8 +45,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
     return (
       <DataState
         status="error"
-        isDark={isDark}
-        title={t("bot.miniAppUnavailable", "Mini-app unavailable")}
+               title={t("bot.miniAppUnavailable", "Mini-app unavailable")}
         description={state.error}
         retryAction={() => setReloadTick(n => n + 1)}
       />
@@ -59,8 +57,7 @@ export function MiniApp({ botId, isDark, onClose }: MiniAppProps) {
     return (
       <DataState
         status="empty"
-        isDark={isDark}
-        title={t("bot.miniAppEmptyTitle", "No app")}
+               title={t("bot.miniAppEmptyTitle", "No app")}
         description={t("bot.miniAppEmptyDesc", "This bot has no mini-app.")}
       />
     );

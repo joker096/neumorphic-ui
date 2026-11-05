@@ -581,7 +581,7 @@ async function main() {
     // Keytool is on PATH here (JAVA_HOME/bin) only sometimes; generate-assetlinks
     // resolves keytool itself. Runs after keystore exists.
     log.info('→ Digital Asset Links (.well-known/assetlinks.json)');
-    await runCmd(process.execPath, [path.join(__dirname, 'generate-assetlinks.mjs')], { cwd: ROOT });
+    // generate-assetlinks disabled - no verified domain (c)
 
     if (!skipBuild) await buildAndroid();
   } finally {

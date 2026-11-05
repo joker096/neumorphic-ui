@@ -39,7 +39,7 @@ interface UseChatPreviewSendsArgs {
  * attach and drop, video notes, the failed-message retry and reactions.
  */
 export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, setChatsStore, setChannels, sendFile, sendFiles }: UseChatPreviewSendsArgs) {
-  const { activeReactionPicker, setActiveReactionPicker, handleReactionMessage } = useReactionToggle({
+  const { handleReactionMessage } = useReactionToggle({
     chat,
     onUpdateChat,
     setChatsStore,
@@ -288,7 +288,5 @@ export function useChatPreviewSends({ chat, onUpdateChat, draft, queueOffline, s
     handleReactionMessage,
     handlePollVote,
     sendPoll,
-    activeReactionPicker,
-    setActiveReactionPicker,
   };
 }

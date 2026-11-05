@@ -1,4 +1,4 @@
-import { isEncrypted } from '../../lib/securePersist';
+﻿import { isEncrypted } from '../../lib/securePersist';
 import { savedPrivacySettings } from './settings/settingsPersist';
 import { createSecurityActions } from './settings/settingsSecurityActions';
 import { createPrivacyActions } from './settings/settingsPrivacyActions';
@@ -154,7 +154,7 @@ export const createSettingsSlice = (set: any, get: any): SettingsSlice => ({
   autoReconnect: savedPrivacySettings.autoReconnect ?? true,
   uiAnimations: savedPrivacySettings.uiAnimations ?? true,
   themeMode: savedPrivacySettings.themeMode ?? 'system',
-  accentColor: savedPrivacySettings.accentColor ?? '#4ede63',
+  accentColor: savedPrivacySettings.accentColor ?? '#f97316',
   chatBackground: savedPrivacySettings.chatBackground ?? 'default',
   customChatBackground: savedPrivacySettings.customChatBackground ?? '',
   chatWallpaper: savedPrivacySettings.chatWallpaper ?? {},

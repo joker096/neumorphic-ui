@@ -29,7 +29,6 @@ export function ContactsScanModal({ isScanning, isDark, theme, scanError, scanne
           {scanError ? (
             <DataState
               status="error"
-              isDark={isDark}
               title={scanError.kind === 'permission-denied' ? t('contacts.cameraPermissionDenied') : t('contacts.cameraError')}
               retryAction={onRetry}
             />

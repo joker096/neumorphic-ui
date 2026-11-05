@@ -98,7 +98,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({ anchor, anchor
                 onClose();
               }}
               className={`w-full flex items-center gap-2 rounded-lg text-xs font-medium text-left transition-colors cursor-pointer ${
-                coarse ? "min-h-11 px-3 py-2" : "min-h-9 px-3 py-1"
+                coarse ? "min-h-11 px-3 py-2" : "min-h-11 px-3 py-2"
               } ${it.disabled ? "opacity-40 cursor-not-allowed" : it.danger ? "text-red-400 hover:bg-red-500/10" : "text-[var(--text-primary)] hover:bg-white/[0.06]"}`}
             >
               <Icon size={16} className="shrink-0" />

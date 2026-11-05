@@ -14,7 +14,6 @@ type Translate = (key: string, options?: any) => string;
 interface ChatListHeaderProps {
   isDark?: boolean;
   view: string;
-  archivedUnreadCount: number;
   t: Translate;
   setView: (view: string) => void;
   setActiveFolder: (folder: string) => void;
@@ -29,6 +28,7 @@ interface ChatListHeaderProps {
   setShowAdvancedFilterModal: (show: boolean) => void;
   segments: readonly string[];
   folderUnread?: Record<string, number>;
+  archivedUnreadCount?: number;
   customFolders?: ChatFolder[];
   onEditFolders: () => void;
   chatSortBy?: "recent" | "alpha";
@@ -49,7 +49,6 @@ interface ChatListHeaderProps {
 export const ChatListHeader = ({
   isDark,
   view,
-  archivedUnreadCount,
   t,
   setView,
   setActiveFolder,
@@ -85,7 +84,6 @@ export const ChatListHeader = ({
       <ChatListSearchHeader
         isDark={isDark}
         view={view}
-        archivedUnreadCount={archivedUnreadCount}
         t={t}
         setView={setView}
         setActiveFolder={setActiveFolder}

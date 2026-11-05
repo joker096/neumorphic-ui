@@ -1,5 +1,4 @@
 import { InlineKeyboard } from "../../features/bot/InlineKeyboard";
-import { BubbleActions } from "../BubbleActions";
 import { MessageReactions } from "../MessageReactions";
 
 /** Italic note under a message footer row. */
@@ -12,46 +11,32 @@ interface MessageFooterProps {
   chat: any;
   isMe: boolean;
   isChannel: boolean;
-  chatSavedMessages: any[];
-  activeReactionPicker: string | number | null;
   translation: string | null;
   translating: boolean;
   t: Translate;
-  onReply: (msg: any) => void;
-  onToggleSavedMessage: (chat: any, msg: any) => void;
-  onSetActiveReactionPicker: (id: string | number | null) => void;
   onReactionMessage: (msgId: string | number, emoji: string) => void;
   onAction?: (action: string) => void;
 }
 
-/** Everything rendered beside/below the bubble: hover actions, reactions, translation note and bot keyboard. */
+/**
+ * Everything stacked *under* the bubble (reactions, translation, bot keyboard).
+ * Hover actions live inside the bubble itself (`BubbleActions`) so they can float
+ * beside it without reserving a column of the message row.
+ */
 export function MessageFooter({
-  msg, chat, isMe, isChannel, chatSavedMessages, activeReactionPicker,
-  translation, translating, t, onReply, onToggleSavedMessage,
-  onSetActiveReactionPicker, onReactionMessage, onAction,
+  msg, chat, isMe, isChannel,
+  translation, translating, t,
+  onReactionMessage, onAction,
 }: MessageFooterProps) {
   return (
-    <>
-      {!isChannel && (
-        <BubbleActions
-          msg={msg}
-          isMe={isMe}
-          chat={chat}
-          chatSavedMessages={chatSavedMessages}
-          onReply={onReply}
-          onToggleSavedMessage={onToggleSavedMessage}
-        />
-      )}
+    <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} max-w-full`}>
       <MessageReactions
         msg={msg}
-        isMe={isMe}
-        activeReactionPicker={activeReactionPicker}
-        onSetActiveReactionPicker={onSetActiveReactionPicker}
         onReactionMessage={onReactionMessage}
       />
       {translating && (
         <div className={ITALIC_NOTE_CLASS}>
-          {t("chat.translating", "\u041f\u0435\u0440\u0435\u0432\u043e\u0434\u2026")}
+          {t("chat.translating", "Перевод…")}
         </div>
       )}
       {translation && !translating && (
@@ -66,6 +51,6 @@ export function MessageFooter({
           rows={msg.inlineKeyboard}
         />
       )}
-    </>
+    </div>
   );
 }

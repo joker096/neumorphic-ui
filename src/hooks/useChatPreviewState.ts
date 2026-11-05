@@ -180,8 +180,6 @@ export function useChatPreviewState(
     handlePollVote: sends.handlePollVote,
     sendPoll: sends.sendPoll,
     retryFailedMessage: sends.retryFailedMessage,
-    activeReactionPicker: sends.activeReactionPicker,
-    setActiveReactionPicker: sends.setActiveReactionPicker,
     startLiveLocationShare: liveLocation.startLiveLocationShare,
     stopLiveLocationShare: liveLocation.stopLiveLocationShare,
     searchQuery: search.searchQuery, setSearchQuery: search.setSearchQuery,

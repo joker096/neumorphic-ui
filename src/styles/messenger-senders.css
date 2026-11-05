@@ -1,0 +1,39 @@
+/* ---------------------------------------------------------------------
+   Per-sender color tokens — Telegram-style deterministic palette.
+   Each group chat sender name gets a fixed color derived from the
+   sender's display name (hash → palette index), matching Telegram's
+   group palette (14-color cycle: blue, teal, violet, amber, orange,
+   coral, lime, cyan, purple, pink, red, emerald, indigo, slate).
+   --------------------------------------------------------------------- */
+:root {
+  --msg-sender-blue:      #2aabd2;
+  --msg-sender-teal:      #20b8a8;
+  --msg-sender-violet:    #8e6cd5;
+  --msg-sender-amber:     #f5b942;
+  --msg-sender-orange:    #f48c42;
+  --msg-sender-coral:     #e07a5f;
+  --msg-sender-lime:      #81b029;
+  --msg-sender-cyan:      #3aacb8;
+  --msg-sender-purple:    #9b59b6;
+  --msg-sender-pink:      #e84393;
+  --msg-sender-red:       #e0392b;
+  --msg-sender-emerald:   #27ae60;
+  --msg-sender-indigo:    #4a69bd;
+  --msg-sender-slate:     #6c7a89;
+
+  /* Dark/text colors paired with the palette for AA ≥ 4.5:1 */
+  --msg-sender-on-blue:      #071820;
+  --msg-sender-on-teal:      #0b211e;
+  --msg-sender-on-violet:    #1a0b2e;
+  --msg-sender-on-amber:     #4a2a14;
+  --msg-sender-on-orange:    #2e140b;
+  --msg-sender-on-coral:     #2e120b;
+  --msg-sender-on-lime:      #142e05;
+  --msg-sender-on-cyan:      #0b2e38;
+  --msg-sender-on-purple:    #280b2e;
+  --msg-sender-on-pink:      #2e0b2b;
+  --msg-sender-on-red:       #2e0b0b;
+  --msg-sender-on-emerald:   #0b2e0b;
+  --msg-sender-on-indigo:    #0b1529;
+  --msg-sender-on-slate:     #11171b;
+}

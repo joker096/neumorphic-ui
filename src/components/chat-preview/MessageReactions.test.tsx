@@ -1,19 +1,8 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { MessageReactions } from './MessageReactions';
-
-let mockStore: any = { premiumEntitlement: { premium: false, plan: null, expiresAt: null } };
-
-vi.mock('../../store', () => ({
-  useAppStore: (selector: any) => (typeof selector === 'function' ? selector(mockStore) : mockStore),
-}));
-
-vi.mock('motion/react', () => ({
-  motion: { div: 'div', button: 'button', span: 'span', p: 'p' },
-  AnimatePresence: ({ children }: any) => children,
-}));
 
 vi.mock('../../lib/i18n', () => ({
   useI18n: () => ({
@@ -27,21 +16,13 @@ vi.mock('../../lib/i18n', () => ({
 
 const baseProps: any = {
   msg: { id: 1, reactions: {} },
-  isMe: false,
-  activeReactionPicker: null,
-  onSetActiveReactionPicker: vi.fn(),
   onReactionMessage: vi.fn(),
 };
 
 describe('MessageReactions', () => {
-  beforeEach(() => {
-    mockStore = { premiumEntitlement: { premium: false, plan: null, expiresAt: null } };
-  });
-
-  it('renders add reaction button when no reactions exist', () => {
-    render(<MessageReactions {...baseProps} />);
-    const plusButton = document.querySelector('.lucide-plus');
-    expect(plusButton).toBeInTheDocument();
+  it('renders nothing when the message has no reactions', () => {
+    const { container } = render(<MessageReactions {...baseProps} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('renders reaction emojis with counts when reactions exist', () => {
@@ -57,18 +38,6 @@ describe('MessageReactions', () => {
     expect(screen.getByText('1')).toBeInTheDocument();
   });
 
-  it('shows reaction picker when activeReactionPicker matches msg.id and reactions exist', () => {
-    render(
-      <MessageReactions
-        {...baseProps}
-        activeReactionPicker={1}
-        msg={{ id: 1, reactions: { '👍': 1 } }}
-      />,
-    );
-    const emojiButtons = document.querySelectorAll('button');
-    expect(emojiButtons.length).toBeGreaterThanOrEqual(6);
-  });
-
   it('calls handleReaction when reaction emoji is clicked', () => {
     const onReactionMessage = vi.fn();
     render(
@@ -80,20 +49,6 @@ describe('MessageReactions', () => {
     );
     fireEvent.click(screen.getByText('👍'));
     expect(onReactionMessage).toHaveBeenCalledWith(1, '👍');
-  });
-
-  it('toggles reaction picker when add button is clicked', () => {
-    const onSetActiveReactionPicker = vi.fn();
-    const { container } = render(
-      <MessageReactions
-        {...baseProps}
-        onSetActiveReactionPicker={onSetActiveReactionPicker}
-      />,
-    );
-    const plusBtn = container.querySelector('.lucide-plus')?.closest('div[cursor-pointer]') ||
-      container.querySelector('[class*="cursor-pointer"]');
-    fireEvent.click(plusBtn!);
-    expect(onSetActiveReactionPicker).toHaveBeenCalledWith(1);
   });
 
   it('renders tooltip for each reaction', () => {
@@ -121,32 +76,11 @@ describe('MessageReactions', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  it('renders 6 reaction options for the free tier', () => {
-    const { container } = render(
-      <MessageReactions
-        {...baseProps}
-        activeReactionPicker={1}
-        msg={{ id: 1, reactions: {} }}
-      />,
-    );
-    // Emoji tiles carry an aria-label per emoji; the hover "+" control is not an emoji tile.
-    const freeEmojiButtons = Array.from(container.querySelectorAll('button')).filter(
-      (b) => b.getAttribute('aria-label') && b.getAttribute('aria-label') !== 'chat.reactions',
-    );
-    expect(freeEmojiButtons.length).toBe(6);
-  });
-
-  it('shows the add button for own messages too', () => {
-    const { container } = render(<MessageReactions {...baseProps} isMe msg={{ id: 1, reactions: {} }} />);
-    expect(container.querySelector('.lucide-plus')).toBeInTheDocument();
-  });
-
   it('toggles a reaction on an own message', () => {
     const onReactionMessage = vi.fn();
     render(
       <MessageReactions
         {...baseProps}
-        isMe
         onReactionMessage={onReactionMessage}
         msg={{ id: 1, reactions: { '👍': 1 } }}
       />,
@@ -169,18 +103,4 @@ describe('MessageReactions', () => {
     expect(other).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('renders 18 reaction options for the premium tier', () => {
-    mockStore = { premiumEntitlement: { premium: true, plan: 'premium', expiresAt: null } };
-    const { container } = render(
-      <MessageReactions
-        {...baseProps}
-        activeReactionPicker={1}
-        msg={{ id: 1, reactions: {} }}
-      />,
-    );
-    const premiumEmojiButtons = Array.from(container.querySelectorAll('button')).filter(
-      (b) => b.getAttribute('aria-label') && b.getAttribute('aria-label') !== 'chat.reactions',
-    );
-    expect(premiumEmojiButtons.length).toBe(18);
-  });
 });

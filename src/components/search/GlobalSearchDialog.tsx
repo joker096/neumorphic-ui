@@ -202,7 +202,6 @@ export const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
           {isEmpty && (
             <DataState
               status="empty"
-              isDark={isDark}
               emptyIcon="search"
               title={t("search.noResults", "Nothing found")}
               description={t("search.noResultsHint", "Try a different keyword")}

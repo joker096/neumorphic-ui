@@ -71,9 +71,24 @@ describe('voiceStore', () => {
     expect(await getVoiceBlob('m6')).toBeUndefined();
   });
 
-  it('swallows thrown fetch errors', async () => {
+  it('swallows thrown fetch errors and returns false', async () => {
     vi.spyOn(window, 'fetch').mockRejectedValue(new Error('network down'));
 
-    await expect(persistVoiceBlob('m6', 'blob:http://localhost/x')).resolves.toBeUndefined();
+    await expect(persistVoiceBlob('m6', 'blob:http://localhost/x')).resolves.toBe(false);
+  });
+
+  it('returns true when persistence succeeds via live blob', async () => {
+    const blob = new Blob(['audio'], { type: 'audio/webm' });
+    await expect(persistVoiceBlob('m7', blob)).resolves.toBe(true);
+  });
+
+  it('returns true when persistence succeeds via fetch', async () => {
+    const blob = new Blob(['audio'], { type: 'audio/webm' });
+    vi.spyOn(window, 'fetch').mockResolvedValue({ ok: true, blob: vi.fn().mockResolvedValue(blob) } as any);
+    await expect(persistVoiceBlob('m8', 'blob:http://localhost/x')).resolves.toBe(true);
+  });
+
+  it('returns true for empty source (nothing to store, not a failure)', async () => {
+    await expect(persistVoiceBlob('m9', '')).resolves.toBe(true);
   });
 });

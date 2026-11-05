@@ -96,9 +96,7 @@ export function ComposerToolbar({
       <button
         type="button"
         aria-label={t("chat.scheduleMessage")}
-        className={`icon-button ${
-          scheduleActive ? "bg-[var(--accent)]/20 text-[var(--accent)]" : ""
-        }`}
+        className={`icon-button ${scheduleActive ? "icon-button-state" : ""}`}
         onClick={onToggleSchedule}
       >
         <Clock size={18} />
@@ -109,8 +107,8 @@ export function ComposerToolbar({
           type="button"
           aria-label={t("chat.selfDestructTimer", "Self-destruct timer")}
           title={timerLabel}
-          className={`icon-button ${
-            timerActive ? "bg-[var(--accent)]/20 text-[var(--accent)]" : ""
+          className={`icon-button hidden sm:inline-flex ${
+            timerActive ? "icon-button-state" : ""
           }`}
           onClick={onCycleTimer}
         >
@@ -121,9 +119,7 @@ export function ComposerToolbar({
       <button
         type="button"
         aria-label={t("stickers.title")}
-        className={`icon-button ${
-          stickersOpen ? "bg-[var(--accent)]/20 text-[var(--accent)]" : ""
-        }`}
+        className={`icon-button ${stickersOpen ? "icon-button-state" : ""}`}
         onClick={onToggleStickers}
       >
         <Smile size={18} />

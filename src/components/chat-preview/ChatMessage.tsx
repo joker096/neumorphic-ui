@@ -1,27 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, type PanInfo } from "motion/react";
-import { Forward, MessageSquare } from "lucide-react";
 import { FormattedText } from "./FormattedText";
-import { MessageContextMenu } from "./MessageContextMenu";
-import { buildMessageMenuActions } from "./messageMenuActions";
+import { ChatMessageMenu } from "./message/ChatMessageMenu";
 import { useI18n } from "../../lib/i18n";
 import { useServices } from "../../services";
 import { AttachmentMedia } from "./AttachmentMedia";
 import { MessageTimestamp } from "./MessageTimestamp";
 import { ChannelCommentsRow } from "./ChannelCommentsRow";
+import { BubbleActions } from "./BubbleActions";
 import { ReplyQuote } from "./ReplyQuote";
 import { PaymentChatBubble } from "../payments/PaymentChatBubble";
-import { decodeMorse } from "../MorseDecoder";
-import { isSingleEmojiText } from "../../utils/emoji";
+import { MessageTextBlock } from "./message/MessageTextBlock";
 import { useMessageBubble } from "./message/useMessageBubble";
 import { executeEditMessage } from "../../hooks/useMessageActions";
 import { MessageGutterAvatar } from "./message/MessageGutterAvatar";
-import { MessageDateSeparator, ExpiredMessage, MorseToggle } from "./message/MessageTextStates";
+import { MessageDateSeparator, ExpiredMessage, MorseToggle, ForwardedLabel, ThreadRepliesChip } from "./message/MessageTextStates";
+import { AlbumViewer } from "./attachments/AlbumViewer";
 import { MessageEditForm } from "./message/MessageEditForm";
 import { MessageFooter } from "./message/MessageFooter";
 import { MessagePoll } from "./message/MessagePoll";
 import { MessageInlineKeyboard } from "./message/MessageInlineKeyboard";
 import { MESSAGE_SENDER_LABEL_CLASS } from "./chatPreviewClasses";
+import { getSenderPaletteClass } from "../../utils/senderPalette";
 
 interface ChatMessageProps {
   msg: any;
@@ -34,14 +34,12 @@ interface ChatMessageProps {
   chatSavedMessages: any[];
   searchQuery: string;
   swipeReplyId: string | number | null;
-  activeReactionPicker: string | number | null;
   theme: "light" | "dark";
   onReply: (msg: any) => void;
   onToggleSavedMessage: (chat: any, msg: any) => void;
   onSetActivePhotoUrl: (url: string) => void;
   onSetPhotoOpen: (open: boolean) => void;
   onSetActiveMediaMsg?: (msg: any) => void;
-  onSetActiveReactionPicker: (id: string | number | null) => void;
   onSwipeReplyId: (id: string | number | null) => void;
   onSetVideoOpen: (open: boolean) => void;
   onSetShowComments: (show: boolean) => void;
@@ -60,6 +58,8 @@ interface ChatMessageProps {
   threadReplies?: number;
   /** Opens the thread panel for this message. */
   onOpenThread?: (id: string | number) => void;
+  /** Opens the album carousel viewer for multi-photo/video messages. */
+  onOpenAlbum?: (msg: any) => void;
   selectionMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string | number) => void;
@@ -69,18 +69,19 @@ interface ChatMessageProps {
 function ChatMessageImpl({
   msg, isMe, isChannel, chat, stealthMode,
   deliveryReceipts, readReceipts, chatSavedMessages, searchQuery,
-  swipeReplyId, activeReactionPicker, theme,
+  swipeReplyId, theme,
   onReply, onToggleSavedMessage,
   onSetActivePhotoUrl, onSetPhotoOpen,
   onSetActiveMediaMsg,
-  onSetActiveReactionPicker, onSwipeReplyId,
+  onSwipeReplyId,
   onSetVideoOpen, onSetShowComments, onSetActivePostId,
   onSetBounceMsgId, onReactionMessage, onPollVote, onAction, onForward, onDelete,
   onJumpToMessage, threadReplies, onOpenThread,
   selectionMode = false, selected = false, onToggleSelect, onSelect,
-  onRetry,
+  onRetry, onOpenAlbum,
 }: ChatMessageProps) {
   const { t, lang } = useI18n();
+  const [albumOpen, setAlbumOpen] = useState<any>(null);
   const { translate } = useServices();
 
   const {
@@ -91,11 +92,18 @@ function ChatMessageImpl({
     handlePointerDown, handlePointerUp, handlePointerLeave, handlePointerCancel,
     translation, translating, onTranslate,
     morseDecoded, toggleMorse, isMorse, stickerSrc, bubbleCornerClass,
+    bodyText, inlineMeta,
   } = useMessageBubble({
     msg, isMe, isChannel, chat, theme, selectionMode,
     onToggleSelect, onReply, onReactionMessage, onSetBounceMsgId,
     translate, lang, t,
+    hasThreads: (threadReplies ?? 0) > 0 && Boolean(onOpenThread),
   });
+
+  // Every incoming message reserves the avatar gutter, but the avatar itself is
+  // only painted on the last bubble of a run. Without the reserved column the
+  // earlier bubbles start further left and the run looks ragged.
+  const incomingGutter = !isChannel && !isMe;
 
   const startEditing = () => {
     setEditing(true);
@@ -114,6 +122,14 @@ function ChatMessageImpl({
   if (expired) {
     return <ExpiredMessage isMe={isMe} t={t} />;
   }
+
+  const timestampNode = (
+    <MessageTimestamp
+      {...{ msg, isMe, stealthMode, deliveryReceipts, readReceipts }}
+      onRetry={onRetry ? () => onRetry(msg) : undefined}
+      inline={inlineMeta}
+    />
+  );
 
   return (
     <motion.div
@@ -136,10 +152,11 @@ function ChatMessageImpl({
       {swipeReplyId === msg.id && (
         <div className={`absolute ${isMe ? "right-0 rounded-l-full" : "left-0 rounded-r-full"} top-2 bottom-2 w-1.5 bg-[var(--accent)] z-10`} />
       )}
-      <div className={`msg-message-row flex flex-nowrap items-center relative gap-2 w-full max-w-[100%] ${showAvatar ? "has-gutter" : ""} ${isMe ? "justify-end flex-row-reverse" : "justify-start"}`}>
+      <div className={`msg-message-row flex flex-nowrap items-center relative gap-2 w-full max-w-[100%] ${incomingGutter ? "has-gutter" : ""} ${isMe ? "justify-start flex-row-reverse" : "justify-start"}`}>
         {showAvatar && (
           <MessageGutterAvatar isMe={isMe} displayName={displayName} chat={chat} />
         )}
+        {incomingGutter && !showAvatar && <div className="w-8 shrink-0" aria-hidden="true" />}
         <div
           onClick={handleBubbleClick}
           onContextMenu={handleContextMenu}
@@ -147,23 +164,14 @@ function ChatMessageImpl({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
           onPointerCancel={handlePointerCancel}
-          className={`msg-bubble message max-w-[85%] md:max-w-[80%] lg:max-w-[85%] w-fit ${showAvatar ? "min-w-0" : "shrink-0"} ${msg.type ? "p-1.5" : "p-2.5"} text-sm leading-relaxed break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
+          className={`msg-bubble message max-w-[80%] md:max-w-[72%] lg:max-w-[68%] w-fit ${showAvatar ? "min-w-0" : "shrink-0"} ${msg.type === "sticker" ? "message-bare p-0" : msg.type ? "p-1.5" : "px-3 py-1.5"} text-sm leading-snug break-words relative ${bubbleCornerClass} ${selected ? "ring-2 ring-[var(--accent)]" : ""} ${isMe ? "outgoing" : ""}`}
         >
           {showSenderName && (
-            <div className={MESSAGE_SENDER_LABEL_CLASS}>
+            <div className={`${MESSAGE_SENDER_LABEL_CLASS} ${!isMe ? getSenderPaletteClass(displayName, "label") : ""}`}>
               {displayName}
             </div>
           )}
-          {msg.forwarded && (
-            <div className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
-              <Forward size={12} aria-hidden="true" />
-              <span className="truncate max-w-[200px]">
-                {forwardedFrom
-                  ? t("chat.forwardedFrom", { name: forwardedFrom })
-                  : t("chat.forwarded", "Forwarded")}
-              </span>
-            </div>
-          )}
+          {msg.forwarded && <ForwardedLabel forwardedFrom={forwardedFrom} t={t} />}
           <AttachmentMedia
             msg={msg}
             isMe={isMe}
@@ -172,6 +180,7 @@ function ChatMessageImpl({
             onSetPhotoOpen={onSetPhotoOpen}
             onSetVideoOpen={onSetVideoOpen}
             onSetActiveMediaMsg={onSetActiveMediaMsg}
+            onOpenAlbum={(albumData: any) => { setAlbumOpen(albumData); onOpenAlbum?.(albumData); }}
           />
           {msg.type === "payment" && <PaymentChatBubble msg={msg} />}
           {msg.type === "poll" && msg.poll && (
@@ -200,14 +209,13 @@ function ChatMessageImpl({
                 onCancel={() => setEditing(false)}
               />
             ) : (
-            <span className={`pb-1 block ${msg.type ? "font-medium" : ""} ${!morseDecoded && isSingleEmojiText(msg.text) ? "text-6xl leading-none -my-1" : ""}`}>
-              <FormattedText text={morseDecoded ? decodeMorse(msg.text) : msg.text} searchTerm={searchQuery} />
-              {msg.edited && (
-                <span className={"ml-1 align-middle text-xs uppercase tracking-wide text-[var(--text-tertiary)] dark:text-[var(--text-secondary)]"}>
-                  {t("chat.edited", "edited")}
-                </span>
-              )}
-            </span>
+            <MessageTextBlock
+              msg={msg}
+              text={bodyText}
+              searchTerm={searchQuery}
+              editedLabel={msg.edited ? t("chat.edited", "edited") : undefined}
+              meta={inlineMeta ? timestampNode : undefined}
+            />
             )
           )}
           {isMorse && (
@@ -217,74 +225,71 @@ function ChatMessageImpl({
             <MessageInlineKeyboard rows={msg.keyboard} onAction={onAction} />
           )}
           {!isChannel && (threadReplies ?? 0) > 0 && onOpenThread && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onOpenThread(msg.id); }}
-              onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => e.stopPropagation()}
-              aria-label={t("chat.threadOpen", "Open thread")}
-              className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold transition-colors ${isMe ? "text-[var(--text-primary)] hover:bg-black/10" : "text-[var(--accent)] hover:bg-black/10"}`}
-            >
-              <MessageSquare size={12} aria-hidden="true" />
-              {t("chat.threadReplies", { count: threadReplies ?? 0 })}
-            </button>
-          )}
-          {msg._isLastInGroup && (
-            <MessageTimestamp
-              msg={msg}
+            <ThreadRepliesChip
               isMe={isMe}
-              stealthMode={stealthMode}
-              deliveryReceipts={deliveryReceipts}
-              readReceipts={readReceipts}
-              onRetry={onRetry ? () => onRetry(msg) : undefined}
+              count={threadReplies ?? 0}
+              t={t}
+              onOpen={() => onOpenThread(msg.id)}
             />
           )}
+          {msg._isLastInGroup && !inlineMeta && timestampNode}
           {isChannel && (
-            <ChannelCommentsRow
+            <ChannelCommentsRow msg={msg} onSetActivePostId={onSetActivePostId} onSetShowComments={onSetShowComments} />
+          )}
+          {!isChannel && (
+            <BubbleActions
               msg={msg}
-              onSetActivePostId={onSetActivePostId}
-              onSetShowComments={onSetShowComments}
+              isMe={isMe}
+              chat={chat}
+              chatSavedMessages={chatSavedMessages}
+              onReply={onReply}
+              onToggleSavedMessage={onToggleSavedMessage}
+              onReactionMessage={onReactionMessage}
             />
           )}
         </div>
+      </div>
+      <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} ${incomingGutter ? "pl-10" : ""} max-w-full`}>
         <MessageFooter
           msg={msg}
           chat={chat}
           isMe={isMe}
           isChannel={!!isChannel}
-          chatSavedMessages={chatSavedMessages}
-          activeReactionPicker={activeReactionPicker}
           translation={translation}
           translating={translating}
           t={t}
-          onReply={onReply}
-          onToggleSavedMessage={onToggleSavedMessage}
-          onSetActiveReactionPicker={onSetActiveReactionPicker}
           onReactionMessage={onReactionMessage}
           onAction={onAction}
         />
       </div>
-      <MessageContextMenu
+      <ChatMessageMenu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         anchorRect={menuAnchorRect}
         title={typeof msg.text === "string" ? msg.text.slice(0, 48) : t("chat.message")}
-        actions={buildMessageMenuActions({
-          msg,
-          isMe,
-          t,
-          isChannel: !!isChannel,
-          chat,
-          chatSavedMessages,
-          onSelect,
-          onReply,
-          onToggleSavedMessage,
-          onForward,
-          onDelete,
-          onTranslate,
-          onEdit: isMe ? startEditing : undefined,
-        })}
+        t={t}
+        msg={msg}
+        isMe={isMe}
+        isChannel={!!isChannel}
+        chat={chat}
+        chatSavedMessages={chatSavedMessages}
+        onSelect={onSelect}
+        onReply={onReply}
+        onToggleSavedMessage={onToggleSavedMessage}
+        onForward={onForward}
+        onDelete={onDelete}
+        onTranslate={onTranslate}
+        onEdit={isMe ? startEditing : undefined}
+        onReactionMessage={onReactionMessage}
       />
+      {albumOpen && (
+        <AlbumViewer
+          open={!!albumOpen}
+          items={albumOpen?.items ?? []}
+          alt={msg.text ? msg.text.slice(0, 32) : t("chat.album")}
+          onClose={() => setAlbumOpen(null)}
+        />
+      )}
     </motion.div>
   );
 }

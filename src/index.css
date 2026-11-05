@@ -2,14 +2,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./styles/messenger.css";
+@import "./styles/messenger-senders.css";
 
 /* Dark mode follows the app's [data-theme] attribute (set on <html>),
    not the system media query. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --font-sans: "Segoe UI Variable", "Avenir Next", ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
-  --font-display: "Segoe UI Variable", "Avenir Next", ui-sans-serif, system-ui, -apple-system, Blink, "Segoe UI", sans-serif;
+  --font-sans: var(--font-family-body);
+  --font-display: var(--font-family-display);
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 
   /* Custom transition utilities */
@@ -44,13 +45,16 @@
   --color-popover: var(--bg-elevated);
   --color-popover-foreground: var(--text-primary);
   --color-primary: var(--accent);
-  --color-primary-foreground: #ffffff;
+  /* Ink on saturated fills — theme-aware (dark: near-black, light: #0f172a).
+     A hardcoded #ffffff here failed WCAG AA on the dark accent #4ede63
+     (2.07:1) and read as a white glare on green buttons. */
+  --color-primary-foreground: var(--ink-on-saturate, #080b0c);
   --color-secondary: var(--bg-tertiary);
   --color-secondary-foreground: var(--text-primary);
   --color-muted: var(--bg-tertiary);
   --color-muted-foreground: var(--text-secondary);
   --color-accent: var(--accent);
-  --color-accent-foreground: #ffffff;
+  --color-accent-foreground: var(--ink-on-saturate, #080b0c);
   --color-destructive: var(--danger);
   --color-destructive-foreground: #ffffff;
   --color-border: var(--border-color);
@@ -176,6 +180,12 @@ input[type="range"]:focus-visible {
   background: rgba(255,255,255,0.2);
 }
 * { -ms-overflow-style: thin; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+
+/* Numeric context — dates, counters, times — always tabular so digits
+   don't reflow when values change (Telegram/OS-grade polish). */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
 
 /* Theme-aware scrollbars: light thumb on dark, dark thumb on light */
 [data-theme="dark"] *::-webkit-scrollbar-thumb {
@@ -427,49 +437,4 @@ body {
 /* Heading ramp: tighter leading than body text (overrides via leading-* utilities) */
 h1, h2, h3, h4 {
   line-height: var(--leading-tight);
-}
-
-/* Voice-note seek slider: full 44px touch target with a thin 6px custom track */
-.voice-seek {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 44px;
-  background: transparent;
-  cursor: pointer;
-  accent-color: #f97316;
-}
-.voice-seek:disabled {
-  cursor: default;
-}
-.voice-seek::-webkit-slider-runnable-track {
-  height: 6px;
-  border-radius: 9999px;
-  background: linear-gradient(to right, #f97316 var(--seek-progress, 0%), var(--bg-secondary) var(--seek-progress, 0%));
-}
-.voice-seek::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border: none;
-  border-radius: 9999px;
-  background: #f97316;
-  margin-top: -5px;
-}
-.voice-seek::-moz-range-track {
-  height: 6px;
-  border-radius: 9999px;
-  background: var(--bg-secondary);
-}
-.voice-seek::-moz-range-progress {
-  height: 6px;
-  border-radius: 9999px;
-  background: #f97316;
-}
-.voice-seek::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border: none;
-  border-radius: 9999px;
-  background: #f97316;
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { BarChart3, ChevronRight, FileText, Image as ImageIcon, Link2, MapPin, Music, Radio, Video as VideoIcon, X } from "lucide-react";
+import { BarChart3, BellOff, ChevronRight, FileText, Image as ImageIcon, Link2, MapPin, Music, Radio, Video as VideoIcon, X } from "lucide-react";
 import { LiveLocationSheet } from "./LiveLocationSheet";
 import { PollComposerModal } from "./PollComposerModal";
 import { SwipeDismissPanel } from "../ui/SwipeDismissPanel";
@@ -22,6 +22,13 @@ export interface ChatAttachLayerProps {
   stopLiveLocationShare?: () => void;
   sendArticleMessage?: (url: string, title?: string) => void;
   sendPoll?: (question: string, optionTexts: string[], multiple: boolean) => void;
+  /** Composer modes live here so the input row stays a plain field + send
+   *  button (Telegram parity). They toggle in place — the menu stays open so
+   *  both can be set and the active state is visible. */
+  silentMode?: boolean;
+  onToggleSilent?: () => void;
+  morseMode?: boolean;
+  onToggleMorse?: () => void;
   t: (key: string, opts?: any) => string;
 }
 
@@ -31,6 +38,9 @@ const GEO_MAX_AGE_MS = 60_000;
 /** Telegram-style tile: icon above a short label, one 76px cell of the grid. */
 const tileClass =
   "flex min-h-[76px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl px-1 py-2 text-center text-xs font-semibold leading-tight text-[var(--text-secondary)] transition-colors hover:bg-[var(--msg-bg-panel-hover)] active:scale-95";
+
+/** Same cell, tinted while the mode it toggles is on. */
+const activeTileClass = `${tileClass} bg-[var(--amber)]/15 text-[var(--amber)]`;
 
 /**
  * Attach menu: photo, document, audio, video note, location, live location, article.
@@ -56,6 +66,10 @@ export function ChatAttachLayer({
   stopLiveLocationShare,
   sendArticleMessage,
   sendPoll,
+  silentMode,
+  onToggleSilent,
+  morseMode,
+  onToggleMorse,
   t,
 }: ChatAttachLayerProps) {
   const [showArticleInput, setShowArticleInput] = React.useState(false);
@@ -218,6 +232,28 @@ export function ChatAttachLayer({
               <BarChart3 size={24} className="text-[var(--accent)]" />
               {t("chat.createPoll")}
             </button>
+            {onToggleSilent && (
+              <button
+                type="button"
+                onClick={onToggleSilent}
+                aria-pressed={silentMode}
+                className={silentMode ? activeTileClass : tileClass}
+              >
+                <BellOff size={24} className={silentMode ? undefined : "text-[var(--accent)]"} />
+                {t("chat.silentMessage")}
+              </button>
+            )}
+            {onToggleMorse && (
+              <button
+                type="button"
+                onClick={onToggleMorse}
+                aria-pressed={morseMode}
+                className={morseMode ? activeTileClass : tileClass}
+              >
+                <Radio size={24} className={morseMode ? undefined : "text-[var(--accent)]"} />
+                {t("chat.morse")}
+              </button>
+            )}
           </div>
 
           {showArticleInput && (

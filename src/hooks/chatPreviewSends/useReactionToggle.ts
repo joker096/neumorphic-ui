@@ -3,7 +3,6 @@
  * it, and the delta travels as a `chat-reaction` frame.
  */
 
-import { useState } from 'react';
 import { useAppStore } from '../../store';
 import { encodeChatReaction, nextFrameSeq } from '../../lib/p2p/chatFrame';
 import { p2pNetwork } from '../../lib/p2p/network';
@@ -15,8 +14,6 @@ interface UseReactionToggleArgs {
 }
 
 export function useReactionToggle({ chat, onUpdateChat, setChatsStore }: UseReactionToggleArgs) {
-  const [activeReactionPicker, setActiveReactionPicker] = useState<number | string | null>(null);
-
   /**
    * Toggle the local user's reaction: a second tap on the same emoji removes it.
    * The sender's own reactions are tracked under `myReactions` (never asserted
@@ -48,7 +45,6 @@ export function useReactionToggle({ chat, onUpdateChat, setChatsStore }: UseReac
     };
     if (onUpdateChat) onUpdateChat(updatedChat);
     setChatsStore(prev => prev.map(c => c.id === chat.id ? updatedChat : c));
-    setActiveReactionPicker(null);
 
     const sender = useAppStore.getState().userProfile;
     void p2pNetwork.sendAddressed(
@@ -67,5 +63,5 @@ export function useReactionToggle({ chat, onUpdateChat, setChatsStore }: UseReac
     ).catch(() => {});
   };
 
-  return { activeReactionPicker, setActiveReactionPicker, handleReactionMessage };
+  return { handleReactionMessage };
 }

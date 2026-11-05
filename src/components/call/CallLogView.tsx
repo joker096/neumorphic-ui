@@ -89,7 +89,6 @@ export const CallLogView = ({ isDark = false, onBack, onOpenContacts }: { isDark
         {filtered.length === 0 ? (
           <DataState
             status="empty"
-            isDark={isDark}
             emptyIcon={callHistory.length === 0 ? undefined : 'search'}
             title={callHistory.length === 0 ? t('call.noCallsYet') : t('call.noCallsMatch')}
             description={t('call.noCallsSubtitle')}

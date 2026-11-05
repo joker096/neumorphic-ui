@@ -1,0 +1,117 @@
+/*
+ * Design tokens, spec §2.
+ * Colours are declared per theme on :root[data-theme='...'] so the theme switch
+ * is a single attribute flip with no re-render of component styles.
+ */
+
+:root {
+  /* Type */
+  --font-sans: 'Urbanist', 'Inter', system-ui, sans-serif;
+
+  /* Spacing — strict 4px grid (spec §2.3) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Layout */
+  --screen-padding: 24px;
+  --app-max-width: 420px;
+
+  /* Radii */
+  --radius-input: 12px;
+  --radius-pill: 999px;
+  --radius-card: 24px;
+  --radius-bubble: 16px;
+  --radius-bubble-tail: 4px;
+  --radius-sheet: 24px;
+
+  /* Heights */
+  --height-button: 52px;
+  --height-input: 52px;
+  --height-list-item: 72px;
+  --height-appbar: 56px;
+  --height-statusbar: 44px;
+
+  /* Type scale (size / weight / line-height), spec §2.2 */
+  --text-h1: 28px;
+  --text-h1-weight: 700;
+  --text-h1-line: 36px;
+  --text-welcome: 24px;
+  --text-welcome-weight: 700;
+  --text-welcome-line: 32px;
+  --text-appbar: 18px;
+  --text-appbar-weight: 600;
+  --text-appbar-line: 24px;
+  --text-body: 14px;
+  --text-body-weight: 500;
+  --text-body-line: 20px;
+  --text-list-name: 15px;
+  --text-list-name-weight: 600;
+  --text-list-preview: 13px;
+  --text-caption: 12px;
+  --text-caption-weight: 500;
+  --text-button: 16px;
+  --text-button-weight: 600;
+  --text-keypad: 24px;
+  --text-keypad-weight: 600;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-push: 250ms;
+  --duration-sheet: 220ms;
+
+  /* Layers */
+  --z-statusbar: 30;
+  --z-appbar: 20;
+  --z-fab: 15;
+  --z-sheet: 60;
+  --z-modal: 70;
+  --z-menu: 80;
+}
+
+:root[data-theme='light'] {
+  --primary: #2f6bff;
+  --primary-pressed: #2459d6;
+  --primary-soft: #eaf1ff;
+  --bg: #ffffff;
+  --surface: #f5f6f8;
+  --surface-2: #ffffff;
+  --border: #eceef2;
+  --text: #12151c;
+  --text-secondary: #7b8394;
+  --text-placeholder: #a9afbc;
+  --on-primary: #ffffff;
+  --danger: #f04438;
+  --success: #12b76a;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --shadow-modal: 0 8px 32px rgba(15, 23, 42, 0.14);
+  --shadow-fab: 0 8px 20px rgba(47, 107, 255, 0.35);
+  --desktop-backdrop: #e7eaf0;
+}
+
+:root[data-theme='dark'] {
+  --primary: #2f6bff;
+  --primary-pressed: #2459d6;
+  --primary-soft: #1b2a4e;
+  --bg: #181a20;
+  --surface: #232630;
+  --surface-2: #1f222b;
+  --border: #2c303b;
+  --text: #ffffff;
+  --text-secondary: #9aa1b2;
+  --text-placeholder: #6b7284;
+  --on-primary: #ffffff;
+  --danger: #f04438;
+  --success: #12b76a;
+  --overlay: rgba(0, 0, 0, 0.65);
+  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-fab: 0 8px 20px rgba(0, 0, 0, 0.5);
+  --desktop-backdrop: #0e1014;
+}

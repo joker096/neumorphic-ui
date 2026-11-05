@@ -15,13 +15,16 @@
   --ew-panel-bg: #ffffff;
   --ew-panel-bg-soft: rgba(15, 23, 42, 0.04);
   --ew-input-bg: #f1f2f6;
-  --ew-border: rgba(15, 23, 42, 0.12);
+  --ew-border: rgba(15, 23, 42, 0.10);
   --ew-text: #0f172a;
   --ew-text-muted: #64748b;
   --ew-msg-other-bg: #f1f2f6;
   --ew-msg-other-text: #0f172a;
   --ew-bubble-text: #ffffff;
-  --ew-panel-shadow: 0 20px 60px rgba(2, 6, 23, 0.22), 0 6px 20px rgba(2, 6, 23, 0.12);
+  --ew-panel-shadow: 0 20px 60px rgba(2, 6, 23, 0.18), 0 6px 20px rgba(2, 6, 23, 0.08);
+  --ew-fab-shadow: 0 8px 24px rgba(2, 6, 23, 0.24);
+  --ew-fab-shadow-hover: 0 10px 28px rgba(2, 6, 23, 0.30);
+  --ew-radius: 16px;
 
   position: fixed;
   bottom: 16px;
@@ -31,17 +34,21 @@
   pointer-events: auto;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .ew-root[data-ew-theme="dark"] {
   --ew-panel-bg: #181b24;
   --ew-panel-bg-soft: rgba(255, 255, 255, 0.05);
   --ew-input-bg: #232733;
-  --ew-border: rgba(255, 255, 255, 0.12);
+  --ew-border: rgba(255, 255, 255, 0.10);
   --ew-text: #f1f5f9;
   --ew-text-muted: #94a3b8;
   --ew-msg-other-bg: #232733;
   --ew-msg-other-text: #e2e8f0;
+  --ew-panel-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.20);
+  --ew-fab-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --ew-fab-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.40);
 }
 
 .ew-bot-right { right: 16px; align-items: flex-end; }
@@ -52,7 +59,7 @@
   max-width: 90vw;
   height: 440px;
   max-height: 80vh;
-  border-radius: 16px;
+  border-radius: var(--ew-radius);
   background: var(--ew-panel-bg);
   color: var(--ew-text);
   box-shadow: var(--ew-panel-shadow);
@@ -60,6 +67,14 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: ew-panel-in 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: bottom right;
+}
+.ew-bot-left .ew-panel { transform-origin: bottom left; }
+
+@keyframes ew-panel-in {
+  from { opacity: 0; transform: scale(0.92) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .ew-header {
@@ -277,14 +292,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.28);
+  box-shadow: var(--ew-fab-shadow);
   cursor: pointer;
   color: #ffffff;
   border: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s ease;
 }
 
-.ew-fab:hover { transform: scale(1.05); box-shadow: 0 10px 28px rgba(2, 6, 23, 0.34); }
+.ew-fab:hover { transform: scale(1.05); box-shadow: var(--ew-fab-shadow-hover); }
 .ew-fab:active { transform: scale(0.94); }
 
 /* ── header identity (avatar + presence) ─────────────────────────── */
@@ -386,9 +401,15 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  animation: ew-toast-in 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 .ew-bot-left .ew-toast { right: auto; left: 0; }
 .ew-toast:hover { filter: brightness(0.98); }
+
+@keyframes ew-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* ── Focus visibility inside the widget ─────────────────────────── */
 .ew-root button:focus-visible,

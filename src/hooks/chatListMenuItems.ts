@@ -26,9 +26,10 @@ export interface ChatListMenuDeps {
   onMuteFor: (chat: any, ms: number | "forever") => void;
   onToggleUnread: (chat: any) => void;
   onSelect: (chat: any) => void;
-  onExport: (chat: any) => void;
-  onClearHistory: (chat: any) => void;
   onDelete: (chat: any) => void;
+  /** Optional extended system actions (clearHistory, export). Only included when the handler is explicitly provided; base Telegram-style menu skips them by default. */
+  onClearHistory?: (chat: any) => void;
+  onExport?: (chat: any) => void;
 }
 
 /**
@@ -88,18 +89,18 @@ export function buildChatListMenuItems({
       icon: buildMenuIcon("select"),
       onClick: () => onSelect(chat),
     },
-    {
-      id: "export",
-      label: t("chat.export"),
-      icon: buildMenuIcon("export"),
-      onClick: () => onExport(chat),
-    },
-    {
+    ...(onClearHistory ? [{
       id: "clearHistory",
       label: t("chat.clearHistory"),
       icon: buildMenuIcon("clearHistory"),
       onClick: () => onClearHistory(chat),
-    },
+    }] : []),
+    ...(onExport ? [{
+      id: "export",
+      label: t("chat.export"),
+      icon: buildMenuIcon("export"),
+      onClick: () => onExport(chat),
+    }] : []),
     {
       id: "delete",
       label: t("chat.delete"),

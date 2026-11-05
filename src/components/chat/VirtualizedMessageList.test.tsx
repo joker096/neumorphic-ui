@@ -26,13 +26,12 @@ const mockItems = [
   { id: '3', text: 'Message 3' },
 ];
 
-const renderList = (isDark = true, props?: any) => {
+const renderList = (props?: any) => {
   const ref = { current: { scrollToBottom: () => {} } };
   return render(
     <VirtualizedMessageListInnerAny
       {...props}
       items={mockItems}
-      isDark={isDark}
       ref={ref as any}
     >
       {(item: any) => <div data-testid={`msg-${item.id}`}>{item.text}</div>}
@@ -48,27 +47,21 @@ describe('VirtualizedMessageList', () => {
     expect(screen.getByTestId('msg-3')).toBeInTheDocument();
   });
 
-  it('renders scrollbar-dark class when dark theme is true', () => {
-    const { container } = renderList(true);
-    const scrollContainer = container.querySelector('[class*="scrollbar"]') || container.querySelector('[class*="overflow"]');
-    expect(scrollContainer || container.querySelector('[class*="py-2"]')).toBeInTheDocument();
-  });
-
-  it('renders scrollbar-light class when dark theme is false', () => {
-    const { container } = renderList(false);
-    const scrollContainer = container.querySelector('[class*="scrollbar"]') || container.querySelector('[class*="overflow"]');
+  it('always applies scrollbar-dark class', () => {
+    const { container } = renderList();
+    const scrollContainer = container.querySelector('[class*="scrollbar-dark"]') || container.querySelector('[class*="overflow"]');
     expect(scrollContainer || container.querySelector('[class*="py-2"]')).toBeInTheDocument();
   });
 
   it('applies custom className prop', () => {
-    const { container } = renderList(true, { className: 'custom-class' });
+    const { container } = renderList({ className: 'custom-class' });
     const scrollContainer = container.querySelector('[class*="custom-class"]');
     expect(scrollContainer).toBeInTheDocument();
   });
 
   it('calls onScrollPosition callback when scrolling', async () => {
     const onScrollPosition = vi.fn();
-    renderList(true, { onScrollPosition });
+    renderList({ onScrollPosition });
 
     const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
     Object.defineProperty(scrollContainer!, 'scrollHeight', { value: 1000 });
@@ -83,7 +76,7 @@ describe('VirtualizedMessageList', () => {
 
   it('calls onScrollPosition with false when far from bottom', async () => {
     const onScrollPosition = vi.fn();
-    renderList(true, { onScrollPosition });
+    renderList({ onScrollPosition });
 
     const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
     Object.defineProperty(scrollContainer!, 'scrollHeight', { value: 1000 });
@@ -96,12 +89,12 @@ describe('VirtualizedMessageList', () => {
   });
 
   it('renders with custom estimateSize', () => {
-    renderList(true, { estimateSize: 100 });
+    renderList({ estimateSize: 100 });
     expect(screen.getByTestId('msg-1')).toBeInTheDocument();
   });
 
   it('renders with custom overscan', () => {
-    renderList(true, { overscan: 10 });
+    renderList({ overscan: 10 });
     expect(screen.getByTestId('msg-1')).toBeInTheDocument();
   });
 });
@@ -110,7 +103,7 @@ describe('VirtualizedMessageList (forwardRef)', () => {
   it('accepts ref prop via React.forwardRef', () => {
     const ref = { current: { scrollToBottom: vi.fn() } };
     const { container } = render(
-      <VirtualizedMessageList ref={ref as any} items={mockItems} isDark={true}>
+      <VirtualizedMessageList ref={ref as any} items={mockItems}>
         {(item: any) => <div>{item.text}</div>}
       </VirtualizedMessageList>
     );
@@ -119,7 +112,7 @@ describe('VirtualizedMessageList (forwardRef)', () => {
 
   it('renders items when passed as VirtualizedMessageList', () => {
     const { getByText } = render(
-      <VirtualizedMessageList items={mockItems} isDark={true}>
+      <VirtualizedMessageList items={mockItems}>
         {(item: any) => <div data-testid={`vl-msg-${item.id}`}>{item.text}</div>}
       </VirtualizedMessageList>
     );

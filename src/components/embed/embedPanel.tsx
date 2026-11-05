@@ -4,9 +4,31 @@
  */
 
 import type { CSSProperties, ReactNode, RefObject } from 'react';
-import { Send, X, MessageSquare } from 'lucide-react';
 import type { RelayStatus } from '../../lib/company/relaySocket';
 import { EmbedContactForm, type WidgetContact } from './EmbedContactForm';
+
+/* ── Inline SVG icons (avoid pulling the 75 KB lucide chunk into the embed) ── */
+function IconSend({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m22 2-7 20-9-7-18 18 2-7z" />
+    </svg>
+  );
+}
+function IconX({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+    </svg>
+  );
+}
+function IconChat({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
 
 export interface WidgetMessage {
   id: string;
@@ -47,7 +69,6 @@ export interface EmbedPanelProps {
   title: string;
   accent: string;
   position: 'bottom-right' | 'bottom-left';
-  isDark: boolean;
   relayStatus: RelayStatus;
   showContactForm: boolean;
   contact: WidgetContact;
@@ -61,6 +82,8 @@ export interface EmbedPanelProps {
   onDraftChange: (v: string) => void;
   onSend: () => void;
   hideBrand: boolean;
+  hideTimestamps: boolean;
+  theme: 'light' | 'dark';
   unread: number;
   toast: string | null;
   onToggleOpen: () => void;
@@ -73,15 +96,15 @@ export interface EmbedPanelProps {
 }
 
 export function EmbedPanel({
-  open, title, accent, position, isDark, relayStatus, showContactForm, contact,
+  open, title, accent, position, relayStatus, showContactForm, contact,
   onContactChange, sendingContact, onSendContact, relayNote, greeting, messages,
-  draft, onDraftChange, onSend, hideBrand, unread, toast, onToggleOpen,
-  onClose, onOpenToast, t, panelRef, inputRef, messagesRef,
+  draft, onDraftChange, onSend, hideBrand, hideTimestamps, theme, unread, toast,
+  onToggleOpen, onClose, onOpenToast, t, panelRef, inputRef, messagesRef,
 }: EmbedPanelProps) {
   return (
     <div
-      data-ew-theme={isDark ? 'dark' : 'light'}
       data-ew-pos={position}
+      data-ew-theme={theme}
       className={`ew-root ${position === 'bottom-left' ? 'ew-bot-left' : 'ew-bot-right'}`}
       style={{ '--ew-accent': accent } as CSSProperties}
     >
@@ -91,10 +114,10 @@ export function EmbedPanel({
             <div className="ew-header-left">
               <div className="ew-header-avatar">{title.charAt(0).toUpperCase()}</div>
               <span className="ew-header-title">{title}</span>
-              {relayStatus === 'online' && <div className="ew-online-dot" aria-label="online" />}
+              {relayStatus === 'online' && <div className="ew-online-dot" aria-label={t('embed.online', 'online')} />}
             </div>
             <button onClick={onClose} aria-label={t('embed.close')} title={t('embed.close')} className="ew-close">
-              <X size={18} />
+              <IconX size={18} />
             </button>
           </div>
           {showContactForm && (
@@ -120,9 +143,11 @@ export function EmbedPanel({
               messages.map((m) => (
                 <div key={m.id} className={`ew-msg-row ${m.own ? 'ew-msg-own' : 'ew-msg-other'}`}>
                   <div className={`ew-msg ${m.own ? 'ew-msg-own-bubble' : ''}`}>{autolink(m.text)}</div>
-                  <div className="ew-time">
-                    {new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </div>
+                  {!hideTimestamps && (
+                    <div className="ew-time">
+                      {new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -150,7 +175,7 @@ export function EmbedPanel({
               className="ew-send"
               style={{ backgroundColor: accent }}
             >
-              <Send size={16} />
+              <IconSend size={16} />
             </button>
           </div>
           {!hideBrand && (
@@ -164,7 +189,7 @@ export function EmbedPanel({
         className="ew-fab"
         style={{ backgroundColor: accent }}
       >
-        {open ? <X size={24} /> : <MessageSquare size={24} />}
+        {open ? <IconX size={24} /> : <IconChat size={24} />}
         {!open && unread > 0 && <span className="ew-fab-badge">{unread > 9 ? '9+' : unread}</span>}
       </button>
       {toast && !open && (

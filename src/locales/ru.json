@@ -82,6 +82,7 @@
     "frequent": "Frequent"
   },
   "chat": {
+    "album": "Альбом",
     "draft": "Черновик",
     "createPoll": "Создать опрос",
     "pollQuestion": "Вопрос",
@@ -396,6 +397,8 @@
     "forwarded": "Переслано",
     "forwardedFrom": "Переслано от {{name}}",
     "jumpToMessage": "Перейти к сообщению",
+    "jumpToBottom": "К последнему сообщению",
+    "jumpToUnread": "К непрочитанным сообщениям",
     "deleted": "Удалено",
     "reactions": "Реакции",
     "reactionTooltip": {

@@ -1,0 +1,48 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 24px calc(24px + env(safe-area-inset-bottom));
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.94);
+}
+
+.btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.active {
+  background: rgba(255, 255, 255, 0.92);
+  color: #12151c;
+}
+
+.end {
+  background: var(--danger);
+}
+
+.end:active {
+  background: #d92d20;
+}
+
+.endIcon {
+  transform: rotate(135deg);
+}

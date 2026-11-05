@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { useAppStore } from '../store';
 
 type Rgb = { r: number; g: number; b: number };
@@ -44,7 +44,7 @@ function darkenHex(hex: string, factor: number): string | null {
 
 /** Accent-2 companions for the tones offered in the Appearance swatches. */
 const PAIRED_ACCENT2: Record<string, string> = {
-  '#4ede63': '#10b981',
+  '#f97316': '#ea580c',
   '#3b82f6': '#1d4ed8',
   '#8b5cf6': '#6d28d9',
   '#ec4899': '#be185d',

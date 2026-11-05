@@ -82,6 +82,7 @@
     "frequent": "Frequent"
   },
   "chat": {
+    "album": "アルバム",
     "draft": "下書き",
     "createPoll": "投票を作成",
     "pollQuestion": "質問",
@@ -396,6 +397,8 @@
     "forwarded": "転送",
     "forwardedFrom": "{{name}} から転送",
     "jumpToMessage": "メッセージへ移動",
+    "jumpToBottom": "最新メッセージへ",
+    "jumpToUnread": "未読メッセージへ",
     "deleted": "削除済み",
     "reactions": "リアクション",
     "reactionTooltip": {

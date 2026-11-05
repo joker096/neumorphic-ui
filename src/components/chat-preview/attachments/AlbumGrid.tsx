@@ -43,17 +43,17 @@ interface AlbumGridProps {
   alt: string;
   failed: number[];
   onItemError: (index: number) => void;
-  onOpen: (url: string) => void;
+  onOpen: (msg: any) => void;
 }
 
-/** 2x2 album preview with a +N overlay; one failed tile falls back to an icon. */
+/** 2x2 album preview with a +N overlay; opens a carousel full-screen viewer. */
 export function AlbumGrid({ items, alt, failed, onItemError, onOpen }: AlbumGridProps) {
   const shown = items.slice(0, 4);
   const remaining = items.length - shown.length;
   return (
     <div
       className="grid grid-cols-2 gap-1 rounded-[var(--message-radius)] overflow-hidden mb-1 border border-[var(--border-color)] inline-block max-w-full cursor-pointer w-[260px] sm:w-[300px]"
-      onClick={() => onOpen(shown[0]!.url)}
+      onClick={() => onOpen({ items, url: items[0]?.url })}
     >
       {shown.map((it, i) => {
         const isFailed = failed.includes(i);

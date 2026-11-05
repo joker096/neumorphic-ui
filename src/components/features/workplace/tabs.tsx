@@ -17,10 +17,10 @@ export function TasksTab({ isDark }: { isDark?: boolean }) {
   const [title, setTitle] = useState("");
 
   if (state.status === "notConfigured") {
-    return <NotConfiguredState isDark={isDark} feature="tasks" />;
+    return <NotConfiguredState feature="tasks" />;
   }
   if (state.status === "error") {
-    return <DataState status="error" isDark={isDark} title={t('workplace.tasksError')} description={state.error} />;
+    return <DataState status="error" title={t('workplace.tasksError')} description={state.error} />;
   }
 
   return (
@@ -52,7 +52,7 @@ export function TasksTab({ isDark }: { isDark?: boolean }) {
       {state.status === "loading" ? (
         <Skeleton />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title={t('workplace.noTasks')} description={t('workplace.createFirstTask')} />
+        <DataState status="empty" title={t('workplace.noTasks')} description={t('workplace.createFirstTask')} />
       ) : (
         state.data.map((task) => (
           <label key={task.id} className={LIST_ROW_CLASS}>
@@ -71,15 +71,15 @@ export function AutomationTab({ isDark }: { isDark?: boolean }) {
   const { automation } = useServices();
   const state = useServiceData(() => automation.listRules(), []);
 
-  if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="automation" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.automationError')} description={state.error} />;
+  if (state.status === "notConfigured") return <NotConfiguredState feature="automation" />;
+  if (state.status === "error") return <DataState status="error" title={t('workplace.automationError')} description={state.error} />;
 
   return (
     <Panel>
       {state.status === "loading" ? (
         <Skeleton />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title={t('workplace.noRules')} description={t('workplace.addRules')} />
+        <DataState status="empty" title={t('workplace.noRules')} description={t('workplace.addRules')} />
       ) : (
         state.data.map((r) => (
           <div key={r.id} className={LIST_ROW_CLASS}>
@@ -100,8 +100,8 @@ export function AnalyticsTab({ isDark, channelId }: { isDark?: boolean; channelI
   const { analytics } = useServices();
   const state = useServiceData(() => analytics.getChannelMetrics(channelId), [channelId]);
 
-  if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="analytics" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.analyticsError')} description={state.error} />;
+  if (state.status === "notConfigured") return <NotConfiguredState feature="analytics" />;
+  if (state.status === "error") return <DataState status="error" title={t('workplace.analyticsError')} description={state.error} />;
 
   const max = state.status === "loaded" ? Math.max(1, ...state.data.map((m) => m.value)) : 1;
   return (
@@ -109,7 +109,7 @@ export function AnalyticsTab({ isDark, channelId }: { isDark?: boolean; channelI
       {state.status === "loading" ? (
         <Skeleton />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title={t('workplace.noData')} description={t('workplace.metricsAppear')} />
+        <DataState status="empty" title={t('workplace.noData')} description={t('workplace.metricsAppear')} />
       ) : (
         state.data.map((m) => (
           <div key={m.label} className={CARD_CLASS}>
@@ -132,15 +132,15 @@ export function ModerationTab({ isDark }: { isDark?: boolean }) {
   const { moderation } = useServices();
   const state = useServiceData(() => moderation.listQueue(), []);
 
-  if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="moderation" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.moderationError')} description={state.error} />;
+  if (state.status === "notConfigured") return <NotConfiguredState feature="moderation" />;
+  if (state.status === "error") return <DataState status="error" title={t('workplace.moderationError')} description={state.error} />;
 
   return (
     <Panel>
       {state.status === "loading" ? (
         <Skeleton />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title={t('workplace.queueEmpty')} description={t('workplace.complaintsHere')} />
+        <DataState status="empty" title={t('workplace.queueEmpty')} description={t('workplace.complaintsHere')} />
       ) : (
         state.data.map((item) => (
           <div key={item.id} className={LIST_ROW_CLASS}>
@@ -168,8 +168,8 @@ export function KbTab({ isDark }: { isDark?: boolean }) {
   const [q, setQ] = useState("");
   const state = useServiceData(() => (q.trim() ? kb.search(q) : Promise.resolve([])), [q]);
 
-  if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="knowledge_base" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.kbError')} description={state.error} />;
+  if (state.status === "notConfigured") return <NotConfiguredState feature="knowledge_base" />;
+  if (state.status === "error") return <DataState status="error" title={t('workplace.kbError')} description={state.error} />;
 
   return (
     <Panel>
@@ -184,11 +184,11 @@ export function KbTab({ isDark }: { isDark?: boolean }) {
         />
       </div>
       {q.trim() === "" ? (
-        <DataState status="empty" isDark={isDark} title={t('workplace.enterQuery')} description={t('workplace.searchKbArticles')} />
+        <DataState status="empty" title={t('workplace.enterQuery')} description={t('workplace.searchKbArticles')} />
       ) : state.status === "loading" ? (
         <Skeleton />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} emptyIcon="search" title={t('workplace.nothingFound')} description={t('workplace.nothingFoundHint')} />
+        <DataState status="empty" emptyIcon="search" title={t('workplace.nothingFound')} description={t('workplace.nothingFoundHint')} />
       ) : (
         state.data.map((a) => (
           <article key={a.id} className={CARD_CLASS}>

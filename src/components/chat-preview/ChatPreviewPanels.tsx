@@ -7,7 +7,6 @@ import { useAppStore } from "../../store";
 
 interface ChatPreviewPanelsProps {
   chat: any;
-  isDark: boolean;
   t: (key: string, arg?: any) => string;
   isTyping: boolean;
   /** `useChatPreviewState` return surface. */
@@ -29,7 +28,6 @@ interface ChatPreviewPanelsProps {
  */
 export const ChatPreviewPanels = ({
   chat,
-  isDark,
   t,
   isTyping,
   preview,
@@ -75,7 +73,6 @@ export const ChatPreviewPanels = ({
       {!selectionMode && (
         <ChatHeader
           chat={chat}
-          isDark={isDark}
           onClose={onClose}
           onProfileClick={onProfileClick}
           t={t}
@@ -88,7 +85,6 @@ export const ChatPreviewPanels = ({
 
       <SearchBar
         showSearch={showSearch}
-        isDark={isDark}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         placeholder={t('chat.filters.searchPlaceholder')}
@@ -122,7 +118,6 @@ export const ChatPreviewPanels = ({
 
       {selectionMode && (
         <MessageSelectionBar
-          isDark={isDark}
           count={selectedIds.size}
           onCancel={handleCancelSelection}
           onSelectAll={() => handleSelectAll(chat.history || [])}

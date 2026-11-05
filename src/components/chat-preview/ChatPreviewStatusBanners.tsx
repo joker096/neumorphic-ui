@@ -3,18 +3,12 @@ import { CrmLeadSuggestionBar } from "../crm/CrmLeadSuggestionBar";
 /** Animated dot of the typing indicator. */
 const TYPING_DOT_CLASS = 'w-1.5 h-1.5 rounded-full bg-[var(--text-secondary)] animate-bounce';
 
-interface TypingBubbleProps {
-  isDark: boolean;
-}
+interface TypingBubbleProps {}
 
-const TypingBubble = ({ isDark }: TypingBubbleProps) => (
+const TypingBubble = () => (
   <div className="px-4 sm:px-6 pb-1 flex justify-start">
     <div
-      className={`flex items-center gap-1.5 px-3 py-2.5 rounded-2xl rounded-bl-md ${
-        isDark
-          ? "bg-[var(--bg-tertiary)] border border-[var(--border-color)]/60"
-          : "bg-white/70 border border-[var(--border-color)]/60"
-      } shadow-[var(--shadow-banner)]`}
+      className={`flex items-center gap-1.5 px-3 py-2.5 rounded-2xl rounded-bl-md bg-[var(--bg-tertiary)] border border-[var(--border-color)]/60 shadow-[var(--shadow-banner)]`}
       aria-live="polite"
     >
       <span
@@ -34,7 +28,6 @@ const TypingBubble = ({ isDark }: TypingBubbleProps) => (
 );
 
 interface ChatPreviewStatusBannersProps {
-  isDark: boolean;
   isTyping: boolean;
   isChannel?: boolean;
   t: (key: string, arg?: any) => string;
@@ -47,7 +40,6 @@ interface ChatPreviewStatusBannersProps {
  * typing indicator and the unknown-contact → CRM lead suggestion bar.
  */
 export const ChatPreviewStatusBanners = ({
-  isDark,
   isTyping,
   isChannel,
   t,
@@ -62,7 +54,7 @@ export const ChatPreviewStatusBanners = ({
 
   return (
     <>
-      {isTyping && !isChannel && <TypingBubble isDark={isDark} />}
+      {isTyping && !isChannel && <TypingBubble />}
 
       {leadSuggestionVisible && leadSuggestion && (
         <CrmLeadSuggestionBar

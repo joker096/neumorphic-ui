@@ -16,13 +16,17 @@ describe("Button", () => {
 
   it("applies primary variant by default", () => {
     render(<Button>Primary</Button>);
-    expect(screen.getByRole("button")).toHaveClass("bg-primary");
+    expect(screen.getByRole("button")).toHaveClass(
+      "bg-[var(--color-warm-black)]",
+      "text-[var(--color-cream)]",
+      "hover:bg-[var(--color-gold)]",
+    );
   });
 
   it.each([
-    ["secondary", "bg-transparent"],
+    ["secondary", "border-[var(--border-color)]"],
     ["danger", "bg-destructive"],
-    ["ghost", "hover:bg-secondary"],
+    ["ghost", "text-[var(--text-foreground)]"],
     ["premium", "bg-gradient-to-r"],
   ] as const)("applies %s variant classes", (variant, cls) => {
     render(<Button variant={variant}>{variant}</Button>);

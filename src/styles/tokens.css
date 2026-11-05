@@ -1,6 +1,20 @@
 :root {
+  --font-family-display: "Libre Caslon Text", serif;
+  --font-family-body: "Karla", sans-serif;
+  --font-weight-display: 400;
+  --font-weight-body-regular: 300;
+  --font-weight-body-medium: 400;
+  --font-weight-body-semibold: 600;
+
   --font-size-base: 16px;
   --font-size-scale: 1;
+
+  --color-page-bone: #F4F2EC;
+  --color-cream: #E8E5D8;
+  --color-warm-black: #0E0E0E;
+  --color-gold: #C9A96E;
+  --color-gold-hover: #E0B97C;
+  --color-stone: #8A8578;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -166,44 +180,44 @@
 }
 
 [data-theme="dark"] {
-  --bg-primary: #080b0c;
+  --bg-primary: #1a1a1a;
   /* Dark ink for text on saturated fills (accent/green/amber) — WCAG AA */
-  --ink-on-saturate: #080b0c;
-  --bg-secondary: #0d1112;
-  --bg-tertiary: #121718;
+  --ink-on-saturate: #1a0d02;
+  --bg-secondary: #222222;
+  --bg-tertiary: #282828;
   /* 4th surface step (doc has only a 3-step ladder + translucent panels).
      Continued the doc's ~+5/step neutral progression — the previous
      #22262e was a leftover from the retired blue-tinted palette and left
      --text-tertiary at 4.26:1 (WCAG AA fail) on elevated surfaces. */
-  --bg-elevated: #171c1d;
-  --text-primary: #f4f7f6;
-  --text-secondary: #aab2b2;
-  --text-tertiary: #7f8a8b; /* doc `--ma-text-muted` #737d7e +1 step: doc value fails WCAG AA (4.5:1) on --bg-tertiary/--input-bg; same hue */
-  --border-color: rgba(255,255,255,0.11);
-  --accent: #4ede63;
-  --accent-rgb: 78,222,99;
-  --accent-soft: rgba(78,222,99,0.13);
-  --accent2: #10b981;
-  --accent2-rgb: 16,185,129;
-  --story-ring-unseen: #10b981;
-  --story-ring-seen: #3a4344;
-  --success: #38d69a;
-  --success-soft: rgba(56,214,154,0.12);
+  --bg-elevated: #262626;
+  --text-primary: #f5f5f4;
+  --text-secondary: #a3a3a3;
+  --text-tertiary: #8a8a8a;
+  --border-color: rgba(255,255,255,0.1);
+  --accent: #f97316;
+  --accent-rgb: 249,115,22;
+  --accent-soft: rgba(249,115,22,0.16);
+  --accent2: #fb923c;
+  --accent2-rgb: 251,146,60;
+  --story-ring-unseen: #f97316;
+  --story-ring-seen: #404040;
+  --success: #4ade80;
+  --success-soft: rgba(74,222,128,0.12);
   --danger: #ff4d5e;
   --danger-soft: rgba(255,77,94,0.12);
   --cyan: #51d7ff;
   --amber: #f5b942;
-  --waveform-played-self: #f4f7f6;
-  --waveform-played-other: #4ede63;
-  --waveform-unplayed-self: rgba(244,247,246,0.35);
-  --waveform-unplayed-other: rgba(78,222,99,0.45);
+  --waveform-played-self: #f5f5f4;
+  --waveform-played-other: #f97316;
+  --waveform-unplayed-self: rgba(245,245,244,0.35);
+  --waveform-unplayed-other: rgba(249,115,22,0.45);
 
-  --button-primary-bg: #4ede63;
-  --button-primary-text: #080b0c;
+  --button-primary-bg: #f97316;
+  --button-primary-text: #1a0d02;
   --button-secondary-bg: transparent;
-  --button-secondary-text: #aab2b2;
-  --button-secondary-hover-bg: rgba(78,222,99,0.15);
-  --button-secondary-border: rgba(78,222,99,0.3);
+  --button-secondary-text: #a3a3a3;
+  --button-secondary-hover-bg: rgba(249,115,22,0.15);
+  --button-secondary-border: rgba(249,115,22,0.3);
 
   /* Neumorphic surface shadows (dark): subtle top-left highlight + deep bottom-right shadow */
   --neo-shadow-out: -7px -7px 16px rgba(255,255,255,0.035);
@@ -212,21 +226,27 @@
   --neo-shadow-in-sm: 3px 3px 7px rgba(0,0,0,0.5);
   --neo-shadow-inset: inset 4px 4px 10px rgba(0,0,0,0.6), inset -4px -4px 10px rgba(255,255,255,0.025);
   --neo-shadow-inset-sm: inset 2px 2px 5px rgba(0,0,0,0.55), inset -2px -2px 5px rgba(255,255,255,0.02);
-  --neo-surface: #1a1d24;
+  --neo-surface: #242424;
 
-  /* Canonical surface shadows (dark) */
+/* Canonical surface shadows (dark) */
   --shadow-btn-primary: 0 8px 24px -8px var(--accent);
   --shadow-btn-primary-pressed: 0 2px 8px -4px var(--accent);
+  --shadow-btn-secondary: 0 4px 12px -4px rgba(0,0,0,0.2);
+  --shadow-btn-secondary-pressed: 0 1px 4px -2px rgba(0,0,0,0.25);
+  --shadow-btn-ghost: 0 2px 6px -2px rgba(0,0,0,0.15);
+  --shadow-btn-ghost-pressed: 0 1px 3px -1px rgba(0,0,0,0.2);
+  --shadow-btn-premium: 0 8px 24px -8px var(--color-gold);
+  --shadow-btn-premium-pressed: 0 2px 8px -4px var(--color-gold);
   --shadow-panel: 0 8px 24px rgba(0,0,0,0.25);
   --shadow-modal: 0 24px 60px -12px rgba(0,0,0,0.65);
 
   /* Must differ from --bg-secondary (modal/card surface) or inputs vanish in modals */
-  --input-bg: #1a1d24;
-  --input-text: #f4f7f6;
-  --input-placeholder: #7f8a8b;
+  --input-bg: #262626;
+  --input-text: #f5f5f4;
+  --input-placeholder: #8a8a8a;
   --inset-field-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.4);
 
-  --glass-bg: rgba(13,16,23,0.75);
+  --glass-bg: rgba(34,34,34,0.75);
   --glass-border: rgba(255,255,255,0.08);
   --glass-shadow: 0 8px 32px rgba(0,0,0,0.5);
   --glass-blur: 12px;
@@ -241,21 +261,21 @@
   --radio-track-dark: #183a18;
   --radio-track-light: #3a1a0d;
 
-  --hover-bg-dark: #1a222d;
+  --hover-bg-dark: #2a2a2a;
   --hover-bg-light: rgba(0,0,0,0.05);
 
   --text-warm-dark: #e6d6b8;
 
-  --system-background: #080b0c;
+  --system-background: #1a1a1a;
   --separator: rgba(255,255,255,0.11);
 
   --list-item-hover-bg: rgba(255,255,255,0.04);
-  --toggle-active-bg: #4ede63;
+  --toggle-active-bg: #f97316;
   --toggle-inactive-bg: rgba(255,255,255,0.1);
   --toggle-inactive-border: rgba(255,255,255,0.2);
   --toggle-thumb-bg: #ffffff;
 
-  --player-progress-orange: #4ede63;
+  --player-progress-orange: #f97316;
 
   --color-success: #38d69a;
   --color-success-soft: rgba(56,214,154,0.12);
@@ -302,14 +322,14 @@
   /* Chat list item */
   --chat-swipe-bg: #2b2f42;
   --chat-swipe-bg-hover: #363b52;
-  --chat-online-dot: #4ede63;
+  --chat-online-dot: #4ade80;
   --chat-online-dot-hover: #2fb985;
   --chat-mention-bg: #51d7ff;
   --chat-mention-text: #0f172a;
   /* Telegram dims the unread counter of a muted chat instead of painting it
      with the accent, so muted rows stop competing with unmuted ones. */
-  --chat-badge-muted-bg: #3a4344;
-  --chat-badge-muted-text: #e6eceb;
+  --chat-badge-muted-bg: #404040;
+  --chat-badge-muted-text: #d4d4d4;
 
   /* Nav sidebar */
   --nav-sidebar-gradient-from: #eef1f7;
@@ -330,13 +350,13 @@
   --text-secondary: #475569;
   --text-tertiary: #64748b;
   --border-color: rgba(0,0,0,0.08);
-  --accent: #059669;
-  --accent-rgb: 5,150,102;
-  --accent2: #047857;
-  --accent2-rgb: 4,120,87;
-  --story-ring-unseen: #059669;
+  --accent: #ea580c;
+  --accent-rgb: 234,88,12;
+  --accent2: #c2410c;
+  --accent2-rgb: 194,65,12;
+  --story-ring-unseen: #ea580c;
   --story-ring-seen: #cbd5e1;
-  --accent-soft: rgba(5,150,102,0.12);
+  --accent-soft: rgba(234,88,12,0.12);
   --accent-warm: #ea580c;
   --accent-warm-soft: rgba(234,88,12,0.15);
   --accent-warm-highlight: #d97706;
@@ -344,16 +364,16 @@
   --danger-soft: rgba(220,32,35,0.1);
 
   --waveform-played-self: #0f172a;
-  --waveform-played-other: #059669;
+  --waveform-played-other: #ea580c;
   --waveform-unplayed-self: rgba(15,23,42,0.3);
-  --waveform-unplayed-other: rgba(5,150,102,0.35);
+  --waveform-unplayed-other: rgba(234,88,12,0.35);
 
-  --button-primary-bg: #047857;
+  --button-primary-bg: #ea580c;
   --button-primary-text: #ffffff;
   --button-secondary-bg: transparent;
-  --button-secondary-text: #047857;
-  --button-secondary-hover-bg: rgba(5,150,102,0.12);
-  --button-secondary-border: rgba(5,150,102,0.3);
+  --button-secondary-text: #ea580c;
+  --button-secondary-hover-bg: rgba(234,88,12,0.12);
+  --button-secondary-border: rgba(234,88,12,0.3);
 
   /* Neumorphic surface shadows (light): white highlight + soft slate shadow */
   --neo-shadow-out: -7px -7px 16px rgba(255,255,255,0.9);
@@ -364,9 +384,15 @@
   --neo-shadow-inset-sm: inset 2px 2px 5px rgba(148,163,184,0.45), inset -2px -2px 5px rgba(255,255,255,0.9);
   --neo-surface: #f1f5f9;
 
-  /* Canonical surface shadows (light) */
+/* Canonical surface shadows (light) */
   --shadow-btn-primary: 0 8px 24px -8px var(--accent);
   --shadow-btn-primary-pressed: 0 2px 8px -4px var(--accent);
+  --shadow-btn-secondary: 0 4px 12px -4px rgba(0,0,0,0.15);
+  --shadow-btn-secondary-pressed: 0 1px 4px -2px rgba(0,0,0,0.2);
+  --shadow-btn-ghost: 0 2px 6px -2px rgba(0,0,0,0.1);
+  --shadow-btn-ghost-pressed: 0 1px 3px -1px rgba(0,0,0,0.15);
+  --shadow-btn-premium: 0 8px 24px -8px var(--color-gold);
+  --shadow-btn-premium-pressed: 0 2px 8px -4px var(--color-gold);
   --shadow-panel: 0 8px 24px rgba(15,23,42,0.05);
   --shadow-modal: 0 24px 60px -12px rgba(0,0,0,0.65);
 
@@ -399,12 +425,12 @@
   --separator: rgba(0,0,0,0.08);
 
   --list-item-hover-bg: rgba(0,0,0,0.03);
-  --toggle-active-bg: #047857;
+  --toggle-active-bg: #ea580c;
   --toggle-inactive-bg: rgba(0,0,0,0.12);
   --toggle-inactive-border: rgba(0,0,0,0.2);
   --toggle-thumb-bg: #ffffff;
 
-  --player-progress-orange: #059669;
+  --player-progress-orange: #ea580c;
 
   /* Player palette (light) */
   --player-green: #45a045;

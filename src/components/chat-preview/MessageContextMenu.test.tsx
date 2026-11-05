@@ -96,4 +96,27 @@ describe('MessageContextMenu', () => {
     fireEvent.mouseDown(document.body);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('shows the quick-reaction strip and reacts on pick', () => {
+    const onClose = vi.fn();
+    const onReact = vi.fn();
+    renderMenu({
+      open: true,
+      onClose,
+      actions: baseActions,
+      reactionEmojis: ['👍', '❤️'],
+      myReactions: { '❤️': true },
+      onReact,
+    });
+    expect(screen.getByLabelText('❤️')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByLabelText('👍')).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(screen.getByLabelText('👍'));
+    expect(onReact).toHaveBeenCalledWith('👍');
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('omits the reaction strip when no handler is supplied', () => {
+    renderMenu({ open: true, onClose: vi.fn(), actions: baseActions, reactionEmojis: ['👍'] });
+    expect(screen.queryByLabelText('👍')).not.toBeInTheDocument();
+  });
 });

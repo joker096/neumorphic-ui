@@ -9,22 +9,20 @@ interface EmptyStateProps {
   title: string;
   description?: string;
   action?: { label: string; onClick: () => void };
-  isDark?: boolean;
 }
 
 export const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => {
-  const { t } = useI18n();
   return (
   <div className={EMPTY_STATE_COLUMN_CLASS}>
-    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-muted text-muted-foreground">
+    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-[var(--msg-bg-panel)] border border-[var(--border-color)] text-[var(--accent-soft)]">
       {icon ?? <Inbox size={32} />}
     </div>
-    <div className="text-sm font-semibold text-foreground">{title}</div>
+    <div className="text-sm font-semibold text-[var(--text-primary)]">{title}</div>
     {description && <div className={STATE_SUBTEXT_CLASS}>{description}</div>}
     {action && (
       <button
         onClick={action.onClick}
-        className="mt-4 text-sm font-medium px-4 py-2 rounded-lg min-h-11 bg-primary text-primary-foreground active:scale-95 transition-transform"
+        className="mt-4 text-sm font-medium px-4 py-2 rounded-lg min-h-11 bg-[var(--accent)] text-[var(--ink-on-saturate)] active:scale-95 transition-transform shadow-[var(--shadow-btn-primary)]"
       >
         {action.label}
       </button>
@@ -39,19 +37,18 @@ interface ErrorStateProps {
   code?: string;
   retryAction?: () => void;
   supportAction?: () => void;
-  isDark?: boolean;
 }
 
 export const ErrorState = ({ message, description, code, retryAction, supportAction }: ErrorStateProps) => {
   const { t } = useI18n();
   return (
   <div className={EMPTY_STATE_COLUMN_CLASS}>
-    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-destructive/10 text-destructive">
+    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger)]/30">
       <AlertTriangle size={32} />
     </div>
-    <div className="text-sm font-semibold text-foreground">{message}</div>
+    <div className="text-sm font-semibold text-[var(--text-primary)]">{message}</div>
     {description && <div className={STATE_SUBTEXT_CLASS}>{description}</div>}
-    {code && <div className="text-xs font-mono mt-1 text-muted-foreground">{code}</div>}
+    {code && <div className="text-xs font-mono mt-1 text-[var(--text-secondary)]">{code}</div>}
     <div className="flex items-center gap-2 mt-4">
       {retryAction && (
         <button
@@ -69,7 +66,7 @@ export const ErrorState = ({ message, description, code, retryAction, supportAct
           onClick={supportAction}
           aria-label={t('ui.contactSupport')}
           title={t('ui.contactSupport')}
-          className="flex items-center justify-center gap-2 min-h-11 px-3 text-sm font-medium rounded-lg transition-colors active:scale-95 text-muted-foreground hover:bg-muted"
+          className="flex items-center justify-center gap-2 min-h-11 px-3 text-sm font-medium rounded-lg transition-colors active:scale-95 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]"
         >
           <LifeBuoy size={16} />
           <span>{t('ui.contactSupport')}</span>

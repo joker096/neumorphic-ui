@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, type PanInfo } from "motion/react";
+import { unreadDividerIndex } from "../utils/unreadDivider";
 import { useI18n } from "../lib/i18n";
 import { ChatMessageList } from "./ChatMessageList";
 import { ChatPreviewPanels } from "./chat-preview/ChatPreviewPanels";
@@ -70,7 +71,7 @@ interface ChatPreviewLayerProps {
 }
 
 export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVideoCall, onMessage, onUpdateChat, onReply, savedMessages = [], onToggleSavedMessage, onOpenSavedMessage, deliveryReceipts = true, readReceipts = true, setEditingContact, messageText, setMessageText, morseMode, setMorseMode, silentMode, setSilentMode, showStickerPicker, setShowStickerPicker, isRecordingVoice, setIsRecordingVoice, voiceNoteError, setVoiceNoteError, scheduleDateTime, setScheduleDateTime, showSchedulePopup, setShowSchedulePopup, replyTarget, setReplyTarget: setReplyTargetProp, sendVoiceMessage, sendStickerMessage, handleSendMessage: handleSendMessageProp, onScheduleChange, onToggleMute, onAttachImage, onToggleSchedulePopup, onToggleSilent, onToggleMorse, onToggleStickerPicker, onDelete, onOpenPremium }: ChatPreviewLayerProps) => {
-  const isDark = theme === "dark";
+
   const { t } = useI18n();
   const isMobile = useIsMobile();
   const isTyping = useChatPreviewTyping(chat.id, chat.name, chat.online, chat.type);
@@ -123,7 +124,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     unreadSinceScroll,
     searchQuery,
     swipeReplyId,
-    activeReactionPicker, setActiveReactionPicker,
     setShowSearch,
     setActivePhotoUrl, setPhotoOpen, setActiveMediaMsg, setVideoOpen,
     setShowComments, setActivePostId, setBounceMsgId,
@@ -159,7 +159,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
     >
       <ChatPreviewPanels
         chat={chat}
-        isDark={isDark}
         t={t}
         isTyping={isTyping}
         preview={preview}
@@ -175,7 +174,13 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         msgListRef={msgListRef}
         flatItems={flatItems}
         isNearBottom={isNearBottom}
-        isDark={isDark}
+        unreadAnchorIndex={(() => {
+          const unreadCount = chat?.unread || 0;
+          if (unreadCount <= 0) return undefined;
+          const itemsToScan = (chat?.history || []).filter((m: any) => !m.read);
+          const anchor = unreadDividerIndex(itemsToScan);
+          return anchor >= 0 ? anchor : undefined;
+        })()}
         chat={chat}
         stealthMode={stealthMode}
         deliveryReceipts={deliveryReceipts}
@@ -183,7 +188,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         chatSavedMessages={chatSavedMessages}
         searchQuery={searchQuery}
         swipeReplyId={swipeReplyId}
-        activeReactionPicker={activeReactionPicker}
         theme={theme}
         onReply={(m) => onReply?.(m)}
         threadCountOf={preview.threads.countOf}
@@ -192,7 +196,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         onSetActivePhotoUrl={setActivePhotoUrl}
         onSetPhotoOpen={setPhotoOpen}
         onSetActiveMediaMsg={setActiveMediaMsg}
-        onSetActiveReactionPicker={setActiveReactionPicker}
         onSwipeReplyId={preview.setSwipeReplyId}
         onSetVideoOpen={setVideoOpen}
         onSetShowComments={setShowComments}
@@ -214,7 +217,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
 
       <ChatPreviewComposer
         chat={chat}
-        isDark={isDark}
         theme={theme}
         t={t}
         isSharingLiveLocation={isSharingLiveLocation}
@@ -222,8 +224,7 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
         interactions={interactions}
         banners={
           <ChatPreviewStatusBanners
-            isDark={isDark}
-            isTyping={isTyping}
+                isTyping={isTyping}
             isChannel={chat.isChannel}
             t={t}
             interactions={interactions}
@@ -239,7 +240,6 @@ export const ChatPreviewLayer = ({ chat, theme, onClose, onAction, onCall, onVid
 
       <ChatPreviewOverlays
         chat={chat}
-        isDark={isDark}
         theme={theme}
         photoOpen={preview.photoOpen}
         videoOpen={preview.videoOpen}

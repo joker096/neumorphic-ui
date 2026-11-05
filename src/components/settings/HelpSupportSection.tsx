@@ -141,7 +141,6 @@ export const HelpSupportSection = ({ isDark = false, onBack }: HelpSupportSectio
         <div ref={formRef} className="p-4 flex flex-col gap-3">
           {sent ? (
             <EmptyState
-              isDark={isDark}
               icon={<LifeBuoy size={32} />}
               title={t('settings.thanksTitle', 'Thanks for reaching out')}
               description={t('settings.thanksDesc', 'Our team usually replies within 24 hours.')}

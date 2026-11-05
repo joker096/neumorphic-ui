@@ -160,9 +160,10 @@ function EmbedChatApp() {
   }, [])
 
   const theme = cfg?.widget.theme || {}
+  const borderRadius = (theme as any)?.borderRadius ?? 8
 
   return (
-    <div className="ec-app" style={{ '--ec-accent': (theme as any)?.primaryColor || '#2563eb' } as React.CSSProperties}>
+    <div className="ec-app" style={{ '--ec-accent': (theme as any)?.primaryColor || '#2563eb', '--border-radius': `${borderRadius}px` } as React.CSSProperties}>
       <div className="ec-header">
         <div className="ec-title">{cfg?.widget.title || 'Онлайн-чат'}</div>
         <div className="ec-subtitle">

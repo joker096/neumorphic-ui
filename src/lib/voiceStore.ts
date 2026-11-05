@@ -34,21 +34,24 @@ export async function deleteVoiceBlob(id: string | number): Promise<void> {
  * Best-effort capture of a freshly recorded voice note into IndexedDB.
  * Accepts the live Blob (preferred — no fetch round-trip) or an object URL
  * (legacy path). Never throws: persistence must not break sending.
+ * Returns `true` when the blob was stored (or there was nothing to store),
+ * `false` when persistence failed and the message cannot be replayed.
  */
-export async function persistVoiceBlob(id: string | number, source: Blob | string): Promise<void> {
-  if (!source) return;
+export async function persistVoiceBlob(id: string | number, source: Blob | string): Promise<boolean> {
+  if (!source) return true;
   try {
     let blob: Blob;
     if (source instanceof Blob) {
       blob = source;
     } else {
       const resp = await fetchBlobWithTimeout(source);
-      if (!resp.ok) return;
+      if (!resp.ok) return false;
       blob = resp.blob;
     }
-    if (!blob || blob.size === 0) return;
+    if (!blob || blob.size === 0) return true;
     await saveVoiceBlob(id, blob);
+    return true;
   } catch {
-    /* best effort */
+    return false;
   }
 }

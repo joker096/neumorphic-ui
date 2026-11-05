@@ -10,13 +10,13 @@ interface ReplyQuoteProps {
 
 export function ReplyQuote({ replyTo, onJump }: ReplyQuoteProps) {
   const { t } = useI18n();
-  const base = `mb-2 px-3 py-2 rounded-xl border-l-2 text-xs bg-[var(--bg-tertiary)] border-[var(--accent)] text-[var(--text-secondary)]`;
+  const base = `mb-2 px-2.5 py-1.5 rounded-lg border-l-2 text-xs bg-[var(--bg-tertiary)] border-[var(--accent)] text-[var(--text-secondary)]`;
   const body = (
     <>
-      <div className="font-bold text-xs uppercase tracking-widest opacity-70 mb-1">
-        {t('chat.replyingTo')} {replyTo.sender === "me" ? t('chat.yourMessage') : replyTo.sender}
+      <div className="mb-0.5 truncate text-xs font-semibold text-[var(--text-primary)]">
+        {replyTo.sender === "me" ? t('chat.yourMessage') : replyTo.sender}
       </div>
-      <div className="line-clamp-2">
+      <div className="line-clamp-2 opacity-80">
         {replyTo.type === EXPIRED_QUOTE_TYPE ? (
           t("chat.messageExpired", "Message expired")
         ) : replyTo.text ? (

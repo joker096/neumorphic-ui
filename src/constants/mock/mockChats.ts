@@ -75,7 +75,7 @@ export const MOCK_CHATS: MockChat[] = [
         id: 201,
         sender: "them",
         text: "Alice: I pushed the updated files.",
-        time: "Yesterday, 14:20",
+        time: "14:20",
         date: isoDaysAgo(1),
       },
       {
@@ -85,14 +85,14 @@ export const MOCK_CHATS: MockChat[] = [
         thumb:
           "https://images.unsplash.com/photo-1616469829581-73993eb86b02?q=80&w=2670&auto=format&fit=crop",
         duration: "0:45",
-        time: "Yesterday, 15:10",
+        time: "15:10",
         date: isoDaysAgo(1),
       },
       {
         id: 203,
         sender: "them",
         text: "Bob: Let's review the new components later.",
-        time: "Yesterday, 16:30",
+        time: "16:30",
         date: isoDaysAgo(1),
       },
     ],

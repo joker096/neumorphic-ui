@@ -1,4 +1,3 @@
-import React from 'react';
 import { EMPTY_STATE_COLUMN_CLASS, STATE_SUBTEXT_CLASS } from './stateClasses';
 import { AlertTriangle, Lock, ShieldAlert, Trash2, WifiOff, Loader2, Inbox, Search, RefreshCw } from 'lucide-react';
 import { EmptyState, ErrorState } from './States';
@@ -18,7 +17,6 @@ export type DataStatus =
 
 export interface DataStateProps {
   status: DataStatus;
-  isDark?: boolean;
   /** Текст/заголовок для empty/error/offline/... */
   title?: string;
   description?: string;
@@ -35,10 +33,10 @@ export interface DataStateProps {
 }
 
 
-const ICON_BOX = 'w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-muted text-muted-foreground';
-const TITLE = 'text-sm font-semibold text-foreground';
-const PRIMARY_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-11 bg-primary text-primary-foreground active:scale-95 transition-transform';
-const GHOST_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-11 transition-colors active:scale-95 text-primary';
+const ICON_BOX = 'w-16 h-16 rounded-2xl flex items-center justify-center mb-4 bg-[var(--msg-bg-panel)] border border-[var(--border-color)] text-[var(--text-secondary)]';
+const TITLE = 'text-sm font-semibold text-[var(--text-primary)]';
+const PRIMARY_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-11 bg-[var(--accent)] text-[var(--ink-on-saturate)] active:scale-95 transition-transform shadow-[var(--shadow-btn-primary)]';
+const GHOST_BTN = 'text-sm font-medium px-4 py-2 rounded-lg min-h-11 transition-colors active:scale-95 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]';
 
 /**
  * Единый компонент состояний данных (бриф §16.2).

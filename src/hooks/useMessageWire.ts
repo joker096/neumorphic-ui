@@ -3,6 +3,7 @@ import {
   encodeChatAudioChunk, encodeChatAudioEnd, encodeChatAudioMeta, encodeChatText,
   nextFrameSeq, parseDurationStr, VOICE_P2P_CHUNK_SIZE, VOICE_P2P_MAX_CHUNKS, VOICE_P2P_MAX_SIZE,
 } from "../lib/p2p/chatFrame";
+import { encodeChatLocation, encodeChatArticle } from "../lib/p2p/chatRichFrames";
 import { p2pNetwork } from "../lib/p2p/network";
 import { wireSelfDestructTtl } from "../lib/selfDestruct";
 import { getVoiceBlob } from "../lib/voiceStore";
@@ -14,6 +15,18 @@ import {
 } from "../lib/messageQueue";
 import { useAppStore } from "../store";
 import { executeEditMessage } from "../lib/chatEdit";
+
+/**
+ * Wire timestamp: prefer the message's `ts` (always numeric, set at creation)
+ * over the id (which can be a string or a float from scheduled messages).
+ */
+function wireTimestamp(message: any): number {
+  const ts = Number(message.ts);
+  if (Number.isFinite(ts) && ts > 0) return ts;
+  const id = Number(message.id);
+  if (Number.isFinite(id) && id > 0) return id;
+  return Date.now();
+}
 
 interface MessageWireArgs {
   activeChat: any;
@@ -29,14 +42,16 @@ interface MessageWireArgs {
 }
 
 export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue = true }: MessageWireArgs) {
-  const updateMessageStatus = useCallback((msgId: number, status: string) => {
+  const updateMessageStatus = useCallback((msgId: number, status: string, chatId?: number | string) => {
+    const matchChat = (c: any) => chatId == null || String(c.id) === String(chatId);
+    const matchMsg = (m: any) => String(m.id) === String(msgId);
     setChats((prevChats: any[]) => prevChats.map((c: any) => {
-      if (!c.history) return c;
-      return { ...c, history: c.history.map((m: any) => m.id === msgId ? { ...m, status } : m) };
+      if (!c.history || !matchChat(c)) return c;
+      return { ...c, history: c.history.map((m: any) => matchMsg(m) ? { ...m, status } : m) };
     }));
     setActiveChat((prev: any) => {
-      if (!prev) return prev;
-      return { ...prev, history: prev.history.map((m: any) => m.id === msgId ? { ...m, status } : m) };
+      if (!prev || !matchChat(prev)) return prev;
+      return { ...prev, history: (prev.history || []).map((m: any) => matchMsg(m) ? { ...m, status } : m) };
     });
   }, [setChats, setActiveChat]);
 
@@ -51,11 +66,18 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
       senderName: sender?.name || sender?.username || "User",
       text: String(message.text || ""),
       silent: !!message.silent,
-      timestamp: Number(message.id) || Date.now(),
+      timestamp: wireTimestamp(message),
       ttlMs: wireSelfDestructTtl(message.selfDestructAt),
+      replyTo: message.replyTo ? {
+        id: String(message.replyTo.id),
+        sender: String(message.replyTo.sender ?? ""),
+        text: message.replyTo.text != null ? String(message.replyTo.text) : undefined,
+        type: message.replyTo.type,
+        duration: message.replyTo.duration,
+      } : undefined,
     });
     await p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), frame);
-    updateMessageStatus(message.id, "sent");
+    updateMessageStatus(message.id, "sent", chat.id);
   }, [updateMessageStatus]);
 
   const sendVoiceOverP2P = useCallback(async (message: any, chat: any) => {
@@ -87,7 +109,7 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
       chunkSize: VOICE_P2P_CHUNK_SIZE,
       totalChunks,
       sha256,
-      timestamp: Number(message.id) || Date.now(),
+      timestamp: wireTimestamp(message),
       ttlMs: wireSelfDestructTtl(message.selfDestructAt),
     });
     await p2pNetwork.sendAddressed(target, metaFrame);
@@ -110,7 +132,45 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
       messageId: voiceId,
     });
     await p2pNetwork.sendAddressed(target, endFrame);
-    updateMessageStatus(message.id, "sent");
+    updateMessageStatus(message.id, "sent", chat.id);
+  }, [updateMessageStatus]);
+
+  const sendGeoOverP2P = useCallback(async (message: any, chat: any) => {
+    const sender = useAppStore.getState().userProfile;
+    const frame = encodeChatLocation({
+      type: "chat-location",
+      seq: nextFrameSeq(),
+      messageId: String(message.id),
+      chatId: String(chat.id),
+      chatName: String(chat.name || ""),
+      senderName: sender?.name || sender?.username || "User",
+      lat: message.lat,
+      lng: message.lng,
+      silent: !!message.silent,
+      timestamp: wireTimestamp(message),
+      ttlMs: wireSelfDestructTtl(message.selfDestructAt),
+    });
+    await p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), frame);
+    updateMessageStatus(message.id, "sent", chat.id);
+  }, [updateMessageStatus]);
+
+  const sendArticleOverP2P = useCallback(async (message: any, chat: any) => {
+    const sender = useAppStore.getState().userProfile;
+    const frame = encodeChatArticle({
+      type: "chat-article",
+      seq: nextFrameSeq(),
+      messageId: String(message.id),
+      chatId: String(chat.id),
+      chatName: String(chat.name || ""),
+      senderName: sender?.name || sender?.username || "User",
+      url: message.url,
+      title: message.title || undefined,
+      silent: !!message.silent,
+      timestamp: wireTimestamp(message),
+      ttlMs: wireSelfDestructTtl(message.selfDestructAt),
+    });
+    await p2pNetwork.sendAddressed(p2pNetwork.peerForChat(chat.id) ?? p2pNetwork.peerForChatName(chat.name), frame);
+    updateMessageStatus(message.id, "sent", chat.id);
   }, [updateMessageStatus]);
 
   useEffect(() => {
@@ -118,8 +178,13 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
     const attempt = async (item: any): Promise<void> => {
       const chatContext = { id: item.data.chatId, name: item.data.chatName };
       try {
-        if (item.data?.type === "audio") {
+        const type = item.data?.type;
+        if (type === "audio") {
           await sendVoiceOverP2P(item.data, chatContext);
+        } else if (type === "location") {
+          await sendGeoOverP2P(item.data, chatContext);
+        } else if (type === "article") {
+          await sendArticleOverP2P(item.data, chatContext);
         } else {
           await sendTextOverP2P(item.data, chatContext);
         }
@@ -132,7 +197,7 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
         const retryCount = (item.retryCount || 0) + 1;
         if (retryCount >= MAX_QUEUE_RETRIES) {
           await removeQueuedMessage(item.id).catch(() => {});
-          if (item.data?.id !== undefined) updateMessageStatus(item.data.id, "failed");
+          if (item.data?.id !== undefined) updateMessageStatus(item.data.id, "failed", item.data.chatId);
         } else {
           await retryMessage(item).catch(() => {});
         }
@@ -143,10 +208,13 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
       if (!navigator.onLine) return;
       const pending = await getPendingMessages().catch(() => []);
       for (const item of pending) {
-        // Text, sticker, and audio messages have wire representations; image
-        // and video media still use their own local-only sync path.
+        // Text, sticker, audio, location and article messages have wire
+        // representations; image and video media still use their own
+        // local-only sync path.
         const type = item.data?.type;
-        const isDeliverable = type === undefined || type === "sticker" || type === "audio";
+        const isDeliverable =
+          type === undefined || type === "sticker" || type === "audio" ||
+          type === "location" || type === "article";
         if (!isDeliverable) continue;
         // Exponential backoff between failed attempts for the same item.
         const lastRetry = item.lastRetry || 0;
@@ -170,11 +238,11 @@ export function useMessageWire({ activeChat, setChats, setActiveChat, flushQueue
       window.removeEventListener("online", prune);
       window.clearInterval(retryTimer);
     };
-  }, [sendTextOverP2P, sendVoiceOverP2P, updateMessageStatus, flushQueue]);
+  }, [sendTextOverP2P, sendVoiceOverP2P, sendGeoOverP2P, sendArticleOverP2P, updateMessageStatus, flushQueue]);
 
   const editMessage = useCallback((messageId: number, newText: string) => {
     executeEditMessage(messageId, newText, activeChat);
   }, [activeChat]);
 
-  return { updateMessageStatus, sendTextOverP2P, sendVoiceOverP2P, editMessage };
+  return { updateMessageStatus, sendTextOverP2P, sendVoiceOverP2P, sendGeoOverP2P, sendArticleOverP2P, editMessage };
 }

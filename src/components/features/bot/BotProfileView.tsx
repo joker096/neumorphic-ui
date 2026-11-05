@@ -23,13 +23,12 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
   const state = useServiceData(() => bot.getBotProfile(botId), [botId, reloadTick]);
 
   if (state.status === "loading") {
-    return <DataState status="loading" isDark={isDark} />;
+    return <DataState status="loading" />;
   }
   if (state.status === "notConfigured") {
     return (
       <NotConfiguredState
-        isDark={isDark}
-        feature="bot"
+               feature="bot"
         hint={t("bot.notConfiguredProfileHint", "Bot profile requires a backend adapter BotService.getBotProfile.")}
       />
     );
@@ -38,8 +37,7 @@ export function BotProfileView({ botId, isDark, onBack, onOpenMiniApp, onStart }
     return (
       <DataState
         status="error"
-        isDark={isDark}
-        title={t("bot.profileLoadError", "Failed to load profile")}
+               title={t("bot.profileLoadError", "Failed to load profile")}
         description={state.error}
         retryAction={() => setReloadTick(n => n + 1)}
       />

@@ -11,7 +11,7 @@ describe('useAppearanceEffects', () => {
     root.removeAttribute('data-anim-intensity');
     root.style.cssText = '';
     useAppStore.setState({
-      accentColor: '#10b981',
+      accentColor: '#ea580c',
       chatBackground: 'default',
       density: 'comfortable',
       messageRadius: 16,
@@ -22,10 +22,10 @@ describe('useAppearanceEffects', () => {
   it('applies persisted appearance values onto <html>', () => {
     renderHook(() => useAppearanceEffects());
     const root = document.documentElement;
-    expect(root.style.getPropertyValue('--accent')).toBe('#10b981');
-    expect(root.style.getPropertyValue('--accent-rgb')).toBe('16,185,129');
-    expect(root.style.getPropertyValue('--accent2')).toBe('#0c9065');
-    expect(root.style.getPropertyValue('--button-primary-bg')).toBe('#10b981');
+    expect(root.style.getPropertyValue('--accent')).toBe('#ea580c');
+    expect(root.style.getPropertyValue('--accent-rgb')).toBe('234,88,12');
+    expect(root.style.getPropertyValue('--accent2')).toBe('#b74509');
+    expect(root.style.getPropertyValue('--button-primary-bg')).toBe('#ea580c');
     expect(root.style.getPropertyValue('--button-primary-text')).toBe('#ffffff');
     expect(root.getAttribute('data-chat-bg')).toBe('default');
     expect(root.getAttribute('data-density')).toBe('comfortable');
@@ -101,17 +101,17 @@ describe('useAppearanceEffects', () => {
     expect(root.style.getPropertyValue('--chat-bg-image')).toBe('');
   });
 
-  it('uses the doc accent-2 companion + dark ink for the default green accent', () => {
+  it('uses the paired accent-2 companion + dark ink for the default orange accent', () => {
     act(() => {
-      useAppStore.setState({ accentColor: '#4ede63' });
+      useAppStore.setState({ accentColor: '#f97316' });
     });
     const { rerender } = renderHook(() => useAppearanceEffects());
     rerender();
     const root = document.documentElement;
-    expect(root.style.getPropertyValue('--accent')).toBe('#4ede63');
-    expect(root.style.getPropertyValue('--accent-rgb')).toBe('78,222,99');
-    expect(root.style.getPropertyValue('--accent2')).toBe('#10b981');
-    expect(root.style.getPropertyValue('--button-primary-text')).toBe('#080b0c');
+    expect(root.style.getPropertyValue('--accent')).toBe('#f97316');
+    expect(root.style.getPropertyValue('--accent-rgb')).toBe('249,115,22');
+    expect(root.style.getPropertyValue('--accent2')).toBe('#ea580c');
+    expect(root.style.getPropertyValue('--button-primary-text')).toBe('#ffffff');
   });
 
   it('does not write --chat-bg-image for custom bg with no data URL yet', () => {

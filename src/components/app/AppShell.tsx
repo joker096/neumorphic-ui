@@ -3,6 +3,8 @@ import { AppMainContent } from "./AppMainContent";
 import { AppShellDesktop } from "./AppShellDesktop";
 import { ShellGlobalSearch, ShellMobileNav } from "./AppShellChrome";
 import { OfflineBanner } from "../status/OfflineBanner";
+import { PwaInstallBanner } from "../pwa/PwaInstallBanner";
+import { usePwaInstallPrompt } from "../../hooks/pwa/usePwaInstallPrompt";
 import type { Contact } from "../../types/contact";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useChatListData } from "../../hooks/useChatListData";
@@ -138,6 +140,9 @@ function AppShellImpl({
   const globalSearchOpen = useUiStore((s) => s.globalSearchOpen);
   const setGlobalSearchOpen = useUiStore((s) => s.setGlobalSearchOpen);
 
+  // PWA install prompt — shows a slim banner until the user installs or dismisses.
+  const pwaInstall = usePwaInstallPrompt();
+
   const handleOpenPremium = () => {
     if (pushView) pushView("settings", "premium");
     else { setSubView('premium'); setView('settings'); }
@@ -228,6 +233,7 @@ function AppShellImpl({
     <div data-theme={theme} data-font-size={fontSize} className={`w-full h-[100dvh] flex flex-col font-sans select-none overflow-hidden relative pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] ${"bg-[var(--bg-primary)] text-[var(--text-primary)]"}`}>
       <div id="sr-region" aria-live="polite" role="status" className="sr-only" />
       <OfflineBanner t={t} />
+      <PwaInstallBanner state={pwaInstall} t={t} />
       <div className="flex-1 min-h-0 flex">
 
       {/* 3-column desktop layout: rail (76px) + resizable side list (240–480px) + main (flexible) */}

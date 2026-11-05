@@ -32,9 +32,13 @@ interface MessageContextMenuProps {
    * message instead of a bottom sheet; without it the sheet stays the default.
    */
   anchorRect?: MenuAnchorRect | null;
+  /** Emojis for the quick-reaction strip; the strip is hidden without an `onReact`. */
+  reactionEmojis?: string[];
+  myReactions?: Record<string, boolean>;
+  onReact?: (emoji: string) => void;
 }
 
-export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, onClose, title, actions, anchorRect = null }) => {
+export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, onClose, title, actions, anchorRect = null, reactionEmojis = [], myReactions = {}, onReact }) => {
   const { t } = useI18n();
   const coarse = useCoarsePointer();
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -62,9 +66,34 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
 
   const label = title || t("chat.messageActions", "Message actions");
 
+  const reactionStrip =
+    onReact && reactionEmojis.length > 0 ? (
+      <div
+        role="group"
+        aria-label={t("chat.reactions", "Reactions")}
+        className="flex gap-0.5 overflow-x-auto border-b border-[var(--border-color)] px-1 pb-1 mb-1"
+      >
+        {reactionEmojis.map((emoji) => (
+          <button
+            key={emoji}
+            type="button"
+            role="menuitem"
+            aria-label={emoji}
+            aria-pressed={!!myReactions[emoji]}
+            onClick={() => { onReact(emoji); onClose(); }}
+            className={`w-11 h-11 shrink-0 flex items-center justify-center rounded-lg text-lg cursor-pointer transition-colors hover:bg-[var(--msg-bg-panel-hover)] active:scale-95 ${
+              myReactions[emoji] ? "bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]" : ""
+            }`}
+          >
+            {emoji}
+          </button>
+        ))}
+      </div>
+    ) : null;
+
   if (anchorRect) {
     const rowHeight = coarse ? TOUCH_ROW_HEIGHT : MOUSE_ROW_HEIGHT;
-    const height = actions.length * rowHeight + 8;
+    const height = actions.length * rowHeight + 8 + (reactionStrip ? 52 : 0);
     const { x, y } = resolveMenuPosition(null, anchorRect, height);
     return ReactDOM.createPortal(
       <div
@@ -74,6 +103,7 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
         style={{ position: "fixed", top: Math.max(VIEWPORT_MARGIN, y), left: Math.max(VIEWPORT_MARGIN, x), width: MENU_WIDTH }}
         className={CONTEXT_MENU_CLASS}
       >
+        {reactionStrip}
         {actions.map((a) => (
           <button
             key={a.key}
@@ -84,8 +114,8 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
               onClose();
             }}
             className={`w-full flex items-center gap-2 rounded-lg text-xs font-medium text-left transition-colors cursor-pointer ${
-              coarse ? "min-h-11 px-3 py-2" : "min-h-9 px-3 py-1"
-            } ${a.danger ? "text-red-400 hover:bg-red-500/10" : "text-[var(--text-primary)] hover:bg-white/[0.06]"}`}
+              coarse ? "min-h-11 px-3 py-2" : "min-h-11 px-3 py-2"
+            } ${a.danger ? "text-[var(--danger)] hover:bg-[var(--danger-soft)]" : "text-[var(--text-primary)] hover:bg-[var(--msg-bg-panel-hover)]"}`}
           >
             {a.icon && <span className="shrink-0 text-base">{a.icon}</span>}
             <span className="truncate">{a.label}</span>
@@ -106,6 +136,7 @@ export const MessageContextMenu: React.FC<MessageContextMenuProps> = ({ open, on
       <div className={sheetBackdrop} onClick={onClose} aria-hidden="true" />
       <div className={sheetSurface(false, 'p-1.5')}>
         {title && <div className={sheetTitleClass(false)}>{title}</div>}
+        {reactionStrip}
         <div className="flex flex-col">
           {actions.map((a) => (
             <button

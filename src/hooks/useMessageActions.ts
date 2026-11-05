@@ -7,6 +7,7 @@ import { useI18n } from "../lib/i18n";
 import { useOfflineQueue } from "./useOfflineQueue";
 import { applyDefaultSelfDestruct, resolveSelfDestructTimer } from "../lib/selfDestruct";
 import { persistVoiceBlob } from "../lib/voiceStore";
+import { makeId } from "../lib/id";
 import { formatClockTime } from "../utils/chatUtils";
 import { useAppStore } from "../store";
 import { useMessageWire } from "./useMessageWire";
@@ -37,11 +38,12 @@ export function useMessageActions(
   const { updateMessageStatus, sendTextOverP2P, sendVoiceOverP2P, editMessage } = useMessageWire({ activeChat, setChats, setActiveChat });
 
   const buildNewMessage = useCallback((overrides: Record<string, any> = {}) => {
+    const now = Date.now();
     const msg: any = {
-      id: Date.now(),
+      id: makeId(),
       sender: "me",
-      ts: Date.now(),
-      time: formatClockTime(Date.now()),
+      ts: now,
+      time: formatClockTime(now),
       status: navigator.onLine ? "sent" : "queued",
       silent: silentMode,
       replyTo: replyTarget ? {
@@ -85,19 +87,21 @@ export function useMessageActions(
     setReplyTarget(null);
 
     void (async () => {
-      try {
-        await persistVoiceBlob(newMessage.voiceId, blob ?? audioUrl);
-      } catch {
-        updateMessageStatus(newMessage.id, "failed");
+      // persistVoiceBlob never throws, but a false result means the blob was
+      // not stored — the message can't be replayed after a reload, so we must
+      // not send it over the wire (a phantom "sent" bubble with no audio).
+      const persisted = await persistVoiceBlob(newMessage.voiceId, blob ?? audioUrl);
+      if (!persisted) {
+        updateMessageStatus(newMessage.id, "failed", activeChat.id);
         return;
       }
 
       queueOffline({ ...newMessage, chatId: activeChat.id, chatName: activeChat.name },
-        () => updateMessageStatus(newMessage.id, "failed"));
+        () => updateMessageStatus(newMessage.id, "failed", activeChat.id));
 
       if (navigator.onLine) {
         await sendVoiceOverP2P(newMessage, activeChat)
-          .catch(() => updateMessageStatus(newMessage.id, "failed"));
+          .catch(() => updateMessageStatus(newMessage.id, "failed", activeChat.id));
       }
     })();
   }, [activeChat, buildNewMessage, appendMessage, setReplyTarget, t, updateMessageStatus, sendVoiceOverP2P, queueOffline]);

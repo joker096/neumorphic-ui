@@ -29,6 +29,10 @@ export interface EmbedWidgetConfig {
    * record (e.g. "Sales", "Support").
    */
   title?: string;
+  /** Force widget theme. Default: auto (respects system preference). */
+  theme?: 'auto' | 'light' | 'dark';
+  /** Hide per-message timestamps. */
+  hideTimestamps?: boolean;
 }
 
 export interface EmbedConfig {

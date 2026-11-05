@@ -36,7 +36,7 @@ type EmbedWidgetProps = {
   theme?: 'light' | 'dark';
 };
 
-const DEFAULT_ACCENT = '#6C5CE7';
+const DEFAULT_ACCENT = 'var(--accent)';
 
 export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const { t } = useI18n();
@@ -219,6 +219,7 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
   const position = cfgRef.current?.config?.position || 'bottom-right';
   const greeting = cfgRef.current?.config?.greeting;
   const hideBrand = cfgRef.current?.config?.hideBrand ?? false;
+  const hideTimestamps = cfgRef.current?.config?.hideTimestamps ?? false;
   const title = cfgRef.current?.config?.title || cfgRef.current?.label || t('embed.chat');
   const showContactForm = collectContact && !contactSent && open;
   // Relay down / still handshaking → show the note, keep the composer usable so
@@ -231,13 +232,17 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
         ? t('embed.offline')
         : null;
 
+  const themePref = cfgRef.current?.config?.theme || 'auto';
+  const resolvedTheme: 'light' | 'dark' = themePref === 'auto'
+    ? (theme === 'dark' ? 'dark' : 'light')
+    : themePref;
+
   return (
     <EmbedPanel
       open={open}
       title={title}
       accent={accent}
       position={position}
-      isDark={theme === 'dark'}
       relayStatus={relayStatus}
       showContactForm={showContactForm}
       contact={contact}
@@ -251,6 +256,8 @@ export const EmbedWidget = ({ token, theme = 'light' }: EmbedWidgetProps) => {
       onDraftChange={setDraft}
       onSend={() => void send()}
       hideBrand={hideBrand}
+      hideTimestamps={hideTimestamps}
+      theme={resolvedTheme}
       unread={unread}
       toast={toast}
       onToggleOpen={() => setOpen((v) => !v)}

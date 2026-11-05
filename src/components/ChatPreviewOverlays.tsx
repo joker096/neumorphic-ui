@@ -13,7 +13,7 @@ type TranslateFn = (key: string, fallback?: string | Record<string, string | num
 
 interface ChatPreviewOverlaysProps {
   chat: any;
-  isDark: boolean;
+  isDark?: boolean;
   theme: "light" | "dark";
   photoOpen: boolean;
   videoOpen: boolean;
@@ -51,7 +51,7 @@ interface ChatPreviewOverlaysProps {
 }
 
 export function ChatPreviewOverlays({
-  chat, isDark, theme,
+  chat, theme, isDark = theme === "dark",
   photoOpen, videoOpen, activePhotoUrl,
   activeMediaMsg, setActiveMediaMsg,
   setPhotoOpen, setVideoOpen,

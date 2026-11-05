@@ -82,6 +82,7 @@
     "frequent": "Frequent"
   },
   "chat": {
+    "album": "앨범",
     "draft": "초안",
     "createPoll": "투표 만들기",
     "pollQuestion": "질문",
@@ -396,6 +397,8 @@
     "forwarded": "Forwarded",
     "forwardedFrom": "{{name}}님에게서 전달됨",
     "jumpToMessage": "메시지로 이동",
+    "jumpToBottom": "최근 메시지로",
+    "jumpToUnread": "읽지 않은 메시지로",
     "deleted": "Deleted",
     "reactions": "Reactions",
     "reactionTooltip": {

@@ -194,7 +194,6 @@ export const FeatureViews = ({
         return (
           <DataState
             status="error"
-            isDark={theme === "dark"}
             title={t("workplace.adminOnlyTitle", "Admin access required")}
             description={t("workplace.adminOnlyBody", "The workspace is restricted to company administrators.")}
           />

@@ -9,7 +9,7 @@ interface LiveVoiceRecorderProps {
    onSend: (audioUrl: string, durationStr: string, blob: Blob) => void;
    onPermissionDenied?: (message: string) => void;
    holdToRecord?: boolean;
-   isDark?: boolean;
+
   }
 
 export const LiveVoiceRecorder = ({ onCancel, onSend, onPermissionDenied, holdToRecord = true }: LiveVoiceRecorderProps) => {
@@ -75,7 +75,13 @@ const removeStopListeners = () => {
         removeStopListeners();
         if (mediaRecorderRef.current?.state === "recording") {
           handleStopAndSend();
+        } else if (stream != null || mediaRecorderRef.current != null) {
+          // The async start may not be reflected in .state yet — keep it, so a
+          // release right after the mic grant still ends with Stop & Send.
+          handleStopAndSend();
         }
+        // Nothing started yet (mic grant still pending): stay hands-free. The
+        // recording begins when the stream arrives and waits for Stop & Send.
      };
 
      const handlePauseResume = () => {
@@ -146,7 +152,7 @@ const removeStopListeners = () => {
  return (
         (
             // Recording mode with swipe-to-cancel
-           <div className={`w-full bg-[var(--bg-primary)] rounded-md px-1 relative overflow-hidden`}>
+           <div className="w-full glass-panel rounded-xl px-3 py-2 relative overflow-hidden">
              <motion.div
                drag="y"
                dragConstraints={{ top: -120, bottom: 0 }}
@@ -158,17 +164,20 @@ onDragEnd={(_: unknown, info: PanInfo) => {
                 }}
                className="flex items-center justify-between gap-3 h-10"
              >
-              <div 
-                  onClick={handleCancel}
-                  className="w-10 h-10 min-w-11 min-h-11 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 text-[var(--text-secondary)] hover:text-red-400"
-                    title={label('voiceRecorder.discard', 'Discard')}
-                >
-                  <Trash2 size={18} />
-               </div>
+               <div
+                   onClick={handleCancel}
+                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleCancel(); } }}
+                   role="button"
+                   tabIndex={0}
+                   aria-label={label("voiceRecorder.discard", "Discard")}
+                   className="w-10 h-10 min-w-[44px] min-h-[44px] flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer transition-colors active:scale-95 text-[var(--text-secondary)] hover:text-[var(--danger)] focus-visible:outline-none focus-visible:ring-[2px] focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+                 >
+                   <Trash2 size={18} aria-hidden="true" />
+                </div>
               
               <div className="flex-1 flex items-center gap-3 overflow-hidden">
-                 <div className={`w-2 h-2 rounded-full ${isPaused ? "bg-yellow-500" : "bg-red-500"} ${!isPaused && isRecording ? "animate-pulse" : ""}`} />
-                 <span className={`text-sm font-bold tracking-wide font-mono min-w-[36px] text-[var(--text-primary)]`}>
+                 <div className={`w-2 h-2 rounded-full ${isPaused ? "bg-[var(--amber)]" : "bg-[var(--danger)]"} ${!isPaused && isRecording ? "animate-pulse" : ""}`} />
+                 <span className={`text-sm font-bold tracking-wide font-mono min-w-[36px] text-[var(--text-primary)]`} aria-label="Timer: recording" aria-live="polite">
                     {formatTime(duration)}
                  </span>
                  <div className="flex-1 h-8 px-2 flex items-center">
@@ -180,7 +189,7 @@ onDragEnd={(_: unknown, info: PanInfo) => {
 {isRecording && (
                     <button 
                          onClick={handlePauseResume}
-                          className={`w-10 h-10 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-white/5 text-[var(--text-primary)]`}
+                          className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full glass-panel transition-colors text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-[2px] focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
                           title={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
                           aria-label={isPaused ? label('voiceRecorder.resume', 'Resume') : label('voiceRecorder.pause', 'Pause')}
                        >
@@ -189,7 +198,8 @@ onDragEnd={(_: unknown, info: PanInfo) => {
                   )}
                   <button 
                       onClick={handleStopAndSend}
-                     className="w-10 h-10 min-w-11 min-h-11 flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-orange-500 to-orange-400 text-[var(--text-primary)] shadow-[var(--shadow-rec-glow)]"
+                                            aria-label={label("voiceRecorder.stopAndSend", "Stop and Send")}
+                     className="w-11 h-11 min-w-[44px] min-h-[44px] flex flex-shrink-0 items-center justify-center rounded-full cursor-pointer transition-all active:scale-95 bg-gradient-to-tr from-[var(--amber)] to-[var(--accent)] text-[var(--ink-on-saturate)] shadow-[var(--shadow-rec-glow)] focus-visible:outline-none focus-visible:ring-[2px] focus-visible:ring-offset-2 focus-visible:ring-[var(--ink-on-saturate)]"
                      title={label('voiceRecorder.stopAndSend', 'Stop and Send')}
                   >
                      <Send size={18} className="-ml-0.5" />

@@ -28,7 +28,7 @@ const FILTERS: Array<{ key: 'all' | 'media' | 'files' | 'links'; labelKey: strin
   { key: 'links', labelKey: 'chat.filters.links', fallback: 'Links' },
 ]
 
-export const SearchBar = ({ showSearch, isDark = false, searchQuery, onSearchChange = () => {}, placeholder, searchTypeFilter = 'all', onSearchTypeChange = () => {}, matchCount = 0, activeMatch = 0, onPrevMatch, onNextMatch, onJumpToDate }: SearchBarProps) => {
+export const SearchBar = ({ showSearch = false, searchQuery, onSearchChange = () => {}, placeholder, searchTypeFilter = 'all', onSearchTypeChange = () => {}, matchCount = 0, activeMatch = 0, onPrevMatch, onNextMatch, onJumpToDate }: SearchBarProps) => {
   const { t } = useI18n();
   if (!showSearch) return null
 

@@ -355,12 +355,15 @@ async function handleIpn(req: IncomingMessage, res: ServerResponse): Promise<voi
       return
     }
 
-    const payment = getPaymentByOrderId(orderId)
+    // Verify signature before any DB access: prevents orderId enumeration via
+    // response timing differences and avoids wasted DB queries on forged IPNs.
     if (!verifySignature(raw, signature, ENV_SECRET)) {
       console.warn('[Paymento] Invalid IPN signature for', orderId)
       sendJson(res, 401, { error: 'Invalid signature' })
       return
     }
+
+    const payment = getPaymentByOrderId(orderId)
 
     const status = Number(body.OrderStatus ?? 0)
     const paymentId = body.PaymentId != null ? Number(body.PaymentId) : null

@@ -48,7 +48,8 @@ export function useMessageGestures({
     }
     const now = Date.now();
     if (now - lastTapRef.current.time < 300 && lastTapRef.current.msgId === msgId) {
-      onReactionMessage(msgId, "👍");
+      // Telegram/WhatsApp convention: a double tap sends a heart, not a thumb.
+      onReactionMessage(msgId, "❤️");
       onSetBounceMsgId(msgId);
       window.setTimeout(() => onSetBounceMsgId(null), 300);
       lastTapRef.current = { time: 0, msgId: 0 };

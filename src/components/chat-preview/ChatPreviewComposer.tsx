@@ -5,7 +5,6 @@ import { ChatInputArea } from "./ChatInputArea";
 
 interface ChatPreviewComposerProps {
   chat: any;
-  isDark: boolean;
   theme: "light" | "dark";
   t: (key: string, arg?: any) => string;
   isSharingLiveLocation: boolean;
@@ -34,7 +33,6 @@ interface ChatPreviewComposerProps {
  */
 export const ChatPreviewComposer = ({
   chat,
-  isDark,
   theme,
   t,
   isSharingLiveLocation,
@@ -72,18 +70,27 @@ export const ChatPreviewComposer = ({
     handleFileDrop,
     sendVideoNote,
   } = preview;
-  const { handleScrollToBottom } = interactions;
+  const { handleScrollToBottom, handleScrollToUnread } = interactions;
+  const hasUnread = unreadSinceScroll > 0 && Boolean(handleScrollToUnread);
 
   return (
     <>
       <JumpToBottomButton
         isNearBottom={isNearBottom}
         unreadSinceScroll={unreadSinceScroll}
-        isDark={isDark}
+        label={hasUnread ? t("chat.jumpToUnread") : t("chat.jumpToBottom")}
         onScrollToBottom={() => {
           handleScrollToBottom();
           setUnreadSinceScroll(0);
         }}
+        onScrollToUnread={
+          hasUnread
+            ? () => {
+                handleScrollToUnread?.();
+                setUnreadSinceScroll(0);
+              }
+            : undefined
+        }
       />
 
       <ScheduledMessages
@@ -95,7 +102,7 @@ export const ChatPreviewComposer = ({
       {banners}
 
       <ChatInputArea
-        isDark={isDark}
+        
         isChannel={chat.isChannel}
         chat={chat}
         eMsgText={eMsgText}

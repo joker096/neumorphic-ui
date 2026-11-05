@@ -7,6 +7,7 @@ type TFn = (key: string, arg?: any) => string;
 
 interface MsgListRef {
   scrollToBottom: () => void;
+  scrollToUnread?: () => void;
   scrollToIndex?: (index: number, align?: "start" | "center" | "end") => void;
 }
 
@@ -134,6 +135,10 @@ export function useChatPreviewInteractions({
     msgListRef.current?.scrollToBottom();
   };
 
+  const handleScrollToUnread = () => {
+    msgListRef.current?.scrollToUnread?.();
+  };
+
   const selectedMessages = (chat.history || []).filter((m: any) => selectedIds.has(m.id));
   const handleCopySelected = async () => {
     const texts = selectedMessages
@@ -177,6 +182,7 @@ export function useChatPreviewInteractions({
     handleJumpToMessage,
     handleJumpToPinned,
     handleScrollToBottom,
+    handleScrollToUnread,
     handleCopySelected,
     handleSaveSelected,
   };

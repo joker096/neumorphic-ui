@@ -10,10 +10,16 @@ interface MessageTimestampProps {
   deliveryReceipts: boolean;
   readReceipts: boolean;
   onRetry?: () => void;
+  /**
+   * Floats the clock onto the last text line instead of reserving a strip
+   * under the bubble. Telegram and WhatsApp do this for plain-text bubbles;
+   * media and keyboards keep the block layout.
+   */
+  inline?: boolean;
 }
 
 export function MessageTimestamp({
-  msg, isMe, stealthMode, deliveryReceipts, readReceipts, onRetry,
+  msg, isMe, stealthMode, deliveryReceipts, readReceipts, onRetry, inline = false,
 }: MessageTimestampProps) {
   const { t, lang } = useI18n();
   const shortDate = typeof msg.ts === "number"
@@ -24,8 +30,11 @@ export function MessageTimestamp({
       })
     : "";
   const timeLabel = stealthMode ? fuzzTime(msg.time, msg.id) : msg.time;
+  const containerClass = inline
+    ? "message-meta float-right ml-2 mt-0 mb-0.5 flex items-center justify-end gap-1 text-xs font-medium"
+    : `message-meta flex items-center justify-end gap-1 mt-0.5 text-xs font-medium ${msg.type ? "px-2" : ""}`;
   return (
-    <div className={`message-meta flex items-center justify-end gap-1 mt-1 text-xs font-bold tracking-wide ${msg.type ? "px-2" : ""}`}>
+    <div className={containerClass} data-inline-meta={inline ? "true" : undefined}>
       {shortDate && <span>{shortDate}</span>}
       {msg.silent && <BellOff size={12} className="mr-0.5 opacity-60" />}
       {timeLabel}

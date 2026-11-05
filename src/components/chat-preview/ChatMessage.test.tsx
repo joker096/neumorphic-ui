@@ -40,9 +40,7 @@ vi.mock('./FormattedText', () => ({
   FormattedText: ({ text }: any) => <span data-testid="formatted-text">{text}</span>,
 }));
 vi.mock('./MessageReactions', () => ({
-  MessageReactions: ({ activeReactionPicker }: any) => (
-    <div data-testid="message-reactions" data-active={String(activeReactionPicker)} />
-  ),
+  MessageReactions: () => <div data-testid="message-reactions" />,
 }));
 vi.mock('./MessageContextMenu', () => ({
   MessageContextMenu: vi.fn(({ open }: any) => (open ? <div data-testid="message-context-menu" data-open="true" /> : null)),
@@ -97,13 +95,11 @@ const baseProps = (overrides: any = {}) => ({
   chatSavedMessages: [],
   searchQuery: '',
   swipeReplyId: null,
-  activeReactionPicker: null,
   theme: 'light',
   onReply: vi.fn(),
   onToggleSavedMessage: vi.fn(),
   onSetActivePhotoUrl: vi.fn(),
   onSetPhotoOpen: vi.fn(),
-  onSetActiveReactionPicker: vi.fn(),
   onSwipeReplyId: vi.fn(),
   onSetVideoOpen: vi.fn(),
   onSetShowComments: vi.fn(),
@@ -113,7 +109,7 @@ const baseProps = (overrides: any = {}) => ({
   ...overrides,
 });
 
-const bubbleEl = () => document.querySelector('[class*="max-w-[85%] md:max-w-[80%]"]') as HTMLElement;
+const bubbleEl = () => document.querySelector('.msg-bubble') as HTMLElement;
 
 describe('ChatMessage', () => {
   beforeEach(() => {
@@ -134,6 +130,27 @@ describe('ChatMessage', () => {
     expect(glyph.parentElement).toHaveClass('text-6xl');
   });
 
+  it('puts own bubbles on the right and incoming bubbles on the left', () => {
+    const { rerender } = render(
+      <ChatMessage {...baseProps({ isMe: true, msg: { id: 1, text: 'mine', sender: 'me' } })} />,
+    );
+    const ownRow = document.querySelector('.msg-message-row')!;
+    // row-reverse flips the main axis, so `justify-start` is what pins the
+    // bubble to the right edge. `justify-end` here is the bug that put own
+    // replies on the incoming side.
+    expect(ownRow).toHaveClass('flex-row-reverse', 'justify-start');
+    expect(ownRow).not.toHaveClass('justify-end');
+    expect(ownRow.parentElement).toHaveClass('items-end');
+
+    rerender(
+      <ChatMessage {...baseProps({ isMe: false, msg: { id: 2, text: 'theirs', sender: 'Bob' } })} />,
+    );
+    const incomingRow = document.querySelector('.msg-message-row')!;
+    expect(incomingRow).not.toHaveClass('flex-row-reverse');
+    expect(incomingRow).toHaveClass('justify-start');
+    expect(incomingRow.parentElement).toHaveClass('items-start');
+  });
+
   it('does not enlarge multi-char text or emoji-plus-text', () => {
     const { unmount } = render(<ChatMessage {...baseProps()} />);
     const normal = screen.getByTestId('formatted-text');
@@ -150,7 +167,7 @@ describe('ChatMessage', () => {
     expect(screen.getByTestId('bubble-actions')).toBeInTheDocument();
     expect(screen.queryByTestId('channel-comments')).not.toBeInTheDocument();
     expect(screen.queryByTestId('message-timestamp')).not.toBeInTheDocument();
-    expect(screen.getByTestId('message-reactions')).toHaveAttribute('data-active', 'null');
+    expect(screen.getByTestId('message-reactions')).toBeInTheDocument();
   });
 
   it('renders timestamp when message is last in group', () => {
@@ -207,10 +224,10 @@ describe('ChatMessage', () => {
     expect(selectedAfter).toEqual(selectedBefore);
   });
 
-  it('renders own avatar image from user profile for outgoing group-first', () => {
+  it('does not render an avatar for own messages in a group', () => {
     storeState.userProfile = { name: 'Alice', avatar: 'https://cdn.example/me.png' };
-    render(<ChatMessage {...baseProps({ isMe: true, msg: { id: 1, text: 'hi', sender: 'me', _groupPosition: 'first' } })} />);
-    expect(screen.getByAltText('me avatar')).toHaveAttribute('src', 'https://cdn.example/me.png');
+    render(<ChatMessage {...baseProps({ isMe: true, msg: { id: 1, text: 'hi', sender: 'me', _isLastInGroup: true } })} />);
+    expect(screen.queryByAltText('me avatar')).toBeNull();
   });
 
   it('keeps the avatar in the gutter for every message position, not just group-first text', () => {
@@ -227,6 +244,21 @@ describe('ChatMessage', () => {
     expect(bubble).toBeInTheDocument();
     expect(bubble.querySelector('[class*="msg-gutter-avatar"]')).toBeNull();
     expect(bubble.parentElement?.querySelector('[class*="msg-gutter-avatar"]')).not.toBeNull();
+  });
+
+  it('reserves the avatar gutter for every incoming bubble in a run', () => {
+    const { rerender } = render(
+      <ChatMessage {...baseProps({ msg: { id: 1, text: 'first', sender: 'Bob', _isLastInGroup: false } })} />,
+    );
+    const row = document.querySelector('.msg-message-row')!;
+    expect(row).toHaveClass('has-gutter');
+    expect(row.querySelector('[class*="msg-gutter-avatar"]')).toBeNull();
+    expect(row.querySelector('.w-8.shrink-0')).not.toBeNull();
+
+    rerender(
+      <ChatMessage {...baseProps({ msg: { id: 2, text: 'last', sender: 'Bob', _isLastInGroup: true } })} />,
+    );
+    expect(document.querySelector('.msg-message-row [class*="msg-gutter-avatar"]')).not.toBeNull();
   });
 
   it('keeps avatar and bubble in a non-wrapping row with gutter-aware width', () => {
@@ -378,7 +410,7 @@ describe('ChatMessage', () => {
     render(<ChatMessage {...baseProps({ onReactionMessage, onSetBounceMsgId })} />);
     fireEvent.click(bubbleEl());
     fireEvent.click(bubbleEl());
-    expect(onReactionMessage).toHaveBeenCalledWith(1, '👍');
+    expect(onReactionMessage).toHaveBeenCalledWith(1, '❤️');
     expect(onSetBounceMsgId).toHaveBeenCalledWith(1);
   });
 

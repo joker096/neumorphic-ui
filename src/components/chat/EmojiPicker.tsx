@@ -176,7 +176,7 @@ export function EmojiPicker({ theme, t, onSelect, onClose }: EmojiPickerProps) {
             aria-label={e.n}
             onClick={() => pick(e)}
             onKeyDown={(ev) => onGridKey(ev, i)}
-            className="aspect-square flex items-center justify-center text-lg rounded-lg hover:bg-[var(--accent)]/20 focus:bg-[var(--accent)]/30 focus:outline-none"
+            className="aspect-square flex items-center justify-center text-base sm:text-lg rounded-lg hover:bg-[var(--accent)]/20 focus:bg-[var(--accent)]/30 focus:outline-none"
           >
             {display(e)}
           </button>

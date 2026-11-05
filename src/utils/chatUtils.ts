@@ -197,18 +197,23 @@ export function chatListTime(
   });
 }
 
+/**
+ * Corner radii for a bubble inside a run of consecutive messages.
+ *
+ * Telegram and WhatsApp only pull a 6px tail onto the LAST bubble of a run, on
+ * the side facing the author's own column (outgoing bottom-right, incoming
+ * bottom-left). Every other position stays fully rounded so a run reads as one
+ * block instead of a chain of speech bubbles.
+ */
 export function getBubbleCornerClass(gp: GroupPosition, isMe: boolean): string {
-  if (isMe) {
-    if (gp === 'single') return 'rounded-xl rounded-br-sm'
-    if (gp === 'first') return 'rounded-t-xl rounded-bl-xl rounded-br-xl rounded-bl-sm'
-    if (gp === 'middle') return 'rounded-l-xl rounded-r-xl rounded-br-xl rounded-bl-xl'
-    if (gp === 'last') return 'rounded-tl-xl rounded-tr-xl rounded-br-sm rounded-bl-xl'
-    return 'rounded-xl rounded-br-sm'
-  } else {
-    if (gp === 'single') return 'rounded-xl rounded-bl-sm'
-    if (gp === 'first') return 'rounded-t-xl rounded-br-xl rounded-br-sm rounded-bl-xl'
-    if (gp === 'middle') return 'rounded-r-xl rounded-l-xl rounded-bl-xl rounded-br-xl'
-    if (gp === 'last') return 'rounded-tr-xl rounded-tl-xl rounded-bl-sm rounded-br-xl'
-    return 'rounded-xl rounded-bl-sm'
-  }
+  const isFirst = gp === 'first';
+  const isLast = gp === 'last';
+  const isSingle = gp === 'single';
+  // Telegram stack: single/last keep full bottom radius + tail (me=br, other=bl);
+  // first keeps full bottom but sharp top-corner (rounded-t-xl); middle
+  // rounds all except bottom-corner touches previous.
+  const tail = isMe ? 'rounded-br-sm' : 'rounded-bl-sm';
+  if (isSingle || isLast) return `rounded-xl ${tail}`;
+  if (isFirst) return 'rounded-t-xl rounded-b-xl'; // full top, sharp bottom-touch (grouped)
+  return 'rounded-xl rounded-t-sm rounded-b-sm'; // middle: smaller adjacent corners
 }

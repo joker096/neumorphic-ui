@@ -8,7 +8,8 @@
 import React from 'react';
 import { getICQStickerSrc } from '../../../lib/icqEmojis';
 import { getBubbleCornerClass, type GroupPosition } from '../../../utils/chatUtils';
-import { isMorseCode } from '../../MorseDecoder';
+import { decodeMorse, isMorseCode } from '../../MorseDecoder';
+import { floatsTimestamp } from './MessageTextBlock';
 import { useMessageGestures } from '../useMessageGestures';
 import type { MenuAnchorRect } from '../menuPosition';
 import { useSelfDestructExpiry, useMessageTranslation, useMorseToggle } from './useMessageChrome';
@@ -26,13 +27,15 @@ interface UseMessageBubbleArgs {
   onSetBounceMsgId: (id: string | number | null) => void;
   translate: any;
   lang: string;
+  /** True when the bubble renders a thread-replies chip under the text. */
+  hasThreads?: boolean;
   t: (key: string, vars?: Record<string, any>) => string;
 }
 
 export function useMessageBubble({
   msg, isMe, isChannel, chat, theme, selectionMode,
   onToggleSelect, onReply, onReactionMessage, onSetBounceMsgId,
-  translate, lang, t,
+  translate, lang, hasThreads, t,
 }: UseMessageBubbleArgs) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [menuAnchorRect, setMenuAnchorRect] = React.useState<MenuAnchorRect | null>(null);
@@ -44,11 +47,14 @@ export function useMessageBubble({
   const isGroupFirst =
     msg._groupPosition === "first" || msg._groupPosition === "single";
   const displayName = String(msg.sender || chat?.name || "");
-  const showAvatar = !isChannel;
-  // Avatars live in the outer gutter for every non-channel message, so identity
-  // stays readable for media, stickers and edits too — not just plain text.
   const isGroup = chat?.type === "group" || Array.isArray(chat?.members);
-  const showSenderName = showAvatar && isGroup && isGroupFirst && !isMe && !!displayName;
+  // Telegram rule: the avatar is drawn once per incoming run, on the last bubble.
+  // Outgoing messages never get one — the screen edge already marks "mine", and a
+  // column of self-avatars only steals width from the bubble.
+  const showAvatar = !isChannel && !isMe && msg._isLastInGroup !== false;
+  // The sender label owns the first bubble of a run, the avatar the last one, so
+  // the two never compete for the same spot (name on top, avatar at the bottom).
+  const showSenderName = !isChannel && isGroup && !isMe && isGroupFirst && !!displayName;
   const forwardedFrom = msg.forwarded ? (msg.forwardedFrom || msg.forwardedFromChat) : undefined;
   const expired = useSelfDestructExpiry(msg.selfDestructAt as number | undefined);
 
@@ -78,6 +84,13 @@ export function useMessageBubble({
     [msg.text, msg.type, theme],
   );
   const bubbleCornerClass = getBubbleCornerClass(msg._groupPosition as GroupPosition, isMe);
+  // Telegram/WhatsApp parity: a plain text bubble carries its clock on the last
+  // text line, so the bubble is one line shorter than a media bubble.
+  const bodyText = morseDecoded ? decodeMorse(String(msg.text ?? "")) : String(msg.text ?? "");
+  const inlineMeta =
+    !editing &&
+    msg._isLastInGroup === true &&
+    floatsTimestamp({ msg, text: bodyText, editing, isMorse, hasThreads: Boolean(hasThreads) });
 
   return {
     menuOpen, setMenuOpen, menuAnchorRect, openMessageMenu,
@@ -87,5 +100,6 @@ export function useMessageBubble({
     handlePointerDown, handlePointerUp, handlePointerLeave, handlePointerCancel,
     translation, translating, onTranslate,
     morseDecoded, toggleMorse, isMorse, stickerSrc, bubbleCornerClass,
+    bodyText, inlineMeta,
   };
 }

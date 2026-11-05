@@ -70,7 +70,7 @@ function fillCode(value = '123456') {
 async function startTwoFactorSession() {
   // The admin locales load asynchronously: wait until the page is translated
   // before interacting with it.
-  await screen.findByRole('heading', { name: 'Two-Factor Auth' })
+  await screen.findByRole('heading', { name: 'Two-Factor Auth' }, { timeout: 5000 })
   fireEvent.click(screen.getByRole('button', { name: 'start' }))
   await screen.findByText('true')
 }

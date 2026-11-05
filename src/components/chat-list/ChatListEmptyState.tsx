@@ -21,7 +21,7 @@ export function ChatListEmptyState({ view, isDark, activeFolder, t, setShowCreat
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   if (activeFolder === "groups") {
-    return <DataState status="empty" isDark={isDark} title={t("chat.noGroups")} description={t("chat.noGroupsHint")} action={setShowCreateGroup ? { label: t("chat.createGroup"), onClick: () => setShowCreateGroup(true) } : undefined} />;
+    return <DataState status="empty" title={t("chat.noGroups")} description={t("chat.noGroupsHint")} action={setShowCreateGroup ? { label: t("chat.createGroup"), onClick: () => setShowCreateGroup(true) } : undefined} />;
   }
   if (view === "chats") {
     return (
@@ -36,8 +36,7 @@ export function ChatListEmptyState({ view, isDark, activeFolder, t, setShowCreat
             isOpen={showInviteModal}
             onClose={() => setShowInviteModal(false)}
             inviteText={t("onboarding.inviteText")}
-            isDark={isDark}
-            t={t}
+                       t={t}
           />
         </Suspense>
       </>

@@ -1,15 +1,26 @@
 import React, { useRef, useCallback, useEffect, useImperativeHandle } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
+/** Imperative surface of the message scroller, shared by every consumer. */
+export interface MessageListHandle {
+  scrollToBottom: () => void;
+  scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') => void;
+  /** Jump to the "unread" anchor index (no-op when the list has none). */
+  scrollToUnread: () => void;
+  /** Indexes currently painted, or null before the first layout pass. */
+  getVisibleRange: () => { start: number; end: number } | null;
+}
+
 interface VirtualizedMessageListProps<T> {
   items: T[];
   estimateSize?: number;
   overscan?: number;
   className?: string;
-  isDark?: boolean;
   children: (item: T, index: number) => React.ReactNode;
   onScrollPosition?: (isNearBottom: boolean) => void;
   stickToBottom?: boolean;
+  /** Index of the first unread row; negative or absent when nothing is unread. */
+  unreadAnchorIndex?: number;
 }
 
 export function VirtualizedMessageListInner<T>(
@@ -18,12 +29,12 @@ export function VirtualizedMessageListInner<T>(
     estimateSize = 72,
     overscan = 5,
     className = '',
-    isDark = false,
     children,
     onScrollPosition,
     stickToBottom = false,
+    unreadAnchorIndex = -1,
   }: VirtualizedMessageListProps<T>,
-  ref: React.Ref<{ scrollToBottom: () => void; scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') => void }>
+  ref: React.Ref<MessageListHandle>
 ) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +55,20 @@ export function VirtualizedMessageListInner<T>(
       if (index >= 0 && index < items.length) {
         virtualizer.scrollToIndex(index, { align });
       }
+    },
+    scrollToUnread: () => {
+      if (unreadAnchorIndex >= 0 && unreadAnchorIndex < items.length) {
+        virtualizer.scrollToIndex(unreadAnchorIndex, { align: 'center' });
+      }
+    },
+    getVisibleRange: () => {
+      const visible = virtualizer.getVirtualItems();
+      if (visible.length === 0) return null;
+      // Items are ordered by index, but be explicit so an overscan shuffle can
+      // never produce an inverted range.
+      const first = visible[0].index;
+      const last = visible[visible.length - 1].index;
+      return { start: Math.min(first, last), end: Math.max(first, last) };
     },
   }), [virtualizer, items.length]);
 
@@ -123,5 +148,5 @@ export function VirtualizedMessageListInner<T>(
 }
 
 export const VirtualizedMessageList = React.forwardRef(VirtualizedMessageListInner) as <T>(
-  props: VirtualizedMessageListProps<T> & { ref?: React.Ref<{ scrollToBottom: () => void; scrollToIndex: (index: number, align?: 'start' | 'center' | 'end') => void }> }
+  props: VirtualizedMessageListProps<T> & { ref?: React.Ref<MessageListHandle> }
 ) => React.ReactElement;

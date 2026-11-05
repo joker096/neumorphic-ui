@@ -9,7 +9,6 @@ interface ChatMessageListProps {
   msgListRef: React.RefObject<any>;
   flatItems: any[];
   isNearBottom: boolean;
-  isDark: boolean;
   chat: any;
   stealthMode: boolean;
   deliveryReceipts: boolean;
@@ -17,14 +16,12 @@ interface ChatMessageListProps {
   chatSavedMessages: any[];
   searchQuery: string;
   swipeReplyId: string | number | null;
-  activeReactionPicker: string | number | null;
   theme: "light" | "dark";
   onReply: (msg: any) => void;
   onToggleSavedMessage: (chat: any, msg: any) => void;
   onSetActivePhotoUrl: (url: string) => void;
   onSetPhotoOpen: (open: boolean) => void;
   onSetActiveMediaMsg?: (msg: any) => void;
-  onSetActiveReactionPicker: (id: string | number | null) => void;
   onSwipeReplyId: (id: string | number | null) => void;
   onSetVideoOpen: (open: boolean) => void;
   onSetShowComments: (show: boolean) => void;
@@ -47,15 +44,16 @@ interface ChatMessageListProps {
   onToggleSelect?: (id: string | number) => void;
   onSelect?: (msg: any) => void;
   onScrollPosition: (nearBottom: boolean) => void;
+  unreadAnchorIndex?: number;
 }
 
 export function ChatMessageList({
-  msgListRef, flatItems, isNearBottom, isDark, chat, stealthMode,
+  msgListRef, flatItems, isNearBottom, chat, unreadAnchorIndex, stealthMode,
   deliveryReceipts, readReceipts, chatSavedMessages, searchQuery,
-  swipeReplyId, activeReactionPicker, theme,
+  swipeReplyId, theme,
   onReply, onToggleSavedMessage, onSetActivePhotoUrl, onSetPhotoOpen,
   onSetActiveMediaMsg,
-  onSetActiveReactionPicker, onSwipeReplyId, onSetVideoOpen, onSetShowComments,
+  onSwipeReplyId, onSetVideoOpen, onSetShowComments,
   onSetActivePostId,   onSetBounceMsgId, onReactionMessage, onPollVote, onAction, onForward, onDelete,
   onJumpToMessage, threadCountOf, onOpenThread,
   selectionMode, selectedIds, onToggleSelect, onSelect,
@@ -92,9 +90,9 @@ export function ChatMessageList({
       items={items}
       estimateSize={72}
       overscan={3}
-      isDark={isDark}
-      className="p-[var(--message-list-pad,1rem)] sm:p-[var(--message-list-pad-sm,1.5rem)]"
+      className="p-[var(--message-list-pad,0.75rem)] sm:p-[var(--message-list-pad-sm,1rem)]"
       stickToBottom={isNearBottom}
+      unreadAnchorIndex={unreadAnchorIndex ?? (dividerIndex > 0 ? dividerIndex : undefined)}
       onScrollPosition={onScrollPosition}
     >
       {(msg: any) =>
@@ -112,14 +110,12 @@ export function ChatMessageList({
           chatSavedMessages={chatSavedMessages}
           searchQuery={searchQuery}
           swipeReplyId={swipeReplyId}
-          activeReactionPicker={activeReactionPicker}
           theme={theme}
           onReply={onReply}
           onToggleSavedMessage={onToggleSavedMessage}
           onSetActivePhotoUrl={onSetActivePhotoUrl}
           onSetPhotoOpen={onSetPhotoOpen}
           onSetActiveMediaMsg={onSetActiveMediaMsg}
-          onSetActiveReactionPicker={onSetActiveReactionPicker}
           onSwipeReplyId={onSwipeReplyId}
           onSetVideoOpen={onSetVideoOpen}
           onSetShowComments={onSetShowComments}

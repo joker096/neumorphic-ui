@@ -3,18 +3,17 @@ import { DataState } from "../ui/DataState";
 import { SECONDARY_CAPTION_CLASS } from "../ui/textClasses";
 
 interface ChatListBotsProps {
+  isDark?: boolean;
   bots: any[];
   onOpenBot?: (botId: string) => void;
-  isDark: boolean;
   t: (key: string, options?: any) => string;
 }
 
-export function ChatListBots({ bots, onOpenBot, isDark, t }: ChatListBotsProps) {
+export function ChatListBots({ bots, onOpenBot, t }: ChatListBotsProps) {
   if (bots.length === 0) {
     return (
       <DataState
         status="empty"
-        isDark={isDark}
         title={t("chat.noBots")}
         description={t("chat.noBotsHint", "Создайте бота для автоматизации")}
       />

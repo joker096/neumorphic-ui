@@ -59,4 +59,30 @@ describe('useVoiceBlobUrl', () => {
     unmount();
     expect(revokeSpy).toHaveBeenCalledWith('blob:fresh');
   });
+
+  it('rebuilds fresh object url from IDB blob after reload (regression: playback/store contract)', async () => {
+    const blob = new Blob(['audio after reload'], { type: 'audio/webm' });
+    voiceStore.getVoiceBlob.mockResolvedValue(blob);
+    const createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:rebuilt');
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    const { result, unmount: firstUnmount } = renderHook(() => useVoiceBlobUrl('v_reload', undefined));
+    await waitFor(() => expect(result.current).toBe('blob:rebuilt'));
+    expect(voiceStore.getVoiceBlob).toHaveBeenCalledWith('v_reload');
+
+    firstUnmount();
+    expect(revokeSpy).toHaveBeenCalledWith('blob:rebuilt');
+    revokeSpy.mockClear();
+
+    const { result: result2, unmount: secondUnmount } = renderHook(() => useVoiceBlobUrl('v_reload', undefined));
+    await waitFor(() => expect(result2.current).toBe('blob:rebuilt'));
+    secondUnmount();
+  });
+
+  it('falls back to undefined when store returns no blob (regression: playback best-effort)', async () => {
+    voiceStore.getVoiceBlob.mockResolvedValue(undefined);
+    const { result } = renderHook(() => useVoiceBlobUrl('missing', undefined));
+    await waitFor(() => expect(voiceStore.getVoiceBlob).toHaveBeenCalledWith('missing'));
+    expect(result.current).toBeUndefined();
+  });
 });

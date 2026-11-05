@@ -118,14 +118,14 @@ function PaymentsTab({ isDark }: { isDark?: boolean }) {
   const state = useServiceData(() => payments.getInvoices(), []);
 
   if (state.status === "notConfigured") return <NotConfiguredState isDark={isDark} feature="payments" />;
-  if (state.status === "error") return <DataState status="error" isDark={isDark} title={t('workplace.paymentsError')} description={state.error} />;
+  if (state.status === "error") return <DataState status="error" title={t('workplace.paymentsError')} description={state.error} />;
 
   return (
     <Panel>
       {state.status === "loading" ? (
         <Skeleton />
       ) : state.data.length === 0 ? (
-        <DataState status="empty" isDark={isDark} title={t('workplace.noInvoices')} description={t('workplace.invoicesAppear')} />
+        <DataState status="empty" title={t('workplace.noInvoices')} description={t('workplace.invoicesAppear')} />
       ) : (
         state.data.map((inv) => (
           <PaymentCard

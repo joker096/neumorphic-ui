@@ -1,0 +1,84 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--height-button);
+  padding: 0 24px;
+  border-radius: var(--radius-input);
+  font-size: var(--text-button);
+  font-weight: var(--text-button-weight);
+  line-height: 20px;
+  transition: background-color 140ms ease, color 140ms ease, transform 120ms ease, opacity 140ms ease;
+  user-select: none;
+}
+
+.root:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.root:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--primary-pressed);
+}
+
+.secondary {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.secondary:active:not(:disabled) {
+  color: var(--primary-pressed);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--primary);
+}
+
+.ghost:active:not(:disabled) {
+  opacity: 0.7;
+}
+
+.rounded {
+  border-radius: var(--radius-input);
+}
+
+.pill {
+  border-radius: var(--radius-pill);
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
