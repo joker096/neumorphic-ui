@@ -1,0 +1,42 @@
+.screen {
+  background: var(--bg);
+}
+
+.avatarWrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 24px auto 24px;
+}
+
+.edit {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.edit:active {
+  transform: scale(0.92);
+  background: var(--primary-pressed);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+
+.footer {
+  padding: 8px 24px calc(16px + env(safe-area-inset-bottom));
+}

@@ -1,0 +1,94 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--height-input);
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  background: var(--surface);
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.field:focus-within {
+  border: 1.5px solid var(--primary);
+  background: var(--primary-soft);
+}
+
+.field.invalid {
+  border-color: var(--danger);
+}
+
+.country {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  color: var(--text-secondary);
+}
+
+.flag {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.chevron {
+  color: var(--text-secondary);
+}
+
+/* Sits invisibly over the flag so the native picker drives the country. */
+.select {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 68px;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  flex: none;
+}
+
+.code {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--text-body);
+  font-weight: var(--text-body-weight);
+  font-variant-numeric: tabular-nums;
+}
+
+.input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.error {
+  padding-left: 4px;
+  font-size: var(--text-caption);
+  color: var(--danger);
+}

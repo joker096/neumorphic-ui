@@ -1,0 +1,54 @@
+.screen {
+  background: var(--bg);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 16px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: var(--text);
+}
+
+.back:active {
+  transform: scale(0.96);
+  opacity: 0.7;
+}
+
+.content {
+  justify-content: center;
+  gap: 20px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.footer {
+  padding: 0 16px calc(8px + env(safe-area-inset-bottom));
+  animation: slideUp 0.24s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

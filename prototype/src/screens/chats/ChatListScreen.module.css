@@ -1,0 +1,44 @@
+.screen {
+  position: relative;
+  background: var(--bg);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--on-primary);
+}
+
+.iconBtn:active {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.list {
+  padding: 8px 0 96px;
+}
+
+.fab {
+  position: absolute;
+  right: 20px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 0 8px 24px rgba(47, 107, 255, 0.4);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.fab:active {
+  transform: scale(0.94);
+  background: var(--primary-pressed);
+}

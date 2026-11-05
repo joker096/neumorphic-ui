@@ -1,0 +1,17 @@
+.screen {
+  background: var(--bg);
+}
+
+.body {
+  justify-content: flex-start;
+  gap: 28px;
+  padding-top: 32px;
+}
+
+.footer {
+  padding: 0 16px calc(8px + env(safe-area-inset-bottom));
+}
+
+.cta {
+  padding: 8px 8px 0;
+}

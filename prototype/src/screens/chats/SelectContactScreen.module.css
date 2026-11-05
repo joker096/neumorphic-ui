@@ -1,0 +1,94 @@
+.screen {
+  background: var(--bg);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--on-primary);
+}
+
+.iconBtn:active {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.body {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.quick {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 24px;
+  text-align: left;
+}
+
+.quick:active {
+  background: var(--surface);
+}
+
+.quickIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.quickLabel {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.qr {
+  color: var(--text-secondary);
+}
+
+.list {
+  margin-top: 8px;
+  padding-bottom: 24px;
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 24px;
+  text-align: left;
+}
+
+.contact:active {
+  background: var(--surface);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.phone {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}

@@ -1,0 +1,172 @@
+.row {
+  display: flex;
+  padding: 2px 16px;
+  transition: background 0.15s ease;
+}
+
+.rowIn {
+  justify-content: flex-start;
+}
+
+.rowOut {
+  justify-content: flex-end;
+}
+
+.grouped {
+  padding-top: 2px;
+}
+
+.selected {
+  background: var(--primary-soft);
+}
+
+.bubble {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 75%;
+  padding: 8px 14px 6px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  word-break: break-word;
+}
+
+.in {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.out {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.tailIn {
+  border-bottom-left-radius: 4px;
+}
+
+.tailOut {
+  border-bottom-right-radius: 4px;
+}
+
+.bubbleMedia {
+  padding: 4px 4px 6px;
+}
+
+.text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.images {
+  display: grid;
+  gap: 4px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.imagesSingle {
+  grid-template-columns: 1fr;
+}
+
+.imagesGrid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.image {
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.08);
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image:active {
+  transform: scale(0.98);
+}
+
+.voice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 190px;
+  padding: 2px 2px 0;
+}
+
+.playBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  color: inherit;
+  cursor: pointer;
+}
+
+.in .playBtn {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.playBtn:active {
+  transform: scale(0.94);
+}
+
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1 1 auto;
+  height: 26px;
+}
+
+.bar {
+  flex: 1 1 auto;
+  min-width: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+.barActive {
+  opacity: 1;
+}
+
+.duration {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 14px;
+  opacity: 0.8;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+}

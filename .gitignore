@@ -1,0 +1,33 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+*.apk
+*.aab
+*.idsig
+*.keystore
+*.jks
+*.p12
+.env*
+!.env.example
+*.db
+*.db-wal
+*.db-shm
+data/
+prototype/node_modules/
+android/.gradle/
+android/.vendor-work/
+src-tauri/target/
+test-results/
+screen/
+BundleConfig.pb
+.aider*
+
+# open-mem: Auto-generated folder context files.
+# Uncomment to exclude from version control (recommended for large projects):
+# **/AGENTS.md
+
+# open-mem: local tool config, not for the repo
+.open-mem/
