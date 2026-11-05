@@ -1,16 +1,13 @@
 [
   {
     "relation": [
-      "delegate_permission/common.handle_all_urls",
-      "delegate_permission/common.get_login_creds"
+      "delegate_permission/common.handle_all_urls"
     ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.messanger.e2e",
       "sha256_cert_fingerprints": [
-        "FA:2A:B5:CE:3F:8D:1A:4E:7B:6C:5F:0A:3D:9B:2C:4F:5E:8D:7A:6B:3C:2D:1E:0F:9A:8B:7C:6D:5E:4F:3A:2B:1C:0D",
-        "AB:CD:EF:12:34:56:78:9A:BC:DE:F0:11:22:33:44:55:66:77:88:99:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD",
-        "11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11"
+        "13:36:84:83:A8:79:06:AD:1A:61:97:86:91:03:9A:BA:DE:F0:70:E7:1C:9B:52:8E:E4:73:A2:73:A3:9F:86:3D"
       ]
     }
   }
